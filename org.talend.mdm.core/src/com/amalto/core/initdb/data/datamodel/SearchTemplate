@@ -37,15 +37,15 @@
      &lt;xsd:element name="HierarchySearchItem"&gt;
   &lt;xsd:complexType&gt;
 &lt;xsd:all&gt;
-&lt;xsd:element maxOccurs="1" minOccurs="1" name="SearchName" type="xsd:string"/&gt;
+&lt;xsd:element maxOccurs="1" minOccurs="1" name="HierarchySearchName" type="xsd:string"/&gt;
 &lt;xsd:element maxOccurs="1" minOccurs="1" name="Owner" type="xsd:string"/&gt;
 &lt;xsd:element maxOccurs="1" minOccurs="1" name="HierarchyRelation" type="xsd:boolean"/&gt;
                 &lt;xsd:element maxOccurs="1" minOccurs="1" name="HierarchySearchCriterias"&gt;
 &lt;xsd:complexType&gt;
 &lt;xsd:sequence&gt;
-&lt;xsd:element maxOccurs="1" minOccurs="1" name="concept" type="xsd:string"/&gt;
-&lt;xsd:element maxOccurs="1" minOccurs="1" name="labelXpath" type="xsd:string"/&gt;
-&lt;xsd:element maxOccurs="1" minOccurs="0" name="fkXpath" type="xsd:string"/&gt;
+&lt;xsd:element maxOccurs="1" minOccurs="1" name="Concept" type="xsd:string"/&gt;
+&lt;xsd:element maxOccurs="1" minOccurs="1" name="LabelXpath" type="xsd:string"/&gt;
+&lt;xsd:element maxOccurs="1" minOccurs="0" name="FkXpath" type="xsd:string"/&gt;
 &lt;/xsd:sequence&gt;
 &lt;/xsd:complexType&gt;
 &lt;/xsd:element&gt;
@@ -53,7 +53,7 @@
 &lt;/xsd:complexType&gt;
 &lt;xsd:unique name="HierarchySearchItem"&gt;
 &lt;xsd:selector xpath="."/&gt;
-&lt;xsd:field xpath="SearchName"/&gt;
+&lt;xsd:field xpath="HierarchySearchName"/&gt;
 &lt;/xsd:unique&gt;
 &lt;/xsd:element&gt;
 &lt;/xsd:schema&gt;
