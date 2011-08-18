@@ -1,33 +1,33 @@
 package org.talend.mdm.bulkload.client;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.io.*;
 
 public class BulkloadClient {
-	private static final String LOAD_ERR="An error occured:";
-	private static final Pattern LOAD_ERR_PATTERN=Pattern.compile("(.*?)<h1>"+LOAD_ERR+"(.*?)</h1>(.*?)");
-	String url;
-	String username;
-	String password;
-	String universe;
-	String cluster;
-	String concept;
-	String datamodel;
-	BulkloadOptions options=new BulkloadOptions();
+
+    private String url;
+
+	private String username;
+
+	private String password;
+
+    private String universe;
+
+    private String cluster;
+
+    private String concept;
+
+    private String dataModel;
+
+    private BulkloadOptions options = new BulkloadOptions();
 	
-	public BulkloadClient(String url, String username,String password,String universe,String cluster,String concept,String datamodel) {
+	public BulkloadClient(String url, String username, String password, String universe, String cluster, String concept, String dataModel) {
 		this.url=url;
 		this.username=username;
 		this.password=password;
 		this.universe=universe;
 		this.cluster=cluster;
 		this.concept=concept;
-		this.datamodel=datamodel;
+		this.dataModel = dataModel;
 	}
 
 	public String getUrl() {
@@ -79,11 +79,11 @@ public class BulkloadClient {
 	}
 
 	public String getDatamodel() {
-		return datamodel;
+		return dataModel;
 	}
 
-	public void setDatamodel(String datamodel) {
-		this.datamodel = datamodel;
+	public void setDatamodel(String dataModel) {
+		this.dataModel = dataModel;
 	}
 
 	public BulkloadOptions getOptions() {
@@ -95,21 +95,12 @@ public class BulkloadClient {
 	}
 
     /**
-     * @param items
-     * @throws Exception
-     * @deprecated Consider using {@link #load(java.io.InputStream)}
-     */
-	public void load(List<String > items) throws Exception{
-		doLoad(items);
-	}
-	/**
 	 * load from a huge xml string
-	 * @param xmlString
-     * @deprecated Consider using {@link #load(java.io.InputStream)}
+	 * @param xmlString A full xml document.
+     * @throws Exception Thrown in case of bulk load error.
 	 */
-	public void load(String xmlString)throws Exception {
-		List<String > items=BulkloadClientUtil.getItemXmls(xmlString);			
-		doLoad(items);
+	public void load(String xmlString) throws Exception {
+		load(new ByteArrayInputStream(xmlString.getBytes("UTF-8")));
 	}
 
     /**
@@ -128,13 +119,13 @@ public class BulkloadClient {
      * </p>
      *
      * @param xmlDocuments A stream that contains several XML documents.
-     * @throws Exception Thrown in case of communication error
+     * @throws Exception Thrown in case of bulk load error
      */
     public void load(InputStream xmlDocuments) throws Exception {
         BulkloadClientUtil.bulkload(url,
                 cluster,
                 concept,
-                datamodel,
+                dataModel,
                 options.isValidate(),
                 options.isSmartpk(),
                 xmlDocuments,
@@ -165,75 +156,11 @@ public class BulkloadClient {
         return BulkloadClientUtil.bulkload(url,
                 cluster,
                 concept,
-                datamodel,
+                dataModel,
                 options.isValidate(),
                 options.isSmartpk(),
                 username,
                 password,
                 universe);
     }
-	
-	private void doLoad(List<String> items)throws Exception {
-		if(items.size()>options.getArraySize()) {
-			int loop=items.size()/options.getArraySize();
-			int left=items.size()-options.getArraySize()*loop;
-			for(int i=0; i<loop; i++) {
-				List<String> subItems=items.subList(i*options.getArraySize(), (i+1)*options.getArraySize());
-				String result=BulkloadClientUtil.bulkload(url, cluster, concept, datamodel, options.isValidate(), options.isSmartpk(), subItems, username, password,universe);
-				if(result!=null && result.indexOf(LOAD_ERR)!=-1){						
-					Matcher m=LOAD_ERR_PATTERN.matcher(result);
-					if(m.matches()){
-						throw new Exception(m.group(2));
-					}
-				}
-			}
-			if(left>0) {
-				List<String> subItems=items.subList(loop*options.getArraySize(), loop*options.getArraySize()+left);
-				String result=BulkloadClientUtil.bulkload(url, cluster, concept, datamodel, options.isValidate(), options.isSmartpk(), subItems, username, password,universe);
-				if(result!=null && result.indexOf(LOAD_ERR)!=-1){						
-					Matcher m=LOAD_ERR_PATTERN.matcher(result);
-					if(m.matches()){
-						throw new Exception(m.group(2));
-					}
-				}
-			}
-		}else {			
-			String result=BulkloadClientUtil.bulkload(url, cluster, concept, datamodel, options.isValidate(), options.isSmartpk(), items, username, password,universe);
-			if(result!=null && result.indexOf(LOAD_ERR)!=-1){						
-				Matcher m=LOAD_ERR_PATTERN.matcher(result);
-				if(m.matches()){
-					throw new Exception(m.group(2));
-				}
-			}			
-		}
-	}
-	
-	/**
-	 * load from File
-	 * @param inputXmlFile
-     * @deprecated Consider using {@link #load(java.io.InputStream)}
-	 */
-	public void load(Reader inputXmlFile) {
-		BufferedReader reader=null;
-		try {
-			reader=new BufferedReader(inputXmlFile);
-			StringBuffer sb=new StringBuffer();
-			String line=reader.readLine();
-			while(line!=null) {
-				sb=sb.append(line);
-				line=reader.readLine();
-			}
-			List<String > items=BulkloadClientUtil.getItemXmls(sb.toString());			
-			doLoad(items);
-		}catch(Exception e) {
-			e.printStackTrace();
-		}finally {
-			if(reader!=null)
-				try {
-					reader.close();
-				} catch (IOException e) {
-					
-				}
-		}
-	}
 }
