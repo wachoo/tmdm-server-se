@@ -2665,7 +2665,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                             var fnLoadData = function(oNode, fnCallback) {
                                 ItemsBrowserInterface
                                         .getChildrenWithKeyMask(
-                                                oNode.index,
+                                                oNode.itemData == null ? oNode.index : oNode.itemData.nodeId,
                                                 YAHOO.widget.TreeView.nodeCount,
                                                 language,
                                                 false,
@@ -2738,7 +2738,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                             var fnLoadData = function(oNode, fnCallback) {
                                 ItemsBrowserInterface
                                         .getChildrenWithBindPath(
-                                                oNode.index,
+                                                oNode.itemData == null ? oNode.index : oNode.itemData.nodeId,
                                                 YAHOO.widget.TreeView.nodeCount,
                                                 language,
                                                 false,
@@ -3622,7 +3622,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                 // newItem, itemTree, treeIndex);
                                 ItemsBrowserInterface
                                         .getChildrenWithKeyMask(
-                                                oNode.index,
+                                                oNode.itemData == null ? oNode.index : oNode.itemData.nodeId,
                                                 YAHOO.widget.TreeView.nodeCount,
                                                 language,
                                                 false,
@@ -3693,7 +3693,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                 // newItem, itemTree, treeIndex);
                                 ItemsBrowserInterface
                                         .getChildrenWithBindPath(
-                                                oNode.index,
+                                                oNode.itemData == null ? oNode.index : oNode.itemData.nodeId,
                                                 YAHOO.widget.TreeView.nodeCount,
                                                 language,
                                                 false,
@@ -4349,7 +4349,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         var itemTree = itemTreeList[treeIndex];        
         // node.itemData.nodeId = id;
         // edit by ymli: fix the bug:0013463
-        ItemsBrowserInterface.updateNode(id, value, treeIndex,
+        ItemsBrowserInterface.updateNode(node.itemData == null ? id : node.itemData.nodeId, value, treeIndex,
                 function(_result) {
         	if(node!=null){
                     node.updateNodeValue(value);
@@ -4625,7 +4625,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         newNode.itemData.value = "";
         newNode.itemData.realValue = "";
         
-        ItemsBrowserInterface.updateNodeDspValue(treeIndex, siblingNode.index,
+        ItemsBrowserInterface.updateNodeDspValue(treeIndex, siblingNode.itemData == null ? siblingNode.index : siblingNode.itemData.nodeId,
                 function(result) {
         			if (!ifdeep)
 	                    if (result != null)
@@ -4636,7 +4636,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         
         // remove by ymli; fix the bug:0013463
         // newNode.updateValue(" ");
-        ItemsBrowserInterface.cloneNode(siblingId, newNode.index, treeIndex,ifdeep,
+        ItemsBrowserInterface.cloneNode(siblingId, newNode.itemData == null ? newNode.index : newNode.itemData.nodeId, treeIndex,ifdeep,
                 function(result) {
                     amalto.core.ready(result);
                 });
@@ -4647,7 +4647,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         var fnLoadData = function(oNode, fnCallback) {
             // getChildren(oNode.index,fnCallback, false, newItem, itemTree,
             // treeIndex);
-            ItemsBrowserInterface.getChildrenWithBindPath(oNode.index,
+            ItemsBrowserInterface.getChildrenWithBindPath(oNode.itemData == null ? oNode.index : oNode.itemData.nodeId,
                     YAHOO.widget.TreeView.nodeCount, language, false,
                     treeIndex, Ext.get(oNode.index + "TypeSelector") == null
                             ? null
@@ -4816,7 +4816,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         var fnLoadData = function(oNode, fnCallback) {
             // getChildren(oNode.index,fnCallback, false, newItem, itemTree,
             // treeIndex);
-            ItemsBrowserInterface.getChildren(oNode.index,
+            ItemsBrowserInterface.getChildren(oNode.itemData == null ? oNode.index : oNode.itemData.nodeId,
                     YAHOO.widget.TreeView.nodeCount, language, false,
                     treeIndex, null, function(result) {
                         if (result == null) {
@@ -4886,7 +4886,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                 var parentNode = nodeToDel.parent;
                 itemNodes.remove(nodeToDel);
                 itemTree.removeNode(nodeToDel, true);
-                ItemsBrowserInterface.removeNode(id, treeIndex, value,
+                ItemsBrowserInterface.removeNode(nodeToDel.itemData == null ? id : nodeToDel.itemData.nodeId, treeIndex, value,
                         function(result) {
                             amalto.core.ready(result);
                         });
@@ -5668,9 +5668,11 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                 + treeIndex);
         var dataObject = tbDetail && tbDetail.getTopToolbar() ? tbDetail
                 .getTopToolbar().dataObject : conceptName;
+        var itemTree = itemTreeList[treeIndex];
+        var node = itemTree.getNodeByIndex(nodeId);  
         ItemsBrowserInterface.countForeignKey_filter(dataObject,
                 xpathForeignKey, xpathInfoForeignKey, fkFilter, treeIndex,
-                nodeId, function(count) {
+                node.itemData == null ? nodeId : node.itemData.nodeId, function(count) {
                     // Display a pop-up window to search for foreign keys
                     if (foreignKeyWindow) {
                         foreignKeyWindow.hide();
@@ -5697,7 +5699,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         proxy : new Ext.ux.data.ImprovedDWRProxy({
                             dwrFunction : ItemsBrowserInterface.getForeignKeyPolymTypeList,
                             dwrAdditional : [xpath4GetForeignKeyPolymTypeList,
-                                    treeIndex, nodeId, language]
+                                    treeIndex, node.itemData == null ? nodeId : node.itemData.nodeId, language]
                         }),
                         reader : new Ext.data.JsonReader({
                                     root : 'rows',
@@ -5757,7 +5759,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         dwrFunction : ItemsBrowserInterface.getForeignKeyListWithCount,
                         dwrAdditional : [dataObject, xpathForeignKey,
                                 xpathInfoForeignKey, fkFilter, treeIndex,
-                                nodeId]
+                                node.itemData == null ? nodeId : node.itemData.nodeId]
                             // , Ext.getCmp('foreign-key-filter').getValue()]}
                     });
 
@@ -5817,9 +5819,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                 itemSelector : 'div.search-item',
                                 onSelect : function(record) {
                                     this.collapse();
-                                    foreignKeyWindow.hide();
-                                    var itemTree = itemTreeList[treeIndex];
-                                    var node = itemTree.getNodeByIndex(nodeId);
+                                    foreignKeyWindow.hide();                                      
                                     node.itemData.value = record.get("keys");
                                     node.itemData.valueInfo = record
                                             .get("infos");
@@ -6155,7 +6155,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
             var value = DWRUtil.getValue(nodeId + 'Value');
             node.resetErrorMessage(nodeId);
             DWREngine.setAsync(false);
-            ItemsBrowserInterface.validateNode(language, nodeId, value, treeIndex,
+            ItemsBrowserInterface.validateNode(language, node.itemData == null ? nodeId : node.itemData.nodeId, value, treeIndex,
                     function(result) {
                         if (result == "null"){
                             if(!atuoValidationFlag){

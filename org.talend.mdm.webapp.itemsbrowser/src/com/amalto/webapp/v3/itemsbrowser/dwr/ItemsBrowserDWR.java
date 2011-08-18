@@ -515,7 +515,11 @@ public class ItemsBrowserDWR {
 
             // added by lzhang, clean the update status session
             ctx.getSession().setAttribute("updatedPath" + docIndex, new HashMap<String, UpdateReportItem>()); //$NON-NLS-1$   
-            ctx.getSession().setAttribute("cloneXpath" + docIndex, null); //$NON-NLS-1$   
+            ctx.getSession().setAttribute("cloneXpath" + docIndex, null); //$NON-NLS-1$  
+
+            // added by lzhang
+            if (ctx.getSession().getAttribute("itemDocument" + docIndex + "_xmlstring") != null) //$NON-NLS-1$ //$NON-NLS-2$
+                ctx.getSession().setAttribute("itemDocument" + docIndex + "_xmlstring", null);//$NON-NLS-1$ //$NON-NLS-2$
 
             return ids != null ? Util.joinStrings(ids, ".") : null; //$NON-NLS-1$
 
