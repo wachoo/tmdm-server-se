@@ -10,6 +10,7 @@
     <property name="jboss.endorsed.dir" value="${jboss.dir}/lib/endorsed"/>
 	<property name="jboss.bin.dir" value="${jboss.dir}/bin"/>
 	<property name="jboss.conf.dir" value="${jboss.instance.dir}/conf"/>
+    <property name="jboss.conf.data" value="${jboss.instance.dir}/data"/>
 	<property name="jboss.web.deployer" value="${jboss.deploy.dir}/jboss-web.deployer"/>
 	<property name="exist.version" value="exist-1.4.0-rev11706-TalendPatch"/>
 
@@ -54,6 +55,10 @@
 		
         <copy todir="${jboss.conf.dir}" overwrite="true">
             <fileset dir="deploy/conf"></fileset>            
+        </copy>
+
+        <copy todir="${jboss.conf.data}" overwrite="true">
+            <fileset dir="deploy/data"></fileset>
         </copy>
 
         <copy todir="${jboss.web.deployer}" overwrite="true">
