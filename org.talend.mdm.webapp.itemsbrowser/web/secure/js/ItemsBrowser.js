@@ -3300,7 +3300,10 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
                     amalto.core.doLayout();
                 });
-
+        if (handleCallback.enableGrid) {
+            handleCallback
+                    .enableGrid();
+        }
         amalto.core.ready();
     }
     

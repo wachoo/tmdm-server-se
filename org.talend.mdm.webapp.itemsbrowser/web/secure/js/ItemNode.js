@@ -17,14 +17,14 @@
 amalto.itemsbrowser.ItemNode = function(itemData, newItem, treeIndex, oParent, expanded, hasIcon,isReadOnlyinItem,parentLink) {
     //if (oData) 
     {
-        this.init(null, oParent, expanded);
-        this.initContent(itemData, newItem,treeIndex, hasIcon,isReadOnlyinItem,parentLink);
         this.itemData = itemData;
         this.newItem = newItem;
         this.treeIndex = treeIndex;
         this.hasIcon = hasIcon;
         this.isReadOnlyinItem = isReadOnlyinItem;
         this.parentLink = parentLink;
+        this.initContent(itemData, newItem,treeIndex, hasIcon,isReadOnlyinItem,parentLink);
+        this.init(null, oParent, expanded);
     }
 };
 
@@ -554,5 +554,4 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
         sb[sb.length] = '</div>';
         return sb.join("");
     }
-
 });
