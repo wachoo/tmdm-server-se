@@ -153,7 +153,7 @@ public class AccordionMenus extends ContentPanel {
             super(html);
             this.setStyleName("menu-item"); //$NON-NLS-1$
             this.menuBean = menuBean;
-            this.getElement().setAttribute("id", "menu-" + menuBean.getContext());
+            this.getElement().setAttribute("id", "menu-" + menuBean.getContext()); //$NON-NLS-1$//$NON-NLS-2$
         }
 
         public MenuBean getMenuBean() {

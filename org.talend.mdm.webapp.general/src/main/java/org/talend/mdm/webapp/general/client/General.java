@@ -53,29 +53,29 @@ public class General implements EntryPoint {
 
     private native void registerPubService()/*-{
         var workspace = @org.talend.mdm.webapp.general.client.layout.WorkSpace::getInstance()();
-        //创建一个模拟tabPanel的JavaScript对象，模拟extjs老代码的行为
+        //Create a fake TabPanel JavaScript Object, imitate original extjs code behaviour
         var tabPanel = {
-        // 模拟getItem方法， 通过itemId返回对应的contentPanel
+        // imitate getItem method, return corresponding contentPanel by itemId
         getItem : function(itemId){
         return workspace.@org.talend.mdm.webapp.general.client.layout.WorkSpace::getItem(Ljava/lang/String;)(itemId);
         },
-        //模拟add方法，将item表示的panel对象添加到gxt的tabPanel上
+        // imitate add method, add fake extjs panel to gxt's TabPanel
         add : function(item){
         workspace.@org.talend.mdm.webapp.general.client.layout.WorkSpace::addWorkTab(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(item.getItemId(), item);
         },
         doLayout : function(){
         workspace.@org.talend.mdm.webapp.general.client.layout.WorkSpace::doLayout();
         },
-        //激活itemId
+        //select tabItem by itemId
         setSelection : function(itemId){
         workspace.@org.talend.mdm.webapp.general.client.layout.WorkSpace::setSelection(Ljava/lang/String;)(itemId);
         }
         };
-        //返回全局的tabPanel
+        // return global TabPanel
         $wnd.amalto.core.getTabPanel = function(){
         return tabPanel;
         };
-        //模拟extjs老项目的doLayout方法
+        // imitate original extjs project doLayout method
         $wnd.amalto.core.doLayout = function(){
         tabPanel.doLayout();
         };
