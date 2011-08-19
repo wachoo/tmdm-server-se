@@ -110,7 +110,13 @@ public class ItemsListPanel extends ContentPanel {
                 }
 
                 public void onFailure(Throwable caught) {
-                    MessageBox.alert(MessagesFactory.getMessages().error_title(), caught.getMessage(), null);
+                	if(caught.getMessage().indexOf("SessionTimeOut") != -1) {//$NON-NLS-1$
+                		Window.Location.replace("/talendmdm/secure/");//$NON-NLS-1$
+                	}
+                	else { 
+                		MessageBox.alert(MessagesFactory.getMessages().error_title(), caught.getMessage(), null);
+                	}
+                	
                     callback.onSuccess(new BasePagingLoadResult<ItemBean>(new ArrayList<ItemBean>(), 0, 0));
                 }
             });
