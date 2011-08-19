@@ -169,7 +169,7 @@ import com.sun.xml.xsom.util.DomAnnotationParserFactory;
 
 /**
  * @author Bruno GRieder
- * 
+ *
  */
 @SuppressWarnings("deprecation")
 public class Util {
@@ -704,7 +704,7 @@ public class Util {
     }
 
     /**
-     * 
+     *
      * @param doc
      * @param type
      * @return
@@ -811,7 +811,7 @@ public class Util {
 
     /**
      * Check if a local or remote component for the JNDI Name exists
-     * 
+     *
      * @param RMIProviderURL
      * @param jndiName
      */
@@ -849,7 +849,7 @@ public class Util {
     /**
      * Retrieve the local (if RMIProvideURL is null) or remote component for the particular local JNDI Name (c) bgrieder
      * - lend to Amalto
-     * 
+     *
      * @param RMIProviderURL
      * @param jndiName
      */
@@ -912,7 +912,7 @@ public class Util {
 
     /**
      * Get the method of a component by its name (c) bgrieder - lend to Amalto
-     * 
+     *
      * @param component
      * @param methodName
      * @return the Method - niull if not found
@@ -930,7 +930,7 @@ public class Util {
 
     /**
      * Dumps info on a class
-     * 
+     *
      * @param clazz
      */
     public static void dumpClass(Class<?> clazz) {
@@ -966,7 +966,7 @@ public class Util {
 
     /**
      * XSLT Utils
-     * 
+     *
      * @param xslt
      * @return teh Top Business Concept
      */
@@ -1031,6 +1031,16 @@ public class Util {
             selectors = Util.getTextNodes(xsd.getDocumentElement(), "xsd:element/xsd:unique[@name='" + businessConceptName
                     + "']/xsd:selector/@xpath", getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"));
 
+            // Fix for TMDM-2351
+            String[] businessConceptXSDTypeNameLookup = Util.getTextNodes(xsd.getDocumentElement(), "xsd:element[@name='" + businessConceptName
+                    + "']/@type", getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"));
+            String businessConceptXSDTypeName;
+            if (businessConceptXSDTypeNameLookup.length > 0) {
+                businessConceptXSDTypeName = businessConceptXSDTypeNameLookup[0];
+            } else {
+                businessConceptXSDTypeName = businessConceptName;
+            }
+
             fields = Util.getTextNodes(xsd.getDocumentElement(), "xsd:element/xsd:unique[@name='" + businessConceptName + "']/xsd:field/@xpath", getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"));
 
             if (selectors.length == 0) {
@@ -1077,15 +1087,25 @@ public class Util {
                 String[] fieldTypes = new String[fields.length];
                 int fieldIndex = 0;
                 for (String field : fields) {
-                    String[] textNodes = Util.getTextNodes(xsd.getDocumentElement(), "xsd:element[@name='" + businessConceptName + "']//xsd:element[@name='" + field + "']/@type", getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"));
-                    if (textNodes.length > 1) {
-                        throw new IllegalStateException("Field '" + field + "' is not unique within type '" + businessConceptName + "'.");
-                    }
-                    if (textNodes.length == 0) {
-                        throw new IllegalStateException("Field '" + field + "' does not exist in type '" + businessConceptName + "'.");
+                    String[] xpathExpressions = new String[] {
+                            "xsd:element[@name='" + businessConceptXSDTypeName + "']//xsd:element[@name='" + field + "']/@type",
+                            "xsd:complexType[@name='" + businessConceptXSDTypeName + "']//xsd:element[@name='" + field + "']/@type"
+                    };
+
+                    for (String xpathExpression : xpathExpressions) {
+                        String[] textNodes = Util.getTextNodes(xsd.getDocumentElement(), xpathExpression, getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"));
+                        if (textNodes.length == 1) {
+                           fieldTypes[fieldIndex] = textNodes[0];
+                        } else if (textNodes.length > 1) {
+                            throw new IllegalStateException("Field '" + field + "' is not unique within type '" + businessConceptName + "' (XSD type: "+businessConceptXSDTypeName+".");
+                        }
                     }
 
-                    fieldTypes[fieldIndex++] = textNodes[0];
+                    if (fieldTypes[fieldIndex] == null) {
+                        throw new IllegalStateException("Field '" + field + "' does not exist in type '" + businessConceptName + "' (XSD type: "+businessConceptXSDTypeName+".");
+                    } else {
+                        fieldIndex++;
+                    }
                 }
 
                 key = new XSDKey(selectors[0], fields, fieldTypes);
@@ -1269,7 +1289,7 @@ public class Util {
 
     /**
      * update the node according to the schema
-     * 
+     *
      * @param concept
      * @param xsd
      * @param updateNode
@@ -1290,7 +1310,7 @@ public class Util {
 
     /**
      * check concept's datamodel contains UUID or Auto_increment type fields and it's empty
-     * 
+     *
      * @param concept
      * @param xsd
      * @return
@@ -1367,7 +1387,7 @@ public class Util {
 
     /**
      * create an "empty" item from scratch, set every text node to empty
-     * 
+     *
      * @param concept
      * @param xsd
      * @return
@@ -1392,7 +1412,7 @@ public class Util {
 
     /**
      * check is hidden for specify element.
-     * 
+     *
      * @param xsp
      * @return
      */
@@ -1423,7 +1443,7 @@ public class Util {
 
     /**
      * the return type maybe all/sequence/choice
-     * 
+     *
      * @param concept
      * @param xsd
      * @return
@@ -1485,7 +1505,7 @@ public class Util {
     }
 
     /**
-     * 
+     *
      * @param schema
      * @param dataCluster
      * @param concept
@@ -1645,12 +1665,12 @@ public class Util {
         } catch (TransformerException e) {
             String err = "Unable to get the keys for the Business Concept " + businessConceptName + ": "
                     + e.getLocalizedMessage();
-            throw new TransformerException(err);
+            throw new TransformerException(err, e);
         }
     }
 
     /**
-     * 
+     *
      * @param item
      * @param key
      * @return the key ids
@@ -1662,7 +1682,7 @@ public class Util {
 
     /**
      * Return the Item Primary key values
-     * 
+     *
      * @param item
      * @param xsdKey
      * @return the Item Primary Key values
@@ -1693,7 +1713,7 @@ public class Util {
     /**
      * Extracts the item PK by reading it and its model<br>
      * The less costly of all methods since all parsing is already done
-     * 
+     *
      * @param item
      * @param dataModel
      * @return the Item PK
@@ -1744,7 +1764,7 @@ public class Util {
 
     /**
      * Returns a namespaced root element of a document Useful to create a namespace holder element
-     * 
+     *
      * @param namespace
      * @return the root Element
      */
@@ -1762,7 +1782,7 @@ public class Util {
 
         } catch (Exception e) {
             String err = "Error creating a namespace holder document: " + e.getLocalizedMessage();
-            throw new TransformerException(err);
+            throw new TransformerException(err, e);
         }
 
         return rootNS;
@@ -1770,7 +1790,7 @@ public class Util {
 
     /**
      * Generates an xml string from a node (not pretty formatted)
-     * 
+     *
      * @param n the node
      * @return the xml string
      * @throws TransformerException
@@ -1781,7 +1801,7 @@ public class Util {
 
     /**
      * Generates an xml string from a node with or without the xml declaration (not pretty formatted)
-     * 
+     *
      * @param n the node
      * @return the xml string
      * @throws TransformerException
@@ -1804,7 +1824,7 @@ public class Util {
 
     /**
      * DOC HSHU Comment method "removeAllAttributes".
-     * 
+     *
      * @param node
      */
     public static void removeAllAttribute(Node node, String attrName) {
@@ -1830,7 +1850,7 @@ public class Util {
 
     /**
      * Get a nodelist from an xPath
-     * 
+     *
      * @throws XtentisException
      */
     public static NodeList getNodeList(Document d, String xPath) throws XtentisException {
@@ -1839,7 +1859,7 @@ public class Util {
 
     /**
      * Get a nodelist from an xPath
-     * 
+     *
      * @throws XtentisException
      */
     public static NodeList getNodeList(Node contextNode, String xPath) throws XtentisException {
@@ -1848,7 +1868,7 @@ public class Util {
 
     /**
      * Get a nodelist from an xPath
-     * 
+     *
      * @throws XtentisException
      */
     public static NodeList getNodeList(Node contextNode, String xPath, String namespace, String prefix) throws XtentisException {
@@ -1867,7 +1887,7 @@ public class Util {
 
     /**
      * Join an array of strings into a single string using a separator
-     * 
+     *
      * @param strings
      * @param separator
      * @return a single string or null
@@ -1887,7 +1907,7 @@ public class Util {
 
     /**
      * Returns the first part - eg. the concept - from the path
-     * 
+     *
      * @param path
      * @return The concept extracted from the path
      */
@@ -1904,7 +1924,7 @@ public class Util {
 
     /**
      * Returns the list of items that look like parts numbers
-     * 
+     *
      * @param value The value to match
      * @return The list
      */
@@ -1932,7 +1952,7 @@ public class Util {
 
     /**
      * Mark and record the time
-     * 
+     *
      * @param marker
      * @return the period of time
      * @throws Exception
@@ -1968,7 +1988,7 @@ public class Util {
 
     /**
      * Dumps the time markers to the console
-     * 
+     *
      * @param msg
      */
     public static void dumpTimeMarkers(String msg) {
@@ -2009,7 +2029,7 @@ public class Util {
 
     /**
      * Extracts the username of the logged user from the {@link Subject}
-     * 
+     *
      * @param subject
      * @return The username
      * @throws XtentisException
@@ -2063,7 +2083,7 @@ public class Util {
 
     /**
      * Extract the role names of the logged user from the Subject
-     * 
+     *
      * @param subject
      * @return The collection of roles
      * @throws XtentisException
@@ -2132,9 +2152,9 @@ public class Util {
     }
 
     /*********************************************************************
-     * 
+     *
      * LOCAL HOME GETTERS This cache system requires a JBoss restart on every core deployment
-     * 
+     *
      *********************************************************************/
 
     // The only Static HashMap around (hopefully)
@@ -2329,7 +2349,7 @@ public class Util {
     /**
      * Extract the charset of a content type<br>
      * e.g 'utf-8' in 'text/xml; charset="utf-8"'
-     * 
+     *
      * @param contentType
      * @return the charset
      */
@@ -2346,7 +2366,7 @@ public class Util {
     /**
      * Extract the MIME type and sub type of a content type<br>
      * e.g 'text/xml' in 'text/xml; charset="utf-8"'
-     * 
+     *
      * @param contentType
      * @return the MIME Type and SubType
      */
@@ -2358,7 +2378,7 @@ public class Util {
 
     /**
      * Extracts a byte array from an InputStream
-     * 
+     *
      * @param is
      * @return the byte array
      * @throws IOException
@@ -2374,9 +2394,9 @@ public class Util {
     }
 
     /*********************************************************************
-     * 
+     *
      * GUID Generator
-     * 
+     *
      *********************************************************************/
 
     /** Cached per JVM server IP. */
@@ -2389,7 +2409,7 @@ public class Util {
      * A 32 byte GUID generator (Globally Unique ID). These artificial keys SHOULD <strong>NOT </strong> be seen by the
      * user, not even touched by the DBA but with very rare exceptions, just manipulated by the database and the
      * programs.
-     * 
+     *
      * Usage: Add an id field (type java.lang.String) to your EJB, and add setId(XXXUtil.generateGUID(this)); to the
      * ejbCreate method.
      */
@@ -2471,7 +2491,7 @@ public class Util {
 
     /**
      * Executes a BeforeSaving process if any
-     * 
+     *
      * @return Either <code>null</code> if no process was found or a status message (0=success; <>0=failure) of the form
      * &lt;error code='1'&gt;This is a message&lt;/error>
      * @throws Exception If something went wrong
@@ -2539,7 +2559,7 @@ public class Util {
 
     /**
      * Executes a BeforeDeleting process if any
-     * 
+     *
      * @return Either <code>null</code> if no process was found or a status message (0=success; <>0=failure) of the form
      * &lt;error code='1'&gt;This is a message&lt;/error>
      * @throws Exception If something went wrong
@@ -2674,7 +2694,7 @@ public class Util {
 
     /**
      * DOC HSHU Comment method "checkDiffsWhenComparingElement".
-     * 
+     *
      * @param map
      * @param jxpContextOld
      * @param jxpContextNew
@@ -2721,7 +2741,7 @@ public class Util {
     /**
      * this method only used in a list like a/b/c/d/e, e.g index=2, the right xpath maybe one of
      * a/b/c/d[2]/e,a/b/c[2]/d/e,a/b/c[2]/d/e,a/b[2]/c/e,a[2]/b/c/d/e that is null in oldElement
-     * 
+     *
      * @param xpath
      * @param jxpContextOld
      * @param jxpContextNew
@@ -2842,7 +2862,7 @@ public class Util {
 
     /**
      * update the element according to updatedpath
-     * 
+     *
      * @param parentPath
      * @param old
      * @param updatedpath
@@ -3360,7 +3380,7 @@ public class Util {
 
     /**
      * fix the web conditions.
-     * 
+     *
      * @param conditions in web ui.
      */
     public static IWhereItem fixWebCondtions(IWhereItem whereItem) throws XmlServerException {
@@ -3398,7 +3418,7 @@ public class Util {
 
     /**
      * fix the conditions.
-     * 
+     *
      * @param conditions in workbench.
      */
 
@@ -3473,7 +3493,7 @@ public class Util {
 
     /**
      * get the JobInfo:jobName and version & suffix
-     * 
+     *
      * @param fileName
      * @return
      */
@@ -3605,7 +3625,7 @@ public class Util {
 
     /**
      * Escape any single quote characters that are included in the specified message string.
-     * 
+     *
      * @param string The string to be escaped
      */
     protected static String escape(String string) {
