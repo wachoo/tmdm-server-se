@@ -515,8 +515,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
     var MONTH_NAME = {
         'fr' : ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-                "Juillet", "Aout", "Septembre", "Octobre", "Novembre",
-                "Decembre"],
+                "Juillet", "Août", "Septembre", "Octobre", "Novembre",
+                "Décembre"],
         'en' : ["January", "February", "March", "April", "May", "June", "July",
                 "August", "September", "October", "November", "December"]
     };
@@ -546,13 +546,23 @@ amalto.itemsbrowser.ItemsBrowser = function() {
     };
     
     var BUTTON_TODAY = {
-    	'fr' : 'Aujourd\'huit',
+    	'fr' : 'Aujourd\'hui',
     	'en' : 'Today'
     };
     
     var LABEL_DATE_PICKER = {
     	'fr' : 'Calendrier',
     	'en' : 'Date Picker'
+    };
+
+    var OK_BUTTON = {
+    	'fr' : 'OK',
+    	'en' : 'OK'
+    };
+
+    var CANCEL_BUTTON = {
+    	'fr' : 'Annuler',
+    	'en' : 'Cancel'
     };
     
     /***************************************************************************
@@ -1056,7 +1066,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         ItemsBrowserInterface.saveCriteria(dataObjectLabel,
                                 reportName, isSharedReport, _criterias,
                                 function(result) {
-                                    if (result == "OK") {
+                                    if (result == OK_BUTTON[language]) {
                                         saveReportWindow.destroy();
                                         Ext.MessageBox.alert("Save",
                                                 "Save Bookmark Successfully!");
@@ -1859,7 +1869,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                                                         .show({
                                                                             msg : pickOutISOMessage(error1),
                                                                             buttons : {
-                                                                                "ok" : "CANCEL"
+                                                                                OK_BUTTON[language] : CANCEL_BUTTON[language]
                                                                             },
                                                                             icon : Ext.MessageBox.ERROR
                                                                         });
@@ -1892,7 +1902,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                                                     .show({
                                                                         msg : result,
                                                                         buttons : {
-                                                                            "ok" : "OK"
+                                                                            "ok" : OK_BUTTON[language]
                                                                         },
                                                                         icon : Ext.MessageBox.INFO
                                                                     });
@@ -1926,7 +1936,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         });
 
                         function doLogicalDelete(btn, path) {
-                            if (btn == 'cancel') {
+                            if (btn == CANCEL_BUTTON[language]) {
                                 return;
                             }
 
@@ -2875,7 +2885,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                                                     .show({
                                                                         msg : pickOutISOMessage(err1),
                                                                         buttons : {
-                                                                            "ok" : "CANCEL"
+                                                                            OK_BUTTON[language] : CANCEL_BUTTON[language]
                                                                         },
                                                                         icon : Ext.MessageBox.ERROR
                                                                     });
@@ -2887,7 +2897,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                                                         .show({
                                                                             msg : pickOutISOMessage(result),
                                                                             buttons : {
-                                                                                "ok" : "OK"
+                                                                                "ok" : OK_BUTTON[language]
                                                                             },
                                                                             icon : Ext.MessageBox.INFO
                                                                         });
@@ -2919,7 +2929,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                             });
 
                             function doLogicalDel(btn, path) {
-                                if (btn == 'cancel') {
+                                if (btn == CANCEL_BUTTON[language]) {
                                     return;
                                 }
 
@@ -3412,7 +3422,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                     Ext.MessageBox.show({
                                                 msg : pickOutISOMessage(err1),
                                                 buttons : {
-                                                    "ok" : "CANCEL"
+                                                    OK_BUTTON[language] : CANCEL_BUTTON[language]
                                                 },
                                                 icon : Ext.MessageBox.ERROR
                                             });
@@ -3423,7 +3433,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                 Ext.MessageBox.show({
                                             msg : pickOutISOMessage(msg2show),
                                             buttons : {
-                                                "ok" : "OK"
+                                                "ok" : OK_BUTTON[language]
                                             },
                                             icon : Ext.MessageBox.INFO
                                         });
@@ -4787,7 +4797,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
                         }
                     }, {
-                        text : 'Cancel',
+                        text : CANCEL_BUTTON[language],
                         handler : function() {
                             window.destroy();
                         }
@@ -5220,7 +5230,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                     Ext.MessageBox.show({
                                                 msg : pickOutISOMessage(err1),
                                                 buttons : {
-                                                    "ok" : "CANCEL"
+                                                    OK_BUTTON[language] : CANCEL_BUTTON[language]
                                                 },
                                                 icon : Ext.MessageBox.ERROR
                                             });
@@ -5231,7 +5241,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                 Ext.MessageBox.show({
                                             msg : pickOutISOMessage(msg2show),
                                             buttons : {
-                                                "ok" : "OK"
+                                                "ok" : OK_BUTTON[language]
                                             },
                                             icon : Ext.MessageBox.INFO
                                         });
@@ -5288,7 +5298,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                         Ext.MessageBox.show({
                                                     msg : pickOutISOMessage(err1),
                                                     buttons : {
-                                                        "ok" : "CANCEL"
+                                                        OK_BUTTON[language] : CANCEL_BUTTON[language]
                                                     },
                                                     icon : Ext.MessageBox.ERROR
                                                 });
@@ -5316,7 +5326,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                         Ext.MessageBox.show({
                                                     msg : pickOutISOMessage(result),
                                                     buttons : {
-                                                        "ok" : "OK"
+                                                        "ok" : OK_BUTTON[language]
                                                     },
                                                     icon : Ext.MessageBox.INFO
                                                 });
@@ -5372,7 +5382,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                 });
 
         function doLogicalDel(btn, path) {
-            if (btn == 'cancel') {
+            if (btn == CANCEL_BUTTON[language]) {
                 return;
             }
             logicalDelOneItem(ids, dataObject, treeIndex, path, refreshCB);
@@ -5445,7 +5455,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                     items : [{
                         id : 'date111',
                         xtype : 'datepicker',
-                        fieldLabel : 'nodeDatePickerPanel ',
+                        fieldLabel : '
+                         ',
                         name : 'datePicker',
                         layout : 'fit',
                         inputType : 'textfield',
