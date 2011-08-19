@@ -18,7 +18,7 @@ public class ExistQueryBuilder extends QueryBuilder {
 
     @Override
     protected boolean useNumberFunction() {
-        return false;
+        return true;
     }
 
     @Override
