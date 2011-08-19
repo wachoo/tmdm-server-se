@@ -4972,7 +4972,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         		return;
             var toolbar = amalto.core.getTabPanel()
                     .getComponent('itemDetailsdiv' + treeIndex).getTopToolbar();
-            toolbar.refreshItemHandler(result, true);
+            toolbar.refreshItemHandler(result.returnValue, true);
             // set isdirty=true
             var itempanel = amalto.core.getTabPanel().activeTab;
             if (itempanel) {
