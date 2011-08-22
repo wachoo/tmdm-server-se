@@ -1869,7 +1869,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                                                         .show({
                                                                             msg : pickOutISOMessage(error1),
                                                                             buttons : {
-                                                                                OK_BUTTON[language] : CANCEL_BUTTON[language]
+                                                                                "OK" : CANCEL_BUTTON[language]
                                                                             },
                                                                             icon : Ext.MessageBox.ERROR
                                                                         });
@@ -2885,7 +2885,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                                                     .show({
                                                                         msg : pickOutISOMessage(err1),
                                                                         buttons : {
-                                                                            OK_BUTTON[language] : CANCEL_BUTTON[language]
+                                                                            "OK" : CANCEL_BUTTON[language]
                                                                         },
                                                                         icon : Ext.MessageBox.ERROR
                                                                     });
@@ -3422,7 +3422,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                     Ext.MessageBox.show({
                                                 msg : pickOutISOMessage(err1),
                                                 buttons : {
-                                                    OK_BUTTON[language] : CANCEL_BUTTON[language]
+                                                    "OK" : CANCEL_BUTTON[language]
                                                 },
                                                 icon : Ext.MessageBox.ERROR
                                             });
@@ -5230,7 +5230,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                     Ext.MessageBox.show({
                                                 msg : pickOutISOMessage(err1),
                                                 buttons : {
-                                                    OK_BUTTON[language] : CANCEL_BUTTON[language]
+                                                    "OK" : CANCEL_BUTTON[language]
                                                 },
                                                 icon : Ext.MessageBox.ERROR
                                             });
@@ -5298,7 +5298,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                         Ext.MessageBox.show({
                                                     msg : pickOutISOMessage(err1),
                                                     buttons : {
-                                                        OK_BUTTON[language] : CANCEL_BUTTON[language]
+                                                        "OK" : CANCEL_BUTTON[language]
                                                     },
                                                     icon : Ext.MessageBox.ERROR
                                                 });
@@ -5455,8 +5455,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                     items : [{
                         id : 'date111',
                         xtype : 'datepicker',
-                        fieldLabel : '
-                         ',
+                        fieldLabel : '',
                         name : 'datePicker',
                         layout : 'fit',
                         inputType : 'textfield',
