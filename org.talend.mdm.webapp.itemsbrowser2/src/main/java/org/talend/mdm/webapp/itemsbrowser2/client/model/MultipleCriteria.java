@@ -31,6 +31,8 @@ public class MultipleCriteria implements Criteria {
 
     private List<Criteria> children = new ArrayList<Criteria>();
 
+    private boolean appearance = false;
+
     public MultipleCriteria() {
         super();
     }
@@ -49,15 +51,39 @@ public class MultipleCriteria implements Criteria {
             if (!first)
                 sb.append(" " + operator + " "); //$NON-NLS-1$  //$NON-NLS-2$
 
-            sb.append(Parser.BEGIN_BLOCK + c.toString() + Parser.END_BLOCK);
+            String blockStuff = ""; //$NON-NLS-1$
+            if (c instanceof SimpleCriterion) {
+                SimpleCriterion simpCriteia = (SimpleCriterion) c;
+                if (appearance) {
+                    blockStuff = simpCriteia.toAppearanceString();
+                } else {
+                    blockStuff = simpCriteia.toString();
+                }
+            } else
+                blockStuff = c.toString();
+
+            sb.append(Parser.BEGIN_BLOCK + blockStuff + Parser.END_BLOCK);
             first = false;
         }
         sb.append(Parser.END_BLOCK);
+        if (appearance) {
+            appearance = false;
+        }
         final String string = sb.toString();
         if (string.equals("" + Parser.BEGIN_BLOCK + Parser.END_BLOCK)) //$NON-NLS-1$
             return ""; //$NON-NLS-1$
         else
             return string;
+    }
+
+    public void requestShowAppearance() {
+        appearance = true;
+        for (Criteria criteria : children) {
+            if (criteria instanceof MultipleCriteria) {
+                MultipleCriteria multipCriteria = (MultipleCriteria) criteria;
+                multipCriteria.requestShowAppearance();
+            }
+        }
     }
 
     public String getOperator() {

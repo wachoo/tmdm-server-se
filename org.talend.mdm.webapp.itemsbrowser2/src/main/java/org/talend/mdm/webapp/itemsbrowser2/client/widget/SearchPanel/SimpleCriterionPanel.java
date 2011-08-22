@@ -39,14 +39,13 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Panel;
@@ -64,7 +63,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
     private Field field;
 
     private Button searchBut;
-    
+
     private LayoutContainer content = new LayoutContainer();
 
     private ViewBean view;
@@ -181,9 +180,10 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
                 ((FKField) field).Update(getKey(), this);
             content.add(field);
             field.addListener(Events.KeyDown, new Listener<FieldEvent>() {
+
                 public void handleEvent(FieldEvent be) {
-                    if (be.getKeyCode() == KeyCodes.KEY_ENTER){
-                        if (searchBut != null){
+                    if (be.getKeyCode() == KeyCodes.KEY_ENTER) {
+                        if (searchBut != null) {
                             searchBut.fireEvent(Events.Select);
                         }
                     }
@@ -193,9 +193,9 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         setOperatorComboBox(SearchFieldCreator.cons);
         content.layout();
     }
-    
-    public void focusField(){
-        if (field != null){
+
+    public void focusField() {
+        if (field != null) {
             field.focus();
         }
     }
@@ -226,9 +226,18 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         return null;
     }
 
+    private String getInfo() {
+        String info = getValue();
+        if (field != null && field instanceof FKField) {
+            ForeignKeyBean fkField = ((FKField) field).getValue();
+            return fkField.getDisplayInfo() != null ? fkField.getDisplayInfo() : fkField.getId();
+        }
+        return info;
+    }
+
     public SimpleCriterion getCriteria() {
         try {
-            return new SimpleCriterion(getKey(), getOperator(), getValue());
+            return new SimpleCriterion(getKey(), getOperator(), getValue(), getInfo());
         } catch (Exception e) {
             Log.error(e.getMessage());
             return null;
@@ -256,6 +265,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
                 } else if (field instanceof FKField) {
                     ForeignKeyBean fk = new ForeignKeyBean();
                     fk.setId(criterion.getValue());
+                    fk.setDisplayInfo(criterion.getInfo());
                     ((FKField) field).setValue(fk);
                 } else {
                     field.setValue(criterion.getValue());

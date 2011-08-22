@@ -82,7 +82,7 @@ public class FKRelRecordWindow extends Window {
     private String fkKey;
 
     private ReturnCriteriaFK returnCriteriaFK;
-    
+
     private ListStore<BaseModel> typeList = new ListStore<BaseModel>();
 
     private ItemsServiceAsync service = (ItemsServiceAsync) Registry.get(Itemsbrowser2.ITEMS_SERVICE);
@@ -93,14 +93,14 @@ public class FKRelRecordWindow extends Window {
 
     TextField<String> filter = new TextField<String>();
 
-	private ComboBoxField<BaseModel> typeComboBox;
+    private ComboBoxField<BaseModel> typeComboBox;
 
     private String xPath;
-    
+
     public FKRelRecordWindow() {
 
     }
-    
+
     public FKRelRecordWindow(String fkKey, ReturnCriteriaFK returnCriteriaFK) {
         this.fkKey = fkKey;
         this.returnCriteriaFK = returnCriteriaFK;
@@ -122,34 +122,34 @@ public class FKRelRecordWindow extends Window {
         this.returnCriteriaFK = returnCriteriaFK;
     }
 
-    private String getFilterValue(){
+    private String getFilterValue() {
         String value = filter.getRawValue();
-        if (value == null || value.trim().equals("")){
+        if (value == null || value.trim().equals("")) {
             value = ".*"; //$NON-NLS-1$
         }
         return value;
     }
-    
+
     protected void onRender(Element parent, int pos) {
         super.onRender(parent, pos);
-        final TypeModel typeModel= Itemsbrowser2.getSession().getCurrentEntityModel().getMetaDataTypes().get(fkKey);
+        final TypeModel typeModel = Itemsbrowser2.getSession().getCurrentEntityModel().getMetaDataTypes().get(fkKey);
         xPath = typeModel.getXpath();
         RpcProxy<PagingLoadResult<ForeignKeyBean>> proxy = new RpcProxy<PagingLoadResult<ForeignKeyBean>>() {
 
             public void load(final Object loadConfig, final AsyncCallback<PagingLoadResult<ForeignKeyBean>> callback) {
-                service.getForeignKeyList((PagingLoadConfig) loadConfig, typeModel, Itemsbrowser2.getSession().getAppHeader().getDatacluster(), false, getFilterValue(),
-                        new AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>>() {
+                service.getForeignKeyList((PagingLoadConfig) loadConfig, typeModel, Itemsbrowser2.getSession().getAppHeader()
+                        .getDatacluster(), false, getFilterValue(), new AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>>() {
 
-                            public void onFailure(Throwable caught) {
-                                callback.onFailure(caught);
-                            }
+                    public void onFailure(Throwable caught) {
+                        callback.onFailure(caught);
+                    }
 
-                            public void onSuccess(ItemBasePageLoadResult<ForeignKeyBean> result) {
-                                callback.onSuccess(new BasePagingLoadResult<ForeignKeyBean>(result.getData(), result.getOffset(),
-                                        result.getTotalLength()));
-                            }
+                    public void onSuccess(ItemBasePageLoadResult<ForeignKeyBean> result) {
+                        callback.onSuccess(new BasePagingLoadResult<ForeignKeyBean>(result.getData(), result.getOffset(), result
+                                .getTotalLength()));
+                    }
 
-                        });
+                });
 
             }
         };
@@ -159,25 +159,25 @@ public class FKRelRecordWindow extends Window {
             public void load(final Object loadConfig, final AsyncCallback<BaseListLoadResult<BaseModel>> callback) {
                 service.getForeignKeyPolymTypeList(typeModel.getForeignkey(), "en", new AsyncCallback<List<Restriction>>() {//$NON-NLS-1$
 
-                    public void onFailure(Throwable caught) {
-                        callback.onFailure(caught);
-                    }
+                            public void onFailure(Throwable caught) {
+                                callback.onFailure(caught);
+                            }
 
-                    public void onSuccess(List<Restriction> result) {
-                    	List<BaseModel> list=new ArrayList<BaseModel>();
-                    	for(Restriction re: result){
-                    		BaseModel model=new BaseModel();
-                    		model.set("name", re.getName());//$NON-NLS-1$
-                    		model.set("value", re.getValue());//$NON-NLS-1$
-                    		list.add(model);
-                    	}
-                        callback.onSuccess(new BaseListLoadResult<BaseModel>(list));
-                    }
-                });
+                            public void onSuccess(List<Restriction> result) {
+                                List<BaseModel> list = new ArrayList<BaseModel>();
+                                for (Restriction re : result) {
+                                    BaseModel model = new BaseModel();
+                                    model.set("name", re.getName());//$NON-NLS-1$
+                                    model.set("value", re.getValue());//$NON-NLS-1$
+                                    list.add(model);
+                                }
+                                callback.onSuccess(new BaseListLoadResult<BaseModel>(list));
+                            }
+                        });
             }
         };
         BaseListLoader<ListLoadResult<Restriction>> loader1 = new BaseListLoader<ListLoadResult<Restriction>>(proxy1);
-        typeList=new ListStore<BaseModel>(loader1);        
+        typeList = new ListStore<BaseModel>(loader1);
         loader = new BasePagingLoader<PagingLoadResult<ModelData>>(proxy);
         final ListStore<ForeignKeyBean> store = new ListStore<ForeignKeyBean>(loader);
 
@@ -187,13 +187,13 @@ public class FKRelRecordWindow extends Window {
         panel.setHeaderVisible(false);
         panel.setSize(WINDOW_WIDTH, WINDOW_HEIGH);
         panel.setHeaderVisible(false);
-        
+
         filter.addListener(Events.KeyUp, new Listener<FieldEvent>() {
 
             public void handleEvent(FieldEvent be) {
-                if (be.getKeyCode() == KeyCodes.KEY_UP){
+                if (be.getKeyCode() == KeyCodes.KEY_UP) {
                     ForeignKeyBean fkBean = relatedRecordGrid.getSelectionModel().getSelectedItem();
-                    if (fkBean == null){
+                    if (fkBean == null) {
                         relatedRecordGrid.getSelectionModel().select(store.getCount() - 1, true);
                     } else {
                         relatedRecordGrid.getSelectionModel().selectPrevious(false);
@@ -201,9 +201,9 @@ public class FKRelRecordWindow extends Window {
                     }
                     return;
                 }
-                if (be.getKeyCode() == KeyCodes.KEY_DOWN){
+                if (be.getKeyCode() == KeyCodes.KEY_DOWN) {
                     ForeignKeyBean fkBean = relatedRecordGrid.getSelectionModel().getSelectedItem();
-                    if (fkBean == null){
+                    if (fkBean == null) {
                         relatedRecordGrid.getSelectionModel().select(0, true);
                     } else {
                         relatedRecordGrid.getSelectionModel().selectNext(false);
@@ -211,14 +211,14 @@ public class FKRelRecordWindow extends Window {
                     }
                     return;
                 }
-                if (be.getKeyCode() == KeyCodes.KEY_ENTER){
+                if (be.getKeyCode() == KeyCodes.KEY_ENTER) {
                     ForeignKeyBean fkBean = relatedRecordGrid.getSelectionModel().getSelectedItem();
                     fkBean.setForeignKeyPath(xPath);
-                    fkBean.setDisplayInfo(fkBean.toString());
+                    fkBean.setDisplayInfo(fkBean.toString() != null ? fkBean.toString() : fkBean.getId());
                     returnCriteriaFK.setCriteriaFK(fkBean);
                     close();
                 }
-                if (be.getKeyCode() == KeyCodes.KEY_LEFT || be.getKeyCode() == KeyCodes.KEY_RIGHT){
+                if (be.getKeyCode() == KeyCodes.KEY_LEFT || be.getKeyCode() == KeyCodes.KEY_RIGHT) {
                     return;
                 }
                 loader.load(0, pageSize);
@@ -227,7 +227,7 @@ public class FKRelRecordWindow extends Window {
         filter.setWidth(WINDOW_WIDTH - 80);
 
         ToolBar toolBar = new ToolBar();
-        
+
         typeComboBox = new ComboBoxField<BaseModel>();
         typeComboBox.setDisplayField("name"); //$NON-NLS-1$
         typeComboBox.setValueField("value"); //$NON-NLS-1$
@@ -235,12 +235,12 @@ public class FKRelRecordWindow extends Window {
         typeComboBox.setTriggerAction(TriggerAction.ALL);
         typeComboBox.setEmptyText(MessagesFactory.getMessages().label_select_type());
         typeComboBox.setId("DerivedTypeComboBox"); //$NON-NLS-1$
-        
+
         typeComboBox.addSelectionChangedListener(new SelectionChangedListener<BaseModel>() {
-			
-			@Override
-			public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
-				String targetType=se.getSelectedItem().get("value").toString();//$NON-NLS-1$
+
+            @Override
+            public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
+                String targetType = se.getSelectedItem().get("value").toString();//$NON-NLS-1$
                 StringBuffer sb = new StringBuffer();
                 for (int i = 0; i < typeModel.getForeignKeyInfo().size(); i++) {
                     sb.append(typeModel.getForeignKeyInfo().get(i));
@@ -249,30 +249,31 @@ public class FKRelRecordWindow extends Window {
                     }
                 }
                 String fkInfo = sb.toString();
-				service.switchForeignKeyType(targetType, typeModel.getForeignkey(), fkInfo, getFilterValue(), new AsyncCallback<ForeignKeyDrawer>(){
+                service.switchForeignKeyType(targetType, typeModel.getForeignkey(), fkInfo, getFilterValue(),
+                        new AsyncCallback<ForeignKeyDrawer>() {
 
                             public void onFailure(Throwable arg0) {
 
-                     }
+                            }
 
-					public void onSuccess(ForeignKeyDrawer fkDrawer) {
-						typeModel.setForeignkey(fkDrawer.getXpathForeignKey());
-						List<String> fkinfo=new ArrayList<String>();
-						fkinfo.add(fkDrawer.getXpathInfoForeignKey());
+                            public void onSuccess(ForeignKeyDrawer fkDrawer) {
+                                typeModel.setForeignkey(fkDrawer.getXpathForeignKey());
+                                List<String> fkinfo = new ArrayList<String>();
+                                fkinfo.add(fkDrawer.getXpathInfoForeignKey());
 
-						typeModel.setForeignKeyInfo(fkinfo);
-						loader.load(0, pageSize);
-					}					
-				});				
-			}
-		});
+                                typeModel.setForeignKeyInfo(fkinfo);
+                                loader.load(0, pageSize);
+                            }
+                        });
+            }
+        });
         toolBar.add(typeComboBox);
-        
+
         Button filterBtn = new Button();
         filterBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.funnel()));
         filterBtn.setWidth(30);
         filter.setWidth(200);
-        typeComboBox.setWidth(WINDOW_WIDTH-250);
+        typeComboBox.setWidth(WINDOW_WIDTH - 250);
         toolBar.add(filterBtn);
         toolBar.add(filter);
         panel.setTopComponent(toolBar);
@@ -316,7 +317,7 @@ public class FKRelRecordWindow extends Window {
             public void handleEvent(final GridEvent<ForeignKeyBean> be) {
                 ForeignKeyBean fkBean = be.getModel();
                 fkBean.setForeignKeyPath(xPath);
-                fkBean.setDisplayInfo(fkBean.toString());
+                fkBean.setDisplayInfo(fkBean.toString() != null ? fkBean.toString() : fkBean.getId());
                 returnCriteriaFK.setCriteriaFK(fkBean);
                 close();
             }

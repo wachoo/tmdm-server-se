@@ -13,11 +13,17 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.exception.ParserException;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.Criteria;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Parser;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -41,11 +47,11 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.ColumnData;
 import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
@@ -75,11 +81,11 @@ public class AdvancedSearchPanel extends FormPanel {
     private static String modifiedON = "../../t";//$NON-NLS-1$
 
     private static String blank = " ";//$NON-NLS-1$
-    
+
     private Button filterButton = new Button();
 
     private Button searchBtn;
-    
+
     final public void setCriteria(String c) {
         if (c.indexOf(modifiedON) > -1) {
             // modified on condition
@@ -130,7 +136,8 @@ public class AdvancedSearchPanel extends FormPanel {
     }
 
     public String getCriteria() {
-        String express = expressionTextField.getValue();
+        MultipleCriteria criteriaStore = (MultipleCriteria) Itemsbrowser2.getSession().get(UserSession.CUSTOMIZE_CRITERION_STORE);
+        String express = criteriaStore.toString();// expressionTextField.getValue();
         String curCriteria = null, curDate = null;
         if (instance.getItemByItemId("modifiedon") != null) { //$NON-NLS-1$ 
             DateField fromfield = (DateField) ((LayoutContainer) ((LayoutContainer) this.getItemByItemId("modifiedon")) //$NON-NLS-1$
@@ -201,7 +208,7 @@ public class AdvancedSearchPanel extends FormPanel {
     }
 
     public AdvancedSearchPanel(ViewBean viewbean, Button search) {
-    	this.searchBtn = search;
+        this.searchBtn = search;
         this.view = viewbean;
         setHeaderVisible(false);
         // setLayout(new FitLayout());
@@ -212,7 +219,6 @@ public class AdvancedSearchPanel extends FormPanel {
         this.setScrollMode(Scroll.AUTO);
         this.setLabelWidth(110);
         this.setAutoHeight(true);
-
 
         filterButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Edit()));
         filterButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -242,7 +248,10 @@ public class AdvancedSearchPanel extends FormPanel {
 
                     @Override
                     public void componentSelected(ButtonEvent ce) {
-                        setCriteria(multiCriteria.getCriteria().toString());
+                        MultipleCriteria mutilCriteria = multiCriteria.getCriteria();
+                        Itemsbrowser2.getSession().put(UserSession.CUSTOMIZE_CRITERION_STORE, mutilCriteria);
+                        mutilCriteria.requestShowAppearance();
+                        setCriteria(mutilCriteria.toString());
                         winFilter.close();
                     }
 
@@ -252,8 +261,11 @@ public class AdvancedSearchPanel extends FormPanel {
                 String curField = expressionTextField.getValue();
                 if (curField != null && !curField.equals("")) { //$NON-NLS-1$
                     try {
-                        multiCriteria.setCriteria(Parser.parse(curField));
-                    } catch (ParserException e) {
+                        // Criteria criteria = Parser.parse(curField);
+                        MultipleCriteria criteriaStore = (MultipleCriteria) Itemsbrowser2.getSession().get(
+                                UserSession.CUSTOMIZE_CRITERION_STORE);
+                        multiCriteria.setCriteria(criteriaStore);
+                    } catch (Exception e) {
                         Log.error(e.getMessage(), e);
                     }
                 }
@@ -277,8 +289,7 @@ public class AdvancedSearchPanel extends FormPanel {
                 } catch (ParserException e) {
                     Log.error(e.getMessage(), e);
                     MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
-                            .invalid_expression()
-                            + e.getMessage(), null);
+                            .invalid_expression() + e.getMessage(), null);
                 }
             }
         });
@@ -335,18 +346,20 @@ public class AdvancedSearchPanel extends FormPanel {
             }
 
         };
-        
+
         expressionTextField.addListener(Events.KeyDown, new Listener<FieldEvent>() {
+
             public void handleEvent(FieldEvent be) {
-                if (be.getKeyCode() == KeyCodes.KEY_ENTER){
-                	if (searchBtn != null){
-                		searchBtn.fireEvent(Events.Select);
-                	}
+                if (be.getKeyCode() == KeyCodes.KEY_ENTER) {
+                    if (searchBtn != null) {
+                        searchBtn.fireEvent(Events.Select);
+                    }
                 }
             }
         });
-        
+
         expressionTextField.setFieldLabel(MessagesFactory.getMessages().search_expression());
+        expressionTextField.setEnabled(false);
         this.add(expressionTextField, new FormData("70%")); //$NON-NLS-1$
 
         cb = new ComboBox<BaseModel>();

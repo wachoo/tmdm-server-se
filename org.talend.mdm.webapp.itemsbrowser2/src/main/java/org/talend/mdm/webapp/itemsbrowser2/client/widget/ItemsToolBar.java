@@ -25,7 +25,9 @@ import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
@@ -157,9 +159,20 @@ public class ItemsToolBar extends ToolBar {
         qm.setDataClusterPK(userCluster);
         qm.setView(Itemsbrowser2.getSession().getCurrentView());
         qm.setModel(Itemsbrowser2.getSession().getCurrentEntityModel());
-        if (isSimple)
+        if (isSimple) {
+            SimpleCriterion simpCriterion = simplePanel.getCriteria();
+            MultipleCriteria criteriaStore = (MultipleCriteria) Itemsbrowser2.getSession().get(
+                    UserSession.CUSTOMIZE_CRITERION_STORE);
+            if (criteriaStore == null) {
+                criteriaStore = new MultipleCriteria();
+                criteriaStore.setOperator("AND"); //$NON-NLS-1$
+            } else {
+                Itemsbrowser2.getSession().getCustomizeCriterionStore().getChildren().clear();
+            }
+            criteriaStore.add(simpCriterion);
+            Itemsbrowser2.getSession().put(UserSession.CUSTOMIZE_CRITERION_STORE, criteriaStore);
             qm.setCriteria(simplePanel.getCriteria().toString());
-        else
+        } else
             qm.setCriteria(advancedPanel.getCriteria());
     }
 
@@ -452,7 +465,7 @@ public class ItemsToolBar extends ToolBar {
 
                     tableList.removeAll();
                     tableList.add(Itemsbrowser2.getSession().getEntitiyModelList());
-                    if(Itemsbrowser2.getSession().getCustomizeModelList() != null){
+                    if (Itemsbrowser2.getSession().getCustomizeModelList() != null) {
                         tableList.add(Itemsbrowser2.getSession().getCustomizeModelList());
                     }
                     combo = new ComboBox<ItemBaseModel>();
@@ -482,7 +495,7 @@ public class ItemsToolBar extends ToolBar {
                                 public void componentSelected(ButtonEvent event) {
                                     if (currentModel == null)
                                         return;
-                                    
+
                                     ItemsToolBar.this.renderDownloadPanel(panel);
                                 }
                             }));
@@ -506,6 +519,7 @@ public class ItemsToolBar extends ToolBar {
                     toolBar.add(new SeparatorToolItem());
                     toolBar.add(new Button(MessagesFactory.getMessages().label_button_new_table(),
                             new SelectionListener<ButtonEvent>() {
+
                                 @Override
                                 public void componentSelected(ButtonEvent ce) {
                                     panel.removeAll();
@@ -625,8 +639,16 @@ public class ItemsToolBar extends ToolBar {
                 if (((ItemsListPanel) instance.getParent()).gridContainer != null)
                     ((ItemsListPanel) instance.getParent()).gridContainer.setHeight(instance.getParent().getOffsetHeight()
                             - instance.getOffsetHeight() - advancedPanel.getOffsetHeight());
-                if (isSimple)
-                    advancedPanel.setCriteria("((" + simplePanel.getCriteria().toString() + "))"); //$NON-NLS-1$ //$NON-NLS-2$
+                if (isSimple) {
+                    MultipleCriteria criteriaStore = (MultipleCriteria) Itemsbrowser2.getSession().get(
+                            UserSession.CUSTOMIZE_CRITERION_STORE);
+                    criteriaStore.requestShowAppearance();
+                    advancedPanel.setCriteria(criteriaStore.toString());
+                    //  advancedPanel.setCriteria("((" + simplePanel.getCriteria().toString() + "))"); //$NON-NLS-1$ //$NON-NLS-2$
+                    //                    advancedPanel.setCriteriaAppearance("((" + simplePanel.getCriteria().toString() + "))", "((" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    //                            + simplePanel.getCriteria().toAppearanceString() + "))"); //$NON-NLS-1$
+                }
+
             }
 
         });
@@ -704,9 +726,10 @@ public class ItemsToolBar extends ToolBar {
 
                                                 public void onSuccess(String arg0) {
                                                     // set criteria
-                                                    if (arg0 != null)
+                                                    if (arg0 != null) {
                                                         advancedPanel.setCriteria(arg0);
-                                                    else
+                                                        // advancedPanel.setCriteriaAppearance(arg0, arg0);
+                                                    } else
                                                         advancedPanel.cleanCriteria();
                                                     advancedPanelVisible = true;
                                                     advancedPanel.setVisible(advancedPanelVisible);
@@ -1088,24 +1111,24 @@ public class ItemsToolBar extends ToolBar {
         service.getView(currentTableName, Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()),
                 new AsyncCallback<ViewBean>() {
 
-            public void onSuccess(ViewBean bean) {
-                tableView = bean;
-                panel.removeAll();
-                DownloadTablePanel dtpanel = DownloadTablePanel.getInstance(tableView.getViewPK());
-                dtpanel.updateGrid(tableView, panel.getWidth());
-                panel.add(dtpanel);
-                panel.layout(true);
-            }
+                    public void onSuccess(ViewBean bean) {
+                        tableView = bean;
+                        panel.removeAll();
+                        DownloadTablePanel dtpanel = DownloadTablePanel.getInstance(tableView.getViewPK());
+                        dtpanel.updateGrid(tableView, panel.getWidth());
+                        panel.add(dtpanel);
+                        panel.layout(true);
+                    }
 
-            public void onFailure(Throwable bean) {
+                    public void onFailure(Throwable bean) {
 
-            }
-        });
+                    }
+                });
     }
-    
-    public void renderDownloadPanel(ContentPanel panel){
-        if(Itemsbrowser2.getSession().getCustomizeModelList() != null){
-            if(Itemsbrowser2.getSession().getCustomizeModelList().contains(currentModel)){
+
+    public void renderDownloadPanel(ContentPanel panel) {
+        if (Itemsbrowser2.getSession().getCustomizeModelList() != null) {
+            if (Itemsbrowser2.getSession().getCustomizeModelList().contains(currentModel)) {
                 tableView = Itemsbrowser2.getSession().getCustomizeModelViewMap().get(currentModel);
                 panel.removeAll();
                 DownloadTablePanel dtpanel = DownloadTablePanel.getInstance(tableView.getViewPK());
@@ -1113,9 +1136,9 @@ public class ItemsToolBar extends ToolBar {
                 panel.add(dtpanel);
                 panel.layout(true);
                 return;
-            }                                    
+            }
         }
-  
+
         this.addDownloadPanel(panel);
     }
 
@@ -1129,17 +1152,15 @@ public class ItemsToolBar extends ToolBar {
     public ItemBaseModel getCurrentModel() {
         return currentModel;
     }
-    
+
     public void setCurrentModel(ItemBaseModel currentModel) {
         this.currentModel = currentModel;
     }
 
-    
     public ViewBean getTableView() {
         return tableView;
     }
 
-    
     public void setTableView(ViewBean tableView) {
         this.tableView = tableView;
     }

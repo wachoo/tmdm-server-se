@@ -28,6 +28,8 @@ public class SimpleCriterion implements Criteria {
 
     private String value;
 
+    private String info;
+
     public SimpleCriterion() {
         super();
     }
@@ -39,8 +41,17 @@ public class SimpleCriterion implements Criteria {
         this.value = value;
     }
 
+    public SimpleCriterion(String key, String operator, String value, String info) {
+        this(key, operator, value);
+        this.info = info;
+    }
+
     public String toString() {
         return (key == null ? "" : key) + " " + (operator == null ? "" : operator) + " " + (value == null ? "" : value); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+    }
+
+    public String toAppearanceString() {
+        return (key == null ? "" : key) + " " + (operator == null ? "" : operator) + " " + (info == null ? value : info); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
     }
 
     public String getKey() {
@@ -67,4 +78,22 @@ public class SimpleCriterion implements Criteria {
         this.value = value;
     }
 
+    public String getInfo() {
+        return this.info;
+    }
+
+    public void setInfo(String info) {
+        this.info = info;
+    }
+
+    public boolean equal(SimpleCriterion criteria) {
+        if (criteria == null)
+            return false;
+
+        if (key.equals(criteria.getKey()) && operator.equals(criteria.getOperator()) && value.equals(criteria.getValue())) {
+            return true;
+        }
+
+        return false;
+    }
 }
