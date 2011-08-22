@@ -3308,12 +3308,9 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                     // record the item id
                     contentPanel.itemid = itemPK2 + "." + dataObject;
 
-                    amalto.core.doLayout();
+                    amalto.core.doLayout();                    
                 });
-        if (handleCallback.enableGrid) {
-            handleCallback
-                    .enableGrid();
-        }
+        
         amalto.core.ready();
     }
     
