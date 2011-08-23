@@ -17,18 +17,46 @@
 amalto.itemsbrowser.ItemNode = function(itemData, newItem, treeIndex, oParent, expanded, hasIcon,isReadOnlyinItem,parentLink) {
     //if (oData) 
     {
-        this.init(null, oParent, expanded);
-        this.initContent(itemData, newItem,treeIndex, hasIcon,isReadOnlyinItem,parentLink);
         this.itemData = itemData;
         this.newItem = newItem;
         this.treeIndex = treeIndex;
         this.hasIcon = hasIcon;
         this.isReadOnlyinItem = isReadOnlyinItem;
         this.parentLink = parentLink;
+        this.initContent(itemData, newItem,treeIndex, hasIcon,isReadOnlyinItem,parentLink);
+        this.init(null, oParent, expanded);
     }
 };
 
-YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
+amalto.itemsbrowser.myExtend = function(D,E,C){
+	var B=function(){};
+	B.prototype=E.prototype;
+	D.prototype=new B();
+	D.prototype.constructor=D;
+	D.superclass=E.prototype;
+	if(E.prototype.constructor==Object.prototype.constructor){
+		E.prototype.constructor=E;
+	}
+	if(C){
+		for(var A in C){
+			D.prototype[A]=C[A];
+		}
+		amalto.itemsbrowser._IEEnumFix(D.prototype,C);
+	}
+}
+amalto.itemsbrowser._IEEnumFix = function(C,B){
+	if(YAHOO.env.ua.ie){
+		var E=["toString","valueOf"],A;
+		for(A=0;A<E.length;A=A+1){
+			var F=E[A],D=B[F];
+			if(typeof D === "function" && D!=Object.prototype[F]){
+				C[F]=D;
+			}
+		}
+	}
+}
+
+amalto.itemsbrowser.myExtend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 
     /**
      * The CSS class for the html content container.  Defaults to ygtvhtml, but
