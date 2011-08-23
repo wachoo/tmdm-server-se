@@ -4666,7 +4666,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                     YAHOO.widget.TreeView.nodeCount, language, false,
                     treeIndex, Ext.get(oNode.index + "TypeSelector") == null
                             ? null
-                            : getValueFromTypeSelector(oNode.index), oNode.itemData!=null?oNode.itemData.bindingPath:null,
+                            : getValueFromTypeSelector(oNode.index), null,
                     function(result) {
                         if (result == null) {
                             fnCallback();
