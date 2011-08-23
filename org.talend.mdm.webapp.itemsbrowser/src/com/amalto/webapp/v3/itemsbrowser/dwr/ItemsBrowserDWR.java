@@ -29,9 +29,9 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -2510,6 +2510,10 @@ public class ItemsBrowserDWR {
                 // fix bug 0014896
                 if (e.getLocalizedMessage().indexOf("ERROR_3:") == 0) {//$NON-NLS-1$
                     err = e.getLocalizedMessage();
+                }
+                // add feature TMDM-2327 SAXException:cvc-complex-type.2.4.b message transform
+                if (e.getLocalizedMessage().indexOf("cvc-complex-type.2.4.b") != -1) { //$NON-NLS-1$
+                    err = "before saving the '" + concept + "' item,please fill the required field's contents";//$NON-NLS-1$ /$NON-NLS-2$
                 }
                 result = new ItemResult(ItemResult.FAILURE, err);
             }
