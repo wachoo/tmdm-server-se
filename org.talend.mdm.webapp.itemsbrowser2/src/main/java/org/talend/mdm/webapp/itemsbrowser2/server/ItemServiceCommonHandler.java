@@ -417,6 +417,10 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 if (e.getLocalizedMessage().indexOf("ERROR_3:") == 0) {//$NON-NLS-1$
                     err = e.getLocalizedMessage();
                 }
+                // add feature TMDM-2327 SAXException:cvc-complex-type.2.4.b message transform
+                if (e.getLocalizedMessage().indexOf("cvc-complex-type.2.4.b") != -1) { //$NON-NLS-1$
+                    err = "before saving the '" + item.getConcept() + "' item,please fill the required field's contents";//$NON-NLS-1$ //$NON-NLS-2$
+                }
                 result = new ItemResult(ItemResult.FAILURE, err);
             }
             return result;
