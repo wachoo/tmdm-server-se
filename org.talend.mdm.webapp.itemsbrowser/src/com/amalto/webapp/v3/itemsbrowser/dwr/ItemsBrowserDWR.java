@@ -2513,7 +2513,7 @@ public class ItemsBrowserDWR {
                 }
                 // add feature TMDM-2327 SAXException:cvc-complex-type.2.4.b message transform
                 if (e.getLocalizedMessage().indexOf("cvc-complex-type.2.4.b") != -1) { //$NON-NLS-1$
-                    err = "before saving the '" + concept + "' item,please fill the required field's contents";//$NON-NLS-1$ /$NON-NLS-2$
+                    err = "Unable to save item,before saving the '" + concept + "' item,please fill the required field's contents";//$NON-NLS-1$ /$NON-NLS-2$
                 }
                 result = new ItemResult(ItemResult.FAILURE, err);
             }
