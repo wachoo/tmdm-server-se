@@ -1,5 +1,21 @@
 package com.amalto.core.servlet;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.EDBType;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.w3c.dom.Document;
+
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.load.action.DefaultLoadAction;
 import com.amalto.core.load.action.LoadAction;
@@ -11,20 +27,6 @@ import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XSDKey;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.core.EDBType;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.w3c.dom.Document;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
 
 
 /**
@@ -42,7 +44,7 @@ public class LoadServlet extends HttpServlet {
     private static final String PARAMETER_VALIDATE = "validate"; //$NON-NLS-1$
 
     private static final String PARAMETER_SMARTPK = "smartpk"; //$NON-NLS-1$
-
+    
     private static final Logger log = Logger.getLogger(LoadServlet.class);
 
     private static final Map<String, XSDKey> typeNameToKeyDef = new HashMap<String, XSDKey>();
@@ -62,7 +64,6 @@ public class LoadServlet extends HttpServlet {
         super.init(config);
 
     }
-
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8"); //$NON-NLS-1$

@@ -1022,8 +1022,8 @@ public class Util {
             String schema = nodeToString(xsd);
             // FIXME: sometimes this bug 'Concept/.../Conpcet/Id' happens in the cache, so I have to remove getFromCache
             // first!
-            // XSDKey key = xsdkeyCache.get(schema + "#" + businessConceptName);
-            XSDKey key = null;
+            XSDKey key = xsdkeyCache.get(schema + "#" + businessConceptName);
+            // XSDKey key = null;
             if (key != null)
                 return key;
             String[] selectors = new String[0];

@@ -11,6 +11,14 @@
 
 package com.amalto.core.load.action;
 
+import java.io.ByteArrayInputStream;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.io.IOUtils;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.load.io.XMLStreamTokenizer;
@@ -19,10 +27,6 @@ import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XSDKey;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  *
@@ -52,8 +56,8 @@ public class DefaultLoadAction implements LoadAction {
     }
 
     public void load(HttpServletRequest request, XSDKey keyMetadata, XmlServerSLWrapperLocal server) throws Exception {
-        XMLStreamTokenizer xmlStreamTokenizer = new XMLStreamTokenizer(request.getInputStream());
-
+        String xml = IOUtils.toString(request.getInputStream());
+        XMLStreamTokenizer xmlStreamTokenizer = new XMLStreamTokenizer(new ByteArrayInputStream(xml.getBytes("utf-8")));
         while (xmlStreamTokenizer.hasMoreElements()) {
             String xmlData = xmlStreamTokenizer.nextElement();
 
