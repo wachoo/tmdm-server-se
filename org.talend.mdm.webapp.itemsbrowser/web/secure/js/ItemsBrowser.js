@@ -1105,7 +1105,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                 + '<select id="enumSearchValue1" onChange="amalto.itemsbrowser.ItemsBrowser.outPutCriteriaResult();"></select>'
                                 + '<input id="itemsSearchValue1" type="text" value="*" onChange="amalto.itemsbrowser.ItemsBrowser.outPutCriteriaResult();" onkeyup="amalto.itemsbrowser.ItemsBrowser.checkInputSearchValue(this.id,this.value)" style="display:none;" onkeypress="DWRUtil.onReturn(event, amalto.itemsbrowser.ItemsBrowser.displayItems);"/>'
                                 + '<span id="itemsForeignKeyValues1" style="display:none" onChange=""></span>'
-                                + '<span id="itemSearchCalendar1" style="display:none;cursor:pointer;padding-left:4px;padding-right:4px" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showDatePicker(\'itemsSearchValue1\' , \'-1\', \'date\',\'null\')"><img src="img/genericUI/date-picker.gif"/></span>'
+                                + '<span id="itemSearchCalendar1" style="display:none;cursor:pointer;padding-left:4px;padding-right:4px" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showDatePicker(\'itemsSearchValue1\' , \'-1\', \'date\')"><img src="img/genericUI/date-picker.gif"/></span>'
                                 + ' <input id="itemSearchCriteriaForAnd1" type="radio" name="itemSearchCriteria1" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria1\', \'1\', \'AND\');"> AND '
                                 + '<input id="itemSearchCriteriaForOR1" type="radio" name="itemSearchCriteria1" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria1\', \'1\', \'OR\');"> OR '
                                 + '<br/></span>');
@@ -4441,7 +4441,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         // var data = itemTree.getNodeByIndex(id).data;
         var node = itemTree.getNodeByIndex(id);
         var value = DWRUtil.getValue(id + "Value");
-        if (format != "null")
+        if (format != undefined)
             ItemsBrowserInterface.printFormat(language, format, value,
                     typeName, function(result) {
                         value = result;
@@ -5465,7 +5465,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                 if (nodeType == "dateTime") {
                                     setValue += "T00:00:00";
                                 };
-                                if (displayFormats != "null"){
+                                if (displayFormats != undefined){
                                     if(nodeType == "null")
                                         nodeType = "date";
                                     ItemsBrowserInterface.printFormatDate(
