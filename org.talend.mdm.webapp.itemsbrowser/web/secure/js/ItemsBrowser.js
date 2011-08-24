@@ -5458,6 +5458,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         inputType : 'textfield',
                         monthNames : MONTH_NAME[language],
                         todayText: BUTTON_TODAY[language],
+                        cancelText: CANCEL_BUTTON[language],
                         listeners : {
                             select : function(src, date) {
                                 var setValue = date.format("Y-m-d");
