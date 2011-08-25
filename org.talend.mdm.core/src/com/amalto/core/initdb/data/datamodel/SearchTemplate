@@ -40,7 +40,7 @@
 &lt;xsd:element maxOccurs="1" minOccurs="1" name="HierarchySearchName" type="xsd:string"/&gt;
 &lt;xsd:element maxOccurs="1" minOccurs="1" name="Owner" type="xsd:string"/&gt;
 &lt;xsd:element maxOccurs="1" minOccurs="1" name="HierarchyRelation" type="xsd:boolean"/&gt;
-                &lt;xsd:element maxOccurs="1" minOccurs="1" name="HierarchySearchCriterias"&gt;
+                &lt;xsd:element maxOccurs="unbounded" minOccurs="1" name="HierarchySearchCriterias"&gt;
 &lt;xsd:complexType&gt;
 &lt;xsd:sequence&gt;
 &lt;xsd:element maxOccurs="1" minOccurs="1" name="Concept" type="xsd:string"/&gt;
