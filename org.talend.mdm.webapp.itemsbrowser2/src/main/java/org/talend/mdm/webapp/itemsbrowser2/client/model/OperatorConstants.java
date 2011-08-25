@@ -48,8 +48,8 @@ public class OperatorConstants implements Serializable, IsSerializable {
 
     static {
 
-        fullOperators.put("CONTAINS", MessagesFactory.getMessages().criteria_CONTAINS()); //$NON-NLS-1$
         fullOperators.put("EQUALS", MessagesFactory.getMessages().criteria_EQUALS()); //$NON-NLS-1$
+        fullOperators.put("CONTAINS", MessagesFactory.getMessages().criteria_CONTAINS()); //$NON-NLS-1$
         fullOperators.put("NOT_EQUALS", MessagesFactory.getMessages().criteria_NOT_EQUALS()); //$NON-NLS-1$
         fullOperators.put("GREATER_THAN", MessagesFactory.getMessages().criteria_GREATER_THAN()); //$NON-NLS-1$
         fullOperators.put("GREATER_THAN_OR_EQUAL", MessagesFactory.getMessages().criteria_GREATER_THAN_OR_EQUAL()); //$NON-NLS-1$
