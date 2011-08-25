@@ -20,7 +20,7 @@ public class MessagesFactory {
     }
 
     public static synchronized void setMessages(ItemsbrowserMessages messages) {
-        if (MESSAGES != null) {
+        if (MESSAGES != null && messages != null) {
             throw new IllegalStateException();
         }
         MESSAGES = messages;

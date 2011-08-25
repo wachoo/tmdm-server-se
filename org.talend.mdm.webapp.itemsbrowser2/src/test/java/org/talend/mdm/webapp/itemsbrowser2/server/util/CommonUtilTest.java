@@ -12,13 +12,15 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.server.util;
 
+import com.amalto.webapp.util.webservices.WSWhereAnd;
+import com.amalto.webapp.util.webservices.WSWhereCondition;
+import com.amalto.webapp.util.webservices.WSWhereItem;
 import junit.framework.TestCase;
-
 import org.talend.mdm.webapp.itemsbrowser2.client.exception.ParserException;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.server.i18n.ItemsbrowserMessagesImpl;
 
-@SuppressWarnings("nls")
+@SuppressWarnings("nls, HardCodedStringLiteral")
 public class CommonUtilTest extends TestCase {
 
     @Override
@@ -26,16 +28,201 @@ public class CommonUtilTest extends TestCase {
         MessagesFactory.setMessages(new ItemsbrowserMessagesImpl());
     }
 
-    public void testBuildWhereItems() {
+    @Override
+    public void tearDown() throws Exception {
+        MessagesFactory.setMessages(null);
+    }
 
+    public void testContainsSearch() {
+        String criteria = "(MyEntity/id CONTAINS \\(test\\(\\)\\))";
+        try {
+            WSWhereItem wsWhereItem = CommonUtil.buildWhereItems(criteria);
+
+            assertNotNull(wsWhereItem);
+            WSWhereAnd whereAnd = wsWhereItem.getWhereAnd();
+            assertNotNull(whereAnd);
+            assertEquals(1, whereAnd.getWhereItems().length);
+            WSWhereItem whereItem = whereAnd.getWhereItems()[0];
+            assertNotNull(whereItem);
+            WSWhereCondition condition = whereItem.getWhereCondition();
+            assertNotNull(condition);
+
+            assertEquals("MyEntity/id", condition.getLeftPath());
+            assertEquals("CONTAINS", condition.getOperator().getValue());
+            assertEquals("(test())", condition.getRightValueOrPath());
+            assertEquals("NONE", condition.getStringPredicate().getValue());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void testContainsSearch2() {
+        String criteria = "(MyEntity/id CONTAINS \\(test \\(\\))"; //NON-NLS
+        try {
+            WSWhereItem wsWhereItem = CommonUtil.buildWhereItems(criteria);
+
+            assertNotNull(wsWhereItem);
+            WSWhereAnd whereAnd = wsWhereItem.getWhereAnd();
+            assertNotNull(whereAnd);
+            assertEquals(1, whereAnd.getWhereItems().length);
+            WSWhereItem whereItem = whereAnd.getWhereItems()[0];
+            assertNotNull(whereItem);
+            WSWhereCondition condition = whereItem.getWhereCondition();
+            assertNotNull(condition);
+
+            assertEquals("MyEntity/id", condition.getLeftPath());
+            assertEquals("CONTAINS", condition.getOperator().getValue());
+            assertEquals("(test ()", condition.getRightValueOrPath());
+            assertEquals("NONE", condition.getStringPredicate().getValue());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void testContainsSearch3() {
+        String criteria = "(MyEntity/id CONTAINS test\\))";
+        try {
+            WSWhereItem wsWhereItem = CommonUtil.buildWhereItems(criteria);
+
+            assertNotNull(wsWhereItem);
+            WSWhereAnd whereAnd = wsWhereItem.getWhereAnd();
+            assertNotNull(whereAnd);
+            assertEquals(1, whereAnd.getWhereItems().length);
+            WSWhereItem whereItem = whereAnd.getWhereItems()[0];
+            assertNotNull(whereItem);
+            WSWhereCondition condition = whereItem.getWhereCondition();
+            assertNotNull(condition);
+
+            assertEquals("MyEntity/id", condition.getLeftPath());
+            assertEquals("CONTAINS", condition.getOperator().getValue());
+            assertEquals("test)", condition.getRightValueOrPath());
+            assertEquals("NONE", condition.getStringPredicate().getValue());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void testBlocks() {
+        String criteria = "((MyEntity/id CONTAINS test) AND (MyEntity/id2 EQUALS 1))";
+        try {
+            WSWhereItem wsWhereItem = CommonUtil.buildWhereItems(criteria);
+
+            assertNotNull(wsWhereItem);
+            WSWhereAnd whereAnd = wsWhereItem.getWhereAnd();
+            assertNotNull(whereAnd);
+            assertEquals(2, whereAnd.getWhereItems().length);
+            {
+                WSWhereItem whereItem = whereAnd.getWhereItems()[0];
+                assertNotNull(whereItem);
+                WSWhereAnd nestedAnd = whereItem.getWhereAnd();
+                assertNotNull(nestedAnd);
+                WSWhereCondition condition = nestedAnd.getWhereItems()[0].getWhereCondition();
+                assertNotNull(condition);
+
+                assertEquals("MyEntity/id", condition.getLeftPath());
+                assertEquals("CONTAINS", condition.getOperator().getValue());
+                assertEquals("test", condition.getRightValueOrPath());
+                assertEquals("NONE", condition.getStringPredicate().getValue());
+            }
+            {
+                WSWhereItem whereItem = whereAnd.getWhereItems()[1];
+                assertNotNull(whereItem);
+                WSWhereAnd nestedAnd = whereItem.getWhereAnd();
+                assertNotNull(nestedAnd);
+                WSWhereCondition condition = nestedAnd.getWhereItems()[0].getWhereCondition();
+                assertNotNull(condition);
+
+                assertEquals("MyEntity/id2", condition.getLeftPath());
+                assertEquals("EQUALS", condition.getOperator().getValue());
+                assertEquals("1", condition.getRightValueOrPath());
+                assertEquals("NONE", condition.getStringPredicate().getValue());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void testBlocks2() {
+        String criteria = "((MyEntity/id CONTAINS test\\(\\)\\)) AND (MyEntity/id2 EQUALS 1))";
+        try {
+            WSWhereItem wsWhereItem = CommonUtil.buildWhereItems(criteria);
+
+            assertNotNull(wsWhereItem);
+            WSWhereAnd whereAnd = wsWhereItem.getWhereAnd();
+            assertNotNull(whereAnd);
+            assertEquals(2, whereAnd.getWhereItems().length);
+            {
+                WSWhereItem whereItem = whereAnd.getWhereItems()[0];
+                assertNotNull(whereItem);
+                WSWhereAnd nestedAnd = whereItem.getWhereAnd();
+                assertNotNull(nestedAnd);
+                WSWhereCondition condition = nestedAnd.getWhereItems()[0].getWhereCondition();
+                assertNotNull(condition);
+
+                assertEquals("MyEntity/id", condition.getLeftPath());
+                assertEquals("CONTAINS", condition.getOperator().getValue());
+                assertEquals("test())", condition.getRightValueOrPath());
+                assertEquals("NONE", condition.getStringPredicate().getValue());
+            }
+            {
+                WSWhereItem whereItem = whereAnd.getWhereItems()[1];
+                assertNotNull(whereItem);
+                WSWhereAnd nestedAnd = whereItem.getWhereAnd();
+                assertNotNull(nestedAnd);
+                WSWhereCondition condition = nestedAnd.getWhereItems()[0].getWhereCondition();
+                assertNotNull(condition);
+
+                assertEquals("MyEntity/id2", condition.getLeftPath());
+                assertEquals("EQUALS", condition.getOperator().getValue());
+                assertEquals("1", condition.getRightValueOrPath());
+                assertEquals("NONE", condition.getStringPredicate().getValue());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void testError() {
+        String criteria = "(MyEntity/id CONTAINS test";
+        try {
+            CommonUtil.buildWhereItems(criteria);
+            fail("Exception was expected (unclosed parenthesis");
+        } catch (Exception e) {
+            // Expected
+        }
+    }
+
+    public void testError2() {
+        String criteria = "(MyEntity/id OEIOD test)";
+        try {
+            CommonUtil.buildWhereItems(criteria);
+            fail("Exception was expected (predicate doesn't exist)");
+        } catch (Exception e) {
+            // Expected
+        }
+    }
+
+    public void testError3() {
+        String criteria = "()";
+        try {
+            CommonUtil.buildWhereItems(criteria);
+            fail("Exception was expected (no expression)");
+        } catch (Exception e) {
+            // Expected
+        }
+    }
+
+    public void testError4() {
         String criteria = "MyEntity/id CONTAINS *";
         try {
             CommonUtil.buildWhereItems(criteria);
         } catch (Exception e) {
             fail();
         }
+    }
 
-        criteria = "blahblah";
+    public void testError5() {
+        String criteria = "blahblah";
         try {
             CommonUtil.buildWhereItems(criteria);
         } catch (ParserException e) {
@@ -43,5 +230,7 @@ public class CommonUtilTest extends TestCase {
         } catch (Exception e) {
             fail();
         }
+
     }
+
 }

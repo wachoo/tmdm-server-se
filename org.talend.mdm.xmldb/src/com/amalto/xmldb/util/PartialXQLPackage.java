@@ -64,14 +64,11 @@ public class PartialXQLPackage {
             String[] whereItems = xqWhere.split("and");//$NON-NLS-1$ // FIXME:only support and under mix mode
             for (int i = 0; i < whereItems.length; i++) {
                 String whereItem = whereItems[i].trim();
-                if (whereItem.indexOf(" " + WhereCondition.JOINS + " ") != -1) {//$NON-NLS-1$ //$NON-NLS-2$ 
+                if (whereItem.contains(" " + WhereCondition.JOINS + " ")) {//$NON-NLS-1$ //$NON-NLS-2$
                     joinKeys.add(whereItem);
                 } else {
                     String pivotName = getPivotName(whereItem);
                     String replacedWhereItem = whereItem.replaceAll("\\$pivot\\d+/", "");//$NON-NLS-1$ //$NON-NLS-2$ 
-                    // remove unecessary brakets
-
-                    replacedWhereItem = replacedWhereItem.replaceAll("(\\s*?\\(+)(\\w+\\(.*?\\)|\\s*?\\w+.*?)(\\s*\\)+)", "$2");//$NON-NLS-1$ //$NON-NLS-2$ 
                     // remove spare ")"
                     replacedWhereItem = replacedWhereItem.replaceAll("(\\w+\\(.*?\\))(\\)?)", "$1");//$NON-NLS-1$ //$NON-NLS-2$ 
                     if (pivotWhereMap.get(pivotName) == null) {
@@ -83,8 +80,6 @@ public class PartialXQLPackage {
             }
 
         }
-        // System.out.println(pivotWhereMap);
-
     }
 
     public List<String> getJoinKeys() {

@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.itemsbrowser2.server.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.Criteria;
@@ -36,11 +37,7 @@ import com.amalto.webapp.util.webservices.XtentisPort;
  */
 public class CommonUtil {
 
-    public static final char BEGIN_BLOCK = '('; //$NON-NLS-1$ 
-
-    public static final char END_BLOCK = ')'; //$NON-NLS-1$ 
-
-    public static final String AND = "AND"; //$NON-NLS-1$ 
+    public static final String AND = "AND"; //$NON-NLS-1$
 
     public static final String OR = "OR"; //$NON-NLS-1$ 
 
@@ -57,14 +54,6 @@ public class CommonUtil {
             return com.amalto.webapp.core.util.Util.getPort(FakeData.MDM_DEFAULT_ENDPOINTADDRESS, FakeData.MDM_DEFAULT_USERNAME,
                     FakeData.MDM_DEFAULT_PASSWORD, com.amalto.webapp.core.util.Util._FORCE_WEB_SERVICE_);
         }
-    }
-
-    public static boolean isEmpty(String s) {
-        if (s == null)
-            return true;
-        if (s.trim().length() == 0)
-            return true;
-        return false;
     }
 
     /**
@@ -86,18 +75,19 @@ public class CommonUtil {
     }
 
     public static WSWhereItem buildWhereItems(String criteria) throws Exception {
-        WSWhereItem wi = null;
-        if (criteria.indexOf("../../t") > -1) { //$NON-NLS-1$
-            ArrayList<WSWhereItem> conditions = new ArrayList<WSWhereItem>();
-            if (criteria.indexOf("../../t") - 5 > -1) //$NON-NLS-1$
-                conditions.add(buildWhereItemsByCriteria(Parser
-                        .parse(criteria.substring(0, criteria.indexOf("../../t") - 5) + ")")));//$NON-NLS-1$  //$NON-NLS-2$   
+        WSWhereItem wi;
+        if (criteria.contains("../../t")) { //$NON-NLS-1$
+            List<WSWhereItem> conditions = new ArrayList<WSWhereItem>();
+            if (criteria.indexOf("../../t") - 5 > -1) { //$NON-NLS-1$
+                conditions.add(buildWhereItemsByCriteria(Parser.parse(criteria.substring(0, criteria.indexOf("../../t") - 5) + ")")));//$NON-NLS-1$  //$NON-NLS-2$
+            }
             conditions.add(buildWhereItem(criteria.substring(criteria.indexOf("../../t"), criteria.length() - 1))); //$NON-NLS-1$
 
             WSWhereAnd and = new WSWhereAnd(conditions.toArray(new WSWhereItem[conditions.size()]));
             wi = new WSWhereItem(null, and, null);
-        } else
+        } else {
             wi = buildWhereItemsByCriteria(Parser.parse(criteria));
+        }
         return wi;
     }
 
@@ -144,14 +134,22 @@ public class CommonUtil {
     public static WSWhereItem buildWhereItem(String criteria) throws Exception {
         WSWhereItem wi;
         String[] filters = criteria.split(" "); //$NON-NLS-1$ 
-        String filterXpaths, filterOperators, filterValues;
+        String filterXpaths, filterOperators;
+        String filterValues = "";
 
         filterXpaths = filters[0];
         filterOperators = filters[1];
-        if (filters.length <= 2)
-            filterValues = " "; //$NON-NLS-1$ 
-        else
-            filterValues = filters[2];
+        if (filters.length <= 2) {
+            filterValues = " "; //$NON-NLS-1$
+        } else {
+            // Value might contains spaces (if search contains a sentence) and split call might separated words.
+            for (int i = 2; i < filters.length; i++) {
+                filterValues += filters[i];
+                if (i != filters.length - 1) {
+                    filterValues += " ";
+                }
+            }
+        }
 
         if (filterXpaths == null || filterXpaths.trim().equals("")) //$NON-NLS-1$ 
             return null;

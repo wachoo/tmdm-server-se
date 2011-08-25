@@ -299,7 +299,7 @@ public abstract class QueryBuilder {
         if ("*".equals(encoded) || ".*".equals(encoded)) { //$NON-NLS-1$ //$NON-NLS-2$
             return getMatchesMethod(factorPivots, "") + " or (empty(" + factorPivots + "/text())) "; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         } else if (isFunction) {
-            return "contains(" + factorPivots + " , " + encoded + ") "; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            return "contains(" + factorPivots + " , '" + encoded + "') "; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         } else {
             // case insensitive aiming added
             return getMatchesMethod(factorPivots, encoded);
@@ -415,7 +415,7 @@ public abstract class QueryBuilder {
                     }
                 } else if (predicate.equals(WhereCondition.PRE_STRICTAND)) {
                     if (isXpathFunction) {
-                        where.append("contains(").append(factorPivots).append(", ").append(encoded).append(")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        where.append("contains(").append(factorPivots).append(", '").append(encoded).append("')"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     } else {
                         where.append(getMatchesMethod(factorPivots, encoded));
                     }
@@ -424,7 +424,7 @@ public abstract class QueryBuilder {
                         where.append(getMatchesMethod(factorPivots, encoded));
                     } else {
                         if (isXpathFunction) {
-                            where.append(" contains(").append(factorPivots).append(" , ").append(encoded).append(")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                            where.append(" contains(").append(factorPivots).append(" , '").append(encoded).append("')"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         } else {
                             where.append(getMatchesMethod(factorPivots, encoded));
                         }
@@ -434,7 +434,7 @@ public abstract class QueryBuilder {
                         where.append("not ").append(getMatchesMethod(factorPivots, encoded)); //$NON-NLS-1$
                     } else {
                         if (isXpathFunction) {
-                            where.append("not( contains(").append(factorPivots).append(" , ").append(encoded).append(") )"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                            where.append("not( contains(").append(factorPivots).append(" , '").append(encoded).append("') )"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         } else {
                             where.append("not(").append(getMatchesMethod(factorPivots, encoded)).append(")"); //$NON-NLS-1$ //$NON-NLS-2$
                         }
@@ -641,7 +641,7 @@ public abstract class QueryBuilder {
                         where = getMatchesMethod(factorPivots, encoded);
                     } else {
                         if (isXpathFunction) {
-                            where = " contains(" + factorPivots + " , " + encoded + ") "; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                            where = " contains(" + factorPivots + " , '" + encoded + "') "; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         } else {
                             where = getMatchesMethod(factorPivots, encoded);
 
@@ -652,7 +652,7 @@ public abstract class QueryBuilder {
                         where = "not " + getMatchesMethod(factorPivots, encoded); //$NON-NLS-1$
                     } else {
                         if (isXpathFunction) {
-                            where = "not(" + " contains(" + factorPivots + " , " + encoded + ") " + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                            where = "not(" + " contains(" + factorPivots + " , '" + encoded + "') ) "; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
                         } else {
                             where = "not(" + getMatchesMethod(factorPivots, encoded) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
                         }
@@ -1229,7 +1229,7 @@ public abstract class QueryBuilder {
         result.append('(');
         result.append(sourceStr);
         result.append(", \""); //$NON-NLS-1$
-        result.append(matchStr);
+        result.append(matchStr.replace("(", "\\(").replace(")", "\\)").replace("[", "\\[").replace("]", "\\]"));
         result.append(".*\" ,\"i\") "); //$NON-NLS-1$
         return result.toString();
     }
