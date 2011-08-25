@@ -4,6 +4,8 @@ import java.io.*;
 
 public class BulkloadClient {
 
+    private SyncInt runningThreadCount;
+
     private String url;
 
 	private String username;
@@ -28,6 +30,29 @@ public class BulkloadClient {
 		this.cluster=cluster;
 		this.concept=concept;
 		this.dataModel = dataModel;
+    }
+    
+    public void startThreadCount(){
+    	if(runningThreadCount == null){
+    		runningThreadCount = new SyncInt();
+    	}else{
+    		waitForEndOfQueue();
+    	}
+    }
+
+    public void waitForEndOfQueue() {
+    	if(runningThreadCount != null){
+	        try {
+    	        while (runningThreadCount.getCount() > 0) {
+        	        System.out.println(Thread.currentThread());
+            	    Thread.sleep(100);
+	            }
+    	    } catch (Exception e) {
+        	    e.printStackTrace();
+	        }
+	    }else{
+	    	System.err.println("didn't start thread count");
+	    }
 	}
 
 	public String getUrl() {
@@ -153,7 +178,18 @@ public class BulkloadClient {
      * @return A {@link InputStreamMerger} that allow asynchronous push to bulkload client.
      */
     public InputStreamMerger load() throws Exception {
-        return BulkloadClientUtil.bulkload(url,
+    	if(runningThreadCount==null){
+	        return BulkloadClientUtil.bulkload(url,
+     	           cluster,
+        	        concept,
+            	    dataModel,
+                	options.isValidate(),
+	                options.isSmartpk(),
+    	            username,
+        	        password,
+            	    universe);
+        }else{
+         	return BulkloadClientUtil.bulkload(url,
                 cluster,
                 concept,
                 dataModel,
@@ -161,6 +197,9 @@ public class BulkloadClient {
                 options.isSmartpk(),
                 username,
                 password,
-                universe);
+                universe,
+				runningThreadCount);
+        }
     }
+   
 }

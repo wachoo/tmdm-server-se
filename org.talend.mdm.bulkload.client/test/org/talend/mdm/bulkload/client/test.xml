@@ -1,4 +1,4 @@
-<items>
+
 <Country><isoCode>zh1</isoCode><label>china</label><Continent>Asia</Continent></Country>
 <Country><isoCode>zh2</isoCode><label>china</label><Continent>Asia</Continent></Country>
 <Country><isoCode>zh3</isoCode><label>china</label><Continent>Asia</Continent></Country>
@@ -19,4 +19,3 @@
 <Country><isoCode>zh18</isoCode><label>china</label><Continent>Asia</Continent></Country>
 <Country><isoCode>zh19</isoCode><label>china</label><Continent>Asia</Continent></Country>
 <Country><isoCode>zh20</isoCode><label>china</label><Continent>Asia</Continent></Country>
-</items>
