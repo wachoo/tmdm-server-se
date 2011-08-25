@@ -34,8 +34,11 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
     private static final Messages MESSAGES = MessagesFactory.getMessages("com.amalto.webapp.v3.xtentismdm.servlet.messages", //$NON-NLS-1$
             ControllerServlet.class.getClassLoader());
 
+    private String target;
+
     @Override
     public void init(ServletConfig config) throws ServletException {
+        target = config.getInitParameter("target"); //$NON-NLS-1$
         super.init(config);
     }
 
@@ -92,8 +95,12 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
             } else {
 
                 ILocalUser.getOnlineUsers().put(username, req.getSession().getId());
-                res.sendRedirect("/general/secure"); //$NON-NLS-1$
-
+                if (target != null && target.trim().length() != 0) {
+                    if (!target.equals("/talendmdm/secure/")) { //$NON-NLS-1$
+                        res.sendRedirect(target);
+                        return;
+                    }
+                }
                 String html = "<html>\n" + "<head>\n" + "<title>Talend MDM</title>\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         + "<meta name=\"gwt:property\" content=\"locale=" + language + "\" >\n" + super.getCommonImport(); //$NON-NLS-1$ //$NON-NLS-2$
                 html += super.getJavascriptImportsHtml();
