@@ -12,15 +12,19 @@
 // ============================================================================
 package com.amalto.core.schema.manage;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.DataModelBean;
 import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
 import org.talend.mdm.commmon.util.datamodel.management.SchemaManager;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
@@ -33,6 +37,8 @@ import com.amalto.core.util.Util;
 public class SchemaCoreAgent extends SchemaManager {
 
     private static SchemaCoreAgent agent;
+    
+    private static Map<String, Node> hiddenNode = new HashMap<String, Node>();
 
     /**
      * DOC HSHU SchemaCoreAgent constructor comment.
@@ -140,7 +146,7 @@ public class SchemaCoreAgent extends SchemaManager {
      * @return
      * @throws Exception
      */
-    public Document executeHideCheck(String itemContent, HashSet<String> roles, AppinfoSourceHolder appinfoSourceHolder)
+    public Document executeHideCheck(String itemContent, HashSet<String> roles, AppinfoSourceHolder appinfoSourceHolder, boolean fill)
             throws Exception {
         if (itemContent == null || itemContent.length() == 0)
             return null;
@@ -148,11 +154,15 @@ public class SchemaCoreAgent extends SchemaManager {
         Document itemDocument = Util.parse(itemContent);
         for (Iterator<String> iterator = roles.iterator(); iterator.hasNext();) {
             String role = iterator.next();
-            executeHideCheck(itemDocument, role, appinfoSourceHolder);
+            if(fill) {
+            	executeFillCheck(itemDocument, role, appinfoSourceHolder);
+            } else {
+            	executeHideCheck(itemDocument, role, appinfoSourceHolder);
+            }
         }
         return itemDocument;
     }
-
+    
     /**
      * DOC HSHU Comment method "executeHideCheck".
      * 
@@ -166,9 +176,33 @@ public class SchemaCoreAgent extends SchemaManager {
 
         for (Iterator<String> iterator = result.iterator(); iterator.hasNext();) {
             String xpath = iterator.next();
+            NodeList nodeList = Util.getNodeList(itemDocument, xpath);
+            if(nodeList.getLength() > 0) {
+            	hiddenNode.put(xpath, nodeList.item(0));
+            }
             Util.removeXpathFromDocument(itemDocument, xpath, true);
         }
 
     }
 
+    public void executeFillCheck(Document itemDocument, String role, AppinfoSourceHolder appinfoSourceHolder) throws Exception {
+    	List<String> result = appinfoSourceHolder.getResult(BusinessConcept.APPINFO_X_HIDE, role);
+
+        for (Iterator<String> iterator = result.iterator(); iterator.hasNext();) {
+            String xpath = iterator.next();
+            Node node = hiddenNode.get(xpath);
+            
+            if(node != null) {
+            	String parentXpath = xpath.substring(0, xpath.lastIndexOf("/"));
+            	NodeList parentNodeList = Util.getNodeList(itemDocument, parentXpath);
+            	
+            	if(parentNodeList != null && parentNodeList.item(0) != null && 
+            		Util.getNodeList(itemDocument, xpath).getLength() == 0) 
+            	{
+            		Node nd = itemDocument.importNode(node, true);
+            		parentNodeList.item(0).appendChild(nd);
+            	}
+            }
+        }
+    }
 }

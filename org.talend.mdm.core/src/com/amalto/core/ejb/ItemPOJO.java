@@ -465,7 +465,7 @@ public class ItemPOJO implements Serializable {
                     HashSet<String> roles = LocalUser.getLocalUser().getRoles();
 
                     Document cleanedDocument = SchemaCoreAgent.getInstance().executeHideCheck(itemContentString, roles,
-                            appinfoSourceHolder);
+                            appinfoSourceHolder, false);
 
                     if (cleanedDocument != null)
                         newItem.setProjectionAsString(Util.nodeToString(cleanedDocument));
@@ -755,6 +755,18 @@ public class ItemPOJO implements Serializable {
             // Util.setNullNode(projection);
             // projectionString = Util.nodeToString(projection);
             // }
+
+        	//should refill hidden element , if some element have been hidden in load method  
+        	AppinfoSourceHolder appinfoSourceHolder = new AppinfoSourceHolder(new AppinfoSourceHolderPK(
+                    this.getDataModelName(), this.getConceptName()));
+        	SchemaCoreAgent.getInstance().analyzeAccessRights(
+                    new DataModelID(this.getDataModelName(), this.getDataModelRevision()),
+                    this.getConceptName(), appinfoSourceHolder);
+            HashSet<String> roles = LocalUser.getLocalUser().getRoles();
+            Document cleanedDocument = SchemaCoreAgent.getInstance().executeHideCheck(getProjectionAsString(), roles,
+                    appinfoSourceHolder, true);
+            setProjectionAsString(Util.nodeToString(cleanedDocument));
+            
             String xml = serialize();
             
             if(LOG.isTraceEnabled())
@@ -876,12 +888,13 @@ public class ItemPOJO implements Serializable {
         xmlBuilder.append("<p>");//$NON-NLS-1$
       //see 0021743, add the xsi namespace declaration to avoid tMDMInput parsing '@xsi:type' throw exception
         String xml=getProjectionAsString();
+        
         try {
         	if((xml!=null && !xml.contains("http://www.w3.org/2001/XMLSchema-instance")) || xml==null){ //$NON-NLS-1$
 				Element node=getProjection();
 				node.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xsi", //$NON-NLS-1$ //$NON-NLS-2$
 	            "http://www.w3.org/2001/XMLSchema-instance"); //$NON-NLS-1$
-				xml=Util.nodeToString(node);
+				xml = Util.nodeToString(node);
         	}
 		} catch (Exception e) {
 			LOG.error(e);
