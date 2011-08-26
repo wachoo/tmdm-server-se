@@ -21,13 +21,9 @@
     
         
         <servlet>
-	        <servlet-name>dispatch</servlet-name>
-	        <display-name>Dispatch</display-name>
-	        <servlet-class>com.amalto.webapp.v3.xtentismdm.servlet.ControllerServlet</servlet-class>
-	        <init-param>
-				<param-name>target</param-name>
-	            <param-value>/general/secure</param-value>
-			</init-param>
+        <servlet-name>dispatch</servlet-name>
+        <display-name>Dispatch</display-name>
+        <servlet-class>com.amalto.webapp.v3.xtentismdm.servlet.ControllerServlet</servlet-class>
         </servlet>
         
         <servlet>
