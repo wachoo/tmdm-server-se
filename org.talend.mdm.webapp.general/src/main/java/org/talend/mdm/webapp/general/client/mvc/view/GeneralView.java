@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.talend.mdm.webapp.general.client.layout.AccordionMenus;
 import org.talend.mdm.webapp.general.client.layout.BorderLayoutContainer;
+import org.talend.mdm.webapp.general.client.layout.WorkSpace;
 import org.talend.mdm.webapp.general.client.mvc.GeneralEvent;
 import org.talend.mdm.webapp.general.model.MenuBean;
 
@@ -28,6 +29,10 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.ui.RootPanel;
 
 public class GeneralView extends View {
+
+    public static final String WELCOMECONTEXT = "welcomeportal", WELCOMEAPP = "WelcomePortal"; //$NON-NLS-1$ //$NON-NLS-2$
+
+    public static final String DSCCONTEXT = "datastewardship", DSCAPP = "Datastewardship"; //$NON-NLS-1$ //$NON-NLS-2$
 
 	public GeneralView(Controller controller) {
 		super(controller);
@@ -44,14 +49,21 @@ public class GeneralView extends View {
 		    AccordionMenus.getInstance().initMenus((List<MenuBean>) event.getData());
 		    Dispatcher dispatcher = Dispatcher.get();
 		    dispatcher.dispatch(GeneralEvent.LoadActions);
+        } else if (type == GeneralEvent.LoadWelcome) {
+            loadWelcome(event);
 		}
 	}
 
-	private void initFrame(AppEvent event){
+    private void loadWelcome(AppEvent event) {
+        WorkSpace.getInstance().loadApp(WELCOMECONTEXT, WELCOMEAPP);
+    }
+
+    private void initFrame(AppEvent event) {
 		BorderLayoutContainer mainLayout = new BorderLayoutContainer();
 		RootPanel.get().add(mainLayout);
 		Dispatcher dispatcher = Dispatcher.get();
 		dispatcher.dispatch(GeneralEvent.LoadMenus);
+        dispatcher.dispatch(GeneralEvent.LoadWelcome);
 	}
 	
 	private void onError(AppEvent ae) {

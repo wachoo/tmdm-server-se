@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ContainerEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -60,12 +61,18 @@ public class WorkSpace extends LayoutContainer {
                 resizeUIObjects();
             }
         });
+        workTabPanel.addListener(Events.Remove, new Listener<ContainerEvent>() {
+
+            public void handleEvent(ContainerEvent be) {
+                uiMap.remove(((TabItem) be.getItem()).getItemId());
+            }
+
+        });
     }
 
     public JavaScriptObject getItem(String itemId) {
         return uiMap.get(itemId);
     }
-
 
     public void addWorkTab(final String itemId, final JavaScriptObject uiObject) {
 
@@ -78,12 +85,6 @@ public class WorkSpace extends LayoutContainer {
 
                 public void handleEvent(BaseEvent be) {
                     resizeUIObjects();
-                }
-            });
-            item.addListener(Events.Close, new Listener<BaseEvent>() {
-
-                public void handleEvent(BaseEvent be) {
-                    uiMap.remove(itemId);
                 }
             });
             item.setItemId(itemId);
@@ -147,4 +148,12 @@ public class WorkSpace extends LayoutContainer {
     public void clearTabs(){
         workTabPanel.removeAll();
     }
+
+    public native void loadApp(String context, String application)/*-{
+        if ($wnd.amalto[context]){
+        if ($wnd.amalto[context][application]){        
+        $wnd.amalto[context][application].init();               
+        }
+        }
+    }-*/;
 }

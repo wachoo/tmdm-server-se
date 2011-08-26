@@ -51,6 +51,7 @@ public class GeneralController extends Controller {
 		registerEventTypes(GeneralEvent.LoadMenus);
 		registerEventTypes(GeneralEvent.LoadLanguages);
 		registerEventTypes(GeneralEvent.LoadActions);
+        registerEventTypes(GeneralEvent.LoadWelcome);
 		registerEventTypes(GeneralEvent.SwitchClusterAndModel);
 	}
 	
@@ -78,10 +79,12 @@ public class GeneralController extends Controller {
 		    loadActions(event);
 		} else if (type == GeneralEvent.SwitchClusterAndModel){
 		    switchClusterAndModel(event);
+        } else if (type == GeneralEvent.LoadWelcome) {
+            forwardToView(view, event);
 		}
 	}
-	
-	private void loadLanguages(AppEvent event){
+
+    private void loadLanguages(AppEvent event) {
 	    service.getLanguages(new MdmAsyncCallback<List<ItemBean>>() {
             public void onSuccess(List<ItemBean> result) {
                 BrandingBar.getInstance().buildLanguage(result);
@@ -132,6 +135,8 @@ public class GeneralController extends Controller {
                     MessageBox.alert(MessageFactory.getMessages().status(), MessageFactory.getMessages().status_msg_failure() + " " + result, null); //$NON-NLS-1$
                 }
                 WorkSpace.getInstance().clearTabs();
+                WorkSpace.getInstance().loadApp(view.WELCOMECONTEXT, view.WELCOMEAPP);
+                WorkSpace.getInstance().loadApp(view.DSCCONTEXT, view.DSCAPP);
             }
         });
 	}

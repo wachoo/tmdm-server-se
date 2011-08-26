@@ -25,6 +25,8 @@ public class Utils {
     
     private static final String GXT_PROPERTIES = "gxt.properties"; //$NON-NLS-1$
 
+    private static final String WELCOMECONTEXT = "welcomeportal", WELCOMEAPP = "WelcomePortal";//$NON-NLS-1$ //$NON-NLS-2$
+
     /** a reference to the factory used to create Gxt instances */
     private static GxtFactory gxtFactory = new GxtFactory(GXT_PROPERTIES);
 
@@ -64,6 +66,14 @@ public class Utils {
     }
 
     private static int getJavascriptImportDetail(Menu menu, List<String> imports, int level, int i) throws Exception {
+        if (menu.getParent() == null) {
+            // add welcome by default
+            Menu welMenu = new Menu();
+            welMenu.setApplication(WELCOMEAPP);
+            welMenu.setContext(WELCOMECONTEXT);
+            menu.getSubMenus().put(WELCOMECONTEXT, welMenu);
+        }
+
         for (Iterator<String> iter = menu.getSubMenus().keySet().iterator(); iter.hasNext(); ) {
             String key = iter.next();
             Menu subMenu= menu.getSubMenus().get(key);
@@ -71,13 +81,15 @@ public class Utils {
             if(subMenu.getContext()!=null) {
                 String gxtEntryModule = gxtFactory.getGxtEntryModule(subMenu.getContext(), subMenu.getApplication());
 
-                if (gxtEntryModule == null || subMenu.getContext().equals("itemsbrowser2")) {
-                    String tmp = "<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/secure/dwr/interface/"
+                if (gxtEntryModule == null || subMenu.getContext().equals("itemsbrowser2")) { //$NON-NLS-1$
+                    String tmp = "<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/secure/dwr/interface/" //$NON-NLS-1$
                             + subMenu.getApplication() + "Interface.js\"></script>\n";
-                    imports.add(tmp);
+                    if (!imports.contains(tmp))
+                        imports.add(tmp);
                     tmp = "<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/secure/js/"
                             + subMenu.getApplication() + ".js\"></script>\n";
-                    imports.add(tmp);
+                    if (!imports.contains(tmp))
+                        imports.add(tmp);
                     if (subMenu.getContext().equals("itemsbrowser2")) {
                         tmp = "<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/" + gxtEntryModule + "/"
                                 + gxtEntryModule + ".nocache.js\"></script>\n";
@@ -87,7 +99,8 @@ public class Utils {
                 } else {
                     String tmp = "<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/" + gxtEntryModule + "/"
                             + gxtEntryModule + ".nocache.js\"></script>\n";
-                    imports.add(tmp);
+                    if (!imports.contains(tmp))
+                        imports.add(tmp);
                 }
                 i++;
             }
