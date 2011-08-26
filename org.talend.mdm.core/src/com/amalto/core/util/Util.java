@@ -1102,7 +1102,9 @@ public class Util {
                     }
 
                     if (fieldTypes[fieldIndex] == null) {
-                        throw new IllegalStateException("Field '" + field + "' does not exist in type '" + businessConceptName + "' (XSD type: "+businessConceptXSDTypeName+".");
+                        // Fix for TMDM-2378: in case of inheritance, field might not be in this type. Actual and fix requires
+                        // huge refactoring of this method (possible use of com.amalto.core.metadata.TypeMetadata for instance).
+                        fieldTypes[fieldIndex] = "xsd:string";
                     } else {
                         fieldIndex++;
                     }
