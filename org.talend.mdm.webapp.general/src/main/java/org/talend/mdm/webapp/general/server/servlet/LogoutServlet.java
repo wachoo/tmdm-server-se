@@ -13,18 +13,13 @@
 package org.talend.mdm.webapp.general.server.servlet;
 
 import java.io.IOException;
-import java.util.Map;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
-
-import com.amalto.core.delegator.ILocalUser;
 
 public class LogoutServlet extends HttpServlet {
 
@@ -44,26 +39,8 @@ public class LogoutServlet extends HttpServlet {
     }
 
     private void doLogout(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String user = req.getParameter("user"); //$NON-NLS-1$
-        if (user != null) {
-            try {
-                String sessionId = ILocalUser.getOnlineUsers().remove(user);
-                if (sessionId != null) {
-                    ServletContext context = req.getSession().getServletContext();
-                    @SuppressWarnings("unchecked")
-                    Map<String, HttpSession> activeSessions = (Map<String, HttpSession>) context
-                            .getAttribute(SessionListener.ACTIVE_SESSIONS);
-                    HttpSession session = activeSessions.get(sessionId);
-                    session.invalidate();
-                }
-            } catch (Exception e) {
-                logger.debug("Error happened while updating online users!"); //$NON-NLS-1$
-            }
-        }
-
         req.getSession().invalidate();
-        resp.sendRedirect(req.getContextPath() + "/index.html"); //$NON-NLS-1$
-
+        resp.sendRedirect("/talendmdm/secure/"); //$NON-NLS-1$
     }
 
 }
