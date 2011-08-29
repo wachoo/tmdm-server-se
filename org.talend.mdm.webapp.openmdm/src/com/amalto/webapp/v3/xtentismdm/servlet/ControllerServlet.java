@@ -93,6 +93,7 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
 
                 ILocalUser.getOnlineUsers().put(username, req.getSession().getId());
                 String target = req.getParameter("target"); //$NON-NLS-1$
+                // when parameter no equals "original" to redirect to /general/secure/
                 if (!"original".equals(target)) { //$NON-NLS-1$
                     res.sendRedirect("/general/secure/"); //$NON-NLS-1$
                     return;
