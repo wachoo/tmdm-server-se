@@ -1,10 +1,7 @@
 package org.talend.mdm.webapp.general.server.servlet;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -15,9 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.dom4j.Document;
-import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
 import org.talend.mdm.webapp.general.server.util.Utils;
 
 import com.amalto.webapp.core.util.Messages;
@@ -118,32 +112,5 @@ public class ControllerServlet extends HttpServlet {
         return "<body>"
                 + "<iframe src=\"javascript:''\" id=\"__gwt_historyFrame\" tabIndex='-1' style=\"position:absolute;width:0;height:0;border:0\"></iframe>"
                 + "</body>";
-    }
-
-    private LinkedHashMap<String, String> getLanguageMap() {
-        LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
-        InputStream io = null;
-        try {
-            io = ControllerServlet.class.getResourceAsStream("languageSelection.xml"); //$NON-NLS-1$
-            SAXReader reader = new SAXReader();
-            Document document = reader.read(io);
-            for (@SuppressWarnings("unchecked")
-            Iterator<Element> iterator = document.getRootElement().elementIterator(); iterator.hasNext();) {
-                Element element = iterator.next();
-                String key = element.attributeValue("value");//$NON-NLS-1$
-                String value = element.getText();
-                map.put(key, value);
-            }
-        } catch (Exception ex) {
-            logger.error(ex.getMessage(), ex);
-        } finally {
-            if (io != null)
-                try {
-                    io.close();
-                } catch (IOException e) {
-                    logger.error(e.getMessage(), e);
-                }
-        }
-        return map;
     }
 }
