@@ -2,9 +2,9 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
         <groupId>org.talend.mdm</groupId>
-        <artifactId>mdm-base-enterprise</artifactId>
+        <artifactId>mdm-base</artifactId>
         <version>${mdm.build.version}</version>
-        <relativePath>../org.talend.mdm.base.enterprise/pom.xml</relativePath>
+        <relativePath>../org.talend.mdm.base/pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -15,8 +15,8 @@
     <name>org.talend.mdm.webapp.welcomeportal</name>
 
     <properties>
-	<!-- This is temporary but tests make MDM build fail -->
-	<maven.test.failure.ignore>true</maven.test.failure.ignore>
+        <!-- This is temporary but tests make MDM build fail -->
+        <maven.test.failure.ignore>true</maven.test.failure.ignore>
     </properties>
 
     <dependencies>
@@ -69,32 +69,32 @@
             <artifactId>commons-lang</artifactId>
         </dependency>
         <dependency>
-             <groupId>commons-jxpath</groupId>
-             <artifactId>commons-jxpath</artifactId>
+            <groupId>commons-jxpath</groupId>
+            <artifactId>commons-jxpath</artifactId>
         </dependency>
         <dependency>
-                <groupId>jboss</groupId>
-                <artifactId>jbossall-client</artifactId>
+            <groupId>jboss</groupId>
+            <artifactId>jbossall-client</artifactId>
         </dependency>
         <dependency>
-                <groupId>jboss.jbossws</groupId>
-                <artifactId>jboss-jaxrpc</artifactId>
+            <groupId>jboss.jbossws</groupId>
+            <artifactId>jboss-jaxrpc</artifactId>
         </dependency>
         <dependency>
-                <groupId>com.sun.xml.rpc</groupId>
-                <artifactId>jaxrpc-impl</artifactId>
+            <groupId>com.sun.xml.rpc</groupId>
+            <artifactId>jaxrpc-impl</artifactId>
         </dependency>
         <dependency>
-                <groupId>com.sun.xml.rpc</groupId>
-                <artifactId>jaxrpc-spi</artifactId>
+            <groupId>com.sun.xml.rpc</groupId>
+            <artifactId>jaxrpc-spi</artifactId>
         </dependency>
         <dependency>
-                <groupId>com.sun.xml.messaging.saaj</groupId>
-                <artifactId>saaj-impl</artifactId>
+            <groupId>com.sun.xml.messaging.saaj</groupId>
+            <artifactId>saaj-impl</artifactId>
         </dependency>
         <dependency>
-                <groupId>com.sun.xml</groupId>
-                <artifactId>relaxngDatatype</artifactId>
+            <groupId>com.sun.xml</groupId>
+            <artifactId>relaxngDatatype</artifactId>
         </dependency>
         <!-- MDM dependencies -->
         <dependency>
@@ -108,10 +108,6 @@
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.talend.mdm</groupId>
-            <artifactId>org.talend.mdm.core.enterprise</artifactId>
         </dependency>
     </dependencies>
 
