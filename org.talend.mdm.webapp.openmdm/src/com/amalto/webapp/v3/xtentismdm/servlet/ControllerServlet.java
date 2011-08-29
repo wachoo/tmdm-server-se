@@ -92,7 +92,11 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
             } else {
 
                 ILocalUser.getOnlineUsers().put(username, req.getSession().getId());
-
+                String target = req.getParameter("target"); //$NON-NLS-1$
+                if (!"original".equals(target)) { //$NON-NLS-1$
+                    res.sendRedirect("/general/secure/"); //$NON-NLS-1$
+                    return;
+                }
                 String html = "<html>\n" + "<head>\n" + "<title>Talend MDM</title>\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         + "<meta name=\"gwt:property\" content=\"locale=" + language + "\" >\n" + super.getCommonImport(); //$NON-NLS-1$ //$NON-NLS-2$
                 html += super.getJavascriptImportsHtml();
