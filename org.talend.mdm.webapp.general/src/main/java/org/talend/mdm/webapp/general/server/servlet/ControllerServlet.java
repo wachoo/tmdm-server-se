@@ -20,10 +20,8 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.talend.mdm.webapp.general.server.util.Utils;
 
-import com.amalto.core.delegator.ILocalUser;
 import com.amalto.webapp.core.util.Messages;
 import com.amalto.webapp.core.util.MessagesFactory;
-import com.amalto.webapp.core.util.WebappForbiddenLoginException;
 import com.amalto.webapp.core.util.WebappRepeatedLoginException;
 
 public class ControllerServlet extends HttpServlet {
@@ -70,47 +68,24 @@ public class ControllerServlet extends HttpServlet {
         PrintWriter out = res.getWriter();
 
         try {
-            // see 0013864
-            username = com.amalto.webapp.core.util.Util.getAjaxSubject().getUsername();
-            if ("admin".equals(username)) {//$NON-NLS-1$		    
-                throw new WebappForbiddenLoginException(MESSAGES.getMessage(locale, "login.exception.forbidden", username)); //$NON-NLS-1$);
+
+            String html = "<html>\n" + "<head>\n" + "<title>Talend MDM</title>\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    + "<meta name=\"gwt:property\" content=\"locale=" + language + "\" >\n"; //$NON-NLS-1$ //$NON-NLS-2$
+            html += "<link rel=\"stylesheet\" type=\"text/css\" href=\"/general/resources/css/gxt-all.css\" />\n"; //$NON-NLS-1$
+            html += "<script type=\"text/javascript\" language=\"javascript\" src=\"/general/general/general.nocache.js\"></script>"; //$NON-NLS-1$
+            html += Utils.getCommonImport();
+
+            List<String> imports = Utils.getJavascriptImport();
+            for (String js : imports) {
+                html += js;
             }
-            LinkedHashMap<String, String> onlineUsers = ILocalUser.getOnlineUsers();
-            if (onlineUsers.containsKey(username)) {
 
-                if (onlineUsers.get(username) != null && req.getSession().getId() != null
-                        && !onlineUsers.get(username).equals(req.getSession().getId())) {
-                    throw new WebappRepeatedLoginException(MESSAGES.getMessage(locale, "login.exception.repeated", username)); //$NON-NLS-1$
-                }
+            html += "</head>\n" + //$NON-NLS-1$
 
-            }
-            // Dispatch call
-            String jsp = req.getParameter("action"); //$NON-NLS-1$	
-            if ("logout".equals(jsp)) { //$NON-NLS-1$
-                ILocalUser.getOnlineUsers().remove(username);
-                req.getSession().invalidate();
-                res.sendRedirect("../index.html"); //$NON-NLS-1$
-            } else {
+                    getBody(language, req) + "</html>\n"; //$NON-NLS-1$
 
-                ILocalUser.getOnlineUsers().put(username, req.getSession().getId());
+            out.write(html);
 
-                String html = "<html>\n" + "<head>\n" + "<title>Talend MDM</title>\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                        + "<meta name=\"gwt:property\" content=\"locale=" + language + "\" >\n"; //$NON-NLS-1$ //$NON-NLS-2$
-                html += "<link rel=\"stylesheet\" type=\"text/css\" href=\"/general/resources/css/gxt-all.css\" />\n"; //$NON-NLS-1$
-                html += "<script type=\"text/javascript\" language=\"javascript\" src=\"/general/general/general.nocache.js\"></script>"; //$NON-NLS-1$
-                html += Utils.getCommonImport();
-
-                List<String> imports = Utils.getJavascriptImport();
-                for (String js : imports) {
-                    html += js;
-                }
-
-                html += "</head>\n" + //$NON-NLS-1$
-
-                        getBody(language, req) + "</html>\n"; //$NON-NLS-1$
-
-                out.write(html);
-            }
 
         } catch (WebappRepeatedLoginException e) {
             req.getSession().invalidate();
