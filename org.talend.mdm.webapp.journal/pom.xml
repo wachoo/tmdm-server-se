@@ -67,7 +67,7 @@
                     <execution>
                         <id>gwt-compile</id>
                         <configuration>
-                            <module>org.talend.mdm.webapp.journal.Journal</module>
+                            <module>org.talend.mdm.webapp.journal.journal</module>
                         </configuration>
                         <goals>
                             <goal>compile</goal>
