@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -38,11 +39,19 @@ import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
+import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
+import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.ListLoadResult;
 import com.extjs.gxt.ui.client.data.ListLoader;
+import com.extjs.gxt.ui.client.data.PagingLoadConfig;
+import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -57,16 +66,31 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.Validator;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.user.client.ui.ClickListener;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Widget;
 
 public class ItemsToolBar extends ToolBar {
 
@@ -153,9 +177,11 @@ public class ItemsToolBar extends ToolBar {
             advancedPanel.cleanCriteria();
         }
         // reset search results
-        ItemsListPanel list = (ItemsListPanel) instance.getParent();
-        if (list != null)
-            list.resetGrid();
+        if (instance.getParent() instanceof ItemsSearchContainer) {
+            ItemsSearchContainer list = (ItemsSearchContainer) instance.getParent();
+            if (list != null)
+                list.getItemsListPanel().resetGrid();
+        }
 
         searchBut.setEnabled(true);
         advancedBut.setEnabled(true);
@@ -218,7 +244,7 @@ public class ItemsToolBar extends ToolBar {
 
     public int getSelectItemNumber() {
         int number = 0;
-        ItemsListPanel list = (ItemsListPanel) instance.getParent();
+        ItemsListPanel list = ((ItemsSearchContainer) instance.getParent()).getItemsListPanel();
         number = list.getGrid().getSelectionModel().getSelectedItems().size();
         return number;
     }
@@ -256,7 +282,7 @@ public class ItemsToolBar extends ToolBar {
             @Override
             public void componentSelected(MenuEvent ce) {
 
-                if (((ItemsListPanel) instance.getParent()).getGrid() == null) {
+                if (((ItemsSearchContainer) instance.getParent()).getItemsListPanel().getGrid() == null) {
                     com.google.gwt.user.client.Window.alert(MessagesFactory.getMessages().select_delete_item_record());
                 } else {
                     if (getSelectItemNumber() == 0) {
@@ -265,7 +291,7 @@ public class ItemsToolBar extends ToolBar {
                         MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
                                 .delete_confirm(), new Listener<MessageBoxEvent>() {
 
-                            final ItemsListPanel list = (ItemsListPanel) instance.getParent();
+                            final ItemsListPanel list = ((ItemsSearchContainer) instance.getParent()).getItemsListPanel();
 
                             public void handleEvent(MessageBoxEvent be) {
                                 if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
@@ -366,7 +392,7 @@ public class ItemsToolBar extends ToolBar {
 
                     public void handleEvent(MessageBoxEvent be) {
                         if (be.getButtonClicked().getItemId().equals(Dialog.OK)) {
-                            final ItemsListPanel list = (ItemsListPanel) instance.getParent();
+                            final ItemsListPanel list = ((ItemsSearchContainer) instance.getParent()).getItemsListPanel();
                             if (list.getGrid() != null) {
                                 service.logicalDeleteItems(list.getGrid().getSelectionModel().getSelectedItems(), "/", //$NON-NLS-1$
                                         new AsyncCallback<List<ItemResult>>() {
@@ -510,8 +536,9 @@ public class ItemsToolBar extends ToolBar {
                 advancedPanel.setVisible(advancedPanelVisible);
                 advancedPanel.getButtonBar().getItemByItemId("updateBookmarkBtn").setVisible(false); //$NON-NLS-1$
 
-                if (((ItemsListPanel) instance.getParent()).gridContainer != null)
-                    ((ItemsListPanel) instance.getParent()).gridContainer.setHeight(instance.getParent().getOffsetHeight()
+                if (((ItemsSearchContainer) instance.getParent()).getItemsListPanel().gridContainer != null)
+                    ((ItemsSearchContainer) instance.getParent()).getItemsListPanel().gridContainer.setHeight(instance
+                            .getParent().getOffsetHeight()
                             - instance.getOffsetHeight() - advancedPanel.getOffsetHeight());
                 if (isSimple) {
                     MultipleCriteria criteriaStore = (MultipleCriteria) BrowseRecords.getSession().get(
@@ -538,7 +565,191 @@ public class ItemsToolBar extends ToolBar {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                // TODO
+                final Window winBookmark = new Window();
+                winBookmark.setHeading(MessagesFactory.getMessages().bookmarkmanagement_heading());
+                winBookmark.setAutoHeight(true);
+                // winBookmark.setAutoWidth(true);
+                winBookmark.setWidth(413);
+                winBookmark.setModal(true);
+                FormPanel content = new FormPanel();
+                FormData formData = new FormData("-10");//$NON-NLS-1$
+                content.setFrame(false);
+                content.setLayout(new FitLayout());
+                content.setBodyBorder(false);
+                content.setHeaderVisible(false);
+                content.setSize(400, 350);
+                winBookmark.add(content);
+
+                // display bookmark grid
+                RpcProxy<PagingLoadResult<ItemBaseModel>> proxyBookmark = new RpcProxy<PagingLoadResult<ItemBaseModel>>() {
+
+                    @Override
+                    public void load(Object loadConfig, AsyncCallback<PagingLoadResult<ItemBaseModel>> callback) {
+                        service.querySearchTemplates(entityCombo.getValue().get("value").toString(), true, //$NON-NLS-1$
+                                (PagingLoadConfig) loadConfig, callback);
+                    }
+                };
+
+                // loader
+                final PagingLoader<PagingLoadResult<ItemBaseModel>> loaderBookmark = new BasePagingLoader<PagingLoadResult<ItemBaseModel>>(
+                        proxyBookmark);
+
+                ListStore<ItemBaseModel> store = new ListStore<ItemBaseModel>(loaderBookmark);
+                store.setDefaultSort("name", SortDir.ASC); //$NON-NLS-1$
+
+                final PagingToolBar pagetoolBar = new PagingToolBar(PAGE_SIZE);
+                pagetoolBar.bind(loaderBookmark);
+
+                List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
+                columns.add(new ColumnConfig("name", MessagesFactory.getMessages().bookmark_heading(), 200)); //$NON-NLS-1$
+                ColumnConfig colEdit = new ColumnConfig("value", MessagesFactory.getMessages().bookmark_edit(), 100); //$NON-NLS-1$
+                colEdit.setRenderer(new GridCellRenderer<ItemBaseModel>() {
+
+                    public Object render(final ItemBaseModel model, String property, ColumnData config, int rowIndex,
+                            int colIndex, ListStore<ItemBaseModel> store, Grid<ItemBaseModel> grid) {
+                        Image image = new Image();
+                        image.setResource(Icons.INSTANCE.Edit());
+                        if (!ifManage(model))
+                            image.addStyleName("x-item-disabled");//$NON-NLS-1$
+                        else
+                            image.addClickListener(new ClickListener() {
+
+                                public void onClick(Widget arg0) {
+                                    // edit the bookmark
+                                    if (advancedPanel == null) {
+                                        advancedPanel = new AdvancedSearchPanel(simplePanel.getView(), null);
+                                    }
+                                    service.getCriteriaByBookmark(model.get("value").toString(), new AsyncCallback<String>() { //$NON-NLS-1$
+
+                                                public void onFailure(Throwable caught) {
+                                                    Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
+                                                }
+
+                                                public void onSuccess(String arg0) {
+                                                    // set criteria
+                                                    if (arg0 != null) {
+                                                        advancedPanel.setCriteria(arg0);
+                                                        // advancedPanel.setCriteriaAppearance(arg0, arg0);
+                                                    } else
+                                                        advancedPanel.cleanCriteria();
+                                                    advancedPanelVisible = true;
+                                                    advancedPanel.setVisible(advancedPanelVisible);
+                                                    advancedPanel.getButtonBar().getItemByItemId("updateBookmarkBtn").setVisible(
+                                                            true);
+                                                    bookmarkName = model.get("value").toString();
+                                                    bookmarkShared = Boolean.parseBoolean(model.get("shared").toString());
+                                                    if (((ItemsListPanel) instance.getParent()).gridContainer != null)
+                                                        ((ItemsListPanel) instance.getParent()).gridContainer.setHeight(instance
+                                                                .getParent().getOffsetHeight()
+                                                                - instance.getOffsetHeight() - advancedPanel.getOffsetHeight());
+                                                    winBookmark.close();
+                                                }
+
+                                            });
+                                }
+
+                            });
+                        return image;
+                    }
+
+                });
+                columns.add(colEdit);
+
+                ColumnConfig colDel = new ColumnConfig("value", MessagesFactory.getMessages().bookmark_del(), 100); //$NON-NLS-1$
+                colDel.setRenderer(new GridCellRenderer<ItemBaseModel>() {
+
+                    public Object render(final ItemBaseModel model, String property, ColumnData config, int rowIndex,
+                            int colIndex, ListStore<ItemBaseModel> store, Grid<ItemBaseModel> grid) {
+                        Image image = new Image();
+                        image.setResource(Icons.INSTANCE.remove());
+                        if (!ifManage(model))
+                            image.addStyleName("x-item-disabled"); //$NON-NLS-1$
+                        else
+                            image.addClickListener(new ClickListener() {
+
+                                public void onClick(Widget arg0) {
+                                    MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory
+                                            .getMessages().bookmark_DelMsg(), new Listener<MessageBoxEvent>() {
+
+                                        public void handleEvent(MessageBoxEvent be) {
+                                            if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                                // delete the bookmark
+                                                service.deleteSearchTemplate(model.get("value").toString(), //$NON-NLS-1$
+                                                        new AsyncCallback<String>() {
+
+                                                            public void onFailure(Throwable caught) {
+                                                                Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
+                                                            }
+
+                                                            public void onSuccess(String arg0) {
+                                                                loaderBookmark.load();
+                                                            }
+
+                                                        });
+                                            }
+                                        }
+                                    });
+                                }
+
+                            });
+                        return image;
+                    }
+
+                });
+
+                columns.add(colDel);
+
+                ColumnConfig colSearch = new ColumnConfig("value", MessagesFactory.getMessages().bookmark_search(), 100); //$NON-NLS-1$
+                colSearch.setRenderer(new GridCellRenderer<ItemBaseModel>() {
+
+                    public Object render(final ItemBaseModel model, String property, ColumnData config, int rowIndex,
+                            int colIndex, ListStore<ItemBaseModel> store, Grid<ItemBaseModel> grid) {
+                        Image image = new Image();
+                        image.setResource(Icons.INSTANCE.dosearch());
+                        image.addClickListener(new ClickListener() {
+
+                            public void onClick(Widget arg0) {
+                                doSearch(model, winBookmark);
+                            }
+
+                        });
+                        return image;
+                    }
+
+                });
+                columns.add(colSearch);
+
+                ColumnModel cm = new ColumnModel(columns);
+
+                final Grid<ItemBaseModel> bookmarkgrid = new Grid<ItemBaseModel>(store, cm);
+                if (cm.getColumnCount() > 0) {
+                    bookmarkgrid.setAutoExpandColumn(cm.getColumn(0).getHeader());
+                }
+                bookmarkgrid.getView().setForceFit(true);
+                bookmarkgrid.addListener(Events.Attach, new Listener<GridEvent<ItemBaseModel>>() {
+
+                    public void handleEvent(GridEvent<ItemBaseModel> be) {
+                        PagingLoadConfig config = new BasePagingLoadConfig();
+                        config.setOffset(0);
+                        config.setLimit(PAGE_SIZE);
+                        loaderBookmark.load(config);
+                    }
+                });
+
+                bookmarkgrid.addListener(Events.OnDoubleClick, new Listener<GridEvent<ItemBaseModel>>() {
+
+                    public void handleEvent(final GridEvent<ItemBaseModel> be) {
+                        doSearch(be.getModel(), winBookmark);
+                    }
+                });
+
+                bookmarkgrid.setLoadMask(true);
+                bookmarkgrid.setBorders(false);
+
+                content.setBottomComponent(pagetoolBar);
+                content.add(bookmarkgrid, formData);
+
+                winBookmark.show();
             }
 
         });
@@ -552,8 +763,7 @@ public class ItemsToolBar extends ToolBar {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                // TODO
-                // showBookmarkSavedWin(true);
+                showBookmarkSavedWin(true);
             }
 
         });
@@ -622,8 +832,9 @@ public class ItemsToolBar extends ToolBar {
         advancedPanel.setVisible(advancedPanelVisible);
         advancedBut.toggle(advancedPanelVisible);
         // resize result grid
-        if (((ItemsListPanel) instance.getParent()).gridContainer != null)
-            ((ItemsListPanel) instance.getParent()).gridContainer.setHeight(instance.getParent().getOffsetHeight()
+        if (((ItemsSearchContainer) instance.getParent()).getItemsListPanel().gridContainer != null)
+            ((ItemsSearchContainer) instance.getParent()).getItemsListPanel().gridContainer.setHeight(instance.getParent()
+                    .getOffsetHeight()
                     - instance.getOffsetHeight() - advancedPanel.getOffsetHeight());
     }
 
@@ -659,8 +870,7 @@ public class ItemsToolBar extends ToolBar {
 
                 @Override
                 public void componentSelected(ButtonEvent ce) {
-                    // TODO
-                    // showBookmarkSavedWin(false);
+                    showBookmarkSavedWin(false);
                 }
 
             });
@@ -673,8 +883,7 @@ public class ItemsToolBar extends ToolBar {
 
                 @Override
                 public void componentSelected(ButtonEvent ce) {
-                    // TODO
-                    // saveBookmark(bookmarkName, bookmarkShared, advancedPanel.getCriteria(), null);
+                    saveBookmark(bookmarkName, bookmarkShared, advancedPanel.getCriteria(), null);
                 }
 
             });
@@ -688,8 +897,9 @@ public class ItemsToolBar extends ToolBar {
                 public void componentSelected(ButtonEvent ce) {
                     advancedPanel.cleanCriteria();
 
-                    if (((ItemsListPanel) instance.getParent()).gridContainer != null)
-                        ((ItemsListPanel) instance.getParent()).gridContainer.setHeight(instance.getParent().getOffsetHeight()
+                    if (((ItemsSearchContainer) instance.getParent()).getItemsListPanel().gridContainer != null)
+                        ((ItemsSearchContainer) instance.getParent()).getItemsListPanel().gridContainer.setHeight(instance
+                                .getParent().getOffsetHeight()
                                 - instance.getOffsetHeight() - advancedPanel.getOffsetHeight());
                 }
 
@@ -697,6 +907,103 @@ public class ItemsToolBar extends ToolBar {
             advancedPanel.addButton(cancelBtn);
             advancedPanel.setVisible(false);
         }
+    }
+
+    private void showBookmarkSavedWin(final boolean ifSimple) {
+        final Window winBookmark = new Window();
+        winBookmark.setHeading(MessagesFactory.getMessages().bookmark_heading());
+        // winBookmark.setAutoHeight(true);
+        // winBookmark.setAutoWidth(true);
+        winBookmark.setWidth(355);
+        winBookmark.setHeight(191);
+        FormPanel content = new FormPanel();
+        content.setFrame(false);
+        content.setBodyBorder(false);
+        content.setHeaderVisible(false);
+        content.setButtonAlign(HorizontalAlignment.CENTER);
+        content.setLabelWidth(100);
+        content.setFieldWidth(200);
+        final CheckBox cb = new CheckBox();
+        cb.setFieldLabel(MessagesFactory.getMessages().bookmark_shared());
+        content.add(cb);
+
+        final TextField<String> bookmarkfield = new TextField<String>();
+        bookmarkfield.setFieldLabel(MessagesFactory.getMessages().bookmark_name());
+        Validator validator = new Validator() {
+
+            public String validate(Field<?> field, String value) {
+                if (field == bookmarkfield) {
+                    if (bookmarkfield.getValue() == null || bookmarkfield.getValue().trim().equals("")) //$NON-NLS-1$
+                        return MessagesFactory.getMessages().required_field();
+                }
+
+                return null;
+            }
+        };
+        bookmarkfield.setValidator(validator);
+        content.add(bookmarkfield);
+
+        Button btn = new Button(MessagesFactory.getMessages().ok_btn());
+        btn.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                service.isExistCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue(), //$NON-NLS-1$
+                        new AsyncCallback<Boolean>() {
+
+                            public void onFailure(Throwable caught) {
+                                Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
+                                MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                                        .bookmark_existMsg(), null);
+                            }
+
+                            public void onSuccess(Boolean arg0) {
+                                if (!arg0) {
+                                    String curCriteria = null;
+                                    if (ifSimple)
+                                        curCriteria = simplePanel.getCriteria().toString();
+                                    else
+                                        curCriteria = advancedPanel.getCriteria();
+                                    saveBookmark(bookmarkfield.getValue().toString(), cb.getValue(), curCriteria, winBookmark);
+                                } else {
+                                    MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                                            .bookmark_existMsg(), null);
+                                }
+                            }
+
+                        });
+            }
+        });
+        winBookmark.addButton(btn);
+
+        winBookmark.add(content);
+        winBookmark.show();
+    }
+
+    private void saveBookmark(String name, boolean shared, String curCriteria, final Window winBookmark) {
+
+        service.saveCriteria(entityCombo.getValue().get("value").toString(), name, shared, curCriteria, //$NON-NLS-1$
+                new AsyncCallback<String>() {
+
+                    public void onFailure(Throwable caught) {
+                        Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
+                        MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                                .bookmark_saveFailed(), null);
+                    }
+
+                    public void onSuccess(String arg0) {
+                        if (arg0.equals("OK")) { //$NON-NLS-1$
+                            MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
+                                    .bookmark_saveSuccess(), null);
+                            updateUserCriteriasList();
+                            if (winBookmark != null)
+                                winBookmark.close();
+                        } else
+                            MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                                    .bookmark_saveFailed(), null);
+                    }
+
+                });
     }
 
     public void addOption(ItemBaseModel model) {

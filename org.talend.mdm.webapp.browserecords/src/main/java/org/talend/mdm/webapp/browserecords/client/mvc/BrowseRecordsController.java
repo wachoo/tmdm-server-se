@@ -74,13 +74,13 @@ public class BrowseRecordsController extends Controller {
             public void onSuccess(ViewBean viewbean) {
 
                 // Init CURRENT_VIEW
-                BrowseRecords.getSession().put(UserSession.CURRENT_VIEW, view);
+                BrowseRecords.getSession().put(UserSession.CURRENT_VIEW, viewbean);
 
                 // Init CURRENT_ENTITY_MODEL
                 BrowseRecords.getSession().put(UserSession.CURRENT_ENTITY_MODEL, viewbean.getBindingEntityModel());
 
                 // forward
-                AppEvent ae = new AppEvent(event.getType(), view);
+                AppEvent ae = new AppEvent(event.getType(), viewbean);
                 forwardToView(view, ae);
             }
 

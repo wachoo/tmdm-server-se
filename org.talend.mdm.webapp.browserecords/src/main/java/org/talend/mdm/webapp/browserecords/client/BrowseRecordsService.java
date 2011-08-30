@@ -28,6 +28,7 @@ import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
+import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
@@ -72,4 +73,12 @@ public interface BrowseRecordsService extends RemoteService {
     String getCurrentDataModel() throws Exception;
 
     String getCurrentDataCluster() throws Exception;
+
+    PagingLoadResult<ItemBaseModel> querySearchTemplates(String view, boolean isShared, PagingLoadConfig load);
+
+    String deleteSearchTemplate(String id);
+
+    boolean isExistCriteria(String dataObjectLabel, String id);
+
+    String saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString);
 }

@@ -143,14 +143,16 @@ public class ItemsListPanel extends ContentPanel {
 
     private int showItemTimes = 0;
 
-    PagingToolBarEx pagingBar = null;
+    private PagingToolBarEx pagingBar = null;
 
-    ItemsToolBar toolBar;
+    private ItemsToolBar toolBar;
 
-    public ItemsListPanel() {
+    public ItemsListPanel(ItemsToolBar bar) {
         setLayout(new FitLayout());
         setHeaderVisible(false);
         initPanel();
+        toolBar = bar;
+        add(toolBar.getAdvancedPanel());
 
         store.setKeyProvider(keyProvidernew);
 
@@ -189,10 +191,6 @@ public class ItemsListPanel extends ContentPanel {
         add(panel);
     }
 
-
-    public ItemsToolBar getToolBar() {
-        return toolBar;
-    }
 
     public void updateGrid(CheckBoxSelectionModel<ItemBean> sm, List<ColumnConfig> columnConfigList) {
         toolBar.searchBut.setEnabled(false);
@@ -302,14 +300,6 @@ public class ItemsListPanel extends ContentPanel {
         this.doLayout();
     }
 
-    public void layoutGrid() {
-        this.layout(true);
-        if (gridContainer != null) {
-            Element parent = DOM.getParent(gridContainer.getElement());
-            gridContainer.setSize(parent.getOffsetWidth(), parent.getOffsetHeight());
-        }
-    }
-
     private void hookContextMenu() {
 
         Menu contextMenu = new Menu();
@@ -373,6 +363,14 @@ public class ItemsListPanel extends ContentPanel {
 
         grid.setContextMenu(contextMenu);
 
+    }
+
+    public void layoutGrid() {
+        this.layout(true);
+        if (gridContainer != null) {
+            Element parent = DOM.getParent(gridContainer.getElement());
+            gridContainer.setSize(parent.getOffsetWidth(), parent.getOffsetHeight());
+        }
     }
 
     public ListStore<ItemBean> getStore() {

@@ -28,6 +28,7 @@ import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
+import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
@@ -70,5 +71,14 @@ public interface BrowseRecordsServiceAsync {
     void getCurrentDataModel(AsyncCallback<String> callback);
 
     void getCurrentDataCluster(AsyncCallback<String> callback);
+
+    void querySearchTemplates(String view, boolean isShared, PagingLoadConfig load,
+            AsyncCallback<PagingLoadResult<ItemBaseModel>> callback);
+
+    void deleteSearchTemplate(String id, AsyncCallback<String> callback);
+
+    void isExistCriteria(String dataObjectLabel, String id, AsyncCallback<Boolean> callback);
+
+    void saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString, AsyncCallback<String> callback);
 
 }

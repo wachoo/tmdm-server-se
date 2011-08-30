@@ -30,6 +30,7 @@ import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
+import com.extjs.gxt.ui.client.data.PagingLoadResult;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -107,6 +108,22 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     public String getCurrentDataModel() throws Exception {
         return browserecordsServiceHandler.getCurrentDataModel();
+    }
+
+    public PagingLoadResult<ItemBaseModel> querySearchTemplates(String view, boolean isShared, PagingLoadConfig load) {
+        return browserecordsServiceHandler.querySearchTemplates(view, isShared, load);
+    }
+
+    public String deleteSearchTemplate(String id) {
+        return browserecordsServiceHandler.deleteSearchTemplate(id);
+    }
+
+    public boolean isExistCriteria(String dataObjectLabel, String id) {
+        return browserecordsServiceHandler.isExistCriteria(dataObjectLabel, id);
+    }
+
+    public String saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString) {
+        return browserecordsServiceHandler.saveCriteria(viewPK, templateName, isShared, criteriaString);
     }
 
 }

@@ -13,9 +13,6 @@
 package org.talend.mdm.webapp.browserecords.client.widget;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
@@ -40,17 +37,12 @@ public class ItemsSearchContainer extends LayoutContainer {
         toolbar = new ItemsToolBar();
         add(toolbar, new BorderLayoutData(LayoutRegion.NORTH, 30));
 
-        itemsListPanel = new ItemsListPanel();
+        itemsListPanel = new ItemsListPanel(toolbar);
+        itemsListPanel.layoutGrid();
         BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 400);
         westData.setSplit(true);
         westData.setMargins(new Margins(0, 5, 0, 0));
         add(itemsListPanel, westData);
-        itemsListPanel.addListener(Events.Resize, new Listener<BaseEvent>() {
-
-            public void handleEvent(BaseEvent be) {
-                itemsListPanel.layoutGrid();
-            }
-        });
 
         itemsDetailPanel = new ItemsDetailPanel();
         itemsDetailPanel.setHeaderVisible(false);

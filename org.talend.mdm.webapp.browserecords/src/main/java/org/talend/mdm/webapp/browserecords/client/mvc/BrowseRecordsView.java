@@ -83,15 +83,10 @@ public class BrowseRecordsView extends View {
                 super.onAttach();
                 Widget w = this.getParent();
                 setSize(w.getOffsetWidth(), w.getOffsetHeight());
-            }
-
-            @Override
-            protected void onWindowResize(int width, int height) {
-                Widget w = this.getParent();
-                setSize(w.getOffsetWidth(), w.getOffsetHeight());
                 this.doLayout(true);
             }
         };
+
         container.setLayout(new FitLayout());
         container.setStyleAttribute("height", "100%");//$NON-NLS-1$ //$NON-NLS-2$       
         RootPanel.get().add(container);
@@ -112,7 +107,7 @@ public class BrowseRecordsView extends View {
         ViewBean viewBean = event.getData();
 
         itemsSearchContainer = Registry.get(ITEMS_SEARCH_CONTAINER);
-        itemsSearchContainer.getItemsListPanel().getToolBar().updateToolBar(viewBean);
+        itemsSearchContainer.getToolBar().updateToolBar(viewBean);
         itemsSearchContainer.getItemsListPanel().resetShowItemTimes();
     }
 

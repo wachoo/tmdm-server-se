@@ -100,6 +100,8 @@ public interface BrowseRecordsMessages extends Messages {
 
     String advsearch_bookmark();
 
+    String required_field();
+
     String fk_RelatedRecord();
 
     String label_select_type();
@@ -199,4 +201,10 @@ public interface BrowseRecordsMessages extends Messages {
     String message_fail();
 
     String data_model_not_specified();
+
+    String delete_process_validation_failure();
+
+    String delete_record_failure();
+
+    String delete_record_success();
 }

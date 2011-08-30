@@ -71,4 +71,7 @@ public interface Icons extends ClientBundle {
 
     @Source("clear-icon.gif")
     ImageResource clear_icon();
+
+    @Source("dosearch.png")
+    ImageResource dosearch();
 }
