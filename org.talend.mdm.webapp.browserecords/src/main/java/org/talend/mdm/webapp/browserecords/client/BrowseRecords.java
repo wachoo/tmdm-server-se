@@ -12,7 +12,11 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client;
 
+import org.talend.mdm.webapp.browserecords.client.layout.columns.ColumnLayoutPanel;
+
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.RootPanel;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -24,11 +28,10 @@ public class BrowseRecords implements EntryPoint {
      */
     public static final String BROWSERECORDS_SERVICE = "BrowseRecordsService"; //$NON-NLS-1$   
 
-
-    /**
-     * This is the entry point method.
-     */
     public void onModuleLoad() {
-
+        Window.alert("hello good");
+        ColumnLayoutPanel clp = new ColumnLayoutPanel(3);
+        clp.setSize("700", "600");
+        RootPanel.get().add(clp);
     }
 }

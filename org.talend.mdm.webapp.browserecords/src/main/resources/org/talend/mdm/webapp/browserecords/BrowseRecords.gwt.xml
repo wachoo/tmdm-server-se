@@ -11,7 +11,9 @@
   <!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
 
   <!-- Other module inherits                                      -->
+  <inherits name='com.extjs.gxt.ui.GXT'/>
 
+  <inherits name="com.allen_sauer.gwt.log.gwt-log-DEBUG" />
   <!-- Specify the app entry point class.                         -->
   <entry-point class='org.talend.mdm.webapp.browserecords.client.BrowseRecords'/>
 
