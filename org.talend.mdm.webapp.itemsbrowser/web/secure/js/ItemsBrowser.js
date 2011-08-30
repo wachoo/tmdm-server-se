@@ -3189,10 +3189,16 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         		return;
                         	}
                         	
-                        	Ext.MessageBox.confirm(MSG_CONFIRM_TITLE[language], MSG_CONFIRM_REFRESH_TREE_DETAIL[language], function(btn){
-                        		if (btn == "no") return;
+                        	if (updateFlag[treeIndex] == 1){
+	                        	Ext.MessageBox.confirm(MSG_CONFIRM_TITLE[language], MSG_CONFIRM_REFRESH_TREE_DETAIL[language], function(btn){
+	                        		if (btn == "no") return;
+	                        		updateFlag[treeIndex] = 0;
+	                        		refreshFn();
+	                        		
+	                        	});
+                        	} else {
                         		refreshFn();
-                        	});
+                        	}
 
                         };
 
@@ -4027,11 +4033,15 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         		return;
                         	}
                         	
-                        	Ext.MessageBox.confirm(MSG_CONFIRM_TITLE[language], MSG_CONFIRM_REFRESH_TREE_DETAIL[language], function(btn){
-                        		if (btn == "no") return;
-                        	    refreshFn();
-                        	});
-
+                        	if (updateFlag[treeIndex] == 1){
+	                        	Ext.MessageBox.confirm(MSG_CONFIRM_TITLE[language], MSG_CONFIRM_REFRESH_TREE_DETAIL[language], function(btn){
+	                        		if (btn == "no") return;
+	                        		updateFlag[treeIndex] = 0;
+	                        	    refreshFn();
+	                        	});
+                        	} else {
+                        		refreshFn();
+                        	}
                             
                             
                             /*
