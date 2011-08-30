@@ -3917,14 +3917,19 @@ public class ItemsBrowserDWR {
      * @throws ParseException
      * 
      */
-    public String printFormat(String lang, String format, String value, String typeName) throws ParseException {
-        if (typeName == null || typeName.equals("null") || format.equals("null") || "".equals(value))//$NON-NLS-1$//$NON-NLS-2$
-            return value;
-        Object object = Util.getTypeValue(lang, typeName, value, format);
-        if (object instanceof Calendar || object instanceof Time || object == null) {
-            return Util.outputValidateDate(value, format);
+    public String printFormat(String lang, String format, String value, String typeName) {
+        try {
+            if (typeName == null || typeName.equals("null") || format.equals("null") || "".equals(value))//$NON-NLS-1$//$NON-NLS-2$
+                return value;
+            Object object = Util.getTypeValue(lang, typeName, value, format);
+            if (object instanceof Calendar || object instanceof Time || object == null) {
+                return Util.outputValidateDate(value, format);
+            }
+            return object.toString();
+        } catch (ParseException parseException) {
+            LOG.error(parseException.getMessage());
+            return "";
         }
-        return object.toString();
     }
 
     /***
@@ -4001,7 +4006,8 @@ public class ItemsBrowserDWR {
         }
         
       if (node.getTypeName().equals("date")) {//$NON-NLS-1$
-          String targetValue = (node.getValue() != null && node.getRealValue() != null) ? node.getRealValue() : value; 
+          String targetValue = (node.getValue() != null && !"".equals(node.getValue()) && node.getRealValue() != null && !""
+                  .equals(node.getRealValue())) ? node.getRealValue() : value; 
           if (node.getMinOccurs() > 0) {
               if (!isDate(targetValue)) {
                   return "the field must be " + node.getTypeName() + "formate yyyy-mm-dd";
@@ -4014,7 +4020,8 @@ public class ItemsBrowserDWR {
       }
       
       if (node.getTypeName().equals("dateTime")) {//$NON-NLS-1$       
-          String targetValue = (node.getValue() != null && node.getRealValue() != null) ? node.getRealValue() : value; 
+          String targetValue = (node.getValue() != null && !"".equals(node.getValue()) && node.getRealValue() != null && !""
+                  .equals(node.getRealValue())) ? node.getRealValue() : value; 
           if (node.getMinOccurs() > 0) {
               if (!isDateTime(targetValue)) {
                   return "the field must be " + node.getTypeName() + "formate yyyy-mm-ddTHH:mm:ss";
