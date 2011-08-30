@@ -10,22 +10,20 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.browserecords.client;
+package org.talend.mdm.webapp.browserecords.client.model;
 
-import com.extjs.gxt.ui.client.event.EventType;
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 
 /**
- * DOC Administrator  class global comment. Detailled comment
+ * DOC HSHU  class global comment. Detailled comment
  */
-public class BrowseRecordsEvents {
-
-    public static final EventType Error = new EventType();
-
-    public static final EventType InitFrame = new EventType();
-
-    public static final EventType InitSearchContainer = new EventType();
+public interface DataType extends IsSerializable{
     
-    public static final EventType GetView = new EventType();
+    String getTypeName();
+    
+    Object getDefaultValue();
+    
+    String getBaseTypeName();
 
-    public static final EventType SearchView = new EventType();
 }

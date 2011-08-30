@@ -10,22 +10,14 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.browserecords.client;
+package org.talend.mdm.webapp.browserecords.client.resources;
 
-import com.extjs.gxt.ui.client.event.EventType;
+import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 
-/**
- * DOC Administrator  class global comment. Detailled comment
- */
-public class BrowseRecordsEvents {
+import com.google.gwt.core.client.GWT;
 
-    public static final EventType Error = new EventType();
+public class Resources {
 
-    public static final EventType InitFrame = new EventType();
+  public static final Icons ICONS = GWT.create(Icons.class);
 
-    public static final EventType InitSearchContainer = new EventType();
-    
-    public static final EventType GetView = new EventType();
-
-    public static final EventType SearchView = new EventType();
 }

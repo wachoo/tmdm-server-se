@@ -10,22 +10,13 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.browserecords.client;
+package org.talend.mdm.webapp.browserecords.client.widget;
 
-import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 
 /**
  * DOC Administrator  class global comment. Detailled comment
  */
-public class BrowseRecordsEvents {
+public class ItemsDetailPanel extends ContentPanel {
 
-    public static final EventType Error = new EventType();
-
-    public static final EventType InitFrame = new EventType();
-
-    public static final EventType InitSearchContainer = new EventType();
-    
-    public static final EventType GetView = new EventType();
-
-    public static final EventType SearchView = new EventType();
 }

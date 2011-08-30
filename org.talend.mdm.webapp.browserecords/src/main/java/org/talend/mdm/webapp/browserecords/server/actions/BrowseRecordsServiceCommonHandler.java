@@ -14,8 +14,6 @@ package org.talend.mdm.webapp.browserecords.server.actions;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
-import org.talend.mdm.webapp.browserecords.client.BrowseRecordsService;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyDrawer;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBaseModel;
@@ -24,6 +22,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.Restriction;
+import org.talend.mdm.webapp.browserecords.server.BrowseRecordsConfiguration;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
@@ -32,81 +31,76 @@ import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 
 /**
- * DOC Administrator class global comment. Detailled comment
+ * DOC Administrator  class global comment. Detailled comment
  */
-public class BrowseRecordsAction implements BrowseRecordsService {
-    private static final Logger LOG = Logger.getLogger(BrowseRecordsAction.class);
-
-    private static BrowseRecordsService browserecordsServiceHandler = BrowseRecordsServiceHandlerFactory.createHandler();
+public class BrowseRecordsServiceCommonHandler extends BrowseRecordsAction {
 
     public ItemResult deleteItemBean(ItemBean item) {
-        return browserecordsServiceHandler.deleteItemBean(item);
+        return null;
     }
 
     public List<ItemResult> deleteItemBeans(List<ItemBean> items) {
-        return browserecordsServiceHandler.deleteItemBeans(items);
+        return null;
     }
 
     public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,
             String dataClusterPK, boolean ifFKFilter, String value) {
-        return browserecordsServiceHandler.getForeignKeyList(config, model, dataClusterPK, ifFKFilter, value);
+        return null;
     }
 
     public List<Restriction> getForeignKeyPolymTypeList(String xpathForeignKey, String language) throws Exception {
-        return browserecordsServiceHandler.getForeignKeyPolymTypeList(xpathForeignKey, language);
+        return null;
     }
 
     public ItemBean getItem(ItemBean itemBean, EntityModel entityModel) throws Exception {
-        return browserecordsServiceHandler.getItem(itemBean, entityModel);
+        return null;
     }
 
     public ViewBean getView(String viewPk, String language) {
-        return browserecordsServiceHandler.getView(viewPk, language);
+        return null;
     }
 
     public ItemResult logicalDeleteItem(ItemBean item, String path) {
-        return browserecordsServiceHandler.logicalDeleteItem(item, path);
+        return null;
     }
 
     public List<ItemResult> logicalDeleteItems(List<ItemBean> items, String path) {
-        return browserecordsServiceHandler.logicalDeleteItems(items, path);
+        return null;
     }
 
     public ItemBasePageLoadResult<ItemBean> queryItemBeans(QueryModel config) {
-        return browserecordsServiceHandler.queryItemBeans(config);
+        return null;
     }
 
     public ItemResult saveItemBean(ItemBean item) {
-        return browserecordsServiceHandler.saveItemBean(item);
+        return null;
     }
 
     public ForeignKeyDrawer switchForeignKeyType(String targetEntityType, String xpathForeignKey, String xpathInfoForeignKey,
             String fkFilter) throws Exception {
-        return browserecordsServiceHandler.switchForeignKeyType(targetEntityType, xpathForeignKey, xpathInfoForeignKey, fkFilter);
+        return null;
     }
 
     public String getCriteriaByBookmark(String bookmark) {
-        return browserecordsServiceHandler.getCriteriaByBookmark(bookmark);
+        return null;
     }
 
     public List<ItemBaseModel> getUserCriterias(String view) {
-        return browserecordsServiceHandler.getUserCriterias(view);
+        return null;
     }
 
     public List<ItemBaseModel> getViewsList(String language) {
-        return browserecordsServiceHandler.getViewsList(language);
+        return null;
     }
 
     public AppHeader getAppHeader() throws Exception {
-        return browserecordsServiceHandler.getAppHeader();
-    }
 
-    public String getCurrentDataCluster() throws Exception {
-        return browserecordsServiceHandler.getCurrentDataCluster();
-    }
+        AppHeader header = new AppHeader();
+        header.setDatacluster(getCurrentDataCluster());
+        header.setDatamodel(getCurrentDataModel());
+        header.setStandAloneMode(BrowseRecordsConfiguration.isStandalone());
+        return header;
 
-    public String getCurrentDataModel() throws Exception {
-        return browserecordsServiceHandler.getCurrentDataModel();
     }
 
 }
