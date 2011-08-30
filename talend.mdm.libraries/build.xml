@@ -57,11 +57,9 @@
             <fileset dir="deploy/conf"></fileset>            
         </copy>
 
-        <!--
         <copy todir="${jboss.conf.data}" overwrite="true">
             <fileset dir="deploy/data"></fileset>
         </copy>
-        -->
 
         <copy todir="${jboss.web.deployer}" overwrite="true">
             <fileset dir="deploy/jboss-web.deployer"></fileset>            
