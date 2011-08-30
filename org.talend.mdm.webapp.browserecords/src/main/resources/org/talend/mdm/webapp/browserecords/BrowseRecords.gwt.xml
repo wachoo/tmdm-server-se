@@ -11,14 +11,34 @@
   <!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
 
   <!-- Other module inherits                                      -->
-  <inherits name='com.extjs.gxt.ui.GXT'/>
 
-  <inherits name="com.allen_sauer.gwt.log.gwt-log-DEBUG" />
   <!-- Specify the app entry point class.                         -->
   <entry-point class='org.talend.mdm.webapp.browserecords.client.BrowseRecords'/>
 
-  <!-- Specify the paths for translatable code                    -->
-  <source path='client'/>
-  <source path='shared'/>
+    <!-- Other module inherits                                      -->
+    <inherits name='com.extjs.gxt.ui.GXT'/>
+    
+    <inherits name='com.google.gwt.xml.XML'/>
+  
+    <inherits name="com.google.gwt.i18n.I18N"/>
+  
+    <!-- GWT locale -->   
+    <extend-property name="locale" values="fr" />   
+    
+    <!-- GWT log -->
+    <inherits name="com.allen_sauer.gwt.log.gwt-log-DEBUG" />
+    <set-configuration-property name="log_pattern" value="(%F:%L) %d [%-5p] %m%n" />
+    <set-property name="log_DivLogger" value="DISABLED" /> 
+    
+    <!-- User Agent    
+    <set-property name="user.agent" value="gecko1_8" /> 
+     -->
 
+    <!-- Specify the paths for translatable code                    -->
+    <source path='client' excludes="**/*Test.java" />
+    <source path='shared'/>
+    <source path='model' />  
+
+    <stylesheet src='/core/secure/gxt/resources/css/gxt-all.css'/>  
+    <stylesheet src='../BrowseRecords.css'/>
 </module>
