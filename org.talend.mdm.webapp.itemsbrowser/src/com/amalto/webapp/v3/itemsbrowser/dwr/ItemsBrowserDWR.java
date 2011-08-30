@@ -3999,6 +3999,32 @@ public class ItemsBrowserDWR {
                 }
             }
         }
+        
+      if (node.getTypeName().equals("date")) {//$NON-NLS-1$
+          String targetValue = (node.getValue() != null && node.getRealValue() != null) ? node.getRealValue() : value; 
+          if (node.getMinOccurs() > 0) {
+              if (!isDate(targetValue)) {
+                  return "the field must be " + node.getTypeName() + "formate yyyy-mm-dd";
+              }
+          } else {
+              if (!"".equals(targetValue) && !isDate(targetValue)) {
+                  return "the field must be " + node.getTypeName() + "formate yyyy-mm-dd";
+              }
+          }
+      }
+      
+      if (node.getTypeName().equals("dateTime")) {//$NON-NLS-1$       
+          String targetValue = (node.getValue() != null && node.getRealValue() != null) ? node.getRealValue() : value; 
+          if (node.getMinOccurs() > 0) {
+              if (!isDateTime(targetValue)) {
+                  return "the field must be " + node.getTypeName() + "formate yyyy-mm-ddTHH:mm:ss";
+              }
+          } else {
+              if (!"".equals(value) && !isDateTime(targetValue)) {
+                  return "the field must be " + node.getTypeName() + "formate yyyy-mm-ddTHH:mm:ss";
+              }
+          }
+      }
 
         if (value.length() == 0 && node != null && (node.getMinOccurs() >= 1)) {
             // by yguo, fix 0016045: Facet messages not taken into account
@@ -4123,6 +4149,16 @@ public class ItemsBrowserDWR {
 
     public static boolean isInteger(String str) {
         Pattern pattern = Pattern.compile("[\\-+]?[0-9]+");//$NON-NLS-1$
+        return pattern.matcher(str).matches();
+    }
+    
+    public static boolean isDate(String str) {
+        Pattern pattern = Pattern.compile("^(?:(?!0000)[0-9]{4}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-8])|(?:0[13-9]|1[0-2])-(?:29|30)|(?:0[13578]|1[02])-31)|(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26])|(?:0[48]|[2468][048]|[13579][26])00)-02-29)$");//$NON-NLS-1$
+        return pattern.matcher(str).matches();
+    }
+    
+    public static boolean isDateTime(String str) {
+        Pattern pattern = Pattern.compile("^(?:(?!0000)[0-9]{4}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-8])|(?:0[13-9]|1[0-2])-(?:29|30)|(?:0[13578]|1[02])-31)|(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26])|(?:0[48]|[2468][048]|[13579][26])00)-02-29)T(20|21|22|23|[0-1]?\\d):[0-5]?\\d:[0-5]?\\d$");//$NON-NLS-1$
         return pattern.matcher(str).matches();
     }
 
