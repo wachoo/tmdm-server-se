@@ -138,26 +138,6 @@ public class ItemCtrl2Remote extends Observable
 
    }
 
-   public java.util.ArrayList getItems ( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String conceptName,com.amalto.xmlserver.interfaces.IWhereItem whereItem,int spellThreshold,int start,int limit )
-	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
-   {
-        java.util.ArrayList retval;
-       retval =  getSession().getItems( dataClusterPOJOPK,conceptName,whereItem,spellThreshold,start,limit );
-
-      return retval;
-
-   }
-
-   public java.util.ArrayList getItems ( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String conceptName,com.amalto.xmlserver.interfaces.IWhereItem whereItem,int spellThreshold,java.lang.String orderBy,java.lang.String direction,int start,int limit )
-	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
-   {
-        java.util.ArrayList retval;
-       retval =  getSession().getItems( dataClusterPOJOPK,conceptName,whereItem,spellThreshold,orderBy,direction,start,limit );
-
-      return retval;
-
-   }
-
    public java.util.ArrayList viewSearch ( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,com.amalto.core.objects.view.ejb.ViewPOJOPK viewPOJOPK,com.amalto.xmlserver.interfaces.IWhereItem whereItem,int spellThreshold,int start,int limit )
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {
@@ -310,6 +290,26 @@ public class ItemCtrl2Remote extends Observable
    {
         java.util.ArrayList retval;
        retval =  getSession().getItemsByCustomFKFilters( dataClusterPOJOPK,conceptName,viewablePaths,injectedXpath,start,limit,orderbyPath,direction );
+
+      return retval;
+
+   }
+
+   public java.util.ArrayList getItems ( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String conceptName,com.amalto.xmlserver.interfaces.IWhereItem whereItem,int spellThreshold,int start,int limit,boolean totalCountOnFirstRow )
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+        java.util.ArrayList retval;
+       retval =  getSession().getItems( dataClusterPOJOPK,conceptName,whereItem,spellThreshold,start,limit,totalCountOnFirstRow );
+
+      return retval;
+
+   }
+
+   public java.util.ArrayList getItems ( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String conceptName,com.amalto.xmlserver.interfaces.IWhereItem whereItem,int spellThreshold,java.lang.String orderBy,java.lang.String direction,int start,int limit,boolean totalCountOnFirstRow )
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+        java.util.ArrayList retval;
+       retval =  getSession().getItems( dataClusterPOJOPK,conceptName,whereItem,spellThreshold,orderBy,direction,start,limit,totalCountOnFirstRow );
 
       return retval;
 

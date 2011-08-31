@@ -3,6 +3,7 @@ package com.amalto.core.ejb;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -340,90 +341,6 @@ public class ItemCtrl2Bean implements SessionBean {
         }
     }
 
-    /**
-     * Get unordered items of a Concept using an optional where condition
-     *
-     * @param dataClusterPOJOPK The Data Cluster where to run the query
-     * @param conceptName The name of the concept
-     * @param whereItem The condition
-     * @param spellThreshold The condition spell checking threshold. A negative value de-activates spell
-     * @param start The first item index (starts at zero)
-     * @param limit The maximum number of items to return
-     * @return The ordered list of results
-     *
-     * @ejb.interface-method view-type = "both"
-     * @ejb.facade-method
-     *
-     * @throws XtentisException
-     */
-    public ArrayList<String> getItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem whereItem,
-            int spellThreshold, int start, int limit) throws XtentisException {
-        return getItems(dataClusterPOJOPK, conceptName, whereItem, spellThreshold, null, null, start, limit);
-    }
-
-    /**
-     * Get potentially ordered items of a Concept using an optional where condition
-     *
-     * @param dataClusterPOJOPK The Data Cluster where to run the query
-     * @param conceptName The name of the concept
-     * @param whereItem The condition
-     * @param spellThreshold The condition spell checking threshold. A negative value de-activates spell
-     * @param orderBy The full path of the item user to order
-     * @param direction One of {@link IXmlServerSLWrapper#ORDER_ASCENDING} or
-     * {@link IXmlServerSLWrapper#ORDER_DESCENDING}
-     * @param start The first item index (starts at zero)
-     * @param limit The maximum number of items to return
-     * @return The ordered list of results
-     *
-     * @ejb.interface-method view-type = "both"
-     * @ejb.facade-method
-     *
-     * @throws XtentisException
-     */
-    public ArrayList<String> getItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem whereItem,
-            int spellThreshold, String orderBy, String direction, int start, int limit) throws XtentisException {
-
-        // get the universe and revision ID
-        UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
-        if (universe == null) {
-            String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-            throw new XtentisException(err);
-        }
-
-        // build the patterns to revision ID map
-        LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(
-                universe.getItemsRevisionIDs());
-        if (universe.getDefaultItemRevisionID() != null && universe.getDefaultItemRevisionID().length() > 0)
-            conceptPatternsToRevisionID.put(".*", universe.getDefaultItemRevisionID());
-
-        // build the patterns to cluster map - only one cluster at this stage
-        LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
-        conceptPatternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId());
-
-        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
-
-        try {
-            ArrayList<String> elements = new ArrayList<String>();
-            elements.add(conceptName);
-
-            String query = server.getItemsQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, null, // no
-                                                                                                                 // need
-                                                                                                                 // to
-                                                                                                                 // force
-                                                                                                                 // a
-                                                                                                                 // pivot
-                    elements, whereItem, orderBy, direction, start, limit, spellThreshold);
-
-            return server.runQuery(null, null, query, null);
-        } catch (XtentisException e) {
-            throw (e);
-        } catch (Exception e) {
-            String err = "Unable to get the items: " + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
-            throw new XtentisException(err, e);
-        }
-    }
 
     /**
      * Search Items thru a view in a cluster and specifying a condition
@@ -1267,6 +1184,97 @@ public class ItemCtrl2Bean implements SessionBean {
         } catch (Exception e) {
             String err = "Unable to get items by custom FK filters " + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
+            org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+            throw new XtentisException(err, e);
+        }
+    }
+
+    public ArrayList<String> getItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem whereItem,
+            int spellThreshold, int start, int limit) throws XtentisException {
+        return getItems(dataClusterPOJOPK, conceptName, whereItem, spellThreshold, start, limit, false);
+    }
+
+    public ArrayList<String> getItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem whereItem,
+            int spellThreshold, String orderBy, String direction, int start, int limit) throws XtentisException {
+        return getItems(dataClusterPOJOPK, conceptName, whereItem, spellThreshold, orderBy, direction, start, limit, false);
+    }
+
+    /**
+     * Get unordered items of a Concept using an optional where condition
+     * 
+     * @param dataClusterPOJOPK The Data Cluster where to run the query
+     * @param conceptName The name of the concept
+     * @param whereItem The condition
+     * @param spellThreshold The condition spell checking threshold. A negative value de-activates spell
+     * @param start The first item index (starts at zero)
+     * @param limit The maximum number of items to return
+     * @return The ordered list of results
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method
+     * 
+     * @throws XtentisException
+     */
+    public ArrayList<String> getItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem whereItem,
+            int spellThreshold, int start, int limit, boolean totalCountOnFirstRow) throws XtentisException {
+        return getItems(dataClusterPOJOPK, conceptName, whereItem, spellThreshold, null, null, start, limit, totalCountOnFirstRow);
+    }
+
+    /**
+     * Get potentially ordered items of a Concept using an optional where condition
+     * 
+     * @param dataClusterPOJOPK The Data Cluster where to run the query
+     * @param conceptName The name of the concept
+     * @param whereItem The condition
+     * @param spellThreshold The condition spell checking threshold. A negative value de-activates spell
+     * @param orderBy The full path of the item user to order
+     * @param direction One of {@link IXmlServerSLWrapper#ORDER_ASCENDING} or
+     * {@link IXmlServerSLWrapper#ORDER_DESCENDING}
+     * @param start The first item index (starts at zero)
+     * @param limit The maximum number of items to return
+     * @return The ordered list of results
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method
+     * 
+     * @throws XtentisException
+     */
+    public ArrayList<String> getItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem whereItem,
+            int spellThreshold, String orderBy, String direction, int start, int limit, boolean totalCountOnFirstRow)
+            throws XtentisException {
+
+        // get the universe and revision ID
+        UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
+        if (universe == null) {
+            String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
+            org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+            throw new XtentisException(err);
+        }
+
+        // build the patterns to revision ID map
+        LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(
+                universe.getItemsRevisionIDs());
+        if (universe.getDefaultItemRevisionID() != null && universe.getDefaultItemRevisionID().length() > 0)
+            conceptPatternsToRevisionID.put(".*", universe.getDefaultItemRevisionID());
+
+        // build the patterns to cluster map - only one cluster at this stage
+        LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
+        conceptPatternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId());
+
+        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+
+        try {
+            ArrayList<String> elements = new ArrayList<String>();
+            elements.add(conceptName);
+
+            String query = server.getItemsQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, null, elements,
+                    whereItem, orderBy, direction, start, limit, spellThreshold, totalCountOnFirstRow, Collections.emptyMap());
+
+            return server.runQuery(null, null, query, null);
+        } catch (XtentisException e) {
+            throw (e);
+        } catch (Exception e) {
+            String err = "Unable to get the items: " + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
             org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
             throw new XtentisException(err, e);
         }

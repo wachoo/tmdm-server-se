@@ -13,17 +13,19 @@ public class WSGetItems {
     protected int spellTreshold;
     protected int skip;
     protected int maxItems;
+    protected java.lang.Boolean totalCountOnFirstResult;
     
     public WSGetItems() {
     }
     
-    public WSGetItems(com.amalto.core.webservice.WSDataClusterPK wsDataClusterPK, java.lang.String conceptName, com.amalto.core.webservice.WSWhereItem whereItem, int spellTreshold, int skip, int maxItems) {
+    public WSGetItems(com.amalto.core.webservice.WSDataClusterPK wsDataClusterPK, java.lang.String conceptName, com.amalto.core.webservice.WSWhereItem whereItem, int spellTreshold, int skip, int maxItems, java.lang.Boolean totalCountOnFirstResult) {
         this.wsDataClusterPK = wsDataClusterPK;
         this.conceptName = conceptName;
         this.whereItem = whereItem;
         this.spellTreshold = spellTreshold;
         this.skip = skip;
         this.maxItems = maxItems;
+        this.totalCountOnFirstResult = totalCountOnFirstResult;
     }
     
     public com.amalto.core.webservice.WSDataClusterPK getWsDataClusterPK() {
@@ -72,5 +74,13 @@ public class WSGetItems {
     
     public void setMaxItems(int maxItems) {
         this.maxItems = maxItems;
+    }
+    
+    public java.lang.Boolean getTotalCountOnFirstResult() {
+        return totalCountOnFirstResult;
+    }
+    
+    public void setTotalCountOnFirstResult(java.lang.Boolean totalCountOnFirstResult) {
+        this.totalCountOnFirstResult = totalCountOnFirstResult;
     }
 }
