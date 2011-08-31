@@ -30,9 +30,16 @@ public class ComplexTypeMetadata implements com.amalto.core.metadata.TypeMetadat
 
     private final Map<String, FieldMetadata> fieldMetadata = new HashMap<String, FieldMetadata>();
 
-    public ComplexTypeMetadata(String nameSpace, String name) {
+    private final Collection<TypeMetadata> superTypes;
+
+    public ComplexTypeMetadata(String nameSpace, String name, Collection<TypeMetadata> superTypes) {
         this.name = name;
         this.nameSpace = nameSpace;
+        this.superTypes = superTypes;
+    }
+
+    public Collection<TypeMetadata> getSuperTypes() {
+        return superTypes;
     }
 
     public String getName() {
@@ -49,7 +56,7 @@ public class ComplexTypeMetadata implements com.amalto.core.metadata.TypeMetadat
 
     public List<FieldMetadata> getKeyFields() {
         List<FieldMetadata> keyFields = new ArrayList<FieldMetadata>();
-        for (FieldMetadata metadata : fieldMetadata.values()) {
+        for (FieldMetadata metadata : getFields()) {
             if (metadata.isKey()) {
                 keyFields.add(metadata);
             }
@@ -58,7 +65,11 @@ public class ComplexTypeMetadata implements com.amalto.core.metadata.TypeMetadat
     }
 
     public Collection<FieldMetadata> getFields() {
-        return fieldMetadata.values();
+        Collection<FieldMetadata> declaredFields = fieldMetadata.values();
+        for (TypeMetadata type : superTypes) {
+            declaredFields.addAll(type.getFields());
+        }
+        return declaredFields;
     }
 
     public <T> T accept(MetadataVisitor<T> visitor) {

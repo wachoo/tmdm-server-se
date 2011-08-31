@@ -22,7 +22,10 @@ public class SimpleTypeCollectionFieldMetadata implements FieldMetadata {
 
     private final boolean isKey;
 
-    public SimpleTypeCollectionFieldMetadata(String name, boolean key, SimpleTypeFieldMetadata fieldMetadata) {
+    private final TypeMetadata containingType;
+
+    public SimpleTypeCollectionFieldMetadata(TypeMetadata containingType, String name, boolean key, SimpleTypeFieldMetadata fieldMetadata) {
+        this.containingType = containingType;
         this.name = name;
         this.fieldMetadata = fieldMetadata;
         isKey = key;
@@ -46,6 +49,18 @@ public class SimpleTypeCollectionFieldMetadata implements FieldMetadata {
 
     public String getForeignKeyInfoField() {
         throw new IllegalStateException("This type of field can't be a foreign key");
+    }
+
+    public TypeMetadata getContainingType() {
+        return containingType;
+    }
+
+    public boolean isFKIntegrity() {
+        return false;
+    }
+
+    public boolean allowFKIntegrityOverride() {
+        return false;
     }
 
     public <T> T accept(MetadataVisitor<T> visitor) {

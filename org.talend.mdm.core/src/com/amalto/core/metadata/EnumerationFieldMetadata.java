@@ -22,7 +22,10 @@ public class EnumerationFieldMetadata implements FieldMetadata {
 
     private final String fieldTypeName;
 
-    public EnumerationFieldMetadata(boolean isKey, String elementName, String fieldTypeName) {
+    private final TypeMetadata containingType;
+
+    public EnumerationFieldMetadata(TypeMetadata containingType, boolean isKey, String elementName, String fieldTypeName) {
+        this.containingType = containingType;
         key = isKey;
         this.elementName = elementName;
         this.fieldTypeName = fieldTypeName;
@@ -46,6 +49,18 @@ public class EnumerationFieldMetadata implements FieldMetadata {
 
     public String getForeignKeyInfoField() {
         throw new IllegalStateException("This type of field can't be a foreign key");
+    }
+
+    public TypeMetadata getContainingType() {
+        return containingType;
+    }
+
+    public boolean isFKIntegrity() {
+        return false;
+    }
+
+    public boolean allowFKIntegrityOverride() {
+        return false;
     }
 
     public <T> T accept(MetadataVisitor<T> visitor) {

@@ -25,4 +25,11 @@ public interface FieldMetadata extends MetadataVisitable {
     boolean hasForeignKeyInfo();
 
     String getForeignKeyInfoField();
+
+    TypeMetadata getContainingType();
+
+    boolean isFKIntegrity();
+
+    boolean allowFKIntegrityOverride();
+
 }

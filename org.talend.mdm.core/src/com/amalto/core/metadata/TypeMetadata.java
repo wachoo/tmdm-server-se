@@ -11,15 +11,22 @@
 
 package com.amalto.core.metadata;
 
+import java.util.Collection;
+import java.util.List;
+
 /**
  *
  */
 public interface TypeMetadata extends MetadataVisitable {
+
+    Collection<TypeMetadata> getSuperTypes();
 
     String getName();
 
     String getNamespace();
 
     boolean isAbstract();
+
+    Collection<FieldMetadata> getFields();
 
 }

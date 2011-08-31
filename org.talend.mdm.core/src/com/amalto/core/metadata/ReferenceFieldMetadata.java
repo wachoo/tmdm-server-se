@@ -26,12 +26,21 @@ public class ReferenceFieldMetadata implements FieldMetadata {
 
     private final String foreignKeyInfo;
 
-    public ReferenceFieldMetadata(boolean isKey, String name, String type, TypeRef referencedType, String foreignKeyInfo) {
+    private final TypeMetadata containingType;
+
+    private final boolean isFKIntegrity;
+
+    private final boolean allowFKIntegrityOverride;
+
+    public ReferenceFieldMetadata(TypeMetadata containingType, boolean isKey, String name, String type, TypeRef referencedType, String foreignKeyInfo, boolean fkIntegrity, boolean allowFKIntegrityOverride) {
+        this.containingType = containingType;
         this.isKey = isKey;
         this.name = name;
         this.type = type;
         this.referencedType = referencedType;
         this.foreignKeyInfo = foreignKeyInfo;
+        isFKIntegrity = fkIntegrity;
+        this.allowFKIntegrityOverride = allowFKIntegrityOverride;
     }
 
     public String getForeignTypeName() {
@@ -68,6 +77,18 @@ public class ReferenceFieldMetadata implements FieldMetadata {
 
     public String getForeignKeyInfoField() {
         return foreignKeyInfo;
+    }
+
+    public TypeMetadata getContainingType() {
+        return containingType;
+    }
+
+    public boolean isFKIntegrity() {
+        return isFKIntegrity;
+    }
+
+    public boolean allowFKIntegrityOverride() {
+        return allowFKIntegrityOverride;
     }
 
 }

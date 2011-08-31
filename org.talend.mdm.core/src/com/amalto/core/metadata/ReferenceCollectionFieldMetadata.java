@@ -24,11 +24,20 @@ public class ReferenceCollectionFieldMetadata implements FieldMetadata {
 
     private final String foreignKeyInfo;
 
-    public ReferenceCollectionFieldMetadata(String name, boolean key, ReferenceFieldMetadata fieldMetadata, String foreignKeyInfo) {
+    private final TypeMetadata containingType;
+
+    private final boolean allowFKIntegrityOverride;
+
+    private final boolean isFKIntegrity;
+
+    public ReferenceCollectionFieldMetadata(TypeMetadata containingType, String name, boolean key, ReferenceFieldMetadata fieldMetadata, String foreignKeyInfo, boolean fkIntegrity, boolean allowFKIntegrityOverride) {
+        this.containingType = containingType;
         this.name = name;
         this.fieldMetadata = fieldMetadata;
         isKey = key;
         this.foreignKeyInfo = foreignKeyInfo;
+        this.allowFKIntegrityOverride = allowFKIntegrityOverride;
+        isFKIntegrity = fkIntegrity;
     }
 
     public String getName() {
@@ -49,6 +58,18 @@ public class ReferenceCollectionFieldMetadata implements FieldMetadata {
 
     public String getForeignKeyInfoField() {
         return foreignKeyInfo;
+    }
+
+    public TypeMetadata getContainingType() {
+        return containingType;
+    }
+
+    public boolean isFKIntegrity() {
+        return isFKIntegrity;
+    }
+
+    public boolean allowFKIntegrityOverride() {
+        return allowFKIntegrityOverride;
     }
 
     public <T> T accept(MetadataVisitor<T> visitor) {

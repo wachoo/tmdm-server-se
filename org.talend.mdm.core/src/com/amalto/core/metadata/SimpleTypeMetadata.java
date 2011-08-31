@@ -12,6 +12,7 @@
 package com.amalto.core.metadata;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,6 +30,10 @@ public class SimpleTypeMetadata implements TypeMetadata {
         this.nameSpace = nameSpace;
     }
 
+    public Collection<TypeMetadata> getSuperTypes() {
+        return Collections.emptySet();
+    }
+
     public String getName() {
         return name;
     }
@@ -39,6 +44,10 @@ public class SimpleTypeMetadata implements TypeMetadata {
 
     public boolean isAbstract() {
         return true;
+    }
+
+    public Collection<FieldMetadata> getFields() {
+        return Collections.emptySet();
     }
 
     public <T> T accept(MetadataVisitor<T> visitor) {

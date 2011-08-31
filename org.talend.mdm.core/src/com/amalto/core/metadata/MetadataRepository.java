@@ -13,15 +13,7 @@ package com.amalto.core.metadata;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 
 import javax.xml.namespace.QName;
 
@@ -71,6 +63,10 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
             return null;
         }
         return nameSpaceTypes.get(name);
+    }
+
+    public ComplexTypeMetadata getComplexType(String name) {
+        return complexTypeMetadataCache.get(name);
     }
 
     public Collection<TypeMetadata> getTypes() {
@@ -144,7 +140,8 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
 
         ComplexTypeMetadata typeMetadata = (ComplexTypeMetadata) getType(targetNamespace, typeName);
         if (typeMetadata == null) {
-            typeMetadata = new ComplexTypeMetadata(targetNamespace, typeName);
+            // TODO Super types
+            typeMetadata = new ComplexTypeMetadata(targetNamespace, typeName, Collections.<TypeMetadata>emptySet());
             addTypeMetadata(typeMetadata);
         }
 
@@ -186,11 +183,14 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
         boolean isKey = typeMetadataKeyStack.peek().contains(elementName);
         boolean isReference = false;
         String fieldTypeName = null;
+        ComplexTypeMetadata currentContainingType = typeMetadataStack.peek();
 
         TypeRef referencedType = NotResolvedTypeRef.INSTANCE;
 
         XmlSchemaAnnotation annotation = element.getAnnotation();
         String foreignKeyInfo = null;
+        boolean fkIntegrity = true; // Default is to enforce FK integrity
+        boolean fkIntegrityOverride = false; // Default is to disable FK integrity check
         if (annotation != null) {
             Iterator annotations = annotation.getItems().getIterator();
             while (annotations.hasNext()) {
@@ -200,10 +200,12 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
                     String[] foreignKeyDefinition = appInfo.getMarkup().item(0).getTextContent().split("/");
                     fieldTypeName = foreignKeyDefinition[0];
                     referencedType = new SoftTypeRef(this, fieldTypeName);
-                    break;
                 } else if ("X_ForeignKeyInfo".equals(appInfo.getSource())) { //$NON-NLS-1$
                     foreignKeyInfo = appInfo.getMarkup().item(0).getTextContent().split("/")[1];
-                    break;
+                } else if ("X_FKIntegrity".equals(appInfo.getSource())) { //$NON-NLS-1$
+                    fkIntegrity = Boolean.valueOf(appInfo.getMarkup().item(0).getTextContent());
+                } else if ("X_FKIntegrity_Override".equals(appInfo.getSource())) { //$NON-NLS-1$
+                    fkIntegrityOverride = Boolean.valueOf(appInfo.getMarkup().item(0).getTextContent());
                 }
             }
         }
@@ -234,18 +236,18 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
                 XmlSchemaSimpleTypeRestriction typeRestriction = (XmlSchemaSimpleTypeRestriction) content;
                 if (typeRestriction.getFacets().getCount() > 0) {
                     fieldTypeName = typeRestriction.getBaseTypeName().getLocalPart();
-                    return new EnumerationFieldMetadata(isKey, elementName, fieldTypeName);
+                    return new EnumerationFieldMetadata(currentContainingType, isKey, elementName, fieldTypeName);
                 }
             }
         }
 
 
-        FieldMetadata metadata = isReference ? new ReferenceFieldMetadata(isKey, elementName, fieldTypeName, referencedType, foreignKeyInfo) : new SimpleTypeFieldMetadata(isKey, elementName, fieldTypeName);
+        FieldMetadata metadata = isReference ? new ReferenceFieldMetadata(currentContainingType, isKey, elementName, fieldTypeName, referencedType, foreignKeyInfo, fkIntegrity, fkIntegrityOverride) : new SimpleTypeFieldMetadata(currentContainingType, isKey, elementName, fieldTypeName);
         if (isCollection) {
             if (isReference) {
-                metadata = new ReferenceCollectionFieldMetadata(elementName, isKey, (ReferenceFieldMetadata) metadata, foreignKeyInfo);
+                metadata = new ReferenceCollectionFieldMetadata(currentContainingType, elementName, isKey, (ReferenceFieldMetadata) metadata, foreignKeyInfo, fkIntegrity, fkIntegrityOverride);
             } else {
-                metadata = new SimpleTypeCollectionFieldMetadata(elementName, isKey, (SimpleTypeFieldMetadata) metadata);
+                metadata = new SimpleTypeCollectionFieldMetadata(currentContainingType, elementName, isKey, (SimpleTypeFieldMetadata) metadata);
             }
         }
 
