@@ -6175,8 +6175,9 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         var node = itemTree.getNodeByIndex(nodeId);
         if (node == undefined)
             return true;
-        if (node.itemData.type == "complex")
+        if (node.itemData.type == "complex" && node.itemData.minOccurs == 0)
             return true;
+        
         if ($(nodeId + 'Value')) {
             var value = DWRUtil.getValue(nodeId + 'Value');
             node.resetErrorMessage(nodeId);
@@ -6219,6 +6220,16 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                     });
             DWREngine.setAsync(true);
         }
+        else if(!node.dynamicLoadComplete){
+        	DWREngine.setAsync(false);
+            ItemsBrowserInterface.validatedComplexMandatory(language, node.itemData == null ? nodeId : node.itemData.nodeId, treeIndex,
+            	function(result) {
+            		returnRe = result; 
+            	}
+            );
+            DWREngine.setAsync(true);
+        }
+        
         return returnRe;
     }
 

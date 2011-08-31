@@ -4148,6 +4148,23 @@ public class ItemsBrowserDWR {
         return isValidation ? "null" : errorMessage;
         // return null;
     }
+    
+    public static boolean validatedComplexMandatory(String language, int nodeId, int docIndex) {
+    	WebContext ctx = WebContextFactory.get();
+        HashMap<Integer, XSParticle> idToParticle = (HashMap<Integer, XSParticle>) ctx.getSession().getAttribute(
+        "idToParticle"); //$NON-NLS-1$
+        XSParticle selXsp = idToParticle.get(nodeId);
+        boolean approved = true;
+        
+    	XSParticle[] xsps = selXsp.getTerm().asModelGroup().getChildren();
+    	for(XSParticle xsp : xsps) {
+    		if(xsp.getMinOccurs() >= 1) {
+    			return false;
+    		}
+    	}
+    	
+    	return approved;
+    }
 
     public static boolean isNumeric(String str) {
         Pattern pattern = Pattern.compile("[\\-+]?[0-9]+\\.?[0-9]*");//$NON-NLS-1$
