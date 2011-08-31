@@ -98,7 +98,8 @@ public class ItemsBrowser2DWR {
 							null,
 							-1,
 							0,
-							-1
+							-1,
+                            false
 					)
 			).getStrings();
 			

@@ -86,12 +86,14 @@ public interface ItemCtrl2Local
     * @param spellThreshold The condition spell checking threshold. A negative value de-activates spell
     * @param start The first item index (starts at zero)
     * @param limit The maximum number of items to return
+    * @param totalOnFirstRow If true, returns count as first result.
     * @return The ordered list of results
     * @throws XtentisException    */
-   public java.util.ArrayList getItems( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String conceptName,com.amalto.xmlserver.interfaces.IWhereItem whereItem,int spellThreshold,int start,int limit ) throws com.amalto.core.util.XtentisException;
+   public java.util.ArrayList getItems( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String conceptName,com.amalto.xmlserver.interfaces.IWhereItem whereItem,int spellThreshold,int start,int limit,boolean totalOnFirstRow ) throws com.amalto.core.util.XtentisException;
 
    /**
     * Get potentially ordered items of a Concept using an optional where condition
+    *
     * @param dataClusterPOJOPK The Data Cluster where to run the query
     * @param conceptName The name of the concept
     * @param whereItem The condition
@@ -100,9 +102,10 @@ public interface ItemCtrl2Local
     * @param direction One of {@link IXmlServerSLWrapper#ORDER_ASCENDING} or {@link IXmlServerSLWrapper#ORDER_DESCENDING}
     * @param start The first item index (starts at zero)
     * @param limit The maximum number of items to return
+    * @param totalOnFirstRow If true, returns count as first result.
     * @return The ordered list of results
     * @throws XtentisException    */
-   public java.util.ArrayList getItems( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String conceptName,com.amalto.xmlserver.interfaces.IWhereItem whereItem,int spellThreshold,java.lang.String orderBy,java.lang.String direction,int start,int limit ) throws com.amalto.core.util.XtentisException;
+   public java.util.ArrayList getItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem whereItem, int spellThreshold, String orderBy, String direction, int start, int limit, boolean totalOnFirstRow) throws com.amalto.core.util.XtentisException;
 
    /**
     * Search Items thru a view in a cluster and specifying a condition
@@ -274,42 +277,5 @@ public interface ItemCtrl2Local
    public long countItemsByCustomFKFilters( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String conceptName,java.lang.String injectedXpath ) throws com.amalto.core.util.XtentisException;
 
    public java.util.ArrayList getItemsByCustomFKFilters( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String conceptName,java.util.ArrayList viewablePaths,java.lang.String injectedXpath,int start,int limit,java.lang.String orderbyPath,java.lang.String direction ) throws com.amalto.core.util.XtentisException;
-
-    /**
-     * Get unordered items of a Concept using an optional where condition
-     * 
-     * @param dataClusterPOJOPK The Data Cluster where to run the query
-     * @param conceptName The name of the concept
-     * @param whereItem The condition
-     * @param spellThreshold The condition spell checking threshold. A negative value de-activates spell
-     * @param start The first item index (starts at zero)
-     * @param limit The maximum number of items to return
-     * @param totalOnFirstRow
-     * @return The ordered list of results
-     * @throws XtentisException
-     */
-    public java.util.ArrayList getItems(com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,
-            java.lang.String conceptName, com.amalto.xmlserver.interfaces.IWhereItem whereItem, int spellThreshold, int start,
-            int limit, boolean totalOnFirstRow) throws com.amalto.core.util.XtentisException;
-
-    /**
-     * Get potentially ordered items of a Concept using an optional where condition
-     * 
-     * @param dataClusterPOJOPK The Data Cluster where to run the query
-     * @param conceptName The name of the concept
-     * @param whereItem The condition
-     * @param spellThreshold The condition spell checking threshold. A negative value de-activates spell
-     * @param orderBy The full path of the item user to order
-     * @param direction One of {@link IXmlServerSLWrapper#ORDER_ASCENDING} or
-     * {@link IXmlServerSLWrapper#ORDER_DESCENDING}
-     * @param start The first item index (starts at zero)
-     * @param limit The maximum number of items to return
-     * @param totalOnFirstRow
-     * @return The ordered list of results
-     * @throws XtentisException
-     */
-    public java.util.ArrayList getItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem whereItem,
-            int spellThreshold, String orderBy, String direction, int start, int limit, boolean totalOnFirstRow)
-            throws com.amalto.core.util.XtentisException;
 
 }

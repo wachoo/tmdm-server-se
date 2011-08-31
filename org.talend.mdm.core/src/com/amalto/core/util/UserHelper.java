@@ -122,7 +122,7 @@ public final class UserHelper {
        
        try {
           results = Util.getItemCtrl2Local().getItems(
-             new DataClusterPOJOPK(dataclusterPK), "User", null, 0, 0, Integer.MAX_VALUE);
+             new DataClusterPOJOPK(dataclusterPK), "User", null, 0, 0, Integer.MAX_VALUE, false);
       
           for(String userXML : results) {
              User user = User.parse(userXML);

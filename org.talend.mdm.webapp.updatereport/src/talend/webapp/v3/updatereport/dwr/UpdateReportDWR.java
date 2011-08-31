@@ -7,6 +7,7 @@ import java.util.*;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.XtentisException;
+import com.amalto.core.webservice.WSGetItems;
 import com.amalto.webapp.core.util.Webapp;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
@@ -35,10 +36,10 @@ import com.amalto.webapp.util.webservices.WSXPathsSearch;
 public class UpdateReportDWR {
 
     private Logger logger = org.apache.log4j.Logger.getLogger(this.getClass());
-    
+
     private static final Messages MESSAGES = MessagesFactory.getMessages("talend.webapp.v3.updatereport.dwr.messages", //$NON-NLS-1$
     		UpdateReportDWR.class.getClassLoader());
-       
+
     public UpdateReportDWR() {
 
     }
@@ -61,6 +62,9 @@ public class UpdateReportDWR {
 
         ListRange listRange = new ListRange();
 
+        if (limit == 0) {
+            limit = 20;
+        }
         WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(XSystemObjects.DC_UPDATE_PREPORT.getName());
         String conceptName = "Update";// Hard Code //$NON-NLS-1$         
 
@@ -75,10 +79,10 @@ public class UpdateReportDWR {
                 String dataCluster = configuration.getCluster();
                 String dataModel = configuration.getModel();
 
-                WSWhereCondition clusterwc = new WSWhereCondition("/Update/DataCluster", WSWhereOperator.EQUALS, dataCluster //$NON-NLS-1$
+                WSWhereCondition clusterwc = new WSWhereCondition("DataCluster", WSWhereOperator.EQUALS, dataCluster //$NON-NLS-1$
                         .trim(), WSStringPredicate.NONE, false);
 
-                WSWhereCondition modelwc = new WSWhereCondition("/Update/DataModel", WSWhereOperator.EQUALS, dataModel.trim(), //$NON-NLS-1$
+                WSWhereCondition modelwc = new WSWhereCondition("DataModel", WSWhereOperator.EQUALS, dataModel.trim(), //$NON-NLS-1$
                         WSStringPredicate.NONE, false);
 
                 WSWhereItem wsWhereDataCluster = new WSWhereItem(clusterwc, null, null);
@@ -89,7 +93,7 @@ public class UpdateReportDWR {
 
             if (!criteria.isNull("concept")) { //$NON-NLS-1$
                 String concept = (String) criteria.get("concept"); //$NON-NLS-1$
-                WSWhereCondition wc = new WSWhereCondition("/Update/Concept", itemsBrowser ? WSWhereOperator.EQUALS //$NON-NLS-1$
+                WSWhereCondition wc = new WSWhereCondition("Concept", itemsBrowser ? WSWhereOperator.EQUALS //$NON-NLS-1$
                         : WSWhereOperator.CONTAINS, concept.trim(), WSStringPredicate.NONE, false);
                 WSWhereItem wsWhereItem = new WSWhereItem(wc, null, null);
                 conditions.add(wsWhereItem);
@@ -97,7 +101,7 @@ public class UpdateReportDWR {
 
             if (!criteria.isNull("key")) { //$NON-NLS-1$
                 String key = (String) criteria.get("key"); //$NON-NLS-1$
-                WSWhereCondition wc = new WSWhereCondition("/Update/Key", itemsBrowser ? WSWhereOperator.EQUALS //$NON-NLS-1$
+                WSWhereCondition wc = new WSWhereCondition("Key", itemsBrowser ? WSWhereOperator.EQUALS //$NON-NLS-1$
                         : WSWhereOperator.CONTAINS, key.trim(), WSStringPredicate.NONE, false);
                 WSWhereItem wsWhereItem = new WSWhereItem(wc, null, null);
                 conditions.add(wsWhereItem);
@@ -105,7 +109,7 @@ public class UpdateReportDWR {
 
             if (!criteria.isNull("source")) { //$NON-NLS-1$
                 String source = (String) criteria.get("source"); //$NON-NLS-1$
-                WSWhereCondition wc = new WSWhereCondition("/Update/Source", WSWhereOperator.EQUALS, source.trim(), //$NON-NLS-1$
+                WSWhereCondition wc = new WSWhereCondition("Source", WSWhereOperator.EQUALS, source.trim(), //$NON-NLS-1$
                         WSStringPredicate.NONE, false);
                 WSWhereItem wsWhereItem = new WSWhereItem(wc, null, null);
                 conditions.add(wsWhereItem);
@@ -113,7 +117,7 @@ public class UpdateReportDWR {
 
             if (!criteria.isNull("operationType")) { //$NON-NLS-1$
                 String operationType = (String) criteria.get("operationType"); //$NON-NLS-1$
-                WSWhereCondition wc = new WSWhereCondition("/Update/OperationType", WSWhereOperator.EQUALS, operationType.trim(), //$NON-NLS-1$
+                WSWhereCondition wc = new WSWhereCondition("OperationType", WSWhereOperator.EQUALS, operationType.trim(), //$NON-NLS-1$
                         WSStringPredicate.NONE, false);
                 WSWhereItem wsWhereItem = new WSWhereItem(wc, null, null);
                 conditions.add(wsWhereItem);
@@ -123,7 +127,7 @@ public class UpdateReportDWR {
                 String startDate = (String) criteria.get("startDate"); //$NON-NLS-1$
                 SimpleDateFormat dataFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //$NON-NLS-1$
                 Date date = dataFmt.parse(startDate);
-                WSWhereCondition wc = new WSWhereCondition("/Update/TimeInMillis", WSWhereOperator.GREATER_THAN_OR_EQUAL, date //$NON-NLS-1$
+                WSWhereCondition wc = new WSWhereCondition("TimeInMillis", WSWhereOperator.GREATER_THAN_OR_EQUAL, date //$NON-NLS-1$
                         .getTime()
                         + "", WSStringPredicate.NONE, false); //$NON-NLS-1$
                 WSWhereItem wsWhereItem = new WSWhereItem(wc, null, null);
@@ -134,7 +138,7 @@ public class UpdateReportDWR {
                 String endDate = (String) criteria.get("endDate"); //$NON-NLS-1$
                 SimpleDateFormat dataFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //$NON-NLS-1$
                 Date date = dataFmt.parse(endDate);
-                WSWhereCondition wc = new WSWhereCondition("/Update/TimeInMillis", WSWhereOperator.LOWER_THAN_OR_EQUAL, date //$NON-NLS-1$
+                WSWhereCondition wc = new WSWhereCondition("TimeInMillis", WSWhereOperator.LOWER_THAN_OR_EQUAL, date //$NON-NLS-1$
                         .getTime()
                         + "", WSStringPredicate.NONE, false); //$NON-NLS-1$
                 WSWhereItem wsWhereItem = new WSWhereItem(wc, null, null);
@@ -143,63 +147,55 @@ public class UpdateReportDWR {
 
         }
 
-        WSWhereItem wi = null;
-        if (conditions.size() == 0)
+        WSWhereItem wi;
+        if (conditions.size() == 0) {
             wi = null;
-        else {
+        } else if (conditions.size() == 1) {
+            wi = conditions.get(0);
+        } else {
             WSWhereAnd and = new WSWhereAnd(conditions.toArray(new WSWhereItem[conditions.size()]));
             wi = new WSWhereItem(null, and, null);
         }
 
-        // count each time
-        WSString totalString = Util.getPort().count(new WSCount(wsDataClusterPK, conceptName, wi, -1));
-        int totalSize = 0;
-        if (totalString != null && totalString.getValue() != null && totalString.getValue().length() > 0)
-            totalSize = Integer.parseInt(totalString.getValue());
+        com.amalto.webapp.util.webservices.WSGetItems getItems = new com.amalto.webapp.util.webservices.WSGetItems();
+        getItems.setConceptName(conceptName);
+        getItems.setWhereItem(wi);
+        getItems.setTotalCountOnFirstResult(true);
+        getItems.setSkip(start);
+        getItems.setMaxItems(limit);
+        getItems.setWsDataClusterPK(wsDataClusterPK);
+        WSStringArray resultsArray = Util.getPort().getItems(getItems);
+        String[] results = resultsArray == null ? new String[0] : resultsArray.getStrings();
 
-        if (limit == 0) {
-            if (totalSize == 0)
-                limit = 20;
-            else
-                limit = totalSize;
-        }
-        String[] results = Util.getPort().xPathsSearch(
-                new WSXPathsSearch(wsDataClusterPK, null, new WSStringArray(new String[] { conceptName }), wi, -1, start, limit,
-                        "/Update/TimeInMillis", "descending")).getStrings(); //$NON-NLS-1$ //$NON-NLS-2$
+        // I would be better to return count as part of getItems call... but requires refactoring in getItems.
+        Document document = Util.parse(results[0]);
+        int totalSize = Integer.parseInt(document.getDocumentElement().getTextContent());
 
-        if (logger.isDebugEnabled())
+        if (logger.isDebugEnabled()) {
             logger.debug("Total:" + totalSize + ";Start:" + start + ";Limit:" + limit + ";Length:"  //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$  //$NON-NLS-4$
-                    + (results == null ? 0 : results.length));
-        // sub result
-        // start=start<results.length?start:results.length-1;
-        // if(start<0)start=0;
-        // int end=results.length<(start+limit)?results.length-1:(start+limit-1);
-        //
-        // String[] subResults=end+1-start<limit?new String[end+1-start]:new String[limit];
-        // for (int i = start,j=0; i < end+1; i++,j++) {
-        // subResults[j]=results[i];
-        // }
-        String[] subResults = results;
+                                + (results.length));
+        }
+
         // parse data
-        DataChangeLog[] data = new DataChangeLog[subResults.length];
+        DataChangeLog[] data = new DataChangeLog[results.length - 1];
         for (int i = 0; i < data.length; i++) {
             DataChangeLog item = new DataChangeLog();
 
-            String result = subResults[i];
+            String result = results[i + 1]; // Start from 2nd result (first one is the total count).
             if (result != null) {
                 // Not very OO
                 Document doc = Util.parse(result);
 
-                String userName = Util.getFirstTextNode(doc, "/Update/UserName"); //$NON-NLS-1$
-                String source = Util.getFirstTextNode(doc, "/Update/Source"); //$NON-NLS-1$
-                String timeInMillis = Util.getFirstTextNode(doc, "/Update/TimeInMillis"); //$NON-NLS-1$
-                String epochTime = Util.getFirstTextNode(doc, "/Update/TimeInMillis"); //$NON-NLS-1$
-                String operationType = Util.getFirstTextNode(doc, "/Update/OperationType"); //$NON-NLS-1$
-                String revisionID = Util.getFirstTextNode(doc, "/Update/RevisionID"); //$NON-NLS-1$
-                String dataCluster = Util.getFirstTextNode(doc, "/Update/DataCluster"); //$NON-NLS-1$
-                String dataModel = Util.getFirstTextNode(doc, "/Update/DataModel"); //$NON-NLS-1$
-                String concept = Util.getFirstTextNode(doc, "/Update/Concept"); //$NON-NLS-1$
-                String key = Util.getFirstTextNode(doc, "/Update/Key"); //$NON-NLS-1$
+                String userName = Util.getFirstTextNode(doc, "result/Update/UserName"); //$NON-NLS-1$
+                String source = Util.getFirstTextNode(doc, "result/Update/Source"); //$NON-NLS-1$
+                String timeInMillis = Util.getFirstTextNode(doc, "result/Update/TimeInMillis"); //$NON-NLS-1$
+                String epochTime = Util.getFirstTextNode(doc, "result/Update/TimeInMillis"); //$NON-NLS-1$
+                String operationType = Util.getFirstTextNode(doc, "result/Update/OperationType"); //$NON-NLS-1$
+                String revisionID = Util.getFirstTextNode(doc, "result/Update/RevisionID"); //$NON-NLS-1$
+                String dataCluster = Util.getFirstTextNode(doc, "result/Update/DataCluster"); //$NON-NLS-1$
+                String dataModel = Util.getFirstTextNode(doc, "result/Update/DataModel"); //$NON-NLS-1$
+                String concept = Util.getFirstTextNode(doc, "result/Update/Concept"); //$NON-NLS-1$
+                String key = Util.getFirstTextNode(doc, "result/Update/Key"); //$NON-NLS-1$
 
                 item.setUserName(userName);
                 item.setSource(source);
@@ -211,7 +207,6 @@ public class UpdateReportDWR {
                 item.setDataModel(dataModel);
                 item.setConcept(concept);
                 item.setKey(key);
-                // item.setXmlSource(result);
                 item.setIds(Util.joinStrings(new String[] { source, timeInMillis }, ".")); //$NON-NLS-1$
 
             }
@@ -229,12 +224,8 @@ public class UpdateReportDWR {
         listRange.setTotalSize(totalSize);
         return listRange;
     }
-       
+
     public String getReportString(int start, int limit, String regex, String language) throws Exception {
-//    	int limitCount = 0;
-//    	if(regex != null && regex.length() > 0){
-//    		limitCount = limit;
-//    	}
     	ListRange listRange = this.getUpdateReportList(start, limit, null, null, regex);
     	Object[] data = listRange.getData();
 
@@ -245,10 +236,10 @@ public class UpdateReportDWR {
     private String generateEventString(Object[] data, String language) throws ParseException{
     	StringBuilder sb = new StringBuilder("{'dateTimeFormat': 'iso8601',"); //$NON-NLS-1$
     	sb.append("'events' : [");	 //$NON-NLS-1$
-    	  
+
     	for(int i =0; i<data.length; i++){
     		DataChangeLog datalog = (DataChangeLog) data[i];
-    		sb.append("{'start':'").append(this.computeTime(datalog.getTimeInMillis())).append("',");  //$NON-NLS-1$ //$NON-NLS-2$                
+    		sb.append("{'start':'").append(this.computeTime(datalog.getTimeInMillis())).append("',");  //$NON-NLS-1$ //$NON-NLS-2$
     		sb.append("'title':'").append(datalog.getTimeInMillis()).append(" - ").append(datalog.getOperationType()).append("',");  //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     		sb.append("'link':'").append("javascript:showDialog(") //$NON-NLS-1$ //$NON-NLS-2$
 			 .append("\"").append(datalog.getIds()).append("\",") //$NON-NLS-1$ //$NON-NLS-2$
@@ -257,33 +248,33 @@ public class UpdateReportDWR {
 			 .append("\"").append(datalog.getConcept()).append("\",") //$NON-NLS-1$ //$NON-NLS-2$
 			 .append("\"").append(datalog.getDataCluster()).append("\",") //$NON-NLS-1$ //$NON-NLS-2$
 			 .append("\"").append(datalog.getDataModel()).append("\"").append(")',"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-    		
+
     		Locale locale = new Locale(language);
-    		    
+
     		sb.append("'description':'").append(MESSAGES.getMessage(locale, "updatereport.timeline.label.userName")).append(":").append(datalog.getUserName()).append("<br>") //$NON-NLS-1$ //$NON-NLS-2$  //$NON-NLS-3$ //$NON-NLS-4$
 			.append(MESSAGES.getMessage(locale, "updatereport.timeline.label.source")).append(":").append(datalog.getSource()).append("<br>") //$NON-NLS-1$ //$NON-NLS-2$  //$NON-NLS-3$
 			.append(MESSAGES.getMessage(locale, "updatereport.timeline.label.entity")).append(":").append(datalog.getConcept()).append("<br>") //$NON-NLS-1$ //$NON-NLS-2$  //$NON-NLS-3$
 			.append(MESSAGES.getMessage(locale, "updatereport.timeline.label.revision")).append(":").append(datalog.getRevisionID()).append("<br>") //$NON-NLS-1$ //$NON-NLS-2$  //$NON-NLS-3$
 			.append(MESSAGES.getMessage(locale, "updatereport.timeline.label.dataContainer")).append(":").append(datalog.getDataCluster()).append("<br>") //$NON-NLS-1$ //$NON-NLS-2$  //$NON-NLS-3$
 			.append(MESSAGES.getMessage(locale, "updatereport.timeline.label.dataModel")).append(":").append(datalog.getDataModel()).append("<br>") //$NON-NLS-1$ //$NON-NLS-2$  //$NON-NLS-3$
-			.append(MESSAGES.getMessage(locale, "updatereport.timeline.label.key")).append(":").append(datalog.getKey()).append("<br>"); //$NON-NLS-1$ //$NON-NLS-2$  //$NON-NLS-3$		
-    		
+			.append(MESSAGES.getMessage(locale, "updatereport.timeline.label.key")).append(":").append(datalog.getKey()).append("<br>"); //$NON-NLS-1$ //$NON-NLS-2$  //$NON-NLS-3$
+
     		sb.append("'}"); //$NON-NLS-1$
-    		
+
     		if(i != data.length-1)
     			sb.append(","); //$NON-NLS-1$
     	}
 
     	sb.append("]}"); //$NON-NLS-1$
     	sb.append("@||@"); //$NON-NLS-1$
-    	
+
     	if(data.length >= 1){
-    		DataChangeLog obj = (DataChangeLog) data[0];  		
-    		sb.append(this.changeDataFormat(obj.getTimeInMillis()));    		
+    		DataChangeLog obj = (DataChangeLog) data[0];
+    		sb.append(this.changeDataFormat(obj.getTimeInMillis()));
     	}else{
     		sb.append(this.getDateStringPlusGMT(new Date()));
     	}
-    	
+
     	sb.append("@||@"); //$NON-NLS-1$
     	if(data.length > 0){
     		sb.append("true"); //$NON-NLS-1$
@@ -296,17 +287,17 @@ public class UpdateReportDWR {
     private String changeDataFormat(String src) throws ParseException{
     	SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HH:mm:ss");  //$NON-NLS-1$
 
-    	Date d = sdf.parse(src);    	
+    	Date d = sdf.parse(src);
     	return this.getDateStringPlusGMT(d);
     }
-    
+
     private String getDateStringPlusGMT(Date d){
-    	
+
     	SimpleDateFormat sdf = new SimpleDateFormat("MMM dd yyyy HH:mm:ss", Locale.ENGLISH); //$NON-NLS-1$
 		String timeStr = sdf.format(d);
     	return timeStr + " GMT"; //$NON-NLS-1$
     }
-    
+
     private String computeTime(String src) throws ParseException{
     	SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HH:mm:ss");  //$NON-NLS-1$
     	Date d = sdf.parse(src);
@@ -314,10 +305,10 @@ public class UpdateReportDWR {
     	int offset = c.getTimeZone().getRawOffset()/3600000;
     	c.setTime(d);
     	c.add(Calendar.HOUR, offset);
-    	
+
     	return sdf.format(c.getTime());
     }
-    
+
     public boolean checkDCAndDM(String dataCluster, String dataModel) {
         return Util.checkDCAndDM(dataCluster, dataModel);
     }
