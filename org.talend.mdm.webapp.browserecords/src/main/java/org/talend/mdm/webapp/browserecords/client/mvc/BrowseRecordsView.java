@@ -31,6 +31,7 @@ import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -45,8 +46,8 @@ import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.Widget;
 
 /**
  * DOC Administrator  class global comment. Detailled comment
@@ -55,7 +56,21 @@ public class BrowseRecordsView extends View {
 
     public static final String ITEMS_SEARCH_CONTAINER = "itemsSearchContainer";//$NON-NLS-1$
 
-    private Viewport container;
+    private Viewport container = new Viewport() {
+
+        public void onAttach() {
+            monitorWindowResize = true;
+            Window.enableScrolling(true);
+            setSize(Window.getClientWidth(), Window.getClientHeight());
+            super.onAttach();
+            GXT.hideLoadingPanel("loading");//$NON-NLS-1$            
+        }
+
+        protected void onWindowResize(int width, int height) {
+            setSize(width, height);
+            this.doLayout(true);
+        }
+    };
 
     private ItemsSearchContainer itemsSearchContainer = null;
 
@@ -76,20 +91,11 @@ public class BrowseRecordsView extends View {
     }
 
     private void onInitFrame(AppEvent event) {
-        container = new Viewport() {
-
-            @Override
-            public void onAttach() {
-                super.onAttach();
-                Widget w = this.getParent();
-                setSize(w.getOffsetWidth(), w.getOffsetHeight());
-                this.doLayout(true);
-            }
-        };
+        if (Log.isInfoEnabled())
+            Log.info("Init frame... ");//$NON-NLS-1$
 
         container.setLayout(new FitLayout());
         container.setStyleAttribute("height", "100%");//$NON-NLS-1$ //$NON-NLS-2$       
-        RootPanel.get().add(container);
         Dispatcher.forwardEvent(BrowseRecordsEvents.InitSearchContainer);
     }
 
@@ -99,6 +105,7 @@ public class BrowseRecordsView extends View {
             Log.info("Init items-search-container... ");//$NON-NLS-1$
         itemsSearchContainer = new ItemsSearchContainer();
         container.add(itemsSearchContainer);
+        RootPanel.get().add(container);
         Registry.register(ITEMS_SEARCH_CONTAINER, itemsSearchContainer);
 
     }

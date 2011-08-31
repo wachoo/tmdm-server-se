@@ -30,15 +30,14 @@ public class ItemsSearchContainer extends LayoutContainer {
     private ItemsToolBar toolbar;
 
     public ItemsSearchContainer() {
-
         setLayout(new BorderLayout());
         setBorders(false);
 
-        toolbar = new ItemsToolBar();
+         toolbar = new ItemsToolBar();
         add(toolbar, new BorderLayoutData(LayoutRegion.NORTH, 30));
 
-        itemsListPanel = new ItemsListPanel(toolbar);
-        itemsListPanel.layoutGrid();
+         itemsListPanel = new ItemsListPanel(toolbar);
+        // itemsListPanel.layoutGrid();
         BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 400);
         westData.setSplit(true);
         westData.setMargins(new Margins(0, 5, 0, 0));

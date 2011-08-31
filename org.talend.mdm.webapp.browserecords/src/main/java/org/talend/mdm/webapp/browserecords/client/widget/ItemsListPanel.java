@@ -67,7 +67,6 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -179,6 +178,7 @@ public class ItemsListPanel extends ContentPanel {
                 }
             }
         });
+        this.layout();
     }
 
     private void initPanel() {
@@ -365,13 +365,14 @@ public class ItemsListPanel extends ContentPanel {
 
     }
 
-    public void layoutGrid() {
-        this.layout(true);
-        if (gridContainer != null) {
-            Element parent = DOM.getParent(gridContainer.getElement());
-            gridContainer.setSize(parent.getOffsetWidth(), parent.getOffsetHeight());
-        }
-    }
+    //
+    // public void layoutGrid() {
+    // this.layout(true);
+    // if (gridContainer != null) {
+    // Element parent = DOM.getParent(gridContainer.getElement());
+    // gridContainer.setSize(parent.getOffsetWidth(), parent.getOffsetHeight());
+    // }
+    // }
 
     public ListStore<ItemBean> getStore() {
         return store;
