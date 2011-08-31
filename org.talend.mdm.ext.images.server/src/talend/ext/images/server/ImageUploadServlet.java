@@ -19,8 +19,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.ProgressListener;
 import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
+import org.apache.commons.fileupload.ProgressListener;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang.StringUtils;
@@ -52,6 +52,7 @@ public class ImageUploadServlet extends HttpServlet {
 	private String targetCatalogName = "";
 	private String targetFileName = "";
 
+    private boolean changeFileName = true;
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 
@@ -82,7 +83,12 @@ public class ImageUploadServlet extends HttpServlet {
 			throws ServletException, IOException {
 		
 		targetUri="upload";//reset
-		
+        String change = request.getParameter("changeFileName");
+        if (change != null) {
+            changeFileName = Boolean.valueOf(change);
+        }
+        logger.debug("changeFileName: " + changeFileName);
+
 		String result=onUpload(request, response);
 		
 		response.setContentType("text/html");
@@ -199,6 +205,9 @@ public class ImageUploadServlet extends HttpServlet {
 			long sizeInBytes = item.getSize();
 
 			String uid = Uuid.get32Code().toString();
+            if (!changeFileName) {
+                uid = fileName;
+            }
 			sourceFileName = parseFileFullName(fileName)[0];
 			sourceFileType = parseFileFullName(fileName)[1];
 
