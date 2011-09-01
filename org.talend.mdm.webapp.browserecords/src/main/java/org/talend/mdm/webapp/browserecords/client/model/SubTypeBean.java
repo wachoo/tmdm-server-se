@@ -12,11 +12,12 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.model;
 
+import java.io.Serializable;
 
 /**
  * DOC HSHU  class global comment. Detailled comment
  */
-public class SubTypeBean implements Comparable<SubTypeBean>{
+public class SubTypeBean implements Comparable<SubTypeBean>, Serializable {
     
     private String name;
     
