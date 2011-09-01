@@ -140,6 +140,8 @@ public class ItemsToolBar extends ToolBar {
 
     private ViewBean tableView;
 
+    private ItemsSearchContainer container = null;
+
     /*************************************/
 
     public ItemsToolBar() {
@@ -177,10 +179,8 @@ public class ItemsToolBar extends ToolBar {
             advancedPanel.cleanCriteria();
         }
         // reset search results
-        if (instance.getParent() instanceof ItemsSearchContainer) {
-            ItemsSearchContainer list = (ItemsSearchContainer) instance.getParent();
-            if (list != null)
-                list.getItemsListPanel().resetGrid();
+        if (container != null) {
+            container.getItemsListPanel().resetGrid();
         }
 
         searchBut.setEnabled(true);
@@ -244,8 +244,10 @@ public class ItemsToolBar extends ToolBar {
 
     public int getSelectItemNumber() {
         int number = 0;
-        ItemsListPanel list = ((ItemsSearchContainer) instance.getParent()).getItemsListPanel();
-        number = list.getGrid().getSelectionModel().getSelectedItems().size();
+        if (container != null) {
+            ItemsListPanel list = container.getItemsListPanel();
+            number = list.getGrid().getSelectionModel().getSelectedItems().size();
+        }
         return number;
     }
 
@@ -281,8 +283,7 @@ public class ItemsToolBar extends ToolBar {
 
             @Override
             public void componentSelected(MenuEvent ce) {
-
-                if (((ItemsSearchContainer) instance.getParent()).getItemsListPanel().getGrid() == null) {
+                if (container.getItemsListPanel().getGrid() == null) {
                     com.google.gwt.user.client.Window.alert(MessagesFactory.getMessages().select_delete_item_record());
                 } else {
                     if (getSelectItemNumber() == 0) {
@@ -291,7 +292,7 @@ public class ItemsToolBar extends ToolBar {
                         MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
                                 .delete_confirm(), new Listener<MessageBoxEvent>() {
 
-                            final ItemsListPanel list = ((ItemsSearchContainer) instance.getParent()).getItemsListPanel();
+                            final ItemsListPanel list = container.getItemsListPanel();
 
                             public void handleEvent(MessageBoxEvent be) {
                                 if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
@@ -392,7 +393,7 @@ public class ItemsToolBar extends ToolBar {
 
                     public void handleEvent(MessageBoxEvent be) {
                         if (be.getButtonClicked().getItemId().equals(Dialog.OK)) {
-                            final ItemsListPanel list = ((ItemsSearchContainer) instance.getParent()).getItemsListPanel();
+                            final ItemsListPanel list = container.getItemsListPanel();
                             if (list.getGrid() != null) {
                                 service.logicalDeleteItems(list.getGrid().getSelectionModel().getSelectedItems(), "/", //$NON-NLS-1$
                                         new AsyncCallback<List<ItemResult>>() {
@@ -534,10 +535,14 @@ public class ItemsToolBar extends ToolBar {
                 // show advanced Search panel
                 advancedPanelVisible = !advancedPanelVisible;
                 advancedPanel.setVisible(advancedPanelVisible);
+                if (advancedPanelVisible)
+                    container.resizeTop(30 + advancedPanel.getOffsetHeight());
+                else
+                    container.resizeTop(30);
                 advancedPanel.getButtonBar().getItemByItemId("updateBookmarkBtn").setVisible(false); //$NON-NLS-1$
 
-                if (((ItemsSearchContainer) instance.getParent()).getItemsListPanel().gridContainer != null)
-                    ((ItemsSearchContainer) instance.getParent()).getItemsListPanel().gridContainer.setHeight(instance
+                if (container.getItemsListPanel() != null && container.getItemsListPanel().gridContainer != null)
+                    container.getItemsListPanel().gridContainer.setHeight(instance
                             .getParent().getOffsetHeight()
                             - instance.getOffsetHeight() - advancedPanel.getOffsetHeight());
                 if (isSimple) {
@@ -634,12 +639,13 @@ public class ItemsToolBar extends ToolBar {
                                                         advancedPanel.cleanCriteria();
                                                     advancedPanelVisible = true;
                                                     advancedPanel.setVisible(advancedPanelVisible);
+                                                    container.resizeTop(30 + advancedPanel.getOffsetHeight());
                                                     advancedPanel.getButtonBar().getItemByItemId("updateBookmarkBtn").setVisible(
                                                             true);
                                                     bookmarkName = model.get("value").toString();
                                                     bookmarkShared = Boolean.parseBoolean(model.get("shared").toString());
-                                                    if (((ItemsListPanel) instance.getParent()).gridContainer != null)
-                                                        ((ItemsListPanel) instance.getParent()).gridContainer.setHeight(instance
+                                                    if (container.getItemsListPanel().gridContainer != null)
+                                                        container.getItemsListPanel().gridContainer.setHeight(instance
                                                                 .getParent().getOffsetHeight()
                                                                 - instance.getOffsetHeight() - advancedPanel.getOffsetHeight());
                                                     winBookmark.close();
@@ -830,10 +836,11 @@ public class ItemsToolBar extends ToolBar {
     private void resizeAfterSearch() {
         advancedPanelVisible = false;
         advancedPanel.setVisible(advancedPanelVisible);
+        container.resizeTop(30);
         advancedBut.toggle(advancedPanelVisible);
         // resize result grid
-        if (((ItemsSearchContainer) instance.getParent()).getItemsListPanel().gridContainer != null)
-            ((ItemsSearchContainer) instance.getParent()).getItemsListPanel().gridContainer.setHeight(instance.getParent()
+        if (container.getItemsListPanel().gridContainer != null)
+            container.getItemsListPanel().gridContainer.setHeight(instance.getParent()
                     .getOffsetHeight()
                     - instance.getOffsetHeight() - advancedPanel.getOffsetHeight());
     }
@@ -897,8 +904,8 @@ public class ItemsToolBar extends ToolBar {
                 public void componentSelected(ButtonEvent ce) {
                     advancedPanel.cleanCriteria();
 
-                    if (((ItemsSearchContainer) instance.getParent()).getItemsListPanel().gridContainer != null)
-                        ((ItemsSearchContainer) instance.getParent()).getItemsListPanel().gridContainer.setHeight(instance
+                    if (container.getItemsListPanel().gridContainer != null)
+                        container.getItemsListPanel().gridContainer.setHeight(instance
                                 .getParent().getOffsetHeight()
                                 - instance.getOffsetHeight() - advancedPanel.getOffsetHeight());
                 }
@@ -1027,5 +1034,18 @@ public class ItemsToolBar extends ToolBar {
 
     public void setTableView(ViewBean tableView) {
         this.tableView = tableView;
+    }
+
+    public void initContainer() {
+        if (container == null) {
+        Widget parent = instance.getParent();
+        while (parent != null) {
+                if (parent instanceof ItemsSearchContainer) {
+                    container = (ItemsSearchContainer) parent;
+                    return;
+                }
+                parent = parent.getParent();
+            }
+        }
     }
 }

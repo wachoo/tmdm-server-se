@@ -150,7 +150,6 @@ public class ItemsListPanel extends ContentPanel {
         setHeaderVisible(false);
         initPanel();
         toolBar = bar;
-        add(toolBar.getAdvancedPanel());
 
         store.setKeyProvider(keyProvidernew);
 

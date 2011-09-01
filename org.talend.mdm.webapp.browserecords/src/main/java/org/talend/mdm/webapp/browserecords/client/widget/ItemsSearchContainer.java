@@ -14,6 +14,7 @@ package org.talend.mdm.webapp.browserecords.client.widget;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.util.Margins;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
@@ -29,12 +30,24 @@ public class ItemsSearchContainer extends LayoutContainer {
 
     private ItemsToolBar toolbar;
 
+    private BorderLayoutData northData;
+
     public ItemsSearchContainer() {
         setLayout(new BorderLayout());
         setBorders(false);
 
-         toolbar = new ItemsToolBar();
-        add(toolbar, new BorderLayoutData(LayoutRegion.NORTH, 30));
+        ContentPanel topPanel = new ContentPanel();
+        topPanel.setHeaderVisible(false);
+        toolbar = new ItemsToolBar();
+        topPanel.add(toolbar);
+        topPanel.add(toolbar.getAdvancedPanel());
+        northData = new BorderLayoutData(LayoutRegion.NORTH);
+        northData.setSize(30);
+        northData.setSplit(true);
+        add(topPanel, northData);
+        toolbar.initContainer();
+
+        // add(toolbar.getAdvancedPanel(), northData);
 
          itemsListPanel = new ItemsListPanel(toolbar);
         // itemsListPanel.layoutGrid();
@@ -59,6 +72,11 @@ public class ItemsSearchContainer extends LayoutContainer {
 
     public ItemsToolBar getToolBar() {
         return toolbar;
+    }
+
+    public void resizeTop(float size) {
+        northData.setSize(size);
+        this.layout(true);
     }
 
 }
