@@ -33,6 +33,10 @@ public class BulkloadClient {
 		this.dataModel = dataModel;
 	}
 
+    public void startThreadCount(){
+        // Kept for compatibility with tMDMBulkload.
+    }
+
     public void waitForEndOfQueue() {
         try {
             synchronized (startedBulkloadCount) {
