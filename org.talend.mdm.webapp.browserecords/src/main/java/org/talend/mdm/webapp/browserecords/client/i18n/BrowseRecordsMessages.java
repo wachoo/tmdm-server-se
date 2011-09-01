@@ -49,6 +49,8 @@ public interface BrowseRecordsMessages extends Messages {
     String button_reset();
 
     String save_btn();
+    
+    String save_tip();
 
     String button_upload();
 

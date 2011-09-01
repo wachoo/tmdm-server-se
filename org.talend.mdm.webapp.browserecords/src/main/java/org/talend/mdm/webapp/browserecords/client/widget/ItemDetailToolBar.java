@@ -16,6 +16,8 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 public class ItemDetailToolBar  extends ToolBar{
     
+    private final Button saveButton = new Button(MessagesFactory.getMessages().save_btn());
+    
     private final Button deleteButton = new Button(MessagesFactory.getMessages().delete_btn());
     
     private final Button deplicateButton = new Button(MessagesFactory.getMessages().deplicate_btn());
@@ -32,7 +34,8 @@ public class ItemDetailToolBar  extends ToolBar{
     }
     
     private void initToolBar(){     
-        
+        saveButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
+        saveButton.setToolTip(MessagesFactory.getMessages().save_tip());
         deleteButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
         deplicateButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.duplicate()));
         deplicateButton.setToolTip(MessagesFactory.getMessages().deplicate_tip());
@@ -40,6 +43,18 @@ public class ItemDetailToolBar  extends ToolBar{
         joumalButton.setToolTip(MessagesFactory.getMessages().joumal_tip());
         refreshButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.refreshToolbar()));
         refreshButton.setToolTip(MessagesFactory.getMessages().refresh_tip());
+        
+        saveButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                
+            }
+
+        });
+        add(saveButton);    
+        add(new SeparatorToolItem());  
+        
         Menu deleteMenu = new Menu();
         MenuItem delete_SendToTrash = new MenuItem(MessagesFactory.getMessages().trash_btn()); 
         delete_SendToTrash.addSelectionListener(new SelectionListener<MenuEvent>() {
