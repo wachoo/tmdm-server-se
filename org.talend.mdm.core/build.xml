@@ -66,6 +66,7 @@
       <path id="test.classpath">
         <pathelement path="target/test-classes" />
         <path refid="compile.classpath" />
+      	<pathelement path="${tom.location}/org.talend.mdm.core/src/WEB-INF/lib/z.XmlSchema-1.4.5.jar" />
       </path>
 
       <copy todir="${basedir}/target/test-classes" verbose="true">
