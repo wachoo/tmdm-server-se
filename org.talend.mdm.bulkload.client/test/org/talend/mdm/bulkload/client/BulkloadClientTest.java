@@ -16,8 +16,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.TestCase;
+import org.apache.commons.lang.math.RandomUtils;
 
 /**
  *
@@ -75,4 +77,56 @@ public class BulkloadClientTest extends TestCase {
             // client.load(bin);
         }
 	}
+
+    class InterruptedTestResult {
+        boolean success = false;
+        AtomicInteger successCount = new AtomicInteger();
+
+        public boolean isSuccess() {
+            return success;
+        }
+
+        public void setSuccess(boolean success) {
+            successCount.incrementAndGet();
+            this.success = success;
+        }
+
+        public int getSuccessCount() {
+            return successCount.get();
+        }
+    }
+
+    public void testInterruptedBulkLoad() throws Exception {
+        String serverURL = "http://localhost:8080/datamanager/loadServlet";
+        final InterruptedTestResult result = new InterruptedTestResult();
+        BulkloadClient client = new BulkloadClient(serverURL, "admin", "talend", null, "Product", "Product", "Product");
+        client.setOptions(new BulkloadOptions());
+
+        int count = 10;
+        InputStream bin = new InputStream() {
+            @Override
+            public synchronized int read() throws IOException {
+                try {
+                    Thread.sleep(RandomUtils.nextInt(5000));
+                    synchronized (result) {
+                        result.setSuccess(true);
+                    }
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                return -1;
+            }
+        };
+        for (int i = 0; i < count; i++) {
+            InputStreamMerger manager = client.load();
+            manager.push(bin);
+            manager.close();
+        }
+
+        // client.waitForEndOfQueue();
+        synchronized (result) {
+            assertEquals(count, result.getSuccessCount());
+            assertTrue(result.isSuccess());
+        }
+    }
 }

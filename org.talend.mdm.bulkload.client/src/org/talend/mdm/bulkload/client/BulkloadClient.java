@@ -1,10 +1,9 @@
 package org.talend.mdm.bulkload.client;
 
 import java.io.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class BulkloadClient {
-
-    private SyncInt runningThreadCount;
 
     private String url;
 
@@ -21,7 +20,9 @@ public class BulkloadClient {
     private String dataModel;
 
     private BulkloadOptions options = new BulkloadOptions();
-	
+
+    private static final AtomicInteger startedBulkloadCount = new AtomicInteger(0);
+
 	public BulkloadClient(String url, String username, String password, String universe, String cluster, String concept, String dataModel) {
 		this.url=url;
 		this.username=username;
@@ -30,30 +31,20 @@ public class BulkloadClient {
 		this.cluster=cluster;
 		this.concept=concept;
 		this.dataModel = dataModel;
-    }
-    
-    public void startThreadCount(){
-    	if(runningThreadCount == null){
-    		runningThreadCount = new SyncInt();
-    	}else{
-    		waitForEndOfQueue();
-    	}
-    }
+	}
 
     public void waitForEndOfQueue() {
-    	if(runningThreadCount != null){
-	        try {
-    	        while (runningThreadCount.getCount() > 0) {
-        	        System.out.println(Thread.currentThread());
-            	    Thread.sleep(100);
-	            }
-    	    } catch (Exception e) {
-        	    e.printStackTrace();
-	        }
-	    }else{
-	    	System.err.println("didn't start thread count");
-	    }
-	}
+        try {
+            synchronized (startedBulkloadCount) {
+                while (startedBulkloadCount.get() > 0) {
+                    System.out.println(startedBulkloadCount.get() + " remaining.");
+                    startedBulkloadCount.wait();
+                }
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 	public String getUrl() {
 		return url;
@@ -178,18 +169,7 @@ public class BulkloadClient {
      * @return A {@link InputStreamMerger} that allow asynchronous push to bulkload client.
      */
     public InputStreamMerger load() throws Exception {
-    	if(runningThreadCount==null){
-	        return BulkloadClientUtil.bulkload(url,
-     	           cluster,
-        	        concept,
-            	    dataModel,
-                	options.isValidate(),
-	                options.isSmartpk(),
-    	            username,
-        	        password,
-            	    universe);
-        }else{
-         	return BulkloadClientUtil.bulkload(url,
+        return BulkloadClientUtil.bulkload(url,
                 cluster,
                 concept,
                 dataModel,
@@ -198,8 +178,6 @@ public class BulkloadClient {
                 username,
                 password,
                 universe,
-				runningThreadCount);
-        }
+                startedBulkloadCount);
     }
-   
 }

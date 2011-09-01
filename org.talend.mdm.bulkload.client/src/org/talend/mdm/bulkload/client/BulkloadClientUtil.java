@@ -1,6 +1,7 @@
 package org.talend.mdm.bulkload.client;
 
 import java.io.InputStream;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
@@ -65,20 +66,10 @@ public class BulkloadClientUtil {
         }
     }
 
-	public static InputStreamMerger bulkload(String url, String cluster, String concept, String dataModel, boolean validate, boolean smartPK, String username, String password, String universe) {
+    public static InputStreamMerger bulkload(String url, String cluster, String concept, String dataModel, boolean validate, boolean smartPK, String username, String password, String universe, AtomicInteger startedBulkloadCount) {
         InputStreamMerger merger = new InputStreamMerger();
-        
-        Runnable loadRunnable = new AsyncLoadRunnable(url, cluster, concept, dataModel, validate, smartPK, merger, username, password, universe);
-        Thread loadThread = new Thread(loadRunnable);
-        loadThread.start();
 
-        return merger;
-    }
-
-    public static InputStreamMerger bulkload(String url, String cluster, String concept, String dataModel, boolean validate, boolean smartPK, String username, String password, String universe, SyncInt runningThreadCount) {
-        InputStreamMerger merger = new InputStreamMerger();
-		runningThreadCount.add(1);
-        Runnable loadRunnable = new AsyncLoadRunnable(url, cluster, concept, dataModel, validate, smartPK, merger, username, password, universe, runningThreadCount);
+        Runnable loadRunnable = new AsyncLoadRunnable(url, cluster, concept, dataModel, validate, smartPK, merger, username, password, universe, startedBulkloadCount);
         Thread loadThread = new Thread(loadRunnable);
         loadThread.start();
 
@@ -96,9 +87,9 @@ public class BulkloadClientUtil {
         private final String userName;
         private final String password;
         private final String universe;
+        private final AtomicInteger startedBulkloadCount;
 
-        private SyncInt runningThreadCount;
-        public AsyncLoadRunnable(String url, String cluster, String concept, String dataModel, boolean validate, boolean smartPK, InputStream inputStream, String userName, String password, String universe) {
+        public AsyncLoadRunnable(String url, String cluster, String concept, String dataModel, boolean validate, boolean smartPK, InputStream inputStream, String userName, String password, String universe, AtomicInteger startedBulkloadCount) {
             this.url = url;
             this.cluster = cluster;
             this.concept = concept;
@@ -109,34 +100,20 @@ public class BulkloadClientUtil {
             this.userName = userName;
             this.password = password;
             this.universe = universe;
-        }
-        
-        public AsyncLoadRunnable(String url, String cluster, String concept, String dataModel, boolean validate, boolean smartPK, InputStream inputStream, String userName, String password, String universe, SyncInt runningThreadCount) {
-            this.url = url;
-            this.cluster = cluster;
-            this.concept = concept;
-            this.dataModel = dataModel;
-            this.validate = validate;
-            this.smartPK = smartPK;
-            this.inputStream = inputStream;
-            this.userName = userName;
-            this.password = password;
-            this.universe = universe;
-
-            this.runningThreadCount = runningThreadCount;
+            this.startedBulkloadCount = startedBulkloadCount;
         }
 
         public void run() {
             try {
+                startedBulkloadCount.incrementAndGet();
                 bulkload(url, cluster, concept, dataModel, validate, smartPK, inputStream, userName, password, universe);
-            } catch (BulkloadException e) {
-                throw e;
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 throw new RuntimeException(e);
             } finally {
-            	if(runningThreadCount!=null){
-                	runningThreadCount.add(-1);
-                }	
+                startedBulkloadCount.decrementAndGet();
+                synchronized (startedBulkloadCount) {
+                    startedBulkloadCount.notifyAll();
+                }
             }
         }
     }
