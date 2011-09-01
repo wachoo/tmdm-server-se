@@ -38,7 +38,13 @@ public interface BrowseRecordsMessages extends Messages {
     
     String deplicate_btn();
     
-    String joumal_btn(); 
+    String deplicate_tip(); 
+    
+    String joumal_btn();    
+    
+    String joumal_tip(); 
+    
+    String refresh_tip(); 
 
     String button_reset();
 

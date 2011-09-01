@@ -35,7 +35,11 @@ public class ItemDetailToolBar  extends ToolBar{
         
         deleteButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
         deplicateButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.duplicate()));
+        deplicateButton.setToolTip(MessagesFactory.getMessages().deplicate_tip());
         joumalButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.journal()));
+        joumalButton.setToolTip(MessagesFactory.getMessages().joumal_tip());
+        refreshButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.refreshToolbar()));
+        refreshButton.setToolTip(MessagesFactory.getMessages().refresh_tip());
         Menu deleteMenu = new Menu();
         MenuItem delete_SendToTrash = new MenuItem(MessagesFactory.getMessages().trash_btn()); 
         delete_SendToTrash.addSelectionListener(new SelectionListener<MenuEvent>() {
@@ -59,6 +63,7 @@ public class ItemDetailToolBar  extends ToolBar{
         });
        
         delete_Delete.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
+        
         deleteButton.setMenu(deleteMenu);        
         
         add(deleteButton);    
@@ -72,7 +77,8 @@ public class ItemDetailToolBar  extends ToolBar{
 
         });
         add(deplicateButton);
-        add(new SeparatorToolItem()); 
+        add(new SeparatorToolItem());
+        
         joumalButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             @Override
@@ -82,8 +88,8 @@ public class ItemDetailToolBar  extends ToolBar{
 
         });
         add(joumalButton);
-        add(new SeparatorToolItem()); 
-        refreshButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.refreshToolbar()));
+        add(new SeparatorToolItem());        
+        
         refreshButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             @Override
