@@ -74,4 +74,13 @@ public interface Icons extends ClientBundle {
 
     @Source("dosearch.png")
     ImageResource dosearch();
+    
+    @Source("journal.png")
+    ImageResource journal();
+    
+    @Source("duplicate.png")
+    ImageResource duplicate();
+    
+    @Source("refreshToolbar.gif")
+    ImageResource refreshToolbar();    
 }
