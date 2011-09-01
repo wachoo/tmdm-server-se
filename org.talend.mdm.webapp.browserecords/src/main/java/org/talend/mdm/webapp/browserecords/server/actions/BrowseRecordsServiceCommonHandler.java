@@ -34,10 +34,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.Element;
-import org.dom4j.Node;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
@@ -60,11 +56,13 @@ import org.talend.mdm.webapp.browserecords.server.bizhelpers.ItemHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.RoleHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
 import org.talend.mdm.webapp.browserecords.server.util.CommonUtil;
-import org.talend.mdm.webapp.browserecords.server.util.XmlUtil;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.amalto.core.ejb.ItemPOJO;
@@ -74,6 +72,7 @@ import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
+import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSBoolean;
 import com.amalto.webapp.util.webservices.WSCount;
@@ -133,14 +132,14 @@ public class BrowseRecordsServiceCommonHandler extends BrowseRecordsAction {
             String message = null;
             String errorCode = null;
             if (outputErrorMessage != null) {
-                Document doc = XmlUtil.parseText(outputErrorMessage);
+                Document doc = Util.parse(outputErrorMessage);
                 // TODO what if multiple error nodes ?
                 String xpath = "//report/message"; //$NON-NLS-1$
-                Node errorNode = doc.selectSingleNode(xpath);
+                Node errorNode = Util.getNodeList(doc, xpath).item(0);
                 if (errorNode instanceof Element) {
                     Element errorElement = (Element) errorNode;
-                    errorCode = errorElement.attributeValue("type"); //$NON-NLS-1$
-                    message = errorElement.getText();
+                    errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
+                    message = errorElement.getTextContent();
                 }
             }
 
@@ -296,19 +295,20 @@ public class BrowseRecordsServiceCommonHandler extends BrowseRecordsAction {
                     ForeignKeyBean bean = new ForeignKeyBean();
                     String id = ""; //$NON-NLS-1$
                     @SuppressWarnings("unchecked")
-                    List<Node> nodes = XmlUtil.getValuesFromXPath(XmlUtil.parseText(result), "//i"); //$NON-NLS-1$
+                    NodeList nodes = Util.getNodeList(Util.parse(result), "//i"); //$NON-NLS-1$                   
                     if (nodes != null) {
-                        for (Node node : nodes) {
-                            id += "[" + (node.getText() == null ? "" : node.getText()) + "]"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$
+                        for (int i = 0; i < nodes.getLength(); i++) {
+                            if (nodes.item(i) instanceof Element)
+                                id += "[" + (nodes.item(i).getTextContent() == null ? "" : nodes.item(i).getTextContent()) + "]"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$
                         }
                     }
                     bean.setId(id);
                     if (result != null) {
-                        Element root = XmlUtil.parseText(result).getRootElement();
-                        if (root.getName().equals("result"))//$NON-NLS-1$
+                        Element root = Util.parse(result).getDocumentElement();
+                        if (root.getNodeName().equals("result"))//$NON-NLS-1$
                             initFKBean(root, bean);
                         else
-                            bean.set(root.getName(), root.getTextTrim());
+                            bean.set(root.getNodeName(), root.getTextContent().trim());
                     }
                     fkBeans.add(bean);
                 }
@@ -378,10 +378,12 @@ public class BrowseRecordsServiceCommonHandler extends BrowseRecordsAction {
     }
 
     private void initFKBean(Element ele, ForeignKeyBean bean) {
-        for (Object subEle : ele.elements()) {
-            Element curEle = (Element) subEle;
-            bean.set(curEle.getName(), curEle.getTextTrim());
+        for (int i = 0; i < ele.getChildNodes().getLength(); i++) {
+            if (ele.getChildNodes().item(i) instanceof Element) {
+                Element curEle = (Element) ele.getChildNodes().item(i);
+                bean.set(curEle.getNodeName(), curEle.getTextContent().trim());
             initFKBean(curEle, bean);
+            }
         }
     }
 
@@ -458,32 +460,35 @@ public class BrowseRecordsServiceCommonHandler extends BrowseRecordsAction {
         return itemBean;
     }
 
-    public void dynamicAssemble(ItemBean itemBean, EntityModel entityModel) throws DocumentException {
+    public void dynamicAssemble(ItemBean itemBean, EntityModel entityModel) throws Exception {
         if (itemBean.getItemXml() != null) {
-            Document docXml = XmlUtil.parseText(itemBean.getItemXml());
+            Document docXml = Util.parse(itemBean.getItemXml());
             Map<String, TypeModel> types = entityModel.getMetaDataTypes();
             Set<String> xpaths = types.keySet();
             for (String path : xpaths) {
                 TypeModel typeModel = types.get(path);
                 if (typeModel.isSimpleType()) {
-                    List<?> nodes = XmlUtil.getValuesFromXPath(docXml, path.substring(path.lastIndexOf('/') + 1));
-                    if (nodes.size() > 0) {
-                        Node value = (Node) nodes.get(0);
+                    NodeList nodes = Util.getNodeList(docXml, path.substring(path.lastIndexOf('/') + 1));
+                    if (nodes.getLength() > 0) {
+                        if (nodes.item(0) instanceof Element) {
+                            Element value = (Element) nodes.item(0);
                         if (typeModel.isMultiOccurrence()) {
                             List<Serializable> list = new ArrayList<Serializable>();
-                            for (Object node : nodes) {
-                                list.add(((Node) node).getText());
+                                for (int t = 0; t < nodes.getLength(); t++) {
+                                    if (nodes.item(t) instanceof Element)
+                                        list.add(((Element) nodes.item(t)).getTextContent());
                             }
                             itemBean.set(path, list);
                         } else {
 
                             if (typeModel.getForeignkey() != null) {
-                                itemBean.set(path, path + "-" + value.getText()); //$NON-NLS-1$
+                                    itemBean.set(path, path + "-" + value.getTextContent()); //$NON-NLS-1$
                                 itemBean.setForeignkeyDesc(
-                                        path + "-" + value.getText(), getForeignKeyDesc(typeModel, value.getText())); //$NON-NLS-1$
+                                                    path + "-" + value.getTextContent(), getForeignKeyDesc(typeModel, value.getTextContent())); //$NON-NLS-1$
                             } else {
-                                itemBean.set(path, value.getText());
+                                    itemBean.set(path, value.getTextContent());
                             }
+                        }
                         }
                     }
                 }
@@ -493,30 +498,31 @@ public class BrowseRecordsServiceCommonHandler extends BrowseRecordsAction {
 
     public void dynamicAssembleByResultOrder(ItemBean itemBean, ViewBean viewBean, EntityModel entityModel) throws Exception {
         if (itemBean.getItemXml() != null) {
-            Document docXml = XmlUtil.parseText(itemBean.getItemXml());
+            Document docXml = Util.parse(itemBean.getItemXml());
             HashMap<String, Integer> countMap = new HashMap<String, Integer>();
             for (String path : viewBean.getViewableXpaths()) {
                 String leafPath = path.substring(path.lastIndexOf('/') + 1);
-                List<?> nodes = XmlUtil.getValuesFromXPath(docXml, leafPath);
-                if (nodes.size() > 1) {
+                NodeList nodes = Util.getNodeList(docXml, leafPath);
+                if (nodes.getLength() > 1) {
                     // result has same name nodes
                     if (countMap.containsKey(leafPath)) {
                         int count = Integer.valueOf(countMap.get(leafPath).toString());
-                        itemBean.set(path, ((Node) nodes.get(count)).getText());
+                        itemBean.set(path, ((Node) nodes.item(count)).getTextContent());
                         countMap.put(leafPath, count + 1);
                     } else {
-                        itemBean.set(path, ((Node) nodes.get(0)).getText());
+                        itemBean.set(path, ((Node) nodes.item(0)).getTextContent());
                         countMap.put(leafPath, 1);
                     }
-                } else if (nodes.size() == 1) {
-                    Node value = (Node) nodes.get(0);
+                } else if (nodes.getLength() == 1) {
+                    Node value = (Node) nodes.item(0);
                     TypeModel typeModel = entityModel.getMetaDataTypes().get(path);
 
                     if (typeModel != null && typeModel.getForeignkey() != null) {
-                        itemBean.set(path, path + "-" + value.getText()); //$NON-NLS-1$
-                        itemBean.setForeignkeyDesc(path + "-" + value.getText(), getForeignKeyDesc(typeModel, value.getText())); //$NON-NLS-1$
+                        itemBean.set(path, path + "-" + value.getTextContent()); //$NON-NLS-1$
+                        itemBean.setForeignkeyDesc(
+                                path + "-" + value.getTextContent(), getForeignKeyDesc(typeModel, value.getTextContent())); //$NON-NLS-1$
                     } else {
-                        itemBean.set(path, value.getText());
+                        itemBean.set(path, value.getTextContent());
                     }
                 }
             }
@@ -667,10 +673,7 @@ public class BrowseRecordsServiceCommonHandler extends BrowseRecordsAction {
 
                 idsArray.clear();
                 for (String key : entityModel.getKeys()) {
-                    Node idNode = XmlUtil.queryNode(doc, key.replaceFirst(concept + "/", "result/")); //$NON-NLS-1$ //$NON-NLS-2$ 
-                    if (idNode == null)
-                        continue;
-                    String id = idNode.getText();
+                    String id = Util.getFirstTextNode(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./"));
                     if (id != null)
                         idsArray.add(id);
                 }
@@ -680,10 +683,7 @@ public class BrowseRecordsServiceCommonHandler extends BrowseRecordsAction {
 
                 for (String key : keySet) {
                     String[] value = formatMap.get(key);
-                    Node dateNode = XmlUtil.queryNode(doc, key.replaceFirst(concept + "/", "result/")); //$NON-NLS-1$ //$NON-NLS-2$
-                    if (dateNode == null)
-                        continue;
-                    String dateText = dateNode.getText();
+                    String dateText = Util.getFirstTextNode(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./"));
 
                     if (dateText != null) {
                         if (dateText.trim().length() != 0) {
@@ -696,12 +696,14 @@ public class BrowseRecordsServiceCommonHandler extends BrowseRecordsAction {
                             Calendar calendar = Calendar.getInstance();
                             calendar.setTime(date);
                             String formatValue = com.amalto.webapp.core.util.Util.formatDate(value[0], calendar);
-                            XmlUtil.queryNode(doc, key.replaceFirst(concept + "/", "result/")).setText(formatValue); //$NON-NLS-1$ //$NON-NLS-2$
+                            Util
+                                    .getNodeList(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")).item(0).setTextContent(formatValue); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                     }
                 }
 
-                ItemBean itemBean = new ItemBean(concept, CommonUtil.joinStrings(idsArray, "."), doc.asXML());//$NON-NLS-1$ 
+                ItemBean itemBean = new ItemBean(concept,
+                        CommonUtil.joinStrings(idsArray, "."), Util.nodeToString(doc.getDocumentElement()));//$NON-NLS-1$ 
                 dynamicAssembleByResultOrder(itemBean, viewBean, entityModel);
                 itemBeans.add(itemBean);
             }
@@ -738,15 +740,15 @@ public class BrowseRecordsServiceCommonHandler extends BrowseRecordsAction {
         return formatMap;
     }
 
-    protected Document parseResultDocument(String result, String expectedRootElement) throws DocumentException {
-        Document doc = XmlUtil.parseText(result);
-        Element rootElement = doc.getRootElement();
-        if (!rootElement.getName().equals(expectedRootElement)) {
+    protected Document parseResultDocument(String result, String expectedRootElement) throws Exception {
+        Document doc = Util.parse(result);
+        Element rootElement = doc.getDocumentElement();
+        if (!rootElement.getNodeName().equals(expectedRootElement)) {
             // When there is a null value in fields, the viewable fields sequence is not enclosed by expected element
             // FIXME Better to find out a solution at the underlying stage
-            rootElement.detach();
-            Element resultElement = doc.addElement(expectedRootElement);
-            resultElement.add(rootElement);
+            doc.removeChild(rootElement);
+            Element resultElement = doc.createElement(expectedRootElement);
+            resultElement.appendChild(rootElement);
         }
         return doc;
     }

@@ -67,7 +67,6 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -193,7 +192,7 @@ public class ItemsListPanel extends ContentPanel {
 
 
     public void updateGrid(CheckBoxSelectionModel<ItemBean> sm, List<ColumnConfig> columnConfigList) {
-        toolBar.searchBut.setEnabled(false);
+        // toolBar.searchBut.setEnabled(false);
         if (gridContainer != null && this.findItem(gridContainer.getElement()) != null)
             remove(gridContainer);
         if (panel != null && this.findItem(panel.getElement()) != null)
@@ -239,31 +238,32 @@ public class ItemsListPanel extends ContentPanel {
             @Override
             public void selectionChanged(SelectionChangedEvent<ItemBean> se) {
                 final ItemBean item = se.getSelectedItem();
-                if (item != null) {
-                    selectedItems = se.getSelection();
-                    gridContainer.setEnabled(false);
-                    EntityModel entityModel = (EntityModel) BrowseRecords.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
-                    service.getItem(item, entityModel, new AsyncCallback<ItemBean>() {
-
-                        public void onFailure(Throwable caught) {
-                            if (Log.isErrorEnabled())
-                                Log.error(caught.getMessage(), caught);
-                        }
-
-                        public void onSuccess(ItemBean result) {
-                            item.copy(result);
-                            // TODO showItem(item, ItemsView.TARGET_IN_SEARCH_TAB);
-                        }
-                    });
-                } else {
-                    selectedItems = null;
-                    ItemsSearchContainer itemsSearchContainer = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
-                    Element curElem = itemsSearchContainer.getItemsDetailPanel().getElement();
-                    // remove the embeded iframe
-                    if (curElem != null && curElem.getChildCount() > 0) {
-                        curElem.getChild(0).removeFromParent();
-                    }
-                }
+                // if (item != null) {
+                // selectedItems = se.getSelection();
+                // gridContainer.setEnabled(false);
+                // EntityModel entityModel = (EntityModel)
+                // BrowseRecords.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
+                // service.getItem(item, entityModel, new AsyncCallback<ItemBean>() {
+                //
+                // public void onFailure(Throwable caught) {
+                // if (Log.isErrorEnabled())
+                // Log.error(caught.getMessage(), caught);
+                // }
+                //
+                // public void onSuccess(ItemBean result) {
+                // item.copy(result);
+                // // TODO showItem(item, ItemsView.TARGET_IN_SEARCH_TAB);
+                // }
+                // });
+                // } else {
+                // selectedItems = null;
+                // ItemsSearchContainer itemsSearchContainer = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
+                // Element curElem = itemsSearchContainer.getItemsDetailPanel().getElement();
+                // // remove the embeded iframe
+                // if (curElem != null && curElem.getChildCount() > 0) {
+                // curElem.getChild(0).removeFromParent();
+                // }
+                // }
             }
         });
         grid.addListener(Events.OnDoubleClick, new Listener<GridEvent<ItemBean>>() {
