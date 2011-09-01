@@ -205,12 +205,12 @@ public class ImageUploadServlet extends HttpServlet {
 			long sizeInBytes = item.getSize();
 
 			String uid = Uuid.get32Code().toString();
-            if (!changeFileName) {
-                uid = fileName;
-            }
-			sourceFileName = parseFileFullName(fileName)[0];
-			sourceFileType = parseFileFullName(fileName)[1];
 
+            sourceFileName = parseFileFullName(fileName)[0];
+            sourceFileType = parseFileFullName(fileName)[1];
+            if (!changeFileName) {
+                uid = sourceFileName;
+            }
 			if (!okFileTypes.contains(this.sourceFileType.toLowerCase())) {
 				return -1;
 			}
