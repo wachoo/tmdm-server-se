@@ -3,13 +3,10 @@
 var atuoValidationFlag = 0;
 var validatinHistory = new Ext.util.MixedCollection();
 
+loadResource("/core/secure/yui-2.4.0/build/treeview/treeview.js", "YAHOO.widget.TreeView", function(){
+	loadResource("/core/secure/yui-2.4.0/build/treeview/assets/treeview.css","");
+
 amalto.itemsbrowser.ItemsBrowser = function() {
-
-    loadResource("/core/secure/yui-2.4.0/build/treeview/treeview.js",
-            "YAHOO.widget.TreeView");
-
-    loadResource("/core/secure/yui-2.4.0/build/treeview/assets/treeview.css",
-            "");
 
     loadResource("/itemsbrowser/secure/css/ItemsBrowser.css", "");
 
@@ -6387,3 +6384,9 @@ amalto.itemsbrowser.ItemsBrowser = function() {
          */
     };
 }();
+
+
+	
+});
+
+
