@@ -65,7 +65,7 @@ public class ForeignKeyTreeDetail extends TabItem {
 
                     HTML label = new HTML();
                     String html = (String) model.get(property);
-                    if (itemNode.isKey() || itemNode.getMinOccurs() >= 1)
+                    if (typeModel.getMinOccurs() >= 1)
                         html = html + "<span style=\"color:red\"> *</span>";
                     label.setHTML(html);
                     hp.add(label);
@@ -77,7 +77,7 @@ public class ForeignKeyTreeDetail extends TabItem {
                     addNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
                     Image removeNodeImg = new Image("/talendmdm/secure/img/genericUI/delete.png");
                     removeNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
-                    if (itemNode.getMinOccurs() >= 1 && itemNode.getMaxOccurs() > itemNode.getMinOccurs()) {
+                    if (typeModel.getMinOccurs() >= 1 && typeModel.getMaxOccurs() > typeModel.getMinOccurs()) {
                         hp.add(addNodeImg);
                         hp.add(removeNodeImg);
                     }

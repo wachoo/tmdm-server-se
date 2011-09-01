@@ -62,9 +62,11 @@ public class CommonUtil {
                 ComplexTypeModel complexModel = (ComplexTypeModel) model;
                 node.setName(complexModel.getName());
                 List<TypeModel> children = complexModel.getSubTypes();
+                List<ItemNodeModel> list = new ArrayList<ItemNodeModel>();
                 for (TypeModel typeModel : children) {
-                    node.setChildNodes(getDefaultTreeModel(typeModel));
+                    list.addAll(getDefaultTreeModel(typeModel));
                 }
+                node.setChildNodes(list);
             }
         }
         

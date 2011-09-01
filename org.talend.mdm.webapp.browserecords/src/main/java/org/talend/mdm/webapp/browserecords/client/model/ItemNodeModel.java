@@ -359,7 +359,8 @@ public class ItemNodeModel extends BaseTreeModel implements Cloneable {
         }
 
         for (int i = paths.size() - 1; i >= 0; i--) {
-            xp.append("/");
+            if (i != paths.size() - 1)
+                xp.append("/");
             xp.append(paths.get(i));
         }
         return xp.toString();
