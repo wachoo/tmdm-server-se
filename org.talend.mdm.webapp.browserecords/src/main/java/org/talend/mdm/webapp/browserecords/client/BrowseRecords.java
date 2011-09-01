@@ -23,6 +23,7 @@ import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -47,7 +48,7 @@ public class BrowseRecords implements EntryPoint {
         // // log setting
         // Log.setUncaughtExceptionHandler();
         //
-        // Registry.register(BROWSERECORDS_SERVICE, GWT.create(BrowseRecordsService.class));
+        Registry.register(BROWSERECORDS_SERVICE, GWT.create(BrowseRecordsService.class));
         //
         // // register user session
         // Registry.register(USER_SESSION, new UserSession());
@@ -74,6 +75,7 @@ public class BrowseRecords implements EntryPoint {
         // }
         //
         // });
+        Window.alert("hello");
         getItemService().getView("Product", "en", new AsyncCallback<ViewBean>() {
             
             public void onSuccess(ViewBean viewBean) {
@@ -89,11 +91,7 @@ public class BrowseRecords implements EntryPoint {
             }
             
             public void onFailure(Throwable arg0) {
-                // TODO Auto-generated method stub
-                TabPanel tp = new TabPanel();
-                // tp.setSize(Window.getClientWidth(), Window.getClientHeight());
-                // tp.add(new ForeignKeyTreeDetail());
-                RootPanel.get().add(tp);
+                Window.alert(arg0.getMessage());
             }
         });
 
