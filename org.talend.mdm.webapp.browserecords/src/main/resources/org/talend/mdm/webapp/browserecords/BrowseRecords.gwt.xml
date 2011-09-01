@@ -30,15 +30,14 @@
     <set-configuration-property name="log_pattern" value="(%F:%L) %d [%-5p] %m%n" />
     <set-property name="log_DivLogger" value="DISABLED" /> 
     
-    <!-- User Agent    
+        
     <set-property name="user.agent" value="gecko1_8" /> 
-     -->
+     
 
     <!-- Specify the paths for translatable code                    -->
     <source path='client' excludes="**/*Test.java" />
     <source path='shared'/>
     <source path='model' />  
 
-    <stylesheet src='/core/secure/gxt/resources/css/gxt-all.css'/>  
     <stylesheet src='../BrowseRecords.css'/>
 </module>
