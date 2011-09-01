@@ -12,18 +12,20 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client;
 
-import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsController;
-import org.talend.mdm.webapp.browserecords.client.util.UserSession;
-import org.talend.mdm.webapp.browserecords.shared.AppHeader;
+import java.util.List;
 
-import com.allen_sauer.gwt.log.client.Log;
+import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
+import org.talend.mdm.webapp.browserecords.client.util.UserSession;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTreeDetail;
+import org.talend.mdm.webapp.browserecords.shared.ViewBean;
+
 import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.RootPanel;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -42,36 +44,59 @@ public class BrowseRecords implements EntryPoint {
      * This is the entry point method.
      */
     public void onModuleLoad() {
-        // log setting
-        Log.setUncaughtExceptionHandler();
+        // // log setting
+        // Log.setUncaughtExceptionHandler();
+        //
+        // Registry.register(BROWSERECORDS_SERVICE, GWT.create(BrowseRecordsService.class));
+        //
+        // // register user session
+        // Registry.register(USER_SESSION, new UserSession());
+        //
+        // // add controller to dispatcher
+        // final Dispatcher dispatcher = Dispatcher.get();
+        // dispatcher.addController(new BrowseRecordsController());
+        //
+        // // init app-header
+        // getItemService().getAppHeader(new AsyncCallback<AppHeader>() {
+        //
+        // public void onFailure(Throwable caught) {
+        // Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
+        // }
+        //
+        // public void onSuccess(AppHeader header) {
+        // if (header.getDatacluster() == null || header.getDatamodel() == null) {
+        // Window.alert(MessagesFactory.getMessages().data_model_not_specified());
+        // return;
+        // }
+        // getSession().put(UserSession.APP_HEADER, header);
+        //
+        // dispatcher.dispatch(BrowseRecordsEvents.InitFrame);
+        // }
+        //
+        // });
+        getItemService().getView("Product", "en", new AsyncCallback<ViewBean>() {
+            
+            public void onSuccess(ViewBean viewBean) {
+                BrowseRecords.getSession().put(UserSession.CURRENT_VIEW, viewBean);
+                List<ItemNodeModel> models = CommonUtil.getDefaultTreeModel(viewBean.getBindingEntityModel().getMetaDataTypes()
+                        .get("Product"));
 
-        Registry.register(BROWSERECORDS_SERVICE, GWT.create(BrowseRecordsService.class));
+                TabPanel tp = new TabPanel();
+                tp.setSize(Window.getClientWidth(), Window.getClientHeight());
 
-        // register user session
-        Registry.register(USER_SESSION, new UserSession());
-
-        // add controller to dispatcher
-        final Dispatcher dispatcher = Dispatcher.get();
-        dispatcher.addController(new BrowseRecordsController());
-
-        // init app-header
-        getItemService().getAppHeader(new AsyncCallback<AppHeader>() {
-
-            public void onFailure(Throwable caught) {
-                Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
+                tp.add(new ForeignKeyTreeDetail(models.get(0)));
+                RootPanel.get().add(tp);
             }
-
-            public void onSuccess(AppHeader header) {
-                if (header.getDatacluster() == null || header.getDatamodel() == null) {
-                    Window.alert(MessagesFactory.getMessages().data_model_not_specified());
-                    return;
-                }
-                getSession().put(UserSession.APP_HEADER, header);
-
-                dispatcher.dispatch(BrowseRecordsEvents.InitFrame);
+            
+            public void onFailure(Throwable arg0) {
+                // TODO Auto-generated method stub
+                TabPanel tp = new TabPanel();
+                // tp.setSize(Window.getClientWidth(), Window.getClientHeight());
+                // tp.add(new ForeignKeyTreeDetail());
+                RootPanel.get().add(tp);
             }
-
         });
+
     }
 
     private static BrowseRecordsServiceAsync getItemService() {
