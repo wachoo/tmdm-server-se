@@ -16,6 +16,7 @@ import java.io.StringReader;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,9 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.webapp.browserecords.client.creator.DataTypeCreator;
+import org.talend.mdm.webapp.browserecords.client.model.SubTypeBean;
 import org.talend.mdm.webapp.browserecords.server.BrowseRecordsConfiguration;
 import org.talend.mdm.webapp.browserecords.server.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
@@ -175,6 +178,34 @@ public class DataModelHelper {
             baseTypeName = e.getType().getBaseType().getName();
             typeModel = new ComplexTypeModel(e.getName(), DataTypeCreator.getDataType(typeName, baseTypeName));
             currentXsp = e.getType().asComplexType().getContentType().asParticle();
+
+            // go for polymiorphism
+            List<ReusableType> subTypes = null;
+            try {
+                subTypes = SchemaWebAgent.getInstance().getMySubtypes(typeName);
+            } catch (Exception e1) {
+                logger.error(e1.getMessage(), e1);
+            }
+
+            if (subTypes != null && subTypes.size() > 0) {
+                typeModel.setPolymiorphism(true);
+                typeModel.setAbstract(new ReusableType(e.getType()).isAbstract());
+                ArrayList<SubTypeBean> subTypesName = new ArrayList<SubTypeBean>();
+                for (ReusableType reusableType : subTypes) {
+                    if (!reusableType.isAbstract()) {
+                        SubTypeBean subTypeBean = new SubTypeBean();
+                        reusableType.load();
+                        subTypeBean.setName(reusableType.getName());
+                        subTypeBean.setLabel(reusableType.getLabelMap().get("en") == null ? reusableType.getName() : reusableType //$NON-NLS-1$
+                                .getLabelMap().get("en")); //$NON-NLS-1$
+                        subTypeBean.setOrderValue(reusableType.getOrderValue());
+                        subTypesName.add(subTypeBean);
+                    }
+                }
+                Collections.sort(subTypesName);
+                typeModel.setReusableTypes(subTypesName);
+
+            }
 
         } else if (e.getType().isSimpleType()) {
             baseTypeName = getBuiltinPrimitiveType(e.getType()).getName();

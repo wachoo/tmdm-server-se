@@ -13,11 +13,13 @@
 package org.talend.mdm.webapp.browserecords.shared;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.browserecords.client.model.DataType;
+import org.talend.mdm.webapp.browserecords.client.model.SubTypeBean;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -40,6 +42,8 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     private boolean visible = true;
 
+    private boolean polymiorphism = true;
+
     private int minOccurs;
 
     private int maxOccurs;
@@ -60,11 +64,17 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     private Map<String, String> displayFomats;
 
+    private ArrayList<SubTypeBean> reusableTypes;
+
     private boolean denyCreatable = false;
 
     private boolean denyLogicalDeletable = false;
 
     private boolean denyPhysicalDeleteable = false;
+
+    private boolean isAbstract = false;
+
+    private String realType;
 
     /**
      * DOC HSHU TypeModel constructor comment.
@@ -111,8 +121,9 @@ public abstract class TypeModel implements Serializable, IsSerializable {
     }
 
     public String getLabel(String language) {
-        String label=getLabelMap().get(language);
-        if(label==null)return getName();
+        String label = getLabelMap().get(language);
+        if (label == null)
+            return getName();
         return label;
     }
 
@@ -153,6 +164,38 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     public void setVisible(boolean visible) {
         this.visible = visible;
+    }
+
+    public boolean isPolymiorphism() {
+        return polymiorphism;
+    }
+
+    public void setPolymiorphism(boolean polymiorphism) {
+        this.polymiorphism = polymiorphism;
+    }
+
+    public boolean isAbstract() {
+        return isAbstract;
+    }
+
+    public void setAbstract(boolean isAbstract) {
+        this.isAbstract = isAbstract;
+    }
+
+    public ArrayList<SubTypeBean> getReusableTypes() {
+        return reusableTypes;
+    }
+
+    public void setReusableTypes(ArrayList<SubTypeBean> subTypes) {
+        this.reusableTypes = subTypes;
+    }
+
+    public String getRealType() {
+        return realType;
+    }
+
+    public void setRealType(String realType) {
+        this.realType = realType;
     }
 
     public int getMinOccurs() {
