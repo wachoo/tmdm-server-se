@@ -12,7 +12,6 @@
 // ============================================================================
 package com.amalto.core.ejb;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -22,7 +21,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.ejb.EJBException;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
@@ -755,7 +753,8 @@ public class ItemPOJO implements Serializable {
             // Util.setNullNode(projection);
             // projectionString = Util.nodeToString(projection);
             // }
-
+            // fix NPE when deploy zz.20.mdm.connector.logging-mdb.ejb.jar
+            if (dataModelName != null && dataModelName.trim().length() > 0) {
         	//should refill hidden element , if some element have been hidden in load method  
         	AppinfoSourceHolder appinfoSourceHolder = new AppinfoSourceHolder(new AppinfoSourceHolderPK(
                     this.getDataModelName(), this.getConceptName()));
@@ -766,6 +765,7 @@ public class ItemPOJO implements Serializable {
             Document cleanedDocument = SchemaCoreAgent.getInstance().executeHideCheck(getProjectionAsString(), roles,
                     appinfoSourceHolder, true);
             setProjectionAsString(Util.nodeToString(cleanedDocument));
+            }
             
             String xml = serialize();
             
