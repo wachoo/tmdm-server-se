@@ -15,14 +15,14 @@ public class TreeDetailGridView extends TreeGridView {
         StringBuffer sb = new StringBuffer();
         sb.append("<div unselectable=\"on\" id=\""); //$NON-NLS-1$
         sb.append(id);
-        sb.append("\" class=\"x-tree3-node\">");
+        sb.append("\" class=\"x-tree3-node\">"); //$NON-NLS-1$
         // jumping content when inserting in column with cell widget the column
         // extra width fixes
-        sb.append("<div unselectable=\"on\" class=\"x-tree3-el\" style=\"width: 1000px;height: auto;\">");
+        sb.append("<div unselectable=\"on\" class=\"x-tree3-el\" style=\"width: 1000px;height: auto;\">"); //$NON-NLS-1$
 
-        sb.append("<table cellpadding=0 cellspacing=0><tr><td>");
+        sb.append("<table cellpadding=0 cellspacing=0><tr><td>"); //$NON-NLS-1$
 
-        String h = "";
+        String h = ""; //$NON-NLS-1$
         switch (joint) {
         case COLLAPSED:
             h = tree.getStyle().getJointCollapsedIcon().getHTML();
@@ -31,35 +31,35 @@ public class TreeDetailGridView extends TreeGridView {
             h = tree.getStyle().getJointExpandedIcon().getHTML();
             break;
         default:
-            h = "<img src=\"" + GXT.BLANK_IMAGE_URL + "\" style='width: 16px'>";
+            h = "<img src=\"" + GXT.BLANK_IMAGE_URL + "\" style='width: 16px'>"; //$NON-NLS-1$ //$NON-NLS-2$
         }
 
-        sb.append("</td><td><img src=\"");
+        sb.append("</td><td><img src=\""); //$NON-NLS-1$
         sb.append(GXT.BLANK_IMAGE_URL);
-        sb.append("\" style=\"height: 18px; width: ");
+        sb.append("\" style=\"height: 18px; width: "); //$NON-NLS-1$
         sb.append(level * 18);
-        sb.append("px;\" /></td><td  class='x-tree3-el-jnt'>");
+        sb.append("px;\" /></td><td  class='x-tree3-el-jnt'>"); //$NON-NLS-1$
         sb.append(h);
         if (checkable) {
             sb.append(GXT.IMAGES.unchecked().getHTML());
         } else {
-            sb.append("<span></span>");
+            sb.append("<span></span>"); //$NON-NLS-1$
         }
-        sb.append("</td><td>");
+        sb.append("</td><td>"); //$NON-NLS-1$
         icon = null;
         if (icon != null) {
             sb.append(icon.getHTML());
         } else {
-            sb.append("<span></span>");
+            sb.append("<span></span>"); //$NON-NLS-1$
         }
-        sb.append("</td><td>");
-        sb.append("<span unselectable=\"on\" class=\"x-tree3-node-text\">");
+        sb.append("</td><td>"); //$NON-NLS-1$
+        sb.append("<span unselectable=\"on\" class=\"x-tree3-node-text\">"); //$NON-NLS-1$
         sb.append(text);
-        sb.append("</span>");
-        sb.append("</td></tr></table>");
+        sb.append("</span>"); //$NON-NLS-1$
+        sb.append("</td></tr></table>"); //$NON-NLS-1$
 
-        sb.append("</div>");
-        sb.append("</div>");
+        sb.append("</div>"); //$NON-NLS-1$
+        sb.append("</div>"); //$NON-NLS-1$
 
         return sb.toString();
     }
