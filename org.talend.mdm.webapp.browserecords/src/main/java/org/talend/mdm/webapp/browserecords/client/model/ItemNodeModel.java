@@ -88,12 +88,12 @@ public class ItemNodeModel extends BaseTreeModel implements Cloneable {
 
 
     public ItemNodeModel() {
-        set("id", ID++);
+        set("id", ID++); //$NON-NLS-1$
 
     }
     public ItemNodeModel(String name) {
-        set("id", ID++);
-        set("name", name);
+        set("id", ID++); //$NON-NLS-1$
+        set("name", name); //$NON-NLS-1$
     }
     public ItemNodeModel(String name, BaseTreeModel[] children) {
         this(name);
@@ -107,7 +107,7 @@ public class ItemNodeModel extends BaseTreeModel implements Cloneable {
     }
 
     public Integer getId() {
-        return (Integer) get("id");
+        return (Integer) get("id"); //$NON-NLS-1$
     }
 
     private String[] displayFormats = new String[2];
@@ -354,13 +354,13 @@ public class ItemNodeModel extends BaseTreeModel implements Cloneable {
         TreeModel parent = this;
         
         while (parent != null) {
-            paths.add((String) parent.get("name"));
+            paths.add((String) parent.get("name")); //$NON-NLS-1$
             parent = parent.getParent();
         }
 
         for (int i = paths.size() - 1; i >= 0; i--) {
             if (i != paths.size() - 1)
-                xp.append("/");
+                xp.append("/"); //$NON-NLS-1$
             xp.append(paths.get(i));
         }
         return xp.toString();
@@ -429,7 +429,7 @@ public class ItemNodeModel extends BaseTreeModel implements Cloneable {
     }
 
     public void setName(String name) {
-        set("name", name);
+        set("name", name); //$NON-NLS-1$
 
     }
 
