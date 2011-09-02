@@ -42,6 +42,10 @@ public class BrowseRecords implements EntryPoint {
      * This is the entry point method.
      */
     public void onModuleLoad() {
+        // if (true) {
+        // RootPanel.get().add(new TestFK());
+        // return;
+        // }
         // log setting
         Log.setUncaughtExceptionHandler();
 
@@ -72,26 +76,6 @@ public class BrowseRecords implements EntryPoint {
             }
 
         });
-        // Window.alert("hello");
-        // getItemService().getView("Product", "en", new AsyncCallback<ViewBean>() {
-        //            
-        // public void onSuccess(ViewBean viewBean) {
-        // BrowseRecords.getSession().put(UserSession.CURRENT_VIEW, viewBean);
-        // List<ItemNodeModel> models =
-        // CommonUtil.getDefaultTreeModel(viewBean.getBindingEntityModel().getMetaDataTypes()
-        // .get("Product"));
-        //
-        // TabPanel tp = new TabPanel();
-        // tp.setSize(Window.getClientWidth(), Window.getClientHeight());
-        //
-        // tp.add(new ForeignKeyTreeDetail(models.get(0)));
-        // RootPanel.get().add(tp);
-        // }
-        //            
-        // public void onFailure(Throwable arg0) {
-        // Window.alert(arg0.getMessage());
-        // }
-        // });
 
     }
 
