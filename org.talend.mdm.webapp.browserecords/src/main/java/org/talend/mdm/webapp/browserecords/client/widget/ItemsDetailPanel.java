@@ -22,10 +22,6 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
  */
 public class ItemsDetailPanel extends ContentPanel {
     
-    ContentPanel productPanel; 
-    ContentPanel storesPanel; 
-    //private final ItemDetailToolBar itemDetailToolBar = new ItemDetailToolBar();
-    
     private TabPanel tabPanel = new TabPanel();  
     
     public ItemsDetailPanel() {
@@ -41,35 +37,15 @@ public class ItemsDetailPanel extends ContentPanel {
     private void initPanel(){    
         tabPanel.setWidth(450);  
         tabPanel.setAutoHeight(true);  
-        
-        productPanel = new ContentPanel(); 
-        productPanel.setHeaderVisible(false);     
-        storesPanel = new ContentPanel(); 
-        storesPanel.setHeaderVisible(false);
-        productPanel.setTopComponent(new ItemDetailToolBar(this));
-        storesPanel.setTopComponent(new ItemDetailToolBar(this));
-      
-        TabItem productTab = new TabItem("Product"); 
-        productTab.setClosable(true);
-        productTab.addStyleName("pad-text");        
-        productTab.add(productPanel);
-        tabPanel.add(productTab);  
-      
-        TabItem storesTab = new TabItem("StoresTab");  
-        storesTab.setClosable(true);
-        storesTab.addStyleName("pad-text");  
-        storesTab.add(storesPanel); 
-        tabPanel.add(storesTab);        
-
+                
         add(tabPanel);        
     }
-
     
-    public TabPanel getTabPanel() {
-        return tabPanel;
-    }
-
-    public void setTabPanel(TabPanel tabPanel) {
-        this.tabPanel = tabPanel;
+    public void addTabItem(String title, ContentPanel panel){
+        TabItem newTab = new TabItem(title); 
+        newTab.setClosable(true);
+        newTab.addStyleName("pad-text");   //$NON-NLS-1$
+        newTab.add(panel);
+        tabPanel.add(newTab);
     }
 }

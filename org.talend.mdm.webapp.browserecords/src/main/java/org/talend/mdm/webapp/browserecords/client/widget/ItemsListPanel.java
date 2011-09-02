@@ -237,32 +237,11 @@ public class ItemsListPanel extends ContentPanel {
             @Override
             public void selectionChanged(SelectionChangedEvent<ItemBean> se) {
                 final ItemBean item = se.getSelectedItem();
-                // if (item != null) {
-                // selectedItems = se.getSelection();
-                // gridContainer.setEnabled(false);
-                // EntityModel entityModel = (EntityModel)
-                // BrowseRecords.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
-                // service.getItem(item, entityModel, new AsyncCallback<ItemBean>() {
-                //
-                // public void onFailure(Throwable caught) {
-                // if (Log.isErrorEnabled())
-                // Log.error(caught.getMessage(), caught);
-                // }
-                //
-                // public void onSuccess(ItemBean result) {
-                // item.copy(result);
-                // // TODO showItem(item, ItemsView.TARGET_IN_SEARCH_TAB);
-                // }
-                // });
-                // } else {
-                // selectedItems = null;
-                // ItemsSearchContainer itemsSearchContainer = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
-                // Element curElem = itemsSearchContainer.getItemsDetailPanel().getElement();
-                // // remove the embeded iframe
-                // if (curElem != null && curElem.getChildCount() > 0) {
-                // curElem.getChild(0).removeFromParent();
-                // }
-                // }
+                ItemsSearchContainer itemsSearchContainer = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
+                ItemsDetailPanel detailPanel = itemsSearchContainer.getItemsDetailPanel();
+                
+                ItemPanel itemPanel = new ItemPanel(item);
+                detailPanel.addTabItem("Product", itemPanel);
             }
         });
         grid.addListener(Events.OnDoubleClick, new Listener<GridEvent<ItemBean>>() {

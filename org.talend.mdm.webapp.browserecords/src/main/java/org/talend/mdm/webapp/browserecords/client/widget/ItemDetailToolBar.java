@@ -1,16 +1,28 @@
 package org.talend.mdm.webapp.browserecords.client.widget;
 
+import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
+import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.TabItem;
+import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 
@@ -26,7 +38,9 @@ public class ItemDetailToolBar  extends ToolBar{
     
     private final Button refreshButton = new Button();
     
-    private ItemsDetailPanel container;
+    private ItemBean itemBean;
+    
+    private BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
     
     public ItemDetailToolBar() {
         // init user saved model
@@ -35,9 +49,9 @@ public class ItemDetailToolBar  extends ToolBar{
         initToolBar();
     }
     
-    public ItemDetailToolBar(ItemsDetailPanel container){
+    public ItemDetailToolBar(ItemBean itemBean){
         this();
-        this.container = container;    
+        this.itemBean = itemBean;    
     }
     
     private void initToolBar(){     
@@ -57,7 +71,6 @@ public class ItemDetailToolBar  extends ToolBar{
             public void componentSelected(ButtonEvent ce) {
                 
             }
-
         });
         add(saveButton);    
         add(new SeparatorToolItem());  
@@ -68,7 +81,23 @@ public class ItemDetailToolBar  extends ToolBar{
 
             @Override
             public void componentSelected(MenuEvent ce) {
-                
+                final MessageBox box = MessageBox.prompt("Path", "Please input the path to delete the record(s): ");  
+                box.getTextBox().setValue("/");
+                box.addCallback(new Listener<MessageBoxEvent>() {                    
+                    public void handleEvent(MessageBoxEvent be) {
+                        String url = be.getValue();
+                        service.logicalDeleteItem(itemBean, url, new AsyncCallback<ItemResult>() {
+                            
+                            public void onSuccess(ItemResult arg0) {
+                                
+                            }
+                            
+                            public void onFailure(Throwable arg0) {
+                                
+                            }
+                        });
+                    }
+                });
             }
         });
         delete_SendToTrash.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Send_to_trash()));
@@ -80,7 +109,16 @@ public class ItemDetailToolBar  extends ToolBar{
 
             @Override
             public void componentSelected(MenuEvent ce) {
-                
+                service.deleteItemBean(itemBean, new AsyncCallback<ItemResult>() {
+                    
+                    public void onSuccess(ItemResult arg0) {
+                        
+                    }
+                    
+                    public void onFailure(Throwable arg0) {
+                        
+                    }
+                });
             }
         });
        
@@ -94,7 +132,7 @@ public class ItemDetailToolBar  extends ToolBar{
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                
+
             }
 
         });
