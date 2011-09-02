@@ -1084,7 +1084,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     wsGetItems.getConceptName(),
                     WS2VO(wsGetItems.getWhereItem(), new WhereConditionForcePivotFilter(wcfContext)),
                     wsGetItems.getSpellTreshold(), wsGetItems.getSkip(), wsGetItems.getMaxItems(),
-                    wsGetItems.getTotalCountOnFirstResult());
+                    wsGetItems.getTotalCountOnFirstResult() == null? false: wsGetItems.getTotalCountOnFirstResult());
             return new WSStringArray((String[]) res.toArray(new String[res.size()]));
         } catch (XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
