@@ -42,10 +42,19 @@ public class ItemsDetailPanel extends ContentPanel {
     }
     
     public void addTabItem(String title, ContentPanel panel){
-        TabItem newTab = new TabItem(title); 
-        newTab.setClosable(true);
-        newTab.addStyleName("pad-text");   //$NON-NLS-1$
-        newTab.add(panel);
-        tabPanel.add(newTab);
+        TabItem newTab = tabPanel.getItemByItemId("detailPanel");
+        if(newTab == null){
+            newTab = new TabItem(title); 
+            newTab.setId("detailPanel");
+            newTab.setClosable(true);
+            newTab.addStyleName("pad-text");   //$NON-NLS-1$
+            newTab.add(panel);
+            tabPanel.add(newTab);
+        }else{
+            newTab.removeAll();
+            newTab.add(panel);
+            newTab.layout(true);
+        }
+        
     }
 }
