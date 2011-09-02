@@ -240,8 +240,8 @@ public class ItemsListPanel extends ContentPanel {
                 ItemsSearchContainer itemsSearchContainer = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
                 ItemsDetailPanel detailPanel = itemsSearchContainer.getItemsDetailPanel();
                 
-                ItemPanel itemPanel = new ItemPanel(item);
-                detailPanel.addTabItem("Product", itemPanel);
+                ItemPanel itemPanel = new ItemPanel(item, "itemView"); //$NON-NLS-1$
+                detailPanel.addTabItem(item.getConcept(), itemPanel, ItemsDetailPanel.SINGLETON, "itemView"); //$NON-NLS-1$
             }
         });
         grid.addListener(Events.OnDoubleClick, new Listener<GridEvent<ItemBean>>() {

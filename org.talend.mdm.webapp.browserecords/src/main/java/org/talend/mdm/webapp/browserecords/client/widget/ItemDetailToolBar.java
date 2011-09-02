@@ -5,6 +5,7 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
+import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -132,7 +133,12 @@ public class ItemDetailToolBar  extends ToolBar{
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-
+                ItemsSearchContainer itemsSearchContainer = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
+                ItemsDetailPanel detailPanel = itemsSearchContainer.getItemsDetailPanel();
+                
+                ItemPanel itemPanel = new ItemPanel(itemBean, "duplicate");
+                String title = itemBean.getConcept() + " " + itemBean.getIds();
+                detailPanel.addTabItem(title, itemPanel, ItemsDetailPanel.MULTIPLE, title);
             }
 
         });

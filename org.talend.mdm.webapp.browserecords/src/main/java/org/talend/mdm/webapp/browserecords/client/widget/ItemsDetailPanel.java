@@ -22,6 +22,8 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
  */
 public class ItemsDetailPanel extends ContentPanel {
     
+    public final static String SINGLETON = "SINGLETON"; //$NON-NLS-1$
+    public final static String MULTIPLE = "MULTIPLE"; //$NON-NLS-1$
     private TabPanel tabPanel = new TabPanel();  
     
     public ItemsDetailPanel() {
@@ -41,20 +43,29 @@ public class ItemsDetailPanel extends ContentPanel {
         add(tabPanel);        
     }
     
-    public void addTabItem(String title, ContentPanel panel){
-        TabItem newTab = tabPanel.getItemByItemId("detailPanel");
-        if(newTab == null){
-            newTab = new TabItem(title); 
-            newTab.setId("detailPanel");
+    public void addTabItem(String title, ContentPanel panel, String pattern, String id){
+        if(pattern.equalsIgnoreCase(ItemsDetailPanel.MULTIPLE)){
+            TabItem newTab = new TabItem(title);
+            newTab.setId(id);
             newTab.setClosable(true);
             newTab.addStyleName("pad-text");   //$NON-NLS-1$
             newTab.add(panel);
             tabPanel.add(newTab);
+            tabPanel.setSelection(newTab);
         }else{
-            newTab.removeAll();
-            newTab.add(panel);
-            newTab.layout(true);
-        }
-        
+            TabItem newTab = tabPanel.getItemByItemId(id);
+            if(newTab == null){
+                newTab = new TabItem(title); 
+                newTab.setId(id);
+                newTab.setClosable(true);
+                newTab.addStyleName("pad-text");   //$NON-NLS-1$
+                newTab.add(panel);
+                tabPanel.add(newTab);
+            }else{
+                newTab.removeAll();
+                newTab.add(panel);
+                newTab.layout(true);
+            }
+        }        
     }
 }

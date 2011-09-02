@@ -9,14 +9,16 @@ public class ItemPanel extends ContentPanel {
     
     private ItemDetailToolBar toolBar;
     private ItemBean item;
+    private String type;
     
     public ItemPanel(){
         
     }
     
-    public ItemPanel(ItemBean item){
+    public ItemPanel(ItemBean item, String type){
         this.item = item;
-        this.toolBar = new ItemDetailToolBar();
+        this.toolBar = new ItemDetailToolBar(item);
+        this.type = type;
         this.initUI();
     }
     
