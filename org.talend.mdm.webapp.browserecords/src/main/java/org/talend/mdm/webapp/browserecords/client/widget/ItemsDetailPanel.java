@@ -12,15 +12,10 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget;
 
-import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.menu.Menu;
-import com.extjs.gxt.ui.client.widget.menu.MenuItem;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
 /**
  * DOC Administrator  class global comment. Detailled comment
@@ -30,6 +25,8 @@ public class ItemsDetailPanel extends ContentPanel {
     ContentPanel productPanel; 
     ContentPanel storesPanel; 
     //private final ItemDetailToolBar itemDetailToolBar = new ItemDetailToolBar();
+    
+    private TabPanel tabPanel = new TabPanel();  
     
     public ItemsDetailPanel() {
         super();
@@ -42,7 +39,6 @@ public class ItemsDetailPanel extends ContentPanel {
     }    
     
     private void initPanel(){    
-        TabPanel tabPanel = new TabPanel();  
         tabPanel.setWidth(450);  
         tabPanel.setAutoHeight(true);  
         
@@ -50,19 +46,30 @@ public class ItemsDetailPanel extends ContentPanel {
         productPanel.setHeaderVisible(false);     
         storesPanel = new ContentPanel(); 
         storesPanel.setHeaderVisible(false);
-        productPanel.setTopComponent(new ItemDetailToolBar());
-        storesPanel.setTopComponent(new ItemDetailToolBar());
+        productPanel.setTopComponent(new ItemDetailToolBar(this));
+        storesPanel.setTopComponent(new ItemDetailToolBar(this));
       
-        TabItem productTab = new TabItem("Product");  
+        TabItem productTab = new TabItem("Product"); 
+        productTab.setClosable(true);
         productTab.addStyleName("pad-text");        
         productTab.add(productPanel);
         tabPanel.add(productTab);  
       
         TabItem storesTab = new TabItem("StoresTab");  
+        storesTab.setClosable(true);
         storesTab.addStyleName("pad-text");  
         storesTab.add(storesPanel); 
         tabPanel.add(storesTab);        
-        add(tabPanel);   
+
+        add(tabPanel);        
     }
 
+    
+    public TabPanel getTabPanel() {
+        return tabPanel;
+    }
+
+    public void setTabPanel(TabPanel tabPanel) {
+        this.tabPanel = tabPanel;
+    }
 }

@@ -26,11 +26,18 @@ public class ItemDetailToolBar  extends ToolBar{
     
     private final Button refreshButton = new Button();
     
+    private ItemsDetailPanel container;
+    
     public ItemDetailToolBar() {
         // init user saved model
         //userCluster = BrowseRecords.getSession().getAppHeader().getDatacluster();
         this.setBorders(false);
         initToolBar();
+    }
+    
+    public ItemDetailToolBar(ItemsDetailPanel container){
+        this();
+        this.container = container;    
     }
     
     private void initToolBar(){     
@@ -120,5 +127,4 @@ public class ItemDetailToolBar  extends ToolBar{
         
     }
     
-
 }
