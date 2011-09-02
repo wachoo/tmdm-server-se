@@ -67,9 +67,9 @@ public abstract class QueryBuilder {
             boolean totalCountOnFirstRow) {
 
         int i = 0;
-        boolean moreThanOrEqualOneViewable = viewableFullPaths.size() >= 1;
+        boolean moreThanOneViewable = viewableFullPaths.size() > 1;
         StringBuilder xqReturn = new StringBuilder();
-        if (moreThanOrEqualOneViewable || totalCountOnFirstRow) {
+        if (moreThanOneViewable || totalCountOnFirstRow) {
             xqReturn.append("<result>"); //$NON-NLS-1$
         }
 
@@ -85,7 +85,7 @@ public abstract class QueryBuilder {
             // factor the path
             Expression factoredPath = XPathUtils.factorExpression(expression, pivotsMap, true, true);
 
-            if (moreThanOrEqualOneViewable || totalCountOnFirstRow) {
+            if (moreThanOneViewable || totalCountOnFirstRow) {
                 xqReturn.append("{"); //$NON-NLS-1$
             }
 
@@ -109,7 +109,7 @@ public abstract class QueryBuilder {
                     }
                 } else {
                     // /text() or /position(), etc....
-                    if (moreThanOrEqualOneViewable) {
+                    if (moreThanOneViewable) {
                         // create an element
                         xqReturn.append("<viewable").append(i).append(">{").append(factoredPath).append("}</viewable") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                                 .append(i++).append(">"); //$NON-NLS-1$
@@ -120,7 +120,7 @@ public abstract class QueryBuilder {
                 }
             } else {
                 // Constant, Variable Reference or Operation
-                if (moreThanOrEqualOneViewable) {
+                if (moreThanOneViewable) {
                     // create an element
                     xqReturn.append("<viewable").append(i).append(">{").append(factoredPath).append("}</viewable").append(i++) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                             .append(">"); //$NON-NLS-1$
@@ -129,11 +129,11 @@ public abstract class QueryBuilder {
                     xqReturn.append(factoredPath);
                 }
             }
-            if (moreThanOrEqualOneViewable || totalCountOnFirstRow) {
+            if (moreThanOneViewable || totalCountOnFirstRow) {
                 xqReturn.append("}"); //$NON-NLS-1$
             }
         }
-        if (moreThanOrEqualOneViewable || totalCountOnFirstRow) {
+        if (moreThanOneViewable || totalCountOnFirstRow) {
             xqReturn.append("</result>"); //$NON-NLS-1$
         }
 
@@ -153,7 +153,7 @@ public abstract class QueryBuilder {
     /**
      * Builds the xQuery Return statement for an Items Query
      * 
-     * 
+     *
      * @param pivotsMap
      * @return
      * @throws XmlServerException
@@ -355,11 +355,11 @@ public abstract class QueryBuilder {
                             isLeftPathNum = true;
                         }
                     }
-                }
-                if (metaDataTypes == null) { // fix 0021067, if can't get metaDataTypes
-                    isNum = isLeftPathNum || isRightValueNum;
-                } else {
-                    isNum = isLeftPathNum && isRightValueNum;
+                }                
+                if(metaDataTypes==null){ //fix 0021067, if can't get metaDataTypes
+                	isNum = isLeftPathNum || isRightValueNum;
+                }else{
+                	isNum = isLeftPathNum && isRightValueNum;
                 }
 
                 encoded = isXpathFunction ? wc.getRightValueOrPath().trim() : StringEscapeUtils.escapeXml(wc
@@ -469,7 +469,7 @@ public abstract class QueryBuilder {
 
             } else if (operator.equals(WhereCondition.EQUALS)) {
                 if (isNum) {
-                    if (useNumberFunction()) {
+                    if(useNumberFunction()) {
                         where.append("number(").append(factorPivots).append(") eq ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
                     } else {
                         where.append(factorPivots).append(" = ").append(encoded); //$NON-NLS-1$
@@ -481,7 +481,7 @@ public abstract class QueryBuilder {
                 }
             } else if (operator.equals(WhereCondition.NOT_EQUALS)) {
                 if (isNum) {
-                    if (useNumberFunction()) {
+                    if(useNumberFunction()) {
                         where.append("number(").append(factorPivots).append(") ne ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
                     } else {
                         where.append(factorPivots).append(" != ").append(encoded); //$NON-NLS-1$
@@ -562,8 +562,7 @@ public abstract class QueryBuilder {
     }
 
     /**
-     * @return <code>true</code> is the XQuery number() function should be used in numeric comparison,
-     * <code>false</code> otherwise.
+     * @return <code>true</code> is the XQuery number() function should be used in numeric comparison, <code>false</code> otherwise.
      * @see #buildWhereCondition(com.amalto.xmlserver.interfaces.WhereCondition, java.util.LinkedHashMap, boolean)
      * @see #buildWhereCondition(com.amalto.xmlserver.interfaces.WhereCondition, java.util.LinkedHashMap, Map)
      */
@@ -912,7 +911,7 @@ public abstract class QueryBuilder {
     /**
      * Builds an XQuery
      * 
-     * 
+     *
      * @param isItemQuery
      * @param objectRootElementNamesToRevisionID
      * @param objectRootElementNamesToClusterName
@@ -927,9 +926,9 @@ public abstract class QueryBuilder {
      * @throws XmlServerException
      */
     public String getQuery(boolean isItemQuery, Map<String, String> objectRootElementNamesToRevisionID,
-            Map<String, String> objectRootElementNamesToClusterName, String forceMainPivot, ArrayList<String> viewableFullPaths,
-            IWhereItem whereItem, String orderBy, String direction, int start, long limit, boolean withTotalCountOnFirstRow,
-            Map<String, ArrayList<String>> metaDataTypes) throws XmlServerException {
+            Map<String, String> objectRootElementNamesToClusterName, String forceMainPivot,
+            ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, long limit,
+            boolean withTotalCountOnFirstRow, Map<String, ArrayList<String>> metaDataTypes) throws XmlServerException {
 
         try {
             // build Pivots Map
@@ -967,7 +966,7 @@ public abstract class QueryBuilder {
                 if (!"".equals(direction) && direction != null && direction.indexOf(":") != -1) { //$NON-NLS-1$ //$NON-NLS-2$
                     isNumber = true;
                     direction = direction.substring(direction.indexOf(":") + 1); //$NON-NLS-1$
-                }
+                 }
 
                 xqOrderBy = "order by " + (isNumber ? ("number(" + XPathUtils.factor(orderBy, pivotsMap) + ")") : XPathUtils.factor(orderBy, pivotsMap)) + (direction == null ? "" : " " + direction); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
             }
@@ -1149,11 +1148,10 @@ public abstract class QueryBuilder {
 
     /**
      * Determine the collection name based on the revision ID and Cluster Name
-     * 
      * @param revisionID Revision Id
      * @param clusterName Cluster name
      * @return The xquery collection name that stores the XML documents
-     * 
+     *
      * @throws com.amalto.xmlserver.interfaces.XmlServerException In case of unexpected error.
      * */
     public String getXQueryCollectionName(String revisionID, String clusterName) throws XmlServerException {
@@ -1182,9 +1180,9 @@ public abstract class QueryBuilder {
     }
 
     /***********************************************************************
-     * 
+     *
      * Helper Methods
-     * 
+     *
      ***********************************************************************/
 
     /**
@@ -1332,7 +1330,7 @@ public abstract class QueryBuilder {
                     query.append("[").append(matchesStr).append("(./i , '").append(key).append("')]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
                 if (fkxpath != null && fkxpath.length() != 0 && fkvalue != null && fkvalue.length() != 0) {
-                    // fkvalue can be composite
+                    //fkvalue can be composite
                     fkvalue = StringUtils.replace(fkvalue, "@", "]["); //$NON-NLS-1$ //$NON-NLS-2$
                     query.append("[").append("./p//" + fkxpath + " eq '").append(fkvalue).append("']"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                 }
