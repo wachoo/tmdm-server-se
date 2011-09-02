@@ -47,9 +47,7 @@ public class TreeDetailGridView extends TreeGridView {
         }
         sb.append("</td><td>"); //$NON-NLS-1$
         icon = null;
-        if (icon != null) {
-            sb.append(icon.getHTML());
-        } else {
+        {
             sb.append("<span></span>"); //$NON-NLS-1$
         }
         sb.append("</td><td>"); //$NON-NLS-1$
