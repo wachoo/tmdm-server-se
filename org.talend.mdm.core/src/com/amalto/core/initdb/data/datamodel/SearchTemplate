@@ -36,7 +36,7 @@
     &lt;/xsd:element&gt; 
      &lt;xsd:element name="HierarchySearchItem"&gt;
   &lt;xsd:complexType&gt;
-&lt;xsd:all&gt;
+&lt;xsd:sequence&gt;
 &lt;xsd:element maxOccurs="1" minOccurs="1" name="HierarchySearchName" type="xsd:string"/&gt;
 &lt;xsd:element maxOccurs="1" minOccurs="1" name="Owner" type="xsd:string"/&gt;
 &lt;xsd:element maxOccurs="1" minOccurs="1" name="HierarchyRelation" type="xsd:boolean"/&gt;
@@ -49,7 +49,7 @@
 &lt;/xsd:sequence&gt;
 &lt;/xsd:complexType&gt;
 &lt;/xsd:element&gt;
-            &lt;/xsd:all&gt;
+            &lt;/xsd:sequence&gt;
 &lt;/xsd:complexType&gt;
 &lt;xsd:unique name="HierarchySearchItem"&gt;
 &lt;xsd:selector xpath="."/&gt;
