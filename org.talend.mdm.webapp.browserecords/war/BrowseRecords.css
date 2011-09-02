@@ -32,3 +32,20 @@ h1 {
 #closeButton {
   margin: 15px 6px 6px;
 }
+
+.filter-panel{
+    margin: 20px;
+}
+
+
+.x-form-file-wrap .x-form-filter-btn {
+  position: absolute;
+  top:0px;
+  right: 28px;
+}
+
+.x-form-file-wrap .x-form-valid-btn {
+  position: absolute;
+  right: 0;
+  top:0px;
+}
