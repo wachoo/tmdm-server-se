@@ -66,16 +66,16 @@ public class ForeignKeyTreeDetail extends TabItem {
                     HTML label = new HTML();
                     String html = (String) model.get(property);
                     if (typeModel.getMinOccurs() >= 1)
-                        html = html + "<span style=\"color:red\"> *</span>";
+                        html = html + "<span style=\"color:red\"> *</span>"; //$NON-NLS-1$
                     label.setHTML(html);
                     hp.add(label);
 
                     field.setWidth(260);
                     hp.add(field);
 
-                    Image addNodeImg = new Image("/talendmdm/secure/img/genericUI/add.png");
+                    Image addNodeImg = new Image("/talendmdm/secure/img/genericUI/add.png"); //$NON-NLS-1$
                     addNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
-                    Image removeNodeImg = new Image("/talendmdm/secure/img/genericUI/delete.png");
+                    Image removeNodeImg = new Image("/talendmdm/secure/img/genericUI/delete.png"); //$NON-NLS-1$
                     removeNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
                     if (typeModel.getMinOccurs() >= 1 && typeModel.getMaxOccurs() > typeModel.getMinOccurs()) {
                         hp.add(addNodeImg);
