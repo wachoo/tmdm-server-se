@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
@@ -14,6 +15,7 @@ import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.GridEvent;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -70,8 +72,8 @@ public class SaveRowEditor extends RowEditor<ItemBean> {
             // Window.alert(itemBean.getItemXml());
             service.saveItemBean(itemBean, new AsyncCallback<ItemResult>() {
 
-                public void onFailure(Throwable arg0) {
-
+                public void onFailure(Throwable caught) {
+                    Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
                 }
 
                 public void onSuccess(ItemResult arg0) {

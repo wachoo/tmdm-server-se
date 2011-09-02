@@ -55,6 +55,7 @@ public class ItemsSearchContainer extends LayoutContainer {
         westData.setSplit(true);
         westData.setMargins(new Margins(0, 5, 0, 0));
         westData.setFloatable(true);
+        westData.setMaxSize(800);
         add(itemsListPanel, westData);
 
         itemsDetailPanel = new ItemsDetailPanel();
