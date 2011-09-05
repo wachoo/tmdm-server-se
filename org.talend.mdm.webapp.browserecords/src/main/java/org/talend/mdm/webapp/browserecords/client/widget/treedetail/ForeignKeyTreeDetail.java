@@ -27,7 +27,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     public ForeignKeyTreeDetail(ViewBean viewBean) {
         this();
         this.viewBean = viewBean;
-        this.toolBar = new ItemDetailToolBar(null);
+        this.toolBar = new ItemDetailToolBar(null, ItemDetailToolBar.VIEW_OPERATION);
         this.setTopComponent(toolBar);
         buildPanel(viewBean);
     }
