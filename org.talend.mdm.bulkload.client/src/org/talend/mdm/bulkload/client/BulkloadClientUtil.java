@@ -107,6 +107,8 @@ public class BulkloadClientUtil {
             try {
                 startedBulkloadCount.incrementAndGet();
                 bulkload(url, cluster, concept, dataModel, validate, smartPK, inputStream, userName, password, universe);
+            } catch (BulkloadException e) {
+                throw e;
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             } finally {
