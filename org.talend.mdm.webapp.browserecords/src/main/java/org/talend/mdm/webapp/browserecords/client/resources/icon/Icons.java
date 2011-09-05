@@ -83,4 +83,7 @@ public interface Icons extends ClientBundle {
     
     @Source("refreshToolbar.gif")
     ImageResource refreshToolbar();    
+    
+    @Source("save_and_close.png")
+    ImageResource save_and_close();
 }

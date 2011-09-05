@@ -219,4 +219,8 @@ public interface BrowseRecordsMessages extends Messages {
     String delete_record_failure();
 
     String delete_record_success();
+    
+    String save_close_btn();
+    
+    String save_close_tip();
 }

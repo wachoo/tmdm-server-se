@@ -32,6 +32,8 @@ public class ItemDetailToolBar  extends ToolBar{
     
     private final Button saveButton = new Button(MessagesFactory.getMessages().save_btn());
     
+    private final Button saveAndCloseButton = new Button(MessagesFactory.getMessages().save_close_btn());
+    
     private final Button deleteButton = new Button(MessagesFactory.getMessages().delete_btn());
     
     private final Button deplicateButton = new Button(MessagesFactory.getMessages().deplicate_btn());
@@ -61,11 +63,18 @@ public class ItemDetailToolBar  extends ToolBar{
     private void initToolBar(){     
         saveButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
         saveButton.setToolTip(MessagesFactory.getMessages().save_tip());
+        
+        saveAndCloseButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.save_and_close()));
+        saveAndCloseButton.setToolTip(MessagesFactory.getMessages().save_close_tip());
+        
         deleteButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
+        
         deplicateButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.duplicate()));
         deplicateButton.setToolTip(MessagesFactory.getMessages().deplicate_tip());
+        
         joumalButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.journal()));
         joumalButton.setToolTip(MessagesFactory.getMessages().joumal_tip());
+        
         refreshButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.refreshToolbar()));
         refreshButton.setToolTip(MessagesFactory.getMessages().refresh_tip());
         
