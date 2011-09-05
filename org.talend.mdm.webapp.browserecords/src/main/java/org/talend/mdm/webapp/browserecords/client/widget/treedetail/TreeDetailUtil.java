@@ -42,10 +42,10 @@ public class TreeDetailUtil {
             Image removeNodeImg = new Image("/talendmdm/secure/img/genericUI/delete.png"); //$NON-NLS-1$
             removeNodeImg.addClickHandler(handler);
             removeNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
-//            if ((typeModel.getMinOccurs() >= 1 && typeModel.getMaxOccurs() > typeModel.getMinOccurs())) {
+            if ((typeModel.getMinOccurs() >= 1 && typeModel.getMaxOccurs() > typeModel.getMinOccurs())) {
                 hp.add(addNodeImg);
                 hp.add(removeNodeImg);
-//            }
+            }
 
             hp.setCellWidth(label, "200px"); //$NON-NLS-1$
 
