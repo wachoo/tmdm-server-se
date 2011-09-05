@@ -49,3 +49,8 @@ h1 {
   right: 0;
   top:0px;
 }
+
+a{
+	text-decoration:none;
+	color: #2D5593;
+}

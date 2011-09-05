@@ -18,6 +18,7 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
 /**
  * DOC HSHU class global comment. Detailled comment
@@ -29,6 +30,8 @@ public class ItemsSearchContainer extends LayoutContainer {
     private ItemsDetailPanel itemsDetailPanel;
 
     private ItemsToolBar toolbar;
+
+    private LayoutContainer rightContainer;
 
     private BorderLayoutData northData;
 
@@ -58,9 +61,13 @@ public class ItemsSearchContainer extends LayoutContainer {
         westData.setMaxSize(800);
         add(itemsListPanel, westData);
 
+        rightContainer = new LayoutContainer();
+        rightContainer.setLayout(new FitLayout());
         itemsDetailPanel = new ItemsDetailPanel();
         itemsDetailPanel.setHeaderVisible(false);
-        add(itemsDetailPanel, new BorderLayoutData(LayoutRegion.CENTER));
+        rightContainer.add(itemsDetailPanel);
+
+        add(rightContainer, new BorderLayoutData(LayoutRegion.CENTER));
     }
 
     public ItemsListPanel getItemsListPanel() {
@@ -73,6 +80,10 @@ public class ItemsSearchContainer extends LayoutContainer {
 
     public ItemsToolBar getToolBar() {
         return toolbar;
+    }
+
+    public LayoutContainer getRightContainer() {
+        return rightContainer;
     }
 
     public void resizeTop(float size) {

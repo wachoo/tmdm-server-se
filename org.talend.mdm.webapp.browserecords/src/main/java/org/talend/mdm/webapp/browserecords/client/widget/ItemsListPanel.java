@@ -242,6 +242,16 @@ public class ItemsListPanel extends ContentPanel {
                 
                 ItemPanel itemPanel = new ItemPanel(item, "itemView"); //$NON-NLS-1$
                 detailPanel.addTabItem(item.getConcept(), itemPanel, ItemsDetailPanel.SINGLETON, "itemView"); //$NON-NLS-1$
+
+                // show breadcrumb
+                if (itemsSearchContainer.getRightContainer().getItemCount() > 1)
+                    itemsSearchContainer.getRightContainer().getItem(0).removeFromParent();
+                List<String> breads = new ArrayList<String>();
+                breads.add(BreadCrumb.DEFAULTNAME);
+                breads.add(item.getConcept());
+                breads.add(item.getIds());
+                itemsSearchContainer.getRightContainer().insert(new BreadCrumb(breads), 0);
+                itemsSearchContainer.getRightContainer().layout(true);
             }
         });
         grid.addListener(Events.OnDoubleClick, new Listener<GridEvent<ItemBean>>() {
