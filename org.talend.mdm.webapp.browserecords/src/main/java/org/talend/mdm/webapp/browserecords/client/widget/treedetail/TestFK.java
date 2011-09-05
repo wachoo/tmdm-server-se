@@ -7,12 +7,13 @@ import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.SimplePanel;
 
-public class TestFK extends SimplePanel {
+public class TestFK extends ContentPanel {
 
     public TestFK() {
         final ForeignKeyTreeDetail tree = new ForeignKeyTreeDetail();
@@ -28,8 +29,12 @@ public class TestFK extends SimplePanel {
                         Window.alert(arg0.getMessage());
                     }
                 });
-        setSize("1000px", "800px"); //$NON-NLS-1$//$NON-NLS-2$
-        setWidget(tree);
+
+        add(tree);
+        this.setLayout(new FitLayout());
+        this.setHeaderVisible(false);
+        this.setAutoHeight(true);
+
     }
 
     private static BrowseRecordsServiceAsync getItemService() {

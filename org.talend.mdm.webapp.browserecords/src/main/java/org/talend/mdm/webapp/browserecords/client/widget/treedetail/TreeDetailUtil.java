@@ -24,7 +24,7 @@ public class TreeDetailUtil {
         String xPath = itemNode.getBindingPath();
         TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(xPath);
         HTML label = new HTML();
-        String html = (String) itemNode.get(property);
+        String html = property;
         if (itemNode.isKey() || typeModel.getMinOccurs() >= 1)
             html = html + "<span style=\"color:red\"> *</span>"; //$NON-NLS-1$
         label.setHTML(html);

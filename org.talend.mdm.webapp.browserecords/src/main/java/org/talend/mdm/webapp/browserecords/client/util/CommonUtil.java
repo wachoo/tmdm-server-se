@@ -56,11 +56,11 @@ public class CommonUtil {
                     node.setValue("www.baidu.com"); //$NON-NLS-1$
                 // TODO other type
                 
-                node.setName(model.getName());
+
+
 
             } else {
                 ComplexTypeModel complexModel = (ComplexTypeModel) model;
-                node.setName(complexModel.getName());
                 List<TypeModel> children = complexModel.getSubTypes();
                 List<ItemNodeModel> list = new ArrayList<ItemNodeModel>();
                 for (TypeModel typeModel : children) {
@@ -68,6 +68,8 @@ public class CommonUtil {
                 }
                 node.setChildNodes(list);
             }
+            node.setName(model.getName());
+            node.setDescription(model.getLabel("en")); //$NON-NLS-1$
         }
         
         return itemNodes;
