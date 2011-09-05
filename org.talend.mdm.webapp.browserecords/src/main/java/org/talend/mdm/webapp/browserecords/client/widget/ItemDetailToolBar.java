@@ -3,6 +3,7 @@ package org.talend.mdm.webapp.browserecords.client.widget;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.browserecords.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
@@ -14,13 +15,13 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.TabItem;
-import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -38,6 +39,8 @@ public class ItemDetailToolBar  extends ToolBar{
     private final Button joumalButton = new Button(MessagesFactory.getMessages().joumal_btn());
     
     private final Button refreshButton = new Button();
+    
+    private ComboBox<ItemBaseModel> workFlowCombo = new ComboBox<ItemBaseModel>();
     
     private ItemBean itemBean;
     
@@ -165,6 +168,11 @@ public class ItemDetailToolBar  extends ToolBar{
 
         });
         add(refreshButton);
+        add(new FillToolItem());  
+        
+        ListStore<ItemBaseModel> workFlowList = new ListStore<ItemBaseModel>();
+        workFlowCombo.setStore(workFlowList);
+        add(workFlowCombo);
     }   
     
     public void updateToolBar(){
