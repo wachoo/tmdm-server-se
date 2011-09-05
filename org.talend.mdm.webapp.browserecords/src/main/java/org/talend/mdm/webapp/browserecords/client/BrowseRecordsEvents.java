@@ -28,4 +28,6 @@ public class BrowseRecordsEvents {
     public static final EventType GetView = new EventType();
 
     public static final EventType SearchView = new EventType();
+
+    public static final EventType CreateForeignKeyView = new EventType();
 }
