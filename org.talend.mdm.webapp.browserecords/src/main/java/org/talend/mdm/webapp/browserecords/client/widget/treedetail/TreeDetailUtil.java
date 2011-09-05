@@ -7,6 +7,7 @@ import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
@@ -17,7 +18,7 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class TreeDetailUtil {
 
-    public static Widget createWidget(ItemNodeModel itemNode, String property, ViewBean viewBean) {
+    public static Widget createWidget(ItemNodeModel itemNode, String property, ViewBean viewBean, ClickHandler handler) {
         
         HorizontalPanel hp = new HorizontalPanel();
         // create Field
@@ -35,13 +36,16 @@ public class TreeDetailUtil {
             hp.add(field);
 
             Image addNodeImg = new Image("/talendmdm/secure/img/genericUI/add.png"); //$NON-NLS-1$
+            addNodeImg.getElement().setId("Add");
+            addNodeImg.addClickHandler(handler);
             addNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
             Image removeNodeImg = new Image("/talendmdm/secure/img/genericUI/delete.png"); //$NON-NLS-1$
+            removeNodeImg.addClickHandler(handler);
             removeNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
-            if ((typeModel.getMinOccurs() >= 1 && typeModel.getMaxOccurs() > typeModel.getMinOccurs())) {
+//            if ((typeModel.getMinOccurs() >= 1 && typeModel.getMaxOccurs() > typeModel.getMinOccurs())) {
                 hp.add(addNodeImg);
                 hp.add(removeNodeImg);
-            }
+//            }
 
             hp.setCellWidth(label, "200px"); //$NON-NLS-1$
 
