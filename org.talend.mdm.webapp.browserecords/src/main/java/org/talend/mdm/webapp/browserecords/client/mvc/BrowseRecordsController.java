@@ -27,9 +27,8 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-
 /**
- * DOC Administrator  class global comment. Detailled comment
+ * DOC Administrator class global comment. Detailled comment
  */
 public class BrowseRecordsController extends Controller {
 
@@ -43,6 +42,8 @@ public class BrowseRecordsController extends Controller {
         registerEventTypes(BrowseRecordsEvents.InitSearchContainer);
         registerEventTypes(BrowseRecordsEvents.SearchView);
         registerEventTypes(BrowseRecordsEvents.GetView);
+
+        registerEventTypes(BrowseRecordsEvents.CreateForeignKeyView);
     }
 
     public void initialize() {
@@ -62,7 +63,26 @@ public class BrowseRecordsController extends Controller {
             forwardToView(view, event);
         } else if (type == BrowseRecordsEvents.InitSearchContainer) {
             forwardToView(view, event);
+        } else if (type == BrowseRecordsEvents.CreateForeignKeyView) {
+            onCreateForeignKeyView(event);
         }
+
+    }
+
+    private void onCreateForeignKeyView(final AppEvent event) {
+        String viewFkName = "Browse_items_"+event.getData().toString(); //$NON-NLS-1$
+        service.getView(viewFkName, Locale.getLanguage(), new AsyncCallback<ViewBean>() {
+
+            public void onSuccess(ViewBean viewBean) {
+                // forward
+                AppEvent ae = new AppEvent(event.getType(), viewBean);
+                forwardToView(view, ae);
+            }
+
+            public void onFailure(Throwable caught) {
+                Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
+            }
+        });
 
     }
 

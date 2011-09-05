@@ -23,8 +23,10 @@ import org.talend.mdm.webapp.browserecords.client.creator.CellRendererCreator;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsSearchContainer;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator.FieldCreator;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTreeDetail;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
@@ -87,7 +89,18 @@ public class BrowseRecordsView extends View {
             onGetView(event);
         } else if (event.getType() == BrowseRecordsEvents.SearchView) {
             onSearchView(event);
+        } else if (event.getType() == BrowseRecordsEvents.CreateForeignKeyView) {
+            onCreateForeignKeyView(event);
         }
+    }
+
+    private void onCreateForeignKeyView(AppEvent event) {
+        ViewBean viewBean = event.getData();
+        ForeignKeyTreeDetail tree = new ForeignKeyTreeDetail(viewBean);
+        itemsSearchContainer.getItemsDetailPanel().addTabItem(viewBean.getBindingEntityModel().getConceptName(), tree,
+                ItemsDetailPanel.MULTIPLE,
+                viewBean.getDescription());
+
     }
 
     private void onInitFrame(AppEvent event) {

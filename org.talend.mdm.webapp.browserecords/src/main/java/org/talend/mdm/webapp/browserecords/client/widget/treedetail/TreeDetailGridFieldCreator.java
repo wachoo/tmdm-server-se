@@ -3,8 +3,8 @@ package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 import java.util.List;
 
 import org.talend.mdm.webapp.browserecords.client.model.DataTypeConstants;
-import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.BooleanField;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ForeignKeyField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.PictureField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.UrlField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator.NumberFieldValidator;
@@ -30,8 +30,8 @@ public class TreeDetailGridFieldCreator {
         Field<?> field;
 
         if (dataType.getForeignkey() != null) {
-            FKField fkField = new FKField();
-            fkField.Update(dataType.getXpath(), fkField);
+            ForeignKeyField fkField = new ForeignKeyField(dataType.getForeignkey().split("/")[0]); //$NON-NLS-1$
+            // fkField.Update(dataType.getXpath(), fkField);
             field = fkField;
         } else if (dataType.hasEnumeration()) {
             SimpleComboBox<String> comboBox = new SimpleComboBox<String>();

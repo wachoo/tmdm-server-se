@@ -4,36 +4,32 @@ import java.util.List;
 
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
 
 public class ForeignKeyTreeDetail extends ContentPanel {
 
-    ItemNodeModel model = null;
+    private ViewBean viewBean;
 
-    Grid<ModelData> fkTable = null;
-
-    String pk, fk, fkViewName;
-
-    ViewBean viewBean;
-
-    public ForeignKeyTreeDetail(String pk, String fk, String fkViewName) {
-        this.pk = pk;
-        this.fk = fk;
-        this.fkViewName = fkViewName;
-    }
+    private ItemDetailToolBar toolBar;
 
     public ForeignKeyTreeDetail() {
-
+        this.setHeaderVisible(false);
+        this.setHeight(1000);
+        this.setScrollMode(Scroll.AUTO);
     }
     public ForeignKeyTreeDetail(ViewBean viewBean) {
+        this();
         this.viewBean = viewBean;
+        this.toolBar = new ItemDetailToolBar(null);
+        this.setTopComponent(toolBar);
+        buildPanel(viewBean);
     }
 
     public void buildPanel(final ViewBean viewBean) {
@@ -41,14 +37,14 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         List<ItemNodeModel> models = CommonUtil.getDefaultTreeModel(viewBean.getBindingEntityModel().getMetaDataTypes()
                 .get(viewBean.getBindingEntityModel().getConceptName()));
         TreeItem root = buildGWTTree(models.get(0));
+
         Tree tree = new Tree();
         tree.addItem(root);
+        root.setState(true);
+
         add(tree);
 
-        this.setHeaderVisible(false);
 
-        this.setHeight(1000);
-        this.setScrollMode(Scroll.AUTO);
     }
 
     public ViewBean getViewBean() {
