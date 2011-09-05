@@ -262,12 +262,11 @@ public class ItemsToolBar extends ToolBar {
                 String concept = ViewUtil.getConceptFromBrowseItemView(entityCombo.getValue().get("value").toString());//$NON-NLS-1$
 
                 EntityModel entityModel = (EntityModel) BrowseRecords.getSession().getCurrentEntityModel();
-                ItemBean item = ItemCreator.createDefaultItemBean(concept, entityModel);
+                ItemBean itemBean = ItemCreator.createDefaultItemBean(concept, entityModel);
 
-                // TODO
-                // AppEvent evt = new AppEvent(ItemsEvents.ViewItemForm, item);
-                // evt.setData(ItemsView.ITEMS_FORM_TARGET, ItemsView.TARGET_IN_NEW_TAB);
-                // Dispatcher.forwardEvent(evt);
+                ItemsDetailPanel detailPanel = container.getItemsDetailPanel();
+                ItemPanel itemPanel = new ItemPanel(itemBean, ItemDetailToolBar.CREATE_OPERATION);
+                detailPanel.addTabItem(itemBean.getConcept(), itemPanel, ItemsDetailPanel.MULTIPLE, itemBean.getConcept());
             }
 
         });

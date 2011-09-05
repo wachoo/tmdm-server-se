@@ -240,7 +240,7 @@ public class ItemsListPanel extends ContentPanel {
                 ItemsSearchContainer itemsSearchContainer = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
                 ItemsDetailPanel detailPanel = itemsSearchContainer.getItemsDetailPanel();
                 
-                ItemPanel itemPanel = new ItemPanel(item, "itemView"); //$NON-NLS-1$
+                ItemPanel itemPanel = new ItemPanel(item, ItemDetailToolBar.VIEW_OPERATION); 
                 detailPanel.addTabItem(item.getConcept(), itemPanel, ItemsDetailPanel.SINGLETON, "itemView"); //$NON-NLS-1$
 
                 // show breadcrumb

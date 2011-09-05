@@ -18,17 +18,17 @@ public class ItemPanel extends ContentPanel {
     
     private ItemDetailToolBar toolBar;
     private ItemBean item;
-    private String type;
+    private String operation;
     
     public ItemPanel(){
         
     }
     
-    public ItemPanel(ItemBean item, String type){
+    public ItemPanel(ItemBean item, String operation){
         
         this.item = item;
-        this.toolBar = new ItemDetailToolBar(item);
-        this.type = type;        
+        this.toolBar = new ItemDetailToolBar(item, operation);
+        this.operation = operation;        
         this.initUI();
     }
     

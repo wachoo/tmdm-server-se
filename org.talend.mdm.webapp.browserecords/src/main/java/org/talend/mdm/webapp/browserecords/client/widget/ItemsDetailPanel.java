@@ -68,4 +68,9 @@ public class ItemsDetailPanel extends ContentPanel {
             }
         }        
     }
+    
+    public void closeCurrentTab(){
+        TabItem itemTab = tabPanel.getSelectedItem();
+        tabPanel.remove(itemTab);
+    }
 }
