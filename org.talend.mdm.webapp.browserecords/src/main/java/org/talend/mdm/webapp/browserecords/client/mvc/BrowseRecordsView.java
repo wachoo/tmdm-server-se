@@ -25,6 +25,7 @@ import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.BreadCrumb;
 import org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsSearchContainer;
@@ -87,7 +88,7 @@ public class BrowseRecordsView extends View {
         itemsSearchContainer = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
         ItemsDetailPanel detailPanel = itemsSearchContainer.getItemsDetailPanel();
         detailPanel.initBanner(item.getDisplayPKInfo(), item.getDescription());
-        ItemPanel itemPanel = new ItemPanel(item, "itemView"); //$NON-NLS-1$
+        ItemPanel itemPanel = new ItemPanel(item, ItemDetailToolBar.VIEW_OPERATION);
         detailPanel.addTabItem(item.getConcept(), itemPanel, ItemsDetailPanel.SINGLETON, "itemView"); //$NON-NLS-1$
 
         // show breadcrumb
