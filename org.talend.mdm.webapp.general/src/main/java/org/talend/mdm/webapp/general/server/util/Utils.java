@@ -25,10 +25,12 @@ public class Utils {
     
     private static final String GXT_PROPERTIES = "gxt.properties"; //$NON-NLS-1$
 
+    private static final String EXCLUDING_PROPERTIES = "excluding.properties"; //$NON-NLS-1$
+
     private static final String WELCOMECONTEXT = "welcomeportal", WELCOMEAPP = "WelcomePortal";//$NON-NLS-1$ //$NON-NLS-2$
 
     /** a reference to the factory used to create Gxt instances */
-    private static GxtFactory gxtFactory = new GxtFactory(GXT_PROPERTIES);
+    private static GxtFactory gxtFactory = new GxtFactory(GXT_PROPERTIES, EXCLUDING_PROPERTIES);
 
     public static void getJavascriptImportDetail(List<String> imports){
         try {
@@ -42,6 +44,9 @@ public class Utils {
         for (Iterator<String> iter = menu.getSubMenus().keySet().iterator(); iter.hasNext();) {
             String key = iter.next();
             Menu subMenu = menu.getSubMenus().get(key);
+            if (gxtFactory.isExcluded(subMenu.getContext(), subMenu.getApplication())) {
+                continue;
+            }
             MenuBean item = new MenuBean();
             item.setId(i);
             item.setLevel(level);
@@ -79,6 +84,9 @@ public class Utils {
             Menu subMenu= menu.getSubMenus().get(key);
             
             if(subMenu.getContext()!=null) {
+                if (gxtFactory.isExcluded(subMenu.getContext(), subMenu.getApplication())) {
+                    continue;
+                }
                 String gxtEntryModule = gxtFactory.getGxtEntryModule(subMenu.getContext(), subMenu.getApplication());
 
                 if (gxtEntryModule == null || subMenu.getContext().equals("itemsbrowser2")) { //$NON-NLS-1$
