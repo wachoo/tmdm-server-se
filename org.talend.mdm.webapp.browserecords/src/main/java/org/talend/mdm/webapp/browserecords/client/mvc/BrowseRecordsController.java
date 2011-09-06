@@ -44,7 +44,7 @@ public class BrowseRecordsController extends Controller {
         registerEventTypes(BrowseRecordsEvents.InitSearchContainer);
         registerEventTypes(BrowseRecordsEvents.SearchView);
         registerEventTypes(BrowseRecordsEvents.GetView);
-
+        registerEventTypes(BrowseRecordsEvents.ViewItem);
         registerEventTypes(BrowseRecordsEvents.CreateForeignKeyView);
         registerEventTypes(BrowseRecordsEvents.SelectForeignKeyView);
     }
