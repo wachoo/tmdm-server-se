@@ -34,14 +34,13 @@ public class WelcomePortal implements EntryPoint {
      */
     public final static String WELCOMEPORTAL_SERVICE = "WelcomePortalService"; //$NON-NLS-1$
 
-    public final static String BROWSECONTEXT = "itemsbrowser2", BROWSEAPP = "ItemsBrowser2"; //$NON-NLS-1$//$NON-NLS-2$
+    public final static String BROWSECONTEXT = "browserecords", BROWSEAPP = "BrowseRecords"; //$NON-NLS-1$//$NON-NLS-2$
 
-    public final static String LICENSECONTEXT = "licensemanager", LICENSEAPP = "LicenseManager"; //$NON-NLS-1$ //$NON-NLS-2$
+    public final static String LICENSECONTEXT = "license", LICENSEAPP = "License"; //$NON-NLS-1$ //$NON-NLS-2$
 
     public final static String JOURNALCONTEXT = "updatereport", JOURNALAPP = "UpdateReport"; //$NON-NLS-1$ //$NON-NLS-2$
 
     public final static String TASKCONTEXT = "workflowtasks", TASKAPP = "WorkflowTasks";//$NON-NLS-1$ //$NON-NLS-2$
-
     /**
      * This is the entry point method.
      */
@@ -56,10 +55,6 @@ public class WelcomePortal implements EntryPoint {
         // add controller to dispatcher
         Dispatcher dispatcher = Dispatcher.get();
         dispatcher.addController(new WelcomePortalController());
-
-        // GenerateContainer.generateContentPanel();
-        // onModuleRender();
-        // RootPanel.get().add(GenerateContainer.getContentPanel());
     }
 
     private native void registerPubService()/*-{

@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
+import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortalService;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -59,7 +60,7 @@ public class WelcomePortalAction extends RemoteServiceServlet implements Welcome
      * @return
      */
     public boolean isHiddenLicense() {
-        return isHiddenMenu("LicenseManager"); //$NON-NLS-1$
+        return isHiddenMenu(WelcomePortal.LICENSEAPP);
     }
 
     /**
@@ -68,7 +69,7 @@ public class WelcomePortalAction extends RemoteServiceServlet implements Welcome
      * @return
      */
     public boolean isHiddenTask() {
-        return isHiddenMenu("WorkflowTasks"); //$NON-NLS-1$
+        return isHiddenMenu(WelcomePortal.TASKAPP);
     }
 
     /**
