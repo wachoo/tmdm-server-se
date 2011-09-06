@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.exception.ParserException;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
@@ -52,6 +53,7 @@ import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.state.StateManager;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Record;
@@ -236,22 +238,8 @@ public class ItemsListPanel extends ContentPanel {
 
             @Override
             public void selectionChanged(SelectionChangedEvent<ItemBean> se) {
-                final ItemBean item = se.getSelectedItem();
-                ItemsSearchContainer itemsSearchContainer = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
-                ItemsDetailPanel detailPanel = itemsSearchContainer.getItemsDetailPanel();
-                
-                ItemPanel itemPanel = new ItemPanel(item, ItemDetailToolBar.VIEW_OPERATION); 
-                detailPanel.addTabItem(item.getConcept(), itemPanel, ItemsDetailPanel.SINGLETON, "itemView"); //$NON-NLS-1$
-
-                // show breadcrumb
-                if (itemsSearchContainer.getRightContainer().getItemCount() > 1)
-                    itemsSearchContainer.getRightContainer().getItem(0).removeFromParent();
-                List<String> breads = new ArrayList<String>();
-                breads.add(BreadCrumb.DEFAULTNAME);
-                breads.add(item.getConcept());
-                breads.add(item.getIds());
-                itemsSearchContainer.getRightContainer().insert(new BreadCrumb(breads), 0);
-                itemsSearchContainer.getRightContainer().layout(true);
+                ItemBean item = se.getSelectedItem();
+                Dispatcher.forwardEvent(BrowseRecordsEvents.ViewItem, item);
             }
         });
         grid.addListener(Events.OnDoubleClick, new Listener<GridEvent<ItemBean>>() {
@@ -392,7 +380,7 @@ public class ItemsListPanel extends ContentPanel {
             final ItemBean itemBean = store.findModel(ids);
             if (itemBean != null) {
                 EntityModel entityModel = (EntityModel) BrowseRecords.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
-                service.getItem(itemBean, entityModel, new AsyncCallback<ItemBean>() {
+                service.getItem(itemBean, entityModel, Locale.getLanguage(), new AsyncCallback<ItemBean>() {
 
                     public void onFailure(Throwable caught) {
                         Window.alert(caught.getMessage());

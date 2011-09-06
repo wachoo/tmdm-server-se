@@ -23,7 +23,9 @@ import org.talend.mdm.webapp.browserecords.client.creator.CellRendererCreator;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
+import org.talend.mdm.webapp.browserecords.client.widget.BreadCrumb;
 import org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsSearchContainer;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator.FieldCreator;
@@ -75,7 +77,28 @@ public class BrowseRecordsView extends View {
             onCreateForeignKeyView(event);
         } else if (event.getType() == BrowseRecordsEvents.SelectForeignKeyView) {
             onSelectForeignKeyView(event);
+        } else if (event.getType() == BrowseRecordsEvents.ViewItem) {
+            onViewItem(event);
         }
+    }
+
+    private void onViewItem(AppEvent event) {
+        ItemBean item = (ItemBean) event.getData();
+        itemsSearchContainer = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
+        ItemsDetailPanel detailPanel = itemsSearchContainer.getItemsDetailPanel();
+        detailPanel.initBanner(item.getDisplayPKInfo(), item.getDescription());
+        ItemPanel itemPanel = new ItemPanel(item, "itemView"); //$NON-NLS-1$
+        detailPanel.addTabItem(item.getConcept(), itemPanel, ItemsDetailPanel.SINGLETON, "itemView"); //$NON-NLS-1$
+
+        // show breadcrumb
+        if (itemsSearchContainer.getRightContainer().getItemCount() > 1)
+            itemsSearchContainer.getRightContainer().getItem(0).removeFromParent();
+        List<String> breads = new ArrayList<String>();
+        breads.add(BreadCrumb.DEFAULTNAME);
+        breads.add(item.getConcept());
+        breads.add(item.getIds());
+        itemsSearchContainer.getRightContainer().insert(new BreadCrumb(breads), 0);
+        itemsSearchContainer.getRightContainer().layout(true);
     }
 
     private void onSelectForeignKeyView(AppEvent event) {

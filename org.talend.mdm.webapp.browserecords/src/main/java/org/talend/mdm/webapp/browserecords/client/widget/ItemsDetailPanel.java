@@ -12,10 +12,12 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget;
 
+import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.Text;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
 /**
  * DOC Administrator  class global comment. Detailled comment
@@ -30,19 +32,34 @@ public class ItemsDetailPanel extends ContentPanel {
         super();
         this.setBodyBorder(false);
         this.setHeaderVisible(false);
-        this.setLayout(new FitLayout());
+        this.setLayout(new RowLayout(Orientation.VERTICAL));
         this.setWidth(800);
         this.setHeight(500);
         this.initPanel();
     }    
     
     private void initPanel(){    
-        tabPanel.setWidth(450);  
-        tabPanel.setAutoHeight(true);  
-                
+        // tabPanel.setWidth(450);
+        tabPanel.setAutoHeight(true);
         add(tabPanel);        
     }
-    
+
+    public void initBanner(String title, String description) {
+        if (this.getItemCount() > 1)
+            this.getItem(0).removeFromParent();
+        ContentPanel banner = new ContentPanel();
+        banner.setHeaderVisible(false);
+        banner.setHeight("60px");
+        banner.setStyleName("banner");
+        Text textTitle = new Text(title);
+        textTitle.setStyleName("Title");
+        banner.add(textTitle);
+        Text textDesc = new Text(description);
+        textDesc.setStyleName("Description");
+        banner.add(textDesc);
+        insert(banner, 0);
+    }
+
     public void addTabItem(String title, ContentPanel panel, String pattern, String id){
         if(pattern.equalsIgnoreCase(ItemsDetailPanel.MULTIPLE)){
             TabItem newTab = new TabItem(title);

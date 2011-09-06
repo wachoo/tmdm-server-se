@@ -325,6 +325,28 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return null;
     }
 
+    private String getPKInfos(TypeModel model, String ids, Document document, String language) throws Exception {
+        List<String> xpathPKInfos = model.getPrimaryKeyInfo();
+        if (xpathPKInfos != null && xpathPKInfos.size() > 0 && ids != null) {
+            StringBuilder gettedValue = new StringBuilder();
+            for (String pkInfoPath : xpathPKInfos) {
+                if (pkInfoPath != null && pkInfoPath.length() > 0) {
+                    String pkInfo = Util.getFirstTextNode(document, pkInfoPath);
+                    if (pkInfo != null) {
+                        if (gettedValue.length() == 0)
+                            gettedValue.append(pkInfo);
+                        else
+                            gettedValue.append("-").append(pkInfo); //$NON-NLS-1$
+                        ;
+                    }
+                }
+            }
+            return gettedValue.toString();
+        } else {
+            return model.getLabel(language);
+        }
+    }
+
     private ForeignKeyBean getForeignKeyDesc(TypeModel model, String ids) {
         String xpathForeignKey = model.getForeignkey();
         if (xpathForeignKey == null) {
@@ -445,7 +467,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return ret;
     }
 
-    public ItemBean getItem(ItemBean itemBean, EntityModel entityModel) throws Exception {
+    public ItemBean getItem(ItemBean itemBean, EntityModel entityModel, String language) throws Exception {
         String dataCluster = getCurrentDataCluster();
         String dataModel = getCurrentDataModel();
         String concept = itemBean.getConcept();
@@ -457,18 +479,24 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         // parse schema
         DataModelHelper.parseSchema(dataModel, concept, entityModel, RoleHelper.getUserRoles());
         // dynamic Assemble
-        dynamicAssemble(itemBean, entityModel);
+        dynamicAssemble(itemBean, entityModel, language);
 
         return itemBean;
     }
 
-    public void dynamicAssemble(ItemBean itemBean, EntityModel entityModel) throws Exception {
+    public void dynamicAssemble(ItemBean itemBean, EntityModel entityModel, String language) throws Exception {
         if (itemBean.getItemXml() != null) {
             Document docXml = Util.parse(itemBean.getItemXml());
             Map<String, TypeModel> types = entityModel.getMetaDataTypes();
             Set<String> xpaths = types.keySet();
             for (String path : xpaths) {
                 TypeModel typeModel = types.get(path);
+                // set pkinfo and description on entity
+                if (path.endsWith(itemBean.getConcept())) {
+                    itemBean.setDisplayPKInfo(getPKInfos(typeModel, itemBean.getIds(), docXml, language));
+                    itemBean.setDescription(typeModel.getDescriptionMap().get(language));
+                }
+
                 if (typeModel.isSimpleType()) {
                     NodeList nodes = Util.getNodeList(docXml, path.substring(path.lastIndexOf('/') + 1));
                     if (nodes.getLength() > 0) {

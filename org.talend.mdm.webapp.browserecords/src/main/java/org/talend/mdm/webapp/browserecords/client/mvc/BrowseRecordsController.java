@@ -15,8 +15,10 @@ package org.talend.mdm.webapp.browserecords.client.mvc;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
+import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
+import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -68,6 +70,8 @@ public class BrowseRecordsController extends Controller {
             onCreateForeignKeyView(event);
         } else if (type == BrowseRecordsEvents.SelectForeignKeyView) {
             onSelectForeignKeyView(event);
+        } else if (type == BrowseRecordsEvents.ViewItem) {
+            onViewItem(event);
         }
 
     }
@@ -88,6 +92,24 @@ public class BrowseRecordsController extends Controller {
             }
         });
 
+    }
+
+    private void onViewItem(final AppEvent event) {
+        ItemBean item = (ItemBean) event.getData();
+        if (item != null) {
+            EntityModel entityModel = (EntityModel) BrowseRecords.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
+            service.getItem(item, entityModel, Locale.getLanguage(), new AsyncCallback<ItemBean>() {
+
+                public void onFailure(Throwable caught) {
+                    Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
+                }
+
+                public void onSuccess(ItemBean result) {
+                    AppEvent ae = new AppEvent(event.getType(), result);
+                    forwardToView(view, ae);
+                }
+            });
+        }
     }
 
     private void onCreateForeignKeyView(final AppEvent event) {

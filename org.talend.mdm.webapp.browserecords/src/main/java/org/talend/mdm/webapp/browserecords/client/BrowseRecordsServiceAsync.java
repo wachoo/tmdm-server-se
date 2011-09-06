@@ -48,7 +48,7 @@ public interface BrowseRecordsServiceAsync {
 
     void saveItemBean(ItemBean item, AsyncCallback<ItemResult> callback);
 
-    void getItem(ItemBean itemBean, EntityModel entityModel, AsyncCallback<ItemBean> callback);
+    void getItem(ItemBean itemBean, EntityModel entityModel, String language, AsyncCallback<ItemBean> callback);
 
     void getView(String viewPk, String language, AsyncCallback<ViewBean> callback);
 

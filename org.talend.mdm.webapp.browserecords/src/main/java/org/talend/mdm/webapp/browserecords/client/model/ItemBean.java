@@ -35,6 +35,10 @@ public class ItemBean extends ItemBaseModel {
 
     private Map<String, ForeignKeyBean> foreignkeyDesc = new HashMap<String, ForeignKeyBean>();
     
+    private String description;
+
+    private String displayPKInfo;
+
     /**
      * DOC HSHU ItemBean constructor comment.
      */
@@ -97,6 +101,22 @@ public class ItemBean extends ItemBaseModel {
         return foreignkeyDesc.get(fkValue);
     }
     
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDisplayPKInfo() {
+        return displayPKInfo;
+    }
+
+    public void setDisplayPKInfo(String displayPKInfo) {
+        this.displayPKInfo = displayPKInfo;
+    }
+
     @Override
     public String toString() {
         return "ItemBean [concept=" + concept + ", ids=" + ids + ", itemXml=" + itemXml + "]";//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$  

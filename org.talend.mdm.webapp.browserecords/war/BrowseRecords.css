@@ -54,3 +54,22 @@ a{
 	text-decoration:none;
 	color: #2D5593;
 }
+
+
+.banner{
+	background-image: url('');
+    background-repeat: repeat-y;
+}
+
+.banner .Title{
+	padding-top: 5px;
+	padding-left: 10px;
+	color: #2D5593;
+	font: bold 14px tahoma, verdana, helvetica;    
+}
+
+.banner .Description{
+	padding: 10px;	
+	font: 12px tahoma, verdana, helvetica;	
+}
+

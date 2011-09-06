@@ -32,4 +32,7 @@ public class BrowseRecordsEvents {
     public static final EventType CreateForeignKeyView = new EventType();
 
     public static final EventType SelectForeignKeyView = new EventType();
+
+    public static final EventType ViewItem = new EventType();
+
 }

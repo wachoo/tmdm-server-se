@@ -40,7 +40,7 @@ public interface BrowseRecordsService extends RemoteService {
 
     ItemBasePageLoadResult<ItemBean> queryItemBeans(final QueryModel config);
 
-    ItemBean getItem(ItemBean itemBean, EntityModel entityModel) throws Exception;
+    ItemBean getItem(ItemBean itemBean, EntityModel entityModel, String language) throws Exception;
 
     ItemResult saveItemBean(ItemBean item);
 
