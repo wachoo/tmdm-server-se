@@ -11,64 +11,21 @@
 
 package com.amalto.core.metadata;
 
-/**
- *
- */
-public class ReferenceFieldMetadata implements FieldMetadata {
-
-    private final boolean isKey;
-
-    private final String name;
-
-    private final String type;
-
-    private final TypeRef referencedType;
+public abstract class ReferenceFieldMetadata implements FieldMetadata {
 
     private final String foreignKeyInfo;
 
     private final TypeMetadata containingType;
 
-    private final boolean isFKIntegrity;
-
     private final boolean allowFKIntegrityOverride;
 
-    public ReferenceFieldMetadata(TypeMetadata containingType, boolean isKey, String name, String type, TypeRef referencedType, String foreignKeyInfo, boolean fkIntegrity, boolean allowFKIntegrityOverride) {
-        this.containingType = containingType;
-        this.isKey = isKey;
-        this.name = name;
-        this.type = type;
-        this.referencedType = referencedType;
+    private final boolean isFKIntegrity;
+
+    public ReferenceFieldMetadata(String foreignKeyInfo, TypeMetadata containingType, boolean allowFKIntegrityOverride, boolean FKIntegrity) {
         this.foreignKeyInfo = foreignKeyInfo;
-        isFKIntegrity = fkIntegrity;
+        this.containingType = containingType;
         this.allowFKIntegrityOverride = allowFKIntegrityOverride;
-    }
-
-    public String getForeignTypeName() {
-        return referencedType.getReferencedTypeName();
-    }
-
-    public String getForeignIdField() {
-        return referencedType.getReferencedKey();
-    }
-
-    public String getForeignIdType() {
-        return referencedType.getReferencedKeyType();
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public boolean isKey() {
-        return isKey;
-    }
-
-    public <T> T accept(MetadataVisitor<T> visitor) {
-        return visitor.visit(this);
-    }
-
-    public String getType() {
-        return type;
+        isFKIntegrity = FKIntegrity;
     }
 
     public boolean hasForeignKeyInfo() {
@@ -91,4 +48,5 @@ public class ReferenceFieldMetadata implements FieldMetadata {
         return allowFKIntegrityOverride;
     }
 
+    public abstract String getForeignIdType();
 }

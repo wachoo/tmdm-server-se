@@ -14,6 +14,7 @@ package com.amalto.core.metadata;
 /**
 *
 */
+@SuppressWarnings({"HardCodedStringLiteral", "nls"})
 class ConsoleDumpMetadataVisitor extends DefaultMetadataVisitor<Void> {
     public Void visit(ComplexTypeMetadata metadata) {
         System.out.println("[Type] " + metadata.getName());
@@ -29,7 +30,7 @@ class ConsoleDumpMetadataVisitor extends DefaultMetadataVisitor<Void> {
     }
 
     @Override
-    public Void visit(ReferenceFieldMetadata metadata) {
+    public Void visit(ReferenceUnaryFieldMetadata metadata) {
         if (metadata.isKey()) {
             System.out.print("\t[Field (Complex) (Key)] " + metadata.getName());
         } else {

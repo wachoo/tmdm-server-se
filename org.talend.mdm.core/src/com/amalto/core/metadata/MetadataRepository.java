@@ -242,10 +242,10 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
         }
 
 
-        FieldMetadata metadata = isReference ? new ReferenceFieldMetadata(currentContainingType, isKey, elementName, fieldTypeName, referencedType, foreignKeyInfo, fkIntegrity, fkIntegrityOverride) : new SimpleTypeFieldMetadata(currentContainingType, isKey, elementName, fieldTypeName);
+        FieldMetadata metadata = isReference ? new ReferenceUnaryFieldMetadata(currentContainingType, isKey, elementName, fieldTypeName, referencedType, foreignKeyInfo, fkIntegrity, fkIntegrityOverride) : new SimpleTypeFieldMetadata(currentContainingType, isKey, elementName, fieldTypeName);
         if (isCollection) {
             if (isReference) {
-                metadata = new ReferenceCollectionFieldMetadata(currentContainingType, elementName, isKey, (ReferenceFieldMetadata) metadata, foreignKeyInfo, fkIntegrity, fkIntegrityOverride);
+                metadata = new ReferenceCollectionFieldMetadata(currentContainingType, elementName, isKey, (ReferenceUnaryFieldMetadata) metadata, foreignKeyInfo, fkIntegrity, fkIntegrityOverride);
             } else {
                 metadata = new SimpleTypeCollectionFieldMetadata(currentContainingType, elementName, isKey, (SimpleTypeFieldMetadata) metadata);
             }

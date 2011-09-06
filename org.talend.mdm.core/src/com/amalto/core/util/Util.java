@@ -12,18 +12,7 @@
 // ============================================================================
 package com.amalto.core.util;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.net.URL;
@@ -77,6 +66,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import com.amalto.core.metadata.*;
 import org.apache.commons.jxpath.AbstractFactory;
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.jxpath.Pointer;
@@ -2562,12 +2552,23 @@ public class Util {
     /**
      * Executes a BeforeDeleting process if any
      *
+     * @param clusterName
+     * @param concept
+     * @param ids
      * @return Either <code>null</code> if no process was found or a status message (0=success; <>0=failure) of the form
      * &lt;error code='1'&gt;This is a message&lt;/error>
      * @throws Exception If something went wrong
      */
     @SuppressWarnings("unchecked")
     public static String beforeDeleting(String clusterName, String concept, String[] ids) throws Exception {
+        // Check before deletion if it violates fk integrity
+        // Note (fhuaulme) TMDM-2348: Feature's not ready yet: this is only server side check.
+        /*
+        if (violateFKIntegrity(clusterName, concept, ids)) {
+            return "<error code='1'>FK integrity check failed!</error>"; //$NON-NLS-1$
+        }
+        */
+
         // check before deleting transformer
         boolean isBeforeDeletingTransformerExist = false;
         Collection<TransformerV2POJOPK> transformers = getTransformerV2CtrlLocal().getTransformerPKs("*");
@@ -2631,6 +2632,36 @@ public class Util {
         // TODO Scan the entries - in priority, taka the content of the specific
         // entry
         return null;
+    }
+
+    // TMDM-2348 FK integrity feature: Check if document is not referenced
+    private static boolean violateFKIntegrity(String clusterName, String concept, String[] ids) throws XtentisException {
+        // Get FK(s) to check
+        MetadataRepository mr = new MetadataRepository();
+        try {
+            DataModelPOJO  dataModel = getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(clusterName));
+            mr.load(new ByteArrayInputStream(dataModel.getSchema().getBytes("utf-8"))); //$NON-NLS-1$
+        } catch (Exception e) {
+            throw new XtentisException(e);
+        }
+        ForeignKeyIntegrity integrity = new ForeignKeyIntegrity(concept);
+        Set<ReferenceFieldMetadata> fieldToCheck = mr.accept(integrity);
+
+        // Query pk where fk could be.
+        String queryId = "";
+        for (String id : ids) {
+            queryId += '[' + id + ']';
+        }
+        for (ReferenceFieldMetadata referenceFieldMetadata : fieldToCheck) {
+            TypeMetadata currentType = referenceFieldMetadata.getContainingType();
+            IWhereItem whereItem = new WhereCondition(referenceFieldMetadata.getName(), WhereCondition.EQUALS, queryId, WhereCondition.NO_OPERATOR);
+            long count = getXmlServerCtrlLocal().countItems(new LinkedHashMap(), new LinkedHashMap(), currentType.getName(), whereItem);
+
+            if (count > 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static String buildItemPKString(String clusterName, String conceptName, String[] ids) {

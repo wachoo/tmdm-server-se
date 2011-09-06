@@ -12,7 +12,6 @@
 package com.amalto.core.metadata;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  *
@@ -45,7 +44,7 @@ public class DefaultMetadataVisitor<T> implements MetadataVisitor<T> {
         throw new IllegalArgumentException("Field metadata '" + metadata.getName() + "' does not have its visit method (class: " + metadata.getClass().getName() + ")");
     }
 
-    public T visit(ReferenceFieldMetadata metadata) {
+    public T visit(ReferenceUnaryFieldMetadata metadata) {
         return null;
     }
 

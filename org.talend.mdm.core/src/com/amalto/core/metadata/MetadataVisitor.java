@@ -24,7 +24,7 @@ public interface MetadataVisitor<T> {
 
     T visit(FieldMetadata metadata);
 
-    T visit(ReferenceFieldMetadata metadata);
+    T visit(ReferenceUnaryFieldMetadata metadata);
 
     T visit(ReferenceCollectionFieldMetadata metadata);
 
