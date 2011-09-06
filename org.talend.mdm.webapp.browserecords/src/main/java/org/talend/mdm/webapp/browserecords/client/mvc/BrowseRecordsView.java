@@ -132,6 +132,7 @@ public class BrowseRecordsView extends View {
             Log.info("Init items-search-container... ");//$NON-NLS-1$
         itemsSearchContainer = new ItemsSearchContainer();
         GenerateContainer.getContentPanel().add(itemsSearchContainer);
+        GenerateContainer.getContentPanel().layout(true);
         Registry.register(ITEMS_SEARCH_CONTAINER, itemsSearchContainer);
 
     }
