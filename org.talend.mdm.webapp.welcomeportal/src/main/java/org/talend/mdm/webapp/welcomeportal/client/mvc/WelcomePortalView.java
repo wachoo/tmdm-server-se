@@ -32,6 +32,7 @@ public class WelcomePortalView extends View {
         super(controller);
     }
 
+    @Override
     protected void handleEvent(AppEvent event) {
         if (event.getType() == WelcomePortalEvents.InitFrame) {
             onInitFrame(event);

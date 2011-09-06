@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.welcomeportal.client;
 
-
 import java.util.List;
 
 import org.talend.mdm.webapp.welcomeportal.client.Util.UrlUtil;
@@ -41,9 +40,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.HTML;
 
-
 /**
- * DOC Administrator  class global comment. Detailled comment
+ * DOC Administrator class global comment. Detailled comment
  */
 public class MainFramePanel extends Portal {
 
@@ -141,7 +139,7 @@ public class MainFramePanel extends Portal {
                             } else {
                                 if (msg.equals(MessagesFactory.getMessages().no_license_msg())) {
                                     String noStr = "<IMG SRC=\"/talendmdm/secure/img/genericUI/alert-icon.png\"/>&nbsp;" //$NON-NLS-1$
-                                        + MessagesFactory.getMessages().no_license_msg();
+                                            + MessagesFactory.getMessages().no_license_msg();
                                     sb.append(noStr);
                                 } else if (msg.equals(MessagesFactory.getMessages().license_expired_msg())) {
                                     String expiredStr = "<IMG SRC=\"/talendmdm/secure/img/genericUI/alert-icon.png\"/>&nbsp;" //$NON-NLS-1$
@@ -263,11 +261,13 @@ public class MainFramePanel extends Portal {
                         btn.setId(str + "Btn"); //$NON-NLS-1$                        
                         btn.addListener(Events.Select, new SelectionListener<ButtonEvent>() {
 
+                            @Override
                             public void componentSelected(ButtonEvent ce) {
                                 final MessageBox box = MessageBox.wait(null, MessagesFactory.getMessages().waiting_msg(),
-                                        MessagesFactory.getMessages().waiting_desc());                                
+                                        MessagesFactory.getMessages().waiting_desc());
                                 Timer t = new Timer() {
 
+                                    @Override
                                     public void run() {
                                         box.close();
                                     }
@@ -284,17 +284,17 @@ public class MainFramePanel extends Portal {
                                         if (result.indexOf("ok") >= 0) { //$NON-NLS-1$
                                             MessageBox.alert(MessagesFactory.getMessages().run_status(), MessagesFactory
                                                     .getMessages().run_done(), null);
-                                            
+
                                             if (result.length() > 2) {
                                                 String url = result.substring(2);
                                                 openWindow(url);
                                             }
 
-                                         }else{
+                                        } else {
                                             MessageBox.alert(MessagesFactory.getMessages().run_status(), MessagesFactory
                                                     .getMessages().run_fail(), null);
                                             box.close();
-                                         }
+                                        }
                                     }
 
                                 });
@@ -325,11 +325,12 @@ public class MainFramePanel extends Portal {
         port.getHeader().addTool(new ToolButton("x-tool-gear")); //$NON-NLS-1$
         port.getHeader().addTool(new ToolButton("x-tool-close", new SelectionListener<IconButtonEvent>() { //$NON-NLS-1$
 
-            public void componentSelected(IconButtonEvent ce) {
-                port.removeFromParent();
-            }
+                    @Override
+                    public void componentSelected(IconButtonEvent ce) {
+                        port.removeFromParent();
+                    }
 
-        }));
+                }));
 
         Label label = new Label();
         label.setItemId(name + "Label"); //$NON-NLS-1$
