@@ -11,6 +11,8 @@ import org.w3c.dom.Document;
 
 import com.amalto.webapp.core.json.JSONArray;
 import com.amalto.webapp.core.json.JSONObject;
+import com.amalto.webapp.core.servlet.GenericControllerServlet;
+import com.amalto.webapp.core.util.GxtFactory;
 import com.amalto.webapp.core.util.Menu;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.Webapp;
@@ -43,9 +45,13 @@ public class LayoutDWR {
     }
 
     public int getSubMenus(Menu menu, String language, ArrayList<JSONObject> rows, int level, int i) throws Exception {
+        GxtFactory gxtFactory = GenericControllerServlet.gxtFactory;
         for (Iterator<String> iter = menu.getSubMenus().keySet().iterator(); iter.hasNext();) {
             String key = iter.next();
             Menu subMenu = menu.getSubMenus().get(key);
+            if (gxtFactory.isExcluded(subMenu.getContext(), subMenu.getApplication())) {
+                continue;
+            }
             JSONObject entry = new JSONObject();
             entry.put("id", i);
             entry.put("level", level);

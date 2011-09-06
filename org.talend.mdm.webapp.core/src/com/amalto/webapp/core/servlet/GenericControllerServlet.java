@@ -22,14 +22,15 @@ import com.amalto.webapp.util.webservices.WSLogout;
 public abstract class GenericControllerServlet extends HttpServlet {
 	
 
-    private static final String GXT_PROPERTIES = "gxt.properties";
+    private static final String GXT_PROPERTIES = "gxt.properties"; //$NON-NLS-1$
+
+    private static final String EXCLUDING_PROPERTIES = "excluding.properties"; //$NON-NLS-1$
     /** a reference to the factory used to create Gxt instances */
-    private GxtFactory gxtFactory;
+    public static final GxtFactory gxtFactory = new GxtFactory(GXT_PROPERTIES, EXCLUDING_PROPERTIES);
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		this.gxtFactory = new GxtFactory(GXT_PROPERTIES);
 	}
 	
 	@Override
@@ -146,6 +147,9 @@ public abstract class GenericControllerServlet extends HttpServlet {
 			Menu subMenu= menu.getSubMenus().get(key);
 			
 			if(subMenu.getContext()!=null) {
+                if (gxtFactory.isExcluded(subMenu.getContext(), subMenu.getApplication())) {
+                    continue;
+                }
 				String tmp ="<script type=\"text/javascript\" src=\"/"+subMenu.getContext()+"/secure/dwr/interface/"+subMenu.getApplication()+"Interface.js\"></script>\n";
 				imports.add(tmp);
 				tmp ="<script type=\"text/javascript\" src=\"/"+subMenu.getContext()+"/secure/js/"+subMenu.getApplication()+".js\"></script>\n";
