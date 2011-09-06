@@ -54,6 +54,8 @@ public class ItemDetailToolBar extends ToolBar {
 
     private BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
 
+    private ItemsSearchContainer container = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
+    
     public ItemDetailToolBar() {
         this.setBorders(false);
     }
@@ -134,7 +136,9 @@ public class ItemDetailToolBar extends ToolBar {
                         service.logicalDeleteItem(itemBean, url, new AsyncCallback<ItemResult>() {
 
                             public void onSuccess(ItemResult arg0) {
-
+                                ItemsListPanel listPanel = container.getItemsListPanel();
+                                listPanel.refreshGrid();
+                                container.getItemsDetailPanel().closeCurrentTab();
                             }
 
                             public void onFailure(Throwable arg0) {
@@ -166,7 +170,9 @@ public class ItemDetailToolBar extends ToolBar {
                                         }
 
                                         public void onSuccess(ItemResult arg0) {
-
+                                            ItemsListPanel listPanel = container.getItemsListPanel();
+                                            listPanel.refreshGrid();
+                                            container.getItemsDetailPanel().closeCurrentTab();
                                         }
 
                                     });
