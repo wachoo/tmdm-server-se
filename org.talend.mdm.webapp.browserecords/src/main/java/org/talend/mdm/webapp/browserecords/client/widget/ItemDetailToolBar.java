@@ -55,7 +55,7 @@ public class ItemDetailToolBar extends ToolBar {
     private BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
 
     private ItemsSearchContainer container = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
-    
+
     public ItemDetailToolBar() {
         this.setBorders(false);
     }
@@ -217,7 +217,7 @@ public class ItemDetailToolBar extends ToolBar {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-
+                initJournal(itemBean.getIds(), itemBean.getConcept());
             }
 
         });
@@ -252,5 +252,10 @@ public class ItemDetailToolBar extends ToolBar {
     public void updateToolBar() {
 
     }
+
+    private native boolean initJournal(String id, String concept)/*-{
+        $wnd.amalto.updatereport.UpdateReport.init();
+        return true;
+    }-*/;
 
 }
