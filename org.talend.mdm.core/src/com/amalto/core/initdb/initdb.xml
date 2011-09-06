@@ -65,7 +65,7 @@
 		</item>			
 		<item>
 			<name>amaltoOBJECTSMenu</name>
-			<list>menu/Browse+items2;menu/Browse+views;menu/ItemsTrash;menu/logging;menu/Reporting;menu/smtp;menu/UpdateReport;menu/Welcome</list>			
+			<list>menu/BrowseRecords;menu/Browse+items2;menu/Browse+views;menu/ItemsTrash;menu/logging;menu/Reporting;menu/smtp;menu/UpdateReport;menu/Welcome</list>			
 		</item>	
 		<item>
 			<name>amaltoOBJECTSRole</name>
