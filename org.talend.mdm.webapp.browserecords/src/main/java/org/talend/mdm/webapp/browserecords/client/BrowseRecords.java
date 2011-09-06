@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.browserecords.client;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsController;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
+import org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -22,8 +23,10 @@ import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.RootPanel;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -47,6 +50,9 @@ public class BrowseRecords implements EntryPoint {
         // return;
         // }
         // log setting
+
+
+        registerPubService();
         Log.setUncaughtExceptionHandler();
 
         Registry.register(BROWSERECORDS_SERVICE, GWT.create(BrowseRecordsService.class));
@@ -59,23 +65,7 @@ public class BrowseRecords implements EntryPoint {
         dispatcher.addController(new BrowseRecordsController());
 
         // init app-header
-        getItemService().getAppHeader(new AsyncCallback<AppHeader>() {
 
-            public void onFailure(Throwable caught) {
-                Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
-            }
-
-            public void onSuccess(AppHeader header) {
-                if (header.getDatacluster() == null || header.getDatamodel() == null) {
-                    Window.alert(MessagesFactory.getMessages().data_model_not_specified());
-                    return;
-                }
-                getSession().put(UserSession.APP_HEADER, header);
-
-                dispatcher.dispatch(BrowseRecordsEvents.InitFrame);
-            }
-
-        });
 
     }
 
@@ -89,6 +79,93 @@ public class BrowseRecords implements EntryPoint {
     public static UserSession getSession() {
 
         return Registry.get(BrowseRecords.USER_SESSION);
+    }
 
+    private native void registerPubService()/*-{
+        var instance = this;
+        $wnd.amalto.browserecords = {};
+        $wnd.amalto.browserecords.BrowseRecords = function(){
+
+        function initUI(){
+        instance.@org.talend.mdm.webapp.browserecords.client.BrowseRecords::initUI()();
+        }
+
+        return {
+        init : function(){initUI();}
+        }
+        }();
+    }-*/;
+
+    private native void _initUI()/*-{
+        var tabPanel = $wnd.amalto.core.getTabPanel();
+        var panel = tabPanel.getItem("Browse Records"); 
+        if (panel == undefined){
+        @org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer::generateContentPanel()();
+        panel = this.@org.talend.mdm.webapp.browserecords.client.BrowseRecords::createPanel()();
+        tabPanel.add(panel);
+        }
+        tabPanel.setSelection(panel.getItemId());
+    }-*/;
+
+    native JavaScriptObject createPanel()/*-{
+        var instance = this;
+        // imitate extjs Panel
+        var panel = {
+        // imitate extjs's render method, really call gxt code.
+        render : function(el){
+        instance.@org.talend.mdm.webapp.browserecords.client.BrowseRecords::renderContent(Ljava/lang/String;)(el.id);
+        },
+        // imitate extjs's setSize method, really call gxt code.
+        setSize : function(width, height){
+        var cp = @org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer::getContentPanel()();
+        cp.@com.extjs.gxt.ui.client.widget.ContentPanel::setSize(II)(width, height);
+        },
+        // imitate extjs's getItemId, really return itemId of ContentPanel of GXT.
+        getItemId : function(){
+        var cp = @org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer::getContentPanel()();
+        return cp.@com.extjs.gxt.ui.client.widget.ContentPanel::getItemId()();
+        },
+        // imitate El object of extjs
+        getEl : function(){
+        var cp = @org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer::getContentPanel()();
+        var el = cp.@com.extjs.gxt.ui.client.widget.ContentPanel::getElement()();
+        return {dom : el};
+        },
+        // imitate extjs's doLayout method, really call gxt code.
+        doLayout : function(){
+        var cp = @org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer::getContentPanel()();
+        return cp.@com.extjs.gxt.ui.client.widget.ContentPanel::doLayout()();
+        }
+        };
+        return panel;
+    }-*/;
+
+    public void renderContent(final String contentId) {
+        onModuleRender();
+        RootPanel panel = RootPanel.get(contentId);
+        panel.add(GenerateContainer.getContentPanel());
+    }
+
+    public void initUI() {
+        _initUI();
+    }
+
+    private void onModuleRender() {
+        getItemService().getAppHeader(new AsyncCallback<AppHeader>() {
+
+            public void onFailure(Throwable caught) {
+                Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
+            }
+
+            public void onSuccess(AppHeader header) {
+                if (header.getDatacluster() == null || header.getDatamodel() == null) {
+                    Window.alert(MessagesFactory.getMessages().data_model_not_specified());
+                    return;
+                }
+                getSession().put(UserSession.APP_HEADER, header);
+                Dispatcher dispatcher = Dispatcher.get();
+                dispatcher.dispatch(BrowseRecordsEvents.InitFrame);
+            }
+        });
     }
 }
