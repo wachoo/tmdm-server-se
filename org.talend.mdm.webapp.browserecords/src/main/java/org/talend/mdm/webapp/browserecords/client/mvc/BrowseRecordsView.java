@@ -27,6 +27,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsSearchContainer;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator.FieldCreator;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyListWindow;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTreeDetail;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.SimpleTypeModel;
@@ -72,7 +73,15 @@ public class BrowseRecordsView extends View {
             onSearchView(event);
         } else if (event.getType() == BrowseRecordsEvents.CreateForeignKeyView) {
             onCreateForeignKeyView(event);
+        } else if (event.getType() == BrowseRecordsEvents.SelectForeignKeyView) {
+            onSelectForeignKeyView(event);
         }
+    }
+
+    private void onSelectForeignKeyView(AppEvent event) {
+        ViewBean viewBean = event.getData();
+        ForeignKeyListWindow fkListWindow = (ForeignKeyListWindow) event.getSource();
+        fkListWindow.show(viewBean);
     }
 
     private void onCreateForeignKeyView(AppEvent event) {

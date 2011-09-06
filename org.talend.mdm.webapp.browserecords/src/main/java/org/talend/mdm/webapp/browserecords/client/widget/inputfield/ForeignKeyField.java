@@ -1,8 +1,13 @@
 package org.talend.mdm.webapp.browserecords.client.widget.inputfield;
 
+import java.util.List;
+
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
+import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
+import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyListWindow;
 
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.core.El;
@@ -17,7 +22,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Image;
 
-public class ForeignKeyField extends TextField<ForeignKeyBean> {
+public class ForeignKeyField extends TextField<ForeignKeyBean> implements ReturnCriteriaFK {
 
     private Image selectFKBtn = new Image(Icons.INSTANCE.link());
 
@@ -29,15 +34,27 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> {
 
     private String foreignKeyName;
 
-    public ForeignKeyField(String foreignKeyName) {
-        this.foreignKeyName = foreignKeyName;
+    private ForeignKeyListWindow fkWindow = new ForeignKeyListWindow();
+
+
+    public ForeignKeyField(String foreignKey, List<String> foreignKeyInfo) {
+        this.foreignKeyName = foreignKey.split("/")[0]; //$NON-NLS-1$
         this.setFireChangeEventOnSetValue(true);
-        // relWindow.setSize(470, 340);
-        // relWindow.setResizable(false);
-        // relWindow.setModal(true);
-        // relWindow.setBlinkModal(true);
+        this.setReturnCriteriaFK();
+        fkWindow.setForeignKeyInfos(foreignKey, foreignKeyInfo);
+        fkWindow.setSize(470, 340);
+        fkWindow.setResizable(false);
+        fkWindow.setModal(true);
+        fkWindow.setBlinkModal(true);
     }
 
+    public void initForeignKeyListWindow() {
+
+    }
+
+    public ForeignKeyListWindow getFkWindow() {
+        return fkWindow;
+    }
     protected void onRender(Element target, int index) {
         El wrap = new El(DOM.createDiv());
         wrap.addStyleName("x-form-field-wrap"); //$NON-NLS-1$
@@ -92,6 +109,19 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> {
                 dispatch.dispatch(event);
             }
         });
+        selectFKBtn.addClickHandler(new ClickHandler() {
+            public void onClick(ClickEvent arg0) {
+                Dispatcher dispatch = Dispatcher.get();
+                AppEvent event = new AppEvent(BrowseRecordsEvents.SelectForeignKeyView, foreignKeyName);
+                event.setSource(ForeignKeyField.this.getFkWindow());
+                dispatch.dispatch(event);
+            }
+        });
+        cleanFKBtn.addClickHandler(new ClickHandler() {
+            public void onClick(ClickEvent arg0) {
+                clear();
+            }
+        });
     }
 
     protected void doAttachChildren() {
@@ -108,5 +138,26 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> {
         ComponentHelper.doDetach(selectFKBtn);
         ComponentHelper.doDetach(cleanFKBtn);
         ComponentHelper.doDetach(relationFKBtn);
+    }
+
+    public void setCriteriaFK(final ForeignKeyBean fk) {
+        setValue(fk);
+    }
+
+    public void setValue(ForeignKeyBean fk) {
+        super.setValue(fk);
+    }
+
+    public void clear() {
+        super.clear();
+    }
+
+    public ForeignKeyBean getValue() {
+        return value;
+    }
+
+    public void setReturnCriteriaFK() {
+        fkWindow.setReturnCriteriaFK(this);
+        fkWindow.setHeading(MessagesFactory.getMessages().fk_RelatedRecord());
     }
 }

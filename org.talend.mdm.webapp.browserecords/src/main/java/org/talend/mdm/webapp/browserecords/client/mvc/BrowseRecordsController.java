@@ -44,6 +44,7 @@ public class BrowseRecordsController extends Controller {
         registerEventTypes(BrowseRecordsEvents.GetView);
 
         registerEventTypes(BrowseRecordsEvents.CreateForeignKeyView);
+        registerEventTypes(BrowseRecordsEvents.SelectForeignKeyView);
     }
 
     public void initialize() {
@@ -65,7 +66,27 @@ public class BrowseRecordsController extends Controller {
             forwardToView(view, event);
         } else if (type == BrowseRecordsEvents.CreateForeignKeyView) {
             onCreateForeignKeyView(event);
+        } else if (type == BrowseRecordsEvents.SelectForeignKeyView) {
+            onSelectForeignKeyView(event);
         }
+
+    }
+
+    private void onSelectForeignKeyView(final AppEvent event) {
+        String viewFkName = "Browse_items_" + event.getData().toString(); //$NON-NLS-1$
+        service.getView(viewFkName, Locale.getLanguage(), new AsyncCallback<ViewBean>() {
+
+            public void onSuccess(ViewBean viewBean) {
+                // forward
+                AppEvent ae = new AppEvent(event.getType(), viewBean);
+                ae.setSource(event.getSource());
+                forwardToView(view, ae);
+            }
+
+            public void onFailure(Throwable caught) {
+                Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
+            }
+        });
 
     }
 

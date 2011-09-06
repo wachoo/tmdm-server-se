@@ -30,8 +30,7 @@ public class TreeDetailGridFieldCreator {
         Field<?> field;
 
         if (dataType.getForeignkey() != null) {
-            ForeignKeyField fkField = new ForeignKeyField(dataType.getForeignkey().split("/")[0]); //$NON-NLS-1$
-            // fkField.Update(dataType.getXpath(), fkField);
+            ForeignKeyField fkField = new ForeignKeyField(dataType.getForeignkey(), dataType.getForeignKeyInfo());
             field = fkField;
         } else if (dataType.hasEnumeration()) {
             SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
@@ -71,6 +70,7 @@ public class TreeDetailGridFieldCreator {
         return field;
     }
 
+    @SuppressWarnings("serial")
     public static Field<?> createCustomField(TypeModel dataType, String language) {
         Field<?> field;
         String baseType = dataType.getType().getBaseTypeName();
@@ -142,6 +142,7 @@ public class TreeDetailGridFieldCreator {
     private static void setEnumerationValues(TypeModel typeModel, Widget w) {
         List<String> enumeration = ((SimpleTypeModel) typeModel).getEnumeration();
         if (enumeration != null && enumeration.size() > 0) {
+            @SuppressWarnings("unchecked")
             SimpleComboBox<String> field = (SimpleComboBox<String>) w;
             for (String value : enumeration) {
                 field.add(value);
