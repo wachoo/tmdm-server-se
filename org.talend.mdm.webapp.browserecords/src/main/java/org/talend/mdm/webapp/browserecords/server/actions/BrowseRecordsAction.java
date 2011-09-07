@@ -1370,7 +1370,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     private ItemNodeModel builderNode(Element el){
         ItemNodeModel nodeModel = new ItemNodeModel(el.getNodeName());
         nodeModel.setDescription(el.getNodeName());
-        nodeModel.setValue(el.getTextContent());
+        nodeModel.setName(el.getNodeName());
+        nodeModel.setObjectValue(el.getTextContent());
         NodeList children = el.getChildNodes();
         if (children != null){
             for (int i = 0;i < children.getLength();i++){
