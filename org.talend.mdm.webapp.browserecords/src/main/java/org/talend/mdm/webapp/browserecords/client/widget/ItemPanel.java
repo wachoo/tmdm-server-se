@@ -70,4 +70,12 @@ public class ItemPanel extends ContentPanel {
             tree.handleEvent(event);
         }
     }
+
+    public ItemBean getItem() {
+        return item;
+    }
+
+    public TreeDetail getTree() {
+        return tree;
+    }
 }

@@ -33,7 +33,7 @@ public class TreeDetailUtil {
         hp.add(label);
         if (typeModel.isSimpleType()
                 || (!typeModel.isSimpleType() && ((ComplexTypeModel) typeModel).getReusableComplexTypes().size() > 0)) {
-            Field<?> field = TreeDetailGridFieldCreator.createField(itemNode.getObjectValue(), typeModel, Locale.getLanguage());
+            Field<?> field = TreeDetailGridFieldCreator.createField(itemNode, typeModel, Locale.getLanguage());
             field.setWidth(260);
             hp.add(field);
 

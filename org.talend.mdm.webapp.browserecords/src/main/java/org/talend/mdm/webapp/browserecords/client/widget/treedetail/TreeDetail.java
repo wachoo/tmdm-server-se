@@ -109,6 +109,8 @@ public class TreeDetail extends ContentPanel {
             }
         }
 
+        item.setUserObject(itemNode);
+
         return item;
     }
 
@@ -187,5 +189,9 @@ public class TreeDetail extends ContentPanel {
     private static UserSession getSession() {
         return Registry.get(BrowseRecords.USER_SESSION);
 
+    }
+
+    public Tree getTree() {
+        return tree;
     }
 }

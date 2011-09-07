@@ -37,7 +37,8 @@ public class CommonUtil {
 
     private static Element _toXML(Document doc, ItemNodeModel nodeModel) {
         Element root = doc.createElement(nodeModel.getName());
-        root.appendChild(doc.createTextNode(nodeModel.getValue()));
+        if (nodeModel.getObjectValue() != null)
+            root.appendChild(doc.createTextNode(nodeModel.getObjectValue().toString()));
         root.setNodeValue(nodeModel.getValue());
         List<ModelData> children = nodeModel.getChildren();
         if (children != null) {

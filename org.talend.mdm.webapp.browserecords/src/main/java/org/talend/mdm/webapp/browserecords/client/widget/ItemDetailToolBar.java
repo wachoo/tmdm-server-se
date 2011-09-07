@@ -1,10 +1,12 @@
 package org.talend.mdm.webapp.browserecords.client.widget;
 
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
+import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
@@ -15,9 +17,13 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.mvc.AppEvent;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.TabItem;
+import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
@@ -97,6 +103,16 @@ public class ItemDetailToolBar extends ToolBar {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
+                // TODO the following code need to be refactor, it is the demo code
+                TabPanel item = (TabPanel) container.getItemsDetailPanel().getItem(0);
+                TabItem t = (TabItem) item.getItem(0);
+                ItemPanel i = (ItemPanel) t.getWidget(0);
+                ItemNodeModel model = (ItemNodeModel) i.getTree().getTree().getItem(0).getUserObject();
+
+                Dispatcher dispatch = Dispatcher.get();
+                AppEvent app = new AppEvent(BrowseRecordsEvents.SaveItem, model);
+                app.setData("ItemBean", i.getItem()); //$NON-NLS-1$
+                dispatch.dispatch(app);
 
             }
         });

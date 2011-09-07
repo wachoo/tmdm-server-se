@@ -100,7 +100,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     	DynamicTreeItem item = new DynamicTreeItem();
 
         item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, handler));
-
+        item.setUserObject(itemNode);
         if (itemNode.getChildren() != null && itemNode.getChildren().size() > 0) {
             for (ModelData model : itemNode.getChildren()) {
                 ItemNodeModel node = (ItemNodeModel) model;
@@ -248,7 +248,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     	}
     }
 
-    // public ItemNodeModel getBindingModel() {
-    // return ValueBinding.getModelByFieldValue(tree.getItem(0));
-    // }
+    public ItemNodeModel getBindingModel() {
+        return ValueBinding.getModelByFieldValue(tree.getItem(0));
+    }
 }

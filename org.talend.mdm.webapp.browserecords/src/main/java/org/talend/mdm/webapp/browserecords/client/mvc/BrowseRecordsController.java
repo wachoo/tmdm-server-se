@@ -18,6 +18,8 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
+import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
@@ -80,14 +82,26 @@ public class BrowseRecordsController extends Controller {
         } else if (type == BrowseRecordsEvents.ViewForeignKey) {
             onViewForeignKey(event);
         } else if (type == BrowseRecordsEvents.SaveItem) {
-
+            onSaveItem(event);
         } else if (type == BrowseRecordsEvents.UpdatePolymorphism) {
             forwardToView(view, event);
         }
     }
 
     private void onSaveItem(AppEvent event) {
-        ItemNodeModel item = event.getData();
+        // TODO the following code need to be refactor, it is the demo code
+        ItemNodeModel model = event.getData();
+        ItemBean itemBean = event.getData("ItemBean"); //$NON-NLS-1$
+        service.saveItem(itemBean.getConcept(), itemBean.getIds(), CommonUtil.toXML(model), new AsyncCallback<ItemResult>() {
+
+            public void onSuccess(ItemResult arg0) {
+                com.google.gwt.user.client.Window.alert("save successfully"); //$NON-NLS-1$
+            }
+
+            public void onFailure(Throwable caught) {
+                Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
+            }
+        });
 
     }
 

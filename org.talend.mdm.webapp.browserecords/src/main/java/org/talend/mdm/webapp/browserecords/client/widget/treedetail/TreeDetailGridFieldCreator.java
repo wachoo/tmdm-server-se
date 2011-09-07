@@ -7,6 +7,7 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.model.ComboBoxModel;
 import org.talend.mdm.webapp.browserecords.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.DateUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.BooleanField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
@@ -21,10 +22,14 @@ import org.talend.mdm.webapp.browserecords.shared.FacetModel;
 import org.talend.mdm.webapp.browserecords.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FieldEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
@@ -37,7 +42,8 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class TreeDetailGridFieldCreator {
 
-    public static Field<?> createField(Serializable value, final TypeModel dataType, String language) {
+    public static Field<?> createField(ItemNodeModel node, final TypeModel dataType, String language) {
+        Serializable value = node.getObjectValue();
         Field<?> field;
         boolean hasValue = value != null && !"".equals(value); //$NON-NLS-1$
         if (dataType.getForeignkey() != null) {
@@ -111,7 +117,7 @@ public class TreeDetailGridFieldCreator {
 
         field.setReadOnly(dataType.isReadOnly());
         field.setEnabled(!dataType.isReadOnly());
-
+        addFieldListener(field, node);
         return field;
     }
 
@@ -194,6 +200,19 @@ public class TreeDetailGridFieldCreator {
         field.setData("facetErrorMsgs", dataType.getFacetErrorMsgs().get(language));//$NON-NLS-1$
         buildFacets(dataType, field);
         return field;
+    }
+
+    private static void addFieldListener(final Field<?> field, final ItemNodeModel node) {
+        field.addListener(Events.Change, new Listener<FieldEvent>() {
+
+            @SuppressWarnings("rawtypes")
+            public void handleEvent(FieldEvent fe) {
+
+                node.setObjectValue(field instanceof ComboBox ? ((SimpleComboValue) fe.getValue()).getValue().toString()
+                        : (Serializable) fe.getValue());
+            }
+        });
+
     }
 
     private static void buildFacets(TypeModel typeModel, Widget w) {
