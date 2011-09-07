@@ -1,5 +1,6 @@
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.talend.mdm.webapp.browserecords.client.model.DataTypeConstants;
@@ -29,7 +30,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class TreeDetailGridFieldCreator {
 
-    public static Field<?> createField(Object value, TypeModel dataType, String language) {
+    public static Field<?> createField(Serializable value, TypeModel dataType, String language) {
         Field<?> field;
         boolean hasValue = value != null && !"".equals(value); //$NON-NLS-1$
         if (dataType.getForeignkey() != null) {
@@ -80,7 +81,7 @@ public class TreeDetailGridFieldCreator {
     }
 
     @SuppressWarnings("serial")
-    public static Field<?> createCustomField(Object value, TypeModel dataType, String language) {
+    public static Field<?> createCustomField(Serializable value, TypeModel dataType, String language) {
         Field<?> field;
         boolean hasValue = value != null && !"".equals(value); //$NON-NLS-1$
         String baseType = dataType.getType().getBaseTypeName();
