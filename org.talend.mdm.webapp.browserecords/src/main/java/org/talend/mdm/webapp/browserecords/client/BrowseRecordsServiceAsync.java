@@ -86,5 +86,6 @@ public interface BrowseRecordsServiceAsync {
 
     void getMandatoryFieldList(String tableName, AsyncCallback<List<String>> callback);
 
+    void saveItem(String concept, String ids, String xml, AsyncCallback<ItemResult> callback);
 
 }

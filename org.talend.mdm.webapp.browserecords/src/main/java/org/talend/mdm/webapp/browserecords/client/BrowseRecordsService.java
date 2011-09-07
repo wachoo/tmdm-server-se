@@ -86,4 +86,6 @@ public interface BrowseRecordsService extends RemoteService {
     ItemNodeModel getItemNodeModel(String concept, String ids) throws Exception;
     
     List<String> getMandatoryFieldList(String tableName) throws Exception;
+
+    ItemResult saveItem(String concept, String ids, String xml);
 }
