@@ -50,6 +50,7 @@ public class BrowseRecordsController extends Controller {
         registerEventTypes(BrowseRecordsEvents.CreateForeignKeyView);
         registerEventTypes(BrowseRecordsEvents.SelectForeignKeyView);
         registerEventTypes(BrowseRecordsEvents.ViewForeignKey);
+        registerEventTypes(BrowseRecordsEvents.SaveItem);
     }
 
     public void initialize() {
@@ -77,7 +78,14 @@ public class BrowseRecordsController extends Controller {
             onViewItem(event);
         } else if (type == BrowseRecordsEvents.ViewForeignKey) {
             onViewForeignKey(event);
+        } else if (type == BrowseRecordsEvents.SaveItem) {
+
         }
+
+    }
+
+    private void onSaveItem(AppEvent event) {
+        ItemNodeModel item = event.getData();
 
     }
 
