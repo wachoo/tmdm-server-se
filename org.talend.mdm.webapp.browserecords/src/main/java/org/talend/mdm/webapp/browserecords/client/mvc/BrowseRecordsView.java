@@ -53,7 +53,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
 /**
- * DOC Administrator  class global comment. Detailled comment
+ * DOC Administrator class global comment. Detailled comment
  */
 public class BrowseRecordsView extends View {
 
@@ -82,7 +82,15 @@ public class BrowseRecordsView extends View {
             onViewItem(event);
         } else if (event.getType() == BrowseRecordsEvents.ViewForeignKey) {
             onViewForeignKey(event);
+        } else if (event.getType() == BrowseRecordsEvents.UpdatePolymorphism) {
+            onUpdatePolymorphism(event);
         }
+    }
+
+    private void onUpdatePolymorphism(AppEvent event) {
+
+        itemsSearchContainer.getToolBar().getItemPanel().handleEvent(event);
+
     }
 
     private void onViewForeignKey(AppEvent event) {
@@ -121,8 +129,7 @@ public class BrowseRecordsView extends View {
         ViewBean viewBean = event.getData();
         ForeignKeyTreeDetail tree = new ForeignKeyTreeDetail(viewBean, true);
         itemsSearchContainer.getItemsDetailPanel().addTabItem(viewBean.getBindingEntityModel().getConceptName(), tree,
-                ItemsDetailPanel.MULTIPLE,
-                viewBean.getDescription());
+                ItemsDetailPanel.MULTIPLE, viewBean.getDescription());
 
     }
 
@@ -173,8 +180,7 @@ public class BrowseRecordsView extends View {
             ColumnConfig cc = new ColumnConfig(xpath, typeModel == null ? xpath : ViewUtil.getViewableLabel(Locale.getLanguage(),
                     typeModel), 200);
             if (typeModel instanceof SimpleTypeModel && !keys.contains(xpath)) {
-                Field<?> field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false, Locale
-.getLanguage());
+                Field<?> field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false, Locale.getLanguage());
 
                 CellEditor cellEditor = CellEditorCreator.createCellEditor(field);
                 if (cellEditor != null) {

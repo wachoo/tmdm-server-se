@@ -3,20 +3,28 @@ package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 import java.io.Serializable;
 import java.util.List;
 
+import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
+import org.talend.mdm.webapp.browserecords.client.model.ComboBoxModel;
 import org.talend.mdm.webapp.browserecords.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.browserecords.client.util.DateUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.BooleanField;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ForeignKeyField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.PictureField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.UrlField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator.NumberFieldValidator;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator.TextFieldValidator;
+import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.FacetEnum;
 import org.talend.mdm.webapp.browserecords.shared.FacetModel;
 import org.talend.mdm.webapp.browserecords.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
@@ -29,7 +37,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class TreeDetailGridFieldCreator {
 
-    public static Field<?> createField(Serializable value, TypeModel dataType, String language) {
+    public static Field<?> createField(Serializable value, final TypeModel dataType, String language) {
         Field<?> field;
         boolean hasValue = value != null && !"".equals(value); //$NON-NLS-1$
         if (dataType.getForeignkey() != null) {
@@ -66,13 +74,41 @@ public class TreeDetailGridFieldCreator {
             urlField.setFieldLabel(dataType.getLabel(language));
             urlField.setValue(hasValue ? value.toString() : ""); //$NON-NLS-1$
             field = urlField;
+        } else if (dataType instanceof ComplexTypeModel) {
+            final ComboBoxField<ComboBoxModel> comboxField = new ComboBoxField<ComboBoxModel>();
+            comboxField.setDisplayField("value"); //$NON-NLS-1$
+            comboxField.setValueField("value"); //$NON-NLS-1$
+            comboxField.setTypeAhead(true);
+            comboxField.setTriggerAction(TriggerAction.ALL);
+
+            final ComplexTypeModel complexTypeModel = (ComplexTypeModel) dataType;
+            List<TypeModel> reusableTypes = ((ComplexTypeModel) dataType).getReusableComplexTypes();
+            ListStore<ComboBoxModel> comboxStore = new ListStore<ComboBoxModel>();
+            comboxField.setStore(comboxStore);
+            for (TypeModel subType : reusableTypes) {
+                comboxStore.add(new ComboBoxModel(subType.getName(), subType.getName()));
+            }
+            if (comboxStore.getCount() > 0) {
+                comboxField.setValue(comboxStore.getAt(0));
+            }
+            comboxField.addSelectionChangedListener(new SelectionChangedListener<ComboBoxModel>() {
+
+                @Override
+                public void selectionChanged(SelectionChangedEvent<ComboBoxModel> se) {
+                    String value = comboxField.getValue().getText();
+                    dataType.setRealType(value);
+                    Dispatcher.forwardEvent(BrowseRecordsEvents.UpdatePolymorphism, dataType);
+                }
+
+            });
+            field = comboxField;
         } else {
             field = createCustomField(value, dataType, language);
         }
 
         field.setFieldLabel(dataType.getLabel(language));
         field.setName(dataType.getXpath());
-        
+
         field.setReadOnly(dataType.isReadOnly());
         field.setEnabled(!dataType.isReadOnly());
 
@@ -114,11 +150,15 @@ public class TreeDetailGridFieldCreator {
         } else if (DataTypeConstants.BOOLEAN.getTypeName().equals(baseType)) {
             BooleanField booleanField = new BooleanField();
             booleanField.setDisplayField("text");//$NON-NLS-1$
-            SimpleComboValue<Boolean> trueValue = new SimpleComboValue<Boolean>() {{
+            SimpleComboValue<Boolean> trueValue = new SimpleComboValue<Boolean>() {
+
+                {
                     this.setValue(true);
                     this.set("text", "TRUE");}};//$NON-NLS-1$ //$NON-NLS-2$
             booleanField.getStore().add(trueValue);
-            SimpleComboValue<Boolean> falseValue = new SimpleComboValue<Boolean>() {{
+            SimpleComboValue<Boolean> falseValue = new SimpleComboValue<Boolean>() {
+
+                {
                     this.setValue(false);
                     this.set("text", "FALSE");}};//$NON-NLS-1$ //$NON-NLS-2$
             booleanField.getStore().add(falseValue);

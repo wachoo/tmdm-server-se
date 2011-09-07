@@ -16,7 +16,6 @@ import java.io.StringReader;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +26,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.webapp.browserecords.client.creator.DataTypeCreator;
-import org.talend.mdm.webapp.browserecords.client.model.SubTypeBean;
 import org.talend.mdm.webapp.browserecords.server.BrowseRecordsConfiguration;
 import org.talend.mdm.webapp.browserecords.server.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
@@ -135,7 +133,7 @@ public class DataModelHelper {
             TypeModel typeModel = null;
 
             // parse element
-            typeModel = parseElement(currentXPath, e, typeModel);
+            typeModel = parseElement(currentXPath, e, typeModel, entityModel, roles);
 
             // parse annotation
             if (typeModel != null)
@@ -169,7 +167,8 @@ public class DataModelHelper {
         }
     }
 
-    private static TypeModel parseElement(String currentXPath, XSElementDecl e, TypeModel typeModel) {
+    private static TypeModel parseElement(String currentXPath, XSElementDecl e, TypeModel typeModel, EntityModel entityModel,
+            List<String> roles) {
         XSParticle currentXsp = null;
         String typeName = e.getType().getName();
         String baseTypeName;
@@ -185,25 +184,54 @@ public class DataModelHelper {
                 subTypes = SchemaWebAgent.getInstance().getMySubtypes(typeName);
             } catch (Exception e1) {
                 logger.error(e1.getMessage(), e1);
+                return null;
             }
 
             if (subTypes != null && subTypes.size() > 0) {
                 typeModel.setPolymiorphism(true);
                 typeModel.setAbstract(new ReusableType(e.getType()).isAbstract());
-                ArrayList<SubTypeBean> subTypesName = new ArrayList<SubTypeBean>();
-                for (ReusableType reusableType : subTypes) {
-                    if (!reusableType.isAbstract()) {
-                        SubTypeBean subTypeBean = new SubTypeBean();
-                        reusableType.load();
-                        subTypeBean.setName(reusableType.getName());
-                        subTypeBean.setLabel(reusableType.getLabelMap().get("en") == null ? reusableType.getName() : reusableType //$NON-NLS-1$
-                                .getLabelMap().get("en")); //$NON-NLS-1$
-                        subTypeBean.setOrderValue(reusableType.getOrderValue());
-                        subTypesName.add(subTypeBean);
+                ComplexTypeModel parentType = (ComplexTypeModel) typeModel;
+                ArrayList<TypeModel> subTypesName = new ArrayList<TypeModel>();
+                ComplexTypeModel abstractReusableComplexType = new ComplexTypeModel(typeName, DataTypeCreator.getDataType(
+                        typeName, baseTypeName));
+                parentType.addComplexReusableTypes(abstractReusableComplexType);
+                ReusableType abstractReusable = null;
+                try {
+                    abstractReusable = SchemaWebAgent.getInstance().getReusableType(typeName);
+                } catch (Exception e1) {
+                    logger.error(e1.getMessage(), e1);
+                    return null;
+                }
+                XSModelGroup abstractGroup = abstractReusable.getXsParticle().getTerm().asModelGroup();
+                if (abstractGroup != null) {
+                    XSParticle[] subParticles = abstractGroup.getChildren();
+                    if (subParticles != null) {
+                        for (int i = 0; i < subParticles.length; i++) {
+                            XSParticle xsParticle = subParticles[i];
+                            travelParticle(xsParticle, currentXPath, entityModel, abstractReusableComplexType, roles);
+                        }
                     }
                 }
-                Collections.sort(subTypesName);
-                typeModel.setReusableTypes(subTypesName);
+                for (ReusableType reusableType : subTypes) {
+                    if (!reusableType.isAbstract()) {
+                        ComplexTypeModel reusableComplexType = new ComplexTypeModel(reusableType.getName(),
+                                DataTypeCreator.getDataType(reusableType.getName(), baseTypeName));
+                        XSModelGroup group = reusableType.getXsParticle().getTerm().asModelGroup();
+                        if (group != null) {
+                            XSParticle[] subParticles = group.getChildren();
+                            if (subParticles != null) {
+                                for (int i = 0; i < subParticles.length; i++) {
+                                    XSParticle xsParticle = subParticles[i];
+                                    travelParticle(xsParticle, currentXPath, entityModel, reusableComplexType, roles);
+                                }
+                            }
+                        }
+                        parentType.addComplexReusableTypes(reusableComplexType);
+                    }
+                }
+                if (subTypesName.size() > 0) {
+                    typeModel.setRealType(subTypesName.get(0).getName());
+                }
 
             }
 

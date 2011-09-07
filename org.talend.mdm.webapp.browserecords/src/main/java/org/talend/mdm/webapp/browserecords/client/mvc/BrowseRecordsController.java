@@ -51,6 +51,7 @@ public class BrowseRecordsController extends Controller {
         registerEventTypes(BrowseRecordsEvents.SelectForeignKeyView);
         registerEventTypes(BrowseRecordsEvents.ViewForeignKey);
         registerEventTypes(BrowseRecordsEvents.SaveItem);
+        registerEventTypes(BrowseRecordsEvents.UpdatePolymorphism);
     }
 
     public void initialize() {
@@ -80,8 +81,9 @@ public class BrowseRecordsController extends Controller {
             onViewForeignKey(event);
         } else if (type == BrowseRecordsEvents.SaveItem) {
 
+        } else if (type == BrowseRecordsEvents.UpdatePolymorphism) {
+            forwardToView(view, event);
         }
-
     }
 
     private void onSaveItem(AppEvent event) {
@@ -144,7 +146,7 @@ public class BrowseRecordsController extends Controller {
     }
 
     private void onCreateForeignKeyView(final AppEvent event) {
-        String viewFkName = "Browse_items_"+event.getData().toString(); //$NON-NLS-1$
+        String viewFkName = "Browse_items_" + event.getData().toString(); //$NON-NLS-1$
         service.getView(viewFkName, Locale.getLanguage(), new AsyncCallback<ViewBean>() {
 
             public void onSuccess(ViewBean viewBean) {
