@@ -92,6 +92,7 @@ import com.amalto.webapp.util.webservices.WSDropItem;
 import com.amalto.webapp.util.webservices.WSDroppedItemPK;
 import com.amalto.webapp.util.webservices.WSExistsItem;
 import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
+import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.amalto.webapp.util.webservices.WSGetItem;
 import com.amalto.webapp.util.webservices.WSGetItemsByCustomFKFilters;
 import com.amalto.webapp.util.webservices.WSGetView;
@@ -116,6 +117,11 @@ import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.sun.xml.xsom.XSComplexType;
+import com.sun.xml.xsom.XSElementDecl;
+import com.sun.xml.xsom.XSParticle;
+import com.sun.xml.xsom.XSSchemaSet;
+import com.sun.xml.xsom.parser.XSOMParser;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -1377,5 +1383,30 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
         return nodeModel;
         
+    }
+
+    public List<String> getMandatoryFieldList(String tableName) throws Exception {
+        // grab the table fileds (e.g. the concept sub-elements)
+        String schema = CommonUtil.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(this.getCurrentDataModel())))
+                .getXsdSchema();
+
+        XSOMParser parser = new XSOMParser();
+        parser.parse(new StringReader(schema));
+        XSSchemaSet xss = parser.getResult();
+
+        XSElementDecl decl;
+        decl = xss.getElementDecl("", tableName);//$NON-NLS-1$
+        ArrayList<String> fieldNames = new ArrayList<String>();
+        if (decl == null) {
+            return fieldNames;
+        }
+        XSComplexType type = (XSComplexType) decl.getType();
+        XSParticle[] xsp = type.getContentType().asParticle().getTerm().asModelGroup().getChildren();
+        for(XSParticle obj : xsp){
+            if(obj.getMinOccurs() == 1 && obj.getMaxOccurs() == 1)
+                fieldNames.add(obj.getTerm().asElementDecl().getName());
+        }
+        
+        return fieldNames;
     }
 }
