@@ -35,4 +35,8 @@ public class BrowseRecordsEvents {
 
     public static final EventType ViewItem = new EventType();
 
+    public static final EventType ViewForeignKey = new EventType();
+
+    public static final EventType SaveItem = new EventType();
+
 }
