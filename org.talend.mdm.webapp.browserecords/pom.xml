@@ -14,11 +14,6 @@
     <version>${mdm.build.version}</version>
     <packaging>war</packaging>
     <name>org.talend.mdm.webapp.browserecords</name>
-
-    <properties>
-    <!-- This is temporary but tests make MDM build fail -->
-    <maven.test.failure.ignore>true</maven.test.failure.ignore>
-    </properties>
     
     <dependencies>
         <dependency>
