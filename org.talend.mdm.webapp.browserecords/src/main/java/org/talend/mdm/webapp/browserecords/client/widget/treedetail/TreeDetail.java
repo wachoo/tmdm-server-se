@@ -98,7 +98,7 @@ public class TreeDetail extends ContentPanel {
     private DynamicTreeItem buildGWTTree(ItemNodeModel itemNode) {
         DynamicTreeItem item = new DynamicTreeItem();
 
-        item.setWidget(TreeDetailUtil.createWidget(itemNode, itemNode.getDescription(), viewBean, handler));
+        item.setWidget(TreeDetailUtil.createWidget(itemNode,viewBean, handler));
 
         if (itemNode.getChildren() != null && itemNode.getChildren().size() > 0) {
             for (ModelData model : itemNode.getChildren()) {
