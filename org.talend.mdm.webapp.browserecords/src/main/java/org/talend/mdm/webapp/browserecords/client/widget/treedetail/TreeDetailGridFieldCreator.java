@@ -25,7 +25,6 @@ import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.ui.Widget;
 
 public class TreeDetailGridFieldCreator {
@@ -109,8 +108,8 @@ public class TreeDetailGridFieldCreator {
             numberField.setData("numberType", "decimal");//$NON-NLS-1$ //$NON-NLS-2$
             numberField.setValidator(NumberFieldValidator.getInstance());
             numberField.setPropertyEditorType(Double.class);
-            NumberFormat nf = NumberFormat.getDecimalFormat();
-            numberField.setValue((hasValue ? nf.parse(value.toString()) : null));
+            // NumberFormat nf = NumberFormat.getDecimalFormat();
+            numberField.setValue((hasValue ? Double.parseDouble(value.toString()) : null));
             field = numberField;
         } else if (DataTypeConstants.BOOLEAN.getTypeName().equals(baseType)) {
             BooleanField booleanField = new BooleanField();

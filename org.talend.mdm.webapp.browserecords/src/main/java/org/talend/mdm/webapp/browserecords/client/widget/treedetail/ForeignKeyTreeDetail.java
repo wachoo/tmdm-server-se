@@ -63,10 +63,12 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         this.setHeight(1000);
         this.setScrollMode(Scroll.AUTO);
     }
-    public ForeignKeyTreeDetail(ViewBean viewBean) {
+
+    public ForeignKeyTreeDetail(ViewBean viewBean, boolean isCreate) {
         this();
         this.viewBean = viewBean;
-        this.toolBar = new ItemDetailToolBar(null, ItemDetailToolBar.VIEW_OPERATION);
+        this.toolBar = new ItemDetailToolBar(null, isCreate ? ItemDetailToolBar.CREATE_OPERATION
+                : ItemDetailToolBar.VIEW_OPERATION);
         this.setTopComponent(toolBar);
         buildPanel(viewBean);
     }

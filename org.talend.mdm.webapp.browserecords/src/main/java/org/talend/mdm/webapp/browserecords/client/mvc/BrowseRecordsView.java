@@ -80,7 +80,16 @@ public class BrowseRecordsView extends View {
             onSelectForeignKeyView(event);
         } else if (event.getType() == BrowseRecordsEvents.ViewItem) {
             onViewItem(event);
+        } else if (event.getType() == BrowseRecordsEvents.ViewForeignKey) {
+            onViewForeignKey(event);
         }
+    }
+
+    private void onViewForeignKey(AppEvent event) {
+        ViewBean viewBean = event.getData();
+        ForeignKeyTreeDetail tree = new ForeignKeyTreeDetail(viewBean, true);
+        itemsSearchContainer.getItemsDetailPanel().addTabItem(viewBean.getBindingEntityModel().getConceptName(), tree,
+                ItemsDetailPanel.MULTIPLE, viewBean.getDescription());
     }
 
     private void onViewItem(AppEvent event) {
@@ -110,7 +119,7 @@ public class BrowseRecordsView extends View {
 
     private void onCreateForeignKeyView(AppEvent event) {
         ViewBean viewBean = event.getData();
-        ForeignKeyTreeDetail tree = new ForeignKeyTreeDetail(viewBean);
+        ForeignKeyTreeDetail tree = new ForeignKeyTreeDetail(viewBean, true);
         itemsSearchContainer.getItemsDetailPanel().addTabItem(viewBean.getBindingEntityModel().getConceptName(), tree,
                 ItemsDetailPanel.MULTIPLE,
                 viewBean.getDescription());

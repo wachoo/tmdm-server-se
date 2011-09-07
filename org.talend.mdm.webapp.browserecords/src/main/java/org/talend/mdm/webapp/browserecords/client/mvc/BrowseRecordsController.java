@@ -15,7 +15,9 @@ package org.talend.mdm.webapp.browserecords.client.mvc;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
+import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
+import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
@@ -47,6 +49,7 @@ public class BrowseRecordsController extends Controller {
         registerEventTypes(BrowseRecordsEvents.ViewItem);
         registerEventTypes(BrowseRecordsEvents.CreateForeignKeyView);
         registerEventTypes(BrowseRecordsEvents.SelectForeignKeyView);
+        registerEventTypes(BrowseRecordsEvents.ViewForeignKey);
     }
 
     public void initialize() {
@@ -72,8 +75,28 @@ public class BrowseRecordsController extends Controller {
             onSelectForeignKeyView(event);
         } else if (type == BrowseRecordsEvents.ViewItem) {
             onViewItem(event);
+        } else if (type == BrowseRecordsEvents.ViewForeignKey) {
+            onViewForeignKey(event);
         }
 
+    }
+
+    private void onViewForeignKey(final AppEvent event) {
+
+        ForeignKeyBean fkBean = event.getData();
+        service.getItemNodeModel(fkBean.getId(), fkBean.getForeignKeyPath(), new AsyncCallback<ItemNodeModel>() {
+
+            public void onSuccess(ItemNodeModel item) {
+                // forward
+                AppEvent ae = new AppEvent(event.getType(), item);
+                ae.setSource(event.getSource());
+                forwardToView(view, ae);
+            }
+
+            public void onFailure(Throwable caught) {
+                Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
+            }
+        });
     }
 
     private void onSelectForeignKeyView(final AppEvent event) {
