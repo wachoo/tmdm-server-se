@@ -16,13 +16,11 @@ import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
-import com.google.gwt.user.client.ui.Widget;
 
 public class ForeignKeyTreeDetail extends ContentPanel {
 
@@ -38,13 +36,14 @@ public class ForeignKeyTreeDetail extends ContentPanel {
 			DynamicTreeItem selected = (DynamicTreeItem) tree.getSelectedItem();
 			DynamicTreeItem parentItem = (DynamicTreeItem) selected.getParentItem();
 			
-			if("Add".equals(arg0.getRelativeElement().getId())) {
+            if ("Add".equals(arg0.getRelativeElement().getId())) { //$NON-NLS-1$
 				//clone a new item
 				DynamicTreeItem clonedItem = new DynamicTreeItem(); 
 				HTML label = new HTML();
 				label.setHTML(((TreeItemWidget) selected.getWidget()).getLabel().getHTML());
 				
-		    	Field<?> field = new Field() {};
+                Field<?> field = new Field<Object>() {
+                };
 		    	field.setElement(DOM.clone(((TreeItemWidget) selected.getWidget()).getField().getElement(), true));
 				((TreeItemWidget) clonedItem.getWidget()).setLabel(label);
 				((TreeItemWidget) clonedItem.getWidget()).setField(field);
@@ -84,7 +83,6 @@ public class ForeignKeyTreeDetail extends ContentPanel {
 
         add(tree);
 
-
     }
 
     public ViewBean getViewBean() {
@@ -99,7 +97,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     private DynamicTreeItem buildGWTTree(ItemNodeModel itemNode) {
     	DynamicTreeItem item = new DynamicTreeItem();
 
-        item.setWidget(TreeDetailUtil.createWidget(itemNode, itemNode.getDescription(), viewBean, handler));
+        item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, handler));
 
         if (itemNode.getChildren() != null && itemNode.getChildren().size() > 0) {
             for (ModelData model : itemNode.getChildren()) {
@@ -234,7 +232,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     	
     	public static Image buildAdd() {
     		Image add = new Image("/talendmdm/secure/img/genericUI/add.png"); //$NON-NLS-1$
-			add.getElement().setId("Add");
+            add.getElement().setId("Add"); //$NON-NLS-1$
 			add.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
 			
 			return add;
@@ -247,4 +245,8 @@ public class ForeignKeyTreeDetail extends ContentPanel {
 			return remove;
     	}
     }
+
+    // public ItemNodeModel getBindingModel() {
+    // return ValueBinding.getModelByFieldValue(tree.getItem(0));
+    // }
 }

@@ -47,7 +47,7 @@ public class CommonUtil {
                 if (model.getType().getTypeName().equals(DataTypeConstants.BOOLEAN.getTypeName()))
                     node.setValue("true"); //$NON-NLS-1$
                 if (model.getType().getTypeName().equals(DataTypeConstants.STRING.getTypeName()))
-                    node.setValue(""); //$NON-NLS-1$
+                    node.setValue("Test"); //$NON-NLS-1$
                 if (model.getType().getTypeName().equals(DataTypeConstants.DOUBLE.getTypeName()))
                     node.setValue("0.0"); //$NON-NLS-1$
                 if (model.getType().getTypeName().equals(DataTypeConstants.DECIMAL.getTypeName()))
@@ -55,7 +55,7 @@ public class CommonUtil {
                 if (model.getType().getTypeName().equals(DataTypeConstants.URL.getTypeName()))
                     node.setValue("www.baidu.com"); //$NON-NLS-1$
                 // TODO other type
-                
+
 
 
 
@@ -69,7 +69,8 @@ public class CommonUtil {
                 node.setChildNodes(list);
             }
             node.setName(model.getName());
-            node.setDescription(model.getLabel("en")); //$NON-NLS-1$
+            node.setBindingPath(model.getXpath());
+            node.setDescription(model.getLabel(Locale.getLanguage()));
         }
         
         return itemNodes;

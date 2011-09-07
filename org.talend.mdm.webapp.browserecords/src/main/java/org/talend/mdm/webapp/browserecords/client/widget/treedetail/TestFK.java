@@ -15,8 +15,9 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class TestFK extends ContentPanel {
 
+    final ForeignKeyTreeDetail tree = new ForeignKeyTreeDetail();
     public TestFK() {
-        final ForeignKeyTreeDetail tree = new ForeignKeyTreeDetail();
+
         Registry.register(UserSession.CURRENT_VIEW, new UserSession());
         Registry.register(BrowseRecords.BROWSERECORDS_SERVICE, GWT.create(BrowseRecordsService.class));
         getItemService().getView("Browse_items_Product", "en", new AsyncCallback<ViewBean>() { //$NON-NLS-1$//$NON-NLS-2$
@@ -33,7 +34,9 @@ public class TestFK extends ContentPanel {
         add(tree);
         this.setLayout(new FitLayout());
         this.setHeaderVisible(false);
-        this.setAutoHeight(true);
+        // this.setAutoHeight(true);
+        this.setSize(Window.getClientWidth(), Window.getClientWidth());
+        this.doLayout(true);
 
     }
 
@@ -49,4 +52,5 @@ public class TestFK extends ContentPanel {
         return Registry.get(BrowseRecords.USER_SESSION);
 
     }
+
 }
