@@ -106,6 +106,7 @@ public class WorkSpace extends LayoutContainer {
 
     public void un(String eventName, JavaScriptObject handler) {
         workTabPanel.removeListener(Events.BeforeRemove, eventHandler.get(handler));
+        eventHandler.remove(handler);
     }
 
     public void addWorkTab(final String itemId, final JavaScriptObject uiObject) {
