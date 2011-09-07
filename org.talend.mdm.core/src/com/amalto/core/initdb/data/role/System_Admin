@@ -98,6 +98,13 @@
                 </value>
             </instances>
             <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
+                <key xsi:type="java:java.lang.String">WelcomePortal</key>
+                <value writeable="false" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance">
+                    <parameters xsi:type="java:java.lang.String">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;role-menu-parameters position="0"&gt;&lt;parent-iD&gt;&lt;/parent-iD&gt;&lt;/role-menu-parameters&gt;</parameters>
+                </value>
+            </instances>            
+            <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
                 <key xsi:type="java:java.lang.String">Derived Hierarchy</key>
                 <value writeable="false" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance">
                     <parameters xsi:type="java:java.lang.String">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
@@ -105,11 +112,24 @@
                 </value>
             </instances>
             <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
+                <key xsi:type="java:java.lang.String">Hierarchy</key>
+                <value writeable="false" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance">
+                    <parameters xsi:type="java:java.lang.String">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;role-menu-parameters position="1"&gt;&lt;parent-iD&gt;&lt;/parent-iD&gt;&lt;/role-menu-parameters&gt;</parameters>
+                </value>
+            </instances>            
+            <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
                 <key xsi:type="java:java.lang.String">License</key>
                 <value writeable="false" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance">
                     <parameters xsi:type="java:java.lang.String">&lt;role-menu-parameters position="1"&gt;&lt;parent-iD&gt;&lt;/parent-iD&gt;&lt;/role-menu-parameters&gt;</parameters>
                 </value>
             </instances>
+            <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
+                <key xsi:type="java:java.lang.String">LicenseManager</key>
+                <value writeable="false" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance">
+                    <parameters xsi:type="java:java.lang.String">&lt;role-menu-parameters position="1"&gt;&lt;parent-iD&gt;&lt;/parent-iD&gt;&lt;/role-menu-parameters&gt;</parameters>
+                </value>
+            </instances>            
             <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
                 <key xsi:type="java:java.lang.String">Browse items2</key>
                 <value writeable="false" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance">
@@ -125,12 +145,26 @@
                 </value>
             </instances>
             <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
+                <key xsi:type="java:java.lang.String">RecycleBin</key>
+                <value writeable="false" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance">
+                    <parameters xsi:type="java:java.lang.String">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;role-menu-parameters position="5"&gt;&lt;parent-iD&gt;&lt;/parent-iD&gt;&lt;/role-menu-parameters&gt;</parameters>
+                </value>
+            </instances>            
+            <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
                 <key xsi:type="java:java.lang.String">Manage users</key>
                 <value writeable="false" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance">
                     <parameters xsi:type="java:java.lang.String">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;role-menu-parameters position="0"&gt;&lt;parent-iD&gt;&lt;/parent-iD&gt;&lt;/role-menu-parameters&gt;</parameters>
                 </value>
             </instances>
+            <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
+                <key xsi:type="java:java.lang.String">UserManager</key>
+                <value writeable="false" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance">
+                    <parameters xsi:type="java:java.lang.String">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;role-menu-parameters position="0"&gt;&lt;parent-iD&gt;&lt;/parent-iD&gt;&lt;/role-menu-parameters&gt;</parameters>
+                </value>
+            </instances>            
         </value>
     </role-specifications>
     <role-specifications xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="java:org.exolab.castor.mapping.MapItem">
