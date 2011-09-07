@@ -74,6 +74,10 @@ public class WorkSpace extends LayoutContainer {
         return uiMap.get(itemId);
     }
 
+    public void remove(String itemId) {
+        workTabPanel.getItemByItemId(itemId).removeFromParent();
+    }
+
     public void addWorkTab(final String itemId, final JavaScriptObject uiObject) {
 
         TabItem item = workTabPanel.getItemByItemId(itemId);

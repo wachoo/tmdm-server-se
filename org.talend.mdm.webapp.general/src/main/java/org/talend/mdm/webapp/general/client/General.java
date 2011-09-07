@@ -69,6 +69,10 @@ public class General implements EntryPoint {
         //select tabItem by itemId
         setSelection : function(itemId){
         workspace.@org.talend.mdm.webapp.general.client.layout.WorkSpace::setSelection(Ljava/lang/String;)(itemId);
+        },
+
+        remove: function(itemId){
+        workspace.@org.talend.mdm.webapp.general.client.layout.WorkSpace::remove(Ljava/lang/String;)(itemId);
         }
         };
         // return global TabPanel
