@@ -248,7 +248,5 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     	}
     }
 
-    public ItemNodeModel getBindingModel() {
-        return ValueBinding.getModelByFieldValue(tree.getItem(0));
-    }
+
 }
