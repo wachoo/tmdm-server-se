@@ -4,9 +4,7 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
-import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTreeDetail;
-import org.talend.mdm.webapp.browserecords.shared.ViewBean;
-
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 
@@ -14,8 +12,7 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 
 public class ItemPanel extends ContentPanel {
     
-    private final ForeignKeyTreeDetail tree = new ForeignKeyTreeDetail();
-    
+    private final TreeDetail tree = new TreeDetail();
     private ItemDetailToolBar toolBar;
     private ItemBean item;
     private String operation;
@@ -24,9 +21,10 @@ public class ItemPanel extends ContentPanel {
         
     }
     
+         
     public ItemPanel(ItemBean item, String operation){
         
-        this.item = item;
+        this.item = item;  
         this.toolBar = new ItemDetailToolBar(item, operation);
         this.operation = operation;        
         this.initUI();
@@ -35,11 +33,28 @@ public class ItemPanel extends ContentPanel {
     @SuppressWarnings("static-access")
     private void initUI(){
         this.setBodyBorder(false);
-        this.setHeaderVisible(false);
-        this.setTopComponent(toolBar);     
-        tree.setViewBean((ViewBean)this.getSession().get(UserSession.CURRENT_VIEW));
+        this.setHeaderVisible(false);        
+        this.setTopComponent(toolBar);
+        if (ItemDetailToolBar.CREATE_OPERATION.equals(operation)){
+            tree.initTree(null);
+        }
+        else if (ItemDetailToolBar.VIEW_OPERATION.equals(operation)){
+            tree.initTree(item);
+        }
+        else if (ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)){
+            tree.initTree(item);
+        }
+        else{
+            tree.initTree(null); 
+        }
+           
+        
+        tree.expand();
         this.add(tree);
+        //this.setBottomComponent(new PagingToolBarEx(50));
     }
+    
+
     
     private static BrowseRecordsServiceAsync getItemService() {
 
@@ -48,7 +63,7 @@ public class ItemPanel extends ContentPanel {
 
     }
 
-    public static UserSession getSession() {
+    private static UserSession getSession() {
         return Registry.get(BrowseRecords.USER_SESSION);
 
     }
