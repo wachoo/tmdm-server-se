@@ -219,7 +219,11 @@ public class ItemDetailToolBar extends ToolBar {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                initJournal(itemBean.getIds(), itemBean.getConcept());
+                String ids = itemBean.getIds();
+                if(ids.indexOf("@") != -1){ //$NON-NLS-1$
+                    ids = ids.replaceAll("@", "."); //$NON-NLS-1$ //$NON-NLS-2$
+                }
+                initJournal(ids, itemBean.getConcept());
             }
 
         });
@@ -255,8 +259,8 @@ public class ItemDetailToolBar extends ToolBar {
 
     }
 
-    private native boolean initJournal(String id, String concept)/*-{
-        $wnd.amalto.updatereport.UpdateReport.init();
+    private native boolean initJournal(String ids, String concept)/*-{
+        $wnd.amalto.updatereport.UpdateReport.browseUpdateReportWithSearchCriteria(concept, ids, true);
         return true;
     }-*/;
 
