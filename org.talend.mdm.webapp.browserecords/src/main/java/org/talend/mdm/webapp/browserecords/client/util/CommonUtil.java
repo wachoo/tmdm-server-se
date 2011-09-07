@@ -8,6 +8,11 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.XMLParser;
+
 public class CommonUtil {
 
     public static String getXpathSuffix(String xpath) {
@@ -21,6 +26,27 @@ public class CommonUtil {
                 return arr[i];
         }
         return xpath;
+    }
+
+    public static String toXML(ItemNodeModel nodeModel) {
+        Document doc = XMLParser.createDocument();
+        Element root = _toXML(doc, nodeModel);
+        doc.appendChild(root);
+        return doc.toString();
+    }
+
+    private static Element _toXML(Document doc, ItemNodeModel nodeModel) {
+        Element root = doc.createElement(nodeModel.getName());
+        root.setNodeValue(nodeModel.getValue());
+        List<ModelData> children = nodeModel.getChildren();
+        if (children != null) {
+            for (ModelData child : children) {
+                Element el = _toXML(doc, (ItemNodeModel) child);
+                root.appendChild(el);
+            }
+        }
+
+        return root;
     }
 
     public static List<ItemNodeModel> getDefaultTreeModel(TypeModel model) {
