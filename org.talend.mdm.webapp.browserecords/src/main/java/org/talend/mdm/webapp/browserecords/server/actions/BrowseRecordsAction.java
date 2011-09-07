@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.browserecords.server.actions;
 
 import java.io.Serializable;
+import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +33,9 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.EDBType;
@@ -46,6 +50,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyDrawer;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
+import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.Restriction;
@@ -65,6 +70,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
@@ -1333,5 +1339,43 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     public String getCurrentDataCluster() throws Exception {
         Configuration config = Configuration.getConfiguration();
         return config.getCluster();
+    }
+    
+    public ItemNodeModel getItemNodeModel(String concept, String ids) throws Exception {
+        String dataCluster = getCurrentDataCluster();
+        String dataModel = getCurrentDataModel();
+
+        // get item
+        WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(dataCluster);
+        String[] idlist = ids == null ? null : ids.split("\\.");//$NON-NLS-1$
+        WSItem wsItem = CommonUtil.getPort().getItem(new WSGetItem(new WSItemPK(wsDataClusterPK, concept, idlist)));
+        String xml = wsItem.getContent();
+        System.out.println("XML = " + xml);
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        StringReader sr = new StringReader(xml);
+        InputSource inputSource = new InputSource(sr);
+        Document doc = builder.parse(inputSource);
+        Element root = doc.getDocumentElement();
+        return builderNode(root);
+    }
+    
+    private ItemNodeModel builderNode(Element el){
+        ItemNodeModel nodeModel = new ItemNodeModel(el.getNodeName());
+        nodeModel.setDescription(el.getNodeName());
+        nodeModel.setValue(el.getTextContent());
+        NodeList children = el.getChildNodes();
+        if (children != null){
+            for (int i = 0;i < children.getLength();i++){
+                Node child = children.item(i);
+                if (child.getNodeType() == Node.ELEMENT_NODE){
+                    ItemNodeModel childNode = builderNode((Element) child);
+                    nodeModel.add(childNode);
+                }
+            }
+        }
+        return nodeModel;
+        
     }
 }

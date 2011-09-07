@@ -19,6 +19,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyDrawer;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
+import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.Restriction;
@@ -80,5 +81,8 @@ public interface BrowseRecordsServiceAsync {
     void isExistCriteria(String dataObjectLabel, String id, AsyncCallback<Boolean> callback);
 
     void saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString, AsyncCallback<String> callback);
+   
+    void getItemNodeModel(String concept, String ids, AsyncCallback<ItemNodeModel> callback);
+
 
 }

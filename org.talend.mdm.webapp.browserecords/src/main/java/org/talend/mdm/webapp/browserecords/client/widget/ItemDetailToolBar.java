@@ -33,6 +33,8 @@ public class ItemDetailToolBar extends ToolBar {
     public final static String CREATE_OPERATION = "CREATE"; //$NON-NLS-1$
 
     public final static String VIEW_OPERATION = "VIEW"; //$NON-NLS-1$
+    
+    public final static String DUPLICATE_OPERATION = "DUPLICATE_OPERATION"; //$NON-NLS-1$
 
     private final Button saveButton = new Button(MessagesFactory.getMessages().save_btn());
 
