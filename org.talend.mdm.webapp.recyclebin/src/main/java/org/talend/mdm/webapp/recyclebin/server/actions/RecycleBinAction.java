@@ -78,7 +78,7 @@ public class RecycleBinAction implements RecycleBinService {
             return new BasePagingLoadResult<ItemsTrashItem>(sublist, load.getOffset(), li.size());
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            throw new Exception(e.getClass().getName() + ": " + e.getMessage()); //$NON-NLS-1$
+            throw new Exception(e.getLocalizedMessage(), e);
         }
 
     }
@@ -110,7 +110,7 @@ public class RecycleBinAction implements RecycleBinService {
             Util.persistentUpdateReport(xml, true);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            throw new Exception(e.getClass().getName() + ": " + e.getMessage()); //$NON-NLS-1$
+            throw new Exception(e.getLocalizedMessage(), e);
         }
 
     }
@@ -131,7 +131,7 @@ public class RecycleBinAction implements RecycleBinService {
             Util.persistentUpdateReport(xml, true);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            throw new Exception(e.getClass().getName() + ": " + e.getMessage()); //$NON-NLS-1$
+            throw new Exception(e.getLocalizedMessage(), e);
         }
 
     }

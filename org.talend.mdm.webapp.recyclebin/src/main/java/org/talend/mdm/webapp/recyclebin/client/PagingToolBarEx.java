@@ -38,6 +38,7 @@ public class PagingToolBarEx extends PagingToolBar {
 
         final NumberField sizeField = new NumberField() {
 
+            @Override
             protected void onRender(Element target, int index) {
                 super.onRender(target, index);
                 inputEl = this.input;

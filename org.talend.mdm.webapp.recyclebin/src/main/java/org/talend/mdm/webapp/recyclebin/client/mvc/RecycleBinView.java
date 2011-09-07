@@ -32,6 +32,7 @@ public class RecycleBinView extends View {
         super(controller);
     }
 
+    @Override
     protected void handleEvent(AppEvent event) {
         if (event.getType() == RecycleBinEvents.InitFrame) {
             onInitFrame(event);

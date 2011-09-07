@@ -22,26 +22,24 @@ import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 
-
 /**
- * DOC Administrator  class global comment. Detailled comment
+ * DOC Administrator class global comment. Detailled comment
  */
 public class RecycleBinController extends Controller {
 
     private RecycleBinView view;
-
-    private RecycleBinServiceAsync service;
 
     public RecycleBinController() {
         registerEventTypes(RecycleBinEvents.InitFrame);
         registerEventTypes(RecycleBinEvents.Error);
     }
 
+    @Override
     public void initialize() {
-        service = (RecycleBinServiceAsync) Registry.get(RecycleBin.RECYCLEBIN_SERVICE);
         view = new RecycleBinView(this);
     }
 
+    @Override
     public void handleEvent(AppEvent event) {
         EventType type = event.getType();
         if (type == RecycleBinEvents.InitFrame) {

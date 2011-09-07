@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.recyclebin.client;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -63,9 +62,8 @@ import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
 
-
 /**
- * DOC Administrator  class global comment. Detailled comment
+ * DOC Administrator class global comment. Detailled comment
  */
 public class MainFramePanel extends ContentPanel {
 
@@ -73,13 +71,13 @@ public class MainFramePanel extends ContentPanel {
 
     private RecycleBinServiceAsync service = (RecycleBinServiceAsync) Registry.get(RecycleBin.RECYCLEBIN_SERVICE);
 
-    private TextField text = new TextField();
+    private TextField<String> text = new TextField<String>();
 
     private final static int PAGE_SIZE = 20;
 
     private PagingToolBarEx pagetoolBar = null;
 
-    private Grid grid;
+    private Grid<ItemsTrashItem> grid;
 
     private MainFramePanel() {
         setLayout(new FitLayout());
@@ -144,9 +142,9 @@ public class MainFramePanel extends ContentPanel {
                     public void onClick(Widget arg0) {
                         service.isEntityPhysicalDeletable(model.get("conceptName").toString(), new AsyncCallback<Boolean>() {//$NON-NLS-1$
 
-                            public void onFailure(Throwable caught) {
-                                Dispatcher.forwardEvent(RecycleBinEvents.Error, caught);
-                            }
+                                    public void onFailure(Throwable caught) {
+                                        Dispatcher.forwardEvent(RecycleBinEvents.Error, caught);
+                                    }
 
                                     public void onSuccess(Boolean result) {
                                         if (!result)
@@ -194,9 +192,9 @@ public class MainFramePanel extends ContentPanel {
                                             }
 
                                         });
-                            }
+                                    }
 
-                        });
+                                });
 
                     }
 
@@ -256,8 +254,9 @@ public class MainFramePanel extends ContentPanel {
 
         RpcProxy<PagingLoadResult<ItemsTrashItem>> proxy = new RpcProxy<PagingLoadResult<ItemsTrashItem>>() {
 
+            @Override
             protected void load(Object loadConfig, final AsyncCallback<PagingLoadResult<ItemsTrashItem>> callback) {
-                service.getTrashItems(text.getValue() == null ? "*" : text.getValue().toString(), (PagingLoadConfig) loadConfig,//$NON-NLS-1$
+                service.getTrashItems(text.getValue() == null ? "*" : text.getValue(), (PagingLoadConfig) loadConfig,//$NON-NLS-1$
                         new AsyncCallback<PagingLoadResult<ItemsTrashItem>>() {
 
                             public void onSuccess(PagingLoadResult<ItemsTrashItem> result) {
@@ -267,8 +266,7 @@ public class MainFramePanel extends ContentPanel {
 
                             public void onFailure(Throwable caught) {
                                 MessageBox.alert(MessagesFactory.getMessages().error_title(), caught.getMessage(), null);
-                                callback
-                                        .onSuccess(new BasePagingLoadResult<ItemsTrashItem>(new ArrayList<ItemsTrashItem>(), 0, 0));
+                                callback.onSuccess(new BasePagingLoadResult<ItemsTrashItem>(new ArrayList<ItemsTrashItem>(), 0, 0));
                             }
                         });
             }
@@ -280,7 +278,7 @@ public class MainFramePanel extends ContentPanel {
                 proxy);
 
         final ListStore<ItemsTrashItem> store = new ListStore<ItemsTrashItem>(loader);
-        grid = new Grid(store, cm);
+        grid = new Grid<ItemsTrashItem>(store, cm);
         grid.getView().setAutoFill(true);
         grid.getView().setForceFit(true);
         // grid.setSize(350, 600);
@@ -305,7 +303,7 @@ public class MainFramePanel extends ContentPanel {
         add(grid);
     }
 
-    private void initTopBar(){
+    private void initTopBar() {
         ToolBar bar = new ToolBar();
         text.setId("trash-criteria");//$NON-NLS-1$
         text.setEmptyText("*");//$NON-NLS-1$        
@@ -315,6 +313,7 @@ public class MainFramePanel extends ContentPanel {
         btn.setToolTip(MessagesFactory.getMessages().serarch_tooltip());
         btn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+            @Override
             public void componentSelected(ButtonEvent ce) {
                 PagingLoadConfig config = new BasePagingLoadConfig();
                 config.setOffset(0);
@@ -350,7 +349,7 @@ public class MainFramePanel extends ContentPanel {
 
                     public void onSuccess(Void arg0) {
                         pagetoolBar.refresh();
-                        grid.getStore().remove(model);
+                        grid.getStore().remove((ItemsTrashItem) model);
                     }
 
                 });
