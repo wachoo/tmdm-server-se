@@ -41,6 +41,8 @@ public class WelcomePortal implements EntryPoint {
     public final static String JOURNALCONTEXT = "updatereport", JOURNALAPP = "UpdateReport"; //$NON-NLS-1$ //$NON-NLS-2$
 
     public final static String TASKCONTEXT = "workflowtasks", TASKAPP = "WorkflowTasks";//$NON-NLS-1$ //$NON-NLS-2$
+
+    public final static String START = "start", ALERT = "alert", TASK = "task", PROCESS = "process"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
     /**
      * This is the entry point method.
      */
