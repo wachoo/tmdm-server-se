@@ -449,7 +449,7 @@ public class ItemsToolBar extends ToolBar {
                 ItemsDetailPanel detailPanel = itemsSearchContainer.getItemsDetailPanel();
                 TabItem item = detailPanel.getTabPanelById("upload-main-panel"); //$NON-NLS-1$
                 currentModel = null;
-
+                
                 if (item == null) {
 
 //                    item = new TabItem();
@@ -465,7 +465,8 @@ public class ItemsToolBar extends ToolBar {
                     panel.setFrame(false);
                     panel.setHeaderVisible(false);
                     panel.setWidth("100%"); //$NON-NLS-1$
-                    panel.setLayout(new FitLayout());
+                    panel.setHeight(1000);
+                    //panel.setLayout(new FitLayout());
 
                     ToolBar toolBar = new ToolBar();
                     toolBar.setWidth("100%"); //$NON-NLS-1$
@@ -519,6 +520,7 @@ public class ItemsToolBar extends ToolBar {
                                     String currentTableName = currentModel.get("value"); //$NON-NLS-1$
                                     UploadFileFormPanel formPanel = new UploadFileFormPanel(currentTableName, ItemsToolBar.this);
                                     formPanel.setContainer(panel);
+                                    formPanel.setHeight(1000);
                                     panel.add(formPanel);
                                     panel.layout();
                                 }

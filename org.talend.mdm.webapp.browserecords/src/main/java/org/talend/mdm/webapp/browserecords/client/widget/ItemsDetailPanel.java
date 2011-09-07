@@ -78,6 +78,7 @@ public class ItemsDetailPanel extends ContentPanel {
                 newTab.addStyleName("pad-text");   //$NON-NLS-1$
                 newTab.add(panel);
                 tabPanel.add(newTab);
+                tabPanel.setSelection(newTab);
             }else{
                 newTab.removeAll();
                 newTab.add(panel);
