@@ -90,4 +90,8 @@ public class ItemsDetailPanel extends ContentPanel {
         TabItem itemTab = tabPanel.getSelectedItem();
         tabPanel.remove(itemTab);
     }
+    
+    public TabItem getTabPanelById(String id){
+        return tabPanel.getItemByItemId(id);
+    }
 }

@@ -50,6 +50,14 @@
             <artifactId>log4j</artifactId>
         </dependency>
          <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+        </dependency>
+         <dependency>
              <groupId>commons-jxpath</groupId>
              <artifactId>commons-jxpath</artifactId>
         </dependency>

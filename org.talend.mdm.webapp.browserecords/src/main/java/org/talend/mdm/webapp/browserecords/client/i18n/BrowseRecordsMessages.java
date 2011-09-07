@@ -223,4 +223,38 @@ public interface BrowseRecordsMessages extends Messages {
     String save_close_btn();
     
     String save_close_tip();
+    
+    String label_field_table_name();
+    
+    String add_table_duplicated();
+    
+    String add_table_empty_field();
+    
+    String add_table_primary_key();
+    
+    String label_combo_filetype_select();
+    
+    String label_field_filetype();
+    
+    String label_field_header_first();
+    
+    String label_field_encoding();
+    
+    String label_button_submit();
+    
+    String error_incompatible_file_type();
+    
+    String import_progress_bar_title();
+    
+    String import_progress_bar_message();
+    
+    String import_progress_bar_laod();
+    
+    String label_items_browser();
+    
+    String label_combo_select();
+    
+    String label_button_upload_data();
+    
+    String label_button_new_table();
 }

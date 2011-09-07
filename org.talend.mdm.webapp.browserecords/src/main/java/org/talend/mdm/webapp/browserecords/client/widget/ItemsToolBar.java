@@ -27,6 +27,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.SimpleCriterion;
+import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
@@ -36,9 +37,14 @@ import org.talend.mdm.webapp.browserecords.client.widget.SearchPanel.SimpleCrite
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
+import org.talend.mdm.webapp.browserecords.client.widget.DownloadTablePanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsToolBar;
+import org.talend.mdm.webapp.browserecords.client.widget.NewTablePanel;
+import org.talend.mdm.webapp.browserecords.client.widget.UploadFileFormPanel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
@@ -60,9 +66,12 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.TabItem;
+import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
@@ -436,7 +445,104 @@ public class ItemsToolBar extends ToolBar {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                // TODO
+                ItemsSearchContainer itemsSearchContainer = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
+                ItemsDetailPanel detailPanel = itemsSearchContainer.getItemsDetailPanel();
+                TabItem item = detailPanel.getTabPanelById("upload-main-panel"); //$NON-NLS-1$
+                currentModel = null;
+
+                if (item == null) {
+
+//                    item = new TabItem();
+//                    item.setItemId("upload-main-panel"); //$NON-NLS-1$
+//                    item.setText(MessagesFactory.getMessages().label_items_browser());
+//                    item.setLayout(new FitLayout());
+//                    item.setScrollMode(Scroll.NONE);
+//                    item.setBorders(false);
+//                    item.setClosable(true);
+
+                    final ContentPanel panel = new ContentPanel();
+                    panel.setCollapsible(true);
+                    panel.setFrame(false);
+                    panel.setHeaderVisible(false);
+                    panel.setWidth("100%"); //$NON-NLS-1$
+                    panel.setLayout(new FitLayout());
+
+                    ToolBar toolBar = new ToolBar();
+                    toolBar.setWidth("100%"); //$NON-NLS-1$
+
+                    tableList.removeAll();
+                    tableList.add(BrowseRecords.getSession().getEntitiyModelList());
+                    if (BrowseRecords.getSession().getCustomizeModelList() != null) {
+                        tableList.add(BrowseRecords.getSession().getCustomizeModelList());
+                    }
+                    combo = new ComboBox<ItemBaseModel>();
+                    combo.setEmptyText(MessagesFactory.getMessages().label_combo_select());
+                    combo.setDisplayField("name");//$NON-NLS-1$
+                    combo.setValueField("value");//$NON-NLS-1$
+                    combo.setWidth(150);
+                    combo.setStore(tableList);
+                    combo.setTypeAhead(true);
+                    combo.setTriggerAction(TriggerAction.ALL);
+
+                    combo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
+
+                        @Override
+                        public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
+                            if (se.getSelectedItem() == null)
+                                return;
+                            currentModel = se.getSelectedItem();
+                            ItemsToolBar.this.renderDownloadPanel(panel);
+                        }
+                    });
+
+                    toolBar.add(combo);
+                    toolBar.add(new Button("View", new SelectionListener<ButtonEvent>() { //$NON-NLS-1$
+
+                                @Override
+                                public void componentSelected(ButtonEvent event) {
+                                    if (currentModel == null)
+                                        return;
+
+                                    ItemsToolBar.this.renderDownloadPanel(panel);
+                                }
+                            }));
+
+                    toolBar.add(new SeparatorToolItem());
+                    toolBar.add(new Button(MessagesFactory.getMessages().label_button_upload_data(),
+                            new SelectionListener<ButtonEvent>() {
+
+                                @Override
+                                public void componentSelected(ButtonEvent ce) {
+                                    if (currentModel == null)
+                                        return;
+                                    panel.removeAll();
+                                    String currentTableName = currentModel.get("value"); //$NON-NLS-1$
+                                    UploadFileFormPanel formPanel = new UploadFileFormPanel(currentTableName, ItemsToolBar.this);
+                                    formPanel.setContainer(panel);
+                                    panel.add(formPanel);
+                                    panel.layout();
+                                }
+                            }));
+                    toolBar.add(new SeparatorToolItem());
+                    toolBar.add(new Button(MessagesFactory.getMessages().label_button_new_table(),
+                            new SelectionListener<ButtonEvent>() {
+
+                                @Override
+                                public void componentSelected(ButtonEvent ce) {
+                                    panel.removeAll();
+                                    NewTablePanel cp = new NewTablePanel();
+                                    cp.setToolbar(ItemsToolBar.this);
+
+                                    panel.add(cp);
+                                    panel.layout();
+                                }
+                            }));
+
+                    panel.setTopComponent(toolBar);
+                    detailPanel.addTabItem(MessagesFactory.getMessages().label_items_browser(), panel, ItemsDetailPanel.SINGLETON, "upload-main-panel"); //$NON-NLS-1$
+                }
+
+//                tabFrame.setSelection(item);
             }
         });
 
@@ -1010,6 +1116,42 @@ public class ItemsToolBar extends ToolBar {
                     }
 
                 });
+    }
+
+    private void addDownloadPanel(final ContentPanel panel) {
+        String currentTableName = currentModel.get("value"); //$NON-NLS-1$
+        service.getView(currentTableName, Locale.getLanguage(),
+                new AsyncCallback<ViewBean>() {
+
+                    public void onSuccess(ViewBean bean) {
+                        tableView = bean;
+                        panel.removeAll();
+                        DownloadTablePanel dtpanel = DownloadTablePanel.getInstance(tableView.getViewPK());
+                        dtpanel.updateGrid(tableView, panel.getWidth());
+                        panel.add(dtpanel);
+                        panel.layout(true);
+                    }
+
+                    public void onFailure(Throwable bean) {
+
+                    }
+                });
+    }
+
+    public void renderDownloadPanel(ContentPanel panel) {
+        if (BrowseRecords.getSession().getCustomizeModelList() != null) {
+            if (BrowseRecords.getSession().getCustomizeModelList().contains(currentModel)) {
+                tableView = BrowseRecords.getSession().getCustomizeModelViewMap().get(currentModel);
+                panel.removeAll();
+                DownloadTablePanel dtpanel = DownloadTablePanel.getInstance(tableView.getViewPK());
+                dtpanel.updateGrid(tableView, panel.getWidth());
+                panel.add(dtpanel);
+                panel.layout(true);
+                return;
+            }
+        }
+
+        this.addDownloadPanel(panel);
     }
 
     public void addOption(ItemBaseModel model) {

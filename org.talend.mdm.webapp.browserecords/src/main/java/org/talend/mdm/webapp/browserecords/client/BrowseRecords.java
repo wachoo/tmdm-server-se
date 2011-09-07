@@ -54,7 +54,7 @@ public class BrowseRecords implements EntryPoint {
 
         registerPubService();
         Log.setUncaughtExceptionHandler();
-
+//        GenerateContainer.generateContentPanel();
         Registry.register(BROWSERECORDS_SERVICE, GWT.create(BrowseRecordsService.class));
 
         // register user session
@@ -63,7 +63,7 @@ public class BrowseRecords implements EntryPoint {
         // add controller to dispatcher
         final Dispatcher dispatcher = Dispatcher.get();
         dispatcher.addController(new BrowseRecordsController());
-
+//        onModuleRender();
         // init app-header
 
 
@@ -140,10 +140,10 @@ public class BrowseRecords implements EntryPoint {
         return panel;
     }-*/;
 
+    RootPanel panel;
     public void renderContent(final String contentId) {
+        panel = RootPanel.get(contentId);
         onModuleRender();
-        RootPanel panel = RootPanel.get(contentId);
-        panel.add(GenerateContainer.getContentPanel());
     }
 
     public void initUI() {
@@ -165,6 +165,8 @@ public class BrowseRecords implements EntryPoint {
                 getSession().put(UserSession.APP_HEADER, header);
                 Dispatcher dispatcher = Dispatcher.get();
                 dispatcher.dispatch(BrowseRecordsEvents.InitFrame);
+//                GenerateContainer.getContentPanel().setHeight(600);
+                panel.add(GenerateContainer.getContentPanel());
             }
         });
     }

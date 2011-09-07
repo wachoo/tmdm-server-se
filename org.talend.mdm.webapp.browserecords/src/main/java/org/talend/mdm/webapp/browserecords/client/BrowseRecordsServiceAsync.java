@@ -84,5 +84,7 @@ public interface BrowseRecordsServiceAsync {
    
     void getItemNodeModel(String concept, String ids, AsyncCallback<ItemNodeModel> callback);
 
+    void getMandatoryFieldList(String tableName, AsyncCallback<List<String>> callback);
+
 
 }

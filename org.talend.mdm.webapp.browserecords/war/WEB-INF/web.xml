@@ -17,6 +17,28 @@
     <url-pattern>/browserecords/BrowseRecordsService</url-pattern>
   </servlet-mapping>   
   
+  <servlet>
+    <servlet-name>exportExcelFile</servlet-name>
+    <display-name>exportExcelFile</display-name>
+    <servlet-class>org.talend.mdm.webapp.browserecords.server.servlet.DownloadData</servlet-class>
+   </servlet>
+
+	<servlet>
+	    <servlet-name>readExcelFile</servlet-name>
+	    <display-name>readExcelFile</display-name>
+	    <servlet-class>org.talend.mdm.webapp.browserecords.server.servlet.UploadData</servlet-class>
+	</servlet>
+
+    <servlet-mapping>
+        <servlet-name>readExcelFile</servlet-name>
+        <url-pattern>/upload</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>exportExcelFile</servlet-name>
+        <url-pattern>/download</url-pattern>
+    </servlet-mapping>
+  
     <!-- Security -->
     @{dev.mode.excluded.start}
     <security-constraint>
