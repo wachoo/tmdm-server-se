@@ -71,8 +71,11 @@ public class General implements EntryPoint {
         workspace.@org.talend.mdm.webapp.general.client.layout.WorkSpace::setSelection(Ljava/lang/String;)(itemId);
         },
 
-        remove: function(itemId){
-        workspace.@org.talend.mdm.webapp.general.client.layout.WorkSpace::remove(Ljava/lang/String;)(itemId);
+        remove: function(item){
+        if(typeof item != "string"){
+        item = item.getId();
+        }
+        workspace.@org.talend.mdm.webapp.general.client.layout.WorkSpace::remove(Ljava/lang/String;)(item);
         },
         on: function(eventName, handler){
         workspace.@org.talend.mdm.webapp.general.client.layout.WorkSpace::on(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(eventName, handler);
