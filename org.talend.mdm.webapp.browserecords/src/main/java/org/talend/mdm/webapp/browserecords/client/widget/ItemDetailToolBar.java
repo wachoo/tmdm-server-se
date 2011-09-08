@@ -104,7 +104,7 @@ public class ItemDetailToolBar extends ToolBar {
             @Override
             public void componentSelected(ButtonEvent ce) {
                 // TODO the following code need to be refactor, it is the demo code
-                TabPanel item = (TabPanel) container.getItemsDetailPanel().getItem(0);
+                TabPanel item = container.getItemsDetailPanel().getTabPanel();
                 TabItem t = (TabItem) item.getItem(0);
                 ItemPanel i = (ItemPanel) t.getWidget(0);
                 ItemNodeModel model = (ItemNodeModel) i.getTree().getTree().getItem(0).getUserObject();
