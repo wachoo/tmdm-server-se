@@ -6259,13 +6259,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
     
     function resizeIframe(obj) {
         var Iframe = document.getElementById(obj);
-            if (Iframe){
-                if (Iframe.contentDocument){//ff                	
-                    Iframe.style.height = Iframe.contentDocument.body.scrollHeight +40+'px';
-                }
-                else if(Iframe.document && Iframe.document.body.scrollHeight){//ie
-                Iframe.style.height = Iframe.document.body.scrollHeight + 40 + 'px';
-            }
+        if (Iframe){
+        	Iframe.style.height = Iframe.contentWindow.document.body.scrollHeight + 40 + 'px';
         }
     }
 
