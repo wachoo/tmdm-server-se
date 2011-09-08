@@ -42,7 +42,7 @@ public class ControllerServlet extends HttpServlet {
         String username = null;
         Locale locale = req.getLocale();
 
-        String language = "fr"; //$NON-NLS-1$
+        String language = "en"; //$NON-NLS-1$
 
         if (req.getParameter("language") != null) { //$NON-NLS-1$
             language = req.getParameter("language"); //$NON-NLS-1$
