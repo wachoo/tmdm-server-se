@@ -28,6 +28,7 @@ public class ItemsDetailPanel extends ContentPanel {
     public final static String MULTIPLE = "MULTIPLE"; //$NON-NLS-1$
     private TabPanel tabPanel = new TabPanel();  
     
+
     public ItemsDetailPanel() {
         super();
         this.setBodyBorder(false);
@@ -95,4 +96,9 @@ public class ItemsDetailPanel extends ContentPanel {
     public TabItem getTabPanelById(String id){
         return tabPanel.getItemByItemId(id);
     }
+
+    public TabPanel getTabPanel() {
+        return tabPanel;
+    }
+
 }
