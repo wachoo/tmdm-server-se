@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.server.actions;
 
+import java.io.InputStream;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.text.SimpleDateFormat;
@@ -44,6 +45,9 @@ import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsService;
+import org.talend.mdm.webapp.browserecords.client.model.ColumnElement;
+import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
+import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeModel;
 import org.talend.mdm.webapp.browserecords.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyDrawer;
@@ -1487,6 +1491,61 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
             return result;
         }
+
+    }
+
+    public ColumnTreeLayoutModel getColumnTreeLayout(String concept) throws Exception {
+        InputStream is = BrowseRecordsAction.class.getResourceAsStream("ColumnTreeLayout.xml");
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(is);
+        Element root = doc.getDocumentElement();
+        return builderLayout(root);
+    }
+
+    private ColumnTreeLayoutModel builderLayout(Element el) {
+        ColumnTreeLayoutModel layoutModel = new ColumnTreeLayoutModel();
+        layoutModel.setDatamodel(el.getAttribute("datamodel")); //$NON-NLS-1$
+        layoutModel.setEntity(el.getAttribute("entity")); //$NON-NLS-1$
+        NodeList children = el.getChildNodes();
+        if (children != null && children.getLength() > 0) {
+            List<ColumnTreeModel> columnTreeModels = new ArrayList<ColumnTreeModel>();
+            for (int i = 0; i < children.getLength(); i++) {
+                Node child = children.item(i);
+                if (child.getNodeType() == Node.ELEMENT_NODE) {
+                    ColumnTreeModel columnTreeModel = builderColumnLayout((Element) child);
+                    columnTreeModels.add(columnTreeModel);
+                }
+            }
+            layoutModel.setColumnTreeModels(columnTreeModels);
+        }
+        return layoutModel;
+    }
+    
+    private ColumnTreeModel builderColumnLayout(Element el) {
+        ColumnTreeModel columnModel = new ColumnTreeModel();
+        columnModel.setName(el.getAttribute("name")); //$NON-NLS-1$
+        columnModel.setWidth(el.getAttribute("width")); //$NON-NLS-1$
+
+        NodeList children = el.getChildNodes();
+        if (children != null && children.getLength() > 0) {
+            List<ColumnElement> columnElements = new ArrayList<ColumnElement>();
+            for (int i = 0; i < children.getLength(); i++) {
+                Node child = children.item(i);
+                if (child.getNodeType() == Node.ELEMENT_NODE){
+                    ColumnElement columnElement = builderColumnElement((Element) child);
+                    columnElements.add(columnElement);
+                }
+            }
+            columnModel.setColumnElements(columnElements);
+        }
+        return columnModel;
+    }
+
+    private ColumnElement builderColumnElement(Element el) {
+        ColumnElement columnElement = new ColumnElement();
+
+        return columnElement;
 
     }
 }
