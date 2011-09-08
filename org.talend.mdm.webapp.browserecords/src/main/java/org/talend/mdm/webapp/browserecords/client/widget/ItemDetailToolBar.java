@@ -108,10 +108,11 @@ public class ItemDetailToolBar extends ToolBar {
                 TabItem t = (TabItem) item.getItem(0);
                 ItemPanel i = (ItemPanel) t.getWidget(0);
                 ItemNodeModel model = (ItemNodeModel) i.getTree().getTree().getItem(0).getUserObject();
-
+                
                 Dispatcher dispatch = Dispatcher.get();
                 AppEvent app = new AppEvent(BrowseRecordsEvents.SaveItem, model);
                 app.setData("ItemBean", i.getItem()); //$NON-NLS-1$
+                app.setData("isCreate", i.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION) ? true : false); //$NON-NLS-1$
                 dispatch.dispatch(app);
 
             }

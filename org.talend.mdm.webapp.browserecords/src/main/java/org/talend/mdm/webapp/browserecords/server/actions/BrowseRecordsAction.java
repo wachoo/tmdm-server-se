@@ -1411,7 +1411,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return fieldNames;
     }
 
-    public ItemResult saveItem(String concept, String ids, String xml) {
+    public ItemResult saveItem(String concept, String ids, String xml, boolean isCreate) {
 
         try {
             String message = null;
@@ -1419,7 +1419,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             // if update, check the item is modified by others?
             WSPutItemWithReport wsPutItemWithReport = new WSPutItemWithReport(new WSPutItem(new WSDataClusterPK(
-                    getCurrentDataCluster()), xml, new WSDataModelPK(getCurrentDataModel()), true), "genericUI", true); //$NON-NLS-1$
+                    getCurrentDataCluster()), xml, new WSDataModelPK(getCurrentDataModel()), isCreate ? false : true),
+                    "genericUI", true); //$NON-NLS-1$
             CommonUtil.getPort().putItemWithReport(wsPutItemWithReport);
 
             if (com.amalto.webapp.core.util.Util.isTransformerExist("beforeSaving_" + concept)) { //$NON-NLS-1$

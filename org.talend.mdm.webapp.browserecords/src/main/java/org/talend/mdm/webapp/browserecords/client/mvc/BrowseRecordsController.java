@@ -92,7 +92,9 @@ public class BrowseRecordsController extends Controller {
         // TODO the following code need to be refactor, it is the demo code
         ItemNodeModel model = event.getData();
         ItemBean itemBean = event.getData("ItemBean"); //$NON-NLS-1$
-        service.saveItem(itemBean.getConcept(), itemBean.getIds(), CommonUtil.toXML(model), new AsyncCallback<ItemResult>() {
+        boolean isCreate = event.getData("isCreate"); //$NON-NLS-1$
+        service.saveItem(itemBean.getConcept(), itemBean.getIds(), CommonUtil.toXML(model), isCreate,
+                new AsyncCallback<ItemResult>() {
 
             public void onSuccess(ItemResult arg0) {
                 com.google.gwt.user.client.Window.alert("save successfully"); //$NON-NLS-1$

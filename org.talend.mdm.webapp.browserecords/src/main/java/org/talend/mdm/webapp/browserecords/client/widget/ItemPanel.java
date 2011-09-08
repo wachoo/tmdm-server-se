@@ -78,4 +78,9 @@ public class ItemPanel extends ContentPanel {
     public TreeDetail getTree() {
         return tree;
     }
+
+    public String getOperation() {
+        return operation;
+    }
+
 }
