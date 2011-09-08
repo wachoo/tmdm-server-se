@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.browserecords.client;
 import java.util.List;
 import java.util.Map;
 
+import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyDrawer;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBaseModel;
@@ -89,4 +90,6 @@ public interface BrowseRecordsService extends RemoteService {
     List<String> getMandatoryFieldList(String tableName) throws Exception;
 
     ItemResult saveItem(String concept, String ids, String xml, boolean isCreate);
+
+    ColumnTreeLayoutModel getColumnTreeLayout(String concept) throws Exception;
 }
