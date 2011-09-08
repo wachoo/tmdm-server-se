@@ -12,8 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.general.client.mvc.controller;
 
-
-
 import java.util.List;
 
 import org.talend.mdm.webapp.general.client.General;
@@ -41,81 +39,85 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 public class GeneralController extends Controller {
 
 	private GeneralServiceAsync service;
-	
-	private GeneralView view;
-	
-	public GeneralController(){
-	    registerEventTypes(GeneralEvent.LoadUser);
-		registerEventTypes(GeneralEvent.InitFrame);
-		registerEventTypes(GeneralEvent.Error);
-		registerEventTypes(GeneralEvent.LoadMenus);
-		registerEventTypes(GeneralEvent.LoadLanguages);
-		registerEventTypes(GeneralEvent.LoadActions);
+
+    private GeneralView view;
+
+    public GeneralController() {
+        registerEventTypes(GeneralEvent.LoadUser);
+        registerEventTypes(GeneralEvent.InitFrame);
+        registerEventTypes(GeneralEvent.Error);
+        registerEventTypes(GeneralEvent.LoadMenus);
+        registerEventTypes(GeneralEvent.LoadLanguages);
+        registerEventTypes(GeneralEvent.LoadActions);
         registerEventTypes(GeneralEvent.LoadWelcome);
-		registerEventTypes(GeneralEvent.SwitchClusterAndModel);
-	}
-	
-	@Override
+        registerEventTypes(GeneralEvent.SwitchClusterAndModel);
+    }
+
+    @Override
     public void initialize() {
-		service = (GeneralServiceAsync) Registry.get(General.OVERALL_SERVICE);
-		view = new GeneralView(this);
+        service = (GeneralServiceAsync) Registry.get(General.OVERALL_SERVICE);
+        view = new GeneralView(this);
 	}
-	
+
 	@Override
-	public void handleEvent(final AppEvent event) {
+    public void handleEvent(final AppEvent event) {
 		EventType type = event.getType();
 
-		if (type == GeneralEvent.LoadUser){
-		    loadUser(event);
-		} else if (type == GeneralEvent.InitFrame){
-		    forwardToView(view, event);
+        if (type == GeneralEvent.LoadUser) {
+            loadUser(event);
+        } else if (type == GeneralEvent.InitFrame) {
+            forwardToView(view, event);
 		} else if (type == GeneralEvent.Error){
-		    this.forwardToView(view, event);
-		} else if (type == GeneralEvent.LoadLanguages){
-		    loadLanguages(event);
+            this.forwardToView(view, event);
+        } else if (type == GeneralEvent.LoadLanguages) {
+            loadLanguages(event);
 		} else if (type == GeneralEvent.LoadMenus){
-		    loadMenu(event);
-		} else if (type == GeneralEvent.LoadActions){
-		    loadActions(event);
-		} else if (type == GeneralEvent.SwitchClusterAndModel){
-		    switchClusterAndModel(event);
+            loadMenu(event);
+        } else if (type == GeneralEvent.LoadActions) {
+            loadActions(event);
+        } else if (type == GeneralEvent.SwitchClusterAndModel) {
+            switchClusterAndModel(event);
         } else if (type == GeneralEvent.LoadWelcome) {
             forwardToView(view, event);
 		}
 	}
 
     private void loadLanguages(AppEvent event) {
-	    service.getLanguages(new MdmAsyncCallback<List<ItemBean>>() {
+        service.getLanguages(new MdmAsyncCallback<List<ItemBean>>() {
+
             public void onSuccess(List<ItemBean> result) {
                 BrandingBar.getInstance().buildLanguage(result);
                 Dispatcher dispatcher = Dispatcher.get();
                 dispatcher.dispatch(GeneralEvent.InitFrame);
             }
         });
-	}
-	
-	private void loadMenu(final AppEvent event){
-	    service.getMenus(UrlUtil.getLanguage(), new MdmAsyncCallback<List<MenuBean>>() {
+    }
+
+    private void loadMenu(final AppEvent event) {
+        service.getMenus(UrlUtil.getLanguage(), new MdmAsyncCallback<List<MenuBean>>() {
+
             @Override
             public void onSuccess(List<MenuBean> result) {
                 event.setData(result);
                 forwardToView(view, event);
             }
         });
-	}
-	
-	private void loadUser(AppEvent event){
-	    service.getUsernameAndUniverse(new MdmAsyncCallback<UserBean>() {
+    }
+
+    private void loadUser(AppEvent event) {
+        service.getUsernameAndUniverse(new MdmAsyncCallback<UserBean>() {
+
             public void onSuccess(UserBean userBean) {
                 Registry.register(General.USER_BEAN, userBean);
                 Dispatcher dispatcher = Dispatcher.get();
                 dispatcher.dispatch(GeneralEvent.LoadLanguages);
             }
         });
-	}
-	
-	private void loadActions(AppEvent event){
+    }
+
+    private void loadActions(AppEvent event) {
         service.getAction(new MdmAsyncCallback<ActionBean>() {
+
             @Override
             public void onSuccess(ActionBean result) {
                 ActionsPanel.getInstance().loadAction(result);
@@ -123,20 +125,23 @@ public class GeneralController extends Controller {
         });
 	}
 	
-	private void switchClusterAndModel(AppEvent event){
-	    String dataCluster = ActionsPanel.getInstance().getDataCluster();
-	    String dataModel = ActionsPanel.getInstance().getDataModel();
-	    service.setClusterAndModel(dataCluster, dataModel, new MdmAsyncCallback<String>() {
+    private void switchClusterAndModel(AppEvent event) {
+        String dataCluster = ActionsPanel.getInstance().getDataCluster();
+        String dataModel = ActionsPanel.getInstance().getDataModel();
+        service.setClusterAndModel(dataCluster, dataModel, new MdmAsyncCallback<String>() {
+
             @Override
             public void onSuccess(String result) {
-                if("DONE".equals(result)){ //$NON-NLS-1$
-                    MessageBox.alert(MessageFactory.getMessages().status(), MessageFactory.getMessages().status_msg_success(), null);
+                if ("DONE".equals(result)) { //$NON-NLS-1$
+                    MessageBox.alert(MessageFactory.getMessages().status(), MessageFactory.getMessages().status_msg_success(),
+                            null);
                 } else {
-                    MessageBox.alert(MessageFactory.getMessages().status(), MessageFactory.getMessages().status_msg_failure() + " " + result, null); //$NON-NLS-1$
+                    MessageBox.alert(MessageFactory.getMessages().status(), MessageFactory.getMessages().status_msg_failure()
+                            + " " + result, null); //$NON-NLS-1$
                 }
                 WorkSpace.getInstance().clearTabs();
                 WorkSpace.getInstance().loadApp(view.WELCOMECONTEXT, view.WELCOMEAPP);
             }
         });
-	}
+    }
 }

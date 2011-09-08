@@ -30,43 +30,43 @@ import com.google.gwt.user.client.ui.RootPanel;
 
 public class GeneralView extends View {
 
-    public static final String WELCOMECONTEXT = "welcomeportal", WELCOMEAPP = "WelcomePortal"; //$NON-NLS-1$ //$NON-NLS-2$
+    public static final String WELCOMECONTEXT = "welcomeportal", WELCOMEAPP = "WelcomePortal", WELCOMEID = "Welcome"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
     public static final String DSCCONTEXT = "datastewardship", DSCAPP = "Datastewardship", DSCID = "tdscPanel"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-	public GeneralView(Controller controller) {
-		super(controller);
-	}
+    public GeneralView(Controller controller) {
+        super(controller);
+    }
 
-	@Override
-	protected void handleEvent(AppEvent event) {
-		EventType type = event.getType();
-		if (type == GeneralEvent.InitFrame){
-			initFrame(event);
-		} else if (type == GeneralEvent.Error){
-			onError(event);
-		} else if (type == GeneralEvent.LoadMenus){
-		    AccordionMenus.getInstance().initMenus((List<MenuBean>) event.getData());
-		    Dispatcher dispatcher = Dispatcher.get();
-		    dispatcher.dispatch(GeneralEvent.LoadActions);
+    @Override
+    protected void handleEvent(AppEvent event) {
+        EventType type = event.getType();
+        if (type == GeneralEvent.InitFrame) {
+            initFrame(event);
+        } else if (type == GeneralEvent.Error) {
+            onError(event);
+        } else if (type == GeneralEvent.LoadMenus) {
+            AccordionMenus.getInstance().initMenus((List<MenuBean>) event.getData());
+            Dispatcher dispatcher = Dispatcher.get();
+            dispatcher.dispatch(GeneralEvent.LoadActions);
         } else if (type == GeneralEvent.LoadWelcome) {
             loadWelcome(event);
-		}
-	}
+        }
+    }
 
     private void loadWelcome(AppEvent event) {
         WorkSpace.getInstance().loadApp(WELCOMECONTEXT, WELCOMEAPP);
     }
 
     private void initFrame(AppEvent event) {
-		BorderLayoutContainer mainLayout = new BorderLayoutContainer();
-		RootPanel.get().add(mainLayout);
-		Dispatcher dispatcher = Dispatcher.get();
-		dispatcher.dispatch(GeneralEvent.LoadMenus);
+        BorderLayoutContainer mainLayout = new BorderLayoutContainer();
+        RootPanel.get().add(mainLayout);
+        Dispatcher dispatcher = Dispatcher.get();
+        dispatcher.dispatch(GeneralEvent.LoadMenus);
         dispatcher.dispatch(GeneralEvent.LoadWelcome);
-	}
-	
-	private void onError(AppEvent ae) {
+    }
+
+    private void onError(AppEvent ae) {
         MessageBox.alert("", "", null);
     }
 }
