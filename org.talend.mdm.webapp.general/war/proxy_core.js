@@ -338,7 +338,10 @@ amalto.core = function () {
 	
 	function initUI() {
 
-		language = "en";
+		 
+		var mate = document.getElementById("gwt:property");
+		language = mate.content.split("=")[1];
+		
 		// initialize state manager, we will use cookies
 		Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
 		

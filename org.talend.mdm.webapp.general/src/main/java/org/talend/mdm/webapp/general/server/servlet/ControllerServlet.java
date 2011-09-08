@@ -43,12 +43,7 @@ public class ControllerServlet extends HttpServlet {
         Locale locale = req.getLocale();
 
         String language = "fr"; //$NON-NLS-1$
-        if (locale.getLanguage() != null) {
-            language = locale.getLanguage();
-        }
-        if (req.getSession().getAttribute("language") != null) { //$NON-NLS-1$
-            language = (String) req.getSession().getAttribute("language"); //$NON-NLS-1$
-        }
+
         if (req.getParameter("language") != null) { //$NON-NLS-1$
             language = req.getParameter("language"); //$NON-NLS-1$
             req.getSession().setAttribute("language", language); //$NON-NLS-1$
@@ -64,7 +59,7 @@ public class ControllerServlet extends HttpServlet {
         try {
 
             String html = "<html>\n" + "<head>\n" + "<title>Talend MDM</title>\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    + "<meta name=\"gwt:property\" content=\"locale=" + language + "\" >\n"; //$NON-NLS-1$ //$NON-NLS-2$
+                    + "<meta id=\"gwt:property\" name=\"gwt:property\" content=\"locale=" + language + "\" >\n"; //$NON-NLS-1$ //$NON-NLS-2$
             html += "<link rel=\"stylesheet\" type=\"text/css\" href=\"/general/resources/css/gxt-all.css\" />\n"; //$NON-NLS-1$
             html += "<script type=\"text/javascript\" language=\"javascript\" src=\"/general/general/general.nocache.js\"></script>"; //$NON-NLS-1$
             html += Utils.getCommonImport();
