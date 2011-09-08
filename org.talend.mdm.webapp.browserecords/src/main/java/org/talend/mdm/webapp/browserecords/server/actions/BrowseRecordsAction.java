@@ -1347,16 +1347,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return config.getCluster();
     }
     
-    public ItemNodeModel getItemNodeModel(String concept, String ids) throws Exception {
+    public ItemNodeModel getItemNodeModel(String concept, Map<String, TypeModel> metaDataTypes,String ids) throws Exception {
         String dataCluster = getCurrentDataCluster();
-        String dataModel = getCurrentDataModel();
 
         // get item
         WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(dataCluster);
         String[] idlist = ids == null ? null : ids.split("\\.");//$NON-NLS-1$
         WSItem wsItem = CommonUtil.getPort().getItem(new WSGetItem(new WSItemPK(wsDataClusterPK, concept, idlist)));
         String xml = wsItem.getContent();
-        System.out.println("XML = " + xml);
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
@@ -1364,20 +1362,27 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         InputSource inputSource = new InputSource(sr);
         Document doc = builder.parse(inputSource);
         Element root = doc.getDocumentElement();
-        return builderNode(root);
+        
+        return builderNode(root,metaDataTypes,""); //$NON-NLS-1$
     }
-    
-    private ItemNodeModel builderNode(Element el){
+
+    private ItemNodeModel builderNode(Element el,Map<String, TypeModel> metaDataTypes,String xpath){        
+        xpath += (xpath == "" ? el.getNodeName():"/" + el.getNodeName());      //$NON-NLS-1$//$NON-NLS-2$        
         ItemNodeModel nodeModel = new ItemNodeModel(el.getNodeName());
-        nodeModel.setDescription(el.getNodeName());
+        nodeModel.setDescription(el.getNodeName());        
         nodeModel.setName(el.getNodeName());
-        nodeModel.setObjectValue(el.getTextContent());
+        nodeModel.setObjectValue(el.getTextContent());        
+        if (!"".equals(metaDataTypes.get(xpath).getForeignkey()) && metaDataTypes.get(xpath).getForeignkey() != null ) {       //$NON-NLS-1$
+            ForeignKeyBean foreignKeyBean = new ForeignKeyBean();
+            foreignKeyBean.setId(el.getTextContent());            
+            foreignKeyBean.setForeignKeyPath(xpath);
+        }
         NodeList children = el.getChildNodes();
         if (children != null){
             for (int i = 0;i < children.getLength();i++){
                 Node child = children.item(i);
                 if (child.getNodeType() == Node.ELEMENT_NODE){
-                    ItemNodeModel childNode = builderNode((Element) child);
+                    ItemNodeModel childNode = builderNode((Element) child,metaDataTypes,xpath);
                     nodeModel.add(childNode);
                 }
             }

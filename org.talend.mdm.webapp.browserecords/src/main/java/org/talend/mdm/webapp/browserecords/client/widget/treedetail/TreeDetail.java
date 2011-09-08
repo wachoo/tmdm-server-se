@@ -1,7 +1,10 @@
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
@@ -30,7 +33,7 @@ import com.google.gwt.user.client.ui.TreeItem;
 
 public class TreeDetail extends ContentPanel {
 
-    private final ViewBean viewBean = (ViewBean) this.getSession().get(UserSession.CURRENT_VIEW);
+    private final ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
 
     private ItemDetailToolBar toolBar;
 
@@ -62,11 +65,11 @@ public class TreeDetail extends ContentPanel {
         this.setScrollMode(Scroll.AUTO);
     }
 
-    public void initTree(ItemBean itemBean) {
+    public void initTree(ItemBean itemBean) {        
         if (itemBean == null) {
             buildPanel(viewBean);
         } else {
-            this.getItemService().getItemNodeModel(itemBean.getConcept(), itemBean.getIds(), new AsyncCallback<ItemNodeModel>() {
+            this.getItemService().getItemNodeModel(itemBean.getConcept(), viewBean.getBindingEntityModel().getMetaDataTypes(),itemBean.getIds(), new AsyncCallback<ItemNodeModel>() {
 
                 public void onSuccess(ItemNodeModel node) {
                     root = buildGWTTree(node, null);
