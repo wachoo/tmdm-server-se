@@ -5873,6 +5873,11 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
                                 }
                             });
+                    
+                    combo.on('beforequery', function(){
+                    	combo.focus();
+                        combo.expand();
+                    });
 
                     foreignKeyWindow = new Ext.Window({
                                 layout : 'fit',
