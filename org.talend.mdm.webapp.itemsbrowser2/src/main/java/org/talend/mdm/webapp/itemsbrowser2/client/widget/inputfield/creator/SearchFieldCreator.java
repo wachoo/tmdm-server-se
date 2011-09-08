@@ -16,12 +16,12 @@ import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -78,6 +78,7 @@ public class SearchFieldCreator {
                 cons = OperatorConstants.dateOperators;
             } else if (typeModel.getType().getBaseTypeName().equals(DataTypeConstants.DATETIME.getBaseTypeName())) {
                 DateTimeField dateField = new DateTimeField();
+                dateField.setMessageTarget("tooltip");//$NON-NLS-1$
                 dateField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd HH:mm:ss"));//$NON-NLS-1$            
                 field = dateField;
                 cons = OperatorConstants.dateOperators;
