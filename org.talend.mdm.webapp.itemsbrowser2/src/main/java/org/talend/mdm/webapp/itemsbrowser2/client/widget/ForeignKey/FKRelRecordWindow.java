@@ -41,9 +41,10 @@ import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.GridEvent;
+import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
@@ -61,7 +62,6 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -123,7 +123,7 @@ public class FKRelRecordWindow extends Window {
     }
 
     private String getFilterValue() {
-        String value = filter.getRawValue();
+        String value = filter.getValue();
         if (value == null || value.trim().equals("")) {
             value = ".*"; //$NON-NLS-1$
         }
@@ -188,39 +188,12 @@ public class FKRelRecordWindow extends Window {
         panel.setSize(WINDOW_WIDTH, WINDOW_HEIGH);
         panel.setHeaderVisible(false);
 
-        filter.addListener(Events.KeyUp, new Listener<FieldEvent>() {
-
-            public void handleEvent(FieldEvent be) {
-                if (be.getKeyCode() == KeyCodes.KEY_UP) {
-                    ForeignKeyBean fkBean = relatedRecordGrid.getSelectionModel().getSelectedItem();
-                    if (fkBean == null) {
-                        relatedRecordGrid.getSelectionModel().select(store.getCount() - 1, true);
-                    } else {
-                        relatedRecordGrid.getSelectionModel().selectPrevious(false);
-                        filter.focus();
-                    }
-                    return;
-                }
-                if (be.getKeyCode() == KeyCodes.KEY_DOWN) {
-                    ForeignKeyBean fkBean = relatedRecordGrid.getSelectionModel().getSelectedItem();
-                    if (fkBean == null) {
-                        relatedRecordGrid.getSelectionModel().select(0, true);
-                    } else {
-                        relatedRecordGrid.getSelectionModel().selectNext(false);
-                        filter.focus();
-                    }
-                    return;
-                }
-                if (be.getKeyCode() == KeyCodes.KEY_ENTER) {
-                    ForeignKeyBean fkBean = relatedRecordGrid.getSelectionModel().getSelectedItem();
-                    fkBean.setForeignKeyPath(xPath);
-                    fkBean.setDisplayInfo(fkBean.toString() != null ? fkBean.toString() : fkBean.getId());
-                    returnCriteriaFK.setCriteriaFK(fkBean);
-                    close();
-                }
-                if (be.getKeyCode() == KeyCodes.KEY_LEFT || be.getKeyCode() == KeyCodes.KEY_RIGHT) {
-                    return;
-                }
+        filter.addKeyListener(new KeyListener(){
+            /* (non-Javadoc)
+             * @see com.extjs.gxt.ui.client.event.KeyListener#componentKeyUp(com.extjs.gxt.ui.client.event.ComponentEvent)
+             */
+            @Override
+            public void componentKeyUp(ComponentEvent event) {
                 loader.load(0, pageSize);
             }
         });
@@ -277,6 +250,14 @@ public class FKRelRecordWindow extends Window {
         filterBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.funnel()));
         filterBtn.setWidth(30);
         filter.setWidth(200);
+        filterBtn.setToolTip("filter");
+        filterBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                loader.load(0, pageSize);
+            }
+        });
         typeComboBox.setWidth(WINDOW_WIDTH - 250);
         toolBar.add(filterBtn);
         toolBar.add(filter);
@@ -323,21 +304,13 @@ public class FKRelRecordWindow extends Window {
                 fkBean.setForeignKeyPath(xPath);
                 fkBean.setDisplayInfo(fkBean.toString() != null ? fkBean.toString() : fkBean.getId());
                 returnCriteriaFK.setCriteriaFK(fkBean);
-                close();
+                hide();
             }
         });
 
         panel.add(relatedRecordGrid);
         panel.setBottomComponent(pageToolBar);
 
-        Button cancelBtn = new Button(MessagesFactory.getMessages().cancel_btn());
-        cancelBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-            public void componentSelected(ButtonEvent ce) {
-                close();
-            }
-        });
-        addButton(cancelBtn);
         add(panel, new FlowData(5));
 
     }
