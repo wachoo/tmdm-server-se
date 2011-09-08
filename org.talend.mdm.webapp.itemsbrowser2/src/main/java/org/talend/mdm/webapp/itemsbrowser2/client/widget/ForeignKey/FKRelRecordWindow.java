@@ -250,7 +250,7 @@ public class FKRelRecordWindow extends Window {
         filterBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.funnel()));
         filterBtn.setWidth(30);
         filter.setWidth(200);
-        filterBtn.setToolTip("filter");
+        filterBtn.setToolTip(MessagesFactory.getMessages().filter());
         filterBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             @Override

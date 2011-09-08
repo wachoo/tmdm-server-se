@@ -305,4 +305,6 @@ public interface ItemsbrowserMessages extends Messages {
     String error_column_width();
     
     String add_table_primary_key();
+
+    String filter();
 }

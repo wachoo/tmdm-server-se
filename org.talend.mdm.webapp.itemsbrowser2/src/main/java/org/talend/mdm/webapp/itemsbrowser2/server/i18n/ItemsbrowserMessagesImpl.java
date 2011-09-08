@@ -603,4 +603,7 @@ public final class ItemsbrowserMessagesImpl implements ItemsbrowserMessages {
     public String add_table_primary_key() {
         return MESSAGES.getMessage("add_table_primary_key");
     }
+    public String filter() {
+        return MESSAGES.getMessage("filter");
+    }
 }
