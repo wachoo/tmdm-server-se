@@ -15,6 +15,8 @@ package org.talend.mdm.webapp.general.client.layout;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.talend.mdm.webapp.general.client.mvc.view.GeneralView;
+
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ContainerEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -180,8 +182,12 @@ public class WorkSpace extends LayoutContainer {
         uiObject.doLayout();
     }-*/;
 
-    public void clearTabs(){
-        workTabPanel.removeAll();
+    public void clearTabs() {
+        String itemId = GeneralView.DSCID;
+        for (TabItem item : workTabPanel.getItems()) {
+            if (!item.getItemId().equals(itemId))
+                item.removeFromParent();
+        }
     }
 
     public native void loadApp(String context, String application)/*-{

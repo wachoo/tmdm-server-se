@@ -32,7 +32,7 @@ public class GeneralView extends View {
 
     public static final String WELCOMECONTEXT = "welcomeportal", WELCOMEAPP = "WelcomePortal"; //$NON-NLS-1$ //$NON-NLS-2$
 
-    public static final String DSCCONTEXT = "datastewardship", DSCAPP = "Datastewardship"; //$NON-NLS-1$ //$NON-NLS-2$
+    public static final String DSCCONTEXT = "datastewardship", DSCAPP = "Datastewardship", DSCID = "tdscPanel"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
 	public GeneralView(Controller controller) {
 		super(controller);

@@ -136,7 +136,6 @@ public class GeneralController extends Controller {
                 }
                 WorkSpace.getInstance().clearTabs();
                 WorkSpace.getInstance().loadApp(view.WELCOMECONTEXT, view.WELCOMEAPP);
-                WorkSpace.getInstance().loadApp(view.DSCCONTEXT, view.DSCAPP);
             }
         });
 	}
