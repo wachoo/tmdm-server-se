@@ -401,7 +401,12 @@ public class ItemsToolBar extends ToolBar {
                                         new AsyncCallback<List<ItemResult>>() {
 
                                             public void onFailure(Throwable caught) {
-                                                Dispatcher.forwardEvent(ItemsEvents.Error, caught);
+                                            	if(caught.getMessage().indexOf("SessionTimeOut") != -1) {//$NON-NLS-1$
+                                            		com.google.gwt.user.client.Window.Location.replace("/talendmdm/secure/");//$NON-NLS-1$
+                                            	}
+                                            	else { 
+                                            		Dispatcher.forwardEvent(ItemsEvents.Error, caught);
+                                            	}
                                             }
 
                                             public void onSuccess(List<ItemResult> results) {
@@ -685,7 +690,20 @@ public class ItemsToolBar extends ToolBar {
                     @Override
                     public void load(Object loadConfig, AsyncCallback<PagingLoadResult<ItemBaseModel>> callback) {
                         service.querySearchTemplates(entityCombo.getValue().get("value").toString(), true, //$NON-NLS-1$
-                                (PagingLoadConfig) loadConfig, callback);
+                                (PagingLoadConfig) loadConfig, new AsyncCallback<PagingLoadResult<ItemBaseModel>>() {
+									public void onFailure(Throwable caught) {
+										if(caught.getMessage().indexOf("SessionTimeOut") != -1) {//$NON-NLS-1$
+				                    		com.google.gwt.user.client.Window.Location.replace("/talendmdm/secure/");//$NON-NLS-1$
+				                    	}
+				                    	else { 
+				                    		MessageBox.alert(MessagesFactory.getMessages().error_title(), caught.getMessage(), null);
+				                    		Dispatcher.forwardEvent(ItemsEvents.Error, caught);
+				                    	}
+									}
+
+									public void onSuccess(PagingLoadResult<ItemBaseModel> arg0) {
+									}
+								});
                     }
                 };
 
@@ -968,9 +986,15 @@ public class ItemsToolBar extends ToolBar {
                         new AsyncCallback<Boolean>() {
 
                             public void onFailure(Throwable caught) {
-                                Dispatcher.forwardEvent(ItemsEvents.Error, caught);
-                                MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
-                                        .bookmark_existMsg(), null);
+                            	if(caught.getMessage().indexOf("SessionTimeOut") != -1) {//$NON-NLS-1$
+                            		com.google.gwt.user.client.Window.Location.replace("/talendmdm/secure/");//$NON-NLS-1$
+                            	}
+                            	else { 
+                            		Dispatcher.forwardEvent(ItemsEvents.Error, caught);
+                            		MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                            				.bookmark_existMsg(), null);
+                            	}
+
                             }
 
                             public void onSuccess(Boolean arg0) {
