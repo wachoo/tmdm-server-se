@@ -5,8 +5,6 @@ import java.util.List;
 
 public class ColumnElementChildren implements Serializable {
 
-    private int order;
-
     private String cssSnippet;
 
     private String bkColor;
@@ -19,14 +17,6 @@ public class ColumnElementChildren implements Serializable {
 
     public ColumnElementChildren() {
 
-    }
-
-    public int getOrder() {
-        return order;
-    }
-
-    public void setOrder(int order) {
-        this.order = order;
     }
 
     public String getCssSnippet() {

@@ -46,6 +46,7 @@ import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsService;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnElement;
+import org.talend.mdm.webapp.browserecords.client.model.ColumnElementChildren;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeModel;
 import org.talend.mdm.webapp.browserecords.client.model.DataTypeConstants;
@@ -1544,8 +1545,48 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     private ColumnElement builderColumnElement(Element el) {
         ColumnElement columnElement = new ColumnElement();
-
+        columnElement.setCssSnippet(el.getAttribute("cssSnippet")); //$NON-NLS-1$
+        columnElement.setJsSnippet(el.getAttribute("jsSnippet")); //$NON-NLS-1$
+        columnElement.setBkColor(el.getAttribute("bkColor")); //$NON-NLS-1$
+        columnElement.setForeColor(el.getAttribute("foreColor")); //$NON-NLS-1$
+        columnElement.setName(el.getAttribute("name")); //$NON-NLS-1$
+        columnElement.setXpath(el.getAttribute("xpath")); //$NON-NLS-1$
+        
+        NodeList children = el.getChildNodes();
+        if (children != null && children.getLength() > 0){
+            List<ColumnElementChildren> childrenElements = new ArrayList<ColumnElementChildren>();
+            for (int i = 0;i < children.getLength();i++){
+                Node child = children.item(i);
+                if (child.getNodeType() == Node.ELEMENT_NODE){
+                    childrenElements.add(builderChildren((Element) child));
+                }
+            }
+            columnElement.setChildren(childrenElements);
+        }
+        
         return columnElement;
+    }
+    
+    private ColumnElementChildren builderChildren(Element el) {
+        ColumnElementChildren elChildren = new ColumnElementChildren();
+        elChildren.setBkColor(el.getAttribute("bkColor"));
+        elChildren.setCssSnippet(el.getAttribute("cssSnippet"));
+        elChildren.setName(el.getAttribute("name"));
+        elChildren.setXpath(el.getAttribute("xpath"));
+        
+        NodeList children = el.getChildNodes();
+        if (children != null && children.getLength() > 0) {
+            List<ColumnElementChildren> elChildrens = new ArrayList<ColumnElementChildren>();
+            for (int i = 0; i < children.getLength(); i++) {
+                Node child = children.item(i);
+                if (child.getNodeType() == Node.ELEMENT_NODE) {
+                    elChildrens.add(builderChildren((Element) child));
+                }
+            }
+
+            elChildren.setChildren(elChildrens);
+        }
+        return elChildren;
 
     }
 }

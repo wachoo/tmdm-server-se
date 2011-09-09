@@ -1,10 +1,9 @@
 package org.talend.mdm.webapp.browserecords.client.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class ColumnElement implements Serializable {
-
-    private int order;
 
     private String cssSnippet;
 
@@ -18,16 +17,10 @@ public class ColumnElement implements Serializable {
 
     private String xpath;
 
+    private List<ColumnElementChildren> children;
+
     public ColumnElement() {
 
-    }
-
-    public int getOrder() {
-        return order;
-    }
-
-    public void setOrder(int order) {
-        this.order = order;
     }
 
     public String getCssSnippet() {
@@ -77,5 +70,13 @@ public class ColumnElement implements Serializable {
 
     public void setXpath(String xpath) {
         this.xpath = xpath;
+    }
+
+    public List<ColumnElementChildren> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<ColumnElementChildren> children) {
+        this.children = children;
     }
 }
