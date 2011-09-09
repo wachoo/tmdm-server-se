@@ -643,6 +643,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
     }
 
     var _rootNode;
+    
+    var smartViewFrameUrl = null;
 
     function showItemsPanel() {
         var tabPanel = amalto.core.getTabPanel();
@@ -2254,6 +2256,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                 + toolbar.dataObject + '&language=' + language;
                         if (smartViewName != null)
                             frameUrl += ('&name=' + smartViewName);
+                        smartViewFrameUrl = frameUrl;
                         document.getElementById("smartViewFrame"
                                 + toolbar.treeIndex).src = frameUrl;
                     }
@@ -3177,9 +3180,11 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 	                            if (ids1 && ids1.length > 0) {
 	                                ItemsBrowserInterface.reloadItem(dataObject,
 	                                        getItemIdsArray(ids1), treeIndex, function() {
-	                                            reloadNode(node1.index, treeIndex);
+	                                            reloadNode(node1.index, treeIndex);	                                            
 	                                        });
 	                            }
+	                            refreshSmartView(treeIndex);
+	                            
                         	};
 							if (noConfirming === true){
                         		refreshFn();
@@ -3289,6 +3294,9 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 								} catch (e) {}
 							}
 						};
+						
+                        refreshFnList["itemsBrowser2Panel"]();
+                       
                     }
                     formWindow.innerHTML = "";
                     formWindow.style.overflow = "hidden";
@@ -4021,9 +4029,10 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 	                            if (ids1 && ids1.length > 0) {
 	                                ItemsBrowserInterface.reloadItem(dataObject,
 	                                        ids1, treeIndex, function() {
-	                                            reloadNode(node1.index, treeIndex);
+	                                            reloadNode(node1.index, treeIndex);	                                           
 	                                        });
 	                            }
+	                            refreshSmartView(treeIndex);
                         	};
 							if (noConfirming === true){
                         		refreshFn();
@@ -6268,6 +6277,12 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         	Iframe.style.height = Iframe.contentWindow.document.body.scrollHeight + 40 + 'px';
         }
     }
+    
+    function refreshSmartView(treeIndex){
+    	if (document.getElementById("smartViewFrame" + treeIndex) != undefined && smartViewFrameUrl != null && $('smartView' + treeIndex).style.display == 'block')   {    		
+    		document.getElementById("smartViewFrame" + treeIndex).contentWindow.location.href = smartViewFrameUrl + "&" + Math.random();  		
+    	}
+    }
 
     return {
         init : function() {
@@ -6377,7 +6392,6 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         resizeIframe : function(obj){
         	resizeIframe(obj);
         }
-
         /*
          * getRealValue:function(id,treeIndex){getRealValue(id,treeIndex);},
          * setFormatValue:function(id,treeIndex,displayFormats){setFormatValue(id,treeIndex,displayFormats);}
