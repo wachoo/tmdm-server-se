@@ -21,6 +21,7 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.creator.CellEditorCreator;
 import org.talend.mdm.webapp.browserecords.client.creator.CellRendererCreator;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
+import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.BreadCrumb;
@@ -94,8 +95,9 @@ public class BrowseRecordsView extends View {
     }
 
     private void onViewForeignKey(AppEvent event) {
-        ViewBean viewBean = event.getData();
-        ForeignKeyTreeDetail tree = new ForeignKeyTreeDetail(viewBean, true);
+        ItemNodeModel model = event.getData();
+        ViewBean viewBean = event.getData("viewBean"); //$NON-NLS-1$
+        ForeignKeyTreeDetail tree = new ForeignKeyTreeDetail(viewBean, model, false);
         itemsSearchContainer.getItemsDetailPanel().addTabItem(viewBean.getBindingEntityModel().getConceptName(), tree,
                 ItemsDetailPanel.MULTIPLE, viewBean.getDescription());
     }

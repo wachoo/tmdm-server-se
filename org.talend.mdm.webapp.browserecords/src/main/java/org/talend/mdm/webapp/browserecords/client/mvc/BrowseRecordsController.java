@@ -109,14 +109,16 @@ public class BrowseRecordsController extends Controller {
 
     private void onViewForeignKey(final AppEvent event) {
 
-        ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
-        ForeignKeyBean fkBean = event.getData();        
-        service.getItemNodeModel(fkBean.getId(),viewBean.getBindingEntityModel().getMetaDataTypes(), fkBean.getForeignKeyPath(), new AsyncCallback<ItemNodeModel>() {
+        ForeignKeyBean fkBean = event.getData();
+        final ViewBean viewBean = event.getData("viewBean"); //$NON-NLS-1$
+        String concept = fkBean.getForeignKeyPath().split("/")[0]; //$NON-NLS-1$
+        service.getItemNodeModel(concept, viewBean.getBindingEntityModel().getMetaDataTypes(), null,
+                new AsyncCallback<ItemNodeModel>() {
 
             public void onSuccess(ItemNodeModel item) {
                 // forward
                 AppEvent ae = new AppEvent(event.getType(), item);
-                ae.setSource(event.getSource());
+                        ae.setData("viewBean", viewBean); //$NON-NLS-1$
                 forwardToView(view, ae);
             }
 

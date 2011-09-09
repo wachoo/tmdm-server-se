@@ -7,9 +7,10 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.TreeModel;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 
-public class ItemNodeModel extends BaseTreeModel implements Cloneable {
+public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
 
     private static final long serialVersionUID = 1L;
 

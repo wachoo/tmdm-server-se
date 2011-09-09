@@ -1381,6 +1381,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             ForeignKeyBean foreignKeyBean = new ForeignKeyBean();
             foreignKeyBean.setId(el.getTextContent());            
             foreignKeyBean.setForeignKeyPath(xpath);
+            nodeModel.setObjectValue(foreignKeyBean);
         }
         NodeList children = el.getChildNodes();
         if (children != null){

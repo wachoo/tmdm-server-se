@@ -287,7 +287,11 @@ public class ForeignKeyListWindow extends Window {
                             public void onSuccess(ForeignKeyDrawer fkDrawer) {
                                 typeModel.setForeignkey(fkDrawer.getXpathForeignKey());
                                 List<String> fkinfo = new ArrayList<String>();
-                                fkinfo.add(fkDrawer.getXpathInfoForeignKey());
+                                if (fkDrawer.getXpathInfoForeignKey() != null) {
+                                    String[] foreignKeyList = fkDrawer.getXpathInfoForeignKey().split(","); //$NON-NLS-1$
+                                    for (int i = 0; i < foreignKeyList.length; i++)
+                                        fkinfo.add(foreignKeyList[i]);
+                                }
 
                                 typeModel.setForeignKeyInfo(fkinfo);
                                 loader.load(0, pageSize);

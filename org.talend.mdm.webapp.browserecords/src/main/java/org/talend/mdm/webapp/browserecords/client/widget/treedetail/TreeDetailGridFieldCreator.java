@@ -6,6 +6,7 @@ import java.util.List;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.model.ComboBoxModel;
 import org.talend.mdm.webapp.browserecords.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.DateUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.BooleanField;
@@ -47,7 +48,7 @@ public class TreeDetailGridFieldCreator {
         boolean hasValue = value != null && !"".equals(value); //$NON-NLS-1$
         if (dataType.getForeignkey() != null) {
             ForeignKeyField fkField = new ForeignKeyField(dataType.getForeignkey(), dataType.getForeignKeyInfo());
-            // fkField.setValue(hasValue ? (ForeignKeyBean) value : null);
+            fkField.setValue(hasValue ? (ForeignKeyBean) value : null);
             field = fkField;
         } else if (dataType.hasEnumeration()) {
             SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
@@ -86,7 +87,7 @@ public class TreeDetailGridFieldCreator {
             comboxField.setTypeAhead(true);
             comboxField.setTriggerAction(TriggerAction.ALL);
 
-            final ComplexTypeModel complexTypeModel = (ComplexTypeModel) dataType;
+            // final ComplexTypeModel complexTypeModel = (ComplexTypeModel) dataType;
             List<TypeModel> reusableTypes = ((ComplexTypeModel) dataType).getReusableComplexTypes();
             ListStore<ComboBoxModel> comboxStore = new ListStore<ComboBoxModel>();
             comboxField.setStore(comboxStore);
@@ -203,6 +204,7 @@ public class TreeDetailGridFieldCreator {
 
     private static void addFieldListener(final Field<?> field, final ItemNodeModel node) {
         field.addListener(Events.Change, new Listener<FieldEvent>() {
+
 
             @SuppressWarnings("rawtypes")
             public void handleEvent(FieldEvent fe) {
