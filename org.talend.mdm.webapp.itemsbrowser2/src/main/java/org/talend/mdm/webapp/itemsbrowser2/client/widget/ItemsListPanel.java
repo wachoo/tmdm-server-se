@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.extjs.gxt.ui.client.event.*;
+import com.google.gwt.dom.client.Node;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsEvents;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
@@ -44,15 +46,6 @@ import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.GridEvent;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.LoadListener;
-import com.extjs.gxt.ui.client.event.MenuEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.state.StateManager;
@@ -89,7 +82,7 @@ public class ItemsListPanel extends ContentPanel {
             final QueryModel qm = new QueryModel();
             toolBar.setQueryModel(qm);
             qm.setPagingLoadConfig((PagingLoadConfig) loadConfig);
-            int pageSize = (Integer) pagingBar.getPageSize();
+            int pageSize = pagingBar.getPageSize();
             qm.getPagingLoadConfig().setLimit(pageSize);
             qm.setLanguage(Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()));
 
@@ -110,7 +103,7 @@ public class ItemsListPanel extends ContentPanel {
                 }
 
                 public void onFailure(Throwable caught) {
-                	if(caught.getMessage().indexOf("SessionTimeOut") != -1) {//$NON-NLS-1$
+                	if(caught.getMessage().contains("SessionTimeOut")) {//$NON-NLS-1$
                 		Window.Location.replace("/talendmdm/secure/");//$NON-NLS-1$
                 	}
                 	else { 
@@ -245,6 +238,7 @@ public class ItemsListPanel extends ContentPanel {
                 }
             }
         });
+
         grid.getSelectionModel().addSelectionChangedListener(new SelectionChangedListener<ItemBean>() {
 
             @Override
@@ -253,26 +247,32 @@ public class ItemsListPanel extends ContentPanel {
                 if (item != null) {
                     selectedItems = se.getSelection();
                     gridContainer.setEnabled(false);
+                    // TMDM-2292: Prevent user interaction during load (unmask on getItem's return).
+                    grid.mask();
                     EntityModel entityModel = (EntityModel) Itemsbrowser2.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
                     service.getItem(item, entityModel, new AsyncCallback<ItemBean>() {
-
                         public void onFailure(Throwable caught) {
                             if (Log.isErrorEnabled())
                                 Log.error(caught.getMessage(), caught);
+                            grid.unmask();
                         }
 
                         public void onSuccess(ItemBean result) {
                             item.copy(result);
                             showItem(item, ItemsView.TARGET_IN_SEARCH_TAB);
+                            grid.unmask();
                         }
                     });
                 } else {
                     selectedItems = null;
                     ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
                     Element curElem = itemsSearchContainer.getItemsFormPanel().getElement();
-                    // remove the embeded iframe
+                    // remove the embedded iframe
                     if (curElem != null && curElem.getChildCount() > 0) {
-                        curElem.getChild(0).removeFromParent();
+                        Node child = curElem.getChild(0);
+                        if (child != null) {
+                            child.removeFromParent();
+                        }
                     }
                 }
             }
@@ -289,7 +289,7 @@ public class ItemsListPanel extends ContentPanel {
             public void handleEvent(GridEvent<ItemBean> be) {
                 PagingLoadConfig config = new BasePagingLoadConfig();
                 config.setOffset(0);
-                int pageSize = (Integer) pagingBar.getPageSize();
+                int pageSize = pagingBar.getPageSize();
                 config.setLimit(pageSize);
                 loader.load(config);
                 pagingBar.setVisible(true);
