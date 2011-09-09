@@ -582,7 +582,7 @@ amalto.welcome.Welcome = function () {
 	 function applyProcess() {
 		 var processMessageLB = Ext.getCmp("processMessageLB");
 		 
-		 WelcomeInterface.getStandaloneProcess(function(result) {
+		 WelcomeInterface.getStandaloneProcess(language, function(result) {
 			 clearProcessesSpan();
 			 
 			 if(result.length == "0") {

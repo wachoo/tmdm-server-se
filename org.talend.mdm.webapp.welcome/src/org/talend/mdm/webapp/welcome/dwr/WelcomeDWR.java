@@ -22,7 +22,9 @@ import com.amalto.webapp.core.util.dwr.ExtJSFormSuccessResponse;
 import com.amalto.webapp.core.util.dwr.WebappInfo;
 import com.amalto.webapp.util.webservices.WSByteArray;
 import com.amalto.webapp.util.webservices.WSExecuteTransformerV2;
+import com.amalto.webapp.util.webservices.WSGetTransformer;
 import com.amalto.webapp.util.webservices.WSGetTransformerPKs;
+import com.amalto.webapp.util.webservices.WSTransformer;
 import com.amalto.webapp.util.webservices.WSTransformerContext;
 import com.amalto.webapp.util.webservices.WSTransformerContextPipelinePipelineItem;
 import com.amalto.webapp.util.webservices.WSTransformerPK;
@@ -124,11 +126,33 @@ public class WelcomeDWR {
     public boolean isHiddenTask() {
         return isHiddenMenu("WorkflowTasks"); //$NON-NLS-1$
     }
+    
+    public String getDescriptionByLau(String language, String description) {
+    	Map<String, String> des = new HashMap<String, String>();
+    	
+    	try {
+	    	for(int i = 0; i < description.length(); i++) {
+	    		if('[' == description.charAt(i)) {
+	    			for(int j = i; j < description.length(); j++) {
+	    				if(']' == description.charAt(j)){
+	    					String[] de = description.substring(i + 1, j).split(":"); 
+	    					des.put(de[0].toLowerCase(), de[1]);
+	    					break;
+	    				}
+	    			}
+	    		}
+	    	}
+    	}
+    	catch(Exception ex) {
+//    		throw new Exception("description is wrong!");
+    	}
+    	return des.get(language.toLowerCase());
+    }
 
     /**
      * get all standalone processes.
      */
-    public List getStandaloneProcess() {
+    public List getStandaloneProcess(String language) {
         ListRange listRange = new ListRange();
         List<String> process = new ArrayList<String>();
 
@@ -137,7 +161,8 @@ public class WelcomeDWR {
 
             for (WSTransformerPK wstransformerpk : wst) {
                 if (isStandaloneProcess(wstransformerpk.getPk())) {
-                    process.add(wstransformerpk.getPk());
+                	WSTransformer wsTransformer = Util.getPort().getTransformer(new WSGetTransformer(wstransformerpk));
+                	process.add(getDescriptionByLau(language, wsTransformer.getDescription()));
                 }
             }
 
