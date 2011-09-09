@@ -31,7 +31,7 @@ public interface WelcomePortalService extends RemoteService {
 
     public int getTaskMsg();
 
-    public List<String> getStandaloneProcess();
+    public List<String> getStandaloneProcess(String language);
 
     public String runProcess(String transformerPK);
 }

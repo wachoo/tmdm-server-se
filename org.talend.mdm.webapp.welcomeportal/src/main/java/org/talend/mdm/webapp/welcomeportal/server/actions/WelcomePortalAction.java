@@ -14,8 +14,10 @@ package org.talend.mdm.webapp.welcomeportal.server.actions;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
@@ -33,7 +35,9 @@ import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.core.util.dwr.WebappInfo;
 import com.amalto.webapp.util.webservices.WSByteArray;
 import com.amalto.webapp.util.webservices.WSExecuteTransformerV2;
+import com.amalto.webapp.util.webservices.WSGetTransformer;
 import com.amalto.webapp.util.webservices.WSGetTransformerPKs;
+import com.amalto.webapp.util.webservices.WSTransformer;
 import com.amalto.webapp.util.webservices.WSTransformerContext;
 import com.amalto.webapp.util.webservices.WSTransformerContextPipelinePipelineItem;
 import com.amalto.webapp.util.webservices.WSTransformerPK;
@@ -77,6 +81,28 @@ public class WelcomePortalAction extends RemoteServiceServlet implements Welcome
      */
     public boolean isStandaloneProcess(String wstransformerpk) {
         return wstransformerpk.startsWith(STANDALONE_PROCESS_PREFIX);
+    }
+    
+    public String getDescriptionByLau(String language, String description) {
+    	Map<String, String> des = new HashMap<String, String>();
+    	
+    	try {
+	    	for(int i = 0; i < description.length(); i++) {
+	    		if('[' == description.charAt(i)) {
+	    			for(int j = i; j < description.length(); j++) {
+	    				if(']' == description.charAt(j)){
+	    					String[] de = description.substring(i + 1, j).split(":"); 
+	    					des.put(de[0].toLowerCase(), de[1]);
+	    					break;
+	    				}
+	    			}
+	    		}
+	    	}
+    	}
+    	catch(Exception ex) {
+//    		throw new Exception("description is wrong!");
+    	}
+    	return des.get(language.toLowerCase());
     }
 
     /**
@@ -127,7 +153,7 @@ public class WelcomePortalAction extends RemoteServiceServlet implements Welcome
         return Webapp.INSTANCE.getTaskMsg();
     }
 
-    public List<String> getStandaloneProcess() {
+    public List<String> getStandaloneProcess(String language){
         List<String> process = new ArrayList<String>();
 
         try {
@@ -135,7 +161,9 @@ public class WelcomePortalAction extends RemoteServiceServlet implements Welcome
 
             for (WSTransformerPK wstransformerpk : wst) {
                 if (isStandaloneProcess(wstransformerpk.getPk())) {
-                    process.add(wstransformerpk.getPk());
+                	WSTransformer wsTransformer = Util.getPort().getTransformer(new WSGetTransformer(wstransformerpk));
+                	process.add(getDescriptionByLau(language, wsTransformer.getDescription()));
+//                    process.add(wstransformerpk.getPk());
                 }
             }
 

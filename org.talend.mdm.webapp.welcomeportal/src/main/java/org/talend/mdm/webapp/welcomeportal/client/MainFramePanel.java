@@ -266,7 +266,7 @@ public class MainFramePanel extends Portal {
         final FieldSet set = (FieldSet) process.getItemByItemId(WelcomePortal.PROCESS + "Set"); //$NON-NLS-1$
         set.setHeading(MessagesFactory.getMessages().process_title());
         set.removeAll();
-        service.getStandaloneProcess(new AsyncCallback<List<String>>() {
+        service.getStandaloneProcess(UrlUtil.getLanguage(), new AsyncCallback<List<String>>() {
 
             public void onFailure(Throwable caught) {
                 Dispatcher.forwardEvent(WelcomePortalEvents.Error, caught);

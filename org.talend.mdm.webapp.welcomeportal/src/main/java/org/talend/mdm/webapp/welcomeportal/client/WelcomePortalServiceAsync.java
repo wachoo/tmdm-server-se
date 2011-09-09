@@ -41,7 +41,7 @@ public interface WelcomePortalServiceAsync {
 
     void getTaskMsg(AsyncCallback<Integer> callback);
 
-    void getStandaloneProcess(AsyncCallback<List<String>> callback);
+    void getStandaloneProcess(String language, AsyncCallback<List<String>> callback);
 
     void runProcess(String transformerPK, AsyncCallback<String> callback);
 
