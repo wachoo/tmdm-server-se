@@ -37,7 +37,7 @@ public class CommonUtil {
 
     private static Element _toXML(Document doc, ItemNodeModel nodeModel) {
         Element root = doc.createElement(nodeModel.getName());
-        if (nodeModel.getObjectValue() != null)
+        if (nodeModel.getObjectValue() != null && nodeModel.getParent() != null)
             root.appendChild(doc.createTextNode(nodeModel.getObjectValue().toString()));
         root.setNodeValue(nodeModel.getValue());
         List<ModelData> children = nodeModel.getChildren();
@@ -55,7 +55,7 @@ public class CommonUtil {
         List<ItemNodeModel> itemNodes = new ArrayList<ItemNodeModel>();
 
         if (model.getMinOccurs() > 1 && model.getMaxOccurs() > model.getMinOccurs()) {
-            for (int i = 0; i < model.getMaxOccurs()-model.getMinOccurs(); i++) {
+            for (int i = 0; i < model.getMaxOccurs() - model.getMinOccurs(); i++) {
                 ItemNodeModel itemNode = new ItemNodeModel();
                 itemNodes.add(itemNode);
             }
@@ -65,8 +65,8 @@ public class CommonUtil {
         }
 
         for (ItemNodeModel node : itemNodes) {
-            if(model.isSimpleType()){
-                if(model.getType().getTypeName().equals(DataTypeConstants.INTEGER.getTypeName()))
+            if (model.isSimpleType()) {
+                if (model.getType().getTypeName().equals(DataTypeConstants.INTEGER.getTypeName()))
                     node.setValue("0"); //$NON-NLS-1$
                 if (model.getType().getTypeName().equals(DataTypeConstants.DOUBLE.getTypeName()))
                     node.setValue("0.0"); //$NON-NLS-1$
@@ -84,9 +84,6 @@ public class CommonUtil {
                     node.setValue("www.baidu.com"); //$NON-NLS-1$
                 // TODO other type
 
-
-
-
             } else {
                 ComplexTypeModel complexModel = (ComplexTypeModel) model;
                 List<TypeModel> children = complexModel.getSubTypes();
@@ -100,7 +97,7 @@ public class CommonUtil {
             node.setBindingPath(model.getXpath());
             node.setDescription(model.getLabel(Locale.getLanguage()));
         }
-        
+
         return itemNodes;
     }
 }
