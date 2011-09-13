@@ -6,15 +6,6 @@
 <web-app>
 
     <!-- Servlets -->
-    <filter>
-    	<filter-name>SessionFilter</filter-name>
-		<filter-class>org.talend.mdm.webapp.itemsbrowser2.server.filter.SessionFilter</filter-class>
-    </filter>
-	<filter-mapping>
-		<filter-name>SessionFilter</filter-name>
-		<url-pattern>/itemsbrowser2/*</url-pattern>
-	</filter-mapping>
-	
     <servlet>
         <servlet-name>itemsServlet</servlet-name>
         <servlet-class>org.talend.mdm.webapp.itemsbrowser2.server.ItemsServiceImpl</servlet-class>

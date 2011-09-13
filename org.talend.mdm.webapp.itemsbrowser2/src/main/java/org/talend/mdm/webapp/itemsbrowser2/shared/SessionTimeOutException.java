@@ -14,7 +14,9 @@ package org.talend.mdm.webapp.itemsbrowser2.shared;
 
 import java.io.IOException;
 
-public class SessionTimeOutException extends IOException {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+public class SessionTimeOutException extends IOException implements IsSerializable {
 
     private static final long serialVersionUID = 1L;
 

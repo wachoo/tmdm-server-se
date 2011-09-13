@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.itemsbrowser2.server;
 import java.util.List;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsService;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
@@ -29,11 +30,14 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.Restriction;
 import org.talend.mdm.webapp.itemsbrowser2.server.i18n.ItemsbrowserMessagesImpl;
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
+import org.talend.mdm.webapp.itemsbrowser2.shared.SessionTimeOutException;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.google.gwt.user.client.rpc.SerializationException;
+import com.google.gwt.user.server.rpc.RPC;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 /**
@@ -48,6 +52,17 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         MessagesFactory.setMessages(new ItemsbrowserMessagesImpl());
     }
 
+    @Override
+    public String processCall(String payload) throws SerializationException {
+        HttpServletRequest request = getThreadLocalRequest();
+        if (request.getSession(false) == null || request.getSession(false).isNew()) {
+            // Session is invalid
+            return RPC.encodeResponseForFailure(null, new SessionTimeOutException());
+        } else {
+            return super.processCall(payload);
+        }
+    }
+    
     private static ItemsService itemsServiceHandler = ItemServiceHandlerFactory.createHandler();
 
     public ItemBasePageLoadResult<ItemBean> queryItemBeans(QueryModel config) {
