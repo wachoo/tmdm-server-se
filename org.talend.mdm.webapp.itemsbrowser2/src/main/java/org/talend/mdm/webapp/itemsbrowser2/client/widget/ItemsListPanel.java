@@ -17,7 +17,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.extjs.gxt.ui.client.event.*;
+import com.extjs.gxt.ui.client.event.LoadListener;
 import com.google.gwt.dom.client.Node;
+import com.google.gwt.user.client.ui.*;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsEvents;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
@@ -67,7 +69,6 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 public class ItemsListPanel extends ContentPanel {
 
@@ -142,6 +143,8 @@ public class ItemsListPanel extends ContentPanel {
     PagingToolBarEx pagingBar = null;
 
     ItemsToolBar toolBar;
+
+    private Boolean lock = Boolean.FALSE; // Lock for TMDM-2292 fix
 
     public ItemsListPanel() {
         setLayout(new FitLayout());
@@ -226,8 +229,8 @@ public class ItemsListPanel extends ContentPanel {
         if (cm.getColumnCount() > 0) {
             grid.setAutoExpandColumn(cm.getColumn(0).getHeader());
         }
-        grid.addListener(Events.OnMouseOver, new Listener<GridEvent<ItemBean>>() {
 
+        grid.addListener(Events.OnMouseOver, new Listener<GridEvent<ItemBean>>() {
             public void handleEvent(GridEvent<ItemBean> ge) {
                 int rowIndex = ge.getRowIndex();
                 if (rowIndex != -1) {
@@ -238,29 +241,31 @@ public class ItemsListPanel extends ContentPanel {
                 }
             }
         });
-
         grid.getSelectionModel().addSelectionChangedListener(new SelectionChangedListener<ItemBean>() {
-
             @Override
             public void selectionChanged(SelectionChangedEvent<ItemBean> se) {
+                // TMDM-2292: Prevent user interaction during load.
+                if (lock) {
+                    return;
+                }
+
+                lockGrid();
                 final ItemBean item = se.getSelectedItem();
                 if (item != null) {
                     selectedItems = se.getSelection();
-                    gridContainer.setEnabled(false);
-                    // TMDM-2292: Prevent user interaction during load (unmask on getItem's return).
-                    grid.mask();
                     EntityModel entityModel = (EntityModel) Itemsbrowser2.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
                     service.getItem(item, entityModel, new AsyncCallback<ItemBean>() {
                         public void onFailure(Throwable caught) {
-                            if (Log.isErrorEnabled())
+                            if (Log.isErrorEnabled()) {
                                 Log.error(caught.getMessage(), caught);
-                            grid.unmask();
+                            }
+                            unlockGrid();
                         }
 
                         public void onSuccess(ItemBean result) {
                             item.copy(result);
                             showItem(item, ItemsView.TARGET_IN_SEARCH_TAB);
-                            grid.unmask();
+                            unlockGrid();
                         }
                     });
                 } else {
@@ -274,6 +279,7 @@ public class ItemsListPanel extends ContentPanel {
                             child.removeFromParent();
                         }
                     }
+                    unlockGrid();
                 }
             }
         });
@@ -295,7 +301,6 @@ public class ItemsListPanel extends ContentPanel {
                 pagingBar.setVisible(true);
             }
         });
-        grid.setLoadMask(true);
         grid.addPlugin(re);
         grid.addPlugin(sm);
         grid.setAriaIgnore(true);
@@ -309,6 +314,14 @@ public class ItemsListPanel extends ContentPanel {
         add(gridContainer);
         this.syncSize();
         this.doLayout();
+    }
+
+    private void unlockGrid() {
+        lock = false;
+    }
+
+    private void lockGrid() {
+        lock = true;
     }
 
     public void layoutGrid() {
