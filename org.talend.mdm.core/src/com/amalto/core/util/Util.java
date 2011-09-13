@@ -1687,7 +1687,8 @@ public class Util {
                 String[] vals = new String[xsdKey.getFields().length];
                 for (int i = 0; i < xsdKey.getFields().length; i++) {
                     String xpath = xsdKey.getFields()[i];
-                    xpath = xpath.replaceFirst("/" + item.getLocalName() + "/", "");
+                    // Fix for TMDM-2449 Fails to extract id if xpath does not start with '/'
+                    xpath = xpath.replaceFirst("/*" + item.getLocalName() + "/", "");
                     vals[i] = Util.getFirstTextNode(item, xsdKey.getSelector() + "/" + xpath);
                     if (vals[i] != null)
                         vals[i] = vals[i].trim(); // FIXME: Due to eXist trimming values @see ItemPOJO
