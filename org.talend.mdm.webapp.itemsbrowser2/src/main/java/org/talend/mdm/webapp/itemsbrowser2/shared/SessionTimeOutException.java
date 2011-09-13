@@ -10,20 +10,15 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.itemsbrowser2.server.exception;
+package org.talend.mdm.webapp.itemsbrowser2.shared;
 
-import javax.servlet.ServletException;
+import java.io.IOException;
 
-public class SessionTimeOutException extends ServletException {
-	public SessionTimeOutException() {
-		super();
-	}
-	
-	public SessionTimeOutException(String msg) {
-		super(msg);
-	}
-	
-	public SessionTimeOutException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+public class SessionTimeOutException extends IOException {
+
+    private static final long serialVersionUID = 1L;
+
+    public SessionTimeOutException() {
+        super();
+    }
 }

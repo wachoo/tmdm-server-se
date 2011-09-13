@@ -23,7 +23,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.talend.mdm.webapp.itemsbrowser2.server.exception.SessionTimeOutException;
+import org.talend.mdm.webapp.itemsbrowser2.shared.SessionTimeOutException;
 
 /**
  * Servlet Filter implementation class SecurityFilter
@@ -53,7 +53,7 @@ public class SessionFilter implements Filter {
     		chain.doFilter(request, response);
     	}
     	else {
-    		throw new SessionTimeOutException("SessionTimeOut");//$NON-NLS-1$
+    		throw new SessionTimeOutException();
     	}
     }
 
@@ -61,10 +61,6 @@ public class SessionFilter implements Filter {
      * @see Filter#init(FilterConfig)
      */
     public void init(FilterConfig fConfig) throws ServletException {
-    	
-    }
-
-    private void initLoginConfig(FilterConfig fConfig) throws IOException {
     	
     }
 }

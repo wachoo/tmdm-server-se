@@ -36,6 +36,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel.AdvancedSea
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel.SimpleCriterionPanel;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.ComboBoxField;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
+import org.talend.mdm.webapp.itemsbrowser2.shared.SessionTimeOutException;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -92,11 +93,11 @@ import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.Widget;
 
 public class ItemsToolBar extends ToolBar {
 
@@ -401,7 +402,7 @@ public class ItemsToolBar extends ToolBar {
                                         new AsyncCallback<List<ItemResult>>() {
 
                                             public void onFailure(Throwable caught) {
-                                            	if(caught.getMessage().indexOf("SessionTimeOut") != -1) {//$NON-NLS-1$
+                                            	if(caught instanceof SessionTimeOutException) {
                                             		com.google.gwt.user.client.Window.Location.replace("/talendmdm/secure/");//$NON-NLS-1$
                                             	}
                                             	else { 
@@ -692,7 +693,7 @@ public class ItemsToolBar extends ToolBar {
                         service.querySearchTemplates(entityCombo.getValue().get("value").toString(), true, //$NON-NLS-1$
                                 (PagingLoadConfig) loadConfig, new AsyncCallback<PagingLoadResult<ItemBaseModel>>() {
 									public void onFailure(Throwable caught) {
-										if(caught.getMessage().indexOf("SessionTimeOut") != -1) {//$NON-NLS-1$
+										if(caught instanceof SessionTimeOutException) {
 				                    		com.google.gwt.user.client.Window.Location.replace("/talendmdm/secure/");//$NON-NLS-1$
 				                    	}
 				                    	else { 
@@ -729,9 +730,9 @@ public class ItemsToolBar extends ToolBar {
                         if (!ifManage(model))
                             image.addStyleName("x-item-disabled");//$NON-NLS-1$
                         else
-                            image.addClickListener(new ClickListener() {
+                            image.addClickHandler(new ClickHandler() {
 
-                                public void onClick(Widget arg0) {
+                                public void onClick(ClickEvent event) {
                                     // edit the bookmark
                                     if (advancedPanel == null) {
                                         advancedPanel = new AdvancedSearchPanel(simplePanel.getView(), null);
@@ -751,10 +752,10 @@ public class ItemsToolBar extends ToolBar {
                                                         advancedPanel.cleanCriteria();
                                                     advancedPanelVisible = true;
                                                     advancedPanel.setVisible(advancedPanelVisible);
-                                                    advancedPanel.getButtonBar().getItemByItemId("updateBookmarkBtn")
+                                                    advancedPanel.getButtonBar().getItemByItemId("updateBookmarkBtn") //$NON-NLS-1$
                                                             .setVisible(true);
-                                                    bookmarkName = model.get("value").toString();
-                                                    bookmarkShared = Boolean.parseBoolean(model.get("shared").toString());
+                                                    bookmarkName = model.get("value").toString(); //$NON-NLS-1$
+                                                    bookmarkShared = Boolean.parseBoolean(model.get("shared").toString()); //$NON-NLS-1$
                                                     if (((ItemsListPanel) instance.getParent()).gridContainer != null)
                                                         ((ItemsListPanel) instance.getParent()).gridContainer.setHeight(instance
                                                                 .getParent().getOffsetHeight()
@@ -785,9 +786,9 @@ public class ItemsToolBar extends ToolBar {
                         if (!ifManage(model))
                             image.addStyleName("x-item-disabled"); //$NON-NLS-1$
                         else
-                            image.addClickListener(new ClickListener() {
+                            image.addClickHandler(new ClickHandler() {
 
-                                public void onClick(Widget arg0) {
+                                public void onClick(ClickEvent event) {
                                     MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory
                                             .getMessages().bookmark_DelMsg(), new Listener<MessageBoxEvent>() {
 
@@ -826,9 +827,9 @@ public class ItemsToolBar extends ToolBar {
                             int colIndex, ListStore<ItemBaseModel> store, Grid<ItemBaseModel> grid) {
                         Image image = new Image();
                         image.setResource(Icons.INSTANCE.dosearch());
-                        image.addClickListener(new ClickListener() {
+                        image.addClickHandler(new ClickHandler() {
 
-                            public void onClick(Widget arg0) {
+                            public void onClick(ClickEvent event) {
                                 doSearch(model, winBookmark);
                             }
 
@@ -986,7 +987,7 @@ public class ItemsToolBar extends ToolBar {
                         new AsyncCallback<Boolean>() {
 
                             public void onFailure(Throwable caught) {
-                            	if(caught.getMessage().indexOf("SessionTimeOut") != -1) {//$NON-NLS-1$
+                            	if(caught instanceof SessionTimeOutException) {
                             		com.google.gwt.user.client.Window.Location.replace("/talendmdm/secure/");//$NON-NLS-1$
                             	}
                             	else { 
