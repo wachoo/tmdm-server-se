@@ -77,7 +77,9 @@ public class WorkSpace extends LayoutContainer {
     }
 
     public void remove(String itemId) {
-        workTabPanel.getItemByItemId(itemId).removeFromParent();
+        TabItem item = workTabPanel.getItemByItemId(itemId);
+        if (item != null)
+            item.removeFromParent();
     }
 
     Map<JavaScriptObject, Listener<ContainerEvent<TabPanel, TabItem>>> eventHandler = new HashMap<JavaScriptObject, Listener<ContainerEvent<TabPanel, TabItem>>>();
