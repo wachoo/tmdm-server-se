@@ -1497,7 +1497,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     public ColumnTreeLayoutModel getColumnTreeLayout(String concept) throws Exception {
-        InputStream is = BrowseRecordsAction.class.getResourceAsStream("temp_ColumnTreeLayout.xml");
+        InputStream is = BrowseRecordsAction.class.getResourceAsStream("temp_ColumnTreeLayout.xml"); //$NON-NLS-1$
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.parse(is);
@@ -1570,10 +1570,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     
     private ColumnElementChildren builderChildren(Element el) {
         ColumnElementChildren elChildren = new ColumnElementChildren();
-        elChildren.setBkColor(el.getAttribute("bkColor"));
-        elChildren.setCssSnippet(el.getAttribute("cssSnippet"));
-        elChildren.setName(el.getAttribute("name"));
-        elChildren.setXpath(el.getAttribute("xpath"));
+        elChildren.setBkColor(el.getAttribute("bkColor")); //$NON-NLS-1$
+        elChildren.setCssSnippet(el.getAttribute("cssSnippet")); //$NON-NLS-1$
+        elChildren.setName(el.getAttribute("name")); //$NON-NLS-1$
+        elChildren.setXpath(el.getAttribute("xpath")); //$NON-NLS-1$
         
         NodeList children = el.getChildNodes();
         if (children != null && children.getLength() > 0) {
