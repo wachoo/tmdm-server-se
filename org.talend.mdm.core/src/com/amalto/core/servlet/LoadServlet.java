@@ -1,21 +1,5 @@
 package com.amalto.core.servlet;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.core.EDBType;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.w3c.dom.Document;
-
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.load.action.DefaultLoadAction;
 import com.amalto.core.load.action.LoadAction;
@@ -27,6 +11,20 @@ import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XSDKey;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.EDBType;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.w3c.dom.Document;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -44,7 +42,7 @@ public class LoadServlet extends HttpServlet {
     private static final String PARAMETER_VALIDATE = "validate"; //$NON-NLS-1$
 
     private static final String PARAMETER_SMARTPK = "smartpk"; //$NON-NLS-1$
-    
+
     private static final Logger log = Logger.getLogger(LoadServlet.class);
 
     private static final Map<String, XSDKey> typeNameToKeyDef = new HashMap<String, XSDKey>();
@@ -64,6 +62,7 @@ public class LoadServlet extends HttpServlet {
         super.init(config);
 
     }
+
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8"); //$NON-NLS-1$
@@ -105,7 +104,7 @@ public class LoadServlet extends HttpServlet {
         XmlServerSLWrapperLocal server;
         XSDKey keyMetadata;
         try {
-            keyMetadata = getTypeKey(dataModelName, typeName);
+            keyMetadata = getTypeKey(dataModelName, typeName, dataClusterName);
             server = Util.getXmlServerCtrlLocal();
         } catch (Exception e) {
             throw new ServletException(e);
@@ -190,7 +189,7 @@ public class LoadServlet extends HttpServlet {
         return dataCluster;
     }
 
-    private XSDKey getTypeKey(String dataModelName, String typeName) throws Exception {
+    private XSDKey getTypeKey(String dataModelName, String typeName, String dataClusterName) throws Exception {
         XSDKey xsdKey = typeNameToKeyDef.get(dataModelName + typeName);
 
         if (xsdKey == null) {
@@ -213,8 +212,10 @@ public class LoadServlet extends HttpServlet {
                         log.debug("Key for entity '" + typeName + "' : " + keysAsString); //$NON-NLS-1$ //$NON-NLS-2$
                     }
                 } else {
-                    log.error("No key definition for entity '" + typeName + "'.");
-                    throw new RuntimeException("No key definition for entity '" + typeName + "'.");
+                    String message = "No key definition for entity '" + typeName + "' (data model name: '"
+                            + dataModelName + "' / data cluster name: '" + dataClusterName + "').";
+                    log.error(message);
+                    throw new RuntimeException(message);
                 }
                 xsdKey = conceptKey;
 
@@ -238,33 +239,43 @@ public class LoadServlet extends HttpServlet {
         if (log.isDebugEnabled()) {
             return writer;
         } else {
-            return new PrintWriter(writer) {
-                @Override
-                public void write(int c) {
-                    // Nothing to do (debug isn't enabled)
-                }
+            return new NoOpPrintWriter(writer);
+        }
+    }
 
-                @Override
-                public void write(char[] buf, int off, int len) {
-                    // Nothing to do (debug isn't enabled)
-                }
+    /**
+     * A {@link PrintWriter} implementation that intercepts all write method calls.
+     * @see LoadServlet#configureWriter(javax.servlet.http.HttpServletResponse)
+     */
+    private static class NoOpPrintWriter extends PrintWriter {
 
-                @Override
-                public void write(char[] buf) {
-                    // Nothing to do (debug isn't enabled)
-                }
-
-                @Override
-                public void write(String s, int off, int len) {
-                    // Nothing to do (debug isn't enabled)
-                }
-
-                @Override
-                public void write(String s) {
-                    // Nothing to do (debug isn't enabled)
-                }
-            };
+        private NoOpPrintWriter(PrintWriter writer) {
+            super(writer);
         }
 
+        @Override
+        public void write(int c) {
+            // Nothing to do (debug isn't enabled)
+        }
+
+        @Override
+        public void write(char[] buf, int off, int len) {
+            // Nothing to do (debug isn't enabled)
+        }
+
+        @Override
+        public void write(char[] buf) {
+            // Nothing to do (debug isn't enabled)
+        }
+
+        @Override
+        public void write(String s, int off, int len) {
+            // Nothing to do (debug isn't enabled)
+        }
+
+        @Override
+        public void write(String s) {
+            // Nothing to do (debug isn't enabled)
+        }
     }
 }
