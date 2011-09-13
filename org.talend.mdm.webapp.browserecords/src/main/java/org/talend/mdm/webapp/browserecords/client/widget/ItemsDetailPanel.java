@@ -27,8 +27,11 @@ public class ItemsDetailPanel extends ContentPanel {
     public final static String SINGLETON = "SINGLETON"; //$NON-NLS-1$
     public final static String MULTIPLE = "MULTIPLE"; //$NON-NLS-1$
     private TabPanel tabPanel = new TabPanel();  
-    
 
+    private ContentPanel banner = new ContentPanel();
+    Text textTitle = new Text();
+    Text textDesc = new Text();
+    
     public ItemsDetailPanel() {
         super();
         this.setBodyBorder(false);
@@ -41,24 +44,22 @@ public class ItemsDetailPanel extends ContentPanel {
     
     private void initPanel(){    
         // tabPanel.setWidth(450);
+        banner.setHeaderVisible(false);
+        banner.setHeight("60px"); //$NON-NLS-1$
+        banner.setStyleName("banner"); //$NON-NLS-1$
+        textTitle.setStyleName("Title"); //$NON-NLS-1$
+        textDesc.setStyleName("Description"); //$NON-NLS-1$
+        banner.add(textTitle);
+        banner.add(textDesc);
+        add(banner);
+        
         tabPanel.setAutoHeight(true);
         add(tabPanel);        
     }
 
     public void initBanner(String title, String description) {
-        if (this.getItemCount() > 1)
-            this.getItem(0).removeFromParent();
-        ContentPanel banner = new ContentPanel();
-        banner.setHeaderVisible(false);
-        banner.setHeight("60px");
-        banner.setStyleName("banner");
-        Text textTitle = new Text(title);
-        textTitle.setStyleName("Title");
-        banner.add(textTitle);
-        Text textDesc = new Text(description);
-        textDesc.setStyleName("Description");
-        banner.add(textDesc);
-        insert(banner, 0);
+        textTitle.setText(title);
+        textDesc.setText(description);
     }
 
     public void addTabItem(String title, ContentPanel panel, String pattern, String id){
@@ -88,6 +89,10 @@ public class ItemsDetailPanel extends ContentPanel {
         }        
     }
     
+    public void clearContent() {
+        tabPanel.removeAll();
+    }
+
     public void closeCurrentTab(){
         TabItem itemTab = tabPanel.getSelectedItem();
         tabPanel.remove(itemTab);

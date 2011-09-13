@@ -71,11 +71,11 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -268,8 +268,10 @@ public class ItemsToolBar extends ToolBar {
 
                 EntityModel entityModel = (EntityModel) BrowseRecords.getSession().getCurrentEntityModel();
                 ItemBean itemBean = ItemCreator.createDefaultItemBean(concept, entityModel);
-
                 ItemsDetailPanel detailPanel = container.getItemsDetailPanel();
+                container.getItemsListPanel().getGrid().getSelectionModel().deselectAll();
+                detailPanel.clearContent();
+                detailPanel.initBanner(itemBean.getDisplayPKInfo(), itemBean.getDescription());
                 itemPanel = new ItemPanel(itemBean, ItemDetailToolBar.CREATE_OPERATION);
                 detailPanel.addTabItem(itemBean.getConcept(), itemPanel, ItemsDetailPanel.MULTIPLE, itemBean.getConcept());
             }

@@ -25,13 +25,11 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
-import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.Parser;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HideMode;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
@@ -49,10 +47,8 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.LoadListener;
-import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.state.StateManager;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -66,12 +62,8 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.RowEditor;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.menu.Menu;
-import com.extjs.gxt.ui.client.widget.menu.MenuItem;
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 public class ItemsListPanel extends ContentPanel {
 
@@ -141,7 +133,7 @@ public class ItemsListPanel extends ContentPanel {
 
     private final static int PAGE_SIZE = 10;
 
-    private int showItemTimes = 0;
+    private int showItemTimesa = 0;
 
     private PagingToolBarEx pagingBar = null;
 
@@ -161,7 +153,6 @@ public class ItemsListPanel extends ContentPanel {
             @Override
             public void loaderLoad(LoadEvent le) {
                 if (store.getModels().size() > 0) {
-                    showItemTimes++;
                     if (selectedItems != null) {
                         grid.getSelectionModel().select(selectedItems, false);
                         ItemBean selectedItem = grid.getSelectionModel().getSelectedItem();
@@ -222,33 +213,18 @@ public class ItemsListPanel extends ContentPanel {
         if (cm.getColumnCount() > 0) {
             grid.setAutoExpandColumn(cm.getColumn(0).getHeader());
         }
-        grid.addListener(Events.OnMouseOver, new Listener<GridEvent<ItemBean>>() {
 
-            public void handleEvent(GridEvent<ItemBean> ge) {
-                int rowIndex = ge.getRowIndex();
-                if (rowIndex != -1) {
-                    ItemBean item = grid.getStore().getAt(rowIndex);
-                    if (Log.isDebugEnabled())
-                        Log.debug(item.toString());
-                    grid.getView().getRow(item).getStyle().setCursor(Style.Cursor.POINTER);
-                }
-            }
-        });
         grid.getSelectionModel().addSelectionChangedListener(new SelectionChangedListener<ItemBean>() {
 
             @Override
             public void selectionChanged(SelectionChangedEvent<ItemBean> se) {
                 ItemBean item = se.getSelectedItem();
-                Dispatcher.forwardEvent(BrowseRecordsEvents.ViewItem, item);
+                if (item != null) {
+                    Dispatcher.forwardEvent(BrowseRecordsEvents.ViewItem, item);
+                }
             }
         });
-        grid.addListener(Events.OnDoubleClick, new Listener<GridEvent<ItemBean>>() {
 
-            public void handleEvent(GridEvent<ItemBean> be) {
-                ItemBean item = grid.getSelectionModel().getSelectedItem();
-                // TODO showItem(item, ItemsView.TARGET_IN_NEW_TAB);
-            }
-        });
         grid.addListener(Events.Attach, new Listener<GridEvent<ItemBean>>() {
 
             public void handleEvent(GridEvent<ItemBean> be) {
@@ -269,77 +245,77 @@ public class ItemsListPanel extends ContentPanel {
 
         gridContainer.add(grid);
         gridContainer.setHeight(this.getHeight() - toolBar.getHeight() - toolBar.getAdvancedPanel().getHeight());
-        hookContextMenu();
+        // hookContextMenu();
 
         add(gridContainer);
         this.syncSize();
         this.doLayout();
     }
 
-    private void hookContextMenu() {
-
-        Menu contextMenu = new Menu();
-
-        // MenuItem openInWindow = new MenuItem();
-        // openInWindow.setText(MessagesFactory.getMessages().openitem_window());
-        // openInWindow.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openWin()));
-        // openInWindow.addSelectionListener(new SelectionListener<MenuEvent>() {
-        //
-        // @Override
-        // public void componentSelected(MenuEvent ce) {
-        // // TODO check dirty status
-        // ItemBean m = grid.getSelectionModel().getSelectedItem();
-        // if (m == null) {
-        // MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
-        // .grid_record_select(), null);
-        // return;
-        // }
-        // //TODO showItem(m, ItemsView.TARGET_IN_NEW_WINDOW);
-        // }
-        // });
-        //
-        // MenuItem openInTab = new MenuItem();
-        // openInTab.setText(MessagesFactory.getMessages().openitem_tab());
-        // openInTab.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTab()));
-        // openInTab.addSelectionListener(new SelectionListener<MenuEvent>() {
-        //
-        // @Override
-        // public void componentSelected(MenuEvent ce) {
-        // ItemBean m = grid.getSelectionModel().getSelectedItem();
-        // if (m == null) {
-        // MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
-        // .grid_record_select(), null);
-        // return;
-        // }
-        // showItem(m, ItemsView.TARGET_IN_NEW_TAB);
-        // }
-        // });
-
-        MenuItem editRow = new MenuItem();
-        editRow.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Edit()));
-        editRow.setText(MessagesFactory.getMessages().edititem());
-        editRow.addSelectionListener(new SelectionListener<MenuEvent>() {
-
-            @Override
-            public void componentSelected(MenuEvent ce) {
-                ItemBean m = grid.getSelectionModel().getSelectedItem();
-                if (m == null) {
-                    MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
-                            .grid_record_select(), null);
-                    return;
-                }
-                int rowIndex = grid.getStore().indexOf(m);
-                re.startEditing(rowIndex, true);
-            }
-        });
-
-        contextMenu.add(editRow);
-        // contextMenu.add(openInTab);
-        // contextMenu.add(openInWindow);
-
-        grid.setContextMenu(contextMenu);
-
-    }
+    // private void hookContextMenu() {
+    //
+    // Menu contextMenu = new Menu();
+    //
+    // // MenuItem openInWindow = new MenuItem();
+    // // openInWindow.setText(MessagesFactory.getMessages().openitem_window());
+    // // openInWindow.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openWin()));
+    // // openInWindow.addSelectionListener(new SelectionListener<MenuEvent>() {
+    // //
+    // // @Override
+    // // public void componentSelected(MenuEvent ce) {
+    // // // TODO check dirty status
+    // // ItemBean m = grid.getSelectionModel().getSelectedItem();
+    // // if (m == null) {
+    // // MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+    // // .grid_record_select(), null);
+    // // return;
+    // // }
+    // // //TODO showItem(m, ItemsView.TARGET_IN_NEW_WINDOW);
+    // // }
+    // // });
+    // //
+    // // MenuItem openInTab = new MenuItem();
+    // // openInTab.setText(MessagesFactory.getMessages().openitem_tab());
+    // // openInTab.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTab()));
+    // // openInTab.addSelectionListener(new SelectionListener<MenuEvent>() {
+    // //
+    // // @Override
+    // // public void componentSelected(MenuEvent ce) {
+    // // ItemBean m = grid.getSelectionModel().getSelectedItem();
+    // // if (m == null) {
+    // // MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+    // // .grid_record_select(), null);
+    // // return;
+    // // }
+    // // showItem(m, ItemsView.TARGET_IN_NEW_TAB);
+    // // }
+    // // });
+    //
+    // MenuItem editRow = new MenuItem();
+    // editRow.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Edit()));
+    // editRow.setText(MessagesFactory.getMessages().edititem());
+    // editRow.addSelectionListener(new SelectionListener<MenuEvent>() {
+    //
+    // @Override
+    // public void componentSelected(MenuEvent ce) {
+    // ItemBean m = grid.getSelectionModel().getSelectedItem();
+    // if (m == null) {
+    // MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+    // .grid_record_select(), null);
+    // return;
+    // }
+    // int rowIndex = grid.getStore().indexOf(m);
+    // re.startEditing(rowIndex, true);
+    // }
+    // });
+    //
+    // contextMenu.add(editRow);
+    // // contextMenu.add(openInTab);
+    // // contextMenu.add(openInWindow);
+    //
+    // grid.setContextMenu(contextMenu);
+    //
+    // }
 
     //
     // public void layoutGrid() {
@@ -405,16 +381,4 @@ public class ItemsListPanel extends ContentPanel {
             toolBar.searchBut.fireEvent(Events.Select, be);
         }
     }
-
-    public void resetShowItemTimes() {
-        showItemTimes = 0;
-    }
-
-    private void showItem(ItemBean item, String itemsFormTarget) {
-        showItemTimes--;
-        if (showItemTimes >= 1)
-            return;
-        // TODO
-    }
-
 }

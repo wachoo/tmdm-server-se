@@ -106,6 +106,7 @@ public class BrowseRecordsView extends View {
         ItemBean item = (ItemBean) event.getData();
         itemsSearchContainer = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
         ItemsDetailPanel detailPanel = itemsSearchContainer.getItemsDetailPanel();
+        detailPanel.clearContent();
         detailPanel.initBanner(item.getDisplayPKInfo(), item.getDescription());
         ItemPanel itemPanel = new ItemPanel(item, ItemDetailToolBar.VIEW_OPERATION);
         detailPanel.addTabItem(item.getConcept(), itemPanel, ItemsDetailPanel.SINGLETON, "itemView"); //$NON-NLS-1$
@@ -160,7 +161,7 @@ public class BrowseRecordsView extends View {
 
         itemsSearchContainer = Registry.get(ITEMS_SEARCH_CONTAINER);
         itemsSearchContainer.getToolBar().updateToolBar(viewBean);
-        itemsSearchContainer.getItemsListPanel().resetShowItemTimes();
+        // itemsSearchContainer.getItemsListPanel().resetShowItemTimes();
     }
 
     protected void onSearchView(final AppEvent event) {
@@ -201,7 +202,7 @@ public class BrowseRecordsView extends View {
         }
 
         itemsSearchContainer.getItemsListPanel().updateGrid(sm, ccList);
-        itemsSearchContainer.getItemsListPanel().resetShowItemTimes();
+        // itemsSearchContainer.getItemsListPanel().resetShowItemTimes();
         // TODO in the view of ViewItemForm binding
 
     }
