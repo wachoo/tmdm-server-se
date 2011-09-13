@@ -112,7 +112,8 @@ public class BrowseRecordsController extends Controller {
         ForeignKeyBean fkBean = event.getData();
         final ViewBean viewBean = event.getData("viewBean"); //$NON-NLS-1$
         String concept = fkBean.getForeignKeyPath().split("/")[0]; //$NON-NLS-1$
-        service.getItemNodeModel(concept, viewBean.getBindingEntityModel().getMetaDataTypes(), null,
+        String ids = fkBean.getId().replace("[", "").replace("]", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+        service.getItemNodeModel(concept, viewBean.getBindingEntityModel().getMetaDataTypes(), ids,
                 new AsyncCallback<ItemNodeModel>() {
 
             public void onSuccess(ItemNodeModel item) {

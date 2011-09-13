@@ -30,6 +30,8 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     
     private ItemNodeModel model;
 
+    private boolean isCreate;
+
     Tree tree;
     
     private ClickHandler handler = new ClickHandler() {
@@ -67,6 +69,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
 
     public ForeignKeyTreeDetail(ViewBean viewBean, boolean isCreate) {
         this();
+        this.isCreate = isCreate;
         this.viewBean = viewBean;
         this.toolBar = new ItemDetailToolBar(null, isCreate ? ItemDetailToolBar.CREATE_OPERATION
                 : ItemDetailToolBar.VIEW_OPERATION);
@@ -75,8 +78,14 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     }
 
     public ForeignKeyTreeDetail(ViewBean viewBean, ItemNodeModel model, boolean isCreate) {
-        this(viewBean, isCreate);
+        this();
+        this.isCreate = isCreate;
         this.model = model;
+        this.viewBean = viewBean;
+        this.toolBar = new ItemDetailToolBar(null, isCreate ? ItemDetailToolBar.CREATE_OPERATION
+                : ItemDetailToolBar.VIEW_OPERATION);
+        this.setTopComponent(toolBar);
+        buildPanel(viewBean);
     }
 
     public void buildPanel(final ViewBean viewBean) {
@@ -121,6 +130,15 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         return item;
     }
     
+    public ItemNodeModel getRootModel() {
+        TreeItem root = tree.getItem(0);
+        return (ItemNodeModel) root.getUserObject();
+    }
+
+    public boolean isCreate() {
+        return isCreate;
+    }
+
     public static class DynamicTreeItem extends TreeItem {
 
         public DynamicTreeItem() {

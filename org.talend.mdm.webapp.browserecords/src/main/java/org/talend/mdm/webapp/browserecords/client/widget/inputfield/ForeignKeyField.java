@@ -131,6 +131,8 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         relationFKBtn.addClickHandler(new ClickHandler() {
 
             public void onClick(ClickEvent arg0) {
+                if(ForeignKeyField.this.getValue() == null)
+                    return;
                 BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
                 String viewFkName = "Browse_items_" + ForeignKeyField.this.foreignKeyName; //$NON-NLS-1$
                 service.getView(viewFkName, Locale.getLanguage(), new AsyncCallback<ViewBean>() {

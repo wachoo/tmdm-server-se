@@ -48,7 +48,11 @@ public class TreeDetailGridFieldCreator {
         boolean hasValue = value != null && !"".equals(value); //$NON-NLS-1$
         if (dataType.getForeignkey() != null) {
             ForeignKeyField fkField = new ForeignKeyField(dataType.getForeignkey(), dataType.getForeignKeyInfo());
-            fkField.setValue(hasValue ? (ForeignKeyBean) value : null);
+            ForeignKeyBean fkBean = (ForeignKeyBean) value;
+            if (fkBean != null) {
+                fkBean.setDisplayInfo(fkBean.getId());
+                fkField.setValue(fkBean);
+            }
             field = fkField;
         } else if (dataType.hasEnumeration()) {
             SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
@@ -65,11 +69,15 @@ public class TreeDetailGridFieldCreator {
             TextField<String> uuidField = new TextField<String>();
             uuidField.setEnabled(false);
             uuidField.setReadOnly(true);
+            if (hasValue)
+                uuidField.setValue(value.toString());
             field = uuidField;
         } else if (dataType.getType().equals(DataTypeConstants.AUTO_INCREMENT)) {
             TextField<String> autoIncrementField = new TextField<String>();
             autoIncrementField.setEnabled(false);
             autoIncrementField.setReadOnly(true);
+            if (hasValue)
+                autoIncrementField.setValue(value.toString());
             field = autoIncrementField;
         } else if (dataType.getType().equals(DataTypeConstants.PICTURE)) {
             PictureField pictureField = new PictureField();
@@ -107,6 +115,10 @@ public class TreeDetailGridFieldCreator {
                 }
 
             });
+            if (hasValue) {
+                comboxField.setValue(comboxStore.findModel(value.toString(), value));
+            }
+
             field = comboxField;
         } else {
             field = createCustomField(value, dataType, language);

@@ -10,6 +10,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTreeDetail;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -33,6 +34,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.user.client.ui.Widget;
 
 public class ItemDetailToolBar extends ToolBar {
 
@@ -104,17 +106,26 @@ public class ItemDetailToolBar extends ToolBar {
             @Override
             public void componentSelected(ButtonEvent ce) {
                 // TODO the following code need to be refactor, it is the demo code
-                TabPanel item = container.getItemsDetailPanel().getTabPanel();
-                TabItem t = (TabItem) item.getItem(0);
-                ItemPanel i = (ItemPanel) t.getWidget(0);
-                ItemNodeModel model = (ItemNodeModel) i.getTree().getTree().getItem(0).getUserObject();
-                
+                TabPanel tabPanel = container.getItemsDetailPanel().getTabPanel();
+                TabItem tabItem = (TabItem) tabPanel.getSelectedItem();
+                Widget widget = tabItem.getWidget(0);
                 Dispatcher dispatch = Dispatcher.get();
-                AppEvent app = new AppEvent(BrowseRecordsEvents.SaveItem, model);
-                app.setData("ItemBean", i.getItem()); //$NON-NLS-1$
-                app.setData("isCreate", i.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION) ? true : false); //$NON-NLS-1$
+                AppEvent app = new AppEvent(BrowseRecordsEvents.SaveItem);
+                ItemNodeModel model = null;
+                if (widget instanceof ItemPanel) {// save primary key
+                    ItemPanel itemPanel = (ItemPanel) tabItem.getWidget(0);
+                    model = (ItemNodeModel) itemPanel.getTree().getTree().getItem(0).getUserObject();
+                    app.setData("ItemBean", itemPanel.getItem()); //$NON-NLS-1$
+                    app.setData("isCreate", itemPanel.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION) ? true : false); //$NON-NLS-1$
+                } else if (widget instanceof ForeignKeyTreeDetail) { // save foreign key
+                    ForeignKeyTreeDetail fkDetail = (ForeignKeyTreeDetail) tabItem.getWidget(0);
+                    model = fkDetail.getRootModel();
+                    app.setData("ItemBean", new ItemBean(fkDetail.getViewBean().getBindingEntityModel().getConceptName(), "", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    app.setData("isCreate", fkDetail.isCreate()); //$NON-NLS-1$
+                }
+                app.setData(model);
                 dispatch.dispatch(app);
-
+                
             }
         });
         add(saveButton);
