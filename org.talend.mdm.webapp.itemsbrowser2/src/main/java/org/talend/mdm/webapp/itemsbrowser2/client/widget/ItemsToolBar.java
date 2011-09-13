@@ -263,7 +263,7 @@ public class ItemsToolBar extends ToolBar {
             public void componentSelected(ButtonEvent ce) {
                 String concept = ViewUtil.getConceptFromBrowseItemView(entityCombo.getValue().get("value").toString());//$NON-NLS-1$
 
-                EntityModel entityModel = (EntityModel) Itemsbrowser2.getSession().getCurrentEntityModel();
+                EntityModel entityModel = Itemsbrowser2.getSession().getCurrentEntityModel();
                 ItemBean item = ItemCreator.createDefaultItemBean(concept, entityModel);
 
                 AppEvent evt = new AppEvent(ItemsEvents.ViewItemForm, item);

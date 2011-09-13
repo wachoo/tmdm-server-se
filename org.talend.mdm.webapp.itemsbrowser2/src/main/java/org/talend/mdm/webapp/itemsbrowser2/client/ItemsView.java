@@ -171,7 +171,7 @@ public class ItemsView extends View {
     protected void onViewItemForm(AppEvent event) {
         ItemBean itemBean = event.getData();
         String itemsFormTarget = event.getData(ItemsView.ITEMS_FORM_TARGET);
-        EntityModel entityModel = (EntityModel) Itemsbrowser2.getSession().getCurrentEntityModel();
+        EntityModel entityModel = Itemsbrowser2.getSession().getCurrentEntityModel();
         if (itemBean != null) {
             String tabTitle = itemBean.getConcept() + itemBean.getIds();
             if (itemsFormTarget.equals(ItemsView.TARGET_IN_SEARCH_TAB)) {
