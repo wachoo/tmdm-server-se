@@ -1497,7 +1497,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     public ColumnTreeLayoutModel getColumnTreeLayout(String concept) throws Exception {
-        InputStream is = BrowseRecordsAction.class.getResourceAsStream("ColumnTreeLayout.xml");
+        InputStream is = BrowseRecordsAction.class.getResourceAsStream("temp_ColumnTreeLayout.xml");
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.parse(is);

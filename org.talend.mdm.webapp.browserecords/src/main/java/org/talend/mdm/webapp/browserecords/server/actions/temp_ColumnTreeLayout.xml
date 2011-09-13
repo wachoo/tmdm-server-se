@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<customformdesigner:CustomForm xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:customformdesigner="customformdesigner" datamodel="Order" entity="Student">
+  <columns width="0.25" name="column1">
+    <elements order="1" cssSnippet="csssnippet" jsSnippet="jssnippet" bkColor="200,200,200" foreColor="100,100,100" name="address" xpath="/Student/address">
+      <children cssSnippet="" bkColor="2,2,2" name="id" xpath="/Student/address/id"/>
+      <children order="1" name="name" xpath="/Student/address/name"/>
+    </elements>
+    <elements cssSnippet="csssnippet" jsSnippet="js snippet" bkColor="200,200,200" foreColor="100,100,100" name="name" xpath="/Student/name"/>
+  </columns>
+  <columns order="1" width="0.25" name="column2">
+    <elements order="1" name="pic" xpath="/Student/pic"/>
+    <elements name="id" xpath="/Student/id"/>
+  </columns>
+  <columns order="2" width="0.5" name="column3">
+    <elements bkColor="" name="class" xpath="/Student/class"/>
+  </columns>
+</customformdesigner:CustomForm>
