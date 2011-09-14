@@ -23,6 +23,8 @@ public class GenerateContainer {
             }
 
         };
+        instance.setHeaderVisible(false);
+        instance.setBorders(false);
         instance.setId("Browse Records"); //$NON-NLS-1$
     }
 
