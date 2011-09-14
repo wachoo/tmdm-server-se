@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.webapp.itemsbrowser2.client.creator.DataTypeCreator;
@@ -363,7 +364,11 @@ public class DataModelHelper {
             WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(
                     new WSGetBusinessConceptKey(new WSDataModelPK(model), concept));
 
-            keys = key.getFields();
+            WSConceptKey copyKey = new WSConceptKey();
+            copyKey.setFields((String[]) ArrayUtils.clone(key.getFields()));
+            copyKey.setSelector(new String(key.getSelector()));
+
+            keys = copyKey.getFields();
             for (int i = 0; i < keys.length; i++) {
                 if (".".equals(key.getSelector())) //$NON-NLS-1$
                     keys[i] = concept + "/" + keys[i]; //$NON-NLS-1$ 
