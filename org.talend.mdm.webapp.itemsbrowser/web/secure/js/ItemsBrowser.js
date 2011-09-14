@@ -517,6 +517,17 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         'en' : ["January", "February", "March", "April", "May", "June", "July",
                 "August", "September", "October", "November", "December"]
     };
+
+    var DAY_NAME = {
+        'fr' : ["D", "L" , "M", "M", "J", "V", "S"],
+        'en' : ["S", "M" , "T", "W", "T", "F", "S"]
+    };
+
+    var START_DAY = {
+        'fr' : 1,
+        'en' : 0
+    };
+
     var SEARCH_RESULT = {
         'fr' : 'Définissez des critères de recherche et cliquez \'Rechercher\'.',
         'en' : 'Enter search criteria and hit the \'Search\' button.'
@@ -5473,6 +5484,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         layout : 'fit',
                         inputType : 'textfield',
                         monthNames : MONTH_NAME[language],
+                        dayNames : DAY_NAME[language],
+                        startDay : START_DAY[language],
                         todayText: BUTTON_TODAY[language],
                         cancelText: CANCEL_BUTTON[language],
                         listeners : {
