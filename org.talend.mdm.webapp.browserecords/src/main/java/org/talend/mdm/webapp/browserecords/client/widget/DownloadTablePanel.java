@@ -168,6 +168,7 @@ public class DownloadTablePanel extends ContentPanel {
         grid.setStateId("crossgrid");//$NON-NLS-1$
         grid.setAutoHeight(true);
         grid.setAutoWidth(true);
+        grid.getView().setAutoFill(true);
         gridContainer = new ContentPanel(new FitLayout());
         gridContainer.setAutoHeight(true);
         gridContainer.setBodyBorder(false);
