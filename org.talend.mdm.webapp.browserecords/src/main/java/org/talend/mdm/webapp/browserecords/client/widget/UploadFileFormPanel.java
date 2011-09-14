@@ -18,10 +18,12 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBaseModel;
+import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FormEvent;
@@ -314,6 +316,8 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         waitBar.close();
         if (result.equals("<f>true</f>")) { //$NON-NLS-1$
             toolbar.renderDownloadPanel(container);
+            ItemsSearchContainer searchContainer = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
+            searchContainer.getItemsListPanel().refreshGrid();
         } else {
             MessageBox.alert(MessagesFactory.getMessages().error_title(), result, null);
         }
