@@ -17,6 +17,7 @@ import java.util.Collection;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
@@ -28,7 +29,6 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class ItemsController extends Controller {
 
@@ -76,9 +76,10 @@ public class ItemsController extends Controller {
         
         if(Itemsbrowser2.getSession().getAppHeader().isUsingDefaultForm()) {
             EntityModel entityModel = Itemsbrowser2.getSession().getCurrentEntityModel();
-            service.getItem(itemBean, entityModel, new AsyncCallback<ItemBean>() {
+            service.getItem(itemBean, entityModel, new SessionAwareAsyncCallback<ItemBean>() {
 
-                public void onFailure(Throwable caught) {
+                @Override
+                protected void doOnFailure(Throwable caught) {
                     Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                 }
 
@@ -103,7 +104,7 @@ public class ItemsController extends Controller {
     protected void onGetView(final AppEvent event) {
         Log.info("Get view... ");//$NON-NLS-1$
         String viewName = event.getData();
-        service.getView(viewName, Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()), new AsyncCallback<ViewBean>() {
+        service.getView(viewName, Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()), new SessionAwareAsyncCallback<ViewBean>() {
 
             public void onSuccess(ViewBean view) {
 
@@ -118,7 +119,8 @@ public class ItemsController extends Controller {
                 forwardToView(itemsView, ae);
             }
 
-            public void onFailure(Throwable caught) {
+            @Override
+            protected void doOnFailure(Throwable caught) {
                 Dispatcher.forwardEvent(ItemsEvents.Error, caught);
             }
         });

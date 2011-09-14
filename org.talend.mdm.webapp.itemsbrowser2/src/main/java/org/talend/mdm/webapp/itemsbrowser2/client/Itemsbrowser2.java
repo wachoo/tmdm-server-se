@@ -3,6 +3,7 @@ package org.talend.mdm.webapp.itemsbrowser2.client;
 import org.talend.mdm.webapp.itemsbrowser2.client.boundary.PubService;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.ItemsbrowserMessages;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
 
@@ -14,7 +15,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.IncrementalCommand;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.google.gwt.user.client.ui.RootPanel;
 
@@ -81,9 +81,10 @@ public class Itemsbrowser2 implements EntryPoint {
     public static void onModuleRender() {
         
         // init app-header
-        getItemService().getAppHeader(new AsyncCallback<AppHeader>() {
+        getItemService().getAppHeader(new SessionAwareAsyncCallback<AppHeader>() {
 
-            public void onFailure(Throwable caught) {
+            @Override
+            protected void doOnFailure(Throwable caught) {
                 Dispatcher.forwardEvent(ItemsEvents.Error, caught);
             }
 

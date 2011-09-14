@@ -13,6 +13,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -32,7 +33,6 @@ import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 public class RecordToolBar extends ToolBar {
@@ -61,6 +61,7 @@ public class RecordToolBar extends ToolBar {
             delMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
             delMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
 
+                @Override
                 public void componentSelected(MenuEvent ce) {
                     MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
                             .delete_confirm(), new Listener<MessageBoxEvent>() {
@@ -68,9 +69,10 @@ public class RecordToolBar extends ToolBar {
                         public void handleEvent(MessageBoxEvent be) {
                             if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
                                 final ItemsFormPanel parent = (ItemsFormPanel) instance.getParent().getParent();
-                                service.deleteItemBean(parent.getItemBean(), new AsyncCallback<ItemResult>() {
+                                service.deleteItemBean(parent.getItemBean(), new SessionAwareAsyncCallback<ItemResult>() {
 
-                                    public void onFailure(Throwable arg0) {
+                                    @Override
+                                    protected void doOnFailure(Throwable arg0) {
 
                                     }
 
@@ -97,6 +99,7 @@ public class RecordToolBar extends ToolBar {
             trashMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Send_to_trash()));
             trashMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
 
+                @Override
                 public void componentSelected(MenuEvent ce) {
                     final MessageBox box = MessageBox.prompt(MessagesFactory.getMessages().path(), MessagesFactory.getMessages()
                             .path_desc(), new Listener<MessageBoxEvent>() {
@@ -105,9 +108,10 @@ public class RecordToolBar extends ToolBar {
                             if (be.getButtonClicked().getItemId().equals(Dialog.OK)) {
                                 final ItemsFormPanel parent = (ItemsFormPanel) instance.getParent().getParent();
                                 // TODO xpath
-                                service.logicalDeleteItem(parent.getItemBean(), be.getValue(), new AsyncCallback<ItemResult>() {
+                                service.logicalDeleteItem(parent.getItemBean(), be.getValue(), new SessionAwareAsyncCallback<ItemResult>() {
 
-                                    public void onFailure(Throwable arg0) {
+                                    @Override
+                                    protected void doOnFailure(Throwable arg0) {
 
                                     }
 
@@ -144,6 +148,7 @@ public class RecordToolBar extends ToolBar {
             add(duplicateBtn);
             duplicateBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+                @Override
                 public void componentSelected(ButtonEvent ce) {
                     final ItemsFormPanel parent = (ItemsFormPanel) instance.getParent().getParent();
                     ItemBean item = parent.getItemBean();
@@ -178,6 +183,7 @@ public class RecordToolBar extends ToolBar {
             add(journalBtn);
             journalBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+                @Override
                 public void componentSelected(ButtonEvent ce) {
                     final ItemsFormPanel parent = (ItemsFormPanel) instance.getParent().getParent();
                     ItemBean item = parent.getItemBean();
@@ -193,6 +199,7 @@ public class RecordToolBar extends ToolBar {
             add(refreshBtn);
             refreshBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+                @Override
                 public void componentSelected(ButtonEvent ce) {
                     final ItemsFormPanel parent = (ItemsFormPanel) instance.getParent().getParent();
                     String viewType = null;
@@ -216,6 +223,7 @@ public class RecordToolBar extends ToolBar {
         add(saveBtn);
         saveBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+            @Override
             public void componentSelected(ButtonEvent ce) {
                 final ItemsFormPanel parent = (ItemsFormPanel) instance.getParent().getParent();
                 if (!parent.getNewItemBean().getIds().equals("")) {//$NON-NLS-1$
@@ -241,6 +249,7 @@ public class RecordToolBar extends ToolBar {
         add(saveCloseBtn);
         saveCloseBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+            @Override
             public void componentSelected(ButtonEvent ce) {
                 final ItemsFormPanel parent = (ItemsFormPanel) instance.getParent().getParent();
                 if (!parent.getNewItemBean().getIds().equals("")) {//$NON-NLS-1$
@@ -272,9 +281,10 @@ public class RecordToolBar extends ToolBar {
 
     private void saveItemBean(final ItemsFormPanel parent) {
         ItemBean itemBean = parent.getNewItemBean();
-        service.saveItemBean(itemBean, new AsyncCallback<ItemResult>() {
+        service.saveItemBean(itemBean, new SessionAwareAsyncCallback<ItemResult>() {
 
-            public void onFailure(Throwable arg0) {
+            @Override
+            protected void doOnFailure(Throwable arg0) {
 
             }
 

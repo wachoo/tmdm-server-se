@@ -25,6 +25,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.ViewUtil;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
@@ -49,7 +50,6 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.ListField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -142,7 +142,7 @@ public class NewTablePanel extends FormPanel {
                 
                 String conceptName = currentBean.getBindingEntityModel().getConceptName();               
                 
-                service.getMandatoryFieldList(conceptName, new AsyncCallback<List<String>>() {
+                service.getMandatoryFieldList(conceptName, new SessionAwareAsyncCallback<List<String>>() {
                     
                     public void onSuccess(List<String> fieldList) {
                         
@@ -191,7 +191,8 @@ public class NewTablePanel extends FormPanel {
                         toolbar.addOption(model);
                     }
                     
-                    public void onFailure(Throwable caught) {
+                    @Override
+                    protected void doOnFailure(Throwable caught) {
                         Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                     }
                 });                
@@ -225,7 +226,7 @@ public class NewTablePanel extends FormPanel {
             public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
                 String viewName = (String) se.getSelectedItem().get("value"); //$NON-NLS-1$
                 final String language = Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader());
-                service.getView(viewName, language, new AsyncCallback<ViewBean>() {
+                service.getView(viewName, language, new SessionAwareAsyncCallback<ViewBean>() {
                     
                     public void onSuccess(ViewBean viewBean) {
                         currentBean = viewBean;
@@ -237,7 +238,8 @@ public class NewTablePanel extends FormPanel {
                         to.reset();
                     }
                     
-                    public void onFailure(Throwable caught) {
+                    @Override
+                    protected void doOnFailure(Throwable caught) {
                         Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                     }
                 });

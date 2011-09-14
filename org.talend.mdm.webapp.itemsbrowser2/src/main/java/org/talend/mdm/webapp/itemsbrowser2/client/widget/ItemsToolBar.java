@@ -30,6 +30,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.ViewUtil;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel.AdvancedSearchPanel;
@@ -301,9 +302,10 @@ public class ItemsToolBar extends ToolBar {
                                 if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
                                     if (list.getGrid() != null) {
                                         service.deleteItemBeans(list.getGrid().getSelectionModel().getSelectedItems(),
-                                                new AsyncCallback<List<ItemResult>>() {
+                                                new SessionAwareAsyncCallback<List<ItemResult>>() {
 
-                                                    public void onFailure(Throwable caught) {
+                                                    @Override
+                                                    protected void doOnFailure(Throwable caught) {
                                                         Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                                                     }
 

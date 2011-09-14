@@ -28,9 +28,9 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Parser;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
-import org.talend.mdm.webapp.itemsbrowser2.shared.SessionTimeOutException;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
@@ -104,22 +104,17 @@ public class ItemsListPanel extends ContentPanel {
                 return;
             }
             
-            service.queryItemBeans(qm, new AsyncCallback<ItemBasePageLoadResult<ItemBean>>() {
+            service.queryItemBeans(qm, new SessionAwareAsyncCallback<ItemBasePageLoadResult<ItemBean>>() {
 
                 public void onSuccess(ItemBasePageLoadResult<ItemBean> result) {
                     callback.onSuccess(new BasePagingLoadResult<ItemBean>(result.getData(), result.getOffset(), result
                             .getTotalLength()));
                 }
 
-                public void onFailure(Throwable caught) {
-                	if(caught instanceof SessionTimeOutException) {
-                		Window.Location.replace("/talendmdm/secure/");//$NON-NLS-1$
-                	}
-                	else { 
-                		MessageBox.alert(MessagesFactory.getMessages().error_title(), caught.getMessage(), null);
-                	}
-                	
-                    callback.onSuccess(new BasePagingLoadResult<ItemBean>(new ArrayList<ItemBean>(), 0, 0));
+                @Override
+                protected void doOnFailure(Throwable caught) {
+                	MessageBox.alert(MessagesFactory.getMessages().error_title(), caught.getMessage(), null);
+                	callback.onSuccess(new BasePagingLoadResult<ItemBean>(new ArrayList<ItemBean>(), 0, 0));
                 }
             });
         }
@@ -262,8 +257,9 @@ public class ItemsListPanel extends ContentPanel {
                 if (item != null) {
                     selectedItems = se.getSelection();
                     EntityModel entityModel = (EntityModel) Itemsbrowser2.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
-                    service.getItem(item, entityModel, new AsyncCallback<ItemBean>() {
-                        public void onFailure(Throwable caught) {
+                    service.getItem(item, entityModel, new SessionAwareAsyncCallback<ItemBean>() {
+                        @Override
+                        protected void doOnFailure(Throwable caught) {
                             if (Log.isErrorEnabled()) {
                                 Log.error(caught.getMessage(), caught);
                             }
@@ -435,9 +431,10 @@ public class ItemsListPanel extends ContentPanel {
             final ItemBean itemBean = store.findModel(ids);
             if (itemBean != null) {
                 EntityModel entityModel = (EntityModel) Itemsbrowser2.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
-                service.getItem(itemBean, entityModel, new AsyncCallback<ItemBean>() {
+                service.getItem(itemBean, entityModel, new SessionAwareAsyncCallback<ItemBean>() {
 
-                    public void onFailure(Throwable caught) {
+                    @Override
+                    protected void doOnFailure(Throwable caught) {
                         Window.alert(caught.getMessage());
                     }
 

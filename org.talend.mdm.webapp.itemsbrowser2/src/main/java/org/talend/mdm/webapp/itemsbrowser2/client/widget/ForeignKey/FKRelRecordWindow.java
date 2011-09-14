@@ -24,6 +24,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.Restriction;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.CommonUtil;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.ComboBoxField;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 
@@ -124,23 +125,26 @@ public class FKRelRecordWindow extends Window {
 
     private String getFilterValue() {
         String value = filter.getValue();
-        if (value == null || value.trim().equals("")) {
+        if (value == null || value.trim().length() == 0) {
             value = ".*"; //$NON-NLS-1$
         }
         return value;
     }
 
+    @Override
     protected void onRender(Element parent, int pos) {
         super.onRender(parent, pos);
         final TypeModel typeModel = Itemsbrowser2.getSession().getCurrentEntityModel().getMetaDataTypes().get(fkKey);
         xPath = typeModel.getXpath();
         RpcProxy<PagingLoadResult<ForeignKeyBean>> proxy = new RpcProxy<PagingLoadResult<ForeignKeyBean>>() {
 
+            @Override
             public void load(final Object loadConfig, final AsyncCallback<PagingLoadResult<ForeignKeyBean>> callback) {
                 service.getForeignKeyList((PagingLoadConfig) loadConfig, typeModel, Itemsbrowser2.getSession().getAppHeader()
-                        .getDatacluster(), false, getFilterValue(), new AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>>() {
+                        .getDatacluster(), false, getFilterValue(), new SessionAwareAsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>>() {
 
-                    public void onFailure(Throwable caught) {
+                    @Override
+                    protected void doOnFailure(Throwable caught) {
                         callback.onFailure(caught);
                     }
 
@@ -156,10 +160,12 @@ public class FKRelRecordWindow extends Window {
 
         RpcProxy<BaseListLoadResult<BaseModel>> proxy1 = new RpcProxy<BaseListLoadResult<BaseModel>>() {
 
+            @Override
             public void load(final Object loadConfig, final AsyncCallback<BaseListLoadResult<BaseModel>> callback) {
-                service.getForeignKeyPolymTypeList(typeModel.getForeignkey(), "en", new AsyncCallback<List<Restriction>>() {//$NON-NLS-1$
+                service.getForeignKeyPolymTypeList(typeModel.getForeignkey(), "en", new SessionAwareAsyncCallback<List<Restriction>>() {//$NON-NLS-1$
 
-                            public void onFailure(Throwable caught) {
+                            @Override
+                            protected void doOnFailure(Throwable caught) {
                                 callback.onFailure(caught);
                             }
 
@@ -223,17 +229,17 @@ public class FKRelRecordWindow extends Window {
                 }
                 String fkInfo = sb.toString();
                 service.switchForeignKeyType(targetType, typeModel.getForeignkey(), fkInfo, getFilterValue(),
-                        new AsyncCallback<ForeignKeyDrawer>() {
+                        new SessionAwareAsyncCallback<ForeignKeyDrawer>() {
 
-                            public void onFailure(Throwable arg0) {
-
+                            @Override
+                            protected void doOnFailure(Throwable arg0) {
                             }
 
                             public void onSuccess(ForeignKeyDrawer fkDrawer) {
                                 typeModel.setForeignkey(fkDrawer.getXpathForeignKey());
                                 List<String> fkinfo = new ArrayList<String>();
                                 if(fkDrawer.getXpathInfoForeignKey() != null){
-                                    String[] foreignKeyList = fkDrawer.getXpathInfoForeignKey().split(",");
+                                    String[] foreignKeyList = fkDrawer.getXpathInfoForeignKey().split(","); //$NON-NLS-1$
                                     for(int i=0; i<foreignKeyList.length; i++)
                                         fkinfo.add(foreignKeyList[i]);
                                 }

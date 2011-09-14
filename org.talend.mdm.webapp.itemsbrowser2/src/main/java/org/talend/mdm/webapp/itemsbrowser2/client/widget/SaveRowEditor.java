@@ -12,6 +12,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -21,7 +22,6 @@ import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.grid.RowEditor;
 import com.google.gwt.dom.client.Style.Overflow;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.XMLParser;
@@ -30,16 +30,19 @@ public class SaveRowEditor extends RowEditor<ItemBean> {
 
     ItemsServiceAsync service = (ItemsServiceAsync) Registry.get(Itemsbrowser2.ITEMS_SERVICE);
 
+    @Override
     protected void onRowClick(GridEvent<ItemBean> e) {
         // cancel click Editor
     }
 
+    @Override
     public void startEditing(int rowIndex, boolean doFocus) {
         super.startEditing(rowIndex, doFocus);
         grid.getSelectionModel().setLocked(true);
 
     }
 
+    @Override
     public void stopEditing(boolean saveChanges) {
         super.stopEditing(saveChanges);
         grid.getSelectionModel().setLocked(false);
@@ -71,15 +74,16 @@ public class SaveRowEditor extends RowEditor<ItemBean> {
             doc.appendChild(el);
             itemBean.setItemXml(doc.toString());
             // Window.alert(itemBean.getItemXml());
-            service.saveItemBean(itemBean, new AsyncCallback<ItemResult>() {
+            service.saveItemBean(itemBean, new SessionAwareAsyncCallback<ItemResult>() {
 
-                public void onFailure(Throwable arg0) {
+                @Override
+                protected void doOnFailure(Throwable arg0) {
 
                 }
 
                 public void onSuccess(ItemResult arg0) {
                     Record record = null;
-                    Store store = grid.getStore();
+                    Store<ItemBean> store = grid.getStore();
                     if (store != null) {
                         record = store.getRecord(itemBean);
                     }
