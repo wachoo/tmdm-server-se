@@ -78,7 +78,7 @@ public class ItemsListPanel extends ContentPanel {
             final QueryModel qm = new QueryModel();
             toolBar.setQueryModel(qm);
             qm.setPagingLoadConfig((PagingLoadConfig) loadConfig);
-            int pageSize = (Integer) pagingBar.getPageSize();
+            int pageSize = pagingBar.getPageSize();
             qm.getPagingLoadConfig().setLimit(pageSize);
             qm.setLanguage(Locale.getLanguage());
 
@@ -99,7 +99,7 @@ public class ItemsListPanel extends ContentPanel {
                 }
 
                 public void onFailure(Throwable caught) {
-                	if(caught.getMessage().indexOf("SessionTimeOut") != -1) {//$NON-NLS-1$
+                	if(caught.getMessage().contains("SessionTimeOut")) {//$NON-NLS-1$
                 		Window.Location.replace("/talendmdm/secure/");//$NON-NLS-1$
                 	}
                 	else { 
@@ -138,6 +138,8 @@ public class ItemsListPanel extends ContentPanel {
     private PagingToolBarEx pagingBar = null;
 
     private ItemsToolBar toolBar;
+
+    private Boolean gridUpdateLock = Boolean.FALSE;
 
     public ItemsListPanel(ItemsToolBar bar) {
         setLayout(new FitLayout());
@@ -220,7 +222,12 @@ public class ItemsListPanel extends ContentPanel {
             public void selectionChanged(SelectionChangedEvent<ItemBean> se) {
                 ItemBean item = se.getSelectedItem();
                 if (item != null) {
+                    if (gridUpdateLock) {
+                        return;
+                    }
+                    gridUpdateLock = true;
                     Dispatcher.forwardEvent(BrowseRecordsEvents.ViewItem, item);
+                    gridUpdateLock = false;
                 }
             }
         });
@@ -230,7 +237,7 @@ public class ItemsListPanel extends ContentPanel {
             public void handleEvent(GridEvent<ItemBean> be) {
                 PagingLoadConfig config = new BasePagingLoadConfig();
                 config.setOffset(0);
-                int pageSize = (Integer) pagingBar.getPageSize();
+                int pageSize = pagingBar.getPageSize();
                 config.setLimit(pageSize);
                 loader.load(config);
                 pagingBar.setVisible(true);
