@@ -37,7 +37,6 @@ import org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel.AdvancedSea
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel.SimpleCriterionPanel;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.ComboBoxField;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
-import org.talend.mdm.webapp.itemsbrowser2.shared.SessionTimeOutException;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -401,15 +400,11 @@ public class ItemsToolBar extends ToolBar {
                             final ItemsListPanel list = (ItemsListPanel) instance.getParent();
                             if (list.getGrid() != null) {
                                 service.logicalDeleteItems(list.getGrid().getSelectionModel().getSelectedItems(), "/", //$NON-NLS-1$
-                                        new AsyncCallback<List<ItemResult>>() {
+                                        new SessionAwareAsyncCallback<List<ItemResult>>() {
 
-                                            public void onFailure(Throwable caught) {
-                                            	if(caught instanceof SessionTimeOutException) {
-                                            		com.google.gwt.user.client.Window.Location.replace("/talendmdm/secure/");//$NON-NLS-1$
-                                            	}
-                                            	else { 
-                                            		Dispatcher.forwardEvent(ItemsEvents.Error, caught);
-                                            	}
+                                            @Override
+                                            protected void doOnFailure(Throwable caught) {
+                                                Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                                             }
 
                                             public void onSuccess(List<ItemResult> results) {
@@ -564,13 +559,14 @@ public class ItemsToolBar extends ToolBar {
 
         if (Itemsbrowser2.getSession().getEntitiyModelList() == null) {
             service.getViewsList(Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()),
-                    new AsyncCallback<List<ItemBaseModel>>() {
+                    new SessionAwareAsyncCallback<List<ItemBaseModel>>() {
 
                         public void onSuccess(List<ItemBaseModel> modelList) {
                             Itemsbrowser2.getSession().put(UserSession.ENTITY_MODEL_LIST, modelList);
                         }
 
-                        public void onFailure(Throwable caught) {
+                        @Override
+                        protected void doOnFailure(Throwable caught) {
                             Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                         }
                     });
@@ -693,20 +689,17 @@ public class ItemsToolBar extends ToolBar {
                     @Override
                     public void load(Object loadConfig, AsyncCallback<PagingLoadResult<ItemBaseModel>> callback) {
                         service.querySearchTemplates(entityCombo.getValue().get("value").toString(), true, //$NON-NLS-1$
-                                (PagingLoadConfig) loadConfig, new AsyncCallback<PagingLoadResult<ItemBaseModel>>() {
-									public void onFailure(Throwable caught) {
-										if(caught instanceof SessionTimeOutException) {
-				                    		com.google.gwt.user.client.Window.Location.replace("/talendmdm/secure/");//$NON-NLS-1$
-				                    	}
-				                    	else { 
-				                    		MessageBox.alert(MessagesFactory.getMessages().error_title(), caught.getMessage(), null);
-				                    		Dispatcher.forwardEvent(ItemsEvents.Error, caught);
-				                    	}
-									}
+                                (PagingLoadConfig) loadConfig, new SessionAwareAsyncCallback<PagingLoadResult<ItemBaseModel>>() {
 
-									public void onSuccess(PagingLoadResult<ItemBaseModel> arg0) {
-									}
-								});
+                                    @Override
+                                    protected void doOnFailure(Throwable caught) {
+                                        MessageBox.alert(MessagesFactory.getMessages().error_title(), caught.getMessage(), null);
+                                        Dispatcher.forwardEvent(ItemsEvents.Error, caught);
+                                    }
+
+                                    public void onSuccess(PagingLoadResult<ItemBaseModel> arg0) {
+                                    }
+                                });
                     }
                 };
 
@@ -739,9 +732,11 @@ public class ItemsToolBar extends ToolBar {
                                     if (advancedPanel == null) {
                                         advancedPanel = new AdvancedSearchPanel(simplePanel.getView(), null);
                                     }
-                                    service.getCriteriaByBookmark(model.get("value").toString(), new AsyncCallback<String>() { //$NON-NLS-1$
+                                    service.getCriteriaByBookmark(
+                                            model.get("value").toString(), new SessionAwareAsyncCallback<String>() { //$NON-NLS-1$
 
-                                                public void onFailure(Throwable caught) {
+                                                @Override
+                                                protected void doOnFailure(Throwable caught) {
                                                     Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                                                 }
 
@@ -798,9 +793,10 @@ public class ItemsToolBar extends ToolBar {
                                             if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
                                                 // delete the bookmark
                                                 service.deleteSearchTemplate(model.get("value").toString(), //$NON-NLS-1$
-                                                        new AsyncCallback<String>() {
+                                                        new SessionAwareAsyncCallback<String>() {
 
-                                                            public void onFailure(Throwable caught) {
+                                                            @Override
+                                                            protected void doOnFailure(Throwable caught) {
                                                                 Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                                                             }
 
@@ -897,9 +893,10 @@ public class ItemsToolBar extends ToolBar {
 
     private void updateUserCriteriasList() {
         service.getUserCriterias(entityCombo.getValue().get("value").toString(), //$NON-NLS-1$
-                new AsyncCallback<List<ItemBaseModel>>() {
+                new SessionAwareAsyncCallback<List<ItemBaseModel>>() {
 
-                    public void onFailure(Throwable caught) {
+                    @Override
+                    protected void doOnFailure(Throwable caught) {
                         Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                     }
 
@@ -925,9 +922,10 @@ public class ItemsToolBar extends ToolBar {
 
     private void doSearch(final ItemBaseModel model, final Window winBookmark) {
         service.getCriteriaByBookmark(model.get("value").toString(), //$NON-NLS-1$
-                new AsyncCallback<String>() {
+                new SessionAwareAsyncCallback<String>() {
 
-                    public void onFailure(Throwable caught) {
+                    @Override
+                    protected void doOnFailure(Throwable caught) {
                         Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                     }
 
@@ -986,18 +984,13 @@ public class ItemsToolBar extends ToolBar {
             @Override
             public void componentSelected(ButtonEvent ce) {
                 service.isExistCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue(), //$NON-NLS-1$
-                        new AsyncCallback<Boolean>() {
+                        new SessionAwareAsyncCallback<Boolean>() {
 
-                            public void onFailure(Throwable caught) {
-                            	if(caught instanceof SessionTimeOutException) {
-                            		com.google.gwt.user.client.Window.Location.replace("/talendmdm/secure/");//$NON-NLS-1$
-                            	}
-                            	else { 
-                            		Dispatcher.forwardEvent(ItemsEvents.Error, caught);
-                            		MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
-                            				.bookmark_existMsg(), null);
-                            	}
-
+                            @Override
+                            protected void doOnFailure(Throwable caught) {
+                                Dispatcher.forwardEvent(ItemsEvents.Error, caught);
+                                MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                                        .bookmark_existMsg(), null);
                             }
 
                             public void onSuccess(Boolean arg0) {
@@ -1026,9 +1019,10 @@ public class ItemsToolBar extends ToolBar {
     private void saveBookmark(String name, boolean shared, String curCriteria, final Window winBookmark) {
 
         service.saveCriteria(entityCombo.getValue().get("value").toString(), name, shared, curCriteria, //$NON-NLS-1$
-                new AsyncCallback<String>() {
+                new SessionAwareAsyncCallback<String>() {
 
-                    public void onFailure(Throwable caught) {
+                    @Override
+                    protected void doOnFailure(Throwable caught) {
                         Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                         MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
                                 .bookmark_saveFailed(), null);
@@ -1136,7 +1130,7 @@ public class ItemsToolBar extends ToolBar {
     private void addDownloadPanel(final ContentPanel panel) {
         String currentTableName = currentModel.get("value"); //$NON-NLS-1$
         service.getView(currentTableName, Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()),
-                new AsyncCallback<ViewBean>() {
+                new SessionAwareAsyncCallback<ViewBean>() {
 
                     public void onSuccess(ViewBean bean) {
                         tableView = bean;
@@ -1147,7 +1141,8 @@ public class ItemsToolBar extends ToolBar {
                         panel.layout(true);
                     }
 
-                    public void onFailure(Throwable bean) {
+                    @Override
+                    protected void doOnFailure(Throwable bean) {
 
                     }
                 });
