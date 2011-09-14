@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
@@ -71,11 +71,11 @@ public class DownloadTablePanel extends ContentPanel {
     private final static int PAGE_SIZE = 20;
 
     private PagingToolBarEx pagetoolBar = null;
-    
+
     private List<String> headerList = new ArrayList<String>();
 
     private List<String> xPathList = new ArrayList<String>();
-      
+
     private DownloadTablePanel(String name) {
         super();
         tableName = name;
@@ -88,23 +88,22 @@ public class DownloadTablePanel extends ContentPanel {
     }
 
     private List<ColumnConfig> initColumns(ViewBean viewBean, int width) {
-       
+
         List<String> viewableXpaths = viewBean.getViewableXpaths();
         EntityModel entityModel = viewBean.getBindingEntityModel();
         Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
-        
+
         List<ColumnConfig> ccList = new ArrayList<ColumnConfig>();
         headerList.clear();
         xPathList.clear();
-        
+
         int subWidth = (width) / viewBean.getViewables().length;
         for (String xpath : viewableXpaths) {
             TypeModel typeModel = dataTypes.get(xpath);
-            String header = typeModel == null ? xpath : ViewUtil.getViewableLabel(
-                    Locale.getLanguage(), typeModel);
+            String header = typeModel == null ? xpath : ViewUtil.getViewableLabel(Locale.getLanguage(), typeModel);
             headerList.add(header);
             xPathList.add(xpath);
-            ColumnConfig cc = new ColumnConfig(xpath, header, subWidth);      
+            ColumnConfig cc = new ColumnConfig(xpath, header, subWidth);
             ccList.add(cc);
         }
 
@@ -120,31 +119,30 @@ public class DownloadTablePanel extends ContentPanel {
                 qm.setDataClusterPK(BrowseRecords.getSession().getAppHeader().getDatacluster());
                 qm.setView(viewBean);
                 qm.setModel(viewBean.getBindingEntityModel());
-     
+
                 qm.setPagingLoadConfig((PagingLoadConfig) loadConfig);
                 int pageSize = (Integer) pagetoolBar.getPageSize();
                 qm.getPagingLoadConfig().setLimit(pageSize);
                 qm.setLanguage(Locale.getLanguage());
-                                
+
                 service.queryItemBeans(qm, new AsyncCallback<ItemBasePageLoadResult<ItemBean>>() {
-                    
+
                     public void onSuccess(ItemBasePageLoadResult<ItemBean> result) {
                         callback.onSuccess(new BasePagingLoadResult<ItemBean>(result.getData(), result.getOffset(), result
                                 .getTotalLength()));
                     }
-                    
+
                     public void onFailure(Throwable caught) {
                         MessageBox.alert(MessagesFactory.getMessages().error_title(), caught.getMessage(), null);
                         callback.onSuccess(new BasePagingLoadResult<ItemBean>(new ArrayList<ItemBean>(), 0, 0));
-                        
+
                     }
                 });
             }
         };
 
         // loader
-        final PagingLoader<PagingLoadResult<ItemBean>> loader = new BasePagingLoader<PagingLoadResult<ItemBean>>(
-                proxy);
+        final PagingLoader<PagingLoadResult<ItemBean>> loader = new BasePagingLoader<PagingLoadResult<ItemBean>>(proxy);
 
         final ListStore<ItemBean> store = new ListStore<ItemBean>(loader);
         int usePageSize = PAGE_SIZE;
@@ -168,12 +166,14 @@ public class DownloadTablePanel extends ContentPanel {
         });
         grid.setLoadMask(true);
         grid.setStateId("crossgrid");//$NON-NLS-1$
+        grid.setAutoHeight(true);
+        grid.setAutoWidth(true);
         gridContainer = new ContentPanel(new FitLayout());
+        gridContainer.setAutoHeight(true);
         gridContainer.setBodyBorder(false);
         gridContainer.setHeaderVisible(false);
         gridContainer.setBottomComponent(pagetoolBar);
         gridContainer.add(grid);
-        add(gridContainer);
 
         ToolBar toolBar = new ToolBar();
         Button export = new Button("Export"); //$NON-NLS-1$
@@ -183,38 +183,38 @@ public class DownloadTablePanel extends ContentPanel {
             @Override
             public void componentSelected(ButtonEvent ce) {
                 StringBuilder url = new StringBuilder("/browserecords/download?tableName="); //$NON-NLS-1$
-                url.append(tableName)
-                   .append("&header="); //$NON-NLS-1$
+                url.append(tableName).append("&header="); //$NON-NLS-1$
                 int i = 0;
                 int count = headerList.size();
-                for(String header : headerList){
+                for (String header : headerList) {
                     i++;
                     url.append(header);
-                    if(i < count)
+                    if (i < count)
                         url.append("@"); //$NON-NLS-1$
                 }
-                
-                i=0;
+
+                i = 0;
                 count = xPathList.size();
                 url.append("&xpath="); //$NON-NLS-1$
-                for(String path : xPathList){
+                for (String path : xPathList) {
                     i++;
                     url.append(path);
-                    if(i < count)
+                    if (i < count)
                         url.append("@"); //$NON-NLS-1$
                 }
-                
+
                 Window.open(url.toString(), "_parent", "location=no"); //$NON-NLS-1$ //$NON-NLS-2$
             }
         });
         gridContainer.setTopComponent(toolBar);
+        add(gridContainer);
         this.syncSize();
     }
-    
+
     public String getViewableLabel(String language, TypeModel typeModel) {
-        
+
         String label = typeModel.getLabel(language);
-        if(LabelUtil.isDynamicLabel(label)) {
+        if (LabelUtil.isDynamicLabel(label)) {
             label = typeModel.getName();
         }
         return label;
