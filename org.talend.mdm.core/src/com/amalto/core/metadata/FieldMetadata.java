@@ -28,8 +28,16 @@ public interface FieldMetadata extends MetadataVisitable {
 
     TypeMetadata getContainingType();
 
+    void setContainingType(TypeMetadata typeMetadata);
+
+    TypeMetadata getDeclaringType();
+
     boolean isFKIntegrity();
 
     boolean allowFKIntegrityOverride();
+
+    void adopt(ComplexTypeMetadata metadata);
+
+    FieldMetadata copy();
 
 }

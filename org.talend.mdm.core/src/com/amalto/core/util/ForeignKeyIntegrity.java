@@ -29,25 +29,20 @@ class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFieldMetad
     // Foreign key fields list to be returned at end of visit.
     private final Set<ReferenceFieldMetadata> fieldToCheck = new HashSet<ReferenceFieldMetadata>();
 
-    private final String typeName;
+    private final TypeMetadata type;
 
     /**
-     * This {@link MetadataVisitor} returns foreign key fields that points to <code>typeName</code>.
-     * @param typeName The type name.
+     * This {@link MetadataVisitor} returns foreign key fields that points to <code>type</code>.
+     * @param type A type.
      */
-    public ForeignKeyIntegrity(String typeName) {
-        this.typeName = typeName;
+    public ForeignKeyIntegrity(TypeMetadata type) {
+        this.type = type;
     }
 
     @Override
     public Set<ReferenceFieldMetadata> visit(ComplexTypeMetadata metadata) {
         if (!checkedTypes.contains(metadata)) {
             checkedTypes.add(metadata);
-
-            Collection<TypeMetadata> superTypes = metadata.getSuperTypes();
-            for (TypeMetadata superType : superTypes) {
-                superType.accept(this);
-            }
             return super.visit(metadata);
         }
         return fieldToCheck;
@@ -55,7 +50,7 @@ class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFieldMetad
 
     @Override
     public Set<ReferenceFieldMetadata> visit(ReferenceUnaryFieldMetadata metadata) {
-        if (typeName.equals(metadata.getForeignTypeName())) {
+        if (type.isAssignableFrom(metadata.getReferencedType())) {
             fieldToCheck.add(metadata);
         }
         super.visit(metadata);
@@ -64,7 +59,7 @@ class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFieldMetad
 
     @Override
     public Set<ReferenceFieldMetadata> visit(ReferenceCollectionFieldMetadata metadata) {
-        if (typeName.equals(metadata.getForeignTypeName())) {
+        if (metadata.getReferencedType().isAssignableFrom(type)) {
             fieldToCheck.add(metadata);
         }
         super.visit(metadata);

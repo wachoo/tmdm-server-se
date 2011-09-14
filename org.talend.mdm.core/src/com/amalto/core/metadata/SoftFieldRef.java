@@ -11,81 +11,77 @@
 
 package com.amalto.core.metadata;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 /**
  *
  */
-public class SimpleTypeFieldMetadata implements FieldMetadata {
-
-    private final String name;
-
+public class SoftFieldRef implements FieldMetadata {
+    private final MetadataRepository repository;
     private final String fieldTypeName;
+    private final String fieldName;
 
-    private final boolean isKey;
-
-    private final TypeMetadata declaringType;
-
-    private TypeMetadata containingType;
-
-    public SimpleTypeFieldMetadata(TypeMetadata containingType, boolean key, String name, String fieldTypeName) {
-        this.containingType = containingType;
-        this.declaringType = containingType;
-        isKey = key;
-        this.name = name;
+    public SoftFieldRef(MetadataRepository metadataRepository, String fieldTypeName, String fieldName) {
+        this.repository = metadataRepository;
         this.fieldTypeName = fieldTypeName;
+        this.fieldName = fieldName;
+    }
+
+    private FieldMetadata getField() {
+        return repository.getType(fieldTypeName).getField(fieldName);
     }
 
     public String getName() {
-        return name;
+        return getField().getName();
     }
 
     public boolean isKey() {
-        return isKey;
+        return getField().isKey();
     }
 
     public String getType() {
-        return fieldTypeName;
+        return getField().getType();
     }
 
     public boolean hasForeignKeyInfo() {
-        return false; // This type of field can't be a foreign key
+        return getField().hasForeignKeyInfo();
     }
 
     public String getForeignKeyInfoField() {
-        throw new IllegalStateException("This type of field can't be a foreign key");
+        return getField().getForeignKeyInfoField();
     }
 
     public TypeMetadata getContainingType() {
-        return containingType;
+        return getField().getContainingType();
     }
 
     public void setContainingType(TypeMetadata typeMetadata) {
-        this.containingType = typeMetadata;
+        getField().setContainingType(typeMetadata);
     }
 
     public TypeMetadata getDeclaringType() {
-        return declaringType;
+        return getField().getDeclaringType();
     }
 
     public boolean isFKIntegrity() {
-        return false;
+        return getField().isFKIntegrity();
     }
 
     public boolean allowFKIntegrityOverride() {
-        return false;
+        return getField().allowFKIntegrityOverride();
     }
 
     public void adopt(ComplexTypeMetadata metadata) {
-        FieldMetadata copy = copy();
+        FieldMetadata copy = getField().copy();
         copy.setContainingType(metadata);
         metadata.addField(copy);
     }
 
     public FieldMetadata copy() {
-        return new SimpleTypeFieldMetadata(containingType, isKey, name, fieldTypeName);
+        throw new NotImplementedException();
     }
 
     public <T> T accept(MetadataVisitor<T> visitor) {
-        return visitor.visit(this);
+        return getField().accept(visitor);
     }
-
 }

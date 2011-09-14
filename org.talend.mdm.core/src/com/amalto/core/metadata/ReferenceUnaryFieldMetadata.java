@@ -18,35 +18,31 @@ public class ReferenceUnaryFieldMetadata extends ReferenceFieldMetadata {
 
     private final boolean isKey;
 
-    private final String name;
+    private final TypeMetadata referencedType;
 
-    private final String type;
-
-    private final TypeRef referencedType;
-
-
-    public ReferenceUnaryFieldMetadata(TypeMetadata containingType, boolean isKey, String name, String type, TypeRef referencedType, String foreignKeyInfo, boolean fkIntegrity, boolean allowFKIntegrityOverride) {
-        super(foreignKeyInfo, containingType, allowFKIntegrityOverride, fkIntegrity);
+    public ReferenceUnaryFieldMetadata(TypeMetadata containingType,
+                                       String name,
+                                       TypeMetadata referencedType,
+                                       FieldMetadata referencedField,
+                                       String foreignKeyInfo,
+                                       boolean isKey,
+                                       boolean fkIntegrity,
+                                       boolean allowFKIntegrityOverride) {
+        super(name, containingType, referencedType, referencedField, allowFKIntegrityOverride, fkIntegrity, foreignKeyInfo);
         this.isKey = isKey;
-        this.name = name;
-        this.type = type;
         this.referencedType = referencedType;
     }
 
     public String getForeignTypeName() {
-        return referencedType.getReferencedTypeName();
+        return referencedType.getName();
     }
 
     public String getForeignIdField() {
-        return referencedType.getReferencedKey();
+        return referencedField.getName();
     }
 
     public String getForeignIdType() {
-        return referencedType.getReferencedKeyType();
-    }
-
-    public String getName() {
-        return name;
+        return referencedField.getType();
     }
 
     public boolean isKey() {
@@ -57,7 +53,8 @@ public class ReferenceUnaryFieldMetadata extends ReferenceFieldMetadata {
         return visitor.visit(this);
     }
 
-    public String getType() {
-        return type;
+    public FieldMetadata copy() {
+        return new ReferenceUnaryFieldMetadata(containingType, name, referencedType, referencedField, foreignKeyInfo, isKey, isFKIntegrity, allowFKIntegrityOverride);
     }
+
 }

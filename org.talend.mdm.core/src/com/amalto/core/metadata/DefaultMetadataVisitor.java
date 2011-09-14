@@ -64,4 +64,8 @@ public class DefaultMetadataVisitor<T> implements MetadataVisitor<T> {
         return null;
     }
 
+    public T visit(TypeMetadata typeMetadata) {
+        return null;
+    }
+
 }

@@ -34,4 +34,5 @@ public interface MetadataVisitor<T> {
 
     T visit(EnumerationFieldMetadata metadata);
 
+    T visit(TypeMetadata typeMetadata);
 }

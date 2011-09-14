@@ -13,7 +13,7 @@ package com.amalto.core.util;
 
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.metadata.ReferenceFieldMetadata;
-import com.amalto.core.metadata.ReferenceUnaryFieldMetadata;
+import com.amalto.core.metadata.TypeMetadata;
 import junit.framework.TestCase;
 
 import java.util.Set;
@@ -24,22 +24,28 @@ import java.util.Set;
 @SuppressWarnings({"HardCodedStringLiteral", "nls"})
 public class ForeignKeyIntegrityTest extends TestCase {
 
-    private MetadataRepository repository;
+    private Set<ReferenceFieldMetadata> getReferencedFields(MetadataRepository repository, String typeName) {
+        TypeMetadata type = repository.getType(typeName);
+        ForeignKeyIntegrity keyIntegrity = new ForeignKeyIntegrity(type);
+        return repository.accept(keyIntegrity);
+    }
 
-    @Override
-    public void setUp() throws Exception {
+    private MetadataRepository getMetadataRepository(String xsdFileName) {
+        MetadataRepository repository;
         try {
             repository = new MetadataRepository();
-            repository.load(getClass().getResourceAsStream("test1.xsd"));
+            repository.load(getClass().getResourceAsStream(xsdFileName));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        return repository;
     }
 
     public void test1() throws Exception {
+        MetadataRepository repository = getMetadataRepository("test1.xsd");
+
         String typeName = "language";
-        ForeignKeyIntegrity keyIntegrity = new ForeignKeyIntegrity(typeName);
-        Set<ReferenceFieldMetadata> references = repository.accept(keyIntegrity);
+        Set<ReferenceFieldMetadata> references = getReferencedFields(repository, typeName);
 
         assertFalse(references.isEmpty());
         System.out.println("=====================");
@@ -50,4 +56,97 @@ public class ForeignKeyIntegrityTest extends TestCase {
         }
 
     }
+
+    public void testModel1() throws Exception {
+        MetadataRepository repository = getMetadataRepository("model1.xsd");
+
+        Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "A");
+        assertTrue(references.isEmpty());
+
+        references = getReferencedFields(repository, "B");
+        assertEquals(1, references.size());
+    }
+
+    public void testModel2() throws Exception {
+        MetadataRepository repository = getMetadataRepository("model2.xsd");
+
+        Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "A");
+        assertEquals(1, references.size());
+
+        references = getReferencedFields(repository, "B");
+        assertEquals(1, references.size());
+
+        references = getReferencedFields(repository, "C");
+        assertEquals(1, references.size());
+    }
+
+    public void testModel3() throws Exception {
+        MetadataRepository repository = getMetadataRepository("model3.xsd");
+
+        Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "A");
+        assertEquals(0, references.size());
+
+        references = getReferencedFields(repository, "B");
+        assertEquals(2, references.size());
+
+        references = getReferencedFields(repository, "C");
+        assertEquals(0, references.size());
+    }
+
+    public void testModel4() throws Exception {
+        MetadataRepository repository = getMetadataRepository("model4.xsd");
+
+        Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "A");
+        assertEquals(0, references.size());
+
+        references = getReferencedFields(repository, "B");
+        assertEquals(4, references.size());
+    }
+
+    public void testModel5() throws Exception {
+        MetadataRepository repository = getMetadataRepository("model5.xsd");
+
+        Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "A");
+        assertEquals(1, references.size());
+
+        references = getReferencedFields(repository, "B");
+        assertEquals(1, references.size());
+
+    }
+
+    public void testModel6() throws Exception {
+        MetadataRepository repository = getMetadataRepository("model6.xsd");
+
+        Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "A");
+        assertEquals(0, references.size());
+
+        references = getReferencedFields(repository, "B");
+        assertEquals(1, references.size());
+
+    }
+
+    public void testModel7() throws Exception {
+        MetadataRepository repository = getMetadataRepository("model7.xsd");
+
+        Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "A");
+        assertEquals(0, references.size());
+
+        references = getReferencedFields(repository, "B");
+        assertEquals(0, references.size());
+
+    }
+
+    public void testModel8() throws Exception {
+        MetadataRepository repository = getMetadataRepository("model8.xsd");
+
+        Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "A");
+        assertEquals(0, references.size());
+
+        references = getReferencedFields(repository, "B");
+        assertEquals(1, references.size());
+
+        references = getReferencedFields(repository, "C");
+        assertEquals(1, references.size());
+    }
+
 }

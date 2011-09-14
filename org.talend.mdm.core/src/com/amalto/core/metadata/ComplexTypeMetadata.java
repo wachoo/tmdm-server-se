@@ -11,18 +11,12 @@
 
 package com.amalto.core.metadata;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  *
  */
-public class ComplexTypeMetadata implements com.amalto.core.metadata.TypeMetadata {
+public class ComplexTypeMetadata implements TypeMetadata {
 
     private final String name;
 
@@ -38,8 +32,16 @@ public class ComplexTypeMetadata implements com.amalto.core.metadata.TypeMetadat
         this.superTypes = superTypes;
     }
 
+    public void addSuperType(TypeMetadata superType) {
+        List<FieldMetadata> superTypeFields = superType.getFields();
+        for (FieldMetadata superTypeField : superTypeFields) {
+            superTypeField.adopt(this);
+        }
+        superTypes.add(superType);
+    }
+
     public Collection<TypeMetadata> getSuperTypes() {
-        return superTypes;
+        return Collections.unmodifiableCollection(superTypes);
     }
 
     public String getName() {
@@ -54,6 +56,10 @@ public class ComplexTypeMetadata implements com.amalto.core.metadata.TypeMetadat
         return true;
     }
 
+    public FieldMetadata getField(String fieldName) {
+        return fieldMetadata.get(fieldName);
+    }
+
     public List<FieldMetadata> getKeyFields() {
         List<FieldMetadata> keyFields = new ArrayList<FieldMetadata>();
         for (FieldMetadata metadata : getFields()) {
@@ -64,12 +70,20 @@ public class ComplexTypeMetadata implements com.amalto.core.metadata.TypeMetadat
         return keyFields;
     }
 
-    public Collection<FieldMetadata> getFields() {
-        Collection<FieldMetadata> declaredFields = fieldMetadata.values();
-        for (TypeMetadata type : superTypes) {
-            declaredFields.addAll(type.getFields());
+    public List<FieldMetadata> getFields() {
+        return Collections.unmodifiableList(new ArrayList<FieldMetadata>(fieldMetadata.values()));
+    }
+
+    public boolean isAssignableFrom(TypeMetadata type) {
+        // Naive implementation: what about 1+ level of inheritance???
+        Collection<TypeMetadata> superTypes = getSuperTypes();
+        for (TypeMetadata superType : superTypes) {
+            if (type.getName().equals(superType.getName())) {
+                return true;
+            }
         }
-        return declaredFields;
+
+        return getName().equals(type.getName());
     }
 
     public <T> T accept(MetadataVisitor<T> visitor) {

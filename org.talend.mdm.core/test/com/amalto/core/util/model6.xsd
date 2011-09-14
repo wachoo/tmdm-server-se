@@ -1,0 +1,31 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <xsd:import namespace="http://www.w3.org/2001/XMLSchema"/>
+    <xsd:element name="A">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="id" type="xsd:string"/>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" name="refA" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_ForeignKey">B/id</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+        <xsd:unique name="A">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="id"/>
+        </xsd:unique>
+    </xsd:element>
+
+    <xsd:element name="B">
+        <xsd:complexType>
+            <xsd:all>
+                <xsd:element name="id" type="xsd:string"/>
+            </xsd:all>
+        </xsd:complexType>
+        <xsd:unique name="B">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="id"/>
+        </xsd:unique>
+    </xsd:element>
+</xsd:schema>

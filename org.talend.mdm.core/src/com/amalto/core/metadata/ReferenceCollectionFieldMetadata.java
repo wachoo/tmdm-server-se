@@ -18,27 +18,27 @@ public class ReferenceCollectionFieldMetadata extends ReferenceFieldMetadata {
 
     private final String name;
 
-    private final ReferenceUnaryFieldMetadata fieldMetadata;
+    private final ReferenceUnaryFieldMetadata referencedField;
 
     private final boolean isKey;
 
-    public ReferenceCollectionFieldMetadata(TypeMetadata containingType, String name, boolean key, ReferenceUnaryFieldMetadata fieldMetadata, String foreignKeyInfo, boolean fkIntegrity, boolean allowFKIntegrityOverride) {
-        super(foreignKeyInfo, containingType, allowFKIntegrityOverride, fkIntegrity);
+    public ReferenceCollectionFieldMetadata(TypeMetadata containingType,
+                                            String name,
+                                            boolean key,
+                                            ReferenceUnaryFieldMetadata referencedField,
+                                            String foreignKeyInfo, boolean fkIntegrity, boolean allowFKIntegrityOverride) {
+        super(name, containingType, referencedField.getContainingType(), referencedField, allowFKIntegrityOverride, fkIntegrity, foreignKeyInfo);
         this.name = name;
-        this.fieldMetadata = fieldMetadata;
+        this.referencedField = referencedField;
         isKey = key;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public boolean isKey() {
         return isKey;
     }
 
-    public String getType() {
-        return fieldMetadata.getType();
+    public FieldMetadata copy() {
+        return new ReferenceCollectionFieldMetadata(containingType, name, isKey, referencedField, foreignKeyInfo, isFKIntegrity, allowFKIntegrityOverride);
     }
 
     public <T> T accept(MetadataVisitor<T> visitor) {
@@ -46,15 +46,15 @@ public class ReferenceCollectionFieldMetadata extends ReferenceFieldMetadata {
     }
 
     public String getForeignIdType() {
-        return fieldMetadata.getForeignIdType();
+        return referencedField.getForeignIdType();
     }
 
     public String getForeignTypeName() {
-        return fieldMetadata.getForeignTypeName();
+        return referencedField.getForeignTypeName();
     }
 
     public String getForeignIdField() {
-        return fieldMetadata.getForeignIdField();
+        return referencedField.getForeignIdField();
     }
 
 }

@@ -22,10 +22,13 @@ public class EnumerationFieldMetadata implements FieldMetadata {
 
     private final String fieldTypeName;
 
-    private final TypeMetadata containingType;
+    private final TypeMetadata declaringType;
+
+    private TypeMetadata containingType;
 
     public EnumerationFieldMetadata(TypeMetadata containingType, boolean isKey, String elementName, String fieldTypeName) {
         this.containingType = containingType;
+        this.declaringType = containingType;
         key = isKey;
         this.elementName = elementName;
         this.fieldTypeName = fieldTypeName;
@@ -55,12 +58,30 @@ public class EnumerationFieldMetadata implements FieldMetadata {
         return containingType;
     }
 
+    public void setContainingType(TypeMetadata typeMetadata) {
+        this.containingType = typeMetadata;
+    }
+
+    public TypeMetadata getDeclaringType() {
+        return declaringType;
+    }
+
     public boolean isFKIntegrity() {
         return false;
     }
 
     public boolean allowFKIntegrityOverride() {
         return false;
+    }
+
+    public void adopt(ComplexTypeMetadata metadata) {
+        FieldMetadata copy = copy();
+        copy.setContainingType(metadata);
+        metadata.addField(copy);
+    }
+
+    public FieldMetadata copy() {
+        return new EnumerationFieldMetadata(containingType, isKey(), elementName, fieldTypeName);
     }
 
     public <T> T accept(MetadataVisitor<T> visitor) {

@@ -19,7 +19,13 @@ import java.util.List;
  */
 public interface TypeMetadata extends MetadataVisitable {
 
+    /**
+     * Returns a <b>READ ONLY</b> collection of super types. For adding super type see {@link #addSuperType(TypeMetadata)}
+     * @return A collection of super types.
+     */
     Collection<TypeMetadata> getSuperTypes();
+
+    void addSuperType(TypeMetadata superType);
 
     String getName();
 
@@ -27,6 +33,21 @@ public interface TypeMetadata extends MetadataVisitable {
 
     boolean isAbstract();
 
-    Collection<FieldMetadata> getFields();
+    FieldMetadata getField(String fieldName);
+
+    /**
+     * Returns a <b>READ ONLY</b> collection of fields. For adding super type see {@link ComplexTypeMetadata#addField(FieldMetadata)}}
+     *
+     * @return A collection of super types.
+     */
+    List<FieldMetadata> getFields();
+
+    /**
+     * @param type A type.
+     * @return Returns <code>true</code> if <u>this</u> type can be safely casted to <code>type</code>. This returns <code>true</code>
+     * if <u>this</u> type is a sub type of <code>type</code>.
+     */
+    boolean isAssignableFrom(TypeMetadata type);
+
 
 }

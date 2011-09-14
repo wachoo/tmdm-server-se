@@ -11,7 +11,8 @@
 
 package com.amalto.core.metadata;
 
-import java.util.ArrayList;
+import org.apache.commons.lang.NotImplementedException;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -46,8 +47,21 @@ public class SimpleTypeMetadata implements TypeMetadata {
         return true;
     }
 
-    public Collection<FieldMetadata> getFields() {
-        return Collections.emptySet();
+    public FieldMetadata getField(String fieldName) {
+        throw new IllegalStateException("Should not be called on a simple type.");
+    }
+
+    public List<FieldMetadata> getFields() {
+        return Collections.emptyList();
+    }
+
+    public boolean isAssignableFrom(TypeMetadata type) {
+        // Don't support inheritance with simple types.
+        return false;
+    }
+
+    public void addSuperType(TypeMetadata superType) {
+        throw new IllegalStateException("Cannot add a super type to a simple type");
     }
 
     public <T> T accept(MetadataVisitor<T> visitor) {

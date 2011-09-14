@@ -13,19 +13,38 @@ package com.amalto.core.metadata;
 
 public abstract class ReferenceFieldMetadata implements FieldMetadata {
 
-    private final String foreignKeyInfo;
+    protected final String name;
 
-    private final TypeMetadata containingType;
+    protected final FieldMetadata referencedField;
 
-    private final boolean allowFKIntegrityOverride;
+    protected final String foreignKeyInfo;
 
-    private final boolean isFKIntegrity;
+    protected final boolean allowFKIntegrityOverride;
 
-    public ReferenceFieldMetadata(String foreignKeyInfo, TypeMetadata containingType, boolean allowFKIntegrityOverride, boolean FKIntegrity) {
+    protected final boolean isFKIntegrity;
+
+    private TypeMetadata referencedType;
+
+    protected TypeMetadata containingType;
+
+    public ReferenceFieldMetadata(String name,
+                                  TypeMetadata containingType,
+                                  TypeMetadata referencedType,
+                                  FieldMetadata referencedField,
+                                  boolean allowFKIntegrityOverride,
+                                  boolean FKIntegrity,
+                                  String foreignKeyInfo) {
+        this.name = name;
+        this.referencedField = referencedField;
         this.foreignKeyInfo = foreignKeyInfo;
         this.containingType = containingType;
         this.allowFKIntegrityOverride = allowFKIntegrityOverride;
         isFKIntegrity = FKIntegrity;
+        this.referencedType = referencedType;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public boolean hasForeignKeyInfo() {
@@ -40,6 +59,14 @@ public abstract class ReferenceFieldMetadata implements FieldMetadata {
         return containingType;
     }
 
+    public void setContainingType(TypeMetadata typeMetadata) {
+        this.containingType = typeMetadata;
+    }
+
+    public TypeMetadata getDeclaringType() {
+        return containingType;
+    }
+
     public boolean isFKIntegrity() {
         return isFKIntegrity;
     }
@@ -48,5 +75,21 @@ public abstract class ReferenceFieldMetadata implements FieldMetadata {
         return allowFKIntegrityOverride;
     }
 
-    public abstract String getForeignIdType();
+    public void adopt(ComplexTypeMetadata metadata) {
+        FieldMetadata copy = copy();
+        copy.setContainingType(metadata);
+        metadata.addField(copy);
+    }
+
+    public String getForeignIdType() {
+        return referencedField.getType();
+    }
+
+    public TypeMetadata getReferencedType() {
+        return referencedType;
+    }
+
+    public String getType() {
+        return referencedField.getType();
+    }
 }

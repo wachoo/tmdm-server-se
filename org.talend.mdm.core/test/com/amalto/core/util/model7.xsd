@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <xsd:element name="A">
+        <xsd:complexType>
+            <xsd:all>
+                <xsd:element name="id" type="xsd:string"/>
+            </xsd:all>
+        </xsd:complexType>
+        <xsd:unique name="A">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="id"/>
+        </xsd:unique>
+    </xsd:element>
+
+    <xsd:element name="B">
+        <xsd:complexType>
+            <xsd:all>
+                <xsd:element name="id" type="xsd:string"/>
+            </xsd:all>
+        </xsd:complexType>
+        <xsd:unique name="B">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="id"/>
+        </xsd:unique>
+    </xsd:element>
+</xsd:schema>

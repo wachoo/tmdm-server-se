@@ -22,10 +22,13 @@ public class SimpleTypeCollectionFieldMetadata implements FieldMetadata {
 
     private final boolean isKey;
 
-    private final TypeMetadata containingType;
+    private final TypeMetadata declaringType;
+
+    private TypeMetadata containingType;
 
     public SimpleTypeCollectionFieldMetadata(TypeMetadata containingType, String name, boolean key, SimpleTypeFieldMetadata fieldMetadata) {
         this.containingType = containingType;
+        this.declaringType = containingType;
         this.name = name;
         this.fieldMetadata = fieldMetadata;
         isKey = key;
@@ -55,12 +58,30 @@ public class SimpleTypeCollectionFieldMetadata implements FieldMetadata {
         return containingType;
     }
 
+    public void setContainingType(TypeMetadata typeMetadata) {
+        this.containingType = typeMetadata;
+    }
+
+    public TypeMetadata getDeclaringType() {
+        return declaringType;
+    }
+
     public boolean isFKIntegrity() {
         return false;
     }
 
     public boolean allowFKIntegrityOverride() {
         return false;
+    }
+
+    public void adopt(ComplexTypeMetadata metadata) {
+        FieldMetadata copy = copy();
+        copy.setContainingType(metadata);
+        metadata.addField(copy);
+    }
+
+    public FieldMetadata copy() {
+        return new SimpleTypeCollectionFieldMetadata(containingType, name, isKey, fieldMetadata);
     }
 
     public <T> T accept(MetadataVisitor<T> visitor) {

@@ -2485,6 +2485,9 @@ public class Util {
     /**
      * Executes a BeforeSaving process if any
      *
+     * @param concept A concept/type name.
+     * @param xml The xml of the document being saved.
+     * @param resultUpdateReport Update report that corresponds to the save event.
      * @return Either <code>null</code> if no process was found or a status message (0=success; <>0=failure) of the form
      * &lt;error code='1'&gt;This is a message&lt;/error>
      * @throws Exception If something went wrong
@@ -2495,7 +2498,7 @@ public class Util {
         boolean isBeforeSavingTransformerExist = false;
         Collection<TransformerV2POJOPK> wst = getTransformerV2CtrlLocal().getTransformerPKs("*");
         for (TransformerV2POJOPK id : wst) {
-            if (id.getIds()[0].equals("beforeSaving_" + concept)) {
+            if (id.getIds()[0].equals("beforeSaving_" + concept)) { //$NON-NLS-1$
                 isBeforeSavingTransformerExist = true;
                 break;
             }
@@ -2504,26 +2507,26 @@ public class Util {
         if (isBeforeSavingTransformerExist) {
 
             try {
-                final String RUNNING = "XtentisWSBean.executeTransformerV2.running";
-                TransformerContext context = new TransformerContext(new TransformerV2POJOPK("beforeSaving_" + concept));
+                final String RUNNING = "XtentisWSBean.executeTransformerV2.running"; //$NON-NLS-1$
+                TransformerContext context = new TransformerContext(new TransformerV2POJOPK("beforeSaving_" + concept)); //$NON-NLS-1$
                 String exchangeData = mergeExchangeData(xml, resultUpdateReport);
                 // String exchangeData = resultUpdateReport;
                 context.put(RUNNING, Boolean.TRUE);
                 TransformerV2CtrlLocal ctrl = getTransformerV2CtrlLocal();
-                TypedContent wsTypedContent = new TypedContent(exchangeData.getBytes("UTF-8"), "text/xml; charset=utf-8");
+                TypedContent wsTypedContent = new TypedContent(exchangeData.getBytes("UTF-8"), "text/xml; charset=utf-8"); //$NON-NLS-1$
                 ctrl.execute(context, wsTypedContent, new TransformerCallBack() {
 
                     public void contentIsReady(TransformerContext context) throws XtentisException {
                         org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-                                "XtentisWSBean.executeTransformerV2.contentIsReady() ");
+                                "XtentisWSBean.executeTransformerV2.contentIsReady() "); //$NON-NLS-1$
                     }
 
                     public void done(TransformerContext context) throws XtentisException {
-                        org.apache.log4j.Logger.getLogger(this.getClass()).debug("XtentisWSBean.executeTransformerV2.done() ");
+                        org.apache.log4j.Logger.getLogger(this.getClass()).debug("XtentisWSBean.executeTransformerV2.done() "); //$NON-NLS-1$
                         context.put(RUNNING, Boolean.FALSE);
                     }
                 });
-                while (((Boolean) context.get(RUNNING)).booleanValue()) {
+                while ((Boolean) context.get(RUNNING)) {
                     Thread.sleep(100);
                 }
                 // TODO process no plug-in issue
@@ -2532,7 +2535,7 @@ public class Util {
                 for (Entry<String, TypedContent> entry : context.getPipelineClone().entrySet()) {
 
                     if (ITransformerConstants.VARIABLE_OUTPUT_OF_BEFORESAVINGTRANFORMER.equals(entry.getKey())) {
-                        outputErrorMessage = new String(entry.getValue().getContentBytes(), "UTF-8");
+                        outputErrorMessage = new String(entry.getValue().getContentBytes(), "UTF-8"); //$NON-NLS-1$
                         break;
                     }
                 }
@@ -2553,20 +2556,20 @@ public class Util {
     /**
      * Executes a BeforeDeleting process if any
      *
-     * @param clusterName
-     * @param concept
-     * @param ids
+     * @param clusterName A data cluster name
+     * @param concept A concept/type name
+     * @param ids Id of the document being deleted
      * @return Either <code>null</code> if no process was found or a status message (0=success; <>0=failure) of the form
      * &lt;error code='1'&gt;This is a message&lt;/error>
      * @throws Exception If something went wrong
      */
     @SuppressWarnings("unchecked")
     public static String beforeDeleting(String clusterName, String concept, String[] ids) throws Exception {
-        // Check before deletion if it violates fk integrity
-        // Note (fhuaulme) TMDM-2348: Feature's not ready yet: this is only server side check.
+        // TMDM-2348: Check before deletion if it violates fk integrity
         /*
-        if (violateFKIntegrity(clusterName, concept, ids)) {
-            return "<error code='1'>FK integrity check failed!</error>"; //$NON-NLS-1$
+        boolean override = false;
+        if (violateFKIntegrity(clusterName, concept, ids, override)) {
+            return "<report><error code='1'>FK integrity check failed!</error></report>"; //$NON-NLS-1$
         }
         */
 
@@ -2636,7 +2639,7 @@ public class Util {
     }
 
     // TMDM-2348 FK integrity feature: Check if document is not referenced
-    private static boolean violateFKIntegrity(String clusterName, String concept, String[] ids) throws XtentisException {
+    private static boolean violateFKIntegrity(String clusterName, String concept, String[] ids, boolean override) throws XtentisException {
         // Get FK(s) to check
         MetadataRepository mr = new MetadataRepository();
         try {
@@ -2645,8 +2648,7 @@ public class Util {
         } catch (Exception e) {
             throw new XtentisException(e);
         }
-        ForeignKeyIntegrity integrity = new ForeignKeyIntegrity(concept);
-        Set<ReferenceFieldMetadata> fieldToCheck = mr.accept(integrity);
+        Set<ReferenceFieldMetadata> fieldToCheck = mr.accept(new ForeignKeyIntegrity(mr.getType(concept)));
 
         // Query pk where fk could be.
         String queryId = "";
@@ -2654,12 +2656,13 @@ public class Util {
             queryId += '[' + id + ']';
         }
         for (ReferenceFieldMetadata referenceFieldMetadata : fieldToCheck) {
+            boolean allowOverride = referenceFieldMetadata.allowFKIntegrityOverride();
             TypeMetadata currentType = referenceFieldMetadata.getContainingType();
             IWhereItem whereItem = new WhereCondition(referenceFieldMetadata.getName(), WhereCondition.EQUALS, queryId, WhereCondition.NO_OPERATOR);
             long count = getXmlServerCtrlLocal().countItems(new LinkedHashMap(), new LinkedHashMap(), currentType.getName(), whereItem);
 
-            if (count > 0) {
-                return true;
+            if (count > 0 && !allowOverride) {
+                return !override;
             }
         }
         return false;

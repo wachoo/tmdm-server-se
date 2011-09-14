@@ -11,32 +11,15 @@
 
 package com.amalto.core.metadata;
 
+import com.amalto.core.metadata.xsd.XmlSchemaVisitor;
+import com.amalto.core.metadata.xsd.XmlSchemaWalker;
+import org.apache.commons.lang.StringUtils;
+import org.apache.ws.commons.schema.*;
+
+import javax.xml.namespace.QName;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
-
-import javax.xml.namespace.QName;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.ws.commons.schema.ValidationEventHandler;
-import org.apache.ws.commons.schema.XmlSchema;
-import org.apache.ws.commons.schema.XmlSchemaAnnotation;
-import org.apache.ws.commons.schema.XmlSchemaAppInfo;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
-import org.apache.ws.commons.schema.XmlSchemaComplexType;
-import org.apache.ws.commons.schema.XmlSchemaElement;
-import org.apache.ws.commons.schema.XmlSchemaGroupBase;
-import org.apache.ws.commons.schema.XmlSchemaObject;
-import org.apache.ws.commons.schema.XmlSchemaObjectCollection;
-import org.apache.ws.commons.schema.XmlSchemaParticle;
-import org.apache.ws.commons.schema.XmlSchemaSimpleType;
-import org.apache.ws.commons.schema.XmlSchemaSimpleTypeContent;
-import org.apache.ws.commons.schema.XmlSchemaSimpleTypeRestriction;
-import org.apache.ws.commons.schema.XmlSchemaType;
-import org.apache.ws.commons.schema.XmlSchemaUnique;
-import org.apache.ws.commons.schema.XmlSchemaXPath;
-import com.amalto.core.metadata.xsd.XmlSchemaVisitor;
-import com.amalto.core.metadata.xsd.XmlSchemaWalker;
 
 /**
  *
@@ -103,15 +86,29 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
 
     public Void visit(XmlSchemaComplexType type) {
         XmlSchemaParticle contentTypeParticle = type.getParticle();
-        if (contentTypeParticle instanceof XmlSchemaGroupBase) {
+        if (contentTypeParticle != null && contentTypeParticle instanceof XmlSchemaGroupBase) {
             XmlSchemaObjectCollection items = ((XmlSchemaGroupBase) contentTypeParticle).getItems();
             Iterator itemsIterator = items.getIterator();
             while (itemsIterator.hasNext()) {
                 XmlSchemaObject schemaObject = (XmlSchemaObject) itemsIterator.next();
                 XmlSchemaWalker.walk(schemaObject, this);
             }
-        } else {
+        } else if (contentTypeParticle != null) {
             throw new IllegalArgumentException("Not supported XML Schema particle: " + contentTypeParticle.getClass().getName());
+        }
+
+        XmlSchemaContentModel contentModel = type.getContentModel();
+        if (contentModel != null) {
+            XmlSchemaContent content = contentModel.getContent();
+            if (content != null) {
+                if (content instanceof XmlSchemaComplexContentExtension) {
+                    QName baseTypeName = ((XmlSchemaComplexContentExtension) content).getBaseTypeName();
+                    if (!typeMetadataStack.empty()) {
+                        ComplexTypeMetadata typeMetadata = typeMetadataStack.peek();
+                        typeMetadata.addSuperType(new SoftTypeRef(this, baseTypeName.getLocalPart()));
+                    }
+                }
+            }
         }
 
         return null;
@@ -140,8 +137,7 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
 
         ComplexTypeMetadata typeMetadata = (ComplexTypeMetadata) getType(targetNamespace, typeName);
         if (typeMetadata == null) {
-            // TODO Super types
-            typeMetadata = new ComplexTypeMetadata(targetNamespace, typeName, Collections.<TypeMetadata>emptySet());
+            typeMetadata = new ComplexTypeMetadata(targetNamespace, typeName, new HashSet<TypeMetadata>());
             addTypeMetadata(typeMetadata);
         }
 
@@ -164,7 +160,6 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
             }
         }
 
-
         typeMetadataStack.push(typeMetadata);
         {
             typeMetadataKeyStack.push(idFields);
@@ -185,7 +180,8 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
         String fieldTypeName = null;
         ComplexTypeMetadata currentContainingType = typeMetadataStack.peek();
 
-        TypeRef referencedType = NotResolvedTypeRef.INSTANCE;
+        TypeMetadata referencedType = NotResolvedTypeRef.INSTANCE;
+        FieldMetadata referencedField = null; // TODO
 
         XmlSchemaAnnotation annotation = element.getAnnotation();
         String foreignKeyInfo = null;
@@ -199,7 +195,16 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
                     isReference = true;
                     String[] foreignKeyDefinition = appInfo.getMarkup().item(0).getTextContent().split("/");
                     fieldTypeName = foreignKeyDefinition[0];
+                    String fieldName;
+                    if (foreignKeyDefinition.length == 2) {
+                        fieldName = foreignKeyDefinition[1];
+                    } else {
+                        // TODO Determine what's the field we reference to in this case.
+                        // System.out.println("Warning: should refer to id of type '" + fieldTypeName + "' but dunno how (yet).");
+                        fieldName = "id";
+                    }
                     referencedType = new SoftTypeRef(this, fieldTypeName);
+                    referencedField = new SoftFieldRef(this, fieldTypeName, fieldName);
                 } else if ("X_ForeignKeyInfo".equals(appInfo.getSource())) { //$NON-NLS-1$
                     foreignKeyInfo = appInfo.getMarkup().item(0).getTextContent().split("/")[1];
                 } else if ("X_FKIntegrity".equals(appInfo.getSource())) { //$NON-NLS-1$
@@ -221,6 +226,9 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
                     if (schemaType instanceof XmlSchemaComplexType) {
                         isReference = true;
                         referencedType = new SoftTypeRef(this, elementName);
+                        // TODO Determine what's the field we reference to in this case.
+                        // System.out.println("Warning: should refer to id of type '" + fieldTypeName + "' but dunno how (yet).");
+                        referencedField = new SoftFieldRef(this, fieldTypeName, "id");
                     }
                 }
             } else {
@@ -241,11 +249,16 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
             }
         }
 
-
-        FieldMetadata metadata = isReference ? new ReferenceUnaryFieldMetadata(currentContainingType, isKey, elementName, fieldTypeName, referencedType, foreignKeyInfo, fkIntegrity, fkIntegrityOverride) : new SimpleTypeFieldMetadata(currentContainingType, isKey, elementName, fieldTypeName);
+        // TODO Refactor needed here!
+        FieldMetadata metadata;
+        if (isReference) {
+            metadata = new ReferenceUnaryFieldMetadata(currentContainingType, elementName, referencedType, referencedField, foreignKeyInfo, isKey, fkIntegrity, fkIntegrityOverride);
+        } else {
+            metadata = new SimpleTypeFieldMetadata(currentContainingType, isKey, elementName, fieldTypeName);
+        }
         if (isCollection) {
             if (isReference) {
-                metadata = new ReferenceCollectionFieldMetadata(currentContainingType, elementName, isKey, (ReferenceUnaryFieldMetadata) metadata, foreignKeyInfo, fkIntegrity, fkIntegrityOverride);
+                // Don't change anything (see refactoring).
             } else {
                 metadata = new SimpleTypeCollectionFieldMetadata(currentContainingType, elementName, isKey, (SimpleTypeFieldMetadata) metadata);
             }

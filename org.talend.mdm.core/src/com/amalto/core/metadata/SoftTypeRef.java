@@ -11,51 +11,60 @@
 
 package com.amalto.core.metadata;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
 *
 */
-class SoftTypeRef implements TypeRef {
+class SoftTypeRef implements TypeMetadata {
 
     private final MetadataRepository repository;
 
     private final String fieldTypeName;
+
+    private TypeMetadata getType() {
+        return repository.getType(fieldTypeName);
+    }
 
     public SoftTypeRef(MetadataRepository repository, String fieldTypeName) {
         this.repository = repository;
         this.fieldTypeName = fieldTypeName;
     }
 
-    public String getReferencedTypeName() {
+    public Collection<TypeMetadata> getSuperTypes() {
+        return getType().getSuperTypes();
+    }
+
+    public String getName() {
         return fieldTypeName;
     }
 
-    public String getReferencedKey() {
-        ComplexTypeMetadata type = (ComplexTypeMetadata) repository.getType(fieldTypeName);
-        if (type != null) {
-            List<FieldMetadata> keyFields = type.getKeyFields();
-            if (!keyFields.isEmpty()) {
-                return keyFields.get(0).getName();
-            }
-        }
-        return null;
+    public String getNamespace() {
+        return "";
     }
 
-    public String getReferencedKeyType() {
-        ComplexTypeMetadata type = (ComplexTypeMetadata) repository.getType(fieldTypeName);
-        if (type != null) {
-            List<FieldMetadata> keyFields = type.getKeyFields();
-            if (!keyFields.isEmpty()) {
-                FieldMetadata fieldMetadata = keyFields.get(0);
-                if (fieldMetadata instanceof ReferenceFieldMetadata) {
-                    return ((ReferenceFieldMetadata) fieldMetadata).getForeignIdType();
-                } else {
-                    return fieldMetadata.getType();
-                }
-            }
-        }
-        return null;
+    public boolean isAbstract() {
+        return getType().isAbstract();
     }
 
+    public FieldMetadata getField(String fieldName) {
+        return getType().getField(fieldName);
+    }
+
+    public List<FieldMetadata> getFields() {
+        return getType().getFields();
+    }
+
+    public boolean isAssignableFrom(TypeMetadata type) {
+        return getType().isAssignableFrom(type);
+    }
+
+    public void addSuperType(TypeMetadata superType) {
+        getType().addSuperType(superType);
+    }
+
+    public <T> T accept(MetadataVisitor<T> visitor) {
+        return getType().accept(visitor);
+    }
 }
