@@ -166,10 +166,20 @@ public final class XmlUtil {
     }
 
     public static Node queryNode(Document document, String xPath) {
+        String[] pathSlices = xPath.split("/"); //$NON-NLS-1$
+        Element current = document.getRootElement();
+        for (int i = 1; i < pathSlices.length; i++) {
+            String pathSlice = pathSlices[i];
+            Iterator children = current.elementIterator(pathSlice);
+            if (children.hasNext()) {
+                current = (Element) children.next();
+            } else
+                return null;
 
-        Node node = document.selectSingleNode(xPath);
+        }
+        // Node node = document.selectSingleNode(xPath);
 
-        return node;
+        return current;
     }
 
     public static List queryList(Document document, String xPath) {
@@ -343,11 +353,10 @@ public final class XmlUtil {
         Node node = root.selectSingleNode(xpath);
         return node == null ? "" : node.getText();//$NON-NLS-1$
     }
-    
-    public static List getValuesFromXPath(Document doc, String xpath){
+
+    public static List getValuesFromXPath(Document doc, String xpath) {
         Element root = doc.getRootElement();
         return root.selectNodes(xpath);
     }
 
-    
 }

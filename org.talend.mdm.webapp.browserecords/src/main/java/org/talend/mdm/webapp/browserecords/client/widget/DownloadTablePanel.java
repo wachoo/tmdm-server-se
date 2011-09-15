@@ -164,13 +164,12 @@ public class DownloadTablePanel extends ContentPanel {
                 loader.load(config);
             }
         });
+        grid.setStateful(true);
         grid.setLoadMask(true);
         grid.setStateId("crossgrid");//$NON-NLS-1$
-        grid.setAutoHeight(true);
-        grid.setAutoWidth(true);
-        grid.getView().setAutoFill(true);
+        grid.getView().setForceFit(true);
+        grid.setAriaIgnore(true);
         gridContainer = new ContentPanel(new FitLayout());
-        gridContainer.setAutoHeight(true);
         gridContainer.setBodyBorder(false);
         gridContainer.setHeaderVisible(false);
         gridContainer.setBottomComponent(pagetoolBar);
@@ -208,8 +207,10 @@ public class DownloadTablePanel extends ContentPanel {
             }
         });
         gridContainer.setTopComponent(toolBar);
+        gridContainer.setHeight(Window.getClientHeight() - 275);
         add(gridContainer);
         this.syncSize();
+        this.doLayout();
     }
 
     public String getViewableLabel(String language, TypeModel typeModel) {
