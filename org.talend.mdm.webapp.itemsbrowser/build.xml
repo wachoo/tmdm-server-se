@@ -36,6 +36,7 @@
 
     <path id="base.classpath">
       <pathelement path="bin" />
+      <pathelement path="${tom.location}/org.talend.mdm.commmon/bin" />
       <pathelement path="${tom.location}/org.talend.mdm.xmlserver.interfaces/bin" />
       <pathelement path="${tom.location}/org.talend.mdm.webapp.core/bin" />
       <pathelement path="${tom.location}/org.talend.mdm.core/bin" />
