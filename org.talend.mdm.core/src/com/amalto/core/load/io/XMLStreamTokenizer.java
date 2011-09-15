@@ -11,6 +11,8 @@
 
 package com.amalto.core.load.io;
 
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
@@ -45,10 +47,17 @@ import java.util.Enumeration;
  * </p>
  */
 public class XMLStreamTokenizer implements Enumeration<String> {
+
+    private static final Logger LOG = Logger.getLogger(XMLStreamTokenizer.class);
+
     private final ResettableStringWriter stringWriter = new ResettableStringWriter();
+
     private final InputStream inputStream;
+
     private String currentNextElement;
+
     private String rootElementName = null;
+
     private int previousCharacter;
 
     public XMLStreamTokenizer(InputStream inputStream) {
@@ -77,10 +86,18 @@ public class XMLStreamTokenizer implements Enumeration<String> {
             boolean isEndElement = false;
             boolean isProcessingInstruction = false;
             String currentElementName = "";
+            boolean  lockElementName = false;
             int currentLevel = 0;
 
             while (!isFragmentComplete && (read = inputStream.read()) > 0) {
                 switch (read) {
+                    case ' ':
+                        if (inElement) {
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Lock element name due to attributes detected in element '" + currentElementName + "'"); //$NON-NLS-1$ //$NON-NLS-2$
+                            }
+                            lockElementName = true;
+                        }
                     case '?':
                         if (previousCharacter == '<') {
                             stringWriter.reset();
@@ -91,15 +108,17 @@ public class XMLStreamTokenizer implements Enumeration<String> {
                         inElement = true;
                         break;
                     case '/':
-                        if (inElement) {
+                        if (inElement && !lockElementName) {
                             isEndElement = true;
                         }
                         break;
                     case '>':
                         if (previousCharacter != '/' && !isProcessingInstruction) {
                             if (isEndElement) {
+                                logEndElement(currentElementName, currentLevel);
                                 currentLevel--;
                             } else {
+                                logStartElement(currentElementName, currentLevel);
                                 currentLevel++;
                             }
                         }
@@ -116,6 +135,7 @@ public class XMLStreamTokenizer implements Enumeration<String> {
 
                             isEndElement = false;
                             inElement = false;
+                            lockElementName = false;
                         }
 
                         if (isProcessingInstruction && previousCharacter == '?') {
@@ -125,7 +145,7 @@ public class XMLStreamTokenizer implements Enumeration<String> {
 
                         break;
                 }
-                if (inElement && read != '<' && read != '/') {
+                if (inElement && read != '<' && read != '/' && !lockElementName) {
                     currentElementName += (char) read;
                 }
 
@@ -144,6 +164,26 @@ public class XMLStreamTokenizer implements Enumeration<String> {
         // Allow mixed content (see com.amalto.core.load.XMLStreamTokenizerTest.testMixedRootElements())
         rootElementName = null;
         return !currentNextElement.isEmpty();
+    }
+
+    private static void logStartElement(String currentElementName, int currentLevel) {
+        if (LOG.isDebugEnabled()) {
+            String indent = ""; //$NON-NLS-1$
+            for (int i = 0; i < currentLevel; i++) {
+                indent += '\t';
+            }
+            LOG.debug(indent + "->" + currentElementName); //$NON-NLS-1$
+        }
+    }
+
+    private static void logEndElement(String currentElementName, int currentLevel) {
+        if (LOG.isDebugEnabled()) {
+            String indent = ""; //$NON-NLS-1$
+            for (int i = 0; i < currentLevel - 1; i++) {
+                indent += '\t';
+            }
+            LOG.debug(indent + "<-" + currentElementName); //$NON-NLS-1$
+        }
     }
 
 }

@@ -11,10 +11,11 @@
 
 package com.amalto.core.load;
 
-import java.io.ByteArrayInputStream;
-
 import com.amalto.core.load.io.XMLStreamTokenizer;
 import junit.framework.TestCase;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 /**
  *
@@ -50,6 +51,31 @@ public class XMLStreamTokenizerTest extends TestCase {
         }
 
         assertEquals(2, docCount);
+    }
+
+    public void testDocumentsWithLineFeed() {
+        XMLStreamTokenizer tokenizer = new XMLStreamTokenizer(new ByteArrayInputStream("\n<root>\t<field></field></root>\n<root>\t<field></field></root>\n<root>\t<field></field></root>".getBytes()));
+        int docCount = 0;
+        while (tokenizer.hasMoreElements()) {
+            assertEquals("\n<root>\t<field></field></root>", tokenizer.nextElement());
+            docCount++;
+        }
+
+        assertEquals(3, docCount);
+    }
+
+    // See TMDM-2497 description
+    public void testFormattedDocuments() {
+        InputStream stream = this.getClass().getResourceAsStream("xmlTokenizer1.xml");
+        assertNotNull(stream);
+        XMLStreamTokenizer tokenizer = new XMLStreamTokenizer(stream);
+        int docCount = 0;
+        while (tokenizer.hasMoreElements()) {
+            docCount++;
+        }
+
+        assertTrue(docCount > 1);
+        assertEquals(149, docCount);
     }
 
     public void testNestedDocuments() {

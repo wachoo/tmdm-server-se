@@ -56,8 +56,8 @@ public class DefaultLoadAction implements LoadAction {
     }
 
     public void load(HttpServletRequest request, XSDKey keyMetadata, XmlServerSLWrapperLocal server) throws Exception {
-        String xml = IOUtils.toString(request.getInputStream());
-        XMLStreamTokenizer xmlStreamTokenizer = new XMLStreamTokenizer(new ByteArrayInputStream(xml.getBytes("utf-8")));
+        // If you wish to debug content sent to server evaluate 'IOUtils.toString(request.getInputStream())'
+        XMLStreamTokenizer xmlStreamTokenizer = new XMLStreamTokenizer(request.getInputStream());
         while (xmlStreamTokenizer.hasMoreElements()) {
             String xmlData = xmlStreamTokenizer.nextElement();
 
