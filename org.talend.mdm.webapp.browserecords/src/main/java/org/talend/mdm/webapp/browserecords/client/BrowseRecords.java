@@ -40,31 +40,41 @@ public class BrowseRecords implements EntryPoint {
 
     public static final String USER_SESSION = "UserSession"; //$NON-NLS-1$
 
-
     /**
      * This is the entry point method.
      */
     public void onModuleLoad() {
-        // if (true) {
-        // RootPanel.get().add(new TestFK());
-        // return;
-        // }
-        // log setting
+        if (GWT.isScript()) {
+            registerPubService();
+            Log.setUncaughtExceptionHandler();
+            Registry.register(BROWSERECORDS_SERVICE, GWT.create(BrowseRecordsService.class));
+
+            // register user session
+            Registry.register(USER_SESSION, new UserSession());
+
+            // add controller to dispatcher
+            final Dispatcher dispatcher = Dispatcher.get();
+            dispatcher.addController(new BrowseRecordsController());
+        } else {
+
+            Log.setUncaughtExceptionHandler();
+            // GenerateContainer.generateContentPanel();
+            Registry.register(BROWSERECORDS_SERVICE, GWT.create(BrowseRecordsService.class));
+
+            // register user session
+            Registry.register(USER_SESSION, new UserSession());
+
+            GenerateContainer.generateContentPanel();
+
+            // add controller to dispatcher
+            final Dispatcher dispatcher = Dispatcher.get();
+            dispatcher.addController(new BrowseRecordsController());
+            panel = RootPanel.get();
+            GenerateContainer.getContentPanel().setSize(Window.getClientWidth(), Window.getClientHeight());
+            onModuleRender();
+        }
 
 
-        registerPubService();
-        Log.setUncaughtExceptionHandler();
-//        GenerateContainer.generateContentPanel();
-        Registry.register(BROWSERECORDS_SERVICE, GWT.create(BrowseRecordsService.class));
-
-        // register user session
-        Registry.register(USER_SESSION, new UserSession());
-
-        // add controller to dispatcher
-        final Dispatcher dispatcher = Dispatcher.get();
-        dispatcher.addController(new BrowseRecordsController());
-//        onModuleRender();
-        // init app-header
 
 
     }
@@ -165,7 +175,6 @@ public class BrowseRecords implements EntryPoint {
                 getSession().put(UserSession.APP_HEADER, header);
                 Dispatcher dispatcher = Dispatcher.get();
                 dispatcher.dispatch(BrowseRecordsEvents.InitFrame);
-//                GenerateContainer.getContentPanel().setHeight(600);
                 panel.add(GenerateContainer.getContentPanel());
             }
         });
