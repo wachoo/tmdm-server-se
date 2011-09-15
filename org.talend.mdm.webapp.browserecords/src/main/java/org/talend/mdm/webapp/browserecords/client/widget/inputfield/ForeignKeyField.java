@@ -2,19 +2,14 @@ package org.talend.mdm.webapp.browserecords.client.widget.inputfield;
 
 import java.util.List;
 
-import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
-import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
-import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyListWindow;
-import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.GXT;
-import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
@@ -25,7 +20,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Image;
 
 public class ForeignKeyField extends TextField<ForeignKeyBean> implements ReturnCriteriaFK {
@@ -133,24 +127,11 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
             public void onClick(ClickEvent arg0) {
                 if(ForeignKeyField.this.getValue() == null)
                     return;
-                BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
-                String viewFkName = "Browse_items_" + ForeignKeyField.this.foreignKeyName; //$NON-NLS-1$
-                service.getView(viewFkName, Locale.getLanguage(), new AsyncCallback<ViewBean>() {
-
-                    public void onSuccess(ViewBean viewBean) {
-                        // forward
-                        Dispatcher dispatch = Dispatcher.get();
-                        AppEvent event = new AppEvent(BrowseRecordsEvents.ViewForeignKey, ForeignKeyField.this.getValue());
-                        event.setData("viewBean", viewBean); //$NON-NLS-1$
-                        dispatch.dispatch(event);
-                    }
-
-                    public void onFailure(Throwable caught) {
-                        Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
-                    }
-                });
-                
-
+                Dispatcher dispatch = Dispatcher.get();
+                AppEvent event = new AppEvent(BrowseRecordsEvents.ViewForeignKey);
+                event.setData("ids", ForeignKeyField.this.getValue().getId().replace("[", "").replace("]", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                event.setData("concept", ForeignKeyField.this.foreignKeyName); //$NON-NLS-1$
+                dispatch.dispatch(event);
             }
         });
     }

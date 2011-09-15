@@ -15,7 +15,7 @@ package org.talend.mdm.webapp.browserecords.client.mvc;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
-import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
@@ -109,24 +109,20 @@ public class BrowseRecordsController extends Controller {
 
     private void onViewForeignKey(final AppEvent event) {
 
-        ForeignKeyBean fkBean = event.getData();
-        final ViewBean viewBean = event.getData("viewBean"); //$NON-NLS-1$
-        String concept = viewBean.getBindingEntityModel().getConceptName();
-        String ids = fkBean.getId().replace("[", "").replace("]", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-        service.getItemNodeModel(concept, viewBean.getBindingEntityModel().getMetaDataTypes(), ids,
-                new AsyncCallback<ItemNodeModel>() {
+        String concept = event.getData("concept"); //$NON-NLS-1$
+        String ids = event.getData("ids"); //$NON-NLS-1$
+        service.getForeignKeyModel(concept, ids, Locale.getLanguage(), new AsyncCallback<ForeignKeyModel>() {
 
-            public void onSuccess(ItemNodeModel item) {
-                // forward
-                AppEvent ae = new AppEvent(event.getType(), item);
-                        ae.setData("viewBean", viewBean); //$NON-NLS-1$
+            public void onSuccess(ForeignKeyModel fkModel) {
+                AppEvent ae = new AppEvent(event.getType(), fkModel);
                 forwardToView(view, ae);
-            }
+            };
 
             public void onFailure(Throwable caught) {
                 Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
             }
         });
+
     }
 
     private void onSelectForeignKeyView(final AppEvent event) {

@@ -17,6 +17,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTr
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -70,6 +71,8 @@ public class ItemDetailToolBar extends ToolBar {
 
     private String operation;
 
+    private boolean isFkToolBar;
+
     private BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
 
     private ItemsSearchContainer container = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
@@ -87,10 +90,23 @@ public class ItemDetailToolBar extends ToolBar {
         initToolBar();
     }
 
+    public ItemDetailToolBar(ItemBean itemBean, String operation, boolean isFkToolBar) {
+        this();
+        this.itemBean = itemBean;
+        this.operation = operation;
+        this.isFkToolBar = isFkToolBar;
+        initToolBar();
+
+    }
+
     private void initToolBar() {
         if (operation.equalsIgnoreCase(ItemDetailToolBar.VIEW_OPERATION)) {
             this.addSaveButton();
             this.addSeparator();
+            if (isFkToolBar) {
+                this.addSaveQuitButton();
+                this.addSeparator();
+            }
             this.addDeleteMenu();
             this.addSeparator();
             this.addDuplicateButton();
@@ -130,7 +146,8 @@ public class ItemDetailToolBar extends ToolBar {
                 } else if (widget instanceof ForeignKeyTreeDetail) { // save foreign key
                     ForeignKeyTreeDetail fkDetail = (ForeignKeyTreeDetail) tabItem.getWidget(0);
                     model = fkDetail.getRootModel();
-                    app.setData("ItemBean", new ItemBean(fkDetail.getViewBean().getBindingEntityModel().getConceptName(), "", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    app.setData(
+                            "ItemBean", fkDetail.isCreate() ? new ItemBean(fkDetail.getViewBean().getBindingEntityModel().getConceptName(), "", "") : itemBean); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     app.setData("isCreate", fkDetail.isCreate()); //$NON-NLS-1$
                 }
                 app.setData(model);
@@ -149,6 +166,7 @@ public class ItemDetailToolBar extends ToolBar {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
+                saveButton.fireEvent(Events.Select);
                 ItemsSearchContainer itemsSearchContainer = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
                 ItemsDetailPanel detailPanel = itemsSearchContainer.getItemsDetailPanel();
                 detailPanel.closeCurrentTab();
@@ -239,10 +257,16 @@ public class ItemDetailToolBar extends ToolBar {
             public void componentSelected(ButtonEvent ce) {
                 ItemsSearchContainer itemsSearchContainer = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
                 ItemsDetailPanel detailPanel = itemsSearchContainer.getItemsDetailPanel();
-
-                ItemPanel itemPanel = new ItemPanel(itemBean, ItemDetailToolBar.CREATE_OPERATION);
                 String title = itemBean.getConcept() + " " + itemBean.getIds(); //$NON-NLS-1$
-                detailPanel.addTabItem(title, itemPanel, ItemsDetailPanel.MULTIPLE, title);
+                if(isFkToolBar){
+                    ForeignKeyTreeDetail fkTree = (ForeignKeyTreeDetail) detailPanel.getTabPanel().getSelectedItem().getWidget(0);
+                    ForeignKeyTreeDetail duplicateFkTree = new ForeignKeyTreeDetail(fkTree.getFkModel(), true);
+                    detailPanel.addTabItem(title, duplicateFkTree, ItemsDetailPanel.MULTIPLE, title);
+                } else {
+                    ItemPanel itemPanel = new ItemPanel(itemBean, ItemDetailToolBar.CREATE_OPERATION);
+                    detailPanel.addTabItem(title, itemPanel, ItemsDetailPanel.MULTIPLE, title);
+                }
+
             }
 
         });

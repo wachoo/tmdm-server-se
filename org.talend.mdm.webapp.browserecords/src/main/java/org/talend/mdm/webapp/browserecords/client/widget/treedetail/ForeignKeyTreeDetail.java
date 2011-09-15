@@ -3,9 +3,12 @@ package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.talend.mdm.webapp.browserecords.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
+import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -31,6 +34,8 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     private ItemNodeModel model;
 
     private boolean isCreate;
+    
+    private ForeignKeyModel fkModel;
 
     Tree tree;
     
@@ -72,7 +77,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         this.isCreate = isCreate;
         this.viewBean = viewBean;
         this.toolBar = new ItemDetailToolBar(null, isCreate ? ItemDetailToolBar.CREATE_OPERATION
-                : ItemDetailToolBar.VIEW_OPERATION);
+                : ItemDetailToolBar.VIEW_OPERATION, true);
         this.setTopComponent(toolBar);
         buildPanel(viewBean);
     }
@@ -83,14 +88,26 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         this.model = model;
         this.viewBean = viewBean;
         this.toolBar = new ItemDetailToolBar(null, isCreate ? ItemDetailToolBar.CREATE_OPERATION
-                : ItemDetailToolBar.VIEW_OPERATION);
+                : ItemDetailToolBar.VIEW_OPERATION, true);
+        this.setTopComponent(toolBar);
+        buildPanel(viewBean);
+    }
+
+    public ForeignKeyTreeDetail(ForeignKeyModel fkModel, boolean isCreate) {
+        this();
+        this.isCreate = isCreate;
+        this.fkModel = fkModel;
+        this.model = fkModel.getNodeModel();
+        this.viewBean = fkModel.getViewBean();
+        this.toolBar = new ItemDetailToolBar(fkModel.getItemBean(), isCreate ? ItemDetailToolBar.CREATE_OPERATION
+                : ItemDetailToolBar.VIEW_OPERATION, true);
         this.setTopComponent(toolBar);
         buildPanel(viewBean);
     }
 
     public void buildPanel(final ViewBean viewBean) {
         ItemNodeModel rootModel;
-        if (this.model == null) {
+        if (this.model == null && this.isCreate) {
             List<ItemNodeModel> models = CommonUtil.getDefaultTreeModel(viewBean.getBindingEntityModel().getMetaDataTypes()
                     .get(viewBean.getBindingEntityModel().getConceptName()));
             rootModel = models.get(0);
@@ -123,6 +140,15 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         if (itemNode.getChildren() != null && itemNode.getChildren().size() > 0) {
             for (ModelData model : itemNode.getChildren()) {
                 ItemNodeModel node = (ItemNodeModel) model;
+                if (this.isCreate && this.model != null) {// duplicate
+                    String xPath = node.getBindingPath();
+                    TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(xPath);
+                    if (typeModel.getType().equals(DataTypeConstants.UUID)
+                            || typeModel.getType().equals(DataTypeConstants.AUTO_INCREMENT)) {
+                        node.setObjectValue(null); // id
+                    }
+
+                }
                 item.addItem(buildGWTTree(node));
             }
         }
@@ -137,6 +163,14 @@ public class ForeignKeyTreeDetail extends ContentPanel {
 
     public boolean isCreate() {
         return isCreate;
+    }
+
+    public ForeignKeyModel getFkModel() {
+        return fkModel;
+    }
+
+    public void setFkModel(ForeignKeyModel fkModel) {
+        this.fkModel = fkModel;
     }
 
     public static class DynamicTreeItem extends TreeItem {

@@ -18,6 +18,7 @@ import java.util.Map;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyDrawer;
+import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
@@ -91,6 +92,8 @@ public interface BrowseRecordsServiceAsync {
     void saveItem(String concept, String ids, String xml, boolean isCreate, AsyncCallback<ItemResult> callback);
 
     void getColumnTreeLayout(String concept, AsyncCallback<ColumnTreeLayoutModel> callback);
+
+    void getForeignKeyModel(String concept, String ids, String language, AsyncCallback<ForeignKeyModel> callback);
 
     void getRunnableProcessList(String concept, String language, AsyncCallback<List<ItemBaseModel>> callback);
 

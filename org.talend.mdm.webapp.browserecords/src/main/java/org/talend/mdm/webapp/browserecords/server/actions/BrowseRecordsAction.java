@@ -52,6 +52,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeModel;
 import org.talend.mdm.webapp.browserecords.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyDrawer;
+import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
@@ -1602,6 +1603,22 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return elChildren;
 
     }
+
+    /**
+     * get ForeignKey Model by concept and ids
+     */
+    public ForeignKeyModel getForeignKeyModel(String concept, String ids, String language) throws Exception {
+        String viewPk = "Browse_items_" + concept; //$NON-NLS-1$
+        ViewBean viewBean = getView(viewPk, language);
+
+        ItemNodeModel nodeModel = getItemNodeModel(concept, viewBean.getBindingEntityModel().getMetaDataTypes(), ids);
+
+        ItemBean itemBean = new ItemBean(concept, ids, null);
+        itemBean = getItem(itemBean, viewBean.getBindingEntityModel(), language);
+
+        return new ForeignKeyModel(viewBean, itemBean, nodeModel);
+    }
+
     
     public List<ItemBaseModel> getRunnableProcessList(String businessConcept, String language) {
         List<ItemBaseModel> processList = new ArrayList<ItemBaseModel>();
@@ -1737,4 +1754,5 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
         return "Ok"; //$NON-NLS-1$
     }
+
 }

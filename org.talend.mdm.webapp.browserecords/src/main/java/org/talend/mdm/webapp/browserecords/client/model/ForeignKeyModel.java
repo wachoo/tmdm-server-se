@@ -1,0 +1,50 @@
+package org.talend.mdm.webapp.browserecords.client.model;
+
+import org.talend.mdm.webapp.browserecords.shared.ViewBean;
+
+
+public class ForeignKeyModel extends ItemBaseModel {
+
+    private static final long serialVersionUID = 1L;
+
+    private ViewBean viewBean;
+
+    private ItemBean itemBean;
+
+    private ItemNodeModel nodeModel;
+
+    public ForeignKeyModel() {
+    }
+
+    public ForeignKeyModel(ViewBean _v, ItemBean _i, ItemNodeModel _m) {
+        this.viewBean = _v;
+        this.itemBean = _i;
+        this.nodeModel = _m;
+    }
+
+    public ViewBean getViewBean() {
+        return viewBean;
+    }
+
+    public void setViewBean(ViewBean viewBean) {
+        this.viewBean = viewBean;
+    }
+
+    public ItemBean getItemBean() {
+        return itemBean;
+    }
+
+    public void setItemBean(ItemBean itemBean) {
+        this.itemBean = itemBean;
+    }
+
+    public ItemNodeModel getNodeModel() {
+        return nodeModel;
+    }
+
+    public void setNodeModel(ItemNodeModel nodeModel) {
+        this.nodeModel = nodeModel;
+    };
+
+
+}
