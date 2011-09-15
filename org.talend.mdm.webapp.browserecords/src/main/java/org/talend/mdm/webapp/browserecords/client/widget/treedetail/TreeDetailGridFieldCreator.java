@@ -50,7 +50,6 @@ public class TreeDetailGridFieldCreator {
             ForeignKeyField fkField = new ForeignKeyField(dataType.getForeignkey(), dataType.getForeignKeyInfo());
             ForeignKeyBean fkBean = (ForeignKeyBean) value;
             if (fkBean != null) {
-                fkBean.setDisplayInfo(fkBean.getId());
                 fkField.setValue(fkBean);
             }
             field = fkField;
@@ -126,9 +125,11 @@ public class TreeDetailGridFieldCreator {
 
         field.setFieldLabel(dataType.getLabel(language));
         field.setName(dataType.getXpath());
+        if (!dataType.getType().equals(DataTypeConstants.UUID) && !dataType.getType().equals(DataTypeConstants.AUTO_INCREMENT)) {
+            field.setReadOnly(dataType.isReadOnly());
+            field.setEnabled(!dataType.isReadOnly());
+        }
 
-        field.setReadOnly(dataType.isReadOnly());
-        field.setEnabled(!dataType.isReadOnly());
         addFieldListener(field, node);
         return field;
     }

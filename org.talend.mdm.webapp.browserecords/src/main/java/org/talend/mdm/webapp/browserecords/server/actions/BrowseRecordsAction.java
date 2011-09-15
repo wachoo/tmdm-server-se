@@ -1378,10 +1378,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         nodeModel.setName(el.getNodeName());
         nodeModel.setObjectValue(el.getTextContent());        
         if (!"".equals(metaDataTypes.get(xpath).getForeignkey()) && metaDataTypes.get(xpath).getForeignkey() != null ) {       //$NON-NLS-1$
-            ForeignKeyBean foreignKeyBean = new ForeignKeyBean();
-            foreignKeyBean.setId(el.getTextContent());            
-            foreignKeyBean.setForeignKeyPath(xpath);
-            nodeModel.setObjectValue(foreignKeyBean);
+            TypeModel model = metaDataTypes.get(xpath);
+            model.setRetrieveFKinfos(true);
+            // ForeignKeyBean foreignKeyBean = new ForeignKeyBean();
+            // foreignKeyBean.setId(el.getTextContent());
+            // foreignKeyBean.setForeignKeyPath(xpath);
+            nodeModel.setObjectValue(getForeignKeyDesc(model, el.getTextContent()));
         }
         NodeList children = el.getChildNodes();
         if (children != null){

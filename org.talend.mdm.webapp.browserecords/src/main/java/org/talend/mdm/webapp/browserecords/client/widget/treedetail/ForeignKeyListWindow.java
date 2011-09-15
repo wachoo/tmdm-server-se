@@ -160,6 +160,7 @@ public class ForeignKeyListWindow extends Window {
         final TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(fkKey);
         typeModel.setForeignkey(this.foreignKey);
         typeModel.setForeignKeyInfo(this.foreignKeyInfo);
+        typeModel.setRetrieveFKinfos(true);
 
         xPath = typeModel.getXpath();
         RpcProxy<PagingLoadResult<ForeignKeyBean>> proxy = new RpcProxy<PagingLoadResult<ForeignKeyBean>>() {
