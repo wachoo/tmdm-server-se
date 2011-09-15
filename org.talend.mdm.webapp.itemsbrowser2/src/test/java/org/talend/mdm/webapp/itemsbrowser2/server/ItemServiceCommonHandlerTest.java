@@ -72,7 +72,7 @@ public class ItemServiceCommonHandlerTest extends TestCase {
         String xpathInfoForeignKey = "Agency/Name,Agency/City";
         String value = "google";
         String fkWhere = com.amalto.webapp.core.util.Util.getWhereConditionFromFK(null, xpathInfoForeignKey, value);
-        assertTrue(fkWhere.contains("Agency/Name CONTAINS " + value + " OR " + " Agency/City CONTAINS " + value));
+        assertTrue(fkWhere.contains("Agency/Name CONTAINS " + value + " OR " + "Agency/City CONTAINS " + value));
         fkWhere = com.amalto.webapp.core.util.Util.getWhereConditionFromFK(xpathForeignKey, xpathInfoForeignKey, value);
         assertTrue(fkWhere.contains("Agency/Id CONTAINS " + value));
 
