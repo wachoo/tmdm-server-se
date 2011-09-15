@@ -843,11 +843,15 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                         condition.add(whereItem);
                     WSWhereItem wc = null;
                     String strConcept = conceptName + "/. CONTAINS "; //$NON-NLS-1$
-
                     if (MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
                         strConcept = conceptName + "//* CONTAINS "; //$NON-NLS-1$
                     }
-                    wc = com.amalto.webapp.core.util.Util.buildWhereItem(strConcept + value);
+                    // fix TMDM-2369, where conditon come from fk,fkinfos
+                    String fkWhere = com.amalto.webapp.core.util.Util.getWhereConditionFromFK(xpathForeignKey,
+                            xpathInfoForeignKey, value);
+                    if (fkWhere == null || fkWhere.length() == 0)
+                        fkWhere = strConcept + value;
+                    wc = com.amalto.webapp.core.util.Util.buildWhereItems(fkWhere);
                     condition.add(wc);
                     WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
                     WSWhereItem whand = new WSWhereItem(null, and, null);

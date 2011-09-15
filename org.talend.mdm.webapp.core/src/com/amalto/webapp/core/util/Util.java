@@ -1209,6 +1209,28 @@ public class Util {
         return false;
     }
 
+    public static String getWhereConditionFromFK(String xpathForeignKey, String xpathInfoForeignKey, String value) {
+        StringBuffer sb = new StringBuffer();
+        if (value != null && value.trim().length() > 0) {
+            List<String> ret = new ArrayList<String>();
+            if (xpathForeignKey != null && xpathForeignKey.trim().length() > 0) {
+                ret.add(xpathForeignKey);
+            }
+            if (xpathInfoForeignKey != null && xpathInfoForeignKey.trim().length() > 0) {
+                String[] infos = xpathInfoForeignKey.split(","); //$NON-NLS-1$
+                for (String fkinfo : infos) {
+                    ret.add(fkinfo);
+                }
+                for (int i = 0; i < ret.size(); i++) {
+                    sb.append(ret.get(i) + " CONTAINS " + value); //$NON-NLS-1$
+                    if (i >= 0 && i < ret.size() - 1) {
+                        sb.append(" OR "); //$NON-NLS-1$
+                    }
+                }
+            }
+        }
+        return sb.toString();
+    }
     public static WSWhereItem buildWhereItems(String criteria) throws Exception {
         Pattern p = Pattern.compile("\\((.*)\\)"); //$NON-NLS-1$
         Matcher m = p.matcher(criteria);
@@ -1345,7 +1367,12 @@ public class Util {
                 if (MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
                     strConcept = conceptName + "//* CONTAINS "; //$NON-NLS-1$
                 }
-                wc = buildWhereItem(strConcept + value);
+                // fix TMDM-2369, where conditon come from fk,fkinfos
+                String fkWhere = getWhereConditionFromFK(xpathForeignKey, xpathInfoForeignKey,
+                        value);
+                if (fkWhere == null || fkWhere.length() == 0)
+                    fkWhere = strConcept + value;
+                wc = buildWhereItems(fkWhere);
                 condition.add(wc);
                 WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
                 WSWhereItem whand = new WSWhereItem(null, and, null);

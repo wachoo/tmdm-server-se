@@ -62,4 +62,19 @@ public class ItemServiceCommonHandlerTest extends TestCase {
         node = XmlUtil.queryNode(resultDocument, expectedRootElementName + "/Result");
         assertNotNull(node);
     }
+
+    public void testGetForeignKeyListWithCount() {
+        // it's hard to prepare all the data here, so just test
+        // com.amalto.webapp.core.util.Util.getWhereConditionFromFK(it's a new method)
+
+        String xpathForeignKey = "Agency/Id";
+        // to verify
+        String xpathInfoForeignKey = "Agency/Name,Agency/City";
+        String value = "google";
+        String fkWhere = com.amalto.webapp.core.util.Util.getWhereConditionFromFK(null, xpathInfoForeignKey, value);
+        assertTrue(fkWhere.contains("Agency/Name CONTAINS " + value + " OR " + " Agency/City CONTAINS " + value));
+        fkWhere = com.amalto.webapp.core.util.Util.getWhereConditionFromFK(xpathForeignKey, xpathInfoForeignKey, value);
+        assertTrue(fkWhere.contains("Agency/Id CONTAINS " + value));
+
+    }
 }
