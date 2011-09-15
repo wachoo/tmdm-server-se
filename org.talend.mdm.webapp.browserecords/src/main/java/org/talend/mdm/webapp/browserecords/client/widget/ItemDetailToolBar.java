@@ -336,8 +336,18 @@ public class ItemDetailToolBar extends ToolBar {
                            MessageBox.alert(MessagesFactory.getMessages().warning_title(), "Please select a process first!", null); //$NON-NLS-1$
                            return;
                        }
-                       MessageBox waitBar = MessageBox.wait("Processing", "Processing, please wait...", "Processing..."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                       final MessageBox waitBar = MessageBox.wait("Processing", "Processing, please wait...", "Processing..."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                        String[] ids = itemBean.getIds().split("@"); //$NON-NLS-1$
+                       
+                       service.processItem(itemBean.getConcept(), ids, (String)selectItem.get("key"), new AsyncCallback<String>() { //$NON-NLS-1$
+                           public void onSuccess(String arg0) {
+                               waitBar.close();
+                           }
+                           
+                           public void onFailure(Throwable arg0) {
+                               
+                           }
+                      });
                     }
                 });
                 add(launchProcessButton);
