@@ -343,6 +343,7 @@ public class MainFramePanel extends Portal {
         port.setStyleAttribute("padding", "5px"); //$NON-NLS-1$ //$NON-NLS-2$
         port.setCollapsible(true);
         port.setAnimCollapse(false);
+        port.setAutoHeight(true);
         port.setItemId(name + "Portlet"); //$NON-NLS-1$
         port.getHeader().addTool(new ToolButton("x-tool-refresh", new SelectionListener<IconButtonEvent>() { //$NON-NLS-1$
 
@@ -374,6 +375,7 @@ public class MainFramePanel extends Portal {
         Label label = new Label();
         label.setItemId(name + "Label"); //$NON-NLS-1$
         label.setStyleAttribute("font-weight", "bold"); //$NON-NLS-1$ //$NON-NLS-2$
+        label.setAutoHeight(true);
         port.add(label);
 
         FieldSet set = new FieldSet();
