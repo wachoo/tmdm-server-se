@@ -20,6 +20,8 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
@@ -71,7 +73,9 @@ public class ItemDetailToolBar extends ToolBar {
     private BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
 
     private ItemsSearchContainer container = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
-
+    
+    private ItemBaseModel selectItem;
+    
     public ItemDetailToolBar() {
         this.setBorders(false);
     }
@@ -290,6 +294,13 @@ public class ItemDetailToolBar extends ToolBar {
                 workFlowCombo.setValueField("key");//$NON-NLS-1$
                 workFlowCombo.setTypeAhead(true);
                 workFlowCombo.setTriggerAction(TriggerAction.ALL);
+                workFlowCombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
+                    
+                    @Override
+                    public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
+                        selectItem = se.getSelectedItem();
+                    }
+                });
                 add(workFlowCombo);
                 launchProcessButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.launch_process()));
                 launchProcessButton.setToolTip(MessagesFactory.getMessages().launch_process_tooltip());
@@ -297,7 +308,12 @@ public class ItemDetailToolBar extends ToolBar {
                     
                     @Override
                     public void componentSelected(ButtonEvent ce) {
-                        
+                       if(selectItem == null){
+                           MessageBox.alert(MessagesFactory.getMessages().warning_title(), "Please select a process first!", null); //$NON-NLS-1$
+                           return;
+                       }
+                       MessageBox waitBar = MessageBox.wait("Processing", "Processing, please wait...", "Processing..."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                       String[] ids = itemBean.getIds().split("@"); //$NON-NLS-1$
                     }
                 });
                 add(launchProcessButton);

@@ -88,6 +88,7 @@ import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSBoolean;
+import com.amalto.webapp.util.webservices.WSByteArray;
 import com.amalto.webapp.util.webservices.WSCount;
 import com.amalto.webapp.util.webservices.WSCountItemsByCustomFKFilters;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
@@ -95,6 +96,7 @@ import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSDeleteItem;
 import com.amalto.webapp.util.webservices.WSDropItem;
 import com.amalto.webapp.util.webservices.WSDroppedItemPK;
+import com.amalto.webapp.util.webservices.WSExecuteTransformerV2;
 import com.amalto.webapp.util.webservices.WSExistsItem;
 import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
 import com.amalto.webapp.util.webservices.WSGetDataModel;
@@ -112,7 +114,11 @@ import com.amalto.webapp.util.webservices.WSRouteItemV2;
 import com.amalto.webapp.util.webservices.WSStringArray;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSTransformer;
+import com.amalto.webapp.util.webservices.WSTransformerContext;
+import com.amalto.webapp.util.webservices.WSTransformerContextPipelinePipelineItem;
 import com.amalto.webapp.util.webservices.WSTransformerPK;
+import com.amalto.webapp.util.webservices.WSTransformerV2PK;
+import com.amalto.webapp.util.webservices.WSTypedContent;
 import com.amalto.webapp.util.webservices.WSView;
 import com.amalto.webapp.util.webservices.WSViewPK;
 import com.amalto.webapp.util.webservices.WSViewSearch;
@@ -1653,5 +1659,82 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             return true;
 
         return false;
+    }
+
+    public String processItem(String concept, String[] ids, String transformerPK) {
+        
+        try {
+            String itemAlias = concept + "." + Util.joinStrings(ids, ".");//$NON-NLS-1$//$NON-NLS-2$
+            // create updateReport
+            LOG.info("Creating update-report for " + itemAlias + "'s action. "); //$NON-NLS-1$ //$NON-NLS-2$
+            String updateReport = Util.createUpdateReport(ids, concept, "ACTION", null); //$NON-NLS-1$
+            WSTransformerContext wsTransformerContext = new WSTransformerContext(new WSTransformerV2PK(transformerPK), null, null);
+            WSTypedContent wsTypedContent = new WSTypedContent(null, new WSByteArray(updateReport.getBytes("UTF-8")),//$NON-NLS-1$
+                    "text/xml; charset=utf-8");//$NON-NLS-1$
+            WSExecuteTransformerV2 wsExecuteTransformerV2 = new WSExecuteTransformerV2(wsTransformerContext, wsTypedContent);
+            // check runnable transformer
+            // we can leverage the exception mechanism also
+            boolean isRunnableTransformerExist = false;
+            WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();//$NON-NLS-1$
+            for (int i = 0; i < wst.length; i++) {
+                if (wst[i].getPk().equals(transformerPK)) {
+                    isRunnableTransformerExist = true;
+                    break;
+                }
+            }
+            // execute
+            
+            WSTransformer wsTransformer = Util.getPort().getTransformer(new WSGetTransformer(new WSTransformerPK(transformerPK)));
+            if (wsTransformer.getPluginSpecs() == null || wsTransformer.getPluginSpecs().length == 0)
+                throw new Exception("The Plugin Specs of this process is undefined! "); //$NON-NLS-1$
+
+            boolean outputReport = false;
+            String downloadUrl = "";//$NON-NLS-1$
+            if (isRunnableTransformerExist) {
+                LOG.info("Executing transformer for " + itemAlias + "'s action. "); //$NON-NLS-1$ //$NON-NLS-2$
+                WSTransformerContextPipelinePipelineItem[] entries = Util.getPort().executeTransformerV2(wsExecuteTransformerV2)
+                        .getPipeline().getPipelineItem();
+                if (entries.length > 0) {
+                    WSTransformerContextPipelinePipelineItem item = entries[entries.length - 1];
+                    if (item.getVariable().equals("output_url")) {//$NON-NLS-1$
+                        byte[] bytes = item.getWsTypedContent().getWsBytes().getBytes();
+                        String content = new String(bytes);
+                        try {
+                            Document resultDoc = Util.parse(content);
+                            NodeList attrList = Util.getNodeList(resultDoc, "//attr");//$NON-NLS-1$
+                            if (attrList != null && attrList.getLength() > 0) {
+                                downloadUrl = attrList.item(0).getTextContent();
+                                outputReport = true;
+                            }
+                        } catch (Exception e) {
+                            LOG.error(e.getMessage(), e);
+                        }
+                    }
+                }
+            } else {
+                // return false;
+                throw new Exception("The target process is not existed! "); //$NON-NLS-1$
+            }
+            
+            // store
+            LOG.info("Saving update-report for " + itemAlias + "'s action. "); //$NON-NLS-1$ //$NON-NLS-2$
+
+            if (!Util.persistentUpdateReport(updateReport, true).equals("OK")) {//$NON-NLS-1$
+                // return false;
+                throw new Exception("Store Update-Report failed! ");//$NON-NLS-1$
+            }
+            if (outputReport)
+                return "Ok" + downloadUrl; //$NON-NLS-1$
+            
+        } catch (Exception e) {
+            String err = "Unable to launch Runnable Process! "; //$NON-NLS-1$
+            LOG.error(e.getMessage(), e);
+            String output = e.getLocalizedMessage();
+            if (e.getLocalizedMessage() == null || e.getLocalizedMessage().equals("")) //$NON-NLS-1$
+                output = err;
+            return output;
+        }
+
+        return "Ok"; //$NON-NLS-1$
     }
 }

@@ -94,4 +94,6 @@ public interface BrowseRecordsService extends RemoteService {
     ColumnTreeLayoutModel getColumnTreeLayout(String concept) throws Exception;
     
     List<ItemBaseModel> getRunnableProcessList(String concept, String language);
+    
+    String processItem(String concept, String[] ids, String transformerPK);
 }
