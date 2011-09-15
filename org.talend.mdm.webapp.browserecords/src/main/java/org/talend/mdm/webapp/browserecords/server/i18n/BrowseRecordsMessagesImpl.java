@@ -607,4 +607,9 @@ public class BrowseRecordsMessagesImpl implements BrowseRecordsMessages{
         return null;
     }
 
+    public String launch_process_tooltip() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

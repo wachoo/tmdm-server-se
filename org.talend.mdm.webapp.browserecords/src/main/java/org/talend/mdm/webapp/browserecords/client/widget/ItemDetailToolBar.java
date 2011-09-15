@@ -55,6 +55,8 @@ public class ItemDetailToolBar extends ToolBar {
     private final Button joumalButton = new Button(MessagesFactory.getMessages().joumal_btn());
 
     private final Button refreshButton = new Button();
+    
+    private final Button launchProcessButton = new Button();
 
     private ComboBox<ItemBaseModel> workFlowCombo = new ComboBox<ItemBaseModel>();
 
@@ -277,6 +279,17 @@ public class ItemDetailToolBar extends ToolBar {
         ListStore<ItemBaseModel> workFlowList = new ListStore<ItemBaseModel>();
         workFlowCombo.setStore(workFlowList);
         add(workFlowCombo);
+        launchProcessButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.launch_process()));
+        launchProcessButton.setToolTip(MessagesFactory.getMessages().launch_process_tooltip());
+        launchProcessButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+            
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                // TODO Auto-generated method stub
+                
+            }
+        });
+        add(launchProcessButton);
     }
 
     private void addSeparator() {

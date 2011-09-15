@@ -95,4 +95,7 @@ public interface Icons extends ClientBundle {
 
     @Source("save_and_close.png")
     ImageResource save_and_close();
+    
+    @Source("launch_process.png")
+    ImageResource launch_process();
 }

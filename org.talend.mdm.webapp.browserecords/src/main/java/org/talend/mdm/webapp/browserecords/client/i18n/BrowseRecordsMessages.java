@@ -257,4 +257,6 @@ public interface BrowseRecordsMessages extends Messages {
     String label_button_upload_data();
     
     String label_button_new_table();
+    
+    String launch_process_tooltip();
 }
