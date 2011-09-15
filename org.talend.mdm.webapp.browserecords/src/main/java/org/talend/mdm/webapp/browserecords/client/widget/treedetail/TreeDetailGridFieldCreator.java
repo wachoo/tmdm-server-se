@@ -30,7 +30,6 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -38,6 +37,7 @@ import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.ui.Widget;
 
 public class TreeDetailGridFieldCreator {
@@ -48,9 +48,12 @@ public class TreeDetailGridFieldCreator {
         boolean hasValue = value != null && !"".equals(value); //$NON-NLS-1$
         if (dataType.getForeignkey() != null) {
             ForeignKeyField fkField = new ForeignKeyField(dataType.getForeignkey(), dataType.getForeignKeyInfo());
-            ForeignKeyBean fkBean = (ForeignKeyBean) value;
-            if (fkBean != null) {
-                fkField.setValue(fkBean);
+            if (value instanceof ForeignKeyBean) {
+                ForeignKeyBean fkBean = (ForeignKeyBean) value;
+                if (fkBean != null) {
+                    fkBean.setDisplayInfo(fkBean.getId());
+                    fkField.setValue(fkBean);
+                }
             }
             field = fkField;
         } else if (dataType.hasEnumeration()) {
