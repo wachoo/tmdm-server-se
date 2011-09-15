@@ -25,6 +25,12 @@ public interface TypeMetadata extends MetadataVisitable {
      */
     Collection<TypeMetadata> getSuperTypes();
 
+    /**
+     * <p>
+     * Adds a super type for this type. This causes all fields in super type to be added to this type.
+     * </p>
+     * @param superType A type.
+     */
     void addSuperType(TypeMetadata superType);
 
     String getName();

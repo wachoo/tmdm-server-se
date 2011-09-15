@@ -11,8 +11,6 @@
 
 package com.amalto.core.metadata;
 
-import org.apache.commons.lang.NotImplementedException;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;

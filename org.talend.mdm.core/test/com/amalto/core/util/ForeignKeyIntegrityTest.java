@@ -149,4 +149,17 @@ public class ForeignKeyIntegrityTest extends TestCase {
         assertEquals(1, references.size());
     }
 
+    public void testModel9() throws Exception {
+        MetadataRepository repository = getMetadataRepository("model9.xsd");
+
+        Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "A");
+        assertEquals(0, references.size());
+
+        references = getReferencedFields(repository, "B");
+        assertEquals(0, references.size());
+
+        references = getReferencedFields(repository, "C");
+        assertEquals(2, references.size());
+    }
+
 }
