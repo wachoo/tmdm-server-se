@@ -1,10 +1,7 @@
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
@@ -73,6 +70,7 @@ public class TreeDetail extends ContentPanel {
 
                 public void onSuccess(ItemNodeModel node) {
                     root = buildGWTTree(node, null);
+                            root.setState(true);
                     tree.addItem(root);
                 }
 
