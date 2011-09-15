@@ -92,4 +92,6 @@ public interface BrowseRecordsServiceAsync {
 
     void getColumnTreeLayout(String concept, AsyncCallback<ColumnTreeLayoutModel> callback);
 
+    void getRunnableProcessList(String concept, String language, AsyncCallback<List<ItemBaseModel>> callback);
+
 }

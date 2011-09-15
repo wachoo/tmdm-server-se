@@ -1,5 +1,7 @@
 package org.talend.mdm.webapp.browserecords.client.widget;
 
+import java.util.List;
+
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
@@ -10,6 +12,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
+import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTreeDetail;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -27,6 +30,7 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
@@ -275,21 +279,34 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private void addWorkFlosCombo() {
-        add(new FillToolItem());
-        ListStore<ItemBaseModel> workFlowList = new ListStore<ItemBaseModel>();
-        workFlowCombo.setStore(workFlowList);
-        add(workFlowCombo);
-        launchProcessButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.launch_process()));
-        launchProcessButton.setToolTip(MessagesFactory.getMessages().launch_process_tooltip());
-        launchProcessButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+        service.getRunnableProcessList(itemBean.getConcept(), Locale.getLanguage(), new AsyncCallback<List<ItemBaseModel>>() {
             
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                // TODO Auto-generated method stub
+            public void onSuccess(List<ItemBaseModel> processList) {
+                add(new FillToolItem());
+                ListStore<ItemBaseModel> workFlowList = new ListStore<ItemBaseModel>();
+                workFlowList.add(processList);
+                workFlowCombo.setStore(workFlowList);
+                workFlowCombo.setDisplayField("value");//$NON-NLS-1$
+                workFlowCombo.setValueField("key");//$NON-NLS-1$
+                workFlowCombo.setTypeAhead(true);
+                workFlowCombo.setTriggerAction(TriggerAction.ALL);
+                add(workFlowCombo);
+                launchProcessButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.launch_process()));
+                launchProcessButton.setToolTip(MessagesFactory.getMessages().launch_process_tooltip());
+                launchProcessButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+                    
+                    @Override
+                    public void componentSelected(ButtonEvent ce) {
+                        
+                    }
+                });
+                add(launchProcessButton);
+            }
+            
+            public void onFailure(Throwable arg0) {
                 
             }
         });
-        add(launchProcessButton);
     }
 
     private void addSeparator() {

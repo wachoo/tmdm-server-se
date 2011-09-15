@@ -100,6 +100,8 @@ import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
 import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.amalto.webapp.util.webservices.WSGetItem;
 import com.amalto.webapp.util.webservices.WSGetItemsByCustomFKFilters;
+import com.amalto.webapp.util.webservices.WSGetTransformer;
+import com.amalto.webapp.util.webservices.WSGetTransformerPKs;
 import com.amalto.webapp.util.webservices.WSGetView;
 import com.amalto.webapp.util.webservices.WSGetViewPKs;
 import com.amalto.webapp.util.webservices.WSItem;
@@ -109,6 +111,8 @@ import com.amalto.webapp.util.webservices.WSPutItemWithReport;
 import com.amalto.webapp.util.webservices.WSRouteItemV2;
 import com.amalto.webapp.util.webservices.WSStringArray;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
+import com.amalto.webapp.util.webservices.WSTransformer;
+import com.amalto.webapp.util.webservices.WSTransformerPK;
 import com.amalto.webapp.util.webservices.WSView;
 import com.amalto.webapp.util.webservices.WSViewPK;
 import com.amalto.webapp.util.webservices.WSViewSearch;
@@ -1591,5 +1595,63 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
         return elChildren;
 
+    }
+    
+    public List<ItemBaseModel> getRunnableProcessList(String businessConcept, String language) {
+        List<ItemBaseModel> processList = new ArrayList<ItemBaseModel>();
+        if(businessConcept == null || language == null)
+            return processList;
+        
+        try {
+            String model = this.getCurrentDataModel();
+            String[] businessConcepts = Util.getPort().getBusinessConcepts(new WSGetBusinessConcepts(new WSDataModelPK(model))).getStrings();
+            
+            WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();//$NON-NLS-1$
+            for (int i = 0; i < wst.length; i++) {
+                if (isMyRunableProcess(wst[i].getPk(), businessConcept, businessConcepts)) {
+                    WSTransformer trans = Util.getPort().getTransformer(new WSGetTransformer(wst[i]));
+                    String description = trans.getDescription();
+                    Pattern p = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL);//$NON-NLS-1$//$NON-NLS-2$
+                    String name = p.matcher(description).replaceAll("$1");//$NON-NLS-1$
+                    if (name.equals(""))//$NON-NLS-1$
+                        if (language.equalsIgnoreCase("fr"))//$NON-NLS-1$
+                            name = "Action par d鑼協aut";//$NON-NLS-1$
+                        else if (language.equalsIgnoreCase("en"))//$NON-NLS-1$
+                            name = "Default Action";//$NON-NLS-1$
+                        else
+                            name = description;
+                    
+                    ItemBaseModel itemBaseModel = new ItemBaseModel();
+                    itemBaseModel.set("key", wst[i].getPk()); //$NON-NLS-1$
+                    itemBaseModel.set("value", name); //$NON-NLS-1$
+                    processList.add(itemBaseModel);
+                }
+            }
+            
+            return processList;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return null;
+    }
+    
+    private boolean isMyRunableProcess(String transformerName, String ownerConcept, String[] businessConcepts) {
+
+        String possibleConcept = "";//$NON-NLS-1$
+        if (businessConcepts != null) {
+            for (int i = 0; i < businessConcepts.length; i++) {
+                String businessConcept = businessConcepts[i];
+                if (transformerName.startsWith("Runnable_" + businessConcept)) {//$NON-NLS-1$
+                    if (businessConcept.length() > possibleConcept.length())
+                        possibleConcept = businessConcept;
+                }
+            }
+        }
+
+        if (ownerConcept != null && ownerConcept.equals(possibleConcept))
+            return true;
+
+        return false;
     }
 }
