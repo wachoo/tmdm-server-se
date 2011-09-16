@@ -340,8 +340,13 @@ public class ItemDetailToolBar extends ToolBar {
                        String[] ids = itemBean.getIds().split("@"); //$NON-NLS-1$
                        
                        service.processItem(itemBean.getConcept(), ids, (String)selectItem.get("key"), new AsyncCallback<String>() { //$NON-NLS-1$
-                           public void onSuccess(String arg0) {
+                           public void onSuccess(String result) {
                                waitBar.close();
+                               if(result.indexOf("Ok") >= 0){ //$NON-NLS-1$
+                                   MessageBox.alert("Status", "Process done!", null); //$NON-NLS-1$ //$NON-NLS-2$
+                               }else{
+                                   MessageBox.alert("Status", "Process failed!", null); //$NON-NLS-1$ //$NON-NLS-2$
+                               }
                            }
                            
                            public void onFailure(Throwable arg0) {
