@@ -1,7 +1,5 @@
 package org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator;
 
-import java.util.regex.Pattern;
-
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.shared.FacetEnum;
 
@@ -52,8 +50,8 @@ public class TextFieldValidator implements Validator {
         }
         
         String pattern = field.getData(FacetEnum.PATTERN.getFacetName());
-        if (pattern != null && !pattern.equals("")) { //$NON-NLS-1$
-            if (!AUTO_INCREMENT.equals(value) && !Pattern.compile(pattern).matcher(value).matches()) {
+        if (pattern != null && !pattern.equals("")) { //$NON-NLS-1$            
+            if (!AUTO_INCREMENT.equals(value) && value.split(pattern) == null) {
                 succeed = false;
                 defaultMessage += MessagesFactory.getMessages().check_pattern(value, pattern) + "\n";//$NON-NLS-1$
             }
