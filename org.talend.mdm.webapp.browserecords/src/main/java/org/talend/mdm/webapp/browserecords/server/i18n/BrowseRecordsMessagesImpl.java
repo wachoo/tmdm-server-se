@@ -612,4 +612,9 @@ public class BrowseRecordsMessagesImpl implements BrowseRecordsMessages{
         return null;
     }
 
+    public String check_pattern(String value, String pattern) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }
