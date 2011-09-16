@@ -21,6 +21,7 @@ import com.amalto.core.metadata.*;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -35,7 +36,10 @@ import java.util.Stack;
 class ForeignKeyInfoTransformer implements DocumentTransformer {
 
     private final TypeMetadata metadata;
+
     private final String dataClusterName;
+
+    private final static Logger LOG = Logger.getLogger(ForeignKeyInfoTransformer.class);
 
     public ForeignKeyInfoTransformer(TypeMetadata metadata, String dataClusterName) {
         this.metadata = metadata;
@@ -79,7 +83,14 @@ class ForeignKeyInfoTransformer implements DocumentTransformer {
 
             item = Util.getItemCtrl2Local().getItem(pk);
         } catch (Exception e) {
-            throw new RuntimeException("Unable to access referenced entity", e);
+            LOG.warn("Unable to access referenced entity in field '"  //$NON-NLS-1$
+                    + foreignKeyField.getName()
+                    + "' in type '" //$NON-NLS-1$
+                    + foreignKeyField.getContainingType().getName()
+                    + "' (foreign key value: '" //$NON-NLS-1$
+                    + foreignKeyValue
+                    + "')"); //$NON-NLS-1$
+            return foreignKeyValue;
         }
 
         try {
