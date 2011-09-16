@@ -173,12 +173,12 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
     }
 
     private FieldMetadata createFieldMetadata(XmlSchemaElement element) {
-        String elementName = element.getName();
-        boolean isCollection = element.getMaxOccurs() > 1;
-        boolean isKey = typeMetadataKeyStack.peek().contains(elementName);
+        String fieldName = element.getName();
+        boolean isMany = element.getMaxOccurs() > 1;
+        boolean isKey = typeMetadataKeyStack.peek().contains(fieldName);
         boolean isReference = false;
-        String fieldTypeName = null;
-        ComplexTypeMetadata currentContainingType = typeMetadataStack.peek();
+        String fieldType = null;
+        ComplexTypeMetadata containingType = typeMetadataStack.peek();
 
         TypeMetadata referencedType = NotResolvedTypeRef.INSTANCE;
         FieldMetadata referencedField = null; // TODO
@@ -194,17 +194,14 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
                 if ("X_ForeignKey".equals(appInfo.getSource())) { //$NON-NLS-1$
                     isReference = true;
                     String[] foreignKeyDefinition = appInfo.getMarkup().item(0).getTextContent().split("/");
-                    fieldTypeName = foreignKeyDefinition[0];
-                    String fieldName;
+                    fieldType = foreignKeyDefinition[0];
+                    referencedType = new SoftTypeRef(this, fieldType);
+
                     if (foreignKeyDefinition.length == 2) {
-                        fieldName = foreignKeyDefinition[1];
+                        referencedField = new SoftFieldRef(this, fieldType, foreignKeyDefinition[1]);
                     } else {
-                        // TODO Determine what's the field we reference to in this case.
-                        // System.out.println("Warning: should refer to id of type '" + fieldTypeName + "' but dunno how (yet).");
-                        fieldName = "id";
+                        referencedField = new SoftIdFieldRef(this, fieldType);
                     }
-                    referencedType = new SoftTypeRef(this, fieldTypeName);
-                    referencedField = new SoftFieldRef(this, fieldTypeName, fieldName);
                 } else if ("X_ForeignKeyInfo".equals(appInfo.getSource())) { //$NON-NLS-1$
                     foreignKeyInfo = appInfo.getMarkup().item(0).getTextContent().split("/")[1];
                 } else if ("X_FKIntegrity".equals(appInfo.getSource())) { //$NON-NLS-1$
@@ -216,24 +213,22 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
         }
 
         XmlSchemaType schemaType = element.getSchemaType();
-        if (fieldTypeName == null) {
+        if (fieldType == null) {
             QName qName = element.getSchemaTypeName();
             if (qName != null) {
                 TypeMetadata metadata = getType(qName.getNamespaceURI(), qName.getLocalPart());
                 if (metadata != null) {
-                    fieldTypeName = metadata.getName();
+                    fieldType = metadata.getName();
                 } else {
                     if (schemaType instanceof XmlSchemaComplexType) {
                         isReference = true;
-                        referencedType = new SoftTypeRef(this, elementName);
-                        // TODO Determine what's the field we reference to in this case.
-                        // System.out.println("Warning: should refer to id of type '" + fieldTypeName + "' but dunno how (yet).");
-                        referencedField = new SoftFieldRef(this, fieldTypeName, "id");
+                        referencedType = new SoftTypeRef(this, fieldName);
+                        referencedField = new SoftIdFieldRef(this, fieldType);
                     }
                 }
             } else {
                 isReference = true;
-                referencedType = new SoftTypeRef(this, elementName);
+                referencedType = new SoftTypeRef(this, fieldName);
             }
         }
 
@@ -243,28 +238,17 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
             if (content != null) {
                 XmlSchemaSimpleTypeRestriction typeRestriction = (XmlSchemaSimpleTypeRestriction) content;
                 if (typeRestriction.getFacets().getCount() > 0) {
-                    fieldTypeName = typeRestriction.getBaseTypeName().getLocalPart();
-                    return new EnumerationFieldMetadata(currentContainingType, isKey, elementName, fieldTypeName);
+                    fieldType = typeRestriction.getBaseTypeName().getLocalPart();
+                    return new EnumerationFieldMetadata(containingType, isKey, fieldName, fieldType);
                 }
             }
         }
 
-        // TODO Refactor needed here!
-        FieldMetadata metadata;
         if (isReference) {
-            metadata = new ReferenceUnaryFieldMetadata(currentContainingType, elementName, referencedType, referencedField, foreignKeyInfo, isKey, fkIntegrity, fkIntegrityOverride);
+            return new ReferenceFieldMetadata(containingType, isKey, isMany, fieldName, referencedType, referencedField, foreignKeyInfo, fkIntegrity, fkIntegrityOverride);
         } else {
-            metadata = new SimpleTypeFieldMetadata(currentContainingType, isKey, elementName, fieldTypeName);
+            return new SimpleTypeFieldMetadata(containingType, isKey, isMany, fieldName, fieldType);
         }
-        if (isCollection) {
-            if (isReference) {
-                // Don't change anything (see refactoring).
-            } else {
-                metadata = new SimpleTypeCollectionFieldMetadata(currentContainingType, elementName, isKey, (SimpleTypeFieldMetadata) metadata);
-            }
-        }
-
-        return metadata;
     }
 
     private void addTypeMetadata(TypeMetadata typeMetadata) {

@@ -40,23 +40,15 @@ public class DefaultMetadataVisitor<T> implements MetadataVisitor<T> {
         return null;
     }
 
-    public T visit(FieldMetadata metadata) {
-        throw new IllegalArgumentException("Field metadata '" + metadata.getName() + "' does not have its visit method (class: " + metadata.getClass().getName() + ")");
-    }
-
-    public T visit(ReferenceUnaryFieldMetadata metadata) {
+    public T visit(ReferenceFieldMetadata metadata) {
         return null;
     }
 
-    public T visit(ReferenceCollectionFieldMetadata metadata) {
+    public T visit(FieldMetadata metadata) {
         return null;
     }
 
     public T visit(SimpleTypeFieldMetadata metadata) {
-        return null;
-    }
-
-    public T visit(SimpleTypeCollectionFieldMetadata metadata) {
         return null;
     }
 

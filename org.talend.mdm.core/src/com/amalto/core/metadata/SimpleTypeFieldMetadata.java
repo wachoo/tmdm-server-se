@@ -16,6 +16,8 @@ package com.amalto.core.metadata;
  */
 public class SimpleTypeFieldMetadata implements FieldMetadata {
 
+    private final boolean isMany;
+
     private final String name;
 
     private final String fieldTypeName;
@@ -26,10 +28,11 @@ public class SimpleTypeFieldMetadata implements FieldMetadata {
 
     private TypeMetadata containingType;
 
-    public SimpleTypeFieldMetadata(TypeMetadata containingType, boolean key, String name, String fieldTypeName) {
+    public SimpleTypeFieldMetadata(TypeMetadata containingType, boolean isKey, boolean isMany, String name, String fieldTypeName) {
         this.containingType = containingType;
         this.declaringType = containingType;
-        isKey = key;
+        this.isKey = isKey;
+        this.isMany = isMany;
         this.name = name;
         this.fieldTypeName = fieldTypeName;
     }
@@ -81,7 +84,7 @@ public class SimpleTypeFieldMetadata implements FieldMetadata {
     }
 
     public FieldMetadata copy() {
-        return new SimpleTypeFieldMetadata(containingType, isKey, name, fieldTypeName);
+        return new SimpleTypeFieldMetadata(containingType, isKey, isMany, name, fieldTypeName);
     }
 
     public <T> T accept(MetadataVisitor<T> visitor) {

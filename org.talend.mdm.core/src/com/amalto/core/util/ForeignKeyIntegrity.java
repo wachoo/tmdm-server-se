@@ -13,13 +13,14 @@ package com.amalto.core.util;
 
 import com.amalto.core.metadata.*;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
  * Returns the field that references the concept <code>typeName</code>. References are returned as a {@link Set} of
- * {@link com.amalto.core.metadata.ReferenceUnaryFieldMetadata}.
+ * {@link com.amalto.core.metadata.ReferenceFieldMetadata}.
+ *
+ * TODO Allow override conflict resolution (see TMDM-2375)
  */
 class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFieldMetadata>> {
 
@@ -49,17 +50,8 @@ class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFieldMetad
     }
 
     @Override
-    public Set<ReferenceFieldMetadata> visit(ReferenceUnaryFieldMetadata metadata) {
+    public Set<ReferenceFieldMetadata> visit(ReferenceFieldMetadata metadata) {
         if (type.isAssignableFrom(metadata.getReferencedType())) {
-            fieldToCheck.add(metadata);
-        }
-        super.visit(metadata);
-        return fieldToCheck;
-    }
-
-    @Override
-    public Set<ReferenceFieldMetadata> visit(ReferenceCollectionFieldMetadata metadata) {
-        if (metadata.getReferencedType().isAssignableFrom(type)) {
             fieldToCheck.add(metadata);
         }
         super.visit(metadata);
@@ -85,12 +77,6 @@ class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFieldMetad
 
     @Override
     public Set<ReferenceFieldMetadata> visit(SimpleTypeFieldMetadata metadata) {
-        super.visit(metadata);
-        return fieldToCheck;
-    }
-
-    @Override
-    public Set<ReferenceFieldMetadata> visit(SimpleTypeCollectionFieldMetadata metadata) {
         super.visit(metadata);
         return fieldToCheck;
     }

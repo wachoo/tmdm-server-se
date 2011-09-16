@@ -30,7 +30,7 @@ class ConsoleDumpMetadataVisitor extends DefaultMetadataVisitor<Void> {
     }
 
     @Override
-    public Void visit(ReferenceUnaryFieldMetadata metadata) {
+    public Void visit(ReferenceFieldMetadata metadata) {
         if (metadata.isKey()) {
             System.out.print("\t[Field (Complex) (Key)] " + metadata.getName());
         } else {
@@ -47,15 +47,6 @@ class ConsoleDumpMetadataVisitor extends DefaultMetadataVisitor<Void> {
             System.out.println("\t[Field (Simple) (Key)] " + metadata.getName());
         } else {
             System.out.println("\t[Field (Simple)] " + metadata.getName());
-        }
-        return super.visit(metadata);
-    }
-
-    public Void visit(SimpleTypeCollectionFieldMetadata metadata) {
-        if (metadata.isKey()) {
-            System.out.println("\t[Field (Collection) (Key)] " + metadata.getName());
-        } else {
-            System.out.println("\t[Field (Collection)] " + metadata.getName());
         }
         return super.visit(metadata);
     }

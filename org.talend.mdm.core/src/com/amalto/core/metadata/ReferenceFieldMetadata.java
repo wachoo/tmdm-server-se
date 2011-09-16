@@ -11,36 +11,49 @@
 
 package com.amalto.core.metadata;
 
-public abstract class ReferenceFieldMetadata implements FieldMetadata {
+public class ReferenceFieldMetadata implements FieldMetadata {
 
-    protected final String name;
+    private final boolean isKey;
 
-    protected final FieldMetadata referencedField;
+    private final boolean isMany;
 
-    protected final String foreignKeyInfo;
+    private final String name;
 
-    protected final boolean allowFKIntegrityOverride;
+    private final FieldMetadata referencedField;
 
-    protected final boolean isFKIntegrity;
+    private final String foreignKeyInfo;
+
+    private final boolean allowFKIntegrityOverride;
+
+    private final boolean isFKIntegrity;
 
     private TypeMetadata referencedType;
 
     protected TypeMetadata containingType;
 
-    public ReferenceFieldMetadata(String name,
-                                  TypeMetadata containingType,
+    public ReferenceFieldMetadata(TypeMetadata containingType,
+                                  boolean isKey,
+                                  boolean isMany,
+                                  String name,
                                   TypeMetadata referencedType,
                                   FieldMetadata referencedField,
-                                  boolean allowFKIntegrityOverride,
-                                  boolean FKIntegrity,
-                                  String foreignKeyInfo) {
+                                  String foreignKeyInfo,
+                                  boolean fkIntegrity,
+                                  boolean allowFKIntegrityOverride) {
         this.name = name;
         this.referencedField = referencedField;
         this.foreignKeyInfo = foreignKeyInfo;
         this.containingType = containingType;
         this.allowFKIntegrityOverride = allowFKIntegrityOverride;
-        isFKIntegrity = FKIntegrity;
+        this.isFKIntegrity = fkIntegrity;
         this.referencedType = referencedType;
+        this.isKey = isKey;
+        this.isMany = isMany;
+        this.referencedType = referencedType;
+    }
+
+    public TypeMetadata getReferencedType() {
+        return referencedType;
     }
 
     public String getName() {
@@ -81,15 +94,19 @@ public abstract class ReferenceFieldMetadata implements FieldMetadata {
         metadata.addField(copy);
     }
 
-    public String getForeignIdType() {
-        return referencedField.getType();
-    }
-
-    public TypeMetadata getReferencedType() {
-        return referencedType;
-    }
-
     public String getType() {
         return referencedField.getType();
+    }
+
+    public boolean isKey() {
+        return isKey;
+    }
+
+    public <T> T accept(MetadataVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
+
+    public FieldMetadata copy() {
+        return new ReferenceFieldMetadata(containingType, isKey, isMany, name, referencedType, referencedField, foreignKeyInfo, isFKIntegrity, allowFKIntegrityOverride);
     }
 }

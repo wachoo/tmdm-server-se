@@ -132,7 +132,7 @@ class ForeignKeyInfoTransformer implements DocumentTransformer {
         }
 
         @Override
-        public Map<String, FieldMetadata> visit(ReferenceUnaryFieldMetadata metadata) {
+        public Map<String, FieldMetadata> visit(ReferenceFieldMetadata metadata) {
             currentPosition.push(metadata.getName());
             {
                 if (metadata.hasForeignKeyInfo()) {

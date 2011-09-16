@@ -24,15 +24,11 @@ public interface MetadataVisitor<T> {
 
     T visit(FieldMetadata metadata);
 
-    T visit(ReferenceUnaryFieldMetadata metadata);
-
-    T visit(ReferenceCollectionFieldMetadata metadata);
-
     T visit(SimpleTypeFieldMetadata metadata);
-
-    T visit(SimpleTypeCollectionFieldMetadata metadata);
 
     T visit(EnumerationFieldMetadata metadata);
 
     T visit(TypeMetadata typeMetadata);
+
+    T visit(ReferenceFieldMetadata metadata);
 }
