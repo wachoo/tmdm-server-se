@@ -26,6 +26,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.Restriction;
+import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
@@ -59,6 +60,8 @@ public interface BrowseRecordsServiceAsync {
     void deleteItemBean(ItemBean item, AsyncCallback<ItemResult> callback);
 
     void deleteItemBeans(List<ItemBean> items, AsyncCallback<List<ItemResult>> callback);
+
+    void checkFKIntegrity(List<ItemBean> selectedItems, AsyncCallback<FKIntegrityResult> asyncCallback);
 
     void logicalDeleteItem(ItemBean item, String path, AsyncCallback<ItemResult> callback);
 

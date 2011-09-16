@@ -36,13 +36,13 @@ public interface BrowseRecordsMessages extends Messages {
 
     String delete_btn();
     
-    String deplicate_btn();
+    String duplicate_btn();
     
-    String deplicate_tip(); 
+    String duplicate_tip();
     
-    String joumal_btn();    
+    String journal_btn();
     
-    String joumal_tip(); 
+    String journal_tip();
     
     String refresh_tip(); 
 
@@ -261,4 +261,6 @@ public interface BrowseRecordsMessages extends Messages {
     String label_button_new_table();
     
     String launch_process_tooltip();
+
+    String fk_integrity_fail_open_relations();
 }

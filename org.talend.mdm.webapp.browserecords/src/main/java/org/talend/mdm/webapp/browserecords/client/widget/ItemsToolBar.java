@@ -35,6 +35,7 @@ import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.SearchPanel.AdvancedSearchPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.SearchPanel.SimpleCriterionPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
+import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -227,7 +228,7 @@ public class ItemsToolBar extends ToolBar {
         updateUserCriteriasList();
     }
 
-    public int getSuccessItemsNumber(List<ItemResult> results) {
+    public static int getSuccessItemsNumber(List<ItemResult> results) {
         int itemSuccessNumber = 0;
         for (ItemResult result : results) {
             if (result.getStatus() == ItemResult.SUCCESS) {
@@ -237,7 +238,7 @@ public class ItemsToolBar extends ToolBar {
         return itemSuccessNumber;
     }
 
-    public int getFailureItemsNumber(List<ItemResult> results) {
+    public static int getFailureItemsNumber(List<ItemResult> results) {
         int itemFailureNumber = 0;
         for (ItemResult result : results) {
             if (result.getStatus() == ItemResult.FAILURE) {
@@ -296,92 +297,7 @@ public class ItemsToolBar extends ToolBar {
                         com.google.gwt.user.client.Window.alert(MessagesFactory.getMessages().select_delete_item_record());
                     } else {
                         MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
-                                .delete_confirm(), new Listener<MessageBoxEvent>() {
-
-                            final ItemsListPanel list = container.getItemsListPanel();
-
-                            public void handleEvent(MessageBoxEvent be) {
-                                if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                                    if (list.getGrid() != null) {
-                                        service.deleteItemBeans(list.getGrid().getSelectionModel().getSelectedItems(),
-                                                new AsyncCallback<List<ItemResult>>() {
-
-                                                    public void onFailure(Throwable caught) {
-                                                        Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
-                                                    }
-
-                                                    public void onSuccess(List<ItemResult> results) {
-                                                        StringBuffer msgs = new StringBuffer();
-
-                                                        int successNum = getSuccessItemsNumber(results);
-                                                        int failureNum = getFailureItemsNumber(results);
-
-                                                        if (successNum == 1 && failureNum == 0) {
-                                                            String msg = results.iterator().next().getDescription();
-                                                            MessageBox.info(MessagesFactory.getMessages().info_title(),
-                                                                    pickOutISOMessage(msg.toString()), null);
-                                                        } else if (successNum > 1 && failureNum == 0) {
-                                                            msgs.append(MessagesFactory.getMessages().delete_item_record_success(
-                                                                    successNum));
-                                                            MessageBox.info(MessagesFactory.getMessages().info_title(),
-                                                                    msgs.toString(), null);
-                                                        } else if (successNum == 0 && failureNum == 1) {
-                                                            String msg = results.iterator().next().getDescription();
-                                                            MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                                                    pickOutISOMessage(msg), null);
-                                                        } else if (successNum == 0 && failureNum > 1) {
-                                                            msgs.append(MessagesFactory.getMessages().delete_item_record_failure(
-                                                                    failureNum));
-                                                            MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                                                    msgs.toString(), null);
-                                                        } else if (successNum > 0 && failureNum > 0) {
-                                                            msgs.append(MessagesFactory.getMessages().delete_item_record_success(
-                                                                    successNum)
-                                                                    + "\n");//$NON-NLS-1$
-                                                            msgs.append(MessagesFactory.getMessages().delete_item_record_failure(
-                                                                    failureNum)
-                                                                    + "\n");//$NON-NLS-1$
-                                                            MessageBox.info(MessagesFactory.getMessages().info_title(),
-                                                                    msgs.toString(), null);
-                                                        }
-
-                                                        list.getStore().getLoader().load();
-                                                    }
-
-                                                });
-                                    }
-
-                                }
-                            }
-
-                            private String pickOutISOMessage(String message) {
-                                String identy = "[" + Locale.getLanguage()//$NON-NLS-1$
-                                        .toUpperCase() + ":";//$NON-NLS-1$
-                                int mask = message.indexOf(identy);
-                                if (mask != -1) {
-                                    String snippet = message.substring(mask + identy.length());
-                                    if (!snippet.isEmpty()) {
-                                        String pickOver = "";//$NON-NLS-1$
-                                        boolean enclosed = false;
-                                        for (int j = 0; j < snippet.trim().length(); j++) {
-                                            String c = snippet.trim().charAt(j) + "";//$NON-NLS-1$
-                                            if ("]".equals(c)) {//$NON-NLS-1$
-                                                if (!pickOver.isEmpty()) {
-                                                    enclosed = true;
-                                                    break;
-                                                }
-                                            } else {
-                                                pickOver += c;
-                                            }
-                                        }
-
-                                        if (enclosed)
-                                            return pickOver;
-                                    }
-                                }
-                                return message;
-                            }
-                        });
+                                .delete_confirm(), new DeleteItemsBoxListener(container, service));
                     }
                 }
             }
@@ -1189,5 +1105,127 @@ public class ItemsToolBar extends ToolBar {
 
     public ItemPanel getItemPanel() {
         return this.itemPanel;
+    }
+
+    private static class DeleteItemsBoxListener implements Listener<MessageBoxEvent> {
+
+        private final ItemsSearchContainer container;
+
+        private final ItemsListPanel list ;
+
+        private final BrowseRecordsServiceAsync service;
+
+        private DeleteItemsBoxListener(ItemsSearchContainer container, BrowseRecordsServiceAsync service) {
+            this.container = container;
+            this.service = service;
+            this.list = container.getItemsListPanel();
+        }
+
+        public void handleEvent(MessageBoxEvent be) {
+            if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                if (list.getGrid() != null) {
+                    service.checkFKIntegrity(list.getGrid().getSelectionModel().getSelectedItems(),
+                            new AsyncCallback<FKIntegrityResult>() {
+
+                                public void onFailure(Throwable caught) {
+                                    Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
+                                }
+
+                                public void onSuccess(FKIntegrityResult results) {
+                                    switch (results) {
+                                        case FORBIDDEN:
+                                        case FORBIDDEN_OVERRIDE_ALLOWED:
+                                            MessageBox.alert(MessagesFactory.getMessages().error_title(),
+                                                    MessagesFactory.getMessages().fk_integrity_fail_open_relations(),
+                                                    null);
+                                            break;
+                                        case ALLOWED:
+                                            doItemsDelete();
+                                            break;
+                                    }
+                                }
+
+                                private void doItemsDelete() {
+                                    service.deleteItemBeans(list.getGrid().getSelectionModel().getSelectedItems(),
+                                            new AsyncCallback<List<ItemResult>>() {
+
+                                                public void onFailure(Throwable caught) {
+                                                    Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
+                                                }
+
+                                                public void onSuccess(List<ItemResult> results) {
+                                                    StringBuffer msgs = new StringBuffer();
+
+                                                    int successNum = getSuccessItemsNumber(results);
+                                                    int failureNum = getFailureItemsNumber(results);
+
+                                                    if (successNum == 1 && failureNum == 0) {
+                                                        String msg = results.iterator().next().getDescription();
+                                                        MessageBox.info(MessagesFactory.getMessages().info_title(),
+                                                                pickOutISOMessage(msg), null);
+                                                    } else if (successNum > 1 && failureNum == 0) {
+                                                        msgs.append(MessagesFactory.getMessages().delete_item_record_success(
+                                                                successNum));
+                                                        MessageBox.info(MessagesFactory.getMessages().info_title(),
+                                                                msgs.toString(), null);
+                                                    } else if (successNum == 0 && failureNum == 1) {
+                                                        String msg = results.iterator().next().getDescription();
+                                                        MessageBox.alert(MessagesFactory.getMessages().error_title(),
+                                                                pickOutISOMessage(msg), null);
+                                                    } else if (successNum == 0 && failureNum > 1) {
+                                                        msgs.append(MessagesFactory.getMessages().delete_item_record_failure(
+                                                                failureNum));
+                                                        MessageBox.alert(MessagesFactory.getMessages().error_title(),
+                                                                msgs.toString(), null);
+                                                    } else if (successNum > 0 && failureNum > 0) {
+                                                        msgs.append(MessagesFactory.getMessages().delete_item_record_success(
+                                                                successNum)
+                                                                + "\n");//$NON-NLS-1$
+                                                        msgs.append(MessagesFactory.getMessages().delete_item_record_failure(
+                                                                failureNum)
+                                                                + "\n");//$NON-NLS-1$
+                                                        MessageBox.info(MessagesFactory.getMessages().info_title(),
+                                                                msgs.toString(), null);
+                                                    }
+
+                                                    list.getStore().getLoader().load();
+                                                }
+
+                                            });
+                                }
+
+                            });
+                }
+
+            }
+        }
+
+        private String pickOutISOMessage(String message) {
+            String identy = "[" + Locale.getLanguage()//$NON-NLS-1$
+                    .toUpperCase() + ":";//$NON-NLS-1$
+            int mask = message.indexOf(identy);
+            if (mask != -1) {
+                String snippet = message.substring(mask + identy.length());
+                if (!snippet.isEmpty()) {
+                    String pickOver = "";//$NON-NLS-1$
+                    boolean enclosed = false;
+                    for (int j = 0; j < snippet.trim().length(); j++) {
+                        String c = snippet.trim().charAt(j) + "";//$NON-NLS-1$
+                        if ("]".equals(c)) {//$NON-NLS-1$
+                            if (!pickOver.isEmpty()) {
+                                enclosed = true;
+                                break;
+                            }
+                        } else {
+                            pickOver += c;
+                        }
+                    }
+
+                    if (enclosed)
+                        return pickOver;
+                }
+            }
+            return message;
+        }
     }
 }

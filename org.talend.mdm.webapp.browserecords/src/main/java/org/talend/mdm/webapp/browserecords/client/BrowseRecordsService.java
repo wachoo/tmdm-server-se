@@ -26,6 +26,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.Restriction;
+import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
@@ -61,6 +62,8 @@ public interface BrowseRecordsService extends RemoteService {
     ItemResult deleteItemBean(ItemBean item);
 
     List<ItemResult> deleteItemBeans(List<ItemBean> items);
+
+    FKIntegrityResult checkFKIntegrity(List<ItemBean> selectedItems);
 
     ItemResult logicalDeleteItem(ItemBean item, String path);
 

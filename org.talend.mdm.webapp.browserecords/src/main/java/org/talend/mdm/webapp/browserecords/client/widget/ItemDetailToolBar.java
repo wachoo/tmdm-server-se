@@ -1,5 +1,6 @@
 package org.talend.mdm.webapp.browserecords.client.widget;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
@@ -42,6 +43,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Widget;
+import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 
 public class ItemDetailToolBar extends ToolBar {
 
@@ -57,9 +59,9 @@ public class ItemDetailToolBar extends ToolBar {
 
     private final Button deleteButton = new Button(MessagesFactory.getMessages().delete_btn());
 
-    private final Button deplicateButton = new Button(MessagesFactory.getMessages().deplicate_btn());
+    private final Button duplicateButton = new Button(MessagesFactory.getMessages().duplicate_btn());
 
-    private final Button joumalButton = new Button(MessagesFactory.getMessages().joumal_btn());
+    private final Button journalButton = new Button(MessagesFactory.getMessages().journal_btn());
 
     private final Button refreshButton = new Button();
     
@@ -221,19 +223,26 @@ public class ItemDetailToolBar extends ToolBar {
 
                             public void handleEvent(MessageBoxEvent be) {
                                 if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                                    service.deleteItemBean(itemBean, new AsyncCallback<ItemResult>() {
-
-                                        public void onFailure(Throwable arg0) {
-
+                                    service.checkFKIntegrity(Collections.singletonList(itemBean), new AsyncCallback<FKIntegrityResult>() {
+                                        public void onFailure(Throwable caught) {
+                                            // TODO
                                         }
 
-                                        public void onSuccess(ItemResult arg0) {
-                                            ItemsListPanel listPanel = container.getItemsListPanel();
-                                            listPanel.refreshGrid();
-                                            container.getItemsDetailPanel().closeCurrentTab();
+                                        public void onSuccess(FKIntegrityResult result) {
+                                            switch (result) {
+                                                case FORBIDDEN:
+                                                case FORBIDDEN_OVERRIDE_ALLOWED:
+                                                    MessageBox.alert(MessagesFactory.getMessages().error_title(),
+                                                    MessagesFactory.getMessages().fk_integrity_fail_open_relations(),
+                                                    null);
+                                                    break;
+                                                case ALLOWED:
+                                                    doItemDelete();
+                                                    break;
+                                            }
                                         }
-
                                     });
+
                                 }
                             }
                         });
@@ -248,10 +257,25 @@ public class ItemDetailToolBar extends ToolBar {
         add(deleteButton);
     }
 
+    private void doItemDelete() {
+        service.deleteItemBean(itemBean, new AsyncCallback<ItemResult>() {
+            public void onFailure(Throwable arg0) {
+
+            }
+
+            public void onSuccess(ItemResult arg0) {
+                ItemsListPanel listPanel = container.getItemsListPanel();
+                listPanel.refreshGrid();
+                container.getItemsDetailPanel().closeCurrentTab();
+            }
+
+        });
+    }
+
     private void addDuplicateButton() {
-        deplicateButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.duplicate()));
-        deplicateButton.setToolTip(MessagesFactory.getMessages().deplicate_tip());
-        deplicateButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+        duplicateButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.duplicate()));
+        duplicateButton.setToolTip(MessagesFactory.getMessages().duplicate_tip());
+        duplicateButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
@@ -270,14 +294,14 @@ public class ItemDetailToolBar extends ToolBar {
             }
 
         });
-        add(deplicateButton);
+        add(duplicateButton);
     }
 
     private void addJournalButton() {
-        joumalButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.journal()));
-        joumalButton.setToolTip(MessagesFactory.getMessages().joumal_tip());
+        journalButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.journal()));
+        journalButton.setToolTip(MessagesFactory.getMessages().journal_tip());
 
-        joumalButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+        journalButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
@@ -289,7 +313,7 @@ public class ItemDetailToolBar extends ToolBar {
             }
 
         });
-        add(joumalButton);
+        add(journalButton);
     }
 
     private void addFreshButton() {

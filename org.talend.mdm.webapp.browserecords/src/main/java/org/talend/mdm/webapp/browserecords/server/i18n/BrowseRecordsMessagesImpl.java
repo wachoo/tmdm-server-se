@@ -52,22 +52,22 @@ public class BrowseRecordsMessagesImpl implements BrowseRecordsMessages{
         return null;
     }
 
-    public String deplicate_btn() {
+    public String duplicate_btn() {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public String deplicate_tip() {
+    public String duplicate_tip() {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public String joumal_btn() {
+    public String journal_btn() {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public String joumal_tip() {
+    public String journal_tip() {
         // TODO Auto-generated method stub
         return null;
     }
@@ -609,6 +609,10 @@ public class BrowseRecordsMessagesImpl implements BrowseRecordsMessages{
 
     public String launch_process_tooltip() {
         // TODO Auto-generated method stub
+        return null;
+    }
+
+    public String fk_integrity_fail_open_relations() {
         return null;
     }
 
