@@ -347,7 +347,8 @@ public class ItemsListPanel extends ContentPanel {
     }
 
     public void refreshGrid() {
-        pagingBar.refresh();
+        if(pagingBar != null)
+            pagingBar.refresh();
 
     }
 
