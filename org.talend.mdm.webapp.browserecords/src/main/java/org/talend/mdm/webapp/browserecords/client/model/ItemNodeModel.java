@@ -25,23 +25,37 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
     private Serializable objectValue;
 
     private boolean isKey;
+    
+    private String dynamicLabel;
 
-    public boolean isKey() {
+	public String getDynamicLabel() {
+		return dynamicLabel;
+	}
+
+	public void setDynamicLabel(String dynamicLabel) {
+		this.dynamicLabel = dynamicLabel;
+	}
+
+	public boolean isKey() {
         return isKey;
     }
+	
     public void setKey(boolean isKey) {
         this.isKey = isKey;
     }
+    
     public Serializable getObjectValue() {
         return objectValue;
     }
+    
     public void setObjectValue(Serializable objectValue) {
         this.objectValue = objectValue;
     }
+    
     public ItemNodeModel() {
         set("id", ID++); //$NON-NLS-1$
-
     }
+    
     public ItemNodeModel(String name) {
         set("id", ID++); //$NON-NLS-1$
         set("name", name); //$NON-NLS-1$

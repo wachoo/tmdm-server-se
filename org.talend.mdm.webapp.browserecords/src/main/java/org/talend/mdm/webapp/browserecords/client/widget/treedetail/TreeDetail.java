@@ -9,6 +9,7 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
+import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
@@ -66,7 +67,8 @@ public class TreeDetail extends ContentPanel {
         if (itemBean == null) {
             buildPanel(viewBean);
         } else {
-            this.getItemService().getItemNodeModel(itemBean.getConcept(), viewBean.getBindingEntityModel().getMetaDataTypes(),itemBean.getIds(), new AsyncCallback<ItemNodeModel>() {
+            this.getItemService().getItemNodeModel(itemBean.getConcept(), viewBean.getBindingEntityModel().getMetaDataTypes(),itemBean.getIds(), 
+            		Locale.getLanguage(), new AsyncCallback<ItemNodeModel>() {
 
                 public void onSuccess(ItemNodeModel node) {
                     root = buildGWTTree(node, null);

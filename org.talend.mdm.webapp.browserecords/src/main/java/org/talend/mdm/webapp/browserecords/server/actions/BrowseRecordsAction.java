@@ -68,6 +68,7 @@ import org.talend.mdm.webapp.browserecords.server.bizhelpers.ItemHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.RoleHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
 import org.talend.mdm.webapp.browserecords.server.util.CommonUtil;
+import org.talend.mdm.webapp.browserecords.server.util.DynamicLabelUtil;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
@@ -87,6 +88,7 @@ import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.core.util.XmlUtil;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSBoolean;
 import com.amalto.webapp.util.webservices.WSByteArray;
@@ -1363,7 +1365,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return config.getCluster();
     }
     
-    public ItemNodeModel getItemNodeModel(String concept, Map<String, TypeModel> metaDataTypes,String ids) throws Exception {
+    public ItemNodeModel getItemNodeModel(String concept, Map<String, TypeModel> metaDataTypes,String ids, String language) throws Exception {
         String dataCluster = getCurrentDataCluster();
 
         // get item
@@ -1379,7 +1381,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         Document doc = builder.parse(inputSource);
         Element root = doc.getDocumentElement();
         
-        return builderNode(root,metaDataTypes,""); //$NON-NLS-1$
+        ItemNodeModel itemModel = builderNode(root, metaDataTypes,""); //$NON-NLS-1$
+        DynamicLabelUtil.getDynamicLabel(XmlUtil.parseDocument(doc), itemModel, metaDataTypes, language);
+        
+        return itemModel;
     }
 
     private ItemNodeModel builderNode(Element el,Map<String, TypeModel> metaDataTypes,String xpath){        
@@ -1611,7 +1616,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         String viewPk = "Browse_items_" + concept; //$NON-NLS-1$
         ViewBean viewBean = getView(viewPk, language);
 
-        ItemNodeModel nodeModel = getItemNodeModel(concept, viewBean.getBindingEntityModel().getMetaDataTypes(), ids);
+        ItemNodeModel nodeModel = getItemNodeModel(concept, viewBean.getBindingEntityModel().getMetaDataTypes(), ids, language);
 
         ItemBean itemBean = new ItemBean(concept, ids, null);
         itemBean = getItem(itemBean, viewBean.getBindingEntityModel(), language);

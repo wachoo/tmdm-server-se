@@ -1,6 +1,7 @@
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
@@ -25,8 +26,14 @@ public class TreeDetailUtil {
         // create Field
         String xPath = itemNode.getBindingPath();
         TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(xPath);
+        String dynamicLabel = typeModel.getLabel(Locale.getLanguage());
         HTML label = new HTML();
         String html = itemNode.getDescription();
+        
+        if(LabelUtil.isDynamicLabel(dynamicLabel)) {
+        	html = itemNode.getDynamicLabel();
+        }
+        
         if (itemNode.isKey() || typeModel.getMinOccurs() >= 1)
             html = html + "<span style=\"color:red\"> *</span>"; //$NON-NLS-1$
         label.setHTML(html);
