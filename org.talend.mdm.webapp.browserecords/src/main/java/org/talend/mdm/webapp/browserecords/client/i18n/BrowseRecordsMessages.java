@@ -198,6 +198,8 @@ public interface BrowseRecordsMessages extends Messages {
 
     String check_maxLength();
 
+    String check_pattern(String value, String pattern);
+
     String multiOccurrence_minimize(int value);
 
     String multiOccurrence_maximize(int value);

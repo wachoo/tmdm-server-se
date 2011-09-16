@@ -113,12 +113,14 @@ public class BrowseRecordsView extends View {
         // show breadcrumb
         if (itemsSearchContainer.getRightContainer().getItemCount() > 1)
             itemsSearchContainer.getRightContainer().getItem(0).removeFromParent();
-        List<String> breads = new ArrayList<String>();
-        breads.add(BreadCrumb.DEFAULTNAME);
-        breads.add(item.getConcept());
-        breads.add(item.getIds());
-        itemsSearchContainer.getRightContainer().insert(new BreadCrumb(breads), 0);
-        itemsSearchContainer.getRightContainer().layout(true);
+        if (item != null) {
+            List<String> breads = new ArrayList<String>();
+            breads.add(BreadCrumb.DEFAULTNAME);
+            breads.add(item.getConcept());
+            breads.add(item.getIds());
+            itemsSearchContainer.getRightContainer().insert(new BreadCrumb(breads), 0);
+            itemsSearchContainer.getRightContainer().layout(true);
+        }
     }
 
     private void onSelectForeignKeyView(AppEvent event) {

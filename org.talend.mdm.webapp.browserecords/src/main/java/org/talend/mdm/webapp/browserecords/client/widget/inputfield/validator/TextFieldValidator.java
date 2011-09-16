@@ -1,5 +1,7 @@
 package org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator;
 
+import java.util.regex.Pattern;
+
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.shared.FacetEnum;
 
@@ -11,6 +13,8 @@ public class TextFieldValidator implements Validator {
 
     private static TextFieldValidator instance;
     
+    private static String AUTO_INCREMENT = "(Auto)"; //$NON-NLS-1$
+
     public static TextFieldValidator getInstance(){
         if (instance == null){
             instance = new TextFieldValidator();
@@ -47,6 +51,16 @@ public class TextFieldValidator implements Validator {
             }
         }
         
+        String pattern = field.getData(FacetEnum.PATTERN.getFacetName());
+        if (pattern != null && !pattern.equals("")) { //$NON-NLS-1$
+            if (!AUTO_INCREMENT.equals(value) && !Pattern.compile(pattern).matcher(value).matches()) {
+                succeed = false;
+                defaultMessage += MessagesFactory.getMessages().check_pattern(value, pattern) + "\n";//$NON-NLS-1$
+            }
+        }
+
+        // TODO WhiteSpace
+
         if (!succeed){
             String error = field.getData("facetErrorMsgs");//$NON-NLS-1$
             if (error == null || error.equals("")){//$NON-NLS-1$

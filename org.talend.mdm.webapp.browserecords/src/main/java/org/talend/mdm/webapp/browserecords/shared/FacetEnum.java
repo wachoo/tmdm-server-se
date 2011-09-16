@@ -97,9 +97,11 @@ public enum FacetEnum {
                 NumberField field = (NumberField) w;
                 field.setData(FRACTION_DIGITS.getFacetName(), value);
             } else if (facet.equals(PATTERN.getFacetName())) {
-
+                TextField<String> field = (TextField<String>) w;
+                field.setData(PATTERN.getFacetName(), value);
             } else if (facet.equals(WHTE_SPACE.getFacetName())) {
-
+                TextField<String> field = (TextField<String>) w;
+                field.setData(WHTE_SPACE.getFacetName(), value);
             }
         } catch (ClassCastException e) {
             Log.error(e.getMessage(), e);
