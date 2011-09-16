@@ -38,10 +38,25 @@ public class CommonUtil {
         return doc.toString();
     }
 
+    @SuppressWarnings("unchecked")
     private static Element _toXML(Document doc, ItemNodeModel nodeModel) {
         Element root = doc.createElement(nodeModel.getName());
-        if (nodeModel.getObjectValue() != null && nodeModel.getParent() != null)
-            root.appendChild(doc.createTextNode(nodeModel.getObjectValue().toString()));
+        Serializable value = nodeModel.getObjectValue();
+        if (value != null && nodeModel.getParent() != null) {
+            if (value instanceof ForeignKeyBean)
+                root.appendChild(doc.createTextNode(((ForeignKeyBean) value).getId()));
+            else if (value instanceof List<?>) {// FK list
+                StringBuffer sb = new StringBuffer();
+                for (ForeignKeyBean fkBean : (List<ForeignKeyBean>) value) {
+                    sb.append(fkBean.getId());
+                }
+                root.appendChild(doc.createTextNode(sb.toString()));
+            } else {
+                root.appendChild(doc.createTextNode(value.toString()));
+            }
+
+        }
+
         root.setNodeValue(nodeModel.getValue());
         List<ModelData> children = nodeModel.getChildren();
         if (children != null) {

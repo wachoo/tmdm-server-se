@@ -3,6 +3,7 @@ package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
+import org.talend.mdm.webapp.browserecords.client.widget.ForeignKeyFieldList;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
@@ -40,15 +41,26 @@ public class TreeDetailUtil {
         hp.add(label);
         if (typeModel.isSimpleType()
                 || (!typeModel.isSimpleType() && ((ComplexTypeModel) typeModel).getReusableComplexTypes().size() > 0)) {
-            Field<?> field = TreeDetailGridFieldCreator.createField(itemNode, typeModel, Locale.getLanguage());
-            field.setWidth(260);
-            hp.add(field);
+            // if (typeModel.getName().equals("Family")) {
+            // typeModel.setMaxOccurs(5);
+            // typeModel.setMinOccurs(1);
+            // }
+            if (typeModel.getForeignkey() != null && typeModel.getMaxOccurs() > 1) {// FK list
+                ForeignKeyFieldList fkList = new ForeignKeyFieldList(itemNode, typeModel);
+                fkList.setSize("400px", "200px"); //$NON-NLS-1$ //$NON-NLS-2$
+                hp.add(fkList);
+            } else {
+                Field<?> field = TreeDetailGridFieldCreator.createField(itemNode, typeModel, Locale.getLanguage());
+                field.setWidth(260);
+                hp.add(field);
+            }
 
             Image addNodeImg = new Image("/talendmdm/secure/img/genericUI/add.png"); //$NON-NLS-1$
             addNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
             Image removeNodeImg = new Image("/talendmdm/secure/img/genericUI/delete.png"); //$NON-NLS-1$
             removeNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
-            if ((typeModel.getMinOccurs() >= 1 && typeModel.getMaxOccurs() > typeModel.getMinOccurs())) {
+            if ((typeModel.getMinOccurs() >= 1 && typeModel.getMaxOccurs() > typeModel.getMinOccurs())
+                    && typeModel.getForeignkey() == null) {
                 hp.add(addNodeImg);
                 hp.add(removeNodeImg);
             }

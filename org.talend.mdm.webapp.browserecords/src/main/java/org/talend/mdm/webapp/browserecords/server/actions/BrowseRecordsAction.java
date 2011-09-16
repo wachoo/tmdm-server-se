@@ -1250,6 +1250,23 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return idList.toArray(new String[idList.size()]);
     }
 
+    private static List<String> extractIdToList(String ids) {
+        List<String> idList = new ArrayList<String>();
+        Matcher matcher = extractIdPattern.matcher(ids);
+        boolean hasMatchedOnce = false;
+        while (matcher.find()) {
+            String id = matcher.group();
+            idList.add(id);
+            hasMatchedOnce = true;
+        }
+
+        if (!hasMatchedOnce) {
+            throw new IllegalArgumentException(MESSAGES.getMessage("label_exception_id_malform", ids)); //$NON-NLS-1$
+        }
+
+        return idList;
+    }
+
     /**
      * @param ids Expect a id like "value0.value1.value2"
      * @return Returns an array with ["value0", "value1", "value2"]
@@ -1393,13 +1410,21 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         nodeModel.setDescription(el.getNodeName());        
         nodeModel.setName(el.getNodeName());
         nodeModel.setObjectValue(el.getTextContent());        
-        if (!"".equals(metaDataTypes.get(xpath).getForeignkey()) && metaDataTypes.get(xpath).getForeignkey() != null ) {       //$NON-NLS-1$
+        if (!"".equals(metaDataTypes.get(xpath).getForeignkey()) && metaDataTypes.get(xpath).getForeignkey() != null) { //$NON-NLS-1$
             TypeModel model = metaDataTypes.get(xpath);
             model.setRetrieveFKinfos(true);
-            // ForeignKeyBean foreignKeyBean = new ForeignKeyBean();
-            // foreignKeyBean.setId(el.getTextContent());
-            // foreignKeyBean.setForeignKeyPath(xpath);
-            nodeModel.setObjectValue(getForeignKeyDesc(model, el.getTextContent()));
+            // FK List
+            if (el.getTextContent() != null && !"".equals(el.getTextContent()) && el.getTextContent().lastIndexOf("[") > 1) { //$NON-NLS-1$ //$NON-NLS-2$
+                List<String> fkIds = extractIdToList(el.getTextContent());
+                List<ForeignKeyBean> fkBeans = new ArrayList<ForeignKeyBean>(fkIds.size());
+                for (String id : fkIds) {
+                    fkBeans.add(getForeignKeyDesc(model, id));
+                }
+                nodeModel.setObjectValue((Serializable) fkBeans);
+
+            } else {
+                nodeModel.setObjectValue(getForeignKeyDesc(model, el.getTextContent()));
+            }
         }
         NodeList children = el.getChildNodes();
         if (children != null){

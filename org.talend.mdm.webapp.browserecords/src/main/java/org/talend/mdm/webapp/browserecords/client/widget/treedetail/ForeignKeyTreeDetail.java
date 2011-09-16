@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.talend.mdm.webapp.browserecords.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
+import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
@@ -76,18 +77,8 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         this();
         this.isCreate = isCreate;
         this.viewBean = viewBean;
-        this.toolBar = new ItemDetailToolBar(null, isCreate ? ItemDetailToolBar.CREATE_OPERATION
-                : ItemDetailToolBar.VIEW_OPERATION, true);
-        this.setTopComponent(toolBar);
-        buildPanel(viewBean);
-    }
-
-    public ForeignKeyTreeDetail(ViewBean viewBean, ItemNodeModel model, boolean isCreate) {
-        this();
-        this.isCreate = isCreate;
-        this.model = model;
-        this.viewBean = viewBean;
-        this.toolBar = new ItemDetailToolBar(null, isCreate ? ItemDetailToolBar.CREATE_OPERATION
+        this.toolBar = new ItemDetailToolBar(new ItemBean(viewBean.getBindingEntityModel().getConceptName(), "", ""), //$NON-NLS-1$//$NON-NLS-2$
+                isCreate ? ItemDetailToolBar.CREATE_OPERATION
                 : ItemDetailToolBar.VIEW_OPERATION, true);
         this.setTopComponent(toolBar);
         buildPanel(viewBean);

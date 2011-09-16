@@ -7,9 +7,7 @@ import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
-import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ForeignKeyField;
-import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailGridFieldCreator;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 
@@ -30,18 +28,16 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
-import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Image;
 
 
 
 public class ForeignKeyFieldList extends ContentPanel{
     
-    protected ItemNodeModel itemNode;
+    public ItemNodeModel itemNode;
     
     protected TypeModel typeModel;
     
@@ -102,6 +98,7 @@ public class ForeignKeyFieldList extends ContentPanel{
         pagingBar = new HorizontalPanel();
         this.initPagingBar();
         this.setHeaderVisible(false);
+        this.createWidget();
     }
     
     /**
@@ -265,7 +262,7 @@ public class ForeignKeyFieldList extends ContentPanel{
 //        }        
         
         List<ForeignKeyBean> foreignKeyBeans = (List<ForeignKeyBean>)itemNode.getObjectValue();
-        if (foreignKeyBeans.size() == 0){
+        if (foreignKeyBeans == null || foreignKeyBeans.size() == 0) {
             if (typeModel.getMinOccurs() > 0){
                 addField();
             }            
@@ -392,7 +389,7 @@ public class ForeignKeyFieldList extends ContentPanel{
             foreignKeyField.setReadOnly(false);
             foreignKeyField.setEnabled(true);
             field = foreignKeyField;
-            addForeignKeyFieldListener(field,itemNode,(ForeignKeyBean)value);
+            addForeignKeyFieldListener(field, (ForeignKeyBean) value);
         }
         return field;
     }
@@ -406,19 +403,23 @@ public class ForeignKeyFieldList extends ContentPanel{
         return (this.fields.size()%this.pageSize==0?this.getFieldList().size()/this.pageSize:this.getFieldList().size()/this.pageSize+1);
     }
     
-    private static void addForeignKeyFieldListener(final Field<?> field, final ItemNodeModel itemNode, final ForeignKeyBean foreignKeyBean) {
+    private void addForeignKeyFieldListener(final Field<?> field, final ForeignKeyBean foreignKeyBean) {
         field.addListener(Events.Change, new Listener<FieldEvent>() {
 
-            @SuppressWarnings("rawtypes")
             public void handleEvent(FieldEvent fe) {
+
+                @SuppressWarnings("unchecked")
                 List<ForeignKeyBean> list = (List<ForeignKeyBean>) itemNode.getObjectValue();
+                if (list == null)
+                    list = new ArrayList<ForeignKeyBean>();
+
                 int index = list.indexOf(foreignKeyBean);
-                if (index == -1){
+                if (index == -1) {
                     list.add(foreignKeyBean);
-                }else{
+                } else {
                     list.set(index, (ForeignKeyBean) fe.getValue());
                 }
-                
+
                 System.out.println("###########################################################");
                 for (int i=0;i<list.size();i++){
                     System.out.println(list.get(i));
