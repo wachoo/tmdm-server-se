@@ -317,7 +317,7 @@ public class UploadData extends HttpServlet {
     private void putDocument(String xml) throws ServletException {
         try {
             Util.getPort().putItem(
-                    new WSPutItem(new WSDataClusterPK(this.getCurrentDataModel()), xml.toString(), new WSDataModelPK(this
+                    new WSPutItem(new WSDataClusterPK(this.getCurrentDataCluster()), xml.toString(), new WSDataModelPK(this
                             .getCurrentDataModel()), false));
         } catch (RemoteException e) {
             throw new ServletException(e.getClass().getName() + ": " + e.getLocalizedMessage()); //$NON-NLS-1$
