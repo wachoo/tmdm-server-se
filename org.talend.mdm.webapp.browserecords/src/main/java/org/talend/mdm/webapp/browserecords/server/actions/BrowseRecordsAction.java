@@ -37,6 +37,9 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.EDBType;
@@ -45,6 +48,7 @@ import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsService;
+import org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnElement;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnElementChildren;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
@@ -62,6 +66,7 @@ import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.Restriction;
 import org.talend.mdm.webapp.browserecords.client.model.SearchTemplate;
 import org.talend.mdm.webapp.browserecords.client.model.SubTypeBean;
+import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKRelRecordWindow;
 import org.talend.mdm.webapp.browserecords.server.BrowseRecordsConfiguration;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ItemHelper;
@@ -630,15 +635,33 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     public ItemResult logicalDeleteItem(ItemBean item, String path) {
         try {
             String dataClusterPK = getCurrentDataCluster();
-
             String concept = item.getConcept();
             String[] ids = extractIdWithDots(item.getIds());
-            WSItem item1 = CommonUtil.getPort().getItem(
-                    new WSGetItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
+
+            WSItemPK wsItemPK = new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids);
+
+            WSDeleteItem deleteItem = new WSDeleteItem(wsItemPK);
+            boolean violateFKIntegrity = CommonUtil.getPort().checkFKIntegrity(deleteItem);
+            if (violateFKIntegrity) {
+                String message = MESSAGES.getMessage("fk_integrity_fail_open_relations");
+                MessageBox.alert("", message, new Listener<MessageBoxEvent>() {
+                    public void handleEvent(MessageBoxEvent messageBoxEvent) {
+                        FKRelRecordWindow relWindow = new FKRelRecordWindow();
+                        relWindow.setSize(470, 340);
+                        relWindow.setResizable(false);
+                        relWindow.setModal(true);
+                        relWindow.setBlinkModal(true);
+
+                        relWindow.enable();
+                        relWindow.show();
+                    }
+                });
+            }
+
+            WSItem item1 = CommonUtil.getPort().getItem(new WSGetItem(wsItemPK));
             String xml = item1.getContent();
 
-            WSDroppedItemPK wsItem = CommonUtil.getPort().dropItem(
-                    new WSDropItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids), path));
+            WSDroppedItemPK wsItem = CommonUtil.getPort().dropItem(new WSDropItem(wsItemPK, path));
 
             if (wsItem != null && xml != null)
                 if ("/".equalsIgnoreCase(path)) { //$NON-NLS-1$
