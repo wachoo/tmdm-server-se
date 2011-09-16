@@ -289,4 +289,12 @@ public interface ItemCtrl2
    public java.util.ArrayList getItems( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String conceptName,com.amalto.xmlserver.interfaces.IWhereItem whereItem,int spellThreshold,java.lang.String orderBy,java.lang.String direction,int start,int limit,boolean totalCountOnFirstRow )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
+    /**
+     *
+     * @param dataClusterPK
+     * @param concept
+     * @param ids
+     * @return
+     */
+   public boolean checkFKIntegrity(String dataClusterPK, String concept, String[] ids) throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 }

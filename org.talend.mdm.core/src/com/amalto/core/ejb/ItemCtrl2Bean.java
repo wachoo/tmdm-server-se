@@ -1280,4 +1280,8 @@ public class ItemCtrl2Bean implements SessionBean {
         }
     }
 
+    public boolean checkFKIntegrity(String dataClusterPK, String concept, String[] ids) throws XtentisException {
+        return Util.violateFKIntegrity(dataClusterPK, concept, ids, false);
+    }
+
 }

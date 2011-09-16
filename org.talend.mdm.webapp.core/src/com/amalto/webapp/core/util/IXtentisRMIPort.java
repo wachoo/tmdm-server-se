@@ -2376,6 +2376,19 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         return null;
     }
 
+    public boolean checkFKIntegrity(WSDeleteItem item) throws RemoteException {
+        try {
+            WSItemPK wsItemPK = item.getWsItemPK();
+            String dataClusterName = wsItemPK.getWsDataClusterPK().getPk();
+            String conceptName = wsItemPK.getConceptName();
+            String[] ids = wsItemPK.getIds();
+
+            return Util.getItemCtrl2Local().checkFKIntegrity(dataClusterName, conceptName, ids);
+        } catch (Exception e) {
+            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
+        }
+    }
+
     public WSItemPK putItemByOperatorType(WSPutItemByOperatorType putItemByOperatorType) throws RemoteException {
         // TODO Auto-generated method stub
         return null;

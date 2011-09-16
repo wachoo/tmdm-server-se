@@ -2566,12 +2566,10 @@ public class Util {
     @SuppressWarnings("unchecked")
     public static String beforeDeleting(String clusterName, String concept, String[] ids) throws Exception {
         // TMDM-2348: Check before deletion if it violates fk integrity
-        /*
         boolean override = false;
         if (violateFKIntegrity(clusterName, concept, ids, override)) {
             return "<report><error code='1'>FK integrity check failed!</error></report>"; //$NON-NLS-1$
         }
-        */
 
         // check before deleting transformer
         boolean isBeforeDeletingTransformerExist = false;
@@ -2639,7 +2637,7 @@ public class Util {
     }
 
     // TMDM-2348 FK integrity feature: Check if document is not referenced
-    private static boolean violateFKIntegrity(String clusterName, String concept, String[] ids, boolean override) throws XtentisException {
+    public static boolean violateFKIntegrity(String clusterName, String concept, String[] ids, boolean override) throws XtentisException {
         // Get FK(s) to check
         MetadataRepository mr = new MetadataRepository();
         try {
@@ -2655,11 +2653,13 @@ public class Util {
         for (String id : ids) {
             queryId += '[' + id + ']';
         }
+        LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
+        conceptPatternsToClusterName.put(".*", clusterName);
         for (ReferenceFieldMetadata referenceFieldMetadata : fieldToCheck) {
             boolean allowOverride = referenceFieldMetadata.allowFKIntegrityOverride();
             TypeMetadata currentType = referenceFieldMetadata.getContainingType();
-            IWhereItem whereItem = new WhereCondition(referenceFieldMetadata.getName(), WhereCondition.EQUALS, queryId, WhereCondition.NO_OPERATOR);
-            long count = getXmlServerCtrlLocal().countItems(new LinkedHashMap(), new LinkedHashMap(), currentType.getName(), whereItem);
+            IWhereItem whereItem = new WhereCondition(referenceFieldMetadata.getContainingType().getName() + '/' + referenceFieldMetadata.getName(), WhereCondition.EQUALS, queryId, WhereCondition.NO_OPERATOR);
+            long count = getXmlServerCtrlLocal().countItems(new LinkedHashMap(), conceptPatternsToClusterName, currentType.getName(), whereItem);
 
             if (count > 0 && !allowOverride) {
                 return !override;

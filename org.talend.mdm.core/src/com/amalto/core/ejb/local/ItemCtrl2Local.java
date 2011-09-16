@@ -278,4 +278,5 @@ public interface ItemCtrl2Local
 
    public java.util.ArrayList getItemsByCustomFKFilters( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String conceptName,java.util.ArrayList viewablePaths,java.lang.String injectedXpath,int start,int limit,java.lang.String orderbyPath,java.lang.String direction ) throws com.amalto.core.util.XtentisException;
 
+   public boolean checkFKIntegrity(String dataClusterPK, String concept, String[] ids) throws com.amalto.core.util.XtentisException;
 }
