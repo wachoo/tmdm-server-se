@@ -76,6 +76,8 @@ public class CommonUtil {
             for (int i = 0; i < model.getMaxOccurs() - model.getMinOccurs(); i++) {
                 ItemNodeModel itemNode = new ItemNodeModel();
                 itemNodes.add(itemNode);
+                if (model.getForeignkey() != null)
+                    break;
             }
         } else {
             ItemNodeModel itemNode = new ItemNodeModel();
@@ -112,6 +114,8 @@ public class CommonUtil {
                         foreignKeyBean.setId(""); //$NON-NLS-1$
                         foreignKeyBean.setForeignKeyPath(model.getForeignkey());
                         node.setObjectValue(foreignKeyBean);
+                        if (model.getMaxOccurs() > 1)
+                            node.setObjectValue(new ArrayList<ForeignKeyBean>());
                     } else {
                         node.setObjectValue((Serializable) DataTypeConstants.STRING.getDefaultValue());
                     }
