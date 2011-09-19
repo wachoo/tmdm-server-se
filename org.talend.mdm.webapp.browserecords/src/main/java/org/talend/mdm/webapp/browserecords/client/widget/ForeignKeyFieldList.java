@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Element;
@@ -253,7 +254,8 @@ public class ForeignKeyFieldList extends ContentPanel{
     
     public void createWidget() {  
         
-        verticalPanel = new VerticalPanel();
+        verticalPanel = new VerticalPanel();        
+        verticalPanel.setLayout(new FitLayout());
         pageCount = this.getPageCount();
 //        if (typeModel.isSimpleType()
 //                || (!typeModel.isSimpleType() && ((ComplexTypeModel) typeModel).getReusableComplexTypes().size() > 0)) {
@@ -285,25 +287,27 @@ public class ForeignKeyFieldList extends ContentPanel{
         pageCount = this.getPageCount();  
         pageStartIndex  = (currentPageNumber-1)*pageSize;
         verticalPanel.removeAll();
-        for (int i=pageStartIndex;i<pageStartIndex+pageSize&&i<this.fields.size();i++){
-            HorizontalPanel recordPanel = new HorizontalPanel();
-            // create Field
-            HTML label = new HTML();
-            String html = itemNode.getDescription();
-            if (itemNode.isKey() || typeModel.getMinOccurs() >= 1)
-                html = html + "<span style=\"color:red\"> *</span>"; //$NON-NLS-1$
-            label.setHTML(html);
-            recordPanel.add(label);
-            if (typeModel.isSimpleType()
-                    || (!typeModel.isSimpleType() && ((ComplexTypeModel) typeModel).getReusableComplexTypes().size() > 0)) {
-                Field<?> field = this.getField(i);
-                field.setWidth(260);
-                recordPanel.add(field);               
-      
-                //recordPanel.setCellWidth(label, "200px"); //$NON-NLS-1$
+        if (this.fields.size() > 0){
+            for (int i=pageStartIndex;i<pageStartIndex+pageSize&&i<this.fields.size();i++){
+                HorizontalPanel recordPanel = new HorizontalPanel();                
+                // create Field
+                HTML label = new HTML();
+                String html = itemNode.getDescription();
+                if (itemNode.isKey() || typeModel.getMinOccurs() >= 1)
+                    html = html + "<span style=\"color:red\"> *</span>"; //$NON-NLS-1$
+                label.setHTML(html);
+                recordPanel.add(label);
+                if (typeModel.isSimpleType()
+                        || (!typeModel.isSimpleType() && ((ComplexTypeModel) typeModel).getReusableComplexTypes().size() > 0)) {
+                    Field<?> field = this.getField(i);               
+                    field.setWidth(260);
+                    recordPanel.add(field);               
+          
+                    //recordPanel.setCellWidth(label, "200px"); //$NON-NLS-1$
 
-            }    
-            verticalPanel.add(recordPanel);
+                }    
+                verticalPanel.add(recordPanel);
+            }
         }
         refreshPageButton();      
         refresh();
@@ -342,8 +346,10 @@ public class ForeignKeyFieldList extends ContentPanel{
                 pageButtonList.get(3).setText(String.valueOf(Integer.valueOf(pageNumber)+1));
             }
             pageButtonList.get(4).setText(String.valueOf(this.pageCount));
-        }        
-        pageButtonList.get(pageToggleButtonIndex).toggle(true);       
+        }
+        if (pageToggleButtonIndex >= 0){
+            pageButtonList.get(pageToggleButtonIndex).toggle(true);   
+        }             
     }
     
     private void resetPageButtonList(){
@@ -370,10 +376,10 @@ public class ForeignKeyFieldList extends ContentPanel{
     }
     
     public void addField(){
-        if (this.fields.size() <= typeModel.getMaxOccurs()){
+        if (this.fields.size() < typeModel.getMaxOccurs()){
             this.add(createField(new ForeignKeyBean()));        
             refreshPage(this.getPageCount());
-            this.refresh();
+            this.refresh();   
         }else{
             
         }
@@ -386,10 +392,9 @@ public class ForeignKeyFieldList extends ContentPanel{
         if (typeModel.getForeignkey() != null) {
             ForeignKeyField foreignKeyField = new ForeignKeyField(typeModel.getForeignkey(), typeModel.getForeignKeyInfo(),
                     ForeignKeyFieldList.this);
-            foreignKeyField.setValue((ForeignKeyBean)value);
-            foreignKeyField.setReadOnly(false);
-            foreignKeyField.setEnabled(true);
+            foreignKeyField.setValue((ForeignKeyBean)value);            
             field = foreignKeyField;
+//            ((List<ForeignKeyBean>) itemNode.getObjectValue()).add((ForeignKeyBean)value);
             addForeignKeyFieldListener(field, (ForeignKeyBean) value);
         }
         return field;
@@ -405,21 +410,20 @@ public class ForeignKeyFieldList extends ContentPanel{
     }
     
     private void addForeignKeyFieldListener(final Field<?> field, final ForeignKeyBean foreignKeyBean) {
+        
+        @SuppressWarnings("unchecked")
+        List<ForeignKeyBean> list = (List<ForeignKeyBean>) itemNode.getObjectValue();
+        if (list == null){
+            list = new ArrayList<ForeignKeyBean>();            
+        }
+        list.add(foreignKeyBean);            
+        
         field.addListener(Events.Change, new Listener<FieldEvent>() {
 
             public void handleEvent(FieldEvent fe) {
-
-                @SuppressWarnings("unchecked")
                 List<ForeignKeyBean> list = (List<ForeignKeyBean>) itemNode.getObjectValue();
-                if (list == null)
-                    list = new ArrayList<ForeignKeyBean>();
-
                 int index = list.indexOf(foreignKeyBean);
-                if (index == -1) {
-                    list.add(foreignKeyBean);
-                } else {
-                    list.set(index, (ForeignKeyBean) fe.getValue());
-                }
+                list.set(index, (ForeignKeyBean) fe.getValue());
 
                 System.out.println("###########################################################");
                 for (int i=0;i<list.size();i++){
@@ -455,8 +459,8 @@ public class ForeignKeyFieldList extends ContentPanel{
         List<ForeignKeyBean> fkList = (List<ForeignKeyBean>) this.itemNode.getObjectValue();
         int index = fkList.indexOf(value);
         fkList.remove(index);
-        fields.remove(index);
+        fields.remove(index);    
         refreshPage(this.getPageCount());
-
+    
     }
 }

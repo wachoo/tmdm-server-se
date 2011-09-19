@@ -41,13 +41,13 @@ public class TreeDetailUtil {
         hp.add(label);
         if (typeModel.isSimpleType()
                 || (!typeModel.isSimpleType() && ((ComplexTypeModel) typeModel).getReusableComplexTypes().size() > 0)) {
-            // if (typeModel.getName().equals("Family")) {
-            // typeModel.setMaxOccurs(5);
-            // typeModel.setMinOccurs(1);
-            // }
+             if (typeModel.getName().equals("Family")) {
+             typeModel.setMaxOccurs(15);
+             typeModel.setMinOccurs(1);
+             }
             if (typeModel.getForeignkey() != null && typeModel.getMaxOccurs() > 1) {// FK list
                 ForeignKeyFieldList fkList = new ForeignKeyFieldList(itemNode, typeModel);
-                fkList.setSize("400px", "200px"); //$NON-NLS-1$ //$NON-NLS-2$
+                //fkList.setSize("400px", "200px"); //$NON-NLS-1$ //$NON-NLS-2$
                 hp.add(fkList);
             } else {
                 Field<?> field = TreeDetailGridFieldCreator.createField(itemNode, typeModel, Locale.getLanguage());
