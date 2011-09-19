@@ -57,13 +57,13 @@ public class FKIntegrityChecker {
      * @param clusterName An existing cluster name.
      * @param concept     An existing concept name.
      * @param ids         An instance ID (an array of values in case of composite keys).
-     * @param override    <code>true</code> if user wants to override fk integrity (but {@link #getFKIntegrityPolicy(String, String, String[])}
+     * @param override    <code>true</code> if user wants to override fk integrity (but {@link #getFKIntegrityPolicy(String, String, String, String[])}
      *                    <b>must</b> return {@link FKIntegrityCheckResult#FORBIDDEN_OVERRIDE_ALLOWED} in this case.
      * @return <code>true</code> if user is allowed to delete instance, <code>false</code> otherwise.
      * @throws XtentisException In case of unexpected error.
      */
     public boolean allowDelete(String clusterName, String concept, String[] ids, boolean override) throws XtentisException {
-        FKIntegrityCheckResult policy = getFKIntegrityPolicy(clusterName, concept, ids);
+        FKIntegrityCheckResult policy = getFKIntegrityPolicy(clusterName, concept, concept, ids);
         switch (policy) {
             case FORBIDDEN:
                 return false;
@@ -81,15 +81,17 @@ public class FKIntegrityChecker {
      * Returns what kind of integrity check is allowed when deleting an instance of <code>concept</code> with id <code>ids</code>.
      * </p>
      *
+     *
      * @param clusterName An existing cluster name.
+     * @param dataModel   An existing data model name.
      * @param concept     An existing concept name.
-     * @param ids         An instance ID (an array of values in case of composite keys).
-     * @return A value of {@link FKIntegrityCheckResult} that corresponds to the type of policy that should be enforced.
+     * @param ids         An instance ID (an array of values in case of composite keys).   @return A value of {@link FKIntegrityCheckResult} that corresponds to the type of policy that should be enforced.
      * @throws XtentisException In case of unexpected error during check.
+     * @return A value from {@link FKIntegrityCheckResult}.
      * @see FKIntegrityCheckResult
      */
-    public FKIntegrityCheckResult getFKIntegrityPolicy(String clusterName, String concept, String[] ids) throws XtentisException {
-        Set<ReferenceFieldMetadata> fieldToCheck = getForeignKeyList(concept, clusterName); // TODO Cluster name is not data model name!
+    public FKIntegrityCheckResult getFKIntegrityPolicy(String clusterName, String dataModel, String concept, String[] ids) throws XtentisException {
+        Set<ReferenceFieldMetadata> fieldToCheck = getForeignKeyList(concept, dataModel);
 
         // Query pk where fk could be.
         String queryId = "";

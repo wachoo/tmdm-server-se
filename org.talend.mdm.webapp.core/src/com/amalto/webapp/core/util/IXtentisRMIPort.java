@@ -2383,8 +2383,9 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             String dataClusterName = wsItemPK.getWsDataClusterPK().getPk();
             String conceptName = wsItemPK.getConceptName();
             String[] ids = wsItemPK.getIds();
+            String dataModel = item.getDataModel();
 
-            return Util.getItemCtrl2Local().checkFKIntegrity(dataClusterName, conceptName, ids);
+            return Util.getItemCtrl2Local().checkFKIntegrity(dataClusterName, dataModel, conceptName, ids);
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }

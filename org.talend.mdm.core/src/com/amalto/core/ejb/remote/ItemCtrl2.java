@@ -298,5 +298,5 @@ public interface ItemCtrl2
      * @param ids
      * @return
      */
-   public FKIntegrityCheckResult checkFKIntegrity(String dataClusterPK, String concept, String[] ids) throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+   public FKIntegrityCheckResult checkFKIntegrity(String dataClusterPK, String dataModel, String concept, String[] ids) throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 }

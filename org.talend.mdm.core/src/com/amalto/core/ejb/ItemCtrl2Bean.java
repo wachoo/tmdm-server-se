@@ -1282,8 +1282,8 @@ public class ItemCtrl2Bean implements SessionBean {
         }
     }
 
-    public FKIntegrityCheckResult checkFKIntegrity(String dataClusterPK, String concept, String[] ids) throws XtentisException {
-        return FKIntegrityChecker.getInstance().getFKIntegrityPolicy(dataClusterPK, concept, ids);
+    public FKIntegrityCheckResult checkFKIntegrity(String dataCluster, String dataModel, String concept, String[] ids) throws XtentisException {
+        return FKIntegrityChecker.getInstance().getFKIntegrityPolicy(dataCluster, dataModel, concept, ids);
     }
 
 }
