@@ -56,11 +56,13 @@ public class BrowseRecordsController extends Controller {
         registerEventTypes(BrowseRecordsEvents.UpdatePolymorphism);
     }
 
+    @Override
     public void initialize() {
         service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
         view = new BrowseRecordsView(this);
     }
 
+    @Override
     public void handleEvent(AppEvent event) {
         EventType type = event.getType();
         if (type == BrowseRecordsEvents.Error) {
@@ -97,7 +99,7 @@ public class BrowseRecordsController extends Controller {
                 new AsyncCallback<ItemResult>() {
 
             public void onSuccess(ItemResult arg0) {
-                com.google.gwt.user.client.Window.alert("save successfully"); //$NON-NLS-1$
+                com.google.gwt.user.client.Window.alert("save successfully");
             }
 
             public void onFailure(Throwable caught) {

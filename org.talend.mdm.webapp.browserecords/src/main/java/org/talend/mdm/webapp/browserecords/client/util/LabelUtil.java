@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.util;
 
-
 /**
  * DOC HSHU class global comment. Detailled comment
  */

@@ -14,10 +14,8 @@ package org.talend.mdm.webapp.browserecords.client.util;
 
 import com.google.gwt.user.client.Window.Location;
 
-
 public class Locale {
-    
-    
+
     public static String getLanguage() {
         String lang = Location.getParameter("language"); //$NON-NLS-1$
         lang = lang == null || lang.trim().length() == 0 ? "en" : lang; //$NON-NLS-1$
@@ -50,7 +48,6 @@ public class Locale {
         }
         return errorString;
     }-*/;
-
 
     public static native String getExceptionString(String language, String result)/*-{
         var pattern = "([{]" + language.toUpperCase() + ":" + "(([^{]|[{][^{}]*[}])*)})";

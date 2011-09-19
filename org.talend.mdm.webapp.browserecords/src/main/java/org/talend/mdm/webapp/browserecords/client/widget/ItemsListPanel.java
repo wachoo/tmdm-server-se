@@ -90,7 +90,7 @@ public class ItemsListPanel extends ContentPanel {
                 callback.onSuccess(new BasePagingLoadResult<ItemBean>(new ArrayList<ItemBean>(), 0, 0));
                 return;
             }
-            
+
             service.queryItemBeans(qm, new AsyncCallback<ItemBasePageLoadResult<ItemBean>>() {
 
                 public void onSuccess(ItemBasePageLoadResult<ItemBean> result) {
@@ -99,13 +99,12 @@ public class ItemsListPanel extends ContentPanel {
                 }
 
                 public void onFailure(Throwable caught) {
-                	if(caught.getMessage().contains("SessionTimeOut")) {//$NON-NLS-1$
-                		Window.Location.replace("/talendmdm/secure/");//$NON-NLS-1$
-                	}
-                	else { 
-                		MessageBox.alert(MessagesFactory.getMessages().error_title(), caught.getMessage(), null);
-                	}
-                	
+                    if (caught.getMessage().contains("SessionTimeOut")) {//$NON-NLS-1$
+                        Window.Location.replace("/talendmdm/secure/");//$NON-NLS-1$
+                    } else {
+                        MessageBox.alert(MessagesFactory.getMessages().error_title(), caught.getMessage(), null);
+                    }
+
                     callback.onSuccess(new BasePagingLoadResult<ItemBean>(new ArrayList<ItemBean>(), 0, 0));
                 }
             });
@@ -132,8 +131,6 @@ public class ItemsListPanel extends ContentPanel {
     private ContentPanel panel;
 
     private final static int PAGE_SIZE = 10;
-
-    private int showItemTimesa = 0;
 
     private PagingToolBarEx pagingBar = null;
 
@@ -184,7 +181,6 @@ public class ItemsListPanel extends ContentPanel {
         add(panel);
     }
 
-
     public void updateGrid(CheckBoxSelectionModel<ItemBean> sm, List<ColumnConfig> columnConfigList) {
         // toolBar.searchBut.setEnabled(false);
         if (gridContainer != null && this.findItem(gridContainer.getElement()) != null)
@@ -198,7 +194,7 @@ public class ItemsListPanel extends ContentPanel {
         gridContainer.setHeaderVisible(false);
         int usePageSize = PAGE_SIZE;
         if (StateManager.get().get("grid") != null) //$NON-NLS-1$
-            usePageSize = Integer.valueOf(((Map) StateManager.get().get("grid")).get("limit").toString()); //$NON-NLS-1$ //$NON-NLS-2$
+            usePageSize = Integer.valueOf(((Map<?,?>) StateManager.get().get("grid")).get("limit").toString()); //$NON-NLS-1$ //$NON-NLS-2$
         pagingBar = new PagingToolBarEx(usePageSize);
         pagingBar.setHideMode(HideMode.VISIBILITY);
         pagingBar.getMessages().setDisplayMsg(MessagesFactory.getMessages().page_displaying_records());

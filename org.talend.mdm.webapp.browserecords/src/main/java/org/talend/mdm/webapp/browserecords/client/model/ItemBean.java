@@ -16,7 +16,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
  * DOC HSHU class global comment. Detailled comment
  */
@@ -34,7 +33,7 @@ public class ItemBean extends ItemBaseModel {
     private String itemXml;
 
     private Map<String, ForeignKeyBean> foreignkeyDesc = new HashMap<String, ForeignKeyBean>();
-    
+
     private String description;
 
     private String displayPKInfo;
@@ -92,15 +91,14 @@ public class ItemBean extends ItemBaseModel {
         return pk;
     }
 
-    
-    public void setForeignkeyDesc(String fkValue, ForeignKeyBean desc){
+    public void setForeignkeyDesc(String fkValue, ForeignKeyBean desc) {
         foreignkeyDesc.put(fkValue, desc);
     }
-    
-    public ForeignKeyBean getForeignkeyDesc(String fkValue){
+
+    public ForeignKeyBean getForeignkeyDesc(String fkValue) {
         return foreignkeyDesc.get(fkValue);
     }
-    
+
     public String getDescription() {
         return description;
     }
@@ -121,13 +119,12 @@ public class ItemBean extends ItemBaseModel {
     public String toString() {
         return "ItemBean [concept=" + concept + ", ids=" + ids + ", itemXml=" + itemXml + "]";//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$  
     }
-    
-    
+
     /**
      * DOC HSHU Comment method "copy".
      */
     public void copy(ItemBean itemBean) {
-        //FIXME is this ugly?
+        // FIXME is this ugly?
         setConcept(itemBean.getConcept());
         setIds(itemBean.getIds());
         this.foreignkeyDesc = itemBean.foreignkeyDesc;
@@ -143,12 +140,12 @@ public class ItemBean extends ItemBaseModel {
             return false;
         if (!(obj instanceof ItemBean))
             return false;
-        
+
         ItemBean item = (ItemBean) obj;
-        if (item.ids != null){
+        if (item.ids != null) {
             return item.ids.equals(this.ids);
         }
         return item.ids == this.ids;
-        
+
     }
 }

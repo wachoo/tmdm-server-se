@@ -20,7 +20,6 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Hyperlink;
 
-
 public class BreadCrumb extends Composite {
 
     private HorizontalPanel pWidget = new HorizontalPanel();

@@ -14,43 +14,37 @@ package org.talend.mdm.webapp.browserecords.client.model;
 
 import java.io.Serializable;
 
-
 /**
- * DOC HSHU  class global comment. Detailled comment
+ * DOC HSHU class global comment. Detailled comment
  */
-public class ForeignKeyDrawer implements Serializable{
-    
+public class ForeignKeyDrawer implements Serializable {
+
     private String xpathForeignKey;
-    
+
     private String xpathInfoForeignKey;
-    
+
     private String fkFilter;
 
     public String getXpathForeignKey() {
         return xpathForeignKey;
     }
 
-    
     public void setXpathForeignKey(String xpathForeignKey) {
         this.xpathForeignKey = xpathForeignKey;
     }
 
-    
     public String getXpathInfoForeignKey() {
         return xpathInfoForeignKey;
     }
 
-    
     public void setXpathInfoForeignKey(String xpathInfoForeignKey) {
         this.xpathInfoForeignKey = xpathInfoForeignKey;
     }
 
-    
     public String getFkFilter() {
         return fkFilter;
     }
 
-    
     public void setFkFilter(String fkFilter) {
         this.fkFilter = fkFilter;
     }

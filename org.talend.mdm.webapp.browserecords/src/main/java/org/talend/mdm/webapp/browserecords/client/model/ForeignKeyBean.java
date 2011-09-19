@@ -33,6 +33,7 @@ public class ForeignKeyBean extends ItemBaseModel {
         this.id = id;
     }
 
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         if (this.getProperties().keySet().size() > 1) {
@@ -44,7 +45,7 @@ public class ForeignKeyBean extends ItemBaseModel {
             }
             return sb.toString().substring(0, sb.toString().length() - 1);
         } else {
-            if(displayInfo == null && foreignKeyPath == null)
+            if (displayInfo == null && foreignKeyPath == null)
                 return id;
             else
                 return displayInfo;

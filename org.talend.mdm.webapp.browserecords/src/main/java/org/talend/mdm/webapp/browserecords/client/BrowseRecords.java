@@ -40,6 +40,8 @@ public class BrowseRecords implements EntryPoint {
 
     public static final String USER_SESSION = "UserSession"; //$NON-NLS-1$
 
+    private RootPanel panel;
+
     /**
      * This is the entry point method.
      */
@@ -73,9 +75,6 @@ public class BrowseRecords implements EntryPoint {
             GenerateContainer.getContentPanel().setSize(Window.getClientWidth(), Window.getClientHeight());
             onModuleRender();
         }
-
-
-
 
     }
 
@@ -150,7 +149,6 @@ public class BrowseRecords implements EntryPoint {
         return panel;
     }-*/;
 
-    RootPanel panel;
     public void renderContent(final String contentId) {
         panel = RootPanel.get(contentId);
         onModuleRender();

@@ -88,22 +88,19 @@ public class SaveRowEditor extends RowEditor<ItemBean> {
                         }
                         // TODO refreshForm(itemBean);
                         MessageBox.alert(MessagesFactory.getMessages().info_title(),
- Locale.getExceptionMessageByLanguage(Locale
-                                .getLanguage(), arg0.getDescription()), null);
+                                Locale.getExceptionMessageByLanguage(Locale.getLanguage(), arg0.getDescription()), null);
                     } else if (arg0.getStatus() == ItemResult.FAILURE) {
                         if (record != null) {
                             record.reject(false);
                         }
                         String str = arg0.getDescription().replaceAll("\\[", "{").replaceAll("\\]", "}"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                         MessageBox.alert(MessagesFactory.getMessages().error_title(),
- Locale.getExceptionString(Locale
-                                .getLanguage(), str), null);
+                                Locale.getExceptionString(Locale.getLanguage(), str), null);
                     }
                 }
             });
         }
     }
-
 
     private void createElements(String xpath, String value, Map<String, Element> elementSet, Document doc) {
         Element parent = null;

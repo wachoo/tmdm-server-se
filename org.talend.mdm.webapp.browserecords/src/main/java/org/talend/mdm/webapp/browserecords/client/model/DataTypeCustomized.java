@@ -29,7 +29,7 @@ public class DataTypeCustomized implements DataType {
         super();
     }
 
-    public DataTypeCustomized(String typeName,String baseTypeName) {
+    public DataTypeCustomized(String typeName, String baseTypeName) {
         this.typeName = typeName;
         this.baseTypeName = baseTypeName;
     }

@@ -14,16 +14,15 @@ package org.talend.mdm.webapp.browserecords.client.model;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-
 /**
- * DOC HSHU  class global comment. Detailled comment
+ * DOC HSHU class global comment. Detailled comment
  */
-public interface DataType extends IsSerializable{
-    
+public interface DataType extends IsSerializable {
+
     String getTypeName();
-    
+
     Object getDefaultValue();
-    
+
     String getBaseTypeName();
 
 }

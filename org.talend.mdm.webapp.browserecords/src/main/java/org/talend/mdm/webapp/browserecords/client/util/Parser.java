@@ -39,12 +39,12 @@ public class Parser implements Serializable, IsSerializable {
     protected static Criteria parse(String input, int beginIndex, int endIndex) throws ParserException {
         char firstChar = input.charAt(beginIndex);
         switch (firstChar) {
-            case ' ':
-                throw new ParserException(MessagesFactory.getMessages().exception_parse_illegalChar(beginIndex));
-            case BEGIN_BLOCK:
-                return parseGroupFilter(input, beginIndex, endIndex);
-            default:
-                return parseSimpleFilter(input, beginIndex, endIndex);
+        case ' ':
+            throw new ParserException(MessagesFactory.getMessages().exception_parse_illegalChar(beginIndex));
+        case BEGIN_BLOCK:
+            return parseGroupFilter(input, beginIndex, endIndex);
+        default:
+            return parseSimpleFilter(input, beginIndex, endIndex);
         }
     }
 
@@ -111,7 +111,7 @@ public class Parser implements Serializable, IsSerializable {
         String realOp = getOperator(value);
         if (realOp != null) {
             String[] split = value.split(realOp);
-            String criteriaValue = split[1].trim().replace("\\(", "(").replace("\\)", ")");
+            String criteriaValue = split[1].trim().replace("\\(", "(").replace("\\)", ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             return new SimpleCriterion(split[0].trim(), realOp, criteriaValue);
         }
         throw new ParserException(MessagesFactory.getMessages().exception_parse_unknownOperator(value));
@@ -177,23 +177,23 @@ public class Parser implements Serializable, IsSerializable {
         for (i = beginBlockIndex; i < input.length(); i++) {
             char currentCharacter = chars[i];
             switch (currentCharacter) {
-                case '(':
-                    if (isEscaping) {
-                        isEscaping = false;
-                    } else {
-                        startedExpressionCount++;
-                    }
-                    break;
-                case ')':
-                    if (isEscaping) {
-                        isEscaping = false;
-                    } else {
-                        startedExpressionCount--;
-                    }
-                    break;
-                case '\\':
-                    isEscaping = true;
-                    break;
+            case '(':
+                if (isEscaping) {
+                    isEscaping = false;
+                } else {
+                    startedExpressionCount++;
+                }
+                break;
+            case ')':
+                if (isEscaping) {
+                    isEscaping = false;
+                } else {
+                    startedExpressionCount--;
+                }
+                break;
+            case '\\':
+                isEscaping = true;
+                break;
             }
 
             if (startedExpressionCount == 0) {

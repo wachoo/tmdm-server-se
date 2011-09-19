@@ -14,26 +14,24 @@ package org.talend.mdm.webapp.browserecords.client.util;
 
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 
-
 /**
- * DOC HSHU  class global comment. Detailled comment
+ * DOC HSHU class global comment. Detailled comment
  */
 public class ViewUtil {
-    
+
     public static String getConceptFromBrowseItemView(String viewPK) {
         String concept = viewPK.replaceAll("Browse_items_", "");//$NON-NLS-1$ //$NON-NLS-2$
         concept = concept.replaceAll("#.*", "");//$NON-NLS-1$ //$NON-NLS-2$
         return concept;
     }
-    
-    
+
     /**
      * DOC HSHU Comment method "getSearchableLabel".
      */
     public static String getViewableLabel(String language, TypeModel typeModel) {
-        
+
         String label = typeModel.getLabel(language);
-        if(LabelUtil.isDynamicLabel(label)) {
+        if (LabelUtil.isDynamicLabel(label)) {
             label = typeModel.getName();
         }
         return label;

@@ -52,7 +52,7 @@ public class ItemsSearchContainer extends LayoutContainer {
 
         // add(toolbar.getAdvancedPanel(), northData);
 
-         itemsListPanel = new ItemsListPanel(toolbar);
+        itemsListPanel = new ItemsListPanel(toolbar);
         // itemsListPanel.layoutGrid();
         BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 400);
         westData.setSplit(true);
