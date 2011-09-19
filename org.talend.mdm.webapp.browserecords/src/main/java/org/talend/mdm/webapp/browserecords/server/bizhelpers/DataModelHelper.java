@@ -80,7 +80,7 @@ public class DataModelHelper {
         // analyst model
         XSElementDecl eleDecl = getBusinessConcept(model, concept);
         if (eleDecl != null) {
-            travelXSElement(eleDecl, eleDecl.getName(), entityModel, null, roles);
+            travelXSElement(eleDecl, eleDecl.getName(), entityModel, null, roles, 0, 0);
         }
     }
 
@@ -134,7 +134,7 @@ public class DataModelHelper {
      * @param currentXPath
      */
     public static void travelXSElement(XSElementDecl e, String currentXPath, EntityModel entityModel,
-            ComplexTypeModel parentTypeModel, List<String> roles) {
+            ComplexTypeModel parentTypeModel, List<String> roles, int minOccurs, int maxOccurs) {
         if (e != null) {
 
             TypeModel typeModel = null;
@@ -143,8 +143,11 @@ public class DataModelHelper {
             typeModel = parseElement(currentXPath, e, typeModel, entityModel, roles);
 
             // parse annotation
-            if (typeModel != null)
+            if (typeModel != null) {
                 parseAnnotation(currentXPath, e, typeModel, roles);
+                typeModel.setMinOccurs(minOccurs);
+                typeModel.setMaxOccurs(maxOccurs);
+            }
 
             // set parent typeModel
             if (parentTypeModel != null)
@@ -176,14 +179,12 @@ public class DataModelHelper {
 
     private static TypeModel parseElement(String currentXPath, XSElementDecl e, TypeModel typeModel, EntityModel entityModel,
             List<String> roles) {
-        XSParticle currentXsp = null;
         String typeName = e.getType().getName();
         String baseTypeName;
 
         if (e.getType().isComplexType()) {
             baseTypeName = e.getType().getBaseType().getName();
             typeModel = new ComplexTypeModel(e.getName(), DataTypeCreator.getDataType(typeName, baseTypeName));
-            currentXsp = e.getType().asComplexType().getContentType().asParticle();
 
             // go for polymiorphism
             List<ReusableType> subTypes = null;
@@ -245,7 +246,6 @@ public class DataModelHelper {
         } else if (e.getType().isSimpleType()) {
             baseTypeName = getBuiltinPrimitiveType(e.getType()).getName();
             typeModel = new SimpleTypeModel(e.getName(), DataTypeCreator.getDataType(typeName, baseTypeName));
-            currentXsp = e.getType().asSimpleType().asParticle();
 
             // enumeration&&facet
             XSRestrictionSimpleType restirctionType = e.getType().asSimpleType().asRestriction();
@@ -271,10 +271,6 @@ public class DataModelHelper {
         }
         if (typeModel != null) {
             typeModel.setXpath(currentXPath);
-            if (currentXsp != null) {
-                typeModel.setMinOccurs(currentXsp.getMinOccurs());
-                typeModel.setMaxOccurs(currentXsp.getMaxOccurs());
-            }
             typeModel.setNillable(e.isNillable());
         }
         return typeModel;
@@ -308,7 +304,9 @@ public class DataModelHelper {
             }
         } else if (xsParticle.getTerm().asElementDecl() != null) {
             XSElementDecl subElement = xsParticle.getTerm().asElementDecl();
-            travelXSElement(subElement, currentXPath + "/" + subElement.getName(), entityModel, parentTypeModel, roles);//$NON-NLS-1$
+            travelXSElement(
+                    subElement,
+                    currentXPath + "/" + subElement.getName(), entityModel, parentTypeModel, roles, xsParticle.getMinOccurs(), xsParticle.getMaxOccurs());//$NON-NLS-1$
         }
     }
 
