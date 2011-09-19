@@ -37,6 +37,7 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import com.amalto.core.integrity.FKIntegrityCheckResult;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.EDBType;
@@ -214,6 +215,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     public FKIntegrityResult checkFKIntegrity(List<ItemBean> selectedItems) {
+        FKIntegrityResult checkResult = FKIntegrityResult.FORBIDDEN;
+
         try {
             for (ItemBean selectedItem : selectedItems) {
                 String concept = selectedItem.getConcept();
@@ -221,17 +224,25 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
                 WSItemPK wsItemPK = new WSItemPK(new WSDataClusterPK(getCurrentDataCluster()), concept, ids);
                 WSDeleteItem deleteItem = new WSDeleteItem(wsItemPK);
-                boolean violateFKIntegrity = CommonUtil.getPort().checkFKIntegrity(deleteItem);
 
-                if (violateFKIntegrity) {
-                    return FKIntegrityResult.FORBIDDEN;
+                switch (CommonUtil.getPort().checkFKIntegrity(deleteItem)) {
+                    case FORBIDDEN:
+                        return FKIntegrityResult.FORBIDDEN; // At least one is forbidden, so forbid all deletes.
+                    case FORBIDDEN_OVERRIDE_ALLOWED:
+                        checkResult = FKIntegrityResult.FORBIDDEN_OVERRIDE_ALLOWED;
+                    case ALLOWED:
+                        if (checkResult != FKIntegrityResult.FORBIDDEN_OVERRIDE_ALLOWED) {
+                            checkResult = FKIntegrityResult.ALLOWED; // Allow only if "forbidden override" isn't last result.
+                        }
+                    default:
+                        throw new XtentisWebappException("Unsupported value '" + checkResult + "'");
                 }
             }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
 
-        return FKIntegrityResult.ALLOWED;
+        return checkResult;
     }
 
     public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,
