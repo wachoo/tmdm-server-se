@@ -13,7 +13,6 @@
 package org.talend.mdm.webapp.browserecords.client;
 
 import java.util.List;
-import java.util.Map;
 
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
@@ -88,7 +87,7 @@ public interface BrowseRecordsServiceAsync {
 
     void saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString, AsyncCallback<String> callback);
    
-    void getItemNodeModel(String concept, Map<String, TypeModel> metaDataTypes, String ids, String language, AsyncCallback<ItemNodeModel> callback);
+    void getItemNodeModel(String concept, EntityModel entity, String ids, String language, AsyncCallback<ItemNodeModel> callback);
 
     void getMandatoryFieldList(String tableName, AsyncCallback<List<String>> callback);
 

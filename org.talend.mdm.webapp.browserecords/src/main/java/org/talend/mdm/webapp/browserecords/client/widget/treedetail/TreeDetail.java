@@ -67,13 +67,13 @@ public class TreeDetail extends ContentPanel {
         if (itemBean == null) {
             buildPanel(viewBean);
         } else {
-            this.getItemService().getItemNodeModel(itemBean.getConcept(), viewBean.getBindingEntityModel().getMetaDataTypes(),itemBean.getIds(), 
+            this.getItemService().getItemNodeModel(itemBean.getConcept(), viewBean.getBindingEntityModel(), itemBean.getIds(),
             		Locale.getLanguage(), new AsyncCallback<ItemNodeModel>() {
 
-                public void onSuccess(ItemNodeModel node) {
-                    root = buildGWTTree(node, null);
+                        public void onSuccess(ItemNodeModel node) {
+                            root = buildGWTTree(node, null);
                             root.setState(true);
-                    tree.addItem(root);
+                            tree.addItem(root);
                 }
 
                 public void onFailure(Throwable arg0) {

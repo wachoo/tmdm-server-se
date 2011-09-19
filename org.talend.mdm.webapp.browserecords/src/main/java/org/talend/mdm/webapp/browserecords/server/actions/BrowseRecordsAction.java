@@ -1403,7 +1403,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return config.getCluster();
     }
     
-    public ItemNodeModel getItemNodeModel(String concept, Map<String, TypeModel> metaDataTypes,String ids, String language) throws Exception {
+    public ItemNodeModel getItemNodeModel(String concept, EntityModel entity, String ids, String language) throws Exception {
         String dataCluster = getCurrentDataCluster();
 
         // get item
@@ -1419,13 +1419,15 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         Document doc = builder.parse(inputSource);
         Element root = doc.getDocumentElement();
         
-        ItemNodeModel itemModel = builderNode(root, metaDataTypes,""); //$NON-NLS-1$
+        Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
+        ItemNodeModel itemModel = builderNode(root, entity, ""); //$NON-NLS-1$
         DynamicLabelUtil.getDynamicLabel(XmlUtil.parseDocument(doc), itemModel, metaDataTypes, language);
         
         return itemModel;
     }
 
-    private ItemNodeModel builderNode(Element el,Map<String, TypeModel> metaDataTypes,String xpath){        
+    private ItemNodeModel builderNode(Element el, EntityModel entity, String xpath) {
+        Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
         xpath += (xpath == "" ? el.getNodeName():"/" + el.getNodeName());      //$NON-NLS-1$//$NON-NLS-2$        
         ItemNodeModel nodeModel = new ItemNodeModel(el.getNodeName());
         nodeModel.setDescription(el.getNodeName());        
@@ -1452,10 +1454,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             for (int i = 0;i < children.getLength();i++){
                 Node child = children.item(i);
                 if (child.getNodeType() == Node.ELEMENT_NODE){
-                    ItemNodeModel childNode = builderNode((Element) child,metaDataTypes,xpath);
+                    ItemNodeModel childNode = builderNode((Element) child, entity, xpath);
                     nodeModel.add(childNode);
                 }
             }
+        }
+        for (String key : entity.getKeys()) {
+            if (key.equals(xpath))
+                nodeModel.setKey(true);
         }
         return nodeModel;
         
@@ -1662,7 +1668,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         String viewPk = "Browse_items_" + concept; //$NON-NLS-1$
         ViewBean viewBean = getView(viewPk, language);
 
-        ItemNodeModel nodeModel = getItemNodeModel(concept, viewBean.getBindingEntityModel().getMetaDataTypes(), ids, language);
+        ItemNodeModel nodeModel = getItemNodeModel(concept, viewBean.getBindingEntityModel(), ids, language);
 
         ItemBean itemBean = new ItemBean(concept, ids, null);
         itemBean = getItem(itemBean, viewBean.getBindingEntityModel(), language);
