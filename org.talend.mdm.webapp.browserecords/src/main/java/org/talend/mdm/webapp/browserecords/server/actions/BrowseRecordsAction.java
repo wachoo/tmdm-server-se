@@ -222,7 +222,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 String[] ids = extractIdWithDots(selectedItem.getIds());
 
                 WSItemPK wsItemPK = new WSItemPK(new WSDataClusterPK(getCurrentDataCluster()), concept, ids);
-                WSDeleteItem deleteItem = new WSDeleteItem(wsItemPK);
+                WSDeleteItem deleteItem = new WSDeleteItem(wsItemPK, getCurrentDataModel());
 
                 switch (CommonUtil.getPort().checkFKIntegrity(deleteItem)) {
                     case FORBIDDEN:

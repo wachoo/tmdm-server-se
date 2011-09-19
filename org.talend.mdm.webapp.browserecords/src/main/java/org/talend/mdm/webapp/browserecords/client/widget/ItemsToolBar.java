@@ -21,17 +21,14 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.creator.ItemCreator;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.browserecords.client.model.ItemBaseModel;
-import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
-import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
-import org.talend.mdm.webapp.browserecords.client.model.MultipleCriteria;
-import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
-import org.talend.mdm.webapp.browserecords.client.model.SimpleCriterion;
+import org.talend.mdm.webapp.browserecords.client.model.*;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
+import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKRelRecordWindow;
+import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
 import org.talend.mdm.webapp.browserecords.client.widget.SearchPanel.AdvancedSearchPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.SearchPanel.SimpleCriterionPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
@@ -120,7 +117,7 @@ public class ItemsToolBar extends ToolBar {
 
     private Button createBtn = new Button(MessagesFactory.getMessages().create_btn());
 
-    private Button menu = new Button(MessagesFactory.getMessages().delete_btn());
+    private Button deleteMenu = new Button(MessagesFactory.getMessages().delete_btn());
 
     private Button uploadBtn = new Button(MessagesFactory.getMessages().itemsBrowser_Import_Export());
 
@@ -148,6 +145,8 @@ public class ItemsToolBar extends ToolBar {
 
     private ItemPanel itemPanel;
 
+    private FKRelRecordWindow relWindow = new FKRelRecordWindow();
+
     /*************************************/
 
     public ItemsToolBar() {
@@ -155,6 +154,8 @@ public class ItemsToolBar extends ToolBar {
         userCluster = BrowseRecords.getSession().getAppHeader().getDatacluster();
         this.setBorders(false);
         initToolBar();
+
+        relWindow.setHeading(MessagesFactory.getMessages().fk_RelatedRecord());
     }
 
     public void setQueryModel(QueryModel qm) {
@@ -195,7 +196,7 @@ public class ItemsToolBar extends ToolBar {
         bookmarkBtn.setEnabled(true);
 
         createBtn.setEnabled(false);
-        menu.setEnabled(false);
+        deleteMenu.setEnabled(false);
         String concept = ViewUtil.getConceptFromBrowseItemView(entityCombo.getValue().get("value").toString());//$NON-NLS-1$
         if (!viewBean.getBindingEntityModel().getMetaDataTypes().get(concept).isDenyCreatable())
             createBtn.setEnabled(true);
@@ -203,17 +204,17 @@ public class ItemsToolBar extends ToolBar {
         boolean denyPhysicalDelete = viewBean.getBindingEntityModel().getMetaDataTypes().get(concept).isDenyPhysicalDeleteable();
 
         if (denyLogicalDelete && denyPhysicalDelete)
-            menu.setEnabled(false);
+            deleteMenu.setEnabled(false);
         else {
-            menu.setEnabled(true);
+            deleteMenu.setEnabled(true);
             if (denyPhysicalDelete)
-                menu.getMenu().getItemByItemId("physicalDelMenuInGrid").setEnabled(false); //$NON-NLS-1$
+                deleteMenu.getMenu().getItemByItemId("physicalDelMenuInGrid").setEnabled(false); //$NON-NLS-1$
             else
-                menu.getMenu().getItemByItemId("physicalDelMenuInGrid").setEnabled(true); //$NON-NLS-1$
+                deleteMenu.getMenu().getItemByItemId("physicalDelMenuInGrid").setEnabled(true); //$NON-NLS-1$
             if (denyLogicalDelete)
-                menu.getMenu().getItemByItemId("logicalDelMenuInGrid").setEnabled(false); //$NON-NLS-1$
+                deleteMenu.getMenu().getItemByItemId("logicalDelMenuInGrid").setEnabled(false); //$NON-NLS-1$
             else
-                menu.getMenu().getItemByItemId("logicalDelMenuInGrid").setEnabled(true); //$NON-NLS-1$
+                deleteMenu.getMenu().getItemByItemId("logicalDelMenuInGrid").setEnabled(true); //$NON-NLS-1$
         }
 
         uploadBtn.setEnabled(false);
@@ -279,7 +280,7 @@ public class ItemsToolBar extends ToolBar {
 
         });
 
-        menu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
+        deleteMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
         Menu sub = new Menu();
         MenuItem delMenu = new MenuItem(MessagesFactory.getMessages().delete_btn());
         delMenu.setId("physicalDelMenuInGrid");//$NON-NLS-1$
@@ -317,26 +318,38 @@ public class ItemsToolBar extends ToolBar {
                         if (be.getButtonClicked().getItemId().equals(Dialog.OK)) {
                             final ItemsListPanel list = container.getItemsListPanel();
                             if (list.getGrid() != null) {
-                                service.logicalDeleteItems(list.getGrid().getSelectionModel().getSelectedItems(), "/", //$NON-NLS-1$
-                                        new AsyncCallback<List<ItemResult>>() {
+                                service.checkFKIntegrity(list.getGrid().getSelectionModel().getSelectedItems(), new AsyncCallback<FKIntegrityResult>() {
+                                    public void onFailure(Throwable caught) {
+                                        Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
+                                    }
 
-                                            public void onFailure(Throwable caught) {
-                                                Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
-                                            }
-
-                                            public void onSuccess(List<ItemResult> results) {
-                                                for (ItemResult result : results) {
-                                                    if (result.getStatus() == ItemResult.FAILURE) {
-                                                        MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                                                result.getDescription(), null);
-                                                        return;
-                                                    }
-                                                }
-                                                list.getStore().getLoader().load();
-                                            }
-
-                                        });
-
+                                    public void onSuccess(FKIntegrityResult result) {
+                                        switch (result) {
+                                            case FORBIDDEN_OVERRIDE_ALLOWED:
+                                            case FORBIDDEN:
+                                                MessageBox.confirm(MessagesFactory.getMessages().error_title(),
+                                                        MessagesFactory.getMessages().fk_integrity_fail_open_relations(),
+                                                        new Listener<MessageBoxEvent>() {
+                                                            public void handleEvent(MessageBoxEvent be) {
+                                                                if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+                                                                    // TODO How does FKRelRecordWindow exactly work?
+                                                                    relWindow.setFkKey("");
+                                                                    relWindow.setReturnCriteriaFK(new ReturnCriteriaFK() {
+                                                                        public void setCriteriaFK(ForeignKeyBean fk) {
+                                                                            // Do nothing
+                                                                        }
+                                                                    });
+                                                                    relWindow.show();
+                                                                }
+                                                            }
+                                                        });
+                                                break;
+                                            case ALLOWED:
+                                                doLogicalDelete(list);
+                                                break;
+                                        }
+                                    }
+                                });
                             }
                         }
                     }
@@ -348,9 +361,9 @@ public class ItemsToolBar extends ToolBar {
         sub.add(trashMenu);
         sub.add(delMenu);
 
-        menu.setMenu(sub);
-        menu.setEnabled(false);
-        add(menu);
+        deleteMenu.setMenu(sub);
+        deleteMenu.setEnabled(false);
+        add(deleteMenu);
 
         uploadBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
         uploadBtn.setId("uploadMenuInGrid"); //$NON-NLS-1$
@@ -799,6 +812,28 @@ public class ItemsToolBar extends ToolBar {
         initAdvancedPanel();
     }
 
+    private void doLogicalDelete(final ItemsListPanel list) {
+        service.logicalDeleteItems(list.getGrid().getSelectionModel().getSelectedItems(), "/", //$NON-NLS-1$
+                new AsyncCallback<List<ItemResult>>() {
+
+                    public void onFailure(Throwable caught) {
+                        Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
+                    }
+
+                    public void onSuccess(List<ItemResult> results) {
+                        for (ItemResult result : results) {
+                            if (result.getStatus() == ItemResult.FAILURE) {
+                                MessageBox.alert(MessagesFactory.getMessages().error_title(),
+                                        result.getDescription(), null);
+                                return;
+                            }
+                        }
+                        list.getStore().getLoader().load();
+                    }
+
+                });
+    }
+
     private void updateUserCriteriasList() {
         service.getUserCriterias(entityCombo.getValue().get("value").toString(), //$NON-NLS-1$
                 new AsyncCallback<List<ItemBaseModel>>() {
@@ -1107,16 +1142,13 @@ public class ItemsToolBar extends ToolBar {
         return this.itemPanel;
     }
 
-    private static class DeleteItemsBoxListener implements Listener<MessageBoxEvent> {
-
-        private final ItemsSearchContainer container;
+    private class DeleteItemsBoxListener implements Listener<MessageBoxEvent> {
 
         private final ItemsListPanel list ;
 
         private final BrowseRecordsServiceAsync service;
 
         private DeleteItemsBoxListener(ItemsSearchContainer container, BrowseRecordsServiceAsync service) {
-            this.container = container;
             this.service = service;
             this.list = container.getItemsListPanel();
         }
@@ -1133,11 +1165,23 @@ public class ItemsToolBar extends ToolBar {
 
                                 public void onSuccess(FKIntegrityResult results) {
                                     switch (results) {
-                                        case FORBIDDEN:
                                         case FORBIDDEN_OVERRIDE_ALLOWED:
-                                            MessageBox.alert(MessagesFactory.getMessages().error_title(),
+                                        case FORBIDDEN:
+                                            MessageBox.confirm(MessagesFactory.getMessages().error_title(),
                                                     MessagesFactory.getMessages().fk_integrity_fail_open_relations(),
-                                                    null);
+                                                    new Listener<MessageBoxEvent>() {
+                                                        public void handleEvent(MessageBoxEvent be) {
+                                                            if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+                                                                relWindow.setFkKey("");
+                                                                relWindow.setReturnCriteriaFK(new ReturnCriteriaFK() {
+                                                                    public void setCriteriaFK(ForeignKeyBean fk) {
+                                                                        // Do nothing
+                                                                    }
+                                                                });
+                                                                relWindow.show();
+                                                            }
+                                                        }
+                                                    });
                                             break;
                                         case ALLOWED:
                                             doItemsDelete();

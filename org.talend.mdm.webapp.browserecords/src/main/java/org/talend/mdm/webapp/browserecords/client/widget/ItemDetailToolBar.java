@@ -7,13 +7,12 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.browserecords.client.model.ItemBaseModel;
-import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
-import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
-import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
+import org.talend.mdm.webapp.browserecords.client.model.*;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
+import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKRelRecordWindow;
+import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTreeDetail;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -82,7 +81,9 @@ public class ItemDetailToolBar extends ToolBar {
     private ItemsSearchContainer container = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
     
     private ItemBaseModel selectItem;
-    
+
+    private FKRelRecordWindow relWindow = new FKRelRecordWindow();
+
     public ItemDetailToolBar() {
         this.setBorders(false);
     }
@@ -125,6 +126,8 @@ public class ItemDetailToolBar extends ToolBar {
             this.addSaveQuitButton();
             this.addWorkFlosCombo();
         }
+
+        relWindow.setHeading(MessagesFactory.getMessages().fk_RelatedRecord());
     }
 
     private void addSaveButton() {
@@ -194,17 +197,37 @@ public class ItemDetailToolBar extends ToolBar {
                 box.addCallback(new Listener<MessageBoxEvent>() {
 
                     public void handleEvent(MessageBoxEvent be) {
-                        String url = be.getValue();
-                        service.logicalDeleteItem(itemBean, url, new AsyncCallback<ItemResult>() {
-
-                            public void onSuccess(ItemResult arg0) {
-                                ItemsListPanel listPanel = container.getItemsListPanel();
-                                listPanel.refreshGrid();
-                                container.getItemsDetailPanel().closeCurrentTab();
+                        final String url = be.getValue();
+                        service.checkFKIntegrity(Collections.singletonList(itemBean), new AsyncCallback<FKIntegrityResult>() {
+                            public void onFailure(Throwable caught) {
+                                Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
                             }
 
-                            public void onFailure(Throwable arg0) {
-
+                            public void onSuccess(FKIntegrityResult result) {
+                                switch (result) {
+                                    case FORBIDDEN_OVERRIDE_ALLOWED:
+                                    case FORBIDDEN:
+                                        MessageBox.confirm(MessagesFactory.getMessages().error_title(),
+                                                MessagesFactory.getMessages().fk_integrity_fail_open_relations(),
+                                                new Listener<MessageBoxEvent>() {
+                                                    public void handleEvent(MessageBoxEvent be) {
+                                                        if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+                                                            // TODO How FKRelRecordWindow exactly work?
+                                                            relWindow.setFkKey("");
+                                                            relWindow.setReturnCriteriaFK(new ReturnCriteriaFK() {
+                                                                public void setCriteriaFK(ForeignKeyBean fk) {
+                                                                    // Do nothing
+                                                                }
+                                                            });
+                                                            relWindow.show();
+                                                        }
+                                                    }
+                                                });
+                                        break;
+                                    case ALLOWED:
+                                        doLogicalDelete(url);
+                                        break;
+                                }
                             }
                         });
                     }
@@ -227,16 +250,29 @@ public class ItemDetailToolBar extends ToolBar {
                                 if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
                                     service.checkFKIntegrity(Collections.singletonList(itemBean), new AsyncCallback<FKIntegrityResult>() {
                                         public void onFailure(Throwable caught) {
-                                            // TODO
+                                            Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
                                         }
 
                                         public void onSuccess(FKIntegrityResult result) {
                                             switch (result) {
-                                                case FORBIDDEN:
                                                 case FORBIDDEN_OVERRIDE_ALLOWED:
-                                                    MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                                    MessagesFactory.getMessages().fk_integrity_fail_open_relations(),
-                                                    null);
+                                                case FORBIDDEN:
+                                                    MessageBox.confirm(MessagesFactory.getMessages().error_title(),
+                                                            MessagesFactory.getMessages().fk_integrity_fail_open_relations(),
+                                                            new Listener<MessageBoxEvent>() {
+                                                                public void handleEvent(MessageBoxEvent be) {
+                                                                    if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+                                                                        // TODO How does FKRelRecordWindow exactly work?
+                                                                        relWindow.setFkKey("");
+                                                                        relWindow.setReturnCriteriaFK(new ReturnCriteriaFK() {
+                                                                            public void setCriteriaFK(ForeignKeyBean fk) {
+                                                                                // Do nothing
+                                                                            }
+                                                                        });
+                                                                        relWindow.show();
+                                                                    }
+                                                                }
+                                                            });
                                                     break;
                                                 case ALLOWED:
                                                     doItemDelete();
@@ -257,6 +293,21 @@ public class ItemDetailToolBar extends ToolBar {
         deleteButton.setMenu(deleteMenu);
 
         add(deleteButton);
+    }
+
+    private void doLogicalDelete(String url) {
+        service.logicalDeleteItem(itemBean, url, new AsyncCallback<ItemResult>() {
+
+            public void onSuccess(ItemResult arg0) {
+                ItemsListPanel listPanel = container.getItemsListPanel();
+                listPanel.refreshGrid();
+                container.getItemsDetailPanel().closeCurrentTab();
+            }
+
+            public void onFailure(Throwable arg0) {
+
+            }
+        });
     }
 
     private void doItemDelete() {
