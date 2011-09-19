@@ -267,4 +267,6 @@ public interface BrowseRecordsMessages extends Messages {
     String relations_btn();
     
     String relations_tooltip();
+
+    String fk_integrity_fail_override();
 }

@@ -58,15 +58,15 @@ public interface BrowseRecordsService extends RemoteService {
 
     ViewBean getView(String viewPk, String language);
 
-    ItemResult deleteItemBean(ItemBean item);
+    ItemResult deleteItemBean(ItemBean item, boolean override);
 
-    List<ItemResult> deleteItemBeans(List<ItemBean> items);
+    List<ItemResult> deleteItemBeans(List<ItemBean> items, boolean override);
 
     FKIntegrityResult checkFKIntegrity(List<ItemBean> selectedItems);
 
-    ItemResult logicalDeleteItem(ItemBean item, String path);
+    ItemResult logicalDeleteItem(ItemBean item, String path, boolean override);
 
-    List<ItemResult> logicalDeleteItems(List<ItemBean> items, String path);
+    List<ItemResult> logicalDeleteItems(List<ItemBean> items, String path, boolean override);
 
     List<ItemBaseModel> getViewsList(String language);
 

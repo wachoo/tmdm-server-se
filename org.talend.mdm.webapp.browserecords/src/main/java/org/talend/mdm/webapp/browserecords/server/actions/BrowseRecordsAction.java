@@ -71,9 +71,9 @@ import org.talend.mdm.webapp.browserecords.server.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.server.util.DynamicLabelUtil;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
-import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
+import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -155,12 +155,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     private static final Pattern extractIdPattern = Pattern.compile("\\[.*?\\]"); //$NON-NLS-1$
 
-    public ItemResult deleteItemBean(ItemBean item) {
+    public ItemResult deleteItemBean(ItemBean item, boolean override) {
         try {
             String dataClusterPK = getCurrentDataCluster();
             String concept = item.getConcept();
             String[] ids = extractIdWithDots(item.getIds());
-            String outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(dataClusterPK, concept, ids);
+            String outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(dataClusterPK, getCurrentDataModel(), concept, ids, override);
 
             String message = null;
             String errorCode = null;
@@ -177,7 +177,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
 
             int status;
-            if (outputErrorMessage == null || "info".equals(errorCode)) { //$NON-NLS-1$               
+            if (outputErrorMessage == null || "info".equals(errorCode)) { //$NON-NLS-1$
                 WSItemPK wsItem = CommonUtil.getPort().deleteItem(
                         new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
                 if (wsItem != null) {
@@ -204,10 +204,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    public List<ItemResult> deleteItemBeans(List<ItemBean> items) {
+    public List<ItemResult> deleteItemBeans(List<ItemBean> items, boolean override) {
         List<ItemResult> itemResults = new ArrayList<ItemResult>();
         for (ItemBean item : items) {
-            ItemResult itemResult = deleteItemBean(item);
+            ItemResult itemResult = deleteItemBean(item, override);
             itemResults.add(itemResult);
         }
         return itemResults;
@@ -229,10 +229,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         return FKIntegrityResult.FORBIDDEN; // At least one is forbidden, so forbid all deletes.
                     case FORBIDDEN_OVERRIDE_ALLOWED:
                         checkResult = FKIntegrityResult.FORBIDDEN_OVERRIDE_ALLOWED;
+                        break;
                     case ALLOWED:
                         if (checkResult != FKIntegrityResult.FORBIDDEN_OVERRIDE_ALLOWED) {
                             checkResult = FKIntegrityResult.ALLOWED; // Allow only if "forbidden override" isn't last result.
                         }
+                        break;
                     default:
                         throw new XtentisWebappException("Unsupported value '" + checkResult + "'");
                 }
@@ -359,7 +361,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     ForeignKeyBean bean = new ForeignKeyBean();
                     String id = ""; //$NON-NLS-1$
                     @SuppressWarnings("unchecked")
-                    NodeList nodes = Util.getNodeList(Util.parse(result), "//i"); //$NON-NLS-1$                   
+                    NodeList nodes = Util.getNodeList(Util.parse(result), "//i"); //$NON-NLS-1$
                     if (nodes != null) {
                         for (int i = 0; i < nodes.getLength(); i++) {
                             if (nodes.item(i) instanceof Element)
@@ -660,7 +662,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return null;
     }
 
-    public ItemResult logicalDeleteItem(ItemBean item, String path) {
+    public ItemResult logicalDeleteItem(ItemBean item, String path, boolean override) {
         try {
             String dataClusterPK = getCurrentDataCluster();
             String concept = item.getConcept();
@@ -679,20 +681,20 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 // TODO updatereport
 
                 else
-                    return new ItemResult(ItemResult.FAILURE, "ERROR - dropItem is NULL");//$NON-NLS-1$ 
+                    return new ItemResult(ItemResult.FAILURE, "ERROR - dropItem is NULL");//$NON-NLS-1$
 
-            return new ItemResult(ItemResult.SUCCESS, "OK");//$NON-NLS-1$ 
+            return new ItemResult(ItemResult.SUCCESS, "OK");//$NON-NLS-1$
 
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            return new ItemResult(ItemResult.FAILURE, "ERROR -" + e.getLocalizedMessage());//$NON-NLS-1$ 
+            return new ItemResult(ItemResult.FAILURE, "ERROR -" + e.getLocalizedMessage());//$NON-NLS-1$
         }
     }
 
-    public List<ItemResult> logicalDeleteItems(List<ItemBean> items, String path) {
+    public List<ItemResult> logicalDeleteItems(List<ItemBean> items, String path, boolean override) {
         List<ItemResult> itemResults = new ArrayList<ItemResult>();
         for (ItemBean item : items) {
-            ItemResult itemResult = logicalDeleteItem(item, path);
+            ItemResult itemResult = logicalDeleteItem(item, path, override);
             itemResults.add(itemResult);
         }
         return itemResults;
@@ -732,8 +734,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             int max, String sortDir, String sortCol, String language) {
 
         int totalSize = 0;
-        String dateFormat = "yyyy-MM-dd"; //$NON-NLS-1$ 
-        String dateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss"; //$NON-NLS-1$ 
+        String dateFormat = "yyyy-MM-dd"; //$NON-NLS-1$
+        String dateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss"; //$NON-NLS-1$
 
         List<ItemBean> itemBeans = new ArrayList<ItemBean>();
         String concept = ViewHelper.getConceptFromDefaultViewName(viewBean.getViewPK());
@@ -796,7 +798,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
 
                 ItemBean itemBean = new ItemBean(concept,
-                        CommonUtil.joinStrings(idsArray, "."), Util.nodeToString(doc.getDocumentElement()));//$NON-NLS-1$ 
+                        CommonUtil.joinStrings(idsArray, "."), Util.nodeToString(doc.getDocumentElement()));//$NON-NLS-1$
                 dynamicAssembleByResultOrder(itemBean, viewBean, entityModel);
                 itemBeans.add(itemBean);
             }
@@ -896,13 +898,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         } catch (Exception e) {
             ItemResult result;
             // TODO UGLY!!!! to be refactored
-            if (e.getLocalizedMessage().indexOf("routing failed:") == 0) {//$NON-NLS-1$ 
-                String saveSUCCE = "Save item '" + item.getConcept() + "."//$NON-NLS-1$ //$NON-NLS-2$ 
+            if (e.getLocalizedMessage().indexOf("routing failed:") == 0) {//$NON-NLS-1$
+                String saveSUCCE = "Save item '" + item.getConcept() + "."//$NON-NLS-1$ //$NON-NLS-2$
                         + com.amalto.webapp.core.util.Util.joinStrings(convertIds(item.getIds()), ".")//$NON-NLS-1$
-                        + "' successfully, But " + e.getLocalizedMessage();//$NON-NLS-1$ 
+                        + "' successfully, But " + e.getLocalizedMessage();//$NON-NLS-1$
                 result = new ItemResult(ItemResult.FAILURE, saveSUCCE);
             } else {
-                String err = "Unable to save item '" + item.getConcept() + "."//$NON-NLS-1$ //$NON-NLS-2$ 
+                String err = "Unable to save item '" + item.getConcept() + "."//$NON-NLS-1$ //$NON-NLS-2$
                         + com.amalto.webapp.core.util.Util.joinStrings(convertIds(item.getIds()), ".") + "'"//$NON-NLS-1$ //$NON-NLS-2$
                         + e.getLocalizedMessage();
                 if (e.getLocalizedMessage().indexOf("ERROR_3:") == 0) {//$NON-NLS-1$
@@ -932,7 +934,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     /**
      * DOC HSHU Comment method "switchForeignKeyType".
-     * 
+     *
      * @param targetEntity
      * @param xpathForeignKey
      * @param xpathInfoForeignKey
@@ -973,7 +975,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     /**
      * DOC HSHU Comment method "replaceXpathRoot".
-     * 
+     *
      * @param targetEntity
      * @param xpathForeignKey
      * @return
@@ -1113,8 +1115,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
             for (String key : viewMap.keySet()) {
                 ItemBaseModel bm = new ItemBaseModel();
-                bm.set("name", viewMap.get(key));//$NON-NLS-1$ 
-                bm.set("value", key);//$NON-NLS-1$ 
+                bm.set("name", viewMap.get(key));//$NON-NLS-1$
+                bm.set("value", key);//$NON-NLS-1$
                 list.add(bm);
             }
             return list;
@@ -1323,18 +1325,18 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     private String pushUpdateReport(String[] ids, String concept, String operationType, boolean routeAfterSaving)
             throws Exception {
         if (LOG.isTraceEnabled())
-            LOG.trace("pushUpdateReport() concept " + concept + " operation " + operationType);//$NON-NLS-1$ //$NON-NLS-2$ 
+            LOG.trace("pushUpdateReport() concept " + concept + " operation " + operationType);//$NON-NLS-1$ //$NON-NLS-2$
 
         // TODO check updatedPath
         HashMap<String, UpdateReportItem> updatedPath = null;
         if (!("PHYSICAL_DELETE".equals(operationType) || "LOGIC_DELETE".equals(operationType)) && updatedPath == null) { //$NON-NLS-1$ //$NON-NLS-2$
-            return "ERROR_2";//$NON-NLS-1$ 
+            return "ERROR_2";//$NON-NLS-1$
         }
 
         String xml2 = createUpdateReport(ids, concept, operationType, updatedPath);
 
         if (LOG.isDebugEnabled())
-            LOG.debug("pushUpdateReport() " + xml2);//$NON-NLS-1$ 
+            LOG.debug("pushUpdateReport() " + xml2);//$NON-NLS-1$
 
         // TODO routeAfterSaving is true
         return persistentUpdateReport(xml2, routeAfterSaving);
@@ -1344,8 +1346,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             HashMap<String, UpdateReportItem> updatedPath) throws Exception {
 
         String revisionId = null;
-        String dataModelPK = getCurrentDataModel() == null ? "" : getCurrentDataModel();//$NON-NLS-1$ 
-        String dataClusterPK = getCurrentDataCluster() == null ? "" : getCurrentDataCluster();//$NON-NLS-1$ 
+        String dataModelPK = getCurrentDataModel() == null ? "" : getCurrentDataModel();//$NON-NLS-1$
+        String dataClusterPK = getCurrentDataCluster() == null ? "" : getCurrentDataCluster();//$NON-NLS-1$
 
         String username = com.amalto.webapp.core.util.Util.getLoginUserName();
         String universename = com.amalto.webapp.core.util.Util.getLoginUniverse();
@@ -1364,12 +1366,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
         StringBuilder sb = new StringBuilder();
         // TODO what is StringEscapeUtils.escapeXml used for
-        sb.append("<Update><UserName>").append(username).append("</UserName><Source>genericUI</Source><TimeInMillis>") //$NON-NLS-1$ //$NON-NLS-2$ 
+        sb.append("<Update><UserName>").append(username).append("</UserName><Source>genericUI</Source><TimeInMillis>") //$NON-NLS-1$ //$NON-NLS-2$
                 .append(System.currentTimeMillis()).append("</TimeInMillis><OperationType>") //$NON-NLS-1$
                 .append(operationType).append("</OperationType><RevisionID>").append(revisionId) //$NON-NLS-1$
-                .append("</RevisionID><DataCluster>").append(dataClusterPK).append("</DataCluster><DataModel>") //$NON-NLS-1$ //$NON-NLS-2$ 
+                .append("</RevisionID><DataCluster>").append(dataClusterPK).append("</DataCluster><DataModel>") //$NON-NLS-1$ //$NON-NLS-2$
                 .append(dataModelPK).append("</DataModel><Concept>").append(concept) //$NON-NLS-1$
-                .append("</Concept><Key>").append(key).append("</Key>"); //$NON-NLS-1$ //$NON-NLS-2$ 
+                .append("</Concept><Key>").append(key).append("</Key>"); //$NON-NLS-1$ //$NON-NLS-2$
 
         if ("UPDATE".equals(operationType)) { //$NON-NLS-1$
             Collection<UpdateReportItem> list = updatedPath.values();
@@ -1401,7 +1403,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         if (routeAfterSaving)
             CommonUtil.getPort().routeItemV2(new WSRouteItemV2(itemPK));
 
-        return "OK";//$NON-NLS-1$ 
+        return "OK";//$NON-NLS-1$
     }
 
     public String getCurrentDataModel() throws Exception {
@@ -1413,7 +1415,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         Configuration config = Configuration.getConfiguration();
         return config.getCluster();
     }
-    
+
     public ItemNodeModel getItemNodeModel(String concept, EntityModel entity, String ids, String language) throws Exception {
         String dataCluster = getCurrentDataCluster();
 
@@ -1429,26 +1431,26 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         InputSource inputSource = new InputSource(sr);
         Document doc = builder.parse(inputSource);
         Element root = doc.getDocumentElement();
-        
+
         Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
         ItemNodeModel itemModel = builderNode(root, entity, ""); //$NON-NLS-1$
         DynamicLabelUtil.getDynamicLabel(XmlUtil.parseDocument(doc), itemModel, metaDataTypes, language);
-        
+
         return itemModel;
     }
 
     private ItemNodeModel builderNode(Element el, EntityModel entity, String xpath) {
         Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
-        xpath += (xpath == "" ? el.getNodeName():"/" + el.getNodeName());      //$NON-NLS-1$//$NON-NLS-2$        
+        xpath += (xpath == "" ? el.getNodeName():"/" + el.getNodeName());      //$NON-NLS-1$//$NON-NLS-2$
         ItemNodeModel nodeModel = new ItemNodeModel(el.getNodeName());
-        nodeModel.setDescription(el.getNodeName());        
+        nodeModel.setDescription(el.getNodeName());
         nodeModel.setName(el.getNodeName());
-        nodeModel.setObjectValue(el.getTextContent());        
+        nodeModel.setObjectValue(el.getTextContent());
         if (!"".equals(metaDataTypes.get(xpath).getForeignkey()) && metaDataTypes.get(xpath).getForeignkey() != null) { //$NON-NLS-1$
             TypeModel model = metaDataTypes.get(xpath);
             model.setRetrieveFKinfos(true);
             // FK List
-            if (el.getTextContent() != null && !"".equals(el.getTextContent()) && model.getMaxOccurs() > 1) { //$NON-NLS-1$
+            if (el.getTextContent() != null && !"".equals(el.getTextContent()) && el.getTextContent().lastIndexOf("[") > 1) { //$NON-NLS-1$ //$NON-NLS-2$
                 List<String> fkIds = extractIdToList(el.getTextContent());
                 List<ForeignKeyBean> fkBeans = new ArrayList<ForeignKeyBean>(fkIds.size());
                 for (String id : fkIds) {

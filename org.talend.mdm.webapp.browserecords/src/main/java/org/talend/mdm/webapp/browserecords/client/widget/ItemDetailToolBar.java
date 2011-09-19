@@ -206,13 +206,23 @@ public class ItemDetailToolBar extends ToolBar {
                             public void onSuccess(FKIntegrityResult result) {
                                 switch (result) {
                                     case FORBIDDEN_OVERRIDE_ALLOWED:
+                                        MessageBox.confirm(MessagesFactory.getMessages().error_title(),
+                                                MessagesFactory.getMessages().fk_integrity_fail_override(),
+                                                new Listener<MessageBoxEvent>() {
+                                                    public void handleEvent(MessageBoxEvent be) {
+                                                        if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+                                                            doLogicalDelete(url, true);
+                                                        }
+                                                    }
+                                                });
+                                        break;
                                     case FORBIDDEN:
                                         MessageBox.confirm(MessagesFactory.getMessages().error_title(),
                                                 MessagesFactory.getMessages().fk_integrity_fail_open_relations(),
                                                 new Listener<MessageBoxEvent>() {
                                                     public void handleEvent(MessageBoxEvent be) {
                                                         if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                                            // TODO How FKRelRecordWindow exactly work?
+                                                            // TODO How does FKRelRecordWindow exactly work?
                                                             relWindow.setFkKey("");
                                                             relWindow.setReturnCriteriaFK(new ReturnCriteriaFK() {
                                                                 public void setCriteriaFK(ForeignKeyBean fk) {
@@ -225,7 +235,7 @@ public class ItemDetailToolBar extends ToolBar {
                                                 });
                                         break;
                                     case ALLOWED:
-                                        doLogicalDelete(url);
+                                        doLogicalDelete(url, false);
                                         break;
                                 }
                             }
@@ -256,6 +266,16 @@ public class ItemDetailToolBar extends ToolBar {
                                         public void onSuccess(FKIntegrityResult result) {
                                             switch (result) {
                                                 case FORBIDDEN_OVERRIDE_ALLOWED:
+                                                    MessageBox.confirm(MessagesFactory.getMessages().error_title(),
+                                                        MessagesFactory.getMessages().fk_integrity_fail_override(),
+                                                        new Listener<MessageBoxEvent>() {
+                                                            public void handleEvent(MessageBoxEvent be) {
+                                                                if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+                                                                    doItemDelete(true);
+                                                                }
+                                                            }
+                                                        });
+                                                    break;
                                                 case FORBIDDEN:
                                                     MessageBox.confirm(MessagesFactory.getMessages().error_title(),
                                                             MessagesFactory.getMessages().fk_integrity_fail_open_relations(),
@@ -275,7 +295,7 @@ public class ItemDetailToolBar extends ToolBar {
                                                             });
                                                     break;
                                                 case ALLOWED:
-                                                    doItemDelete();
+                                                    doItemDelete(true);
                                                     break;
                                             }
                                         }
@@ -295,8 +315,8 @@ public class ItemDetailToolBar extends ToolBar {
         add(deleteButton);
     }
 
-    private void doLogicalDelete(String url) {
-        service.logicalDeleteItem(itemBean, url, new AsyncCallback<ItemResult>() {
+    private void doLogicalDelete(String url, boolean override) {
+        service.logicalDeleteItem(itemBean, url, override, new AsyncCallback<ItemResult>() {
 
             public void onSuccess(ItemResult arg0) {
                 ItemsListPanel listPanel = container.getItemsListPanel();
@@ -310,8 +330,8 @@ public class ItemDetailToolBar extends ToolBar {
         });
     }
 
-    private void doItemDelete() {
-        service.deleteItemBean(itemBean, new AsyncCallback<ItemResult>() {
+    private void doItemDelete(boolean override) {
+        service.deleteItemBean(itemBean, override, new AsyncCallback<ItemResult>() {
             public void onFailure(Throwable arg0) {
 
             }

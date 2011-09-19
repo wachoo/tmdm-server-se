@@ -326,6 +326,16 @@ public class ItemsToolBar extends ToolBar {
                                     public void onSuccess(FKIntegrityResult result) {
                                         switch (result) {
                                             case FORBIDDEN_OVERRIDE_ALLOWED:
+                                                MessageBox.confirm(MessagesFactory.getMessages().error_title(),
+                                                        MessagesFactory.getMessages().fk_integrity_fail_override(),
+                                                        new Listener<MessageBoxEvent>() {
+                                                            public void handleEvent(MessageBoxEvent be) {
+                                                                if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+                                                                    doLogicalDelete(list, true);
+                                                                }
+                                                            }
+                                                        });
+                                                break;
                                             case FORBIDDEN:
                                                 MessageBox.confirm(MessagesFactory.getMessages().error_title(),
                                                         MessagesFactory.getMessages().fk_integrity_fail_open_relations(),
@@ -345,7 +355,7 @@ public class ItemsToolBar extends ToolBar {
                                                         });
                                                 break;
                                             case ALLOWED:
-                                                doLogicalDelete(list);
+                                                doLogicalDelete(list, false);
                                                 break;
                                         }
                                     }
@@ -812,8 +822,8 @@ public class ItemsToolBar extends ToolBar {
         initAdvancedPanel();
     }
 
-    private void doLogicalDelete(final ItemsListPanel list) {
-        service.logicalDeleteItems(list.getGrid().getSelectionModel().getSelectedItems(), "/", //$NON-NLS-1$
+    private void doLogicalDelete(final ItemsListPanel list, boolean override) {
+        service.logicalDeleteItems(list.getGrid().getSelectionModel().getSelectedItems(), "/", override,//$NON-NLS-1$
                 new AsyncCallback<List<ItemResult>>() {
 
                     public void onFailure(Throwable caught) {
@@ -1166,6 +1176,16 @@ public class ItemsToolBar extends ToolBar {
                                 public void onSuccess(FKIntegrityResult results) {
                                     switch (results) {
                                         case FORBIDDEN_OVERRIDE_ALLOWED:
+                                            MessageBox.confirm(MessagesFactory.getMessages().error_title(),
+                                                        MessagesFactory.getMessages().fk_integrity_fail_override(),
+                                                        new Listener<MessageBoxEvent>() {
+                                                            public void handleEvent(MessageBoxEvent be) {
+                                                                if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+                                                                    doItemsDelete(true);
+                                                                }
+                                                            }
+                                                        });
+                                            break;
                                         case FORBIDDEN:
                                             MessageBox.confirm(MessagesFactory.getMessages().error_title(),
                                                     MessagesFactory.getMessages().fk_integrity_fail_open_relations(),
@@ -1184,13 +1204,13 @@ public class ItemsToolBar extends ToolBar {
                                                     });
                                             break;
                                         case ALLOWED:
-                                            doItemsDelete();
+                                            doItemsDelete(false);
                                             break;
                                     }
                                 }
 
-                                private void doItemsDelete() {
-                                    service.deleteItemBeans(list.getGrid().getSelectionModel().getSelectedItems(),
+                                private void doItemsDelete(boolean override) {
+                                    service.deleteItemBeans(list.getGrid().getSelectionModel().getSelectedItems(), override,
                                             new AsyncCallback<List<ItemResult>>() {
 
                                                 public void onFailure(Throwable caught) {

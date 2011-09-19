@@ -56,15 +56,15 @@ public interface BrowseRecordsServiceAsync {
 
     void getView(String viewPk, String language, AsyncCallback<ViewBean> callback);
 
-    void deleteItemBean(ItemBean item, AsyncCallback<ItemResult> callback);
+    void deleteItemBean(ItemBean item, boolean override, AsyncCallback<ItemResult> callback);
 
-    void deleteItemBeans(List<ItemBean> items, AsyncCallback<List<ItemResult>> callback);
+    void deleteItemBeans(List<ItemBean> items, boolean override, AsyncCallback<List<ItemResult>> callback);
 
     void checkFKIntegrity(List<ItemBean> selectedItems, AsyncCallback<FKIntegrityResult> asyncCallback);
 
-    void logicalDeleteItem(ItemBean item, String path, AsyncCallback<ItemResult> callback);
+    void logicalDeleteItem(ItemBean item, String path, boolean override, AsyncCallback<ItemResult> callback);
 
-    void logicalDeleteItems(List<ItemBean> items, String path, AsyncCallback<List<ItemResult>> callback);
+    void logicalDeleteItems(List<ItemBean> items, String path, boolean override, AsyncCallback<List<ItemResult>> callback);
 
     void getViewsList(String language, AsyncCallback<List<ItemBaseModel>> callback);
 
