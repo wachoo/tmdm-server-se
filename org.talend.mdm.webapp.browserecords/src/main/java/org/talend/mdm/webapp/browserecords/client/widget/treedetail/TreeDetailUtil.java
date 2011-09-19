@@ -59,7 +59,7 @@ public class TreeDetailUtil {
             addNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
             Image removeNodeImg = new Image("/talendmdm/secure/img/genericUI/delete.png"); //$NON-NLS-1$
             removeNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
-            if ((typeModel.getMinOccurs() >= 1 && typeModel.getMaxOccurs() > typeModel.getMinOccurs())
+            if ((typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1)
                     && typeModel.getForeignkey() == null) {
                 hp.add(addNodeImg);
                 hp.add(removeNodeImg);
