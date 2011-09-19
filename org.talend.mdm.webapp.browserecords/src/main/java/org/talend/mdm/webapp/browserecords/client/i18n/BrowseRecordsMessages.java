@@ -263,4 +263,8 @@ public interface BrowseRecordsMessages extends Messages {
     String launch_process_tooltip();
 
     String fk_integrity_fail_open_relations();
+    
+    String relations_btn();
+    
+    String relations_tooltip();
 }

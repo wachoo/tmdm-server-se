@@ -66,6 +66,8 @@ public class ItemDetailToolBar extends ToolBar {
     private final Button refreshButton = new Button();
     
     private final Button launchProcessButton = new Button();
+    
+    private final Button relationButton = new Button(MessagesFactory.getMessages().relations_btn());
 
     private ComboBox<ItemBaseModel> workFlowCombo = new ComboBox<ItemBaseModel>();
 
@@ -330,6 +332,18 @@ public class ItemDetailToolBar extends ToolBar {
         add(refreshButton);
     }
 
+    private void addRelationButton(){
+        relationButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.relations()));
+        relationButton.setToolTip(MessagesFactory.getMessages().relations_tooltip());
+        relationButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+            
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                
+            }
+        });
+    }
+    
     private void addWorkFlosCombo() {
         service.getRunnableProcessList(itemBean.getConcept(), Locale.getLanguage(), new AsyncCallback<List<ItemBaseModel>>() {
             

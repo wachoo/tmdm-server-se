@@ -621,4 +621,14 @@ public class BrowseRecordsMessagesImpl implements BrowseRecordsMessages{
         return null;
     }
 
+    public String relations_btn() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public String relations_tooltip() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }
