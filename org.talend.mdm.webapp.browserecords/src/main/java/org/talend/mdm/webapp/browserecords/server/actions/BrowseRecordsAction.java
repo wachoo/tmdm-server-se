@@ -625,6 +625,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             String concept = ViewHelper.getConceptFromDefaultViewName(viewPk);
             EntityModel entityModel = new EntityModel();
             DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
+            DataModelHelper.handleDefaultValue(entityModel);
             vb.setBindingEntityModel(entityModel);
 
             // viewables

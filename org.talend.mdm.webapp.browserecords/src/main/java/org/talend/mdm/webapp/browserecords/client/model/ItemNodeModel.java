@@ -18,8 +18,6 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
 
     private String description;
 
-    private String value;
-
     private String bindingPath;
 
     private Serializable objectValue;
@@ -92,14 +90,6 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
         this.description = description;
     }
 
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-    
     public String getBindingPath() {
         if (this.bindingPath != null)
             return bindingPath;

@@ -76,6 +76,10 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     private String realType;
 
+    private String defaultValueExpression;
+
+    private String defaultValue;
+
     /**
      * DOC HSHU TypeModel constructor comment.
      */
@@ -302,6 +306,22 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     public void setDenyPhysicalDeleteable(boolean denyPhysicalDeleteable) {
         this.denyPhysicalDeleteable = denyPhysicalDeleteable;
+    }
+
+    public String getDefaultValueExpression() {
+        return defaultValueExpression;
+    }
+
+    public void setDefaultValueExpression(String defaultValueExpression) {
+        this.defaultValueExpression = defaultValueExpression;
+    }
+
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
     }
 
     public int[] getRange() {

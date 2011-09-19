@@ -19,8 +19,12 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -34,11 +38,13 @@ import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.FacetModel;
 import org.talend.mdm.webapp.browserecords.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
+import com.amalto.webapp.core.util.XmlUtil;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSConceptKey;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
@@ -360,8 +366,9 @@ public class DataModelHelper {
                             if (roles.contains(appinfoSourceValue)) {
                                 typeModel.setDenyPhysicalDeleteable(true);
                             }
+                        } else if ("X_Default_Value_Rule".equals(appinfoSource)) { //$NON-NLS-1$
+                            typeModel.setDefaultValueExpression(appinfoSourceValue);
                         }
-
                     }
 
                 }
@@ -441,4 +448,86 @@ public class DataModelHelper {
 
     }
 
+    public static void handleDefaultValue(EntityModel entity) throws Exception {
+        String concept = entity.getConceptName();
+        Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
+        TypeModel typeModel = metaDataTypes.get(concept);
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.newDocument();
+        List<Element> result = getDefaultXmlData(doc, typeModel);
+        doc.appendChild(result.get(0));
+        org.dom4j.Document dom4jDoc = XmlUtil.parseDocument(doc);
+        Set<String> pathes = metaDataTypes.keySet();
+        for (String path : pathes) {
+            TypeModel tm = metaDataTypes.get(path);
+            if (tm.getDefaultValueExpression() != null && tm.getDefaultValueExpression().trim().length() > 0) {
+                String style = genDefaultValueStyle(concept, path, tm.getDefaultValueExpression());
+                org.dom4j.Document transformedDocumentValue = XmlUtil.styleDocument(dom4jDoc, style);
+                org.dom4j.Node node = transformedDocumentValue.selectSingleNode(path);
+                if (node != null) {
+                    tm.setDefaultValue(node.getText());
+                }
+            }
+        }
+
+    }
+
+    private static List<Element> getDefaultXmlData(Document doc, TypeModel model) {
+        List<Element> itemNodes = new ArrayList<Element>();
+        if (model.getMinOccurs() > 1 && model.getMaxOccurs() > model.getMinOccurs()) {
+            for (int i = 0; i < model.getMaxOccurs() - model.getMinOccurs(); i++) {
+                Element itemNode = doc.createElement(model.getName());
+                itemNodes.add(itemNode);
+            }
+        } else {
+            Element itemNode = doc.createElement(model.getName());
+            itemNodes.add(itemNode);
+        }
+
+        for (Element node : itemNodes) {
+            if (!model.isSimpleType()) {
+                ComplexTypeModel complexModel = (ComplexTypeModel) model;
+                List<TypeModel> children = complexModel.getSubTypes();
+                List<Element> list = new ArrayList<Element>();
+                for (TypeModel typeModel : children) {
+                    list.addAll(getDefaultXmlData(doc, typeModel));
+                }
+                for (Element e : list) {
+                    node.appendChild(e);
+                }
+            }
+        }
+        return itemNodes;
+
+    }
+
+    private static String genDefaultValueStyle(String concept, String xpath, String valueExpression) {
+        StringBuffer style = new StringBuffer();
+        style.append("<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:fn=\"http://www.w3.org/2005/xpath-functions\" xmlns:t=\"http://www.talend.com/2010/MDM\" version=\"2.0\">");
+
+        style.append("<xsl:output method=\"xml\" indent=\"yes\" omit-xml-declaration=\"yes\"/>");
+        style.append("<xsl:template match=\"/" + concept + "\">");
+        style.append("<xsl:copy>");
+        style.append("<xsl:apply-templates select=\"/" + xpath + "\"/>");
+        style.append("</xsl:copy>");
+        style.append("</xsl:template>");
+
+        style.append("<xsl:template match=\"/" + xpath + "\">");
+        style.append("<xsl:copy>");
+        style.append("<xsl:choose>");
+        style.append("<xsl:when test=\"not(text())\">");
+        style.append("<xsl:value-of select=\"" + XmlUtil.escapeXml(valueExpression) + "\"/>");
+        style.append("</xsl:when> ");
+        style.append("<xsl:otherwise>");
+        style.append("<xsl:value-of select=\".\"/>");
+        style.append("</xsl:otherwise>");
+        style.append("</xsl:choose> ");
+        style.append("</xsl:copy>");
+        style.append("</xsl:template>");
+        style.append("</xsl:stylesheet>");
+        
+        return style.toString();
+        
+    }
 }

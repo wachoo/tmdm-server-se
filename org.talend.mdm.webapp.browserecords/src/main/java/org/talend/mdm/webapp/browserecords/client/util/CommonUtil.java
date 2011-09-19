@@ -57,7 +57,6 @@ public class CommonUtil {
 
         }
 
-        root.setNodeValue(nodeModel.getValue());
         List<ModelData> children = nodeModel.getChildren();
         if (children != null) {
             for (ModelData child : children) {
@@ -86,51 +85,7 @@ public class CommonUtil {
 
         for (ItemNodeModel node : itemNodes) {
             if (model.isSimpleType()) {
-                if (model.getType().getTypeName().equals(DataTypeConstants.BOOLEAN.getTypeName())) {
-                    node.setObjectValue((Serializable) DataTypeConstants.BOOLEAN.getDefaultValue());
-                } else if (model.getType().getTypeName().equals(DataTypeConstants.DATE.getTypeName())) {
-                    String dateStr = DateUtil.getDate((Date) DataTypeConstants.DATE.getDefaultValue());
-                    node.setObjectValue(dateStr);
-                } else if (model.getType().getTypeName().equals(DataTypeConstants.DATETIME.getTypeName())) {
-                    String dateStr = DateUtil.getDateTime((Date) DataTypeConstants.DATETIME.getDefaultValue());
-                    node.setObjectValue(dateStr);
-                } else if (model.getType().getTypeName().equals(DataTypeConstants.DECIMAL.getTypeName())) {
-                    node.setObjectValue((Serializable) DataTypeConstants.DECIMAL.getDefaultValue());
-                } else if (model.getType().getTypeName().equals(DataTypeConstants.DOUBLE.getTypeName())) {
-                    node.setObjectValue((Serializable) DataTypeConstants.DOUBLE.getDefaultValue());
-                } else if (model.getType().getTypeName().equals(DataTypeConstants.FLOAT.getTypeName())) {
-                    node.setObjectValue((Serializable) DataTypeConstants.FLOAT.getDefaultValue());
-                } else if (model.getType().getTypeName().equals(DataTypeConstants.INT.getTypeName())) {
-                    node.setObjectValue((Serializable) DataTypeConstants.INT.getDefaultValue());
-                } else if (model.getType().getTypeName().equals(DataTypeConstants.INTEGER.getTypeName())) {
-                    node.setObjectValue((Serializable) DataTypeConstants.INTEGER.getDefaultValue());
-                } else if (model.getType().getTypeName().equals(DataTypeConstants.LONG.getTypeName())) {
-                    node.setObjectValue((Serializable) DataTypeConstants.LONG.getDefaultValue());
-                } else if (model.getType().getTypeName().equals(DataTypeConstants.SHORT.getTypeName())) {
-                    node.setObjectValue((Serializable) DataTypeConstants.SHORT.getDefaultValue());
-                } else if (model.getType().getTypeName().equals(DataTypeConstants.STRING.getTypeName())) {
-                    if (model.getForeignkey() != null && model.getForeignkey().trim().length() > 0) {
-                        ForeignKeyBean foreignKeyBean = new ForeignKeyBean();
-                        foreignKeyBean.setId(""); //$NON-NLS-1$
-                        foreignKeyBean.setForeignKeyPath(model.getForeignkey());
-                        node.setObjectValue(foreignKeyBean);
-                        if (model.getMaxOccurs() > 1)
-                            node.setObjectValue(new ArrayList<ForeignKeyBean>());
-                    } else {
-                        node.setObjectValue((Serializable) DataTypeConstants.STRING.getDefaultValue());
-                    }
-                } else if (model.getType().getTypeName().equals(DataTypeConstants.UUID.getTypeName())) {
-                    node.setObjectValue((Serializable) DataTypeConstants.UUID.getDefaultValue());
-                } else if (model.getType().getTypeName().equals(DataTypeConstants.AUTO_INCREMENT.getTypeName())) {
-                    node.setObjectValue((Serializable) DataTypeConstants.AUTO_INCREMENT.getDefaultValue());
-                } else if (model.getType().getTypeName().equals(DataTypeConstants.PICTURE.getTypeName())) {
-                    node.setObjectValue((Serializable) DataTypeConstants.PICTURE.getDefaultValue());
-                } else if (model.getType().getTypeName().equals(DataTypeConstants.URL.getTypeName())) {
-                    node.setObjectValue((Serializable) DataTypeConstants.URL.getDefaultValue());
-                } 
-
-
-
+                setDefaultValue(model, node);
             } else {
                 ComplexTypeModel complexModel = (ComplexTypeModel) model;
                 List<TypeModel> children = complexModel.getSubTypes();
@@ -144,7 +99,61 @@ public class CommonUtil {
             node.setBindingPath(model.getXpath());
             node.setDescription(model.getLabel(Locale.getLanguage()));
         }
-
         return itemNodes;
+    }
+
+    private static void setDefaultValue(TypeModel model, ItemNodeModel node) {
+
+        if (model.getDefaultValueExpression() != null && model.getDefaultValueExpression().trim().length() > 0) {
+            if (!"".equals(model.getForeignkey()) && model.getForeignkey() != null) { //$NON-NLS-1$
+                ForeignKeyBean foreignKeyBean = new ForeignKeyBean();
+                foreignKeyBean.setId(model.getDefaultValue());
+                foreignKeyBean.setForeignKeyPath(model.getForeignkey());
+                node.setObjectValue(foreignKeyBean);
+            } else {
+                node.setObjectValue(model.getDefaultValue());
+            }
+        } else {
+            if (model.getType().getTypeName().equals(DataTypeConstants.BOOLEAN.getTypeName())) {
+                node.setObjectValue((Serializable) DataTypeConstants.BOOLEAN.getDefaultValue());
+            } else if (model.getType().getTypeName().equals(DataTypeConstants.DATE.getTypeName())) {
+                String dateStr = DateUtil.getDate((Date) DataTypeConstants.DATE.getDefaultValue());
+                node.setObjectValue(dateStr);
+            } else if (model.getType().getTypeName().equals(DataTypeConstants.DATETIME.getTypeName())) {
+                String dateStr = DateUtil.getDateTime((Date) DataTypeConstants.DATETIME.getDefaultValue());
+                node.setObjectValue(dateStr);
+            } else if (model.getType().getTypeName().equals(DataTypeConstants.DECIMAL.getTypeName())) {
+                node.setObjectValue((Serializable) DataTypeConstants.DECIMAL.getDefaultValue());
+            } else if (model.getType().getTypeName().equals(DataTypeConstants.DOUBLE.getTypeName())) {
+                node.setObjectValue((Serializable) DataTypeConstants.DOUBLE.getDefaultValue());
+            } else if (model.getType().getTypeName().equals(DataTypeConstants.FLOAT.getTypeName())) {
+                node.setObjectValue((Serializable) DataTypeConstants.FLOAT.getDefaultValue());
+            } else if (model.getType().getTypeName().equals(DataTypeConstants.INT.getTypeName())) {
+                node.setObjectValue((Serializable) DataTypeConstants.INT.getDefaultValue());
+            } else if (model.getType().getTypeName().equals(DataTypeConstants.INTEGER.getTypeName())) {
+                node.setObjectValue((Serializable) DataTypeConstants.INTEGER.getDefaultValue());
+            } else if (model.getType().getTypeName().equals(DataTypeConstants.LONG.getTypeName())) {
+                node.setObjectValue((Serializable) DataTypeConstants.LONG.getDefaultValue());
+            } else if (model.getType().getTypeName().equals(DataTypeConstants.SHORT.getTypeName())) {
+                node.setObjectValue((Serializable) DataTypeConstants.SHORT.getDefaultValue());
+            } else if (model.getType().getTypeName().equals(DataTypeConstants.STRING.getTypeName())) {
+                if (model.getForeignkey() != null && model.getForeignkey().trim().length() > 0) {
+                    ForeignKeyBean foreignKeyBean = new ForeignKeyBean();
+                    foreignKeyBean.setId(""); //$NON-NLS-1$
+                    foreignKeyBean.setForeignKeyPath(model.getForeignkey());
+                    node.setObjectValue(foreignKeyBean);
+                } else {
+                    node.setObjectValue((Serializable) DataTypeConstants.STRING.getDefaultValue());
+                }
+            } else if (model.getType().getTypeName().equals(DataTypeConstants.UUID.getTypeName())) {
+                node.setObjectValue((Serializable) DataTypeConstants.UUID.getDefaultValue());
+            } else if (model.getType().getTypeName().equals(DataTypeConstants.AUTO_INCREMENT.getTypeName())) {
+                node.setObjectValue((Serializable) DataTypeConstants.AUTO_INCREMENT.getDefaultValue());
+            } else if (model.getType().getTypeName().equals(DataTypeConstants.PICTURE.getTypeName())) {
+                node.setObjectValue((Serializable) DataTypeConstants.PICTURE.getDefaultValue());
+            } else if (model.getType().getTypeName().equals(DataTypeConstants.URL.getTypeName())) {
+                node.setObjectValue((Serializable) DataTypeConstants.URL.getDefaultValue());
+            }
+        }
     }
 }
