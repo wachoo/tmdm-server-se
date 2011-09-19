@@ -17,6 +17,8 @@ import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 import javax.naming.InitialContext;
 
+import com.amalto.core.integrity.FKIntegrityCheckResult;
+import com.amalto.core.integrity.FKIntegrityChecker;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.talend.mdm.commmon.util.core.CommonUtil;
 import org.talend.mdm.commmon.util.core.EDBType;
@@ -1280,8 +1282,8 @@ public class ItemCtrl2Bean implements SessionBean {
         }
     }
 
-    public boolean checkFKIntegrity(String dataClusterPK, String concept, String[] ids) throws XtentisException {
-        return Util.violateFKIntegrity(dataClusterPK, concept, ids, false);
+    public FKIntegrityCheckResult checkFKIntegrity(String dataClusterPK, String concept, String[] ids) throws XtentisException {
+        return FKIntegrityChecker.getInstance().getFKIntegrityPolicy(dataClusterPK, concept, ids);
     }
 
 }

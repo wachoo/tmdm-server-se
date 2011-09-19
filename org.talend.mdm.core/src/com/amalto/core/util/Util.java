@@ -66,7 +66,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import com.amalto.core.metadata.*;
+import com.amalto.core.integrity.FKIntegrityCheckResult;
+import com.amalto.core.integrity.FKIntegrityChecker;
 import org.apache.commons.jxpath.AbstractFactory;
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.jxpath.Pointer;
@@ -2567,7 +2568,8 @@ public class Util {
     public static String beforeDeleting(String clusterName, String concept, String[] ids) throws Exception {
         // TMDM-2348: Check before deletion if it violates fk integrity
         boolean override = false;
-        if (violateFKIntegrity(clusterName, concept, ids, override)) {
+        boolean isDeleteAllowed = FKIntegrityChecker.getInstance().allowDelete(clusterName, concept, ids, override);
+        if (!isDeleteAllowed) {
             return "<report><error code='1'>FK integrity check failed!</error></report>"; //$NON-NLS-1$
         }
 
@@ -2634,38 +2636,6 @@ public class Util {
         // TODO Scan the entries - in priority, taka the content of the specific
         // entry
         return null;
-    }
-
-    // TMDM-2348 FK integrity feature: Check if document is not referenced
-    public static boolean violateFKIntegrity(String clusterName, String concept, String[] ids, boolean override) throws XtentisException {
-        // Get FK(s) to check
-        MetadataRepository mr = new MetadataRepository();
-        try {
-            DataModelPOJO  dataModel = getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(clusterName));
-            mr.load(new ByteArrayInputStream(dataModel.getSchema().getBytes("utf-8"))); //$NON-NLS-1$
-        } catch (Exception e) {
-            throw new XtentisException(e);
-        }
-        Set<ReferenceFieldMetadata> fieldToCheck = mr.accept(new ForeignKeyIntegrity(mr.getType(concept)));
-
-        // Query pk where fk could be.
-        String queryId = "";
-        for (String id : ids) {
-            queryId += '[' + id + ']';
-        }
-        LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
-        conceptPatternsToClusterName.put(".*", clusterName);
-        for (ReferenceFieldMetadata referenceFieldMetadata : fieldToCheck) {
-            boolean allowOverride = referenceFieldMetadata.allowFKIntegrityOverride();
-            TypeMetadata currentType = referenceFieldMetadata.getContainingType();
-            IWhereItem whereItem = new WhereCondition(referenceFieldMetadata.getContainingType().getName() + '/' + referenceFieldMetadata.getName(), WhereCondition.EQUALS, queryId, WhereCondition.NO_OPERATOR);
-            long count = getXmlServerCtrlLocal().countItems(new LinkedHashMap(), conceptPatternsToClusterName, currentType.getName(), whereItem);
-
-            if (count > 0 && !allowOverride) {
-                return !override;
-            }
-        }
-        return false;
     }
 
     public static String buildItemPKString(String clusterName, String conceptName, String[] ids) {

@@ -9,8 +9,9 @@
  * 9 rue Pages 92150 Suresnes, France
  */
 
-package com.amalto.core.util;
+package com.amalto.core.integrity;
 
+import com.amalto.core.integrity.ForeignKeyIntegrity;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.metadata.ReferenceFieldMetadata;
 import com.amalto.core.metadata.TypeMetadata;

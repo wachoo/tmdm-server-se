@@ -5,6 +5,8 @@
 
 package com.amalto.webapp.util.webservices;
 
+import com.amalto.core.integrity.FKIntegrityCheckResult;
+
 public interface XtentisPort extends java.rmi.Remote {
     public com.amalto.webapp.util.webservices.WSVersion getComponentVersion(com.amalto.webapp.util.webservices.WSGetComponentVersion wsGetComponentVersion) throws 
          java.rmi.RemoteException;
@@ -384,5 +386,5 @@ public interface XtentisPort extends java.rmi.Remote {
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSAutoIncrement getAutoIncrement(com.amalto.webapp.util.webservices.WSAutoIncrement wsAutoIncrementRequest) throws 
          java.rmi.RemoteException;
-    public boolean checkFKIntegrity(WSDeleteItem item) throws java.rmi.RemoteException;
+    public FKIntegrityCheckResult checkFKIntegrity(WSDeleteItem item) throws java.rmi.RemoteException;
 }

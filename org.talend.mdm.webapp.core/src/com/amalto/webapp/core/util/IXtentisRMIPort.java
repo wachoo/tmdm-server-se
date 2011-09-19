@@ -46,6 +46,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import com.amalto.core.integrity.FKIntegrityCheckResult;
 import org.apache.log4j.Logger;
 import org.jboss.security.Base64Encoder;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
@@ -2376,7 +2377,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         return null;
     }
 
-    public boolean checkFKIntegrity(WSDeleteItem item) throws RemoteException {
+    public FKIntegrityCheckResult checkFKIntegrity(WSDeleteItem item) throws RemoteException {
         try {
             WSItemPK wsItemPK = item.getWsItemPK();
             String dataClusterName = wsItemPK.getWsDataClusterPK().getPk();

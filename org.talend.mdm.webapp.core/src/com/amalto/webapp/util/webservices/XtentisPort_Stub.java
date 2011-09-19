@@ -5,6 +5,7 @@
 
 package com.amalto.webapp.util.webservices;
 
+import com.amalto.core.integrity.FKIntegrityCheckResult;
 import com.sun.xml.rpc.streaming.*;
 import com.sun.xml.rpc.encoding.*;
 import com.sun.xml.rpc.soap.streaming.*;
@@ -504,7 +505,7 @@ public class XtentisPort_Stub
         }
     }
 
-    public boolean checkFKIntegrity(WSDeleteItem item) throws RemoteException {
+    public FKIntegrityCheckResult checkFKIntegrity(WSDeleteItem item) throws RemoteException {
         throw new RuntimeException("Not implemented in web service");
     }
 

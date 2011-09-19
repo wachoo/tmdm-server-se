@@ -9,7 +9,7 @@
  * 9 rue Pages 92150 Suresnes, France
  */
 
-package com.amalto.core.util;
+package com.amalto.core.integrity;
 
 import com.amalto.core.metadata.*;
 
