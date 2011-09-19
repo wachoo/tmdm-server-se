@@ -37,7 +37,6 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import com.amalto.core.integrity.FKIntegrityCheckResult;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.EDBType;
@@ -72,9 +71,9 @@ import org.talend.mdm.webapp.browserecords.server.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.server.util.DynamicLabelUtil;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
+import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
-import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -1449,7 +1448,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             TypeModel model = metaDataTypes.get(xpath);
             model.setRetrieveFKinfos(true);
             // FK List
-            if (el.getTextContent() != null && !"".equals(el.getTextContent()) && el.getTextContent().lastIndexOf("[") > 1) { //$NON-NLS-1$ //$NON-NLS-2$
+            if (el.getTextContent() != null && !"".equals(el.getTextContent()) && model.getMaxOccurs() > 1) { //$NON-NLS-1$
                 List<String> fkIds = extractIdToList(el.getTextContent());
                 List<ForeignKeyBean> fkBeans = new ArrayList<ForeignKeyBean>(fkIds.size());
                 for (String id : fkIds) {

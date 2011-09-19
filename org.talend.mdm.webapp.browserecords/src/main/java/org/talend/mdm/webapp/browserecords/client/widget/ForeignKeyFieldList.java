@@ -250,6 +250,7 @@ public class ForeignKeyFieldList extends ContentPanel{
         pagingBar.add(sizeLabel);
         pagingBar.add(sizeField);
         pagingBar.setSpacing(5);
+        pagingBar.setStyleName("x-toolbar"); //$NON-NLS-1$
     }   
     
     public void createWidget() {  
