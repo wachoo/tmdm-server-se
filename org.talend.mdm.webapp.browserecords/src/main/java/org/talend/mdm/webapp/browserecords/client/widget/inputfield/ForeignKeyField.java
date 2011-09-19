@@ -6,6 +6,7 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
+import org.talend.mdm.webapp.browserecords.client.widget.ForeignKeyFieldList;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyListWindow;
 
@@ -36,6 +37,9 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
 
     private ForeignKeyListWindow fkWindow = new ForeignKeyListWindow();
 
+    private boolean isFkList;
+
+    private ForeignKeyFieldList fkFieldList;
 
     public ForeignKeyField(String foreignKey, List<String> foreignKeyInfo) {
         this.foreignKeyName = foreignKey.split("/")[0]; //$NON-NLS-1$
@@ -46,6 +50,12 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         fkWindow.setResizable(false);
         fkWindow.setModal(true);
         fkWindow.setBlinkModal(true);
+    }
+
+    public ForeignKeyField(String foreignKey, List<String> foreignKeyInfo, ForeignKeyFieldList fkFieldList) {
+        this(foreignKey, foreignKeyInfo);
+        this.fkFieldList = fkFieldList;
+        this.isFkList = true;
     }
 
     public void initForeignKeyListWindow() {
@@ -119,7 +129,10 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         });
         cleanFKBtn.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent arg0) {
-                clear();
+                if (!isFkList)
+                    clear();
+                else
+                    fkFieldList.removeForeignKeyWidget(ForeignKeyField.this.getValue());
             }
         });
         relationFKBtn.addClickHandler(new ClickHandler() {

@@ -384,7 +384,8 @@ public class ForeignKeyFieldList extends ContentPanel{
     {
         Field<?> field = null;
         if (typeModel.getForeignkey() != null) {
-            ForeignKeyField foreignKeyField = new ForeignKeyField(typeModel.getForeignkey(), typeModel.getForeignKeyInfo());   
+            ForeignKeyField foreignKeyField = new ForeignKeyField(typeModel.getForeignkey(), typeModel.getForeignKeyInfo(),
+                    ForeignKeyFieldList.this);
             foreignKeyField.setValue((ForeignKeyBean)value);
             foreignKeyField.setReadOnly(false);
             foreignKeyField.setEnabled(true);
@@ -448,4 +449,14 @@ public class ForeignKeyFieldList extends ContentPanel{
             return null;
         }
     };
+
+    public void removeForeignKeyWidget(ForeignKeyBean value) {
+        @SuppressWarnings("unchecked")
+        List<ForeignKeyBean> fkList = (List<ForeignKeyBean>) this.itemNode.getObjectValue();
+        int index = fkList.indexOf(value);
+        fkList.remove(index);
+        fields.remove(index);
+        refreshPage(this.getPageCount());
+
+    }
 }
