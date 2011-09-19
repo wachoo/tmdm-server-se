@@ -1281,8 +1281,18 @@ public class Util {
         filterOperators = filters[1];
         if (filters.length <= 2)
             filterValues = " "; //$NON-NLS-1$
-        else
+        else if (filters.length == 3)
             filterValues = filters[2];
+        else {// more than 3 mean filterValues contains whitespace
+            StringBuffer sb = new StringBuffer();
+            for (int i = 2; i < filters.length; i++) {
+                sb.append(filters[i]);
+                if (i < filters.length - 1) {
+                    sb.append(" ");//$NON-NLS-1$
+                }
+            }
+            filterValues = sb.toString();
+        }
 
         if (filterXpaths == null || filterXpaths.trim().equals("")) //$NON-NLS-1$
             return null;
