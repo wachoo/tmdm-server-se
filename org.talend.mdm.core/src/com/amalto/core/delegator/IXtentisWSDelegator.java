@@ -2014,7 +2014,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         String errorCode = null;
         String message = "";	  //$NON-NLS-1$
         if(wsDeleteItem.getInvokeBeforeSaving()){
-        	outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(dataClusterPK, concept, ids);
+            // TODO fhuaulme: passing concept as 'data model name' is wrong here.
+        	outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(dataClusterPK, concept, concept, ids, false);
 	              
 	        if (outputErrorMessage != null) {
 	            Document doc = Util.parse(outputErrorMessage);

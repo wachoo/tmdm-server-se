@@ -445,7 +445,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             String dataClusterPK = getCurrentDataCluster();
             String concept = item.getConcept();
             String[] ids = extractIdWithDots(item.getIds());
-            String outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(dataClusterPK, concept, ids);
+            String outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(dataClusterPK, getCurrentDataModel(), concept, ids, false);
 
             String message = null;
             String errorCode = null;

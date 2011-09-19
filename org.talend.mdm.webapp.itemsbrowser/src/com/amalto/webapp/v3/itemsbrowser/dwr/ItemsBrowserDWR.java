@@ -2562,7 +2562,7 @@ public class ItemsBrowserDWR {
         try {
             Configuration config = Configuration.getInstance();
             String dataClusterPK = config.getCluster();
-            String outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(dataClusterPK, concept, ids);
+            String outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(dataClusterPK, config.getModel(), concept, ids, false);
 
             String message = null;
             String errorCode = null;

@@ -62,8 +62,8 @@ public class FKIntegrityChecker {
      * @return <code>true</code> if user is allowed to delete instance, <code>false</code> otherwise.
      * @throws XtentisException In case of unexpected error.
      */
-    public boolean allowDelete(String clusterName, String concept, String[] ids, boolean override) throws XtentisException {
-        FKIntegrityCheckResult policy = getFKIntegrityPolicy(clusterName, concept, concept, ids);
+    public boolean allowDelete(String clusterName, String dataModel, String concept, String[] ids, boolean override) throws XtentisException {
+        FKIntegrityCheckResult policy = getFKIntegrityPolicy(clusterName, dataModel, concept, ids);
         switch (policy) {
             case FORBIDDEN:
                 return false;
@@ -115,7 +115,7 @@ public class FKIntegrityChecker {
             }
         }
 
-        return FKIntegrityCheckResult.ALLOWED;
+        return FKIntegrityCheckResult.FORBIDDEN_OVERRIDE_ALLOWED;
     }
 
     /**
@@ -128,7 +128,7 @@ public class FKIntegrityChecker {
      *         <code>concept</code>.
      * @throws XtentisException In case of unexpected error during metadata analysis.
      */
-    public Set<ReferenceFieldMetadata> getForeignKeyList(String dataModelName, String concept) throws XtentisException {
+    public Set<ReferenceFieldMetadata> getForeignKeyList(String concept, String dataModelName) throws XtentisException {
         // Get FK(s) to check
         MetadataRepository mr = new MetadataRepository();
         try {
