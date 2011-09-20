@@ -616,6 +616,13 @@ public class ItemDetailToolBar extends ToolBar {
                 @Override
                 public void componentSelected(ButtonEvent ce) {
                     updateSmartViewToolBar();
+                    // TODO should do in other way
+                    if (container.getItemsDetailPanel().getTabPanel() != null
+                            && container.getItemsDetailPanel().getTabPanel().getItem(0).getWidget(0) instanceof ItemPanel) {
+                        ItemPanel itemPanel = (ItemPanel) container.getItemsDetailPanel().getTabPanel().getItem(0).getWidget(0);
+                        itemPanel.getTree().setVisible(false);
+                        itemPanel.getSmartPanel().setVisible(true);
+                    }
                 }
 
             });
@@ -632,6 +639,13 @@ public class ItemDetailToolBar extends ToolBar {
                 public void componentSelected(ButtonEvent ce) {
                     ItemDetailToolBar.this.removeAll();
                     initToolBar();
+                    // TODO should do in other way
+                    if (container.getItemsDetailPanel().getTabPanel() != null
+                            && container.getItemsDetailPanel().getTabPanel().getItem(0).getWidget(0) instanceof ItemPanel) {
+                        ItemPanel itemPanel = (ItemPanel) container.getItemsDetailPanel().getTabPanel().getItem(0).getWidget(0);
+                        itemPanel.getTree().setVisible(true);
+                        itemPanel.getSmartPanel().setVisible(false);
+                    }
                 }
 
             });
@@ -669,7 +683,17 @@ public class ItemDetailToolBar extends ToolBar {
 
                 @Override
                 public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
-
+                    // TODO should do in other way
+                    if (container.getItemsDetailPanel().getTabPanel() != null
+                            && container.getItemsDetailPanel().getTabPanel().getItem(0).getWidget(0) instanceof ItemPanel) {
+                        ItemPanel itemPanel = (ItemPanel) container.getItemsDetailPanel().getTabPanel().getItem(0).getWidget(0);
+                        String frameUrl = "/itemsbrowser/secure/SmartViewServlet?ids=" + itemBean.getIds() + "&concept=" //$NON-NLS-1$ //$NON-NLS-2$
+                                + itemBean.getConcept() + "&language=" + Locale.getLanguage(); //$NON-NLS-1$
+                        if (se.getSelectedItem().get("key") != null) //$NON-NLS-1$
+                            frameUrl += ("&name=" + se.getSelectedItem().get("key"));//$NON-NLS-1$ //$NON-NLS-2$
+                        itemPanel.getSmartPanel().setUrl(frameUrl);
+                        itemPanel.getSmartPanel().layout(true);
+                    }
                 }
 
             });
