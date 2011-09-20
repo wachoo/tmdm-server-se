@@ -120,12 +120,15 @@ public class Utils {
     
     private static void complementItemsbrowser(ArrayList<String> imports) {
         boolean isItemsbrowserExist = false;
-        boolean isItemsbrowser2Exist = false;
+//        boolean isItemsbrowser2Exist = false;
+        boolean isBrowserRecordExist = false;
+        
         for (String importMenu : imports) {
             if (importMenu.indexOf("src=\"/itemsbrowser/secure/js/ItemsBrowser.js\"") != -1)isItemsbrowserExist = true;//$NON-NLS-1$
-            if (importMenu.indexOf("src=\"/itemsbrowser2/secure/js/ItemsBrowser2.js\"") != -1)isItemsbrowser2Exist = true;//$NON-NLS-1$
+//            if (importMenu.indexOf("src=\"/itemsbrowser2/secure/js/ItemsBrowser2.js\"") != -1)isItemsbrowser2Exist = true;//$NON-NLS-1$
+            if (importMenu.indexOf("src=\"/browserecords/browserecords/browserecords.nocache.js\"") != -1)isBrowserRecordExist = true;//$NON-NLS-1$
         }
-        if (isItemsbrowser2Exist && !isItemsbrowserExist) {
+        if (isBrowserRecordExist && !isItemsbrowserExist) {
             imports
                     .add("<script type=\"text/javascript\" src=\"/itemsbrowser/secure/dwr/interface/ItemsBrowserInterface.js\"></script>\n");//$NON-NLS-1$
             imports.add("<script type=\"text/javascript\" src=\"/itemsbrowser/secure/js/ItemsBrowser.js\"></script>\n");//$NON-NLS-1$
