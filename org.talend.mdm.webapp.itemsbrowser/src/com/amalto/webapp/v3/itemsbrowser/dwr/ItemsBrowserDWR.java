@@ -29,9 +29,9 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -4162,15 +4162,17 @@ public class ItemsBrowserDWR {
         HashMap<Integer, XSParticle> idToParticle = (HashMap<Integer, XSParticle>) ctx.getSession().getAttribute("idToParticle"); //$NON-NLS-1$
         XSParticle selXsp = idToParticle.get(nodeId);
         boolean approved = true;
-
-        XSParticle[] xsps = selXsp.getTerm().asModelGroup().getChildren();
-        for (XSParticle xsp : xsps) {
-            if (xsp.getMinOccurs() >= 1) {
-                return false;
+        if (selXsp != null) {
+            XSParticle[] xsps = selXsp.getTerm().asModelGroup().getChildren();
+            if (xsps != null) {
+                for (XSParticle xsp : xsps) {
+                    if (xsp.getMinOccurs() >= 1) {
+                        return false;
+                    }
+                }
             }
         }
-
-        return approved;
+    	return approved;
     }
 
     public static boolean isNumeric(String str) {
