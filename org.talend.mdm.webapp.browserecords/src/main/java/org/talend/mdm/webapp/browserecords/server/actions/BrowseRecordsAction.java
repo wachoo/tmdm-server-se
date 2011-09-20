@@ -46,7 +46,6 @@ import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsService;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnElement;
-import org.talend.mdm.webapp.browserecords.client.model.ColumnElementChildren;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeModel;
 import org.talend.mdm.webapp.browserecords.client.model.DataTypeConstants;
@@ -71,9 +70,9 @@ import org.talend.mdm.webapp.browserecords.server.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.server.util.DynamicLabelUtil;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
+import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
-import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -1589,90 +1588,60 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     private ColumnTreeLayoutModel builderLayout(Element el) {
-        ColumnTreeLayoutModel layoutModel = new ColumnTreeLayoutModel();
-        layoutModel.setDatamodel(el.getAttribute("datamodel")); //$NON-NLS-1$
-        layoutModel.setEntity(el.getAttribute("entity")); //$NON-NLS-1$
+        ColumnTreeLayoutModel columnModel = new ColumnTreeLayoutModel();
         NodeList children = el.getChildNodes();
         if (children != null && children.getLength() > 0) {
             List<ColumnTreeModel> columnTreeModels = new ArrayList<ColumnTreeModel>();
             for (int i = 0; i < children.getLength(); i++) {
-                Node child = children.item(i);
-                if (child.getNodeType() == Node.ELEMENT_NODE) {
-                    ColumnTreeModel columnTreeModel = builderColumnLayout((Element) child);
-                    columnTreeModels.add(columnTreeModel);
+                Node node = children.item(i);
+                if ("mdmform:Panel".equals(node.getNodeName())) { //$NON-NLS-1$
+                    Element child = (Element) node;
+                    columnTreeModels.add(builderColumnTreeModel(child));
                 }
             }
-            layoutModel.setColumnTreeModels(columnTreeModels);
-        }
-        return layoutModel;
-    }
-    
-    private ColumnTreeModel builderColumnLayout(Element el) {
-        ColumnTreeModel columnModel = new ColumnTreeModel();
-        columnModel.setName(el.getAttribute("name")); //$NON-NLS-1$
-        columnModel.setWidth(el.getAttribute("width")); //$NON-NLS-1$
-
-        NodeList children = el.getChildNodes();
-        if (children != null && children.getLength() > 0) {
-            List<ColumnElement> columnElements = new ArrayList<ColumnElement>();
-            for (int i = 0; i < children.getLength(); i++) {
-                Node child = children.item(i);
-                if (child.getNodeType() == Node.ELEMENT_NODE){
-                    ColumnElement columnElement = builderColumnElement((Element) child);
-                    columnElements.add(columnElement);
-                }
-            }
-            columnModel.setColumnElements(columnElements);
+            columnModel.setColumnTreeModels(columnTreeModels);
         }
         return columnModel;
     }
 
-    private ColumnElement builderColumnElement(Element el) {
-        ColumnElement columnElement = new ColumnElement();
-        columnElement.setCssSnippet(el.getAttribute("cssSnippet")); //$NON-NLS-1$
-        columnElement.setJsSnippet(el.getAttribute("jsSnippet")); //$NON-NLS-1$
-        columnElement.setBkColor(el.getAttribute("bkColor")); //$NON-NLS-1$
-        columnElement.setForeColor(el.getAttribute("foreColor")); //$NON-NLS-1$
-        columnElement.setName(el.getAttribute("name")); //$NON-NLS-1$
-        columnElement.setXpath(el.getAttribute("xpath")); //$NON-NLS-1$
-        
-        NodeList children = el.getChildNodes();
-        if (children != null && children.getLength() > 0){
-            List<ColumnElementChildren> childrenElements = new ArrayList<ColumnElementChildren>();
-            for (int i = 0;i < children.getLength();i++){
-                Node child = children.item(i);
-                if (child.getNodeType() == Node.ELEMENT_NODE){
-                    childrenElements.add(builderChildren((Element) child));
-                }
-            }
-            columnElement.setChildren(childrenElements);
-        }
-        
-        return columnElement;
-    }
-    
-    private ColumnElementChildren builderChildren(Element el) {
-        ColumnElementChildren elChildren = new ColumnElementChildren();
-        elChildren.setBkColor(el.getAttribute("bkColor")); //$NON-NLS-1$
-        elChildren.setCssSnippet(el.getAttribute("cssSnippet")); //$NON-NLS-1$
-        elChildren.setName(el.getAttribute("name")); //$NON-NLS-1$
-        elChildren.setXpath(el.getAttribute("xpath")); //$NON-NLS-1$
-        
+    private ColumnTreeModel builderColumnTreeModel(Element el) {
+        ColumnTreeModel columnTreeModel = new ColumnTreeModel();
         NodeList children = el.getChildNodes();
         if (children != null && children.getLength() > 0) {
-            List<ColumnElementChildren> elChildrens = new ArrayList<ColumnElementChildren>();
+            List<ColumnElement> childrenEls = new ArrayList<ColumnElement>();
             for (int i = 0; i < children.getLength(); i++) {
-                Node child = children.item(i);
-                if (child.getNodeType() == Node.ELEMENT_NODE) {
-                    elChildrens.add(builderChildren((Element) child));
+                Node node = children.item(i);
+                if ("children".equals(node.getNodeName())) { //$NON-NLS-1$
+                    Element child = (Element) node;
+                    childrenEls.add(builderColumnElement(child));
                 }
             }
-
-            elChildren.setChildren(elChildrens);
+            columnTreeModel.setColumnElements(childrenEls);
         }
-        return elChildren;
-
+        return columnTreeModel;
     }
+
+    private ColumnElement builderColumnElement(Element el) {
+        ColumnElement columnEl = new ColumnElement();
+        columnEl.setLabel(el.getAttribute("label")); //$NON-NLS-1$
+        columnEl.setxPath(el.getAttribute("xpath")); //$NON-NLS-1$
+        NodeList children = el.getChildNodes();
+        if (children != null && children.getLength() > 0) {
+            List<ColumnElement> childrenEls = new ArrayList<ColumnElement>();
+            for (int i = 0; i < children.getLength(); i++) {
+                Node node = children.item(i);
+                if ("children".equals(node.getNodeName())) { //$NON-NLS-1$
+                    Element child = (Element) node;
+                    childrenEls.add(builderColumnElement(child));
+                }
+            }
+            columnEl.setChildren(childrenEls);
+        }
+
+        return columnEl;
+    }
+
+
 
     /**
      * get ForeignKey Model by concept and ids

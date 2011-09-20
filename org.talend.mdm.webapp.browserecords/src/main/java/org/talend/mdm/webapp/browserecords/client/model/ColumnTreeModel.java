@@ -17,30 +17,10 @@ import java.util.List;
 
 public class ColumnTreeModel implements Serializable {
 
-    private String width;
-
-    private String name;
-
     private List<ColumnElement> columnElements;
 
     public ColumnTreeModel() {
 
-    }
-
-    public String getWidth() {
-        return width;
-    }
-
-    public void setWidth(String width) {
-        this.width = width;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public List<ColumnElement> getColumnElements() {
