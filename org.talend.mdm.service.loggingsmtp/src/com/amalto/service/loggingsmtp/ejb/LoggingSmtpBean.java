@@ -459,7 +459,7 @@ public class LoggingSmtpBean extends ServiceCtrlBean implements SessionBean {
                 org.apache.log4j.Logger.getLogger(this.getClass()).debug(
                         "receiveFromInbound() : status=" + statusCode + ", message=" + statusMsg);
                 // Remove the item if it's been sent successfully
-                Util.getItemCtrl2Local().deleteItem(itemPK);
+                Util.getItemCtrl2Local().deleteItem(itemPK, false);
                 org.apache.log4j.Logger.getLogger(this.getClass()).debug(
                         "receiveFromInbound() : removed itemPK '" + itemPK.getIds()[0] + "'");
             }
