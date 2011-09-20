@@ -848,7 +848,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         try {
             ItemPOJOPK itemPK = new ItemPOJOPK(new DataClusterPOJOPK(wsDeleteItem.getWsItemPK().getWsDataClusterPK().getPk()),
                     wsDeleteItem.getWsItemPK().getConceptName(), wsDeleteItem.getWsItemPK().getIds());
-            ItemPOJOPK ipk = com.amalto.core.util.Util.getItemCtrl2Local().deleteItem(itemPK);
+            ItemPOJOPK ipk = com.amalto.core.util.Util.getItemCtrl2Local().deleteItem(itemPK, wsDeleteItem.isOverride());
             return ipk == null ? null : wsDeleteItem.getWsItemPK();
 
         } catch (com.amalto.core.util.XtentisException e) {
@@ -862,7 +862,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         try {
             int numItems = com.amalto.core.util.Util.getItemCtrl2Local().deleteItems(
                     new DataClusterPOJOPK(wsDeleteItems.getWsDataClusterPK().getPk()), wsDeleteItems.getConceptName(),
-                    XConverter.WS2VO(wsDeleteItems.getWsWhereItem()), wsDeleteItems.getSpellTreshold());
+                    XConverter.WS2VO(wsDeleteItems.getWsWhereItem()), wsDeleteItems.getSpellTreshold(), wsDeleteItems.isOverride());
             return new WSInt(numItems);
         } catch (com.amalto.core.util.XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
@@ -2123,7 +2123,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             WSItemPK wsItemPK = wsDropItem.getWsItemPK();
             String partPath = wsDropItem.getPartPath();
 
-            DroppedItemPOJOPK droppedItemPOJOPK = Util.getItemCtrl2Local().dropItem(XConverter.WS2POJO(wsItemPK), partPath);
+            DroppedItemPOJOPK droppedItemPOJOPK = Util.getItemCtrl2Local().dropItem(XConverter.WS2POJO(wsItemPK), partPath, wsDropItem.isOverride());
 
             return XConverter.POJO2WS(droppedItemPOJOPK);
 
@@ -2383,9 +2383,8 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             String dataClusterName = wsItemPK.getWsDataClusterPK().getPk();
             String conceptName = wsItemPK.getConceptName();
             String[] ids = wsItemPK.getIds();
-            String dataModel = item.getDataModel();
 
-            return Util.getItemCtrl2Local().checkFKIntegrity(dataClusterName, dataModel, conceptName, ids);
+            return Util.getItemCtrl2Local().checkFKIntegrity(dataClusterName, conceptName, ids);
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }

@@ -322,7 +322,7 @@ public abstract class ConnectorMDB implements MessageDrivenBean, MessageListener
 				//recreate the file 'new style' and delete this on
 				pojo.setItemIds(new String[]{jndiName.replaceAll("\\/", "_").replaceAll(":", "_")});
 				ictrl.putItem(pojo,null);
-				ictrl.deleteItem(oldPK);
+				ictrl.deleteItem(oldPK, false); // Don't override integrity check
 			}
 			//End fix for version < 1.3.6
 			

@@ -1952,8 +1952,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         try {
             ItemPOJOPK itemPK = new ItemPOJOPK(new DataClusterPOJOPK(wsDeleteItem.getWsItemPK().getWsDataClusterPK().getPk()),
                     wsDeleteItem.getWsItemPK().getConceptName(), wsDeleteItem.getWsItemPK().getIds());
-            Util.getItemCtrl2Local().deleteItem(itemPK);
-            return itemPK == null ? null : wsDeleteItem.getWsItemPK();
+            Util.getItemCtrl2Local().deleteItem(itemPK, wsDeleteItem.isOverride());
+            return wsDeleteItem.getWsItemPK();
         } catch (XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
         } catch (Exception e) {
@@ -2004,7 +2004,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         String concept=wsDeleteItem.getWsItemPK().getConceptName();
         String[] ids=wsDeleteItem.getWsItemPK().getIds();
         if("LOGIC_DELETE".equals(wsDeleteItem.getOperateType())){//$NON-NLS-1$
-        	dropItem(new WSDropItem(wsDeleteItem.getWsItemPK(), wsDeleteItem.getUpdatePath()));
+        	dropItem(new WSDropItem(wsDeleteItem.getWsItemPK(), wsDeleteItem.getUpdatePath(), wsDeleteItem.isOverride()));
         	if(wsDeleteItem.getPushToUpdateReport()){
         		pushToUpdateReport(wsDeleteItem, dataClusterPK, concept, ids, wsDeleteItem.getInvokeBeforeSaving());
         	}
@@ -2014,8 +2014,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         String errorCode = null;
         String message = "";	  //$NON-NLS-1$
         if(wsDeleteItem.getInvokeBeforeSaving()){
-            // TODO fhuaulme: passing concept as 'data model name' is wrong here.
-        	outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(dataClusterPK, concept, concept, ids, false);
+        	outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(dataClusterPK, concept, ids);
 	              
 	        if (outputErrorMessage != null) {
 	            Document doc = Util.parse(outputErrorMessage);
@@ -2034,7 +2033,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             if (outputErrorMessage == null || "info".equals(errorCode)) { //$NON-NLS-1$
             if (ids != null ) {
                 WSItemPK wsItem =deleteItem(
-                        new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
+                        new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids), wsDeleteItem.isOverride()));
                     if (wsItem != null && !"UpdateReport".equals(dataClusterPK)) { //$NON-NLS-1$
                 	if(wsDeleteItem.getPushToUpdateReport()){
                 		pushToUpdateReport(wsDeleteItem, dataClusterPK, concept, ids,wsDeleteItem.getInvokeBeforeSaving());    
@@ -2074,7 +2073,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         try {
             int numItems = Util.getItemCtrl2Local().deleteItems(
                     new DataClusterPOJOPK(wsDeleteItems.getWsDataClusterPK().getPk()), wsDeleteItems.getConceptName(),
-                    WS2VO(wsDeleteItems.getWsWhereItem()), wsDeleteItems.getSpellTreshold());
+                    WS2VO(wsDeleteItems.getWsWhereItem()), wsDeleteItems.getSpellTreshold(), wsDeleteItems.isOverride());
             return new WSInt(numItems);
         } catch (XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
@@ -2092,7 +2091,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             WSItemPK wsItemPK = wsDropItem.getWsItemPK();
             String partPath = wsDropItem.getPartPath();
 
-            DroppedItemPOJOPK droppedItemPOJOPK = Util.getItemCtrl2Local().dropItem(WS2POJO(wsItemPK), partPath);
+            DroppedItemPOJOPK droppedItemPOJOPK = Util.getItemCtrl2Local().dropItem(WS2POJO(wsItemPK), partPath, wsDropItem.isOverride());
 
             return POJO2WS(droppedItemPOJOPK);
 

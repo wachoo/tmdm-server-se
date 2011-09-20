@@ -9,18 +9,14 @@ package com.amalto.webapp.util.webservices;
 public class WSDeleteItem {
     protected com.amalto.webapp.util.webservices.WSItemPK wsItemPK;
 
-    private String dataModel;
+    private boolean override;
 
     public WSDeleteItem() {
     }
     
-    public WSDeleteItem(com.amalto.webapp.util.webservices.WSItemPK wsItemPK) {
+    public WSDeleteItem(com.amalto.webapp.util.webservices.WSItemPK wsItemPK, boolean isOverride) {
         this.wsItemPK = wsItemPK;
-    }
-
-    public WSDeleteItem(WSItemPK wsItemPK, String dataModel) {
-        this.wsItemPK = wsItemPK;
-        this.dataModel = dataModel;
+        override = isOverride;
     }
 
     public com.amalto.webapp.util.webservices.WSItemPK getWsItemPK() {
@@ -31,7 +27,11 @@ public class WSDeleteItem {
         this.wsItemPK = wsItemPK;
     }
 
-    public String getDataModel() {
-        return dataModel;
+    public boolean isOverride() {
+        return override;
+    }
+
+    public void setOverride(boolean override) {
+        this.override = override;
     }
 }

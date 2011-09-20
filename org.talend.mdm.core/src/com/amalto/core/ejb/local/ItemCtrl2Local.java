@@ -65,19 +65,19 @@ public interface ItemCtrl2Local
     * Remove an item - returns null if no item was deleted
     * @throws XtentisException
     */
-   public com.amalto.core.ejb.ItemPOJOPK deleteItem( com.amalto.core.ejb.ItemPOJOPK pk ) throws com.amalto.core.util.XtentisException;
+   public com.amalto.core.ejb.ItemPOJOPK deleteItem( com.amalto.core.ejb.ItemPOJOPK pk,boolean override ) throws com.amalto.core.util.XtentisException;
 
    /**
     * Delete items in a stateless mode: open a connection --> perform delete --> close the connection
     * @throws XtentisException
     */
-   public int deleteItems( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String conceptName,com.amalto.xmlserver.interfaces.IWhereItem search,int spellTreshold ) throws com.amalto.core.util.XtentisException;
+   public int deleteItems( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String conceptName,com.amalto.xmlserver.interfaces.IWhereItem search,int spellThreshold,boolean override ) throws com.amalto.core.util.XtentisException;
 
    /**
     * Drop an item - returns null if no item was dropped
     * @throws XtentisException
     */
-   public com.amalto.core.ejb.DroppedItemPOJOPK dropItem( com.amalto.core.ejb.ItemPOJOPK itemPOJOPK,java.lang.String partPath ) throws com.amalto.core.util.XtentisException;
+   public com.amalto.core.ejb.DroppedItemPOJOPK dropItem( com.amalto.core.ejb.ItemPOJOPK itemPOJOPK,java.lang.String partPath,boolean override ) throws com.amalto.core.util.XtentisException;
 
    /**
     * Get unordered items of a Concept using an optional where condition
@@ -260,7 +260,6 @@ public interface ItemCtrl2Local
    /**
     * Returns a map with keys being the concepts found in the Data Cluster and as value the revisionID
     * @param dataClusterPOJOPK
-    * @param universe
     * @return A {@link TreeMap} of concept names to revision IDs
     * @throws XtentisException
     */
@@ -279,5 +278,5 @@ public interface ItemCtrl2Local
 
    public java.util.ArrayList getItemsByCustomFKFilters( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String conceptName,java.util.ArrayList viewablePaths,java.lang.String injectedXpath,int start,int limit,java.lang.String orderbyPath,java.lang.String direction ) throws com.amalto.core.util.XtentisException;
 
-   public FKIntegrityCheckResult checkFKIntegrity(String dataCluster, String dataModel, String concept, String[] ids) throws com.amalto.core.util.XtentisException;
+   public FKIntegrityCheckResult checkFKIntegrity(String dataCluster, String concept, String[] ids) throws com.amalto.core.util.XtentisException;
 }

@@ -257,9 +257,18 @@ public class ItemCtrl2Bean implements SessionBean {
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
-    public ItemPOJOPK deleteItem(ItemPOJOPK pk) throws XtentisException {
+    public ItemPOJOPK deleteItem(ItemPOJOPK pk,boolean override ) throws XtentisException {
+        String dataClusterName = pk.getDataClusterPOJOPK().getUniqueId();
+        String conceptName = pk.getConceptName();
+        String[] ids = pk.getIds();
+
         org.apache.log4j.Logger.getLogger(this.getClass()).trace(
-                "Deleting " + pk.getDataClusterPOJOPK().getUniqueId() + "." + Util.joinStrings(pk.getIds(), "."));
+                "Deleting " + dataClusterName + "." + Util.joinStrings(ids, "."));
+        boolean allowDelete = FKIntegrityChecker.getInstance().allowDelete(dataClusterName, conceptName, ids, override);
+        if (!allowDelete) {
+            throw new RuntimeException("Cannot delete instance '" + pk.getUniqueID() + "' (concept name: " + conceptName + ") due to FK integrity constraints.");
+        }
+
         try {
             return ItemPOJO.remove(pk);
         } catch (XtentisException e) {
@@ -280,7 +289,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
-    public int deleteItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem search, int spellTreshold)
+    public int deleteItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem search, int spellThreshold,boolean override)
             throws XtentisException {
 
         // get the universe and revision ID
@@ -328,9 +337,18 @@ public class ItemCtrl2Bean implements SessionBean {
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
-    public DroppedItemPOJOPK dropItem(ItemPOJOPK itemPOJOPK, String partPath) throws XtentisException {
+    public DroppedItemPOJOPK dropItem(ItemPOJOPK itemPOJOPK, String partPath, boolean override) throws XtentisException {
+        String dataClusterName = itemPOJOPK.getDataClusterPOJOPK().getUniqueId();
+        String conceptName = itemPOJOPK.getConceptName();
+        String[] ids = itemPOJOPK.getIds();
+
         org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-                "Dropping " + itemPOJOPK.getDataClusterPOJOPK().getUniqueId() + "." + Util.joinStrings(itemPOJOPK.getIds(), "."));
+                "Dropping " + dataClusterName + "." + Util.joinStrings(ids, "."));
+        boolean allowDelete = FKIntegrityChecker.getInstance().allowDelete(dataClusterName, conceptName, ids, override);
+        if (!allowDelete) {
+            throw new RuntimeException("Cannot delete instance '" + itemPOJOPK.getUniqueID() + "' (concept name: " + conceptName + ") due to FK integrity constraints.");
+        }
+
         try {
             return ItemPOJO.drop(itemPOJOPK, partPath);
         } catch (XtentisException e) {
@@ -1282,8 +1300,8 @@ public class ItemCtrl2Bean implements SessionBean {
         }
     }
 
-    public FKIntegrityCheckResult checkFKIntegrity(String dataCluster, String dataModel, String concept, String[] ids) throws XtentisException {
-        return FKIntegrityChecker.getInstance().getFKIntegrityPolicy(dataCluster, dataModel, concept, ids);
+    public FKIntegrityCheckResult checkFKIntegrity(String dataCluster, String concept, String[] ids) throws XtentisException {
+        return FKIntegrityChecker.getInstance().getFKIntegrityPolicy(dataCluster, concept, ids);
     }
 
 }

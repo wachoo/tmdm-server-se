@@ -2559,22 +2559,15 @@ public class Util {
      *
      *
      *
+     *
+     *
      * @param clusterName A data cluster name
-     * @param dataModel Data model name that contains the concept.
      * @param concept A concept/type name
      * @param ids Id of the document being deleted
-     * @param override    @return Either <code>null</code> if no process was found or a status message (0=success; <>0=failure) of the form
-     * &lt;error code='1'&gt;This is a message&lt;/error>
      * @throws Exception If something went wrong
      */
     @SuppressWarnings("unchecked")
-    public static String beforeDeleting(String clusterName, String dataModel, String concept, String[] ids, boolean override) throws Exception {
-        // TMDM-2348: Check before deletion if it violates fk integrity
-        boolean isDeleteAllowed = FKIntegrityChecker.getInstance().allowDelete(clusterName, dataModel, concept, ids, override);
-        if (!isDeleteAllowed) {
-            return "<report><error code='1'>FK integrity check failed!</error></report>"; //$NON-NLS-1$
-        }
-
+    public static String beforeDeleting(String clusterName, String concept, String[] ids) throws Exception {
         // check before deleting transformer
         boolean isBeforeDeletingTransformerExist = false;
         Collection<TransformerV2POJOPK> transformers = getTransformerV2CtrlLocal().getTransformerPKs("*");

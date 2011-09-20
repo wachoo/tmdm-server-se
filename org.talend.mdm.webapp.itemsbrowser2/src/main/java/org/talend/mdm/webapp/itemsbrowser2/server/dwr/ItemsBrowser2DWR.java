@@ -178,9 +178,8 @@ public class ItemsBrowser2DWR {
 						new WSDataClusterPK(Configuration.getInstance().getCluster()),
 						concept,
 						list.toArray(new String[list.size()])
-						)
-					)
-			);
+						), false
+					));
 		return null;
 	}
 	
@@ -234,7 +233,8 @@ public class ItemsBrowser2DWR {
 						new WSDataClusterPK(Configuration.getInstance().getCluster()),
 						tableName,
 						null,
-						-1
+						-1,
+                        false
 				)
 		);
 

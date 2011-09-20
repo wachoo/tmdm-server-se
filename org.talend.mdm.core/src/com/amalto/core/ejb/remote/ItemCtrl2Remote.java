@@ -108,31 +108,31 @@ public class ItemCtrl2Remote extends Observable
 
    }
 
-   public com.amalto.core.ejb.ItemPOJOPK deleteItem ( com.amalto.core.ejb.ItemPOJOPK pk )
+   public com.amalto.core.ejb.ItemPOJOPK deleteItem ( com.amalto.core.ejb.ItemPOJOPK pk,boolean override )
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {
         com.amalto.core.ejb.ItemPOJOPK retval;
-       retval =  getSession().deleteItem( pk );
+       retval =  getSession().deleteItem( pk, override);
 
       return retval;
 
    }
 
-   public int deleteItems ( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String conceptName,com.amalto.xmlserver.interfaces.IWhereItem search,int spellTreshold )
+   public int deleteItems ( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String conceptName,com.amalto.xmlserver.interfaces.IWhereItem search,int spellThreshold,boolean override )
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {
         int retval;
-       retval =  getSession().deleteItems( dataClusterPOJOPK,conceptName,search,spellTreshold );
+       retval =  getSession().deleteItems( dataClusterPOJOPK,conceptName,search,spellThreshold,override );
 
       return retval;
 
    }
 
-   public com.amalto.core.ejb.DroppedItemPOJOPK dropItem ( com.amalto.core.ejb.ItemPOJOPK itemPOJOPK,java.lang.String partPath )
+   public com.amalto.core.ejb.DroppedItemPOJOPK dropItem ( com.amalto.core.ejb.ItemPOJOPK itemPOJOPK,java.lang.String partPath,boolean override )
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {
         com.amalto.core.ejb.DroppedItemPOJOPK retval;
-       retval =  getSession().dropItem( itemPOJOPK,partPath );
+       retval =  getSession().dropItem( itemPOJOPK,partPath,override );
 
       return retval;
 

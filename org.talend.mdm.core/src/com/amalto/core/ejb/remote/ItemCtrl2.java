@@ -61,21 +61,21 @@ public interface ItemCtrl2
     * Remove an item - returns null if no item was deleted
     * @throws XtentisException
     */
-   public com.amalto.core.ejb.ItemPOJOPK deleteItem( com.amalto.core.ejb.ItemPOJOPK pk )
+   public com.amalto.core.ejb.ItemPOJOPK deleteItem( com.amalto.core.ejb.ItemPOJOPK pk,boolean override )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**
     * Delete items in a stateless mode: open a connection --> perform delete --> close the connection
     * @throws XtentisException
     */
-   public int deleteItems( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String conceptName,com.amalto.xmlserver.interfaces.IWhereItem search,int spellTreshold )
+   public int deleteItems( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String conceptName,com.amalto.xmlserver.interfaces.IWhereItem search,int spellThreshold,boolean override  )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**
     * Drop an item - returns null if no item was dropped
     * @throws XtentisException
     */
-   public com.amalto.core.ejb.DroppedItemPOJOPK dropItem( com.amalto.core.ejb.ItemPOJOPK itemPOJOPK,java.lang.String partPath )
+   public com.amalto.core.ejb.DroppedItemPOJOPK dropItem( com.amalto.core.ejb.ItemPOJOPK itemPOJOPK,java.lang.String partPath,boolean override )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**
@@ -297,6 +297,7 @@ public interface ItemCtrl2
      * @param concept
      * @param ids
      * @return
+     * @throws com.amalto.core.util.XtentisException
      */
-   public FKIntegrityCheckResult checkFKIntegrity(String dataClusterPK, String dataModel, String concept, String[] ids) throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+   public FKIntegrityCheckResult checkFKIntegrity(String dataClusterPK, String concept, String[] ids) throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 }

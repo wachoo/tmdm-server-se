@@ -14,11 +14,12 @@ public class WSDeleteItemWithReport {
     protected java.lang.String user;
     protected java.lang.Boolean invokeBeforeSaving;
     protected java.lang.Boolean pushToUpdateReport;
-    
+    protected java.lang.Boolean override;
+
     public WSDeleteItemWithReport() {
     }
     
-    public WSDeleteItemWithReport(com.amalto.core.webservice.WSItemPK wsItemPK, java.lang.String source, java.lang.String operateType, java.lang.String updatePath, java.lang.String user, java.lang.Boolean invokeBeforeSaving, java.lang.Boolean pushToUpdateReport) {
+    public WSDeleteItemWithReport(com.amalto.core.webservice.WSItemPK wsItemPK, java.lang.String source, java.lang.String operateType, java.lang.String updatePath, java.lang.String user, java.lang.Boolean invokeBeforeSaving, java.lang.Boolean pushToUpdateReport, java.lang.Boolean isOverride) {
         this.wsItemPK = wsItemPK;
         this.source = source;
         this.operateType = operateType;
@@ -26,6 +27,7 @@ public class WSDeleteItemWithReport {
         this.user = user;
         this.invokeBeforeSaving = invokeBeforeSaving;
         this.pushToUpdateReport = pushToUpdateReport;
+        this.override = isOverride;
     }
     
     public com.amalto.core.webservice.WSItemPK getWsItemPK() {
@@ -82,5 +84,13 @@ public class WSDeleteItemWithReport {
     
     public void setPushToUpdateReport(java.lang.Boolean pushToUpdateReport) {
         this.pushToUpdateReport = pushToUpdateReport;
+    }
+
+    public java.lang.Boolean isOverride() {
+        return override;
+    }
+
+    public void setOverride(Boolean override) {
+        this.override = override;
     }
 }

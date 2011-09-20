@@ -416,7 +416,7 @@ public class ReportingDWR {
 						new WSDataClusterPK(_reportingCluster), 
 						"Reporting",
 						new String[] {reportingName}
-					)
+					), false
 				)					
 			);	
 		}

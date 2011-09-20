@@ -2562,7 +2562,7 @@ public class ItemsBrowserDWR {
         try {
             Configuration config = Configuration.getInstance();
             String dataClusterPK = config.getCluster();
-            String outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(dataClusterPK, config.getModel(), concept, ids, false);
+            String outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(dataClusterPK, concept, ids);
 
             String message = null;
             String errorCode = null;
@@ -2584,7 +2584,7 @@ public class ItemsBrowserDWR {
                 TreeNode rootNode = getRootNode(concept, "en"); //$NON-NLS-1$
                 if (ids != null && !rootNode.isReadOnly()) {
                     WSItemPK wsItem = Util.getPort().deleteItem(
-                            new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
+                            new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids), false));
                     if (wsItem != null)
                         pushUpdateReport(ids, concept, "PHYSICAL_DELETE", docIndex); //$NON-NLS-1$ // If docIndex is -1, it means the item is
                     // deleted from the list.
@@ -2661,7 +2661,7 @@ public class ItemsBrowserDWR {
                     xml = CommonDWR.getXMLStringFromDocument(d);
                 }
                 WSDroppedItemPK wsItem = Util.getPort().dropItem(
-                        new WSDropItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids), path));
+                        new WSDropItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids), path, false));
                 if (wsItem != null && xml != null)
                     if ("/".equalsIgnoreCase(path)) { //$NON-NLS-1$
                         pushUpdateReport(ids, concept, "LOGIC_DELETE", docIndex); //$NON-NLS-1$
@@ -4455,7 +4455,7 @@ public class ItemsBrowserDWR {
             String dataClusterPK = XSystemObjects.DC_SEARCHTEMPLATE.getName();
             if (ids != null) {
                 WSItemPK wsItem = Util.getPort().deleteItem(
-                        new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
+                        new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids), false));
 
                 if (wsItem == null)
                     return "ERROR - deleteTemplate is NULL";//$NON-NLS-1$

@@ -11,15 +11,17 @@ public class WSDeleteItems {
     protected java.lang.String conceptName;
     protected com.amalto.core.webservice.WSWhereItem wsWhereItem;
     protected int spellTreshold;
-    
+    protected boolean override;
+
     public WSDeleteItems() {
     }
     
-    public WSDeleteItems(com.amalto.core.webservice.WSDataClusterPK wsDataClusterPK, java.lang.String conceptName, com.amalto.core.webservice.WSWhereItem wsWhereItem, int spellTreshold) {
+    public WSDeleteItems(com.amalto.core.webservice.WSDataClusterPK wsDataClusterPK, java.lang.String conceptName, com.amalto.core.webservice.WSWhereItem wsWhereItem, int spellTreshold, boolean override) {
         this.wsDataClusterPK = wsDataClusterPK;
         this.conceptName = conceptName;
         this.wsWhereItem = wsWhereItem;
         this.spellTreshold = spellTreshold;
+        this.override = override;
     }
     
     public com.amalto.core.webservice.WSDataClusterPK getWsDataClusterPK() {
@@ -52,5 +54,13 @@ public class WSDeleteItems {
     
     public void setSpellTreshold(int spellTreshold) {
         this.spellTreshold = spellTreshold;
+    }
+
+    public boolean isOverride() {
+        return override;
+    }
+
+    public void setOverride(boolean override) {
+        this.override = override;
     }
 }
