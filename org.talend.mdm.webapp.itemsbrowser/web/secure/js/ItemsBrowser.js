@@ -6402,6 +6402,9 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         refreshAllFn : function(){
         	refreshAllFn();
         },
+        lineageItem : function (lineageEntities, ids, dataObject){
+        	lineageItem(lineageEntities, ids, dataObject);
+        },
         resizeIframe : function(obj){
         	resizeIframe(obj);
         }
