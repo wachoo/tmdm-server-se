@@ -24,7 +24,11 @@ class SoftTypeRef implements TypeMetadata {
     private final String fieldTypeName;
 
     private TypeMetadata getType() {
-        return repository.getType(fieldTypeName);
+        TypeMetadata type = repository.getType(fieldTypeName);
+        if (type == null) {
+            throw new IllegalArgumentException("Type '" + fieldTypeName + "' is not present in type repository.");
+        }
+        return type;
     }
 
     public SoftTypeRef(MetadataRepository repository, String fieldTypeName) {

@@ -26,6 +26,8 @@ public class ComplexTypeMetadata implements TypeMetadata {
 
     private final Collection<TypeMetadata> superTypes;
 
+    private boolean hasResolvedSuperTypes = false;
+
     public ComplexTypeMetadata(String nameSpace, String name, Collection<TypeMetadata> superTypes) {
         this.name = name;
         this.nameSpace = nameSpace;
@@ -33,10 +35,6 @@ public class ComplexTypeMetadata implements TypeMetadata {
     }
 
     public void addSuperType(TypeMetadata superType) {
-        List<FieldMetadata> superTypeFields = superType.getFields();
-        for (FieldMetadata superTypeField : superTypeFields) {
-            superTypeField.adopt(this);
-        }
         superTypes.add(superType);
     }
 
@@ -71,14 +69,33 @@ public class ComplexTypeMetadata implements TypeMetadata {
     }
 
     public List<FieldMetadata> getFields() {
+        if (!hasResolvedSuperTypes) {
+            // Resolve fields from super types lazily in case type does not exist in repository when
+            // addSuperType is called.
+            for (TypeMetadata superType : superTypes) {
+                List<FieldMetadata> superTypeFields = superType.getFields();
+                for (FieldMetadata superTypeField : superTypeFields) {
+                    superTypeField.adopt(this);
+                }
+            }
+            hasResolvedSuperTypes = true;
+        }
+
         return Collections.unmodifiableList(new ArrayList<FieldMetadata>(fieldMetadata.values()));
     }
 
     public boolean isAssignableFrom(TypeMetadata type) {
-        // Naive implementation: what about 1+ level of inheritance???
+        // Check one level of inheritance
         Collection<TypeMetadata> superTypes = getSuperTypes();
         for (TypeMetadata superType : superTypes) {
             if (type.getName().equals(superType.getName())) {
+                return true;
+            }
+        }
+
+        // Checks in type inheritance hierarchy.
+        for (TypeMetadata superType : superTypes) {
+            if (superType.isAssignableFrom(type)) {
                 return true;
             }
         }
