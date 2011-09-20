@@ -162,7 +162,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             String dataClusterPK = getCurrentDataCluster();
             String concept = item.getConcept();
             String[] ids = extractIdWithDots(item.getIds());
-            String outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(dataClusterPK, getCurrentDataModel(), concept, ids, override);
+            String outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(dataClusterPK, concept, ids);
 
             String message = null;
             String errorCode = null;
@@ -181,7 +181,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             int status;
             if (outputErrorMessage == null || "info".equals(errorCode)) { //$NON-NLS-1$
                 WSItemPK wsItem = CommonUtil.getPort().deleteItem(
-                        new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
+                        new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids), override));
                 if (wsItem != null) {
                     status = ItemResult.SUCCESS;
                     pushUpdateReport(ids, concept, "PHYSICAL_DELETE", true); //$NON-NLS-1$
@@ -224,7 +224,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 String[] ids = extractIdWithDots(selectedItem.getIds());
 
                 WSItemPK wsItemPK = new WSItemPK(new WSDataClusterPK(getCurrentDataCluster()), concept, ids);
-                WSDeleteItem deleteItem = new WSDeleteItem(wsItemPK, getCurrentDataModel());
+                WSDeleteItem deleteItem = new WSDeleteItem(wsItemPK, false);
 
                 switch (CommonUtil.getPort().checkFKIntegrity(deleteItem)) {
                     case FORBIDDEN:
@@ -674,7 +674,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             WSItem item1 = CommonUtil.getPort().getItem(new WSGetItem(wsItemPK));
             String xml = item1.getContent();
 
-            WSDroppedItemPK wsItem = CommonUtil.getPort().dropItem(new WSDropItem(wsItemPK, path));
+            WSDroppedItemPK wsItem = CommonUtil.getPort().dropItem(new WSDropItem(wsItemPK, path, override));
 
             if (wsItem != null && xml != null)
                 if ("/".equalsIgnoreCase(path)) { //$NON-NLS-1$
@@ -1251,7 +1251,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             String dataClusterPK = XSystemObjects.DC_SEARCHTEMPLATE.getName();
             if (ids != null) {
                 WSItemPK wsItem = CommonUtil.getPort().deleteItem(
-                        new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
+                        new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids), false));
 
                 if (wsItem == null)
                     return MESSAGES.getMessage("label_error_delete_template_null"); //$NON-NLS-1$
