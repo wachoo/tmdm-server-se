@@ -111,7 +111,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
     }
 
     private void addListener() {
-
+        addFKBtn.setTitle(MessagesFactory.getMessages().fk_add_title());
         addFKBtn.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent arg0) {
                 Dispatcher dispatch = Dispatcher.get();
@@ -119,6 +119,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
                 dispatch.dispatch(event);
             }
         });
+        selectFKBtn.setTitle(MessagesFactory.getMessages().fk_select_title());
         selectFKBtn.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent arg0) {
                 Dispatcher dispatch = Dispatcher.get();
@@ -127,6 +128,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
                 dispatch.dispatch(event);
             }
         });
+        cleanFKBtn.setTitle(MessagesFactory.getMessages().fk_del_title());
         cleanFKBtn.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent arg0) {
                 if (!isFkList)
@@ -135,6 +137,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
                     fkFieldList.removeForeignKeyWidget(ForeignKeyField.this.getValue());
             }
         });
+        relationFKBtn.setTitle(MessagesFactory.getMessages().fk_open_title());
         relationFKBtn.addClickHandler(new ClickHandler() {
 
             public void onClick(ClickEvent arg0) {

@@ -3,15 +3,19 @@ package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
+import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -20,6 +24,8 @@ import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
@@ -69,7 +75,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
 
     public ForeignKeyTreeDetail() {
         this.setHeaderVisible(false);
-        this.setHeight(1000);
+        this.setHeight(Window.getClientHeight() - (60 + 4 * 20));
         this.setScrollMode(Scroll.AUTO);
     }
 
@@ -111,6 +117,30 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         root.setState(true);
 
         add(tree);
+
+    }
+
+    public void refreshTree() {
+        BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
+        ItemBean item = fkModel.getItemBean();
+        service.getItemNodeModel(item.getConcept(), viewBean.getBindingEntityModel(), item.getIds(), Locale.getLanguage(),
+                new AsyncCallback<ItemNodeModel>() {
+
+                    public void onSuccess(ItemNodeModel nodeModel) {
+                        fkModel.setNodeModel(nodeModel);
+                        model = nodeModel;
+                        DynamicTreeItem root = buildGWTTree(nodeModel);
+                        tree.clear();
+                        tree.addItem(root);
+                        root.setState(true);
+                        // ForeignKeyTreeDetail.this.layout();
+                    }
+
+                    public void onFailure(Throwable caught) {
+                        caught.printStackTrace();
+                    }
+                });
+
 
     }
 

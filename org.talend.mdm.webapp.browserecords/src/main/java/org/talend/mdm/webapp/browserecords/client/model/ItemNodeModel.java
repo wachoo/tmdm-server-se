@@ -26,7 +26,17 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
     
     private String dynamicLabel;
 
-	public String getDynamicLabel() {
+    private boolean isChangeValue;
+
+    public boolean isChangeValue() {
+        return isChangeValue;
+    }
+
+    public void setChangeValue(boolean isChangeValue) {
+        this.isChangeValue = isChangeValue;
+    }
+
+    public String getDynamicLabel() {
 		return dynamicLabel;
 	}
 

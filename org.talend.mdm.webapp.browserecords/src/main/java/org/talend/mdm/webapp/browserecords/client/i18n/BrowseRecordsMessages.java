@@ -270,6 +270,16 @@ public interface BrowseRecordsMessages extends Messages {
 
     String fk_integrity_fail_override();
 
+    String msg_confirm_refresh_tree_detail();
+
+    String fk_del_title();
+
+    String fk_select_title();
+
+    String fk_open_title();
+
+    String fk_add_title();
+
     String personalview_btn();
 
     String generatedview_btn();
@@ -277,4 +287,5 @@ public interface BrowseRecordsMessages extends Messages {
     String smartview_defaultoption();
 
     String print_btn();
+
 }

@@ -21,6 +21,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTr
 import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -451,7 +452,7 @@ public class ItemDetailToolBar extends ToolBar {
 
                 @Override
                 public void componentSelected(ButtonEvent ce) {
-
+                    refreshTreeDetail();
                 }
 
             });
@@ -459,6 +460,52 @@ public class ItemDetailToolBar extends ToolBar {
         add(refreshButton);
     }
 
+    private void refreshTreeDetail() {
+        ItemsSearchContainer itemsSearchContainer = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
+        ItemsDetailPanel detailPanel = itemsSearchContainer.getItemsDetailPanel();
+        if (isFkToolBar) {
+            final ForeignKeyTreeDetail fkTree = (ForeignKeyTreeDetail) detailPanel.getTabPanel().getSelectedItem().getWidget(0);
+            ItemNodeModel root = fkTree.getRootModel();
+            refreshTree(null, fkTree, root);
+        } else {
+            final ItemPanel itemPanel = (ItemPanel) detailPanel.getTabPanel().getSelectedItem().getWidget(0);
+            ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getTree().getItem(0).getUserObject();
+            refreshTree(itemPanel, null, root);
+        }
+
+    }
+
+    private void refreshTree(final ItemPanel itemPanel, final ForeignKeyTreeDetail fkTree, ItemNodeModel root) {
+        if (isChangeValue(root)) {
+            MessageBox
+                    .confirm(MessagesFactory.getMessages().confirm_title(),
+                            MessagesFactory.getMessages().msg_confirm_refresh_tree_detail(), new Listener<MessageBoxEvent>() {
+
+                                public void handleEvent(MessageBoxEvent be) {
+                                    if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+                                        if (isFkToolBar)
+                                            fkTree.refreshTree();
+                                        else
+                                            itemPanel.refreshTree();
+                                    }
+                                }
+                            }).getDialog().setWidth(800);
+        } else {
+            if (isFkToolBar)
+                fkTree.refreshTree();
+            else
+                itemPanel.refreshTree();
+        }
+    }
+
+    private boolean isChangeValue(ItemNodeModel model) {
+        if (model.isChangeValue())
+            return true;
+        for (ModelData node : model.getChildren()) {
+            return isChangeValue((ItemNodeModel) node);
+        }
+        return false;
+    }
     private void addRelationButton(){
         if (relationButton == null) {
             relationButton = new Button(MessagesFactory.getMessages().relations_btn());

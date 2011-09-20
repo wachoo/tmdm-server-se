@@ -11,7 +11,6 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
-import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
@@ -33,7 +32,7 @@ public class TreeDetail extends ContentPanel {
 
     private final ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
 
-    private ItemDetailToolBar toolBar;
+    // private ItemDetailToolBar toolBar;
 
     private Tree tree = new Tree();
 
@@ -45,7 +44,7 @@ public class TreeDetail extends ContentPanel {
             DynamicTreeItem selected = (DynamicTreeItem) tree.getSelectedItem();
             DynamicTreeItem parentItem = (DynamicTreeItem) selected.getParentItem();
 
-            if ("Add".equals(arg0.getRelativeElement().getId())) {
+            if ("Add".equals(arg0.getRelativeElement().getId())) { //$NON-NLS-1$
                 // clone a new item
                 Element clonedElement = DOM.clone(selected.getElement(), true);
                 DynamicTreeItem clonedItem = new DynamicTreeItem();
@@ -67,7 +66,7 @@ public class TreeDetail extends ContentPanel {
         if (itemBean == null) {
             buildPanel(viewBean);
         } else {
-            this.getItemService().getItemNodeModel(itemBean.getConcept(), viewBean.getBindingEntityModel(), itemBean.getIds(),
+            getItemService().getItemNodeModel(itemBean.getConcept(), viewBean.getBindingEntityModel(), itemBean.getIds(),
             		Locale.getLanguage(), new AsyncCallback<ItemNodeModel>() {
 
                         public void onSuccess(ItemNodeModel node) {
@@ -189,12 +188,25 @@ public class TreeDetail extends ContentPanel {
 
     }
 
-    private static UserSession getSession() {
-        return Registry.get(BrowseRecords.USER_SESSION);
-
-    }
-
     public Tree getTree() {
         return tree;
+    }
+
+    public void refreshTree(ItemBean item) {
+        getItemService().getItemNodeModel(item.getConcept(), viewBean.getBindingEntityModel(), item.getIds(),
+                Locale.getLanguage(), new AsyncCallback<ItemNodeModel>() {
+
+                    public void onSuccess(ItemNodeModel node) {
+                        root = buildGWTTree(node, null);
+                        root.setState(true);
+                        tree.clear();
+                        tree.addItem(root);
+                        // TreeDetail.this.layout();
+                    }
+
+                    public void onFailure(Throwable caught) {
+                        caught.printStackTrace();
+                    }
+                });
     }
 }

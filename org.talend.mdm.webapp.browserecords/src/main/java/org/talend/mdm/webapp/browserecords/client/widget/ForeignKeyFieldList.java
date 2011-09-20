@@ -425,7 +425,7 @@ public class ForeignKeyFieldList extends ContentPanel{
                 List<ForeignKeyBean> list = (List<ForeignKeyBean>) itemNode.getObjectValue();
                 int index = list.indexOf(foreignKeyBean);
                 list.set(index, (ForeignKeyBean) fe.getValue());
-
+                itemNode.setChangeValue(true);
                 System.out.println("###########################################################");
                 for (int i=0;i<list.size();i++){
                     System.out.println(list.get(i));
@@ -460,7 +460,8 @@ public class ForeignKeyFieldList extends ContentPanel{
         List<ForeignKeyBean> fkList = (List<ForeignKeyBean>) this.itemNode.getObjectValue();
         int index = fkList.indexOf(value);
         fkList.remove(index);
-        fields.remove(index);    
+        fields.remove(index);
+        itemNode.setChangeValue(true);
         refreshPage(this.getPageCount());
     
     }

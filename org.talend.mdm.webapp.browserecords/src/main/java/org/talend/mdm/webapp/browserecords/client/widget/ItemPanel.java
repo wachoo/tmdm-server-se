@@ -12,14 +12,10 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget;
 
-import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
-import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
-import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail;
 
-import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 
@@ -45,7 +41,6 @@ public class ItemPanel extends ContentPanel {
         this.initUI();
     }
 
-    @SuppressWarnings("static-access")
     private void initUI() {
         this.setBodyBorder(false);
         this.setHeaderVisible(false);
@@ -66,18 +61,6 @@ public class ItemPanel extends ContentPanel {
         // this.setBottomComponent(new PagingToolBarEx(50));
     }
 
-    private static BrowseRecordsServiceAsync getItemService() {
-
-        BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
-        return service;
-
-    }
-
-    private static UserSession getSession() {
-        return Registry.get(BrowseRecords.USER_SESSION);
-
-    }
-
     public void handleEvent(AppEvent event) {
         if (event.getType() == BrowseRecordsEvents.UpdatePolymorphism) {
             tree.handleEvent(event);
@@ -94,6 +77,10 @@ public class ItemPanel extends ContentPanel {
 
     public String getOperation() {
         return operation;
+    }
+
+    public void refreshTree() {
+        tree.refreshTree(item);
     }
 
 }
