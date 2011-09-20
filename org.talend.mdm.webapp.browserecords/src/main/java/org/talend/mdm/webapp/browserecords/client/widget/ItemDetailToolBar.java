@@ -119,11 +119,19 @@ public class ItemDetailToolBar extends ToolBar {
             this.addJournalButton();
             this.addSeparator();
             this.addFreshButton();
+            if (isFkToolBar) {
+                this.addSeparator();
+                this.addRelationButton();
+            }
             this.addWorkFlosCombo();
         } else if (operation.equalsIgnoreCase(ItemDetailToolBar.CREATE_OPERATION)) {
             this.addSaveButton();
             this.addSeparator();
             this.addSaveQuitButton();
+            if (isFkToolBar) {
+                this.addSeparator();
+                this.addRelationButton();
+            }
             this.addWorkFlosCombo();
         }
 
@@ -413,6 +421,7 @@ public class ItemDetailToolBar extends ToolBar {
                 
             }
         });
+        add(relationButton);
     }
     
     private void addWorkFlosCombo() {
