@@ -46,9 +46,7 @@ import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsService;
-import org.talend.mdm.webapp.browserecords.client.model.ColumnElement;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
-import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeModel;
 import org.talend.mdm.webapp.browserecords.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyDrawer;
@@ -1589,63 +1587,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.parse(is);
         Element root = doc.getDocumentElement();
-        return builderLayout(root);
+        return ViewHelper.builderLayout(root);
     }
 
-    private ColumnTreeLayoutModel builderLayout(Element el) {
-        ColumnTreeLayoutModel columnModel = new ColumnTreeLayoutModel();
-        NodeList children = el.getChildNodes();
-        if (children != null && children.getLength() > 0) {
-            List<ColumnTreeModel> columnTreeModels = new ArrayList<ColumnTreeModel>();
-            for (int i = 0; i < children.getLength(); i++) {
-                Node node = children.item(i);
-                if ("mdmform:Panel".equals(node.getNodeName())) { //$NON-NLS-1$
-                    Element child = (Element) node;
-                    columnTreeModels.add(builderColumnTreeModel(child));
-                }
-            }
-            columnModel.setColumnTreeModels(columnTreeModels);
-        }
-        return columnModel;
-    }
 
-    private ColumnTreeModel builderColumnTreeModel(Element el) {
-        ColumnTreeModel columnTreeModel = new ColumnTreeModel();
-        NodeList children = el.getChildNodes();
-        if (children != null && children.getLength() > 0) {
-            List<ColumnElement> childrenEls = new ArrayList<ColumnElement>();
-            for (int i = 0; i < children.getLength(); i++) {
-                Node node = children.item(i);
-                if ("children".equals(node.getNodeName())) { //$NON-NLS-1$
-                    Element child = (Element) node;
-                    childrenEls.add(builderColumnElement(child));
-                }
-            }
-            columnTreeModel.setColumnElements(childrenEls);
-        }
-        return columnTreeModel;
-    }
-
-    private ColumnElement builderColumnElement(Element el) {
-        ColumnElement columnEl = new ColumnElement();
-        columnEl.setLabel(el.getAttribute("label")); //$NON-NLS-1$
-        columnEl.setxPath(el.getAttribute("xpath")); //$NON-NLS-1$
-        columnEl.setParent(el.getAttribute("parent")); //$NON-NLS-1$
-        NodeList children = el.getChildNodes();
-        if (children != null && children.getLength() > 0) {
-            List<ColumnElement> childrenEls = new ArrayList<ColumnElement>();
-            for (int i = 0; i < children.getLength(); i++) {
-                Node node = children.item(i);
-                if ("children".equals(node.getNodeName())) { //$NON-NLS-1$
-                    Element child = (Element) node;
-                    childrenEls.add(builderColumnElement(child));
-                }
-            }
-            columnEl.setChildren(childrenEls);
-        }
-
-        return columnEl;
-    }
 
 
 

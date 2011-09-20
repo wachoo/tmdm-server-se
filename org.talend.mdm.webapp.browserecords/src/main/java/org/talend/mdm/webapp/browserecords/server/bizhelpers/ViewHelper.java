@@ -12,14 +12,22 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.server.bizhelpers;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.talend.mdm.webapp.browserecords.client.model.ColumnElement;
+import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
+import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeModel;
 import org.talend.mdm.webapp.browserecords.server.util.DynamicLabelUtil;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.amalto.webapp.util.webservices.WSView;
 
@@ -101,4 +109,58 @@ public class ViewHelper {
         }
     }
 
+    public static ColumnTreeLayoutModel builderLayout(Element el) {
+        ColumnTreeLayoutModel columnModel = new ColumnTreeLayoutModel();
+        NodeList children = el.getChildNodes();
+        if (children != null && children.getLength() > 0) {
+            List<ColumnTreeModel> columnTreeModels = new ArrayList<ColumnTreeModel>();
+            for (int i = 0; i < children.getLength(); i++) {
+                Node node = children.item(i);
+                if ("mdmform:Panel".equals(node.getNodeName())) { //$NON-NLS-1$
+                    Element child = (Element) node;
+                    columnTreeModels.add(builderColumnTreeModel(child));
+                }
+            }
+            columnModel.setColumnTreeModels(columnTreeModels);
+        }
+        return columnModel;
+    }
+
+    private static ColumnTreeModel builderColumnTreeModel(Element el) {
+        ColumnTreeModel columnTreeModel = new ColumnTreeModel();
+        NodeList children = el.getChildNodes();
+        if (children != null && children.getLength() > 0) {
+            List<ColumnElement> childrenEls = new ArrayList<ColumnElement>();
+            for (int i = 0; i < children.getLength(); i++) {
+                Node node = children.item(i);
+                if ("children".equals(node.getNodeName())) { //$NON-NLS-1$
+                    Element child = (Element) node;
+                    childrenEls.add(builderColumnElement(child));
+                }
+            }
+            columnTreeModel.setColumnElements(childrenEls);
+        }
+        return columnTreeModel;
+    }
+
+    private static ColumnElement builderColumnElement(Element el) {
+        ColumnElement columnEl = new ColumnElement();
+        columnEl.setLabel(el.getAttribute("label")); //$NON-NLS-1$
+        columnEl.setxPath(el.getAttribute("xpath")); //$NON-NLS-1$
+        columnEl.setParent(el.getAttribute("parent")); //$NON-NLS-1$
+        NodeList children = el.getChildNodes();
+        if (children != null && children.getLength() > 0) {
+            List<ColumnElement> childrenEls = new ArrayList<ColumnElement>();
+            for (int i = 0; i < children.getLength(); i++) {
+                Node node = children.item(i);
+                if ("children".equals(node.getNodeName())) { //$NON-NLS-1$
+                    Element child = (Element) node;
+                    childrenEls.add(builderColumnElement(child));
+                }
+            }
+            columnEl.setChildren(childrenEls);
+        }
+
+        return columnEl;
+    }
 }
