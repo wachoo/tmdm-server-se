@@ -1581,7 +1581,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
             return result;
         }
-
     }
 
     public ColumnTreeLayoutModel getColumnTreeLayout(String concept) throws Exception {
@@ -1631,6 +1630,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         ColumnElement columnEl = new ColumnElement();
         columnEl.setLabel(el.getAttribute("label")); //$NON-NLS-1$
         columnEl.setxPath(el.getAttribute("xpath")); //$NON-NLS-1$
+        columnEl.setParent(el.getAttribute("parent")); //$NON-NLS-1$
         NodeList children = el.getChildNodes();
         if (children != null && children.getLength() > 0) {
             List<ColumnElement> childrenEls = new ArrayList<ColumnElement>();

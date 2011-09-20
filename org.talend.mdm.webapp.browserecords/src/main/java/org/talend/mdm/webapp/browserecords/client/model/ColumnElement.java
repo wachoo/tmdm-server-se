@@ -21,6 +21,8 @@ public class ColumnElement implements Serializable {
 
     private String xPath;
 
+    private String parent;
+
     private List<ColumnElement> children;
 
     public ColumnElement() {
@@ -41,6 +43,14 @@ public class ColumnElement implements Serializable {
 
     public void setxPath(String xPath) {
         this.xPath = xPath;
+    }
+
+    public String getParent() {
+        return parent;
+    }
+
+    public void setParent(String parent) {
+        this.parent = parent;
     }
 
     public List<ColumnElement> getChildren() {
