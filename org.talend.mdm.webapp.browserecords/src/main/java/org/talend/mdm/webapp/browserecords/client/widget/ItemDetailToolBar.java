@@ -418,7 +418,25 @@ public class ItemDetailToolBar extends ToolBar {
             
             @Override
             public void componentSelected(ButtonEvent ce) {
-                
+                service.getLineageEntity(itemBean.getConcept(), new AsyncCallback<List<String>>() {
+                    
+                    public void onSuccess(List<String> list) {
+                        StringBuilder entityStr = new StringBuilder();
+                        if(list != null){
+                            for(String str : list)
+                                entityStr.append(str).append(","); //$NON-NLS-1$
+                            String arrStr = entityStr.toString().substring(0, entityStr.length() - 1);
+                            String ids = itemBean.getIds();
+                            if(ids == null || ids.trim() == "")
+                                ids = "";
+                            initSearchEntityPanel(arrStr, ids, itemBean.getConcept());
+                        }
+                    }
+                    
+                    public void onFailure(Throwable arg0) {
+                        
+                    }
+                });
             }
         });
         add(relationButton);
@@ -495,4 +513,9 @@ public class ItemDetailToolBar extends ToolBar {
         return true;
     }-*/;
 
+    private native boolean initSearchEntityPanel(String arrStr, String ids, String dataObject)/*-{
+        var lineageEntities = arrStr.split(",");
+        $wnd.amalto.itemsbrowser.ItemsBrowser.lineageItem(lineageEntities, ids, dataObject);
+        return true;
+    }-*/;
 }

@@ -101,4 +101,6 @@ public interface BrowseRecordsService extends RemoteService {
     List<ItemBaseModel> getRunnableProcessList(String concept, String language);
     
     String processItem(String concept, String[] ids, String transformerPK);
+    
+    List<String> getLineageEntity(String concept);
 }

@@ -1793,5 +1793,15 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
         return "Ok"; //$NON-NLS-1$
     }
-
+    
+    public List<String> getLineageEntity(String concept) {
+        List<String> refs = null;
+        try {
+            refs = SchemaWebAgent.getInstance().getReferenceEntities(concept);
+            return refs;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return refs;
+    }
 }

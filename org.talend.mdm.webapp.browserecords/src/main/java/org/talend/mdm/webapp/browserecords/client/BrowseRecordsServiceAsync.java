@@ -101,4 +101,6 @@ public interface BrowseRecordsServiceAsync {
 
     void processItem(String concept, String[] ids, String transformerPK, AsyncCallback<String> callback);
 
+    void getLineageEntity(String concept, AsyncCallback<List<String>> callback);
+
 }
