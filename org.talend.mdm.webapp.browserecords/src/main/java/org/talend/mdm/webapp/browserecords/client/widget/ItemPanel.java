@@ -52,7 +52,8 @@ public class ItemPanel extends ContentPanel {
         this.setTopComponent(toolBar);
         if (ItemDetailToolBar.CREATE_OPERATION.equals(operation)) {
             tree.initTree(null);
-        } else if (ItemDetailToolBar.VIEW_OPERATION.equals(operation)) {
+        } else if (ItemDetailToolBar.VIEW_OPERATION.equals(operation)
+                || ItemDetailToolBar.PERSONALEVIEW_OPERATION.equals(operation)) {
             tree.initTree(item);
         } else if (ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {
             tree.initTree(item);

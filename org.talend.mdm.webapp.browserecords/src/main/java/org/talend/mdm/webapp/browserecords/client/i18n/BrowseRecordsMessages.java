@@ -269,4 +269,12 @@ public interface BrowseRecordsMessages extends Messages {
     String relations_tooltip();
 
     String fk_integrity_fail_override();
+
+    String personalview_btn();
+
+    String generatedview_btn();
+
+    String smartview_defaultoption();
+
+    String print_btn();
 }

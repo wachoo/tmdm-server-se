@@ -108,7 +108,8 @@ public class BrowseRecordsView extends View {
         ItemsDetailPanel detailPanel = itemsSearchContainer.getItemsDetailPanel();
         detailPanel.clearContent();
         detailPanel.initBanner(item.getDisplayPKInfo(), item.getDescription());
-        ItemPanel itemPanel = new ItemPanel(item, ItemDetailToolBar.VIEW_OPERATION);
+        ItemPanel itemPanel = new ItemPanel(item, item.isHasSmartView() ? ItemDetailToolBar.PERSONALEVIEW_OPERATION
+                : ItemDetailToolBar.VIEW_OPERATION);
         detailPanel.addTabItem(item.getConcept(), itemPanel, ItemsDetailPanel.SINGLETON, "itemView"); //$NON-NLS-1$
 
         // show breadcrumb

@@ -38,6 +38,8 @@ public class ItemBean extends ItemBaseModel {
 
     private String displayPKInfo;
 
+    private boolean hasSmartView = false;
+
     /**
      * DOC HSHU ItemBean constructor comment.
      */
@@ -51,7 +53,6 @@ public class ItemBean extends ItemBaseModel {
         this.concept = concept;
         this.ids = ids;
         this.itemXml = itemXml;
-
     }
 
     public String getConcept() {
@@ -113,6 +114,14 @@ public class ItemBean extends ItemBaseModel {
 
     public void setDisplayPKInfo(String displayPKInfo) {
         this.displayPKInfo = displayPKInfo;
+    }
+
+    public boolean isHasSmartView() {
+        return hasSmartView;
+    }
+
+    public void setHasSmartView(boolean hasSmartView) {
+        this.hasSmartView = hasSmartView;
     }
 
     @Override

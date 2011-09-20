@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.browserecords.server.actions;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,11 +67,15 @@ import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ItemHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.RoleHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
+import org.talend.mdm.webapp.browserecords.server.provider.DefaultSmartViewProvider;
+import org.talend.mdm.webapp.browserecords.server.provider.SmartViewProvider;
 import org.talend.mdm.webapp.browserecords.server.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.server.util.DynamicLabelUtil;
+import org.talend.mdm.webapp.browserecords.server.util.SmartViewUtil;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
+import org.talend.mdm.webapp.browserecords.shared.SmartViewDescriptions;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.w3c.dom.Document;
@@ -798,6 +803,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
                 ItemBean itemBean = new ItemBean(concept,
                         CommonUtil.joinStrings(idsArray, "."), Util.nodeToString(doc.getDocumentElement()));//$NON-NLS-1$
+                itemBean.setHasSmartView(checkSmartViewExistsByOpt(concept, language));
                 dynamicAssembleByResultOrder(itemBean, viewBean, entityModel);
                 itemBeans.add(itemBean);
             }
@@ -1803,5 +1809,98 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             e.printStackTrace();
         }
         return refs;
+    }
+
+    /**
+     **********Smart View**********
+     **/
+    public static boolean checkSmartViewExistsByLang(String concept, String language, boolean useNoLang) {
+        return checkSmartViewExistsByLangAndOptName(concept, language, null, useNoLang);
+    }
+
+    public static boolean checkSmartViewExistsByLangAndOptName(String concept, String language, String optname, boolean useNoLang) {
+        try {
+            SmartViewProvider provider = new DefaultSmartViewProvider();
+            SmartViewDescriptions smDescs = SmartViewUtil.build(provider, concept, language);
+
+            Set<SmartViewDescriptions.SmartViewDescription> smDescSet = smDescs.get(language);
+            if (useNoLang) {
+                // Add the no language Smart Views too
+                smDescSet.addAll(smDescs.get(null));
+            }
+            for (SmartViewDescriptions.SmartViewDescription smDesc : smDescSet) {
+                if (optname != null) {
+                    if (optname.equals(smDesc.getOptName()))
+                        return true;
+                } else {
+                    if (smDesc.getOptName() == null)
+                        return true;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    public static boolean checkSmartViewExists(String concept, String language) {
+        boolean ret = checkSmartViewExistsByLang(concept, language, true);
+        return ret;
+    }
+
+    public static boolean checkSmartViewExistsByOpt(String concept, String language) {
+        try {
+            SmartViewProvider provider = new DefaultSmartViewProvider();
+            SmartViewDescriptions smDescs = SmartViewUtil.build(provider, concept, language);
+
+            Set<SmartViewDescriptions.SmartViewDescription> smDescSet = smDescs.get(language);
+
+            // Add the no language Smart Views too
+            smDescSet.addAll(smDescs.get(null));
+
+            if (!smDescSet.isEmpty())
+                return true;
+            else
+                return false;
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    public List<ItemBaseModel> getSmartViewList(String regex) throws Exception {
+        List<ItemBaseModel> smartViewList = new ArrayList<ItemBaseModel>();
+        try {
+            if (regex == null || regex.length() == 0)
+                return smartViewList;
+
+            String[] inputParams = regex.split("&");//$NON-NLS-1$
+            String concept = inputParams[0];
+            String language = inputParams[1];
+
+            // Get SmartViews from processes
+            SmartViewProvider provider = new DefaultSmartViewProvider();
+            SmartViewDescriptions smDescs = SmartViewUtil.build(provider, concept, language);
+
+            // Get the lang Smart Views first : Smart_view_<entity>_<ISO> and Smart_view_<entity>_<ISO>#<option>
+            Set<SmartViewDescriptions.SmartViewDescription> smDescSet = smDescs.get(language);
+            // Add the fallback noLang Smart Views too : Smart_view_<entity> and Smart_view_<entity>#<option>
+            smDescSet.addAll(smDescs.get(null));
+
+            for (SmartViewDescriptions.SmartViewDescription smDesc : smDescSet) {
+                String value = URLEncoder.encode(smDesc.getName(), "UTF-8"); //$NON-NLS-1$
+                ItemBaseModel itemBaseModel = new ItemBaseModel();
+                itemBaseModel.set("key", value); //$NON-NLS-1$
+                itemBaseModel.set("value", smDesc.getDisplayName()); //$NON-NLS-1$
+                smartViewList.add(itemBaseModel);
+            }
+
+        } catch (Exception e) {
+            String err = "Unable to get Smart view List! ";
+            LOG.error(e.getMessage(), e);
+            throw new Exception(err);
+        }
+        return smartViewList;
     }
 }
