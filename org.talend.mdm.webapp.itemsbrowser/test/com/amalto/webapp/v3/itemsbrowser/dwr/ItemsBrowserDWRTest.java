@@ -5,6 +5,8 @@ import java.util.HashMap;
 import junit.framework.TestCase;
 
 import com.amalto.webapp.core.bean.UpdateReportItem;
+import com.amalto.webapp.util.webservices.WSWhereCondition;
+import com.amalto.webapp.util.webservices.WSWhereItem;
 import com.amalto.webapp.v3.itemsbrowser.bean.TreeNode;
 
 @SuppressWarnings("nls")
@@ -33,7 +35,7 @@ public class ItemsBrowserDWRTest extends TestCase {
         assertEquals("\"china\"", rightValue);
     }
 
-    public void testGetForeignKeyListWithCount() {
+    public void testGetForeignKeyListWithCount() throws Exception {
         // it's hard to prepare all the data here, so just test
         // com.amalto.webapp.core.util.Util.getWhereConditionFromFK(it's a new method)
 
@@ -45,6 +47,14 @@ public class ItemsBrowserDWRTest extends TestCase {
         assertEquals("Agency/Name CONTAINS " + value + " OR " + "Agency/City CONTAINS " + value, fkWhere);
         fkWhere = com.amalto.webapp.core.util.Util.getWhereConditionFromFK(xpathForeignKey, xpathInfoForeignKey, value);
         assertTrue(fkWhere.contains("Agency/Id CONTAINS " + value));
+
+        // add Util.buildWhereItem junit test
+        String criteria = "Agency/Name CONTAINS NYC -";
+        WSWhereItem whereItem = com.amalto.webapp.core.util.Util.buildWhereItem(criteria);
+        WSWhereCondition condition = whereItem.getWhereAnd().getWhereItems()[0].getWhereCondition();
+
+        String rightValue = condition.getRightValueOrPath();
+        assertTrue("NYC -".equals(rightValue));
 
     }
 }
