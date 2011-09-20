@@ -105,4 +105,6 @@ public interface BrowseRecordsService extends RemoteService {
     List<String> getLineageEntity(String concept);
 
     List<ItemBaseModel> getSmartViewList(String regex) throws Exception;
+    
+    ItemBean getItemBeanById(String concept, String[] ids);
 }

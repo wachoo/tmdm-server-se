@@ -753,4 +753,22 @@ public class ItemDetailToolBar extends ToolBar {
         $wnd.amalto.itemsbrowser.ItemsBrowser.lineageItem(lineageEntities, ids, dataObject);
         return true;
     }-*/;
+    
+    public static void addTreeDetail(String ids, String concept){
+        String[] idArr = ids.split(","); //$NON-NLS-1$
+        BrowseRecordsServiceAsync brService = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
+        brService.getItemBeanById(concept, idArr, new AsyncCallback<ItemBean>() {
+            
+            public void onSuccess(ItemBean item) {
+                ItemsSearchContainer itemsSearchContainer = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
+                ItemsDetailPanel detailPanel = itemsSearchContainer.getItemsDetailPanel();
+                ItemPanel itemPanel = new ItemPanel(item, ItemDetailToolBar.VIEW_OPERATION);
+                detailPanel.addTabItem(item.getConcept(), itemPanel, ItemsDetailPanel.MULTIPLE, item.getIds());
+            }
+            
+            public void onFailure(Throwable arg0) {
+                
+            }
+        });
+    }
 }

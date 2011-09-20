@@ -1848,4 +1848,20 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
         return smartViewList;
     }
+    
+    public ItemBean getItemBeanById(String concept, String[] ids){
+        try {
+            WSItem wsItem = CommonUtil.getPort().getItem(new WSGetItem(new WSItemPK(new WSDataClusterPK(this.getCurrentDataCluster()), concept, ids)));
+            String[] idsArr = wsItem.getIds();
+            StringBuilder sb = new StringBuilder();
+            for(String str : idsArr)
+                sb.append(str).append("."); //$NON-NLS-1$
+            String idsStr = sb.substring(0, sb.length() - 1);
+            ItemBean itemBean = new ItemBean(concept, idsStr, wsItem.getContent());
+            return itemBean;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

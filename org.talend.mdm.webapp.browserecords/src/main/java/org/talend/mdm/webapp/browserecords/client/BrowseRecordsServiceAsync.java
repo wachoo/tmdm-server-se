@@ -105,4 +105,6 @@ public interface BrowseRecordsServiceAsync {
 
     void getSmartViewList(String regex, AsyncCallback<List<ItemBaseModel>> callback);
 
+    void getItemBeanById(String concept, String[] ids, AsyncCallback<ItemBean> callback);
+
 }

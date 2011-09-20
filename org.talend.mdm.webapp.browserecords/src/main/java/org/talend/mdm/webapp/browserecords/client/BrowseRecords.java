@@ -42,12 +42,22 @@ public class BrowseRecords implements EntryPoint {
 
     private RootPanel panel;
 
+    private native void regItemDetails()/*-{
+        $wnd.amalto.itemsbrowser.ItemsBrowser.editItemDetails = function(ids, entity, callback){
+             var idstr;
+             if(ids.length == 1){
+                 idstr = ids[0];
+             }             
+             @org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar::addTreeDetail(Ljava/lang/String;Ljava/lang/String;)(idstr, entity)
+        };
+    }-*/;
     /**
      * This is the entry point method.
      */
     public void onModuleLoad() {
         if (GWT.isScript()) {
             registerPubService();
+            regItemDetails();
             Log.setUncaughtExceptionHandler();
             Registry.register(BROWSERECORDS_SERVICE, GWT.create(BrowseRecordsService.class));
 
