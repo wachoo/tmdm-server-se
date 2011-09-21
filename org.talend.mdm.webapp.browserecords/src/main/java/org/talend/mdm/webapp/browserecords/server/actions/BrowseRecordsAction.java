@@ -1453,7 +1453,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             TypeModel model = metaDataTypes.get(xpath);
             model.setRetrieveFKinfos(true);
             // FK List
-            if (el.getTextContent() != null && !"".equals(el.getTextContent()) && el.getTextContent().lastIndexOf("[") > 1) { //$NON-NLS-1$ //$NON-NLS-2$
+            if (el.getTextContent() != null && !"".equals(el.getTextContent()) && model.getMaxOccurs() > 1) { //$NON-NLS-1$
                 List<String> fkIds = extractIdToList(el.getTextContent());
                 List<ForeignKeyBean> fkBeans = new ArrayList<ForeignKeyBean>(fkIds.size());
                 for (String id : fkIds) {

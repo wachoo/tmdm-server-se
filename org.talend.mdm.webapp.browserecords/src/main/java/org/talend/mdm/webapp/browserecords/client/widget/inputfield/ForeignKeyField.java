@@ -141,7 +141,8 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         relationFKBtn.addClickHandler(new ClickHandler() {
 
             public void onClick(ClickEvent arg0) {
-                if(ForeignKeyField.this.getValue() == null)
+                ForeignKeyBean fkBean = ForeignKeyField.this.getValue();
+                if (fkBean == null || fkBean.getId() == null || "".equals(fkBean.getId())) //$NON-NLS-1$
                     return;
                 Dispatcher dispatch = Dispatcher.get();
                 AppEvent event = new AppEvent(BrowseRecordsEvents.ViewForeignKey);
