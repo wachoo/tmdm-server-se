@@ -72,10 +72,21 @@ public class TreeDetail extends ContentPanel {
             getItemService().getItemNodeModel(itemBean.getConcept(), viewBean.getBindingEntityModel(), itemBean.getIds(),
             		Locale.getLanguage(), new AsyncCallback<ItemNodeModel>() {
 
-                        public void onSuccess(ItemNodeModel node) {
-                            root = buildGWTTree(node, null);
-                            root.setState(true);
-                            tree.addItem(root);
+                public void onSuccess(ItemNodeModel node) {
+                    root = buildGWTTree(node, null);
+                    root.setState(true);
+                    tree.addItem(root);
+                    //maybe need to refactor for performance
+                    getItemService().executeVisibleRule(CommonUtil.toXML(node), new AsyncCallback<List<VisibleRuleResult>>() {
+						public void onFailure(Throwable arg0) {
+						}
+
+						public void onSuccess(List<VisibleRuleResult> arg0) {
+							for(VisibleRuleResult visibleRuleResult : arg0) {
+								recrusiveSetItems(visibleRuleResult, (DynamicTreeItem) root);
+							}
+						}
+					});
                 }
 
                 public void onFailure(Throwable arg0) {
@@ -150,25 +161,16 @@ public class TreeDetail extends ContentPanel {
         } else if(event.getType() == BrowseRecordsEvents.ExecuteVisibleRule) {
         	List<VisibleRuleResult> visibleResults = event.getData();
             DynamicTreeItem rootItem = (DynamicTreeItem) tree.getItem(0);
-            List<DynamicTreeItem> visibleRuleItems = new ArrayList<TreeDetail.DynamicTreeItem>();
             
             for(VisibleRuleResult visibleResult : visibleResults) {
-            	recrusiveSetItems(visibleRuleItems, visibleResult, rootItem);
+            	recrusiveSetItems(visibleResult, rootItem);
         	}
         }
     }
 
-    private void recrusiveSetItems(List<DynamicTreeItem> visibleRuleItems,
-			VisibleRuleResult visibleResult, DynamicTreeItem rootItem) {
+    private void recrusiveSetItems(VisibleRuleResult visibleResult, DynamicTreeItem rootItem) {
     	if(rootItem.getItemNodeModel().getBindingPath().equals(visibleResult.getXpath())) {
-    		visibleRuleItems.add(rootItem);
     		rootItem.setVisible(visibleResult.isVisible());
-    		if(visibleResult.isVisible()) {
-    			rootItem.setStyleName("tree_item_display"); //$NON-NLS-1$
-    		}
-    		else {
-    			rootItem.setStyleName("tree_item_hidden"); //$NON-NLS-1$
-    		}
     	}
     	
     	if(rootItem.getChildCount() == 0) {
@@ -177,7 +179,7 @@ public class TreeDetail extends ContentPanel {
     	
     	for(int i = 0; i < rootItem.getChildCount(); i++) {
     		DynamicTreeItem item = (DynamicTreeItem) rootItem.getChild(i);
-    		recrusiveSetItems(visibleRuleItems, visibleResult, item);
+    		recrusiveSetItems(visibleResult, item);
     	}
 	}
 
