@@ -260,7 +260,10 @@ public class DisplayRulesUtil {
                         continue;
                     String appinfoSource = source.getNodeValue();
                     if (annotList.item(k) != null && annotList.item(k).getFirstChild() != null) {
-                        if (type.equals(BusinessConcept.APPINFO_X_VISIBLE_RULE))
+                        if (type == null) {
+                            if (appinfoSource.equals(BusinessConcept.APPINFO_X_VISIBLE_RULE))
+                                return true;
+                        } else if (type.equals(BusinessConcept.APPINFO_X_VISIBLE_RULE))
                             if (appinfoSource.equals(BusinessConcept.APPINFO_X_VISIBLE_RULE))
                                 return true;
                     }
