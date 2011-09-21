@@ -238,7 +238,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         }
                         break;
                     default:
-                        throw new XtentisWebappException("Unsupported value '" + checkResult + "'");
+                    throw new XtentisWebappException(MESSAGES.getMessage("fk_integrity", checkResult)); //$NON-NLS-1$
                 }
             }
         } catch (Exception e) {
@@ -1626,13 +1626,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     String description = trans.getDescription();
                     Pattern p = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL);//$NON-NLS-1$//$NON-NLS-2$
                     String name = p.matcher(description).replaceAll("$1");//$NON-NLS-1$
-                    if (name.equals(""))//$NON-NLS-1$
-                        if (language.equalsIgnoreCase("fr"))//$NON-NLS-1$
-                            name = "Action par d鑼協aut";//$NON-NLS-1$
-                        else if (language.equalsIgnoreCase("en"))//$NON-NLS-1$
-                            name = "Default Action";//$NON-NLS-1$
-                        else
+                    if (name.equals("")) {//$NON-NLS-1$
+                        String action = MESSAGES.getMessage("default_action"); //$NON-NLS-1$
+                        if (action != null && action.trim().length() > 0) {
+                            name = action;
+                        } else {
                             name = description;
+                        }
+                    }
                     
                     ItemBaseModel itemBaseModel = new ItemBaseModel();
                     itemBaseModel.set("key", wst[i].getPk()); //$NON-NLS-1$
@@ -1693,7 +1694,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             
             WSTransformer wsTransformer = Util.getPort().getTransformer(new WSGetTransformer(new WSTransformerPK(transformerPK)));
             if (wsTransformer.getPluginSpecs() == null || wsTransformer.getPluginSpecs().length == 0)
-                throw new Exception("The Plugin Specs of this process is undefined! "); //$NON-NLS-1$
+                throw new Exception(MESSAGES.getMessage("plugin_specs")); //$NON-NLS-1$
 
             boolean outputReport = false;
             String downloadUrl = "";//$NON-NLS-1$
@@ -1720,7 +1721,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
             } else {
                 // return false;
-                throw new Exception("The target process is not existed! "); //$NON-NLS-1$
+                throw new Exception(MESSAGES.getMessage("process_existed")); //$NON-NLS-1$
             }
             
             // store
@@ -1728,13 +1729,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             if (!Util.persistentUpdateReport(updateReport, true).equals("OK")) {//$NON-NLS-1$
                 // return false;
-                throw new Exception("Store Update-Report failed! ");//$NON-NLS-1$
+                throw new Exception(MESSAGES.getMessage("store_update_report"));//$NON-NLS-1$
             }
             if (outputReport)
                 return "Ok" + downloadUrl; //$NON-NLS-1$
             
         } catch (Exception e) {
-            String err = "Unable to launch Runnable Process! "; //$NON-NLS-1$
+            String err = MESSAGES.getMessage("unable_launch_process"); //$NON-NLS-1$
             LOG.error(e.getMessage(), e);
             String output = e.getLocalizedMessage();
             if (e.getLocalizedMessage() == null || e.getLocalizedMessage().equals("")) //$NON-NLS-1$
@@ -1842,7 +1843,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
 
         } catch (Exception e) {
-            String err = "Unable to get Smart view List! ";
+            String err = MESSAGES.getMessage("unable_getsmart_viewlist"); //$NON-NLS-1$
             LOG.error(e.getMessage(), e);
             throw new Exception(err);
         }
