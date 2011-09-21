@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
+import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
@@ -19,6 +20,7 @@ import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -133,11 +135,11 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                         tree.clear();
                         tree.addItem(root);
                         root.setState(true);
-                        // ForeignKeyTreeDetail.this.layout();
                     }
 
                     public void onFailure(Throwable caught) {
-                        caught.printStackTrace();
+                        MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().refresh_tip()
+                                + " " + MessagesFactory.getMessages().message_fail(), null); //$NON-NLS-1$
                     }
                 });
 

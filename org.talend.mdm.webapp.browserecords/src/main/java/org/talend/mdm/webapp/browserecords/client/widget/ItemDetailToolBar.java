@@ -185,9 +185,8 @@ public class ItemDetailToolBar extends ToolBar {
                     } else if (widget instanceof ForeignKeyTreeDetail) { // save foreign key
                         ForeignKeyTreeDetail fkDetail = (ForeignKeyTreeDetail) tabItem.getWidget(0);
                         model = fkDetail.getRootModel();
-                        app
-                                .setData(
-                                        "ItemBean", fkDetail.isCreate() ? new ItemBean(fkDetail.getViewBean().getBindingEntityModel().getConceptName(), "", "") : itemBean); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        app.setData(
+                                "ItemBean", fkDetail.isCreate() ? new ItemBean(fkDetail.getViewBean().getBindingEntityModel().getConceptName(), "", "") : itemBean); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         app.setData("isCreate", fkDetail.isCreate()); //$NON-NLS-1$
                     }
                     app.setData(model);
@@ -477,8 +476,7 @@ public class ItemDetailToolBar extends ToolBar {
 
     private void refreshTree(final ItemPanel itemPanel, final ForeignKeyTreeDetail fkTree, ItemNodeModel root) {
         if (isChangeValue(root)) {
-            MessageBox
-                    .confirm(MessagesFactory.getMessages().confirm_title(),
+            MessageBox.confirm(MessagesFactory.getMessages().confirm_title(),
                             MessagesFactory.getMessages().msg_confirm_refresh_tree_detail(), new Listener<MessageBoxEvent>() {
 
                                 public void handleEvent(MessageBoxEvent be) {
@@ -489,7 +487,7 @@ public class ItemDetailToolBar extends ToolBar {
                                             itemPanel.refreshTree();
                                     }
                                 }
-                            }).getDialog().setWidth(800);
+                            }).getDialog().setWidth(600);
         } else {
             if (isFkToolBar)
                 fkTree.refreshTree();
