@@ -349,14 +349,7 @@ public class ItemsToolBar extends ToolBar {
                                                         new Listener<MessageBoxEvent>() {
                                                             public void handleEvent(MessageBoxEvent be) {
                                                                 if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                                                    // TODO How does FKRelRecordWindow exactly work?
-                                                                    relWindow.setFkKey("");
-                                                                    relWindow.setReturnCriteriaFK(new ReturnCriteriaFK() {
-                                                                        public void setCriteriaFK(ForeignKeyBean fk) {
-                                                                            // Do nothing
-                                                                        }
-                                                                    });
-                                                                    relWindow.show();
+                                                                    // TODO Handle list of deletes
                                                                 }
                                                             }
                                                         });
@@ -1199,13 +1192,7 @@ public class ItemsToolBar extends ToolBar {
                                                     new Listener<MessageBoxEvent>() {
                                                         public void handleEvent(MessageBoxEvent be) {
                                                             if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                                                relWindow.setFkKey("");
-                                                                relWindow.setReturnCriteriaFK(new ReturnCriteriaFK() {
-                                                                    public void setCriteriaFK(ForeignKeyBean fk) {
-                                                                        // Do nothing
-                                                                    }
-                                                                });
-                                                                relWindow.show();
+                                                                // TODO Handle list of deletes
                                                             }
                                                         }
                                                     });

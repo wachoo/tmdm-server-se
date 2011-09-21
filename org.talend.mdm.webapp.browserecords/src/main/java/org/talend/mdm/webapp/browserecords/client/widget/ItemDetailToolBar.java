@@ -98,8 +98,6 @@ public class ItemDetailToolBar extends ToolBar {
     
     private ItemBaseModel selectItem;
 
-    private FKRelRecordWindow relWindow = new FKRelRecordWindow();
-
     public ItemDetailToolBar() {
         this.setBorders(false);
     }
@@ -155,8 +153,6 @@ public class ItemDetailToolBar extends ToolBar {
             }
             this.addWorkFlosCombo();
         }
-
-        relWindow.setHeading(MessagesFactory.getMessages().fk_RelatedRecord());
     }
 
     private void addSaveButton() {
@@ -227,32 +223,39 @@ public class ItemDetailToolBar extends ToolBar {
                                     case FORBIDDEN_OVERRIDE_ALLOWED:
                                         MessageBox.confirm(MessagesFactory.getMessages().error_title(), MessagesFactory
                                                 .getMessages().fk_integrity_fail_override(), new Listener<MessageBoxEvent>() {
-
                                             public void handleEvent(MessageBoxEvent be) {
                                                 if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
                                                     doLogicalDelete(url, true);
                                                 }
-                                                        }
+                                            }
                                         });
                                         break;
-                                    case FORBIDDEN:
-                                        MessageBox.confirm(MessagesFactory.getMessages().error_title(), MessagesFactory
+                                        case FORBIDDEN:
+                                            MessageBox.confirm(MessagesFactory.getMessages().error_title(), MessagesFactory
                                                 .getMessages().fk_integrity_fail_open_relations(),
                                                 new Listener<MessageBoxEvent>() {
-
                                                     public void handleEvent(MessageBoxEvent be) {
                                                         if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                                            // TODO How does FKRelRecordWindow exactly work?
-                                                            relWindow.setFkKey("");
-                                                            relWindow.setReturnCriteriaFK(new ReturnCriteriaFK() {
+                                                            service.getLineageEntity(itemBean.getConcept(), new AsyncCallback<List<String>>() {
+                                                                public void onSuccess(List<String> list) {
+                                                                    StringBuilder entityStr = new StringBuilder();
+                                                                    if (list != null) {
+                                                                        for (String str : list)
+                                                                            entityStr.append(str).append(","); //$NON-NLS-1$
+                                                                        String arrStr = entityStr.toString().substring(0, entityStr.length() - 1);
+                                                                        String ids = itemBean.getIds();
+                                                                        if (ids == null || "".equals(ids.trim()))
+                                                                            ids = "";
+                                                                        initSearchEntityPanel(arrStr, ids, itemBean.getConcept());
+                                                                    }
+                                                                }
 
-                                                                public void setCriteriaFK(ForeignKeyBean fk) {
-                                                                    // Do nothing
+                                                                public void onFailure(Throwable caught) {
+                                                                    Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
                                                                 }
                                                             });
-                                                            relWindow.show();
                                                         }
-                                                        }
+                                                    }
                                                 });
                                         break;
                                     case ALLOWED:
@@ -306,15 +309,25 @@ public class ItemDetailToolBar extends ToolBar {
 
                                                                 public void handleEvent(MessageBoxEvent be) {
                                                                     if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                                                        // TODO How does FKRelRecordWindow exactly work?
-                                                                        relWindow.setFkKey("");
-                                                                        relWindow.setReturnCriteriaFK(new ReturnCriteriaFK() {
+                                                                        service.getLineageEntity(itemBean.getConcept(), new AsyncCallback<List<String>>() {
+                                                                            public void onSuccess(List<String> list) {
+                                                                                StringBuilder entityStr = new StringBuilder();
+                                                                                if (list != null) {
+                                                                                    for (String str : list)
+                                                                                        entityStr.append(str).append(","); //$NON-NLS-1$
+                                                                                    String arrStr = entityStr.toString().substring(0, entityStr.length() - 1);
+                                                                                    String ids = itemBean.getIds();
+                                                                                    if (ids == null || "".equals(ids.trim()))
+                                                                                        ids = "";
+                                                                                    initSearchEntityPanel(arrStr, ids, itemBean.getConcept());
+                                                                                }
+                                                                            }
 
-                                                                            public void setCriteriaFK(ForeignKeyBean fk) {
-                                                                                // Do nothing
+                                                                            public void onFailure(Throwable caught) {
+                                                                                Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
                                                                             }
                                                                         });
-                                                                        relWindow.show();
+
                                                                     }
                                                                 }
                                                             });
@@ -484,6 +497,7 @@ public class ItemDetailToolBar extends ToolBar {
         }
         return false;
     }
+
     private void addRelationButton(){
         if (relationButton == null) {
             relationButton = new Button(MessagesFactory.getMessages().relations_btn());
