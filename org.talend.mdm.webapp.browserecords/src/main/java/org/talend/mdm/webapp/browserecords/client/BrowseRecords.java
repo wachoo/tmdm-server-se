@@ -47,7 +47,10 @@ public class BrowseRecords implements EntryPoint {
              var idstr;
              if(ids.length == 1){
                  idstr = ids[0];
-             }             
+             }      
+             var tabPanel = $wnd.amalto.core.getTabPanel();  
+             var panel = tabPanel.getItem("Browse Records");   
+             tabPanel.setSelection(panel.getItemId());  
              @org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar::addTreeDetail(Ljava/lang/String;Ljava/lang/String;)(idstr, entity)
         };
     }-*/;

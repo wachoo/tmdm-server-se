@@ -761,7 +761,7 @@ public class ItemDetailToolBar extends ToolBar {
                 ItemsSearchContainer itemsSearchContainer = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
                 ItemsDetailPanel detailPanel = itemsSearchContainer.getItemsDetailPanel();
                 ItemPanel itemPanel = new ItemPanel(item, ItemDetailToolBar.VIEW_OPERATION);
-                detailPanel.addTabItem(item.getConcept(), itemPanel, ItemsDetailPanel.MULTIPLE, item.getIds());
+                detailPanel.addTabItem(item.getConcept() + " " + item.getIds(), itemPanel, ItemsDetailPanel.MULTIPLE, item.getIds()); //$NON-NLS-1$
             }
             
             public void onFailure(Throwable arg0) {
