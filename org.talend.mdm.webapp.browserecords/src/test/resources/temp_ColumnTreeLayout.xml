@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="ASCII"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:al="http://eclipse.org/graphiti/mm/algorithms" xmlns:mdmcomp="http://org.talend/mdm/form/components" xmlns:mdmform="http://org.talend/mdm/form" xmlns:pi="http://eclipse.org/graphiti/mm/pictograms">
+  <pi:Diagram visible="true" gridUnit="10" diagramTypeId="mdmform" name="Order.Customer.diagram" snapToGrid="true" showGuides="true" pictogramLinks="/0/@children.0/@link /0/@children.0/@children.0/@children.0/@link /0/@children.0/@children.0/@link /0/@children.0/@children.1/@children.0/@link /0/@children.0/@children.1/@link /0/@children.0/@children.2/@link /0/@children.0/@children.2/@children.0/@children.0/@link /0/@children.0/@children.2/@children.0/@link /0/@children.0/@children.2/@children.1/@children.0/@link /0/@children.0/@children.2/@children.1/@link /0/@children.1/@link /0/@children.1/@children.0/@children.0/@link /0/@children.1/@children.0/@link /0/@children.1/@children.1/@children.0/@link /0/@children.1/@children.1/@link">
+    <graphicsAlgorithm xsi:type="al:Rectangle" background="/0/@colors.1" foreground="/0/@colors.0" lineWidth="1" transparency="0.0" width="1000" height="1000"/>
+    <children xsi:type="pi:ContainerShape" visible="true" active="true">
+      <graphicsAlgorithm xsi:type="al:Rectangle" background="/0/@colors.3" foreground="/0/@colors.2" lineWidth="2" transparency="0.0" width="311" height="200" x="90" y="70"/>
+      <link businessObjects="/1"/>
+      <children xsi:type="pi:ContainerShape" visible="true" active="true">
+        <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="241" height="21" x="5" y="5">
+          <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" background="/0/@colors.3" foreground="/0/@colors.2" lineWidth="2" transparency="0.0" width="180" height="21" x="60" cornerHeight="5" cornerWidth="5"/>
+        </graphicsAlgorithm>
+        <link businessObjects="/1/@children.0"/>
+        <children visible="true">
+          <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.4" lineWidth="1" transparency="0.0" width="45" height="20" x="2" horizontalAlignment="ALIGNMENT_CENTER" value="Id"/>
+          <link businessObjects="/1/@children.0"/>
+        </children>
+      </children>
+      <children xsi:type="pi:ContainerShape" visible="true" active="true">
+        <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="241" height="21" x="5" y="31">
+          <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" background="/0/@colors.3" foreground="/0/@colors.2" lineWidth="2" transparency="0.0" width="180" height="21" x="60" cornerHeight="5" cornerWidth="5"/>
+        </graphicsAlgorithm>
+        <link businessObjects="/1/@children.1"/>
+        <children visible="true">
+          <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.4" lineWidth="1" transparency="0.0" width="60" height="20" x="2" horizontalAlignment="ALIGNMENT_CENTER" value="Name"/>
+          <link businessObjects="/1/@children.1"/>
+        </children>
+      </children>
+      <children xsi:type="pi:ContainerShape" visible="true" active="true">
+        <graphicsAlgorithm xsi:type="al:Rectangle" background="/0/@colors.3" foreground="/0/@colors.2" lineWidth="2" transparency="0.0" width="300" height="134" x="5" y="57"/>
+        <link businessObjects="/1/@children.2"/>
+        <children xsi:type="pi:ContainerShape" visible="true" active="true">
+          <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="221" height="21" x="10" y="10">
+            <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" background="/0/@colors.3" foreground="/0/@colors.2" lineWidth="2" transparency="0.0" width="165" height="21" x="55" cornerHeight="5" cornerWidth="5"/>
+          </graphicsAlgorithm>
+          <link businessObjects="/1/@children.2/@children.0"/>
+          <children visible="true">
+            <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.4" lineWidth="1" transparency="0.0" width="55" height="20" x="2" horizontalAlignment="ALIGNMENT_CENTER" value="zipCode"/>
+            <link businessObjects="/1/@children.2/@children.0"/>
+          </children>
+        </children>
+        <children xsi:type="pi:ContainerShape" visible="true" active="true">
+          <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="221" height="21" x="10" y="40">
+            <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" background="/0/@colors.3" foreground="/0/@colors.2" lineWidth="2" transparency="0.0" width="165" height="21" x="55" cornerHeight="5" cornerWidth="5"/>
+          </graphicsAlgorithm>
+          <link businessObjects="/1/@children.2/@children.1"/>
+          <children visible="true">
+            <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.4" lineWidth="1" transparency="0.0" width="55" height="20" x="2" horizontalAlignment="ALIGNMENT_CENTER" value="street"/>
+            <link businessObjects="/1/@children.2/@children.1"/>
+          </children>
+        </children>
+      </children>
+    </children>
+    <children xsi:type="pi:ContainerShape" visible="true" active="true">
+      <graphicsAlgorithm xsi:type="al:Rectangle" background="/0/@colors.3" foreground="/0/@colors.2" lineWidth="2" transparency="0.0" width="300" height="200" x="440" y="70"/>
+      <link businessObjects="/2"/>
+      <children xsi:type="pi:ContainerShape" visible="true" active="true">
+        <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="251" height="21" x="5" y="5">
+          <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" background="/0/@colors.3" foreground="/0/@colors.2" lineWidth="2" transparency="0.0" width="188" height="21" x="62" cornerHeight="5" cornerWidth="5"/>
+        </graphicsAlgorithm>
+        <link businessObjects="/2/@children.0"/>
+        <children visible="true">
+          <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.4" lineWidth="1" transparency="0.0" width="62" height="20" x="2" horizontalAlignment="ALIGNMENT_CENTER" value="picture"/>
+          <link businessObjects="/2/@children.0"/>
+        </children>
+      </children>
+      <children xsi:type="pi:ContainerShape" visible="true" active="true">
+        <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="251" height="21" x="5" y="31">
+          <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" background="/0/@colors.3" foreground="/0/@colors.2" lineWidth="2" transparency="0.0" width="188" height="21" x="62" cornerHeight="5" cornerWidth="5"/>
+        </graphicsAlgorithm>
+        <link businessObjects="/2/@children.1"/>
+        <children visible="true">
+          <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.4" lineWidth="1" transparency="0.0" width="60" height="20" x="2" horizontalAlignment="ALIGNMENT_CENTER" value="country"/>
+          <link businessObjects="/2/@children.1"/>
+        </children>
+      </children>
+    </children>
+    <colors red="227" green="238" blue="249"/>
+    <colors red="255" green="255" blue="255"/>
+    <colors red="255" green="102"/>
+    <colors red="255" green="204" blue="153"/>
+    <colors red="51" green="51" blue="153"/>
+  </pi:Diagram>
+  <mdmform:Panel>
+    <children xsi:type="mdmcomp:TextField" label="Id" xpath="/Customer/Id" parent="/1"/>
+    <children xsi:type="mdmcomp:TextField" label="Name" xpath="/Cusomer/Name" parent="/1"/>
+    <children xsi:type="mdmform:Panel" xpath="/Customer/Address" parent="/1">
+      <children xsi:type="mdmcomp:TextField" label="zipCode" xpath="/Customer/Address/zipCode" parent="/1/@children.2"/>
+      <children xsi:type="mdmcomp:TextField" label="street" xpath="/Customer/Address/street" parent="/1/@children.2"/>
+    </children>
+  </mdmform:Panel>
+  <mdmform:Panel>
+    <children xsi:type="mdmcomp:TextField" label="picture" xpath="/Customer/picture" parent="/2"/>
+    <children xsi:type="mdmcomp:TextField" label="country" xpath="/Customer/country" parent="/2"/>
+  </mdmform:Panel>
+</xmi:XMI>
