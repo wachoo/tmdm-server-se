@@ -2606,12 +2606,12 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                     if (contentPanel == undefined) {
 
                         var smartView = '';
-                        if (newItem[treeIndex] == false) {                        	
+                        if (newItem[treeIndex] == false) {   
+                        	smartViewFrameUrl = '/itemsbrowser/secure/SmartViewServlet?ids='
+                                + ids + '&concept=' + dataObject + '&language=' + language;   
                             smartView = '<iframe id="smartViewFrame'
                                     + treeIndex
-                                    + '" width="100%" height="100%" onload="amalto.itemsbrowser.ItemsBrowser.resizeIframe(\'smartViewFrame'+ treeIndex +'\');" frameborder=0 scrolling=auto src="/itemsbrowser/secure/SmartViewServlet?ids='
-                                    + ids + '&concept=' + dataObject
-                                    + '&language=' + language + '"/>';
+                                    + '" width="100%" height="100%" onload="amalto.itemsbrowser.ItemsBrowser.resizeIframe(\'smartViewFrame'+ treeIndex +'\');" frameborder=0 scrolling=auto src="'+ smartViewFrameUrl +'"/>';
                         }
 
                         var breadCrumbHtml = '<div id="breadCrumbHtml"></div>';
@@ -3573,11 +3573,11 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
                         var smartView = '';
                         if (newItem[treeIndex] == false) {                        	
+                        	smartViewFrameUrl = '/itemsbrowser/secure/SmartViewServlet?ids='
+                                + ids + '&concept=' + dataObject + '&language=' + language;   
                             smartView = '<iframe id="smartViewFrame'
                                     + treeIndex
-                                    + '" width="100%" height="100%" onload="amalto.itemsbrowser.ItemsBrowser.resizeIframe(\'smartViewFrame'+ treeIndex +'\');" frameborder=0 scrolling=auto src="/itemsbrowser/secure/SmartViewServlet?ids='
-                                    + ids + '&concept=' + dataObject
-                                    + '&language=' + language + '">';
+                                    + '" width="100%" height="100%" onload="amalto.itemsbrowser.ItemsBrowser.resizeIframe(\'smartViewFrame'+ treeIndex +'\');" frameborder=0 scrolling=auto src="'+ smartViewFrameUrl +'"/>';
                         }
 
                         var breadCrumbHtml = '<div id="breadCrumbHtml'
