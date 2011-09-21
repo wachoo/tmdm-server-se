@@ -21,7 +21,13 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.creator.ItemCreator;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.browserecords.client.model.*;
+import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.browserecords.client.model.ItemBaseModel;
+import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
+import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
+import org.talend.mdm.webapp.browserecords.client.model.MultipleCriteria;
+import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
+import org.talend.mdm.webapp.browserecords.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
@@ -32,8 +38,8 @@ import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriter
 import org.talend.mdm.webapp.browserecords.client.widget.SearchPanel.AdvancedSearchPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.SearchPanel.SimpleCriterionPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
-import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
+import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -69,11 +75,11 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -271,7 +277,8 @@ public class ItemsToolBar extends ToolBar {
                 EntityModel entityModel = (EntityModel) BrowseRecords.getSession().getCurrentEntityModel();
                 ItemBean itemBean = ItemCreator.createDefaultItemBean(concept, entityModel);
                 ItemsDetailPanel detailPanel = container.getItemsDetailPanel();
-                container.getItemsListPanel().getGrid().getSelectionModel().deselectAll();
+                if (container.getItemsListPanel().getGrid() != null)
+                    container.getItemsListPanel().getGrid().getSelectionModel().deselectAll();
                 detailPanel.clearContent();
                 detailPanel.initBanner(itemBean.getDisplayPKInfo(), itemBean.getDescription());
                 itemPanel = new ItemPanel(itemBean, ItemDetailToolBar.CREATE_OPERATION);
