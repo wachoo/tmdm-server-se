@@ -107,6 +107,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         relationTD.appendChild(relationFKBtn.getElement());
         addListener();
 
+        this.setAutoWidth(true);
         super.onRender(target, index);
     }
 
