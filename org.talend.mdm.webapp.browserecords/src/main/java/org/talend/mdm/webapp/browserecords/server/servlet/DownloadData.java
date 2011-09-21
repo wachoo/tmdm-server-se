@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -28,6 +29,8 @@ import com.amalto.webapp.util.webservices.WSViewSearch;
 
 public class DownloadData extends HttpServlet{
 
+    private static final Logger LOG = Logger.getLogger(DownloadData.class);
+    
     private static final long serialVersionUID = 1L;
 
     @Override
@@ -65,7 +68,7 @@ public class DownloadData extends HttpServlet{
         try {
             this.getTableContent(xpathArr, tableName, concept, sheet);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
 
         OutputStream out = response.getOutputStream();

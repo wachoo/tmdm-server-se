@@ -1643,7 +1643,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             
             return processList;
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
         
         return null;
@@ -1751,7 +1751,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             refs = SchemaWebAgent.getInstance().getReferenceEntities(concept);
             return refs;
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
         return refs;
     }
@@ -1860,7 +1860,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             ItemBean itemBean = new ItemBean(concept, idsStr, wsItem.getContent());
             return itemBean;
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
         return null;
     }
