@@ -502,28 +502,29 @@ public class DataModelHelper {
 
     private static String genDefaultValueStyle(String concept, String xpath, String valueExpression) {
         StringBuffer style = new StringBuffer();
-        style.append("<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:fn=\"http://www.w3.org/2005/xpath-functions\" xmlns:t=\"http://www.talend.com/2010/MDM\" version=\"2.0\">");
+        style
+                .append("<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:fn=\"http://www.w3.org/2005/xpath-functions\" xmlns:t=\"http://www.talend.com/2010/MDM\" version=\"2.0\">"); //$NON-NLS-1$
 
-        style.append("<xsl:output method=\"xml\" indent=\"yes\" omit-xml-declaration=\"yes\"/>");
-        style.append("<xsl:template match=\"/" + concept + "\">");
-        style.append("<xsl:copy>");
-        style.append("<xsl:apply-templates select=\"/" + xpath + "\"/>");
-        style.append("</xsl:copy>");
-        style.append("</xsl:template>");
+        style.append("<xsl:output method=\"xml\" indent=\"yes\" omit-xml-declaration=\"yes\"/>"); //$NON-NLS-1$
+        style.append("<xsl:template match=\"/" + concept + "\">"); //$NON-NLS-1$//$NON-NLS-2$
+        style.append("<xsl:copy>"); //$NON-NLS-1$
+        style.append("<xsl:apply-templates select=\"/" + xpath + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
+        style.append("</xsl:copy>"); //$NON-NLS-1$
+        style.append("</xsl:template>"); //$NON-NLS-1$
 
-        style.append("<xsl:template match=\"/" + xpath + "\">");
-        style.append("<xsl:copy>");
-        style.append("<xsl:choose>");
-        style.append("<xsl:when test=\"not(text())\">");
-        style.append("<xsl:value-of select=\"" + XmlUtil.escapeXml(valueExpression) + "\"/>");
-        style.append("</xsl:when> ");
-        style.append("<xsl:otherwise>");
-        style.append("<xsl:value-of select=\".\"/>");
-        style.append("</xsl:otherwise>");
-        style.append("</xsl:choose> ");
-        style.append("</xsl:copy>");
-        style.append("</xsl:template>");
-        style.append("</xsl:stylesheet>");
+        style.append("<xsl:template match=\"/" + xpath + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
+        style.append("<xsl:copy>"); //$NON-NLS-1$
+        style.append("<xsl:choose>"); //$NON-NLS-1$
+        style.append("<xsl:when test=\"not(text())\">"); //$NON-NLS-1$
+        style.append("<xsl:value-of select=\"" + XmlUtil.escapeXml(valueExpression) + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
+        style.append("</xsl:when> "); //$NON-NLS-1$
+        style.append("<xsl:otherwise>"); //$NON-NLS-1$
+        style.append("<xsl:value-of select=\".\"/>"); //$NON-NLS-1$
+        style.append("</xsl:otherwise>"); //$NON-NLS-1$
+        style.append("</xsl:choose> "); //$NON-NLS-1$
+        style.append("</xsl:copy>"); //$NON-NLS-1$
+        style.append("</xsl:template>"); //$NON-NLS-1$
+        style.append("</xsl:stylesheet>"); //$NON-NLS-1$
         
         return style.toString();
         
