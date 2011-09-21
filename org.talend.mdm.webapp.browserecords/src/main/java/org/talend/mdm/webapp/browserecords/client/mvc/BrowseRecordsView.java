@@ -86,13 +86,19 @@ public class BrowseRecordsView extends View {
             onViewForeignKey(event);
         } else if (event.getType() == BrowseRecordsEvents.UpdatePolymorphism) {
             onUpdatePolymorphism(event);
+        } else if(event.getType() == BrowseRecordsEvents.ExecuteVisibleRule) {
+        	onExecuteVisibleRule(event);
         }
     }
 
-    private void onUpdatePolymorphism(AppEvent event) {
+    private void onExecuteVisibleRule(AppEvent event) {
+    	ItemsDetailPanel detailPanel = itemsSearchContainer.getItemsDetailPanel();
+        ItemPanel itemPanel = (ItemPanel) detailPanel.getTabPanelById("itemView").getWidget(0);
+        itemPanel.handleEvent(event);
+	}
 
+	private void onUpdatePolymorphism(AppEvent event) {
         itemsSearchContainer.getToolBar().getItemPanel().handleEvent(event);
-
     }
 
     private void onViewForeignKey(AppEvent event) {

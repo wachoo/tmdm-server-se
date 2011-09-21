@@ -32,6 +32,7 @@ import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.webapp.browserecords.client.creator.DataTypeCreator;
 import org.talend.mdm.webapp.browserecords.server.BrowseRecordsConfiguration;
+import org.talend.mdm.webapp.browserecords.server.displayrule.DisplayRulesUtil;
 import org.talend.mdm.webapp.browserecords.server.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
@@ -66,8 +67,14 @@ public class DataModelHelper {
     private static final Logger logger = Logger.getLogger(DataModelHelper.class);
 
     private static final String SCHEMA_NAMESPACE = "http://www.w3.org/2001/XMLSchema"; //$NON-NLS-1$
+   
+    private static XSElementDecl eleDecl;
 
-    /**
+    public static XSElementDecl getEleDecl() {
+		return eleDecl;
+	}
+
+	/**
      * DOC HSHU Comment method "parseSchema".
      * 
      * @param model
@@ -78,7 +85,7 @@ public class DataModelHelper {
         // set pk
         entityModel.setKeys(getBusinessConceptKeys(model, concept));
         // analyst model
-        XSElementDecl eleDecl = getBusinessConcept(model, concept);
+        eleDecl = getBusinessConcept(model, concept);
         if (eleDecl != null) {
             travelXSElement(eleDecl, eleDecl.getName(), entityModel, null, roles, 0, 0);
         }
@@ -366,6 +373,8 @@ public class DataModelHelper {
                             }
                         } else if ("X_Default_Value_Rule".equals(appinfoSource)) { //$NON-NLS-1$
                             typeModel.setDefaultValueExpression(appinfoSourceValue);
+                        } else if("X_Visible_Rule".equals(appinfoSource)) { //$NON-NLS-1$
+                        	DisplayRulesUtil.getVisibleRules().put(typeModel.getXpath(), appinfoSourceValue);
                         }
                     }
 

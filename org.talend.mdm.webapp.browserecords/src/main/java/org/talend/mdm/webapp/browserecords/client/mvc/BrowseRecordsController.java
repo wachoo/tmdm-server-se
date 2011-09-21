@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.mvc;
 
+import java.util.List;
+
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
@@ -24,6 +26,7 @@ import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
+import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
@@ -54,6 +57,7 @@ public class BrowseRecordsController extends Controller {
         registerEventTypes(BrowseRecordsEvents.ViewForeignKey);
         registerEventTypes(BrowseRecordsEvents.SaveItem);
         registerEventTypes(BrowseRecordsEvents.UpdatePolymorphism);
+        registerEventTypes(BrowseRecordsEvents.ExecuteVisibleRule);
     }
 
     @Override
@@ -87,6 +91,8 @@ public class BrowseRecordsController extends Controller {
             onSaveItem(event);
         } else if (type == BrowseRecordsEvents.UpdatePolymorphism) {
             forwardToView(view, event);
+        } else if(type == BrowseRecordsEvents.ExecuteVisibleRule) {
+        	onExecuteVisibleRule(event);
         }
     }
 
@@ -214,5 +220,23 @@ public class BrowseRecordsController extends Controller {
     protected void onError(AppEvent ae) {
         Log.error("error: " + ae.<Object> getData()); //$NON-NLS-1$
         // MessageBox.alert(MessagesFactory.getMessages().error_title(), ae.<Object> getData().toString(), null);
+    }
+    
+    private void onExecuteVisibleRule(final AppEvent event) {
+        final ItemNodeModel model = event.getData();
+        
+        if (model != null) {
+            EntityModel entityModel = (EntityModel) BrowseRecords.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
+            entityModel.getMetaDataTypes();
+            
+            service.executeVisibleRule(CommonUtil.toXML(model), new AsyncCallback<List<VisibleRuleResult>>() {
+				public void onFailure(Throwable arg0) {
+				}
+
+				public void onSuccess(List<VisibleRuleResult> arg0) {
+					forwardToView(view, new AppEvent(BrowseRecordsEvents.ExecuteVisibleRule, arg0));
+				}
+            });
+        }
     }
 }

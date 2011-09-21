@@ -25,6 +25,16 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
     private boolean isKey;
     
     private String dynamicLabel;
+    
+    private boolean visible = true;
+
+	public boolean isVisible() {
+		return visible;
+	}
+
+	public void setVisible(boolean visible) {
+		this.visible = visible;
+	}
 
     private boolean isChangeValue;
 

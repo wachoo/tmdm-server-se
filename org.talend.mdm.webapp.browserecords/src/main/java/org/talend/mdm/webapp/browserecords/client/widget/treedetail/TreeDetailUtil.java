@@ -1,5 +1,6 @@
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
+import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
@@ -8,6 +9,11 @@ import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FieldEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.mvc.AppEvent;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -21,7 +27,7 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class TreeDetailUtil {
 
-    public static Widget createWidget(ItemNodeModel itemNode, ViewBean viewBean, ClickHandler h) {
+    public static Widget createWidget(final ItemNodeModel itemNode, ViewBean viewBean, ClickHandler h) {
 
         HorizontalPanel hp = new HorizontalPanel();
         // create Field
@@ -48,10 +54,28 @@ public class TreeDetailUtil {
             if (typeModel.getForeignkey() != null && typeModel.getMaxOccurs() > 1) {// FK list
                 ForeignKeyFieldList fkList = new ForeignKeyFieldList(itemNode, typeModel);
                 //fkList.setSize("400px", "200px"); //$NON-NLS-1$ //$NON-NLS-2$
+                fkList.addListener(Events.Focus, new Listener<FieldEvent>(){
+					public void handleEvent(FieldEvent be) {
+						AppEvent app = new AppEvent(BrowseRecordsEvents.ExecuteVisibleRule);
+						app.setData(itemNode.getParent());
+						Dispatcher.forwardEvent(app);
+					}});
                 hp.add(fkList);
             } else {
                 Field<?> field = TreeDetailGridFieldCreator.createField(itemNode, typeModel, Locale.getLanguage());
                 field.setWidth(260);
+                field.addListener(Events.Focus, new Listener<FieldEvent>(){
+					public void handleEvent(FieldEvent be) {
+						AppEvent app = new AppEvent(BrowseRecordsEvents.ExecuteVisibleRule);
+						ItemNodeModel parent = (ItemNodeModel) (itemNode.getParent() == null ? itemNode : itemNode.getParent());
+						//maybe need other methods to get entire tree 
+						if(parent == null || parent.getChildCount() == 0) {
+							return;
+						}
+						
+						app.setData(parent);
+						Dispatcher.forwardEvent(app);
+					}});
                 hp.add(field);
             }
 

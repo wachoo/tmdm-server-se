@@ -40,6 +40,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.dom4j.DocumentException;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
@@ -65,6 +66,8 @@ import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ItemHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.RoleHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
+import org.talend.mdm.webapp.browserecords.server.displayrule.DisplayRule;
+import org.talend.mdm.webapp.browserecords.server.displayrule.DisplayRulesUtil;
 import org.talend.mdm.webapp.browserecords.server.provider.DefaultSmartViewProvider;
 import org.talend.mdm.webapp.browserecords.server.provider.SmartViewProvider;
 import org.talend.mdm.webapp.browserecords.server.util.CommonUtil;
@@ -76,6 +79,7 @@ import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 import org.talend.mdm.webapp.browserecords.shared.SmartViewDescriptions;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
+import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -640,6 +644,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             EntityModel entityModel = new EntityModel();
             DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
             DataModelHelper.handleDefaultValue(entityModel);
+            DisplayRulesUtil.setRoot(DataModelHelper.getEleDecl());
             vb.setBindingEntityModel(entityModel);
 
             // viewables
@@ -1865,4 +1870,29 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
         return null;
     }
+    
+    public List<VisibleRuleResult> executeVisibleRule(String xml) {
+		// TODO Auto-generated method stub
+		List<DisplayRule> displayRules = null;
+		
+		try {
+			DisplayRulesUtil displayUtil = DisplayRulesUtil.getInstance();
+			org.dom4j.Document doc = org.talend.mdm.webapp.browserecords.server.util.XmlUtil.parseText(xml);
+			displayRules = displayUtil.handleVisibleRules(doc);
+		} catch (DocumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		List<VisibleRuleResult> res = new ArrayList<VisibleRuleResult>(displayRules.size());
+		
+		for(DisplayRule disru : displayRules) {
+			VisibleRuleResult ee = new VisibleRuleResult();
+			ee.setXpath(disru.getXpath());
+			ee.setVisible("true".equals(disru.getValue())); //$NON-NLS-1$
+			res.add(ee);
+		}
+		
+		return res;
+	}
 }

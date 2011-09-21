@@ -40,5 +40,7 @@ public class BrowseRecordsEvents {
     public static final EventType SaveItem = new EventType();
 
     public static final EventType UpdatePolymorphism = new EventType();
+    
+    public static final EventType ExecuteVisibleRule = new EventType();
 
 }

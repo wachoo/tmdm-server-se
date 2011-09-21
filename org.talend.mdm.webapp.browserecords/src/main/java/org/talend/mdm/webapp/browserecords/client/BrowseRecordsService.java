@@ -30,6 +30,7 @@ import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
+import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
@@ -107,4 +108,6 @@ public interface BrowseRecordsService extends RemoteService {
     List<ItemBaseModel> getSmartViewList(String regex) throws Exception;
     
     ItemBean getItemBeanById(String concept, String[] ids);
+    
+    List<VisibleRuleResult> executeVisibleRule(String xml);
 }

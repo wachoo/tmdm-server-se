@@ -74,6 +74,8 @@ public class ItemPanel extends ContentPanel {
     public void handleEvent(AppEvent event) {
         if (event.getType() == BrowseRecordsEvents.UpdatePolymorphism) {
             tree.handleEvent(event);
+        } else if(event.getType() == BrowseRecordsEvents.ExecuteVisibleRule) {
+        	tree.handleEvent(event);
         }
     }
 

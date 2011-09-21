@@ -15,6 +15,7 @@ import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
+import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -146,10 +147,41 @@ public class TreeDetail extends ContentPanel {
                     }
                 }
             }
+        } else if(event.getType() == BrowseRecordsEvents.ExecuteVisibleRule) {
+        	List<VisibleRuleResult> visibleResults = event.getData();
+            DynamicTreeItem rootItem = (DynamicTreeItem) tree.getItem(0);
+            List<DynamicTreeItem> visibleRuleItems = new ArrayList<TreeDetail.DynamicTreeItem>();
+            
+            for(VisibleRuleResult visibleResult : visibleResults) {
+            	recrusiveSetItems(visibleRuleItems, visibleResult, rootItem);
+        	}
         }
     }
 
-    public static class DynamicTreeItem extends TreeItem {
+    private void recrusiveSetItems(List<DynamicTreeItem> visibleRuleItems,
+			VisibleRuleResult visibleResult, DynamicTreeItem rootItem) {
+    	if(rootItem.getItemNodeModel().getBindingPath().equals(visibleResult.getXpath())) {
+    		visibleRuleItems.add(rootItem);
+    		rootItem.setVisible(visibleResult.isVisible());
+    		if(visibleResult.isVisible()) {
+    			rootItem.setStyleName("tree_item_display"); //$NON-NLS-1$
+    		}
+    		else {
+    			rootItem.setStyleName("tree_item_hidden"); //$NON-NLS-1$
+    		}
+    	}
+    	
+    	if(rootItem.getChildCount() == 0) {
+    		return;
+    	}
+    	
+    	for(int i = 0; i < rootItem.getChildCount(); i++) {
+    		DynamicTreeItem item = (DynamicTreeItem) rootItem.getChild(i);
+    		recrusiveSetItems(visibleRuleItems, visibleResult, item);
+    	}
+	}
+
+	public static class DynamicTreeItem extends TreeItem {
 
         private ItemNodeModel itemNode;
 
