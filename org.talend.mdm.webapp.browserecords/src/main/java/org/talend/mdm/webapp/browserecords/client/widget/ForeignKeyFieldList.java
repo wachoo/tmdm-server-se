@@ -52,6 +52,8 @@ public class ForeignKeyFieldList extends ContentPanel{
     
     protected int pageToggleButtonIndex;
     
+    protected List<ForeignKeyBean> foreignKeyBeans;
+    
     protected VerticalPanel verticalPanel;
     
     protected List<Field<?>> fields;
@@ -262,20 +264,27 @@ public class ForeignKeyFieldList extends ContentPanel{
 //                || (!typeModel.isSimpleType() && ((ComplexTypeModel) typeModel).getReusableComplexTypes().size() > 0)) {
 //            Field<?> field = TreeDetailGridFieldCreator.createField(node, typeModel, Locale.getLanguage());
 //            this.add(field);            
-//        }        
-        
-        List<ForeignKeyBean> foreignKeyBeans = (List<ForeignKeyBean>)itemNode.getObjectValue();
-        if (foreignKeyBeans == null || foreignKeyBeans.size() == 0) {
-            if (typeModel.getMinOccurs() > 0){
-                addField();
-            }            
-        }else{
+//        }      
+            
+        if (itemNode.getObjectValue() != null){
+            if (itemNode.getObjectValue() instanceof ForeignKeyBean){
+                foreignKeyBeans = new ArrayList<ForeignKeyBean>(); 
+                foreignKeyBeans.add((ForeignKeyBean)itemNode.getObjectValue());
+            }else if (itemNode.getObjectValue() instanceof List){
+                foreignKeyBeans = (List<ForeignKeyBean>)itemNode.getObjectValue();
+            }
+            
             for (int i=0;i<foreignKeyBeans.size();i++){
                 ForeignKeyBean foreignKeyBean = foreignKeyBeans.get(i);
                 Field<?> field = createField(foreignKeyBean);
                 add(field);            
             }
-        }
+        }else{
+            foreignKeyBeans = new ArrayList<ForeignKeyBean>();
+            if (typeModel.getMinOccurs() > 0){
+                addField();
+            }    
+        }      
         
         verticalPanel.setSpacing(10);
         this.add(verticalPanel);
@@ -378,7 +387,9 @@ public class ForeignKeyFieldList extends ContentPanel{
     
     public void addField(){
         if (this.fields.size() < typeModel.getMaxOccurs()){
-            this.add(createField(new ForeignKeyBean()));        
+            ForeignKeyBean foreignKeyBean = new ForeignKeyBean();
+            foreignKeyBeans.add(foreignKeyBean);
+            this.add(createField(foreignKeyBean));        
             refreshPage(this.getPageCount());
             this.refresh();   
         }else{
@@ -410,30 +421,25 @@ public class ForeignKeyFieldList extends ContentPanel{
         return (this.fields.size()%this.pageSize==0?this.getFieldList().size()/this.pageSize:this.getFieldList().size()/this.pageSize+1);
     }
     
-    private void addForeignKeyFieldListener(final Field<?> field, final ForeignKeyBean foreignKeyBean) {
-        
-        @SuppressWarnings("unchecked")
-        List<ForeignKeyBean> list = (List<ForeignKeyBean>) itemNode.getObjectValue();
-        if (list == null){
-            list = new ArrayList<ForeignKeyBean>();            
-        }
-        list.add(foreignKeyBean);            
+    private void addForeignKeyFieldListener(final Field<?> field, final ForeignKeyBean foreignKeyBean) {                   
         
         field.addListener(Events.Change, new Listener<FieldEvent>() {
 
             public void handleEvent(FieldEvent fe) {
-                List<ForeignKeyBean> list = (List<ForeignKeyBean>) itemNode.getObjectValue();
-                int index = list.indexOf(foreignKeyBean);
-                list.set(index, (ForeignKeyBean) fe.getValue());
+               
+                int index = foreignKeyBeans.indexOf(foreignKeyBean);
+                foreignKeyBeans.set(index, (ForeignKeyBean) fe.getValue());
                 itemNode.setChangeValue(true);
                 System.out.println("###########################################################");
-                for (int i=0;i<list.size();i++){
-                    System.out.println(list.get(i));
+                for (int i=0;i<foreignKeyBeans.size();i++){
+                    System.out.println(foreignKeyBeans.get(i));
                 }
                 System.out.println("###########################################################");
             }
         });
     }
+    
+    
     
     Validator validator = new Validator() {
         
@@ -456,10 +462,9 @@ public class ForeignKeyFieldList extends ContentPanel{
     };
 
     public void removeForeignKeyWidget(ForeignKeyBean value) {
-        @SuppressWarnings("unchecked")
-        List<ForeignKeyBean> fkList = (List<ForeignKeyBean>) this.itemNode.getObjectValue();
-        int index = fkList.indexOf(value);
-        fkList.remove(index);
+        @SuppressWarnings("unchecked")     
+        int index = foreignKeyBeans.indexOf(value);
+        foreignKeyBeans.remove(index);
         fields.remove(index);
         itemNode.setChangeValue(true);
         refreshPage(this.getPageCount());

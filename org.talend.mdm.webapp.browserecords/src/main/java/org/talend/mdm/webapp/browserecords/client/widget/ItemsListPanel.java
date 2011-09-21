@@ -343,10 +343,14 @@ public class ItemsListPanel extends ContentPanel {
     }
 
     public void refreshGrid() {
-        if(pagingBar != null)
+        if(pagingBar != null)           
             pagingBar.refresh();
-
     }
+    
+    public void lastPage() {
+        if(pagingBar != null)
+            pagingBar.last();        
+    } 
 
     public void resetGrid() {
         store.removeAll();

@@ -24,6 +24,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsSearchContainer;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
@@ -44,6 +45,8 @@ public class BrowseRecordsController extends Controller {
     private BrowseRecordsView view;
 
     private BrowseRecordsServiceAsync service;
+    
+    private ItemsSearchContainer container;
 
     public BrowseRecordsController() {
         registerEventTypes(BrowseRecordsEvents.Error);
@@ -101,11 +104,19 @@ public class BrowseRecordsController extends Controller {
         ItemNodeModel model = event.getData();
         ItemBean itemBean = event.getData("ItemBean"); //$NON-NLS-1$
         Boolean isCreate = event.getData("isCreate"); //$NON-NLS-1$
+        final Boolean isClose = event.getData("isClose"); //$NON-NLS-1$
         service.saveItem(itemBean.getConcept(), itemBean.getIds(), CommonUtil.toXML(model), isCreate,
                 new AsyncCallback<ItemResult>() {
 
             public void onSuccess(ItemResult arg0) {
-                com.google.gwt.user.client.Window.alert("save successfully");
+                com.google.gwt.user.client.Window.alert("save successfully"); //$NON-NLS-1$     
+                container = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
+                if (container!= null) {                    
+                    if (!isClose){
+                        container.getItemsListPanel().lastPage();
+                        //container.getItemsDetailPanel().closeCurrentTab();
+                    }
+                }              
             }
 
             public void onFailure(Throwable caught) {
