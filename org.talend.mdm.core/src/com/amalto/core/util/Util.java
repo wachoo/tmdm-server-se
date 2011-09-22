@@ -12,7 +12,18 @@
 // ============================================================================
 package com.amalto.core.util;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.net.URL;
@@ -66,8 +77,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import com.amalto.core.integrity.FKIntegrityCheckResult;
-import com.amalto.core.integrity.FKIntegrityChecker;
 import org.apache.commons.jxpath.AbstractFactory;
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.jxpath.Pointer;
@@ -109,6 +118,8 @@ import com.amalto.core.objects.backgroundjob.ejb.local.BackgroundJobCtrlLocal;
 import com.amalto.core.objects.backgroundjob.ejb.local.BackgroundJobCtrlLocalHome;
 import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocal;
 import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocalHome;
+import com.amalto.core.objects.customform.ejb.local.CustomFormCtrlLocal;
+import com.amalto.core.objects.customform.ejb.local.CustomFormCtrlLocalHome;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.local.DataClusterCtrlLocal;
 import com.amalto.core.objects.datacluster.ejb.local.DataClusterCtrlLocalHome;
@@ -2181,6 +2192,13 @@ public class Util {
         return getRoleCtrlLocalHome().create();
     }
 
+    public static CustomFormCtrlLocalHome getCustomFormCtrlLocalHome() throws NamingException {
+        return (CustomFormCtrlLocalHome) getLocalHome(CustomFormCtrlLocalHome.JNDI_NAME);
+    }
+
+    public static CustomFormCtrlLocal getCustomFormCtrlLocal() throws NamingException, CreateException {
+        return getCustomFormCtrlLocalHome().create();
+    }
     public static RoutingOrderV2CtrlLocal getRoutingOrderV2CtrlLocal() throws NamingException, CreateException {
         return getRoutingOrderV2CtrlLocalHome().create();
     }

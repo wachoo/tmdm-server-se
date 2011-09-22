@@ -25,6 +25,14 @@
       </entity>
 
       <session>
+         <ejb-name>CustomFormCtrl</ejb-name>
+         <jndi-name>amalto/remote/core/customformctrl</jndi-name>
+         <local-jndi-name>amalto/local/core/customformctrl</local-jndi-name>
+
+        <method-attributes>
+        </method-attributes>
+      </session>
+      <session>
          <ejb-name>DataModelCtrl</ejb-name>
          <jndi-name>amalto/remote/core/datamodelctrl</jndi-name>
          <local-jndi-name>amalto/local/core/datamodelctrl</local-jndi-name>
@@ -81,6 +89,14 @@
         </method-attributes>
       </session>
       <session>
+         <ejb-name>RoutingEngineV2Ctrl</ejb-name>
+         <jndi-name>amalto/remote/core/routingenginev2ctrl</jndi-name>
+         <local-jndi-name>amalto/local/core/routingenginev2ctrl</local-jndi-name>
+
+        <method-attributes>
+        </method-attributes>
+      </session>
+      <session>
          <ejb-name>DroppedItemCtrl</ejb-name>
          <jndi-name>amalto/remote/core/droppeditemctrl</jndi-name>
          <local-jndi-name>amalto/local/core/droppeditemctrl</local-jndi-name>
@@ -100,14 +116,6 @@
          <ejb-name>ConfigurationInfoCtrl</ejb-name>
          <jndi-name>amalto/remote/core/configurationinfoctrl</jndi-name>
          <local-jndi-name>amalto/local/core/configurationinfoctrl</local-jndi-name>
-
-        <method-attributes>
-        </method-attributes>
-      </session>
-      <session>
-         <ejb-name>RoutingEngineV2Ctrl</ejb-name>
-         <jndi-name>amalto/remote/core/routingenginev2ctrl</jndi-name>
-         <local-jndi-name>amalto/local/core/routingenginev2ctrl</local-jndi-name>
 
         <method-attributes>
         </method-attributes>
