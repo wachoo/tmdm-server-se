@@ -107,7 +107,7 @@ public interface BrowseRecordsService extends RemoteService {
 
     List<ItemBaseModel> getSmartViewList(String regex) throws Exception;
     
-    ItemBean getItemBeanById(String concept, String[] ids);
+    ItemBean getItemBeanById(String concept, String[] ids, String language);
     
     List<VisibleRuleResult> executeVisibleRule(String xml);
 }

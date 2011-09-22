@@ -2013,7 +2013,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
     /**************************************************************************************/
 
-    public ItemBean getItemBeanById(String concept, String[] ids) {
+    public ItemBean getItemBeanById(String concept, String[] ids, String language) {
         try {
             WSItem wsItem = CommonUtil.getPort().getItem(
                     new WSGetItem(new WSItemPK(new WSDataClusterPK(this.getCurrentDataCluster()), concept, ids)));
@@ -2023,6 +2023,16 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 sb.append(str).append("."); //$NON-NLS-1$
             String idsStr = sb.substring(0, sb.length() - 1);
             ItemBean itemBean = new ItemBean(concept, idsStr, wsItem.getContent());
+            
+            String model = getCurrentDataModel();
+            EntityModel entityModel = new EntityModel();
+            DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
+            DataModelHelper.handleDefaultValue(entityModel);
+            DisplayRulesUtil.setRoot(DataModelHelper.getEleDecl());
+            
+            DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
+            dynamicAssemble(itemBean, entityModel, language);
+            
             return itemBean;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -2039,8 +2049,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 			org.dom4j.Document doc = org.talend.mdm.webapp.browserecords.server.util.XmlUtil.parseText(xml);
 			displayRules = displayUtil.handleVisibleRules(doc);
 		} catch (DocumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		    LOG.error(e.getMessage(), e);
 		}
 		
 		List<VisibleRuleResult> res = new ArrayList<VisibleRuleResult>(displayRules.size());

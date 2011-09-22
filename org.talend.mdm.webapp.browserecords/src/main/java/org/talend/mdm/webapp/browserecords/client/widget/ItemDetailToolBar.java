@@ -772,7 +772,7 @@ public class ItemDetailToolBar extends ToolBar {
     public static void addTreeDetail(String ids, String concept){
         String[] idArr = ids.split(","); //$NON-NLS-1$
         BrowseRecordsServiceAsync brService = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
-        brService.getItemBeanById(concept, idArr, new AsyncCallback<ItemBean>() {
+        brService.getItemBeanById(concept, idArr, Locale.getLanguage(), new AsyncCallback<ItemBean>() {
             
             public void onSuccess(ItemBean item) {
                 ItemsSearchContainer itemsSearchContainer = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
