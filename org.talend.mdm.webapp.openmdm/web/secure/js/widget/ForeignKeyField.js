@@ -125,6 +125,11 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
 		    
 		    this.foreignKeyCombo.on('keydown', this.keySearch, this, true); 
 		    
+		    this.foreignKeyCombo.on('beforequery', function(){
+		    	this.focus();
+		    	this.expand();
+            }); 
+		    
             this.improvedProxy.on('load', function(dwrAdditional,response){
                 var json = eval("("+response+")");
                 var count = json['count'];
