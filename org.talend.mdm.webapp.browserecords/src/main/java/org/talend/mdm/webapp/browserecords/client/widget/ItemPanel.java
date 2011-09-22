@@ -16,16 +16,23 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail;
 
-import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.user.client.Window;
 
 public class ItemPanel extends ContentPanel {
 
     private final TreeDetail tree = new TreeDetail();
 
-    private ContentPanel smartPanel = new ContentPanel();
+    private ContentPanel smartPanel = new ContentPanel() {
+
+        @Override
+        public void onAttach() {
+            Window.enableScrolling(true);
+            setSize(Window.getClientWidth(), Window.getClientHeight());
+            super.onAttach();
+        }
+    };
 
     private ItemDetailToolBar toolBar;
 
@@ -55,7 +62,8 @@ public class ItemPanel extends ContentPanel {
             tree.initTree(item);
         } else if (ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {
             tree.initTree(item);
-        } else if (ItemDetailToolBar.PERSONALEVIEW_OPERATION.equals(operation)) {
+        } else if (ItemDetailToolBar.PERSONALEVIEW_OPERATION.equals(operation)
+                || ItemDetailToolBar.SMARTVIEW_OPERATION.equals(operation)) {
             tree.initTree(item);
         } else {
             tree.initTree(null);
@@ -63,9 +71,8 @@ public class ItemPanel extends ContentPanel {
 
         tree.expand();
         this.add(tree);
-        smartPanel.setLayout(new FitLayout());
+        // smartPanel.setLayout(new FitLayout());
         smartPanel.setVisible(false);
-        smartPanel.setScrollMode(Scroll.AUTO);
         smartPanel.setHeaderVisible(false);
         this.add(smartPanel);
         // this.setBottomComponent(new PagingToolBarEx(50));

@@ -26,6 +26,8 @@ public class ItemBean extends ItemBaseModel {
      */
     private static final long serialVersionUID = -1733441307059646670L;
 
+    public static final String TREEMODE = "M_TREE_VIEW", PERSOMODE = "M_PERSO_VIEW", SMARTMODE = "M_SMART_VIEW"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
     private String concept;
 
     private String ids;
@@ -38,7 +40,7 @@ public class ItemBean extends ItemBaseModel {
 
     private String displayPKInfo;
 
-    private boolean hasSmartView = false;
+    private String smartViewMode = TREEMODE;
 
     /**
      * DOC HSHU ItemBean constructor comment.
@@ -116,12 +118,12 @@ public class ItemBean extends ItemBaseModel {
         this.displayPKInfo = displayPKInfo;
     }
 
-    public boolean isHasSmartView() {
-        return hasSmartView;
+    public String getSmartViewMode() {
+        return smartViewMode;
     }
 
-    public void setHasSmartView(boolean hasSmartView) {
-        this.hasSmartView = hasSmartView;
+    public void setSmartViewMode(String smartViewMode) {
+        this.smartViewMode = smartViewMode;
     }
 
     @Override

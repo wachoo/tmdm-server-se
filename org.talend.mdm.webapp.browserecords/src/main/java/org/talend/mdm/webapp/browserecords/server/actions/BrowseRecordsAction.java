@@ -806,7 +806,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
                 ItemBean itemBean = new ItemBean(concept,
                         CommonUtil.joinStrings(idsArray, "."), Util.nodeToString(doc.getDocumentElement()));//$NON-NLS-1$
-                itemBean.setHasSmartView(checkSmartViewExistsByOpt(concept, language));
+                if (checkSmartViewExists(concept, language))
+                    itemBean.setSmartViewMode(ItemBean.SMARTMODE);
+                else if (checkSmartViewExistsByOpt(concept, language))
+                    itemBean.setSmartViewMode(ItemBean.PERSOMODE);
                 dynamicAssembleByResultOrder(itemBean, viewBean, entityModel);
                 itemBeans.add(itemBean);
             }
@@ -1765,11 +1768,11 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     /**
      **********Smart View**********
      **/
-    public static boolean checkSmartViewExistsByLang(String concept, String language, boolean useNoLang) {
+    private boolean checkSmartViewExistsByLang(String concept, String language, boolean useNoLang) {
         return checkSmartViewExistsByLangAndOptName(concept, language, null, useNoLang);
     }
 
-    public static boolean checkSmartViewExistsByLangAndOptName(String concept, String language, String optname, boolean useNoLang) {
+    private boolean checkSmartViewExistsByLangAndOptName(String concept, String language, String optname, boolean useNoLang) {
         try {
             SmartViewProvider provider = new DefaultSmartViewProvider();
             SmartViewDescriptions smDescs = SmartViewUtil.build(provider, concept, language);
@@ -1795,12 +1798,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    public static boolean checkSmartViewExists(String concept, String language) {
+    private boolean checkSmartViewExists(String concept, String language) {
         boolean ret = checkSmartViewExistsByLang(concept, language, true);
         return ret;
     }
 
-    public static boolean checkSmartViewExistsByOpt(String concept, String language) {
+    private boolean checkSmartViewExistsByOpt(String concept, String language) {
         try {
             SmartViewProvider provider = new DefaultSmartViewProvider();
             SmartViewDescriptions smDescs = SmartViewUtil.build(provider, concept, language);

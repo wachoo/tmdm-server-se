@@ -114,8 +114,12 @@ public class BrowseRecordsView extends View {
         ItemsDetailPanel detailPanel = itemsSearchContainer.getItemsDetailPanel();
         detailPanel.clearContent();
         detailPanel.initBanner(item.getDisplayPKInfo(), item.getDescription());
-        ItemPanel itemPanel = new ItemPanel(item, item.isHasSmartView() ? ItemDetailToolBar.PERSONALEVIEW_OPERATION
-                : ItemDetailToolBar.VIEW_OPERATION);
+        String operation = ItemDetailToolBar.VIEW_OPERATION;
+        if (item.getSmartViewMode().equals(ItemBean.PERSOMODE))
+            operation = ItemDetailToolBar.PERSONALEVIEW_OPERATION;
+        else if (item.getSmartViewMode().equals(ItemBean.SMARTMODE))
+            operation = ItemDetailToolBar.SMARTVIEW_OPERATION;
+        ItemPanel itemPanel = new ItemPanel(item, operation);
         detailPanel.addTabItem(item.getConcept(), itemPanel, ItemsDetailPanel.SINGLETON, "itemView"); //$NON-NLS-1$
 
         // show breadcrumb

@@ -7,7 +7,6 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
@@ -15,15 +14,12 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
-import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKRelRecordWindow;
-import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTreeDetail;
 import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -121,38 +117,48 @@ public class ItemDetailToolBar extends ToolBar {
     private void initToolBar() {
         if (operation.equalsIgnoreCase(ItemDetailToolBar.VIEW_OPERATION)
                 || (operation.equalsIgnoreCase(ItemDetailToolBar.PERSONALEVIEW_OPERATION))) {
-            if (operation.equalsIgnoreCase(ItemDetailToolBar.PERSONALEVIEW_OPERATION)) {
-                addPersonalViewButton();
-                this.addSeparator();
-            }
-            this.addSaveButton();
-            this.addSeparator();
-            if (isFkToolBar) {
-                this.addSaveQuitButton();
-                this.addSeparator();
-            }
-            this.addDeleteMenu();
-            this.addSeparator();
-            this.addDuplicateButton();
-            this.addSeparator();
-            this.addJournalButton();
-            this.addSeparator();
-            this.addFreshButton();
-            if (isFkToolBar) {
-                this.addSeparator();
-                this.addRelationButton();
-            }
-            this.addWorkFlosCombo();
+            initViewToolBar();
         } else if (operation.equalsIgnoreCase(ItemDetailToolBar.CREATE_OPERATION)) {
-            this.addSaveButton();
-            this.addSeparator();
-            this.addSaveQuitButton();
-            if (isFkToolBar) {
-                this.addSeparator();
-                this.addRelationButton();
-            }
-            this.addWorkFlosCombo();
+            initCreateToolBar();
+        } else if (operation.equalsIgnoreCase(ItemDetailToolBar.SMARTVIEW_OPERATION)) {
+            initSmartViewToolBar();
         }
+    }
+
+    private void initViewToolBar() {
+        if (!operation.equalsIgnoreCase(ItemDetailToolBar.VIEW_OPERATION)) {
+            addPersonalViewButton();
+            this.addSeparator();
+        }
+        this.addSaveButton();
+        this.addSeparator();
+        if (isFkToolBar) {
+            this.addSaveQuitButton();
+            this.addSeparator();
+        }
+        this.addDeleteMenu();
+        this.addSeparator();
+        this.addDuplicateButton();
+        this.addSeparator();
+        this.addJournalButton();
+        this.addSeparator();
+        this.addFreshButton();
+        if (isFkToolBar) {
+            this.addSeparator();
+            this.addRelationButton();
+        }
+        this.addWorkFlosCombo();
+    }
+
+    private void initCreateToolBar() {
+        this.addSaveButton();
+        this.addSeparator();
+        this.addSaveQuitButton();
+        if (isFkToolBar) {
+            this.addSeparator();
+            this.addRelationButton();
+        }
+        this.addWorkFlosCombo();
     }
 
     private void addSaveButton() {
@@ -608,7 +614,6 @@ public class ItemDetailToolBar extends ToolBar {
                 @Override
                 public void componentSelected(ButtonEvent ce) {
                     updateSmartViewToolBar();
-                    // TODO should do in other way
                     if (container.getItemsDetailPanel().getTabPanel() != null
                             && container.getItemsDetailPanel().getTabPanel().getItem(0).getWidget(0) instanceof ItemPanel) {
                         ItemPanel itemPanel = (ItemPanel) container.getItemsDetailPanel().getTabPanel().getItem(0).getWidget(0);
@@ -629,9 +634,7 @@ public class ItemDetailToolBar extends ToolBar {
 
                 @Override
                 public void componentSelected(ButtonEvent ce) {
-                    ItemDetailToolBar.this.removeAll();
-                    initToolBar();
-                    // TODO should do in other way
+                    updateViewToolBar();
                     if (container.getItemsDetailPanel().getTabPanel() != null
                             && container.getItemsDetailPanel().getTabPanel().getItem(0).getWidget(0) instanceof ItemPanel) {
                         ItemPanel itemPanel = (ItemPanel) container.getItemsDetailPanel().getTabPanel().getItem(0).getWidget(0);
@@ -645,8 +648,7 @@ public class ItemDetailToolBar extends ToolBar {
         add(generatedviewButton);
     }
 
-    private void updateSmartViewToolBar() {
-        this.removeAll();
+    private void initSmartViewToolBar() {
         addGeneratedViewButton();
         addSeparator();
         addSmartViewCombo();
@@ -662,6 +664,16 @@ public class ItemDetailToolBar extends ToolBar {
         this.addWorkFlosCombo();
     }
 
+    private void updateSmartViewToolBar() {
+        this.removeAll();
+        initSmartViewToolBar();
+    }
+
+    private void updateViewToolBar() {
+        this.removeAll();
+        initViewToolBar();
+    }
+
     private void addSmartViewCombo() {
         final ListStore<ItemBaseModel> smartViewList = new ListStore<ItemBaseModel>();
         if (smartViewCombo == null) {
@@ -675,7 +687,6 @@ public class ItemDetailToolBar extends ToolBar {
 
                 @Override
                 public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
-                    // TODO should do in other way
                     if (container.getItemsDetailPanel().getTabPanel() != null
                             && container.getItemsDetailPanel().getTabPanel().getItem(0).getWidget(0) instanceof ItemPanel) {
                         ItemPanel itemPanel = (ItemPanel) container.getItemsDetailPanel().getTabPanel().getItem(0).getWidget(0);
@@ -685,6 +696,10 @@ public class ItemDetailToolBar extends ToolBar {
                             frameUrl += ("&name=" + se.getSelectedItem().get("key"));//$NON-NLS-1$ //$NON-NLS-2$
                         itemPanel.getSmartPanel().setUrl(frameUrl);
                         itemPanel.getSmartPanel().layout(true);
+                        if (itemPanel.getTree().isVisible()) {
+                            itemPanel.getSmartPanel().setVisible(true);
+                            itemPanel.getTree().setVisible(false);
+                        }
                     }
                 }
 
@@ -700,6 +715,14 @@ public class ItemDetailToolBar extends ToolBar {
 
             public void onSuccess(List<ItemBaseModel> list) {
                 smartViewList.add(list);
+                String smartView = "Smart_view_"; //$NON-NLS-1$
+                for (ItemBaseModel item : list) {
+                    if (item.get("key").equals(smartView + itemBean.getConcept()) //$NON-NLS-1$
+                            || item.get("key").equals( //$NON-NLS-1$
+                                    smartView + itemBean.getConcept() + "_" + Locale.getLanguage().toUpperCase())) { //$NON-NLS-1$
+                        smartViewCombo.setValue(item);
+                    }
+                }
             }
 
         });
