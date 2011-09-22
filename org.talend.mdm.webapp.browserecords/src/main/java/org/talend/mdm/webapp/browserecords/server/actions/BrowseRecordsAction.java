@@ -15,7 +15,9 @@ package org.talend.mdm.webapp.browserecords.server.actions;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,6 +27,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +40,10 @@ import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -142,6 +149,9 @@ import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.sun.org.apache.xpath.internal.XPathAPI;
+import com.sun.org.apache.xpath.internal.objects.XObject;
+import com.sun.xml.xsom.XSAnnotation;
 import com.sun.xml.xsom.XSComplexType;
 import com.sun.xml.xsom.XSElementDecl;
 import com.sun.xml.xsom.XSParticle;
@@ -545,6 +555,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(dataCluster);
         String[] ids = itemBean.getIds() == null ? null : itemBean.getIds().split("\\.");//$NON-NLS-1$
         WSItem wsItem = CommonUtil.getPort().getItem(new WSGetItem(new WSItemPK(wsDataClusterPK, itemBean.getConcept(), ids)));
+        extractUsingTransformerThroughView(concept,
+                "Browse_items_" + concept, ids, dataModel, dataCluster, DataModelHelper.getEleDecl(), wsItem); //$NON-NLS-1$
         itemBean.setItemXml(wsItem.getContent());
         // parse schema
         DataModelHelper.parseSchema(dataModel, concept, entityModel, RoleHelper.getUserRoles());
@@ -1427,14 +1439,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return config.getCluster();
     }
 
-    public ItemNodeModel getItemNodeModel(String concept, EntityModel entity, String ids, String language) throws Exception {
-        String dataCluster = getCurrentDataCluster();
-
-        // get item
-        WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(dataCluster);
-        String[] idlist = ids == null ? null : ids.split("\\.");//$NON-NLS-1$
-        WSItem wsItem = CommonUtil.getPort().getItem(new WSGetItem(new WSItemPK(wsDataClusterPK, concept, idlist)));
-        String xml = wsItem.getContent();
+    public ItemNodeModel getItemNodeModel(ItemBean item, EntityModel entity, String language) throws Exception {
+        String xml = item.getItemXml();
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
@@ -1609,10 +1615,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         String viewPk = "Browse_items_" + concept; //$NON-NLS-1$
         ViewBean viewBean = getView(viewPk, language);
 
-        ItemNodeModel nodeModel = getItemNodeModel(concept, viewBean.getBindingEntityModel(), ids, language);
-
         ItemBean itemBean = new ItemBean(concept, ids, null);
         itemBean = getItem(itemBean, viewBean.getBindingEntityModel(), language);
+        if (checkSmartViewExists(concept, language))
+            itemBean.setSmartViewMode(ItemBean.SMARTMODE);
+        else if (checkSmartViewExistsByOpt(concept, language))
+            itemBean.setSmartViewMode(ItemBean.PERSOMODE);
+
+        ItemNodeModel nodeModel = getItemNodeModel(itemBean, viewBean.getBindingEntityModel(), language);
 
         return new ForeignKeyModel(viewBean, itemBean, nodeModel);
     }
@@ -1857,10 +1867,156 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
         return smartViewList;
     }
-    
-    public ItemBean getItemBeanById(String concept, String[] ids){
+
+    /**************************************************************************************/
+
+    /**
+     *********************************Registry style****************************************
+     * 
+     * @param concept
+     * @param ids
+     * @param dataModelPK
+     * @param dataClusterPK
+     * @param map
+     * @param wsItem
+     * @throws RemoteException
+     * @throws XtentisWebappException
+     * @throws UnsupportedEncodingException
+     * @throws Exception
+     * @throws XPathExpressionException
+     * @throws TransformerFactoryConfigurationError
+     * @throws TransformerConfigurationException
+     * @throws TransformerException
+     * 
+     * 1.see if there is a job in the view 2.invoke the job. 3.convert the job's return value into xml doc, 4.convert
+     * the wsItem's xml String value into xml doc, 5.cover wsItem's xml with job's xml value. step 6 and 7 must do
+     * first. 6.add properties into ViewPOJO. 7.add properties into webservice parameter.
+     */
+    private void extractUsingTransformerThroughView(String concept, String viewName, String[] ids, String dataModelPK,
+            String dataClusterPK, XSElementDecl elementDecl, WSItem wsItem) throws RemoteException, XtentisWebappException,
+            UnsupportedEncodingException, Exception, XPathExpressionException, TransformerFactoryConfigurationError,
+            TransformerConfigurationException, TransformerException {
+        if (viewName == null || viewName.length() == 0)
+            return;
+
+        WSView view = Util.getPort().getView(new WSGetView(new WSViewPK(viewName)));
+
+        if ((null != view.getTransformerPK() && view.getTransformerPK().length() != 0) && view.getIsTransformerActive().is_true()) {
+            String transformerPK = view.getTransformerPK();
+            // FIXME: consider about revision
+            // String itemPK = dataClusterPK + "." + concept + "." + Util.joinStrings(ids, ".");
+            String passToProcessContent = wsItem.getContent();
+
+            WSTypedContent typedContent = new WSTypedContent(null, new WSByteArray(passToProcessContent.getBytes("UTF-8")), //$NON-NLS-1$
+                    "text/xml; charset=UTF-8"); //$NON-NLS-1$
+
+            WSTransformerContext wsTransformerContext = new WSTransformerContext(new WSTransformerV2PK(transformerPK), null, null);
+
+            WSExecuteTransformerV2 wsExecuteTransformerV2 = new WSExecuteTransformerV2(wsTransformerContext, typedContent);
+            // check binding transformer
+            // we can leverage the exception mechanism also
+            boolean isATransformerExist = false;
+            WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK(); //$NON-NLS-1$
+            for (int i = 0; i < wst.length; i++) {
+                if (wst[i].getPk().equals(transformerPK)) {
+                    isATransformerExist = true;
+                    break;
+                }
+            }
+            // execute
+            WSTransformer wsTransformer = Util.getPort().getTransformer(new WSGetTransformer(new WSTransformerPK(transformerPK)));
+            if (wsTransformer.getPluginSpecs() == null || wsTransformer.getPluginSpecs().length == 0)
+                throw new Exception("The Plugin Specs of this process is undefined! ");
+            WSTransformerContextPipelinePipelineItem[] entries = null;
+            if (isATransformerExist) {
+
+                entries = Util.getPort().executeTransformerV2(wsExecuteTransformerV2).getPipeline().getPipelineItem();
+
+            } else {
+                // return false;
+                throw new Exception("The target process is not existed! ");
+            }
+
+            WSTransformerContextPipelinePipelineItem entrie = null;
+            boolean flag = false;
+            // FIXME:use 'output' as spec.
+            for (int i = 0; i < entries.length; i++) {
+                if ("output".equals(entries[i].getVariable())) { //$NON-NLS-1$
+                    entrie = entries[i];
+                    flag = !flag;
+                    break;
+                }
+            }
+            if (!flag) {
+                for (int i = 0; i < entries.length; i++) {
+                    if ("_DEFAULT_".equals(entries[i].getVariable())) { //$NON-NLS-1$
+                        entrie = entries[i];
+                        break;
+                    }
+                }
+            }
+            String xmlStringFromProcess;
+            if (entrie.getWsTypedContent().getWsBytes().getBytes() != null
+                    && entrie.getWsTypedContent().getWsBytes().getBytes().length != 0) {
+                xmlStringFromProcess = new String(entrie.getWsTypedContent().getWsBytes().getBytes(), "UTF-8"); //$NON-NLS-1$
+            } else {
+                xmlStringFromProcess = null;
+            }
+
+            if (null != xmlStringFromProcess && xmlStringFromProcess.length() != 0) {
+                Document wsItemDoc = Util.parse(wsItem.getContent());
+                Document jobDoc = Util.parse(xmlStringFromProcess);
+
+                ArrayList<String> lookupFieldsForWSItemDoc = new ArrayList<String>();
+                XSAnnotation xsa = elementDecl.getAnnotation();
+                if (xsa != null && xsa.getAnnotation() != null) {
+                    Element el = (Element) xsa.getAnnotation();
+                    NodeList annotList = el.getChildNodes();
+                    for (int k = 0; k < annotList.getLength(); k++) {
+                        if ("appinfo".equals(annotList.item(k).getLocalName())) { //$NON-NLS-1$
+                            Node source = annotList.item(k).getAttributes().getNamedItem("source"); //$NON-NLS-1$
+                            if (source == null)
+                                continue;
+                            String appinfoSource = annotList.item(k).getAttributes().getNamedItem("source").getNodeValue(); //$NON-NLS-1$
+                            if ("X_Lookup_Field".equals(appinfoSource)) { //$NON-NLS-1$
+
+                                lookupFieldsForWSItemDoc.add(annotList.item(k).getFirstChild().getNodeValue());
+                            }
+                        }
+                    }
+                }
+
+                // TODO String
+                String searchPrefix;
+                NodeList attrNodeList = Util.getNodeList(jobDoc, "/results/item/attr"); //$NON-NLS-1$
+                if (attrNodeList != null && attrNodeList.getLength() > 0)
+                    searchPrefix = "/results/item/attr/"; //$NON-NLS-1$
+                else
+                    searchPrefix = ""; //$NON-NLS-1$
+
+                for (Iterator<String> iterator = lookupFieldsForWSItemDoc.iterator(); iterator.hasNext();) {
+                    String xpath = iterator.next();
+                    String firstValue = Util.getFirstTextNode(jobDoc, searchPrefix + xpath);// FIXME:use first node
+                    if (null != firstValue && firstValue.length() != 0) {
+                        XObject xObjectWSItem = XPathAPI.eval(wsItemDoc, xpath, wsItemDoc);
+                        if (xObjectWSItem != null) {
+                            NodeList wSItemNodes = xObjectWSItem.nodelist();
+                            if (wSItemNodes.item(0) != null) {
+                                wSItemNodes.item(0).setTextContent(firstValue);
+                            }
+                        }
+                    }
+                }
+                wsItem.setContent(Util.nodeToString(wsItemDoc));
+            }
+        }
+    }
+    /**************************************************************************************/
+
+    public ItemBean getItemBeanById(String concept, String[] ids) {
         try {
-            WSItem wsItem = CommonUtil.getPort().getItem(new WSGetItem(new WSItemPK(new WSDataClusterPK(this.getCurrentDataCluster()), concept, ids)));
+            WSItem wsItem = CommonUtil.getPort().getItem(
+                    new WSGetItem(new WSItemPK(new WSDataClusterPK(this.getCurrentDataCluster()), concept, ids)));
             String[] idsArr = wsItem.getIds();
             StringBuilder sb = new StringBuilder();
             for(String str : idsArr)

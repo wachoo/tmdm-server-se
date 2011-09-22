@@ -89,7 +89,7 @@ public interface BrowseRecordsService extends RemoteService {
 
     String saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString);
             
-    ItemNodeModel getItemNodeModel(String concept, EntityModel entity, String ids, String language) throws Exception;
+    ItemNodeModel getItemNodeModel(ItemBean item, EntityModel entity, String language) throws Exception;
     
     List<String> getMandatoryFieldList(String tableName) throws Exception;
 

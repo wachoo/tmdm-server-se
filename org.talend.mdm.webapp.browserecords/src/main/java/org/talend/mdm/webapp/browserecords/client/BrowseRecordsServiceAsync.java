@@ -88,7 +88,7 @@ public interface BrowseRecordsServiceAsync {
 
     void saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString, AsyncCallback<String> callback);
    
-    void getItemNodeModel(String concept, EntityModel entity, String ids, String language, AsyncCallback<ItemNodeModel> callback);
+    void getItemNodeModel(ItemBean item, EntityModel entity, String language, AsyncCallback<ItemNodeModel> callback);
 
     void getMandatoryFieldList(String tableName, AsyncCallback<List<String>> callback);
 

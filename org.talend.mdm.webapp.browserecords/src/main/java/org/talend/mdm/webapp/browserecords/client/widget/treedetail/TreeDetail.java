@@ -69,7 +69,7 @@ public class TreeDetail extends ContentPanel {
         if (itemBean == null) {
             buildPanel(viewBean);
         } else {
-            getItemService().getItemNodeModel(itemBean.getConcept(), viewBean.getBindingEntityModel(), itemBean.getIds(),
+            getItemService().getItemNodeModel(itemBean, viewBean.getBindingEntityModel(),
             		Locale.getLanguage(), new AsyncCallback<ItemNodeModel>() {
 
                 public void onSuccess(ItemNodeModel node) {
@@ -229,7 +229,7 @@ public class TreeDetail extends ContentPanel {
     }
 
     public void refreshTree(ItemBean item) {
-        getItemService().getItemNodeModel(item.getConcept(), viewBean.getBindingEntityModel(), item.getIds(),
+        getItemService().getItemNodeModel(item, viewBean.getBindingEntityModel(),
                 Locale.getLanguage(), new AsyncCallback<ItemNodeModel>() {
 
                     public void onSuccess(ItemNodeModel node) {

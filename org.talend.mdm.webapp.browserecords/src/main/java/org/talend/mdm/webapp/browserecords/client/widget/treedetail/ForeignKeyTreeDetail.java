@@ -125,7 +125,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     public void refreshTree() {
         BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
         ItemBean item = fkModel.getItemBean();
-        service.getItemNodeModel(item.getConcept(), viewBean.getBindingEntityModel(), item.getIds(), Locale.getLanguage(),
+        service.getItemNodeModel(item, viewBean.getBindingEntityModel(), Locale.getLanguage(),
                 new AsyncCallback<ItemNodeModel>() {
 
                     public void onSuccess(ItemNodeModel nodeModel) {
