@@ -19,6 +19,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Frame;
 
 public class ItemPanel extends ContentPanel {
 
@@ -100,6 +101,11 @@ public class ItemPanel extends ContentPanel {
 
     public void refreshTree() {
         tree.refreshTree(item);
+        if (smartPanel.getWidget(0) != null && smartPanel.getWidget(0) instanceof Frame) {
+            String url = ((Frame) smartPanel.getWidget(0)).getUrl();
+            ((Frame) smartPanel.getWidget(0)).setUrl(url + "&" + Math.random()); //$NON-NLS-1$
+            smartPanel.layout(true);
+        }
     }
 
     public ContentPanel getSmartPanel() {
