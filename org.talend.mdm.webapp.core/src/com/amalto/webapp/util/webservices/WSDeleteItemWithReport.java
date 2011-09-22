@@ -3,11 +3,11 @@
 // JAX-RPC Standard Implementation （1.1.2_01，编译版 R40）
 // Generated source version: 1.1.2
 
-package com.amalto.core.webservice;
+package com.amalto.webapp.util.webservices;
 
 
 public class WSDeleteItemWithReport {
-    protected com.amalto.core.webservice.WSItemPK wsItemPK;
+    protected com.amalto.webapp.util.webservices.WSItemPK wsItemPK;
     protected java.lang.String source;
     protected java.lang.String operateType;
     protected java.lang.String updatePath;
@@ -19,7 +19,7 @@ public class WSDeleteItemWithReport {
     public WSDeleteItemWithReport() {
     }
     
-    public WSDeleteItemWithReport(com.amalto.core.webservice.WSItemPK wsItemPK, java.lang.String source, java.lang.String operateType, java.lang.String updatePath, java.lang.String user, java.lang.Boolean invokeBeforeSaving, java.lang.Boolean pushToUpdateReport, java.lang.Boolean override) {
+    public WSDeleteItemWithReport(com.amalto.webapp.util.webservices.WSItemPK wsItemPK, java.lang.String source, java.lang.String operateType, java.lang.String updatePath, java.lang.String user, java.lang.Boolean invokeBeforeSaving, java.lang.Boolean pushToUpdateReport, java.lang.Boolean override) {
         this.wsItemPK = wsItemPK;
         this.source = source;
         this.operateType = operateType;
@@ -30,11 +30,11 @@ public class WSDeleteItemWithReport {
         this.override = override;
     }
     
-    public com.amalto.core.webservice.WSItemPK getWsItemPK() {
+    public com.amalto.webapp.util.webservices.WSItemPK getWsItemPK() {
         return wsItemPK;
     }
     
-    public void setWsItemPK(com.amalto.core.webservice.WSItemPK wsItemPK) {
+    public void setWsItemPK(com.amalto.webapp.util.webservices.WSItemPK wsItemPK) {
         this.wsItemPK = wsItemPK;
     }
     
