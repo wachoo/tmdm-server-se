@@ -43,6 +43,7 @@ import com.google.gwt.user.client.ui.Widget;
 public class TreeDetailGridFieldCreator {
 
     public static Field<?> createField(ItemNodeModel node, final TypeModel dataType, String language) {
+        //Field
         Serializable value = node.getObjectValue();
         Field<?> field;
         boolean hasValue = value != null && !"".equals(value); //$NON-NLS-1$
@@ -149,6 +150,9 @@ public class TreeDetailGridFieldCreator {
             numberField.setPropertyEditorType(Integer.class);
             numberField.setValidator(NumberFieldValidator.getInstance());
             numberField.setValue((hasValue ? Long.parseLong(value.toString()) : null));
+            if (dataType.getMinOccurs() > 0){
+                numberField.setAllowBlank(false);
+            }
             field = numberField;
         } else if (DataTypeConstants.FLOAT.getTypeName().equals(baseType)
                 || DataTypeConstants.DOUBLE.getTypeName().equals(baseType)) {
@@ -160,6 +164,9 @@ public class TreeDetailGridFieldCreator {
                 numberField.setValue((hasValue ? Double.parseDouble(value.toString()) : null));
             else
                 numberField.setValue((hasValue ? Float.parseFloat(value.toString()) : null));
+            if (dataType.getMinOccurs() > 0){
+                numberField.setAllowBlank(false);
+            }
             field = numberField;
         } else if (DataTypeConstants.DECIMAL.getTypeName().equals(baseType)) {
             NumberField numberField = new NumberField();
@@ -168,6 +175,9 @@ public class TreeDetailGridFieldCreator {
             numberField.setPropertyEditorType(Double.class);
             // NumberFormat nf = NumberFormat.getDecimalFormat();
             numberField.setValue((hasValue ? Double.parseDouble(value.toString()) : null));
+            if (dataType.getMinOccurs() > 0){
+                numberField.setAllowBlank(false);
+            }
             field = numberField;
         } else if (DataTypeConstants.BOOLEAN.getTypeName().equals(baseType)) {
             BooleanField booleanField = new BooleanField();
@@ -185,36 +195,49 @@ public class TreeDetailGridFieldCreator {
                     this.set("text", "FALSE");}};//$NON-NLS-1$ //$NON-NLS-2$
             booleanField.getStore().add(falseValue);
             if (hasValue)
-                booleanField.setValue((value.toString().equals("true") || value.equals(true)) ? trueValue : falseValue); //$NON-NLS-1$
+                booleanField.setValue((value.toString().equals("true") || value.equals(true)) ? trueValue : falseValue); //$NON-NLS-1$   
             field = booleanField;
         } else if (DataTypeConstants.DATE.getTypeName().equals(baseType)) {
             DateField dateField = new DateField();
             if (hasValue)
                 dateField.setValue(DateUtil.convertStringToDate(value.toString()));
             dateField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd"));//$NON-NLS-1$
+            if (dataType.getMinOccurs() > 0){
+                dateField.setAllowBlank(false);
+            }
             field = dateField;
         } else if (DataTypeConstants.DATETIME.getTypeName().equals(baseType)) {
             DateField dateTimeField = new DateField();
             dateTimeField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd HH:mm:ss"));//$NON-NLS-1$
             if (hasValue)
                 dateTimeField.setValue(DateUtil.convertStringToDate(DateUtil.dateTimePattern, value.toString()));
+            if (dataType.getMinOccurs() > 0){
+                dateTimeField.setAllowBlank(false);
+            }
             field = dateTimeField;
         } else if (DataTypeConstants.STRING.getTypeName().equals(baseType)) {
             TextField<String> textField = new TextField<String>();
             textField.setValidator(TextFieldValidator.getInstance());
             textField.setValue(hasValue ? value.toString() : ""); //$NON-NLS-1$
+            if (dataType.getMinOccurs() > 0){
+                textField.setAllowBlank(false);
+            }
             field = textField;
         } else {
             TextField<String> textField = new TextField<String>();
             textField.setValue(hasValue ? value.toString() : ""); //$NON-NLS-1$
             textField.setValidator(TextFieldValidator.getInstance());
             field = textField;
+            if (dataType.getMinOccurs() > 0){
+                textField.setAllowBlank(false);
+            }
             textField.setMessages(null);
         }
 
         field.setWidth(400);
         field.setData("facetErrorMsgs", dataType.getFacetErrorMsgs().get(language));//$NON-NLS-1$
-        buildFacets(dataType, field);
+        buildFacets(dataType, field);    
+        FacetEnum.setFacetValue("maxOccurence", (Widget)field, String.valueOf(dataType.getMaxOccurs()));        
         return field;
     }
 
@@ -236,7 +259,8 @@ public class TreeDetailGridFieldCreator {
         List<FacetModel> facets = ((SimpleTypeModel) typeModel).getFacets();
         for (FacetModel facet : facets) {
             FacetEnum.setFacetValue(facet.getName(), w, facet.getValue());
-        }
+        }        
+        
     }
 
     private static void setEnumerationValues(TypeModel typeModel, Widget w) {
