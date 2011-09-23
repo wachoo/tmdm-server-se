@@ -24,7 +24,7 @@ public class ComplexTypeModel extends TypeModel {
 
     private List<TypeModel> subTypes = new ArrayList<TypeModel>();
 
-    private List<TypeModel> reusableTypes = new ArrayList<TypeModel>();
+    private List<ComplexTypeModel> reusableTypes = new ArrayList<ComplexTypeModel>();
 
     /**
      * DOC HSHU ComplexTypeModel constructor comment.
@@ -38,24 +38,32 @@ public class ComplexTypeModel extends TypeModel {
     }
 
     public List<TypeModel> getSubTypes() {
-        return subTypes;
+        return getRealTypeModel().subTypes;
     }
 
     /**
      * DOC HSHU Comment method "addSubType".
      */
     public void addSubType(TypeModel subType) {
-
-        if (this.subTypes != null)
-            subTypes.add(subType);
-
+        if (getRealTypeModel().subTypes != null) {
+            getRealTypeModel().subTypes.add(subType);
+        }
     }
 
-    public void addComplexReusableTypes(TypeModel reusableType) {
+    private ComplexTypeModel getRealTypeModel() {
+        for (TypeModel tm : reusableTypes) {
+            if (tm.getName().equals(this.getRealType())) {
+                return (ComplexTypeModel) tm;
+            }
+        }
+        return this;
+    }
+    
+    public void addComplexReusableTypes(ComplexTypeModel reusableType) {
         reusableTypes.add(reusableType);
     }
 
-    public List<TypeModel> getReusableComplexTypes() {
+    public List<ComplexTypeModel> getReusableComplexTypes() {
         return reusableTypes;
     }
 

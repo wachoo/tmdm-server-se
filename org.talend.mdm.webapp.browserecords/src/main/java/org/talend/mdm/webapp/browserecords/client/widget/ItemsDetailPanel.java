@@ -18,21 +18,32 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * DOC Administrator  class global comment. Detailled comment
  */
 public class ItemsDetailPanel extends ContentPanel {
-    
+
+    private static ItemsDetailPanel instance;
     public final static String SINGLETON = "SINGLETON"; //$NON-NLS-1$
     public final static String MULTIPLE = "MULTIPLE"; //$NON-NLS-1$
     private TabPanel tabPanel = new TabPanel();  
 
+    private SimplePanel breadCrumb = new SimplePanel();
     private ContentPanel banner = new ContentPanel();
     Text textTitle = new Text();
     Text textDesc = new Text();
     
-    public ItemsDetailPanel() {
+    public static ItemsDetailPanel getInstance() {
+        if (instance == null) {
+            instance = new ItemsDetailPanel();
+        }
+        return instance;
+    }
+
+    private ItemsDetailPanel() {
         super();
         this.setBodyBorder(false);
         this.setHeaderVisible(false);
@@ -40,9 +51,10 @@ public class ItemsDetailPanel extends ContentPanel {
         this.setWidth(800);
         this.setHeight(500);
         this.initPanel();
-    }    
+    }
     
-    private void initPanel(){    
+    private void initPanel() {
+        add(breadCrumb);
         // tabPanel.setWidth(450);
         banner.setHeaderVisible(false);
         banner.setHeight("60px"); //$NON-NLS-1$
@@ -55,6 +67,14 @@ public class ItemsDetailPanel extends ContentPanel {
         
         tabPanel.setAutoHeight(true);
         add(tabPanel);        
+    }
+
+    public void initBreadCrumb(BreadCrumb breadCrumb) {
+        this.breadCrumb.setWidget(breadCrumb);
+    }
+
+    public void clearBreadCrumb() {
+        this.breadCrumb.clear();
     }
 
     public void initBanner(String title, String description) {
@@ -76,6 +96,7 @@ public class ItemsDetailPanel extends ContentPanel {
             if(newTab == null){
                 newTab = new TabItem(title); 
                 newTab.setId(id);
+                newTab.setItemId(id);
                 newTab.setClosable(true);
                 newTab.addStyleName("pad-text");   //$NON-NLS-1$
                 newTab.add(panel);
@@ -86,20 +107,31 @@ public class ItemsDetailPanel extends ContentPanel {
                 newTab.add(panel);
                 newTab.layout(true);
             }
-        }        
+        }
+    }
+
+    public ItemPanel getCurrentItemPanel(){
+        TabItem tabItem = tabPanel.getSelectedItem();
+        if (tabItem != null){
+            Widget w = tabItem.getWidget(0);
+            if (w instanceof ItemPanel) {
+                return (ItemPanel) w;
+            }
+        }
+        return null;
     }
     
     public void clearContent() {
         tabPanel.removeAll();
     }
 
+    public TabItem getTabPanelById(String itemId) {
+        return tabPanel.getItemByItemId(itemId);
+    }
+
     public void closeCurrentTab(){
         TabItem itemTab = tabPanel.getSelectedItem();
         tabPanel.remove(itemTab);
-    }
-    
-    public TabItem getTabPanelById(String id){
-        return tabPanel.getItemByItemId(id);
     }
 
     public TabPanel getTabPanel() {

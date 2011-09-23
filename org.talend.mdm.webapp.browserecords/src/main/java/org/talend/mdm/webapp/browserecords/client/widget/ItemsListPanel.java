@@ -24,7 +24,6 @@ import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
-import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.Parser;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
@@ -76,7 +75,7 @@ public class ItemsListPanel extends ContentPanel {
         @Override
         public void load(Object loadConfig, final AsyncCallback<PagingLoadResult<ItemBean>> callback) {
             final QueryModel qm = new QueryModel();
-            toolBar.setQueryModel(qm);
+            ItemsToolBar.getInstance().setQueryModel(qm);
             qm.setPagingLoadConfig((PagingLoadConfig) loadConfig);
             int pageSize = pagingBar.getPageSize();
             qm.getPagingLoadConfig().setLimit(pageSize);
@@ -134,15 +133,21 @@ public class ItemsListPanel extends ContentPanel {
 
     private PagingToolBarEx pagingBar = null;
 
-    private ItemsToolBar toolBar;
-
     private Boolean gridUpdateLock = Boolean.FALSE;
 
-    public ItemsListPanel(ItemsToolBar bar) {
+    private static ItemsListPanel instance;
+
+    public static ItemsListPanel getInstance() {
+        if (instance == null) {
+            instance = new ItemsListPanel();
+        }
+        return instance;
+    }
+
+    private ItemsListPanel() {
         setLayout(new FitLayout());
         setHeaderVisible(false);
         initPanel();
-        toolBar = bar;
 
         store.setKeyProvider(keyProvidernew);
 
@@ -162,9 +167,8 @@ public class ItemsListPanel extends ContentPanel {
                         grid.getSelectionModel().select(0, false);
                     }
                 } else {
-                    toolBar.searchBut.setEnabled(true);
-                    ItemsSearchContainer itemsSearchContainer = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
-                    itemsSearchContainer.getItemsDetailPanel().getElement().setInnerHTML(""); //$NON-NLS-1$
+                    ItemsToolBar.getInstance().searchBut.setEnabled(true);
+                    ItemsDetailPanel.getInstance().getElement().setInnerHTML(""); //$NON-NLS-1$
                 }
             }
         });
@@ -247,7 +251,8 @@ public class ItemsListPanel extends ContentPanel {
         grid.setAriaLabelledBy(this.getHeader().getId() + "-label");//$NON-NLS-1$
 
         gridContainer.add(grid);
-        gridContainer.setHeight(this.getHeight() - toolBar.getHeight() - toolBar.getAdvancedPanel().getHeight());
+        gridContainer.setHeight(this.getHeight() - ItemsToolBar.getInstance().getHeight()
+                - ItemsToolBar.getInstance().getAdvancedPanel().getHeight());
         // hookContextMenu();
 
         add(gridContainer);
@@ -339,7 +344,7 @@ public class ItemsListPanel extends ContentPanel {
 
     public void setEnabledGridSearchButton(boolean enabled) {
         gridContainer.setEnabled(enabled);
-        toolBar.searchBut.setEnabled(enabled);
+        ItemsToolBar.getInstance().searchBut.setEnabled(enabled);
     }
 
     public void refreshGrid() {
@@ -385,8 +390,8 @@ public class ItemsListPanel extends ContentPanel {
                 pagingBar.first();
             }
         } else {
-            ButtonEvent be = new ButtonEvent(toolBar.searchBut);
-            toolBar.searchBut.fireEvent(Events.Select, be);
+            ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchBut);
+            ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, be);
         }
     }
 }

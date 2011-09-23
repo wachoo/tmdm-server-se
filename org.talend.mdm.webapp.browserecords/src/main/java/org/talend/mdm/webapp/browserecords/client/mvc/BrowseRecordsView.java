@@ -29,17 +29,20 @@ import org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsSearchContainer;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator.FieldCreator;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyListWindow;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTreeDetail;
+import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
+import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
 import com.allen_sauer.gwt.log.client.Log;
-import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
@@ -57,10 +60,6 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
  * DOC Administrator class global comment. Detailled comment
  */
 public class BrowseRecordsView extends View {
-
-    public static final String ITEMS_SEARCH_CONTAINER = "itemsSearchContainer";//$NON-NLS-1$
-
-    private ItemsSearchContainer itemsSearchContainer = null;
 
     public BrowseRecordsView(Controller controller) {
         super(controller);
@@ -92,50 +91,48 @@ public class BrowseRecordsView extends View {
     }
 
     private void onExecuteVisibleRule(AppEvent event) {
-    	ItemsDetailPanel detailPanel = itemsSearchContainer.getItemsDetailPanel();
-        // TODO this function should have two kinds Panels,one is ItemPanel,another is ForeignKeyTreeDetail
-        if (detailPanel.getTabPanelById("itemView") != null) { //$NON-NLS-1$
-            ItemPanel itemPanel = (ItemPanel) detailPanel.getTabPanelById("itemView").getWidget(0); //$NON-NLS-1$
-            if (itemPanel != null)
-                itemPanel.handleEvent(event);
+        ItemPanel itemPanel = ItemsDetailPanel.getInstance().getCurrentItemPanel();
+        if (itemPanel != null) {
+            itemPanel.onExecuteVisibleRule((List<VisibleRuleResult>) event.getData());
         }
 	}
 
 	private void onUpdatePolymorphism(AppEvent event) {
-        itemsSearchContainer.getToolBar().getItemPanel().handleEvent(event);
+        ItemPanel itemPanel = ItemsDetailPanel.getInstance().getCurrentItemPanel();
+        if (itemPanel != null) {
+            itemPanel.onUpdatePolymorphism((ComplexTypeModel) event.getData());
+        }
     }
 
     private void onViewForeignKey(AppEvent event) {
         ForeignKeyModel model = event.getData();
         ForeignKeyTreeDetail tree = new ForeignKeyTreeDetail(model, false);
-        itemsSearchContainer.getItemsDetailPanel().addTabItem(model.getViewBean().getBindingEntityModel().getConceptName(), tree,
+        ItemsDetailPanel.getInstance().addTabItem(
+                model.getViewBean().getBindingEntityModel().getConceptName(), tree,
                 ItemsDetailPanel.MULTIPLE, model.getViewBean().getDescription());
     }
 
     private void onViewItem(AppEvent event) {
         ItemBean item = (ItemBean) event.getData();
-        itemsSearchContainer = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
-        ItemsDetailPanel detailPanel = itemsSearchContainer.getItemsDetailPanel();
-        detailPanel.clearContent();
-        detailPanel.initBanner(item.getDisplayPKInfo(), item.getDescription());
+        ItemsDetailPanel.getInstance().clearContent();
+        ItemsDetailPanel.getInstance().initBanner(item.getDisplayPKInfo(), item.getDescription());
         String operation = ItemDetailToolBar.VIEW_OPERATION;
         if (item.getSmartViewMode().equals(ItemBean.PERSOMODE))
             operation = ItemDetailToolBar.PERSONALEVIEW_OPERATION;
         else if (item.getSmartViewMode().equals(ItemBean.SMARTMODE))
             operation = ItemDetailToolBar.SMARTVIEW_OPERATION;
         ItemPanel itemPanel = new ItemPanel(item, operation);
-        detailPanel.addTabItem(item.getConcept(), itemPanel, ItemsDetailPanel.SINGLETON, "itemView"); //$NON-NLS-1$
+        ItemsDetailPanel.getInstance().addTabItem(item.getConcept(), itemPanel, ItemsDetailPanel.SINGLETON, "itemView"); //$NON-NLS-1$
 
         // show breadcrumb
-        if (itemsSearchContainer.getRightContainer().getItemCount() > 1)
-            itemsSearchContainer.getRightContainer().getItem(0).removeFromParent();
+
+        ItemsDetailPanel.getInstance().clearBreadCrumb();
         if (item != null) {
             List<String> breads = new ArrayList<String>();
             breads.add(BreadCrumb.DEFAULTNAME);
             breads.add(item.getConcept());
             breads.add(item.getIds());
-            itemsSearchContainer.getRightContainer().insert(new BreadCrumb(breads), 0);
-            itemsSearchContainer.getRightContainer().layout(true);
+            ItemsDetailPanel.getInstance().initBreadCrumb(new BreadCrumb(breads));
         }
     }
 
@@ -148,7 +145,8 @@ public class BrowseRecordsView extends View {
     private void onCreateForeignKeyView(AppEvent event) {
         ViewBean viewBean = event.getData();
         ForeignKeyTreeDetail tree = new ForeignKeyTreeDetail(viewBean, true);
-        itemsSearchContainer.getItemsDetailPanel().addTabItem(viewBean.getBindingEntityModel().getConceptName(), tree,
+        ItemsDetailPanel.getInstance().addTabItem(viewBean.getBindingEntityModel().getConceptName(),
+                tree,
                 ItemsDetailPanel.MULTIPLE, viewBean.getDescription());
 
     }
@@ -156,7 +154,6 @@ public class BrowseRecordsView extends View {
     private void onInitFrame(AppEvent event) {
         if (Log.isInfoEnabled())
             Log.info("Init frame... ");//$NON-NLS-1$
-
         GenerateContainer.getContentPanel().setLayout(new FitLayout());
         GenerateContainer.getContentPanel().setStyleAttribute("height", "100%");//$NON-NLS-1$ //$NON-NLS-2$       
         Dispatcher.forwardEvent(BrowseRecordsEvents.InitSearchContainer);
@@ -166,18 +163,13 @@ public class BrowseRecordsView extends View {
         // create search panel
         if (Log.isInfoEnabled())
             Log.info("Init items-search-container... ");//$NON-NLS-1$
-        itemsSearchContainer = new ItemsSearchContainer();
-        GenerateContainer.getContentPanel().add(itemsSearchContainer);
+        GenerateContainer.getContentPanel().add(ItemsSearchContainer.getInstance());
         GenerateContainer.getContentPanel().layout(true);
-        Registry.register(ITEMS_SEARCH_CONTAINER, itemsSearchContainer);
-
     }
 
     protected void onGetView(final AppEvent event) {
         ViewBean viewBean = event.getData();
-
-        itemsSearchContainer = Registry.get(ITEMS_SEARCH_CONTAINER);
-        itemsSearchContainer.getToolBar().updateToolBar(viewBean);
+        ItemsToolBar.getInstance().updateToolBar(viewBean);
         // itemsSearchContainer.getItemsListPanel().resetShowItemTimes();
     }
 
@@ -186,7 +178,6 @@ public class BrowseRecordsView extends View {
         EntityModel entityModel = viewBean.getBindingEntityModel();
 
         // TODO update columns
-        itemsSearchContainer = Registry.get(ITEMS_SEARCH_CONTAINER);
         List<ColumnConfig> ccList = new ArrayList<ColumnConfig>();
         CheckBoxSelectionModel<ItemBean> sm = new CheckBoxSelectionModel<ItemBean>();
         sm.setSelectionMode(SelectionMode.MULTI);
@@ -218,7 +209,7 @@ public class BrowseRecordsView extends View {
             ccList.add(cc);
         }
 
-        itemsSearchContainer.getItemsListPanel().updateGrid(sm, ccList);
+        ItemsListPanel.getInstance().updateGrid(sm, ccList);
         // itemsSearchContainer.getItemsListPanel().resetShowItemTimes();
         // TODO in the view of ViewItemForm binding
 

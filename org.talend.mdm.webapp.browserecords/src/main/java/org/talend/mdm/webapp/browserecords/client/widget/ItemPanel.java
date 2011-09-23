@@ -12,11 +12,13 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget;
 
-import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
+import java.util.List;
+
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail;
+import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
+import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
-import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Frame;
@@ -79,12 +81,12 @@ public class ItemPanel extends ContentPanel {
         // this.setBottomComponent(new PagingToolBarEx(50));
     }
 
-    public void handleEvent(AppEvent event) {
-        if (event.getType() == BrowseRecordsEvents.UpdatePolymorphism) {
-            tree.handleEvent(event);
-        } else if(event.getType() == BrowseRecordsEvents.ExecuteVisibleRule) {
-        	tree.handleEvent(event);
-        }
+    public void onUpdatePolymorphism(ComplexTypeModel typeModel) {
+        tree.onUpdatePolymorphism(typeModel);
+    }
+
+    public void onExecuteVisibleRule(List<VisibleRuleResult> visibleResults) {
+        tree.onExecuteVisibleRule(visibleResults);
     }
 
     public ItemBean getItem() {

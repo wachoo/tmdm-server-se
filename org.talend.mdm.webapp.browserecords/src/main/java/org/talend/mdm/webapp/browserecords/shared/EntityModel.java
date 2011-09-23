@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.shared;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -49,7 +48,7 @@ public class EntityModel implements IsSerializable {
     }
 
     public void setKeys(String[] keys) {
-        this.keys = keys;
+        this.keys = new String[] { "Agent/Id" };
     }
 
     public Map<String, TypeModel> getMetaDataTypes() {

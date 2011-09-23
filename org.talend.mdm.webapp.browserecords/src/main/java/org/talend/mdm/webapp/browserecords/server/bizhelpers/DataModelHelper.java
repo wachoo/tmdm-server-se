@@ -206,7 +206,6 @@ public class DataModelHelper {
                 typeModel.setPolymiorphism(true);
                 typeModel.setAbstract(new ReusableType(e.getType()).isAbstract());
                 ComplexTypeModel parentType = (ComplexTypeModel) typeModel;
-                ArrayList<TypeModel> subTypesName = new ArrayList<TypeModel>();
                 ComplexTypeModel abstractReusableComplexType = new ComplexTypeModel(typeName, DataTypeCreator.getDataType(
                         typeName, baseTypeName));
                 parentType.addComplexReusableTypes(abstractReusableComplexType);
@@ -244,8 +243,8 @@ public class DataModelHelper {
                         parentType.addComplexReusableTypes(reusableComplexType);
                     }
                 }
-                if (subTypesName.size() > 0) {
-                    typeModel.setRealType(subTypesName.get(0).getName());
+                if (parentType.getReusableComplexTypes().size() > 0) {
+                    typeModel.setRealType(parentType.getReusableComplexTypes().get(0));
                 }
 
             }

@@ -74,7 +74,7 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     private boolean isAbstract = false;
 
-    private String realType;
+    private ComplexTypeModel realType;
 
     private String defaultValueExpression;
 
@@ -194,11 +194,11 @@ public abstract class TypeModel implements Serializable, IsSerializable {
         this.reusableTypes = subTypes;
     }
 
-    public String getRealType() {
+    public ComplexTypeModel getRealType() {
         return realType;
     }
 
-    public void setRealType(String realType) {
+    public void setRealType(ComplexTypeModel realType) {
         this.realType = realType;
     }
 

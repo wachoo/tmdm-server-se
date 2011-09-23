@@ -30,7 +30,6 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -38,6 +37,7 @@ import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.ui.Widget;
 
 public class TreeDetailGridFieldCreator {
@@ -99,11 +99,13 @@ public class TreeDetailGridFieldCreator {
             comboxField.setTriggerAction(TriggerAction.ALL);
 
             // final ComplexTypeModel complexTypeModel = (ComplexTypeModel) dataType;
-            List<TypeModel> reusableTypes = ((ComplexTypeModel) dataType).getReusableComplexTypes();
+            List<ComplexTypeModel> reusableTypes = ((ComplexTypeModel) dataType).getReusableComplexTypes();
             ListStore<ComboBoxModel> comboxStore = new ListStore<ComboBoxModel>();
             comboxField.setStore(comboxStore);
             for (TypeModel subType : reusableTypes) {
-                comboxStore.add(new ComboBoxModel(subType.getName(), subType.getName()));
+                ComboBoxModel cbm = new ComboBoxModel(subType.getName(), subType.getName());
+                cbm.set("reusableType", subType); //$NON-NLS-1$
+                comboxStore.add(cbm);
             }
             if (comboxStore.getCount() > 0) {
                 comboxField.setValue(comboxStore.getAt(0));
@@ -112,8 +114,8 @@ public class TreeDetailGridFieldCreator {
 
                 @Override
                 public void selectionChanged(SelectionChangedEvent<ComboBoxModel> se) {
-                    String value = comboxField.getValue().getText();
-                    dataType.setRealType(value);
+                    ComplexTypeModel reusableType = comboxField.getValue().get("reusableType"); //$NON-NLS-1$
+                    dataType.setRealType(reusableType);
                     Dispatcher.forwardEvent(BrowseRecordsEvents.UpdatePolymorphism, dataType);
                 }
 

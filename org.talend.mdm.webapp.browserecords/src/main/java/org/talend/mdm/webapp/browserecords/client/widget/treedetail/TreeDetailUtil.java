@@ -27,7 +27,7 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class TreeDetailUtil {
 
-    public static Widget createWidget(final ItemNodeModel itemNode, ViewBean viewBean, ClickHandler h) {
+    public static Widget createWidget(final ItemNodeModel itemNode, final ViewBean viewBean, ClickHandler h) {
 
         HorizontalPanel hp = new HorizontalPanel();
         // create Field
@@ -71,6 +71,7 @@ public class TreeDetailUtil {
 						}
 						
 						app.setData(parent);
+                        app.setData("viewBean", viewBean); //$NON-NLS-1$
 						Dispatcher.forwardEvent(app);
 					}});
                 hp.add(field);

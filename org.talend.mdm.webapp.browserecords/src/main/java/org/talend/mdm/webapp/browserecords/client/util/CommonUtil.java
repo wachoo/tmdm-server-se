@@ -10,6 +10,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.google.gwt.xml.client.Document;
@@ -31,15 +32,15 @@ public class CommonUtil {
         return xpath;
     }
 
-    public static String toXML(ItemNodeModel nodeModel) {
+    public static String toXML(ItemNodeModel nodeModel, ViewBean viewBean) {
         Document doc = XMLParser.createDocument();
-        Element root = _toXML(doc, nodeModel);
+        Element root = _toXML(doc, nodeModel, viewBean);
         doc.appendChild(root);
         return doc.toString();
     }
 
     @SuppressWarnings("unchecked")
-    private static Element _toXML(Document doc, ItemNodeModel nodeModel) {
+    private static Element _toXML(Document doc, ItemNodeModel nodeModel, ViewBean viewBean) {
         Element root = doc.createElement(nodeModel.getName());
         Serializable value = nodeModel.getObjectValue();
         if (value != null && nodeModel.getParent() != null) {
@@ -54,13 +55,17 @@ public class CommonUtil {
             } else {
                 root.appendChild(doc.createTextNode(value.toString()));
             }
+        }
 
+        TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(nodeModel.getBindingPath());
+        if (typeModel.getRealType() != null) {
+            root.setAttribute("xsi:type", typeModel.getRealType().getName()); //$NON-NLS-1$
         }
 
         List<ModelData> children = nodeModel.getChildren();
         if (children != null) {
             for (ModelData child : children) {
-                Element el = _toXML(doc, (ItemNodeModel) child);
+                Element el = _toXML(doc, (ItemNodeModel) child, viewBean);
                 root.appendChild(el);
             }
         }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
-import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnElement;
@@ -16,14 +15,12 @@ import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
-import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.dom.client.Style.Unit;
@@ -78,7 +75,8 @@ public class TreeDetail extends ContentPanel {
                 public void onSuccess(ItemNodeModel node) {
                     renderTree(node);
                     //maybe need to refactor for performance
-                    getItemService().executeVisibleRule(CommonUtil.toXML(node), new AsyncCallback<List<VisibleRuleResult>>() {
+                            getItemService().executeVisibleRule(CommonUtil.toXML(node, viewBean),
+                                    new AsyncCallback<List<VisibleRuleResult>>() {
 						public void onFailure(Throwable arg0) {
 						}
 
@@ -110,7 +108,6 @@ public class TreeDetail extends ContentPanel {
             item.setItemNodeModel(itemNode);
             item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, handler));
         }
-
         if (itemNode.getChildren() != null && itemNode.getChildren().size() > 0) {
             for (ModelData model : itemNode.getChildren()) {
                 ItemNodeModel node = (ItemNodeModel) model;
@@ -121,6 +118,41 @@ public class TreeDetail extends ContentPanel {
         item.setUserObject(itemNode);
 
         return item;
+    }
+
+    public void onUpdatePolymorphism(ComplexTypeModel typeModel) {
+        DynamicTreeItem item = (DynamicTreeItem) tree.getSelectedItem();
+        ItemNodeModel treeNode = item.getItemNodeModel();
+        List<ComplexTypeModel> reusableTypes = typeModel.getReusableComplexTypes();
+        if (reusableTypes != null) {
+            for (ComplexTypeModel model : reusableTypes) {
+                if (model.getName().equals(typeModel.getRealType())) {
+                    String xPath = treeNode.getBindingPath();
+                    viewBean.getBindingEntityModel().getMetaDataTypes().get(xPath).setRealType(model);
+                    if (item.getItemNodeModel() == treeNode) {
+                        item.removeItems();
+                        List<ItemNodeModel> items = CommonUtil.getDefaultTreeModel(model);
+                        if (items != null && items.size() > 0) {
+                            List<ItemNodeModel> childrenItems = new ArrayList<ItemNodeModel>();
+                            for (ModelData modelData : items.get(0).getChildren()) {
+                                childrenItems.add((ItemNodeModel) modelData);
+                            }
+                            treeNode.setChildNodes(childrenItems);
+                        }
+                        buildGWTTree(treeNode, item);
+                        break;
+                    }
+
+                }
+            }
+        }
+    }
+
+    public void onExecuteVisibleRule(List<VisibleRuleResult> visibleResults) {
+        DynamicTreeItem rootItem = (DynamicTreeItem) tree.getItem(0);
+        for (VisibleRuleResult visibleResult : visibleResults) {
+            recrusiveSetItems(visibleResult, rootItem);
+        }
     }
 
     private Tree displayGWTTree(ColumnTreeModel columnLayoutModel) {
@@ -169,44 +201,6 @@ public class TreeDetail extends ContentPanel {
             add(tree);
         }
         this.layout();
-    }
-
-    public void handleEvent(AppEvent event) {
-        if (event.getType() == BrowseRecordsEvents.UpdatePolymorphism) {
-            ComplexTypeModel typeModel = (ComplexTypeModel) event.getData();
-            DynamicTreeItem item = (DynamicTreeItem) tree.getSelectedItem();
-            ItemNodeModel treeNode = item.getItemNodeModel();
-            List<TypeModel> reusableTypes = typeModel.getReusableComplexTypes();
-            if (reusableTypes != null) {
-                for (TypeModel model : reusableTypes) {
-                    if (model.getName().equals(typeModel.getRealType())) {
-                        String xPath = treeNode.getBindingPath();
-                        viewBean.getBindingEntityModel().getMetaDataTypes().put(xPath, model);
-                        if (item.getItemNodeModel() == treeNode) {
-                            item.removeItems();
-                            List<ItemNodeModel> items = CommonUtil.getDefaultTreeModel(model);
-                            if (items != null && items.size() > 0) {
-                                List<ItemNodeModel> childrenItems = new ArrayList<ItemNodeModel>();
-                                for (ModelData modelData : items.get(0).getChildren()) {
-                                    childrenItems.add((ItemNodeModel) modelData);
-                                }
-                                treeNode.setChildNodes(childrenItems);
-                            }
-                            buildGWTTree(treeNode, item);
-                            break;
-                        }
-
-                    }
-                }
-            }
-        } else if(event.getType() == BrowseRecordsEvents.ExecuteVisibleRule) {
-        	List<VisibleRuleResult> visibleResults = event.getData();
-            DynamicTreeItem rootItem = (DynamicTreeItem) tree.getItem(0);
-            
-            for(VisibleRuleResult visibleResult : visibleResults) {
-            	recrusiveSetItems(visibleResult, rootItem);
-        	}
-        }
     }
 
     private void recrusiveSetItems(VisibleRuleResult visibleResult, DynamicTreeItem rootItem) {

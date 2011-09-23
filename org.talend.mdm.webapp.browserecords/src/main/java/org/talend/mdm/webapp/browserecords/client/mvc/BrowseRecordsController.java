@@ -24,7 +24,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
-import org.talend.mdm.webapp.browserecords.client.widget.ItemsSearchContainer;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
@@ -45,8 +45,6 @@ public class BrowseRecordsController extends Controller {
     private BrowseRecordsView view;
 
     private BrowseRecordsServiceAsync service;
-    
-    private ItemsSearchContainer container;
 
     public BrowseRecordsController() {
         registerEventTypes(BrowseRecordsEvents.Error);
@@ -102,21 +100,18 @@ public class BrowseRecordsController extends Controller {
     private void onSaveItem(AppEvent event) {
         // TODO the following code need to be refactor, it is the demo code
         ItemNodeModel model = event.getData();
+        ViewBean viewBean = event.getData("viewBean"); //$NON-NLS-1$
         ItemBean itemBean = event.getData("ItemBean"); //$NON-NLS-1$
         Boolean isCreate = event.getData("isCreate"); //$NON-NLS-1$
         final Boolean isClose = event.getData("isClose"); //$NON-NLS-1$
-        service.saveItem(itemBean.getConcept(), itemBean.getIds(), CommonUtil.toXML(model), isCreate,
+        service.saveItem(itemBean.getConcept(), itemBean.getIds(), CommonUtil.toXML(model, viewBean), isCreate,
                 new AsyncCallback<ItemResult>() {
 
             public void onSuccess(ItemResult arg0) {
                 com.google.gwt.user.client.Window.alert("save successfully"); //$NON-NLS-1$     
-                container = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
-                if (container!= null) {                    
                     if (!isClose){
-                        container.getItemsListPanel().lastPage();
-                        //container.getItemsDetailPanel().closeCurrentTab();
+                            ItemsListPanel.getInstance().lastPage();
                     }
-                }              
             }
 
             public void onFailure(Throwable caught) {
@@ -235,12 +230,12 @@ public class BrowseRecordsController extends Controller {
     
     private void onExecuteVisibleRule(final AppEvent event) {
         final ItemNodeModel model = event.getData();
-        
+        ViewBean viewBean = event.getData("viewBean"); //$NON-NLS-1$
         if (model != null) {
             EntityModel entityModel = (EntityModel) BrowseRecords.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
             entityModel.getMetaDataTypes();
             
-            service.executeVisibleRule(CommonUtil.toXML(model), new AsyncCallback<List<VisibleRuleResult>>() {
+            service.executeVisibleRule(CommonUtil.toXML(model, viewBean), new AsyncCallback<List<VisibleRuleResult>>() {
 				public void onFailure(Throwable arg0) {
 				}
 

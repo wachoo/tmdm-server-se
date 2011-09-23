@@ -21,20 +21,17 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.creator.ItemCreator;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.SimpleCriterion;
-import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKRelRecordWindow;
-import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
 import org.talend.mdm.webapp.browserecords.client.widget.SearchPanel.AdvancedSearchPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.SearchPanel.SimpleCriterionPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
@@ -129,8 +126,6 @@ public class ItemsToolBar extends ToolBar {
 
     private BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
 
-    private ItemsToolBar instance = this;
-
     private List<ItemBaseModel> userCriteriasList;
 
     private ListStore<ItemBaseModel> tableList = new ListStore<ItemBaseModel>();
@@ -147,15 +142,20 @@ public class ItemsToolBar extends ToolBar {
 
     private ViewBean tableView;
 
-    private ItemsSearchContainer container = null;
-
-    private ItemPanel itemPanel;
-
     private FKRelRecordWindow relWindow = new FKRelRecordWindow();
 
     /*************************************/
 
-    public ItemsToolBar() {
+    private static ItemsToolBar instance1;
+
+    public static ItemsToolBar getInstance() {
+        if (instance1 == null) {
+            instance1 = new ItemsToolBar();
+        }
+        return instance1;
+    }
+
+    private ItemsToolBar() {
         // init user saved model
         userCluster = BrowseRecords.getSession().getAppHeader().getDatacluster();
         this.setBorders(false);
@@ -192,9 +192,8 @@ public class ItemsToolBar extends ToolBar {
             advancedPanel.cleanCriteria();
         }
         // reset search results
-        if (container != null) {
-            container.getItemsListPanel().resetGrid();
-        }
+
+        ItemsListPanel.getInstance().resetGrid();
 
         searchBut.setEnabled(true);
         advancedBut.setEnabled(true);
@@ -257,10 +256,7 @@ public class ItemsToolBar extends ToolBar {
 
     public int getSelectItemNumber() {
         int number = 0;
-        if (container != null) {
-            ItemsListPanel list = container.getItemsListPanel();
-            number = list.getGrid().getSelectionModel().getSelectedItems().size();
-        }
+        number = ItemsListPanel.getInstance().getGrid().getSelectionModel().getSelectedItems().size();
         return number;
     }
 
@@ -276,13 +272,14 @@ public class ItemsToolBar extends ToolBar {
 
                 EntityModel entityModel = (EntityModel) BrowseRecords.getSession().getCurrentEntityModel();
                 ItemBean itemBean = ItemCreator.createDefaultItemBean(concept, entityModel);
-                ItemsDetailPanel detailPanel = container.getItemsDetailPanel();
-                if (container.getItemsListPanel().getGrid() != null)
-                    container.getItemsListPanel().getGrid().getSelectionModel().deselectAll();
-                detailPanel.clearContent();
-                detailPanel.initBanner(itemBean.getDisplayPKInfo(), itemBean.getDescription());
-                itemPanel = new ItemPanel(itemBean, ItemDetailToolBar.CREATE_OPERATION);
-                detailPanel.addTabItem(itemBean.getConcept(), itemPanel, ItemsDetailPanel.MULTIPLE, itemBean.getConcept());
+
+                if (ItemsListPanel.getInstance().getGrid() != null)
+                    ItemsListPanel.getInstance().getGrid().getSelectionModel().deselectAll();
+                ItemsDetailPanel.getInstance().clearContent();
+                ItemsDetailPanel.getInstance().initBanner(itemBean.getDisplayPKInfo(), itemBean.getDescription());
+                ItemPanel itemPanel = new ItemPanel(itemBean, ItemDetailToolBar.CREATE_OPERATION);
+                ItemsDetailPanel.getInstance().addTabItem(itemBean.getConcept(), itemPanel, ItemsDetailPanel.MULTIPLE,
+                        itemBean.getConcept());
             }
 
         });
@@ -298,14 +295,14 @@ public class ItemsToolBar extends ToolBar {
 
             @Override
             public void componentSelected(MenuEvent ce) {
-                if (container.getItemsListPanel().getGrid() == null) {
+                if (ItemsListPanel.getInstance().getGrid() == null) {
                     com.google.gwt.user.client.Window.alert(MessagesFactory.getMessages().select_delete_item_record());
                 } else {
                     if (getSelectItemNumber() == 0) {
                         com.google.gwt.user.client.Window.alert(MessagesFactory.getMessages().select_delete_item_record());
                     } else {
                         MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
-                                .delete_confirm(), new DeleteItemsBoxListener(container, service));
+                                .delete_confirm(), new DeleteItemsBoxListener(ItemsSearchContainer.getInstance(), service));
                     }
                 }
             }
@@ -323,9 +320,10 @@ public class ItemsToolBar extends ToolBar {
 
                     public void handleEvent(MessageBoxEvent be) {
                         if (be.getButtonClicked().getItemId().equals(Dialog.OK)) {
-                            final ItemsListPanel list = container.getItemsListPanel();
-                            if (list.getGrid() != null) {
-                                service.checkFKIntegrity(list.getGrid().getSelectionModel().getSelectedItems(), new AsyncCallback<FKIntegrityResult>() {
+
+                            if (ItemsListPanel.getInstance().getGrid() != null) {
+                                service.checkFKIntegrity(ItemsListPanel.getInstance().getGrid().getSelectionModel()
+                                        .getSelectedItems(), new AsyncCallback<FKIntegrityResult>() {
                                     public void onFailure(Throwable caught) {
                                         Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
                                     }
@@ -338,7 +336,7 @@ public class ItemsToolBar extends ToolBar {
                                                         new Listener<MessageBoxEvent>() {
                                                             public void handleEvent(MessageBoxEvent be) {
                                                                 if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                                                    doLogicalDelete(list, true);
+                                                        doLogicalDelete(ItemsListPanel.getInstance(), true);
                                                                 }
                                                             }
                                                         });
@@ -355,7 +353,7 @@ public class ItemsToolBar extends ToolBar {
                                                         });
                                                 break;
                                             case ALLOWED:
-                                                doLogicalDelete(list, false);
+                                            doLogicalDelete(ItemsListPanel.getInstance(), false);
                                                 break;
                                         }
                                     }
@@ -382,9 +380,8 @@ public class ItemsToolBar extends ToolBar {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                ItemsSearchContainer itemsSearchContainer = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
-                ItemsDetailPanel detailPanel = itemsSearchContainer.getItemsDetailPanel();
-                TabItem item = detailPanel.getTabPanelById("upload-main-panel"); //$NON-NLS-1$
+
+                TabItem item = ItemsDetailPanel.getInstance().getTabPanelById("upload-main-panel"); //$NON-NLS-1$
                 currentModel = null;
 
                 if (item == null) {
@@ -478,7 +475,7 @@ public class ItemsToolBar extends ToolBar {
                             }));
 
                     panel.setTopComponent(toolBar);
-                    detailPanel.addTabItem(MessagesFactory.getMessages().label_items_browser(), panel,
+                    ItemsDetailPanel.getInstance().addTabItem(MessagesFactory.getMessages().label_items_browser(), panel,
                             ItemsDetailPanel.SINGLETON, "upload-main-panel"); //$NON-NLS-1$
                 }
 
@@ -580,14 +577,14 @@ public class ItemsToolBar extends ToolBar {
                 advancedPanelVisible = !advancedPanelVisible;
                 advancedPanel.setVisible(advancedPanelVisible);
                 if (advancedPanelVisible)
-                    container.resizeTop(30 + advancedPanel.getOffsetHeight());
+                    ItemsSearchContainer.getInstance().resizeTop(30 + advancedPanel.getOffsetHeight());
                 else
-                    container.resizeTop(30);
+                    ItemsSearchContainer.getInstance().resizeTop(30);
                 advancedPanel.getButtonBar().getItemByItemId("updateBookmarkBtn").setVisible(false); //$NON-NLS-1$
 
-                if (container.getItemsListPanel() != null && container.getItemsListPanel().gridContainer != null)
-                    container.getItemsListPanel().gridContainer.setHeight(instance.getParent().getOffsetHeight()
-                            - instance.getOffsetHeight() - advancedPanel.getOffsetHeight());
+                if (ItemsListPanel.getInstance().gridContainer != null)
+                    ItemsListPanel.getInstance().gridContainer.setHeight(ItemsToolBar.this.getParent().getOffsetHeight()
+                            - ItemsToolBar.this.getOffsetHeight() - advancedPanel.getOffsetHeight());
                 if (isSimple) {
                     MultipleCriteria criteriaStore = (MultipleCriteria) BrowseRecords.getSession().get(
                             UserSession.CUSTOMIZE_CRITERION_STORE);
@@ -682,15 +679,16 @@ public class ItemsToolBar extends ToolBar {
                                                         advancedPanel.cleanCriteria();
                                                     advancedPanelVisible = true;
                                                     advancedPanel.setVisible(advancedPanelVisible);
-                                                    container.resizeTop(30 + advancedPanel.getOffsetHeight());
+                                                    ItemsSearchContainer.getInstance().resizeTop(
+                                                            30 + advancedPanel.getOffsetHeight());
                                                     advancedPanel.getButtonBar().getItemByItemId("updateBookmarkBtn")
                                                             .setVisible(true);
                                                     bookmarkName = model.get("value").toString();
                                                     bookmarkShared = Boolean.parseBoolean(model.get("shared").toString());
-                                                    if (container.getItemsListPanel().gridContainer != null)
-                                                        container.getItemsListPanel().gridContainer.setHeight(instance
+                                                    if (ItemsListPanel.getInstance().gridContainer != null)
+                                                        ItemsListPanel.getInstance().gridContainer.setHeight(ItemsToolBar.this
                                                                 .getParent().getOffsetHeight()
-                                                                - instance.getOffsetHeight()
+                                                                - ItemsToolBar.this.getOffsetHeight()
                                                                 - advancedPanel.getOffsetHeight());
                                                     winBookmark.close();
                                                 }
@@ -902,12 +900,13 @@ public class ItemsToolBar extends ToolBar {
     private void resizeAfterSearch() {
         advancedPanelVisible = false;
         advancedPanel.setVisible(advancedPanelVisible);
-        container.resizeTop(30);
+        ItemsSearchContainer.getInstance().resizeTop(30);
         advancedBut.toggle(advancedPanelVisible);
         // resize result grid
-        if (container.getItemsListPanel().gridContainer != null)
-            container.getItemsListPanel().gridContainer.setHeight(instance.getParent().getOffsetHeight()
-                    - instance.getOffsetHeight() - advancedPanel.getOffsetHeight());
+        if (ItemsListPanel.getInstance().gridContainer != null)
+            ItemsListPanel.getInstance().gridContainer.setHeight(ItemsToolBar.this.getParent()
+                    .getOffsetHeight()
+                    - ItemsToolBar.this.getOffsetHeight() - advancedPanel.getOffsetHeight());
     }
 
     private void initAdvancedPanel() {
@@ -969,9 +968,9 @@ public class ItemsToolBar extends ToolBar {
                 public void componentSelected(ButtonEvent ce) {
                     advancedPanel.cleanCriteria();
 
-                    if (container.getItemsListPanel().gridContainer != null)
-                        container.getItemsListPanel().gridContainer.setHeight(instance.getParent().getOffsetHeight()
-                                - instance.getOffsetHeight() - advancedPanel.getOffsetHeight());
+                    if (ItemsListPanel.getInstance().gridContainer != null)
+                        ItemsListPanel.getInstance().gridContainer.setHeight(ItemsToolBar.this.getParent().getOffsetHeight()
+                                - ItemsToolBar.this.getOffsetHeight() - advancedPanel.getOffsetHeight());
                 }
 
             });
@@ -1135,23 +1134,6 @@ public class ItemsToolBar extends ToolBar {
         this.tableView = tableView;
     }
 
-    public void initContainer() {
-        if (container == null) {
-            Widget parent = instance.getParent();
-            while (parent != null) {
-                if (parent instanceof ItemsSearchContainer) {
-                    container = (ItemsSearchContainer) parent;
-                    return;
-                }
-                parent = parent.getParent();
-            }
-        }
-    }
-
-    public ItemPanel getItemPanel() {
-        return this.itemPanel;
-    }
-
     private class DeleteItemsBoxListener implements Listener<MessageBoxEvent> {
 
         private final ItemsListPanel list ;
@@ -1160,7 +1142,7 @@ public class ItemsToolBar extends ToolBar {
 
         private DeleteItemsBoxListener(ItemsSearchContainer container, BrowseRecordsServiceAsync service) {
             this.service = service;
-            this.list = container.getItemsListPanel();
+            this.list = ItemsListPanel.getInstance();
         }
 
         public void handleEvent(MessageBoxEvent be) {

@@ -18,72 +18,45 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
 /**
  * DOC HSHU class global comment. Detailled comment
  */
 public class ItemsSearchContainer extends LayoutContainer {
 
-    private ItemsListPanel itemsListPanel;
-
-    private ItemsDetailPanel itemsDetailPanel;
-
-    private ItemsToolBar toolbar;
-
-    private LayoutContainer rightContainer;
+    private static ItemsSearchContainer instance;
 
     private BorderLayoutData northData;
 
-    public ItemsSearchContainer() {
+    public static ItemsSearchContainer getInstance() {
+        if (instance == null) {
+            instance = new ItemsSearchContainer();
+        }
+        return instance;
+    }
+
+    private ItemsSearchContainer() {
         setLayout(new BorderLayout());
         setBorders(false);
 
         ContentPanel topPanel = new ContentPanel();
         topPanel.setHeaderVisible(false);
-        toolbar = new ItemsToolBar();
-        topPanel.add(toolbar);
-        topPanel.add(toolbar.getAdvancedPanel());
+
+        topPanel.add(ItemsToolBar.getInstance());
+        topPanel.add(ItemsToolBar.getInstance().getAdvancedPanel());
         northData = new BorderLayoutData(LayoutRegion.NORTH);
         northData.setSize(30);
         northData.setSplit(true);
         add(topPanel, northData);
-        toolbar.initContainer();
 
-        // add(toolbar.getAdvancedPanel(), northData);
-
-        itemsListPanel = new ItemsListPanel(toolbar);
-        // itemsListPanel.layoutGrid();
         BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 400);
         westData.setSplit(true);
         westData.setMargins(new Margins(0, 5, 0, 0));
         westData.setFloatable(true);
         westData.setMaxSize(800);
-        add(itemsListPanel, westData);
+        add(ItemsListPanel.getInstance(), westData);
 
-        rightContainer = new LayoutContainer();
-        rightContainer.setLayout(new FitLayout());
-        itemsDetailPanel = new ItemsDetailPanel();
-        itemsDetailPanel.setHeaderVisible(false);
-        rightContainer.add(itemsDetailPanel);
-
-        add(rightContainer, new BorderLayoutData(LayoutRegion.CENTER));
-    }
-
-    public ItemsListPanel getItemsListPanel() {
-        return itemsListPanel;
-    }
-
-    public ItemsDetailPanel getItemsDetailPanel() {
-        return itemsDetailPanel;
-    }
-
-    public ItemsToolBar getToolBar() {
-        return toolbar;
-    }
-
-    public LayoutContainer getRightContainer() {
-        return rightContainer;
+        add(ItemsDetailPanel.getInstance(), new BorderLayoutData(LayoutRegion.CENTER));
     }
 
     public void resizeTop(float size) {
