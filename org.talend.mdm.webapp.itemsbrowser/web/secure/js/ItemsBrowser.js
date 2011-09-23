@@ -3938,9 +3938,9 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                                     reportUrl = null;
                                                 }
                                                 tbDetail.refreshItemHandler(null, true);
-												if (typeof refreshFnList["itemsBrowser2Panel"] == "function"){
-                                                	refreshFnList["itemsBrowser2Panel"]();
-                                                }
+//												if (typeof refreshFnList["itemsBrowser2Panel"] == "function"){
+//                                                	refreshFnList["itemsBrowser2Panel"]();
+//                                                }
                                                 displayItems.call();
                                                 
                                             } else {
