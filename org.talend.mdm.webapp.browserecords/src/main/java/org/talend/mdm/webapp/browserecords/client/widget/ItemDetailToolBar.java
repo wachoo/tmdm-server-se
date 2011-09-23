@@ -51,7 +51,7 @@ public class ItemDetailToolBar extends ToolBar {
     public final static String CREATE_OPERATION = "CREATE"; //$NON-NLS-1$
 
     public final static String VIEW_OPERATION = "VIEW"; //$NON-NLS-1$
-    
+
     public final static String SMARTVIEW_OPERATION = "SMARTVIEW"; //$NON-NLS-1$
 
     public final static String PERSONALEVIEW_OPERATION = "PERSONALVIEW"; //$NON-NLS-1$
@@ -63,13 +63,13 @@ public class ItemDetailToolBar extends ToolBar {
     private Button saveAndCloseButton;
 
     private Button deleteButton;
-    
+
     private Button relationButton;
 
     private Button personalviewButton;
 
     private Button generatedviewButton;
-    
+
     private Button duplicateButton;
 
     private Button journalButton;
@@ -91,7 +91,7 @@ public class ItemDetailToolBar extends ToolBar {
     private BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
 
     private ItemsSearchContainer container = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
-    
+
     private ItemBaseModel selectItem;
 
     public ItemDetailToolBar() {
@@ -143,22 +143,14 @@ public class ItemDetailToolBar extends ToolBar {
         this.addJournalButton();
         this.addSeparator();
         this.addFreshButton();
-        if (isFkToolBar) {
-            this.addSeparator();
-            this.addRelationButton();
-        }
-        this.addWorkFlosCombo();
+        this.addRelationButton();
     }
 
     private void initCreateToolBar() {
         this.addSaveButton();
         this.addSeparator();
         this.addSaveQuitButton();
-        if (isFkToolBar) {
-            this.addSeparator();
-            this.addRelationButton();
-        }
-        this.addWorkFlosCombo();
+        this.addRelationButton();
     }
 
     private void addSaveButton() {
@@ -172,7 +164,7 @@ public class ItemDetailToolBar extends ToolBar {
                 @Override
                 public void componentSelected(ButtonEvent ce) {
                     // TODO the following code need to be refactor, it is the demo code
-                    saveItemAndClose(false); 
+                    saveItemAndClose(false);
 
                 }
             });
@@ -190,7 +182,7 @@ public class ItemDetailToolBar extends ToolBar {
 
                 @Override
                 public void componentSelected(ButtonEvent ce) {
-                    saveItemAndClose(true); 
+                    saveItemAndClose(true);
                     ItemsSearchContainer itemsSearchContainer = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
                     ItemsDetailPanel detailPanel = itemsSearchContainer.getItemsDetailPanel();
                     detailPanel.closeCurrentTab();
@@ -229,6 +221,7 @@ public class ItemDetailToolBar extends ToolBar {
                                     case FORBIDDEN_OVERRIDE_ALLOWED:
                                         MessageBox.confirm(MessagesFactory.getMessages().error_title(), MessagesFactory
                                                 .getMessages().fk_integrity_fail_override(), new Listener<MessageBoxEvent>() {
+
                                             public void handleEvent(MessageBoxEvent be) {
                                                 if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
                                                     doLogicalDelete(url, true);
@@ -236,30 +229,36 @@ public class ItemDetailToolBar extends ToolBar {
                                             }
                                         });
                                         break;
-                                        case FORBIDDEN:
-                                            MessageBox.confirm(MessagesFactory.getMessages().error_title(), MessagesFactory
+                                    case FORBIDDEN:
+                                        MessageBox.confirm(MessagesFactory.getMessages().error_title(), MessagesFactory
                                                 .getMessages().fk_integrity_fail_open_relations(),
                                                 new Listener<MessageBoxEvent>() {
+
                                                     public void handleEvent(MessageBoxEvent be) {
                                                         if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                                            service.getLineageEntity(itemBean.getConcept(), new AsyncCallback<List<String>>() {
-                                                                public void onSuccess(List<String> list) {
-                                                                    StringBuilder entityStr = new StringBuilder();
-                                                                    if (list != null) {
-                                                                        for (String str : list)
-                                                                            entityStr.append(str).append(","); //$NON-NLS-1$
-                                                                        String arrStr = entityStr.toString().substring(0, entityStr.length() - 1);
-                                                                        String ids = itemBean.getIds();
-                                                                        if (ids == null || "".equals(ids.trim()))
-                                                                            ids = "";
-                                                                        initSearchEntityPanel(arrStr, ids, itemBean.getConcept());
-                                                                    }
-                                                                }
+                                                            service.getLineageEntity(itemBean.getConcept(),
+                                                                    new AsyncCallback<List<String>>() {
 
-                                                                public void onFailure(Throwable caught) {
-                                                                    Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
-                                                                }
-                                                            });
+                                                                        public void onSuccess(List<String> list) {
+                                                                            StringBuilder entityStr = new StringBuilder();
+                                                                            if (list != null) {
+                                                                                for (String str : list)
+                                                                                    entityStr.append(str).append(","); //$NON-NLS-1$
+                                                                                String arrStr = entityStr.toString().substring(0,
+                                                                                        entityStr.length() - 1);
+                                                                                String ids = itemBean.getIds();
+                                                                                if (ids == null || "".equals(ids.trim()))
+                                                                                    ids = "";
+                                                                                initSearchEntityPanel(arrStr, ids,
+                                                                                        itemBean.getConcept());
+                                                                            }
+                                                                        }
+
+                                                                        public void onFailure(Throwable caught) {
+                                                                            Dispatcher.forwardEvent(BrowseRecordsEvents.Error,
+                                                                                    caught);
+                                                                        }
+                                                                    });
                                                         }
                                                     }
                                                 });
@@ -301,6 +300,7 @@ public class ItemDetailToolBar extends ToolBar {
                                                     MessageBox.confirm(MessagesFactory.getMessages().error_title(),
                                                             MessagesFactory.getMessages().fk_integrity_fail_override(),
                                                             new Listener<MessageBoxEvent>() {
+
                                                                 public void handleEvent(MessageBoxEvent be) {
                                                                     if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
                                                                         doItemDelete(true);
@@ -315,24 +315,35 @@ public class ItemDetailToolBar extends ToolBar {
 
                                                                 public void handleEvent(MessageBoxEvent be) {
                                                                     if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                                                        service.getLineageEntity(itemBean.getConcept(), new AsyncCallback<List<String>>() {
-                                                                            public void onSuccess(List<String> list) {
-                                                                                StringBuilder entityStr = new StringBuilder();
-                                                                                if (list != null) {
-                                                                                    for (String str : list)
-                                                                                        entityStr.append(str).append(","); //$NON-NLS-1$
-                                                                                    String arrStr = entityStr.toString().substring(0, entityStr.length() - 1);
-                                                                                    String ids = itemBean.getIds();
-                                                                                    if (ids == null || "".equals(ids.trim()))
-                                                                                        ids = "";
-                                                                                    initSearchEntityPanel(arrStr, ids, itemBean.getConcept());
-                                                                                }
-                                                                            }
+                                                                        service.getLineageEntity(itemBean.getConcept(),
+                                                                                new AsyncCallback<List<String>>() {
 
-                                                                            public void onFailure(Throwable caught) {
-                                                                                Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
-                                                                            }
-                                                                        });
+                                                                                    public void onSuccess(List<String> list) {
+                                                                                        StringBuilder entityStr = new StringBuilder();
+                                                                                        if (list != null) {
+                                                                                            for (String str : list)
+                                                                                                entityStr.append(str).append(","); //$NON-NLS-1$
+                                                                                            String arrStr = entityStr
+                                                                                                    .toString()
+                                                                                                    .substring(
+                                                                                                            0,
+                                                                                                            entityStr.length() - 1);
+                                                                                            String ids = itemBean.getIds();
+                                                                                            if (ids == null
+                                                                                                    || "".equals(ids.trim()))
+                                                                                                ids = "";
+                                                                                            initSearchEntityPanel(arrStr, ids,
+                                                                                                    itemBean.getConcept());
+                                                                                        }
+                                                                                    }
+
+                                                                                    public void onFailure(Throwable caught) {
+                                                                                        Dispatcher
+                                                                                                .forwardEvent(
+                                                                                                        BrowseRecordsEvents.Error,
+                                                                                                        caught);
+                                                                                    }
+                                                                                });
 
                                                                     }
                                                                 }
@@ -346,7 +357,7 @@ public class ItemDetailToolBar extends ToolBar {
                                         });
 
                             }
-                                }
+                        }
                     });
 
                 }
@@ -377,6 +388,7 @@ public class ItemDetailToolBar extends ToolBar {
 
     private void doItemDelete(boolean override) {
         service.deleteItemBean(itemBean, override, new AsyncCallback<ItemResult>() {
+
             public void onFailure(Throwable arg0) {
 
             }
@@ -475,7 +487,8 @@ public class ItemDetailToolBar extends ToolBar {
 
     private void refreshTree(final ItemPanel itemPanel, final ForeignKeyTreeDetail fkTree, ItemNodeModel root) {
         if (isChangeValue(root)) {
-            MessageBox.confirm(MessagesFactory.getMessages().confirm_title(),
+            MessageBox
+                    .confirm(MessagesFactory.getMessages().confirm_title(),
                             MessagesFactory.getMessages().msg_confirm_refresh_tree_detail(), new Listener<MessageBoxEvent>() {
 
                                 public void handleEvent(MessageBoxEvent be) {
@@ -504,43 +517,48 @@ public class ItemDetailToolBar extends ToolBar {
         return false;
     }
 
-    private void addRelationButton(){
-        if (relationButton == null) {
-            relationButton = new Button(MessagesFactory.getMessages().relations_btn());
-            relationButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.relations()));
-            relationButton.setToolTip(MessagesFactory.getMessages().relations_tooltip());
-            relationButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+    private void addRelationButton() {
+        service.getLineageEntity(itemBean.getConcept(), new AsyncCallback<List<String>>() {
 
-                @Override
-                public void componentSelected(ButtonEvent ce) {
-                    service.getLineageEntity(itemBean.getConcept(), new AsyncCallback<List<String>>() {
-
-                        public void onSuccess(List<String> list) {
-                            StringBuilder entityStr = new StringBuilder();
-                            if (list != null) {
-                                for (String str : list)
-                                    entityStr.append(str).append(","); //$NON-NLS-1$
-                                String arrStr = entityStr.toString().substring(0, entityStr.length() - 1);
-                                String ids = itemBean.getIds();
-                                if (ids == null || ids.trim() == "")
-                                    ids = "";
-                                initSearchEntityPanel(arrStr, ids, itemBean.getConcept());
-                            }
-                        }
-
-                        public void onFailure(Throwable arg0) {
-
-                        }
-                    });
+            public void onSuccess(List<String> list) {
+                if (list == null || list.size() == 0) {
+                    ItemDetailToolBar.this.addWorkFlosCombo();
+                    return;
                 }
-            });
-        }
-        add(relationButton);
+
+                final List<String> lineageList = list;
+                relationButton = new Button(MessagesFactory.getMessages().relations_btn());
+                relationButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.relations()));
+                relationButton.setToolTip(MessagesFactory.getMessages().relations_tooltip());
+                relationButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+                    @Override
+                    public void componentSelected(ButtonEvent ce) {
+                        StringBuilder entityStr = new StringBuilder();
+                        for (String str : lineageList)
+                            entityStr.append(str).append(","); //$NON-NLS-1$
+                        String arrStr = entityStr.toString().substring(0, entityStr.length() - 1);
+                        String ids = itemBean.getIds();
+                        if (ids == null || ids.trim() == "") //$NON-NLS-1$
+                            ids = ""; //$NON-NLS-1$
+                        initSearchEntityPanel(arrStr, ids, itemBean.getConcept());
+                    }
+                });
+                ItemDetailToolBar.this.addSeparator();
+                add(relationButton);
+                ItemDetailToolBar.this.addWorkFlosCombo();
+
+            }
+
+            public void onFailure(Throwable arg0) {
+
+            }
+        });
     }
-    
+
     private void addWorkFlosCombo() {
         service.getRunnableProcessList(itemBean.getConcept(), Locale.getLanguage(), new AsyncCallback<List<ItemBaseModel>>() {
-            
+
             public void onSuccess(List<ItemBaseModel> processList) {
                 add(new FillToolItem());
                 ListStore<ItemBaseModel> workFlowList = new ListStore<ItemBaseModel>();
@@ -573,12 +591,12 @@ public class ItemDetailToolBar extends ToolBar {
                                 MessageBox.alert(MessagesFactory.getMessages().warning_title(),
                                         "Please select a process first!", null); //$NON-NLS-1$
                                 return;
-                           }
+                            }
                             final MessageBox waitBar = MessageBox.wait(
                                     "Processing", "Processing, please wait...", "Processing..."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                             String[] ids = itemBean.getIds().split("@"); //$NON-NLS-1$
-                           
-                           service.processItem(itemBean.getConcept(), ids,
+
+                            service.processItem(itemBean.getConcept(), ids,
                                     (String) selectItem.get("key"), new AsyncCallback<String>() { //$NON-NLS-1$
 
                                         public void onSuccess(String result) {
@@ -589,8 +607,8 @@ public class ItemDetailToolBar extends ToolBar {
                                                 MessageBox.alert("Status", "Process failed!", null); //$NON-NLS-1$ //$NON-NLS-2$
                                             }
                                         }
-                               
-                               public void onFailure(Throwable arg0) {
+
+                                        public void onFailure(Throwable arg0) {
 
                                         }
                                     });
@@ -599,9 +617,9 @@ public class ItemDetailToolBar extends ToolBar {
                 }
                 add(launchProcessButton);
             }
-            
+
             public void onFailure(Throwable arg0) {
-                
+
             }
         });
     }
@@ -626,7 +644,7 @@ public class ItemDetailToolBar extends ToolBar {
         }
         add(personalviewButton);
     }
-    
+
     private void addGeneratedViewButton() {
         if (generatedviewButton == null) {
             generatedviewButton = new Button(MessagesFactory.getMessages().generatedview_btn());
@@ -768,26 +786,27 @@ public class ItemDetailToolBar extends ToolBar {
         $wnd.amalto.itemsbrowser.ItemsBrowser.lineageItem(lineageEntities, ids, dataObject);
         return true;
     }-*/;
-    
-    public static void addTreeDetail(String ids, String concept){
+
+    public static void addTreeDetail(String ids, String concept) {
         String[] idArr = ids.split(","); //$NON-NLS-1$
         BrowseRecordsServiceAsync brService = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
         brService.getItemBeanById(concept, idArr, Locale.getLanguage(), new AsyncCallback<ItemBean>() {
-            
+
             public void onSuccess(ItemBean item) {
                 ItemsSearchContainer itemsSearchContainer = Registry.get(BrowseRecordsView.ITEMS_SEARCH_CONTAINER);
                 ItemsDetailPanel detailPanel = itemsSearchContainer.getItemsDetailPanel();
                 ItemPanel itemPanel = new ItemPanel(item, ItemDetailToolBar.VIEW_OPERATION);
-                detailPanel.addTabItem(item.getConcept() + " " + item.getIds(), itemPanel, ItemsDetailPanel.MULTIPLE, item.getIds()); //$NON-NLS-1$
+                detailPanel.addTabItem(
+                        item.getConcept() + " " + item.getIds(), itemPanel, ItemsDetailPanel.MULTIPLE, item.getIds()); //$NON-NLS-1$
             }
-            
+
             public void onFailure(Throwable arg0) {
-                
+
             }
         });
     }
-    
-    public void saveItemAndClose(boolean isClose){
+
+    public void saveItemAndClose(boolean isClose) {
         TabPanel tabPanel = container.getItemsDetailPanel().getTabPanel();
         TabItem tabItem = (TabItem) tabPanel.getSelectedItem();
         Widget widget = tabItem.getWidget(0);
@@ -798,8 +817,7 @@ public class ItemDetailToolBar extends ToolBar {
             ItemPanel itemPanel = (ItemPanel) tabItem.getWidget(0);
             model = (ItemNodeModel) itemPanel.getTree().getTree().getItem(0).getUserObject();
             app.setData("ItemBean", itemPanel.getItem()); //$NON-NLS-1$
-            app.setData(
-                    "isCreate", itemPanel.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION) ? true : false); //$NON-NLS-1$
+            app.setData("isCreate", itemPanel.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION) ? true : false); //$NON-NLS-1$
         } else if (widget instanceof ForeignKeyTreeDetail) { // save foreign key
             ForeignKeyTreeDetail fkDetail = (ForeignKeyTreeDetail) tabItem.getWidget(0);
             model = fkDetail.getRootModel();
