@@ -24,6 +24,8 @@ public class CustomFormPOJO extends ObjectPOJO {
 
     private String entity;
 
+    private String name;
+
     private String xml;
 
     public CustomFormPOJO() {
@@ -59,6 +61,14 @@ public class CustomFormPOJO extends ObjectPOJO {
 
     public void setXml(String xml) {
         this.xml = xml;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     /*
