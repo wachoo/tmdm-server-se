@@ -35,7 +35,8 @@ public class CustomFormPOJO extends ObjectPOJO {
     public CustomFormPOJO(String datamodel, String entity, String xml) {
         this.datamodel = datamodel;
         this.entity = entity;
-        this.xml = xml;
+        this.xml = xml.replaceFirst("<\\?xml.*\\?>", ""); //$NON-NLS-1$//$NON-NLS-2$
+
     }
 
     public String getDatamodel() {
@@ -60,7 +61,7 @@ public class CustomFormPOJO extends ObjectPOJO {
     }
 
     public void setXml(String xml) {
-        this.xml = xml;
+        this.xml = xml.replaceFirst("<\\?xml.*\\?>", ""); //$NON-NLS-1$//$NON-NLS-2$
     }
 
     public String getName() {

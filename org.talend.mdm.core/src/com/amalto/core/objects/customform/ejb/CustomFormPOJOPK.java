@@ -29,9 +29,14 @@ public class CustomFormPOJOPK extends ObjectPOJOPK {
 
     String entity;
 
+    public CustomFormPOJOPK(String[] itemIds) {
+        super(itemIds);
+        datamodel = itemIds[0];
+        entity = itemIds[1];
+    }
 
     public CustomFormPOJOPK(ObjectPOJOPK pk) {
-        super(pk.getIds());
+        this(pk.getIds());
     }
 
     public CustomFormPOJOPK(String datamodel, String entity) {
