@@ -93,9 +93,12 @@ public class BrowseRecordsView extends View {
 
     private void onExecuteVisibleRule(AppEvent event) {
     	ItemsDetailPanel detailPanel = itemsSearchContainer.getItemsDetailPanel();
-        ItemPanel itemPanel = (ItemPanel) detailPanel.getTabPanelById("itemView").getWidget(0); //$NON-NLS-1$
-        if (itemPanel != null)
-            itemPanel.handleEvent(event);
+        // TODO this function should have two kinds Panels,one is ItemPanel,another is ForeignKeyTreeDetail
+        if (detailPanel.getTabPanelById("itemView") != null) { //$NON-NLS-1$
+            ItemPanel itemPanel = (ItemPanel) detailPanel.getTabPanelById("itemView").getWidget(0); //$NON-NLS-1$
+            if (itemPanel != null)
+                itemPanel.handleEvent(event);
+        }
 	}
 
 	private void onUpdatePolymorphism(AppEvent event) {
