@@ -7,6 +7,9 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.browserecords.client.model.ColumnElement;
+import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
+import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
@@ -23,19 +26,19 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
 
 public class TreeDetail extends ContentPanel {
 
     private final ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
-
-    // private ItemDetailToolBar toolBar;
 
     private Tree tree = new Tree();
 
@@ -73,9 +76,7 @@ public class TreeDetail extends ContentPanel {
             		Locale.getLanguage(), new AsyncCallback<ItemNodeModel>() {
 
                 public void onSuccess(ItemNodeModel node) {
-                    root = buildGWTTree(node, null);
-                    root.setState(true);
-                    tree.addItem(root);
+                    renderTree(node);
                     //maybe need to refactor for performance
                     getItemService().executeVisibleRule(CommonUtil.toXML(node), new AsyncCallback<List<VisibleRuleResult>>() {
 						public void onFailure(Throwable arg0) {
@@ -93,9 +94,6 @@ public class TreeDetail extends ContentPanel {
                     arg0.printStackTrace();
                 }
             });
-            add(tree);
-            this.setHeight(1000);
-            this.setScrollMode(Scroll.AUTO);
         }
     }
 
@@ -103,12 +101,7 @@ public class TreeDetail extends ContentPanel {
 
         List<ItemNodeModel> models = CommonUtil.getDefaultTreeModel(viewBean.getBindingEntityModel().getMetaDataTypes()
                 .get(viewBean.getBindingEntityModel().getConceptName()));
-        DynamicTreeItem root = buildGWTTree(models.get(0), null);
-
-        tree = new Tree();
-        tree.addItem(root);
-        root.setState(true);
-        add(tree);
+        renderTree(models.get(0));
     }
 
     private DynamicTreeItem buildGWTTree(ItemNodeModel itemNode, DynamicTreeItem item) {
@@ -128,6 +121,54 @@ public class TreeDetail extends ContentPanel {
         item.setUserObject(itemNode);
 
         return item;
+    }
+
+    private Tree displayGWTTree(ColumnTreeModel columnLayoutModel) {
+        Tree tree = new Tree();
+        if (root != null && root.getChildCount() > 0) {
+            
+            for (ColumnElement ce : columnLayoutModel.getColumnElements()) {
+                for (int i = 0; i < root.getChildCount(); i++) {
+                    TreeItem child = root.getChild(i);
+                    ItemNodeModel node = (ItemNodeModel) child.getUserObject();
+                    if (node.getBindingPath().equals(ce.getxPath())) {
+                        tree.addItem(child);
+                        if (child.getChildCount() > 0)
+                            child.getElement().getStyle().setPaddingLeft(3.0, Unit.PX);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return tree;
+    }
+
+    private void renderTree(ItemNodeModel rootModel) {
+        root = buildGWTTree(rootModel, null);
+        root.setState(true);
+        tree = new Tree();
+        tree.addItem(root);
+
+        ColumnTreeLayoutModel columnLayoutModel = viewBean.getColumnLayoutModel();
+        if (columnLayoutModel != null) {// TODO if create a new PrimaryKey, tree UI should not render according to the
+                                             // layout template
+            HorizontalPanel hp = new HorizontalPanel();
+
+            for (ColumnTreeModel ctm : columnLayoutModel.getColumnTreeModels()) {
+                Tree tree = displayGWTTree(ctm);
+                hp.add(tree);
+            }
+            hp.setHeight("570px"); //$NON-NLS-1$
+            HorizontalPanel spacehp = new HorizontalPanel();
+            spacehp.setHeight("10px"); //$NON-NLS-1$
+            add(spacehp);
+            add(hp);
+
+        } else {
+            add(tree);
+        }
+        this.layout();
     }
 
     public void handleEvent(AppEvent event) {
@@ -233,10 +274,8 @@ public class TreeDetail extends ContentPanel {
                 Locale.getLanguage(), new AsyncCallback<ItemNodeModel>() {
 
                     public void onSuccess(ItemNodeModel node) {
-                        root = buildGWTTree(node, null);
-                        root.setState(true);
-                        tree.clear();
-                        tree.addItem(root);
+                        TreeDetail.this.removeAll();
+                        renderTree(node);
                     }
 
                     public void onFailure(Throwable caught) {

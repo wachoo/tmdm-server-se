@@ -6,6 +6,9 @@ import java.util.List;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.browserecords.client.model.ColumnElement;
+import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
+import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeModel;
 import org.talend.mdm.webapp.browserecords.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
@@ -46,7 +49,11 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     
     private ForeignKeyModel fkModel;
 
-    Tree tree;
+    private ColumnTreeLayoutModel columnLayoutModel;
+
+    private Tree tree;
+
+    private TreeItem root;
     
     private ClickHandler handler = new ClickHandler() {
 
@@ -85,6 +92,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         this();
         this.isCreate = isCreate;
         this.viewBean = viewBean;
+        this.columnLayoutModel = viewBean.getColumnLayoutModel();
         this.toolBar = new ItemDetailToolBar(new ItemBean(viewBean.getBindingEntityModel().getConceptName(), "", ""), //$NON-NLS-1$//$NON-NLS-2$
                 isCreate ? ItemDetailToolBar.CREATE_OPERATION
                 : ItemDetailToolBar.VIEW_OPERATION, true);
@@ -98,6 +106,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         this.fkModel = fkModel;
         this.model = fkModel.getNodeModel();
         this.viewBean = fkModel.getViewBean();
+        this.columnLayoutModel = viewBean.getColumnLayoutModel();
         this.toolBar = new ItemDetailToolBar(fkModel.getItemBean(), isCreate ? ItemDetailToolBar.CREATE_OPERATION
                 : ItemDetailToolBar.VIEW_OPERATION, true);
         this.setTopComponent(toolBar);
@@ -112,14 +121,30 @@ public class ForeignKeyTreeDetail extends ContentPanel {
             rootModel = models.get(0);
         } else
             rootModel = this.model;
+        renderTree(rootModel);
+    }
 
-        DynamicTreeItem root = buildGWTTree(rootModel);
+    private void renderTree(ItemNodeModel rootModel) {
+        root = buildGWTTree(rootModel);
         tree = new Tree();
         tree.addItem(root);
         root.setState(true);
+        if (this.columnLayoutModel != null) {// TODO if create a new ForeignKey, tree UI can not render according to the
+                                             // layout template
+            HorizontalPanel hp = new HorizontalPanel();
+            for (ColumnTreeModel ctm : columnLayoutModel.getColumnTreeModels()) {
+                Tree tree = displayGWTTree(ctm);
+                hp.add(tree);
+            }
+            hp.setHeight("570px"); //$NON-NLS-1$
+            HorizontalPanel spacehp = new HorizontalPanel();
+            spacehp.setHeight("10px"); //$NON-NLS-1$
+            add(spacehp);
+            add(hp);
 
-        add(tree);
-
+        } else {
+            add(tree);
+        }
     }
 
     public void refreshTree() {
@@ -131,10 +156,9 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                     public void onSuccess(ItemNodeModel nodeModel) {
                         fkModel.setNodeModel(nodeModel);
                         model = nodeModel;
-                        DynamicTreeItem root = buildGWTTree(nodeModel);
-                        tree.clear();
-                        tree.addItem(root);
-                        root.setState(true);
+                        ForeignKeyTreeDetail.this.getItem(0).removeFromParent();
+                        renderTree(nodeModel);
+                        ForeignKeyTreeDetail.this.layout();
                     }
 
                     public void onFailure(Throwable caught) {
@@ -179,8 +203,26 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         return item;
     }
     
+    private Tree displayGWTTree(ColumnTreeModel treeModel) {
+        Tree tree = new Tree();
+        if (root != null && root.getChildCount() > 0) {
+            for (ColumnElement ce : treeModel.getColumnElements()) {
+                for (int i = 0; i < root.getChildCount(); i++) {
+                    TreeItem child = root.getChild(i);
+                    ItemNodeModel node = (ItemNodeModel) child.getUserObject();
+                    if (node.getBindingPath().equals(ce.getxPath())) {
+                        tree.addItem(child);
+                        if (child.getChildCount() > 0)
+                            child.getElement().getStyle().setPaddingLeft(3.0, Unit.PX);
+                        break;
+                    }
+                }
+            }
+        }
+        return tree;
+    }
+
     public ItemNodeModel getRootModel() {
-        TreeItem root = tree.getItem(0);
         return (ItemNodeModel) root.getUserObject();
     }
 

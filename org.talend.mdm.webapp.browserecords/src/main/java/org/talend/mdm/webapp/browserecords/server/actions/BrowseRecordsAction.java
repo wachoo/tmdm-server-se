@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.server.actions;
 
-import java.io.InputStream;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
@@ -671,6 +670,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             // searchables
             vb.setSearchables(ViewHelper.getSearchables(wsView, model, language, entityModel));
+
+            // bind layout model
+            vb.setColumnLayoutModel(getColumnTreeLayout(concept));
 
             return vb;
         } catch (XtentisWebappException e) {
@@ -1596,12 +1598,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     public ColumnTreeLayoutModel getColumnTreeLayout(String concept) throws Exception {
-        InputStream is = BrowseRecordsAction.class.getResourceAsStream("temp_ColumnTreeLayout.xml"); //$NON-NLS-1$
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        Document doc = builder.parse(is);
-        Element root = doc.getDocumentElement();
-        return ViewHelper.builderLayout(root);
+        // TOTO call server-side service,get layout template to parse.
+        // InputStream is = BrowseRecordsAction.class.getResourceAsStream("temp_ColumnTreeLayout.xml"); //$NON-NLS-1$
+        // DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        // DocumentBuilder builder = factory.newDocumentBuilder();
+        // Document doc = builder.parse(is);
+        // Element root = doc.getDocumentElement();
+        // return ViewHelper.builderLayout(root);
+        return null;// TODO temporary return null
     }
 
 

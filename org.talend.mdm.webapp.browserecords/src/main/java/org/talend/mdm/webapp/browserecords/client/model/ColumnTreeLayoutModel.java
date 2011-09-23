@@ -13,9 +13,12 @@
 package org.talend.mdm.webapp.browserecords.client.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ColumnTreeLayoutModel implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private List<ColumnTreeModel> columnTreeModels;
 
@@ -24,7 +27,7 @@ public class ColumnTreeLayoutModel implements Serializable {
     }
 
     public List<ColumnTreeModel> getColumnTreeModels() {
-        return columnTreeModels;
+        return columnTreeModels != null ? columnTreeModels : new ArrayList<ColumnTreeModel>();
     }
 
     public void setColumnTreeModels(List<ColumnTreeModel> columnTreeModels) {
