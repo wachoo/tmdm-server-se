@@ -302,7 +302,7 @@ public class ForeignKeyFieldList extends ContentPanel{
                 HorizontalPanel recordPanel = new HorizontalPanel();                
                 // create Field
                 HTML label = new HTML();
-                String html = itemNode.getDescription();
+                String html = itemNode.getLabel();
                 if (itemNode.isKey() || typeModel.getMinOccurs() >= 1)
                     html = html + "<span style=\"color:red\"> *</span>"; //$NON-NLS-1$
                 label.setHTML(html);

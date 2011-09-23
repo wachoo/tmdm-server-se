@@ -35,7 +35,7 @@ public class TreeDetailUtil {
         TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(xPath);
         String dynamicLabel = typeModel.getLabel(Locale.getLanguage());
         HTML label = new HTML();
-        String html = itemNode.getDescription();
+        String html = itemNode.getLabel();
         
         if(LabelUtil.isDynamicLabel(dynamicLabel)) {
         	html = itemNode.getDynamicLabel();
@@ -43,6 +43,10 @@ public class TreeDetailUtil {
         
         if (itemNode.isKey() || typeModel.getMinOccurs() >= 1)
             html = html + "<span style=\"color:red\"> *</span>"; //$NON-NLS-1$
+
+        if (null != itemNode.getDescription() && (itemNode.getDescription().trim().length() > 0))
+            html = html
+                    + "<img style='margin-left:16px;' src='/talendmdm/secure/img/genericUI/information_icon.gif' title='" + itemNode.getDescription() + "' />"; //$NON-NLS-1$ //$NON-NLS-2$
         label.setHTML(html);
         hp.add(label);
         if (typeModel.isSimpleType()

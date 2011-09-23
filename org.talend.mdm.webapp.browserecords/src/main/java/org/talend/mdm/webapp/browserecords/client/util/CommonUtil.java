@@ -102,7 +102,8 @@ public class CommonUtil {
             }
             node.setName(model.getName());
             node.setBindingPath(model.getXpath());
-            node.setDescription(model.getLabel(Locale.getLanguage()));
+            node.setDescription(model.getDescriptionMap().get(Locale.getLanguage()));
+            node.setLabel(model.getLabel(Locale.getLanguage()));
         }
         return itemNodes;
     }

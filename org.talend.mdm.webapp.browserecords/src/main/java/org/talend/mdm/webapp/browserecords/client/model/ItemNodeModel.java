@@ -18,6 +18,8 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
 
     private String description;
 
+    private String label;
+
     private String bindingPath;
 
     private Serializable objectValue;
@@ -149,6 +151,16 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
         }
     }
 
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+
     public ItemNodeModel clone(boolean withValue) {
         ItemNodeModel clonedModel = new ItemNodeModel(get("name").toString()); //$NON-NLS-1$
         clonedModel.setBindingPath(getBindingPath());
@@ -165,4 +177,5 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
             clonedModel.setObjectValue(objectValue);
         return clonedModel;
     }
+
 }

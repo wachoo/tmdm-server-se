@@ -160,6 +160,7 @@ import com.sun.xml.xsom.parser.XSOMParser;
 /**
  * DOC Administrator class global comment. Detailled comment
  */
+@SuppressWarnings(value = { "unchecked", "deprecation" })
 public class BrowseRecordsAction implements BrowseRecordsService {
 
     private static final Logger LOG = Logger.getLogger(BrowseRecordsAction.class);
@@ -1452,22 +1453,25 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         Element root = doc.getDocumentElement();
 
         Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
-        ItemNodeModel itemModel = builderNode(root, entity, ""); //$NON-NLS-1$
+        ItemNodeModel itemModel = builderNode(root, entity, "", language); //$NON-NLS-1$
         DynamicLabelUtil.getDynamicLabel(XmlUtil.parseDocument(doc), itemModel, metaDataTypes, language);
 
         return itemModel;
     }
 
-    private ItemNodeModel builderNode(Element el, EntityModel entity, String xpath) {
+    private ItemNodeModel builderNode(Element el, EntityModel entity, String xpath, String language) {
         Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
         xpath += (xpath == "" ? el.getNodeName():"/" + el.getNodeName());      //$NON-NLS-1$//$NON-NLS-2$
         ItemNodeModel nodeModel = new ItemNodeModel(el.getNodeName());
-        nodeModel.setDescription(el.getNodeName());
+        TypeModel model = metaDataTypes.get(xpath);
+        nodeModel.setLabel(model.getLabel(language));
+        nodeModel.setDescription(model.getDescriptionMap().get(language));
         nodeModel.setName(el.getNodeName());
         nodeModel.setObjectValue(el.getTextContent());
         if (!"".equals(metaDataTypes.get(xpath).getForeignkey()) && metaDataTypes.get(xpath).getForeignkey() != null) { //$NON-NLS-1$
-            TypeModel model = metaDataTypes.get(xpath);
+
             model.setRetrieveFKinfos(true);
+
             // FK List
             if (el.getTextContent() != null && !"".equals(el.getTextContent()) && model.getMaxOccurs() > 1) { //$NON-NLS-1$
                 List<String> fkIds = extractIdToList(el.getTextContent());
@@ -1486,7 +1490,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             for (int i = 0;i < children.getLength();i++){
                 Node child = children.item(i);
                 if (child.getNodeType() == Node.ELEMENT_NODE){
-                    ItemNodeModel childNode = builderNode((Element) child, entity, xpath);
+                    ItemNodeModel childNode = builderNode((Element) child, entity, xpath, language);
                     nodeModel.add(childNode);
                 }
             }
