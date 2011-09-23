@@ -98,7 +98,7 @@ public class CustomFormCtrlBean implements SessionBean {
             if (pk == null)
                 throw new XtentisException("Check the XML Server logs");
 
-            return new CustomFormPOJOPK(pk);
+            return (CustomFormPOJOPK) pk;
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
