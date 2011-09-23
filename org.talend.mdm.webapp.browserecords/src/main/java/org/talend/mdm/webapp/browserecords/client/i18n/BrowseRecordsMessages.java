@@ -200,6 +200,8 @@ public interface BrowseRecordsMessages extends Messages {
 
     String check_pattern(String value, String pattern);
 
+    String status();
+
     String multiOccurrence_minimize(int value);
 
     String multiOccurrence_maximize(int value);

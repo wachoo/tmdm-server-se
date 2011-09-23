@@ -111,23 +111,24 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
     }
 
     public String getBindingPath() {
-        if (this.bindingPath != null)
-            return bindingPath;
-        StringBuffer xp = new StringBuffer();
-        List<String> paths = new ArrayList<String>();
-        TreeModel parent = this;
+        if (this.bindingPath == null) {
+            StringBuffer xp = new StringBuffer();
+            List<String> paths = new ArrayList<String>();
+            TreeModel parent = this;
 
-        while (parent != null) {
-            paths.add((String) parent.get("name")); //$NON-NLS-1$
-            parent = parent.getParent();
-        }
+            while (parent != null) {
+                paths.add((String) parent.get("name")); //$NON-NLS-1$
+                parent = parent.getParent();
+            }
 
-        for (int i = paths.size() - 1; i >= 0; i--) {
-            if (i != paths.size() - 1)
-                xp.append("/"); //$NON-NLS-1$
-            xp.append(paths.get(i));
+            for (int i = paths.size() - 1; i >= 0; i--) {
+                if (i != paths.size() - 1)
+                    xp.append("/"); //$NON-NLS-1$
+                xp.append(paths.get(i));
+            }
+            bindingPath = xp.toString();
         }
-        return xp.toString();
+        return bindingPath;
 
     }
 
@@ -146,5 +147,22 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
                 add(child);
             }
         }
+    }
+
+    public ItemNodeModel clone(boolean withValue) {
+        ItemNodeModel clonedModel = new ItemNodeModel(get("name").toString()); //$NON-NLS-1$
+        clonedModel.setBindingPath(getBindingPath());
+        List<ItemNodeModel> clonedList = new ArrayList<ItemNodeModel>();
+        for (ModelData data : this.getChildren()) {
+            ItemNodeModel clonedData = ((ItemNodeModel) data).clone(withValue);
+            clonedList.add(clonedData);
+        }
+        clonedModel.setChildNodes(clonedList);
+        clonedModel.setDescription(description);
+        clonedModel.setDynamicLabel(dynamicLabel);
+        clonedModel.setParent(this.getParent());
+        if (withValue)
+            clonedModel.setObjectValue(objectValue);
+        return clonedModel;
     }
 }

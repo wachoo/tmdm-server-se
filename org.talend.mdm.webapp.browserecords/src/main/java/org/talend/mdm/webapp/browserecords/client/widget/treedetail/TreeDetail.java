@@ -1,6 +1,7 @@
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
@@ -26,8 +27,6 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Tree;
@@ -41,20 +40,39 @@ public class TreeDetail extends ContentPanel {
 
     private TreeItem root;
 
+    private HashMap<String, Integer> occurMap = new HashMap<String, Integer>();
+
     private ClickHandler handler = new ClickHandler() {
 
         public void onClick(ClickEvent arg0) {
             DynamicTreeItem selected = (DynamicTreeItem) tree.getSelectedItem();
             DynamicTreeItem parentItem = (DynamicTreeItem) selected.getParentItem();
 
-            if ("Add".equals(arg0.getRelativeElement().getId())) { //$NON-NLS-1$
-                // clone a new item
-                Element clonedElement = DOM.clone(selected.getElement(), true);
-                DynamicTreeItem clonedItem = new DynamicTreeItem();
-                clonedItem.getElement().setInnerHTML(clonedElement.getInnerHTML());
-                parentItem.insertItem(clonedItem, parentItem.getChildIndex(selected));
+            String xpath = selected.getItemNodeModel().getBindingPath();
+            int count = 0;
+            if (occurMap.containsKey(xpath)) {
+                count = occurMap.get(xpath);
+            }
+            if ("Add".equals(arg0.getRelativeElement().getId()) || "Clone".equals(arg0.getRelativeElement().getId())) { //$NON-NLS-1$ //$NON-NLS-2$               
+                if (viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getMaxOccurs() < 0
+                        || count < viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getMaxOccurs()) {
+                    // clone a new item
+                    ItemNodeModel model = selected.getItemNodeModel().clone(
+                            "Clone".equals(arg0.getRelativeElement().getId()) ? true : false); //$NON-NLS-1$
+                    // TODO if it has default value
+                    // model.setObjectValue(null);
+                    parentItem.insertItem(buildGWTTree(model, null), parentItem.getChildIndex(selected) + 1);
+                    occurMap.put(xpath, count + 1);
+                } else
+                    MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
+                            .multiOccurrence_maximize(count), null);
             } else {
-                parentItem.removeItem(selected);
+                if (count > 1 && count > viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getMinOccurs()) {
+                    parentItem.removeItem(selected);
+                    occurMap.put(xpath, count - 1);
+                } else
+                    MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
+                            .multiOccurrence_minimize(count), null);
             }
         }
     };
@@ -107,6 +125,11 @@ public class TreeDetail extends ContentPanel {
             item = new DynamicTreeItem();
             item.setItemNodeModel(itemNode);
             item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, handler));
+
+            int count = 0;
+            if (occurMap.containsKey(itemNode.getBindingPath()))
+                count = occurMap.get(itemNode.getBindingPath());
+            occurMap.put(itemNode.getBindingPath(), count + 1);
         }
         if (itemNode.getChildren() != null && itemNode.getChildren().size() > 0) {
             for (ModelData model : itemNode.getChildren()) {
@@ -228,7 +251,7 @@ public class TreeDetail extends ContentPanel {
 
         private List<TreeItem> items = new ArrayList<TreeItem>();
 
-        public void insertItem(TreeItem item, int beforeIndex) {
+        public void insertItem(DynamicTreeItem item, int beforeIndex) {
             int count = this.getChildCount();
 
             for (int i = 0; i < count; i++) {
@@ -236,11 +259,18 @@ public class TreeDetail extends ContentPanel {
             }
 
             items.add(beforeIndex, item);
+            itemNode.getChildren().add(beforeIndex, item.getItemNodeModel());
             this.removeItems();
 
             for (int j = 0; j < items.size(); j++) {
                 this.addItem(items.get(j));
             }
+            items.clear();
+        }
+
+        public void removeItem(DynamicTreeItem item) {
+            super.removeItem(item);
+            itemNode.getChildren().remove(item.getItemNodeModel());
         }
 
         public void setItemNodeModel(ItemNodeModel treeNode) {

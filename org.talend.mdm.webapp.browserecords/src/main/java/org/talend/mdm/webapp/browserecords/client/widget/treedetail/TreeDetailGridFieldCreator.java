@@ -249,7 +249,7 @@ public class TreeDetailGridFieldCreator {
             @SuppressWarnings("rawtypes")
             public void handleEvent(FieldEvent fe) {
 
-                node.setObjectValue(field instanceof ComboBox ? ((SimpleComboValue) fe.getValue()).getValue().toString()
+                node.setObjectValue(fe.getField() instanceof ComboBox ? ((SimpleComboValue) fe.getValue()).getValue().toString()
                         : (Serializable) fe.getValue());
                 node.setChangeValue(true);
             }

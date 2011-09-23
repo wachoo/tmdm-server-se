@@ -76,20 +76,31 @@ public class TreeDetailUtil {
 					}});
                 hp.add(field);
             }
-
-            Image addNodeImg = new Image("/talendmdm/secure/img/genericUI/add.png"); //$NON-NLS-1$
-            addNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
-            Image removeNodeImg = new Image("/talendmdm/secure/img/genericUI/delete.png"); //$NON-NLS-1$
-            removeNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
-            if ((typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1)
-                    && typeModel.getForeignkey() == null) {
-                hp.add(addNodeImg);
-                hp.add(removeNodeImg);
-            }
-
-            hp.setCellWidth(label, "200px"); //$NON-NLS-1$
-
         }
+
+        if ((typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) && typeModel.getForeignkey() == null) {
+            Image addNodeImg = new Image("/talendmdm/secure/img/genericUI/add.png"); //$NON-NLS-1$
+            addNodeImg.getElement().setId("Add"); //$NON-NLS-1$
+            addNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
+            addNodeImg.addClickHandler(h);
+            Image removeNodeImg = new Image("/talendmdm/secure/img/genericUI/delete.png"); //$NON-NLS-1$
+            removeNodeImg.getElement().setId("Remove"); //$NON-NLS-1$
+            removeNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
+            removeNodeImg.addClickHandler(h);
+
+            hp.add(addNodeImg);
+            hp.add(removeNodeImg);
+            if (!typeModel.isSimpleType() && itemNode.getParent() != null) {
+                Image cloneNodeImg = new Image("/talendmdm/secure/img/genericUI/add-group.png"); //$NON-NLS-1$
+                cloneNodeImg.getElement().setId("Clone"); //$NON-NLS-1$
+                cloneNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
+                cloneNodeImg.addClickHandler(h);
+                hp.add(cloneNodeImg);
+            }
+        }
+
+        hp.setCellWidth(label, "200px"); //$NON-NLS-1$
+
         return hp;
     }
 }
