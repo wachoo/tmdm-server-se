@@ -103,6 +103,14 @@ public class QueryBuilderTest extends TestCase {
 
         actual = queryBuilder.buildWhere(pivots, whereItem, metaDataTypes);
         assertEquals(expected, actual);
+        
+        whereItem = new WhereAnd();
+        whereItem.add(new WhereCondition("Product/../*", WhereCondition.CONTAINS, "MyString", WhereCondition.PRE_NONE, false));
+        metaDataTypes.clear();
+        expected = " matches($pivot0/../*, \"MyString.*\" ,\"i\") ";
+
+        actual = queryBuilder.buildWhere(pivots, whereItem, metaDataTypes);
+        assertEquals(expected, actual);
     }
 
     public void testGetPagingString() {

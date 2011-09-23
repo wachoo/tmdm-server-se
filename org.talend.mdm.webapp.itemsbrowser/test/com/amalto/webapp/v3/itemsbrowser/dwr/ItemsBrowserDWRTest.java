@@ -35,20 +35,8 @@ public class ItemsBrowserDWRTest extends TestCase {
         assertEquals("\"china\"", rightValue);
     }
 
-    public void testGetForeignKeyListWithCount() throws Exception {
-        // it's hard to prepare all the data here, so just test
-        // com.amalto.webapp.core.util.Util.getWhereConditionFromFK(it's a new method)
-
-        String xpathForeignKey = "Agency/Id";
-        // to verify
-        String xpathInfoForeignKey = "Agency/Name,Agency/City";
-        String value = "google";
-        String fkWhere = com.amalto.webapp.core.util.Util.getWhereConditionFromFK(null, xpathInfoForeignKey, value);
-        assertEquals("Agency/Name CONTAINS " + value + " OR " + "Agency/City CONTAINS " + value, fkWhere);
-        fkWhere = com.amalto.webapp.core.util.Util.getWhereConditionFromFK(xpathForeignKey, xpathInfoForeignKey, value);
-        assertTrue(fkWhere.contains("Agency/Id CONTAINS " + value));
-
-        // add Util.buildWhereItem junit test
+    public void testUtilBuildWhereItem() throws Exception {
+        // TODO To move to com.amalto.webapp.core junit tests
         String criteria = "Agency/Name CONTAINS NYC -";
         WSWhereItem whereItem = com.amalto.webapp.core.util.Util.buildWhereItem(criteria);
         WSWhereCondition condition = whereItem.getWhereAnd().getWhereItems()[0].getWhereCondition();

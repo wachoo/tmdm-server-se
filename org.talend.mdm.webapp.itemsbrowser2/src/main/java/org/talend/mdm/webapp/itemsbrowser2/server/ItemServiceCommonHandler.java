@@ -790,105 +790,29 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     @Override
     public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,
             String dataClusterPK, boolean ifFKFilter, String value) {
-        String xpathForeignKey = model.getForeignkey();
-        // to verify
-        String xpathInfoForeignKey = model.getForeignKeyInfo().toString().replaceAll("\\[", "").replaceAll("\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-        // in search panel, the fkFilter is empty
-        String fkFilter = ""; //$NON-NLS-1$
-        if (ifFKFilter)
-            fkFilter = model.getFkFilter();
-
-        if (xpathForeignKey == null)
-            return null;
-
-        List<ForeignKeyBean> fkBeans = new ArrayList<ForeignKeyBean>();
-        String[] results = null;
-        String count = null;
 
         try {
-            String initxpathForeignKey = ""; //$NON-NLS-1$
-            initxpathForeignKey = com.amalto.webapp.core.util.Util.getForeignPathFromPath(xpathForeignKey);
+            ForeignKeyHolder holder = getForeignKeyHolder(model, ifFKFilter, value);
+            String[] results;
+            String count;
 
-            WSWhereCondition whereCondition = com.amalto.webapp.core.util.Util.getConditionFromPath(xpathForeignKey);
-            WSWhereItem whereItem = null;
-            if (whereCondition != null) {
-                whereItem = new WSWhereItem(whereCondition, null, null);
-            }
-
-            // get FK filter
-            WSWhereItem fkFilterWi = com.amalto.webapp.core.util.Util.getConditionFromFKFilter(xpathForeignKey, xpathForeignKey,
-                    fkFilter);
-            if (fkFilterWi != null)
-                whereItem = fkFilterWi;
-            initxpathForeignKey = initxpathForeignKey.split("/")[0]; //$NON-NLS-1$
-
-            xpathInfoForeignKey = xpathInfoForeignKey == null ? "" : xpathInfoForeignKey; //$NON-NLS-1$
-            // foreign key set by business concept
-            if (initxpathForeignKey.split("/").length == 1) { //$NON-NLS-1$
-                String conceptName = initxpathForeignKey;
-                // determine if we have xPath Infos: e.g. labels to display
-                String[] xpathInfos = new String[1];
-                if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null)//$NON-NLS-1$
-                    xpathInfos = xpathInfoForeignKey.split(","); //$NON-NLS-1$
-                else
-                    xpathInfos[0] = conceptName;
-                value = value == null ? "" : value; //$NON-NLS-1$
-
-                // build query - add a content condition on the pivot if we search for a particular value
-                String filteredConcept = conceptName;
-
-                if (value != null && !"".equals(value.trim()) && !".*".equals(value.trim())) { //$NON-NLS-1$ //$NON-NLS-2$
-                    List<WSWhereItem> condition = new ArrayList<WSWhereItem>();
-                    if (whereItem != null)
-                        condition.add(whereItem);
-                    WSWhereItem wc = null;
-                    String strConcept = conceptName + "/. CONTAINS "; //$NON-NLS-1$
-                    if (MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
-                        strConcept = conceptName + "//* CONTAINS "; //$NON-NLS-1$
-                    }
-                    // fix TMDM-2369, where conditon come from fk,fkinfos
-                    String fkWhere = com.amalto.webapp.core.util.Util.getWhereConditionFromFK(xpathForeignKey,
-                            xpathInfoForeignKey, value);
-                    if (fkWhere == null || fkWhere.length() == 0)
-                        fkWhere = strConcept + value;
-                    wc = com.amalto.webapp.core.util.Util.buildWhereItems(fkWhere);
-                    condition.add(wc);
-                    WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
-                    WSWhereItem whand = new WSWhereItem(null, and, null);
-                    if (whand != null)
-                        whereItem = whand;
-                }
-
-                // add the xPath Infos Path
-                ArrayList<String> xPaths = new ArrayList<String>();
-                if (model.isRetrieveFKinfos())
-                    // add the xPath Infos Path
-                    for (int i = 0; i < xpathInfos.length; i++) {
-                        xPaths.add(com.amalto.webapp.core.util.Util.getFormatedFKInfo(
-                                xpathInfos[i].replaceFirst(conceptName, filteredConcept), filteredConcept));
-                    }
-                // add the key paths last, since there may be multiple keys
-                xPaths.add(filteredConcept + "/../../i"); //$NON-NLS-1$
-                // order by
-                String orderbyPath = null;
-                if (!MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
-                    if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) { //$NON-NLS-1$
-                        orderbyPath = com.amalto.webapp.core.util.Util.getFormatedFKInfo(
-                                xpathInfos[0].replaceFirst(conceptName, filteredConcept), filteredConcept);
-                    }
-                }
+            if (holder != null) {
+                String conceptName = holder.conceptName;
+                List<String> xPaths = holder.xpaths;
+                String orderbyPath = holder.orderbyPath;
+                WSWhereItem whereItem = holder.whereItem;
+                String fkFilter = holder.fkFilter;
 
                 // Run the query
                 if (!com.amalto.webapp.core.util.Util.isCustomFilter(fkFilter)) {
-
                     results = CommonUtil
-                            .getPort()
-                            .xPathsSearch(
-                                    new WSXPathsSearch(new WSDataClusterPK(dataClusterPK), null, new WSStringArray(xPaths
-                                            .toArray(new String[xPaths.size()])), whereItem, -1, config.getOffset(), config
-                                            .getLimit(), orderbyPath, null)).getStrings();
+                    .getPort()
+                    .xPathsSearch(
+                            new WSXPathsSearch(new WSDataClusterPK(dataClusterPK), null, new WSStringArray(xPaths
+                                    .toArray(new String[xPaths.size()])), whereItem, -1, config.getOffset(), config
+                                    .getLimit(), orderbyPath, null)).getStrings();
                     count = CommonUtil.getPort()
-                            .count(new WSCount(new WSDataClusterPK(dataClusterPK), conceptName, whereItem, -1)).getValue();
+                    .count(new WSCount(new WSDataClusterPK(dataClusterPK), conceptName, whereItem, -1)).getValue();
 
                 } else {
 
@@ -906,8 +830,12 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                                     new WSCountItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName,
                                             injectedXpath)).getValue();
                 }
+            } else {
+                results = null;
+                count = null;
             }
 
+            List<ForeignKeyBean> fkBeans = new ArrayList<ForeignKeyBean>();
             if (results != null) {
                 for (String result : results) {
                     ForeignKeyBean bean = new ForeignKeyBean();
@@ -936,6 +864,112 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             LOG.error(e.getMessage(), e);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
+        }
+        return null;
+    }
+
+    protected static class ForeignKeyHolder {
+
+        String conceptName;
+
+        List<String> xpaths;
+
+        String orderbyPath;
+
+        WSWhereItem whereItem;
+
+        String fkFilter;
+    }
+
+    protected ForeignKeyHolder getForeignKeyHolder(TypeModel model, boolean ifFKFilter, String value) throws Exception {
+
+        String xpathForeignKey = model.getForeignkey();
+        // to verify
+        String xpathInfoForeignKey = model.getForeignKeyInfo().toString().replaceAll("\\[", "").replaceAll("\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+
+        String fkFilter = (ifFKFilter) ? model.getFkFilter() : ""; // in search panel, the fkFilter is empty //$NON-NLS-1$
+
+        if (xpathForeignKey == null)
+            return null;
+
+        String initxpathForeignKey = ""; //$NON-NLS-1$
+        initxpathForeignKey = com.amalto.webapp.core.util.Util.getForeignPathFromPath(xpathForeignKey);
+
+        WSWhereCondition whereCondition = com.amalto.webapp.core.util.Util.getConditionFromPath(xpathForeignKey);
+        WSWhereItem whereItem = null;
+        if (whereCondition != null) {
+            whereItem = new WSWhereItem(whereCondition, null, null);
+        }
+
+        // get FK filter
+        WSWhereItem fkFilterWi = com.amalto.webapp.core.util.Util.getConditionFromFKFilter(xpathForeignKey, xpathForeignKey,
+                fkFilter);
+        if (fkFilterWi != null)
+            whereItem = fkFilterWi;
+        initxpathForeignKey = initxpathForeignKey.split("/")[0]; //$NON-NLS-1$
+
+        xpathInfoForeignKey = xpathInfoForeignKey == null ? "" : xpathInfoForeignKey; //$NON-NLS-1$
+        // foreign key set by business concept
+        if (initxpathForeignKey.split("/").length == 1) { //$NON-NLS-1$
+            String conceptName = initxpathForeignKey;
+            // determine if we have xPath Infos: e.g. labels to display
+            String[] xpathInfos = new String[1];
+            if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null)//$NON-NLS-1$
+                xpathInfos = xpathInfoForeignKey.split(","); //$NON-NLS-1$
+            else
+                xpathInfos[0] = conceptName;
+            value = value == null ? "" : value; //$NON-NLS-1$
+
+            // build query - add a content condition on the pivot if we search for a particular value
+            String filteredConcept = conceptName;
+
+            if (value != null && !"".equals(value.trim()) && !".*".equals(value.trim())) { //$NON-NLS-1$ //$NON-NLS-2$
+                List<WSWhereItem> condition = new ArrayList<WSWhereItem>();
+                if (whereItem != null)
+                    condition.add(whereItem);
+                
+                // Although we should filter within FK and FKInfo values, to keep some backward compatibility with
+                // previous behavior, filtering is done on all of the values of a record
+                String fkWhere;
+                if (MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
+                    fkWhere = conceptName + "/../* CONTAINS " + value; //$NON-NLS-1$
+                } else {
+                    fkWhere = conceptName + "/../. CONTAINS " + value; //$NON-NLS-1$
+                }
+                
+                WSWhereItem wc = com.amalto.webapp.core.util.Util.buildWhereItems(fkWhere);
+                condition.add(wc);
+                WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
+                WSWhereItem whand = new WSWhereItem(null, and, null);
+                if (whand != null)
+                    whereItem = whand;
+            }
+
+            // add the xPath Infos Path
+            ArrayList<String> xPaths = new ArrayList<String>();
+            if (model.isRetrieveFKinfos())
+                // add the xPath Infos Path
+                for (int i = 0; i < xpathInfos.length; i++) {
+                    xPaths.add(com.amalto.webapp.core.util.Util.getFormatedFKInfo(
+                            xpathInfos[i].replaceFirst(conceptName, filteredConcept), filteredConcept));
+                }
+            // add the key paths last, since there may be multiple keys
+            xPaths.add(filteredConcept + "/../../i"); //$NON-NLS-1$
+            // order by
+            String orderbyPath = null;
+            if (!MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
+                if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) { //$NON-NLS-1$
+                    orderbyPath = com.amalto.webapp.core.util.Util.getFormatedFKInfo(
+                            xpathInfos[0].replaceFirst(conceptName, filteredConcept), filteredConcept);
+                }
+            }
+            ForeignKeyHolder holder = new ForeignKeyHolder();
+            holder.xpaths = xPaths;
+            holder.orderbyPath = orderbyPath;
+            holder.conceptName = conceptName;
+            holder.whereItem = whereItem;
+            holder.fkFilter = fkFilter;
+            return holder;
         }
         return null;
     }
@@ -972,7 +1006,6 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
     @Override
     public String saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString) {
-        String returnString = "OK";//$NON-NLS-1$
         try {
             String owner = com.amalto.webapp.core.util.Util.getLoginUserName();
             SearchTemplate searchTemplate = new SearchTemplate();
@@ -985,16 +1018,16 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             WSItemPK pk = CommonUtil.getPort().putItem(
                     new WSPutItem(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), searchTemplate
                             .marshal2String(), new WSDataModelPK(XSystemObjects.DM_SEARCHTEMPLATE.getName()), false));
-
+            
+            String returnString;
             if (pk != null)
                 returnString = "OK";//$NON-NLS-1$
             else
                 returnString = null;
+            return returnString;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            returnString = e.getMessage();
-        } finally {
-            return returnString;
+            return e.getMessage();
         }
     }
 
@@ -1114,16 +1147,14 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             String[] ids = { id };
             String concept = "BrowseItem";//$NON-NLS-1$
             String dataClusterPK = XSystemObjects.DC_SEARCHTEMPLATE.getName();
-            if (ids != null) {
-                WSItemPK wsItem = CommonUtil.getPort().deleteItem(
-                        new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids), false));
 
-                if (wsItem == null)
-                    return MessagesFactory.getMessages().label_error_delete_template_null();
-                return "OK";//$NON-NLS-1$
-            } else {
-                return "OK";//$NON-NLS-1$
-            }
+            WSItemPK wsItem = CommonUtil.getPort().deleteItem(
+                    new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids), false));
+
+            if (wsItem == null)
+                return MessagesFactory.getMessages().label_error_delete_template_null();
+            return "OK";//$NON-NLS-1$
+
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             return "ERROR -" + e.getLocalizedMessage();//$NON-NLS-1$
@@ -1222,6 +1253,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         return idList.toArray(new String[idList.size()]);
     }
 
+    @Override
     public List<String> getMandatoryFieldList(String tableName) throws Exception {
         // grab the table fileds (e.g. the concept sub-elements)
         String schema = CommonUtil.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(this.getCurrentDataModel())))
@@ -1239,11 +1271,11 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         }
         XSComplexType type = (XSComplexType) decl.getType();
         XSParticle[] xsp = type.getContentType().asParticle().getTerm().asModelGroup().getChildren();
-        for(XSParticle obj : xsp){
-            if(obj.getMinOccurs() == 1 && obj.getMaxOccurs() == 1)
+        for (XSParticle obj : xsp) {
+            if (obj.getMinOccurs() == 1 && obj.getMaxOccurs() == 1)
                 fieldNames.add(obj.getTerm().asElementDecl().getName());
         }
-        
+
         return fieldNames;
     }
 
@@ -1257,6 +1289,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
      * @return
      * @throws Exception
      */
+    @Override
     public List<Restriction> getForeignKeyPolymTypeList(String xpathForeignKey, String language) throws Exception {
 
         String fkEntityType = null;
@@ -1324,6 +1357,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
      * @return
      * @throws Exception
      */
+    @Override
     public ForeignKeyDrawer switchForeignKeyType(String targetEntityType, String xpathForeignKey, String xpathInfoForeignKey,
             String fkFilter) throws Exception {
         ForeignKeyDrawer fkDrawer = new ForeignKeyDrawer();

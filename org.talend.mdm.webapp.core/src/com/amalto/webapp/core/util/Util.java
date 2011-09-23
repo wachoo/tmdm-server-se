@@ -1156,7 +1156,8 @@ public class Util {
                 int i = j;
                 while ((i > 0 && itemsBrowserContent.get(i - 1)[col].length() > 0 && temp[col].length() > 0 && Double
                         .parseDouble(itemsBrowserContent.get(i - 1)[col]) > Double.parseDouble(temp[col]))
-                        || i > 0 && temp[col].length() == 0) {
+                        || i > 0
+                        && temp[col].length() == 0) {
                     itemsBrowserContent.set(i, itemsBrowserContent.get(i - 1));
                     i--;
                 }
@@ -1209,28 +1210,6 @@ public class Util {
         return false;
     }
 
-    public static String getWhereConditionFromFK(String xpathForeignKey, String xpathInfoForeignKey, String value) {
-        StringBuffer sb = new StringBuffer();
-        if (value != null && value.trim().length() > 0) {
-            List<String> ret = new ArrayList<String>();
-            if (xpathForeignKey != null && xpathForeignKey.trim().length() > 0) {
-                ret.add(xpathForeignKey);
-            }
-            if (xpathInfoForeignKey != null && xpathInfoForeignKey.trim().length() > 0) {
-                String[] infos = xpathInfoForeignKey.split(","); //$NON-NLS-1$
-                for (String fkinfo : infos) {
-                    ret.add(fkinfo);
-                }
-                for (int i = 0; i < ret.size(); i++) {
-                    sb.append(ret.get(i) + " CONTAINS " + value); //$NON-NLS-1$
-                    if (i >= 0 && i < ret.size() - 1) {
-                        sb.append(" OR "); //$NON-NLS-1$
-                    }
-                }
-            }
-        }
-        return sb.toString();
-    }
     public static WSWhereItem buildWhereItems(String criteria) throws Exception {
         Pattern p = Pattern.compile("\\((.*)\\)"); //$NON-NLS-1$
         Matcher m = p.matcher(criteria);
@@ -1369,50 +1348,20 @@ public class Util {
                 List<WSWhereItem> condition = new ArrayList<WSWhereItem>();
                 if (whereItem != null)
                     condition.add(whereItem);
-                WSWhereItem wc = null;
-                // hshu fixed the regression: the filter works only on FK, not on FK Info.
-                // if(xpathForeignKey.equals(conceptName))wc=buildWhereItem(conceptName+"/. CONTAINS "+value);
-                // else wc=buildWhereItem(xpathForeignKey+" CONTAINS "+value);
-                String strConcept = conceptName + "/. CONTAINS "; //$NON-NLS-1$
+                String fkWhere;
                 if (MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
-                    strConcept = conceptName + "//* CONTAINS "; //$NON-NLS-1$
+                    fkWhere = conceptName + "/../* CONTAINS " + value; //$NON-NLS-1$
+                } else {
+                    fkWhere = conceptName + "/../. CONTAINS " + value; //$NON-NLS-1$
                 }
-                // fix TMDM-2369, where conditon come from fk,fkinfos
-                String fkWhere = getWhereConditionFromFK(xpathForeignKey, xpathInfoForeignKey,
-                        value);
-                if (fkWhere == null || fkWhere.length() == 0)
-                    fkWhere = strConcept + value;
-                wc = buildWhereItems(fkWhere);
+                
+                WSWhereItem wc = buildWhereItems(fkWhere);
                 condition.add(wc);
                 WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
                 WSWhereItem whand = new WSWhereItem(null, and, null);
                 if (whand != null)
                     whereItem = whand;
             }
-            // boolean isKey = false;
-            // StringBuffer sb = new StringBuffer();
-            //
-            // if(value!=null && !"".equals(value.trim())) {
-            // Pattern p = Pattern.compile("\\[(.*?)\\]");
-            // Matcher m = p.matcher(value);
-            //
-            // while(m.find()){//key
-            // sb = sb.append("[matches(. , \""+m.group(1)+"\", \"i\")]");
-            // if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName()))
-            // sb = sb.append("[ora:matches(. , \""+m.group(1)+"\", \"i\")]");
-            // isKey = true;
-            // }
-            // if(isKey)
-            // filteredConcept += sb.toString();
-            // else{
-            // value=value.equals(".*")? "":value+".*";
-            // //Value is unlikely to be in attributes
-            // filteredConcept+="[matches(. , \""+value+"\", \"i\")]";
-            // if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
-            // filteredConcept+="[ora:matches(. , \""+value+"\", \"i\")]";
-            // }
-            // }
-            // }
 
             // add the xPath Infos Path
             ArrayList<String> xPaths = new ArrayList<String>();
@@ -1540,9 +1489,11 @@ public class Util {
                 if (whereItem != null)
                     condition.add(whereItem);
 
-                String criteriaCondition = conceptName + "/. CONTAINS ";//$NON-NLS-1$
+                String criteriaCondition;
                 if (MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
-                    criteriaCondition = conceptName + "//* CONTAINS ";//$NON-NLS-1$
+                    criteriaCondition = conceptName + "/../* CONTAINS "; //$NON-NLS-1$
+                } else {
+                    criteriaCondition = conceptName + "/../. CONTAINS "; //$NON-NLS-1$
                 }
                 criteriaCondition += criteriaValue;
                 WSWhereItem wc = buildWhereItem(criteriaCondition);
@@ -1581,61 +1532,61 @@ public class Util {
         return isCustom;
     }
 
-    public static String outputValidateDate(String dataValue, String format)throws ParseException{
-        Pattern datePtn = Pattern.compile("((\\d{1,2}\\/){2}\\d{4})?(\\d{1,2}\\/\\d{4})?(\\d{1,2})?(\\d{1,2}\\/\\d{1,2})?(\\d{4})?((\\d{1,2}\\/)(\\d{1,2}\\/)(\\d{1,4}))?");//$NON-NLS-1$
+    public static String outputValidateDate(String dataValue, String format) throws ParseException {
+        Pattern datePtn = Pattern
+                .compile("((\\d{1,2}\\/){2}\\d{4})?(\\d{1,2}\\/\\d{4})?(\\d{1,2})?(\\d{1,2}\\/\\d{1,2})?(\\d{4})?((\\d{1,2}\\/)(\\d{1,2}\\/)(\\d{1,4}))?");//$NON-NLS-1$
         Matcher mtn = datePtn.matcher(dataValue);
-        
-        if(mtn.matches())
-        {
-            if(mtn.group(1) != null ){
+
+        if (mtn.matches()) {
+            if (mtn.group(1) != null) {
                 SimpleDateFormat sdf = new SimpleDateFormat(format.equals("%tD") ? "MM/dd/yyyy" : "dd/MM/yyyy");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
                 java.util.Date date = sdf.parse(dataValue);
                 sdf.applyPattern("yyyy-MM-dd");//$NON-NLS-1$
                 dataValue = sdf.format(date);
                 return dataValue;
             }
-            
+
             java.util.Calendar now = Calendar.getInstance();
             now.setTime(new java.util.Date());
-            
-            if(mtn.group(1) == null && mtn.group(3) != null && mtn.group(5) != null){
+
+            if (mtn.group(1) == null && mtn.group(3) != null && mtn.group(5) != null) {
                 dataValue = "01/" + dataValue;//$NON-NLS-1$
                 return outputValidateDate(dataValue, format);
-            }
-            else if(mtn.group(3) != null){
+            } else if (mtn.group(3) != null) {
                 dataValue = now.get(java.util.Calendar.DAY_OF_MONTH) + "/" + dataValue;//$NON-NLS-1$
                 return outputValidateDate(dataValue, format);
-            }
-            else if(mtn.group(6) != null){
-                dataValue = now.get(java.util.Calendar.DAY_OF_MONTH) + "/" + (now.get(java.util.Calendar.MONTH)+ 1) + "/" + dataValue ;//$NON-NLS-1$//$NON-NLS-2$
+            } else if (mtn.group(6) != null) {
+                dataValue = now.get(java.util.Calendar.DAY_OF_MONTH)
+                        + "/" + (now.get(java.util.Calendar.MONTH) + 1) + "/" + dataValue;//$NON-NLS-1$//$NON-NLS-2$
                 return outputValidateDate(dataValue, format);
-            }
-            else if(mtn.group(4) != null && mtn.group(5) == null && mtn.group(7) == null){
-                dataValue = dataValue + "/" + (now.get(java.util.Calendar.MONTH) + 1) + "/" + (now.get(java.util.Calendar.YEAR) + 1);//$NON-NLS-1$//$NON-NLS-2$
+            } else if (mtn.group(4) != null && mtn.group(5) == null && mtn.group(7) == null) {
+                dataValue = dataValue
+                        + "/" + (now.get(java.util.Calendar.MONTH) + 1) + "/" + (now.get(java.util.Calendar.YEAR) + 1);//$NON-NLS-1$//$NON-NLS-2$
                 return outputValidateDate(dataValue, format);
-            }
-            else if(mtn.group(5) != null){
+            } else if (mtn.group(5) != null) {
                 dataValue += "/" + (now.get(java.util.Calendar.YEAR) + 1);//$NON-NLS-1$
-                return outputValidateDate(dataValue, format); 
-            }
-            else if(mtn.group(7) != null){
-                String year = 2000 + Integer.valueOf(mtn.group(10).startsWith("0") ? mtn.group(10).substring(1) : mtn.group(10)) + "";//$NON-NLS-1$//$NON-NLS-2$
-                dataValue =(mtn.group(4).isEmpty() ? "" : mtn.group(4)) + mtn.group(8) + mtn.group(9) +  year; //$NON-NLS-1$
-                return outputValidateDate(dataValue, format); 
+                return outputValidateDate(dataValue, format);
+            } else if (mtn.group(7) != null) {
+                String year = 2000
+                        + Integer.valueOf(mtn.group(10).startsWith("0") ? mtn.group(10).substring(1) : mtn.group(10)) + "";//$NON-NLS-1$//$NON-NLS-2$
+                dataValue = (mtn.group(4).isEmpty() ? "" : mtn.group(4)) + mtn.group(8) + mtn.group(9) + year; //$NON-NLS-1$
+                return outputValidateDate(dataValue, format);
             }
         }
-        
+
         datePtn = Pattern.compile("(\\w*)\\s+(\\w*)\\s+(\\d*)\\s+(\\d{2}:\\d{2}:\\d{2})\\s+(\\w*)\\s+(\\d{4})");//$NON-NLS-1$
         mtn = datePtn.matcher(dataValue);
-        if(mtn.matches()){
+        if (mtn.matches()) {
             java.util.Calendar now = Calendar.getInstance();
             now.setTimeInMillis(java.util.Date.parse(dataValue));
-            dataValue = now.get(java.util.Calendar.DAY_OF_MONTH) + "/" + (now.get(java.util.Calendar.MONTH)+ 1) + "/" + (now.get(java.util.Calendar.YEAR)) ;//$NON-NLS-1$//$NON-NLS-2$
+            dataValue = now.get(java.util.Calendar.DAY_OF_MONTH)
+                    + "/" + (now.get(java.util.Calendar.MONTH) + 1) + "/" + (now.get(java.util.Calendar.YEAR));//$NON-NLS-1$//$NON-NLS-2$
             return outputValidateDate(dataValue, format);
         }
-        
+
         return dataValue;
     }
+
     /**
      * @author ymli
      * @param type
@@ -1650,31 +1601,29 @@ public class Util {
         if (type.equals("date") && !value.equals("")) {//$NON-NLS-1$ //$NON-NLS-2$
             String dataStr = value;
             Calendar calendar = null;
-            try{
-            calendar = Date.parseDate(dataStr.trim()).toCalendar();
-            }
-            catch(Exception ex){
+            try {
+                calendar = Date.parseDate(dataStr.trim()).toCalendar();
+            } catch (Exception ex) {
                 calendar = Date.parseDate(outputValidateDate(value, format)).toCalendar();
             }
-            
+
             return calendar;
-        /*
-         * else if(type.equals("time")) return BigInteger.//Time.parseTime(value.trim());
-         */
-        /*
-         * else if(type.equals("dateTime")) return DateTime
-         */
-        // numberic
-        /*
-         * else if(type.equals("byte")||type.equals("short")||type.equals("int")
-         * ||type.equals("integer")||type.equals("long")||type.equals("float")||type.equals("double")){ Locale locale =
-         * new Locale(lang); NumberFormat instance = DecimalFormat.getNumberInstance(locale);
-         * instance.setParseIntegerOnly(false); return instance.parse(value);
-         * 
-         * }
-         */
-        }
-        else if (type.equals("dateTime") && !value.equals("")) { //$NON-NLS-1$ //$NON-NLS-2$
+            /*
+             * else if(type.equals("time")) return BigInteger.//Time.parseTime(value.trim());
+             */
+            /*
+             * else if(type.equals("dateTime")) return DateTime
+             */
+            // numberic
+            /*
+             * else if(type.equals("byte")||type.equals("short")||type.equals("int")
+             * ||type.equals("integer")||type.equals("long")||type.equals("float")||type.equals("double")){ Locale
+             * locale = new Locale(lang); NumberFormat instance = DecimalFormat.getNumberInstance(locale);
+             * instance.setParseIntegerOnly(false); return instance.parse(value);
+             * 
+             * }
+             */
+        } else if (type.equals("dateTime") && !value.equals("")) { //$NON-NLS-1$ //$NON-NLS-2$
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"); //$NON-NLS-1$
             Calendar dateTime = Calendar.getInstance();
             dateTime.setTime(sdf.parse(value.trim()));
@@ -1849,7 +1798,7 @@ public class Util {
         }
         return str;
     }
-    
+
     public static String formatDate(String formats, Calendar date) {
         String formatValue = formats;
 
@@ -1867,7 +1816,7 @@ public class Util {
         } else {
             formatValue = String.format(java.util.Locale.ENGLISH, formats, date);
         }
-        
+
         return formatValue;
     }
 }
