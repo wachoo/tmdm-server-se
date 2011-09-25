@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.browserecords.client;
 
 import java.util.List;
+import java.util.Map;
 
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
@@ -61,7 +62,7 @@ public interface BrowseRecordsServiceAsync {
 
     void deleteItemBeans(List<ItemBean> items, boolean override, AsyncCallback<List<ItemResult>> callback);
 
-    void checkFKIntegrity(List<ItemBean> selectedItems, AsyncCallback<FKIntegrityResult> asyncCallback);
+    void checkFKIntegrity(List<ItemBean> selectedItems, AsyncCallback<Map<ItemBean, FKIntegrityResult>> asyncCallback);
 
     void logicalDeleteItem(ItemBean item, String path, boolean override, AsyncCallback<ItemResult> callback);
 

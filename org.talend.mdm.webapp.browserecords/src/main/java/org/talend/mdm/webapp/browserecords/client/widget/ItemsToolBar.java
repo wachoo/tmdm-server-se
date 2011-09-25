@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.browserecords.client.widget;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -35,8 +36,8 @@ import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKRelRecordW
 import org.talend.mdm.webapp.browserecords.client.widget.SearchPanel.AdvancedSearchPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.SearchPanel.SimpleCriterionPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
+import org.talend.mdm.webapp.browserecords.client.widget.integrity.*;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
-import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -320,44 +321,12 @@ public class ItemsToolBar extends ToolBar {
 
                     public void handleEvent(MessageBoxEvent be) {
                         if (be.getButtonClicked().getItemId().equals(Dialog.OK)) {
-
-                            if (ItemsListPanel.getInstance().getGrid() != null) {
-                                service.checkFKIntegrity(ItemsListPanel.getInstance().getGrid().getSelectionModel()
-                                        .getSelectedItems(), new AsyncCallback<FKIntegrityResult>() {
-                                    public void onFailure(Throwable caught) {
-                                        Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
-                                    }
-
-                                    public void onSuccess(FKIntegrityResult result) {
-                                        switch (result) {
-                                            case FORBIDDEN_OVERRIDE_ALLOWED:
-                                                MessageBox.confirm(MessagesFactory.getMessages().error_title(),
-                                                        MessagesFactory.getMessages().fk_integrity_fail_override(),
-                                                        new Listener<MessageBoxEvent>() {
-                                                            public void handleEvent(MessageBoxEvent be) {
-                                                                if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                                        doLogicalDelete(ItemsListPanel.getInstance(), true);
-                                                                }
-                                                            }
-                                                        });
-                                                break;
-                                            case FORBIDDEN:
-                                                MessageBox.confirm(MessagesFactory.getMessages().error_title(),
-                                                        MessagesFactory.getMessages().fk_integrity_fail_open_relations(),
-                                                        new Listener<MessageBoxEvent>() {
-                                                            public void handleEvent(MessageBoxEvent be) {
-                                                                if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                                                    // TODO Handle list of deletes
-                                                                }
-                                                            }
-                                                        });
-                                                break;
-                                            case ALLOWED:
-                                            doLogicalDelete(ItemsListPanel.getInstance(), false);
-                                                break;
-                                        }
-                                    }
-                                });
+                            final ItemsListPanel list = ItemsListPanel.getInstance();
+                            if (list.getGrid() != null) {
+                                PostDeleteAction postDeleteAction = new ListRefresh(list, new ContainerUpdate(NoOpPostDeleteAction.INSTANCE));
+                                DeleteAction deleteAction = new LogicalDeleteAction(be.getValue());
+                                service.checkFKIntegrity(list.getGrid().getSelectionModel().getSelectedItems(),
+                                        new DeleteCallback(deleteAction, postDeleteAction, service));
                             }
                         }
                     }
@@ -820,8 +789,8 @@ public class ItemsToolBar extends ToolBar {
         initAdvancedPanel();
     }
 
-    private void doLogicalDelete(final ItemsListPanel list, boolean override) {
-        service.logicalDeleteItems(list.getGrid().getSelectionModel().getSelectedItems(), "/", override,//$NON-NLS-1$
+    private void doLogicalDelete(final ItemBean item, boolean override) {
+        service.logicalDeleteItems(Collections.singletonList(item), "/", override,//$NON-NLS-1$
                 new AsyncCallback<List<ItemResult>>() {
 
                     public void onFailure(Throwable caught) {
@@ -836,7 +805,7 @@ public class ItemsToolBar extends ToolBar {
                                 return;
                             }
                         }
-                        list.getStore().getLoader().load();
+                        ItemsListPanel.getInstance().getStore().getLoader().load();
                     }
 
                 });
@@ -1148,93 +1117,9 @@ public class ItemsToolBar extends ToolBar {
         public void handleEvent(MessageBoxEvent be) {
             if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
                 if (list.getGrid() != null) {
+                    PostDeleteAction postDeleteAction = new ListRefresh(list, new ContainerUpdate(NoOpPostDeleteAction.INSTANCE));
                     service.checkFKIntegrity(list.getGrid().getSelectionModel().getSelectedItems(),
-                            new AsyncCallback<FKIntegrityResult>() {
-
-                                public void onFailure(Throwable caught) {
-                                    Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
-                                }
-
-                                public void onSuccess(FKIntegrityResult results) {
-                                    switch (results) {
-                                        case FORBIDDEN_OVERRIDE_ALLOWED:
-                                            MessageBox.confirm(MessagesFactory.getMessages().error_title(),
-                                                        MessagesFactory.getMessages().fk_integrity_fail_override(),
-                                                        new Listener<MessageBoxEvent>() {
-                                                            public void handleEvent(MessageBoxEvent be) {
-                                                                if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                                                    doItemsDelete(true);
-                                                                }
-                                                            }
-                                                        });
-                                            break;
-                                        case FORBIDDEN:
-                                            MessageBox.confirm(MessagesFactory.getMessages().error_title(),
-                                                    MessagesFactory.getMessages().fk_integrity_fail_open_relations(),
-                                                    new Listener<MessageBoxEvent>() {
-                                                        public void handleEvent(MessageBoxEvent be) {
-                                                            if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                                                // TODO Handle list of deletes
-                                                            }
-                                                        }
-                                                    });
-                                            break;
-                                        case ALLOWED:
-                                            doItemsDelete(false);
-                                            break;
-                                    }
-                                }
-
-                                private void doItemsDelete(boolean override) {
-                                    service.deleteItemBeans(list.getGrid().getSelectionModel().getSelectedItems(), override,
-                                            new AsyncCallback<List<ItemResult>>() {
-
-                                                public void onFailure(Throwable caught) {
-                                                    Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
-                                                }
-
-                                                public void onSuccess(List<ItemResult> results) {
-                                                    StringBuffer msgs = new StringBuffer();
-
-                                                    int successNum = getSuccessItemsNumber(results);
-                                                    int failureNum = getFailureItemsNumber(results);
-
-                                                    if (successNum == 1 && failureNum == 0) {
-                                                        String msg = results.iterator().next().getDescription();
-                                                        MessageBox.info(MessagesFactory.getMessages().info_title(),
-                                                                pickOutISOMessage(msg), null);
-                                                    } else if (successNum > 1 && failureNum == 0) {
-                                                        msgs.append(MessagesFactory.getMessages().delete_item_record_success(
-                                                                successNum));
-                                                        MessageBox.info(MessagesFactory.getMessages().info_title(),
-                                                                msgs.toString(), null);
-                                                    } else if (successNum == 0 && failureNum == 1) {
-                                                        String msg = results.iterator().next().getDescription();
-                                                        MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                                                pickOutISOMessage(msg), null);
-                                                    } else if (successNum == 0 && failureNum > 1) {
-                                                        msgs.append(MessagesFactory.getMessages().delete_item_record_failure(
-                                                                failureNum));
-                                                        MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                                                msgs.toString(), null);
-                                                    } else if (successNum > 0 && failureNum > 0) {
-                                                        msgs.append(MessagesFactory.getMessages().delete_item_record_success(
-                                                                successNum)
-                                                                + "\n");//$NON-NLS-1$
-                                                        msgs.append(MessagesFactory.getMessages().delete_item_record_failure(
-                                                                failureNum)
-                                                                + "\n");//$NON-NLS-1$
-                                                        MessageBox.info(MessagesFactory.getMessages().info_title(),
-                                                                msgs.toString(), null);
-                                                    }
-
-                                                    list.getStore().getLoader().load();
-                                                }
-
-                                            });
-                                }
-
-                            });
+                                        new DeleteCallback(DeleteAction.PHYSICAL, postDeleteAction, service));
                 }
 
             }

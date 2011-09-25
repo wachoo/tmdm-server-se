@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.browserecords.client;
 
 import java.util.List;
+import java.util.Map;
 
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
@@ -63,7 +64,7 @@ public interface BrowseRecordsService extends RemoteService {
 
     List<ItemResult> deleteItemBeans(List<ItemBean> items, boolean override);
 
-    FKIntegrityResult checkFKIntegrity(List<ItemBean> selectedItems);
+    Map<ItemBean, FKIntegrityResult> checkFKIntegrity(List<ItemBean> selectedItems);
 
     ItemResult logicalDeleteItem(ItemBean item, String path, boolean override);
 

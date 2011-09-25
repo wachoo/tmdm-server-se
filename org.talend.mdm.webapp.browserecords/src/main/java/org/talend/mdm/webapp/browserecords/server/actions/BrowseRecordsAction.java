@@ -44,6 +44,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.xpath.XPathExpressionException;
 
+import com.amalto.core.integrity.FKIntegrityCheckResult;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentException;
@@ -229,8 +230,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return itemResults;
     }
 
-    public FKIntegrityResult checkFKIntegrity(List<ItemBean> selectedItems) {
-        FKIntegrityResult checkResult = FKIntegrityResult.FORBIDDEN;
+    public Map<ItemBean, FKIntegrityResult> checkFKIntegrity(List<ItemBean> selectedItems) {
+        Map<ItemBean, FKIntegrityResult> itemBeanToResult = new HashMap<ItemBean, FKIntegrityResult>(selectedItems.size());
 
         try {
             for (ItemBean selectedItem : selectedItems) {
@@ -240,26 +241,26 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 WSItemPK wsItemPK = new WSItemPK(new WSDataClusterPK(getCurrentDataCluster()), concept, ids);
                 WSDeleteItem deleteItem = new WSDeleteItem(wsItemPK, false);
 
-                switch (CommonUtil.getPort().checkFKIntegrity(deleteItem)) {
+                FKIntegrityCheckResult result = CommonUtil.getPort().checkFKIntegrity(deleteItem);
+                switch (result) {
                     case FORBIDDEN:
-                        return FKIntegrityResult.FORBIDDEN; // At least one is forbidden, so forbid all deletes.
+                        itemBeanToResult.put(selectedItem, FKIntegrityResult.FORBIDDEN);
+                        break;
                     case FORBIDDEN_OVERRIDE_ALLOWED:
-                        checkResult = FKIntegrityResult.FORBIDDEN_OVERRIDE_ALLOWED;
+                        itemBeanToResult.put(selectedItem, FKIntegrityResult.FORBIDDEN_OVERRIDE_ALLOWED);
                         break;
                     case ALLOWED:
-                        if (checkResult != FKIntegrityResult.FORBIDDEN_OVERRIDE_ALLOWED) {
-                            checkResult = FKIntegrityResult.ALLOWED; // Allow only if "forbidden override" isn't last result.
-                        }
+                        itemBeanToResult.put(selectedItem, FKIntegrityResult.ALLOWED);
                         break;
                     default:
-                    throw new XtentisWebappException(MESSAGES.getMessage("fk_integrity", checkResult)); //$NON-NLS-1$
+                        throw new XtentisWebappException(MESSAGES.getMessage("fk_integrity", result)); //$NON-NLS-1$
                 }
             }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
 
-        return checkResult;
+        return itemBeanToResult;
     }
 
     public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,

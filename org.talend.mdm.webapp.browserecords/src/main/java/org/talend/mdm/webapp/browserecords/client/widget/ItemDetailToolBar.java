@@ -10,12 +10,11 @@ import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
-import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
+import org.talend.mdm.webapp.browserecords.client.widget.integrity.*;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTreeDetail;
-import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -203,68 +202,11 @@ public class ItemDetailToolBar extends ToolBar {
                             .path_desc());
                     box.getTextBox().setValue("/"); //$NON-NLS-1$
                     box.addCallback(new Listener<MessageBoxEvent>() {
-
                         public void handleEvent(MessageBoxEvent be) {
-                            final String url = be.getValue();
-                            service.checkFKIntegrity(Collections.singletonList(itemBean), new AsyncCallback<FKIntegrityResult>() {
-
-                                public void onFailure(Throwable caught) {
-                                    Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
-                                }
-
-                                public void onSuccess(FKIntegrityResult result) {
-                                    switch (result) {
-                                    case FORBIDDEN_OVERRIDE_ALLOWED:
-                                        MessageBox.confirm(MessagesFactory.getMessages().error_title(), MessagesFactory
-                                                .getMessages().fk_integrity_fail_override(), new Listener<MessageBoxEvent>() {
-
-                                            public void handleEvent(MessageBoxEvent be) {
-                                                if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                                    doLogicalDelete(url, true);
-                                                }
-                                            }
-                                        });
-                                        break;
-                                    case FORBIDDEN:
-                                        MessageBox.confirm(MessagesFactory.getMessages().error_title(), MessagesFactory
-                                                .getMessages().fk_integrity_fail_open_relations(),
-                                                new Listener<MessageBoxEvent>() {
-
-                                                    public void handleEvent(MessageBoxEvent be) {
-                                                        if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                                            service.getLineageEntity(itemBean.getConcept(),
-                                                                    new AsyncCallback<List<String>>() {
-
-                                                                        public void onSuccess(List<String> list) {
-                                                                            StringBuilder entityStr = new StringBuilder();
-                                                                            if (list != null) {
-                                                                                for (String str : list)
-                                                                                    entityStr.append(str).append(","); //$NON-NLS-1$
-                                                                                String arrStr = entityStr.toString().substring(0,
-                                                                                        entityStr.length() - 1);
-                                                                                String ids = itemBean.getIds();
-                                                                                if (ids == null || "".equals(ids.trim()))
-                                                                                    ids = "";
-                                                                                initSearchEntityPanel(arrStr, ids,
-                                                                                        itemBean.getConcept());
-                                                                            }
-                                                                        }
-
-                                                                        public void onFailure(Throwable caught) {
-                                                                            Dispatcher.forwardEvent(BrowseRecordsEvents.Error,
-                                                                                    caught);
-                                                                        }
-                                                                    });
-                                                        }
-                                                    }
-                                                });
-                                        break;
-                                    case ALLOWED:
-                                        doLogicalDelete(url, false);
-                                        break;
-                                    }
-                                }
-                            });
+                            PostDeleteAction postDeleteAction = new ContainerUpdate(NoOpPostDeleteAction.INSTANCE);
+                            DeleteAction deleteAction = new LogicalDeleteAction(be.getValue());
+                            service.checkFKIntegrity(Collections.singletonList(itemBean),
+                                        new DeleteCallback(deleteAction, postDeleteAction, service));
                         }
                     });
                 }
@@ -283,75 +225,9 @@ public class ItemDetailToolBar extends ToolBar {
 
                         public void handleEvent(MessageBoxEvent be) {
                             if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                PostDeleteAction postDeleteAction = new ContainerUpdate(NoOpPostDeleteAction.INSTANCE);
                                 service.checkFKIntegrity(Collections.singletonList(itemBean),
-                                        new AsyncCallback<FKIntegrityResult>() {
-
-                                            public void onFailure(Throwable caught) {
-                                                Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
-                                            }
-
-                                            public void onSuccess(FKIntegrityResult result) {
-                                                switch (result) {
-                                                case FORBIDDEN_OVERRIDE_ALLOWED:
-                                                    MessageBox.confirm(MessagesFactory.getMessages().error_title(),
-                                                            MessagesFactory.getMessages().fk_integrity_fail_override(),
-                                                            new Listener<MessageBoxEvent>() {
-
-                                                                public void handleEvent(MessageBoxEvent be) {
-                                                                    if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                                                        doItemDelete(true);
-                                                                    }
-                                                                }
-                                                            });
-                                                    break;
-                                                case FORBIDDEN:
-                                                    MessageBox.confirm(MessagesFactory.getMessages().error_title(),
-                                                            MessagesFactory.getMessages().fk_integrity_fail_open_relations(),
-                                                            new Listener<MessageBoxEvent>() {
-
-                                                                public void handleEvent(MessageBoxEvent be) {
-                                                                    if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                                                        service.getLineageEntity(itemBean.getConcept(),
-                                                                                new AsyncCallback<List<String>>() {
-
-                                                                                    public void onSuccess(List<String> list) {
-                                                                                        StringBuilder entityStr = new StringBuilder();
-                                                                                        if (list != null) {
-                                                                                            for (String str : list)
-                                                                                                entityStr.append(str).append(","); //$NON-NLS-1$
-                                                                                            String arrStr = entityStr
-                                                                                                    .toString()
-                                                                                                    .substring(
-                                                                                                            0,
-                                                                                                            entityStr.length() - 1);
-                                                                                            String ids = itemBean.getIds();
-                                                                                            if (ids == null
-                                                                                                    || "".equals(ids.trim()))
-                                                                                                ids = "";
-                                                                                            initSearchEntityPanel(arrStr, ids,
-                                                                                                    itemBean.getConcept());
-                                                                                        }
-                                                                                    }
-
-                                                                                    public void onFailure(Throwable caught) {
-                                                                                        Dispatcher
-                                                                                                .forwardEvent(
-                                                                                                        BrowseRecordsEvents.Error,
-                                                                                                        caught);
-                                                                                    }
-                                                                                });
-
-                                                                    }
-                                                                }
-                                                            });
-                                                    break;
-                                                case ALLOWED:
-                                                    doItemDelete(true);
-                                                    break;
-                                                }
-                                            }
-                                        });
-
+                                        new DeleteCallback(DeleteAction.PHYSICAL, postDeleteAction, service));
                             }
                         }
                     });
@@ -368,32 +244,11 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private void doLogicalDelete(String url, boolean override) {
-        service.logicalDeleteItem(itemBean, url, override, new AsyncCallback<ItemResult>() {
 
-            public void onSuccess(ItemResult arg0) {
-                ItemsListPanel.getInstance().refreshGrid();
-                ItemsDetailPanel.getInstance().closeCurrentTab();
-            }
-
-            public void onFailure(Throwable arg0) {
-
-            }
-        });
     }
 
     private void doItemDelete(boolean override) {
-        service.deleteItemBean(itemBean, override, new AsyncCallback<ItemResult>() {
 
-            public void onFailure(Throwable arg0) {
-
-            }
-
-            public void onSuccess(ItemResult arg0) {
-                ItemsListPanel.getInstance().refreshGrid();
-                ItemsDetailPanel.getInstance().closeCurrentTab();
-            }
-
-        });
     }
 
     private void addDuplicateButton() {
