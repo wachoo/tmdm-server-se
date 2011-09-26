@@ -19,10 +19,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.base.client.model.ItemBean;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
-import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 
 /**
  * DOC HSHU class global comment. Detailled comment

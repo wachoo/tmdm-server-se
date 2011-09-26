@@ -60,6 +60,7 @@
         <dependency>
             <groupId>dom4j</groupId>
             <artifactId>dom4j</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>jaxen</groupId>
@@ -79,6 +80,14 @@
         </dependency>
 
         <!-- MDM dependencies -->
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.webapp.base</artifactId>
+            <version>${project.version}</version>
+            <scope>system</scope>
+            <systemPath>${tom.location}/org.talend.mdm.webapp.base/target/org.talend.mdm.webapp.base.jar</systemPath>
+        </dependency>
+            
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.webapp.core</artifactId>

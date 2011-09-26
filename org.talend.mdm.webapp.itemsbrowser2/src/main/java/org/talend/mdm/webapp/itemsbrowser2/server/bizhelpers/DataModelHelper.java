@@ -25,14 +25,14 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import org.talend.mdm.webapp.base.server.BaseConfiguration;
+import org.talend.mdm.webapp.base.server.util.CommonUtil;
+import org.talend.mdm.webapp.base.shared.FacetModel;
+import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.creator.DataTypeCreator;
-import org.talend.mdm.webapp.itemsbrowser2.server.ItemsBrowserConfiguration;
-import org.talend.mdm.webapp.itemsbrowser2.server.util.CommonUtil;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
-import org.talend.mdm.webapp.itemsbrowser2.shared.FacetModel;
-import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
-import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -85,7 +85,7 @@ public class DataModelHelper {
     private static XSElementDecl getBusinessConcept(String model, String concept) {
         XSElementDecl eleDecl = null;
         try {
-            if (!ItemsBrowserConfiguration.isStandalone()) {
+            if (!BaseConfiguration.isStandalone()) {
                 eleDecl = SchemaWebAgent.getInstance().getBusinessConcept(concept).getE();
             } else {
                 String xsd = CommonUtil.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(model))).getXsdSchema();

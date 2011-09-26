@@ -12,9 +12,10 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.shared;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.talend.mdm.webapp.base.shared.TypeModel;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 

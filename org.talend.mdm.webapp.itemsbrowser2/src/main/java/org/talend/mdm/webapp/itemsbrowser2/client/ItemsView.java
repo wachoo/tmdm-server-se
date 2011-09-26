@@ -17,19 +17,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.talend.mdm.webapp.base.client.model.ItemBean;
+import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService;
 import org.talend.mdm.webapp.itemsbrowser2.client.creator.CellEditorCreator;
 import org.talend.mdm.webapp.itemsbrowser2.client.creator.CellRendererCreator;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.ViewUtil;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ItemsFormPanel;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ItemsSearchContainer;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.creator.FieldCreator;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
-import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
-import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.allen_sauer.gwt.log.client.Log;

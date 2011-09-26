@@ -23,10 +23,10 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
+import org.talend.mdm.webapp.base.server.mockup.FakeData;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.DataModelHelper;
-import org.talend.mdm.webapp.itemsbrowser2.server.mockup.FakeData;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
-import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 
 import com.sun.xml.xsom.XSElementDecl;
 import com.sun.xml.xsom.XSSchemaSet;

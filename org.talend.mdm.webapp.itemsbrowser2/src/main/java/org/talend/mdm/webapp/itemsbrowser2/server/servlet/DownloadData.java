@@ -17,9 +17,9 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.Node;
+import org.talend.mdm.webapp.base.server.util.CommonUtil;
+import org.talend.mdm.webapp.base.server.util.XmlUtil;
 import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.ViewHelper;
-import org.talend.mdm.webapp.itemsbrowser2.server.util.CommonUtil;
-import org.talend.mdm.webapp.itemsbrowser2.server.util.XmlUtil;
 
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;

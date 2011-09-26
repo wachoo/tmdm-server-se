@@ -1,8 +1,8 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.celleditor;
 
+import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.base.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ItemsSearchContainer;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ForeignKey.FKField;
 

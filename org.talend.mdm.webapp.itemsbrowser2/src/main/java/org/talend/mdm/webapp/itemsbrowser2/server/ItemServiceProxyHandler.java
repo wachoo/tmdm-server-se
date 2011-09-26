@@ -12,8 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.server;
 
+import org.talend.mdm.webapp.base.server.mockup.FakeData;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsService;
-import org.talend.mdm.webapp.itemsbrowser2.server.mockup.FakeData;
 
 /**
  * DOC HSHU class global comment. Detailled comment

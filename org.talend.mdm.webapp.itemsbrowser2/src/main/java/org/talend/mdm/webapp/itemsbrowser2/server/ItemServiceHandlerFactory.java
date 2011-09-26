@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.server;
 
+import org.talend.mdm.webapp.base.server.BaseConfiguration;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsService;
 
 public class ItemServiceHandlerFactory {
@@ -28,7 +29,7 @@ public class ItemServiceHandlerFactory {
      */
     public static ItemsService createHandler() {
         
-        if (!ItemsBrowserConfiguration.isStandalone()) {
+        if (!BaseConfiguration.isStandalone()) {
             return new ItemServiceHandler();
         } else {
             return new ItemServiceProxyHandler();

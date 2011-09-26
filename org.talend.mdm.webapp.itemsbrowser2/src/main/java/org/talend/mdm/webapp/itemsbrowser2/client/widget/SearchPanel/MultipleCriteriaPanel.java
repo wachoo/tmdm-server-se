@@ -12,12 +12,12 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel;
 
+import org.talend.mdm.webapp.base.client.model.Criteria;
+import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
+import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
+import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.Criteria;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.OperatorConstants;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 

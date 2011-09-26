@@ -12,7 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.util;
 
-import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 
 
 /**

@@ -17,9 +17,9 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
-import org.talend.mdm.webapp.itemsbrowser2.server.util.DynamicLabelUtil;
+import org.talend.mdm.webapp.base.server.util.DynamicLabelUtil;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
-import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 
 import com.amalto.webapp.util.webservices.WSView;
 

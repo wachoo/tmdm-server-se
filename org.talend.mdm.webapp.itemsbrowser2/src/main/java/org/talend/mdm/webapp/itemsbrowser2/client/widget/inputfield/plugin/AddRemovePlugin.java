@@ -12,8 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.plugin;
 
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
-import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 
 import com.extjs.gxt.ui.client.binding.FormBinding;
 import com.extjs.gxt.ui.client.event.BaseEvent;

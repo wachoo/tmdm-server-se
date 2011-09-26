@@ -1,9 +1,9 @@
 package org.talend.mdm.webapp.itemsbrowser2.client;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.itemsbrowser2.client.boundary.PubService;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.ItemsbrowserMessages;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.itemsbrowser2.client.util.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
 

@@ -15,16 +15,16 @@ package org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ForeignKey.FKField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ForeignKey.ReturnCriteriaFK;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.ComboBoxField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.creator.SearchFieldCreator;
-import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.allen_sauer.gwt.log.client.Log;

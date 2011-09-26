@@ -14,7 +14,8 @@ package org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.creator;
 
 import java.util.List;
 
-import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ForeignKey.FKField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.BooleanField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.DateTimeField;
@@ -29,13 +30,13 @@ import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.converter.Nu
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.validator.NumberFieldValidator;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.validator.TextFieldValidator;
 import org.talend.mdm.webapp.itemsbrowser2.shared.FacetEnum;
-import org.talend.mdm.webapp.itemsbrowser2.shared.FacetModel;
-import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
-import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
+import org.talend.mdm.webapp.base.shared.FacetModel;
+import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 
 import com.extjs.gxt.ui.client.binding.FieldBinding;
 import com.extjs.gxt.ui.client.binding.FormBinding;
 import com.extjs.gxt.ui.client.binding.SimpleComboBoxFieldBinding;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -43,7 +44,6 @@ import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.ui.Widget;
 
 public class FieldCreator {

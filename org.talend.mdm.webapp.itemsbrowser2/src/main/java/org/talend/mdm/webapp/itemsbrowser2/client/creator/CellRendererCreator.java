@@ -12,10 +12,10 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.creator;
 
-import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
-import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.base.client.model.ItemBean;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -23,11 +23,10 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
-
 public class CellRendererCreator {
 
-    public static GridCellRenderer<ModelData> createRenderer(TypeModel dataType, final String xpath){
-        if (dataType.getType().equals(DataTypeConstants.URL)){
+    public static GridCellRenderer<ModelData> createRenderer(TypeModel dataType, final String xpath) {
+        if (dataType.getType().equals(DataTypeConstants.URL)) {
             GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
 
                 public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,

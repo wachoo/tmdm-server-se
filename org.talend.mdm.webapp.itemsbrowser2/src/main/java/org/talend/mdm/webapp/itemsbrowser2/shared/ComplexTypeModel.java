@@ -15,46 +15,42 @@ package org.talend.mdm.webapp.itemsbrowser2.shared;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.talend.mdm.webapp.itemsbrowser2.client.model.DataType;
-
+import org.talend.mdm.webapp.base.client.model.DataType;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 
 /**
- * DOC chliu  class global comment. Detailled comment
+ * DOC chliu class global comment. Detailled comment
  */
 public class ComplexTypeModel extends TypeModel {
 
+    private static final long serialVersionUID = 1L;
+
     private List<TypeModel> subTypes = new ArrayList<TypeModel>();
-    
-    /**
-     * DOC HSHU ComplexTypeModel constructor comment.
-     */
+
     public ComplexTypeModel() {
         super();
     }
- 
-    public ComplexTypeModel(String name,DataType dataType) {
-        super(name,dataType);
+
+    public ComplexTypeModel(String name, DataType dataType) {
+        super(name, dataType);
     }
 
     public List<TypeModel> getSubTypes() {
         return subTypes;
     }
 
-    
-    /**
-     * DOC HSHU Comment method "addSubType".
-     */
     public void addSubType(TypeModel subType) {
-        
-        if(this.subTypes!=null)subTypes.add(subType);
 
+        if (this.subTypes != null)
+            subTypes.add(subType);
     }
-    
 
+    @Override
     public boolean isSimpleType() {
         return false;
     }
 
+    @Override
     public boolean hasEnumeration() {
         return false;
     }

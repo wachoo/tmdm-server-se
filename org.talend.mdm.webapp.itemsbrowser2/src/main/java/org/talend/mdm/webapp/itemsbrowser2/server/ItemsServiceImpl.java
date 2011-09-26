@@ -15,36 +15,32 @@ package org.talend.mdm.webapp.itemsbrowser2.server;
 import java.util.List;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 
+import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
+import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
+import org.talend.mdm.webapp.base.client.model.ItemBean;
+import org.talend.mdm.webapp.base.server.AbstractService;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsService;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyDrawer;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.Restriction;
 import org.talend.mdm.webapp.itemsbrowser2.server.i18n.ItemsbrowserMessagesImpl;
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
-import org.talend.mdm.webapp.itemsbrowser2.shared.SessionTimeOutException;
-import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
-import com.google.gwt.user.client.rpc.SerializationException;
-import com.google.gwt.user.server.rpc.RPC;
-import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 /**
  * The server side implementation of the RPC service.
  */
 @SuppressWarnings("serial")
-public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsService {
+public class ItemsServiceImpl extends AbstractService implements ItemsService {
 
     @Override
     public void init() throws ServletException {
@@ -52,17 +48,6 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         MessagesFactory.setMessages(new ItemsbrowserMessagesImpl());
     }
 
-    @Override
-    public String processCall(String payload) throws SerializationException {
-        HttpServletRequest request = getThreadLocalRequest();
-        if (request.getSession(false) == null || request.getSession(false).isNew()) {
-            // Session is invalid
-            return RPC.encodeResponseForFailure(null, new SessionTimeOutException());
-        } else {
-            return super.processCall(payload);
-        }
-    }
-    
     private static ItemsService itemsServiceHandler = ItemServiceHandlerFactory.createHandler();
 
     public ItemBasePageLoadResult<ItemBean> queryItemBeans(QueryModel config) {

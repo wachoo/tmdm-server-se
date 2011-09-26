@@ -18,8 +18,8 @@ import java.util.List;
 import javax.security.jacc.PolicyContextException;
 
 import org.apache.log4j.Logger;
-import org.talend.mdm.webapp.itemsbrowser2.server.ItemsBrowserConfiguration;
-import org.talend.mdm.webapp.itemsbrowser2.server.mockup.FakeData;
+import org.talend.mdm.webapp.base.server.BaseConfiguration;
+import org.talend.mdm.webapp.base.server.mockup.FakeData;
 
 import com.amalto.webapp.core.util.Util;
 
@@ -35,7 +35,7 @@ public class RoleHelper {
      */
     public static List<String> getUserRoles() {
         List<String> roles = new ArrayList<String>();
-        if (!ItemsBrowserConfiguration.isStandalone()) {
+        if (!BaseConfiguration.isStandalone()) {
             try {
                 roles = Util.getAjaxSubject().getRoles();
             } catch (PolicyContextException e) {
@@ -54,7 +54,7 @@ public class RoleHelper {
      */
     public static String getCurrentUserName() {
         String userName= "";//$NON-NLS-1$
-        if (!ItemsBrowserConfiguration.isStandalone()) {
+        if (!BaseConfiguration.isStandalone()) {
             try {
                 userName = Util.getLoginUserName();
             } catch (Exception e) {
