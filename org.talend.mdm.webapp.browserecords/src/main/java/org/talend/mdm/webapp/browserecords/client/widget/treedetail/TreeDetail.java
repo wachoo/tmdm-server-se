@@ -137,6 +137,9 @@ public class TreeDetail extends ContentPanel {
         if (item == null) {
             item = new DynamicTreeItem();
             item.setItemNodeModel(itemNode);
+            if (itemNode.getRealType() != null && itemNode.getRealType().trim().length() > 0) {
+                item.setState(true);
+            }
             item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, handler));
         }
         if (itemNode.getChildren() != null && itemNode.getChildren().size() > 0) {
@@ -163,30 +166,24 @@ public class TreeDetail extends ContentPanel {
 
     public void onUpdatePolymorphism(ComplexTypeModel typeModel) {
         DynamicTreeItem item = (DynamicTreeItem) tree.getSelectedItem();
-        ItemNodeModel treeNode = item.getItemNodeModel();
-        List<ComplexTypeModel> reusableTypes = typeModel.getReusableComplexTypes();
-        if (reusableTypes != null) {
-            for (ComplexTypeModel model : reusableTypes) {
-                if (model.getName().equals(typeModel.getRealType())) {
-                    String xPath = treeNode.getBindingPath();
-                    viewBean.getBindingEntityModel().getMetaDataTypes().get(xPath).setRealType(model);
-                    if (item.getItemNodeModel() == treeNode) {
-                        item.removeItems();
-                        List<ItemNodeModel> items = CommonUtil.getDefaultTreeModel(model);
-                        if (items != null && items.size() > 0) {
-                            List<ItemNodeModel> childrenItems = new ArrayList<ItemNodeModel>();
-                            for (ModelData modelData : items.get(0).getChildren()) {
-                                childrenItems.add((ItemNodeModel) modelData);
-                            }
-                            treeNode.setChildNodes(childrenItems);
-                        }
-                        buildGWTTree(treeNode, item, false);
-                        break;
-                    }
-
-                }
-            }
+        if (item == null) {
+            return;
         }
+        item.setState(true);
+        ItemNodeModel treeNode = item.getItemNodeModel();
+        treeNode.setRealType(typeModel.getName());
+        item.removeItems();
+
+        List<ItemNodeModel> items = CommonUtil.getDefaultTreeModel(typeModel);
+        if (items != null && items.size() > 0) {
+            List<ItemNodeModel> childrenItems = new ArrayList<ItemNodeModel>();
+            for (ModelData modelData : items.get(0).getChildren()) {
+                childrenItems.add((ItemNodeModel) modelData);
+            }
+            treeNode.setChildNodes(childrenItems);
+        }
+        buildGWTTree(treeNode, item, true);
+
     }
 
     public void onExecuteVisibleRule(List<VisibleRuleResult> visibleResults) {

@@ -114,13 +114,17 @@ public class TreeDetailGridFieldCreator {
 
                 @Override
                 public void selectionChanged(SelectionChangedEvent<ComboBoxModel> se) {
-                    ComplexTypeModel reusableType = comboxField.getValue().get("reusableType"); //$NON-NLS-1$
-                    dataType.setRealType(reusableType);
-                    Dispatcher.forwardEvent(BrowseRecordsEvents.UpdatePolymorphism, dataType);
+                    if (se.getSelectedItem() == null) {
+                        return;
+                    }
+                    ComplexTypeModel reusableType = se.getSelectedItem().get("reusableType"); //$NON-NLS-1$
+                    Dispatcher.forwardEvent(BrowseRecordsEvents.UpdatePolymorphism, reusableType);
                 }
 
             });
-            if (hasValue) {
+            if (node.getRealType() != null && node.getRealType().trim().length() > 0) {
+                comboxField.setValue(comboxStore.findModel("value", node.getRealType())); //$NON-NLS-1$
+            } else if (hasValue) {
                 comboxField.setValue(comboxStore.findModel(value.toString(), value));
             }
 

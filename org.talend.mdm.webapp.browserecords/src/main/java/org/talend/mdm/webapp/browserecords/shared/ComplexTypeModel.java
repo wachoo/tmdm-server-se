@@ -38,26 +38,18 @@ public class ComplexTypeModel extends TypeModel {
     }
 
     public List<TypeModel> getSubTypes() {
-        return getRealTypeModel().subTypes;
+        return this.subTypes;
     }
 
     /**
      * DOC HSHU Comment method "addSubType".
      */
     public void addSubType(TypeModel subType) {
-        if (getRealTypeModel().subTypes != null) {
-            getRealTypeModel().subTypes.add(subType);
+        if (this.subTypes != null) {
+            this.subTypes.add(subType);
         }
     }
 
-    private ComplexTypeModel getRealTypeModel() {
-        for (TypeModel tm : reusableTypes) {
-            if (tm.getName().equals(this.getRealType())) {
-                return (ComplexTypeModel) tm;
-            }
-        }
-        return this;
-    }
     
     public void addComplexReusableTypes(ComplexTypeModel reusableType) {
         reusableTypes.add(reusableType);

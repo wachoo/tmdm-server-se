@@ -243,10 +243,6 @@ public class DataModelHelper {
                         parentType.addComplexReusableTypes(reusableComplexType);
                     }
                 }
-                if (parentType.getReusableComplexTypes().size() > 0) {
-                    typeModel.setRealType(parentType.getReusableComplexTypes().get(0));
-                }
-
             }
 
         } else if (e.getType().isSimpleType()) {

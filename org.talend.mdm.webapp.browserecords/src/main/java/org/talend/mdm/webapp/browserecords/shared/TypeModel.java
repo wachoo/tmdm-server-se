@@ -74,8 +74,6 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     private boolean isAbstract = false;
 
-    private ComplexTypeModel realType;
-
     private String defaultValueExpression;
 
     private String defaultValue;
@@ -192,14 +190,6 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     public void setReusableTypes(ArrayList<SubTypeBean> subTypes) {
         this.reusableTypes = subTypes;
-    }
-
-    public ComplexTypeModel getRealType() {
-        return realType;
-    }
-
-    public void setRealType(ComplexTypeModel realType) {
-        this.realType = realType;
     }
 
     public int getMinOccurs() {
@@ -355,4 +345,8 @@ public abstract class TypeModel implements Serializable, IsSerializable {
     public abstract boolean isSimpleType();
 
     public abstract boolean hasEnumeration();
+
+    public String toString() {
+        return this.getName();
+    }
 }

@@ -28,6 +28,8 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
     
     private String dynamicLabel;
     
+    private String realType;
+
     private boolean visible = true;
 
 	public boolean isVisible() {
@@ -82,7 +84,20 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
     }
 
     public String toString() {
-        return getName();
+        return _toString(""); //$NON-NLS-1$
+    }
+
+    private String _toString(String pre) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(pre + getName() + "\n"); //$NON-NLS-1$
+        List<ModelData> children = this.getChildren();
+        if (children != null) {
+            for (ModelData child : children) {
+                ItemNodeModel childModel = (ItemNodeModel) child;
+                sb.append(childModel._toString(pre + "    ")); //$NON-NLS-1$
+            }
+        }
+        return sb.toString();
     }
 
     public String toValue() {
@@ -151,7 +166,6 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
         }
     }
 
-
     public void setLabel(String label) {
         this.label = label;
     }
@@ -160,6 +174,13 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
         return label;
     }
 
+    public String getRealType() {
+        return realType;
+    }
+
+    public void setRealType(String realType) {
+        this.realType = realType;
+    }
 
     public ItemNodeModel clone(boolean withValue) {
         ItemNodeModel clonedModel = new ItemNodeModel(get("name").toString()); //$NON-NLS-1$

@@ -58,8 +58,8 @@ public class CommonUtil {
             }
         }
 
-        if (typeModel.getRealType() != null) {
-            root.setAttribute("xsi:type", typeModel.getRealType().getName()); //$NON-NLS-1$
+        if (nodeModel.getRealType() != null) {
+            root.setAttribute("xsi:type", nodeModel.getRealType()); //$NON-NLS-1$
         }
 
         List<ModelData> children = nodeModel.getChildren();
@@ -69,7 +69,6 @@ public class CommonUtil {
                 root.appendChild(el);
             }
         }
-
         return root;
     }
 

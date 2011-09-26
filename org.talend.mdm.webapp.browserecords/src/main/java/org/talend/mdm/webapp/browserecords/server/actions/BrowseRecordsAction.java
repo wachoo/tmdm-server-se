@@ -44,7 +44,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.xpath.XPathExpressionException;
 
-import com.amalto.core.integrity.FKIntegrityCheckResult;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentException;
@@ -95,6 +94,7 @@ import org.xml.sax.InputSource;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.integrity.FKIntegrityCheckResult;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
@@ -149,8 +149,6 @@ import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
-import com.sun.org.apache.xpath.internal.XPathAPI;
-import com.sun.org.apache.xpath.internal.objects.XObject;
 import com.sun.xml.xsom.XSAnnotation;
 import com.sun.xml.xsom.XSComplexType;
 import com.sun.xml.xsom.XSElementDecl;
@@ -1465,10 +1463,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         xpath += (xpath == "" ? el.getNodeName():"/" + el.getNodeName());      //$NON-NLS-1$//$NON-NLS-2$
         ItemNodeModel nodeModel = new ItemNodeModel(el.getNodeName());
         TypeModel model = metaDataTypes.get(xpath);
+
+        if (el.getAttribute("xsi:type") != null && el.getAttribute("xsi:type").trim().length() > 0) { //$NON-NLS-1$ //$NON-NLS-2$
+            nodeModel.setRealType(el.getAttribute("xsi:type")); //$NON-NLS-1$
+        }
         nodeModel.setLabel(model.getLabel(language));
         nodeModel.setDescription(model.getDescriptionMap().get(language));
         nodeModel.setName(el.getNodeName());
-        nodeModel.setObjectValue(el.getTextContent());
+
         if (!"".equals(metaDataTypes.get(xpath).getForeignkey()) && metaDataTypes.get(xpath).getForeignkey() != null) { //$NON-NLS-1$
 
             model.setRetrieveFKinfos(true);
@@ -1485,7 +1487,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             } else {
                 nodeModel.setObjectValue(getForeignKeyDesc(model, el.getTextContent()));
             }
+        } else if (model.isSimpleType()) {
+            nodeModel.setObjectValue(el.getTextContent());
         }
+
         NodeList children = el.getChildNodes();
         if (children != null){
             for (int i = 0;i < children.getLength();i++){
@@ -2007,13 +2012,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     String xpath = iterator.next();
                     String firstValue = Util.getFirstTextNode(jobDoc, searchPrefix + xpath);// FIXME:use first node
                     if (null != firstValue && firstValue.length() != 0) {
-                        XObject xObjectWSItem = XPathAPI.eval(wsItemDoc, xpath, wsItemDoc);
-                        if (xObjectWSItem != null) {
-                            NodeList wSItemNodes = xObjectWSItem.nodelist();
-                            if (wSItemNodes.item(0) != null) {
-                                wSItemNodes.item(0).setTextContent(firstValue);
-                            }
-                        }
+                        // XObject xObjectWSItem = XPathAPI.eval(wsItemDoc, xpath, wsItemDoc);
+                        // if (xObjectWSItem != null) {
+                        // NodeList wSItemNodes = xObjectWSItem.nodelist();
+                        // if (wSItemNodes.item(0) != null) {
+                        // wSItemNodes.item(0).setTextContent(firstValue);
+                        // }
+                        // }
                     }
                 }
                 wsItem.setContent(Util.nodeToString(wsItemDoc));
