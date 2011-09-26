@@ -43,6 +43,11 @@ public class ItemsDetailPanel extends ContentPanel {
         return instance;
     }
 
+    protected void onDetach() {
+    	super.onDetach();
+    	instance = null;
+    }
+    
     private ItemsDetailPanel() {
         super();
         this.setBodyBorder(false);

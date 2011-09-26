@@ -36,7 +36,13 @@ import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKRelRecordW
 import org.talend.mdm.webapp.browserecords.client.widget.SearchPanel.AdvancedSearchPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.SearchPanel.SimpleCriterionPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
-import org.talend.mdm.webapp.browserecords.client.widget.integrity.*;
+import org.talend.mdm.webapp.browserecords.client.widget.integrity.ContainerUpdate;
+import org.talend.mdm.webapp.browserecords.client.widget.integrity.DeleteAction;
+import org.talend.mdm.webapp.browserecords.client.widget.integrity.DeleteCallback;
+import org.talend.mdm.webapp.browserecords.client.widget.integrity.ListRefresh;
+import org.talend.mdm.webapp.browserecords.client.widget.integrity.LogicalDeleteAction;
+import org.talend.mdm.webapp.browserecords.client.widget.integrity.NoOpPostDeleteAction;
+import org.talend.mdm.webapp.browserecords.client.widget.integrity.PostDeleteAction;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -73,11 +79,11 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -147,13 +153,19 @@ public class ItemsToolBar extends ToolBar {
 
     /*************************************/
 
-    private static ItemsToolBar instance1;
-
+    private static ItemsToolBar instance;
+    
     public static ItemsToolBar getInstance() {
-        if (instance1 == null) {
-            instance1 = new ItemsToolBar();
+        if (instance == null) {
+            instance = new ItemsToolBar();
         }
-        return instance1;
+        
+        return instance;
+    }
+
+    protected void onDetach() {
+    	super.onDetach();
+    	instance = null;
     }
 
     private ItemsToolBar() {

@@ -143,6 +143,11 @@ public class ItemsListPanel extends ContentPanel {
         }
         return instance;
     }
+    
+    protected void onDetach() {
+    	super.onDetach();
+    	instance = null;
+    }
 
     private ItemsListPanel() {
         setLayout(new FitLayout());

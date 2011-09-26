@@ -35,6 +35,11 @@ public class ItemsSearchContainer extends LayoutContainer {
         return instance;
     }
 
+    protected void onDetach() {
+    	super.onDetach();
+    	instance = null;
+    }
+    
     private ItemsSearchContainer() {
         setLayout(new BorderLayout());
         setBorders(false);
