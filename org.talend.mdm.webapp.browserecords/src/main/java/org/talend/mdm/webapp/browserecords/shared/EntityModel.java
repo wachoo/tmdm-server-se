@@ -48,7 +48,7 @@ public class EntityModel implements IsSerializable {
     }
 
     public void setKeys(String[] keys) {
-        this.keys = new String[] { "Agent/Id" };
+        this.keys = keys;
     }
 
     public Map<String, TypeModel> getMetaDataTypes() {
