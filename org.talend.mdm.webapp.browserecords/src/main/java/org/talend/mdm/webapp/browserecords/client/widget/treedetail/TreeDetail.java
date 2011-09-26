@@ -61,9 +61,10 @@ public class TreeDetail extends ContentPanel {
                     // clone a new item
                     ItemNodeModel model = selected.getItemNodeModel().clone(
                             "Clone".equals(arg0.getRelativeElement().getId()) ? true : false); //$NON-NLS-1$
-                    // TODO if it has default value
-                    // model.setObjectValue(null);
-                    parentItem.insertItem(buildGWTTree(model, null), parentItem.getChildIndex(selected) + 1);
+                    // if it has default value
+                    if (viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getDefaultValue() != null)
+                        model.setObjectValue(viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getDefaultValue());
+                    parentItem.insertItem(buildGWTTree(model, null, true), parentItem.getChildIndex(selected) + 1);
                     occurMap.put(countMapItem, count + 1);
                 } else
                     MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
@@ -132,7 +133,7 @@ public class TreeDetail extends ContentPanel {
         renderTree(models.get(0));
     }
 
-    private DynamicTreeItem buildGWTTree(ItemNodeModel itemNode, DynamicTreeItem item) {
+    private DynamicTreeItem buildGWTTree(ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue) {
         if (item == null) {
             item = new DynamicTreeItem();
             item.setItemNodeModel(itemNode);
@@ -141,7 +142,12 @@ public class TreeDetail extends ContentPanel {
         if (itemNode.getChildren() != null && itemNode.getChildren().size() > 0) {
             for (ModelData model : itemNode.getChildren()) {
                 ItemNodeModel node = (ItemNodeModel) model;
-                item.addItem(buildGWTTree(node, null));
+                if (withDefaultValue
+                        && viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath()).getDefaultValue() != null
+                        && (node.getObjectValue() == null || node.getObjectValue().equals(""))) //$NON-NLS-1$
+                    node.setObjectValue(viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath())
+                            .getDefaultValue());
+                item.addItem(buildGWTTree(node, null, withDefaultValue));
                 int count = 0;
                 CountMapItem countMapItem = new CountMapItem(node.getBindingPath(), item);
                 if (occurMap.containsKey(countMapItem))
@@ -174,7 +180,7 @@ public class TreeDetail extends ContentPanel {
                             }
                             treeNode.setChildNodes(childrenItems);
                         }
-                        buildGWTTree(treeNode, item);
+                        buildGWTTree(treeNode, item, false);
                         break;
                     }
 
@@ -212,7 +218,7 @@ public class TreeDetail extends ContentPanel {
     }
 
     private void renderTree(ItemNodeModel rootModel) {
-        root = buildGWTTree(rootModel, null);
+        root = buildGWTTree(rootModel, null, false);
         root.setState(true);
         tree = new Tree();
         tree.addItem(root);
