@@ -116,8 +116,9 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     public void buildPanel(final ViewBean viewBean) {
         ItemNodeModel rootModel;
         if (this.model == null && this.isCreate) {
-            List<ItemNodeModel> models = CommonUtil.getDefaultTreeModel(viewBean.getBindingEntityModel().getMetaDataTypes()
-                    .get(viewBean.getBindingEntityModel().getConceptName()));
+            List<ItemNodeModel> models = CommonUtil.getDefaultTreeModel(
+                    viewBean.getBindingEntityModel().getMetaDataTypes().get(viewBean.getBindingEntityModel().getConceptName()),
+                    Locale.getLanguage());
             rootModel = models.get(0);
         } else
             rootModel = this.model;
@@ -149,7 +150,8 @@ public class ForeignKeyTreeDetail extends ContentPanel {
 
     public void refreshTree() {
         BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
-        ItemBean item = fkModel.getItemBean();
+        final ItemBean item = fkModel.getItemBean();
+        item.set("isRefresh", true); //$NON-NLS-1$
         service.getItemNodeModel(item, viewBean.getBindingEntityModel(), Locale.getLanguage(),
                 new AsyncCallback<ItemNodeModel>() {
 
@@ -157,6 +159,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                         fkModel.setNodeModel(nodeModel);
                         model = nodeModel;
                         ForeignKeyTreeDetail.this.getItem(0).removeFromParent();
+                        item.set("time", nodeModel.get("time")); //$NON-NLS-1$ //$NON-NLS-2$
                         renderTree(nodeModel);
                         ForeignKeyTreeDetail.this.layout();
                     }
@@ -198,6 +201,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                 }
                 item.addItem(buildGWTTree(node));
             }
+            item.getElement().getStyle().setPaddingLeft(3.0, Unit.PX);
         }
 
         return item;
@@ -212,8 +216,6 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                     ItemNodeModel node = (ItemNodeModel) child.getUserObject();
                     if (node.getBindingPath().equals(ce.getxPath())) {
                         tree.addItem(child);
-                        if (child.getChildCount() > 0)
-                            child.getElement().getStyle().setPaddingLeft(3.0, Unit.PX);
                         break;
                     }
                 }

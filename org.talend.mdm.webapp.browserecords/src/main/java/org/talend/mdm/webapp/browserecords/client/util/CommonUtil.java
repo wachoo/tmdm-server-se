@@ -72,7 +72,7 @@ public class CommonUtil {
         return root;
     }
 
-    public static List<ItemNodeModel> getDefaultTreeModel(TypeModel model) {
+    public static List<ItemNodeModel> getDefaultTreeModel(TypeModel model, String language) {
         List<ItemNodeModel> itemNodes = new ArrayList<ItemNodeModel>();
 
         if (model.getMinOccurs() > 1 && model.getMaxOccurs() > model.getMinOccurs()) {
@@ -95,14 +95,14 @@ public class CommonUtil {
                 List<TypeModel> children = complexModel.getSubTypes();
                 List<ItemNodeModel> list = new ArrayList<ItemNodeModel>();
                 for (TypeModel typeModel : children) {
-                    list.addAll(getDefaultTreeModel(typeModel));
+                    list.addAll(getDefaultTreeModel(typeModel, language));
                 }
                 node.setChildNodes(list);
             }
             node.setName(model.getName());
             node.setBindingPath(model.getXpath());
-            node.setDescription(model.getDescriptionMap().get(Locale.getLanguage()));
-            node.setLabel(model.getLabel(Locale.getLanguage()));
+            node.setDescription(model.getDescriptionMap().get(language));
+            node.setLabel(model.getLabel(language));
         }
         return itemNodes;
     }

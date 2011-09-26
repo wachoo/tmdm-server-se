@@ -110,4 +110,6 @@ public interface BrowseRecordsServiceAsync {
     void getItemBeanById(String concept, String[] ids, String language, AsyncCallback<ItemBean> callback);
 
     void executeVisibleRule(String xml, AsyncCallback<List<VisibleRuleResult>> asyncCallback);
+
+    void isItemModifiedByOthers(ItemBean itemBean, AsyncCallback<Boolean> callback);
 }

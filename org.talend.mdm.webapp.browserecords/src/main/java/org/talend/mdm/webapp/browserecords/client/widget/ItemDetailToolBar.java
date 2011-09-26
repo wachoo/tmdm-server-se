@@ -13,7 +13,12 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
-import org.talend.mdm.webapp.browserecords.client.widget.integrity.*;
+import org.talend.mdm.webapp.browserecords.client.widget.integrity.ContainerUpdate;
+import org.talend.mdm.webapp.browserecords.client.widget.integrity.DeleteAction;
+import org.talend.mdm.webapp.browserecords.client.widget.integrity.DeleteCallback;
+import org.talend.mdm.webapp.browserecords.client.widget.integrity.LogicalDeleteAction;
+import org.talend.mdm.webapp.browserecords.client.widget.integrity.NoOpPostDeleteAction;
+import org.talend.mdm.webapp.browserecords.client.widget.integrity.PostDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTreeDetail;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -332,34 +337,49 @@ public class ItemDetailToolBar extends ToolBar {
 
     }
 
-    private void refreshTree(final ItemPanel itemPanel, final ForeignKeyTreeDetail fkTree, ItemNodeModel root) {
-        if (isChangeValue(root)) {
-            MessageBox
-                    .confirm(MessagesFactory.getMessages().confirm_title(),
-                            MessagesFactory.getMessages().msg_confirm_refresh_tree_detail(), new Listener<MessageBoxEvent>() {
+    private void refreshTree(final ItemPanel itemPanel, final ForeignKeyTreeDetail fkTree, final ItemNodeModel root) {
+        ItemBean itemBean = isFkToolBar ? fkTree.getFkModel().getItemBean() : itemPanel.getItem();
+        service.isItemModifiedByOthers(itemBean, new AsyncCallback<Boolean>() {
 
-                                public void handleEvent(MessageBoxEvent be) {
-                                    if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                        if (isFkToolBar)
-                                            fkTree.refreshTree();
-                                        else
-                                            itemPanel.refreshTree();
-                                    }
-                                }
-                            }).getDialog().setWidth(600);
-        } else {
-            if (isFkToolBar)
-                fkTree.refreshTree();
-            else
-                itemPanel.refreshTree();
-        }
+            public void onSuccess(Boolean result) {
+                if (isChangeValue(root) || result) {
+                    MessageBox
+                            .confirm(MessagesFactory.getMessages().confirm_title(),
+                                    MessagesFactory.getMessages().msg_confirm_refresh_tree_detail(),
+                                    new Listener<MessageBoxEvent>() {
+
+                                        public void handleEvent(MessageBoxEvent be) {
+                                            if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+                                                if (isFkToolBar)
+                                                    fkTree.refreshTree();
+                                                else
+                                                    itemPanel.refreshTree();
+                                            }
+                                        }
+                                    }).getDialog().setWidth(600);
+                } else {
+                    if (isFkToolBar)
+                        fkTree.refreshTree();
+                    else
+                        itemPanel.refreshTree();
+                }
+            }
+
+            public void onFailure(Throwable caught) {
+                Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
+                MessageBox.alert(MessagesFactory.getMessages().refresh_tip(), MessagesFactory.getMessages().refresh_tip()
+                        + " " + MessagesFactory.getMessages().message_fail(), null); //$NON-NLS-1$
+            }
+
+        });
     }
 
     private boolean isChangeValue(ItemNodeModel model) {
         if (model.isChangeValue())
             return true;
         for (ModelData node : model.getChildren()) {
-            return isChangeValue((ItemNodeModel) node);
+            if (isChangeValue((ItemNodeModel) node))
+                return true;
         }
         return false;
     }

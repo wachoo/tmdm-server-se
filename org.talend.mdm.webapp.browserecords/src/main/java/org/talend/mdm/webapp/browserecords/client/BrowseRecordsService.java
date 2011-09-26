@@ -111,4 +111,6 @@ public interface BrowseRecordsService extends RemoteService {
     ItemBean getItemBeanById(String concept, String[] ids, String language);
     
     List<VisibleRuleResult> executeVisibleRule(String xml);
+    
+    boolean isItemModifiedByOthers(ItemBean itemBean) throws Exception;
 }

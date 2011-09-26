@@ -80,6 +80,7 @@ import org.talend.mdm.webapp.browserecords.server.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.server.util.DynamicLabelUtil;
 import org.talend.mdm.webapp.browserecords.server.util.SmartViewUtil;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
+import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 import org.talend.mdm.webapp.browserecords.shared.SmartViewDescriptions;
@@ -557,6 +558,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         extractUsingTransformerThroughView(concept,
                 "Browse_items_" + concept, ids, dataModel, dataCluster, DataModelHelper.getEleDecl(), wsItem); //$NON-NLS-1$
         itemBean.setItemXml(wsItem.getContent());
+        itemBean.set("time", wsItem.getInsertionTime()); //$NON-NLS-1$
         // parse schema
         DataModelHelper.parseSchema(dataModel, concept, entityModel, RoleHelper.getUserRoles());
         // dynamic Assemble
@@ -1442,6 +1444,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     public ItemNodeModel getItemNodeModel(ItemBean item, EntityModel entity, String language) throws Exception {
+        if (item.get("isRefresh") != null) //$NON-NLS-1$
+            item = getItem(item, entity, language); // itemBean need to be get from server when refresh tree.
         String xml = item.getItemXml();
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -1454,6 +1458,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
         ItemNodeModel itemModel = builderNode(root, entity, "", language); //$NON-NLS-1$
         DynamicLabelUtil.getDynamicLabel(XmlUtil.parseDocument(doc), itemModel, metaDataTypes, language);
+        itemModel.set("time", item.get("time")); //$NON-NLS-1$ //$NON-NLS-2$
 
         return itemModel;
     }
@@ -1492,14 +1497,27 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
 
         NodeList children = el.getChildNodes();
-        if (children != null){
-            for (int i = 0;i < children.getLength();i++){
-                Node child = children.item(i);
-                if (child.getNodeType() == Node.ELEMENT_NODE){
-                    ItemNodeModel childNode = builderNode((Element) child, entity, xpath, language);
-                    nodeModel.add(childNode);
+        if (children != null && !model.isSimpleType()) {
+            List<TypeModel> childModels = ((ComplexTypeModel) model).getSubTypes();
+            for (TypeModel typeModel : childModels) { // display tree node according to the studio default configuration
+                boolean existNodeFlag = false;
+                for (int i = 0; i < children.getLength(); i++) {
+                    Node child = children.item(i);
+                    if (child.getNodeType() == Node.ELEMENT_NODE) {
+                        if (typeModel.getXpath().equals(xpath + "/" + child.getNodeName())) { //$NON-NLS-1$
+                            ItemNodeModel childNode = builderNode((Element) child, entity, xpath, language);
+                            nodeModel.add(childNode);
+                            existNodeFlag = true;
+                            break;
+                        }
+                    }
+                }
+                if (!existNodeFlag) { // add default tree node when the node has not been saved in DB.
+                    nodeModel.add(org.talend.mdm.webapp.browserecords.client.util.CommonUtil.getDefaultTreeModel(typeModel,
+                            language).get(0));
                 }
             }
+
         }
         for (String key : entity.getKeys()) {
             if (key.equals(xpath))
@@ -1618,9 +1636,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return null;// TODO temporary return null
     }
 
+    public boolean isItemModifiedByOthers(ItemBean itemBean) throws Exception {
 
-
-
+        ItemPOJOPK itempk = new ItemPOJOPK(new DataClusterPOJOPK(getCurrentDataCluster()), itemBean.getConcept(),
+                extractIdWithDots(itemBean.getIds()));
+        boolean isModified = com.amalto.core.util.Util.getItemCtrl2Local().isItemModifiedByOther(itempk,
+                ((Long) itemBean.get("time")).longValue()); //$NON-NLS-1$
+        return isModified;
+    }
 
     /**
      * get ForeignKey Model by concept and ids

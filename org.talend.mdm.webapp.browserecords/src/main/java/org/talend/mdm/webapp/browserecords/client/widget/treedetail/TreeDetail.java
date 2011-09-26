@@ -128,8 +128,9 @@ public class TreeDetail extends ContentPanel {
 
     public void buildPanel(final ViewBean viewBean) {
 
-        List<ItemNodeModel> models = CommonUtil.getDefaultTreeModel(viewBean.getBindingEntityModel().getMetaDataTypes()
-                .get(viewBean.getBindingEntityModel().getConceptName()));
+        List<ItemNodeModel> models = CommonUtil.getDefaultTreeModel(
+                viewBean.getBindingEntityModel().getMetaDataTypes().get(viewBean.getBindingEntityModel().getConceptName()),
+                Locale.getLanguage());
         renderTree(models.get(0));
     }
 
@@ -157,6 +158,7 @@ public class TreeDetail extends ContentPanel {
                     count = occurMap.get(countMapItem);
                 occurMap.put(countMapItem, count + 1);
             }
+            item.getElement().getStyle().setPaddingLeft(3.0, Unit.PX);
         }
 
         item.setUserObject(itemNode);
@@ -174,7 +176,7 @@ public class TreeDetail extends ContentPanel {
         treeNode.setRealType(typeModel.getName());
         item.removeItems();
 
-        List<ItemNodeModel> items = CommonUtil.getDefaultTreeModel(typeModel);
+        List<ItemNodeModel> items = CommonUtil.getDefaultTreeModel(typeModel, Locale.getLanguage());
         if (items != null && items.size() > 0) {
             List<ItemNodeModel> childrenItems = new ArrayList<ItemNodeModel>();
             for (ModelData modelData : items.get(0).getChildren()) {
@@ -203,8 +205,6 @@ public class TreeDetail extends ContentPanel {
                     ItemNodeModel node = (ItemNodeModel) child.getUserObject();
                     if (node.getBindingPath().equals(ce.getxPath())) {
                         tree.addItem(child);
-                        if (child.getChildCount() > 0)
-                            child.getElement().getStyle().setPaddingLeft(3.0, Unit.PX);
                         break;
                     }
                 }
@@ -308,12 +308,14 @@ public class TreeDetail extends ContentPanel {
         return tree;
     }
 
-    public void refreshTree(ItemBean item) {
+    public void refreshTree(final ItemBean item) {
+        item.set("isRefresh", true); //$NON-NLS-1$
         getItemService().getItemNodeModel(item, viewBean.getBindingEntityModel(),
                 Locale.getLanguage(), new AsyncCallback<ItemNodeModel>() {
 
                     public void onSuccess(ItemNodeModel node) {
                         TreeDetail.this.removeAll();
+                        item.set("time", node.get("time")); //$NON-NLS-1$ //$NON-NLS-2$
                         renderTree(node);
                     }
 
