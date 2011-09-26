@@ -37,7 +37,16 @@ public final class BaseMessagesImpl implements BaseMessages {
         return MESSAGES.getMessage("exception_parse_tooManyEndBlock", endBlock, i);
     }
 
+    public String page_size_label() {
+        return MESSAGES.getMessage("page_size_label");
+    }
+
+    public String page_size_notice() {
+        return MESSAGES.getMessage("page_size_notice");
+    }
     public String unknown_error() {
         return MESSAGES.getMessage("unknown_error");
     }
+
+
 }

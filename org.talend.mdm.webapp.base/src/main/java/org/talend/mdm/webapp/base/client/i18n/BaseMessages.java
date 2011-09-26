@@ -24,5 +24,9 @@ public interface BaseMessages extends Messages {
 
     String exception_parse_tooManyEndBlock(char endBlock, int i);
 
+    String page_size_label();
+
+    String page_size_notice();
+
     String unknown_error();
 }

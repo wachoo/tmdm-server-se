@@ -10,9 +10,9 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.itemsbrowser2.client.widget;
+package org.talend.mdm.webapp.base.client.widget;
 
-import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
 
 import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -33,9 +33,10 @@ public class PagingToolBarEx extends PagingToolBar {
     El inputEl;
     public PagingToolBarEx(int pageSize) {
         super(pageSize);
-        LabelToolItem sizeLabel = new LabelToolItem(MessagesFactory.getMessages().page_size_label());
+        LabelToolItem sizeLabel = new LabelToolItem(BaseMessagesFactory.getMessages().page_size_label());
         
         final NumberField sizeField = new NumberField(){
+            @Override
             protected void onRender(Element target, int index) {
                 super.onRender(target, index);
                 inputEl = this.input;
@@ -85,7 +86,7 @@ public class PagingToolBarEx extends PagingToolBar {
                 success = false;
             }
             if (!success){
-                return MessagesFactory.getMessages().page_size_notice();
+                return BaseMessagesFactory.getMessages().page_size_notice();
             }
             return null;
         }
