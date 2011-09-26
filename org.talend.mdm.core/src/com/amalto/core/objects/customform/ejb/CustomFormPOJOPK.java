@@ -20,15 +20,13 @@ import com.amalto.core.ejb.ObjectPOJOPK;
  */
 public class CustomFormPOJOPK extends ObjectPOJOPK {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
-
     String datamodel;
 
     String entity;
 
+    public CustomFormPOJOPK() {
+
+    }
     public CustomFormPOJOPK(String[] itemIds) {
         super(itemIds);
         datamodel = itemIds[0];
