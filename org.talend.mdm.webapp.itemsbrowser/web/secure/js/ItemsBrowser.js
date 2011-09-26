@@ -5568,7 +5568,11 @@ amalto.itemsbrowser.ItemsBrowser = function() {
     }
 
     function removePicture(nodeId, treeIndex) {
-        var url = $(nodeId + "Value").value;
+    	var fieldNode = $(nodeId + "Value");
+    	if (fieldNode == null){
+    		return;
+    	}
+        var url = fieldNode.value;
         var pos = url.indexOf('?');
         var uri = url.substring("/imageserver/".length, pos);
 
@@ -5958,8 +5962,11 @@ amalto.itemsbrowser.ItemsBrowser = function() {
     }
 
     function removeForeignKey(nodeId, treeIndex) {
-
-        var url = $(nodeId + "Value").value;
+        var fieldNode = $(nodeId + "Value");
+        if (fieldNode == null){
+            return;
+        }
+        var url = fieldNode.value;
         DWRUtil.setValue(nodeId + 'Value', '');
         var itemTree = itemTreeList[treeIndex];
         var node = itemTree.getNodeByIndex(nodeId);
