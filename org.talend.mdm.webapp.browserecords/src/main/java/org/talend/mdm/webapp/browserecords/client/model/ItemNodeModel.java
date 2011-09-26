@@ -170,6 +170,7 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
             clonedList.add(clonedData);
         }
         clonedModel.setChildNodes(clonedList);
+        clonedModel.setLabel(this.label);
         clonedModel.setDescription(description);
         clonedModel.setDynamicLabel(dynamicLabel);
         clonedModel.setParent(this.getParent());

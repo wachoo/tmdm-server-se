@@ -22,7 +22,10 @@ import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -40,19 +43,18 @@ public class TreeDetail extends ContentPanel {
 
     private TreeItem root;
 
-    private HashMap<String, Integer> occurMap = new HashMap<String, Integer>();
+    private HashMap<CountMapItem, Integer> occurMap = new HashMap<CountMapItem, Integer>();
 
     private ClickHandler handler = new ClickHandler() {
 
         public void onClick(ClickEvent arg0) {
-            DynamicTreeItem selected = (DynamicTreeItem) tree.getSelectedItem();
-            DynamicTreeItem parentItem = (DynamicTreeItem) selected.getParentItem();
+            final DynamicTreeItem selected = (DynamicTreeItem) tree.getSelectedItem();
+            final DynamicTreeItem parentItem = (DynamicTreeItem) selected.getParentItem();
 
-            String xpath = selected.getItemNodeModel().getBindingPath();
-            int count = 0;
-            if (occurMap.containsKey(xpath)) {
-                count = occurMap.get(xpath);
-            }
+            final String xpath = selected.getItemNodeModel().getBindingPath();
+            final CountMapItem countMapItem = new CountMapItem(xpath, parentItem);
+            final int count = occurMap.containsKey(countMapItem) ? occurMap.get(countMapItem) : 0;
+
             if ("Add".equals(arg0.getRelativeElement().getId()) || "Clone".equals(arg0.getRelativeElement().getId())) { //$NON-NLS-1$ //$NON-NLS-2$               
                 if (viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getMaxOccurs() < 0
                         || count < viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getMaxOccurs()) {
@@ -62,17 +64,27 @@ public class TreeDetail extends ContentPanel {
                     // TODO if it has default value
                     // model.setObjectValue(null);
                     parentItem.insertItem(buildGWTTree(model, null), parentItem.getChildIndex(selected) + 1);
-                    occurMap.put(xpath, count + 1);
+                    occurMap.put(countMapItem, count + 1);
                 } else
                     MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
                             .multiOccurrence_maximize(count), null);
             } else {
-                if (count > 1 && count > viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getMinOccurs()) {
-                    parentItem.removeItem(selected);
-                    occurMap.put(xpath, count - 1);
-                } else
-                    MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
-                            .multiOccurrence_minimize(count), null);
+                MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages().delete_confirm(),
+                        new Listener<MessageBoxEvent>() {
+
+                            public void handleEvent(MessageBoxEvent be) {
+                                if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                    if (count > 1
+                                            && count > viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath)
+                                                    .getMinOccurs()) {
+                                        parentItem.removeItem(selected);
+                                        occurMap.put(countMapItem, count - 1);
+                                    } else
+                                        MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
+                                                .multiOccurrence_minimize(count), null);
+                                }
+                            }
+                        });
             }
         }
     };
@@ -125,16 +137,16 @@ public class TreeDetail extends ContentPanel {
             item = new DynamicTreeItem();
             item.setItemNodeModel(itemNode);
             item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, handler));
-
-            int count = 0;
-            if (occurMap.containsKey(itemNode.getBindingPath()))
-                count = occurMap.get(itemNode.getBindingPath());
-            occurMap.put(itemNode.getBindingPath(), count + 1);
         }
         if (itemNode.getChildren() != null && itemNode.getChildren().size() > 0) {
             for (ModelData model : itemNode.getChildren()) {
                 ItemNodeModel node = (ItemNodeModel) model;
                 item.addItem(buildGWTTree(node, null));
+                int count = 0;
+                CountMapItem countMapItem = new CountMapItem(node.getBindingPath(), item);
+                if (occurMap.containsKey(countMapItem))
+                    count = occurMap.get(countMapItem);
+                occurMap.put(countMapItem, count + 1);
             }
         }
 
@@ -307,5 +319,34 @@ public class TreeDetail extends ContentPanel {
                                 + " " + MessagesFactory.getMessages().message_fail(), null); //$NON-NLS-1$
                     }
                 });
+    }
+
+    private class CountMapItem {
+
+        private String xpath;
+
+        private TreeItem parentItem;
+
+        public CountMapItem(String xpath, TreeItem parentItem) {
+            this.xpath = xpath;
+            this.parentItem = parentItem;
+        }
+
+        public String getXpath() {
+            return this.xpath;
+        }
+
+        public TreeItem getParentItem() {
+            return this.parentItem;
+        }
+
+        public int hashCode() {
+            return xpath.length();
+        }
+
+        public boolean equals(Object o) {
+            CountMapItem item = (CountMapItem) o;
+            return item.getXpath().equals(xpath) && item.getParentItem().equals(parentItem);
+        }
     }
 }

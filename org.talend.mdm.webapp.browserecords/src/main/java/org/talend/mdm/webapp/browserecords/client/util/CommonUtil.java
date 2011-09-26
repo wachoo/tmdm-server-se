@@ -42,8 +42,9 @@ public class CommonUtil {
     @SuppressWarnings("unchecked")
     private static Element _toXML(Document doc, ItemNodeModel nodeModel, ViewBean viewBean) {
         Element root = doc.createElement(nodeModel.getName());
+        TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(nodeModel.getBindingPath());
         Serializable value = nodeModel.getObjectValue();
-        if (value != null && nodeModel.getParent() != null) {
+        if (typeModel.isSimpleType() && value != null && nodeModel.getParent() != null) {
             if (value instanceof ForeignKeyBean)
                 root.appendChild(doc.createTextNode(((ForeignKeyBean) value).getId()));
             else if (value instanceof List<?>) {// FK list
@@ -57,7 +58,6 @@ public class CommonUtil {
             }
         }
 
-        TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(nodeModel.getBindingPath());
         if (typeModel.getRealType() != null) {
             root.setAttribute("xsi:type", typeModel.getRealType().getName()); //$NON-NLS-1$
         }
