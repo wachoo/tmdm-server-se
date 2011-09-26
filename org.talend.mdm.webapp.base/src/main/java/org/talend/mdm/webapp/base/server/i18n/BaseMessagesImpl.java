@@ -10,7 +10,9 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.base.client.i18n;
+package org.talend.mdm.webapp.base.server.i18n;
+
+import org.talend.mdm.webapp.base.client.i18n.BaseMessages;
 
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
@@ -47,6 +49,4 @@ public final class BaseMessagesImpl implements BaseMessages {
     public String unknown_error() {
         return MESSAGES.getMessage("unknown_error");
     }
-
-
 }

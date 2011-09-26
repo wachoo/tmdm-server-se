@@ -12,9 +12,12 @@
 // ============================================================================
 package org.talend.mdm.webapp.base.server;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.talend.mdm.webapp.base.client.exception.SessionTimeoutException;
+import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
+import org.talend.mdm.webapp.base.server.i18n.BaseMessagesImpl;
 
 import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.gwt.user.server.rpc.RPC;
@@ -24,6 +27,12 @@ public class AbstractService extends RemoteServiceServlet {
 
     private static final long serialVersionUID = 1L;
 
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        BaseMessagesFactory.setMessages(new BaseMessagesImpl());
+    }
+    
     @Override
     public final String processCall(String payload) throws SerializationException {
         HttpServletRequest request = getThreadLocalRequest();

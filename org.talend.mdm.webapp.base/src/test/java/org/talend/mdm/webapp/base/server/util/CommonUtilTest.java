@@ -13,6 +13,8 @@
 package org.talend.mdm.webapp.base.server.util;
 
 import org.talend.mdm.webapp.base.client.exception.ParserException;
+import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
+import org.talend.mdm.webapp.base.server.i18n.BaseMessagesImpl;
 
 import com.amalto.webapp.util.webservices.WSWhereAnd;
 import com.amalto.webapp.util.webservices.WSWhereCondition;
@@ -22,6 +24,16 @@ import junit.framework.TestCase;
 
 @SuppressWarnings("nls")
 public class CommonUtilTest extends TestCase {
+
+    @Override
+    protected void setUp() throws Exception {
+        BaseMessagesFactory.setMessages(new BaseMessagesImpl());
+    }
+    
+    @Override
+    protected void tearDown() throws Exception {
+        BaseMessagesFactory.setMessages(null);
+    }
 
     public void testContainsSearch() {
         String criteria = "(MyEntity/id CONTAINS \\(test\\(\\)\\))";

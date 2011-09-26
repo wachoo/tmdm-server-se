@@ -28,14 +28,16 @@ import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Element;
 
-
 public class PagingToolBarEx extends PagingToolBar {
-    El inputEl;
+
+    private El inputEl;
+
     public PagingToolBarEx(int pageSize) {
         super(pageSize);
         LabelToolItem sizeLabel = new LabelToolItem(BaseMessagesFactory.getMessages().page_size_label());
-        
-        final NumberField sizeField = new NumberField(){
+
+        final NumberField sizeField = new NumberField() {
+
             @Override
             protected void onRender(Element target, int index) {
                 super.onRender(target, index);
@@ -48,8 +50,8 @@ public class PagingToolBarEx extends PagingToolBar {
         sizeField.addListener(Events.Change, new Listener<BaseEvent>() {
 
             public void handleEvent(BaseEvent be) {
-                if (sizeField.isValid() && sizeField.getValue() != null){
-                    setPageSize((int)Double.parseDouble(sizeField.getValue()+""));//$NON-NLS-1$
+                if (sizeField.isValid() && sizeField.getValue() != null) {
+                    setPageSize((int) Double.parseDouble(sizeField.getValue() + "")); //$NON-NLS-1$
                     first();
                 }
             }
@@ -67,25 +69,25 @@ public class PagingToolBarEx extends PagingToolBar {
         this.insert(sizeLabel, this.getItemCount() - 2);
         this.insert(sizeField, this.getItemCount() - 2);
     }
-    
+
     private native void blur(Element el)/*-{
-        el.blur();
-    }-*/;
-    
-    Validator validator = new Validator() {
-        
+                                        el.blur();
+                                        }-*/;
+
+    private Validator validator = new Validator() {
+
         public String validate(Field<?> field, String value) {
-            String valueStr = value == null? "": value.toString();//$NON-NLS-1$
+            String valueStr = value == null ? "" : value.toString(); //$NON-NLS-1$
             boolean success = true;
-            try{
+            try {
                 int num = Integer.parseInt(valueStr);
                 if (num <= 0) {
                     success = false;
                 }
-            } catch (NumberFormatException e){
+            } catch (NumberFormatException e) {
                 success = false;
             }
-            if (!success){
+            if (!success) {
                 return BaseMessagesFactory.getMessages().page_size_notice();
             }
             return null;

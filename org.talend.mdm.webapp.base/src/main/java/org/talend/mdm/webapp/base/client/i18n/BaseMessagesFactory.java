@@ -18,18 +18,29 @@ public class BaseMessagesFactory {
 
     private static BaseMessages MESSAGES;
 
+    static {
+        if (GWT.isClient()) {
+            setMessages((BaseMessages) GWT.create(BaseMessages.class));
+        }
+    }
+
     private BaseMessagesFactory() {
     }
 
-    public static BaseMessages getMessages() {
-        if (GWT.isClient()) {
-            if (MESSAGES == null)
-                MESSAGES = GWT.create(BaseMessages.class);
-            return MESSAGES;
-        } else {
-            if (MESSAGES == null)
-                MESSAGES = new BaseMessagesImpl();
-            return MESSAGES;
+    /**
+     * For internal use only. 
+     */
+    public static synchronized void setMessages(BaseMessages messages) {
+        if (MESSAGES != null && messages != null) {
+            throw new IllegalStateException();
         }
+        MESSAGES = messages;
+    }
+
+    public static synchronized BaseMessages getMessages() {
+        if (MESSAGES == null) {
+            throw new IllegalStateException();
+        }
+        return MESSAGES;
     }
 }
