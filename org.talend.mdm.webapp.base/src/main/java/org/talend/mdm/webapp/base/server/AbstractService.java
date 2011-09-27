@@ -27,12 +27,17 @@ public class AbstractService extends RemoteServiceServlet {
 
     private static final long serialVersionUID = 1L;
 
+    private static final Object lock = new Object[0];
+
     @Override
     public void init() throws ServletException {
         super.init();
-        BaseMessagesFactory.setMessages(new BaseMessagesImpl());
+        synchronized (lock) {
+            if (BaseMessagesFactory.getMessages() == null)
+                BaseMessagesFactory.setMessages(new BaseMessagesImpl());
+        }
     }
-    
+
     @Override
     public final String processCall(String payload) throws SerializationException {
         HttpServletRequest request = getThreadLocalRequest();
