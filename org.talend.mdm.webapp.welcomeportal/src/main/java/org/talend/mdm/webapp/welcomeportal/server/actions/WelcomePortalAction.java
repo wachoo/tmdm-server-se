@@ -26,8 +26,6 @@ import org.talend.mdm.webapp.welcomeportal.client.WelcomePortalService;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-import com.amalto.core.util.Messages;
-import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.Menu;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.Webapp;
@@ -52,9 +50,6 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 public class WelcomePortalAction extends RemoteServiceServlet implements WelcomePortalService {
 
     private static final Logger LOG = Logger.getLogger(WelcomePortalAction.class);
-
-    private static final Messages MESSAGES = MessagesFactory.getMessages(
-            "org.talend.mdm.webapp.welcomeportal.client.i18n.WelcomePortalMessages", WelcomePortalAction.class.getClassLoader()); //$NON-NLS-1$
 
     private static final String STANDALONE_PROCESS_PREFIX = "Runnable#"; //$NON-NLS-1$
 
@@ -134,9 +129,9 @@ public class WelcomePortalAction extends RemoteServiceServlet implements Welcome
             WebappInfo webappInfo = new WebappInfo();
             Webapp.INSTANCE.getInfo(webappInfo, language);
             if (webappInfo.getLicense() == null)
-                return MESSAGES.getMessage("no_license_msg"); //$NON-NLS-1$
+                return WelcomePortal.NOLICENSE;
             else if (!webappInfo.isLicenseValid())
-                return MESSAGES.getMessage("license_expired_msg"); //$NON-NLS-1$
+                return WelcomePortal.EXPIREDLICENSE;
             return null;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);

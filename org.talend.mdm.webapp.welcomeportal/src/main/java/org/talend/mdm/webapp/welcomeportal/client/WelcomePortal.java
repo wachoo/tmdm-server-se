@@ -45,6 +45,8 @@ public class WelcomePortal implements EntryPoint {
     public final static String START = "start", ALERT = "alert", TASK = "task", PROCESS = "process"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
     
     public final static String WELCOMEPORTAL_ID = "Welcome"; //$NON-NLS-1$
+
+    public final static String NOLICENSE = "no", EXPIREDLICENSE = "expired"; //$NON-NLS-1$//$NON-NLS-2$
     /**
      * This is the entry point method.
      */

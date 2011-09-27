@@ -152,11 +152,11 @@ public class MainFramePanel extends Portal {
                     label.setText(MessagesFactory.getMessages().no_alerts());
                     set.setVisible(false);
                 } else {
-                    if (msg.equals(MessagesFactory.getMessages().no_license_msg())) {
+                    if (msg.equals(WelcomePortal.NOLICENSE)) {
                         String noStr = "<IMG SRC=\"/talendmdm/secure/img/genericUI/alert-icon.png\"/>&nbsp;" //$NON-NLS-1$
                                 + MessagesFactory.getMessages().no_license_msg();
                         sb.append(noStr);
-                    } else if (msg.equals(MessagesFactory.getMessages().license_expired_msg())) {
+                    } else if (msg.equals(WelcomePortal.EXPIREDLICENSE)) {
                         String expiredStr = "<IMG SRC=\"/talendmdm/secure/img/genericUI/alert-icon.png\"/>&nbsp;" //$NON-NLS-1$
                                 + MessagesFactory.getMessages().license_expired_msg();
                         sb.append(expiredStr);
