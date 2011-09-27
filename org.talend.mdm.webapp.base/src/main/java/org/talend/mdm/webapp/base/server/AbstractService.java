@@ -29,12 +29,16 @@ public class AbstractService extends RemoteServiceServlet {
 
     private static final Object lock = new Object[0];
 
+    private static boolean messagesInitialized = false;
+
     @Override
     public void init() throws ServletException {
         super.init();
         synchronized (lock) {
-            if (BaseMessagesFactory.getMessages() == null)
+            if (!messagesInitialized) {
                 BaseMessagesFactory.setMessages(new BaseMessagesImpl());
+                messagesInitialized = true;
+            }
         }
     }
 
@@ -45,7 +49,11 @@ public class AbstractService extends RemoteServiceServlet {
             // Session is invalid
             return RPC.encodeResponseForFailure(null, new SessionTimeoutException());
         } else {
-            return super.processCall(payload);
+            return doProcessCall(payload);
         }
+    }
+
+    protected String doProcessCall(String payload) throws SerializationException {
+        return super.processCall(payload);
     }
 }
