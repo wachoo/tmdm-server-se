@@ -59,6 +59,14 @@ public class ComplexTypeModel extends TypeModel {
         return reusableTypes;
     }
 
+    public ComplexTypeModel getRealType(String typeName) {
+        for (ComplexTypeModel realType : reusableTypes) {
+            if (realType.getName().equals(typeName)) {
+                return realType;
+            }
+        }
+        return null;
+    }
     public boolean isSimpleType() {
         return false;
     }
