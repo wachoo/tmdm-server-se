@@ -83,6 +83,8 @@ public class SmartViewServlet extends HttpServlet {
             String dataClusterPK;
             try {
                 Configuration conf = (Configuration) (request.getSession().getAttribute("configuration"));//$NON-NLS-1$
+                if(conf == null)
+                    conf = Configuration.getInstance();
                 dataClusterPK = conf.getCluster();
             } catch (Exception e) {
                 String err = "Unable to read the configuration";
