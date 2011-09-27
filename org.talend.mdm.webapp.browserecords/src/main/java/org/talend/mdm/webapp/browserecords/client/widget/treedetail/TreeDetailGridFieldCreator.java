@@ -243,7 +243,7 @@ public class TreeDetailGridFieldCreator {
         field.setWidth(400);
         field.setData("facetErrorMsgs", dataType.getFacetErrorMsgs().get(language));//$NON-NLS-1$
         buildFacets(dataType, field);    
-        FacetEnum.setFacetValue("maxOccurence", (Widget)field, String.valueOf(dataType.getMaxOccurs()));        
+        FacetEnum.setFacetValue("maxOccurence", (Widget) field, String.valueOf(dataType.getMaxOccurs())); //$NON-NLS-1$
         return field;
     }
 
@@ -252,9 +252,11 @@ public class TreeDetailGridFieldCreator {
 
             @SuppressWarnings("rawtypes")
             public void handleEvent(FieldEvent fe) {
-
-                node.setObjectValue(fe.getField() instanceof ComboBox ? ((SimpleComboValue) fe.getValue()).getValue().toString()
-                        : (Serializable) fe.getValue());
+                if (fe.getField() instanceof ComboBoxField)
+                    node.setObjectValue(((ComboBoxModel) fe.getValue()).getValue());
+                else
+                    node.setObjectValue(fe.getField() instanceof ComboBox ? ((SimpleComboValue) fe.getValue()).getValue()
+                            .toString() : (Serializable) fe.getValue());
                 node.setChangeValue(true);
             }
         });
