@@ -13,9 +13,13 @@
 package org.talend.mdm.webapp.browserecords.client;
 
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsController;
+import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -54,6 +58,7 @@ public class BrowseRecords implements EntryPoint {
              @org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar::addTreeDetail(Ljava/lang/String;Ljava/lang/String;)(idstr, entity)
         };
     }-*/;
+
     /**
      * This is the entry point method.
      */
@@ -98,6 +103,59 @@ public class BrowseRecords implements EntryPoint {
 
     }
 
+    public void showTreeDetailPanel(final String concept, final String ids) {
+        getItemService().getItemBeanById(concept, ids.split("\\."), Locale.getLanguage(), new AsyncCallback<ItemBean>() { //$NON-NLS-1$
+
+            public void onSuccess(ItemBean item) {
+                ItemPanel itemPanel = new ItemPanel(item, ItemDetailToolBar.VIEW_OPERATION);
+                itemPanel.setItemId(concept + "_" + ids); //$NON-NLS-1$
+                        renderPubTreeDetailPanel(itemPanel.getItemId(), itemPanel);
+            }
+
+            public void onFailure(Throwable arg0) {
+
+            }
+        });
+    }
+    
+    public native void renderPubTreeDetailPanel(String itemId, ItemPanel itemPanel)/*-{
+        var tabPanel = $wnd.amalto.core.getTabPanel();
+        var panel = tabPanel.getItem(itemId); 
+        if (panel == undefined){
+        panel = this.@org.talend.mdm.webapp.browserecords.client.BrowseRecords::wrapTreeDetailPanel(Lorg/talend/mdm/webapp/browserecords/client/widget/ItemPanel;)(itemPanel);
+        tabPanel.add(panel);
+        }
+        tabPanel.setSelection(panel.getItemId());
+    }-*/;
+
+    public native JavaScriptObject wrapTreeDetailPanel(ItemPanel itemPanel)/*-{
+        var panel = {
+        // imitate extjs's render method, really call gxt code.
+        render : function(el){
+        var rootPanel = @com.google.gwt.user.client.ui.RootPanel::get(Ljava/lang/String;)(el.id);
+        rootPanel.@com.google.gwt.user.client.ui.RootPanel::add(Lcom/google/gwt/user/client/ui/Widget;)(itemPanel);
+        },
+        // imitate extjs's setSize method, really call gxt code.
+        setSize : function(width, height){
+        itemPanel.@org.talend.mdm.webapp.browserecords.client.widget.ItemPanel::setSize(II)(width, height);
+        },
+        // imitate extjs's getItemId, really return itemId of ContentPanel of GXT.
+        getItemId : function(){
+        return itemPanel.@org.talend.mdm.webapp.browserecords.client.widget.ItemPanel::getItemId()();
+        },
+        // imitate El object of extjs
+        getEl : function(){
+        var el = itemPanel.@org.talend.mdm.webapp.browserecords.client.widget.ItemPanel::getElement()();
+        return {dom : el};
+        },
+        // imitate extjs's doLayout method, really call gxt code.
+        doLayout : function(){
+        return itemPanel.@org.talend.mdm.webapp.browserecords.client.widget.ItemPanel::doLayout()();
+        }
+        };
+        return panel;
+    }-*/;
+
     public static UserSession getSession() {
 
         return Registry.get(BrowseRecords.USER_SESSION);
@@ -112,8 +170,13 @@ public class BrowseRecords implements EntryPoint {
         instance.@org.talend.mdm.webapp.browserecords.client.BrowseRecords::initUI()();
         }
 
+        function showTreeDetailPanel(concept, ids){
+        instance.@org.talend.mdm.webapp.browserecords.client.BrowseRecords::showTreeDetailPanel(Ljava/lang/String;Ljava/lang/String;)(concept, ids);
+        }
+
         return {
-        init : function(){initUI();}
+        init : function(){initUI();},
+        showTreeDetailPanel : function(concept, ids){showTreeDetailPanel(concept, ids);}
         }
         }();
     }-*/;
