@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.welcomeportal.client;
 
+import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
+
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.google.gwt.user.client.Window;
@@ -42,7 +44,8 @@ public class GenerateContainer {
             // this.doLayout(true);
             // }
         };
-        instance.setId("Welcome"); //$NON-NLS-1$  
+        instance.setId(WelcomePortal.WELCOMEPORTAL_ID);
+        instance.setHeading(MessagesFactory.getMessages().welcome_title());
 
     }
 

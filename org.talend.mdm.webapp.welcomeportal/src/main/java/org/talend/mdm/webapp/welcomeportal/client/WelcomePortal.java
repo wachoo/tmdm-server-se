@@ -43,6 +43,8 @@ public class WelcomePortal implements EntryPoint {
     public final static String TASKCONTEXT = "workflowtasks", TASKAPP = "WorkflowTasks";//$NON-NLS-1$ //$NON-NLS-2$
 
     public final static String START = "start", ALERT = "alert", TASK = "task", PROCESS = "process"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+    
+    public final static String WELCOMEPORTAL_ID = "Welcome"; //$NON-NLS-1$
     /**
      * This is the entry point method.
      */
@@ -107,6 +109,10 @@ public class WelcomePortal implements EntryPoint {
         doLayout : function(){
         var cp = @org.talend.mdm.webapp.welcomeportal.client.GenerateContainer::getContentPanel()();
         return cp.@com.extjs.gxt.ui.client.widget.ContentPanel::doLayout()();
+        },
+        title : function(){
+        var cp = @org.talend.mdm.webapp.welcomeportal.client.GenerateContainer::getContentPanel()();
+        return cp.@com.extjs.gxt.ui.client.widget.ContentPanel::getHeading()();
         }
         };
         return panel;
