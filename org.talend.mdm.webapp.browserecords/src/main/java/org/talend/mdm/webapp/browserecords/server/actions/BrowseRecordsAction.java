@@ -1459,7 +1459,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         ItemNodeModel itemModel = builderNode(root, entity, "", language); //$NON-NLS-1$
         DynamicLabelUtil.getDynamicLabel(XmlUtil.parseDocument(doc), itemModel, metaDataTypes, language);
         itemModel.set("time", item.get("time")); //$NON-NLS-1$ //$NON-NLS-2$
-
         return itemModel;
     }
 
@@ -1518,8 +1517,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     }
                 }
                 if (!existNodeFlag) { // add default tree node when the node has not been saved in DB.
-                    nodeModel.add(org.talend.mdm.webapp.browserecords.client.util.CommonUtil.getDefaultTreeModel(typeModel,
-                            language).get(0));
+                    nodeModel.add(CommonUtil.getDefaultTreeModel(typeModel, language).get(0));
                 }
             }
 
