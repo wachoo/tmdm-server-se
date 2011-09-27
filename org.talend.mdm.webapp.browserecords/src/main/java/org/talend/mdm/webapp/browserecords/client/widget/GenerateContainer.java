@@ -12,6 +12,9 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget;
 
+import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
+import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
+
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.google.gwt.user.client.Window;
@@ -38,7 +41,8 @@ public class GenerateContainer {
         };
         instance.setHeaderVisible(false);
         instance.setBorders(false);
-        instance.setId("Browse Records"); //$NON-NLS-1$
+        instance.setId(BrowseRecords.BROWSERECORD_ID);
+        instance.setHeading(MessagesFactory.getMessages().browse_record_title());
     }
 
     public static ContentPanel getContentPanel() {

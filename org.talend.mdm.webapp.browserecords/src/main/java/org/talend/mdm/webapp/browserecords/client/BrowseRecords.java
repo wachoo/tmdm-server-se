@@ -43,6 +43,8 @@ public class BrowseRecords implements EntryPoint {
     public static final String BROWSERECORDS_SERVICE = "BrowseRecordsService"; //$NON-NLS-1$
 
     public static final String USER_SESSION = "UserSession"; //$NON-NLS-1$
+    
+    public static final String BROWSERECORD_ID = "Browse Records"; //$NON-NLS-1$
 
     private RootPanel panel;
 
@@ -220,6 +222,10 @@ public class BrowseRecords implements EntryPoint {
         doLayout : function(){
         var cp = @org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer::getContentPanel()();
         return cp.@com.extjs.gxt.ui.client.widget.ContentPanel::doLayout()();
+        },
+        title : function(){
+        var cp = @org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer::getContentPanel()();
+        return cp.@com.extjs.gxt.ui.client.widget.ContentPanel::getHeading()();
         }
         };
         return panel;
