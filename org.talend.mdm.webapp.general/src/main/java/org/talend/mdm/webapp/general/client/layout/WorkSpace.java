@@ -118,7 +118,11 @@ public class WorkSpace extends LayoutContainer {
         TabItem item = workTabPanel.getItemByItemId(itemId);
 
         if (item == null) {
-            item = new TabItem(itemId);
+            String text = getTitleUIObject(uiObject);
+            if (text == null || text.trim().length() == 0) {
+                text = itemId;
+            }
+            item = new TabItem(text);
 
             item.addListener(Events.Select, new Listener<BaseEvent>() {
 
@@ -142,6 +146,17 @@ public class WorkSpace extends LayoutContainer {
         }
         workTabPanel.setSelection(item);
     }
+
+    public native String getTitleUIObject(JavaScriptObject uiObject)/*-{
+        if (uiObject.title){
+        if (typeof uiObject.title == "string"){
+        return uiObject.title;
+        } else if (typeof uiObject.title == "function"){
+        return uiObject.title();
+        }
+        }
+        return null;
+    }-*/;
 
     public void setSelection(String itemId) {
         TabItem item = workTabPanel.getItemByItemId(itemId);
