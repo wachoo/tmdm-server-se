@@ -1498,7 +1498,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
         NodeList children = el.getChildNodes();
         if (children != null && !model.isSimpleType()) {
-            List<TypeModel> childModels = ((ComplexTypeModel) model).getSubTypes();
+            List<TypeModel> childModels = null;
+            if (nodeModel.getRealType() != null && nodeModel.getRealType().trim().length() > 0) {
+                childModels = ((ComplexTypeModel) model).getRealType(nodeModel.getRealType()).getSubTypes();
+            } else {
+                childModels = ((ComplexTypeModel) model).getSubTypes();
+            }
             for (TypeModel typeModel : childModels) { // display tree node according to the studio default configuration
                 boolean existNodeFlag = false;
                 for (int i = 0; i < children.getLength(); i++) {
