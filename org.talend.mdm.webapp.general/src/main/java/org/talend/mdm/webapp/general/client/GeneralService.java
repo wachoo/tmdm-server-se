@@ -39,4 +39,6 @@ public interface GeneralService extends RemoteService {
     public List<ItemBean> getLanguages();
 
     public String logout();
+
+    public boolean isExpired() throws Exception;
 }

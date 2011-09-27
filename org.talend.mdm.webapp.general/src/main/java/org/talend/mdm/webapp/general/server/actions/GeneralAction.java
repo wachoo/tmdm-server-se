@@ -25,6 +25,7 @@ import com.amalto.core.delegator.ILocalUser;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.Menu;
 import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.core.util.Webapp;
 import com.amalto.webapp.util.webservices.WSDataCluster;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModel;
@@ -168,6 +169,10 @@ public class GeneralAction implements GeneralService {
             org.apache.log4j.Logger.getLogger(this.getClass()).warn(err, e);
         }
         return "Unable to logout"; //$NON-NLS-1$
+    }
+
+    public boolean isExpired() throws Exception {
+        return Webapp.INSTANCE.isExpired();
     }
 
 }

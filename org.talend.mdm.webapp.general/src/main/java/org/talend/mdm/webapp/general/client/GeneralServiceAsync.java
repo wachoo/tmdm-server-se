@@ -37,4 +37,6 @@ public interface GeneralServiceAsync {
     void getAction(AsyncCallback<ActionBean> callback);
 
     void logout(AsyncCallback<String> callback);
+
+    void isExpired(AsyncCallback<Boolean> callback);
 }

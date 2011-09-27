@@ -14,6 +14,7 @@ package org.talend.mdm.webapp.general.client.mvc.view;
 
 import java.util.List;
 
+import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
 import org.talend.mdm.webapp.general.client.layout.AccordionMenus;
 import org.talend.mdm.webapp.general.client.layout.BorderLayoutContainer;
 import org.talend.mdm.webapp.general.client.layout.WorkSpace;
@@ -67,6 +68,6 @@ public class GeneralView extends View {
     }
 
     private void onError(AppEvent ae) {
-        MessageBox.alert("", "", null);
+        MessageBox.alert(MessageFactory.getMessages().error(), ((Exception) ae.getData()).getMessage(), null);
     }
 }
