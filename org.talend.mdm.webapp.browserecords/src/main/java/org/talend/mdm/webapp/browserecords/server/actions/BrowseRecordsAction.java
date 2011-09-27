@@ -657,7 +657,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             EntityModel entityModel = new EntityModel();
             DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
             DataModelHelper.handleDefaultValue(entityModel);
-            DisplayRulesUtil.setRoot(DataModelHelper.getEleDecl());
+//            DisplayRulesUtil.setRoot(DataModelHelper.getEleDecl());
             vb.setBindingEntityModel(entityModel);
 
             // viewables
@@ -2068,7 +2068,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             EntityModel entityModel = new EntityModel();
             DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
             DataModelHelper.handleDefaultValue(entityModel);
-            DisplayRulesUtil.setRoot(DataModelHelper.getEleDecl());
+//            DisplayRulesUtil.setRoot(DataModelHelper.getEleDecl());
             
             DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
             dynamicAssemble(itemBean, entityModel, language);
@@ -2085,7 +2085,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 		List<DisplayRule> displayRules = null;
 		
 		try {
-			DisplayRulesUtil displayUtil = DisplayRulesUtil.getInstance();
+			DisplayRulesUtil displayUtil = new DisplayRulesUtil(DataModelHelper.getEleDecl());
 			org.dom4j.Document doc = org.talend.mdm.webapp.browserecords.server.util.XmlUtil.parseText(xml);
 			displayRules = displayUtil.handleVisibleRules(doc);
 		} catch (DocumentException e) {

@@ -14,6 +14,8 @@ package org.talend.mdm.webapp.browserecords.server.displayrule;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class DisplayRule implements Serializable, IsSerializable {
@@ -41,7 +43,7 @@ public class DisplayRule implements Serializable, IsSerializable {
     }
 
     public String getValue() {
-        return value;
+        return StringEscapeUtils.escapeXml(value);
     }
     
     public void setValue(String value) {

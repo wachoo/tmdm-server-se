@@ -132,6 +132,17 @@ public class TreeDetail extends ContentPanel {
                 viewBean.getBindingEntityModel().getMetaDataTypes().get(viewBean.getBindingEntityModel().getConceptName()),
                 Locale.getLanguage());
         renderTree(models.get(0));
+        getItemService().executeVisibleRule(CommonUtil.toXML(models.get(0), viewBean),
+                new AsyncCallback<List<VisibleRuleResult>>() {
+			public void onFailure(Throwable arg0) {
+			}
+		
+			public void onSuccess(List<VisibleRuleResult> arg0) {
+				for(VisibleRuleResult visibleRuleResult : arg0) {
+					recrusiveSetItems(visibleRuleResult, (DynamicTreeItem) root);
+				}
+			}
+		});
     }
 
     private DynamicTreeItem buildGWTTree(ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue) {

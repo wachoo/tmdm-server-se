@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
@@ -33,15 +34,18 @@ import com.sun.xml.xsom.XSElementDecl;
 import com.sun.xml.xsom.XSParticle;
 
 public class DisplayRulesUtil {
+	private static final Logger logger = Logger.getLogger(DisplayRulesUtil.class);
+	
+    private XSElementDecl root;
 
-    private static XSElementDecl root;
-
-    public static XSElementDecl getRoot() {
+    public XSElementDecl getRoot() {
 		return root;
 	}
 
-	public static void setRoot(XSElementDecl root) {
-		DisplayRulesUtil.root = root;
+	public void setRoot(XSElementDecl root) {
+		this.root = root;
+		tmpls = new ArrayList<TemplateBean>();
+		countMap = new HashMap<String, Integer>();
 	}
 
 	private List<TemplateBean> tmpls;
@@ -75,7 +79,7 @@ public class DisplayRulesUtil {
 	
 	public static DisplayRulesUtil getInstance() {
 		if(instance == null) {
-			instance = new DisplayRulesUtil(root);
+//			instance = new DisplayRulesUtil(root);
 		}
 		
 		return instance;
@@ -390,7 +394,7 @@ public class DisplayRulesUtil {
                 }
             }
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		
 		return displayRules;

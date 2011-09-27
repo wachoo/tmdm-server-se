@@ -161,4 +161,18 @@ public class CommonUtil {
             }
         }
     }
+    
+    public static ItemNodeModel recrusiveRoot(ItemNodeModel node) {
+    	ItemNodeModel parent = (ItemNodeModel) node.getParent();
+    	ItemNodeModel root = null;
+    	
+    	if(parent.getParent() != null) {
+    		root = recrusiveRoot(parent);
+    	}
+    	else {
+    		root = parent;
+    	}
+    	
+    	return root;
+    }
 }
