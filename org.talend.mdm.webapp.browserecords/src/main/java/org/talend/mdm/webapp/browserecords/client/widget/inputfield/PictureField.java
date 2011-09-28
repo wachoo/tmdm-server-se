@@ -161,8 +161,10 @@ public class PictureField extends Field<String> {
         String oldValue = this.value;
         this.value = value;
 
-        if (value != null && value.length() != 0) { 
-            image.setUrl("/imageserver/" + value);//$NON-NLS-1$
+        if (value != null && value.length() != 0) {
+            if (!value.startsWith("/imageserver/")) //$NON-NLS-1$
+                this.value = "/imageserver/" + value; //$NON-NLS-1$
+            image.setUrl(this.value);
         } else {
             image.setUrl(DefaultImage);
         }
@@ -193,9 +195,9 @@ public class PictureField extends Field<String> {
             }
         };
 
-        private Button uploadButton = new Button(MessagesFactory.getMessages().button_upload(), listener);//$NON-NLS-1$
+        private Button uploadButton = new Button(MessagesFactory.getMessages().button_upload(), listener);
 
-        private Button resetButton = new Button(MessagesFactory.getMessages().button_reset(), listener);//$NON-NLS-1$
+        private Button resetButton = new Button(MessagesFactory.getMessages().button_reset(), listener);
 
         public EditWindow() {
             super();
