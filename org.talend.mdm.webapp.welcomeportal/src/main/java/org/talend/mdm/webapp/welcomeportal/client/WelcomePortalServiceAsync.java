@@ -45,4 +45,6 @@ public interface WelcomePortalServiceAsync {
 
     void runProcess(String transformerPK, AsyncCallback<String> callback);
 
+    void isExpired(AsyncCallback<Boolean> callback);
+
 }

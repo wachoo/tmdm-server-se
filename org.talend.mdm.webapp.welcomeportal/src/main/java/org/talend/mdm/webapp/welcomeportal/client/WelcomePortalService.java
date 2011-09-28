@@ -34,4 +34,6 @@ public interface WelcomePortalService extends RemoteService {
     public List<String> getStandaloneProcess(String language);
 
     public String runProcess(String transformerPK);
+
+    public boolean isExpired() throws Exception;
 }

@@ -61,6 +61,19 @@ public class MainFramePanel extends Portal {
         initProcessPortlet();
     }
 
+    private void itemClick(final String context, final String application) {
+        service.isExpired(new AsyncCallback<Boolean>() {
+
+            public void onFailure(Throwable caught) {
+                Dispatcher.forwardEvent(WelcomePortalEvents.Error, caught);
+            }
+
+            public void onSuccess(Boolean result) {
+                initUI(context, application);
+            }
+        });
+    }
+
     private void initStartPortlet() {
         String name = WelcomePortal.START;
         Portlet start = configPortlet(name);
@@ -85,7 +98,7 @@ public class MainFramePanel extends Portal {
         browseHtml.addClickHandler(new ClickHandler() {
 
             public void onClick(ClickEvent event) {
-                initUI(WelcomePortal.BROWSECONTEXT, WelcomePortal.BROWSEAPP);
+                itemClick(WelcomePortal.BROWSECONTEXT, WelcomePortal.BROWSEAPP);
             }
 
         });
@@ -99,10 +112,12 @@ public class MainFramePanel extends Portal {
         journalHtml.addClickHandler(new ClickHandler() {
 
             public void onClick(ClickEvent event) {
-                initUI(WelcomePortal.JOURNALCONTEXT, WelcomePortal.JOURNALAPP);
+                itemClick(WelcomePortal.JOURNALCONTEXT, WelcomePortal.JOURNALAPP);
             }
 
         });
+
+
         set.add(journalHtml);
         set.layout(true);
     }
@@ -241,7 +256,7 @@ public class MainFramePanel extends Portal {
         taskHtml.addClickHandler(new ClickHandler() {
 
             public void onClick(ClickEvent event) {
-                initUI(WelcomePortal.TASKCONTEXT, WelcomePortal.TASKAPP);
+                itemClick(WelcomePortal.TASKCONTEXT, WelcomePortal.TASKAPP);
             }
 
         });
@@ -285,41 +300,51 @@ public class MainFramePanel extends Portal {
                         btn.addListener(Events.Select, new SelectionListener<ButtonEvent>() {
 
                             public void componentSelected(ButtonEvent ce) {
-                                final MessageBox box = MessageBox.wait(null, MessagesFactory.getMessages().waiting_msg(),
-                                        MessagesFactory.getMessages().waiting_desc());
-                                Timer t = new Timer() {
-
-                                    @Override
-                                    public void run() {
-                                        box.close();
-                                    }
-                                };
-                                t.schedule(600000);
-                                service.runProcess(str, new AsyncCallback<String>() {
+                                service.isExpired(new AsyncCallback<Boolean>() {
 
                                     public void onFailure(Throwable caught) {
                                         Dispatcher.forwardEvent(WelcomePortalEvents.Error, caught);
-                                        box.close();
                                     }
 
-                                    public void onSuccess(String result) {
-                                        if (result.indexOf("ok") >= 0) { //$NON-NLS-1$
-                                            MessageBox.alert(MessagesFactory.getMessages().run_status(), MessagesFactory
-                                                    .getMessages().run_done(), null);
+                                    public void onSuccess(Boolean result) {
+                                        final MessageBox box = MessageBox.wait(null, MessagesFactory.getMessages().waiting_msg(),
+                                                MessagesFactory.getMessages().waiting_desc());
+                                        Timer t = new Timer() {
 
-                                            if (result.length() > 2) {
-                                                String url = result.substring(2);
-                                                openWindow(url);
+                                            @Override
+                                            public void run() {
+                                                box.close();
+                                            }
+                                        };
+                                        t.schedule(600000);
+                                        service.runProcess(str, new AsyncCallback<String>() {
+
+                                            public void onFailure(Throwable caught) {
+                                                Dispatcher.forwardEvent(WelcomePortalEvents.Error, caught);
+                                                box.close();
                                             }
 
-                                        } else {
-                                            MessageBox.alert(MessagesFactory.getMessages().run_status(), MessagesFactory
-                                                    .getMessages().run_fail(), null);
-                                            box.close();
-                                        }
-                                    }
+                                            public void onSuccess(String result) {
+                                                if (result.indexOf("ok") >= 0) { //$NON-NLS-1$
+                                                    MessageBox.alert(MessagesFactory.getMessages().run_status(), MessagesFactory
+                                                            .getMessages().run_done(), null);
 
+                                                    if (result.length() > 2) {
+                                                        String url = result.substring(2);
+                                                        openWindow(url);
+                                                    }
+
+                                                } else {
+                                                    MessageBox.alert(MessagesFactory.getMessages().run_status(), MessagesFactory
+                                                            .getMessages().run_fail(), null);
+                                                    box.close();
+                                                }
+                                            }
+
+                                        });
+                                    }
                                 });
+
                             }
 
                         });

@@ -215,4 +215,8 @@ public class WelcomePortalAction extends RemoteServiceServlet implements Welcome
 
         return sucess;
     }
+
+    public boolean isExpired() throws Exception {
+        return Webapp.INSTANCE.isExpired();
+    }
 }

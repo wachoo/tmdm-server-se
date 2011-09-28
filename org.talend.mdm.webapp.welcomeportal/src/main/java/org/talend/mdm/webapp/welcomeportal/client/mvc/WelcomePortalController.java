@@ -62,7 +62,7 @@ public class WelcomePortalController extends Controller {
 
     protected void onError(AppEvent ae) {
         Log.error("error: " + ae.<Object> getData()); //$NON-NLS-1$
-        MessageBox.alert(MessagesFactory.getMessages().error_title(), ae.<Object> getData().toString(), null);
+        MessageBox.alert(MessagesFactory.getMessages().error_title(), ((Exception) ae.<Object> getData()).getMessage(), null);
     }
 
 }
