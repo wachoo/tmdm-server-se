@@ -175,4 +175,32 @@ public class CommonUtil {
     	
     	return root;
     }
+
+    public static String pickOutISOMessage(String message) {
+        String identy = "[" + Locale.getLanguage()//$NON-NLS-1$
+                .toUpperCase() + ":";//$NON-NLS-1$
+        int mask = message.indexOf(identy);
+        if (mask != -1) {
+            String snippet = message.substring(mask + identy.length());
+            if (!snippet.isEmpty()) {
+                String pickOver = "";//$NON-NLS-1$
+                boolean enclosed = false;
+                for (int j = 0; j < snippet.trim().length(); j++) {
+                    String c = snippet.trim().charAt(j) + "";//$NON-NLS-1$
+                    if ("]".equals(c)) {//$NON-NLS-1$
+                        if (!pickOver.isEmpty()) {
+                            enclosed = true;
+                            break;
+                        }
+                    } else {
+                        pickOver += c;
+                    }
+                }
+
+                if (enclosed)
+                    return pickOver;
+            }
+        }
+        return message;
+    }
 }

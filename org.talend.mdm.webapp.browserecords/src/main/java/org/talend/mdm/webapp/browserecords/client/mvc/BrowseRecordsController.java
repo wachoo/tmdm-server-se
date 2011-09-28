@@ -17,6 +17,7 @@ import java.util.List;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
+import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
@@ -35,6 +36,7 @@ import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
@@ -107,11 +109,25 @@ public class BrowseRecordsController extends Controller {
         service.saveItem(itemBean.getConcept(), itemBean.getIds(), CommonUtil.toXML(model, viewBean), isCreate,
                 new AsyncCallback<ItemResult>() {
 
-            public void onSuccess(ItemResult arg0) {
-                com.google.gwt.user.client.Window.alert("save successfully"); //$NON-NLS-1$     
-                    if (!isClose){
-                            ItemsListPanel.getInstance().lastPage();
-                    }
+                    public void onSuccess(ItemResult result) {
+                        if (result.getStatus() == ItemResult.FAILURE) {
+                            if (result.getDescription() != null) {
+                                if (result.getDescription().indexOf("ERROR_3:") == 0) { //$NON-NLS-1$
+                                    // add for before saving transformer check
+                                    MessageBox.alert(MessagesFactory.getMessages().error_title(), result.getDescription()
+                                            .substring(8), null);
+                                } else
+                                    MessageBox.alert(MessagesFactory.getMessages().error_title(), CommonUtil
+                                            .pickOutISOMessage(result.getDescription()), null);
+                            }
+                        } else {
+                            MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
+                                    .save_success(), null);
+                            if (!isClose) {
+                                ItemsListPanel.getInstance().lastPage();
+                            }
+                        }
+
             }
 
             public void onFailure(Throwable caught) {
