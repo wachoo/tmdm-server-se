@@ -300,7 +300,6 @@ public class TreeDetailGridFieldCreator {
     }
     
     private static void validate(Field<?> field,ItemNodeModel node){
-        System.out.println(field.getFieldLabel() + " " + field.isValid());
         if (!field.isValid()){
             System.out.println(field.getFieldLabel() + " " + field.getErrorMessage());
         }

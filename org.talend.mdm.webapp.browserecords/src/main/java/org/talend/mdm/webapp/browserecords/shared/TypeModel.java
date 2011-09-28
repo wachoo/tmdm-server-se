@@ -77,8 +77,18 @@ public abstract class TypeModel implements Serializable, IsSerializable {
     private String defaultValueExpression;
 
     private String defaultValue;
+    
+    private boolean hasVisiblueRule = false;
 
-    /**
+    public boolean isHasVisiblueRule() {
+		return hasVisiblueRule;
+	}
+
+	public void setHasVisiblueRule(boolean hasVisiblueRule) {
+		this.hasVisiblueRule = hasVisiblueRule;
+	}
+
+	/**
      * DOC HSHU TypeModel constructor comment.
      */
 

@@ -15,6 +15,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
+import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
@@ -105,19 +106,20 @@ public class TreeDetail extends ContentPanel {
 
                         public void onSuccess(ItemNodeModel node) {
                             renderTree(node);
-                            // maybe need to refactor for performance
-                            getItemService().executeVisibleRule(CommonUtil.toXML(node, TreeDetail.this.viewBean),
+                            if(node.isHasVisiblueRule()) {
+                            	getItemService().executeVisibleRule(CommonUtil.toXML(node, TreeDetail.this.viewBean),
                                     new AsyncCallback<List<VisibleRuleResult>>() {
 
-                                        public void onFailure(Throwable arg0) {
-                                        }
+                                    public void onFailure(Throwable arg0) {
+                                    }
 
-                                        public void onSuccess(List<VisibleRuleResult> arg0) {
-                                            for (VisibleRuleResult visibleRuleResult : arg0) {
-                                                recrusiveSetItems(visibleRuleResult, (DynamicTreeItem) root);
-                                            }
+                                    public void onSuccess(List<VisibleRuleResult> arg0) {
+                                        for (VisibleRuleResult visibleRuleResult : arg0) {
+                                            recrusiveSetItems(visibleRuleResult, (DynamicTreeItem) root);
                                         }
-                                    });
+                                    }
+                                });
+                            }
                         }
 
                         public void onFailure(Throwable arg0) {
@@ -133,17 +135,20 @@ public class TreeDetail extends ContentPanel {
                 viewBean.getBindingEntityModel().getMetaDataTypes().get(viewBean.getBindingEntityModel().getConceptName()),
                 Locale.getLanguage());
         renderTree(models.get(0));
-        getItemService().executeVisibleRule(CommonUtil.toXML(models.get(0), viewBean),
-                new AsyncCallback<List<VisibleRuleResult>>() {
-			public void onFailure(Throwable arg0) {
-			}
-		
-			public void onSuccess(List<VisibleRuleResult> arg0) {
-				for(VisibleRuleResult visibleRuleResult : arg0) {
-					recrusiveSetItems(visibleRuleResult, (DynamicTreeItem) root);
-				}
-			}
-		});
+	        if(hasVisibleRule(
+		                viewBean.getBindingEntityModel().getMetaDataTypes().get(viewBean.getBindingEntityModel().getConceptName()))) {
+	        	getItemService().executeVisibleRule(CommonUtil.toXML(models.get(0), viewBean),
+	                new AsyncCallback<List<VisibleRuleResult>>() {
+					public void onFailure(Throwable arg0) {
+					}
+			
+					public void onSuccess(List<VisibleRuleResult> arg0) {
+						for(VisibleRuleResult visibleRuleResult : arg0) {
+							recrusiveSetItems(visibleRuleResult, (DynamicTreeItem) root);
+						}
+					}
+				});
+	        }
     }
 
     private DynamicTreeItem buildGWTTree(ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue) {
@@ -397,5 +402,26 @@ public class TreeDetail extends ContentPanel {
             }
         }
         return flag;
+    }
+    
+    private boolean hasVisibleRule(TypeModel typeModel) {
+    	if(typeModel.isHasVisiblueRule()) {
+    		return true;
+    	}
+    	
+    	if(!typeModel.isSimpleType()) {
+    		ComplexTypeModel complexModel = (ComplexTypeModel) typeModel;
+            List<TypeModel> children = complexModel.getSubTypes();
+            
+            for(TypeModel model : children) {
+            	boolean childVisibleRule = hasVisibleRule(model);
+            	
+            	if(childVisibleRule) {
+            		return true;
+            	}
+            }
+    	}
+    	
+    	return false;
     }
 }

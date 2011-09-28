@@ -369,6 +369,7 @@ public class DataModelHelper {
                         } else if ("X_Default_Value_Rule".equals(appinfoSource)) { //$NON-NLS-1$
                             typeModel.setDefaultValueExpression(appinfoSourceValue);
                         } else if("X_Visible_Rule".equals(appinfoSource)) { //$NON-NLS-1$
+                        	typeModel.setHasVisiblueRule(true);
                         	DisplayRulesUtil.getVisibleRules().put(typeModel.getXpath(), appinfoSourceValue);
                         }
                     }

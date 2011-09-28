@@ -34,11 +34,31 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
     
     private boolean valid = false;	
 
+    private boolean hasVisiblueRule = false;
     
-    public boolean isValid() {
+    public boolean isHasVisiblueRule() {
+    	if(hasVisiblueRule) {
+    		return true;
+    	}
+    	
+    	List<ModelData> child = getChildren();
+    	
+    	for(ModelData model : child) {
+    		if(((ItemNodeModel) model).isHasVisiblueRule()) {
+    			return true;
+    		}
+    	}
+    	
+		return hasVisiblueRule;
+	}
+
+	public void setHasVisiblueRule(boolean hasVisiblueRule) {
+		this.hasVisiblueRule = hasVisiblueRule;
+	}
+
+	public boolean isValid() {
         return valid;
     }
-
     
     public void setValid(boolean valid) {
         this.valid = valid;
