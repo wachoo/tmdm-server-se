@@ -68,7 +68,7 @@ public class ForeignKeyFieldList extends ContentPanel{
     
     protected HorizontalPanel separatorRight; 
     
-    protected Button addButton; 
+    protected Button addButton;     
     
     protected List<ToggleButton> pageButtonList;
     
@@ -102,6 +102,7 @@ public class ForeignKeyFieldList extends ContentPanel{
         this.initPagingBar();
         this.setHeaderVisible(false);
         this.createWidget();
+        this.setWidth(350);
     }
     
     /**
@@ -134,7 +135,8 @@ public class ForeignKeyFieldList extends ContentPanel{
     
     private void initPagingBar()
     {        
-        addButton = new Button("Add"); //$NON-NLS-1$
+        addButton = new Button(); //$NON-NLS-1$
+        addButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.add()));
         addButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
           
             @Override
@@ -148,9 +150,9 @@ public class ForeignKeyFieldList extends ContentPanel{
         pageSpace2 = new Label("..."); //$NON-NLS-1$
         
         separatorLeft = new HorizontalPanel();
-        separatorLeft.setWidth(40);
+        separatorLeft.setWidth(5);
         separatorRight = new HorizontalPanel();
-        separatorRight.setWidth(40);
+        separatorRight.setWidth(5);
         
         pageButtonList = new ArrayList<ToggleButton>();
         pageButton1 = new ToggleButton("1"); //$NON-NLS-1$
@@ -158,8 +160,7 @@ public class ForeignKeyFieldList extends ContentPanel{
 
             @Override
             public void componentSelected(ButtonEvent ce) {                
-                refreshPage(Integer.valueOf(pageButton1.getText()));  
-                verticalPanel.focus();
+                refreshPage(Integer.valueOf(pageButton1.getText()));               
             }
         });
         pageButtonList.add(pageButton1);
@@ -169,7 +170,6 @@ public class ForeignKeyFieldList extends ContentPanel{
             @Override
             public void componentSelected(ButtonEvent ce) {
                 refreshPage(Integer.valueOf(pageButton2.getText()));
-                verticalPanel.focus();
             }
         });
         pageButtonList.add(pageButton2);
@@ -179,7 +179,6 @@ public class ForeignKeyFieldList extends ContentPanel{
             @Override
             public void componentSelected(ButtonEvent ce) {
                 refreshPage(Integer.valueOf(pageButton3.getText()));
-                verticalPanel.focus();
             }
         });
         pageButtonList.add(pageButton3);       
@@ -188,8 +187,7 @@ public class ForeignKeyFieldList extends ContentPanel{
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                refreshPage(Integer.valueOf(pageButton4.getText()));  
-                verticalPanel.focus();
+                refreshPage(Integer.valueOf(pageButton4.getText()));
             }
         });
         pageButtonList.add(pageButton4);
@@ -198,8 +196,7 @@ public class ForeignKeyFieldList extends ContentPanel{
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                refreshPage(Integer.valueOf(pageButton5.getText()));  
-                verticalPanel.focus();
+                refreshPage(Integer.valueOf(pageButton5.getText()));
             }
         });
         pageButtonList.add(pageButton5);
@@ -299,24 +296,25 @@ public class ForeignKeyFieldList extends ContentPanel{
         verticalPanel.removeAll();
         if (this.fields.size() > 0){
             for (int i=pageStartIndex;i<pageStartIndex+pageSize&&i<this.fields.size();i++){
-                HorizontalPanel recordPanel = new HorizontalPanel();                
-                // create Field
-                HTML label = new HTML();
-                String html = itemNode.getLabel();
-                if (itemNode.isKey() || typeModel.getMinOccurs() >= 1)
-                    html = html + "<span style=\"color:red\"> *</span>"; //$NON-NLS-1$
-                label.setHTML(html);
-                recordPanel.add(label);
                 if (typeModel.isSimpleType()
                         || (!typeModel.isSimpleType() && ((ComplexTypeModel) typeModel).getReusableComplexTypes().size() > 0)) {
-                    Field<?> field = this.getField(i);               
-                    field.setWidth(260);
-                    recordPanel.add(field);               
-          
-                    //recordPanel.setCellWidth(label, "200px"); //$NON-NLS-1$
-
-                }    
-                verticalPanel.add(recordPanel);
+                    HorizontalPanel recordPanel = new HorizontalPanel(); 
+                    Button removeButton = new Button();
+                    removeButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.remove()));                    
+                    addRemoveListener(removeButton, i);
+                    recordPanel.add(removeButton);
+//                    HTML label = new HTML();
+//                    String html = itemNode.getLabel();
+//                    if (itemNode.isKey() || typeModel.getMinOccurs() >= 1)
+//                        html = html + "<span style=\"color:red\"> *</span>"; //$NON-NLS-1$
+//                    label.setHTML(html);
+//                    recordPanel.add(label);
+                    Field<?> field = this.getField(i);
+                    field.setWidth(200);
+                    recordPanel.add(field);                    
+                    recordPanel.setSpacing(2);          
+                    verticalPanel.add(recordPanel);
+                }                
             }
         }
         refreshPageButton();      
@@ -393,9 +391,8 @@ public class ForeignKeyFieldList extends ContentPanel{
             refreshPage(this.getPageCount());
             this.refresh();   
         }else{
-            
+            com.google.gwt.user.client.Window.alert("Max occurence is " + typeModel.getMaxOccurs()); //$NON-NLS-1$
         }
-
     }
     
     public Field<?> createField(Object value)
@@ -425,7 +422,10 @@ public class ForeignKeyFieldList extends ContentPanel{
         
         field.addListener(Events.Change, new Listener<FieldEvent>() {
 
-            public void handleEvent(FieldEvent fe) {   
+            public void handleEvent(FieldEvent fe) {                   
+                int index = foreignKeyBeans.indexOf(foreignKeyBean);
+                foreignKeyBeans.set(index, (ForeignKeyBean) fe.getValue());
+                itemNode.setChangeValue(true);                
                 validate();
             }
         });
@@ -438,7 +438,21 @@ public class ForeignKeyFieldList extends ContentPanel{
         });        
     }
     
-    
+    private void addRemoveListener(final Button button, final int i){
+        
+        button.addSelectionListener(new SelectionListener<ButtonEvent>() {
+            
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+            
+                if (fields.size() < typeModel.getMinOccurs()){
+                    com.google.gwt.user.client.Window.alert("Min occurence is " + typeModel.getMinOccurs());
+                }else{    
+                    removeForeignKeyWidget(foreignKeyBeans.get(i));
+                }
+            }        
+        });
+    }
     
     Validator validator = new Validator() {
         
@@ -461,19 +475,23 @@ public class ForeignKeyFieldList extends ContentPanel{
     };
 
     public void removeForeignKeyWidget(ForeignKeyBean value) {
-        @SuppressWarnings("unchecked")     
-        int index = foreignKeyBeans.indexOf(value);
-        foreignKeyBeans.remove(index);
-        fields.remove(index);
-        itemNode.setChangeValue(true);
-        refreshPage(this.getPageCount());
-    
+        if (fields.size() < typeModel.getMinOccurs()){
+            com.google.gwt.user.client.Window.alert("Min occurence is " + typeModel.getMinOccurs());
+        }else{
+            @SuppressWarnings("unchecked")     
+            int index = foreignKeyBeans.indexOf(value);
+            foreignKeyBeans.remove(index);
+            fields.remove(index);
+            itemNode.setChangeValue(true);
+            refreshPage(this.getPageCount());
+        }   
     }
     
     public void validate(){
         boolean flag = true;
         if (typeModel.getMinOccurs() > 0){
-            if (foreignKeyBeans.size() == 0 || "".equals(foreignKeyBeans.get(0).getId())){            
+            if (foreignKeyBeans.size() == 0 || "".equals(foreignKeyBeans.get(0).getId())){
+                com.google.gwt.user.client.Window.alert("Min occurence is " + typeModel.getMinOccurs());
                 flag = false;
             }
         } 
