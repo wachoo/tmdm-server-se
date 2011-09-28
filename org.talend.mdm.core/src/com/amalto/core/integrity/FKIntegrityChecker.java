@@ -151,10 +151,15 @@ public class FKIntegrityChecker {
             long count = Util.getXmlServerCtrlLocal().countItems(new LinkedHashMap(), conceptPatternsToClusterName, currentType.getName(), whereItem);
 
             if (count > 0) {
-                if (allowOverride) {
-                    get(checkResultToFields, FORBIDDEN_OVERRIDE_ALLOWED).add(referenceFieldMetadata);
+                if(referenceFieldMetadata.isFKIntegrity()) {
+                    if (allowOverride) {
+                        get(checkResultToFields, FORBIDDEN_OVERRIDE_ALLOWED).add(referenceFieldMetadata);
+                    } else {
+                        get(checkResultToFields, FORBIDDEN).add(referenceFieldMetadata);
+                    }
                 } else {
-                    get(checkResultToFields, FORBIDDEN).add(referenceFieldMetadata);
+                    // FK does not enforce FK integrity so it's allowed.
+                    get(checkResultToFields, ALLOWED).add(referenceFieldMetadata);
                 }
             } else {
                 get(checkResultToFields, ALLOWED).add(referenceFieldMetadata);
