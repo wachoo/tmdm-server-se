@@ -646,6 +646,7 @@ public class ItemDetailToolBar extends ToolBar {
         return true;
     }-*/;
 
+    // Please note that this method is duplicated in org.talend.mdm.webapp.browserecords.client.widget.integrity.SingletonDeleteStrategy.initSearchEntityPanel()
     private native boolean initSearchEntityPanel(String arrStr, String ids, String dataObject)/*-{
         var lineageEntities = arrStr.split(",");
         $wnd.amalto.itemsbrowser.ItemsBrowser.lineageItem(lineageEntities, ids, dataObject);

@@ -1,6 +1,7 @@
 package org.talend.mdm.webapp.browserecords.client.widget.integrity;
 
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
@@ -12,6 +13,13 @@ import java.util.Set;
  *
  */
 class ListDeleteStrategy implements DeleteStrategy {
+
+    private BrowseRecordsServiceAsync service;
+
+    ListDeleteStrategy(BrowseRecordsServiceAsync service) {
+        this.service = service;
+    }
+
     public void delete(Map<ItemBean, FKIntegrityResult> items, DeleteAction action) {
         Set<Map.Entry<ItemBean, FKIntegrityResult>> itemsToDelete = items.entrySet();
         boolean hasMetForbiddenDeletes = false;
@@ -23,7 +31,7 @@ class ListDeleteStrategy implements DeleteStrategy {
                     hasMetForbiddenDeletes = true;
                     break;
                 case ALLOWED:
-                    action.delete(currentItem.getKey(), null, false);
+                    action.delete(currentItem.getKey(), service, false);
                     break;
             }
         }

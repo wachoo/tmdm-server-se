@@ -27,7 +27,7 @@ class SingletonDeleteStrategy implements DeleteStrategy {
     /**
      * @param service Need a {@link BrowseRecordsServiceAsync} instance to display 'Relations' window if needed.
      */
-    public SingletonDeleteStrategy(BrowseRecordsServiceAsync service) {
+    SingletonDeleteStrategy(BrowseRecordsServiceAsync service) {
         this.service = service;
     }
 
@@ -50,7 +50,7 @@ class SingletonDeleteStrategy implements DeleteStrategy {
                         new Listener<MessageBoxEvent>() {
                             public void handleEvent(MessageBoxEvent be) {
                                 if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                    action.delete(item, null, true);
+                                    action.delete(item, service, true);
                                 }
                             }
                         });
@@ -92,7 +92,9 @@ class SingletonDeleteStrategy implements DeleteStrategy {
 
     }
 
-    private void initSearchEntityPanel(String arrStr, String ids, String concept) {
-        // TODO
-    }
+    private native boolean initSearchEntityPanel(String arrStr, String ids, String dataObject)/*-{
+        var lineageEntities = arrStr.split(",");
+        $wnd.amalto.itemsbrowser.ItemsBrowser.lineageItem(lineageEntities, ids, dataObject);
+        return true;
+    }-*/;
 }

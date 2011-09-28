@@ -33,7 +33,7 @@ public class DeleteCallback implements AsyncCallback<Map<ItemBean, FKIntegrityRe
     public void onSuccess(Map<ItemBean, FKIntegrityResult> result) {
         DeleteStrategy strategy;
         if (result.size() > 1) {
-            strategy = new ListDeleteStrategy();
+            strategy = new ListDeleteStrategy(service);
         } else {
             strategy = new SingletonDeleteStrategy(service);
         }
