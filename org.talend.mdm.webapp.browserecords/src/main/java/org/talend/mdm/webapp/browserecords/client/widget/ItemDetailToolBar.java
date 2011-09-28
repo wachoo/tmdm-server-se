@@ -207,11 +207,12 @@ public class ItemDetailToolBar extends ToolBar {
                             .path_desc());
                     box.getTextBox().setValue("/"); //$NON-NLS-1$
                     box.addCallback(new Listener<MessageBoxEvent>() {
+
                         public void handleEvent(MessageBoxEvent be) {
                             PostDeleteAction postDeleteAction = new ContainerUpdate(NoOpPostDeleteAction.INSTANCE);
                             DeleteAction deleteAction = new LogicalDeleteAction(be.getValue());
-                            service.checkFKIntegrity(Collections.singletonList(itemBean),
-                                        new DeleteCallback(deleteAction, postDeleteAction, service));
+                            service.checkFKIntegrity(Collections.singletonList(itemBean), new DeleteCallback(deleteAction,
+                                    postDeleteAction, service));
                         }
                     });
                 }
@@ -231,8 +232,8 @@ public class ItemDetailToolBar extends ToolBar {
                         public void handleEvent(MessageBoxEvent be) {
                             if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
                                 PostDeleteAction postDeleteAction = new ContainerUpdate(NoOpPostDeleteAction.INSTANCE);
-                                service.checkFKIntegrity(Collections.singletonList(itemBean),
-                                        new DeleteCallback(DeleteAction.PHYSICAL, postDeleteAction, service));
+                                service.checkFKIntegrity(Collections.singletonList(itemBean), new DeleteCallback(
+                                        DeleteAction.PHYSICAL, postDeleteAction, service));
                             }
                         }
                     });
@@ -268,12 +269,12 @@ public class ItemDetailToolBar extends ToolBar {
                     String title = itemBean.getConcept() + " " + itemBean.getIds(); //$NON-NLS-1$
                     if (isFkToolBar) {
                         ForeignKeyTreeDetail fkTree = (ForeignKeyTreeDetail) ItemsDetailPanel.getInstance().getTabPanel()
-                                .getSelectedItem()
-                                .getWidget(0);
+                                .getSelectedItem().getWidget(0);
                         ForeignKeyTreeDetail duplicateFkTree = new ForeignKeyTreeDetail(fkTree.getFkModel(), true);
                         ItemsDetailPanel.getInstance().addTabItem(title, duplicateFkTree, ItemsDetailPanel.MULTIPLE, title);
                     } else {
-                        ItemPanel itemPanel = new ItemPanel(itemBean, ItemDetailToolBar.CREATE_OPERATION);
+                        ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
+                        ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.CREATE_OPERATION);
                         ItemsDetailPanel.getInstance().addTabItem(title, itemPanel, ItemsDetailPanel.MULTIPLE, title);
                     }
 
@@ -500,8 +501,7 @@ public class ItemDetailToolBar extends ToolBar {
                 public void componentSelected(ButtonEvent ce) {
                     updateSmartViewToolBar();
                     if (ItemsDetailPanel.getInstance().getTabPanel().getItem(0).getWidget(0) instanceof ItemPanel) {
-                        ItemPanel itemPanel = (ItemPanel) ItemsDetailPanel.getInstance().getTabPanel()
-                                .getItem(0).getWidget(0);
+                        ItemPanel itemPanel = (ItemPanel) ItemsDetailPanel.getInstance().getTabPanel().getItem(0).getWidget(0);
                         itemPanel.getTree().setVisible(false);
                         itemPanel.getSmartPanel().setVisible(true);
                     }
@@ -521,8 +521,7 @@ public class ItemDetailToolBar extends ToolBar {
                 public void componentSelected(ButtonEvent ce) {
                     updateViewToolBar();
                     if (ItemsDetailPanel.getInstance().getTabPanel().getItem(0).getWidget(0) instanceof ItemPanel) {
-                        ItemPanel itemPanel = (ItemPanel) ItemsDetailPanel.getInstance().getTabPanel()
-                                .getItem(0).getWidget(0);
+                        ItemPanel itemPanel = (ItemPanel) ItemsDetailPanel.getInstance().getTabPanel().getItem(0).getWidget(0);
                         itemPanel.getTree().setVisible(true);
                         itemPanel.getSmartPanel().setVisible(false);
                     }
@@ -573,8 +572,7 @@ public class ItemDetailToolBar extends ToolBar {
                 @Override
                 public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
                     if (ItemsDetailPanel.getInstance().getTabPanel().getItem(0).getWidget(0) instanceof ItemPanel) {
-                        ItemPanel itemPanel = (ItemPanel) ItemsDetailPanel.getInstance().getTabPanel()
-                                .getItem(0).getWidget(0);
+                        ItemPanel itemPanel = (ItemPanel) ItemsDetailPanel.getInstance().getTabPanel().getItem(0).getWidget(0);
                         String frameUrl = "/itemsbrowser/secure/SmartViewServlet?ids=" + itemBean.getIds() + "&concept=" //$NON-NLS-1$ //$NON-NLS-2$
                                 + itemBean.getConcept() + "&language=" + Locale.getLanguage(); //$NON-NLS-1$
                         if (se.getSelectedItem().get("key") != null) //$NON-NLS-1$
@@ -660,7 +658,8 @@ public class ItemDetailToolBar extends ToolBar {
         brService.getItemBeanById(concept, idArr, Locale.getLanguage(), new AsyncCallback<ItemBean>() {
 
             public void onSuccess(ItemBean item) {
-                ItemPanel itemPanel = new ItemPanel(item, ItemDetailToolBar.VIEW_OPERATION);
+                ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
+                ItemPanel itemPanel = new ItemPanel(viewBean, item, ItemDetailToolBar.VIEW_OPERATION);
                 ItemsDetailPanel.getInstance().addTabItem(
                         item.getConcept() + " " + item.getIds(), itemPanel, ItemsDetailPanel.MULTIPLE, item.getIds()); //$NON-NLS-1$
             }

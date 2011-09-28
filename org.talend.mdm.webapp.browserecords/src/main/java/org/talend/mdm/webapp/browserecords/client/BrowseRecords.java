@@ -21,6 +21,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
+import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
@@ -50,14 +51,14 @@ public class BrowseRecords implements EntryPoint {
 
     private native void regItemDetails()/*-{
         $wnd.amalto.itemsbrowser.ItemsBrowser.editItemDetails = function(ids, entity, callback){
-             var idstr;
-             if(ids.length == 1){
-                 idstr = ids[0];
-             }      
-             var tabPanel = $wnd.amalto.core.getTabPanel();  
-             var panel = tabPanel.getItem("Browse Records");   
-             tabPanel.setSelection(panel.getItemId());  
-             @org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar::addTreeDetail(Ljava/lang/String;Ljava/lang/String;)(idstr, entity)
+        var idstr;
+        if(ids.length == 1){
+        idstr = ids[0];
+        }      
+        var tabPanel = $wnd.amalto.core.getTabPanel();  
+        var panel = tabPanel.getItem("Browse Records");   
+        tabPanel.setSelection(panel.getItemId());  
+        @org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar::addTreeDetail(Ljava/lang/String;Ljava/lang/String;)(idstr, entity)
         };
     }-*/;
 
@@ -106,24 +107,36 @@ public class BrowseRecords implements EntryPoint {
     }
 
     public void showTreeDetailPanel(final String concept, final String ids) {
+
         getItemService().getItemBeanById(concept, ids.split("\\."), Locale.getLanguage(), new AsyncCallback<ItemBean>() { //$NON-NLS-1$
 
-            public void onSuccess(ItemBean item) {
-                ItemPanel itemPanel = new ItemPanel(item, ItemDetailToolBar.VIEW_OPERATION);
-                itemPanel.setItemId(concept + "_" + ids); //$NON-NLS-1$
-                        renderPubTreeDetailPanel(itemPanel.getItemId(), itemPanel);
-            }
+                    public void onSuccess(final ItemBean item) {
+                        getItemService().getView("Browse_items_" + concept, "en", new AsyncCallback<ViewBean>() { //$NON-NLS-1$
 
-            public void onFailure(Throwable arg0) {
+                                    public void onFailure(Throwable arg0) {
 
-            }
-        });
+                                    }
+
+                                    public void onSuccess(ViewBean viewBean) {
+                                        ItemPanel itemPanel = new ItemPanel(viewBean, item, ItemDetailToolBar.VIEW_OPERATION);
+                                        itemPanel.setItemId(concept + "_" + ids); //$NON-NLS-1$
+                                        renderPubTreeDetailPanel(itemPanel.getItemId(), itemPanel);
+                                    } //$NON-NLS-1$ //$NON-NLS-2$
+
+                                });
+
+                    }
+
+                    public void onFailure(Throwable arg0) {
+
+                    }
+                });
     }
-    
+
     public native void renderPubTreeDetailPanel(String itemId, ItemPanel itemPanel)/*-{
-        var tabPanel = $wnd.amalto.core.getTabPanel();
+        var tabPanel = $wnd.amalto.hierarchy.Hierarchy.getTabPanel();
         var panel = tabPanel.getItem(itemId); 
-        if (panel == undefined){
+        if (panel == undefined || panel == null){
         panel = this.@org.talend.mdm.webapp.browserecords.client.BrowseRecords::wrapTreeDetailPanel(Lorg/talend/mdm/webapp/browserecords/client/widget/ItemPanel;)(itemPanel);
         tabPanel.add(panel);
         }

@@ -154,18 +154,18 @@ public class ItemsToolBar extends ToolBar {
     /*************************************/
 
     private static ItemsToolBar instance;
-    
+
     public static ItemsToolBar getInstance() {
         if (instance == null) {
             instance = new ItemsToolBar();
         }
-        
+
         return instance;
     }
 
     protected void onDetach() {
-    	super.onDetach();
-    	instance = null;
+        super.onDetach();
+        instance = null;
     }
 
     private ItemsToolBar() {
@@ -290,7 +290,8 @@ public class ItemsToolBar extends ToolBar {
                     ItemsListPanel.getInstance().getGrid().getSelectionModel().deselectAll();
                 ItemsDetailPanel.getInstance().clearContent();
                 ItemsDetailPanel.getInstance().initBanner(itemBean.getDisplayPKInfo(), itemBean.getDescription());
-                ItemPanel itemPanel = new ItemPanel(itemBean, ItemDetailToolBar.CREATE_OPERATION);
+                ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
+                ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.CREATE_OPERATION);
                 ItemsDetailPanel.getInstance().addTabItem(itemBean.getConcept(), itemPanel, ItemsDetailPanel.MULTIPLE,
                         itemBean.getConcept());
             }
@@ -335,7 +336,8 @@ public class ItemsToolBar extends ToolBar {
                         if (be.getButtonClicked().getItemId().equals(Dialog.OK)) {
                             final ItemsListPanel list = ItemsListPanel.getInstance();
                             if (list.getGrid() != null) {
-                                PostDeleteAction postDeleteAction = new ListRefresh(list, new ContainerUpdate(NoOpPostDeleteAction.INSTANCE));
+                                PostDeleteAction postDeleteAction = new ListRefresh(list, new ContainerUpdate(
+                                        NoOpPostDeleteAction.INSTANCE));
                                 DeleteAction deleteAction = new LogicalDeleteAction(be.getValue());
                                 service.checkFKIntegrity(list.getGrid().getSelectionModel().getSelectedItems(),
                                         new DeleteCallback(deleteAction, postDeleteAction, service));
@@ -812,8 +814,7 @@ public class ItemsToolBar extends ToolBar {
                     public void onSuccess(List<ItemResult> results) {
                         for (ItemResult result : results) {
                             if (result.getStatus() == ItemResult.FAILURE) {
-                                MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                        result.getDescription(), null);
+                                MessageBox.alert(MessagesFactory.getMessages().error_title(), result.getDescription(), null);
                                 return;
                             }
                         }
@@ -885,8 +886,7 @@ public class ItemsToolBar extends ToolBar {
         advancedBut.toggle(advancedPanelVisible);
         // resize result grid
         if (ItemsListPanel.getInstance().gridContainer != null)
-            ItemsListPanel.getInstance().gridContainer.setHeight(ItemsToolBar.this.getParent()
-                    .getOffsetHeight()
+            ItemsListPanel.getInstance().gridContainer.setHeight(ItemsToolBar.this.getParent().getOffsetHeight()
                     - ItemsToolBar.this.getOffsetHeight() - advancedPanel.getOffsetHeight());
     }
 
@@ -1085,7 +1085,6 @@ public class ItemsToolBar extends ToolBar {
                 dtpanel.updateGrid(tableView, panel.getWidth());
                 panel.add(dtpanel);
                 panel.layout(true);
-                return;
             }
         }
 
@@ -1117,7 +1116,7 @@ public class ItemsToolBar extends ToolBar {
 
     private class DeleteItemsBoxListener implements Listener<MessageBoxEvent> {
 
-        private final ItemsListPanel list ;
+        private final ItemsListPanel list;
 
         private final BrowseRecordsServiceAsync service;
 
@@ -1130,8 +1129,8 @@ public class ItemsToolBar extends ToolBar {
             if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
                 if (list.getGrid() != null) {
                     PostDeleteAction postDeleteAction = new ListRefresh(list, new ContainerUpdate(NoOpPostDeleteAction.INSTANCE));
-                    service.checkFKIntegrity(list.getGrid().getSelectionModel().getSelectedItems(),
-                                        new DeleteCallback(DeleteAction.PHYSICAL, postDeleteAction, service));
+                    service.checkFKIntegrity(list.getGrid().getSelectionModel().getSelectedItems(), new DeleteCallback(
+                            DeleteAction.PHYSICAL, postDeleteAction, service));
                 }
 
             }

@@ -17,6 +17,7 @@ import java.util.List;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
+import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -39,6 +40,8 @@ public class ItemPanel extends ContentPanel {
 
     private ItemDetailToolBar toolBar;
 
+    private ViewBean viewBean;
+
     private ItemBean item;
 
     private String operation;
@@ -47,8 +50,8 @@ public class ItemPanel extends ContentPanel {
 
     }
 
-    public ItemPanel(ItemBean item, String operation) {
-
+    public ItemPanel(ViewBean viewBean, ItemBean item, String operation) {
+        this.viewBean = viewBean;
         this.item = item;
         this.toolBar = new ItemDetailToolBar(item, operation);
         this.operation = operation;
@@ -60,16 +63,16 @@ public class ItemPanel extends ContentPanel {
         this.setHeaderVisible(false);
         this.setTopComponent(toolBar);
         if (ItemDetailToolBar.CREATE_OPERATION.equals(operation)) {
-            tree.initTree(null);
+            tree.initTree(viewBean, null);
         } else if (ItemDetailToolBar.VIEW_OPERATION.equals(operation)) {
-            tree.initTree(item);
+            tree.initTree(viewBean, item);
         } else if (ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {
-            tree.initTree(item);
+            tree.initTree(viewBean, item);
         } else if (ItemDetailToolBar.PERSONALEVIEW_OPERATION.equals(operation)
                 || ItemDetailToolBar.SMARTVIEW_OPERATION.equals(operation)) {
-            tree.initTree(item);
+            tree.initTree(viewBean, item);
         } else {
-            tree.initTree(null);
+            tree.initTree(viewBean, null);
         }
 
         tree.expand();

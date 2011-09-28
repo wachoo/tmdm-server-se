@@ -14,7 +14,6 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
-import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
@@ -37,7 +36,7 @@ import com.google.gwt.user.client.ui.TreeItem;
 
 public class TreeDetail extends ContentPanel {
 
-    private final ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
+    private ViewBean viewBean;
 
     private Tree tree = new Tree();
 
@@ -96,37 +95,39 @@ public class TreeDetail extends ContentPanel {
         this.setScrollMode(Scroll.AUTO);
     }
 
-    public void initTree(ItemBean itemBean) {        
+    public void initTree(ViewBean viewBean, ItemBean itemBean) {
+        this.viewBean = viewBean;
         if (itemBean == null) {
-            buildPanel(viewBean);
+            buildPanel();
         } else {
-            getItemService().getItemNodeModel(itemBean, viewBean.getBindingEntityModel(),
-            		Locale.getLanguage(), new AsyncCallback<ItemNodeModel>() {
+            getItemService().getItemNodeModel(itemBean, viewBean.getBindingEntityModel(), Locale.getLanguage(),
+                    new AsyncCallback<ItemNodeModel>() {
 
-                public void onSuccess(ItemNodeModel node) {
-                    renderTree(node);
-                    //maybe need to refactor for performance
-                            getItemService().executeVisibleRule(CommonUtil.toXML(node, viewBean),
+                        public void onSuccess(ItemNodeModel node) {
+                            renderTree(node);
+                            // maybe need to refactor for performance
+                            getItemService().executeVisibleRule(CommonUtil.toXML(node, TreeDetail.this.viewBean),
                                     new AsyncCallback<List<VisibleRuleResult>>() {
-						public void onFailure(Throwable arg0) {
-						}
 
-						public void onSuccess(List<VisibleRuleResult> arg0) {
-							for(VisibleRuleResult visibleRuleResult : arg0) {
-								recrusiveSetItems(visibleRuleResult, (DynamicTreeItem) root);
-							}
-						}
-					});
-                }
+                                        public void onFailure(Throwable arg0) {
+                                        }
 
-                public void onFailure(Throwable arg0) {
-                    arg0.printStackTrace();
-                }
-            });
+                                        public void onSuccess(List<VisibleRuleResult> arg0) {
+                                            for (VisibleRuleResult visibleRuleResult : arg0) {
+                                                recrusiveSetItems(visibleRuleResult, (DynamicTreeItem) root);
+                                            }
+                                        }
+                                    });
+                        }
+
+                        public void onFailure(Throwable arg0) {
+                            arg0.printStackTrace();
+                        }
+                    });
         }
     }
 
-    public void buildPanel(final ViewBean viewBean) {
+    private void buildPanel() {
 
         List<ItemNodeModel> models = CommonUtil.getDefaultTreeModel(
                 viewBean.getBindingEntityModel().getMetaDataTypes().get(viewBean.getBindingEntityModel().getConceptName()),
@@ -209,7 +210,7 @@ public class TreeDetail extends ContentPanel {
     private Tree displayGWTTree(ColumnTreeModel columnLayoutModel) {
         Tree tree = new Tree();
         if (root != null && root.getChildCount() > 0) {
-            
+
             for (ColumnElement ce : columnLayoutModel.getColumnElements()) {
                 for (int i = 0; i < root.getChildCount(); i++) {
                     TreeItem child = root.getChild(i);
@@ -233,7 +234,7 @@ public class TreeDetail extends ContentPanel {
 
         ColumnTreeLayoutModel columnLayoutModel = viewBean.getColumnLayoutModel();
         if (columnLayoutModel != null) {// TODO if create a new PrimaryKey, tree UI should not render according to the
-                                             // layout template
+                                        // layout template
             HorizontalPanel hp = new HorizontalPanel();
 
             for (ColumnTreeModel ctm : columnLayoutModel.getColumnTreeModels()) {
@@ -253,21 +254,21 @@ public class TreeDetail extends ContentPanel {
     }
 
     private void recrusiveSetItems(VisibleRuleResult visibleResult, DynamicTreeItem rootItem) {
-    	if(rootItem.getItemNodeModel().getBindingPath().equals(visibleResult.getXpath())) {
-    		rootItem.setVisible(visibleResult.isVisible());
-    	}
-    	
-    	if(rootItem.getChildCount() == 0) {
-    		return;
-    	}
-    	
-    	for(int i = 0; i < rootItem.getChildCount(); i++) {
-    		DynamicTreeItem item = (DynamicTreeItem) rootItem.getChild(i);
-    		recrusiveSetItems(visibleResult, item);
-    	}
-	}
+        if (rootItem.getItemNodeModel().getBindingPath().equals(visibleResult.getXpath())) {
+            rootItem.setVisible(visibleResult.isVisible());
+        }
 
-	public static class DynamicTreeItem extends TreeItem {
+        if (rootItem.getChildCount() == 0) {
+            return;
+        }
+
+        for (int i = 0; i < rootItem.getChildCount(); i++) {
+            DynamicTreeItem item = (DynamicTreeItem) rootItem.getChild(i);
+            recrusiveSetItems(visibleResult, item);
+        }
+    }
+
+    public static class DynamicTreeItem extends TreeItem {
 
         private ItemNodeModel itemNode;
 
@@ -321,8 +322,8 @@ public class TreeDetail extends ContentPanel {
 
     public void refreshTree(final ItemBean item) {
         item.set("isRefresh", true); //$NON-NLS-1$
-        getItemService().getItemNodeModel(item, viewBean.getBindingEntityModel(),
-                Locale.getLanguage(), new AsyncCallback<ItemNodeModel>() {
+        getItemService().getItemNodeModel(item, viewBean.getBindingEntityModel(), Locale.getLanguage(),
+                new AsyncCallback<ItemNodeModel>() {
 
                     public void onSuccess(ItemNodeModel node) {
                         TreeDetail.this.removeAll();

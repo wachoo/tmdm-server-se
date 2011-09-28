@@ -17,12 +17,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.creator.CellEditorCreator;
 import org.talend.mdm.webapp.browserecords.client.creator.CellRendererCreator;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
+import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.BreadCrumb;
 import org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer;
@@ -85,8 +87,8 @@ public class BrowseRecordsView extends View {
             onViewForeignKey(event);
         } else if (event.getType() == BrowseRecordsEvents.UpdatePolymorphism) {
             onUpdatePolymorphism(event);
-        } else if(event.getType() == BrowseRecordsEvents.ExecuteVisibleRule) {
-        	onExecuteVisibleRule(event);
+        } else if (event.getType() == BrowseRecordsEvents.ExecuteVisibleRule) {
+            onExecuteVisibleRule(event);
         }
     }
 
@@ -95,9 +97,9 @@ public class BrowseRecordsView extends View {
         if (itemPanel != null) {
             itemPanel.onExecuteVisibleRule((List<VisibleRuleResult>) event.getData());
         }
-	}
+    }
 
-	private void onUpdatePolymorphism(AppEvent event) {
+    private void onUpdatePolymorphism(AppEvent event) {
         ItemPanel itemPanel = ItemsDetailPanel.getInstance().getCurrentItemPanel();
         if (itemPanel != null) {
             itemPanel.onUpdatePolymorphism((ComplexTypeModel) event.getData());
@@ -107,8 +109,7 @@ public class BrowseRecordsView extends View {
     private void onViewForeignKey(AppEvent event) {
         ForeignKeyModel model = event.getData();
         ForeignKeyTreeDetail tree = new ForeignKeyTreeDetail(model, false);
-        ItemsDetailPanel.getInstance().addTabItem(
-                model.getViewBean().getBindingEntityModel().getConceptName(), tree,
+        ItemsDetailPanel.getInstance().addTabItem(model.getViewBean().getBindingEntityModel().getConceptName(), tree,
                 ItemsDetailPanel.MULTIPLE, model.getViewBean().getDescription());
     }
 
@@ -121,7 +122,8 @@ public class BrowseRecordsView extends View {
             operation = ItemDetailToolBar.PERSONALEVIEW_OPERATION;
         else if (item.getSmartViewMode().equals(ItemBean.SMARTMODE))
             operation = ItemDetailToolBar.SMARTVIEW_OPERATION;
-        ItemPanel itemPanel = new ItemPanel(item, operation);
+        ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
+        ItemPanel itemPanel = new ItemPanel(viewBean, item, operation);
         ItemsDetailPanel.getInstance().addTabItem(item.getConcept(), itemPanel, ItemsDetailPanel.SINGLETON, "itemView"); //$NON-NLS-1$
 
         // show breadcrumb
@@ -145,8 +147,7 @@ public class BrowseRecordsView extends View {
     private void onCreateForeignKeyView(AppEvent event) {
         ViewBean viewBean = event.getData();
         ForeignKeyTreeDetail tree = new ForeignKeyTreeDetail(viewBean, true);
-        ItemsDetailPanel.getInstance().addTabItem(viewBean.getBindingEntityModel().getConceptName(),
-                tree,
+        ItemsDetailPanel.getInstance().addTabItem(viewBean.getBindingEntityModel().getConceptName(), tree,
                 ItemsDetailPanel.MULTIPLE, viewBean.getDescription());
 
     }
