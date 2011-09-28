@@ -1510,9 +1510,15 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     if (child.getNodeType() == Node.ELEMENT_NODE) {
                         if (typeModel.getXpath().equals(xpath + "/" + child.getNodeName())) { //$NON-NLS-1$
                             ItemNodeModel childNode = builderNode((Element) child, entity, xpath, language);
+                            childNode.setHasVisiblueRule(typeModel.isHasVisiblueRule());
                             nodeModel.add(childNode);
                             existNodeFlag = true;
-                            break;
+                            if(typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {
+                            	continue;
+                            }
+                            else {
+                            	break;
+                            }
                         }
                     }
                 }
