@@ -144,6 +144,10 @@ public class TreeDetailGridFieldCreator {
             field.setReadOnly(dataType.isReadOnly());
             field.setEnabled(!dataType.isReadOnly());
         }
+        
+        if (node.isKey() && hasValue){
+            field.setEnabled(false);
+        }
 
         addFieldListener(field, node);
         
@@ -299,11 +303,7 @@ public class TreeDetailGridFieldCreator {
         }
     }
     
-    private static void validate(Field<?> field,ItemNodeModel node){
-        if (!field.isValid()){
-            System.out.println(field.getFieldLabel() + " " + field.getErrorMessage());
-        }
-        
+    private static void validate(Field<?> field,ItemNodeModel node){        
         node.setValid(field.isValid());      
     }
 }
