@@ -157,8 +157,11 @@ public class WelcomePortalAction extends RemoteServiceServlet implements Welcome
             for (WSTransformerPK wstransformerpk : wst) {
                 if (isStandaloneProcess(wstransformerpk.getPk())) {
                 	WSTransformer wsTransformer = Util.getPort().getTransformer(new WSGetTransformer(wstransformerpk));
-                	process.add(getDescriptionByLau(language, wsTransformer.getDescription()));
-//                    process.add(wstransformerpk.getPk());
+                    String desc = getDescriptionByLau(language, wsTransformer.getDescription());
+                    if (desc == null || desc.equals("")) //$NON-NLS-1$
+                        process.add(wstransformerpk.getPk());
+                    else
+                        process.add(getDescriptionByLau(language, wsTransformer.getDescription()));
                 }
             }
 
