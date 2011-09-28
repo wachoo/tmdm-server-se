@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -3973,6 +3974,7 @@ public class ItemsBrowserDWR {
         WebContext ctx = WebContextFactory.get();
         HashMap<String, TreeNode> xpathToTreeNode = (HashMap<String, TreeNode>) ctx.getSession().getAttribute("xpathToTreeNode");//$NON-NLS-1$
         HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath" + docIndex);//$NON-NLS-1$
+        Locale locale = new Locale(language);
 
         if (idToXpath == null)
             return "null";//$NON-NLS-1$
@@ -3996,22 +3998,22 @@ public class ItemsBrowserDWR {
         if (node.getTypeName().equals("double") || node.getTypeName().equals("float") || node.getTypeName().equals("decimal")) {//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
             if (node.getMinOccurs() > 0) {
                 if (!isNumeric(value)) {
-                    return "the field must be " + node.getTypeName();
+                    return MESSAGES.getMessage(locale, "field.invalid", node.getTypeName()); //$NON-NLS-1$
                 }
             } else {
                 if (!"".equals(value) && !isNumeric(value)) {//$NON-NLS-1$
-                    return "the field must be " + node.getTypeName();
+                    return MESSAGES.getMessage(locale, "field.invalid", node.getTypeName()); //$NON-NLS-1$
                 }
             }
         } else if (node.getTypeName().equals("int") || node.getTypeName().equals("integer") || node.getTypeName().equals("long")//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
                 || node.getTypeName().equals("short")) {//$NON-NLS-1$
             if (node.getMinOccurs() > 0) {
                 if (!isInteger(value)) {
-                    return "the field must be " + node.getTypeName();
+                    return MESSAGES.getMessage(locale, "field.invalid", node.getTypeName()); //$NON-NLS-1$
                 }
             } else {
-                if (!"".equals(value) && !isInteger(value)) {
-                    return "the field must be " + node.getTypeName();
+                if (!"".equals(value) && !isInteger(value)) {//$NON-NLS-1$ 
+                    return MESSAGES.getMessage(locale, "field.invalid", node.getTypeName()); //$NON-NLS-1$
                 }
             }
         } else if (node.getTypeName().equals("date")) {//$NON-NLS-1$
@@ -4020,23 +4022,23 @@ public class ItemsBrowserDWR {
             // System.out.println("targetValue = " + targetValue);
             if (node.getMinOccurs() > 0) {
                 if (!isDate(targetValue)) {
-                    return "the field must be " + node.getTypeName() + "formate yyyy-mm-dd";
+                    return MESSAGES.getMessage(locale, "datefield.invalid", node.getTypeName());//$NON-NLS-1$
                 }
             } else {
-                if (!"".equals(targetValue) && !isDate(targetValue)) {
-                    return "the field must be " + node.getTypeName() + "formate yyyy-mm-dd";
+                if (!"".equals(targetValue) && !isDate(targetValue)) {//$NON-NLS-1$ 
+                    return MESSAGES.getMessage(locale, "datefield.invalid", node.getTypeName());//$NON-NLS-1$
                 }
             }
         } else if (node.getTypeName().equals("dateTime")) {//$NON-NLS-1$       
-            String targetValue = (node.getValue() != null && !"".equals(node.getValue()) && node.getRealValue() != null && !""
+            String targetValue = (node.getValue() != null && !"".equals(node.getValue()) && node.getRealValue() != null && !"" //$NON-NLS-1$  //$NON-NLS-2$ 
                     .equals(node.getRealValue())) ? node.getRealValue() : value;
             if (node.getMinOccurs() > 0) {
                 if (!isDateTime(targetValue)) {
-                    return "the field must be " + node.getTypeName() + "formate yyyy-mm-ddTHH:mm:ss";
+                    return MESSAGES.getMessage(locale, "datetimefield.invalid", node.getTypeName());//$NON-NLS-1$
                 }
             } else {
-                if (!"".equals(value) && !isDateTime(targetValue)) {
-                    return "the field must be " + node.getTypeName() + "formate yyyy-mm-ddTHH:mm:ss";
+                if (!"".equals(value) && !isDateTime(targetValue)) {//$NON-NLS-1$ 
+                    return MESSAGES.getMessage(locale, "datetimefield.invalid", node.getTypeName());//$NON-NLS-1$
                 }
             }
         }
@@ -4050,13 +4052,14 @@ public class ItemsBrowserDWR {
             boolean ancestor = checkAncestorMinOCcurs(node);
             if (ancestor || (!ancestor && !isSiblingNodeEmpty(xpathToTreeNode, node))) {
                 if (node.getMinOccurs() >= 1)
-                    errorMessage = errorMessage == null ? "the field minOccurs is " + node.getMinOccurs() : errorMessage;
+                    errorMessage = errorMessage == null ? MESSAGES.getMessage(locale, "minOccurs.invalid", node.getMinOccurs())//$NON-NLS-1$
+                            : errorMessage;
                 else
-                    errorMessage = errorMessage == null ? "this field is mandatory!" : errorMessage;
+                    errorMessage = errorMessage == null ? MESSAGES.getMessage(locale, "mandatory.invalid") : errorMessage;//$NON-NLS-1$
             }
             // isValidation = false;
             if (node.isKey()) {
-                errorMessage = errorMessage == null ? "Entity key field should not be empty" : errorMessage;
+                errorMessage = errorMessage == null ? MESSAGES.getMessage(locale, "key.invalid") : errorMessage;//$NON-NLS-1$
             }
             return errorMessage == null ? "null" : errorMessage;
         }
@@ -4065,13 +4068,13 @@ public class ItemsBrowserDWR {
             restrictions = node.getRestrictions();
         }
         if (restrictions == null)
-            return "null";
+            return "null";//$NON-NLS-1$
 
         for (Restriction re : restrictions) {
             if (node.getFacetErrorMsg() != null)
                 errorMessage = (String) node.getFacetErrorMsg().get(language);
             if (value.length() == 0 && node.isKey()) {
-                errorMessage = errorMessage == null ? "Entity key field should not be empty" : errorMessage;
+                errorMessage = errorMessage == null ? MESSAGES.getMessage(locale, "key.invalid") : errorMessage;//$NON-NLS-1$
                 isValidation = false;
                 break;
             }
@@ -4082,45 +4085,49 @@ public class ItemsBrowserDWR {
             if (node.getMinOccurs() >= 1 || (node.getMinOccurs() == 0 && value.trim().length() != 0)) {
                 if (re.getName().equals("pattern")) {//$NON-NLS-1$
                     if (!AUTO_INCREMENT.equals(value) && !Pattern.compile(re.getValue()).matcher(value).matches()) {
-                        errorMessage = errorMessage == null ? value + " don't match the field's pattern: " + re.getValue()
+                        errorMessage = errorMessage == null ? MESSAGES.getMessage(locale, "match.invalid", value, re.getValue())//$NON-NLS-1$
                                 : errorMessage;
                         isValidation = false;
                         break;
                     }
                 }
                 if (re.getName().equals("minLength") && value.length() < Integer.parseInt(re.getValue())) {//$NON-NLS-1$
-                    errorMessage = errorMessage == null ? "the field minLength is " + re.getValue() : errorMessage;
+                    errorMessage = errorMessage == null ? MESSAGES.getMessage(locale, "minlength.invalid", re.getValue()) : errorMessage;//$NON-NLS-1$
                     isValidation = false;
                     break;
                 }
                 if (re.getName().equals("maxLength") && value.length() > Integer.parseInt(re.getValue())) {//$NON-NLS-1$
-                    errorMessage = errorMessage == null ? "the field maxLength is " + re.getValue() : errorMessage;
+                    errorMessage = errorMessage == null ? MESSAGES.getMessage(locale, "maxlength.invalid", re.getValue()) : errorMessage;//$NON-NLS-1$
                     isValidation = false;
                     break;
                 }
                 if (re.getName().equals("length") && value.length() != Integer.parseInt(re.getValue())) {//$NON-NLS-1$
-                    errorMessage = errorMessage == null ? "the field's length should be " + re.getValue() : errorMessage;
+                    errorMessage = errorMessage == null ? MESSAGES.getMessage(locale, "length.invalid", re.getValue()) : errorMessage;//$NON-NLS-1$
                     isValidation = false;
                     break;
                 }
                 if (re.getName().equals("minExclusive"))//$NON-NLS-1$
                     if (!isNumeric(value)) {
-                        errorMessage = errorMessage == null ? node.getName() + " is not a valid value for number" : errorMessage;
+                        errorMessage = errorMessage == null ? MESSAGES.getMessage(locale, "number.invalid", node.getName())//$NON-NLS-1$
+                                : errorMessage;
                         isValidation = false;
                         break;
                     } else if (Float.parseFloat(value) <= Float.parseFloat(re.getValue())) {
-                        errorMessage = errorMessage == null ? "the field minExclusive is " + re.getValue() : errorMessage;
+                        errorMessage = errorMessage == null ? MESSAGES.getMessage(locale, "minExclusive.invalid", re.getValue())//$NON-NLS-1$
+                                : errorMessage;
                         isValidation = false;
                         break;
                     }
 
                 if (re.getName().equals("minInclusive")) {//$NON-NLS-1$
                     if (!isNumeric(value)) {
-                        errorMessage = errorMessage == null ? node.getName() + " is not a valid value for number" : errorMessage;
+                        errorMessage = errorMessage == null ? MESSAGES.getMessage(locale, "number.invalid", node.getName())//$NON-NLS-1$
+                                : errorMessage;
                         isValidation = false;
                         break;
                     } else if (Float.parseFloat(value) < Float.parseFloat(re.getValue())) {
-                        errorMessage = errorMessage == null ? "the field minInclusive is " + re.getValue() : errorMessage;
+                        errorMessage = errorMessage == null ? MESSAGES.getMessage(locale, "minInclusive.invalid", re.getValue())//$NON-NLS-1$
+                                : errorMessage;
                         isValidation = false;
                         break;
                     }
@@ -4128,11 +4135,13 @@ public class ItemsBrowserDWR {
 
                 if (re.getName().equals("maxInclusive")) {//$NON-NLS-1$
                     if (!isNumeric(value)) {
-                        errorMessage = errorMessage == null ? node.getName() + " is not a valid value for number" : errorMessage;
+                        errorMessage = errorMessage == null ? MESSAGES.getMessage(locale, "number.invalid", node.getName())//$NON-NLS-1$
+                                : errorMessage;
                         isValidation = false;
                         break;
                     } else if (Float.parseFloat(value) > Float.parseFloat(re.getValue())) {
-                        errorMessage = errorMessage == null ? "the field maxInclusive is " + re.getValue() : errorMessage;
+                        errorMessage = errorMessage == null ? MESSAGES.getMessage(locale, "maxInclusive.invalid", re.getValue())//$NON-NLS-1$
+                                : errorMessage;
                         isValidation = false;
                         break;
                     }
@@ -4140,11 +4149,13 @@ public class ItemsBrowserDWR {
 
                 if (re.getName().equals("maxExclusive")) {//$NON-NLS-1$
                     if (!isNumeric(value)) {
-                        errorMessage = errorMessage == null ? node.getName() + " is not a valid value for number" : errorMessage;
+                        errorMessage = errorMessage == null ? MESSAGES.getMessage(locale, "number.invalid", node.getName())//$NON-NLS-1$
+                                : errorMessage;
                         isValidation = false;
                         break;
                     } else if (Float.parseFloat(value) >= Float.parseFloat(re.getValue())) {
-                        errorMessage = errorMessage == null ? "the field maxEnclusive is " + re.getValue() : errorMessage;
+                        errorMessage = errorMessage == null ? MESSAGES.getMessage(locale, "maxExclusive.invalid", re.getValue())//$NON-NLS-1$
+                                : errorMessage;
                         isValidation = false;
                         break;
                     }
@@ -4153,7 +4164,7 @@ public class ItemsBrowserDWR {
 
         }
 
-        return isValidation ? "null" : errorMessage;
+        return isValidation ? "null" : errorMessage;//$NON-NLS-1$
         // return null;
     }
 
