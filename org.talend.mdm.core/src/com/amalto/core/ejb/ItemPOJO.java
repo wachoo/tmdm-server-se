@@ -800,11 +800,11 @@ public class ItemPOJO implements Serializable {
      */
     public static ItemPOJO parse(String marshaledItem) throws XtentisException {
         try {
-            Pattern pLoad = Pattern.compile(".*?(<c>.*?)(<p>(.*)</p>|<p/>).*", Pattern.DOTALL); //$NON-NLS-1$
+            Pattern p = Pattern.compile(".*?(<c>.*?)(<p>(.*)</p>|<p/>).*", Pattern.DOTALL); //$NON-NLS-1$
 
             ItemPOJO newItem = new ItemPOJO();
             Matcher m = null;
-            m = pLoad.matcher(marshaledItem);
+            m = p.matcher(marshaledItem);
             if (m.matches()) {
                 String h = "<header>" + m.group(1) + "</header>";
                 Element header = Util.parse(h).getDocumentElement();
