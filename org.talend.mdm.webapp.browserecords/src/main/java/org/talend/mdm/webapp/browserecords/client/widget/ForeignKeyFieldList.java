@@ -282,7 +282,7 @@ public class ForeignKeyFieldList extends ContentPanel{
         }else{
             foreignKeyBeans = new ArrayList<ForeignKeyBean>();
             if (typeModel.getMinOccurs() > 0){
-                addField();
+                addField();                
             }    
         }      
         
@@ -425,18 +425,17 @@ public class ForeignKeyFieldList extends ContentPanel{
         
         field.addListener(Events.Change, new Listener<FieldEvent>() {
 
-            public void handleEvent(FieldEvent fe) {
-               
-                int index = foreignKeyBeans.indexOf(foreignKeyBean);
-                foreignKeyBeans.set(index, (ForeignKeyBean) fe.getValue());
-                itemNode.setChangeValue(true);
-                System.out.println("###########################################################");
-                for (int i=0;i<foreignKeyBeans.size();i++){
-                    System.out.println(foreignKeyBeans.get(i));
-                }
-                System.out.println("###########################################################");
+            public void handleEvent(FieldEvent fe) {   
+                validate();
             }
         });
+        
+        field.addListener(Events.Attach, new Listener<FieldEvent>() {
+
+            public void handleEvent(FieldEvent fe) {               
+                validate();
+            }
+        });        
     }
     
     
@@ -469,5 +468,15 @@ public class ForeignKeyFieldList extends ContentPanel{
         itemNode.setChangeValue(true);
         refreshPage(this.getPageCount());
     
+    }
+    
+    public void validate(){
+        boolean flag = true;
+        if (typeModel.getMinOccurs() > 0){
+            if (foreignKeyBeans.size() == 0 || "".equals(foreignKeyBeans.get(0).getId())){            
+                flag = false;
+            }
+        } 
+        itemNode.setValid(flag);
     }
 }

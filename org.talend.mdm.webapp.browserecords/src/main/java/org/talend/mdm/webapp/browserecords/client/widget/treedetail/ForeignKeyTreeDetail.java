@@ -379,6 +379,38 @@ public class ForeignKeyTreeDetail extends ContentPanel {
             return remove;
         }
     }
+    
+    public boolean validateTree(){
+        boolean flag = true;
+        ItemNodeModel rootNode = (ItemNodeModel)tree.getItem(0).getUserObject();
+        if (rootNode != null){
+            flag = validateNode(rootNode,flag);          
+        }
+        return flag;
+    }
+    
+    public boolean validateNode(ItemNodeModel rootNode,boolean flag){
+        
+        if (rootNode.getChildren() != null && rootNode.getChildren().size() > 0) {
+            for (ModelData model : rootNode.getChildren()) {
+                
+                ItemNodeModel node = (ItemNodeModel) model;
+                if (!node.isValid() && node.getChildCount() == 0){      
+                    com.google.gwt.user.client.Window.alert(node.getName() + "'Value validate failure");
+                    flag = false;                   
+                }
+
+                if (node.getChildren() != null && node.getChildren().size() > 0){
+                    flag = validateNode(node,flag);
+                }
+                
+                if (!flag){
+                    break;
+                }
+            }
+        }
+        return flag;
+    }
 
 
 }

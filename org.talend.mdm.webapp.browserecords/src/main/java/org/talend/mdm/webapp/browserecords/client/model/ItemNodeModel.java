@@ -31,8 +31,20 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
     private String realType;
 
     private boolean visible = true;
+    
+    private boolean valid = false;	
 
-	public boolean isVisible() {
+    
+    public boolean isValid() {
+        return valid;
+    }
+
+    
+    public void setValid(boolean valid) {
+        this.valid = valid;
+    }
+
+    public boolean isVisible() {
 		return visible;
 	}
 

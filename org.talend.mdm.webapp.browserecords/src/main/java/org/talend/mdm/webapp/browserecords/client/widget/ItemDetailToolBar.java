@@ -670,8 +670,9 @@ public class ItemDetailToolBar extends ToolBar {
             }
         });
     }
-
-    public void saveItemAndClose(boolean isClose) {
+    
+    public void saveItemAndClose(boolean isClose){        
+        boolean validate = false;
         TabPanel tabPanel = ItemsDetailPanel.getInstance().getTabPanel();
         TabItem tabItem = (TabItem) tabPanel.getSelectedItem();
         Widget widget = tabItem.getWidget(0);
@@ -682,12 +683,16 @@ public class ItemDetailToolBar extends ToolBar {
         if (widget instanceof ItemPanel) {// save primary key
             viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
             ItemPanel itemPanel = (ItemPanel) tabItem.getWidget(0);
-            model = (ItemNodeModel) itemPanel.getTree().getTree().getItem(0).getUserObject();
-            app.setData("ItemBean", itemPanel.getItem()); //$NON-NLS-1$
-            app.setData("isCreate", itemPanel.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION) ? true : false); //$NON-NLS-1$
+            if (itemPanel.getTree().validateTree()){     
+                validate = true;
+                model = (ItemNodeModel) itemPanel.getTree().getTree().getItem(0).getUserObject();
+                app.setData("ItemBean", itemPanel.getItem()); //$NON-NLS-1$
+                app.setData(
+                        "isCreate", itemPanel.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION) ? true : false); //$NON-NLS-1$
+            }
+            
         } else if (widget instanceof ForeignKeyTreeDetail) { // save foreign key
             ForeignKeyTreeDetail fkDetail = (ForeignKeyTreeDetail) tabItem.getWidget(0);
-            viewBean = fkDetail.getViewBean();
             model = fkDetail.getRootModel();
             app.setData(
                     "ItemBean", fkDetail.isCreate() ? new ItemBean(fkDetail.getViewBean().getBindingEntityModel().getConceptName(), "", "") : itemBean); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -695,7 +700,13 @@ public class ItemDetailToolBar extends ToolBar {
         }
         app.setData("viewBean", viewBean); //$NON-NLS-1$
         app.setData(model);
-        app.setData("isClose", isClose); //$NON-NLS-1$
-        dispatch.dispatch(app);
+        app.setData("isClose", isClose);
+        if (validate){
+            dispatch.dispatch(app);
+        }
+        else
+        {
+            com.google.gwt.user.client.Window.alert("save failure"); 
+        }    
     }
 }

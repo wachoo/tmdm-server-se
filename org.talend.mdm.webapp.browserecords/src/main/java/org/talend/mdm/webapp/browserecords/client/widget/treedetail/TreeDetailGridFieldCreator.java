@@ -68,6 +68,7 @@ public class TreeDetailGridFieldCreator {
             setEnumerationValues(dataType, comboBox);
             comboBox.setSimpleValue(hasValue ? value.toString() : ""); //$NON-NLS-1$
             field = comboBox;
+            
         } else if (dataType.getType().equals(DataTypeConstants.UUID)) {
             TextField<String> uuidField = new TextField<String>();
             uuidField.setEnabled(false);
@@ -141,6 +142,7 @@ public class TreeDetailGridFieldCreator {
         }
 
         addFieldListener(field, node);
+        
         return field;
     }
 
@@ -165,7 +167,7 @@ public class TreeDetailGridFieldCreator {
             NumberField numberField = new NumberField();
             numberField.setData("numberType", "double");//$NON-NLS-1$ //$NON-NLS-2$
             numberField.setPropertyEditorType(Double.class);
-            numberField.setValidator(NumberFieldValidator.getInstance());
+            numberField.setValidator(NumberFieldValidator.getInstance());             
             if (DataTypeConstants.DOUBLE.getTypeName().equals(baseType))
                 numberField.setValue((hasValue ? Double.parseDouble(value.toString()) : null));
             else
@@ -180,10 +182,11 @@ public class TreeDetailGridFieldCreator {
             numberField.setValidator(NumberFieldValidator.getInstance());
             numberField.setPropertyEditorType(Double.class);
             // NumberFormat nf = NumberFormat.getDecimalFormat();
-            numberField.setValue((hasValue ? Double.parseDouble(value.toString()) : null));
+            numberField.setValue((hasValue ? Double.parseDouble(value.toString()) : null));           
             if (dataType.getMinOccurs() > 0){
                 numberField.setAllowBlank(false);
             }
+            
             field = numberField;
         } else if (DataTypeConstants.BOOLEAN.getTypeName().equals(baseType)) {
             BooleanField booleanField = new BooleanField();
@@ -236,6 +239,7 @@ public class TreeDetailGridFieldCreator {
             field = textField;
             if (dataType.getMinOccurs() > 0){
                 textField.setAllowBlank(false);
+         
             }
             textField.setMessages(null);
         }
@@ -247,9 +251,10 @@ public class TreeDetailGridFieldCreator {
         return field;
     }
 
-    private static void addFieldListener(final Field<?> field, final ItemNodeModel node) {
-        field.addListener(Events.Change, new Listener<FieldEvent>() {
+    private static void addFieldListener(final Field<?> field, final ItemNodeModel node) {        
 
+        field.addListener(Events.Change, new Listener<FieldEvent>() {            
+            
             @SuppressWarnings("rawtypes")
             public void handleEvent(FieldEvent fe) {
                 if (fe.getField() instanceof ComboBoxField)
@@ -257,10 +262,18 @@ public class TreeDetailGridFieldCreator {
                 else
                     node.setObjectValue(fe.getField() instanceof ComboBox ? ((SimpleComboValue) fe.getValue()).getValue()
                             .toString() : (Serializable) fe.getValue());
-                node.setChangeValue(true);
+                node.setChangeValue(true);               
+                validate(field,node);  
             }
         });
-
+        
+        field.addListener(Events.Attach, new Listener<FieldEvent>() {            
+            
+            @SuppressWarnings("rawtypes")
+            public void handleEvent(FieldEvent fe) {              
+                validate(field,node);
+            }
+        });
     }
 
     private static void buildFacets(TypeModel typeModel, Widget w) {
@@ -280,5 +293,14 @@ public class TreeDetailGridFieldCreator {
                 field.add(value);
             }
         }
+    }
+    
+    private static void validate(Field<?> field,ItemNodeModel node){
+        System.out.println(field.getFieldLabel() + " " + field.isValid());
+        if (!field.isValid()){
+            System.out.println(field.getFieldLabel() + " " + field.getErrorMessage());
+        }
+        
+        node.setValid(field.isValid());      
     }
 }
