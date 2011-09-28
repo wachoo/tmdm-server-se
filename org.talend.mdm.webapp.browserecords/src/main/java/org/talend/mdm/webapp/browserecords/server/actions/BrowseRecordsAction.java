@@ -96,6 +96,8 @@ import org.xml.sax.InputSource;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.integrity.FKIntegrityCheckResult;
+import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
+import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
@@ -1635,14 +1637,19 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     public ColumnTreeLayoutModel getColumnTreeLayout(String concept) throws Exception {
+        CustomFormPOJOPK pk = new CustomFormPOJOPK(getCurrentDataModel(), concept);
+        CustomFormPOJO customForm = com.amalto.core.util.Util.getCustomFormCtrlLocal().existsCustomForm(pk);
+        if (customForm == null)
+            return null;
+        String xml = customForm.getXml();
+        Document doc = Util.parse(xml);
         // TOTO call server-side service,get layout template to parse.
         // InputStream is = BrowseRecordsAction.class.getResourceAsStream("temp_ColumnTreeLayout.xml"); //$NON-NLS-1$
         // DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         // DocumentBuilder builder = factory.newDocumentBuilder();
         // Document doc = builder.parse(is);
-        // Element root = doc.getDocumentElement();
-        // return ViewHelper.builderLayout(root);
-        return null;// TODO temporary return null
+        Element root = doc.getDocumentElement();
+        return ViewHelper.builderLayout(root);
     }
 
     public boolean isItemModifiedByOthers(ItemBean itemBean) throws Exception {

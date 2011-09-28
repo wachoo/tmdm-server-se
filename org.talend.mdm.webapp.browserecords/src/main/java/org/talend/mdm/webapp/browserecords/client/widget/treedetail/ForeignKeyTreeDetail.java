@@ -214,7 +214,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                 for (int i = 0; i < root.getChildCount(); i++) {
                     TreeItem child = root.getChild(i);
                     ItemNodeModel node = (ItemNodeModel) child.getUserObject();
-                    if (node.getBindingPath().equals(ce.getxPath())) {
+                    if (("/" + node.getBindingPath()).equals(ce.getxPath())) { //$NON-NLS-1$
                         tree.addItem(child);
                         break;
                     }
@@ -396,7 +396,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                 
                 ItemNodeModel node = (ItemNodeModel) model;
                 if (!node.isValid() && node.getChildCount() == 0){      
-                    com.google.gwt.user.client.Window.alert(node.getName() + "'Value validate failure");
+                    com.google.gwt.user.client.Window.alert(node.getName() + "'Value validate failure"); //$NON-NLS-1$
                     flag = false;                   
                 }
 
