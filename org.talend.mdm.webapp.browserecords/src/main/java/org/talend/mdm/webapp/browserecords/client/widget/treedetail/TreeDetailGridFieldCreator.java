@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
+import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ComboBoxModel;
 import org.talend.mdm.webapp.browserecords.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
@@ -80,8 +81,11 @@ public class TreeDetailGridFieldCreator {
             TextField<String> autoIncrementField = new TextField<String>();
             autoIncrementField.setEnabled(false);
             autoIncrementField.setReadOnly(true);
-            if (hasValue)
+            if (hasValue) {
                 autoIncrementField.setValue(value.toString());
+            } else {
+                autoIncrementField.setValue(MessagesFactory.getMessages().auto());
+            }
             field = autoIncrementField;
         } else if (dataType.getType().equals(DataTypeConstants.PICTURE)) {
             PictureField pictureField = new PictureField();

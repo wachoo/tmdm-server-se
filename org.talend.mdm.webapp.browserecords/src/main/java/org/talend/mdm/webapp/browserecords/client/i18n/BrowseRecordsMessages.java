@@ -293,4 +293,6 @@ public interface BrowseRecordsMessages extends Messages {
     String fk_integrity_list_partial_delete();
     
     String browse_record_title();
+
+    String auto();
 }
