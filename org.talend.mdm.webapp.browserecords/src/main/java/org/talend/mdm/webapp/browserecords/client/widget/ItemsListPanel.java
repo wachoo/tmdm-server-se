@@ -173,7 +173,8 @@ public class ItemsListPanel extends ContentPanel {
                     }
                 } else {
                     ItemsToolBar.getInstance().searchBut.setEnabled(true);
-                    ItemsDetailPanel.getInstance().getElement().setInnerHTML(""); //$NON-NLS-1$
+                    ItemsDetailPanel.getInstance().clearAll();
+
                 }
             }
         });

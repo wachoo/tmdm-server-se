@@ -87,6 +87,17 @@ public class ItemsDetailPanel extends ContentPanel {
         textDesc.setText(description);
     }
 
+    public void clearBanner() {
+        textTitle.setText(null);
+        textDesc.setText(null);
+    }
+
+    public void clearAll() {
+        clearBanner();
+        clearBreadCrumb();
+        clearContent();
+    }
+
     public void addTabItem(String title, ContentPanel panel, String pattern, String id){
         if(pattern.equalsIgnoreCase(ItemsDetailPanel.MULTIPLE)){
             TabItem newTab = new TabItem(title);
