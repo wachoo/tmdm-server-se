@@ -31,7 +31,9 @@ public class RecycleBin implements EntryPoint {
     /**
      * Create a remote service proxy to talk to the server-side RecycleBin service.
      */
-    public static final String RECYCLEBIN_SERVICE = "RecycleBinService"; //$NON-NLS-1$   
+    public static final String RECYCLEBIN_SERVICE = "RecycleBinService"; //$NON-NLS-1$  
+    
+    public static final String RECYCLEBIN_ID = "Recycle Bin"; //$NON-NLS-1$  
 
     /**
      * This is the entry point method.
@@ -97,6 +99,10 @@ public class RecycleBin implements EntryPoint {
         doLayout : function(){
         var cp = @org.talend.mdm.webapp.recyclebin.client.GenerateContainer::getContentPanel()();
         return cp.@com.extjs.gxt.ui.client.widget.ContentPanel::doLayout()();
+        },
+        title : function(){
+        var cp = @org.talend.mdm.webapp.recyclebin.client.GenerateContainer::getContentPanel()();
+        return cp.@com.extjs.gxt.ui.client.widget.ContentPanel::getHeading()();
         }
         };
         return panel;

@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.recyclebin.client;
 
+import org.talend.mdm.webapp.recyclebin.client.i18n.MessagesFactory;
+
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.google.gwt.user.client.Window;
@@ -35,7 +37,8 @@ public class GenerateContainer {
                 GXT.hideLoadingPanel("loading");//$NON-NLS-1$
             }
         };
-        instance.setId("Recycle Bin"); //$NON-NLS-1$
+        instance.setId(RecycleBin.RECYCLEBIN_ID);
+        instance.setHeading(MessagesFactory.getMessages().title());
     }
 
     public static ContentPanel getContentPanel() {
