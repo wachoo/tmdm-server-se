@@ -84,4 +84,9 @@ public class SoftFieldRef implements FieldMetadata {
     public <T> T accept(MetadataVisitor<T> visitor) {
         return getField().accept(visitor);
     }
+
+    @Override
+    public String toString() {
+        return getField().toString();
+    }
 }

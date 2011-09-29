@@ -71,4 +71,9 @@ class SoftTypeRef implements TypeMetadata {
     public <T> T accept(MetadataVisitor<T> visitor) {
         return getType().accept(visitor);
     }
+
+    @Override
+    public String toString() {
+        return getType().toString();
+    }
 }

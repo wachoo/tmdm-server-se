@@ -29,7 +29,9 @@ public class ReferenceFieldMetadata implements FieldMetadata {
 
     private TypeMetadata referencedType;
 
-    protected TypeMetadata containingType;
+    private TypeMetadata containingType;
+
+    private TypeMetadata declaringType;
 
     public ReferenceFieldMetadata(TypeMetadata containingType,
                                   boolean isKey,
@@ -44,6 +46,7 @@ public class ReferenceFieldMetadata implements FieldMetadata {
         this.referencedField = referencedField;
         this.foreignKeyInfo = foreignKeyInfo;
         this.containingType = containingType;
+        this.declaringType = containingType;
         this.allowFKIntegrityOverride = allowFKIntegrityOverride;
         this.isFKIntegrity = fkIntegrity;
         this.referencedType = referencedType;
@@ -108,5 +111,21 @@ public class ReferenceFieldMetadata implements FieldMetadata {
 
     public FieldMetadata copy() {
         return new ReferenceFieldMetadata(containingType, isKey, isMany, name, referencedType, referencedField, foreignKeyInfo, isFKIntegrity, allowFKIntegrityOverride);
+    }
+
+    @Override
+    public String toString() {
+        return "Reference {" +
+                "containing type= " + containingType +
+                ", declaring type=" + declaringType +
+                ", name='" + name + '\'' +
+                ", isKey=" + isKey +
+                ", is many=" + isMany +
+                ", referenced type= " + referencedType +
+                ", referenced field= " + referencedField +
+                ", foreign key info='" + foreignKeyInfo + '\'' +
+                ", allow FK integrity override= " + allowFKIntegrityOverride +
+                ", check FK integrity= " + isFKIntegrity +
+                '}';
     }
 }

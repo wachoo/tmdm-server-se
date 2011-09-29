@@ -87,4 +87,15 @@ public class EnumerationFieldMetadata implements FieldMetadata {
     public <T> T accept(MetadataVisitor<T> visitor) {
         return visitor.visit(this);
     }
+
+    @Override
+    public String toString() {
+        return "EnumerationFieldMetadata{" +
+                "declaringType=" + declaringType +
+                ", containingType=" + containingType +
+                ", is key=" + key +
+                ", name ='" + elementName + '\'' +
+                ", type name ='" + fieldTypeName + '\'' +
+                '}';
+    }
 }

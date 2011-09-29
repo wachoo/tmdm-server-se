@@ -91,4 +91,15 @@ public class SimpleTypeFieldMetadata implements FieldMetadata {
         return visitor.visit(this);
     }
 
+    @Override
+    public String toString() {
+        return "SimpleTypeFieldMetadata{" +
+                "declaringType=" + declaringType +
+                ", containingType=" + containingType +
+                ", name='" + name + '\'' +
+                ", isKey=" + isKey +
+                ", isMany=" + isMany +
+                ", fieldTypeName='" + fieldTypeName + '\'' +
+                '}';
+    }
 }

@@ -24,6 +24,8 @@ class NotResolvedTypeRef implements TypeMetadata {
 
     public static TypeMetadata INSTANCE = new NotResolvedTypeRef();
 
+    private static final String TO_STRING_RESULT = "[ NOT RESOLVED TYPE ]";
+
     NotResolvedTypeRef() {
     }
 
@@ -61,5 +63,10 @@ class NotResolvedTypeRef implements TypeMetadata {
 
     public <T> T accept(MetadataVisitor<T> visitor) {
         return visitor.visit(this);
+    }
+
+    @Override
+    public String toString() {
+        return TO_STRING_RESULT;
     }
 }
