@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.data.ModelData;
 
 public class BrowseRecordsActionTest extends TestCase {
 	BrowseRecordsAction action = new BrowseRecordsAction();
+	String xml = "<Agency><Name>Newark</Name><Name>Newark1</Name><City>Newark</City><State>NJ</State><Zip>07107</Zip><Region>EAST</Region><MoreInfo>Map@@http://maps.google.com/maps?q=40.760667,-74.1879&amp;ll=40.760667,-74.1879&amp;z=9</MoreInfo><Id>NJ01</Id></Agency>"; //$NON-NLS-1$
 	
 	protected void setUp() throws Exception {
         super.setUp();
@@ -78,12 +79,7 @@ public class BrowseRecordsActionTest extends TestCase {
     	}
     }
     
-    public void testVisibleRule() throws DocumentException, Exception, IOException {
-    	
-    }
-    
     private ItemBean getItemBean() {
-    	String xml = "<Agency><Name>Newark</Name><Name>Newark1</Name><City>Newark</City><State>NJ</State><Zip>07107</Zip><Region>EAST</Region><MoreInfo>Map@@http://maps.google.com/maps?q=40.760667,-74.1879&amp;ll=40.760667,-74.1879&amp;z=9</MoreInfo><Id>NJ01</Id></Agency>"; //$NON-NLS-1$
     	ItemBean item = new ItemBean("Agency", "NJ01", xml);  //$NON-NLS-1$//$NON-NLS-2$
     	return item;
     }
