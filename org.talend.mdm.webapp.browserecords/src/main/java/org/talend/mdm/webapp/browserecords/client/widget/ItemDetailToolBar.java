@@ -19,6 +19,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.integrity.DeleteCallbac
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.LogicalDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.NoOpPostDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.PostDeleteAction;
+import org.talend.mdm.webapp.browserecords.client.widget.integrity.ListRefresh;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTreeDetail;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -209,7 +210,7 @@ public class ItemDetailToolBar extends ToolBar {
                     box.addCallback(new Listener<MessageBoxEvent>() {
 
                         public void handleEvent(MessageBoxEvent be) {
-                            PostDeleteAction postDeleteAction = new ContainerUpdate(NoOpPostDeleteAction.INSTANCE);
+                            PostDeleteAction postDeleteAction = new ListRefresh(new ContainerUpdate(NoOpPostDeleteAction.INSTANCE));
                             DeleteAction deleteAction = new LogicalDeleteAction(be.getValue());
                             service.checkFKIntegrity(Collections.singletonList(itemBean), new DeleteCallback(deleteAction,
                                     postDeleteAction, service));
@@ -231,7 +232,7 @@ public class ItemDetailToolBar extends ToolBar {
 
                         public void handleEvent(MessageBoxEvent be) {
                             if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                                PostDeleteAction postDeleteAction = new ContainerUpdate(NoOpPostDeleteAction.INSTANCE);
+                                PostDeleteAction postDeleteAction = new ListRefresh(new ContainerUpdate(NoOpPostDeleteAction.INSTANCE));;
                                 service.checkFKIntegrity(Collections.singletonList(itemBean), new DeleteCallback(
                                         DeleteAction.PHYSICAL, postDeleteAction, service));
                             }

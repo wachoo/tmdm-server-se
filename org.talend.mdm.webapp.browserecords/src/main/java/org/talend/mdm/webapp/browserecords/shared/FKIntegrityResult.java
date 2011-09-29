@@ -12,7 +12,15 @@
 package org.talend.mdm.webapp.browserecords.shared;
 
 /**
-*
+ * Types of FK integrity policy:
+ *
+ * <ul>
+ *     <li>{@link #FORBIDDEN}</li>
+ *     <li>{@link #FORBIDDEN_OVERRIDE_ALLOWED}</li>
+ *     <li>{@link #ALLOWED}</li>
+ * </ul>
+ *
+ * <b>Note:</b> This enumeration represents the web UI view of a similar enumeration server side.
 */
 public enum FKIntegrityResult {
     /**

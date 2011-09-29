@@ -13,7 +13,6 @@
 package org.talend.mdm.webapp.browserecords.client.widget;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -316,7 +315,7 @@ public class ItemsToolBar extends ToolBar {
                         com.google.gwt.user.client.Window.alert(MessagesFactory.getMessages().select_delete_item_record());
                     } else {
                         MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
-                                .delete_confirm(), new DeleteItemsBoxListener(ItemsSearchContainer.getInstance(), service));
+                                .delete_confirm(), new DeleteItemsBoxListener(service));
                     }
                 }
             }
@@ -336,7 +335,7 @@ public class ItemsToolBar extends ToolBar {
                         if (be.getButtonClicked().getItemId().equals(Dialog.OK)) {
                             final ItemsListPanel list = ItemsListPanel.getInstance();
                             if (list.getGrid() != null) {
-                                PostDeleteAction postDeleteAction = new ListRefresh(list, new ContainerUpdate(
+                                PostDeleteAction postDeleteAction = new ListRefresh(new ContainerUpdate(
                                         NoOpPostDeleteAction.INSTANCE));
                                 DeleteAction deleteAction = new LogicalDeleteAction(be.getValue());
                                 service.checkFKIntegrity(list.getGrid().getSelectionModel().getSelectedItems(),
@@ -802,27 +801,6 @@ public class ItemsToolBar extends ToolBar {
         initAdvancedPanel();
     }
 
-    private void doLogicalDelete(final ItemBean item, boolean override) {
-        service.logicalDeleteItems(Collections.singletonList(item), "/", override,//$NON-NLS-1$
-                new AsyncCallback<List<ItemResult>>() {
-
-                    public void onFailure(Throwable caught) {
-                        Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
-                    }
-
-                    public void onSuccess(List<ItemResult> results) {
-                        for (ItemResult result : results) {
-                            if (result.getStatus() == ItemResult.FAILURE) {
-                                MessageBox.alert(MessagesFactory.getMessages().error_title(), result.getDescription(), null);
-                                return;
-                            }
-                        }
-                        ItemsListPanel.getInstance().getStore().getLoader().load();
-                    }
-
-                });
-    }
-
     private void updateUserCriteriasList() {
         service.getUserCriterias(entityCombo.getValue().get("value").toString(), //$NON-NLS-1$
                 new AsyncCallback<List<ItemBaseModel>>() {
@@ -1119,7 +1097,7 @@ public class ItemsToolBar extends ToolBar {
 
         private final BrowseRecordsServiceAsync service;
 
-        private DeleteItemsBoxListener(ItemsSearchContainer container, BrowseRecordsServiceAsync service) {
+        private DeleteItemsBoxListener(BrowseRecordsServiceAsync service) {
             this.service = service;
             this.list = ItemsListPanel.getInstance();
         }
@@ -1127,7 +1105,7 @@ public class ItemsToolBar extends ToolBar {
         public void handleEvent(MessageBoxEvent be) {
             if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
                 if (list.getGrid() != null) {
-                    PostDeleteAction postDeleteAction = new ListRefresh(list, new ContainerUpdate(NoOpPostDeleteAction.INSTANCE));
+                    PostDeleteAction postDeleteAction = new ListRefresh(new ContainerUpdate(NoOpPostDeleteAction.INSTANCE));
                     service.checkFKIntegrity(list.getGrid().getSelectionModel().getSelectedItems(), new DeleteCallback(
                             DeleteAction.PHYSICAL, postDeleteAction, service));
                 }

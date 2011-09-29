@@ -8,7 +8,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 
 /**
- *
+ * Wraps a logical delete operation.
  */
 public class LogicalDeleteAction implements DeleteAction {
 

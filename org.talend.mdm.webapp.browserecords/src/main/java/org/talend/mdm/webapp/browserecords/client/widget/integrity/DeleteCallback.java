@@ -10,7 +10,8 @@ import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 import java.util.Map;
 
 /**
- *
+ * A generic {@link AsyncCallback} implementation to handle all deletes in items browser and all specific actions to
+ * performed regarding deletes and FK integrity checks.
  */
 public class DeleteCallback implements AsyncCallback<Map<ItemBean, FKIntegrityResult>> {
 
@@ -20,6 +21,11 @@ public class DeleteCallback implements AsyncCallback<Map<ItemBean, FKIntegrityRe
 
     private final BrowseRecordsServiceAsync service;
 
+    /**
+     * @param action           The {@link DeleteAction} to perform.
+     * @param postDeleteAction The {@link PostDeleteAction} to perform.
+     * @param service          A {@link BrowseRecordsServiceAsync} instance to be used for communication with MDM server.
+     */
     public DeleteCallback(DeleteAction action, PostDeleteAction postDeleteAction, BrowseRecordsServiceAsync service) {
         this.action = action;
         this.postDeleteAction = postDeleteAction;
@@ -30,18 +36,20 @@ public class DeleteCallback implements AsyncCallback<Map<ItemBean, FKIntegrityRe
         Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
     }
 
+    /**
+     * @param result A {@link Map} of items to be deleted with information on what FK integrity policy should be applied.
+     */
     public void onSuccess(Map<ItemBean, FKIntegrityResult> result) {
-        DeleteStrategy strategy;
-        if (result.size() > 1) {
-            strategy = new ListDeleteStrategy(service);
-        } else {
-            strategy = new SingletonDeleteStrategy(service);
+        if (!result.isEmpty()) { // If empty, do nothing
+            DeleteStrategy strategy;
+            if (result.size() > 1) {
+                strategy = new ListDeleteStrategy(service);
+            } else {
+                strategy = new SingletonDeleteStrategy(service);
+            }
+
+            strategy.delete(result, action, postDeleteAction);
         }
-
-        strategy.delete(result, action);
-
-        // Reload
-        postDeleteAction.doAction();
     }
 
 }

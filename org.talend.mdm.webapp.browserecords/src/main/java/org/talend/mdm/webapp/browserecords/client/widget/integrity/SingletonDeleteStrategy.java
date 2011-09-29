@@ -20,6 +20,7 @@ import java.util.Set;
 /**
  *
  */
+// Implementation package visibility for class is intended: no need to see this class outside of package
 class SingletonDeleteStrategy implements DeleteStrategy {
 
     private BrowseRecordsServiceAsync service;
@@ -31,7 +32,18 @@ class SingletonDeleteStrategy implements DeleteStrategy {
         this.service = service;
     }
 
-    public void delete(final Map<ItemBean, FKIntegrityResult> items, final DeleteAction action) {
+    /**
+     * Please note that this implementation of {@link DeleteStrategy} is expected to throw an {@link IllegalArgumentException}
+     * if more than one item to delete is passed in <code>items</code>.
+     *
+     * @param items            A {@link Map} that link each item to be deleted to the {@link FKIntegrityResult} fk integrity policy to
+     *                         apply.
+     * @param action           A {@link DeleteAction} that performs the actual delete (a physical or a logical delete for instance).
+     * @param postDeleteAction A {@link PostDeleteAction} that wraps all post-delete action to be performed once delete of
+     *                         items is done.
+     * @throws IllegalArgumentException if <code>items</code> contains more than one item.
+     */
+    public void delete(final Map<ItemBean, FKIntegrityResult> items, final DeleteAction action, final PostDeleteAction postDeleteAction) {
         Set<Map.Entry<ItemBean, FKIntegrityResult>> entries = items.entrySet();
         Iterator<Map.Entry<ItemBean, FKIntegrityResult>> iterator = entries.iterator();
 
@@ -51,6 +63,7 @@ class SingletonDeleteStrategy implements DeleteStrategy {
                             public void handleEvent(MessageBoxEvent be) {
                                 if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
                                     action.delete(item, service, true);
+                                    postDeleteAction.doAction();
                                 }
                             }
                         });
@@ -59,9 +72,9 @@ class SingletonDeleteStrategy implements DeleteStrategy {
                 MessageBox.confirm(MessagesFactory.getMessages().error_title(),
                         MessagesFactory.getMessages().fk_integrity_fail_open_relations(),
                         new Listener<MessageBoxEvent>() {
-
                             public void handleEvent(MessageBoxEvent be) {
                                 if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+                                    // Open "relation" window/tab
                                     service.getLineageEntity(item.getConcept(), new AsyncCallback<List<String>>() {
                                         public void onSuccess(List<String> list) {
                                             StringBuilder entityStr = new StringBuilder();
@@ -84,9 +97,11 @@ class SingletonDeleteStrategy implements DeleteStrategy {
                                 }
                             }
                         });
+                // No need to call postDeleteAction.doAction() here (no delete was done).
                 break;
             case ALLOWED:
                 action.delete(item, service, false);
+                postDeleteAction.doAction();
                 break;
         }
 

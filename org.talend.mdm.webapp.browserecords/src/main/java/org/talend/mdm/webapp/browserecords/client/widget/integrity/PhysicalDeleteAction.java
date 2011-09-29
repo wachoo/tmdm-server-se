@@ -8,8 +8,9 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 
 /**
- *
+ * Wraps a physical delete operation.
  */
+// Implementation package visibility for class is intended: no need to see this class outside of package
 class PhysicalDeleteAction implements DeleteAction {
     public void delete(ItemBean item, BrowseRecordsServiceAsync service, boolean override) {
         service.deleteItemBean(item, override, new AsyncCallback<ItemResult>() {
