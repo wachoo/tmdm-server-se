@@ -91,26 +91,28 @@ public class WorkSpace extends LayoutContainer {
 
                 public void handleEvent(ContainerEvent<TabPanel, TabItem> be) {
                     String id = be.getItem().getItemId();
-                    callJs(handler, id);
+                    be.setCancelled(!callJs(handler, id));
                 }
             });
             workTabPanel.addListener(Events.BeforeRemove, eventHandler.get(handler));
         }
     }
 
-    native void callJs(JavaScriptObject handler, String id)/*-{
+    native boolean callJs(JavaScriptObject handler, String id)/*-{
         var tabPanel = $wnd.amalto.core.getTabPanel();
         var tabItem = {
         getId: function(){
         return id;
         }
         };
-        handler(tabPanel, tabItem);
+        return handler(tabPanel, tabItem);
     }-*/;
 
     public void un(String eventName, JavaScriptObject handler) {
-        workTabPanel.removeListener(Events.BeforeRemove, eventHandler.get(handler));
-        eventHandler.remove(handler);
+        if ("beforeremove".equals(eventName)) { //$NON-NLS-1$
+            workTabPanel.removeListener(Events.BeforeRemove, eventHandler.get(handler));
+            eventHandler.remove(handler);
+        }
     }
 
     public void addWorkTab(final String itemId, final JavaScriptObject uiObject) {
