@@ -14,6 +14,7 @@ package org.talend.mdm.webapp.welcomeportal.client;
 
 import java.util.List;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.welcomeportal.client.Util.UrlUtil;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
@@ -22,8 +23,9 @@ import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -37,7 +39,6 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.HTML;
 
@@ -62,11 +63,7 @@ public class MainFramePanel extends Portal {
     }
 
     private void itemClick(final String context, final String application) {
-        service.isExpired(new AsyncCallback<Boolean>() {
-
-            public void onFailure(Throwable caught) {
-                Dispatcher.forwardEvent(WelcomePortalEvents.Error, caught);
-            }
+        service.isExpired(new SessionAwareAsyncCallback<Boolean>() {
 
             public void onSuccess(Boolean result) {
                 initUI(context, application);
@@ -117,18 +114,13 @@ public class MainFramePanel extends Portal {
 
         });
 
-
         set.add(journalHtml);
         set.layout(true);
     }
 
     private void initAlertPortlet() {
 
-        service.isHiddenLicense(new AsyncCallback<Boolean>() {
-
-            public void onFailure(Throwable caught) {
-                Dispatcher.forwardEvent(WelcomePortalEvents.Error, caught);
-            }
+        service.isHiddenLicense(new SessionAwareAsyncCallback<Boolean>() {
 
             public void onSuccess(Boolean hidden) {
                 if (!hidden) {
@@ -156,11 +148,7 @@ public class MainFramePanel extends Portal {
         final StringBuilder sb = new StringBuilder(
                 "<span id=\"licenseAlert\" style=\"padding-right:8px;cursor: pointer;\" title=\"" + MessagesFactory.getMessages().alerts_title() + "\""); //$NON-NLS-1$ //$NON-NLS-2$
 
-        service.getAlertMsg(UrlUtil.getLanguage(), new AsyncCallback<String>() {
-
-            public void onFailure(Throwable caught) {
-                Dispatcher.forwardEvent(WelcomePortalEvents.Error, caught);
-            }
+        service.getAlertMsg(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<String>() {
 
             public void onSuccess(String msg) {
                 if (msg == null) {
@@ -197,13 +185,8 @@ public class MainFramePanel extends Portal {
         set.layout(true);
     }
 
-
     private void initTaskPortlet() {
-        service.isHiddenTask(new AsyncCallback<Boolean>() {
-
-            public void onFailure(Throwable caught) {
-                Dispatcher.forwardEvent(WelcomePortalEvents.Error, caught);
-            }
+        service.isHiddenTask(new SessionAwareAsyncCallback<Boolean>() {
 
             public void onSuccess(Boolean hidden) {
                 if (!hidden) {
@@ -229,11 +212,7 @@ public class MainFramePanel extends Portal {
         final HTML taskHtml = new HTML();
         final StringBuilder sb = new StringBuilder(
                 "<span id=\"workflowtasks\" style=\"padding-right:8px;cursor: pointer;\" title=\"" + MessagesFactory.getMessages().tasks_title() + "\""); //$NON-NLS-1$ //$NON-NLS-2$
-        service.getTaskMsg(new AsyncCallback<Integer>() {
-
-            public void onFailure(Throwable caught) {
-                Dispatcher.forwardEvent(WelcomePortalEvents.Error, caught);
-            }
+        service.getTaskMsg(new SessionAwareAsyncCallback<Integer>() {
 
             public void onSuccess(Integer num) {
                 if (num.equals(0)) {
@@ -281,11 +260,7 @@ public class MainFramePanel extends Portal {
         final FieldSet set = (FieldSet) process.getItemByItemId(WelcomePortal.PROCESS + "Set"); //$NON-NLS-1$
         set.setHeading(MessagesFactory.getMessages().process_title());
         set.removeAll();
-        service.getStandaloneProcess(UrlUtil.getLanguage(), new AsyncCallback<List<String>>() {
-
-            public void onFailure(Throwable caught) {
-                Dispatcher.forwardEvent(WelcomePortalEvents.Error, caught);
-            }
+        service.getStandaloneProcess(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<List<String>>() {
 
             public void onSuccess(List<String> list) {
                 if (list.isEmpty()) {
@@ -299,12 +274,9 @@ public class MainFramePanel extends Portal {
                         btn.setId(str + "Btn"); //$NON-NLS-1$                        
                         btn.addListener(Events.Select, new SelectionListener<ButtonEvent>() {
 
+                            @Override
                             public void componentSelected(ButtonEvent ce) {
-                                service.isExpired(new AsyncCallback<Boolean>() {
-
-                                    public void onFailure(Throwable caught) {
-                                        Dispatcher.forwardEvent(WelcomePortalEvents.Error, caught);
-                                    }
+                                service.isExpired(new SessionAwareAsyncCallback<Boolean>() {
 
                                     public void onSuccess(Boolean result) {
                                         final MessageBox box = MessageBox.wait(null, MessagesFactory.getMessages().waiting_msg(),
@@ -317,28 +289,27 @@ public class MainFramePanel extends Portal {
                                             }
                                         };
                                         t.schedule(600000);
-                                        service.runProcess(str, new AsyncCallback<String>() {
+                                        service.runProcess(str, new SessionAwareAsyncCallback<String>() {
 
-                                            public void onFailure(Throwable caught) {
-                                                Dispatcher.forwardEvent(WelcomePortalEvents.Error, caught);
+                                            @Override
+                                            protected void doOnFailure(Throwable caught) {
                                                 box.close();
+                                                MessageBox.alert(MessagesFactory.getMessages().run_status(), MessagesFactory
+                                                        .getMessages().run_fail(), null);
+
                                             }
 
-                                            public void onSuccess(String result) {
-                                                if (result.indexOf("ok") >= 0) { //$NON-NLS-1$
-                                                    MessageBox.alert(MessagesFactory.getMessages().run_status(), MessagesFactory
-                                                            .getMessages().run_done(), null);
+                                            public void onSuccess(final String result) {
+                                                box.close();
+                                                MessageBox.alert(MessagesFactory.getMessages().run_status(), MessagesFactory
+                                                        .getMessages().run_done(), new Listener<MessageBoxEvent>() {
 
-                                                    if (result.length() > 2) {
-                                                        String url = result.substring(2);
-                                                        openWindow(url);
+                                                    public void handleEvent(MessageBoxEvent be) {
+                                                        if (result.length() > 0) {
+                                                            openWindow(result);
+                                                        }
                                                     }
-
-                                                } else {
-                                                    MessageBox.alert(MessagesFactory.getMessages().run_status(), MessagesFactory
-                                                            .getMessages().run_fail(), null);
-                                                    box.close();
-                                                }
+                                                });
                                             }
 
                                         });
@@ -372,16 +343,17 @@ public class MainFramePanel extends Portal {
         port.setItemId(name + "Portlet"); //$NON-NLS-1$
         port.getHeader().addTool(new ToolButton("x-tool-refresh", new SelectionListener<IconButtonEvent>() { //$NON-NLS-1$
 
+                    @Override
                     public void componentSelected(IconButtonEvent ce) {
                         Portlet selectedPortlet = getPortletById(name + "Portlet"); //$NON-NLS-1$
                         if (selectedPortlet != null) {
-                        if (name.equals(WelcomePortal.START))
+                            if (name.equals(WelcomePortal.START))
                                 applyStartPortlet(selectedPortlet);
-                        else if (name.equals(WelcomePortal.ALERT))
+                            else if (name.equals(WelcomePortal.ALERT))
                                 applyAlertPortlet(selectedPortlet);
-                        else if (name.equals(WelcomePortal.TASK))
+                            else if (name.equals(WelcomePortal.TASK))
                                 applyTaskPortlet(selectedPortlet);
-                        else if (name.equals(WelcomePortal.PROCESS))
+                            else if (name.equals(WelcomePortal.PROCESS))
                                 applyProcessPortlet(selectedPortlet);
                         }
 

@@ -25,13 +25,10 @@
 package org.talend.mdm.webapp.welcomeportal.client.mvc;
 
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortalEvents;
-import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -42,7 +39,6 @@ public class WelcomePortalController extends Controller {
 
     public WelcomePortalController() {
         registerEventTypes(WelcomePortalEvents.InitFrame);
-        registerEventTypes(WelcomePortalEvents.Error);
     }
 
     @Override
@@ -55,14 +51,6 @@ public class WelcomePortalController extends Controller {
         EventType type = event.getType();
         if (type == WelcomePortalEvents.InitFrame) {
             forwardToView(view, event);
-        } else if (type == WelcomePortalEvents.Error) {
-            onError(event);
         }
     }
-
-    protected void onError(AppEvent ae) {
-        Log.error("error: " + ae.<Object> getData()); //$NON-NLS-1$
-        MessageBox.alert(MessagesFactory.getMessages().error_title(), ((Exception) ae.<Object> getData()).getMessage(), null);
-    }
-
 }

@@ -20,7 +20,4 @@ import com.extjs.gxt.ui.client.event.EventType;
 public class WelcomePortalEvents {
 
     public static final EventType InitFrame = new EventType();
-
-    public static final EventType Error = new EventType();
-
 }

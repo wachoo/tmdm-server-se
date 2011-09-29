@@ -46,6 +46,13 @@
         <!-- MDM dependencies -->
         <dependency>
             <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.webapp.base</artifactId>
+            <version>${project.version}</version>
+            <scope>system</scope>
+            <systemPath>${tom.location}/org.talend.mdm.webapp.base/target/org.talend.mdm.webapp.base.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.webapp.core</artifactId>
         </dependency>
         <dependency>

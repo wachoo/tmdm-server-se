@@ -23,17 +23,17 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("WelcomePortalService")
 public interface WelcomePortalService extends RemoteService {
 
-    public boolean isHiddenLicense();
+    public boolean isHiddenLicense() throws Exception;
 
-    public boolean isHiddenTask();
+    public boolean isHiddenTask() throws Exception;
 
-    public String getAlertMsg(String language);
+    public String getAlertMsg(String language) throws Exception;
 
-    public int getTaskMsg();
+    public int getTaskMsg() throws Exception;
 
-    public List<String> getStandaloneProcess(String language);
+    public List<String> getStandaloneProcess(String language) throws Exception;
 
-    public String runProcess(String transformerPK);
+    public String runProcess(String transformerPK) throws Exception;
 
     public boolean isExpired() throws Exception;
 }

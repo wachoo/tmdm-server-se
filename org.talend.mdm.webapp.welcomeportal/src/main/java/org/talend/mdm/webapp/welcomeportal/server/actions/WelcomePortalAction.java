@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.welcomeportal.server.actions;
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,6 +20,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
+import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortalService;
 import org.w3c.dom.Document;
@@ -29,7 +29,6 @@ import org.w3c.dom.NodeList;
 import com.amalto.webapp.core.util.Menu;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.Webapp;
-import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.core.util.dwr.WebappInfo;
 import com.amalto.webapp.util.webservices.WSByteArray;
 import com.amalto.webapp.util.webservices.WSExecuteTransformerV2;
@@ -77,27 +76,22 @@ public class WelcomePortalAction extends RemoteServiceServlet implements Welcome
     public boolean isStandaloneProcess(String wstransformerpk) {
         return wstransformerpk.startsWith(STANDALONE_PROCESS_PREFIX);
     }
-    
-    public String getDescriptionByLau(String language, String description) {
-    	Map<String, String> des = new HashMap<String, String>();
-    	
-    	try {
-	    	for(int i = 0; i < description.length(); i++) {
-	    		if('[' == description.charAt(i)) {
-	    			for(int j = i; j < description.length(); j++) {
-	    				if(']' == description.charAt(j)){
-	    					String[] de = description.substring(i + 1, j).split(":"); 
-	    					des.put(de[0].toLowerCase(), de[1]);
-	    					break;
-	    				}
-	    			}
-	    		}
-	    	}
-    	}
-    	catch(Exception ex) {
-//    		throw new Exception("description is wrong!");
-    	}
-    	return des.get(language.toLowerCase());
+
+    private String getDescriptionByLau(String language, String description) {
+        Map<String, String> des = new HashMap<String, String>();
+
+        for (int i = 0; i < description.length(); i++) {
+            if ('[' == description.charAt(i)) {
+                for (int j = i; j < description.length(); j++) {
+                    if (']' == description.charAt(j)) {
+                        String[] de = description.substring(i + 1, j).split(":"); //$NON-NLS-1$
+                        des.put(de[0].toLowerCase(), de[1]);
+                        break;
+                    }
+                }
+            }
+        }
+        return des.get(language.toLowerCase());
     }
 
     /**
@@ -148,7 +142,7 @@ public class WelcomePortalAction extends RemoteServiceServlet implements Welcome
         return Webapp.INSTANCE.getTaskMsg();
     }
 
-    public List<String> getStandaloneProcess(String language){
+    public List<String> getStandaloneProcess(String language) {
         List<String> process = new ArrayList<String>();
 
         try {
@@ -156,7 +150,7 @@ public class WelcomePortalAction extends RemoteServiceServlet implements Welcome
 
             for (WSTransformerPK wstransformerpk : wst) {
                 if (isStandaloneProcess(wstransformerpk.getPk())) {
-                	WSTransformer wsTransformer = Util.getPort().getTransformer(new WSGetTransformer(wstransformerpk));
+                    WSTransformer wsTransformer = Util.getPort().getTransformer(new WSGetTransformer(wstransformerpk));
                     String desc = getDescriptionByLau(language, wsTransformer.getDescription());
                     if (desc == null || desc.equals("")) //$NON-NLS-1$
                         process.add(wstransformerpk.getPk());
@@ -165,9 +159,7 @@ public class WelcomePortalAction extends RemoteServiceServlet implements Welcome
                 }
             }
 
-        } catch (RemoteException e) {
-            LOG.error(e.getMessage(), e);
-        } catch (XtentisWebappException e) {
+        } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
 
@@ -181,10 +173,10 @@ public class WelcomePortalAction extends RemoteServiceServlet implements Welcome
      * @return
      */
     public String runProcess(String transformerPK) {
-        String sucess = "ok";//$NON-NLS-1$
         WSTransformerContext wsTransformerContext = new WSTransformerContext(new WSTransformerV2PK(transformerPK), null, null);
 
         try {
+            StringBuilder result = new StringBuilder();
             // yguo, plugin input parameters
             String content = "<root/>"; //$NON-NLS-1$
             WSTypedContent typedContent = new WSTypedContent(null, new WSByteArray(content.getBytes("UTF-8")),//$NON-NLS-1$
@@ -201,22 +193,16 @@ public class WelcomePortalAction extends RemoteServiceServlet implements Welcome
                     NodeList attrList = Util.getNodeList(resultDoc, "//attr");//$NON-NLS-1$
                     if (attrList != null && attrList.getLength() > 0) {
                         String downloadUrl = attrList.item(0).getTextContent();
-                        sucess += downloadUrl;
+                        result.append(downloadUrl);
                     }
                 }
             }
-        } catch (RemoteException e) {
-            LOG.error(e.getMessage(), e);
-            sucess = "failed";//$NON-NLS-1$
-        } catch (XtentisWebappException e) {
-            LOG.error(e.getMessage(), e);
-            sucess = "failed";//$NON-NLS-1$
+            return result.toString();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            sucess = "failed";//$NON-NLS-1$
+            throw new ServiceException(e.getMessage());
         }
 
-        return sucess;
     }
 
     public boolean isExpired() throws Exception {
