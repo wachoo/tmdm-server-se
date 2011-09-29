@@ -46,7 +46,16 @@ public final class BaseMessagesImpl implements BaseMessages {
     public String page_size_notice() {
         return MESSAGES.getMessage("page_size_notice");
     }
+
+    public String error_title() {
+        return MESSAGES.getMessage("error_title");
+    }
+
     public String unknown_error() {
         return MESSAGES.getMessage("unknown_error");
+    }
+
+    public String session_timeout_error() {
+        return MESSAGES.getMessage("session_timeout_error");
     }
 }

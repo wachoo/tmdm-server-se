@@ -28,5 +28,9 @@ public interface BaseMessages extends Messages {
 
     String page_size_notice();
 
+    String error_title();
+    
     String unknown_error();
+    
+    String session_timeout_error();
 }

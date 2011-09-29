@@ -12,11 +12,9 @@
 // ============================================================================
 package org.talend.mdm.webapp.base.client.exception;
 
-import java.io.IOException;
-
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-public class SessionTimeoutException extends IOException implements IsSerializable {
+public class SessionTimeoutException extends RuntimeException implements IsSerializable {
 
     private static final long serialVersionUID = 1L;
 
