@@ -12,7 +12,6 @@ import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.general.client.GeneralService;
 import org.talend.mdm.webapp.general.gwt.GWTConfigurationContext;
 import org.talend.mdm.webapp.general.gwt.GwtWebContextFactory;
-import org.talend.mdm.webapp.general.gwt.ProxyGWTServiceImpl;
 import org.talend.mdm.webapp.general.model.ActionBean;
 import org.talend.mdm.webapp.general.model.ComboBoxModel;
 import org.talend.mdm.webapp.general.model.ItemBean;
@@ -39,7 +38,7 @@ import com.amalto.webapp.util.webservices.WSRegexDataModelPKs;
 public class GeneralAction implements GeneralService {
 
     private static final Logger LOG = Logger.getLogger(GeneralAction.class);
-    
+
     private static final GWTConfigurationContext configurationContext = new GWTConfigurationContext();
 
     public List<MenuBean> getMenus(String language) throws Exception {
@@ -49,9 +48,6 @@ public class GeneralAction implements GeneralService {
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
-        List<String> list = (List<String>) GwtWebContextFactory.get().getSession().getAttribute(ProxyGWTServiceImpl.SESSION_LIST_ATTRIBUTE);
-        if(LOG.isDebugEnabled())
-            LOG.debug(list.toString());
         return menus;
     }
 
@@ -117,6 +113,7 @@ public class GeneralAction implements GeneralService {
             // Used by javascript as a status code
             return "DONE"; //$NON-NLS-1$
         } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
             return e.getLocalizedMessage();
         }
     }
@@ -165,8 +162,7 @@ public class GeneralAction implements GeneralService {
             GwtWebContextFactory.get().getSession().invalidate();
             return "ok"; //$NON-NLS-1$
         } catch (Exception e) {
-            String err = "Unable to logout"; //$NON-NLS-1$
-            org.apache.log4j.Logger.getLogger(this.getClass()).warn(err, e);
+            LOG.error(e.getMessage(), e);
         }
         return "Unable to logout"; //$NON-NLS-1$
     }

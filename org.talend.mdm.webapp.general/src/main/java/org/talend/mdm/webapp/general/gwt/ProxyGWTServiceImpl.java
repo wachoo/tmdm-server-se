@@ -17,29 +17,24 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+
+import org.talend.mdm.webapp.base.server.AbstractService;
 
 import com.google.gwt.user.client.rpc.IncompatibleRemoteServiceException;
 import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.gwt.user.server.rpc.RPCRequest;
-import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.google.gwt.user.server.rpc.SerializationPolicy;
 import com.google.gwt.user.server.rpc.SerializationPolicyLoader;
 
-public class ProxyGWTServiceImpl extends RemoteServiceServlet {
+public class ProxyGWTServiceImpl extends AbstractService {
 
     private static final long serialVersionUID = -3043769203139170342L;
-    
-    public static final String SESSION_LIST_ATTRIBUTE = "testSession"; //$NON-NLS-1$
 
     private Map<String, Object> actions = new HashMap<String, Object>();
 
@@ -127,17 +122,8 @@ public class ProxyGWTServiceImpl extends RemoteServiceServlet {
     }
 
     @Override
-    public String processCall(String payload) throws SerializationException {
+    protected String doProcessCall(String payload) throws SerializationException {
         try {
-
-            HttpSession session = this.getThreadLocalRequest().getSession();
-            List<String> list = (List<String>) session.getAttribute(SESSION_LIST_ATTRIBUTE);
-            if (list == null) {
-                list = new ArrayList<String>();
-            }
-            list.add(new Date().toString());
-            session.setAttribute(SESSION_LIST_ATTRIBUTE, list);
-
             GWTRPCRequest gwtRpc = GWTRPC.decodeRequest(payload, this);
             RPCRequest rpcRequest = gwtRpc.getRpcRequest();
             onAfterRequestDeserialized(rpcRequest);

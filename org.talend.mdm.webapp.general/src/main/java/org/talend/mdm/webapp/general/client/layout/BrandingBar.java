@@ -14,9 +14,9 @@ package org.talend.mdm.webapp.general.client.layout;
 
 import java.util.List;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.general.client.General;
 import org.talend.mdm.webapp.general.client.GeneralServiceAsync;
-import org.talend.mdm.webapp.general.client.MdmAsyncCallback;
 import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
 import org.talend.mdm.webapp.general.model.ItemBean;
 import org.talend.mdm.webapp.general.model.UserBean;
@@ -100,9 +100,8 @@ public class BrandingBar extends ContentPanel {
             @Override
             public void componentSelected(ButtonEvent ce) {
                 GeneralServiceAsync service = (GeneralServiceAsync) Registry.get(General.OVERALL_SERVICE);
-                service.logout(new MdmAsyncCallback<String>() {
+                service.logout(new SessionAwareAsyncCallback<String>() {
 
-                    @Override
                     public void onSuccess(String result) {
                         Cookies.removeCookie("JSESSIONID"); //$NON-NLS-1$
                         Cookies.removeCookie("JSESSIONIDSSO"); //$NON-NLS-1$

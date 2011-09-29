@@ -5,9 +5,6 @@
 
 <web-app>
 
-    <listener>
-        <listener-class>org.talend.mdm.webapp.general.server.servlet.SessionListener</listener-class>
-    </listener>
     <!-- Servlets -->
     <servlet>
         <servlet-name>dwr-invoker</servlet-name>

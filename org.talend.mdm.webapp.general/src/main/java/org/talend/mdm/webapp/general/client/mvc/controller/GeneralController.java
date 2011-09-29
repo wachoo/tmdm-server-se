@@ -14,9 +14,9 @@ package org.talend.mdm.webapp.general.client.mvc.controller;
 
 import java.util.List;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.general.client.General;
 import org.talend.mdm.webapp.general.client.GeneralServiceAsync;
-import org.talend.mdm.webapp.general.client.MdmAsyncCallback;
 import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
 import org.talend.mdm.webapp.general.client.layout.ActionsPanel;
 import org.talend.mdm.webapp.general.client.layout.BrandingBar;
@@ -38,7 +38,7 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 
 public class GeneralController extends Controller {
 
-	private GeneralServiceAsync service;
+    private GeneralServiceAsync service;
 
     private GeneralView view;
 
@@ -57,21 +57,21 @@ public class GeneralController extends Controller {
     public void initialize() {
         service = (GeneralServiceAsync) Registry.get(General.OVERALL_SERVICE);
         view = new GeneralView(this);
-	}
+    }
 
-	@Override
+    @Override
     public void handleEvent(final AppEvent event) {
-		EventType type = event.getType();
+        EventType type = event.getType();
 
         if (type == GeneralEvent.LoadUser) {
             loadUser(event);
         } else if (type == GeneralEvent.InitFrame) {
             forwardToView(view, event);
-		} else if (type == GeneralEvent.Error){
+        } else if (type == GeneralEvent.Error) {
             this.forwardToView(view, event);
         } else if (type == GeneralEvent.LoadLanguages) {
             loadLanguages(event);
-		} else if (type == GeneralEvent.LoadMenus){
+        } else if (type == GeneralEvent.LoadMenus) {
             loadMenu(event);
         } else if (type == GeneralEvent.LoadActions) {
             loadActions(event);
@@ -79,11 +79,11 @@ public class GeneralController extends Controller {
             switchClusterAndModel(event);
         } else if (type == GeneralEvent.LoadWelcome) {
             forwardToView(view, event);
-		}
-	}
+        }
+    }
 
     private void loadLanguages(AppEvent event) {
-        service.getLanguages(new MdmAsyncCallback<List<ItemBean>>() {
+        service.getLanguages(new SessionAwareAsyncCallback<List<ItemBean>>() {
 
             public void onSuccess(List<ItemBean> result) {
                 BrandingBar.getInstance().buildLanguage(result);
@@ -94,9 +94,8 @@ public class GeneralController extends Controller {
     }
 
     private void loadMenu(final AppEvent event) {
-        service.getMenus(UrlUtil.getLanguage(), new MdmAsyncCallback<List<MenuBean>>() {
+        service.getMenus(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<List<MenuBean>>() {
 
-            @Override
             public void onSuccess(List<MenuBean> result) {
                 event.setData(result);
                 forwardToView(view, event);
@@ -105,7 +104,7 @@ public class GeneralController extends Controller {
     }
 
     private void loadUser(AppEvent event) {
-        service.getUsernameAndUniverse(new MdmAsyncCallback<UserBean>() {
+        service.getUsernameAndUniverse(new SessionAwareAsyncCallback<UserBean>() {
 
             public void onSuccess(UserBean userBean) {
                 Registry.register(General.USER_BEAN, userBean);
@@ -116,21 +115,19 @@ public class GeneralController extends Controller {
     }
 
     private void loadActions(AppEvent event) {
-        service.getAction(new MdmAsyncCallback<ActionBean>() {
+        service.getAction(new SessionAwareAsyncCallback<ActionBean>() {
 
-            @Override
             public void onSuccess(ActionBean result) {
                 ActionsPanel.getInstance().loadAction(result);
             }
         });
-	}
-	
+    }
+
     private void switchClusterAndModel(AppEvent event) {
         String dataCluster = ActionsPanel.getInstance().getDataCluster();
         String dataModel = ActionsPanel.getInstance().getDataModel();
-        service.setClusterAndModel(dataCluster, dataModel, new MdmAsyncCallback<String>() {
+        service.setClusterAndModel(dataCluster, dataModel, new SessionAwareAsyncCallback<String>() {
 
-            @Override
             public void onSuccess(String result) {
                 if ("DONE".equals(result)) { //$NON-NLS-1$
                     MessageBox.alert(MessageFactory.getMessages().status(), MessageFactory.getMessages().status_msg_success(),
@@ -140,7 +137,7 @@ public class GeneralController extends Controller {
                             + " " + result, null); //$NON-NLS-1$
                 }
                 WorkSpace.getInstance().clearTabs();
-                WorkSpace.getInstance().loadApp(view.WELCOMECONTEXT, view.WELCOMEAPP);
+                WorkSpace.getInstance().loadApp(GeneralView.WELCOMECONTEXT, GeneralView.WELCOMEAPP);
             }
         });
     }
