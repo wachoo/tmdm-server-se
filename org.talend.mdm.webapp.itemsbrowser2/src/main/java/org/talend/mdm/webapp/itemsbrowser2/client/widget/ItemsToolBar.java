@@ -549,11 +549,22 @@ public class ItemsToolBar extends ToolBar {
         add(new FillToolItem());
 
         // add entity combo
-        RpcProxy<List<ItemBaseModel>> Entityproxy = new RpcProxy<List<ItemBaseModel>>() {
+        RpcProxy<List<ItemBaseModel>> entityproxy = new RpcProxy<List<ItemBaseModel>>() {
 
             @Override
-            public void load(Object loadConfig, AsyncCallback<List<ItemBaseModel>> callback) {
-                service.getViewsList(Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()), callback);
+            public void load(Object loadConfig, final AsyncCallback<List<ItemBaseModel>> callback) {
+                service.getViewsList(Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()),
+                        new SessionAwareAsyncCallback<List<ItemBaseModel>>() {
+
+                            @Override
+                            protected void doOnFailure(Throwable caught) {
+                                callback.onFailure(caught);
+                            }
+
+                            public void onSuccess(List<ItemBaseModel> result) {
+                                callback.onSuccess(result);
+                            }
+                        });
             }
         };
 
@@ -572,10 +583,10 @@ public class ItemsToolBar extends ToolBar {
                     });
         }
 
-        ListLoader<ListLoadResult<ItemBaseModel>> Entityloader = new BaseListLoader<ListLoadResult<ItemBaseModel>>(Entityproxy);
+        ListLoader<ListLoadResult<ItemBaseModel>> entityloader = new BaseListLoader<ListLoadResult<ItemBaseModel>>(entityproxy);
 
         HorizontalPanel entityPanel = new HorizontalPanel();
-        final ListStore<ItemBaseModel> list = new ListStore<ItemBaseModel>(Entityloader);
+        final ListStore<ItemBaseModel> list = new ListStore<ItemBaseModel>(entityloader);
 
         entityCombo.setAutoWidth(true);
         entityCombo.setEmptyText(MessagesFactory.getMessages().empty_entity());
