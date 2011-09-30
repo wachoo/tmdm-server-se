@@ -17,10 +17,12 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.Label;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
@@ -32,7 +34,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import com.google.gwt.user.client.ui.HTML;
 
 
 
@@ -391,7 +392,7 @@ public class ForeignKeyFieldList extends ContentPanel{
             refreshPage(this.getPageCount());
             this.refresh();   
         }else{
-            com.google.gwt.user.client.Window.alert("Max occurence is " + typeModel.getMaxOccurs()); //$NON-NLS-1$
+            MessageBox.alert(MessagesFactory.getMessages().message_validate_title(), MessagesFactory.getMessages().message_validate_max_occurence(typeModel.getMaxOccurs()), null); 
         }
     }
     
@@ -445,10 +446,11 @@ public class ForeignKeyFieldList extends ContentPanel{
             @Override
             public void componentSelected(ButtonEvent ce) {
             
-                if (fields.size() < typeModel.getMinOccurs()){
-                    com.google.gwt.user.client.Window.alert("Min occurence is " + typeModel.getMinOccurs());
+                if (fields.size() <= typeModel.getMinOccurs()){
+                    MessageBox.alert(MessagesFactory.getMessages().message_validate_title(), MessagesFactory.getMessages().message_validate_min_occurence(typeModel.getMinOccurs()),null); 
                 }else{    
                     removeForeignKeyWidget(foreignKeyBeans.get(i));
+                    
                 }
             }        
         });
@@ -475,8 +477,8 @@ public class ForeignKeyFieldList extends ContentPanel{
     };
 
     public void removeForeignKeyWidget(ForeignKeyBean value) {
-        if (fields.size() < typeModel.getMinOccurs()){
-            com.google.gwt.user.client.Window.alert("Min occurence is " + typeModel.getMinOccurs());
+        if (fields.size() <= typeModel.getMinOccurs()){
+            MessageBox.alert(MessagesFactory.getMessages().message_validate_title(), MessagesFactory.getMessages().message_validate_min_occurence(typeModel.getMinOccurs()),null); 
         }else{
             @SuppressWarnings("unchecked")     
             int index = foreignKeyBeans.indexOf(value);
@@ -491,8 +493,8 @@ public class ForeignKeyFieldList extends ContentPanel{
         boolean flag = true;
         if (typeModel.getMinOccurs() > 0){
             if (foreignKeyBeans.size() == 0 || "".equals(foreignKeyBeans.get(0).getId())){
-                com.google.gwt.user.client.Window.alert("Min occurence is " + typeModel.getMinOccurs());
-                flag = false;
+                MessageBox.alert(MessagesFactory.getMessages().message_validate_title(), MessagesFactory.getMessages().message_validate_min_occurence(typeModel.getMinOccurs()),null); 
+              flag = false;
             }
         } 
         itemNode.setValid(flag);
