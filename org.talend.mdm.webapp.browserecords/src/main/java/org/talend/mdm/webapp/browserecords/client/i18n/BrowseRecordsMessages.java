@@ -208,6 +208,12 @@ public interface BrowseRecordsMessages extends Messages {
 
     String multiOccurrence_maximize(int value);
 
+    String clone_title();
+
+    String deepclone_title();
+
+    String remove_title();
+
     String picture_field_title();
 
     String picture_field_label();

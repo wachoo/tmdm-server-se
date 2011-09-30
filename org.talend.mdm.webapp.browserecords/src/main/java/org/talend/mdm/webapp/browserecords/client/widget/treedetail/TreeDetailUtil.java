@@ -1,6 +1,7 @@
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
+import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
@@ -86,10 +87,12 @@ public class TreeDetailUtil {
         if ((typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) && typeModel.getForeignkey() == null) {
             Image addNodeImg = new Image("/talendmdm/secure/img/genericUI/add.png"); //$NON-NLS-1$
             addNodeImg.getElement().setId("Add"); //$NON-NLS-1$
+            addNodeImg.setTitle(MessagesFactory.getMessages().clone_title());
             addNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
             addNodeImg.addClickHandler(h);
             Image removeNodeImg = new Image("/talendmdm/secure/img/genericUI/delete.png"); //$NON-NLS-1$
             removeNodeImg.getElement().setId("Remove"); //$NON-NLS-1$
+            removeNodeImg.setTitle(MessagesFactory.getMessages().remove_title());
             removeNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
             removeNodeImg.addClickHandler(h);
 
@@ -98,6 +101,7 @@ public class TreeDetailUtil {
             if (!typeModel.isSimpleType() && itemNode.getParent() != null) {
                 Image cloneNodeImg = new Image("/talendmdm/secure/img/genericUI/add-group.png"); //$NON-NLS-1$
                 cloneNodeImg.getElement().setId("Clone"); //$NON-NLS-1$
+                cloneNodeImg.setTitle(MessagesFactory.getMessages().deepclone_title());
                 cloneNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
                 cloneNodeImg.addClickHandler(h);
                 hp.add(cloneNodeImg);
