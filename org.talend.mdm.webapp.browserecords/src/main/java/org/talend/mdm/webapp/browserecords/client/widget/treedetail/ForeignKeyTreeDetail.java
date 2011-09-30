@@ -20,11 +20,20 @@ import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Label;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -54,6 +63,13 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     private Tree tree;
 
     private TreeItem root;
+
+    // private boolean isRenderTable;
+    private LayoutContainer northLayout;
+
+    private LayoutContainer southLayout;
+
+    private HorizontalPanel hp;
     
     private ClickHandler handler = new ClickHandler() {
 
@@ -111,6 +127,45 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                 : ItemDetailToolBar.VIEW_OPERATION, true);
         this.setTopComponent(toolBar);
         buildPanel(viewBean);
+    }
+
+    public ForeignKeyTreeDetail(ForeignKeyModel fkModel) {
+        this.setHeaderVisible(false);
+        this.setLayout(new BorderLayout());
+        this.setHeight(Window.getClientHeight() - (60 + 4 * 20));
+        this.isCreate = false;
+        // this.isRenderTable = true;
+        this.fkModel = fkModel;
+        this.model = fkModel.getNodeModel();
+        this.viewBean = fkModel.getViewBean();
+        this.columnLayoutModel = viewBean.getColumnLayoutModel();
+
+        northLayout = new LayoutContainer();
+        southLayout = new LayoutContainer();
+        hp = new HorizontalPanel();
+
+        final ForeignKeyTablePanel fkTablePanel = new ForeignKeyTablePanel();
+        ForeignKeyItemsToolBar fkToolBar = new ForeignKeyItemsToolBar(this, fkTablePanel);
+
+        BorderLayoutData northData = new BorderLayoutData(LayoutRegion.CENTER);
+        northLayout.add(fkToolBar);
+        northLayout.add(fkTablePanel);
+        northLayout.addListener(Events.Resize, new Listener<BaseEvent>() {
+
+            public void handleEvent(BaseEvent be) {
+                fkTablePanel.layoutGrid(ForeignKeyTreeDetail.this.getInnerHeight() - southLayout.getHeight() - 50);
+            }
+        });
+        southLayout.add(hp);
+        BorderLayoutData southData = new BorderLayoutData(LayoutRegion.SOUTH);
+        southData.setSplit(true);
+        southData.setSize(0.7F);
+        // southData.setCollapsible(true);
+        southData.setMargins(new Margins(5, 0, 0, 0));
+
+        this.add(northLayout, northData);
+        this.add(southLayout, southData);
+
     }
 
     public void buildPanel(final ViewBean viewBean) {
@@ -173,6 +228,29 @@ public class ForeignKeyTreeDetail extends ContentPanel {
 
     }
 
+    public void addTreeDetail(ItemBean itemBean) {
+        BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
+        service.getForeignKeyModel(itemBean.getConcept(), itemBean.getIds(), Locale.getLanguage(),
+                new AsyncCallback<ForeignKeyModel>() {
+
+                    public void onSuccess(ForeignKeyModel foreignKeyModel) {
+                        fkModel.setItemBean(foreignKeyModel.getItemBean());
+                        fkModel.setNodeModel(foreignKeyModel.getNodeModel());
+                        southLayout.removeAll();
+                        hp.clear();
+                        hp.add(new Label(fkModel.getItemBean().getDisplayPKInfo() + " - " //$NON-NLS-1$
+                                + fkModel.getItemBean().getDescription()));
+                        southLayout.add(hp);
+                        southLayout.add(new ForeignKeyTreeDetail(fkModel, false));
+                        ForeignKeyTreeDetail.this.layout();
+                    }
+
+                    public void onFailure(Throwable arg0) {
+                        MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().loading()
+                                + " " + MessagesFactory.getMessages().message_fail(), null); //$NON-NLS-1$
+                    }
+                });
+    }
     public ViewBean getViewBean() {
         return viewBean;
     }
