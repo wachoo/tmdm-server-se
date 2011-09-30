@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
 import org.talend.mdm.webapp.recyclebin.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.recyclebin.client.resources.icon.Icons;
 import org.talend.mdm.webapp.recyclebin.shared.ItemsTrashItem;
@@ -36,7 +38,6 @@ import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.state.StateManager;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -51,6 +52,8 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -58,9 +61,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.Widget;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -137,14 +138,11 @@ public class MainFramePanel extends ContentPanel {
                     ListStore<BaseModelData> store, final Grid<BaseModelData> grid) {
                 Image image = new Image();
                 image.setResource(Icons.INSTANCE.delete());
-                image.addClickListener(new ClickListener() {
+                image.addClickHandler(new ClickHandler() {
 
-                    public void onClick(Widget arg0) {
-                        service.isEntityPhysicalDeletable(model.get("conceptName").toString(), new AsyncCallback<Boolean>() {//$NON-NLS-1$
-
-                                    public void onFailure(Throwable caught) {
-                                        Dispatcher.forwardEvent(RecycleBinEvents.Error, caught);
-                                    }
+                    public void onClick(ClickEvent event) {
+                        service.isEntityPhysicalDeletable(
+                                model.get("conceptName").toString(), new SessionAwareAsyncCallback<Boolean>() {//$NON-NLS-1$
 
                                     public void onSuccess(Boolean result) {
                                         if (!result)
@@ -172,9 +170,9 @@ public class MainFramePanel extends ContentPanel {
                                                                         // TODO result
                                                                     }
 
-                                                                    public void onError(Request request, Throwable exception) {
-                                                                        Dispatcher
-                                                                                .forwardEvent(RecycleBinEvents.Error, exception);
+                                                                    public void onError(Request request, Throwable e) {
+                                                                        MessageBox.alert(MessagesFactory.getMessages()
+                                                                                .error_title(), e.getMessage(), null);
                                                                     }
                                                                 });
 
@@ -214,9 +212,9 @@ public class MainFramePanel extends ContentPanel {
                     ListStore<BaseModelData> store, final Grid<BaseModelData> grid) {
                 Image image = new Image();
                 image.setResource(Icons.INSTANCE.restore());
-                image.addClickListener(new ClickListener() {
+                image.addClickHandler(new ClickHandler() {
 
-                    public void onClick(Widget arg0) {
+                    public void onClick(ClickEvent event) {
                         MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
                                 .restore_confirm(), new Listener<MessageBoxEvent>() {
 
@@ -225,11 +223,7 @@ public class MainFramePanel extends ContentPanel {
                                     service.recoverDroppedItem(model.get("itemPK").toString(), model.get("partPath").toString(),//$NON-NLS-1$//$NON-NLS-2$
                                             model.get("revisionId") == null ? null : model.get("revisionId").toString(), model //$NON-NLS-1$//$NON-NLS-2$
                                                     .get("conceptName").toString(), model.get("ids").toString(),//$NON-NLS-1$//$NON-NLS-2$
-                                            new AsyncCallback<Void>() {
-
-                                                public void onFailure(Throwable caught) {
-                                                    Dispatcher.forwardEvent(RecycleBinEvents.Error, caught);
-                                                }
+                                            new SessionAwareAsyncCallback<Void>() {
 
                                                 public void onSuccess(Void arg0) {
                                                     pagetoolBar.refresh();
@@ -257,15 +251,16 @@ public class MainFramePanel extends ContentPanel {
             @Override
             protected void load(Object loadConfig, final AsyncCallback<PagingLoadResult<ItemsTrashItem>> callback) {
                 service.getTrashItems(text.getValue() == null ? "*" : text.getValue(), (PagingLoadConfig) loadConfig,//$NON-NLS-1$
-                        new AsyncCallback<PagingLoadResult<ItemsTrashItem>>() {
+                        new SessionAwareAsyncCallback<PagingLoadResult<ItemsTrashItem>>() {
 
                             public void onSuccess(PagingLoadResult<ItemsTrashItem> result) {
                                 callback.onSuccess(new BasePagingLoadResult<ItemsTrashItem>(result.getData(), result.getOffset(),
                                         result.getTotalLength()));
                             }
 
-                            public void onFailure(Throwable caught) {
-                                MessageBox.alert(MessagesFactory.getMessages().error_title(), caught.getMessage(), null);
+                            @Override
+                            protected void doOnFailure(Throwable caught) {
+                                super.doOnFailure(caught);
                                 callback.onSuccess(new BasePagingLoadResult<ItemsTrashItem>(new ArrayList<ItemsTrashItem>(), 0, 0));
                             }
                         });
@@ -284,7 +279,7 @@ public class MainFramePanel extends ContentPanel {
         // grid.setSize(350, 600);
         int usePageSize = PAGE_SIZE;
         if (StateManager.get().get("trashgrid") != null) //$NON-NLS-1$
-            usePageSize = Integer.valueOf(((Map) StateManager.get().get("trashgrid")).get("limit").toString()); //$NON-NLS-1$ //$NON-NLS-2$
+            usePageSize = Integer.valueOf(((Map<?, ?>) StateManager.get().get("trashgrid")).get("limit").toString()); //$NON-NLS-1$ //$NON-NLS-2$
         pagetoolBar = new PagingToolBarEx(usePageSize);
         pagetoolBar.bind(loader);
         grid.setLoadMask(true);
@@ -341,11 +336,7 @@ public class MainFramePanel extends ContentPanel {
         service.removeDroppedItem(model.get("itemPK").toString(), model.get("partPath").toString(),//$NON-NLS-1$//$NON-NLS-2$
                 model.get("revisionId") == null ? null : model.get("revisionId").toString(), model //$NON-NLS-1$//$NON-NLS-2$
                         .get("conceptName").toString(), model.get("ids").toString(),//$NON-NLS-1$//$NON-NLS-2$
-                new AsyncCallback<Void>() {
-
-                    public void onFailure(Throwable caught) {
-                        Dispatcher.forwardEvent(RecycleBinEvents.Error, caught);
-                    }
+                new SessionAwareAsyncCallback<Void>() {
 
                     public void onSuccess(Void arg0) {
                         pagetoolBar.refresh();

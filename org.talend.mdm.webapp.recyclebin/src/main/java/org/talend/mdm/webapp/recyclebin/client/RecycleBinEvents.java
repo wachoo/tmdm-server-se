@@ -20,6 +20,4 @@ import com.extjs.gxt.ui.client.event.EventType;
 public class RecycleBinEvents {
 
     public static final EventType InitFrame = new EventType();
-
-    public static final EventType Error = new EventType();
 }

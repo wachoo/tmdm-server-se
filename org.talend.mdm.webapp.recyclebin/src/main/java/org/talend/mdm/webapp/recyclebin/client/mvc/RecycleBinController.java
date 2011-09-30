@@ -12,12 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.recyclebin.client.mvc;
 
-import org.talend.mdm.webapp.recyclebin.client.RecycleBin;
 import org.talend.mdm.webapp.recyclebin.client.RecycleBinEvents;
-import org.talend.mdm.webapp.recyclebin.client.RecycleBinServiceAsync;
 
-import com.allen_sauer.gwt.log.client.Log;
-import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
@@ -31,7 +27,6 @@ public class RecycleBinController extends Controller {
 
     public RecycleBinController() {
         registerEventTypes(RecycleBinEvents.InitFrame);
-        registerEventTypes(RecycleBinEvents.Error);
     }
 
     @Override
@@ -44,15 +39,6 @@ public class RecycleBinController extends Controller {
         EventType type = event.getType();
         if (type == RecycleBinEvents.InitFrame) {
             forwardToView(view, event);
-        } else if (type == RecycleBinEvents.Error) {
-            onError(event);
         }
-
     }
-
-    protected void onError(AppEvent ae) {
-        Log.error("error: " + ae.<Object> getData()); //$NON-NLS-1$
-        // MessageBox.alert(MessagesFactory.getMessages().error_title(), ae.<Object> getData().toString(), null);
-    }
-
 }

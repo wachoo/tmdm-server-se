@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.recyclebin.client.RecycleBinService;
 import org.talend.mdm.webapp.recyclebin.shared.ItemsTrashItem;
 
@@ -78,7 +79,7 @@ public class RecycleBinAction implements RecycleBinService {
             return new BasePagingLoadResult<ItemsTrashItem>(sublist, load.getOffset(), li.size());
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            throw new Exception(e.getLocalizedMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
         }
 
     }
@@ -110,7 +111,7 @@ public class RecycleBinAction implements RecycleBinService {
             Util.persistentUpdateReport(xml, true);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            throw new Exception(e.getLocalizedMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
         }
 
     }
@@ -131,7 +132,7 @@ public class RecycleBinAction implements RecycleBinService {
             Util.persistentUpdateReport(xml, true);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            throw new Exception(e.getLocalizedMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
         }
 
     }
