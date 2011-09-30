@@ -35,6 +35,7 @@ public class CommonUtil {
     public static String toXML(ItemNodeModel nodeModel, ViewBean viewBean) {
         Document doc = XMLParser.createDocument();
         Element root = _toXML(doc, nodeModel, viewBean);
+        root.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance"); //$NON-NLS-1$//$NON-NLS-2$
         doc.appendChild(root);
         return doc.toString();
     }
