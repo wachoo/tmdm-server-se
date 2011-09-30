@@ -67,8 +67,18 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public class ItemsListPanel extends ContentPanel {
 
     List<ItemBean> selectedItems = null;
+    
+    private boolean isCreate = false;
 
-    BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
+    public boolean isCreate() {
+		return isCreate;
+	}
+
+	public void setCreate(boolean isCreate) {
+		this.isCreate = isCreate;
+	}
+
+	BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
 
     RpcProxy<PagingLoadResult<ItemBean>> proxy = new RpcProxy<PagingLoadResult<ItemBean>>() {
 
@@ -162,14 +172,13 @@ public class ItemsListPanel extends ContentPanel {
             @Override
             public void loaderLoad(LoadEvent le) {
                 if (store.getModels().size() > 0) {
-                    if (selectedItems != null) {
-                        grid.getSelectionModel().select(selectedItems, false);
-                        ItemBean selectedItem = grid.getSelectionModel().getSelectedItem();
-                        if (selectedItem == null) {
-                            grid.getSelectionModel().select(0, false);
-                        }
-                    } else {
-                        grid.getSelectionModel().select(0, false);
+                    if (selectedItems == null) {
+                    	//search and create
+                    	if(isCreate)
+                    		grid.getSelectionModel().select(grid.getStore().getCount() - 1, false);
+                    	else
+                    		grid.getSelectionModel().select(0, false);
+                    	isCreate = false;
                     }
                 } else {
                     ItemsToolBar.getInstance().searchBut.setEnabled(true);

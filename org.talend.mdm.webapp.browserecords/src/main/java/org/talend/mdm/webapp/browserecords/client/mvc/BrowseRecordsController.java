@@ -104,7 +104,7 @@ public class BrowseRecordsController extends Controller {
         ItemNodeModel model = event.getData();
         ViewBean viewBean = event.getData("viewBean"); //$NON-NLS-1$
         ItemBean itemBean = event.getData("ItemBean"); //$NON-NLS-1$
-        Boolean isCreate = event.getData("isCreate"); //$NON-NLS-1$
+        final Boolean isCreate = event.getData("isCreate"); //$NON-NLS-1$
         final Boolean isClose = event.getData("isClose"); //$NON-NLS-1$
         service.saveItem(itemBean.getConcept(), itemBean.getIds(), CommonUtil.toXML(model, viewBean), isCreate,
                 new AsyncCallback<ItemResult>() {
@@ -123,7 +123,7 @@ public class BrowseRecordsController extends Controller {
                         } else {
                             MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
                                     .save_success(), null);
-                            if (!isClose) {
+                            if (!isClose && isCreate) {
                                 ItemsListPanel.getInstance().lastPage();
                             }
                         }
