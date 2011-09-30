@@ -1,0 +1,38 @@
+###############################################################################
+*******the following explain the steps to add/modify webservice ***********
+*******methods in tom/tem**************************************************
+###############################################################################
+1.add/modify a webservice method in tom ( for MDM Open edition)
+  (1) add/modify the webservice method in org.talend.mdm.core.open/src/META-INF/wsdl
+  (2) run org.talend.mdm.core.open/wsdl_compile.xml/default target to generate webservice skeleton classes.
+  (3) implement the method in org.talend.mdm.core.open/com.amalto.core.ejb.XtentisWSBean
+  (4) run org.talend.mdm.core.open/xdoclet_generate.xml/xdoclet-generation target(this step is necessary only when you add a method) to generate ejb skeleton classes
+  (5) run org.talend.mdm.core.open/merge_with_core.xml/default target. to move the webservice classes to org.talend.mdm.core project.
+    
+   you NEED to do the following step 2. that mean you need add/modify the webservice both in org.talend.mdm.core.open/org.talend.mdm.core.enterprise
+  
+2. add/modify a webservice method in tem ( for MDM enterprise edition)
+  (1) add/modify the webservice method in org.talend.mdm.core.enterprise/src/META-INF/wsdl
+  (2) run org.talend.mdm.core.enterprise/wsdl_compile.xml/default target to generate webservice skeleton classes.
+  (3) implement the method in org.talend.mdm.core.enterprise/com.amalto.core.ejb.XtentisEnterpriseWSBean
+  (4) run org.talend.mdm.core.enterprise/xdoclet_generate.xml/xdoclet-generation target(this step is necessary only when you add a method) to generate ejb skeleton classes
+  (5) run org.talend.mdm.core.enterprise/merge_with_core.xml/default target. to move the webservice classes to org.talend.mdm.core project.
+  
+3. after that, you need to apply the above modification  to org.talend.mdm.workbench as the following steps:
+(1). replace all files in org.talend.mdm.workbench/wsdl/* with those files in org.talend.mdm.core.enterprise/src/META-INF/wsdl
+(2). run wsdl_client.xml default target  to generate the webserice client classes 
+
+4. after that, you need to apply the modification  to org.talend.mdm.webapp.core as the following steps:
+(1). run org.talend.mdm.webapp.core/wsdl_client.xml default target to generate the webserice client classes 
+
+5. you NEED apply the modification to TDI/components/TOP team
+(1). give the org.talend.mdm.core.enterprise/src/META-INF/wsdl files to them. they generate the webservice classes files themself.
+
+
+###############################################################################
+*******the following explain the steps to add ejb method ***********
+###############################################################################
+
+1. add the business ejb method in your ejb class
+2. use the {your project}/xdoclet_generate.xml to generate the ejb skeleton classes
+(DO NOT add the local/remote classes manually)
