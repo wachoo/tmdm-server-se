@@ -156,7 +156,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                 fkTablePanel.layoutGrid(ForeignKeyTreeDetail.this.getInnerHeight() - southLayout.getHeight() - 50);
             }
         });
-        southLayout.add(hp);
+        // southLayout.add(hp);
         BorderLayoutData southData = new BorderLayoutData(LayoutRegion.SOUTH);
         southData.setSplit(true);
         southData.setSize(0.7F);
@@ -240,7 +240,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                         hp.clear();
                         hp.add(new Label(fkModel.getItemBean().getDisplayPKInfo() + " - " //$NON-NLS-1$
                                 + fkModel.getItemBean().getDescription()));
-                        southLayout.add(hp);
+                        // southLayout.add(hp);
                         southLayout.add(new ForeignKeyTreeDetail(fkModel, false));
                         ForeignKeyTreeDetail.this.layout();
                     }
@@ -490,5 +490,8 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         return flag;
     }
 
+    public void resize() {
+        northLayout.fireEvent(Events.Resize);
+    }
 
 }

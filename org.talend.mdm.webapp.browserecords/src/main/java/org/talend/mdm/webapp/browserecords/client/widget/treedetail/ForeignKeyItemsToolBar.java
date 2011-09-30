@@ -171,7 +171,6 @@ public class ForeignKeyItemsToolBar extends ToolBar {
     @SuppressWarnings("rawtypes")
     private void initToolBar() {
         createBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Create()));
-        createBtn.setEnabled(false);
         add(createBtn);
         createBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
@@ -209,7 +208,6 @@ public class ForeignKeyItemsToolBar extends ToolBar {
                     ViewBean viewBean = listPanel.getViewBean();
                     EntityModel entityModel = viewBean.getBindingEntityModel();
 
-                    // TODO update columns
                     List<ColumnConfig> ccList = new ArrayList<ColumnConfig>();
                     CheckBoxSelectionModel<ItemBean> sm = new CheckBoxSelectionModel<ItemBean>();
                     sm.setSelectionMode(SelectionMode.MULTI);
@@ -276,7 +274,8 @@ public class ForeignKeyItemsToolBar extends ToolBar {
     }
 
     private void resizeAfterSearch() {
-
+        // tablePanel.setHeight(200);
+        listPanel.resize();
     }
 
     public void addOption(ItemBaseModel model) {
