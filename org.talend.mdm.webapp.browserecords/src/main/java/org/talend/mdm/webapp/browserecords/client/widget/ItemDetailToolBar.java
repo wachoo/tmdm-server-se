@@ -1,6 +1,6 @@
 package org.talend.mdm.webapp.browserecords.client.widget;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
@@ -16,10 +16,10 @@ import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.ContainerUpdate;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.DeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.DeleteCallback;
+import org.talend.mdm.webapp.browserecords.client.widget.integrity.ListRefresh;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.LogicalDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.NoOpPostDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.PostDeleteAction;
-import org.talend.mdm.webapp.browserecords.client.widget.integrity.ListRefresh;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTreeDetail;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -210,10 +210,16 @@ public class ItemDetailToolBar extends ToolBar {
                     box.addCallback(new Listener<MessageBoxEvent>() {
 
                         public void handleEvent(MessageBoxEvent be) {
-                            PostDeleteAction postDeleteAction = new ListRefresh(new ContainerUpdate(NoOpPostDeleteAction.INSTANCE));
-                            DeleteAction deleteAction = new LogicalDeleteAction(be.getValue());
-                            service.checkFKIntegrity(Collections.singletonList(itemBean), new DeleteCallback(deleteAction,
-                                    postDeleteAction, service));
+                            if (be.getButtonClicked().getItemId().equals(Dialog.OK)) {
+                                PostDeleteAction postDeleteAction = new ListRefresh(new ContainerUpdate(
+                                        NoOpPostDeleteAction.INSTANCE));
+                                DeleteAction deleteAction = new LogicalDeleteAction(be.getValue());
+                                // Collections.singletonList(itemBean) --- it could not be sent to backend correctly
+                                List<ItemBean> list = new ArrayList<ItemBean>();
+                                list.add(itemBean);
+                                service.checkFKIntegrity(list, new DeleteCallback(deleteAction,
+                                        postDeleteAction, service));
+                            }
                         }
                     });
                 }
@@ -233,7 +239,9 @@ public class ItemDetailToolBar extends ToolBar {
                         public void handleEvent(MessageBoxEvent be) {
                             if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
                                 PostDeleteAction postDeleteAction = new ListRefresh(new ContainerUpdate(NoOpPostDeleteAction.INSTANCE));;
-                                service.checkFKIntegrity(Collections.singletonList(itemBean), new DeleteCallback(
+                                List<ItemBean> list = new ArrayList<ItemBean>();
+                                list.add(itemBean);
+                                service.checkFKIntegrity(list, new DeleteCallback(
                                         DeleteAction.PHYSICAL, postDeleteAction, service));
                             }
                         }
