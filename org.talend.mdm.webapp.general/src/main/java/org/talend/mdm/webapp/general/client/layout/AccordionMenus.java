@@ -14,21 +14,19 @@ package org.talend.mdm.webapp.general.client.layout;
 
 import java.util.List;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.general.client.General;
 import org.talend.mdm.webapp.general.client.GeneralServiceAsync;
 import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
-import org.talend.mdm.webapp.general.client.mvc.GeneralEvent;
 import org.talend.mdm.webapp.general.client.resources.icon.Icons;
 import org.talend.mdm.webapp.general.model.MenuBean;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.HTML;
 
@@ -127,22 +125,19 @@ public class AccordionMenus extends ContentPanel {
     }
 
     ClickHandler clickHander = new ClickHandler() {
+
         public void onClick(ClickEvent event) {
             final HTMLMenuItem item = (HTMLMenuItem) event.getSource();
             final MenuBean menuBean = item.getMenuBean();
             if (!menuBean.getContext().toLowerCase().equals("licensemanager")) //$NON-NLS-1$
-                service.isExpired(new AsyncCallback<Boolean>() {
+                service.isExpired(new SessionAwareAsyncCallback<Boolean>() {
 
-                    public void onFailure(Throwable caught) {
-                        Dispatcher.forwardEvent(GeneralEvent.Error, caught);
-                    }
-    
                     public void onSuccess(Boolean result) {
-                            if (!result) {
+                        if (!result) {
                             clickMenu(menuBean, item);
                         }
                     }
-    
+
                 });
             else {
                 clickMenu(menuBean, item);
@@ -159,7 +154,7 @@ public class AccordionMenus extends ContentPanel {
     }
 
     private native boolean initUI(String context, String application, String errorMsg)/*-{
-        if ($wnd.amalto[context]){
+       if ($wnd.amalto[context]){
             if ($wnd.amalto[context][application]){
                 $wnd.amalto[context][application].init();
                 return true;
@@ -187,8 +182,9 @@ public class AccordionMenus extends ContentPanel {
             return menuBean;
         }
     }
-    
-    interface GetUrl{
+
+    interface GetUrl {
+
         void getUrl(String url);
     }
 }

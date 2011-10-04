@@ -14,6 +14,7 @@ package org.talend.mdm.webapp.general.client;
 
 import java.util.List;
 
+import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.general.model.ActionBean;
 import org.talend.mdm.webapp.general.model.ItemBean;
 import org.talend.mdm.webapp.general.model.MenuBean;
@@ -28,17 +29,17 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("GeneralService")
 public interface GeneralService extends RemoteService {
 
-    List<MenuBean> getMenus(String language) throws Exception;
+    List<MenuBean> getMenus(String language) throws ServiceException;
     
-    ActionBean getAction();
+    ActionBean getAction() throws ServiceException;
 
-    String setClusterAndModel(String cluster, String model);
+    void setClusterAndModel(String cluster, String model) throws ServiceException;
     
-    public UserBean getUsernameAndUniverse() throws Exception;
+    public UserBean getUsernameAndUniverse() throws ServiceException;
     
-    public List<ItemBean> getLanguages();
+    public List<ItemBean> getLanguages() throws ServiceException;
 
-    public String logout();
+    public void logout() throws ServiceException;
 
-    public boolean isExpired() throws Exception;
+    public boolean isExpired() throws ServiceException;
 }

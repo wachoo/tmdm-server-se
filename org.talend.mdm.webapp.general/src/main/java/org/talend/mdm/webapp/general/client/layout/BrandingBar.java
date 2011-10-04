@@ -100,9 +100,9 @@ public class BrandingBar extends ContentPanel {
             @Override
             public void componentSelected(ButtonEvent ce) {
                 GeneralServiceAsync service = (GeneralServiceAsync) Registry.get(General.OVERALL_SERVICE);
-                service.logout(new SessionAwareAsyncCallback<String>() {
+                service.logout(new SessionAwareAsyncCallback<Void>() {
 
-                    public void onSuccess(String result) {
+                    public void onSuccess(Void result) {
                         Cookies.removeCookie("JSESSIONID"); //$NON-NLS-1$
                         Cookies.removeCookie("JSESSIONIDSSO"); //$NON-NLS-1$
                         setHref("/talendmdm/secure/?action=logout"); //$NON-NLS-1$

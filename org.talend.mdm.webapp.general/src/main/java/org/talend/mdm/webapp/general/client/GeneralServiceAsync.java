@@ -28,7 +28,7 @@ public interface GeneralServiceAsync {
 
     void getMenus(String language, AsyncCallback<List<MenuBean>> callback);
 
-    void setClusterAndModel(String cluster, String model, AsyncCallback<String> callback);
+    void setClusterAndModel(String cluster, String model, AsyncCallback<Void> callback);
 
     void getUsernameAndUniverse(AsyncCallback<UserBean> callback);
 
@@ -36,7 +36,7 @@ public interface GeneralServiceAsync {
 
     void getAction(AsyncCallback<ActionBean> callback);
 
-    void logout(AsyncCallback<String> callback);
+    void logout(AsyncCallback<Void> callback);
 
     void isExpired(AsyncCallback<Boolean> callback);
 }

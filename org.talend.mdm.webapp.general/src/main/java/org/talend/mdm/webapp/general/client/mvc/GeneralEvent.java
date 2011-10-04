@@ -18,8 +18,6 @@ public class GeneralEvent {
 
     public static final EventType LoadUser = new EventType();
 
-    public static final EventType Error = new EventType();
-
     public static final EventType InitFrame = new EventType();
     
     public static final EventType LoadMenus = new EventType();

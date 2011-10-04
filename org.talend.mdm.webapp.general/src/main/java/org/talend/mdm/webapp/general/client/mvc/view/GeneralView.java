@@ -14,7 +14,6 @@ package org.talend.mdm.webapp.general.client.mvc.view;
 
 import java.util.List;
 
-import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
 import org.talend.mdm.webapp.general.client.layout.AccordionMenus;
 import org.talend.mdm.webapp.general.client.layout.BorderLayoutContainer;
 import org.talend.mdm.webapp.general.client.layout.WorkSpace;
@@ -26,7 +25,6 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.ui.RootPanel;
 
 public class GeneralView extends View {
@@ -39,13 +37,12 @@ public class GeneralView extends View {
         super(controller);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
         if (type == GeneralEvent.InitFrame) {
             initFrame(event);
-        } else if (type == GeneralEvent.Error) {
-            onError(event);
         } else if (type == GeneralEvent.LoadMenus) {
             AccordionMenus.getInstance().initMenus((List<MenuBean>) event.getData());
             Dispatcher dispatcher = Dispatcher.get();
@@ -65,9 +62,5 @@ public class GeneralView extends View {
         Dispatcher dispatcher = Dispatcher.get();
         dispatcher.dispatch(GeneralEvent.LoadMenus);
         dispatcher.dispatch(GeneralEvent.LoadWelcome);
-    }
-
-    private void onError(AppEvent ae) {
-        MessageBox.alert(MessageFactory.getMessages().error(), ((Exception) ae.getData()).getMessage(), null);
     }
 }

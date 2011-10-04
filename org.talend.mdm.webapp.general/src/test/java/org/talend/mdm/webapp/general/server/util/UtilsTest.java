@@ -21,7 +21,7 @@ import org.talend.mdm.webapp.general.model.ItemBean;
 @SuppressWarnings("nls")
 public class UtilsTest extends TestCase {
 
-    public void testGetLanguages() {
+    public void testGetLanguages() throws Exception {
         List<ItemBean> langs = Utils.getLanguages();
         assertEquals(2, langs.size());
         ItemBean lang = langs.get(0);

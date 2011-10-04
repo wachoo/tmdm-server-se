@@ -45,7 +45,6 @@ public class GeneralController extends Controller {
     public GeneralController() {
         registerEventTypes(GeneralEvent.LoadUser);
         registerEventTypes(GeneralEvent.InitFrame);
-        registerEventTypes(GeneralEvent.Error);
         registerEventTypes(GeneralEvent.LoadMenus);
         registerEventTypes(GeneralEvent.LoadLanguages);
         registerEventTypes(GeneralEvent.LoadActions);
@@ -67,8 +66,6 @@ public class GeneralController extends Controller {
             loadUser(event);
         } else if (type == GeneralEvent.InitFrame) {
             forwardToView(view, event);
-        } else if (type == GeneralEvent.Error) {
-            this.forwardToView(view, event);
         } else if (type == GeneralEvent.LoadLanguages) {
             loadLanguages(event);
         } else if (type == GeneralEvent.LoadMenus) {
@@ -126,16 +123,15 @@ public class GeneralController extends Controller {
     private void switchClusterAndModel(AppEvent event) {
         String dataCluster = ActionsPanel.getInstance().getDataCluster();
         String dataModel = ActionsPanel.getInstance().getDataModel();
-        service.setClusterAndModel(dataCluster, dataModel, new SessionAwareAsyncCallback<String>() {
+        service.setClusterAndModel(dataCluster, dataModel, new SessionAwareAsyncCallback<Void>() {
 
-            public void onSuccess(String result) {
-                if ("DONE".equals(result)) { //$NON-NLS-1$
-                    MessageBox.alert(MessageFactory.getMessages().status(), MessageFactory.getMessages().status_msg_success(),
-                            null);
-                } else {
-                    MessageBox.alert(MessageFactory.getMessages().status(), MessageFactory.getMessages().status_msg_failure()
-                            + " " + result, null); //$NON-NLS-1$
-                }
+            @Override
+            protected void doOnFailure(Throwable caught) {
+                MessageBox.alert(MessageFactory.getMessages().status(), MessageFactory.getMessages().status_msg_failure(), null);
+            }
+
+            public void onSuccess(Void result) {
+                MessageBox.alert(MessageFactory.getMessages().status(), MessageFactory.getMessages().status_msg_success(), null);
                 WorkSpace.getInstance().clearTabs();
                 WorkSpace.getInstance().loadApp(GeneralView.WELCOMECONTEXT, GeneralView.WELCOMEAPP);
             }
