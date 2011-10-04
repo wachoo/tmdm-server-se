@@ -28,6 +28,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriter
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BaseListLoadResult;
@@ -155,6 +156,7 @@ public class ForeignKeyListWindow extends Window {
         return value;
     }
 
+    @Override
     protected void onRender(Element parent, int pos) {
         super.onRender(parent, pos);
         final TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(fkKey);
@@ -165,30 +167,36 @@ public class ForeignKeyListWindow extends Window {
         xPath = typeModel.getXpath();
         RpcProxy<PagingLoadResult<ForeignKeyBean>> proxy = new RpcProxy<PagingLoadResult<ForeignKeyBean>>() {
 
+            @Override
             public void load(final Object loadConfig, final AsyncCallback<PagingLoadResult<ForeignKeyBean>> callback) {
                 service.getForeignKeyList((PagingLoadConfig) loadConfig, typeModel, BrowseRecords.getSession().getAppHeader()
-                        .getDatacluster(), false, getFilterValue(), new AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>>() {
+                        .getDatacluster(), false, getFilterValue(),
+                        new SessionAwareAsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>>() {
 
-                    public void onFailure(Throwable caught) {
-                        callback.onFailure(caught);
-                    }
+                            @Override
+                            protected void doOnFailure(Throwable caught) {
+                                callback.onFailure(caught);
+                            }
 
-                    public void onSuccess(ItemBasePageLoadResult<ForeignKeyBean> result) {
-                        callback.onSuccess(new BasePagingLoadResult<ForeignKeyBean>(result.getData(), result.getOffset(), result
-                                .getTotalLength()));
-                    }
+                            public void onSuccess(ItemBasePageLoadResult<ForeignKeyBean> result) {
+                                callback.onSuccess(new BasePagingLoadResult<ForeignKeyBean>(result.getData(), result.getOffset(),
+                                        result.getTotalLength()));
+                            }
 
-                });
+                        });
 
             }
         };
 
         RpcProxy<BaseListLoadResult<BaseModel>> proxy1 = new RpcProxy<BaseListLoadResult<BaseModel>>() {
 
+            @Override
             public void load(final Object loadConfig, final AsyncCallback<BaseListLoadResult<BaseModel>> callback) {
-                service.getForeignKeyPolymTypeList(typeModel.getForeignkey(), "en", new AsyncCallback<List<Restriction>>() {//$NON-NLS-1$
+                service.getForeignKeyPolymTypeList(typeModel.getForeignkey(),
+                        "en", new SessionAwareAsyncCallback<List<Restriction>>() {//$NON-NLS-1$
 
-                            public void onFailure(Throwable caught) {
+                            @Override
+                            protected void doOnFailure(Throwable caught) {
                                 callback.onFailure(caught);
                             }
 
@@ -279,11 +287,7 @@ public class ForeignKeyListWindow extends Window {
                 }
                 String fkInfo = sb.toString();
                 service.switchForeignKeyType(targetType, typeModel.getForeignkey(), fkInfo, getFilterValue(),
-                        new AsyncCallback<ForeignKeyDrawer>() {
-
-                            public void onFailure(Throwable arg0) {
-
-                            }
+                        new SessionAwareAsyncCallback<ForeignKeyDrawer>() {
 
                             public void onSuccess(ForeignKeyDrawer fkDrawer) {
                                 typeModel.setForeignkey(fkDrawer.getXpathForeignKey());
@@ -359,6 +363,7 @@ public class ForeignKeyListWindow extends Window {
         Button cancelBtn = new Button(MessagesFactory.getMessages().cancel_btn());
         cancelBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+            @Override
             public void componentSelected(ButtonEvent ce) {
                 hide(null);
             }

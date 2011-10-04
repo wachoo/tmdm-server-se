@@ -16,9 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
-import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
@@ -45,7 +45,6 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.state.StateManager;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -114,6 +113,7 @@ public class DownloadTablePanel extends ContentPanel {
         List<ColumnConfig> columnConfigList = initColumns(viewBean, width);
         RpcProxy<PagingLoadResult<ItemBean>> proxy = new RpcProxy<PagingLoadResult<ItemBean>>() {
 
+            @Override
             protected void load(Object loadConfig, final AsyncCallback<PagingLoadResult<ItemBean>> callback) {
                 final QueryModel qm = new QueryModel();
                 qm.setDataClusterPK(BrowseRecords.getSession().getAppHeader().getDatacluster());
@@ -125,17 +125,17 @@ public class DownloadTablePanel extends ContentPanel {
                 qm.getPagingLoadConfig().setLimit(pageSize);
                 qm.setLanguage(Locale.getLanguage());
 
-                service.queryItemBeans(qm, new AsyncCallback<ItemBasePageLoadResult<ItemBean>>() {
+                service.queryItemBeans(qm, new SessionAwareAsyncCallback<ItemBasePageLoadResult<ItemBean>>() {
 
                     public void onSuccess(ItemBasePageLoadResult<ItemBean> result) {
                         callback.onSuccess(new BasePagingLoadResult<ItemBean>(result.getData(), result.getOffset(), result
                                 .getTotalLength()));
                     }
 
-                    public void onFailure(Throwable caught) {
-                        MessageBox.alert(MessagesFactory.getMessages().error_title(), caught.getMessage(), null);
+                    @Override
+                    protected void doOnFailure(Throwable caught) {
+                        super.doOnFailure(caught);
                         callback.onSuccess(new BasePagingLoadResult<ItemBean>(new ArrayList<ItemBean>(), 0, 0));
-
                     }
                 });
             }
@@ -147,7 +147,7 @@ public class DownloadTablePanel extends ContentPanel {
         final ListStore<ItemBean> store = new ListStore<ItemBean>(loader);
         int usePageSize = PAGE_SIZE;
         if (StateManager.get().get("crossgrid") != null) //$NON-NLS-1$
-            usePageSize = Integer.valueOf(((Map) StateManager.get().get("crossgrid")).get("limit").toString()); //$NON-NLS-1$ //$NON-NLS-2$
+            usePageSize = Integer.valueOf(((Map<?,?>) StateManager.get().get("crossgrid")).get("limit").toString()); //$NON-NLS-1$ //$NON-NLS-2$
         pagetoolBar = new PagingToolBarEx(usePageSize);
         pagetoolBar.bind(loader);
         ColumnModel cm = new ColumnModel(columnConfigList);

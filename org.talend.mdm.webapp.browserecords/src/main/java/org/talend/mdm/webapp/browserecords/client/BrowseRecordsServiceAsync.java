@@ -23,7 +23,6 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
-import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.Restriction;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
@@ -52,21 +51,21 @@ public interface BrowseRecordsServiceAsync {
 
     void queryItemBeans(QueryModel config, AsyncCallback<ItemBasePageLoadResult<ItemBean>> callback);
 
-    void saveItemBean(ItemBean item, AsyncCallback<ItemResult> callback);
+    void saveItemBean(ItemBean item, AsyncCallback<String> callback);
 
     void getItem(ItemBean itemBean, EntityModel entityModel, String language, AsyncCallback<ItemBean> callback);
 
     void getView(String viewPk, String language, AsyncCallback<ViewBean> callback);
 
-    void deleteItemBean(ItemBean item, boolean override, AsyncCallback<ItemResult> callback);
+    void deleteItemBean(ItemBean item, boolean override, AsyncCallback<String> callback);
 
-    void deleteItemBeans(List<ItemBean> items, boolean override, AsyncCallback<List<ItemResult>> callback);
+    void deleteItemBeans(List<ItemBean> items, boolean override, AsyncCallback<List<String>> callback);
 
     void checkFKIntegrity(List<ItemBean> selectedItems, AsyncCallback<Map<ItemBean, FKIntegrityResult>> asyncCallback);
 
-    void logicalDeleteItem(ItemBean item, String path, boolean override, AsyncCallback<ItemResult> callback);
+    void logicalDeleteItem(ItemBean item, String path, boolean override, AsyncCallback<Void> callback);
 
-    void logicalDeleteItems(List<ItemBean> items, String path, boolean override, AsyncCallback<List<ItemResult>> callback);
+    void logicalDeleteItems(List<ItemBean> items, String path, boolean override, AsyncCallback<Void> callback);
 
     void getViewsList(String language, AsyncCallback<List<ItemBaseModel>> callback);
 
@@ -83,17 +82,17 @@ public interface BrowseRecordsServiceAsync {
     void querySearchTemplates(String view, boolean isShared, PagingLoadConfig load,
             AsyncCallback<PagingLoadResult<ItemBaseModel>> callback);
 
-    void deleteSearchTemplate(String id, AsyncCallback<String> callback);
+    void deleteSearchTemplate(String id, AsyncCallback<Void> callback);
 
     void isExistCriteria(String dataObjectLabel, String id, AsyncCallback<Boolean> callback);
 
-    void saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString, AsyncCallback<String> callback);
+    void saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString, AsyncCallback<Void> callback);
    
     void getItemNodeModel(ItemBean item, EntityModel entity, String language, AsyncCallback<ItemNodeModel> callback);
 
     void getMandatoryFieldList(String tableName, AsyncCallback<List<String>> callback);
 
-    void saveItem(String concept, String ids, String xml, boolean isCreate, AsyncCallback<ItemResult> callback);
+    void saveItem(String concept, String ids, String xml, boolean isCreate, AsyncCallback<String> callback);
 
     void getColumnTreeLayout(String concept, AsyncCallback<ColumnTreeLayoutModel> callback);
 

@@ -46,12 +46,12 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.dom4j.DocumentException;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsService;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
 import org.talend.mdm.webapp.browserecords.client.model.DataTypeConstants;
@@ -62,7 +62,6 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
-import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.Restriction;
 import org.talend.mdm.webapp.browserecords.client.model.SearchTemplate;
@@ -162,18 +161,16 @@ import com.sun.xml.xsom.parser.XSOMParser;
 /**
  * DOC Administrator class global comment. Detailled comment
  */
-@SuppressWarnings(value = { "unchecked", "deprecation" })
 public class BrowseRecordsAction implements BrowseRecordsService {
 
     private static final Logger LOG = Logger.getLogger(BrowseRecordsAction.class);
 
-    private static final Messages MESSAGES = MessagesFactory
-            .getMessages(
+    private static final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages", BrowseRecordsAction.class.getClassLoader()); //$NON-NLS-1$
 
     private static final Pattern extractIdPattern = Pattern.compile("\\[.*?\\]"); //$NON-NLS-1$
 
-    public ItemResult deleteItemBean(ItemBean item, boolean override) {
+    public String deleteItemBean(ItemBean item, boolean override) throws ServiceException {
         try {
             String dataClusterPK = getCurrentDataCluster();
             String concept = item.getConcept();
@@ -194,47 +191,46 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
             }
 
-            int status;
             if (outputErrorMessage == null || "info".equals(errorCode)) { //$NON-NLS-1$
                 WSItemPK wsItem = CommonUtil.getPort().deleteItem(
                         new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids), override));
                 if (wsItem != null) {
-                    status = ItemResult.SUCCESS;
                     pushUpdateReport(ids, concept, "PHYSICAL_DELETE", true); //$NON-NLS-1$
                     if (message == null || message.length() == 0)
                         message = MESSAGES.getMessage("delete_record_success"); //$NON-NLS-1$
                 } else {
-                    status = ItemResult.FAILURE;
-                    message = MESSAGES.getMessage("delete_record_failure"); //$NON-NLS-1$
+                    throw new ServiceException(MESSAGES.getMessage("delete_record_failure")); //$NON-NLS-1$
                 }
             } else {
                 // Anything but 0 is unsuccessful
-                status = ItemResult.FAILURE;
                 if (message == null || message.length() == 0)
                     message = MESSAGES.getMessage("delete_process_validation_failure"); //$NON-NLS-1$
+                throw new ServiceException(message);
             }
-
-            return new ItemResult(status, message);
-
+            return message;
+        } catch (ServiceException e) {
+            LOG.error(e.getMessage(), e);
+            throw e;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            return new ItemResult(ItemResult.FAILURE, e.getLocalizedMessage());
+            throw new ServiceException(e.getLocalizedMessage());
         }
     }
 
-    public List<ItemResult> deleteItemBeans(List<ItemBean> items, boolean override) {
-        List<ItemResult> itemResults = new ArrayList<ItemResult>();
+    public List<String> deleteItemBeans(List<ItemBean> items, boolean override) throws ServiceException {
+        List<String> itemResults = new ArrayList<String>();
         for (ItemBean item : items) {
-            ItemResult itemResult = deleteItemBean(item, override);
+            String itemResult = deleteItemBean(item, override);
             itemResults.add(itemResult);
         }
         return itemResults;
     }
 
-    public Map<ItemBean, FKIntegrityResult> checkFKIntegrity(List<ItemBean> selectedItems) {
-        Map<ItemBean, FKIntegrityResult> itemBeanToResult = new HashMap<ItemBean, FKIntegrityResult>(selectedItems.size());
+    public Map<ItemBean, FKIntegrityResult> checkFKIntegrity(List<ItemBean> selectedItems) throws ServiceException {
 
         try {
+            Map<ItemBean, FKIntegrityResult> itemBeanToResult = new HashMap<ItemBean, FKIntegrityResult>(selectedItems.size());
+
             for (ItemBean selectedItem : selectedItems) {
                 String concept = selectedItem.getConcept();
                 String[] ids = extractIdWithDots(selectedItem.getIds());
@@ -244,28 +240,32 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
                 FKIntegrityCheckResult result = CommonUtil.getPort().checkFKIntegrity(deleteItem);
                 switch (result) {
-                    case FORBIDDEN:
-                        itemBeanToResult.put(selectedItem, FKIntegrityResult.FORBIDDEN);
-                        break;
-                    case FORBIDDEN_OVERRIDE_ALLOWED:
-                        itemBeanToResult.put(selectedItem, FKIntegrityResult.FORBIDDEN_OVERRIDE_ALLOWED);
-                        break;
-                    case ALLOWED:
-                        itemBeanToResult.put(selectedItem, FKIntegrityResult.ALLOWED);
-                        break;
-                    default:
-                        throw new XtentisWebappException(MESSAGES.getMessage("fk_integrity", result)); //$NON-NLS-1$
+                case FORBIDDEN:
+                    itemBeanToResult.put(selectedItem, FKIntegrityResult.FORBIDDEN);
+                    break;
+                case FORBIDDEN_OVERRIDE_ALLOWED:
+                    itemBeanToResult.put(selectedItem, FKIntegrityResult.FORBIDDEN_OVERRIDE_ALLOWED);
+                    break;
+                case ALLOWED:
+                    itemBeanToResult.put(selectedItem, FKIntegrityResult.ALLOWED);
+                    break;
+                default:
+                    throw new ServiceException(MESSAGES.getMessage("fk_integrity", result)); //$NON-NLS-1$
                 }
             }
+
+            return itemBeanToResult;
+        } catch (ServiceException e) {
+            LOG.error(e.getMessage(), e);
+            throw e;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
         }
-
-        return itemBeanToResult;
     }
 
     public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,
-            String dataClusterPK, boolean ifFKFilter, String value) {
+            String dataClusterPK, boolean ifFKFilter, String value) throws ServiceException {
         String xpathForeignKey = model.getForeignkey();
         // to verify
         String xpathInfoForeignKey = model.getForeignKeyInfo().toString().replaceAll("\\[", "").replaceAll("\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -336,8 +336,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if (model.isRetrieveFKinfos())
                     // add the xPath Infos Path
                     for (int i = 0; i < xpathInfos.length; i++) {
-                        xPaths.add(com.amalto.webapp.core.util.Util.getFormatedFKInfo(xpathInfos[i].replaceFirst(conceptName,
-                                filteredConcept), filteredConcept));
+                        xPaths.add(com.amalto.webapp.core.util.Util.getFormatedFKInfo(
+                                xpathInfos[i].replaceFirst(conceptName, filteredConcept), filteredConcept));
                     }
                 // add the key paths last, since there may be multiple keys
                 xPaths.add(filteredConcept + "/../../i"); //$NON-NLS-1$
@@ -345,32 +345,38 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 String orderbyPath = null;
                 if (!MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
                     if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) { //$NON-NLS-1$
-                        orderbyPath = com.amalto.webapp.core.util.Util.getFormatedFKInfo(xpathInfos[0].replaceFirst(conceptName,
-                                filteredConcept), filteredConcept);
+                        orderbyPath = com.amalto.webapp.core.util.Util.getFormatedFKInfo(
+                                xpathInfos[0].replaceFirst(conceptName, filteredConcept), filteredConcept);
                     }
                 }
 
                 // Run the query
                 if (!com.amalto.webapp.core.util.Util.isCustomFilter(fkFilter)) {
 
-                    results = CommonUtil.getPort().xPathsSearch(
-                            new WSXPathsSearch(new WSDataClusterPK(dataClusterPK), null, new WSStringArray(xPaths
-                                    .toArray(new String[xPaths.size()])), whereItem, -1, config.getOffset(), config.getLimit(),
-                                    orderbyPath, null)).getStrings();
-                    count = CommonUtil.getPort().count(
-                            new WSCount(new WSDataClusterPK(dataClusterPK), conceptName, whereItem, -1)).getValue();
+                    results = CommonUtil
+                            .getPort()
+                            .xPathsSearch(
+                                    new WSXPathsSearch(new WSDataClusterPK(dataClusterPK), null, new WSStringArray(xPaths
+                                            .toArray(new String[xPaths.size()])), whereItem, -1, config.getOffset(), config
+                                            .getLimit(), orderbyPath, null)).getStrings();
+                    count = CommonUtil.getPort()
+                            .count(new WSCount(new WSDataClusterPK(dataClusterPK), conceptName, whereItem, -1)).getValue();
 
                 } else {
 
                     String injectedXpath = com.amalto.webapp.core.util.Util.getInjectedXpath(fkFilter);
-                    results = CommonUtil.getPort().getItemsByCustomFKFilters(
-                            new WSGetItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName, new WSStringArray(
-                                    xPaths.toArray(new String[xPaths.size()])), injectedXpath, config.getOffset(), config
-                                    .getLimit(), orderbyPath, null)).getStrings();
+                    results = CommonUtil
+                            .getPort()
+                            .getItemsByCustomFKFilters(
+                                    new WSGetItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName,
+                                            new WSStringArray(xPaths.toArray(new String[xPaths.size()])), injectedXpath, config
+                                                    .getOffset(), config.getLimit(), orderbyPath, null)).getStrings();
 
-                    count = CommonUtil.getPort().countItemsByCustomFKFilters(
-                            new WSCountItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName, injectedXpath))
-                            .getValue();
+                    count = CommonUtil
+                            .getPort()
+                            .countItemsByCustomFKFilters(
+                                    new WSCountItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName,
+                                            injectedXpath)).getValue();
                 }
             }
 
@@ -378,7 +384,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 for (String result : results) {
                     ForeignKeyBean bean = new ForeignKeyBean();
                     String id = ""; //$NON-NLS-1$
-                    @SuppressWarnings("unchecked")
                     NodeList nodes = Util.getNodeList(Util.parse(result), "//i"); //$NON-NLS-1$
                     if (nodes != null) {
                         for (int i = 0; i < nodes.getLength(); i++) {
@@ -399,12 +404,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
 
             return new ItemBasePageLoadResult<ForeignKeyBean>(fkBeans, config.getOffset(), Integer.valueOf(count));
-        } catch (XtentisWebappException e) {
-            LOG.error(e.getMessage(), e);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
         }
-        return null;
     }
 
     private String getPKInfos(TypeModel model, String ids, Document document, String language) throws Exception {
@@ -429,7 +432,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    private ForeignKeyBean getForeignKeyDesc(TypeModel model, String ids) {
+    private ForeignKeyBean getForeignKeyDesc(TypeModel model, String ids) throws Exception {
         String xpathForeignKey = model.getForeignkey();
         if (xpathForeignKey == null) {
             return null;
@@ -445,39 +448,34 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         if (!model.isRetrieveFKinfos()) {
             return bean;
         } else {
-            try {
-                ItemPOJOPK pk = new ItemPOJOPK();
-                String[] itemId = extractIdWithBrackets(ids);
-                pk.setIds(itemId);
-                pk.setConceptName(model.getForeignkey().split("/")[0]); //$NON-NLS-1$
-                pk.setDataClusterPOJOPK(new DataClusterPOJOPK(getCurrentDataCluster()));
-                ItemPOJO item = com.amalto.core.util.Util.getItemCtrl2Local().getItem(pk);
+            ItemPOJOPK pk = new ItemPOJOPK();
+            String[] itemId = extractIdWithBrackets(ids);
+            pk.setIds(itemId);
+            pk.setConceptName(model.getForeignkey().split("/")[0]); //$NON-NLS-1$
+            pk.setDataClusterPOJOPK(new DataClusterPOJOPK(getCurrentDataCluster()));
+            ItemPOJO item = com.amalto.core.util.Util.getItemCtrl2Local().getItem(pk);
 
-                if (item != null) {
-                    org.w3c.dom.Document document = item.getProjection().getOwnerDocument();
-                    List<String> foreignKeyInfo = model.getForeignKeyInfo();
-                    String formattedId = ""; // Id formatted using foreign key info //$NON-NLS-1$
-                    for (String foreignKeyPath : foreignKeyInfo) {
-                        NodeList nodes = com.amalto.core.util.Util.getNodeList(document, StringUtils.substringAfter(
-                                foreignKeyPath, "/")); //$NON-NLS-1$
-                        if (nodes.getLength() == 1) {
-                            if (formattedId.equals("")) //$NON-NLS-1$
-                                formattedId += nodes.item(0).getTextContent();
-                            else
-                                formattedId += "-" + nodes.item(0).getTextContent(); //$NON-NLS-1$
-                        } else {
-                            throw new IllegalArgumentException(MESSAGES.getMessage("label_exception_xpath_not_match", //$NON-NLS-1$
-                                    foreignKeyPath, nodes.getLength()));
-                        }
+            if (item != null) {
+                org.w3c.dom.Document document = item.getProjection().getOwnerDocument();
+                List<String> foreignKeyInfo = model.getForeignKeyInfo();
+                String formattedId = ""; // Id formatted using foreign key info //$NON-NLS-1$
+                for (String foreignKeyPath : foreignKeyInfo) {
+                    NodeList nodes = com.amalto.core.util.Util.getNodeList(document,
+                            StringUtils.substringAfter(foreignKeyPath, "/")); //$NON-NLS-1$
+                    if (nodes.getLength() == 1) {
+                        if (formattedId.equals("")) //$NON-NLS-1$
+                            formattedId += nodes.item(0).getTextContent();
+                        else
+                            formattedId += "-" + nodes.item(0).getTextContent(); //$NON-NLS-1$
+                    } else {
+                        throw new IllegalArgumentException(MESSAGES.getMessage("label_exception_xpath_not_match", //$NON-NLS-1$
+                                foreignKeyPath, nodes.getLength()));
                     }
-
-                    bean.setDisplayInfo(formattedId);
-                    return bean;
-                } else {
-                    return null;
                 }
-            } catch (Exception e) {
-                LOG.error(e.getMessage(), e);
+
+                bean.setDisplayInfo(formattedId);
+                return bean;
+            } else {
                 return null;
             }
         }
@@ -493,83 +491,94 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    public List<Restriction> getForeignKeyPolymTypeList(String xpathForeignKey, String language) throws Exception {
-        String fkEntityType = null;
-        ReusableType entityReusableType = null;
-        List<SubTypeBean> derivedTypes = new ArrayList<SubTypeBean>();
+    public List<Restriction> getForeignKeyPolymTypeList(String xpathForeignKey, String language) throws ServiceException {
+        try {
+            String fkEntityType = null;
+            ReusableType entityReusableType = null;
+            List<SubTypeBean> derivedTypes = new ArrayList<SubTypeBean>();
 
-        if (xpathForeignKey != null && xpathForeignKey.length() > 0) {
-            if (xpathForeignKey.startsWith("/"))//$NON-NLS-1$
-                xpathForeignKey = xpathForeignKey.substring(1);
-            String fkEntity = "";//$NON-NLS-1$
-            if (xpathForeignKey.indexOf("/") != -1) {//$NON-NLS-1$
-                fkEntity = xpathForeignKey.substring(0, xpathForeignKey.indexOf("/"));//$NON-NLS-1$
-            } else {
-                fkEntity = xpathForeignKey;
-            }
-
-            fkEntityType = SchemaWebAgent.getInstance().getBusinessConcept(fkEntity).getCorrespondTypeName();
-            entityReusableType = SchemaWebAgent.getInstance().getReusableType(fkEntityType);
-            entityReusableType.load();
-
-            List<ReusableType> subtypes = SchemaWebAgent.getInstance().getMySubtypes(fkEntityType, true);
-            for (ReusableType reusableType : subtypes) {
-                reusableType.load();
-                SubTypeBean subTypeBean = new SubTypeBean();
-                subTypeBean.setName(reusableType.getName());
-                subTypeBean.setLabel(reusableType.getLabelMap().get(language) == null ? reusableType.getName() : reusableType
-                        .getLabelMap().get(language));
-                subTypeBean.setOrderValue(reusableType.getOrderValue());
-                if (reusableType.isAbstract()) {
-                    continue;
+            if (xpathForeignKey != null && xpathForeignKey.length() > 0) {
+                if (xpathForeignKey.startsWith("/"))//$NON-NLS-1$
+                    xpathForeignKey = xpathForeignKey.substring(1);
+                String fkEntity = "";//$NON-NLS-1$
+                if (xpathForeignKey.indexOf("/") != -1) {//$NON-NLS-1$
+                    fkEntity = xpathForeignKey.substring(0, xpathForeignKey.indexOf("/"));//$NON-NLS-1$
+                } else {
+                    fkEntity = xpathForeignKey;
                 }
-                derivedTypes.add(subTypeBean);
+
+                fkEntityType = SchemaWebAgent.getInstance().getBusinessConcept(fkEntity).getCorrespondTypeName();
+                entityReusableType = SchemaWebAgent.getInstance().getReusableType(fkEntityType);
+                entityReusableType.load();
+
+                List<ReusableType> subtypes = SchemaWebAgent.getInstance().getMySubtypes(fkEntityType, true);
+                for (ReusableType reusableType : subtypes) {
+                    reusableType.load();
+                    SubTypeBean subTypeBean = new SubTypeBean();
+                    subTypeBean.setName(reusableType.getName());
+                    subTypeBean.setLabel(reusableType.getLabelMap().get(language) == null ? reusableType.getName() : reusableType
+                            .getLabelMap().get(language));
+                    subTypeBean.setOrderValue(reusableType.getOrderValue());
+                    if (reusableType.isAbstract()) {
+                        continue;
+                    }
+                    derivedTypes.add(subTypeBean);
+                }
+
             }
 
+            Collections.sort(derivedTypes);
+
+            List<Restriction> ret = new ArrayList<Restriction>();
+
+            if (fkEntityType != null && !entityReusableType.isAbstract()) {
+                Restriction re = new Restriction();
+                re.setName(entityReusableType.getName());
+                re.setValue(entityReusableType.getLabelMap().get(language) == null ? entityReusableType.getName()
+                        : entityReusableType.getLabelMap().get(language));
+                ret.add(re);
+            }
+
+            for (SubTypeBean type : derivedTypes) {
+                Restriction re = new Restriction();
+                re.setName(type.getName());
+                re.setValue(type.getLabel());
+                ret.add(re);
+            }
+            return ret;
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
         }
-
-        Collections.sort(derivedTypes);
-
-        List<Restriction> ret = new ArrayList<Restriction>();
-
-        if (fkEntityType != null && !entityReusableType.isAbstract()) {
-            Restriction re = new Restriction();
-            re.setName(entityReusableType.getName());
-            re.setValue(entityReusableType.getLabelMap().get(language) == null ? entityReusableType.getName()
-                    : entityReusableType.getLabelMap().get(language));
-            ret.add(re);
-        }
-
-        for (SubTypeBean type : derivedTypes) {
-            Restriction re = new Restriction();
-            re.setName(type.getName());
-            re.setValue(type.getLabel());
-            ret.add(re);
-        }
-        return ret;
     }
 
-    public ItemBean getItem(ItemBean itemBean, EntityModel entityModel, String language) throws Exception {
-        String dataCluster = getCurrentDataCluster();
-        String dataModel = getCurrentDataModel();
-        String concept = itemBean.getConcept();
-        // get item
-        WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(dataCluster);
-        String[] ids = itemBean.getIds() == null ? null : itemBean.getIds().split("\\.");//$NON-NLS-1$
-        WSItem wsItem = CommonUtil.getPort().getItem(new WSGetItem(new WSItemPK(wsDataClusterPK, itemBean.getConcept(), ids)));
-        extractUsingTransformerThroughView(concept,
-                "Browse_items_" + concept, ids, dataModel, dataCluster, DataModelHelper.getEleDecl(), wsItem); //$NON-NLS-1$
-        itemBean.setItemXml(wsItem.getContent());
-        itemBean.set("time", wsItem.getInsertionTime()); //$NON-NLS-1$
-        // parse schema
-        DataModelHelper.parseSchema(dataModel, concept, entityModel, RoleHelper.getUserRoles());
-        // dynamic Assemble
-        dynamicAssemble(itemBean, entityModel, language);
+    public ItemBean getItem(ItemBean itemBean, EntityModel entityModel, String language) throws ServiceException {
+        try {
+            String dataCluster = getCurrentDataCluster();
+            String dataModel = getCurrentDataModel();
+            String concept = itemBean.getConcept();
+            // get item
+            WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(dataCluster);
+            String[] ids = itemBean.getIds() == null ? null : itemBean.getIds().split("\\.");//$NON-NLS-1$
+            WSItem wsItem = CommonUtil.getPort()
+                    .getItem(new WSGetItem(new WSItemPK(wsDataClusterPK, itemBean.getConcept(), ids)));
+            extractUsingTransformerThroughView(concept,
+                    "Browse_items_" + concept, ids, dataModel, dataCluster, DataModelHelper.getEleDecl(), wsItem); //$NON-NLS-1$
+            itemBean.setItemXml(wsItem.getContent());
+            itemBean.set("time", wsItem.getInsertionTime()); //$NON-NLS-1$
+            // parse schema
+            DataModelHelper.parseSchema(dataModel, concept, entityModel, RoleHelper.getUserRoles());
+            // dynamic Assemble
+            dynamicAssemble(itemBean, entityModel, language);
 
-        return itemBean;
+            return itemBean;
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
     }
 
-    public void dynamicAssemble(ItemBean itemBean, EntityModel entityModel, String language) throws Exception {
+    private void dynamicAssemble(ItemBean itemBean, EntityModel entityModel, String language) throws Exception {
         if (itemBean.getItemXml() != null) {
             Document docXml = Util.parse(itemBean.getItemXml());
             Map<String, TypeModel> types = entityModel.getMetaDataTypes();
@@ -598,9 +607,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
                                 if (typeModel.getForeignkey() != null) {
                                     itemBean.set(path, path + "-" + value.getTextContent()); //$NON-NLS-1$
-                                    itemBean
-                                            .setForeignkeyDesc(
-                                                    path + "-" + value.getTextContent(), getForeignKeyDesc(typeModel, value.getTextContent())); //$NON-NLS-1$
+                                    itemBean.setForeignkeyDesc(
+                                            path + "-" + value.getTextContent(), getForeignKeyDesc(typeModel, value.getTextContent())); //$NON-NLS-1$
                                 } else {
                                     itemBean.set(path, value.getTextContent());
                                 }
@@ -612,7 +620,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    public void dynamicAssembleByResultOrder(ItemBean itemBean, ViewBean viewBean, EntityModel entityModel) throws Exception {
+    private void dynamicAssembleByResultOrder(ItemBean itemBean, ViewBean viewBean, EntityModel entityModel) throws Exception {
         if (itemBean.getItemXml() != null) {
             Document docXml = Util.parse(itemBean.getItemXml());
             HashMap<String, Integer> countMap = new HashMap<String, Integer>();
@@ -645,7 +653,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    public ViewBean getView(String viewPk, String language) {
+    public ViewBean getView(String viewPk, String language) throws ServiceException {
         try {
             ViewBean vb = new ViewBean();
             vb.setViewPK(viewPk);
@@ -659,7 +667,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             EntityModel entityModel = new EntityModel();
             DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
             DataModelHelper.handleDefaultValue(entityModel);
-//            DisplayRulesUtil.setRoot(DataModelHelper.getEleDecl());
+            // DisplayRulesUtil.setRoot(DataModelHelper.getEleDecl());
             vb.setBindingEntityModel(entityModel);
 
             // viewables
@@ -679,15 +687,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             vb.setColumnLayoutModel(getColumnTreeLayout(concept));
 
             return vb;
-        } catch (XtentisWebappException e) {
-            LOG.error(e.getMessage(), e);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
         }
-        return null;
     }
 
-    public ItemResult logicalDeleteItem(ItemBean item, String path, boolean override) {
+    public void logicalDeleteItem(ItemBean item, String path, boolean override) throws ServiceException {
         try {
             String dataClusterPK = getCurrentDataCluster();
             String concept = item.getConcept();
@@ -706,57 +712,56 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 // TODO updatereport
 
                 else
-                    return new ItemResult(ItemResult.FAILURE, "ERROR - dropItem is NULL");//$NON-NLS-1$
-
-            return new ItemResult(ItemResult.SUCCESS, "OK");//$NON-NLS-1$
-
+                    throw new ServiceException("dropItem is NULL");
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            return new ItemResult(ItemResult.FAILURE, "ERROR -" + e.getLocalizedMessage());//$NON-NLS-1$
+            throw new ServiceException(e.getLocalizedMessage());
         }
     }
 
-    public List<ItemResult> logicalDeleteItems(List<ItemBean> items, String path, boolean override) {
-        List<ItemResult> itemResults = new ArrayList<ItemResult>();
+    public void logicalDeleteItems(List<ItemBean> items, String path, boolean override) throws ServiceException {
         for (ItemBean item : items) {
-            ItemResult itemResult = logicalDeleteItem(item, path, override);
-            itemResults.add(itemResult);
+            logicalDeleteItem(item, path, override);
         }
-        return itemResults;
     }
 
-    public ItemBasePageLoadResult<ItemBean> queryItemBeans(QueryModel config) {
-        PagingLoadConfig pagingLoad = config.getPagingLoadConfig();
-        String sortDir = null;
-        if (SortDir.ASC.equals(pagingLoad.getSortDir())) {
-            sortDir = ItemHelper.SEARCH_DIRECTION_ASC;
-        }
-        if (SortDir.DESC.equals(pagingLoad.getSortDir())) {
-            sortDir = ItemHelper.SEARCH_DIRECTION_DESC;
-        }
-        Map<String, TypeModel> types = config.getModel().getMetaDataTypes();
-        TypeModel typeModel = types.get(pagingLoad.getSortField());
-
-        if (typeModel != null) {
-            if (DataTypeConstants.INTEGER.getTypeName().equals(typeModel.getType().getBaseTypeName())
-                    || DataTypeConstants.INT.getTypeName().equals(typeModel.getType().getBaseTypeName())
-                    || DataTypeConstants.LONG.getTypeName().equals(typeModel.getType().getBaseTypeName())
-                    || DataTypeConstants.DECIMAL.getTypeName().equals(typeModel.getType().getBaseTypeName())
-                    || DataTypeConstants.FLOAT.getTypeName().equals(typeModel.getType().getBaseTypeName())
-                    || DataTypeConstants.DOUBLE.getTypeName().equals(typeModel.getType().getBaseTypeName())) {
-                sortDir = "NUMBER:" + sortDir; //$NON-NLS-1$
+    public ItemBasePageLoadResult<ItemBean> queryItemBeans(QueryModel config) throws ServiceException {
+        try {
+            PagingLoadConfig pagingLoad = config.getPagingLoadConfig();
+            String sortDir = null;
+            if (SortDir.ASC.equals(pagingLoad.getSortDir())) {
+                sortDir = ItemHelper.SEARCH_DIRECTION_ASC;
             }
+            if (SortDir.DESC.equals(pagingLoad.getSortDir())) {
+                sortDir = ItemHelper.SEARCH_DIRECTION_DESC;
+            }
+            Map<String, TypeModel> types = config.getModel().getMetaDataTypes();
+            TypeModel typeModel = types.get(pagingLoad.getSortField());
+
+            if (typeModel != null) {
+                if (DataTypeConstants.INTEGER.getTypeName().equals(typeModel.getType().getBaseTypeName())
+                        || DataTypeConstants.INT.getTypeName().equals(typeModel.getType().getBaseTypeName())
+                        || DataTypeConstants.LONG.getTypeName().equals(typeModel.getType().getBaseTypeName())
+                        || DataTypeConstants.DECIMAL.getTypeName().equals(typeModel.getType().getBaseTypeName())
+                        || DataTypeConstants.FLOAT.getTypeName().equals(typeModel.getType().getBaseTypeName())
+                        || DataTypeConstants.DOUBLE.getTypeName().equals(typeModel.getType().getBaseTypeName())) {
+                    sortDir = "NUMBER:" + sortDir; //$NON-NLS-1$
+                }
+            }
+            Object[] result = getItemBeans(config.getDataClusterPK(), config.getView(), config.getModel(), config.getCriteria(),
+                    pagingLoad.getOffset(), pagingLoad.getLimit(), sortDir, pagingLoad.getSortField(), config.getLanguage());
+            @SuppressWarnings("unchecked")
+            List<ItemBean> itemBeans = (List<ItemBean>) result[0];
+            int totalSize = (Integer) result[1];
+            return new ItemBasePageLoadResult<ItemBean>(itemBeans, pagingLoad.getOffset(), totalSize);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
         }
-        Object[] result = getItemBeans(config.getDataClusterPK(), config.getView(), config.getModel(), config.getCriteria(),
-                pagingLoad.getOffset(), pagingLoad.getLimit(), sortDir, pagingLoad.getSortField(), config.getLanguage());
-        @SuppressWarnings("unchecked")
-        List<ItemBean> itemBeans = (List<ItemBean>) result[0];
-        int totalSize = (Integer) result[1];
-        return new ItemBasePageLoadResult<ItemBean>(itemBeans, pagingLoad.getOffset(), totalSize);
     }
 
     private Object[] getItemBeans(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String criteria, int skip,
-            int max, String sortDir, String sortCol, String language) {
+            int max, String sortDir, String sortCol, String language) throws Exception {
 
         int totalSize = 0;
         String dateFormat = "yyyy-MM-dd"; //$NON-NLS-1$
@@ -766,75 +771,70 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         String concept = ViewHelper.getConceptFromDefaultViewName(viewBean.getViewPK());
         Map<String, String[]> formatMap = this.checkDisplayFormat(entityModel, language);
 
-        try {
-            WSWhereItem wi = null;
-            if (criteria != null)
-                wi = CommonUtil.buildWhereItems(criteria);
-            String[] results = CommonUtil.getPort().viewSearch(
-                    new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewBean.getViewPK()), wi, -1, skip, max,
-                            sortCol, sortDir)).getStrings();
+        WSWhereItem wi = null;
+        if (criteria != null)
+            wi = CommonUtil.buildWhereItems(criteria);
+        String[] results = CommonUtil
+                .getPort()
+                .viewSearch(
+                        new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewBean.getViewPK()), wi, -1, skip,
+                                max, sortCol, sortDir)).getStrings();
 
-            // TODO change ids to array?
-            List<String> idsArray = new ArrayList<String>();
-            for (int i = 0; i < results.length; i++) {
+        // TODO change ids to array?
+        List<String> idsArray = new ArrayList<String>();
+        for (int i = 0; i < results.length; i++) {
 
-                if (i == 0) {
-                    try {
-                        // Qizx doesn't wrap the count in a XML element, so try to parse it
-                        totalSize = Integer.parseInt(results[i]);
-                    } catch (NumberFormatException e) {
-                        totalSize = Integer.parseInt(com.amalto.webapp.core.util.Util.parse(results[i]).getDocumentElement()
-                                .getTextContent());
-                    }
-                    continue;
+            if (i == 0) {
+                try {
+                    // Qizx doesn't wrap the count in a XML element, so try to parse it
+                    totalSize = Integer.parseInt(results[i]);
+                } catch (NumberFormatException e) {
+                    totalSize = Integer.parseInt(com.amalto.webapp.core.util.Util.parse(results[i]).getDocumentElement()
+                            .getTextContent());
                 }
-
-                Document doc = parseResultDocument(results[i], "result"); //$NON-NLS-1$
-
-                idsArray.clear();
-                for (String key : entityModel.getKeys()) {
-                    String id = Util.getFirstTextNode(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./"));
-                    if (id != null)
-                        idsArray.add(id);
-                }
-
-                Set<String> keySet = formatMap.keySet();
-                SimpleDateFormat sdf = null;
-
-                for (String key : keySet) {
-                    String[] value = formatMap.get(key);
-                    String dateText = Util.getFirstTextNode(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./"));
-
-                    if (dateText != null) {
-                        if (dateText.trim().length() != 0) {
-                            if (value[1].equalsIgnoreCase("DATE")) { //$NON-NLS-1$
-                                sdf = new SimpleDateFormat(dateFormat, java.util.Locale.ENGLISH);
-                            } else if (value[1].equalsIgnoreCase("DATETIME")) { //$NON-NLS-1$
-                                sdf = new SimpleDateFormat(dateTimeFormat, java.util.Locale.ENGLISH);
-                            }
-                            Date date = sdf.parse(dateText.trim());
-                            Calendar calendar = Calendar.getInstance();
-                            calendar.setTime(date);
-                            String formatValue = com.amalto.webapp.core.util.Util.formatDate(value[0], calendar);
-                            Util
-                                    .getNodeList(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")).item(0).setTextContent(formatValue); //$NON-NLS-1$ //$NON-NLS-2$
-                        }
-                    }
-                }
-
-                ItemBean itemBean = new ItemBean(concept,
-                        CommonUtil.joinStrings(idsArray, "."), Util.nodeToString(doc.getDocumentElement()));//$NON-NLS-1$
-                if (checkSmartViewExists(concept, language))
-                    itemBean.setSmartViewMode(ItemBean.SMARTMODE);
-                else if (checkSmartViewExistsByOpt(concept, language))
-                    itemBean.setSmartViewMode(ItemBean.PERSOMODE);
-                dynamicAssembleByResultOrder(itemBean, viewBean, entityModel);
-                itemBeans.add(itemBean);
+                continue;
             }
 
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            throw new RuntimeException(e);
+            Document doc = parseResultDocument(results[i], "result"); //$NON-NLS-1$
+
+            idsArray.clear();
+            for (String key : entityModel.getKeys()) {
+                String id = Util.getFirstTextNode(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")); //$NON-NLS-1$ //$NON-NLS-2$
+                if (id != null)
+                    idsArray.add(id);
+            }
+
+            Set<String> keySet = formatMap.keySet();
+            SimpleDateFormat sdf = null;
+
+            for (String key : keySet) {
+                String[] value = formatMap.get(key);
+                String dateText = Util.getFirstTextNode(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")); //$NON-NLS-1$ //$NON-NLS-2$
+
+                if (dateText != null) {
+                    if (dateText.trim().length() != 0) {
+                        if (value[1].equalsIgnoreCase("DATE")) { //$NON-NLS-1$
+                            sdf = new SimpleDateFormat(dateFormat, java.util.Locale.ENGLISH);
+                        } else if (value[1].equalsIgnoreCase("DATETIME")) { //$NON-NLS-1$
+                            sdf = new SimpleDateFormat(dateTimeFormat, java.util.Locale.ENGLISH);
+                        }
+                        Date date = sdf.parse(dateText.trim());
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTime(date);
+                        String formatValue = com.amalto.webapp.core.util.Util.formatDate(value[0], calendar);
+                        Util.getNodeList(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")).item(0).setTextContent(formatValue); //$NON-NLS-1$ //$NON-NLS-2$
+                    }
+                }
+            }
+
+            ItemBean itemBean = new ItemBean(concept,
+                    CommonUtil.joinStrings(idsArray, "."), Util.nodeToString(doc.getDocumentElement()));//$NON-NLS-1$
+            if (checkSmartViewExists(concept, language))
+                itemBean.setSmartViewMode(ItemBean.SMARTMODE);
+            else if (checkSmartViewExistsByOpt(concept, language))
+                itemBean.setSmartViewMode(ItemBean.PERSOMODE);
+            dynamicAssembleByResultOrder(itemBean, viewBean, entityModel);
+            itemBeans.add(itemBean);
         }
         return new Object[] { itemBeans, totalSize };
     }
@@ -877,11 +877,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return doc;
     }
 
-    public ItemResult saveItemBean(ItemBean item) {
+    public String saveItemBean(ItemBean item) throws ServiceException {
         try {
             String message = null;
-            int status = ItemResult.FAILURE;
-
             // if update, check the item is modified by others?
             WSPutItemWithReport wsPutItemWithReport = new WSPutItemWithReport(new WSPutItem(new WSDataClusterPK(
                     getCurrentDataCluster()), item.getItemXml(), new WSDataModelPK(getCurrentDataModel()), true),
@@ -912,40 +910,42 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if ("info".equals(errorCode)) { //$NON-NLS-1$
                     if (message == null || message.length() == 0)
                         message = MESSAGES.getMessage("save_process_validation_success"); //$NON-NLS-1$
-                    status = ItemResult.SUCCESS;
                 } else {
                     // Anything but 0 is unsuccessful
                     if (message == null || message.length() == 0)
                         message = MESSAGES.getMessage("save_process_validation_failure"); //$NON-NLS-1$
-                    status = ItemResult.FAILURE;
+                    throw new ServiceException(message);
                 }
             } else {
                 message = MESSAGES.getMessage("save_record_success"); //$NON-NLS-1$
-                status = ItemResult.SUCCESS;
             }
-            return new ItemResult(status, message);
+            return message;
+        } catch (ServiceException e) {
+            LOG.error(e.getMessage(), e);
+            throw e;
         } catch (Exception e) {
-            ItemResult result;
             // TODO UGLY!!!! to be refactored
-            if (e.getLocalizedMessage().indexOf("routing failed:") == 0) {//$NON-NLS-1$
-                String saveSUCCE = "Save item '" + item.getConcept() + "."//$NON-NLS-1$ //$NON-NLS-2$
-                        + com.amalto.webapp.core.util.Util.joinStrings(convertIds(item.getIds()), ".")//$NON-NLS-1$
-                        + "' successfully, But " + e.getLocalizedMessage();//$NON-NLS-1$
-                result = new ItemResult(ItemResult.FAILURE, saveSUCCE);
-            } else {
-                String err = "Unable to save item '" + item.getConcept() + "."//$NON-NLS-1$ //$NON-NLS-2$
-                        + com.amalto.webapp.core.util.Util.joinStrings(convertIds(item.getIds()), ".") + "'"//$NON-NLS-1$ //$NON-NLS-2$
+            ServiceException serviceException;
+            if (e.getLocalizedMessage().indexOf("routing failed:") == 0) {
+                String saveSUCCE = "Save item '" + item.getConcept() + "."
+                        + com.amalto.webapp.core.util.Util.joinStrings(convertIds(item.getIds()), ".") + "' successfully, But "
                         + e.getLocalizedMessage();
-                if (e.getLocalizedMessage().indexOf("ERROR_3:") == 0) {//$NON-NLS-1$
+                serviceException = new ServiceException(saveSUCCE);
+            } else {
+                String err = "Unable to save item '" + item.getConcept() + "."
+                        + com.amalto.webapp.core.util.Util.joinStrings(convertIds(item.getIds()), ".") + "'"
+                        + e.getLocalizedMessage();
+                if (e.getLocalizedMessage().indexOf("ERROR_3:") == 0) {
                     err = e.getLocalizedMessage();
                 }
                 // add feature TMDM-2327 SAXException:cvc-complex-type.2.4.b message transform
-                if (e.getLocalizedMessage().indexOf("cvc-complex-type.2.4.b") != -1) { //$NON-NLS-1$
-                    err = "Unable to save item,before saving the '" + item.getConcept() + "' item,please fill the required field's contents";//$NON-NLS-1$ //$NON-NLS-2$
+                if (e.getLocalizedMessage().indexOf("cvc-complex-type.2.4.b") != -1) {
+                    err = "Unable to save item,before saving the '" + item.getConcept()
+                            + "' item,please fill the required field's contents";
                 }
-                result = new ItemResult(ItemResult.FAILURE, err);
+                serviceException = new ServiceException(err);
             }
-            return result;
+            throw serviceException;
         }
     }
 
@@ -963,7 +963,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     /**
      * DOC HSHU Comment method "switchForeignKeyType".
-     *
+     * 
      * @param targetEntity
      * @param xpathForeignKey
      * @param xpathInfoForeignKey
@@ -972,39 +972,44 @@ public class BrowseRecordsAction implements BrowseRecordsService {
      * @throws Exception
      */
     public ForeignKeyDrawer switchForeignKeyType(String targetEntityType, String xpathForeignKey, String xpathInfoForeignKey,
-            String fkFilter) throws Exception {
-        ForeignKeyDrawer fkDrawer = new ForeignKeyDrawer();
+            String fkFilter) throws ServiceException {
+        try {
+            ForeignKeyDrawer fkDrawer = new ForeignKeyDrawer();
 
-        BusinessConcept businessConcept = SchemaWebAgent.getInstance().getFirstBusinessConceptFromRootType(targetEntityType);
-        if (businessConcept == null)
-            return null;
-        String targetEntity = businessConcept.getName();
+            BusinessConcept businessConcept = SchemaWebAgent.getInstance().getFirstBusinessConceptFromRootType(targetEntityType);
+            if (businessConcept == null)
+                return null;
+            String targetEntity = businessConcept.getName();
 
-        if (xpathForeignKey != null && xpathForeignKey.length() > 0) {
-            xpathForeignKey = replaceXpathRoot(targetEntity, xpathForeignKey);
-        }
+            if (xpathForeignKey != null && xpathForeignKey.length() > 0) {
+                xpathForeignKey = replaceXpathRoot(targetEntity, xpathForeignKey);
+            }
 
-        if (xpathInfoForeignKey != null && xpathInfoForeignKey.length() > 0) {
-            String[] fkInfoPaths = xpathInfoForeignKey.split(",");//$NON-NLS-1$
-            xpathInfoForeignKey = "";//$NON-NLS-1$
-            for (int i = 0; i < fkInfoPaths.length; i++) {
-                String fkInfoPath = fkInfoPaths[i];
-                String relacedFkInfoPath = replaceXpathRoot(targetEntity, fkInfoPath);
-                if (relacedFkInfoPath != null && relacedFkInfoPath.length() > 0) {
-                    if (xpathInfoForeignKey.length() > 0)
-                        xpathInfoForeignKey += ",";//$NON-NLS-1$
-                    xpathInfoForeignKey += relacedFkInfoPath;
+            if (xpathInfoForeignKey != null && xpathInfoForeignKey.length() > 0) {
+                String[] fkInfoPaths = xpathInfoForeignKey.split(",");//$NON-NLS-1$
+                xpathInfoForeignKey = "";//$NON-NLS-1$
+                for (int i = 0; i < fkInfoPaths.length; i++) {
+                    String fkInfoPath = fkInfoPaths[i];
+                    String relacedFkInfoPath = replaceXpathRoot(targetEntity, fkInfoPath);
+                    if (relacedFkInfoPath != null && relacedFkInfoPath.length() > 0) {
+                        if (xpathInfoForeignKey.length() > 0)
+                            xpathInfoForeignKey += ",";//$NON-NLS-1$
+                        xpathInfoForeignKey += relacedFkInfoPath;
+                    }
                 }
             }
+            fkDrawer.setXpathForeignKey(xpathForeignKey);
+            fkDrawer.setXpathInfoForeignKey(xpathInfoForeignKey);
+            return fkDrawer;
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
         }
-        fkDrawer.setXpathForeignKey(xpathForeignKey);
-        fkDrawer.setXpathInfoForeignKey(xpathInfoForeignKey);
-        return fkDrawer;
     }
 
     /**
      * DOC HSHU Comment method "replaceXpathRoot".
-     *
+     * 
      * @param targetEntity
      * @param xpathForeignKey
      * @return
@@ -1017,33 +1022,34 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return xpath;
     }
 
-    public String getCriteriaByBookmark(String bookmark) {
+    public String getCriteriaByBookmark(String bookmark) throws ServiceException {
         try {
             String criteria = "";//$NON-NLS-1$
-            String result = CommonUtil.getPort().getItem(
-                    new WSGetItem(new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem",//$NON-NLS-1$
-                            new String[] { bookmark }))).getContent().trim();
+            String result = CommonUtil
+                    .getPort()
+                    .getItem(
+                            new WSGetItem(new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()),
+                                    "BrowseItem",//$NON-NLS-1$
+                                    new String[] { bookmark }))).getContent().trim();
             if (result != null) {
                 if (result.indexOf("<SearchCriteria>") != -1)//$NON-NLS-1$
                     criteria = result.substring(result.indexOf("<SearchCriteria>") + 16, result.indexOf("</SearchCriteria>"));//$NON-NLS-1$ //$NON-NLS-2$
             }
             return criteria;
-        } catch (XtentisWebappException e) {
-            LOG.error(e.getMessage(), e);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
         }
-        return null;
     }
 
-    public List<ItemBaseModel> getUserCriterias(String view) {
-        String[] results = getSearchTemplateNames(view, false, 0, 0);
-        List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
+    public List<ItemBaseModel> getUserCriterias(String view) throws ServiceException {
+        try {
+            String[] results = getSearchTemplateNames(view, false, 0, 0);
+            List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
 
-        for (String result : results) {
-            ItemBaseModel bm = new ItemBaseModel();
+            for (String result : results) {
+                ItemBaseModel bm = new ItemBaseModel();
 
-            try {
                 org.w3c.dom.Node resultNode = com.amalto.webapp.core.util.Util.parse(result).getFirstChild();
                 for (int i = 0; i < resultNode.getChildNodes().getLength(); i++) {
                     if (resultNode.getChildNodes().item(i) instanceof org.w3c.dom.Element) {
@@ -1056,73 +1062,68 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     }
                 }
                 list.add(bm);
-            } catch (Exception e) {
-                LOG.error(e.getMessage(), e);
-            }
-        }
-        return list;
-    }
-
-    private String[] getSearchTemplateNames(String view, boolean isShared, int start, int limit) {
-        try {
-            int localStart = 0;
-            int localLimit = 0;
-            if (start == limit && limit == 0) {
-                localStart = 0;
-                localLimit = Integer.MAX_VALUE;
-            } else {
-                localStart = start;
-                localLimit = limit;
 
             }
-            WSWhereItem wi = new WSWhereItem();
-
-            WSWhereCondition wc1 = new WSWhereCondition("BrowseItem/ViewPK", WSWhereOperator.EQUALS, view,//$NON-NLS-1$
-                    WSStringPredicate.NONE, false);
-
-            WSWhereCondition wc3 = new WSWhereCondition("BrowseItem/Owner", WSWhereOperator.EQUALS,//$NON-NLS-1$
-                    RoleHelper.getCurrentUserName(), WSStringPredicate.OR, false);
-            WSWhereCondition wc4;
-            WSWhereOr or = new WSWhereOr();
-            if (isShared) {
-                wc4 = new WSWhereCondition("BrowseItem/Shared", WSWhereOperator.EQUALS, "true", WSStringPredicate.NONE, false);//$NON-NLS-1$ //$NON-NLS-2$
-
-                or = new WSWhereOr(new WSWhereItem[] { new WSWhereItem(wc3, null, null), new WSWhereItem(wc4, null, null) });
-            } else {
-                or = new WSWhereOr(new WSWhereItem[] { new WSWhereItem(wc3, null, null) });
-            }
-
-            WSWhereAnd and = new WSWhereAnd(new WSWhereItem[] { new WSWhereItem(wc1, null, null),
-
-            new WSWhereItem(null, null, or) });
-
-            wi = new WSWhereItem(null, and, null);
-
-            String[] results = CommonUtil
-                    .getPort()
-                    .xPathsSearch(
-                            new WSXPathsSearch(
-                                    new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()),
-                                    null,// pivot
-                                    new WSStringArray(new String[] { "BrowseItem/CriteriaName", "BrowseItem/Shared" }), wi, -1, localStart, localLimit, null, // order //$NON-NLS-1$ //$NON-NLS-2$
-                                    // by
-                                    null // direction
-                            )).getStrings();
-            return results;
-
-        } catch (XtentisWebappException e) {
-            LOG.error(e.getMessage(), e);
+            return list;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
         }
-        return new String[] {};
     }
 
-    public List<ItemBaseModel> getViewsList(String language) {
+    private String[] getSearchTemplateNames(String view, boolean isShared, int start, int limit) throws Exception {
+        int localStart = 0;
+        int localLimit = 0;
+        if (start == limit && limit == 0) {
+            localStart = 0;
+            localLimit = Integer.MAX_VALUE;
+        } else {
+            localStart = start;
+            localLimit = limit;
+
+        }
+        WSWhereItem wi = new WSWhereItem();
+
+        WSWhereCondition wc1 = new WSWhereCondition("BrowseItem/ViewPK", WSWhereOperator.EQUALS, view,//$NON-NLS-1$
+                WSStringPredicate.NONE, false);
+
+        WSWhereCondition wc3 = new WSWhereCondition("BrowseItem/Owner", WSWhereOperator.EQUALS,//$NON-NLS-1$
+                RoleHelper.getCurrentUserName(), WSStringPredicate.OR, false);
+        WSWhereCondition wc4;
+        WSWhereOr or = new WSWhereOr();
+        if (isShared) {
+            wc4 = new WSWhereCondition("BrowseItem/Shared", WSWhereOperator.EQUALS, "true", WSStringPredicate.NONE, false);//$NON-NLS-1$ //$NON-NLS-2$
+
+            or = new WSWhereOr(new WSWhereItem[] { new WSWhereItem(wc3, null, null), new WSWhereItem(wc4, null, null) });
+        } else {
+            or = new WSWhereOr(new WSWhereItem[] { new WSWhereItem(wc3, null, null) });
+        }
+
+        WSWhereAnd and = new WSWhereAnd(new WSWhereItem[] { new WSWhereItem(wc1, null, null),
+
+        new WSWhereItem(null, null, or) });
+
+        wi = new WSWhereItem(null, and, null);
+
+        String[] results = CommonUtil
+                .getPort()
+                .xPathsSearch(
+                        new WSXPathsSearch(
+                                new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()),
+                                null,// pivot
+                                new WSStringArray(new String[] { "BrowseItem/CriteriaName", "BrowseItem/Shared" }), wi, -1, localStart, localLimit, null, // order //$NON-NLS-1$ //$NON-NLS-2$
+                                // by
+                                null // direction
+                        )).getStrings();
+        return results;
+
+    }
+
+    public List<ItemBaseModel> getViewsList(String language) throws ServiceException {
         try {
             String model = getCurrentDataModel();
-            String[] businessConcept = CommonUtil.getPort().getBusinessConcepts(
-                    new WSGetBusinessConcepts(new WSDataModelPK(model))).getStrings();
+            String[] businessConcept = CommonUtil.getPort()
+                    .getBusinessConcepts(new WSGetBusinessConcepts(new WSDataModelPK(model))).getStrings();
             ArrayList<String> bc = new ArrayList<String>();
             Collections.addAll(bc, businessConcept);
             WSViewPK[] wsViewsPK = CommonUtil.getPort()
@@ -1149,12 +1150,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 list.add(bm);
             }
             return list;
-        } catch (XtentisWebappException e) {
-            LOG.error(e.getMessage(), e);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
         }
-        return null;
     }
 
     private static Map<String, String> getMapSortedByValue(Map<String, String> map) {
@@ -1179,20 +1178,23 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return sortedMap;
     }
 
-    public AppHeader getAppHeader() throws Exception {
-
-        AppHeader header = new AppHeader();
-        header.setDatacluster(getCurrentDataCluster());
-        header.setDatamodel(getCurrentDataModel());
-        header.setStandAloneMode(BrowseRecordsConfiguration.isStandalone());
-        return header;
-
+    public AppHeader getAppHeader() throws ServiceException {
+        try {
+            AppHeader header = new AppHeader();
+            header.setDatacluster(getCurrentDataCluster());
+            header.setDatamodel(getCurrentDataModel());
+            header.setStandAloneMode(BrowseRecordsConfiguration.isStandalone());
+            return header;
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
     }
 
     /**
      * ****************************************************************** Bookmark management
      *********************************************************************/
-    public boolean isExistCriteria(String dataObjectLabel, String id) {
+    public boolean isExistCriteria(String dataObjectLabel, String id) throws ServiceException {
         try {
             WSItemPK wsItemPK = new WSItemPK();
             wsItemPK.setConceptName("BrowseItem");//$NON-NLS-1$
@@ -1208,17 +1210,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             WSExistsItem wsExistsItem = new WSExistsItem(wsItemPK);
             WSBoolean wsBoolean = CommonUtil.getPort().existsItem(wsExistsItem);
             return wsBoolean.is_true();
-        } catch (XtentisWebappException e) {
-            LOG.error(e.getMessage(), e);
-            return false;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            return false;
+            throw new ServiceException(e.getLocalizedMessage());
         }
     }
 
-    public String saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString) {
-        String returnString = "OK";//$NON-NLS-1$
+    public void saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString) throws ServiceException {
         try {
             String owner = com.amalto.webapp.core.util.Util.getLoginUserName();
             SearchTemplate searchTemplate = new SearchTemplate();
@@ -1232,24 +1230,21 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     new WSPutItem(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), searchTemplate
                             .marshal2String(), new WSDataModelPK(XSystemObjects.DM_SEARCHTEMPLATE.getName()), false));
 
-            if (pk != null)
-                returnString = "OK";//$NON-NLS-1$
-            else
-                returnString = null;
+            if (pk == null)
+                throw new ServiceException();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            returnString = e.getMessage();
-        } finally {
-            return returnString;
+            throw new ServiceException(e.getLocalizedMessage());
         }
     }
 
-    public PagingLoadResult<ItemBaseModel> querySearchTemplates(String view, boolean isShared, PagingLoadConfig load) {
-        List<String> results = Arrays.asList(getSearchTemplateNames(view, isShared, load.getOffset(), load.getLimit()));
-        List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
-        for (String result : results) {
-            ItemBaseModel bm = new ItemBaseModel();
-            try {
+    public PagingLoadResult<ItemBaseModel> querySearchTemplates(String view, boolean isShared, PagingLoadConfig load)
+            throws ServiceException {
+        try {
+            List<String> results = Arrays.asList(getSearchTemplateNames(view, isShared, load.getOffset(), load.getLimit()));
+            List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
+            for (String result : results) {
+                ItemBaseModel bm = new ItemBaseModel();
                 org.w3c.dom.Node resultNode = com.amalto.webapp.core.util.Util.parse(result).getFirstChild();
                 for (int i = 0; i < resultNode.getChildNodes().getLength(); i++) {
                     if (resultNode.getChildNodes().item(i) instanceof org.w3c.dom.Element) {
@@ -1262,15 +1257,16 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     }
                 }
                 list.add(bm);
-            } catch (Exception e) {
-                LOG.error(e.getMessage(), e);
             }
+            int totalSize = results.size();
+            return new BasePagingLoadResult<ItemBaseModel>(list, load.getOffset(), totalSize);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
         }
-        int totalSize = results.size();
-        return new BasePagingLoadResult<ItemBaseModel>(list, load.getOffset(), totalSize);
     }
 
-    public String deleteSearchTemplate(String id) {
+    public void deleteSearchTemplate(String id) throws ServiceException {
         try {
             String[] ids = { id };
             String concept = "BrowseItem";//$NON-NLS-1$
@@ -1280,14 +1276,11 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids), false));
 
                 if (wsItem == null)
-                    return MESSAGES.getMessage("label_error_delete_template_null"); //$NON-NLS-1$
-                return "OK";//$NON-NLS-1$
-            } else {
-                return "OK";//$NON-NLS-1$
+                    throw new ServiceException(MESSAGES.getMessage("label_error_delete_template_null")); //$NON-NLS-1$
             }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            return "ERROR -" + e.getLocalizedMessage();//$NON-NLS-1$
+            throw new ServiceException(e.getLocalizedMessage());
         }
     }
 
@@ -1435,38 +1428,53 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return "OK";//$NON-NLS-1$
     }
 
-    public String getCurrentDataModel() throws Exception {
-        Configuration config = Configuration.getConfiguration();
-        return config.getModel();
+    public String getCurrentDataModel() throws ServiceException {
+        try {
+            Configuration config = Configuration.getConfiguration();
+            return config.getModel();
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
     }
 
-    public String getCurrentDataCluster() throws Exception {
-        Configuration config = Configuration.getConfiguration();
-        return config.getCluster();
+    public String getCurrentDataCluster() throws ServiceException {
+        try {
+            Configuration config = Configuration.getConfiguration();
+            return config.getCluster();
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
     }
 
-    public ItemNodeModel getItemNodeModel(ItemBean item, EntityModel entity, String language) throws Exception {
-        if (item.get("isRefresh") != null) //$NON-NLS-1$
-            item = getItem(item, entity, language); // itemBean need to be get from server when refresh tree.
-        String xml = item.getItemXml();
+    public ItemNodeModel getItemNodeModel(ItemBean item, EntityModel entity, String language) throws ServiceException {
+        try {
+            if (item.get("isRefresh") != null) //$NON-NLS-1$
+                item = getItem(item, entity, language); // itemBean need to be get from server when refresh tree.
+            String xml = item.getItemXml();
 
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        StringReader sr = new StringReader(xml);
-        InputSource inputSource = new InputSource(sr);
-        Document doc = builder.parse(inputSource);
-        Element root = doc.getDocumentElement();
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            StringReader sr = new StringReader(xml);
+            InputSource inputSource = new InputSource(sr);
+            Document doc = builder.parse(inputSource);
+            Element root = doc.getDocumentElement();
 
+            Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
+            ItemNodeModel itemModel = builderNode(root, entity, "", language); //$NON-NLS-1$
+            DynamicLabelUtil.getDynamicLabel(XmlUtil.parseDocument(doc), itemModel, metaDataTypes, language);
+            itemModel.set("time", item.get("time")); //$NON-NLS-1$ //$NON-NLS-2$
+            return itemModel;
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
+    }
+
+    private ItemNodeModel builderNode(Element el, EntityModel entity, String xpath, String language) throws Exception {
         Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
-        ItemNodeModel itemModel = builderNode(root, entity, "", language); //$NON-NLS-1$
-        DynamicLabelUtil.getDynamicLabel(XmlUtil.parseDocument(doc), itemModel, metaDataTypes, language);
-        itemModel.set("time", item.get("time")); //$NON-NLS-1$ //$NON-NLS-2$
-        return itemModel;
-    }
-
-    private ItemNodeModel builderNode(Element el, EntityModel entity, String xpath, String language) {
-        Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
-        xpath += (xpath == "" ? el.getNodeName():"/" + el.getNodeName());      //$NON-NLS-1$//$NON-NLS-2$
+        xpath += (xpath == "" ? el.getNodeName() : "/" + el.getNodeName()); //$NON-NLS-1$//$NON-NLS-2$
         ItemNodeModel nodeModel = new ItemNodeModel(el.getNodeName());
         TypeModel model = metaDataTypes.get(xpath);
 
@@ -1515,11 +1523,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                             childNode.setHasVisiblueRule(typeModel.isHasVisiblueRule());
                             nodeModel.add(childNode);
                             existNodeFlag = true;
-                            if(typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {
-                            	continue;
-                            }
-                            else {
-                            	break;
+                            if (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {
+                                continue;
+                            } else {
+                                break;
                             }
                         }
                     }
@@ -1535,39 +1542,43 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 nodeModel.setKey(true);
         }
         return nodeModel;
-        
+
     }
 
-    public List<String> getMandatoryFieldList(String tableName) throws Exception {
-        // grab the table fileds (e.g. the concept sub-elements)
-        String schema = CommonUtil.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(this.getCurrentDataModel())))
-                .getXsdSchema();
+    public List<String> getMandatoryFieldList(String tableName) throws ServiceException {
+        try {
+            // grab the table fileds (e.g. the concept sub-elements)
+            String schema = CommonUtil.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(this.getCurrentDataModel())))
+                    .getXsdSchema();
 
-        XSOMParser parser = new XSOMParser();
-        parser.parse(new StringReader(schema));
-        XSSchemaSet xss = parser.getResult();
+            XSOMParser parser = new XSOMParser();
+            parser.parse(new StringReader(schema));
+            XSSchemaSet xss = parser.getResult();
 
-        XSElementDecl decl;
-        decl = xss.getElementDecl("", tableName);//$NON-NLS-1$
-        ArrayList<String> fieldNames = new ArrayList<String>();
-        if (decl == null) {
+            XSElementDecl decl;
+            decl = xss.getElementDecl("", tableName);//$NON-NLS-1$
+            ArrayList<String> fieldNames = new ArrayList<String>();
+            if (decl == null) {
+                return fieldNames;
+            }
+            XSComplexType type = (XSComplexType) decl.getType();
+            XSParticle[] xsp = type.getContentType().asParticle().getTerm().asModelGroup().getChildren();
+            for (XSParticle obj : xsp) {
+                if (obj.getMinOccurs() == 1 && obj.getMaxOccurs() == 1)
+                    fieldNames.add(obj.getTerm().asElementDecl().getName());
+            }
+
             return fieldNames;
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
         }
-        XSComplexType type = (XSComplexType) decl.getType();
-        XSParticle[] xsp = type.getContentType().asParticle().getTerm().asModelGroup().getChildren();
-        for(XSParticle obj : xsp){
-            if(obj.getMinOccurs() == 1 && obj.getMaxOccurs() == 1)
-                fieldNames.add(obj.getTerm().asElementDecl().getName());
-        }
-        
-        return fieldNames;
     }
 
-    public ItemResult saveItem(String concept, String ids, String xml, boolean isCreate) {
+    public String saveItem(String concept, String ids, String xml, boolean isCreate) throws ServiceException {
 
         try {
             String message = null;
-            int status = ItemResult.FAILURE;
 
             // if update, check the item is modified by others?
             WSPutItemWithReport wsPutItemWithReport = new WSPutItemWithReport(new WSPutItem(new WSDataClusterPK(
@@ -1599,97 +1610,112 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if ("info".equals(errorCode)) { //$NON-NLS-1$
                     if (message == null || message.length() == 0)
                         message = MESSAGES.getMessage("save_process_validation_success"); //$NON-NLS-1$
-                    status = ItemResult.SUCCESS;
                 } else {
                     // Anything but 0 is unsuccessful
                     if (message == null || message.length() == 0)
                         message = MESSAGES.getMessage("save_process_validation_failure"); //$NON-NLS-1$
-                    status = ItemResult.FAILURE;
+                    throw new ServiceException(message);
                 }
             } else {
                 message = MESSAGES.getMessage("save_record_success"); //$NON-NLS-1$
-                status = ItemResult.SUCCESS;
             }
-            return new ItemResult(status, message);
+            return message;
+        } catch (ServiceException e) {
+            LOG.error(e.getMessage(), e);
+            throw e;
         } catch (Exception e) {
-            ItemResult result;
             // TODO UGLY!!!! to be refactored
-            if (e.getLocalizedMessage().indexOf("routing failed:") == 0) {//$NON-NLS-1$ 
-                String saveSUCCE = "Save item '" + concept + "."//$NON-NLS-1$ //$NON-NLS-2$ 
-                        + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), ".")//$NON-NLS-1$
-                        + "' successfully, But " + e.getLocalizedMessage();//$NON-NLS-1$ 
-                result = new ItemResult(ItemResult.FAILURE, saveSUCCE);
-            } else {
-                String err = "Unable to save item '" + concept + "."//$NON-NLS-1$ //$NON-NLS-2$ 
-                        + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), ".") + "'"//$NON-NLS-1$ //$NON-NLS-2$
+            ServiceException serviceException;
+            if (e.getLocalizedMessage().indexOf("routing failed:") == 0) {
+                String saveSUCCE = "Save item '" + concept + "."
+                        + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), ".") + "' successfully, But "
                         + e.getLocalizedMessage();
-                if (e.getLocalizedMessage().indexOf("ERROR_3:") == 0) {//$NON-NLS-1$
+                serviceException = new ServiceException(saveSUCCE);
+            } else {
+                String err = "Unable to save item '" + concept + "."
+                        + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), ".") + "'" + e.getLocalizedMessage();
+                if (e.getLocalizedMessage().indexOf("ERROR_3:") == 0) {
                     err = e.getLocalizedMessage();
                 }
                 // add feature TMDM-2327 SAXException:cvc-complex-type.2.4.b message transform
                 if (e.getLocalizedMessage().indexOf("cvc-complex-type.2.4.b") != -1) { //$NON-NLS-1$
-                    err = "Unable to save item,before saving the '" + concept + "' item,please fill the required field's contents";//$NON-NLS-1$ //$NON-NLS-2$
+                    err = "Unable to save item,before saving the '" + concept
+                            + "' item,please fill the required field's contents";
                 }
-                result = new ItemResult(ItemResult.FAILURE, err);
+                serviceException = new ServiceException(err);
             }
-            return result;
+            throw serviceException;
         }
     }
 
-    public ColumnTreeLayoutModel getColumnTreeLayout(String concept) throws Exception {
-        CustomFormPOJOPK pk = new CustomFormPOJOPK(getCurrentDataModel(), concept);
-        CustomFormPOJO customForm = com.amalto.core.util.Util.getCustomFormCtrlLocal().existsCustomForm(pk);
-        if (customForm == null)
-            return null;
-        String xml = customForm.getXml();
-        Document doc = Util.parse(xml);
-        // TOTO call server-side service,get layout template to parse.
-        // InputStream is = BrowseRecordsAction.class.getResourceAsStream("temp_ColumnTreeLayout.xml"); //$NON-NLS-1$
-        // DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        // DocumentBuilder builder = factory.newDocumentBuilder();
-        // Document doc = builder.parse(is);
-        Element root = doc.getDocumentElement();
-        return ViewHelper.builderLayout(root);
+    public ColumnTreeLayoutModel getColumnTreeLayout(String concept) throws ServiceException {
+        try {
+            CustomFormPOJOPK pk = new CustomFormPOJOPK(getCurrentDataModel(), concept);
+            CustomFormPOJO customForm = com.amalto.core.util.Util.getCustomFormCtrlLocal().existsCustomForm(pk);
+            if (customForm == null)
+                return null;
+            String xml = customForm.getXml();
+            Document doc = Util.parse(xml);
+            // TOTO call server-side service,get layout template to parse.
+            // InputStream is = BrowseRecordsAction.class.getResourceAsStream("temp_ColumnTreeLayout.xml"); //$NON-NLS-1$
+            // DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            // DocumentBuilder builder = factory.newDocumentBuilder();
+            // Document doc = builder.parse(is);
+            Element root = doc.getDocumentElement();
+            return ViewHelper.builderLayout(root);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
     }
 
-    public boolean isItemModifiedByOthers(ItemBean itemBean) throws Exception {
-
-        ItemPOJOPK itempk = new ItemPOJOPK(new DataClusterPOJOPK(getCurrentDataCluster()), itemBean.getConcept(),
-                extractIdWithDots(itemBean.getIds()));
-        boolean isModified = com.amalto.core.util.Util.getItemCtrl2Local().isItemModifiedByOther(itempk,
-                ((Long) itemBean.get("time")).longValue()); //$NON-NLS-1$
-        return isModified;
+    public boolean isItemModifiedByOthers(ItemBean itemBean) throws ServiceException {
+        try {
+            ItemPOJOPK itempk = new ItemPOJOPK(new DataClusterPOJOPK(getCurrentDataCluster()), itemBean.getConcept(),
+                    extractIdWithDots(itemBean.getIds()));
+            boolean isModified = com.amalto.core.util.Util.getItemCtrl2Local().isItemModifiedByOther(itempk,
+                    ((Long) itemBean.get("time")).longValue()); //$NON-NLS-1$
+            return isModified;
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
     }
 
     /**
      * get ForeignKey Model by concept and ids
      */
-    public ForeignKeyModel getForeignKeyModel(String concept, String ids, String language) throws Exception {
-        String viewPk = "Browse_items_" + concept; //$NON-NLS-1$
-        ViewBean viewBean = getView(viewPk, language);
+    public ForeignKeyModel getForeignKeyModel(String concept, String ids, String language) throws ServiceException {
+        try {
+            String viewPk = "Browse_items_" + concept; //$NON-NLS-1$
+            ViewBean viewBean = getView(viewPk, language);
 
-        ItemBean itemBean = new ItemBean(concept, ids, null);
-        itemBean = getItem(itemBean, viewBean.getBindingEntityModel(), language);
-        if (checkSmartViewExists(concept, language))
-            itemBean.setSmartViewMode(ItemBean.SMARTMODE);
-        else if (checkSmartViewExistsByOpt(concept, language))
-            itemBean.setSmartViewMode(ItemBean.PERSOMODE);
+            ItemBean itemBean = new ItemBean(concept, ids, null);
+            itemBean = getItem(itemBean, viewBean.getBindingEntityModel(), language);
+            if (checkSmartViewExists(concept, language))
+                itemBean.setSmartViewMode(ItemBean.SMARTMODE);
+            else if (checkSmartViewExistsByOpt(concept, language))
+                itemBean.setSmartViewMode(ItemBean.PERSOMODE);
 
-        ItemNodeModel nodeModel = getItemNodeModel(itemBean, viewBean.getBindingEntityModel(), language);
+            ItemNodeModel nodeModel = getItemNodeModel(itemBean, viewBean.getBindingEntityModel(), language);
 
-        return new ForeignKeyModel(viewBean, itemBean, nodeModel);
+            return new ForeignKeyModel(viewBean, itemBean, nodeModel);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
     }
 
-    
-    public List<ItemBaseModel> getRunnableProcessList(String businessConcept, String language) {
+    public List<ItemBaseModel> getRunnableProcessList(String businessConcept, String language) throws ServiceException {
         List<ItemBaseModel> processList = new ArrayList<ItemBaseModel>();
-        if(businessConcept == null || language == null)
+        if (businessConcept == null || language == null)
             return processList;
-        
+
         try {
             String model = this.getCurrentDataModel();
-            String[] businessConcepts = Util.getPort().getBusinessConcepts(new WSGetBusinessConcepts(new WSDataModelPK(model))).getStrings();
-            
+            String[] businessConcepts = Util.getPort().getBusinessConcepts(new WSGetBusinessConcepts(new WSDataModelPK(model)))
+                    .getStrings();
+
             WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();//$NON-NLS-1$
             for (int i = 0; i < wst.length; i++) {
                 if (isMyRunableProcess(wst[i].getPk(), businessConcept, businessConcepts)) {
@@ -1705,22 +1731,21 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                             name = description;
                         }
                     }
-                    
+
                     ItemBaseModel itemBaseModel = new ItemBaseModel();
                     itemBaseModel.set("key", wst[i].getPk()); //$NON-NLS-1$
                     itemBaseModel.set("value", name); //$NON-NLS-1$
                     processList.add(itemBaseModel);
                 }
             }
-            
+
             return processList;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
         }
-        
-        return null;
     }
-    
+
     private boolean isMyRunableProcess(String transformerName, String ownerConcept, String[] businessConcepts) {
 
         String possibleConcept = "";//$NON-NLS-1$
@@ -1740,12 +1765,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return false;
     }
 
-    public String processItem(String concept, String[] ids, String transformerPK) {
-        
+    public String processItem(String concept, String[] ids, String transformerPK) throws ServiceException {
+
         try {
             String itemAlias = concept + "." + Util.joinStrings(ids, ".");//$NON-NLS-1$//$NON-NLS-2$
             // create updateReport
-            LOG.info("Creating update-report for " + itemAlias + "'s action. "); //$NON-NLS-1$ //$NON-NLS-2$
+            if (LOG.isDebugEnabled())
+                LOG.debug("Creating update-report for " + itemAlias + "'s action. "); //$NON-NLS-1$ //$NON-NLS-2$
             String updateReport = Util.createUpdateReport(ids, concept, "ACTION", null); //$NON-NLS-1$
             WSTransformerContext wsTransformerContext = new WSTransformerContext(new WSTransformerV2PK(transformerPK), null, null);
             WSTypedContent wsTypedContent = new WSTypedContent(null, new WSByteArray(updateReport.getBytes("UTF-8")),//$NON-NLS-1$
@@ -1762,15 +1788,16 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
             }
             // execute
-            
+
             WSTransformer wsTransformer = Util.getPort().getTransformer(new WSGetTransformer(new WSTransformerPK(transformerPK)));
             if (wsTransformer.getPluginSpecs() == null || wsTransformer.getPluginSpecs().length == 0)
-                throw new Exception(MESSAGES.getMessage("plugin_specs")); //$NON-NLS-1$
+                throw new ServiceException(MESSAGES.getMessage("plugin_specs")); //$NON-NLS-1$
 
             boolean outputReport = false;
             String downloadUrl = "";//$NON-NLS-1$
             if (isRunnableTransformerExist) {
-                LOG.info("Executing transformer for " + itemAlias + "'s action. "); //$NON-NLS-1$ //$NON-NLS-2$
+                if (LOG.isDebugEnabled())
+                    LOG.debug("Executing transformer for " + itemAlias + "'s action. "); //$NON-NLS-1$ //$NON-NLS-2$
                 WSTransformerContextPipelinePipelineItem[] entries = Util.getPort().executeTransformerV2(wsExecuteTransformerV2)
                         .getPipeline().getPipelineItem();
                 if (entries.length > 0) {
@@ -1778,117 +1805,102 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     if (item.getVariable().equals("output_url")) {//$NON-NLS-1$
                         byte[] bytes = item.getWsTypedContent().getWsBytes().getBytes();
                         String content = new String(bytes);
-                        try {
-                            Document resultDoc = Util.parse(content);
-                            NodeList attrList = Util.getNodeList(resultDoc, "//attr");//$NON-NLS-1$
-                            if (attrList != null && attrList.getLength() > 0) {
-                                downloadUrl = attrList.item(0).getTextContent();
-                                outputReport = true;
-                            }
-                        } catch (Exception e) {
-                            LOG.error(e.getMessage(), e);
+                        Document resultDoc = Util.parse(content);
+                        NodeList attrList = Util.getNodeList(resultDoc, "//attr");//$NON-NLS-1$
+                        if (attrList != null && attrList.getLength() > 0) {
+                            downloadUrl = attrList.item(0).getTextContent();
+                            outputReport = true;
                         }
                     }
                 }
             } else {
-                // return false;
-                throw new Exception(MESSAGES.getMessage("process_existed")); //$NON-NLS-1$
+                throw new ServiceException(MESSAGES.getMessage("process_existed")); //$NON-NLS-1$
             }
-            
-            // store
-            LOG.info("Saving update-report for " + itemAlias + "'s action. "); //$NON-NLS-1$ //$NON-NLS-2$
+
+            if (LOG.isDebugEnabled())
+                LOG.debug("Saving update-report for " + itemAlias + "'s action. "); //$NON-NLS-1$ //$NON-NLS-2$
 
             if (!Util.persistentUpdateReport(updateReport, true).equals("OK")) {//$NON-NLS-1$
-                // return false;
-                throw new Exception(MESSAGES.getMessage("store_update_report"));//$NON-NLS-1$
+                throw new ServiceException(MESSAGES.getMessage("store_update_report"));//$NON-NLS-1$
             }
             if (outputReport)
-                return "Ok" + downloadUrl; //$NON-NLS-1$
-            
-        } catch (Exception e) {
-            String err = MESSAGES.getMessage("unable_launch_process"); //$NON-NLS-1$
-            LOG.error(e.getMessage(), e);
-            String output = e.getLocalizedMessage();
-            if (e.getLocalizedMessage() == null || e.getLocalizedMessage().equals("")) //$NON-NLS-1$
-                output = err;
-            return output;
-        }
+                return downloadUrl;
+            else
+                return null;
 
-        return "Ok"; //$NON-NLS-1$
-    }
-    
-    public List<String> getLineageEntity(String concept) {
-        List<String> refs = null;
-        try {
-            refs = SchemaWebAgent.getInstance().getReferenceEntities(concept);
-            return refs;
+        } catch (ServiceException e) {
+            LOG.error(e.getMessage(), e);
+            throw e;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
+            String err = e.getLocalizedMessage();
+            if (err == null || err.length() == 0)
+                err = MESSAGES.getMessage("unable_launch_process"); //$NON-NLS-1$;
+            throw new ServiceException(err);
         }
-        return refs;
+    }
+
+    public List<String> getLineageEntity(String concept) throws ServiceException {
+        try {
+            return SchemaWebAgent.getInstance().getReferenceEntities(concept);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
     }
 
     /**
-     **********Smart View**********
+     ********** Smart View**********
      **/
-    private boolean checkSmartViewExistsByLang(String concept, String language, boolean useNoLang) {
+    private boolean checkSmartViewExistsByLang(String concept, String language, boolean useNoLang) throws Exception {
         return checkSmartViewExistsByLangAndOptName(concept, language, null, useNoLang);
     }
 
-    private boolean checkSmartViewExistsByLangAndOptName(String concept, String language, String optname, boolean useNoLang) {
-        try {
-            SmartViewProvider provider = new DefaultSmartViewProvider();
-            SmartViewDescriptions smDescs = SmartViewUtil.build(provider, concept, language);
+    private boolean checkSmartViewExistsByLangAndOptName(String concept, String language, String optname, boolean useNoLang)
+            throws Exception {
+        SmartViewProvider provider = new DefaultSmartViewProvider();
+        SmartViewDescriptions smDescs = SmartViewUtil.build(provider, concept, language);
 
-            Set<SmartViewDescriptions.SmartViewDescription> smDescSet = smDescs.get(language);
-            if (useNoLang) {
-                // Add the no language Smart Views too
-                smDescSet.addAll(smDescs.get(null));
-            }
-            for (SmartViewDescriptions.SmartViewDescription smDesc : smDescSet) {
-                if (optname != null) {
-                    if (optname.equals(smDesc.getOptName()))
-                        return true;
-                } else {
-                    if (smDesc.getOptName() == null)
-                        return true;
-                }
-            }
-            return false;
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            return false;
+        Set<SmartViewDescriptions.SmartViewDescription> smDescSet = smDescs.get(language);
+        if (useNoLang) {
+            // Add the no language Smart Views too
+            smDescSet.addAll(smDescs.get(null));
         }
+        for (SmartViewDescriptions.SmartViewDescription smDesc : smDescSet) {
+            if (optname != null) {
+                if (optname.equals(smDesc.getOptName()))
+                    return true;
+            } else {
+                if (smDesc.getOptName() == null)
+                    return true;
+            }
+        }
+        return false;
     }
 
-    private boolean checkSmartViewExists(String concept, String language) {
+    private boolean checkSmartViewExists(String concept, String language) throws Exception {
         boolean ret = checkSmartViewExistsByLang(concept, language, true);
         return ret;
     }
 
-    private boolean checkSmartViewExistsByOpt(String concept, String language) {
-        try {
-            SmartViewProvider provider = new DefaultSmartViewProvider();
-            SmartViewDescriptions smDescs = SmartViewUtil.build(provider, concept, language);
+    private boolean checkSmartViewExistsByOpt(String concept, String language) throws Exception {
+        SmartViewProvider provider = new DefaultSmartViewProvider();
+        SmartViewDescriptions smDescs = SmartViewUtil.build(provider, concept, language);
 
-            Set<SmartViewDescriptions.SmartViewDescription> smDescSet = smDescs.get(language);
+        Set<SmartViewDescriptions.SmartViewDescription> smDescSet = smDescs.get(language);
 
-            // Add the no language Smart Views too
-            smDescSet.addAll(smDescs.get(null));
+        // Add the no language Smart Views too
+        smDescSet.addAll(smDescs.get(null));
 
-            if (!smDescSet.isEmpty())
-                return true;
-            else
-                return false;
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+        if (!smDescSet.isEmpty())
+            return true;
+        else
             return false;
-        }
     }
 
-    public List<ItemBaseModel> getSmartViewList(String regex) throws Exception {
-        List<ItemBaseModel> smartViewList = new ArrayList<ItemBaseModel>();
+    public List<ItemBaseModel> getSmartViewList(String regex) throws ServiceException {
         try {
+            List<ItemBaseModel> smartViewList = new ArrayList<ItemBaseModel>();
             if (regex == null || regex.length() == 0)
                 return smartViewList;
 
@@ -1912,19 +1924,18 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 itemBaseModel.set("value", smDesc.getDisplayName()); //$NON-NLS-1$
                 smartViewList.add(itemBaseModel);
             }
+            return smartViewList;
 
         } catch (Exception e) {
-            String err = MESSAGES.getMessage("unable_getsmart_viewlist"); //$NON-NLS-1$
             LOG.error(e.getMessage(), e);
-            throw new Exception(err);
+            throw new ServiceException(MESSAGES.getMessage("unable_getsmart_viewlist")); //$NON-NLS-1$
         }
-        return smartViewList;
     }
 
     /**************************************************************************************/
 
     /**
-     *********************************Registry style****************************************
+     ********************************* Registry style****************************************
      * 
      * @param concept
      * @param ids
@@ -1979,15 +1990,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             // execute
             WSTransformer wsTransformer = Util.getPort().getTransformer(new WSGetTransformer(new WSTransformerPK(transformerPK)));
             if (wsTransformer.getPluginSpecs() == null || wsTransformer.getPluginSpecs().length == 0)
-                throw new Exception("The Plugin Specs of this process is undefined! ");
+                throw new ServiceException("The Plugin Specs of this process is undefined! ");
             WSTransformerContextPipelinePipelineItem[] entries = null;
             if (isATransformerExist) {
 
                 entries = Util.getPort().executeTransformerV2(wsExecuteTransformerV2).getPipeline().getPipelineItem();
 
             } else {
-                // return false;
-                throw new Exception("The target process is not existed! ");
+                throw new ServiceException("The target process is not existed! ");
             }
 
             WSTransformerContextPipelinePipelineItem entrie = null;
@@ -2064,56 +2074,55 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
         }
     }
+
     /**************************************************************************************/
 
-    public ItemBean getItemBeanById(String concept, String[] ids, String language) {
+    public ItemBean getItemBeanById(String concept, String[] ids, String language) throws ServiceException {
         try {
             WSItem wsItem = CommonUtil.getPort().getItem(
                     new WSGetItem(new WSItemPK(new WSDataClusterPK(this.getCurrentDataCluster()), concept, ids)));
             String[] idsArr = wsItem.getIds();
             StringBuilder sb = new StringBuilder();
-            for(String str : idsArr)
+            for (String str : idsArr)
                 sb.append(str).append("."); //$NON-NLS-1$
             String idsStr = sb.substring(0, sb.length() - 1);
             ItemBean itemBean = new ItemBean(concept, idsStr, wsItem.getContent());
-            
+
             String model = getCurrentDataModel();
             EntityModel entityModel = new EntityModel();
             DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
             DataModelHelper.handleDefaultValue(entityModel);
-//            DisplayRulesUtil.setRoot(DataModelHelper.getEleDecl());
-            
+            // DisplayRulesUtil.setRoot(DataModelHelper.getEleDecl());
+
             DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
             dynamicAssemble(itemBean, entityModel, language);
-            
+
             return itemBean;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
         }
-        return null;
     }
-    
-    public List<VisibleRuleResult> executeVisibleRule(String xml) {
-		// TODO Auto-generated method stub
-		List<DisplayRule> displayRules = null;
-		
-		try {
-			DisplayRulesUtil displayUtil = new DisplayRulesUtil(DataModelHelper.getEleDecl());
-			org.dom4j.Document doc = org.talend.mdm.webapp.browserecords.server.util.XmlUtil.parseText(xml);
-			displayRules = displayUtil.handleVisibleRules(doc);
-		} catch (DocumentException e) {
-		    LOG.error(e.getMessage(), e);
-		}
-		
-		List<VisibleRuleResult> res = new ArrayList<VisibleRuleResult>(displayRules.size());
-		
-		for(DisplayRule disru : displayRules) {
-			VisibleRuleResult ee = new VisibleRuleResult();
-			ee.setXpath(disru.getXpath());
-			ee.setVisible("true".equals(disru.getValue())); //$NON-NLS-1$
-			res.add(ee);
-		}
-		
-		return res;
-	}
+
+    public List<VisibleRuleResult> executeVisibleRule(String xml) throws ServiceException {
+        try {
+            DisplayRulesUtil displayUtil = new DisplayRulesUtil(DataModelHelper.getEleDecl());
+            org.dom4j.Document doc = org.talend.mdm.webapp.browserecords.server.util.XmlUtil.parseText(xml);
+            List<DisplayRule> displayRules = displayUtil.handleVisibleRules(doc);
+
+            List<VisibleRuleResult> res = new ArrayList<VisibleRuleResult>(displayRules.size());
+
+            for (DisplayRule disru : displayRules) {
+                VisibleRuleResult ee = new VisibleRuleResult();
+                ee.setXpath(disru.getXpath());
+                ee.setVisible("true".equals(disru.getValue())); //$NON-NLS-1$
+                res.add(ee);
+            }
+
+            return res;
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
+    }
 }

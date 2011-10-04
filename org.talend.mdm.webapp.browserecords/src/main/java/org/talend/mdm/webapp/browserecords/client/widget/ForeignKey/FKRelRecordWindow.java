@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.browserecords.client.widget.ForeignKey;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
@@ -51,9 +52,9 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -124,42 +125,49 @@ public class FKRelRecordWindow extends Window {
 
     private String getFilterValue() {
         String value = filter.getRawValue();
-        if (value == null || value.trim().equals("")) {
+        if (value == null || value.trim().length() == 0) {
             value = ".*"; //$NON-NLS-1$
         }
         return value;
     }
 
+    @Override
     protected void onRender(Element parent, int pos) {
         super.onRender(parent, pos);
         final TypeModel typeModel = BrowseRecords.getSession().getCurrentEntityModel().getMetaDataTypes().get(fkKey);
         xPath = typeModel.getXpath();
         RpcProxy<PagingLoadResult<ForeignKeyBean>> proxy = new RpcProxy<PagingLoadResult<ForeignKeyBean>>() {
 
+            @Override
             public void load(final Object loadConfig, final AsyncCallback<PagingLoadResult<ForeignKeyBean>> callback) {
                 service.getForeignKeyList((PagingLoadConfig) loadConfig, typeModel, BrowseRecords.getSession().getAppHeader()
-                        .getDatacluster(), false, getFilterValue(), new AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>>() {
+                        .getDatacluster(), false, getFilterValue(),
+                        new SessionAwareAsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>>() {
 
-                    public void onFailure(Throwable caught) {
-                        callback.onFailure(caught);
-                    }
+                            @Override
+                            public void doOnFailure(Throwable caught) {
+                                callback.onFailure(caught);
+                            }
 
-                    public void onSuccess(ItemBasePageLoadResult<ForeignKeyBean> result) {
-                        callback.onSuccess(new BasePagingLoadResult<ForeignKeyBean>(result.getData(), result.getOffset(), result
-                                .getTotalLength()));
-                    }
+                            public void onSuccess(ItemBasePageLoadResult<ForeignKeyBean> result) {
+                                callback.onSuccess(new BasePagingLoadResult<ForeignKeyBean>(result.getData(), result.getOffset(),
+                                        result.getTotalLength()));
+                            }
 
-                });
+                        });
 
             }
         };
 
         RpcProxy<BaseListLoadResult<BaseModel>> proxy1 = new RpcProxy<BaseListLoadResult<BaseModel>>() {
 
+            @Override
             public void load(final Object loadConfig, final AsyncCallback<BaseListLoadResult<BaseModel>> callback) {
-                service.getForeignKeyPolymTypeList(typeModel.getForeignkey(), "en", new AsyncCallback<List<Restriction>>() {//$NON-NLS-1$
+                service.getForeignKeyPolymTypeList(typeModel.getForeignkey(),
+                        "en", new SessionAwareAsyncCallback<List<Restriction>>() {//$NON-NLS-1$
 
-                            public void onFailure(Throwable caught) {
+                            @Override
+                            protected void doOnFailure(Throwable caught) {
                                 callback.onFailure(caught);
                             }
 
@@ -250,18 +258,14 @@ public class FKRelRecordWindow extends Window {
                 }
                 String fkInfo = sb.toString();
                 service.switchForeignKeyType(targetType, typeModel.getForeignkey(), fkInfo, getFilterValue(),
-                        new AsyncCallback<ForeignKeyDrawer>() {
-
-                            public void onFailure(Throwable arg0) {
-
-                            }
+                        new SessionAwareAsyncCallback<ForeignKeyDrawer>() {
 
                             public void onSuccess(ForeignKeyDrawer fkDrawer) {
                                 typeModel.setForeignkey(fkDrawer.getXpathForeignKey());
                                 List<String> fkinfo = new ArrayList<String>();
-                                if(fkDrawer.getXpathInfoForeignKey() != null){
+                                if (fkDrawer.getXpathInfoForeignKey() != null) {
                                     String[] foreignKeyList = fkDrawer.getXpathInfoForeignKey().split(","); //$NON-NLS-1$
-                                    for(int i=0; i<foreignKeyList.length; i++)
+                                    for (int i = 0; i < foreignKeyList.length; i++)
                                         fkinfo.add(foreignKeyList[i]);
                                 }
 
@@ -333,6 +337,7 @@ public class FKRelRecordWindow extends Window {
         Button cancelBtn = new Button(MessagesFactory.getMessages().cancel_btn());
         cancelBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+            @Override
             public void componentSelected(ButtonEvent ce) {
                 close();
             }

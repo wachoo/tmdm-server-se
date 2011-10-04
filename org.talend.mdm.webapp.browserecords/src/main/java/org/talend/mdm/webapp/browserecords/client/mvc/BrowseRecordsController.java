@@ -14,6 +14,7 @@ package org.talend.mdm.webapp.browserecords.client.mvc;
 
 import java.util.List;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
@@ -21,7 +22,6 @@ import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
-import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
@@ -35,9 +35,7 @@ import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -49,7 +47,6 @@ public class BrowseRecordsController extends Controller {
     private BrowseRecordsServiceAsync service;
 
     public BrowseRecordsController() {
-        registerEventTypes(BrowseRecordsEvents.Error);
         registerEventTypes(BrowseRecordsEvents.InitFrame);
         registerEventTypes(BrowseRecordsEvents.InitSearchContainer);
         registerEventTypes(BrowseRecordsEvents.SearchView);
@@ -72,9 +69,7 @@ public class BrowseRecordsController extends Controller {
     @Override
     public void handleEvent(AppEvent event) {
         EventType type = event.getType();
-        if (type == BrowseRecordsEvents.Error) {
-            onError(event);
-        } else if (type == BrowseRecordsEvents.GetView) {
+        if (type == BrowseRecordsEvents.GetView) {
             onGetView(event);
         } else if (event.getType() == BrowseRecordsEvents.SearchView) {
             onSearchView(event);
@@ -94,8 +89,8 @@ public class BrowseRecordsController extends Controller {
             onSaveItem(event);
         } else if (type == BrowseRecordsEvents.UpdatePolymorphism) {
             forwardToView(view, event);
-        } else if(type == BrowseRecordsEvents.ExecuteVisibleRule) {
-        	onExecuteVisibleRule(event);
+        } else if (type == BrowseRecordsEvents.ExecuteVisibleRule) {
+            onExecuteVisibleRule(event);
         }
     }
 
@@ -107,33 +102,30 @@ public class BrowseRecordsController extends Controller {
         final Boolean isCreate = event.getData("isCreate"); //$NON-NLS-1$
         final Boolean isClose = event.getData("isClose"); //$NON-NLS-1$
         service.saveItem(itemBean.getConcept(), itemBean.getIds(), CommonUtil.toXML(model, viewBean), isCreate,
-                new AsyncCallback<ItemResult>() {
+                new SessionAwareAsyncCallback<String>() {
 
-                    public void onSuccess(ItemResult result) {
-                        if (result.getStatus() == ItemResult.FAILURE) {
-                            if (result.getDescription() != null) {
-                                if (result.getDescription().indexOf("ERROR_3:") == 0) { //$NON-NLS-1$
-                                    // add for before saving transformer check
-                                    MessageBox.alert(MessagesFactory.getMessages().error_title(), result.getDescription()
-                                            .substring(8), null);
-                                } else
-                                    MessageBox.alert(MessagesFactory.getMessages().error_title(), CommonUtil
-                                            .pickOutISOMessage(result.getDescription()), null);
-                            }
-                        } else {
-                            MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
-                                    .save_success(), null);
-                            if (!isClose && isCreate) {
-                                ItemsListPanel.getInstance().lastPage();
-                            }
+                    @Override
+                    protected void doOnFailure(Throwable caught) {
+                        String err = caught.getMessage();
+                        if (err != null) {
+                            if (err.indexOf("ERROR_3:") == 0) { //$NON-NLS-1$
+                                // add for before saving transformer check
+                                MessageBox.alert(MessagesFactory.getMessages().error_title(), err.substring(8), null);
+                            } else
+                                MessageBox.alert(MessagesFactory.getMessages().error_title(), CommonUtil.pickOutISOMessage(err),
+                                        null);
+                        } else
+                            super.doOnFailure(caught);
+                    }
+
+                    public void onSuccess(String result) {
+                        MessageBox.alert(MessagesFactory.getMessages().info_title(),
+                                MessagesFactory.getMessages().save_success(), null);
+                        if (!isClose && isCreate) {
+                            ItemsListPanel.getInstance().lastPage();
                         }
-
-            }
-
-            public void onFailure(Throwable caught) {
-                Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
-            }
-        });
+                    }
+                });
 
     }
 
@@ -141,33 +133,25 @@ public class BrowseRecordsController extends Controller {
 
         String concept = event.getData("concept"); //$NON-NLS-1$
         String ids = event.getData("ids"); //$NON-NLS-1$
-        service.getForeignKeyModel(concept, ids, Locale.getLanguage(), new AsyncCallback<ForeignKeyModel>() {
+        service.getForeignKeyModel(concept, ids, Locale.getLanguage(), new SessionAwareAsyncCallback<ForeignKeyModel>() {
 
             public void onSuccess(ForeignKeyModel fkModel) {
                 AppEvent ae = new AppEvent(event.getType(), fkModel);
                 forwardToView(view, ae);
             };
-
-            public void onFailure(Throwable caught) {
-                Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
-            }
         });
 
     }
 
     private void onSelectForeignKeyView(final AppEvent event) {
         String viewFkName = "Browse_items_" + event.getData().toString(); //$NON-NLS-1$
-        service.getView(viewFkName, Locale.getLanguage(), new AsyncCallback<ViewBean>() {
+        service.getView(viewFkName, Locale.getLanguage(), new SessionAwareAsyncCallback<ViewBean>() {
 
             public void onSuccess(ViewBean viewBean) {
                 // forward
                 AppEvent ae = new AppEvent(event.getType(), viewBean);
                 ae.setSource(event.getSource());
                 forwardToView(view, ae);
-            }
-
-            public void onFailure(Throwable caught) {
-                Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
             }
         });
 
@@ -177,11 +161,7 @@ public class BrowseRecordsController extends Controller {
         ItemBean item = (ItemBean) event.getData();
         if (item != null) {
             EntityModel entityModel = (EntityModel) BrowseRecords.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
-            service.getItem(item, entityModel, Locale.getLanguage(), new AsyncCallback<ItemBean>() {
-
-                public void onFailure(Throwable caught) {
-                    Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
-                }
+            service.getItem(item, entityModel, Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBean>() {
 
                 public void onSuccess(ItemBean result) {
                     AppEvent ae = new AppEvent(event.getType(), result);
@@ -193,16 +173,12 @@ public class BrowseRecordsController extends Controller {
 
     private void onCreateForeignKeyView(final AppEvent event) {
         String viewFkName = "Browse_items_" + event.getData().toString(); //$NON-NLS-1$
-        service.getView(viewFkName, Locale.getLanguage(), new AsyncCallback<ViewBean>() {
+        service.getView(viewFkName, Locale.getLanguage(), new SessionAwareAsyncCallback<ViewBean>() {
 
             public void onSuccess(ViewBean viewBean) {
                 // forward
                 AppEvent ae = new AppEvent(event.getType(), viewBean);
                 forwardToView(view, ae);
-            }
-
-            public void onFailure(Throwable caught) {
-                Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
             }
         });
 
@@ -211,7 +187,7 @@ public class BrowseRecordsController extends Controller {
     protected void onGetView(final AppEvent event) {
         Log.info("Get view... ");//$NON-NLS-1$
         String viewName = event.getData();
-        service.getView(viewName, Locale.getLanguage(), new AsyncCallback<ViewBean>() {
+        service.getView(viewName, Locale.getLanguage(), new SessionAwareAsyncCallback<ViewBean>() {
 
             public void onSuccess(ViewBean viewbean) {
 
@@ -225,10 +201,6 @@ public class BrowseRecordsController extends Controller {
                 AppEvent ae = new AppEvent(event.getType(), viewbean);
                 forwardToView(view, ae);
             }
-
-            public void onFailure(Throwable caught) {
-                Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
-            }
         });
     }
 
@@ -239,26 +211,20 @@ public class BrowseRecordsController extends Controller {
         forwardToView(view, ae);
     }
 
-    protected void onError(AppEvent ae) {
-        Log.error("error: " + ae.<Object> getData()); //$NON-NLS-1$
-        // MessageBox.alert(MessagesFactory.getMessages().error_title(), ae.<Object> getData().toString(), null);
-    }
-    
     private void onExecuteVisibleRule(final AppEvent event) {
         final ItemNodeModel model = event.getData();
         ViewBean viewBean = event.getData("viewBean"); //$NON-NLS-1$
         if (model != null) {
             EntityModel entityModel = (EntityModel) BrowseRecords.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
             entityModel.getMetaDataTypes();
-            
-            service.executeVisibleRule(CommonUtil.toXML(model, viewBean), new AsyncCallback<List<VisibleRuleResult>>() {
-				public void onFailure(Throwable arg0) {
-				}
 
-				public void onSuccess(List<VisibleRuleResult> arg0) {
-					forwardToView(view, new AppEvent(BrowseRecordsEvents.ExecuteVisibleRule, arg0));
-				}
-            });
+            service.executeVisibleRule(CommonUtil.toXML(model, viewBean),
+                    new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
+
+                        public void onSuccess(List<VisibleRuleResult> arg0) {
+                            forwardToView(view, new AppEvent(BrowseRecordsEvents.ExecuteVisibleRule, arg0));
+                        }
+                    });
         }
     }
 }

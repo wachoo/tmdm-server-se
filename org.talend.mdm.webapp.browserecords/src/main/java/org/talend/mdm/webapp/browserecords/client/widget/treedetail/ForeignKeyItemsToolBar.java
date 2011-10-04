@@ -5,15 +5,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
-import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.creator.CellEditorCreator;
 import org.talend.mdm.webapp.browserecords.client.creator.CellRendererCreator;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
-import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.SimpleCriterion;
@@ -37,7 +36,6 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -49,9 +47,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
-
 
 public class ForeignKeyItemsToolBar extends ToolBar {
 
@@ -98,6 +94,7 @@ public class ForeignKeyItemsToolBar extends ToolBar {
         this.tablePanel = tablePanel;
     }
 
+    @Override
     protected void onDetach() {
         super.onDetach();
     }
@@ -118,18 +115,17 @@ public class ForeignKeyItemsToolBar extends ToolBar {
         qm.setView(listPanel.getViewBean());
         qm.setModel(listPanel.getViewBean().getBindingEntityModel());
 
-            SimpleCriterion simpCriterion = simplePanel.getCriteria();
-            MultipleCriteria criteriaStore = (MultipleCriteria) BrowseRecords.getSession().get(
-                    UserSession.CUSTOMIZE_CRITERION_STORE);
-            if (criteriaStore == null) {
-                criteriaStore = new MultipleCriteria();
-                criteriaStore.setOperator("AND"); //$NON-NLS-1$
-            } else {
-                BrowseRecords.getSession().getCustomizeCriterionStore().getChildren().clear();
-            }
-            criteriaStore.add(simpCriterion);
-            BrowseRecords.getSession().put(UserSession.CUSTOMIZE_CRITERION_STORE, criteriaStore);
-            qm.setCriteria(simplePanel.getCriteria().toString());
+        SimpleCriterion simpCriterion = simplePanel.getCriteria();
+        MultipleCriteria criteriaStore = (MultipleCriteria) BrowseRecords.getSession().get(UserSession.CUSTOMIZE_CRITERION_STORE);
+        if (criteriaStore == null) {
+            criteriaStore = new MultipleCriteria();
+            criteriaStore.setOperator("AND"); //$NON-NLS-1$
+        } else {
+            BrowseRecords.getSession().getCustomizeCriterionStore().getChildren().clear();
+        }
+        criteriaStore.add(simpCriterion);
+        BrowseRecords.getSession().put(UserSession.CUSTOMIZE_CRITERION_STORE, criteriaStore);
+        qm.setCriteria(simplePanel.getCriteria().toString());
 
     }
 
@@ -140,26 +136,6 @@ public class ForeignKeyItemsToolBar extends ToolBar {
 
         String concept = viewBean.getBindingEntityModel().getConceptName();
         updateUserCriteriasList(concept);
-    }
-
-    public static int getSuccessItemsNumber(List<ItemResult> results) {
-        int itemSuccessNumber = 0;
-        for (ItemResult result : results) {
-            if (result.getStatus() == ItemResult.SUCCESS) {
-                itemSuccessNumber++;
-            }
-        }
-        return itemSuccessNumber;
-    }
-
-    public static int getFailureItemsNumber(List<ItemResult> results) {
-        int itemFailureNumber = 0;
-        for (ItemResult result : results) {
-            if (result.getStatus() == ItemResult.FAILURE) {
-                itemFailureNumber++;
-            }
-        }
-        return itemFailureNumber;
     }
 
     public int getSelectItemNumber() {
@@ -184,14 +160,10 @@ public class ForeignKeyItemsToolBar extends ToolBar {
         add(new FillToolItem());
 
         if (BrowseRecords.getSession().getEntitiyModelList() == null) {
-            service.getViewsList(Locale.getLanguage(), new AsyncCallback<List<ItemBaseModel>>() {
+            service.getViewsList(Locale.getLanguage(), new SessionAwareAsyncCallback<List<ItemBaseModel>>() {
 
                 public void onSuccess(List<ItemBaseModel> modelList) {
                     BrowseRecords.getSession().put(UserSession.ENTITY_MODEL_LIST, modelList);
-                }
-
-                public void onFailure(Throwable caught) {
-                    Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
                 }
             });
         }
@@ -218,10 +190,11 @@ public class ForeignKeyItemsToolBar extends ToolBar {
                     for (String xpath : viewableXpaths) {
                         TypeModel typeModel = dataTypes.get(xpath);
 
-                        ColumnConfig cc = new ColumnConfig(xpath, typeModel == null ? xpath : ViewUtil.getViewableLabel(Locale.getLanguage(),
-                                typeModel), 200);
+                        ColumnConfig cc = new ColumnConfig(xpath, typeModel == null ? xpath : ViewUtil.getViewableLabel(
+                                Locale.getLanguage(), typeModel), 200);
                         if (typeModel instanceof SimpleTypeModel && !keys.contains(xpath)) {
-                            Field<?> field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false, Locale.getLanguage());
+                            Field<?> field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false,
+                                    Locale.getLanguage());
 
                             CellEditor cellEditor = CellEditorCreator.createCellEditor(field);
                             if (cellEditor != null) {
@@ -259,18 +232,13 @@ public class ForeignKeyItemsToolBar extends ToolBar {
     }
 
     private void updateUserCriteriasList(String concept) {
-        service.getUserCriterias(concept,
-                new AsyncCallback<List<ItemBaseModel>>() {
+        service.getUserCriterias(concept, new SessionAwareAsyncCallback<List<ItemBaseModel>>() {
 
-                    public void onFailure(Throwable caught) {
-                        Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
-                    }
+            public void onSuccess(List<ItemBaseModel> list) {
+                userCriteriasList = list;
+            }
 
-                    public void onSuccess(List<ItemBaseModel> list) {
-                        userCriteriasList = list;
-                    }
-
-                });
+        });
     }
 
     private void resizeAfterSearch() {

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
@@ -30,7 +31,6 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
@@ -102,29 +102,23 @@ public class TreeDetail extends ContentPanel {
             buildPanel();
         } else {
             getItemService().getItemNodeModel(itemBean, viewBean.getBindingEntityModel(), Locale.getLanguage(),
-                    new AsyncCallback<ItemNodeModel>() {
+                    new SessionAwareAsyncCallback<ItemNodeModel>() {
 
                         public void onSuccess(ItemNodeModel node) {
                             renderTree(node);
-                            if(node.isHasVisiblueRule()) {
-                            	getItemService().executeVisibleRule(CommonUtil.toXML(node, TreeDetail.this.viewBean),
-                                    new AsyncCallback<List<VisibleRuleResult>>() {
+                            if (node.isHasVisiblueRule()) {
+                                getItemService().executeVisibleRule(CommonUtil.toXML(node, TreeDetail.this.viewBean),
+                                        new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
 
-                                    public void onFailure(Throwable arg0) {
-                                    }
-
-                                    public void onSuccess(List<VisibleRuleResult> arg0) {
-                                        for (VisibleRuleResult visibleRuleResult : arg0) {
-                                            recrusiveSetItems(visibleRuleResult, (DynamicTreeItem) root);
-                                        }
-                                    }
-                                });
+                                            public void onSuccess(List<VisibleRuleResult> arg0) {
+                                                for (VisibleRuleResult visibleRuleResult : arg0) {
+                                                    recrusiveSetItems(visibleRuleResult, (DynamicTreeItem) root);
+                                                }
+                                            }
+                                        });
                             }
                         }
 
-                        public void onFailure(Throwable arg0) {
-                            arg0.printStackTrace();
-                        }
                     });
         }
     }
@@ -135,20 +129,18 @@ public class TreeDetail extends ContentPanel {
                 viewBean.getBindingEntityModel().getMetaDataTypes().get(viewBean.getBindingEntityModel().getConceptName()),
                 Locale.getLanguage());
         renderTree(models.get(0));
-	        if(hasVisibleRule(
-		                viewBean.getBindingEntityModel().getMetaDataTypes().get(viewBean.getBindingEntityModel().getConceptName()))) {
-	        	getItemService().executeVisibleRule(CommonUtil.toXML(models.get(0), viewBean),
-	                new AsyncCallback<List<VisibleRuleResult>>() {
-					public void onFailure(Throwable arg0) {
-					}
-			
-					public void onSuccess(List<VisibleRuleResult> arg0) {
-						for(VisibleRuleResult visibleRuleResult : arg0) {
-							recrusiveSetItems(visibleRuleResult, (DynamicTreeItem) root);
-						}
-					}
-				});
-	        }
+        if (hasVisibleRule(viewBean.getBindingEntityModel().getMetaDataTypes()
+                .get(viewBean.getBindingEntityModel().getConceptName()))) {
+            getItemService().executeVisibleRule(CommonUtil.toXML(models.get(0), viewBean),
+                    new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
+
+                        public void onSuccess(List<VisibleRuleResult> arg0) {
+                            for (VisibleRuleResult visibleRuleResult : arg0) {
+                                recrusiveSetItems(visibleRuleResult, (DynamicTreeItem) root);
+                            }
+                        }
+                    });
+        }
     }
 
     private DynamicTreeItem buildGWTTree(ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue) {
@@ -328,7 +320,7 @@ public class TreeDetail extends ContentPanel {
     public void refreshTree(final ItemBean item) {
         item.set("isRefresh", true); //$NON-NLS-1$
         getItemService().getItemNodeModel(item, viewBean.getBindingEntityModel(), Locale.getLanguage(),
-                new AsyncCallback<ItemNodeModel>() {
+                new SessionAwareAsyncCallback<ItemNodeModel>() {
 
                     public void onSuccess(ItemNodeModel node) {
                         TreeDetail.this.removeAll();
@@ -336,7 +328,8 @@ public class TreeDetail extends ContentPanel {
                         renderTree(node);
                     }
 
-                    public void onFailure(Throwable caught) {
+                    @Override
+                    protected void doOnFailure(Throwable caught) {
                         MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().refresh_tip()
                                 + " " + MessagesFactory.getMessages().message_fail(), null); //$NON-NLS-1$
                     }
@@ -362,66 +355,68 @@ public class TreeDetail extends ContentPanel {
             return this.parentItem;
         }
 
+        @Override
         public int hashCode() {
             return xpath.length();
         }
 
+        @Override
         public boolean equals(Object o) {
             CountMapItem item = (CountMapItem) o;
             return item.getXpath().equals(xpath) && item.getParentItem().equals(parentItem);
         }
     }
-    
-    public boolean validateTree(){
+
+    public boolean validateTree() {
         boolean flag = true;
-        ItemNodeModel rootNode = (ItemNodeModel)tree.getItem(0).getUserObject();
-        if (rootNode != null){
-            flag = validateNode(rootNode,flag);          
+        ItemNodeModel rootNode = (ItemNodeModel) tree.getItem(0).getUserObject();
+        if (rootNode != null) {
+            flag = validateNode(rootNode, flag);
         }
         return flag;
     }
-    
-    public boolean validateNode(ItemNodeModel rootNode,boolean flag){
-        
+
+    public boolean validateNode(ItemNodeModel rootNode, boolean flag) {
+
         if (rootNode.getChildren() != null && rootNode.getChildren().size() > 0) {
             for (ModelData model : rootNode.getChildren()) {
-                
+
                 ItemNodeModel node = (ItemNodeModel) model;
-                if (!node.isValid() && node.getChildCount() == 0){      
+                if (!node.isValid() && node.getChildCount() == 0) {
                     com.google.gwt.user.client.Window.alert(node.getName() + "'Value validate failure"); //$NON-NLS-1$
-                    flag = false;                   
+                    flag = false;
                 }
 
-                if (node.getChildren() != null && node.getChildren().size() > 0){
-                    flag = validateNode(node,flag);
+                if (node.getChildren() != null && node.getChildren().size() > 0) {
+                    flag = validateNode(node, flag);
                 }
-                
-                if (!flag){
+
+                if (!flag) {
                     break;
                 }
             }
         }
         return flag;
     }
-    
+
     private boolean hasVisibleRule(TypeModel typeModel) {
-    	if(typeModel.isHasVisiblueRule()) {
-    		return true;
-    	}
-    	
-    	if(!typeModel.isSimpleType()) {
-    		ComplexTypeModel complexModel = (ComplexTypeModel) typeModel;
+        if (typeModel.isHasVisiblueRule()) {
+            return true;
+        }
+
+        if (!typeModel.isSimpleType()) {
+            ComplexTypeModel complexModel = (ComplexTypeModel) typeModel;
             List<TypeModel> children = complexModel.getSubTypes();
-            
-            for(TypeModel model : children) {
-            	boolean childVisibleRule = hasVisibleRule(model);
-            	
-            	if(childVisibleRule) {
-            		return true;
-            	}
+
+            for (TypeModel model : children) {
+                boolean childVisibleRule = hasVisibleRule(model);
+
+                if (childVisibleRule) {
+                    return true;
+                }
             }
-    	}
-    	
-    	return false;
+        }
+
+        return false;
     }
 }

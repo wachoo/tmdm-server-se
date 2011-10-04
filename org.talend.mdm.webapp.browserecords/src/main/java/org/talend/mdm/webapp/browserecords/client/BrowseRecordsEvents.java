@@ -19,8 +19,6 @@ import com.extjs.gxt.ui.client.event.EventType;
  */
 public class BrowseRecordsEvents {
 
-    public static final EventType Error = new EventType();
-
     public static final EventType InitFrame = new EventType();
 
     public static final EventType InitSearchContainer = new EventType();
@@ -40,7 +38,7 @@ public class BrowseRecordsEvents {
     public static final EventType SaveItem = new EventType();
 
     public static final EventType UpdatePolymorphism = new EventType();
-    
+
     public static final EventType ExecuteVisibleRule = new EventType();
 
 }

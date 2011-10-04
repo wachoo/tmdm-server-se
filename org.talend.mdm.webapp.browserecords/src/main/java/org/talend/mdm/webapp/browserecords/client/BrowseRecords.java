@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsController;
@@ -30,7 +31,6 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.RootPanel;
 
 /**
@@ -44,7 +44,7 @@ public class BrowseRecords implements EntryPoint {
     public static final String BROWSERECORDS_SERVICE = "BrowseRecordsService"; //$NON-NLS-1$
 
     public static final String USER_SESSION = "UserSession"; //$NON-NLS-1$
-    
+
     public static final String BROWSERECORD_ID = "Browse Records"; //$NON-NLS-1$
 
     private RootPanel panel;
@@ -108,26 +108,19 @@ public class BrowseRecords implements EntryPoint {
 
     public void showTreeDetailPanel(final String concept, final String ids) {
 
-        getItemService().getItemBeanById(concept, ids.split("\\."), Locale.getLanguage(), new AsyncCallback<ItemBean>() { //$NON-NLS-1$
+        getItemService().getItemBeanById(concept,
+                ids.split("\\."), Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBean>() { //$NON-NLS-1$
 
                     public void onSuccess(final ItemBean item) {
-                        getItemService().getView("Browse_items_" + concept, "en", new AsyncCallback<ViewBean>() { //$NON-NLS-1$
-
-                                    public void onFailure(Throwable arg0) {
-
-                                    }
+                        getItemService().getView("Browse_items_" + concept, Locale.getLanguage(), new SessionAwareAsyncCallback<ViewBean>() { //$NON-NLS-1$
 
                                     public void onSuccess(ViewBean viewBean) {
                                         ItemPanel itemPanel = new ItemPanel(viewBean, item, ItemDetailToolBar.VIEW_OPERATION);
                                         itemPanel.setItemId(concept + "_" + ids); //$NON-NLS-1$
                                         renderPubTreeDetailPanel(itemPanel.getItemId(), itemPanel);
-                                    } //$NON-NLS-1$ //$NON-NLS-2$
+                                    }
 
                                 });
-
-                    }
-
-                    public void onFailure(Throwable arg0) {
 
                     }
                 });
@@ -254,11 +247,7 @@ public class BrowseRecords implements EntryPoint {
     }
 
     private void onModuleRender() {
-        getItemService().getAppHeader(new AsyncCallback<AppHeader>() {
-
-            public void onFailure(Throwable caught) {
-                Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
-            }
+        getItemService().getAppHeader(new SessionAwareAsyncCallback<AppHeader>() {
 
             public void onSuccess(AppHeader header) {
                 if (header.getDatacluster() == null || header.getDatamodel() == null) {

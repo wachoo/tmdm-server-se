@@ -1,8 +1,21 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
@@ -217,8 +230,7 @@ public class ItemDetailToolBar extends ToolBar {
                                 // Collections.singletonList(itemBean) --- it could not be sent to backend correctly
                                 List<ItemBean> list = new ArrayList<ItemBean>();
                                 list.add(itemBean);
-                                service.checkFKIntegrity(list, new DeleteCallback(deleteAction,
-                                        postDeleteAction, service));
+                                service.checkFKIntegrity(list, new DeleteCallback(deleteAction, postDeleteAction, service));
                             }
                         }
                     });
@@ -238,11 +250,13 @@ public class ItemDetailToolBar extends ToolBar {
 
                         public void handleEvent(MessageBoxEvent be) {
                             if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                                PostDeleteAction postDeleteAction = new ListRefresh(new ContainerUpdate(NoOpPostDeleteAction.INSTANCE));;
+                                PostDeleteAction postDeleteAction = new ListRefresh(new ContainerUpdate(
+                                        NoOpPostDeleteAction.INSTANCE));
+                                ;
                                 List<ItemBean> list = new ArrayList<ItemBean>();
                                 list.add(itemBean);
-                                service.checkFKIntegrity(list, new DeleteCallback(
-                                        DeleteAction.PHYSICAL, postDeleteAction, service));
+                                service.checkFKIntegrity(list, new DeleteCallback(DeleteAction.PHYSICAL, postDeleteAction,
+                                        service));
                             }
                         }
                     });
@@ -256,14 +270,6 @@ public class ItemDetailToolBar extends ToolBar {
         }
 
         add(deleteButton);
-    }
-
-    private void doLogicalDelete(String url, boolean override) {
-
-    }
-
-    private void doItemDelete(boolean override) {
-
     }
 
     private void addDuplicateButton() {
@@ -349,7 +355,7 @@ public class ItemDetailToolBar extends ToolBar {
 
     private void refreshTree(final ItemPanel itemPanel, final ForeignKeyTreeDetail fkTree, final ItemNodeModel root) {
         ItemBean itemBean = isFkToolBar ? fkTree.getFkModel().getItemBean() : itemPanel.getItem();
-        service.isItemModifiedByOthers(itemBean, new AsyncCallback<Boolean>() {
+        service.isItemModifiedByOthers(itemBean, new SessionAwareAsyncCallback<Boolean>() {
 
             public void onSuccess(Boolean result) {
                 if (isChangeValue(root) || result) {
@@ -375,8 +381,8 @@ public class ItemDetailToolBar extends ToolBar {
                 }
             }
 
-            public void onFailure(Throwable caught) {
-                Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
+            @Override
+            protected void doOnFailure(Throwable caught) {
                 MessageBox.alert(MessagesFactory.getMessages().refresh_tip(), MessagesFactory.getMessages().refresh_tip()
                         + " " + MessagesFactory.getMessages().message_fail(), null); //$NON-NLS-1$
             }
@@ -395,7 +401,7 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private void addRelationButton() {
-        service.getLineageEntity(itemBean.getConcept(), new AsyncCallback<List<String>>() {
+        service.getLineageEntity(itemBean.getConcept(), new SessionAwareAsyncCallback<List<String>>() {
 
             public void onSuccess(List<String> list) {
                 if (list == null || list.size() == 0) {
@@ -427,78 +433,68 @@ public class ItemDetailToolBar extends ToolBar {
 
             }
 
-            public void onFailure(Throwable arg0) {
-
-            }
         });
     }
 
     private void addWorkFlosCombo() {
-        service.getRunnableProcessList(itemBean.getConcept(), Locale.getLanguage(), new AsyncCallback<List<ItemBaseModel>>() {
+        service.getRunnableProcessList(itemBean.getConcept(), Locale.getLanguage(),
+                new SessionAwareAsyncCallback<List<ItemBaseModel>>() {
 
-            public void onSuccess(List<ItemBaseModel> processList) {
-                add(new FillToolItem());
-                ListStore<ItemBaseModel> workFlowList = new ListStore<ItemBaseModel>();
-                workFlowList.add(processList);
-                if (workFlowCombo == null) {
-                    workFlowCombo = new ComboBox<ItemBaseModel>();
-                    workFlowCombo.setStore(workFlowList);
-                    workFlowCombo.setDisplayField("value");//$NON-NLS-1$
-                    workFlowCombo.setValueField("key");//$NON-NLS-1$
-                    workFlowCombo.setTypeAhead(true);
-                    workFlowCombo.setTriggerAction(TriggerAction.ALL);
-                    workFlowCombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
+                    public void onSuccess(List<ItemBaseModel> processList) {
+                        add(new FillToolItem());
+                        ListStore<ItemBaseModel> workFlowList = new ListStore<ItemBaseModel>();
+                        workFlowList.add(processList);
+                        if (workFlowCombo == null) {
+                            workFlowCombo = new ComboBox<ItemBaseModel>();
+                            workFlowCombo.setStore(workFlowList);
+                            workFlowCombo.setDisplayField("value");//$NON-NLS-1$
+                            workFlowCombo.setValueField("key");//$NON-NLS-1$
+                            workFlowCombo.setTypeAhead(true);
+                            workFlowCombo.setTriggerAction(TriggerAction.ALL);
+                            workFlowCombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
 
-                        @Override
-                        public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
-                            selectItem = se.getSelectedItem();
+                                @Override
+                                public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
+                                    selectItem = se.getSelectedItem();
+                                }
+                            });
                         }
-                    });
-                }
-                add(workFlowCombo);
-                if (launchProcessButton == null) {
-                    launchProcessButton = new Button();
-                    launchProcessButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.launch_process()));
-                    launchProcessButton.setToolTip(MessagesFactory.getMessages().launch_process_tooltip());
-                    launchProcessButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+                        add(workFlowCombo);
+                        if (launchProcessButton == null) {
+                            launchProcessButton = new Button();
+                            launchProcessButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.launch_process()));
+                            launchProcessButton.setToolTip(MessagesFactory.getMessages().launch_process_tooltip());
+                            launchProcessButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
-                        @Override
-                        public void componentSelected(ButtonEvent ce) {
-                            if (selectItem == null) {
-                                MessageBox.alert(MessagesFactory.getMessages().warning_title(),
-                                        "Please select a process first!", null); //$NON-NLS-1$
-                                return;
-                            }
-                            final MessageBox waitBar = MessageBox.wait(
-                                    "Processing", "Processing, please wait...", "Processing..."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                            String[] ids = itemBean.getIds().split("@"); //$NON-NLS-1$
+                                @Override
+                                public void componentSelected(ButtonEvent ce) {
+                                    if (selectItem == null) {
+                                        MessageBox.alert(MessagesFactory.getMessages().warning_title(),
+                                                "Please select a process first!", null); //$NON-NLS-1$
+                                        return;
+                                    }
+                                    final MessageBox waitBar = MessageBox.wait("Processing", "Processing, please wait...",
+                                            "Processing...");
+                                    String[] ids = itemBean.getIds().split("@"); //$NON-NLS-1$
 
-                            service.processItem(itemBean.getConcept(), ids,
-                                    (String) selectItem.get("key"), new AsyncCallback<String>() { //$NON-NLS-1$
+                                    service.processItem(itemBean.getConcept(), ids,
+                                            (String) selectItem.get("key"), new SessionAwareAsyncCallback<String>() { //$NON-NLS-1$
 
-                                        public void onSuccess(String result) {
-                                            waitBar.close();
-                                            if (result.indexOf("Ok") >= 0) { //$NON-NLS-1$
-                                                MessageBox.alert("Status", "Process done!", null); //$NON-NLS-1$ //$NON-NLS-2$
-                                            } else {
-                                                MessageBox.alert("Status", "Process failed!", null); //$NON-NLS-1$ //$NON-NLS-2$
-                                            }
-                                        }
-
-                                        public void onFailure(Throwable arg0) {
-
-                                        }
-                                    });
+                                                public void onSuccess(String result) {
+                                                    waitBar.close();
+                                                    if (result.indexOf("Ok") >= 0) { //$NON-NLS-1$
+                                                        MessageBox.alert("Status", "Process done!", null);
+                                                    } else {
+                                                        MessageBox.alert("Status", "Process failed!", null);
+                                                    }
+                                                }
+                                            });
+                                }
+                            });
                         }
-                    });
-                }
-                add(launchProcessButton);
-            }
-
-            public void onFailure(Throwable arg0) {
-
-            }
-        });
+                        add(launchProcessButton);
+                    }
+                });
     }
 
     private void addPersonalViewButton() {
@@ -599,11 +595,7 @@ public class ItemDetailToolBar extends ToolBar {
         }
 
         String regex = itemBean.getConcept() + "&" + Locale.getLanguage(); //$NON-NLS-1$
-        service.getSmartViewList(regex, new AsyncCallback<List<ItemBaseModel>>() {
-
-            public void onFailure(Throwable caught) {
-                Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
-            }
+        service.getSmartViewList(regex, new SessionAwareAsyncCallback<List<ItemBaseModel>>() {
 
             public void onSuccess(List<ItemBaseModel> list) {
                 smartViewList.add(list);
@@ -655,7 +647,8 @@ public class ItemDetailToolBar extends ToolBar {
         return true;
     }-*/;
 
-    // Please note that this method is duplicated in org.talend.mdm.webapp.browserecords.client.widget.integrity.SingletonDeleteStrategy.initSearchEntityPanel()
+    // Please note that this method is duplicated in
+    // org.talend.mdm.webapp.browserecords.client.widget.integrity.SingletonDeleteStrategy.initSearchEntityPanel()
     private native boolean initSearchEntityPanel(String arrStr, String ids, String dataObject)/*-{
         var lineageEntities = arrStr.split(",");
         $wnd.amalto.itemsbrowser.ItemsBrowser.lineageItem(lineageEntities, ids, dataObject);
@@ -679,8 +672,8 @@ public class ItemDetailToolBar extends ToolBar {
             }
         });
     }
-    
-    public void saveItemAndClose(boolean isClose){        
+
+    public void saveItemAndClose(boolean isClose) {
         boolean validate = false;
         TabPanel tabPanel = ItemsDetailPanel.getInstance().getTabPanel();
         TabItem tabItem = (TabItem) tabPanel.getSelectedItem();
@@ -692,14 +685,13 @@ public class ItemDetailToolBar extends ToolBar {
         if (widget instanceof ItemPanel) {// save primary key
             viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
             ItemPanel itemPanel = (ItemPanel) tabItem.getWidget(0);
-            if (itemPanel.getTree().validateTree()){     
+            if (itemPanel.getTree().validateTree()) {
                 validate = true;
                 model = (ItemNodeModel) itemPanel.getTree().getTree().getItem(0).getUserObject();
                 app.setData("ItemBean", itemPanel.getItem()); //$NON-NLS-1$
-                app.setData(
-                        "isCreate", itemPanel.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION) ? true : false); //$NON-NLS-1$
+                app.setData("isCreate", itemPanel.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION) ? true : false); //$NON-NLS-1$
             }
-            
+
         } else if (widget instanceof ForeignKeyTreeDetail) { // save foreign key
             ForeignKeyTreeDetail fkDetail = (ForeignKeyTreeDetail) tabItem.getWidget(0);
             model = fkDetail.getRootModel();
@@ -710,12 +702,10 @@ public class ItemDetailToolBar extends ToolBar {
         app.setData("viewBean", viewBean); //$NON-NLS-1$
         app.setData(model);
         app.setData("isClose", isClose);
-        if (validate){
+        if (validate) {
             dispatch.dispatch(app);
+        } else {
+            MessageBox.alert(MessagesFactory.getMessages().error_title(), "save failure", null);
         }
-        else
-        {
-            com.google.gwt.user.client.Window.alert("save failure"); 
-        }    
     }
 }

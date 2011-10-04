@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
@@ -23,7 +24,6 @@ import org.talend.mdm.webapp.browserecords.client.creator.ItemCreator;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
-import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.SimpleCriterion;
@@ -96,11 +96,11 @@ import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.Widget;
 
 public class ItemsToolBar extends ToolBar {
 
@@ -162,6 +162,7 @@ public class ItemsToolBar extends ToolBar {
         return instance;
     }
 
+    @Override
     protected void onDetach() {
         super.onDetach();
         instance = null;
@@ -246,26 +247,6 @@ public class ItemsToolBar extends ToolBar {
         updateUserCriteriasList();
     }
 
-    public static int getSuccessItemsNumber(List<ItemResult> results) {
-        int itemSuccessNumber = 0;
-        for (ItemResult result : results) {
-            if (result.getStatus() == ItemResult.SUCCESS) {
-                itemSuccessNumber++;
-            }
-        }
-        return itemSuccessNumber;
-    }
-
-    public static int getFailureItemsNumber(List<ItemResult> results) {
-        int itemFailureNumber = 0;
-        for (ItemResult result : results) {
-            if (result.getStatus() == ItemResult.FAILURE) {
-                itemFailureNumber++;
-            }
-        }
-        return itemFailureNumber;
-    }
-
     public int getSelectItemNumber() {
         int number = 0;
         number = ItemsListPanel.getInstance().getGrid().getSelectionModel().getSelectedItems().size();
@@ -280,7 +261,7 @@ public class ItemsToolBar extends ToolBar {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-            	ItemsListPanel.getInstance().setCreate(true);
+                ItemsListPanel.getInstance().setCreate(true);
                 String concept = ViewUtil.getConceptFromBrowseItemView(entityCombo.getValue().get("value").toString());//$NON-NLS-1$
 
                 EntityModel entityModel = (EntityModel) BrowseRecords.getSession().getCurrentEntityModel();
@@ -481,14 +462,10 @@ public class ItemsToolBar extends ToolBar {
         };
 
         if (BrowseRecords.getSession().getEntitiyModelList() == null) {
-            service.getViewsList(Locale.getLanguage(), new AsyncCallback<List<ItemBaseModel>>() {
+            service.getViewsList(Locale.getLanguage(), new SessionAwareAsyncCallback<List<ItemBaseModel>>() {
 
                 public void onSuccess(List<ItemBaseModel> modelList) {
                     BrowseRecords.getSession().put(UserSession.ENTITY_MODEL_LIST, modelList);
-                }
-
-                public void onFailure(Throwable caught) {
-                    Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
                 }
             });
         }
@@ -639,18 +616,15 @@ public class ItemsToolBar extends ToolBar {
                         if (!ifManage(model))
                             image.addStyleName("x-item-disabled");//$NON-NLS-1$
                         else
-                            image.addClickListener(new ClickListener() {
+                            image.addClickHandler(new ClickHandler() {
 
-                                public void onClick(Widget arg0) {
+                                public void onClick(ClickEvent event) {
                                     // edit the bookmark
                                     if (advancedPanel == null) {
                                         advancedPanel = new AdvancedSearchPanel(simplePanel.getView(), null);
                                     }
-                                    service.getCriteriaByBookmark(model.get("value").toString(), new AsyncCallback<String>() { //$NON-NLS-1$
-
-                                                public void onFailure(Throwable caught) {
-                                                    Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
-                                                }
+                                    service.getCriteriaByBookmark(
+                                            model.get("value").toString(), new SessionAwareAsyncCallback<String>() { //$NON-NLS-1$
 
                                                 public void onSuccess(String arg0) {
                                                     // set criteria
@@ -663,10 +637,10 @@ public class ItemsToolBar extends ToolBar {
                                                     advancedPanel.setVisible(advancedPanelVisible);
                                                     ItemsSearchContainer.getInstance().resizeTop(
                                                             30 + advancedPanel.getOffsetHeight());
-                                                    advancedPanel.getButtonBar().getItemByItemId("updateBookmarkBtn")
+                                                    advancedPanel.getButtonBar().getItemByItemId("updateBookmarkBtn") //$NON-NLS-1$
                                                             .setVisible(true);
-                                                    bookmarkName = model.get("value").toString();
-                                                    bookmarkShared = Boolean.parseBoolean(model.get("shared").toString());
+                                                    bookmarkName = model.get("value").toString(); //$NON-NLS-1$
+                                                    bookmarkShared = Boolean.parseBoolean(model.get("shared").toString()); //$NON-NLS-1$
                                                     if (ItemsListPanel.getInstance().gridContainer != null)
                                                         ItemsListPanel.getInstance().gridContainer.setHeight(ItemsToolBar.this
                                                                 .getParent().getOffsetHeight()
@@ -695,9 +669,9 @@ public class ItemsToolBar extends ToolBar {
                         if (!ifManage(model))
                             image.addStyleName("x-item-disabled"); //$NON-NLS-1$
                         else
-                            image.addClickListener(new ClickListener() {
+                            image.addClickHandler(new ClickHandler() {
 
-                                public void onClick(Widget arg0) {
+                                public void onClick(ClickEvent event) {
                                     MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory
                                             .getMessages().bookmark_DelMsg(), new Listener<MessageBoxEvent>() {
 
@@ -705,13 +679,9 @@ public class ItemsToolBar extends ToolBar {
                                             if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
                                                 // delete the bookmark
                                                 service.deleteSearchTemplate(model.get("value").toString(), //$NON-NLS-1$
-                                                        new AsyncCallback<String>() {
+                                                        new SessionAwareAsyncCallback<Void>() {
 
-                                                            public void onFailure(Throwable caught) {
-                                                                Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
-                                                            }
-
-                                                            public void onSuccess(String arg0) {
+                                                            public void onSuccess(Void arg0) {
                                                                 loaderBookmark.load();
                                                             }
 
@@ -736,9 +706,9 @@ public class ItemsToolBar extends ToolBar {
                             int colIndex, ListStore<ItemBaseModel> store, Grid<ItemBaseModel> grid) {
                         Image image = new Image();
                         image.setResource(Icons.INSTANCE.dosearch());
-                        image.addClickListener(new ClickListener() {
+                        image.addClickHandler(new ClickHandler() {
 
-                            public void onClick(Widget arg0) {
+                            public void onClick(ClickEvent event) {
                                 doSearch(model, winBookmark);
                             }
 
@@ -804,11 +774,7 @@ public class ItemsToolBar extends ToolBar {
 
     private void updateUserCriteriasList() {
         service.getUserCriterias(entityCombo.getValue().get("value").toString(), //$NON-NLS-1$
-                new AsyncCallback<List<ItemBaseModel>>() {
-
-                    public void onFailure(Throwable caught) {
-                        Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
-                    }
+                new SessionAwareAsyncCallback<List<ItemBaseModel>>() {
 
                     public void onSuccess(List<ItemBaseModel> list) {
                         userCriteriasList = list;
@@ -832,11 +798,7 @@ public class ItemsToolBar extends ToolBar {
 
     private void doSearch(final ItemBaseModel model, final Window winBookmark) {
         service.getCriteriaByBookmark(model.get("value").toString(), //$NON-NLS-1$
-                new AsyncCallback<String>() {
-
-                    public void onFailure(Throwable caught) {
-                        Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
-                    }
+                new SessionAwareAsyncCallback<String>() {
 
                     public void onSuccess(String arg0) {
                         isSimple = false;
@@ -978,16 +940,10 @@ public class ItemsToolBar extends ToolBar {
             @Override
             public void componentSelected(ButtonEvent ce) {
                 service.isExistCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue(), //$NON-NLS-1$
-                        new AsyncCallback<Boolean>() {
+                        new SessionAwareAsyncCallback<Boolean>() {
 
-                            public void onFailure(Throwable caught) {
-                                Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
-                                MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
-                                        .bookmark_existMsg(), null);
-                            }
-
-                            public void onSuccess(Boolean arg0) {
-                                if (!arg0) {
+                            public void onSuccess(Boolean exists) {
+                                if (!exists) {
                                     String curCriteria = null;
                                     if (ifSimple)
                                         curCriteria = simplePanel.getCriteria().toString();
@@ -1012,24 +968,20 @@ public class ItemsToolBar extends ToolBar {
     private void saveBookmark(String name, boolean shared, String curCriteria, final Window winBookmark) {
 
         service.saveCriteria(entityCombo.getValue().get("value").toString(), name, shared, curCriteria, //$NON-NLS-1$
-                new AsyncCallback<String>() {
+                new SessionAwareAsyncCallback<Void>() {
 
-                    public void onFailure(Throwable caught) {
-                        Dispatcher.forwardEvent(BrowseRecordsEvents.Error, caught);
+                    @Override
+                    protected void doOnFailure(Throwable caught) {
                         MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
                                 .bookmark_saveFailed(), null);
                     }
 
-                    public void onSuccess(String arg0) {
-                        if (arg0.equals("OK")) { //$NON-NLS-1$
-                            MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
-                                    .bookmark_saveSuccess(), null);
-                            updateUserCriteriasList();
-                            if (winBookmark != null)
-                                winBookmark.close();
-                        } else
-                            MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
-                                    .bookmark_saveFailed(), null);
+                    public void onSuccess(Void arg0) {
+                        MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
+                                .bookmark_saveSuccess(), null);
+                        updateUserCriteriasList();
+                        if (winBookmark != null)
+                            winBookmark.close();
                     }
 
                 });
@@ -1037,7 +989,7 @@ public class ItemsToolBar extends ToolBar {
 
     private void addDownloadPanel(final ContentPanel panel) {
         String currentTableName = currentModel.get("value"); //$NON-NLS-1$
-        service.getView(currentTableName, Locale.getLanguage(), new AsyncCallback<ViewBean>() {
+        service.getView(currentTableName, Locale.getLanguage(), new SessionAwareAsyncCallback<ViewBean>() {
 
             public void onSuccess(ViewBean bean) {
                 tableView = bean;
@@ -1046,10 +998,6 @@ public class ItemsToolBar extends ToolBar {
                 dtpanel.updateGrid(tableView, panel.getWidth());
                 panel.add(dtpanel);
                 panel.layout(true);
-            }
-
-            public void onFailure(Throwable bean) {
-
             }
         });
     }
@@ -1112,34 +1060,6 @@ public class ItemsToolBar extends ToolBar {
                 }
 
             }
-        }
-
-        private String pickOutISOMessage(String message) {
-            String identy = "[" + Locale.getLanguage()//$NON-NLS-1$
-                    .toUpperCase() + ":";//$NON-NLS-1$
-            int mask = message.indexOf(identy);
-            if (mask != -1) {
-                String snippet = message.substring(mask + identy.length());
-                if (!snippet.isEmpty()) {
-                    String pickOver = "";//$NON-NLS-1$
-                    boolean enclosed = false;
-                    for (int j = 0; j < snippet.trim().length(); j++) {
-                        String c = snippet.trim().charAt(j) + "";//$NON-NLS-1$
-                        if ("]".equals(c)) {//$NON-NLS-1$
-                            if (!pickOver.isEmpty()) {
-                                enclosed = true;
-                                break;
-                            }
-                        } else {
-                            pickOver += c;
-                        }
-                    }
-
-                    if (enclosed)
-                        return pickOver;
-                }
-            }
-            return message;
         }
     }
 }

@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.exception.ParserException;
@@ -62,7 +63,6 @@ import com.extjs.gxt.ui.client.widget.grid.RowEditor;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class ForeignKeyTablePanel extends ContentPanel {
@@ -93,20 +93,16 @@ public class ForeignKeyTablePanel extends ContentPanel {
                 return;
             }
 
-            service.queryItemBeans(qm, new AsyncCallback<ItemBasePageLoadResult<ItemBean>>() {
+            service.queryItemBeans(qm, new SessionAwareAsyncCallback<ItemBasePageLoadResult<ItemBean>>() {
 
                 public void onSuccess(ItemBasePageLoadResult<ItemBean> result) {
                     callback.onSuccess(new BasePagingLoadResult<ItemBean>(result.getData(), result.getOffset(), result
                             .getTotalLength()));
                 }
 
-                public void onFailure(Throwable caught) {
-                    if (caught.getMessage().contains("SessionTimeOut")) {//$NON-NLS-1$
-                        Window.Location.replace("/talendmdm/secure/");//$NON-NLS-1$
-                    } else {
-                        MessageBox.alert(MessagesFactory.getMessages().error_title(), caught.getMessage(), null);
-                    }
-
+                @Override
+                protected void doOnFailure(Throwable caught) {
+                    super.doOnFailure(caught);
                     callback.onSuccess(new BasePagingLoadResult<ItemBean>(new ArrayList<ItemBean>(), 0, 0));
                 }
             });
@@ -138,8 +134,9 @@ public class ForeignKeyTablePanel extends ContentPanel {
 
     private Boolean gridUpdateLock = Boolean.FALSE;
 
+    @Override
     protected void onDetach() {
-    	super.onDetach();
+        super.onDetach();
     }
 
     public ForeignKeyTablePanel() {
@@ -195,7 +192,7 @@ public class ForeignKeyTablePanel extends ContentPanel {
         gridContainer.setHeaderVisible(false);
         int usePageSize = PAGE_SIZE;
         if (StateManager.get().get("grid") != null) //$NON-NLS-1$
-            usePageSize = Integer.valueOf(((Map<?,?>) StateManager.get().get("grid")).get("limit").toString()); //$NON-NLS-1$ //$NON-NLS-2$
+            usePageSize = Integer.valueOf(((Map<?, ?>) StateManager.get().get("grid")).get("limit").toString()); //$NON-NLS-1$ //$NON-NLS-2$
         pagingBar = new PagingToolBarEx(usePageSize);
         pagingBar.setHideMode(HideMode.VISIBILITY);
         pagingBar.getMessages().setDisplayMsg(MessagesFactory.getMessages().page_displaying_records());
@@ -269,14 +266,14 @@ public class ForeignKeyTablePanel extends ContentPanel {
     }
 
     public void refreshGrid() {
-        if(pagingBar != null)           
+        if (pagingBar != null)
             pagingBar.refresh();
     }
-    
+
     public void lastPage() {
-        if(pagingBar != null)
-            pagingBar.last();        
-    } 
+        if (pagingBar != null)
+            pagingBar.last();
+    }
 
     public void resetGrid() {
         store.removeAll();
@@ -290,11 +287,7 @@ public class ForeignKeyTablePanel extends ContentPanel {
             final ItemBean itemBean = store.findModel(ids);
             if (itemBean != null) {
                 EntityModel entityModel = fkToolBar.getListPanel().getViewBean().getBindingEntityModel();
-                service.getItem(itemBean, entityModel, Locale.getLanguage(), new AsyncCallback<ItemBean>() {
-
-                    public void onFailure(Throwable caught) {
-                        Window.alert(caught.getMessage());
-                    }
+                service.getItem(itemBean, entityModel, Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBean>() {
 
                     public void onSuccess(ItemBean result) {
                         Record record = store.getRecord(itemBean);

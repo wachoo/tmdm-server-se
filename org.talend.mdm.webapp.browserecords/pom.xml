@@ -14,7 +14,7 @@
     <version>${mdm.build.version}</version>
     <packaging>war</packaging>
     <name>org.talend.mdm.webapp.browserecords</name>
-    
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -44,7 +44,7 @@
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
         </dependency>
@@ -52,50 +52,57 @@
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
         </dependency>
-         <dependency>
-             <groupId>commons-jxpath</groupId>
-             <artifactId>commons-jxpath</artifactId>
-        </dependency>
-         <dependency>
-                <groupId>jboss</groupId>
-                <artifactId>jbossall-client</artifactId>
+        <dependency>
+            <groupId>commons-jxpath</groupId>
+            <artifactId>commons-jxpath</artifactId>
         </dependency>
         <dependency>
-                <groupId>jboss.jbossws</groupId>
-                <artifactId>jboss-jaxrpc</artifactId>
+            <groupId>jboss</groupId>
+            <artifactId>jbossall-client</artifactId>
         </dependency>
         <dependency>
-                <groupId>com.sun.xml.rpc</groupId>
-                <artifactId>jaxrpc-impl</artifactId>
-        </dependency>      
-        <dependency>
-                <groupId>com.sun.xml.rpc</groupId>
-                <artifactId>jaxrpc-spi</artifactId>
+            <groupId>jboss.jbossws</groupId>
+            <artifactId>jboss-jaxrpc</artifactId>
         </dependency>
         <dependency>
-                <groupId>com.sun.xml.messaging.saaj</groupId>
-                <artifactId>saaj-impl</artifactId>
-        </dependency>     
+            <groupId>com.sun.xml.rpc</groupId>
+            <artifactId>jaxrpc-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.rpc</groupId>
+            <artifactId>jaxrpc-spi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.messaging.saaj</groupId>
+            <artifactId>saaj-impl</artifactId>
+        </dependency>
         <dependency>
             <groupId>xsom</groupId>
             <artifactId>xsom</artifactId>
-        </dependency> 
+        </dependency>
         <dependency>
             <groupId>dom4j</groupId>
             <artifactId>dom4j</artifactId>
             <scope>provided</scope>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>
-       	<dependency>
-			<groupId>jaxen</groupId>
-			<artifactId>jaxen</artifactId>
-			<version>1.1-beta-6</version>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>jaxen</groupId>
+            <artifactId>jaxen</artifactId>
+            <version>1.1-beta-6</version>
+            <scope>test</scope>
+        </dependency>
         <!-- MDM dependencies -->
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.webapp.base</artifactId>
+            <version>${project.version}</version>
+            <scope>system</scope>
+            <systemPath>${tom.location}/org.talend.mdm.webapp.base/target/org.talend.mdm.webapp.base.jar</systemPath>
+        </dependency>
 
         <dependency>
             <groupId>org.talend.mdm</groupId>
@@ -110,8 +117,8 @@
             <artifactId>org.talend.mdm.commmon</artifactId>
         </dependency>
         <dependency>
-                <groupId>org.talend.mdm</groupId>
-                <artifactId>org.talend.mdm.core</artifactId>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.core</artifactId>
         </dependency>
 
     </dependencies>

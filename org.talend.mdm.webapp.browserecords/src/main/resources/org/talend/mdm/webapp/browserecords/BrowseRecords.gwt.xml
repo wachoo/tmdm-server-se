@@ -1,43 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module rename-to='browserecords'>
-  <!-- Inherit the core Web Toolkit stuff.                        -->
-  <inherits name='com.google.gwt.user.User'/>
+    <inherits name="org.talend.mdm.webapp.base.BASE" />
 
-  <!-- Inherit the default GWT style sheet.  You can change       -->
-  <!-- the theme of your GWT application by uncommenting          -->
-  <!-- any one of the following lines.                            -->
-  <inherits name='com.google.gwt.user.theme.standard.Standard'/>
-  <!-- <inherits name='com.google.gwt.user.theme.chrome.Chrome'/> -->
-  <!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
+    <!-- Specify the app entry point class. -->
+    <entry-point class='org.talend.mdm.webapp.browserecords.client.BrowseRecords' />
 
-  <!-- Other module inherits                                      -->
-
-  <!-- Specify the app entry point class.                         -->
-  <entry-point class='org.talend.mdm.webapp.browserecords.client.BrowseRecords'/>
-
-    <!-- Other module inherits                                      -->
-    <inherits name='com.extjs.gxt.ui.GXT'/>
-    
-    <inherits name='com.google.gwt.xml.XML'/>
-  
-    <inherits name="com.google.gwt.i18n.I18N"/>
-  
-    <!-- GWT locale -->   
-    <extend-property name="locale" values="fr" />   
-    
-    <!-- GWT log -->
-    <inherits name="com.allen_sauer.gwt.log.gwt-log-DEBUG" />
-    <set-configuration-property name="log_pattern" value="(%F:%L) %d [%-5p] %m%n" />
-    <set-property name="log_DivLogger" value="DISABLED" /> 
-    
-    <!-- User Agent        
-    <set-property name="user.agent" value="gecko1_8" /> 
-     -->
-
-    <!-- Specify the paths for translatable code                    -->
+    <!-- Specify the paths for translatable code -->
     <source path='client' excludes="**/*Test.java" />
-    <source path='shared'/>
-    <source path='model' />  
+    <source path='shared' />
+    <source path='model' />
 
-    <stylesheet src='../BrowseRecords.css'/>
+    <stylesheet src='../BrowseRecords.css' />
 </module>

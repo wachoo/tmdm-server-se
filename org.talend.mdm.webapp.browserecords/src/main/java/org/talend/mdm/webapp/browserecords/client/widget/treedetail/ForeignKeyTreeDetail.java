@@ -3,6 +3,7 @@ package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
@@ -51,11 +52,11 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     private ViewBean viewBean;
 
     private ItemDetailToolBar toolBar;
-    
+
     private ItemNodeModel model;
 
     private boolean isCreate;
-    
+
     private ForeignKeyModel fkModel;
 
     private ColumnTreeLayoutModel columnLayoutModel;
@@ -70,7 +71,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     private LayoutContainer southLayout;
 
     private HorizontalPanel hp;
-    
+
     private ClickHandler handler = new ClickHandler() {
 
         public void onClick(ClickEvent arg0) {
@@ -110,8 +111,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         this.viewBean = viewBean;
         this.columnLayoutModel = viewBean.getColumnLayoutModel();
         this.toolBar = new ItemDetailToolBar(new ItemBean(viewBean.getBindingEntityModel().getConceptName(), "", ""), //$NON-NLS-1$//$NON-NLS-2$
-                isCreate ? ItemDetailToolBar.CREATE_OPERATION
-                : ItemDetailToolBar.VIEW_OPERATION, true);
+                isCreate ? ItemDetailToolBar.CREATE_OPERATION : ItemDetailToolBar.VIEW_OPERATION, true);
         this.setTopComponent(toolBar);
         buildPanel(viewBean);
     }
@@ -208,7 +208,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         final ItemBean item = fkModel.getItemBean();
         item.set("isRefresh", true); //$NON-NLS-1$
         service.getItemNodeModel(item, viewBean.getBindingEntityModel(), Locale.getLanguage(),
-                new AsyncCallback<ItemNodeModel>() {
+                new SessionAwareAsyncCallback<ItemNodeModel>() {
 
                     public void onSuccess(ItemNodeModel nodeModel) {
                         fkModel.setNodeModel(nodeModel);
@@ -219,19 +219,19 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                         ForeignKeyTreeDetail.this.layout();
                     }
 
-                    public void onFailure(Throwable caught) {
+                    @Override
+                    protected void doOnFailure(Throwable caught) {
                         MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().refresh_tip()
                                 + " " + MessagesFactory.getMessages().message_fail(), null); //$NON-NLS-1$
                     }
                 });
-
 
     }
 
     public void addTreeDetail(ItemBean itemBean) {
         BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
         service.getForeignKeyModel(itemBean.getConcept(), itemBean.getIds(), Locale.getLanguage(),
-                new AsyncCallback<ForeignKeyModel>() {
+                new SessionAwareAsyncCallback<ForeignKeyModel>() {
 
                     public void onSuccess(ForeignKeyModel foreignKeyModel) {
                         fkModel.setItemBean(foreignKeyModel.getItemBean());
@@ -245,12 +245,14 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                         ForeignKeyTreeDetail.this.layout();
                     }
 
-                    public void onFailure(Throwable arg0) {
+                    @Override
+                    protected void doOnFailure(Throwable caught) {
                         MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().loading()
                                 + " " + MessagesFactory.getMessages().message_fail(), null); //$NON-NLS-1$
                     }
                 });
     }
+
     public ViewBean getViewBean() {
         return viewBean;
     }
@@ -284,7 +286,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
 
         return item;
     }
-    
+
     private Tree displayGWTTree(ColumnTreeModel treeModel) {
         Tree tree = new Tree();
         if (root != null && root.getChildCount() > 0) {
@@ -350,7 +352,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
             items.remove(item);
         }
     }
-    
+
     public static abstract class AbstractTreeItemWidget extends HorizontalPanel {
 
         public AbstractTreeItemWidget() {
@@ -369,7 +371,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
 
         public abstract void paint();
     }
-    
+
     public static class TreeItemWidget extends AbstractTreeItemWidget {
 
         public TreeItemWidget() {
@@ -457,32 +459,32 @@ public class ForeignKeyTreeDetail extends ContentPanel {
             return remove;
         }
     }
-    
-    public boolean validateTree(){
+
+    public boolean validateTree() {
         boolean flag = true;
-        ItemNodeModel rootNode = (ItemNodeModel)tree.getItem(0).getUserObject();
-        if (rootNode != null){
-            flag = validateNode(rootNode,flag);          
+        ItemNodeModel rootNode = (ItemNodeModel) tree.getItem(0).getUserObject();
+        if (rootNode != null) {
+            flag = validateNode(rootNode, flag);
         }
         return flag;
     }
-    
-    public boolean validateNode(ItemNodeModel rootNode,boolean flag){
-        
+
+    public boolean validateNode(ItemNodeModel rootNode, boolean flag) {
+
         if (rootNode.getChildren() != null && rootNode.getChildren().size() > 0) {
             for (ModelData model : rootNode.getChildren()) {
-                
+
                 ItemNodeModel node = (ItemNodeModel) model;
-                if (!node.isValid() && node.getChildCount() == 0){      
+                if (!node.isValid() && node.getChildCount() == 0) {
                     com.google.gwt.user.client.Window.alert(node.getName() + "'Value validate failure"); //$NON-NLS-1$
-                    flag = false;                   
+                    flag = false;
                 }
 
-                if (node.getChildren() != null && node.getChildren().size() > 0){
-                    flag = validateNode(node,flag);
+                if (node.getChildren() != null && node.getChildren().size() > 0) {
+                    flag = validateNode(node, flag);
                 }
-                
-                if (!flag){
+
+                if (!flag) {
                     break;
                 }
             }

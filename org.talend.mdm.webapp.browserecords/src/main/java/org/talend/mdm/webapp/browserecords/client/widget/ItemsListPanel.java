@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
@@ -61,7 +62,6 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.RowEditor;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class ItemsListPanel extends ContentPanel {
@@ -100,20 +100,16 @@ public class ItemsListPanel extends ContentPanel {
                 return;
             }
 
-            service.queryItemBeans(qm, new AsyncCallback<ItemBasePageLoadResult<ItemBean>>() {
+            service.queryItemBeans(qm, new SessionAwareAsyncCallback<ItemBasePageLoadResult<ItemBean>>() {
 
                 public void onSuccess(ItemBasePageLoadResult<ItemBean> result) {
                     callback.onSuccess(new BasePagingLoadResult<ItemBean>(result.getData(), result.getOffset(), result
                             .getTotalLength()));
                 }
 
-                public void onFailure(Throwable caught) {
-                    if (caught.getMessage().contains("SessionTimeOut")) {//$NON-NLS-1$
-                        Window.Location.replace("/talendmdm/secure/");//$NON-NLS-1$
-                    } else {
-                        MessageBox.alert(MessagesFactory.getMessages().error_title(), caught.getMessage(), null);
-                    }
-
+                @Override
+                protected void doOnFailure(Throwable caught) {
+                    super.doOnFailure(caught);
                     callback.onSuccess(new BasePagingLoadResult<ItemBean>(new ArrayList<ItemBean>(), 0, 0));
                 }
             });
@@ -384,13 +380,9 @@ public class ItemsListPanel extends ContentPanel {
             final ItemBean itemBean = store.findModel(ids);
             if (itemBean != null) {
                 EntityModel entityModel = (EntityModel) BrowseRecords.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
-                service.getItem(itemBean, entityModel, Locale.getLanguage(), new AsyncCallback<ItemBean>() {
+                service.getItem(itemBean, entityModel, Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBean>() {
 
-                    public void onFailure(Throwable caught) {
-                        Window.alert(caught.getMessage());
-                    }
-
-                    public void onSuccess(ItemBean result) {
+                   public void onSuccess(ItemBean result) {
                         Record record = store.getRecord(itemBean);
                         itemBean.copy(result);
                         record.commit(false);
