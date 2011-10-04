@@ -48,7 +48,7 @@ public class RecycleBinAction implements RecycleBinService {
 
     private static final Logger LOG = Logger.getLogger(RecycleBinAction.class);
 
-    public PagingLoadResult<ItemsTrashItem> getTrashItems(String regex, PagingLoadConfig load) throws Exception {
+    public PagingLoadResult<ItemsTrashItem> getTrashItems(String regex, PagingLoadConfig load) throws ServiceException {
         try {
             //
             if (regex == null || regex.length() == 0) {
@@ -92,12 +92,17 @@ public class RecycleBinAction implements RecycleBinService {
         return pojo;
     }
 
-    public boolean isEntityPhysicalDeletable(String conceptName) throws Exception {
-        return !SchemaWebAgent.getInstance().isEntityDenyPhysicalDeletable(conceptName);
+    public boolean isEntityPhysicalDeletable(String conceptName) throws ServiceException {
+        try {
+            return !SchemaWebAgent.getInstance().isEntityDenyPhysicalDeletable(conceptName);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
     }
 
     public void removeDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids)
-            throws Exception {
+            throws ServiceException {
         try {
             // WSDroppedItemPK
             String[] ids1 = ids.split("\\.");//$NON-NLS-1$
@@ -117,7 +122,7 @@ public class RecycleBinAction implements RecycleBinService {
     }
 
     public void recoverDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids)
-            throws Exception {
+            throws ServiceException {
         try {
 
             String[] ids1 = ids.split("\\.");//$NON-NLS-1$
@@ -138,18 +143,28 @@ public class RecycleBinAction implements RecycleBinService {
     }
 
     // TODO use session instead
-    public String getCurrentDataModel() throws Exception {
-        Configuration config = Configuration.getConfiguration();
-        return config.getModel();
+    public String getCurrentDataModel() throws ServiceException {
+        try {
+            Configuration config = Configuration.getConfiguration();
+            return config.getModel();
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
     }
 
-    public String getCurrentDataCluster() throws Exception {
-        Configuration config = Configuration.getConfiguration();
-        return config.getCluster();
+    public String getCurrentDataCluster() throws ServiceException {
+        try {
+            Configuration config = Configuration.getConfiguration();
+            return config.getCluster();
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
     }
 
     // TODO this is used in many places, refactor it in core project
-    public String createUpdateReport(String[] ids, String concept, String operationType,
+    private String createUpdateReport(String[] ids, String concept, String operationType,
             HashMap<String, UpdateReportItem> updatedPath) throws Exception {
 
         String revisionId = null;

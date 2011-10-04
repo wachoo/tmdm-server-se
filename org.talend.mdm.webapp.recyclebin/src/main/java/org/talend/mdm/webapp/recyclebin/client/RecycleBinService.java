@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.recyclebin.client;
 
+import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.recyclebin.shared.ItemsTrashItem;
 
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
@@ -25,15 +26,15 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("RecycleBinService")
 public interface RecycleBinService extends RemoteService {
 
-    PagingLoadResult<ItemsTrashItem> getTrashItems(String regex, PagingLoadConfig load) throws Exception;
+    PagingLoadResult<ItemsTrashItem> getTrashItems(String regex, PagingLoadConfig load) throws ServiceException;
 
-    void removeDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids) throws Exception;
+    void removeDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids) throws ServiceException;
 
-    void recoverDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids) throws Exception;
+    void recoverDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids) throws ServiceException;
 
-    String getCurrentDataModel() throws Exception;
+    String getCurrentDataModel() throws ServiceException;
 
-    String getCurrentDataCluster() throws Exception;
+    String getCurrentDataCluster() throws ServiceException;
 
-    boolean isEntityPhysicalDeletable(String conceptName) throws Exception;
+    boolean isEntityPhysicalDeletable(String conceptName) throws ServiceException;
 }
