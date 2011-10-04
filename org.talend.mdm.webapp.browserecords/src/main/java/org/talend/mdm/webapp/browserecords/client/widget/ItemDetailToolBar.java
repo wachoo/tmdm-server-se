@@ -61,7 +61,6 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -658,17 +657,13 @@ public class ItemDetailToolBar extends ToolBar {
     public static void addTreeDetail(String ids, String concept) {
         String[] idArr = ids.split(","); //$NON-NLS-1$
         BrowseRecordsServiceAsync brService = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
-        brService.getItemBeanById(concept, idArr, Locale.getLanguage(), new AsyncCallback<ItemBean>() {
+        brService.getItemBeanById(concept, idArr, Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBean>() {
 
             public void onSuccess(ItemBean item) {
                 ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
                 ItemPanel itemPanel = new ItemPanel(viewBean, item, ItemDetailToolBar.VIEW_OPERATION);
                 ItemsDetailPanel.getInstance().addTabItem(
                         item.getConcept() + " " + item.getIds(), itemPanel, ItemsDetailPanel.MULTIPLE, item.getIds()); //$NON-NLS-1$
-            }
-
-            public void onFailure(Throwable arg0) {
-
             }
         });
     }

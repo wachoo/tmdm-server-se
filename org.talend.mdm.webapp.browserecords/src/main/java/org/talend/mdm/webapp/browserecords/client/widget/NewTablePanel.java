@@ -225,7 +225,7 @@ public class NewTablePanel extends FormPanel {
             public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
                 String viewName = (String) se.getSelectedItem().get("value"); //$NON-NLS-1$
                 final String language = Locale.getLanguage();
-                service.getView(viewName, language, new AsyncCallback<ViewBean>() {
+                service.getView(viewName, language, new SessionAwareAsyncCallback<ViewBean>() {
 
                     public void onSuccess(ViewBean viewBean) {
                         currentBean = viewBean;
@@ -235,10 +235,6 @@ public class NewTablePanel extends FormPanel {
 
                         to.getStore().removeAll();
                         to.reset();
-                    }
-
-                    public void onFailure(Throwable caught) {
-                        // Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                     }
                 });
             }
