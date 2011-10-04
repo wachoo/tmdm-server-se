@@ -19,6 +19,7 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -33,10 +34,11 @@ public abstract class SessionAwareAsyncCallback<T> implements AsyncCallback<T> {
                     .session_timeout_error(), new Listener<MessageBoxEvent>() {
 
                 public void handleEvent(MessageBoxEvent be) {
+                    Cookies.removeCookie("JSESSIONID"); //$NON-NLS-1$
+                    Cookies.removeCookie("JSESSIONIDSSO"); //$NON-NLS-1$
                     Window.Location.replace("/talendmdm/secure/");//$NON-NLS-1$
                 }
             });
-
         } else {
             doOnFailure(caught);
         }
@@ -44,8 +46,12 @@ public abstract class SessionAwareAsyncCallback<T> implements AsyncCallback<T> {
 
     protected void doOnFailure(Throwable caught) {
         String errorMsg = caught.getLocalizedMessage();
-        if (errorMsg == null)
-            errorMsg = BaseMessagesFactory.getMessages().unknown_error();
+        if (errorMsg == null) {
+            if (Log.isDebugEnabled())
+                errorMsg = caught.toString(); // for debugging purpose
+            else
+                errorMsg = BaseMessagesFactory.getMessages().unknown_error();
+        }
         MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), errorMsg, null);
     }
 }
