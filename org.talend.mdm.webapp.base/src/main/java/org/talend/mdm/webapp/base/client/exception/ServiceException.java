@@ -16,7 +16,7 @@ import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-public class ServiceException extends RuntimeException implements IsSerializable {
+public class ServiceException extends Exception implements IsSerializable {
 
     private static final long serialVersionUID = 1L;
 

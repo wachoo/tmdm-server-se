@@ -14,7 +14,7 @@ package org.talend.mdm.webapp.base.client.exception;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-public class SessionTimeoutException extends RuntimeException implements IsSerializable {
+public class SessionTimeoutException extends ServiceException implements IsSerializable {
 
     private static final long serialVersionUID = 1L;
 
