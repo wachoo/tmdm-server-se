@@ -14,6 +14,8 @@ package org.talend.mdm.webapp.welcomeportal.client;
 
 import java.util.List;
 
+import org.talend.mdm.webapp.base.client.exception.ServiceException;
+
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
@@ -23,17 +25,17 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("WelcomePortalService")
 public interface WelcomePortalService extends RemoteService {
 
-    public boolean isHiddenLicense() throws Exception;
+    public boolean isHiddenLicense() throws ServiceException;
 
-    public boolean isHiddenTask() throws Exception;
+    public boolean isHiddenTask() throws ServiceException;
 
-    public String getAlertMsg(String language) throws Exception;
+    public String getAlertMsg(String language) throws ServiceException;
 
-    public int getTaskMsg() throws Exception;
+    public int getTaskMsg() throws ServiceException;
 
-    public List<String> getStandaloneProcess(String language) throws Exception;
+    public List<String> getStandaloneProcess(String language) throws ServiceException;
 
-    public String runProcess(String transformerPK) throws Exception;
+    public String runProcess(String transformerPK) throws ServiceException;
 
-    public boolean isExpired() throws Exception;
+    public boolean isExpired() throws ServiceException;
 }

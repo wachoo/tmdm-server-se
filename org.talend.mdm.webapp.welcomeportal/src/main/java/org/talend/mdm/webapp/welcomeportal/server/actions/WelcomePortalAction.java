@@ -40,13 +40,11 @@ import com.amalto.webapp.util.webservices.WSTransformerContextPipelinePipelineIt
 import com.amalto.webapp.util.webservices.WSTransformerPK;
 import com.amalto.webapp.util.webservices.WSTransformerV2PK;
 import com.amalto.webapp.util.webservices.WSTypedContent;
-import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 /**
  * The server side implementation of the RPC service.
  */
-@SuppressWarnings("serial")
-public class WelcomePortalAction extends RemoteServiceServlet implements WelcomePortalService {
+public class WelcomePortalAction implements WelcomePortalService {
 
     private static final Logger LOG = Logger.getLogger(WelcomePortalAction.class);
 
@@ -57,7 +55,7 @@ public class WelcomePortalAction extends RemoteServiceServlet implements Welcome
      * 
      * @return
      */
-    public boolean isHiddenLicense() {
+    public boolean isHiddenLicense() throws ServiceException {
         return isHiddenMenu(WelcomePortal.LICENSEAPP);
     }
 
@@ -66,7 +64,7 @@ public class WelcomePortalAction extends RemoteServiceServlet implements Welcome
      * 
      * @return
      */
-    public boolean isHiddenTask() {
+    public boolean isHiddenTask() throws ServiceException {
         return isHiddenMenu(WelcomePortal.TASKAPP);
     }
 
@@ -100,7 +98,7 @@ public class WelcomePortalAction extends RemoteServiceServlet implements Welcome
      * @param menu
      * @return
      */
-    private boolean isHiddenMenu(String menu) {
+    private boolean isHiddenMenu(String menu) throws ServiceException {
         try {
             TreeMap<String, Menu> subMenus = Menu.getRootMenu().getSubMenus();
             for (Iterator<String> iter = subMenus.keySet().iterator(); iter.hasNext();) {
@@ -111,14 +109,14 @@ public class WelcomePortalAction extends RemoteServiceServlet implements Welcome
                     return false;
                 }
             }
+            return true;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
         }
-
-        return true;
     }
 
-    public String getAlertMsg(String language) {
+    public String getAlertMsg(String language) throws ServiceException {
         try {
             WebappInfo webappInfo = new WebappInfo();
             Webapp.INSTANCE.getInfo(webappInfo, language);
@@ -142,10 +140,10 @@ public class WelcomePortalAction extends RemoteServiceServlet implements Welcome
         return Webapp.INSTANCE.getTaskMsg();
     }
 
-    public List<String> getStandaloneProcess(String language) {
-        List<String> process = new ArrayList<String>();
-
+    public List<String> getStandaloneProcess(String language) throws ServiceException {
         try {
+            List<String> process = new ArrayList<String>();
+
             WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK(); //$NON-NLS-1$
 
             for (WSTransformerPK wstransformerpk : wst) {
@@ -158,12 +156,12 @@ public class WelcomePortalAction extends RemoteServiceServlet implements Welcome
                         process.add(getDescriptionByLau(language, wsTransformer.getDescription()));
                 }
             }
+            return process;
 
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
         }
-
-        return process;
     }
 
     /**
@@ -172,10 +170,10 @@ public class WelcomePortalAction extends RemoteServiceServlet implements Welcome
      * @param transformerPK
      * @return
      */
-    public String runProcess(String transformerPK) {
-        WSTransformerContext wsTransformerContext = new WSTransformerContext(new WSTransformerV2PK(transformerPK), null, null);
-
+    public String runProcess(String transformerPK) throws ServiceException {
         try {
+            WSTransformerContext wsTransformerContext = new WSTransformerContext(new WSTransformerV2PK(transformerPK), null, null);
+
             StringBuilder result = new StringBuilder();
             // yguo, plugin input parameters
             String content = "<root/>"; //$NON-NLS-1$
@@ -200,12 +198,17 @@ public class WelcomePortalAction extends RemoteServiceServlet implements Welcome
             return result.toString();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            throw new ServiceException(e.getMessage());
+            throw new ServiceException(e.getLocalizedMessage());
         }
 
     }
 
-    public boolean isExpired() throws Exception {
-        return Webapp.INSTANCE.isExpired();
+    public boolean isExpired() throws ServiceException {
+        try {
+            return Webapp.INSTANCE.isExpired();
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
     }
 }
