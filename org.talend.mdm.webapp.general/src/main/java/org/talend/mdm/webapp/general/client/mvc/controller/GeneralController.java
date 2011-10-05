@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.general.client.mvc.controller;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.general.client.General;
 import org.talend.mdm.webapp.general.client.GeneralServiceAsync;
 import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
@@ -23,7 +24,6 @@ import org.talend.mdm.webapp.general.client.layout.BrandingBar;
 import org.talend.mdm.webapp.general.client.layout.WorkSpace;
 import org.talend.mdm.webapp.general.client.mvc.GeneralEvent;
 import org.talend.mdm.webapp.general.client.mvc.view.GeneralView;
-import org.talend.mdm.webapp.general.client.util.UrlUtil;
 import org.talend.mdm.webapp.general.model.ActionBean;
 import org.talend.mdm.webapp.general.model.ItemBean;
 import org.talend.mdm.webapp.general.model.MenuBean;
