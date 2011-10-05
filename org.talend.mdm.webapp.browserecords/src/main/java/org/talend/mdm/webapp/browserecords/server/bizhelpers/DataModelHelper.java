@@ -30,9 +30,9 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
+import org.talend.mdm.webapp.base.server.BaseConfiguration;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.creator.DataTypeCreator;
-import org.talend.mdm.webapp.browserecords.server.BrowseRecordsConfiguration;
 import org.talend.mdm.webapp.browserecords.server.displayrule.DisplayRulesUtil;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
@@ -99,7 +99,7 @@ public class DataModelHelper {
     private static XSElementDecl getBusinessConcept(String model, String concept) {
         XSElementDecl eleDecl = null;
         try {
-            if (!BrowseRecordsConfiguration.isStandalone()) {
+            if (!BaseConfiguration.isStandalone()) {
                 eleDecl = SchemaWebAgent.getInstance().getBusinessConcept(concept).getE();
             } else {
                 String xsd = CommonUtil.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(model))).getXsdSchema();

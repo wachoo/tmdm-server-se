@@ -52,6 +52,7 @@ import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.base.server.BaseConfiguration;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsService;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
@@ -67,7 +68,6 @@ import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.Restriction;
 import org.talend.mdm.webapp.browserecords.client.model.SearchTemplate;
 import org.talend.mdm.webapp.browserecords.client.model.SubTypeBean;
-import org.talend.mdm.webapp.browserecords.server.BrowseRecordsConfiguration;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ItemHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.RoleHelper;
@@ -1183,7 +1183,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             AppHeader header = new AppHeader();
             header.setDatacluster(getCurrentDataCluster());
             header.setDatamodel(getCurrentDataModel());
-            header.setStandAloneMode(BrowseRecordsConfiguration.isStandalone());
+            header.setStandAloneMode(BaseConfiguration.isStandalone());
             return header;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
