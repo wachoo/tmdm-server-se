@@ -12,14 +12,12 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.util;
 
-import com.google.gwt.user.client.Window.Location;
+import org.talend.mdm.webapp.base.client.util.UrlUtil;
 
 public class Locale {
 
     public static String getLanguage() {
-        String lang = Location.getParameter("language"); //$NON-NLS-1$
-        lang = lang == null || lang.trim().length() == 0 ? "en" : lang; //$NON-NLS-1$
-        return lang;
+        return UrlUtil.getLanguage();
     }
 
     public static native String getExceptionMessageByLanguage(String language, String errorString)/*-{
