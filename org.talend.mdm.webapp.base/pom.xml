@@ -80,7 +80,11 @@
             <groupId>jboss</groupId>
             <artifactId>jbossall-client</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>jaxen</groupId>
+            <artifactId>jaxen</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- MDM dependencies -->
         <dependency>
             <groupId>org.talend.mdm</groupId>

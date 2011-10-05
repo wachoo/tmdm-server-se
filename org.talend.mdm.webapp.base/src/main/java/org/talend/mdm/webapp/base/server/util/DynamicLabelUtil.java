@@ -20,9 +20,7 @@ import java.util.regex.Pattern;
 import org.dom4j.Document;
 import org.dom4j.Node;
 
-import com.amalto.webapp.core.util.XmlUtil;
-
-public class DynamicLabelUtil extends XmlUtil {
+public class DynamicLabelUtil {
 
     private static final Pattern MULTI_OCCURRENCE_PATTERN = Pattern.compile("(.+)\\[(\\d+)\\]$");//$NON-NLS-1$
 

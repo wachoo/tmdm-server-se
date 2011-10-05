@@ -52,6 +52,7 @@ import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsService;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
 import org.talend.mdm.webapp.browserecords.client.model.DataTypeConstants;
@@ -75,7 +76,6 @@ import org.talend.mdm.webapp.browserecords.server.displayrule.DisplayRule;
 import org.talend.mdm.webapp.browserecords.server.displayrule.DisplayRulesUtil;
 import org.talend.mdm.webapp.browserecords.server.provider.DefaultSmartViewProvider;
 import org.talend.mdm.webapp.browserecords.server.provider.SmartViewProvider;
-import org.talend.mdm.webapp.browserecords.server.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.server.util.DynamicLabelUtil;
 import org.talend.mdm.webapp.browserecords.server.util.SmartViewUtil;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
@@ -1532,7 +1532,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     }
                 }
                 if (!existNodeFlag) { // add default tree node when the node has not been saved in DB.
-                    nodeModel.add(CommonUtil.getDefaultTreeModel(typeModel, language).get(0));
+                    nodeModel.add(org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getDefaultTreeModel(typeModel,
+                            language).get(0));
                 }
             }
 
@@ -1656,11 +1657,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 return null;
             String xml = customForm.getXml();
             Document doc = Util.parse(xml);
-            // TOTO call server-side service,get layout template to parse.
-            // InputStream is = BrowseRecordsAction.class.getResourceAsStream("temp_ColumnTreeLayout.xml"); //$NON-NLS-1$
-            // DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            // DocumentBuilder builder = factory.newDocumentBuilder();
-            // Document doc = builder.parse(is);
             Element root = doc.getDocumentElement();
             return ViewHelper.builderLayout(root);
         } catch (Exception e) {
@@ -2107,7 +2103,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     public List<VisibleRuleResult> executeVisibleRule(String xml) throws ServiceException {
         try {
             DisplayRulesUtil displayUtil = new DisplayRulesUtil(DataModelHelper.getEleDecl());
-            org.dom4j.Document doc = org.talend.mdm.webapp.browserecords.server.util.XmlUtil.parseText(xml);
+            org.dom4j.Document doc = org.talend.mdm.webapp.base.server.util.XmlUtil.parseText(xml);
             List<DisplayRule> displayRules = displayUtil.handleVisibleRules(doc);
 
             List<VisibleRuleResult> res = new ArrayList<VisibleRuleResult>(displayRules.size());

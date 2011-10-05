@@ -30,10 +30,10 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
+import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.creator.DataTypeCreator;
 import org.talend.mdm.webapp.browserecords.server.BrowseRecordsConfiguration;
 import org.talend.mdm.webapp.browserecords.server.displayrule.DisplayRulesUtil;
-import org.talend.mdm.webapp.browserecords.server.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.FacetModel;
@@ -67,14 +67,14 @@ public class DataModelHelper {
     private static final Logger logger = Logger.getLogger(DataModelHelper.class);
 
     private static final String SCHEMA_NAMESPACE = "http://www.w3.org/2001/XMLSchema"; //$NON-NLS-1$
-   
+
     private static XSElementDecl eleDecl;
 
     public static XSElementDecl getEleDecl() {
-		return eleDecl;
-	}
+        return eleDecl;
+    }
 
-	/**
+    /**
      * DOC HSHU Comment method "parseSchema".
      * 
      * @param model
@@ -368,9 +368,9 @@ public class DataModelHelper {
                             }
                         } else if ("X_Default_Value_Rule".equals(appinfoSource)) { //$NON-NLS-1$
                             typeModel.setDefaultValueExpression(appinfoSourceValue);
-                        } else if("X_Visible_Rule".equals(appinfoSource)) { //$NON-NLS-1$
-                        	typeModel.setHasVisiblueRule(true);
-                        	DisplayRulesUtil.getVisibleRules().put(typeModel.getXpath(), appinfoSourceValue);
+                        } else if ("X_Visible_Rule".equals(appinfoSource)) { //$NON-NLS-1$
+                            typeModel.setHasVisiblueRule(true);
+                            DisplayRulesUtil.getVisibleRules().put(typeModel.getXpath(), appinfoSourceValue);
                         }
                     }
 
@@ -507,8 +507,7 @@ public class DataModelHelper {
 
     private static String genDefaultValueStyle(String concept, String xpath, String valueExpression) {
         StringBuffer style = new StringBuffer();
-        style
-                .append("<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:fn=\"http://www.w3.org/2005/xpath-functions\" xmlns:t=\"http://www.talend.com/2010/MDM\" version=\"2.0\">"); //$NON-NLS-1$
+        style.append("<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:fn=\"http://www.w3.org/2005/xpath-functions\" xmlns:t=\"http://www.talend.com/2010/MDM\" version=\"2.0\">"); //$NON-NLS-1$
 
         style.append("<xsl:output method=\"xml\" indent=\"yes\" omit-xml-declaration=\"yes\"/>"); //$NON-NLS-1$
         style.append("<xsl:template match=\"/" + concept + "\">"); //$NON-NLS-1$//$NON-NLS-2$
@@ -530,8 +529,8 @@ public class DataModelHelper {
         style.append("</xsl:copy>"); //$NON-NLS-1$
         style.append("</xsl:template>"); //$NON-NLS-1$
         style.append("</xsl:stylesheet>"); //$NON-NLS-1$
-        
+
         return style.toString();
-        
+
     }
 }

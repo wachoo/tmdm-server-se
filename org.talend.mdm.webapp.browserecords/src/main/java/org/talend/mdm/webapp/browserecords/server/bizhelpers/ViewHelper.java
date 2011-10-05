@@ -19,10 +19,10 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.talend.mdm.webapp.base.server.util.DynamicLabelUtil;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnElement;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeModel;
-import org.talend.mdm.webapp.browserecords.server.util.DynamicLabelUtil;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.w3c.dom.Element;

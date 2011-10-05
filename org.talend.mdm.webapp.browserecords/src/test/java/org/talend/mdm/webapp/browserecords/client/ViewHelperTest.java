@@ -27,25 +27,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+@SuppressWarnings("nls")
 public class ViewHelperTest extends TestCase {
 
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
-
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
     public void testbuilderLayoutNotNull() throws ParserConfigurationException, SAXException, IOException {
-        InputStream is = getClass().getClassLoader().getResourceAsStream("temp_ColumnTreeLayout.xml"); //$NON-NLS-1$
+        InputStream is = getClass().getClassLoader().getResourceAsStream("temp_ColumnTreeLayout.xml");
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.parse(is);
         Element root = doc.getDocumentElement();
         ColumnTreeLayoutModel result = ViewHelper.builderLayout(root);
-        assertNotNull("Test Failed: Could not parse the xml file", result); //$NON-NLS-1$
-
+        assertNotNull("Test Failed: Could not parse the xml file", result);
     }
 
 }

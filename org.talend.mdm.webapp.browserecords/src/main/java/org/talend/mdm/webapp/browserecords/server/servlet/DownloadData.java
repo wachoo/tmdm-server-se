@@ -19,18 +19,18 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
-import org.talend.mdm.webapp.browserecords.server.util.CommonUtil;
-import org.talend.mdm.webapp.browserecords.server.util.XmlUtil;
+import org.talend.mdm.webapp.base.server.util.CommonUtil;
+import org.talend.mdm.webapp.base.server.util.XmlUtil;
 
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSViewPK;
 import com.amalto.webapp.util.webservices.WSViewSearch;
 
-public class DownloadData extends HttpServlet{
+public class DownloadData extends HttpServlet {
 
     private static final Logger LOG = Logger.getLogger(DownloadData.class);
-    
+
     private static final long serialVersionUID = 1L;
 
     @Override
@@ -38,12 +38,12 @@ public class DownloadData extends HttpServlet{
         String tableName = request.getParameter("tableName"); //$NON-NLS-1$
         String header = request.getParameter("header"); //$NON-NLS-1$
         String xpath = request.getParameter("xpath"); //$NON-NLS-1$
-        
+
         String[] fieldNames = header.split("@"); //$NON-NLS-1$
         String[] xpathArr = xpath.split("@"); //$NON-NLS-1$
-        
+
         String concept = ViewHelper.getConceptFromDefaultViewName(tableName);
-        
+
         response.reset();
         response.setContentType("application/vnd.ms-excel"); //$NON-NLS-1$
         String theReportFile = concept + ".xls"; //$NON-NLS-1$
@@ -51,7 +51,7 @@ public class DownloadData extends HttpServlet{
         HSSFWorkbook wb = new HSSFWorkbook();
         HSSFSheet sheet = wb.createSheet("Talend MDM"); //$NON-NLS-1$
         sheet.setDefaultColumnWidth((short) 20);
-                        
+
         HSSFCellStyle cs = wb.createCellStyle();
         HSSFFont f = wb.createFont();
         f.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
@@ -64,7 +64,7 @@ public class DownloadData extends HttpServlet{
         for (int i = 0; i < fieldNames.length; i++) {
             row.getCell((short) i).setCellStyle(cs);
         }
-        
+
         try {
             this.getTableContent(xpathArr, tableName, concept, sheet);
         } catch (Exception e) {
@@ -91,30 +91,33 @@ public class DownloadData extends HttpServlet{
         return config.getCluster();
     }
 
-    private void getTableContent(String[] xpathArr, String tableName, String concept, HSSFSheet sheet) throws Exception {          
-        String[] results = CommonUtil.getPort().viewSearch(new WSViewSearch(new WSDataClusterPK(getCurrentDataCluster()), 
-                new WSViewPK(tableName), null, -1, 0, -1, null, null)).getStrings();
+    private void getTableContent(String[] xpathArr, String tableName, String concept, HSSFSheet sheet) throws Exception {
+        String[] results = CommonUtil
+                .getPort()
+                .viewSearch(
+                        new WSViewSearch(new WSDataClusterPK(getCurrentDataCluster()), new WSViewPK(tableName), null, -1, 0, -1,
+                                null, null)).getStrings();
 
-        for(int i=1; i<results.length; i++){
+        for (int i = 1; i < results.length; i++) {
             Document doc = parseResultDocument(results[i], "result"); //$NON-NLS-1$
             HSSFRow row = sheet.createRow((short) i);
             int colCount = 0;
-            for(String xpath : xpathArr){
-                Node dateNode = XmlUtil.queryNode(doc, xpath.replaceFirst(concept + "/", "result/")); //$NON-NLS-1$ //$NON-NLS-2$
+            for (String xpath : xpathArr) {
+                Node dateNode = XmlUtil.queryNode2(doc, xpath.replaceFirst(concept + "/", "result/")); //$NON-NLS-1$ //$NON-NLS-2$
                 String tmp = dateNode.getText();
                 if (tmp != null) {
                     tmp = tmp.trim();
                     tmp = tmp.replaceAll("__h", ""); //$NON-NLS-1$ //$NON-NLS-2$
                     tmp = tmp.replaceAll("h__", ""); //$NON-NLS-1$//$NON-NLS-2$
-                }else{
+                } else {
                     tmp = ""; //$NON-NLS-1$
                 }
                 row.createCell((short) colCount).setCellValue(tmp);
                 colCount++;
             }
-        }  
+        }
     }
-    
+
     private Document parseResultDocument(String result, String expectedRootElement) throws DocumentException {
         Document doc = XmlUtil.parseText(result);
         Element rootElement = doc.getRootElement();

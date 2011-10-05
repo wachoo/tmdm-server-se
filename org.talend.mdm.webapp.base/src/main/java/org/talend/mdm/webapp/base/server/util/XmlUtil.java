@@ -162,6 +162,20 @@ public final class XmlUtil {
         return node;
     }
 
+    public static Node queryNode2(Document document, String xPath) {
+        String[] pathSlices = xPath.split("/"); //$NON-NLS-1$
+        Element current = document.getRootElement();
+        for (int i = 1; i < pathSlices.length; i++) {
+            String pathSlice = pathSlices[i];
+            Iterator<?> children = current.elementIterator(pathSlice);
+            if (children.hasNext()) {
+                current = (Element) children.next();
+            } else
+                return null;
+        }
+        return current;
+    }
+
     @SuppressWarnings("unchecked")
     public static List<Node> queryList(Document document, String xPath) {
         List<Node> list = document.selectNodes(xPath);
@@ -297,7 +311,7 @@ public final class XmlUtil {
 
             if (errorHandler.getErrors().hasContent()) {
                 isValidated = false;
-                logger.warn("XML file validation failed! ");
+                logger.error("XML file validation failed! "); //$NON-NLS-1$
                 writer.write(errorHandler.getErrors());
             } else {
                 isValidated = true;
