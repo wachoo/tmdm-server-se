@@ -2,7 +2,7 @@ package org.talend.mdm.webapp.browserecords.server.util;
 
 import junit.framework.TestCase;
 
-import org.talend.mdm.webapp.browserecords.shared.SimpleTypeModel;
+import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 
 @SuppressWarnings("nls")
 public class CommonUtilTest extends TestCase {

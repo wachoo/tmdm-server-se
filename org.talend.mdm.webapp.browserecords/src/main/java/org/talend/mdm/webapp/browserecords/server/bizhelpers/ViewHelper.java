@@ -20,11 +20,11 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.talend.mdm.webapp.base.server.util.DynamicLabelUtil;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnElement;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
-import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -35,7 +35,7 @@ import com.amalto.webapp.util.webservices.WSView;
  * DOC HSHU class global comment. Detailled comment TODO In the further, we can migrate helper classes to spring beans
  */
 public class ViewHelper {
-    
+
     private static final Logger logger = Logger.getLogger(ViewHelper.class);
 
     public static final String DEFAULT_VIEW_PREFIX = "Browse_items";//$NON-NLS-1$
@@ -60,7 +60,8 @@ public class ViewHelper {
     public static String getViewLabel(String language, WSView wsview) {
 
         Pattern p = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL);//$NON-NLS-1$ //$NON-NLS-2$ 
-        String viewDesc = p.matcher(!wsview.getDescription().equals("") ? wsview.getDescription() : wsview.getName()).replaceAll("$1");//$NON-NLS-1$ //$NON-NLS-2$ 
+        String viewDesc = p
+                .matcher(!wsview.getDescription().equals("") ? wsview.getDescription() : wsview.getName()).replaceAll("$1");//$NON-NLS-1$ //$NON-NLS-2$ 
         viewDesc = viewDesc.equals("") ? wsview.getName() : viewDesc; //$NON-NLS-1$ 
         return viewDesc;
 
@@ -68,6 +69,7 @@ public class ViewHelper {
 
     /**
      * DOC HSHU Comment method "getViewables".
+     * 
      * @param wsView
      * @return
      */
@@ -75,9 +77,9 @@ public class ViewHelper {
         return wsView.getViewableBusinessElements();
     }
 
-    
     /**
      * DOC HSHU Comment method "getSearchables".
+     * 
      * @param wsView
      * @param dataModel
      * @param language
@@ -87,21 +89,22 @@ public class ViewHelper {
         try {
             String[] searchables = wsView.getSearchableBusinessElements();
             Map<String, String> labelSearchables = new LinkedHashMap<String, String>();
-            
-            if (wsView.getName().contains(DEFAULT_VIEW_PREFIX+"_")) { //$NON-NLS-1$
+
+            if (wsView.getName().contains(DEFAULT_VIEW_PREFIX + "_")) { //$NON-NLS-1$
                 Map<String, TypeModel> labelMapSrc = entityModel.getMetaDataTypes();
                 for (int i = 0; i < searchables.length; i++) {
-                    String searchableLabel = labelMapSrc.get(searchables[i])==null?searchables[i]:labelMapSrc.get(searchables[i]).getLabel(language);
-                    if(searchableLabel==null) {
-                        searchableLabel=labelMapSrc.get(searchables[i]).getName();
-                    }else {
-                        if(DynamicLabelUtil.isDynamicLabel(searchableLabel)) 
-                            searchableLabel=labelMapSrc.get(searchables[i]).getName();
+                    String searchableLabel = labelMapSrc.get(searchables[i]) == null ? searchables[i] : labelMapSrc.get(
+                            searchables[i]).getLabel(language);
+                    if (searchableLabel == null) {
+                        searchableLabel = labelMapSrc.get(searchables[i]).getName();
+                    } else {
+                        if (DynamicLabelUtil.isDynamicLabel(searchableLabel))
+                            searchableLabel = labelMapSrc.get(searchables[i]).getName();
                     }
                     labelSearchables.put(searchables[i], searchableLabel);
                 }
             }
-            
+
             return labelSearchables;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

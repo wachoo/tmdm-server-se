@@ -1,7 +1,7 @@
 package org.talend.mdm.webapp.browserecords.client.widget.ForeignKey;
 
+import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 
 import com.extjs.gxt.ui.client.GXT;

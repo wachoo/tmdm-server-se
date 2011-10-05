@@ -1,13 +1,28 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
 import java.io.Serializable;
 import java.util.List;
 
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.base.shared.FacetModel;
+import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ComboBoxModel;
-import org.talend.mdm.webapp.browserecords.client.model.DataTypeConstants;
-import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.DateUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.BooleanField;
@@ -19,9 +34,6 @@ import org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator.Nu
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator.TextFieldValidator;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.FacetEnum;
-import org.talend.mdm.webapp.browserecords.shared.FacetModel;
-import org.talend.mdm.webapp.browserecords.shared.SimpleTypeModel;
-import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
@@ -31,6 +43,7 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -38,13 +51,12 @@ import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.ui.Widget;
 
 public class TreeDetailGridFieldCreator {
 
     public static Field<?> createField(ItemNodeModel node, final TypeModel dataType, String language) {
-        //Field
+        // Field
         Serializable value = node.getObjectValue();
         Field<?> field;
         boolean hasValue = value != null && !"".equals(value); //$NON-NLS-1$
@@ -69,7 +81,7 @@ public class TreeDetailGridFieldCreator {
             setEnumerationValues(dataType, comboBox);
             comboBox.setSimpleValue(hasValue ? value.toString() : ""); //$NON-NLS-1$
             field = comboBox;
-            
+
         } else if (dataType.getType().equals(DataTypeConstants.UUID)) {
             TextField<String> uuidField = new TextField<String>();
             uuidField.setEnabled(false);
@@ -144,13 +156,13 @@ public class TreeDetailGridFieldCreator {
             field.setReadOnly(dataType.isReadOnly());
             field.setEnabled(!dataType.isReadOnly());
         }
-        
-        if (node.isKey() && hasValue){
+
+        if (node.isKey() && hasValue) {
             field.setEnabled(false);
         }
 
         addFieldListener(field, node);
-        
+
         return field;
     }
 
@@ -166,7 +178,7 @@ public class TreeDetailGridFieldCreator {
             numberField.setPropertyEditorType(Integer.class);
             numberField.setValidator(NumberFieldValidator.getInstance());
             numberField.setValue((hasValue ? Long.parseLong(value.toString()) : null));
-            if (dataType.getMinOccurs() > 0){
+            if (dataType.getMinOccurs() > 0) {
                 numberField.setAllowBlank(false);
             }
             field = numberField;
@@ -175,12 +187,12 @@ public class TreeDetailGridFieldCreator {
             NumberField numberField = new NumberField();
             numberField.setData("numberType", "double");//$NON-NLS-1$ //$NON-NLS-2$
             numberField.setPropertyEditorType(Double.class);
-            numberField.setValidator(NumberFieldValidator.getInstance());             
+            numberField.setValidator(NumberFieldValidator.getInstance());
             if (DataTypeConstants.DOUBLE.getTypeName().equals(baseType))
                 numberField.setValue((hasValue ? Double.parseDouble(value.toString()) : null));
             else
                 numberField.setValue((hasValue ? Float.parseFloat(value.toString()) : null));
-            if (dataType.getMinOccurs() > 0){
+            if (dataType.getMinOccurs() > 0) {
                 numberField.setAllowBlank(false);
             }
             field = numberField;
@@ -190,11 +202,11 @@ public class TreeDetailGridFieldCreator {
             numberField.setValidator(NumberFieldValidator.getInstance());
             numberField.setPropertyEditorType(Double.class);
             // NumberFormat nf = NumberFormat.getDecimalFormat();
-            numberField.setValue((hasValue ? Double.parseDouble(value.toString()) : null));           
-            if (dataType.getMinOccurs() > 0){
+            numberField.setValue((hasValue ? Double.parseDouble(value.toString()) : null));
+            if (dataType.getMinOccurs() > 0) {
                 numberField.setAllowBlank(false);
             }
-            
+
             field = numberField;
         } else if (DataTypeConstants.BOOLEAN.getTypeName().equals(baseType)) {
             BooleanField booleanField = new BooleanField();
@@ -219,7 +231,7 @@ public class TreeDetailGridFieldCreator {
             if (hasValue)
                 dateField.setValue(DateUtil.convertStringToDate(value.toString()));
             dateField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd"));//$NON-NLS-1$
-            if (dataType.getMinOccurs() > 0){
+            if (dataType.getMinOccurs() > 0) {
                 dateField.setAllowBlank(false);
             }
             field = dateField;
@@ -228,7 +240,7 @@ public class TreeDetailGridFieldCreator {
             dateTimeField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd HH:mm:ss"));//$NON-NLS-1$
             if (hasValue)
                 dateTimeField.setValue(DateUtil.convertStringToDate(DateUtil.dateTimePattern, value.toString()));
-            if (dataType.getMinOccurs() > 0){
+            if (dataType.getMinOccurs() > 0) {
                 dateTimeField.setAllowBlank(false);
             }
             field = dateTimeField;
@@ -236,7 +248,7 @@ public class TreeDetailGridFieldCreator {
             TextField<String> textField = new TextField<String>();
             textField.setValidator(TextFieldValidator.getInstance());
             textField.setValue(hasValue ? value.toString() : ""); //$NON-NLS-1$
-            if (dataType.getMinOccurs() > 0){
+            if (dataType.getMinOccurs() > 0) {
                 textField.setAllowBlank(false);
             }
             field = textField;
@@ -245,24 +257,24 @@ public class TreeDetailGridFieldCreator {
             textField.setValue(hasValue ? value.toString() : ""); //$NON-NLS-1$
             textField.setValidator(TextFieldValidator.getInstance());
             field = textField;
-            if (dataType.getMinOccurs() > 0){
+            if (dataType.getMinOccurs() > 0) {
                 textField.setAllowBlank(false);
-         
+
             }
             textField.setMessages(null);
         }
 
         field.setWidth(400);
         field.setData("facetErrorMsgs", dataType.getFacetErrorMsgs().get(language));//$NON-NLS-1$
-        buildFacets(dataType, field);    
+        buildFacets(dataType, field);
         FacetEnum.setFacetValue("maxOccurence", (Widget) field, String.valueOf(dataType.getMaxOccurs())); //$NON-NLS-1$
         return field;
     }
 
-    private static void addFieldListener(final Field<?> field, final ItemNodeModel node) {        
+    private static void addFieldListener(final Field<?> field, final ItemNodeModel node) {
 
-        field.addListener(Events.Change, new Listener<FieldEvent>() {            
-            
+        field.addListener(Events.Change, new Listener<FieldEvent>() {
+
             @SuppressWarnings("rawtypes")
             public void handleEvent(FieldEvent fe) {
                 if (fe.getField() instanceof ComboBoxField)
@@ -270,16 +282,16 @@ public class TreeDetailGridFieldCreator {
                 else
                     node.setObjectValue(fe.getField() instanceof ComboBox ? ((SimpleComboValue) fe.getValue()).getValue()
                             .toString() : (Serializable) fe.getValue());
-                node.setChangeValue(true);               
-                validate(field,node);  
+                node.setChangeValue(true);
+                validate(field, node);
             }
         });
-        
-        field.addListener(Events.Attach, new Listener<FieldEvent>() {            
-            
+
+        field.addListener(Events.Attach, new Listener<FieldEvent>() {
+
             @SuppressWarnings("rawtypes")
-            public void handleEvent(FieldEvent fe) {              
-                validate(field,node);
+            public void handleEvent(FieldEvent fe) {
+                validate(field, node);
             }
         });
     }
@@ -288,8 +300,8 @@ public class TreeDetailGridFieldCreator {
         List<FacetModel> facets = ((SimpleTypeModel) typeModel).getFacets();
         for (FacetModel facet : facets) {
             FacetEnum.setFacetValue(facet.getName(), w, facet.getValue());
-        }        
-        
+        }
+
     }
 
     private static void setEnumerationValues(TypeModel typeModel, Widget w) {
@@ -302,8 +314,8 @@ public class TreeDetailGridFieldCreator {
             }
         }
     }
-    
-    private static void validate(Field<?> field,ItemNodeModel node){        
-        node.setValid(field.isValid());      
+
+    private static void validate(Field<?> field, ItemNodeModel node) {
+        node.setValid(field.isValid());
     }
 }

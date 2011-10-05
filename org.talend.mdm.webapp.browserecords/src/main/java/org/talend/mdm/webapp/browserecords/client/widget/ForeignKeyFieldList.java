@@ -1,15 +1,27 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ForeignKeyField;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
-import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 
 import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -32,71 +44,68 @@ import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import com.google.gwt.user.client.ui.HTML;
 
+public class ForeignKeyFieldList extends ContentPanel {
 
-
-public class ForeignKeyFieldList extends ContentPanel{
-    
     public ItemNodeModel itemNode;
-    
+
     protected TypeModel typeModel;
-    
+
     protected int pageStartIndex;
-    
+
     protected int pageSize;
-    
+
     protected int pageNumber;
-    
+
     protected int pageCount;
-    
+
     protected int pageToggleButtonIndex;
-    
+
     protected List<ForeignKeyBean> foreignKeyBeans;
-    
+
     protected VerticalPanel verticalPanel;
-    
+
     protected List<Field<?>> fields;
-    
+
     protected HorizontalPanel pagingBar;
-    
+
     protected Label pageSpace1;
-    
+
     protected Label pageSpace2;
-    
-    protected HorizontalPanel separatorLeft;    
-    
-    protected HorizontalPanel separatorRight; 
-    
-    protected Button addButton;     
-    
+
+    protected HorizontalPanel separatorLeft;
+
+    protected HorizontalPanel separatorRight;
+
+    protected Button addButton;
+
     protected List<ToggleButton> pageButtonList;
-    
+
     protected ToggleButton pageButton1;
-    
+
     protected ToggleButton pageButton2;
-    
+
     protected ToggleButton pageButton3;
-    
+
     protected ToggleButton pageButton4;
-    
+
     protected ToggleButton pageButton5;
-    
+
     protected boolean pageSpace1Visible;
-    
+
     protected boolean pageSpace2Visible;
-    
+
     protected LabelToolItem sizeLabel;
-    
+
     protected El inputEl;
-    
-    protected NumberField sizeField;   
-    
-    public ForeignKeyFieldList(ItemNodeModel itemNode,TypeModel typeModel){
+
+    protected NumberField sizeField;
+
+    public ForeignKeyFieldList(ItemNodeModel itemNode, TypeModel typeModel) {
         this.itemNode = itemNode;
         this.typeModel = typeModel;
         pageSize = 5;
-        pageNumber = 1;        
+        pageNumber = 1;
         fields = new ArrayList<Field<?>>();
         pagingBar = new HorizontalPanel();
         this.initPagingBar();
@@ -104,14 +113,14 @@ public class ForeignKeyFieldList extends ContentPanel{
         this.createWidget();
         this.setWidth(350);
     }
-    
+
     /**
      * Adds a field (pre-render).
      * 
      * @param field the field to add
      */
-    public void add(Field<?> field) {      
-      fields.add(field);
+    public void add(Field<?> field) {
+        fields.add(field);
     }
 
     /**
@@ -121,7 +130,7 @@ public class ForeignKeyFieldList extends ContentPanel{
      * @return the field
      */
     public Field<?> getField(int index) {
-      return fields.get(index);
+        return fields.get(index);
     }
 
     /**
@@ -130,37 +139,36 @@ public class ForeignKeyFieldList extends ContentPanel{
      * @return the fields
      */
     public List<Field<?>> getFieldList() {
-      return fields;
+        return fields;
     }
-    
-    private void initPagingBar()
-    {        
+
+    private void initPagingBar() {
         addButton = new Button(); //$NON-NLS-1$
         addButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.add()));
         addButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-          
+
             @Override
-            public void componentSelected(ButtonEvent ce) {                
-                addField();     
+            public void componentSelected(ButtonEvent ce) {
+                addField();
             }
         });
-        
+
         pageSpace1 = new Label("..."); //$NON-NLS-1$
-        
+
         pageSpace2 = new Label("..."); //$NON-NLS-1$
-        
+
         separatorLeft = new HorizontalPanel();
         separatorLeft.setWidth(5);
         separatorRight = new HorizontalPanel();
         separatorRight.setWidth(5);
-        
+
         pageButtonList = new ArrayList<ToggleButton>();
         pageButton1 = new ToggleButton("1"); //$NON-NLS-1$
         pageButton1.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             @Override
-            public void componentSelected(ButtonEvent ce) {                
-                refreshPage(Integer.valueOf(pageButton1.getText()));               
+            public void componentSelected(ButtonEvent ce) {
+                refreshPage(Integer.valueOf(pageButton1.getText()));
             }
         });
         pageButtonList.add(pageButton1);
@@ -181,7 +189,7 @@ public class ForeignKeyFieldList extends ContentPanel{
                 refreshPage(Integer.valueOf(pageButton3.getText()));
             }
         });
-        pageButtonList.add(pageButton3);       
+        pageButtonList.add(pageButton3);
         pageButton4 = new ToggleButton("4"); //$NON-NLS-1$
         pageButton4.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
@@ -200,28 +208,29 @@ public class ForeignKeyFieldList extends ContentPanel{
             }
         });
         pageButtonList.add(pageButton5);
-        
+
         sizeLabel = new LabelToolItem(MessagesFactory.getMessages().page_size_label());
-        
-        sizeField = new NumberField(){
+
+        sizeField = new NumberField() {
+
             protected void onRender(Element target, int index) {
                 super.onRender(target, index);
                 inputEl = this.input;
             }
         };
-        
+
         sizeField.setWidth(30);
         sizeField.setValue(pageSize);
         sizeField.setValidator(validator);
         sizeField.addListener(Events.Change, new Listener<BaseEvent>() {
 
             public void handleEvent(BaseEvent be) {
-                if (sizeField.isValid() && sizeField.getValue() != null){
+                if (sizeField.isValid() && sizeField.getValue() != null) {
                     pageSize = sizeField.getValue().intValue();
                     pageNumber = 1;
                     refreshPage(pageNumber);
-//                    setPageSize((int)Double.parseDouble(sizeField.getValue()+""));//$NON-NLS-1$
-//                    first();
+                    //                    setPageSize((int)Double.parseDouble(sizeField.getValue()+""));//$NON-NLS-1$
+                    // first();
                 }
             }
         });
@@ -229,13 +238,13 @@ public class ForeignKeyFieldList extends ContentPanel{
 
             public void handleEvent(FieldEvent fe) {
                 if (fe.getKeyCode() == KeyCodes.KEY_ENTER) {
-//                    blur(inputEl.dom);
+                    // blur(inputEl.dom);
                 }
             }
         });
         sizeField.setValue(pageSize);
-        
-        pagingBar.add(addButton);    
+
+        pagingBar.add(addButton);
         addButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.add()));
         pagingBar.add(separatorLeft);
         pagingBar.add(pageButton1);
@@ -250,224 +259,219 @@ public class ForeignKeyFieldList extends ContentPanel{
         pagingBar.add(sizeField);
         pagingBar.setSpacing(5);
         pagingBar.setStyleName("x-toolbar"); //$NON-NLS-1$
-    }   
-    
-    public void createWidget() {  
-        
-        verticalPanel = new VerticalPanel();        
+    }
+
+    public void createWidget() {
+
+        verticalPanel = new VerticalPanel();
         verticalPanel.setLayout(new FitLayout());
         pageCount = this.getPageCount();
-//        if (typeModel.isSimpleType()
-//                || (!typeModel.isSimpleType() && ((ComplexTypeModel) typeModel).getReusableComplexTypes().size() > 0)) {
-//            Field<?> field = TreeDetailGridFieldCreator.createField(node, typeModel, Locale.getLanguage());
-//            this.add(field);            
-//        }      
-            
-        if (itemNode.getObjectValue() != null){
-            if (itemNode.getObjectValue() instanceof ForeignKeyBean){
-                foreignKeyBeans = new ArrayList<ForeignKeyBean>(); 
-                foreignKeyBeans.add((ForeignKeyBean)itemNode.getObjectValue());
-            }else if (itemNode.getObjectValue() instanceof List){
-                foreignKeyBeans = (List<ForeignKeyBean>)itemNode.getObjectValue();
+        // if (typeModel.isSimpleType()
+        // || (!typeModel.isSimpleType() && ((ComplexTypeModel) typeModel).getReusableComplexTypes().size() > 0)) {
+        // Field<?> field = TreeDetailGridFieldCreator.createField(node, typeModel, Locale.getLanguage());
+        // this.add(field);
+        // }
+
+        if (itemNode.getObjectValue() != null) {
+            if (itemNode.getObjectValue() instanceof ForeignKeyBean) {
+                foreignKeyBeans = new ArrayList<ForeignKeyBean>();
+                foreignKeyBeans.add((ForeignKeyBean) itemNode.getObjectValue());
+            } else if (itemNode.getObjectValue() instanceof List) {
+                foreignKeyBeans = (List<ForeignKeyBean>) itemNode.getObjectValue();
             }
-            
-            for (int i=0;i<foreignKeyBeans.size();i++){
+
+            for (int i = 0; i < foreignKeyBeans.size(); i++) {
                 ForeignKeyBean foreignKeyBean = foreignKeyBeans.get(i);
                 Field<?> field = createField(foreignKeyBean);
-                add(field);            
+                add(field);
             }
-        }else{
+        } else {
             foreignKeyBeans = new ArrayList<ForeignKeyBean>();
-            if (typeModel.getMinOccurs() > 0){
-                addField();                
-            }    
-        }      
-        
+            if (typeModel.getMinOccurs() > 0) {
+                addField();
+            }
+        }
+
         verticalPanel.setSpacing(10);
         this.add(verticalPanel);
         refreshPage(pageNumber);
-        this.setBottomComponent(pagingBar); 
-    }    
-    
-    private void refreshPage(int currentPageNumber){
+        this.setBottomComponent(pagingBar);
+    }
+
+    private void refreshPage(int currentPageNumber) {
         pageNumber = currentPageNumber;
-        pageCount = this.getPageCount();  
-        pageStartIndex  = (currentPageNumber-1)*pageSize;
+        pageCount = this.getPageCount();
+        pageStartIndex = (currentPageNumber - 1) * pageSize;
         verticalPanel.removeAll();
-        if (this.fields.size() > 0){
-            for (int i=pageStartIndex;i<pageStartIndex+pageSize&&i<this.fields.size();i++){
+        if (this.fields.size() > 0) {
+            for (int i = pageStartIndex; i < pageStartIndex + pageSize && i < this.fields.size(); i++) {
                 if (typeModel.isSimpleType()
                         || (!typeModel.isSimpleType() && ((ComplexTypeModel) typeModel).getReusableComplexTypes().size() > 0)) {
-                    HorizontalPanel recordPanel = new HorizontalPanel(); 
+                    HorizontalPanel recordPanel = new HorizontalPanel();
                     Button removeButton = new Button();
-                    removeButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.remove()));                    
+                    removeButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.remove()));
                     addRemoveListener(removeButton, i);
                     recordPanel.add(removeButton);
-//                    HTML label = new HTML();
-//                    String html = itemNode.getLabel();
-//                    if (itemNode.isKey() || typeModel.getMinOccurs() >= 1)
-//                        html = html + "<span style=\"color:red\"> *</span>"; //$NON-NLS-1$
-//                    label.setHTML(html);
-//                    recordPanel.add(label);
+                    // HTML label = new HTML();
+                    // String html = itemNode.getLabel();
+                    // if (itemNode.isKey() || typeModel.getMinOccurs() >= 1)
+                    //                        html = html + "<span style=\"color:red\"> *</span>"; //$NON-NLS-1$
+                    // label.setHTML(html);
+                    // recordPanel.add(label);
                     Field<?> field = this.getField(i);
                     field.setWidth(200);
-                    recordPanel.add(field);                    
-                    recordPanel.setSpacing(2);          
+                    recordPanel.add(field);
+                    recordPanel.setSpacing(2);
                     verticalPanel.add(recordPanel);
-                }                
+                }
             }
         }
-        refreshPageButton();      
+        refreshPageButton();
         refresh();
-    }    
-    
-    private void refreshPageButton(){
-        
-        resetPageButtonList();           
-       
-        if (this.pageCount >= 0 && this.pageCount <=5){ 
+    }
 
-            for (int i=4;i>=this.pageCount;i--)
-            {
+    private void refreshPageButton() {
+
+        resetPageButtonList();
+
+        if (this.pageCount >= 0 && this.pageCount <= 5) {
+
+            for (int i = 4; i >= this.pageCount; i--) {
                 pageButtonList.get(i).setVisible(false);
             }
-            pageToggleButtonIndex = pageNumber-1;          
-        }
-        else{            
-            
-            pageSpace1.setVisible(pageNumber<4?false:true);
-            pageSpace2.setVisible(pageNumber>this.pageCount-3?false:true); 
-            
-            if (pageNumber<3){
+            pageToggleButtonIndex = pageNumber - 1;
+        } else {
+
+            pageSpace1.setVisible(pageNumber < 4 ? false : true);
+            pageSpace2.setVisible(pageNumber > this.pageCount - 3 ? false : true);
+
+            if (pageNumber < 3) {
                 pageToggleButtonIndex = pageNumber - 1;
-            }   
-            else if (pageNumber>this.pageCount-2){            
+            } else if (pageNumber > this.pageCount - 2) {
                 pageToggleButtonIndex = 4 + this.pageNumber - pageCount;
-                pageButtonList.get(1).setText(String.valueOf(this.pageCount-3));
-                pageButtonList.get(2).setText(String.valueOf(this.pageCount-2));              
-                pageButtonList.get(3).setText(String.valueOf(this.pageCount-1));
-            }
-            else {
+                pageButtonList.get(1).setText(String.valueOf(this.pageCount - 3));
+                pageButtonList.get(2).setText(String.valueOf(this.pageCount - 2));
+                pageButtonList.get(3).setText(String.valueOf(this.pageCount - 1));
+            } else {
                 pageToggleButtonIndex = 2;
-                pageButtonList.get(1).setText(String.valueOf(Integer.valueOf(pageNumber)-1));
-                pageButtonList.get(2).setText(String.valueOf(pageNumber));              
-                pageButtonList.get(3).setText(String.valueOf(Integer.valueOf(pageNumber)+1));
+                pageButtonList.get(1).setText(String.valueOf(Integer.valueOf(pageNumber) - 1));
+                pageButtonList.get(2).setText(String.valueOf(pageNumber));
+                pageButtonList.get(3).setText(String.valueOf(Integer.valueOf(pageNumber) + 1));
             }
             pageButtonList.get(4).setText(String.valueOf(this.pageCount));
         }
-        if (pageToggleButtonIndex >= 0){
-            pageButtonList.get(pageToggleButtonIndex).toggle(true);   
-        }             
+        if (pageToggleButtonIndex >= 0) {
+            pageButtonList.get(pageToggleButtonIndex).toggle(true);
+        }
     }
-    
-    private void resetPageButtonList(){
+
+    private void resetPageButtonList() {
         pageSpace1.setVisible(false);
         pageSpace2.setVisible(false);
-        
+
         pageButtonList.get(0).setVisible(true);
         pageButtonList.get(1).setVisible(true);
         pageButtonList.get(2).setVisible(true);
         pageButtonList.get(3).setVisible(true);
         pageButtonList.get(4).setVisible(true);
-        
+
         pageButtonList.get(0).toggle(false);
         pageButtonList.get(1).toggle(false);
         pageButtonList.get(2).toggle(false);
         pageButtonList.get(3).toggle(false);
         pageButtonList.get(4).toggle(false);
-        
+
         pageButtonList.get(0).setText("1"); //$NON-NLS-1$
         pageButtonList.get(1).setText("2"); //$NON-NLS-1$
         pageButtonList.get(2).setText("3"); //$NON-NLS-1$
         pageButtonList.get(3).setText("4"); //$NON-NLS-1$
         pageButtonList.get(4).setText("5"); //$NON-NLS-1$
     }
-    
-    public void addField(){
-        if (this.fields.size() < typeModel.getMaxOccurs()){
+
+    public void addField() {
+        if (this.fields.size() < typeModel.getMaxOccurs()) {
             ForeignKeyBean foreignKeyBean = new ForeignKeyBean();
             foreignKeyBeans.add(foreignKeyBean);
-            this.add(createField(foreignKeyBean));        
+            this.add(createField(foreignKeyBean));
             refreshPage(this.getPageCount());
-            this.refresh();   
-        }else{
+            this.refresh();
+        } else {
             com.google.gwt.user.client.Window.alert("Max occurence is " + typeModel.getMaxOccurs()); //$NON-NLS-1$
         }
     }
-    
-    public Field<?> createField(Object value)
-    {
+
+    public Field<?> createField(Object value) {
         Field<?> field = null;
         if (typeModel.getForeignkey() != null) {
             ForeignKeyField foreignKeyField = new ForeignKeyField(typeModel.getForeignkey(), typeModel.getForeignKeyInfo(),
                     ForeignKeyFieldList.this);
-            foreignKeyField.setValue((ForeignKeyBean)value);            
+            foreignKeyField.setValue((ForeignKeyBean) value);
             field = foreignKeyField;
-//            ((List<ForeignKeyBean>) itemNode.getObjectValue()).add((ForeignKeyBean)value);
+            // ((List<ForeignKeyBean>) itemNode.getObjectValue()).add((ForeignKeyBean)value);
             addForeignKeyFieldListener(field, (ForeignKeyBean) value);
         }
         return field;
     }
-    
-    public void refresh(){
+
+    public void refresh() {
         this.doLayout();
     }
-    
-    private int getPageCount()
-    {
-        return (this.fields.size()%this.pageSize==0?this.getFieldList().size()/this.pageSize:this.getFieldList().size()/this.pageSize+1);
+
+    private int getPageCount() {
+        return (this.fields.size() % this.pageSize == 0 ? this.getFieldList().size() / this.pageSize : this.getFieldList().size()
+                / this.pageSize + 1);
     }
-    
-    private void addForeignKeyFieldListener(final Field<?> field, final ForeignKeyBean foreignKeyBean) {                   
-        
+
+    private void addForeignKeyFieldListener(final Field<?> field, final ForeignKeyBean foreignKeyBean) {
+
         field.addListener(Events.Change, new Listener<FieldEvent>() {
 
-            public void handleEvent(FieldEvent fe) {                   
+            public void handleEvent(FieldEvent fe) {
                 int index = foreignKeyBeans.indexOf(foreignKeyBean);
                 foreignKeyBeans.set(index, (ForeignKeyBean) fe.getValue());
-                itemNode.setChangeValue(true);                
+                itemNode.setChangeValue(true);
                 validate();
             }
         });
-        
+
         field.addListener(Events.Attach, new Listener<FieldEvent>() {
 
-            public void handleEvent(FieldEvent fe) {               
+            public void handleEvent(FieldEvent fe) {
                 validate();
             }
-        });        
-    }
-    
-    private void addRemoveListener(final Button button, final int i){
-        
-        button.addSelectionListener(new SelectionListener<ButtonEvent>() {
-            
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-            
-                if (fields.size() < typeModel.getMinOccurs()){
-                    com.google.gwt.user.client.Window.alert("Min occurence is " + typeModel.getMinOccurs());
-                }else{    
-                    removeForeignKeyWidget(foreignKeyBeans.get(i));
-                }
-            }        
         });
     }
-    
+
+    private void addRemoveListener(final Button button, final int i) {
+
+        button.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+
+                if (fields.size() < typeModel.getMinOccurs()) {
+                    com.google.gwt.user.client.Window.alert("Min occurence is " + typeModel.getMinOccurs());
+                } else {
+                    removeForeignKeyWidget(foreignKeyBeans.get(i));
+                }
+            }
+        });
+    }
+
     Validator validator = new Validator() {
-        
+
         public String validate(Field<?> field, String value) {
-            String valueStr = value == null? "": value.toString();//$NON-NLS-1$
+            String valueStr = value == null ? "" : value.toString();//$NON-NLS-1$
             boolean success = true;
-            try{
+            try {
                 int num = Integer.parseInt(valueStr);
                 if (num <= 0) {
                     success = false;
                 }
-            } catch (NumberFormatException e){
+            } catch (NumberFormatException e) {
                 success = false;
             }
-            if (!success){
+            if (!success) {
                 return MessagesFactory.getMessages().page_size_notice();
             }
             return null;
@@ -475,26 +479,26 @@ public class ForeignKeyFieldList extends ContentPanel{
     };
 
     public void removeForeignKeyWidget(ForeignKeyBean value) {
-        if (fields.size() < typeModel.getMinOccurs()){
+        if (fields.size() < typeModel.getMinOccurs()) {
             com.google.gwt.user.client.Window.alert("Min occurence is " + typeModel.getMinOccurs());
-        }else{
-            @SuppressWarnings("unchecked")     
+        } else {
+            @SuppressWarnings("unchecked")
             int index = foreignKeyBeans.indexOf(value);
             foreignKeyBeans.remove(index);
             fields.remove(index);
             itemNode.setChangeValue(true);
             refreshPage(this.getPageCount());
-        }   
+        }
     }
-    
-    public void validate(){
+
+    public void validate() {
         boolean flag = true;
-        if (typeModel.getMinOccurs() > 0){
-            if (foreignKeyBeans.size() == 0 || "".equals(foreignKeyBeans.get(0).getId())){
+        if (typeModel.getMinOccurs() > 0) {
+            if (foreignKeyBeans.size() == 0 || "".equals(foreignKeyBeans.get(0).getId())) {
                 com.google.gwt.user.client.Window.alert("Min occurence is " + typeModel.getMinOccurs());
                 flag = false;
             }
-        } 
+        }
         itemNode.setValid(flag);
     }
 }

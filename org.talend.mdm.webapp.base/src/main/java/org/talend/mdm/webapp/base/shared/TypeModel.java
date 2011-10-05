@@ -13,11 +13,13 @@
 package org.talend.mdm.webapp.base.shared;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.model.DataType;
+import org.talend.mdm.webapp.base.client.model.SubTypeBean;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -64,6 +66,18 @@ public abstract class TypeModel implements Serializable, IsSerializable {
     private boolean denyLogicalDeletable = false;
 
     private boolean denyPhysicalDeleteable = false;
+    
+    private boolean polymorphism = true;
+
+    private ArrayList<SubTypeBean> reusableTypes;
+
+    private boolean isAbstract = false;
+
+    private String defaultValueExpression;
+
+    private String defaultValue;
+
+    private boolean hasVisibleRule = false;
 
     public TypeModel() {
         super();
@@ -255,6 +269,54 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     public void setDenyPhysicalDeleteable(boolean denyPhysicalDeleteable) {
         this.denyPhysicalDeleteable = denyPhysicalDeleteable;
+    }
+    
+    public boolean isHasVisibleRule() {
+        return hasVisibleRule;
+    }
+
+    public void setHasVisibleRule(boolean hasVisibleRule) {
+        this.hasVisibleRule = hasVisibleRule;
+    }
+
+    public boolean isPolymorphism() {
+        return polymorphism;
+    }
+
+    public void setPolymorphism(boolean polymorphism) {
+        this.polymorphism = polymorphism;
+    }
+
+    public boolean isAbstract() {
+        return isAbstract;
+    }
+
+    public void setAbstract(boolean isAbstract) {
+        this.isAbstract = isAbstract;
+    }
+
+    public ArrayList<SubTypeBean> getReusableTypes() {
+        return reusableTypes;
+    }
+
+    public void setReusableTypes(ArrayList<SubTypeBean> subTypes) {
+        this.reusableTypes = subTypes;
+    }
+
+    public String getDefaultValueExpression() {
+        return defaultValueExpression;
+    }
+
+    public void setDefaultValueExpression(String defaultValueExpression) {
+        this.defaultValueExpression = defaultValueExpression;
+    }
+
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
     }
 
     public int[] getRange() {

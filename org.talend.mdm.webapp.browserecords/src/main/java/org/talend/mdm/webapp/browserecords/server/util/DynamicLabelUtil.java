@@ -20,8 +20,8 @@ import java.util.regex.Pattern;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
-import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 
 /**
  * DOC HSHU class global comment. Detailled comment
@@ -43,8 +43,7 @@ public class DynamicLabelUtil {
                 String stylesheet = org.talend.mdm.webapp.base.server.util.DynamicLabelUtil.genStyle(itemModel.getBindingPath(),
                         label);
                 String dynamicLB = org.talend.mdm.webapp.base.server.util.DynamicLabelUtil
-                        .getParsedLabel(org.talend.mdm.webapp.base.server.util.XmlUtil.styleDocument(parsedDocument,
-                                stylesheet));
+                        .getParsedLabel(org.talend.mdm.webapp.base.server.util.XmlUtil.styleDocument(parsedDocument, stylesheet));
                 // @temp yguo, set the properties to itemmodel
                 itemModel.setDynamicLabel(dynamicLB);
             }

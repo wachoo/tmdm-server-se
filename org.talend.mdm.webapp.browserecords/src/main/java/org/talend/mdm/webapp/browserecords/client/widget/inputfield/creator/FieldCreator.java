@@ -14,7 +14,10 @@ package org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator;
 
 import java.util.List;
 
-import org.talend.mdm.webapp.browserecords.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.base.shared.FacetModel;
+import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.BooleanField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.MultipleField;
@@ -28,13 +31,11 @@ import org.talend.mdm.webapp.browserecords.client.widget.inputfield.converter.Nu
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator.NumberFieldValidator;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator.TextFieldValidator;
 import org.talend.mdm.webapp.browserecords.shared.FacetEnum;
-import org.talend.mdm.webapp.browserecords.shared.FacetModel;
-import org.talend.mdm.webapp.browserecords.shared.SimpleTypeModel;
-import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 
 import com.extjs.gxt.ui.client.binding.FieldBinding;
 import com.extjs.gxt.ui.client.binding.FormBinding;
 import com.extjs.gxt.ui.client.binding.SimpleComboBoxFieldBinding;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -42,7 +43,6 @@ import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.ui.Widget;
 
 public class FieldCreator {
@@ -82,7 +82,7 @@ public class FieldCreator {
             UrlField urlField = new UrlField();
             urlField.setFieldLabel(dataType.getLabel(language));
             field = urlField;
-        } else  {
+        } else {
             field = createCustomField(dataType, language);
         }
 
@@ -94,7 +94,7 @@ public class FieldCreator {
             if (field instanceof SimpleComboBox) {
                 binding = new SimpleComboBoxFieldBinding((SimpleComboBox) field, field.getName());
                 String baseType = dataType.getType().getBaseTypeName();
-                if (DataTypeConstants.BOOLEAN.getTypeName().equals(baseType)){
+                if (DataTypeConstants.BOOLEAN.getTypeName().equals(baseType)) {
                     binding.setConverter(new BooleanConverter());
                 }
             } else if (field instanceof DateField) {
@@ -103,10 +103,10 @@ public class FieldCreator {
             } else if (field instanceof DateField) {
                 binding = new FieldBinding(field, field.getName());
                 binding.setConverter(new DateTimeConverter());
-            } else if (field instanceof NumberField){
+            } else if (field instanceof NumberField) {
                 binding = new FieldBinding(field, field.getName());
                 binding.setConverter(new NumberConverter(field));
-            } else if (field instanceof FKField){
+            } else if (field instanceof FKField) {
                 binding = new FieldBinding(field, field.getName());
                 binding.setConverter(new FKConverter());
             } else {
@@ -115,66 +115,73 @@ public class FieldCreator {
             formBindings.addFieldBinding(binding);
         }
 
-        
         field.setReadOnly(dataType.isReadOnly());
         field.setEnabled(!dataType.isReadOnly());
-        
+
         return field;
     }
 
-    public static Field<?> createCustomField(SimpleTypeModel dataType, String language){
+    public static Field<?> createCustomField(SimpleTypeModel dataType, String language) {
         Field<?> field;
-        String baseType = dataType.getType().getBaseTypeName(); 
-        if (DataTypeConstants.INTEGER.getTypeName().equals(baseType) ||
-                    DataTypeConstants.INT.getTypeName().equals(baseType)||
-                    DataTypeConstants.LONG.getTypeName().equals(baseType)){
+        String baseType = dataType.getType().getBaseTypeName();
+        if (DataTypeConstants.INTEGER.getTypeName().equals(baseType) || DataTypeConstants.INT.getTypeName().equals(baseType)
+                || DataTypeConstants.LONG.getTypeName().equals(baseType)) {
             NumberField numberField = new NumberField();
             numberField.setData("numberType", "integer");//$NON-NLS-1$ //$NON-NLS-2$
             numberField.setPropertyEditorType(Integer.class);
             numberField.setValidator(NumberFieldValidator.getInstance());
             field = numberField;
-        } else if (DataTypeConstants.FLOAT.getTypeName().equals(baseType) ||
-                    DataTypeConstants.DOUBLE.getTypeName().equals(baseType)){
+        } else if (DataTypeConstants.FLOAT.getTypeName().equals(baseType)
+                || DataTypeConstants.DOUBLE.getTypeName().equals(baseType)) {
             NumberField numberField = new NumberField();
             numberField.setData("numberType", "double");//$NON-NLS-1$ //$NON-NLS-2$
             numberField.setPropertyEditorType(Double.class);
             numberField.setValidator(NumberFieldValidator.getInstance());
             field = numberField;
-        } else if (DataTypeConstants.DECIMAL.getTypeName().equals(baseType)){
+        } else if (DataTypeConstants.DECIMAL.getTypeName().equals(baseType)) {
             NumberField numberField = new NumberField();
             numberField.setData("numberType", "decimal");//$NON-NLS-1$ //$NON-NLS-2$
             numberField.setValidator(NumberFieldValidator.getInstance());
             numberField.setPropertyEditorType(Double.class);
             field = numberField;
-        } else if (DataTypeConstants.BOOLEAN.getTypeName().equals(baseType)){
+        } else if (DataTypeConstants.BOOLEAN.getTypeName().equals(baseType)) {
             BooleanField booleanField = new BooleanField();
             booleanField.setDisplayField("text");//$NON-NLS-1$
-            booleanField.getStore().add(new SimpleComboValue<Boolean>(){{this.setValue(true);this.set("text", "TRUE");}});//$NON-NLS-1$ //$NON-NLS-2$
-            booleanField.getStore().add(new SimpleComboValue<Boolean>(){{this.setValue(false);this.set("text", "FALSE");}});//$NON-NLS-1$ //$NON-NLS-2$
+            booleanField.getStore().add(new SimpleComboValue<Boolean>() {
+
+                {
+                    this.setValue(true);
+                    this.set("text", "TRUE");}});//$NON-NLS-1$ //$NON-NLS-2$
+            booleanField.getStore().add(new SimpleComboValue<Boolean>() {
+
+                {
+                    this.setValue(false);
+                    this.set("text", "FALSE");}});//$NON-NLS-1$ //$NON-NLS-2$
             field = booleanField;
-        } else if (DataTypeConstants.DATE.getTypeName().equals(baseType)){
+        } else if (DataTypeConstants.DATE.getTypeName().equals(baseType)) {
             DateField dateField = new DateField();
             dateField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd"));//$NON-NLS-1$
             field = dateField;
-        } else if (DataTypeConstants.DATETIME.getTypeName().equals(baseType)){
+        } else if (DataTypeConstants.DATETIME.getTypeName().equals(baseType)) {
             DateField dateTimeField = new DateField();
             dateTimeField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd HH:mm:ss"));//$NON-NLS-1$
             field = dateTimeField;
-        } else if (DataTypeConstants.STRING.getTypeName().equals(baseType)){
+        } else if (DataTypeConstants.STRING.getTypeName().equals(baseType)) {
             TextField<String> textField = new TextField<String>();
             textField.setValidator(TextFieldValidator.getInstance());
             field = textField;
         } else {
             TextField<String> textField = new TextField<String>();
             textField.setValidator(TextFieldValidator.getInstance());
-            field = textField;textField.setMessages(null);
+            field = textField;
+            textField.setMessages(null);
         }
         field.setWidth(400);
         field.setData("facetErrorMsgs", dataType.getFacetErrorMsgs().get(language));//$NON-NLS-1$
         buildFacets(dataType, field);
         return field;
     }
-    
+
     private static void buildFacets(TypeModel typeModel, Widget w) {
         List<FacetModel> facets = ((SimpleTypeModel) typeModel).getFacets();
         for (FacetModel facet : facets) {
@@ -182,11 +189,11 @@ public class FieldCreator {
         }
     }
 
-    private static void setEnumerationValues(TypeModel typeModel, Widget w){
+    private static void setEnumerationValues(TypeModel typeModel, Widget w) {
         List<String> enumeration = ((SimpleTypeModel) typeModel).getEnumeration();
-        if (enumeration != null && enumeration.size() > 0){
+        if (enumeration != null && enumeration.size() > 0) {
             SimpleComboBox<String> field = (SimpleComboBox<String>) w;
-            for (String value : enumeration){
+            for (String value : enumeration) {
                 field.add(value);
             }
         }

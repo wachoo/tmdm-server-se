@@ -12,7 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.util;
 
-import org.talend.mdm.webapp.browserecords.shared.TypeModel;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 
 /**
  * DOC HSHU class global comment. Detailled comment

@@ -1,6 +1,6 @@
 package org.talend.mdm.webapp.browserecords.client.widget.inputfield.celleditor;
 
-import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKField;

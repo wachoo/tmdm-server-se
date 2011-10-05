@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2010 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -32,13 +32,13 @@ import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.webapp.base.server.BaseConfiguration;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
+import org.talend.mdm.webapp.base.shared.FacetModel;
+import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.creator.DataTypeCreator;
 import org.talend.mdm.webapp.browserecords.server.displayrule.DisplayRulesUtil;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
-import org.talend.mdm.webapp.browserecords.shared.FacetModel;
-import org.talend.mdm.webapp.browserecords.shared.SimpleTypeModel;
-import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -203,7 +203,7 @@ public class DataModelHelper {
             }
 
             if (subTypes != null && subTypes.size() > 0) {
-                typeModel.setPolymiorphism(true);
+                typeModel.setPolymorphism(true);
                 typeModel.setAbstract(new ReusableType(e.getType()).isAbstract());
                 ComplexTypeModel parentType = (ComplexTypeModel) typeModel;
                 ComplexTypeModel abstractReusableComplexType = new ComplexTypeModel(typeName, DataTypeCreator.getDataType(
@@ -369,7 +369,7 @@ public class DataModelHelper {
                         } else if ("X_Default_Value_Rule".equals(appinfoSource)) { //$NON-NLS-1$
                             typeModel.setDefaultValueExpression(appinfoSourceValue);
                         } else if ("X_Visible_Rule".equals(appinfoSource)) { //$NON-NLS-1$
-                            typeModel.setHasVisiblueRule(true);
+                            typeModel.setHasVisibleRule(true);
                             DisplayRulesUtil.getVisibleRules().put(typeModel.getXpath(), appinfoSourceValue);
                         }
                     }

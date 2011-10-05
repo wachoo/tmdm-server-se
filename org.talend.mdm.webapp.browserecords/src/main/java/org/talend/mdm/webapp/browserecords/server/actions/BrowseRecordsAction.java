@@ -52,22 +52,23 @@ import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
+import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
+import org.talend.mdm.webapp.base.client.model.SubTypeBean;
 import org.talend.mdm.webapp.base.server.BaseConfiguration;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsService;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
-import org.talend.mdm.webapp.browserecords.client.model.DataTypeConstants;
-import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyDrawer;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
-import org.talend.mdm.webapp.browserecords.client.model.ItemBaseModel;
-import org.talend.mdm.webapp.browserecords.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.Restriction;
 import org.talend.mdm.webapp.browserecords.client.model.SearchTemplate;
-import org.talend.mdm.webapp.browserecords.client.model.SubTypeBean;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ItemHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.RoleHelper;
@@ -83,7 +84,6 @@ import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 import org.talend.mdm.webapp.browserecords.shared.SmartViewDescriptions;
-import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 import org.w3c.dom.Document;
@@ -1520,7 +1520,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     if (child.getNodeType() == Node.ELEMENT_NODE) {
                         if (typeModel.getXpath().equals(xpath + "/" + child.getNodeName())) { //$NON-NLS-1$
                             ItemNodeModel childNode = builderNode((Element) child, entity, xpath, language);
-                            childNode.setHasVisiblueRule(typeModel.isHasVisiblueRule());
+                            childNode.setHasVisiblueRule(typeModel.isHasVisibleRule());
                             nodeModel.add(childNode);
                             existNodeFlag = true;
                             if (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {

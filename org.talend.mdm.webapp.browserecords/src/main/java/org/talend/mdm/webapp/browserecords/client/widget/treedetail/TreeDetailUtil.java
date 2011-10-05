@@ -1,5 +1,18 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
@@ -8,7 +21,6 @@ import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKeyFieldList;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
-import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.event.Events;
@@ -38,11 +50,11 @@ public class TreeDetailUtil {
         String dynamicLabel = typeModel.getLabel(Locale.getLanguage());
         HTML label = new HTML();
         String html = itemNode.getLabel();
-        
-        if(LabelUtil.isDynamicLabel(dynamicLabel)) {
-        	html = itemNode.getDynamicLabel();
+
+        if (LabelUtil.isDynamicLabel(dynamicLabel)) {
+            html = itemNode.getDynamicLabel();
         }
-        
+
         if (itemNode.isKey() || typeModel.getMinOccurs() >= 1)
             html = html + "<span style=\"color:red\"> *</span>"; //$NON-NLS-1$
 
@@ -57,29 +69,33 @@ public class TreeDetailUtil {
             if (typeModel.getForeignkey() != null && typeModel.getMaxOccurs() > 1) {// FK list
                 ForeignKeyFieldList fkList = new ForeignKeyFieldList(itemNode, typeModel);
                 //fkList.setSize("400px", "200px"); //$NON-NLS-1$ //$NON-NLS-2$
-                fkList.addListener(Events.Focus, new Listener<FieldEvent>(){
-					public void handleEvent(FieldEvent be) {
-						AppEvent app = new AppEvent(BrowseRecordsEvents.ExecuteVisibleRule);
-						app.setData(itemNode.getParent());
-						Dispatcher.forwardEvent(app);
-					}});
+                fkList.addListener(Events.Focus, new Listener<FieldEvent>() {
+
+                    public void handleEvent(FieldEvent be) {
+                        AppEvent app = new AppEvent(BrowseRecordsEvents.ExecuteVisibleRule);
+                        app.setData(itemNode.getParent());
+                        Dispatcher.forwardEvent(app);
+                    }
+                });
                 hp.add(fkList);
             } else {
                 Field<?> field = TreeDetailGridFieldCreator.createField(itemNode, typeModel, Locale.getLanguage());
                 field.setWidth(200);
-                field.addListener(Events.Focus, new Listener<FieldEvent>(){
-					public void handleEvent(FieldEvent be) {
-						AppEvent app = new AppEvent(BrowseRecordsEvents.ExecuteVisibleRule);
-						ItemNodeModel parent = CommonUtil.recrusiveRoot(itemNode);
-						//maybe need other methods to get entire tree 
-						if(parent == null || parent.getChildCount() == 0) {
-							return;
-						}
-						
-						app.setData(parent);
+                field.addListener(Events.Focus, new Listener<FieldEvent>() {
+
+                    public void handleEvent(FieldEvent be) {
+                        AppEvent app = new AppEvent(BrowseRecordsEvents.ExecuteVisibleRule);
+                        ItemNodeModel parent = CommonUtil.recrusiveRoot(itemNode);
+                        // maybe need other methods to get entire tree
+                        if (parent == null || parent.getChildCount() == 0) {
+                            return;
+                        }
+
+                        app.setData(parent);
                         app.setData("viewBean", viewBean); //$NON-NLS-1$
-						Dispatcher.forwardEvent(app);
-					}});
+                        Dispatcher.forwardEvent(app);
+                    }
+                });
                 hp.add(field);
             }
         }

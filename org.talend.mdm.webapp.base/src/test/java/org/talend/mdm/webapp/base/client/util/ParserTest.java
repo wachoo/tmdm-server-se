@@ -10,18 +10,20 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.browserecords.client.exception;
+package org.talend.mdm.webapp.base.client.util;
 
-public class ParserException extends Exception {
+import org.talend.mdm.webapp.base.client.model.Criteria;
 
-    private static final long serialVersionUID = 1L;
+import junit.framework.TestCase;
 
-    public ParserException() {
-        super();
+@SuppressWarnings("nls")
+public class ParserTest extends TestCase {
+
+    public void testParseString() throws Exception {
+        Criteria result = null;
+        String testString = "((Test/Id EQUALS *) AND (Test/Id EQUALS *) AND (Test/Id EQUALS *))";
+
+        result = Parser.parse(testString);
+        assertEquals(testString, result.toString());
     }
-
-    public ParserException(String message) {
-        super(message);
-    }
-
 }

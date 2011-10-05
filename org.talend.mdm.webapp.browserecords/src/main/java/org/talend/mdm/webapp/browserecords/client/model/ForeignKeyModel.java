@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.model;
 
+import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 public class ForeignKeyModel extends ItemBaseModel {

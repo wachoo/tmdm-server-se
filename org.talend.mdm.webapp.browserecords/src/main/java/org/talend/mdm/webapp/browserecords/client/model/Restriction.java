@@ -12,7 +12,14 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.model;
 
+import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
+
 public class Restriction extends ItemBaseModel {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
 
     private String name;
 

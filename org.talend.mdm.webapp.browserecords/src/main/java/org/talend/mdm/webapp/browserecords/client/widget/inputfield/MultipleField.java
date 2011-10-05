@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator.FieldCreator;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.plugin.FieldPlugin;
-import org.talend.mdm.webapp.browserecords.shared.SimpleTypeModel;
-import org.talend.mdm.webapp.browserecords.shared.TypeModel;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -22,12 +22,12 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-
 public class MultipleField extends Field<List<Object>> {
 
     VerticalPanel vp = new VerticalPanel();
 
     Listener<BaseEvent> changeListener = new Listener<BaseEvent>() {
+
         public void handleEvent(BaseEvent be) {
             TextField field = (TextField) be.getSource();
             int index = vp.getWidgetIndex(field);
@@ -35,29 +35,32 @@ public class MultipleField extends Field<List<Object>> {
             MultipleField.this.fireChangeEvent(null, value);
         }
     };
+
     int min, max;
+
     TypeModel dataType;
+
     String language;
-    
-    public MultipleField(TypeModel dataType,String language){
+
+    public MultipleField(TypeModel dataType, String language) {
         this.dataType = dataType;
         this.language = language;
         int[] range = dataType.getRange();
         min = range[0];
         max = range[1];
         value = new ArrayList<Object>();
-        for (int i = 0;i < min; i++) {
+        for (int i = 0; i < min; i++) {
             value.add("");//$NON-NLS-1$
         }
     }
-    
-    private boolean validateRange(int size){
-        if (size >= min && size <= max){
+
+    private boolean validateRange(int size) {
+        if (size >= min && size <= max) {
             return true;
         }
         return false;
     }
-    
+
     protected void onRender(Element target, int index) {
         if (el() == null) {
             vp.setSpacing(5);
@@ -66,7 +69,7 @@ public class MultipleField extends Field<List<Object>> {
         super.onRender(target, index);
         removeStyleName(fieldStyle);
     }
-    
+
     protected void doAttachChildren() {
         super.doAttachChildren();
         ComponentHelper.doAttach(vp);
@@ -76,11 +79,11 @@ public class MultipleField extends Field<List<Object>> {
         super.doDetachChildren();
         ComponentHelper.doDetach(vp);
     }
-    
-    private void buildFields(){
-        if (value != null){
+
+    private void buildFields() {
+        if (value != null) {
             vp.clear();
-            for (Object item : value){
+            for (Object item : value) {
                 Field field = createField(item);
                 vp.add(field);
             }
@@ -88,41 +91,41 @@ public class MultipleField extends Field<List<Object>> {
             vp.clear();
         }
     }
-    
-    private void buildValue(){
+
+    private void buildValue() {
         value.clear();
         Iterator<Widget> iter = vp.iterator();
-        while (iter.hasNext()){
+        while (iter.hasNext()) {
             Field field = (Field) iter.next();
             value.add((Serializable) field.getValue());
         }
     }
-    
-    private Field createField(Object value){
-        Field field = (Field) FieldCreator.createField((SimpleTypeModel)dataType, null, false, language);
+
+    private Field createField(Object value) {
+        Field field = (Field) FieldCreator.createField((SimpleTypeModel) dataType, null, false, language);
         field.addPlugin(createFp());
         field.setValue(value);
         field.addListener(Events.Change, changeListener);
         return field;
     }
-    
+
     public void setValue(List<Object> value) {
         this.value = value;
-        if (rendered){
+        if (rendered) {
             buildFields();
         }
     }
-    
+
     public List<Object> getValue() {
         return value;
     }
-    
-    public FieldPlugin createFp(){
+
+    public FieldPlugin createFp() {
         FieldPlugin fp = new FieldPlugin();
         fp.setListener(new FieldPlugin.Add_Remove_Listener() {
-            
+
             public void onRemove(Field field) {
-                if (!validateRange(value.size() - 1)){
+                if (!validateRange(value.size() - 1)) {
                     Window.alert(MessagesFactory.getMessages().multiOccurrence_minimize(min));
                     return;
                 }
@@ -131,9 +134,9 @@ public class MultipleField extends Field<List<Object>> {
                 buildValue();
                 MultipleField.this.fireChangeEvent(null, value);
             }
-            
+
             public void onAdd(Field field) {
-                if (!validateRange(value.size() + 1)){
+                if (!validateRange(value.size() + 1)) {
                     Window.alert(MessagesFactory.getMessages().multiOccurrence_maximize(max));
                     return;
                 }

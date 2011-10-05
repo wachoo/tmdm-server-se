@@ -12,7 +12,11 @@
 // ============================================================================
 package org.talend.mdm.webapp.base.client.model;
 
-public class SubTypeBean implements Comparable<SubTypeBean> {
+import java.io.Serializable;
+
+public class SubTypeBean implements Comparable<SubTypeBean>, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String name;
 

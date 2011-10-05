@@ -12,9 +12,9 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.creator;
 
-import org.talend.mdm.webapp.browserecords.client.model.DataType;
-import org.talend.mdm.webapp.browserecords.client.model.DataTypeConstants;
-import org.talend.mdm.webapp.browserecords.client.model.DataTypeCustomized;
+import org.talend.mdm.webapp.base.client.model.DataType;
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.base.client.model.DataTypeCustomized;
 
 /**
  * DOC HSHU class global comment. Detailled comment

@@ -19,7 +19,7 @@ import javax.security.jacc.PolicyContextException;
 
 import org.apache.log4j.Logger;
 import org.talend.mdm.webapp.base.server.BaseConfiguration;
-import org.talend.mdm.webapp.browserecords.server.mockup.FakeData;
+import org.talend.mdm.webapp.base.server.mockup.FakeData;
 
 import com.amalto.webapp.core.util.Util;
 

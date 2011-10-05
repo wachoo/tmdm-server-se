@@ -15,7 +15,8 @@ package org.talend.mdm.webapp.browserecords.shared;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.talend.mdm.webapp.browserecords.client.model.DataType;
+import org.talend.mdm.webapp.base.client.model.DataType;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 
 /**
  * DOC chliu class global comment. Detailled comment
@@ -50,7 +51,6 @@ public class ComplexTypeModel extends TypeModel {
         }
     }
 
-    
     public void addComplexReusableTypes(ComplexTypeModel reusableType) {
         reusableTypes.add(reusableType);
     }
@@ -67,6 +67,7 @@ public class ComplexTypeModel extends TypeModel {
         }
         return null;
     }
+
     public boolean isSimpleType() {
         return false;
     }
