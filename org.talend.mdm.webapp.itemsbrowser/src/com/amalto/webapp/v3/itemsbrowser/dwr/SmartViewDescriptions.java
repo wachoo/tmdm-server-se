@@ -22,8 +22,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.amalto.webapp.core.util.Messages;
-import com.amalto.webapp.core.util.MessagesFactory;
+import com.amalto.core.util.Messages;
+import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSGetTransformer;

@@ -19,9 +19,9 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
 import com.amalto.core.delegator.ILocalUser;
+import com.amalto.core.util.Messages;
+import com.amalto.core.util.MessagesFactory;
 import com.amalto.core.util.Util;
-import com.amalto.webapp.core.util.Messages;
-import com.amalto.webapp.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.WebappForbiddenLoginException;
 import com.amalto.webapp.core.util.WebappRepeatedLoginException;
 

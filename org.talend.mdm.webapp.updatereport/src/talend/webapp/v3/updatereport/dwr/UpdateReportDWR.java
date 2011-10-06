@@ -2,13 +2,12 @@ package talend.webapp.v3.updatereport.dwr;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Set;
 
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.util.LocalUser;
-import com.amalto.core.util.XtentisException;
-import com.amalto.core.webservice.WSGetItems;
-import com.amalto.webapp.core.util.Webapp;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -16,22 +15,21 @@ import org.w3c.dom.Document;
 
 import talend.webapp.v3.updatereport.bean.DataChangeLog;
 
+import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.Messages;
+import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.ListRange;
 import com.amalto.webapp.core.json.JSONObject;
-import com.amalto.webapp.core.util.Messages;
-import com.amalto.webapp.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.util.webservices.WSCount;
+import com.amalto.webapp.core.util.Webapp;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSString;
 import com.amalto.webapp.util.webservices.WSStringArray;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSWhereAnd;
 import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.WSWhereItem;
 import com.amalto.webapp.util.webservices.WSWhereOperator;
-import com.amalto.webapp.util.webservices.WSXPathsSearch;
 
 public class UpdateReportDWR {
 
