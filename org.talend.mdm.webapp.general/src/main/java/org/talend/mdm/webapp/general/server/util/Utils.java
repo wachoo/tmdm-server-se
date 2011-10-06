@@ -11,7 +11,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
-import org.talend.mdm.webapp.general.model.ItemBean;
+import org.talend.mdm.webapp.general.model.LanguageBean;
 import org.talend.mdm.webapp.general.model.MenuBean;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -179,10 +179,11 @@ public class Utils {
                 + "<link rel=\"stylesheet\" href=\"/core/secure/timeline/css/default.css\" type=\"text/css\">"; //$NON-NLS-1$
     }
 
-    public static List<ItemBean> getLanguages() throws IOException, SAXException, ParserConfigurationException {
+    public static List<LanguageBean> getLanguages(String selectedLang) throws IOException, SAXException,
+            ParserConfigurationException {
         InputStream is = Utils.class.getResourceAsStream("/languages.xml"); //$NON-NLS-1$
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        List<ItemBean> languages = new ArrayList<ItemBean>();
+        List<LanguageBean> languages = new ArrayList<LanguageBean>();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.parse(is);
         Element root = doc.getDocumentElement();
@@ -191,9 +192,12 @@ public class Utils {
             Node node = nodes.item(i);
             if (node.getNodeType() == Node.ELEMENT_NODE) {
                 if (node.getNodeName().equals("language")) { //$NON-NLS-1$ 
-                    ItemBean lang = new ItemBean();
+                    LanguageBean lang = new LanguageBean();
                     lang.setText(node.getTextContent());
-                    lang.setValue(node.getAttributes().getNamedItem("value").getNodeValue()); //$NON-NLS-1$
+                    String value = node.getAttributes().getNamedItem("value").getNodeValue(); //$NON-NLS-1$
+                    lang.setValue(value);
+                    if(value.equals(selectedLang))
+                        lang.setSelected(true);
                     languages.add(lang);
                 }
             }

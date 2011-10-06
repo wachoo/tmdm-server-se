@@ -16,16 +16,23 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.talend.mdm.webapp.general.model.ItemBean;
+import org.talend.mdm.webapp.general.model.LanguageBean;
 
 @SuppressWarnings("nls")
 public class UtilsTest extends TestCase {
 
     public void testGetLanguages() throws Exception {
-        List<ItemBean> langs = Utils.getLanguages();
+        List<LanguageBean> langs = Utils.getLanguages("en");
         assertEquals(2, langs.size());
-        ItemBean lang = langs.get(0);
+        
+        LanguageBean lang = langs.get(0);
         assertEquals("en", lang.getValue());
         assertEquals("English", lang.getText());
+        assertTrue(lang.isSelected());
+
+        lang = langs.get(1);
+        assertEquals("fr", lang.getValue());
+        assertEquals("Francais", lang.getText());
+        assertFalse(lang.isSelected());
     }
 }

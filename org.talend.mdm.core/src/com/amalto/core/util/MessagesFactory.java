@@ -54,8 +54,9 @@ public class MessagesFactory {
         private static Locale getLocale() {
             Locale locale = null;
             HttpServletRequest request = getHttpServletRequest();
-            if (request != null)
-                locale = request.getLocale();
+            if (request != null) {
+                locale = LocaleUtil.getLocale(request);
+            }
             if (locale == null)
                 locale = Locale.getDefault();
             return locale;

@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.talend.mdm.webapp.general.server.util.Utils;
 
+import com.amalto.core.util.LocaleUtil;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.WebappRepeatedLoginException;
@@ -48,25 +49,20 @@ public class ControllerServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        String username = null;
-        Locale locale = req.getLocale();
-
-        String language = "en"; //$NON-NLS-1$
-
-        if (req.getParameter("language") != null) { //$NON-NLS-1$
-            language = req.getParameter("language"); //$NON-NLS-1$
-            req.getSession().setAttribute("language", language); //$NON-NLS-1$
-        }
-
+        
+        Locale locale = LocaleUtil.getLocale(req);
+        String language = locale.getLanguage();
         req.getSession().setAttribute("language", language); //$NON-NLS-1$
         res.setContentType("text/html; charset=UTF-8"); //$NON-NLS-1$
         res.setHeader("Content-Type", "text/html; charset=UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$
 
-        locale = new Locale(language);
         PrintWriter out = res.getWriter();
-
+        String username = null;
+        
         try {
 
+            username = com.amalto.webapp.core.util.Util.getAjaxSubject().getUsername();
+            
             String html = "<html>\n" + "<head>\n" + "<title>Talend MDM</title>\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     + "<meta id=\"gwt:property\" name=\"gwt:property\" content=\"locale=" + language + "\" >\n"; //$NON-NLS-1$ //$NON-NLS-2$
             html += "<link rel=\"stylesheet\" type=\"text/css\" href=\"/general/resources/css/gxt-all.css\" />\n"; //$NON-NLS-1$

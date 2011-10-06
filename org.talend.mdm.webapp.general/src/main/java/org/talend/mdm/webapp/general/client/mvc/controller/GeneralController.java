@@ -25,7 +25,7 @@ import org.talend.mdm.webapp.general.client.layout.WorkSpace;
 import org.talend.mdm.webapp.general.client.mvc.GeneralEvent;
 import org.talend.mdm.webapp.general.client.mvc.view.GeneralView;
 import org.talend.mdm.webapp.general.model.ActionBean;
-import org.talend.mdm.webapp.general.model.ItemBean;
+import org.talend.mdm.webapp.general.model.LanguageBean;
 import org.talend.mdm.webapp.general.model.MenuBean;
 import org.talend.mdm.webapp.general.model.UserBean;
 
@@ -80,9 +80,9 @@ public class GeneralController extends Controller {
     }
 
     private void loadLanguages(AppEvent event) {
-        service.getLanguages(new SessionAwareAsyncCallback<List<ItemBean>>() {
+        service.getLanguages(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<List<LanguageBean>>() {
 
-            public void onSuccess(List<ItemBean> result) {
+            public void onSuccess(List<LanguageBean> result) {
                 BrandingBar.getInstance().buildLanguage(result);
                 Dispatcher dispatcher = Dispatcher.get();
                 dispatcher.dispatch(GeneralEvent.InitFrame);

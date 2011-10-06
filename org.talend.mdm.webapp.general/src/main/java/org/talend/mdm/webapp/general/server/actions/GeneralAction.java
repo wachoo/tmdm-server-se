@@ -13,7 +13,7 @@ import org.talend.mdm.webapp.general.gwt.GWTConfigurationContext;
 import org.talend.mdm.webapp.general.gwt.GwtWebContextFactory;
 import org.talend.mdm.webapp.general.model.ActionBean;
 import org.talend.mdm.webapp.general.model.ComboBoxModel;
-import org.talend.mdm.webapp.general.model.ItemBean;
+import org.talend.mdm.webapp.general.model.LanguageBean;
 import org.talend.mdm.webapp.general.model.MenuBean;
 import org.talend.mdm.webapp.general.model.UserBean;
 import org.talend.mdm.webapp.general.server.util.Utils;
@@ -140,9 +140,9 @@ public class GeneralAction implements GeneralService {
         }
     }
 
-    public List<ItemBean> getLanguages() throws ServiceException {
+    public List<LanguageBean> getLanguages(String language) throws ServiceException {
         try {
-            return Utils.getLanguages();
+            return Utils.getLanguages(language);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());

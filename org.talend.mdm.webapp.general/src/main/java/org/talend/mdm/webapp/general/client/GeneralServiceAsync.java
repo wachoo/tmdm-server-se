@@ -15,7 +15,7 @@ package org.talend.mdm.webapp.general.client;
 import java.util.List;
 
 import org.talend.mdm.webapp.general.model.ActionBean;
-import org.talend.mdm.webapp.general.model.ItemBean;
+import org.talend.mdm.webapp.general.model.LanguageBean;
 import org.talend.mdm.webapp.general.model.MenuBean;
 import org.talend.mdm.webapp.general.model.UserBean;
 
@@ -32,7 +32,7 @@ public interface GeneralServiceAsync {
 
     void getUsernameAndUniverse(AsyncCallback<UserBean> callback);
 
-    void getLanguages(AsyncCallback<List<ItemBean>> callback);
+    void getLanguages(String language, AsyncCallback<List<LanguageBean>> callback);
 
     void getAction(AsyncCallback<ActionBean> callback);
 

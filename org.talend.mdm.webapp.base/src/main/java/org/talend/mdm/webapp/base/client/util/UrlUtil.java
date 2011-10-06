@@ -12,13 +12,33 @@
 // ============================================================================
 package org.talend.mdm.webapp.base.client.util;
 
-import com.google.gwt.user.client.Window.Location;
+import com.google.gwt.i18n.client.LocaleInfo;
 
 public class UrlUtil {
 
     public static String getLanguage() {
-        String lang = Location.getParameter("language"); //$NON-NLS-1$
-        lang = lang == null || lang.trim().length() == 0 ? "en" : lang; //$NON-NLS-1$
-        return lang;
+        String localeName = LocaleInfo.getCurrentLocale().getLocaleName();
+        String language;
+        if (localeName.equals("default")) { //$NON-NLS-1$
+            language = getLocaleProperty();
+        } else
+            language = localeName.split("_")[0]; //$NON-NLS-1$
+
+        return language;
     }
+
+    private static native String getLocaleProperty() /*-{
+        var metaArray = $doc.getElementsByTagName("meta");
+        for (var i = 0; i < metaArray.length; i++) {
+            if (metaArray[i].getAttribute("name") == "gwt:property") {
+                var content = metaArray[i].getAttribute("content");
+                var contentArray = content.split("=");
+                if (contentArray[0] == "locale") {
+                    var localeArray = contentArray[1].split("_");
+                    return localeArray[0];
+                }
+            }
+        }
+        return "en";
+    }-*/;
 }

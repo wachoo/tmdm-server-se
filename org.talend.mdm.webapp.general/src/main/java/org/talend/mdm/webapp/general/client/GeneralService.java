@@ -16,7 +16,7 @@ import java.util.List;
 
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.general.model.ActionBean;
-import org.talend.mdm.webapp.general.model.ItemBean;
+import org.talend.mdm.webapp.general.model.LanguageBean;
 import org.talend.mdm.webapp.general.model.MenuBean;
 import org.talend.mdm.webapp.general.model.UserBean;
 
@@ -37,7 +37,7 @@ public interface GeneralService extends RemoteService {
     
     public UserBean getUsernameAndUniverse() throws ServiceException;
     
-    public List<ItemBean> getLanguages() throws ServiceException;
+    public List<LanguageBean> getLanguages(String language) throws ServiceException;
 
     public void logout() throws ServiceException;
 

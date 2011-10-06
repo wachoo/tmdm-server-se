@@ -18,7 +18,7 @@ import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.general.client.General;
 import org.talend.mdm.webapp.general.client.GeneralServiceAsync;
 import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
-import org.talend.mdm.webapp.general.model.ItemBean;
+import org.talend.mdm.webapp.general.model.LanguageBean;
 import org.talend.mdm.webapp.general.model.UserBean;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -38,65 +38,66 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.ListBox;
 
-
 public class BrandingBar extends ContentPanel {
 
     private static BrandingBar instance;
-    
+
     private FlowPanel bar = new FlowPanel();
-    
+
     private HorizontalPanel hp = new HorizontalPanel();
-    
+
     private ListBox languageBox = new ListBox();
-    
+
     Button logout = new Button(MessageFactory.getMessages().logout());
-    
-    private BrandingBar(){
+
+    private BrandingBar() {
         super();
         setHeaderVisible(false);
         setBorders(false);
         buildBar();
         initEvent();
     }
-    
-    public static BrandingBar getInstance(){
-        if (instance == null){
+
+    public static BrandingBar getInstance() {
+        if (instance == null) {
             instance = new BrandingBar();
         }
         return instance;
     }
-    
-    private void initEvent(){
+
+    private void initEvent() {
         languageBox.addChangeHandler(new ChangeHandler() {
+
             public void onChange(ChangeEvent event) {
-                
+
                 String path = Location.getPath();
-                
+
                 String query = Location.getQueryString();
                 String lang = Location.getParameter("language"); //$NON-NLS-1$
-                
-                if (lang == null || lang.trim().length() == 0){
+
+                if (lang == null || lang.trim().length() == 0) {
                     if (query == null || query.length() == 0) {
                         setHref(path + "?language=" + languageBox.getValue(languageBox.getSelectedIndex())); //$NON-NLS-1$
                     } else {
                         setHref(path + query + "&language=" + languageBox.getValue(languageBox.getSelectedIndex())); //$NON-NLS-1$
                     }
                 } else {
-                    
-                    if (query.indexOf("&language=" + lang + "&") != -1){ //$NON-NLS-1$ //$NON-NLS-2$
+
+                    if (query.indexOf("&language=" + lang + "&") != -1) { //$NON-NLS-1$ //$NON-NLS-2$
                         query = query.replace("&language=" + lang + "&", "&"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    } else if (query.endsWith("&language=" + lang)){ //$NON-NLS-1$
+                    } else if (query.endsWith("&language=" + lang)) { //$NON-NLS-1$
                         query = query.replace("&language=" + lang, ""); //$NON-NLS-1$ //$NON-NLS-2$
-                    } else if (query.startsWith("?language=" + lang)){ //$NON-NLS-1$
+                    } else if (query.startsWith("?language=" + lang)) { //$NON-NLS-1$
                         query = query.replaceAll("language=" + lang + "&?", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     }
-                    
+
                     setHref(path + query + "&language=" + languageBox.getValue(languageBox.getSelectedIndex())); //$NON-NLS-1$
                 }
             }
         });
-        
+
         logout.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
             @Override
             public void componentSelected(ButtonEvent ce) {
                 GeneralServiceAsync service = (GeneralServiceAsync) Registry.get(General.OVERALL_SERVICE);
@@ -112,25 +113,26 @@ public class BrandingBar extends ContentPanel {
             }
         });
     }
-    
+
     private native void setHref(String href)/*-{
         $wnd.location.href = href;
     }-*/;
-    
-    private void buildBar(){
+
+    private void buildBar() {
         UserBean userBean = Registry.get(General.USER_BEAN);
         bar.add(new Image("/talendmdm/secure/img/header-back-title.png")); //$NON-NLS-1$
         String html = userBean.getName() + "<br>"; //$NON-NLS-1$
-        if(userBean.getUniverse() != null && userBean.getUniverse().trim().length() != 0 && !"UNKNOWN".equals(userBean.getUniverse())){ //$NON-NLS-1$
+        if (userBean.getUniverse() != null && userBean.getUniverse().trim().length() != 0
+                && !"UNKNOWN".equals(userBean.getUniverse())) { //$NON-NLS-1$
             html += MessageFactory.getMessages().connected_to() + ": [" + userBean.getUniverse() + "]"; //$NON-NLS-1$ //$NON-NLS-2$
         } else {
             html += MessageFactory.getMessages().connected_to() + ": [HEAD]"; //$NON-NLS-1$
         }
-        HTML userLabel = new HTML(html); 
+        HTML userLabel = new HTML(html);
         userLabel.setStyleName("username"); //$NON-NLS-1$
         userLabel.getElement().setId("username-div"); //$NON-NLS-1$
         bar.add(userLabel);
-        
+
         hp.getElement().getStyle().setProperty("position", "absolute"); //$NON-NLS-1$ //$NON-NLS-2$
         hp.getElement().getStyle().setProperty("top", "-2px"); //$NON-NLS-1$ //$NON-NLS-2$
         hp.getElement().getStyle().setProperty("right", "1px"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -139,40 +141,40 @@ public class BrandingBar extends ContentPanel {
         logoMdm.getElement().getStyle().setMarginTop(2D, Unit.PX);
         hp.add(logoMdm);
         hp.setCellVerticalAlignment(logoMdm, HasVerticalAlignment.ALIGN_BOTTOM);
-        
-        
-        HTML versionLabel = new HTML(userBean.isEnterprise() ? MessageFactory.getMessages().enterprise() : MessageFactory.getMessages().community() + "<br>" + MessageFactory.getMessages().edition()); //$NON-NLS-1$
+
+        HTML versionLabel = new HTML(userBean.isEnterprise() ? MessageFactory.getMessages().enterprise() : MessageFactory
+                .getMessages().community() + "<br>" + MessageFactory.getMessages().edition()); //$NON-NLS-1$
         versionLabel.setStyleName("version-label"); //$NON-NLS-1$
         hp.add(versionLabel);
         hp.setCellVerticalAlignment(versionLabel, HasVerticalAlignment.ALIGN_MIDDLE);
-        
+
         hp.add(new HTML("&nbsp;&nbsp;")); //$NON-NLS-1$
-        
+
         languageBox.getElement().setId("languageSelect"); //$NON-NLS-1$
         languageBox.setStyleName("language-box"); //$NON-NLS-1$
-        
+
         hp.add(languageBox);
         hp.setCellVerticalAlignment(languageBox, HasVerticalAlignment.ALIGN_MIDDLE);
         hp.add(new HTML("&nbsp;&nbsp;")); //$NON-NLS-1$
         hp.add(logout);
         hp.setCellVerticalAlignment(logout, HasVerticalAlignment.ALIGN_MIDDLE);
         hp.add(new HTML("&nbsp;&nbsp;")); //$NON-NLS-1$
-        
+
         bar.setSize("100%", "100%"); //$NON-NLS-1$ //$NON-NLS-2$
         bar.setStyleName("generic-header-background"); //$NON-NLS-1$
         bar.add(hp);
-        
+
         this.add(bar);
-        
+
     }
-    
-    public void buildLanguage(List<ItemBean> languages){
-        for (ItemBean lang : languages){
+
+    public void buildLanguage(List<LanguageBean> languages) {
+        for (LanguageBean lang : languages) {
             languageBox.addItem(lang.getText(), lang.getValue());
-            if (lang.getValue().equals(Location.getParameter("language"))){ //$NON-NLS-1$
+            if (lang.isSelected()) {
                 languageBox.setSelectedIndex(languageBox.getItemCount() - 1);
             }
         }
     }
-    
+
 }
