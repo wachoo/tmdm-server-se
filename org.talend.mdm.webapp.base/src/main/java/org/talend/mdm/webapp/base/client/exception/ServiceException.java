@@ -12,8 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.base.client.exception;
 
-import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
-
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class ServiceException extends Exception implements IsSerializable {
@@ -21,10 +19,10 @@ public class ServiceException extends Exception implements IsSerializable {
     private static final long serialVersionUID = 1L;
 
     public ServiceException() {
-        this(null);
+        super();
     }
 
     public ServiceException(String message) {
-        super(message == null ? BaseMessagesFactory.getMessages().unknown_error() : message);
+        super(message);
     }
 }
