@@ -98,11 +98,11 @@ public class ItemsDetailPanel extends ContentPanel {
                 for(int i=2; i<xpathList.size(); i++){
                     subTitle.append(xpathList.get(i)).append("-"); //$NON-NLS-1$
                 }
+                textDesc.setText(subTitle.substring(0, subTitle.length() - 1));
             }
-        }
+        }        
         
-        textTitle.setText(title.toString());
-        textDesc.setText(subTitle.substring(0, subTitle.length() - 1));
+        textTitle.setText(title.toString());        
     }
 
     public void clearBanner() {
