@@ -16,26 +16,22 @@ public class ForeignKeyBean extends ItemBaseModel {
 
     private static final long serialVersionUID = 1L;
 
-    private String id;
-
-    private String displayInfo;
-
     private String foreignKeyPath;
 
     public String getId() {
-        return id;
+        return get("id"); //$NON-NLS-1$
     }
 
     public void setId(String id) {
-        this.id = id;
+        set("id", id); //$NON-NLS-1$
     }
 
     public String getDisplayInfo() {
-        return displayInfo;
+        return get("displayInfo"); //$NON-NLS-1$
     }
 
     public void setDisplayInfo(String displayInfo) {
-        this.displayInfo = displayInfo;
+        set("displayInfo", displayInfo); //$NON-NLS-1$
     }
 
     public String getForeignKeyPath() {
@@ -47,7 +43,7 @@ public class ForeignKeyBean extends ItemBaseModel {
     }
 
     public String getFullString() {
-        return foreignKeyPath + "-" + id; //$NON-NLS-1$
+        return foreignKeyPath + "-" + getId(); //$NON-NLS-1$
     }
 
     @Override
@@ -62,10 +58,10 @@ public class ForeignKeyBean extends ItemBaseModel {
             }
             return sb.toString().substring(0, sb.toString().length() - 1);
         } else {
-            if (displayInfo == null && foreignKeyPath == null)
-                return id;
+            if (getDisplayInfo() == null && foreignKeyPath == null)
+                return getId();
             else
-                return displayInfo;
+                return getDisplayInfo();
         }
     }
 }
