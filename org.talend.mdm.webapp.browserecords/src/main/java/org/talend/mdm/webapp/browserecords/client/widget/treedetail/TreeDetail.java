@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.shared.TypeModel;
@@ -167,24 +168,35 @@ public class TreeDetail extends ContentPanel {
             item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, handler));
         }
         if (itemNode.getChildren() != null && itemNode.getChildren().size() > 0) {
+            Map<TypeModel, List<ItemNodeModel>> fkXpathMap = new HashMap<TypeModel, List<ItemNodeModel>>();
             for (ModelData model : itemNode.getChildren()) {
                 ItemNodeModel node = (ItemNodeModel) model;
                 TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath());
                 if (withDefaultValue && typeModel.getDefaultValue() != null
                         && (node.getObjectValue() == null || node.getObjectValue().equals(""))) //$NON-NLS-1$
                     node.setObjectValue(typeModel.getDefaultValue());
-                TreeItem childItem = buildGWTTree(node, null, withDefaultValue);
-                if (typeModel.getForeignkey() != null && fkRender != null) { // hide the ForeignKey
-                    childItem.setVisible(false);
-                    fkRender.RenderForeignKey((ItemNodeModel) node.getParent(), typeModel);
+
+                if (typeModel.getForeignkey() != null && fkRender != null) {
+                    if (!fkXpathMap.containsKey(typeModel)) {
+                        List<ItemNodeModel> list = new ArrayList<ItemNodeModel>();
+                        fkXpathMap.put(typeModel, list);
+                    }
+                    fkXpathMap.get(typeModel.getXpath()).add(node);
+                } else {
+                    TreeItem childItem = buildGWTTree(node, null, withDefaultValue);
+                    item.addItem(childItem);
+                    int count = 0;
+                    CountMapItem countMapItem = new CountMapItem(node.getBindingPath(), item);
+                    if (occurMap.containsKey(countMapItem))
+                        count = occurMap.get(countMapItem);
+                    occurMap.put(countMapItem, count + 1);
                 }
-                item.addItem(childItem);
-                int count = 0;
-                CountMapItem countMapItem = new CountMapItem(node.getBindingPath(), item);
-                if (occurMap.containsKey(countMapItem))
-                    count = occurMap.get(countMapItem);
-                occurMap.put(countMapItem, count + 1);
+
             }
+            for (TypeModel model : fkXpathMap.keySet()) {
+                fkRender.RenderForeignKey(fkXpathMap.get(model), model);
+            }
+
             item.getElement().getStyle().setPaddingLeft(3.0, Unit.PX);
         }
 
