@@ -28,6 +28,13 @@ public interface CustomFormCtrl
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**
+    * Get CustomForm according to the current user's role
+    * @throws XtentisException
+    */
+   public com.amalto.core.objects.customform.ejb.CustomFormPOJO getUserCustomForm( com.amalto.core.objects.customform.ejb.CustomFormPOJOPK cpk )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+
+   /**
     * Get a CustomForm - no exception is thrown: returns null if not found
     * @throws XtentisException
     */

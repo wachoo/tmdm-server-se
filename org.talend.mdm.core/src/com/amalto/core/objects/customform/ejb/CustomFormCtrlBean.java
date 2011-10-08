@@ -15,7 +15,9 @@ package com.amalto.core.objects.customform.ejb;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
@@ -23,6 +25,7 @@ import javax.ejb.SessionContext;
 
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
+import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.XtentisException;
 
 /**
@@ -133,6 +136,41 @@ public class CustomFormCtrlBean implements SessionBean {
             throw (e);
         } catch (Exception e) {
             String err = "Unable to get the CustomForm " + pk.toString() + ": " + e.getClass().getName() + ": "
+                    + e.getLocalizedMessage();
+            org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+            throw new XtentisException(err);
+        }
+    }
+
+    /**
+     * Get CustomForm according to the current user's role
+     * 
+     * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method
+     */
+    public CustomFormPOJO getUserCustomForm(CustomFormPOJOPK cpk) throws XtentisException {
+
+        try {
+            Collection<ObjectPOJOPK> c = ObjectPOJO.findAllPKs(CustomFormPOJO.class, ""); //$NON-NLS-1$
+            // if 2 roles are eligible for a user, pick the first one arbitrarily
+            List<CustomFormPOJO> list = new ArrayList<CustomFormPOJO>();
+            for (ObjectPOJOPK pk : c) {
+                CustomFormPOJO pojo = ObjectPOJO.load(CustomFormPOJO.class, pk);
+                HashSet<String> roles = LocalUser.getLocalUser().getRoles();
+                if (roles.contains(pojo.getRole())) {
+                    list.add(pojo);
+                }
+            }
+            if (list.size() > 0) {
+                return list.get(0);
+            }
+            return ObjectPOJO.load(CustomFormPOJO.class, cpk);
+        } catch (XtentisException e) {
+            throw (e);
+        } catch (Exception e) {
+            String err = "Unable to get the CustomForm associated to the current user's Role: "
                     + e.getLocalizedMessage();
             org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
             throw new XtentisException(err);

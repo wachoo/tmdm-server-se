@@ -68,6 +68,16 @@ public class CustomFormCtrlRemote extends Observable
 
    }
 
+   public com.amalto.core.objects.customform.ejb.CustomFormPOJO getUserCustomForm ( com.amalto.core.objects.customform.ejb.CustomFormPOJOPK cpk )
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+        com.amalto.core.objects.customform.ejb.CustomFormPOJO retval;
+       retval =  getSession().getUserCustomForm( cpk );
+
+      return retval;
+
+   }
+
    public com.amalto.core.objects.customform.ejb.CustomFormPOJO existsCustomForm ( com.amalto.core.objects.customform.ejb.CustomFormPOJOPK pk )
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {

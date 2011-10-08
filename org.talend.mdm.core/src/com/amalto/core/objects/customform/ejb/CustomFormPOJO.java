@@ -28,6 +28,8 @@ public class CustomFormPOJO extends ObjectPOJO {
 
     private String xml;
 
+    private String role;
+
     public CustomFormPOJO() {
         super();
     }
@@ -37,6 +39,14 @@ public class CustomFormPOJO extends ObjectPOJO {
         this.entity = entity;
         this.xml = xml.replaceFirst("<\\?xml.*\\?>", ""); //$NON-NLS-1$//$NON-NLS-2$
 
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public String getDatamodel() {
