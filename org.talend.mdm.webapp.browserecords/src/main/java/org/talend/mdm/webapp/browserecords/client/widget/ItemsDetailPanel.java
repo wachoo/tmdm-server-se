@@ -97,12 +97,15 @@ public class ItemsDetailPanel extends ContentPanel {
             if(xpathList.size() > 2){
                 for(int i=2; i<xpathList.size(); i++){
                     subTitle.append(xpathList.get(i)).append("-"); //$NON-NLS-1$
-                }
-                textDesc.setText(subTitle.substring(0, subTitle.length() - 1));
+                }          
             }
         }        
         
-        textTitle.setText(title.toString());        
+        textTitle.setText(title.toString());
+        if(subTitle.length() > 0)
+            textDesc.setText(subTitle.substring(0, subTitle.length() - 1));
+        else
+            textDesc.setText(""); //$NON-NLS-1$
     }
 
     public void clearBanner() {
