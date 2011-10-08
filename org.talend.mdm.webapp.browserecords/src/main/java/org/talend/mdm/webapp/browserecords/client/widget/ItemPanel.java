@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.browserecords.client.widget;
 import java.util.List;
 
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyRenderImpl;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
@@ -62,6 +63,7 @@ public class ItemPanel extends ContentPanel {
         this.setBodyBorder(false);
         this.setHeaderVisible(false);
         this.setTopComponent(toolBar);
+        tree.setFkRender(new ForeignKeyRenderImpl());
         if (ItemDetailToolBar.CREATE_OPERATION.equals(operation)) {
             tree.initTree(viewBean, null);
         } else if (ItemDetailToolBar.VIEW_OPERATION.equals(operation)) {
