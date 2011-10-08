@@ -22,16 +22,14 @@ import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.Window;
 
 public class General implements EntryPoint {
 
     public static final String OVERALL_SERVICE = "GeneralService"; //$NON-NLS-1$
 
-	public static final String USER_BEAN = "UserBean"; //$NON-NLS-1$
+    public static final String USER_BEAN = "UserBean"; //$NON-NLS-1$
 
-	public void onModuleLoad() {
-        Window.setTitle(Window.getTitle() + " general"); //$NON-NLS-1$
+    public void onModuleLoad() {
         XDOM.setAutoIdPrefix(GWT.getModuleName() + "-" + XDOM.getAutoIdPrefix()); //$NON-NLS-1$
 
         // standalone initialization Ext nvironment. solve JavaScript code conflict.
@@ -42,14 +40,14 @@ public class General implements EntryPoint {
 
         registerPubService();
 
-		Registry.register(OVERALL_SERVICE, GWT.create(GeneralService.class));
-		PublicMessageService.registerMessageService();
+        Registry.register(OVERALL_SERVICE, GWT.create(GeneralService.class));
+        PublicMessageService.registerMessageService();
 
-		Dispatcher dispatcher = Dispatcher.get();
-		dispatcher.addController(new GeneralController());
-		dispatcher.dispatch(GeneralEvent.LoadUser);
+        Dispatcher dispatcher = Dispatcher.get();
+        dispatcher.addController(new GeneralController());
+        dispatcher.dispatch(GeneralEvent.LoadUser);
 
-	}
+    }
 
     private native void registerPubService()/*-{
         var workspace = @org.talend.mdm.webapp.general.client.layout.WorkSpace::getInstance()();
