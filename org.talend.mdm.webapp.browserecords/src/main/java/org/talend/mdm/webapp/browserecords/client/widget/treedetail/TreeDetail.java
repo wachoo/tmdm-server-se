@@ -57,6 +57,8 @@ public class TreeDetail extends ContentPanel {
 
     private HashMap<CountMapItem, Integer> occurMap = new HashMap<CountMapItem, Integer>();
 
+    private ForeignKeyRender fkRender;
+
     private ClickHandler handler = new ClickHandler() {
 
         public void onClick(ClickEvent arg0) {
@@ -167,12 +169,16 @@ public class TreeDetail extends ContentPanel {
         if (itemNode.getChildren() != null && itemNode.getChildren().size() > 0) {
             for (ModelData model : itemNode.getChildren()) {
                 ItemNodeModel node = (ItemNodeModel) model;
-                if (withDefaultValue
-                        && viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath()).getDefaultValue() != null
+                TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath());
+                if (withDefaultValue && typeModel.getDefaultValue() != null
                         && (node.getObjectValue() == null || node.getObjectValue().equals(""))) //$NON-NLS-1$
-                    node.setObjectValue(viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath())
-                            .getDefaultValue());
-                item.addItem(buildGWTTree(node, null, withDefaultValue));
+                    node.setObjectValue(typeModel.getDefaultValue());
+                TreeItem childItem = buildGWTTree(node, null, withDefaultValue);
+                if (typeModel.getForeignkey() != null && fkRender != null) { // hide the ForeignKey
+                    childItem.setVisible(false);
+                    fkRender.RenderForeignKey((ItemNodeModel) node.getParent(), typeModel);
+                }
+                item.addItem(childItem);
                 int count = 0;
                 CountMapItem countMapItem = new CountMapItem(node.getBindingPath(), item);
                 if (occurMap.containsKey(countMapItem))
@@ -431,4 +437,13 @@ public class TreeDetail extends ContentPanel {
 
         return false;
     }
+
+    public ForeignKeyRender getFkRender() {
+        return fkRender;
+    }
+
+    public void setFkRender(ForeignKeyRender fkRender) {
+        this.fkRender = fkRender;
+    }
+
 }
