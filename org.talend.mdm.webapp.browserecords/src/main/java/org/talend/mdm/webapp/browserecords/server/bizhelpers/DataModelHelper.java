@@ -371,6 +371,12 @@ public class DataModelHelper {
                         } else if ("X_Visible_Rule".equals(appinfoSource)) { //$NON-NLS-1$
                             typeModel.setHasVisibleRule(true);
                             DisplayRulesUtil.getVisibleRules().put(typeModel.getXpath(), appinfoSourceValue);
+                        } else if("X_AutoExpand".equals(appinfoSource)) { //$NON-NLS-1$
+                        	String v = annotList.item(k).getFirstChild().getNodeValue();
+                        	
+                        	if(v != null){
+                        		typeModel.setAutoExpand(Boolean.valueOf(v));
+                        	}
                         }
                     }
 

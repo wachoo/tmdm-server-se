@@ -78,8 +78,10 @@ public abstract class TypeModel implements Serializable, IsSerializable {
     private String defaultValue;
 
     private boolean hasVisibleRule = false;
+    
+    private boolean autoExpand = false;
 
-    public TypeModel() {
+	public TypeModel() {
         super();
     }
 
@@ -318,6 +320,14 @@ public abstract class TypeModel implements Serializable, IsSerializable {
     public void setDefaultValue(String defaultValue) {
         this.defaultValue = defaultValue;
     }
+
+    public boolean isAutoExpand() {
+		return autoExpand;
+	}
+
+	public void setAutoExpand(boolean autoExpand) {
+		this.autoExpand = autoExpand;
+	}
 
     public int[] getRange() {
         int min = 0;

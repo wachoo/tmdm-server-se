@@ -201,7 +201,8 @@ public class TreeDetail extends ContentPanel {
         }
 
         item.setUserObject(itemNode);
-
+        item.setState(viewBean.getBindingEntityModel().getMetaDataTypes().get(itemNode.getBindingPath()).isAutoExpand());
+        
         return item;
     }
 
