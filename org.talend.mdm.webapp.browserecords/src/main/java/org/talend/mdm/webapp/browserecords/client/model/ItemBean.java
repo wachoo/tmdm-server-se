@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.model;
 
+import java.util.List;
+
 public class ItemBean extends org.talend.mdm.webapp.base.client.model.ItemBean {
 
     private static final long serialVersionUID = -1733441307059646670L;
@@ -23,6 +25,8 @@ public class ItemBean extends org.talend.mdm.webapp.base.client.model.ItemBean {
     private String displayPKInfo;
 
     private String smartViewMode = TREEMODE;
+    
+    private List<String> pkInfoList;
 
     @Deprecated
     public ItemBean() {
@@ -54,5 +58,13 @@ public class ItemBean extends org.talend.mdm.webapp.base.client.model.ItemBean {
 
     public void setSmartViewMode(String smartViewMode) {
         this.smartViewMode = smartViewMode;
+    }
+    
+    public List<String> getPkInfoList() {
+        return pkInfoList;
+    }
+
+    public void setPkInfoList(List<String> pkInfoList) {
+        this.pkInfoList = pkInfoList;
     }
 }

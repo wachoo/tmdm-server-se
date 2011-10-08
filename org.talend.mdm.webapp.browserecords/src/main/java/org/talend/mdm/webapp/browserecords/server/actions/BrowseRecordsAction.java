@@ -410,26 +410,35 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    private String getPKInfos(TypeModel model, String ids, Document document, String language) throws Exception {
+    private List<String> getPKInfoList(TypeModel model, String ids, Document document, String language) throws Exception {
         List<String> xpathPKInfos = model.getPrimaryKeyInfo();
+        List<String> xPathList = new ArrayList<String>();
         if (xpathPKInfos != null && xpathPKInfos.size() > 0 && ids != null) {
-            StringBuilder gettedValue = new StringBuilder();
             for (String pkInfoPath : xpathPKInfos) {
                 if (pkInfoPath != null && pkInfoPath.length() > 0) {
                     String pkInfo = Util.getFirstTextNode(document, pkInfoPath);
                     if (pkInfo != null) {
-                        if (gettedValue.length() == 0)
-                            gettedValue.append(pkInfo);
-                        else
-                            gettedValue.append("-").append(pkInfo); //$NON-NLS-1$
-                        ;
+                        xPathList.add(pkInfo);
                     }
                 }
             }
-            return gettedValue.toString();
         } else {
-            return model.getLabel(language);
+            xPathList.add(model.getLabel(language));
         }
+        return xPathList;
+    }
+    
+    private String getPKInfos(List<String> xPathList) {
+        StringBuilder gettedValue = new StringBuilder();
+        for (String pkInfo : xPathList) {
+            if (pkInfo != null) {
+                if (gettedValue.length() == 0)
+                    gettedValue.append(pkInfo);
+                else
+                    gettedValue.append("-").append(pkInfo); //$NON-NLS-1$
+            }
+        }
+        return gettedValue.toString();
     }
 
     private ForeignKeyBean getForeignKeyDesc(TypeModel model, String ids) throws Exception {
@@ -587,7 +596,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 TypeModel typeModel = types.get(path);
                 // set pkinfo and description on entity
                 if (path.endsWith(itemBean.getConcept())) {
-                    itemBean.setDisplayPKInfo(getPKInfos(typeModel, itemBean.getIds(), docXml, language));
+                    List<String> pkInfoList = getPKInfoList(typeModel, itemBean.getIds(), docXml, language);
+                    itemBean.setPkInfoList(pkInfoList);
+                    itemBean.setDisplayPKInfo(getPKInfos(pkInfoList));
                     itemBean.setDescription(typeModel.getDescriptionMap().get(language));
                 }
 

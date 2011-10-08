@@ -270,7 +270,7 @@ public class ItemsToolBar extends ToolBar {
                 if (ItemsListPanel.getInstance().getGrid() != null)
                     ItemsListPanel.getInstance().getGrid().getSelectionModel().deselectAll();
                 ItemsDetailPanel.getInstance().clearContent();
-                ItemsDetailPanel.getInstance().initBanner(itemBean.getDisplayPKInfo(), itemBean.getDescription());
+                ItemsDetailPanel.getInstance().initBanner(itemBean.getPkInfoList());
                 ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
                 ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.CREATE_OPERATION);
                 ItemsDetailPanel.getInstance().addTabItem(itemBean.getConcept(), itemPanel, ItemsDetailPanel.MULTIPLE,
