@@ -25,6 +25,7 @@ import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ComboBoxModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.DateUtil;
+import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.BooleanField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ForeignKeyField;
@@ -43,14 +44,15 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
+import com.extjs.gxt.ui.client.widget.form.NumberPropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.ui.Widget;
 
 public class TreeDetailGridFieldCreator {
@@ -169,6 +171,7 @@ public class TreeDetailGridFieldCreator {
 
     @SuppressWarnings("serial")
     public static Field<?> createCustomField(Serializable value, TypeModel dataType, String language) {
+        String pattern = dataType.getDisplayFomats().get("format_" + Locale.getLanguage());
         Field<?> field;
         boolean hasValue = value != null && !"".equals(value); //$NON-NLS-1$
         String baseType = dataType.getType().getBaseTypeName();
@@ -178,6 +181,9 @@ public class TreeDetailGridFieldCreator {
             numberField.setData("numberType", "integer");//$NON-NLS-1$ //$NON-NLS-2$
             numberField.setPropertyEditorType(Integer.class);
             numberField.setValidator(NumberFieldValidator.getInstance());
+            if (pattern != null && !"".equals(pattern)){ //$NON-NLS-1$     
+                numberField.setPropertyEditor(new NumberPropertyEditor(pattern));            
+            }  
             numberField.setValue((hasValue ? Long.parseLong(value.toString()) : null));
             if (dataType.getMinOccurs() > 0) {
                 numberField.setAllowBlank(false);
@@ -189,6 +195,9 @@ public class TreeDetailGridFieldCreator {
             numberField.setData("numberType", "double");//$NON-NLS-1$ //$NON-NLS-2$
             numberField.setPropertyEditorType(Double.class);
             numberField.setValidator(NumberFieldValidator.getInstance());
+            if (pattern != null && !"".equals(pattern)){ //$NON-NLS-1$     
+                numberField.setPropertyEditor(new NumberPropertyEditor(pattern));            
+            } 
             if (DataTypeConstants.DOUBLE.getTypeName().equals(baseType))
                 numberField.setValue((hasValue ? Double.parseDouble(value.toString()) : null));
             else
@@ -201,6 +210,9 @@ public class TreeDetailGridFieldCreator {
             NumberField numberField = new NumberField();
             numberField.setData("numberType", "decimal");//$NON-NLS-1$ //$NON-NLS-2$
             numberField.setValidator(NumberFieldValidator.getInstance());
+            if (pattern != null && !"".equals(pattern)){ //$NON-NLS-1$     
+                numberField.setPropertyEditor(new NumberPropertyEditor(pattern));            
+            } 
             numberField.setPropertyEditorType(Double.class);
             // NumberFormat nf = NumberFormat.getDecimalFormat();
             numberField.setValue((hasValue ? Double.parseDouble(value.toString()) : null));
@@ -229,16 +241,22 @@ public class TreeDetailGridFieldCreator {
             field = booleanField;
         } else if (DataTypeConstants.DATE.getTypeName().equals(baseType)) {
             DateField dateField = new DateField();
+            if (pattern == null || "".equals(pattern)){ //$NON-NLS-1$
+                pattern = "yyyy-mm-dd"; //$NON-NLS-1$   
+            }
+            dateField.setPropertyEditor(new DateTimePropertyEditor(pattern));//$NON-NLS-1$
             if (hasValue)
-                dateField.setValue(DateUtil.convertStringToDate(value.toString()));
-            dateField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd"));//$NON-NLS-1$
+                dateField.setValue(DateUtil.convertStringToDate(value.toString()));            
             if (dataType.getMinOccurs() > 0) {
                 dateField.setAllowBlank(false);
             }
             field = dateField;
         } else if (DataTypeConstants.DATETIME.getTypeName().equals(baseType)) {
             DateField dateTimeField = new DateField();
-            dateTimeField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd HH:mm:ss"));//$NON-NLS-1$
+            if (pattern == null || "".equals(pattern)){ //$NON-NLS-1$
+                pattern = "yyyy-MM-dd HH:mm:ss";//$NON-NLS-1$   
+            }
+            dateTimeField.setPropertyEditor(new DateTimePropertyEditor(pattern));//$NON-NLS-1$
             if (hasValue)
                 dateTimeField.setValue(DateUtil.convertStringToDate(DateUtil.dateTimePattern, value.toString()));
             if (dataType.getMinOccurs() > 0) {
