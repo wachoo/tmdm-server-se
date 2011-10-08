@@ -43,7 +43,6 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -51,6 +50,7 @@ import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.ui.Widget;
 
 public class TreeDetailGridFieldCreator {
@@ -110,6 +110,7 @@ public class TreeDetailGridFieldCreator {
             field = urlField;
         } else if (dataType instanceof ComplexTypeModel) {
             final ComboBoxField<ComboBoxModel> comboxField = new ComboBoxField<ComboBoxModel>();
+            final boolean isCloned = node.isCloned();
             comboxField.setDisplayField("value"); //$NON-NLS-1$
             comboxField.setValueField("value"); //$NON-NLS-1$
             comboxField.setTypeAhead(true);
@@ -131,7 +132,7 @@ public class TreeDetailGridFieldCreator {
 
                 @Override
                 public void selectionChanged(SelectionChangedEvent<ComboBoxModel> se) {
-                    if (se.getSelectedItem() == null) {
+                    if (se.getSelectedItem() == null || isCloned) {
                         return;
                     }
                     ComplexTypeModel reusableType = se.getSelectedItem().get("reusableType"); //$NON-NLS-1$

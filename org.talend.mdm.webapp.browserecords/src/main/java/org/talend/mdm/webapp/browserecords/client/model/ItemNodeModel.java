@@ -36,6 +36,8 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
 
     private boolean hasVisiblueRule = false;
     
+    private boolean isCloned = false;
+
     public boolean isHasVisiblueRule() {
     	if(hasVisiblueRule) {
     		return true;
@@ -214,6 +216,15 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
         this.realType = realType;
     }
 
+    public boolean isCloned() {
+        return isCloned;
+    }
+
+    public void setCloned(boolean isCloned) {
+        this.isCloned = isCloned;
+    }
+
+
     public ItemNodeModel clone(boolean withValue) {
         ItemNodeModel clonedModel = new ItemNodeModel(get("name").toString()); //$NON-NLS-1$
         clonedModel.setBindingPath(getBindingPath());
@@ -227,6 +238,9 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
         clonedModel.setDescription(description);
         clonedModel.setDynamicLabel(dynamicLabel);
         clonedModel.setParent(this.getParent());
+        clonedModel.setCloned(true);
+        if (this.getRealType() != null)
+            clonedModel.setRealType(this.getRealType());
         if (withValue)
             clonedModel.setObjectValue(objectValue);
         return clonedModel;
