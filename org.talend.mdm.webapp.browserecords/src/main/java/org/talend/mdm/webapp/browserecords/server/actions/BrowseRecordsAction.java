@@ -1499,19 +1499,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         if (!"".equals(metaDataTypes.get(xpath).getForeignkey()) && metaDataTypes.get(xpath).getForeignkey() != null) { //$NON-NLS-1$
 
             model.setRetrieveFKinfos(true);
+            nodeModel.setObjectValue(getForeignKeyDesc(model, el.getTextContent()));
 
-            // FK List
-            if (el.getTextContent() != null && !"".equals(el.getTextContent()) && model.getMaxOccurs() > 1) { //$NON-NLS-1$
-                List<String> fkIds = extractIdToList(el.getTextContent());
-                List<ForeignKeyBean> fkBeans = new ArrayList<ForeignKeyBean>(fkIds.size());
-                for (String id : fkIds) {
-                    fkBeans.add(getForeignKeyDesc(model, id));
-                }
-                nodeModel.setObjectValue((Serializable) fkBeans);
-
-            } else {
-                nodeModel.setObjectValue(getForeignKeyDesc(model, el.getTextContent()));
-            }
         } else if (model.isSimpleType()) {
             nodeModel.setObjectValue(el.getTextContent());
         }

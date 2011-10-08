@@ -13,7 +13,9 @@
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
@@ -66,6 +68,8 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     private Tree tree;
 
     private TreeItem root;
+    
+    private ForeignKeyRender fkRender;
 
     private ClickHandler handler = new ClickHandler() {
 
@@ -121,6 +125,8 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         this.toolBar = new ItemDetailToolBar(fkModel.getItemBean(), isCreate ? ItemDetailToolBar.CREATE_OPERATION
                 : ItemDetailToolBar.VIEW_OPERATION, true);
         this.setTopComponent(toolBar);
+        // TODO display ForeignKey detail information,the tabPanel need to be clear. including create link refresh.
+        // ItemsDetailPanel.getInstance().clearContent();
         buildPanel(viewBean);
     }
 
@@ -199,18 +205,26 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, handler));
         item.setUserObject(itemNode);
         if (itemNode.getChildren() != null && itemNode.getChildren().size() > 0) {
+            Map<TypeModel, List<ItemNodeModel>> fkMap = new HashMap<TypeModel, List<ItemNodeModel>>();
             for (ModelData model : itemNode.getChildren()) {
                 ItemNodeModel node = (ItemNodeModel) model;
+                TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath());
                 if (this.isCreate && this.model != null) {// duplicate
-                    String xPath = node.getBindingPath();
-                    TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(xPath);
                     if (typeModel.getType().equals(DataTypeConstants.UUID)
                             || typeModel.getType().equals(DataTypeConstants.AUTO_INCREMENT)) {
                         node.setObjectValue(null); // id
                     }
-
                 }
-                item.addItem(buildGWTTree(node));
+                if (typeModel.getForeignkey() != null && fkRender != null) {
+                    if (!fkMap.containsKey(typeModel))
+                        fkMap.put(typeModel, new ArrayList<ItemNodeModel>());
+                    fkMap.get(typeModel).add(node);
+                } else {
+                    item.addItem(buildGWTTree(node));
+                }
+            }
+            for (TypeModel tm : fkMap.keySet()) {
+                fkRender.RenderForeignKey(fkMap.get(tm), tm);
             }
             item.getElement().getStyle().setPaddingLeft(3.0, Unit.PX);
         }

@@ -168,20 +168,17 @@ public class TreeDetail extends ContentPanel {
             item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, handler));
         }
         if (itemNode.getChildren() != null && itemNode.getChildren().size() > 0) {
-            Map<TypeModel, List<ItemNodeModel>> fkXpathMap = new HashMap<TypeModel, List<ItemNodeModel>>();
+            Map<TypeModel, List<ItemNodeModel>> fkMap = new HashMap<TypeModel, List<ItemNodeModel>>();
             for (ModelData model : itemNode.getChildren()) {
                 ItemNodeModel node = (ItemNodeModel) model;
                 TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath());
                 if (withDefaultValue && typeModel.getDefaultValue() != null
                         && (node.getObjectValue() == null || node.getObjectValue().equals(""))) //$NON-NLS-1$
                     node.setObjectValue(typeModel.getDefaultValue());
-
                 if (typeModel.getForeignkey() != null && fkRender != null) {
-                    if (!fkXpathMap.containsKey(typeModel)) {
-                        List<ItemNodeModel> list = new ArrayList<ItemNodeModel>();
-                        fkXpathMap.put(typeModel, list);
-                    }
-                    fkXpathMap.get(typeModel.getXpath()).add(node);
+                    if (!fkMap.containsKey(typeModel))
+                        fkMap.put(typeModel, new ArrayList<ItemNodeModel>());
+                    fkMap.get(typeModel).add(node);
                 } else {
                     TreeItem childItem = buildGWTTree(node, null, withDefaultValue);
                     item.addItem(childItem);
@@ -191,10 +188,9 @@ public class TreeDetail extends ContentPanel {
                         count = occurMap.get(countMapItem);
                     occurMap.put(countMapItem, count + 1);
                 }
-
             }
-            for (TypeModel model : fkXpathMap.keySet()) {
-                fkRender.RenderForeignKey(fkXpathMap.get(model), model);
+            for (TypeModel model : fkMap.keySet()) {
+                fkRender.RenderForeignKey(fkMap.get(model), model);
             }
 
             item.getElement().getStyle().setPaddingLeft(3.0, Unit.PX);

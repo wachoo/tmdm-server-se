@@ -40,7 +40,6 @@ public class CommonUtil {
         return doc.toString();
     }
 
-    @SuppressWarnings("unchecked")
     private static Element _toXML(Document doc, ItemNodeModel nodeModel, ViewBean viewBean) {
         Element root = doc.createElement(nodeModel.getName());
         TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(nodeModel.getBindingPath());
@@ -48,15 +47,8 @@ public class CommonUtil {
         if (typeModel.isSimpleType() && value != null && nodeModel.getParent() != null) {
             if (value instanceof ForeignKeyBean)
                 root.appendChild(doc.createTextNode(((ForeignKeyBean) value).getId()));
-            else if (value instanceof List<?>) {// FK list
-                StringBuffer sb = new StringBuffer();
-                for (ForeignKeyBean fkBean : (List<ForeignKeyBean>) value) {
-                    sb.append(fkBean.getId());
-                }
-                root.appendChild(doc.createTextNode(sb.toString()));
-            } else {
+            else
                 root.appendChild(doc.createTextNode(value.toString()));
-            }
         }
 
         if (nodeModel.getRealType() != null) {
