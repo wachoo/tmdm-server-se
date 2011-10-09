@@ -64,10 +64,8 @@ public class ItemsDetailPanel extends ContentPanel {
         add(breadCrumb);
         // tabPanel.setWidth(450);
         banner.setHeaderVisible(false);
-        banner.setHeight("60px"); //$NON-NLS-1$
-        banner.setStyleName("banner"); //$NON-NLS-1$
-//        banner.setBodyStyle("backgroundColor: #6888b7;"); //$NON-NLS-1$
-        
+        banner.setHeight("56px"); //$NON-NLS-1$
+                
         textTitle.setStyleName("Title"); //$NON-NLS-1$
         textDesc.setStyleName("Description"); //$NON-NLS-1$
         banner.add(textTitle);
@@ -87,6 +85,7 @@ public class ItemsDetailPanel extends ContentPanel {
     }
 
     public void initBanner(List<String> xpathList) {
+        banner.getBody().setStyleName("banner"); //$NON-NLS-1$
         StringBuilder title = new StringBuilder();
         StringBuilder subTitle = new StringBuilder();
         
