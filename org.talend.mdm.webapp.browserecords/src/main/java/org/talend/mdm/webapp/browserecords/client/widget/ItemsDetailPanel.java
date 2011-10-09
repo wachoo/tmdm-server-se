@@ -65,7 +65,8 @@ public class ItemsDetailPanel extends ContentPanel {
         // tabPanel.setWidth(450);
         banner.setHeaderVisible(false);
         banner.setHeight("56px"); //$NON-NLS-1$
-                
+        banner.setBodyBorder(false);
+        
         textTitle.setStyleName("Title"); //$NON-NLS-1$
         textDesc.setStyleName("Description"); //$NON-NLS-1$
         banner.add(textTitle);
@@ -137,6 +138,7 @@ public class ItemsDetailPanel extends ContentPanel {
                 newTab.setItemId(id);
                 newTab.setClosable(true);
                 newTab.addStyleName("pad-text");   //$NON-NLS-1$
+                panel.setHeight(this.getHeight() - 100);
                 newTab.add(panel);
                 tabPanel.add(newTab);
                 tabPanel.setSelection(newTab);

@@ -21,8 +21,8 @@ import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
-import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Frame;
 
@@ -61,14 +61,10 @@ public class ItemPanel extends ContentPanel {
     }
 
     private void initUI() {
-        // ------------- temp test ---------
-        this.setHeight(500);
-        this.setScrollMode(Scroll.AUTO);
-        // --------------------------
-
         this.setBodyBorder(false);
         this.setHeaderVisible(false);
         this.setTopComponent(toolBar);
+        this.setLayout(new FitLayout());
         tree.setFkRender(new ForeignKeyRenderImpl());
         if (ItemDetailToolBar.CREATE_OPERATION.equals(operation)) {
             tree.initTree(viewBean, null);
