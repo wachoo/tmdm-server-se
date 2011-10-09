@@ -14,6 +14,7 @@ package org.talend.mdm.webapp.browserecords.client.mvc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -130,10 +131,14 @@ public class BrowseRecordsView extends View {
 
         ItemsDetailPanel.getInstance().clearBreadCrumb();
         if (item != null) {
-            List<String> breads = new ArrayList<String>();
-            breads.add(BreadCrumb.DEFAULTNAME);
-            breads.add(item.getConcept());
-            breads.add(item.getIds());
+            // List<String> breads = new ArrayList<String>();
+            // breads.add(BreadCrumb.DEFAULTNAME);
+            // breads.add(item.getConcept());
+            // breads.add(item.getIds());
+            Map<String, ItemBean> breads = new LinkedHashMap<String, ItemBean>();
+            breads.put(BreadCrumb.DEFAULTNAME, null);
+            breads.put(item.getConcept(), null);
+            breads.put(item.getIds(), item);
             ItemsDetailPanel.getInstance().initBreadCrumb(new BreadCrumb(breads));
         }
     }
