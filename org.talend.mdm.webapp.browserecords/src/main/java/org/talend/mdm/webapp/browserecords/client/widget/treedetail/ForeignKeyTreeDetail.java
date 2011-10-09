@@ -32,6 +32,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -125,8 +126,8 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         this.toolBar = new ItemDetailToolBar(fkModel.getItemBean(), isCreate ? ItemDetailToolBar.CREATE_OPERATION
                 : ItemDetailToolBar.VIEW_OPERATION, true);
         this.setTopComponent(toolBar);
-        // TODO display ForeignKey detail information,the tabPanel need to be clear. including create link refresh.
-        // ItemsDetailPanel.getInstance().clearContent();
+        // display ForeignKey detail information,the tabPanel need to be clear. including create link refresh.
+        ItemsDetailPanel.getInstance().clearContent();
         buildPanel(viewBean);
     }
 

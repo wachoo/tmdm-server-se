@@ -950,9 +950,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     err = e.getLocalizedMessage();
                 }
                 // add feature TMDM-2327 SAXException:cvc-complex-type.2.4.b message transform
-                if (e.getLocalizedMessage().indexOf("cvc-complex-type.2.4.b") != -1) {
-                    err = "Unable to save item,before saving the '" + item.getConcept()
-                            + "' item,please fill the required field's contents";
+                if (e.getLocalizedMessage().indexOf("cvc-complex-type.2.4.b") != -1) { //$NON-NLS-1$
+                    err = "Unable to save item,before saving the '" + item.getConcept() //$NON-NLS-1$
+                            + "' item,please fill the required field's contents"; //$NON-NLS-1$
                 }
                 serviceException = new ServiceException(err);
             }
@@ -1497,7 +1497,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         nodeModel.setName(el.getNodeName());
 
         if (!"".equals(metaDataTypes.get(xpath).getForeignkey()) && metaDataTypes.get(xpath).getForeignkey() != null) { //$NON-NLS-1$
-
+            // set foreignKeyBean
             model.setRetrieveFKinfos(true);
             nodeModel.setObjectValue(getForeignKeyDesc(model, el.getTextContent()));
 
@@ -1640,8 +1640,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
                 // add feature TMDM-2327 SAXException:cvc-complex-type.2.4.b message transform
                 if (e.getLocalizedMessage().indexOf("cvc-complex-type.2.4.b") != -1) { //$NON-NLS-1$
-                    err = "Unable to save item,before saving the '" + concept
-                            + "' item,please fill the required field's contents";
+                    err = "Unable to save item,before saving the '" + concept //$NON-NLS-1$
+                            + "' item,please fill the required field's contents"; //$NON-NLS-1$
                 }
                 serviceException = new ServiceException(err);
             }
