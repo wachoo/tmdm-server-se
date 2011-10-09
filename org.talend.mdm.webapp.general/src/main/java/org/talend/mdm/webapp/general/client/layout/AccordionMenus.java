@@ -81,15 +81,15 @@ public class AccordionMenus extends ContentPanel {
         String icon = null;
         if (item.getIcon() != null && item.getIcon().trim().length() != 0) {
             icon = "/imageserver/" + item.getIcon() + "?width=16&height=16"; //$NON-NLS-1$ //$NON-NLS-2$
-        } else if ("itemsbrowser.ItemsBrowser".equals(toCheckMenuID) || "viewbrowser.ViewBrowser".equals(toCheckMenuID) || "itemsbrowser2.ItemsBrowser2".equals(toCheckMenuID)) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        } else if ("itemsbrowser.ItemsBrowser".equals(toCheckMenuID) || "viewbrowser.ViewBrowser".equals(toCheckMenuID) || "itemsbrowser2.ItemsBrowser2".equals(toCheckMenuID) || "browserecords.BrowseRecords".equals(toCheckMenuID)) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             icon = "/talendmdm/secure/img/menu/browse.png"; //$NON-NLS-1$
-        } else if ("crossreferencing.CrossReferencing".equals(toCheckMenuID)) { //$NON-NLS-1$
+        } else if ("crossreferencing.CrossReferencing".equals(toCheckMenuID) || "crossreference.CrossReference".equals(toCheckMenuID)) { //$NON-NLS-1$ //$NON-NLS-2$
             icon = "/talendmdm/secure/img/menu/crossref.png"; //$NON-NLS-1$
         } else if ("hierarchical.GroupingHierarchy".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "/talendmdm/secure/img/menu/grouping_hier.png"; //$NON-NLS-1$
-        } else if ("ehierarchical.DerivedHierarchy".equals(toCheckMenuID)) { //$NON-NLS-1$
+        } else if ("ehierarchical.DerivedHierarchy".equals(toCheckMenuID) || "hierarchy.Hierarchy".equals(toCheckMenuID)) { //$NON-NLS-1$ //$NON-NLS-2$
             icon = "/talendmdm/secure/img/menu/derived_hier.png"; //$NON-NLS-1$
-        } else if ("usersandroles.Users".equals(toCheckMenuID)) { //$NON-NLS-1$
+        } else if ("usersandroles.Users".equals(toCheckMenuID) || "usermanager.UserManager".equals(toCheckMenuID)) { //$NON-NLS-1$ //$NON-NLS-2$
             icon = "/talendmdm/secure/img/menu/manage_users.png"; //$NON-NLS-1$
         } else if ("reporting.Reporting".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "/talendmdm/secure/img/menu/reporting.png"; //$NON-NLS-1$
@@ -97,13 +97,13 @@ public class AccordionMenus extends ContentPanel {
             icon = "/talendmdm/secure/img/menu/synchro_item.png"; //$NON-NLS-1$
         } else if ("SynchronizationAction.SynchronizationAction".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "/talendmdm/secure/img/menu/synchronize.png"; //$NON-NLS-1$
-        } else if ("ItemsTrash.ItemsTrash".equals(toCheckMenuID)) { //$NON-NLS-1$
+        } else if ("ItemsTrash.ItemsTrash".equals(toCheckMenuID) || "recyclebin.RecycleBin".equals(toCheckMenuID)) { //$NON-NLS-1$ //$NON-NLS-2$
             icon = "/talendmdm/secure/img/menu/trash.png"; //$NON-NLS-1$
         } else if ("updatereport.UpdateReport".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "/talendmdm/secure/img/menu/updatereport.png"; //$NON-NLS-1$
         } else if ("workflowtasks.WorkflowTasks".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "/talendmdm/secure/img/menu/workflowtasks.png"; //$NON-NLS-1$
-        } else if ("license.License".equals(toCheckMenuID)) { //$NON-NLS-1$
+        } else if ("license.License".equals(toCheckMenuID) || "licenseManager.LicenseManager".equals(toCheckMenuID)) { //$NON-NLS-1$ //$NON-NLS-2$
             icon = "/talendmdm/secure/img/menu/license.png"; //$NON-NLS-1$
         } else if ("datastewardship.Datastewardship".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "/talendmdm/secure/img/menu/stewardship.png"; //$NON-NLS-1$
