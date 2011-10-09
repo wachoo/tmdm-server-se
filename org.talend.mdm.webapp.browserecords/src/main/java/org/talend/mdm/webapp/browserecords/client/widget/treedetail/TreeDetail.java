@@ -179,7 +179,7 @@ public class TreeDetail extends ContentPanel {
                     if (!fkMap.containsKey(typeModel))
                         fkMap.put(typeModel, new ArrayList<ItemNodeModel>());
                     fkMap.get(typeModel).add(node);
-                } else {
+                } else if (typeModel.getForeignkey() == null) {
                     TreeItem childItem = buildGWTTree(node, null, withDefaultValue);
                     item.addItem(childItem);
                     int count = 0;

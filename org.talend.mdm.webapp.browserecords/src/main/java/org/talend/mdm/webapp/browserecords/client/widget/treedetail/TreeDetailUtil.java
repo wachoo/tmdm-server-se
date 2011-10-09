@@ -19,7 +19,6 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
-import org.talend.mdm.webapp.browserecords.client.widget.ForeignKeyFieldList;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -66,38 +65,25 @@ public class TreeDetailUtil {
         if (typeModel.isSimpleType()
                 || (!typeModel.isSimpleType() && ((ComplexTypeModel) typeModel).getReusableComplexTypes().size() > 0)) {
 
-            if (typeModel.getForeignkey() != null && typeModel.getMaxOccurs() > 1) {// FK list
-                ForeignKeyFieldList fkList = new ForeignKeyFieldList(itemNode, typeModel);
-                //fkList.setSize("400px", "200px"); //$NON-NLS-1$ //$NON-NLS-2$
-                fkList.addListener(Events.Focus, new Listener<FieldEvent>() {
+            Field<?> field = TreeDetailGridFieldCreator.createField(itemNode, typeModel, Locale.getLanguage());
+            field.setWidth(200);
+            field.addListener(Events.Focus, new Listener<FieldEvent>() {
 
-                    public void handleEvent(FieldEvent be) {
-                        AppEvent app = new AppEvent(BrowseRecordsEvents.ExecuteVisibleRule);
-                        app.setData(itemNode.getParent());
-                        Dispatcher.forwardEvent(app);
+                public void handleEvent(FieldEvent be) {
+                    AppEvent app = new AppEvent(BrowseRecordsEvents.ExecuteVisibleRule);
+                    ItemNodeModel parent = CommonUtil.recrusiveRoot(itemNode);
+                    // maybe need other methods to get entire tree
+                    if (parent == null || parent.getChildCount() == 0) {
+                        return;
                     }
-                });
-                hp.add(fkList);
-            } else {
-                Field<?> field = TreeDetailGridFieldCreator.createField(itemNode, typeModel, Locale.getLanguage());
-                field.setWidth(200);
-                field.addListener(Events.Focus, new Listener<FieldEvent>() {
 
-                    public void handleEvent(FieldEvent be) {
-                        AppEvent app = new AppEvent(BrowseRecordsEvents.ExecuteVisibleRule);
-                        ItemNodeModel parent = CommonUtil.recrusiveRoot(itemNode);
-                        // maybe need other methods to get entire tree
-                        if (parent == null || parent.getChildCount() == 0) {
-                            return;
-                        }
+                    app.setData(parent);
+                    app.setData("viewBean", viewBean); //$NON-NLS-1$
+                    Dispatcher.forwardEvent(app);
+                }
+            });
+            hp.add(field);
 
-                        app.setData(parent);
-                        app.setData("viewBean", viewBean); //$NON-NLS-1$
-                        Dispatcher.forwardEvent(app);
-                    }
-                });
-                hp.add(field);
-            }
         }
 
         if ((typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) && typeModel.getForeignkey() == null) {

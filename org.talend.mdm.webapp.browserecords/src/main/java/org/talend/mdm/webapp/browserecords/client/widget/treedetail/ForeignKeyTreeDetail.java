@@ -103,6 +103,9 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         this.setHeaderVisible(false);
         this.setHeight(Window.getClientHeight() - (60 + 4 * 20));
         this.setScrollMode(Scroll.AUTO);
+        this.setFkRender(new ForeignKeyRenderImpl());
+        // display ForeignKey detail information,the tabPanel need to be clear. including create link refresh.
+        ItemsDetailPanel.getInstance().clearContent();
     }
 
     public ForeignKeyTreeDetail(ViewBean viewBean, boolean isCreate) {
@@ -126,8 +129,6 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         this.toolBar = new ItemDetailToolBar(fkModel.getItemBean(), isCreate ? ItemDetailToolBar.CREATE_OPERATION
                 : ItemDetailToolBar.VIEW_OPERATION, true);
         this.setTopComponent(toolBar);
-        // display ForeignKey detail information,the tabPanel need to be clear. including create link refresh.
-        ItemsDetailPanel.getInstance().clearContent();
         buildPanel(viewBean);
     }
 
@@ -220,7 +221,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                     if (!fkMap.containsKey(typeModel))
                         fkMap.put(typeModel, new ArrayList<ItemNodeModel>());
                     fkMap.get(typeModel).add(node);
-                } else {
+                } else if (typeModel.getForeignkey() == null) {
                     item.addItem(buildGWTTree(node));
                 }
             }
@@ -436,5 +437,13 @@ public class ForeignKeyTreeDetail extends ContentPanel {
             }
         }
         return flag;
+    }
+
+    public ForeignKeyRender getFkRender() {
+        return fkRender;
+    }
+
+    public void setFkRender(ForeignKeyRender fkRender) {
+        this.fkRender = fkRender;
     }
 }
