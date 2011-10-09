@@ -203,12 +203,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     if (outputErrorMessage == null)
                         message = message == null ? "" : message; //$NON-NLS-1$
                     else if (message == null || message.length() == 0)
-                        message = MESSAGES.getMessage("delete.process.validation.success"); //$NON-NLS-1$
+                        message = MESSAGES.getMessage("delete_process_validation_success"); //$NON-NLS-1$
                 } else {
                     if (outputErrorMessage == null)
                         message = message == null ? "" : message; //$NON-NLS-1$
                     else if (message == null || message.length() == 0)
-                        message = MESSAGES.getMessage("delete.process.validation.success"); //$NON-NLS-1$
+                        message = MESSAGES.getMessage("delete_process_validation_success"); //$NON-NLS-1$
                     return MESSAGES.getMessage("delete_item_record_successNoupdate", message); //$NON-NLS-1$
                 }
             } else {

@@ -236,6 +236,8 @@ public interface BrowseRecordsMessages extends Messages {
 
     String delete_process_validation_failure();
 
+    String delete_process_validation_success();
+
     String delete_record_failure();
 
     String delete_record_success();
