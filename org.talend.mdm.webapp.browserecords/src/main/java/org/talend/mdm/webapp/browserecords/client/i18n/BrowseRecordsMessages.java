@@ -80,7 +80,15 @@ public interface BrowseRecordsMessages extends Messages {
 
     String delete_item_record_success(int value);
 
+    String delete_item_record_successNoupdate(String value);
+
     String save_success();
+
+    String save_successEx(String value, String msg);
+
+    String save_fail(String value);
+
+    String save_failEx(String value);
 
     String empty_entity();
 

@@ -119,8 +119,12 @@ public class BrowseRecordsController extends Controller {
                     }
 
                     public void onSuccess(String result) {
-                        MessageBox.alert(MessagesFactory.getMessages().info_title(),
-                                MessagesFactory.getMessages().save_success(), null);
+                        if (result != "")//$NON-NLS-1$
+                            MessageBox.info(MessagesFactory.getMessages().info_title(),
+                                    result, null);
+                        else
+                            MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
+                                    .save_success(), null);
                         if (!isClose && isCreate) {
                             ItemsListPanel.getInstance().lastPage();
                         }

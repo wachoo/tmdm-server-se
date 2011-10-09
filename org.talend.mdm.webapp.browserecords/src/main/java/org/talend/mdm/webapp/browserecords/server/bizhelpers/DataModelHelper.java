@@ -44,6 +44,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.amalto.core.util.Util;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.XmlUtil;
 import com.amalto.webapp.core.util.XtentisWebappException;
@@ -318,6 +319,7 @@ public class DataModelHelper {
             NodeList annotList = annotations.getChildNodes();
             ArrayList<String> pkInfoList = new ArrayList<String>();
             ArrayList<String> fkInfoList = new ArrayList<String>();
+            boolean writable = false;
             for (int k = 0; k < annotList.getLength(); k++) {
                 if ("appinfo".equals(annotList.item(k).getLocalName())) {//$NON-NLS-1$
                     Node source = annotList.item(k).getAttributes().getNamedItem("source");//$NON-NLS-1$
@@ -334,7 +336,7 @@ public class DataModelHelper {
                             typeModel.addDescription(getLangFromDescAnnotation(appinfoSource), encodedDESP);
                         } else if ("X_Write".equals(appinfoSource)) {//$NON-NLS-1$
                             if (roles.contains(appinfoSourceValue)) {
-                                typeModel.setReadOnly(false);
+                                writable = true;
                             }
                         } else if ("X_Hide".equals(appinfoSource)) {//$NON-NLS-1$
                             if (roles.contains(appinfoSourceValue)) {
@@ -382,6 +384,9 @@ public class DataModelHelper {
 
                 }
             }// end for
+            if (Util.isEnterprise())
+                typeModel.setReadOnly(!writable);
+
             typeModel.setForeignKeyInfo(fkInfoList);
             typeModel.setPrimaryKeyInfo(pkInfoList);
         }

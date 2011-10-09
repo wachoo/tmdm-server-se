@@ -28,6 +28,8 @@ public class ItemBean extends org.talend.mdm.webapp.base.client.model.ItemBean {
     
     private List<String> pkInfoList;
 
+    private boolean readOnly;
+
     @Deprecated
     public ItemBean() {
     }
@@ -66,5 +68,13 @@ public class ItemBean extends org.talend.mdm.webapp.base.client.model.ItemBean {
 
     public void setPkInfoList(List<String> pkInfoList) {
         this.pkInfoList = pkInfoList;
+    }
+
+    public boolean isReadOnly() {
+        return readOnly;
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
     }
 }

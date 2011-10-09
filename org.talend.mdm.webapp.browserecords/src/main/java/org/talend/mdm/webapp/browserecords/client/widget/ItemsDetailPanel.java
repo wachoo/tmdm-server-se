@@ -85,26 +85,28 @@ public class ItemsDetailPanel extends ContentPanel {
     }
 
     public void initBanner(List<String> xpathList) {
-        banner.getBody().setStyleName("banner"); //$NON-NLS-1$
-        StringBuilder title = new StringBuilder();
-        StringBuilder subTitle = new StringBuilder();
-        
-        if (xpathList.size() == 1) {
-            title.append(xpathList.get(0));    
-        }else{
-            title.append(xpathList.get(0)).append("-").append(xpathList.get(1)); //$NON-NLS-1$
-            if(xpathList.size() > 2){
-                for(int i=2; i<xpathList.size(); i++){
-                    subTitle.append(xpathList.get(i)).append("-"); //$NON-NLS-1$
-                }          
+        if (xpathList != null && xpathList.size() > 0) {
+            banner.getBody().setStyleName("banner"); //$NON-NLS-1$
+            StringBuilder title = new StringBuilder();
+            StringBuilder subTitle = new StringBuilder();
+
+            if (xpathList.size() == 1) {
+                title.append(xpathList.get(0));
+            } else {
+                title.append(xpathList.get(0)).append("-").append(xpathList.get(1)); //$NON-NLS-1$
+                if (xpathList.size() > 2) {
+                    for (int i = 2; i < xpathList.size(); i++) {
+                        subTitle.append(xpathList.get(i)).append("-"); //$NON-NLS-1$
+                    }
+                }
             }
-        }        
-        
-        textTitle.setText(title.toString());
-        if(subTitle.length() > 0)
-            textDesc.setText(subTitle.substring(0, subTitle.length() - 1));
-        else
-            textDesc.setText(""); //$NON-NLS-1$
+
+            textTitle.setText(title.toString());
+            if (subTitle.length() > 0)
+                textDesc.setText(subTitle.substring(0, subTitle.length() - 1));
+            else
+                textDesc.setText(""); //$NON-NLS-1$
+        }
     }
 
     public void clearBanner() {
