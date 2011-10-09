@@ -34,6 +34,8 @@ public interface BrowseRecordsMessages extends Messages {
 
     String create_btn();
 
+    String create(String thing);
+
     String delete_btn();
     
     String duplicate_btn();
@@ -309,7 +311,9 @@ public interface BrowseRecordsMessages extends Messages {
     String print_btn();
 
     String fk_integrity_list_partial_delete();
-    
+
+    String fk_info();
+
     String browse_record_title();
 
     String auto();
