@@ -6,7 +6,7 @@
     <entry-point class='org.talend.mdm.webapp.browserecords.client.BrowseRecords' />
 
     <!-- Specify the paths for translatable code -->
-    <source path='client' excludes="**/*Test.java" />
+    <source path='client'/>
     <source path='shared' />
     <source path='model' />
 
