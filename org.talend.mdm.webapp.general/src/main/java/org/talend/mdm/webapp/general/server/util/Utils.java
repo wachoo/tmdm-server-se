@@ -31,6 +31,8 @@ public class Utils {
 
     private static final String WELCOMECONTEXT = "welcomeportal", WELCOMEAPP = "WelcomePortal";//$NON-NLS-1$ //$NON-NLS-2$
 
+    private static final String DEFAULT_LANG = "en"; //$NON-NLS-1$
+
     /** a reference to the factory used to create Gxt instances */
     private static GxtFactory gxtFactory = new GxtFactory(GXT_PROPERTIES, EXCLUDING_PROPERTIES);
 
@@ -54,7 +56,11 @@ public class Utils {
             item.setLevel(level);
             item.setContext(subMenu.getContext());
             item.setIcon(subMenu.getIcon());
-            item.setName(subMenu.getLabels().get(language));
+            String name = subMenu.getLabels().get(language);
+            if (name == null) {
+                name = subMenu.getLabels().get(DEFAULT_LANG); // fallback to default
+            }
+            item.setName(name);
             item.setApplication(subMenu.getApplication() == null ? "" : subMenu.getApplication()); //$NON-NLS-1$
             rows.add(item);
             i++;
@@ -196,7 +202,7 @@ public class Utils {
                     lang.setText(node.getTextContent());
                     String value = node.getAttributes().getNamedItem("value").getNodeValue(); //$NON-NLS-1$
                     lang.setValue(value);
-                    if(value.equals(selectedLang))
+                    if (value.equals(selectedLang))
                         lang.setSelected(true);
                     languages.add(lang);
                 }
