@@ -109,7 +109,7 @@ public class ForeignKeyPanel extends ContentPanel {
         int max = fkTypeModel.getMaxOccurs();
         int count = 1;
         if (min >= 0 && max > min) {
-            if (store.getCount() >= (max - min)){
+            if (store.getCount() < (max - min)) {
                 count = max - min;
             }
         }
@@ -126,12 +126,9 @@ public class ForeignKeyPanel extends ContentPanel {
 
     private void delFk(ItemNodeModel currentFkModel) {
         int min = fkTypeModel.getMinOccurs();
-        int max = fkTypeModel.getMaxOccurs();
         int count = 1;
-        if (min >= 0 && max > min) {
-            if (store.getCount() >= (max - min)) {
-                count = max - min;
-            }
+        if (min > 0) {
+            count = min;
         }
         if (store.getCount() > count) {
             store.remove(currentFkModel);

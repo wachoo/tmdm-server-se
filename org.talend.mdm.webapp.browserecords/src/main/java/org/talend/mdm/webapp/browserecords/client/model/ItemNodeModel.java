@@ -123,7 +123,11 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
 
     private String _toString(String pre) {
         StringBuffer sb = new StringBuffer();
-        sb.append(pre + getName() + "\n"); //$NON-NLS-1$
+        sb.append(pre + getName());
+        if (getRealType() != null && getRealType().trim().length() > 0) {
+            sb.append("  xsi:" + getRealType()); //$NON-NLS-1$
+        }
+        sb.append("\n"); //$NON-NLS-1$
         List<ModelData> children = this.getChildren();
         if (children != null) {
             for (ModelData child : children) {
