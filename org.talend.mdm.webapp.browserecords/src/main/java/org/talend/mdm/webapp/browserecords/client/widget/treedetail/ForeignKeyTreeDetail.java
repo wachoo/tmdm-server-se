@@ -136,7 +136,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         this.setTopComponent(toolBar);
         ItemsDetailPanel.getInstance().clearContent();
         ItemsDetailPanel.getInstance().initBanner(fkModel.getItemBean().getPkInfoList());
-        // TODO change BreadCrumb
+        ItemsDetailPanel.getInstance().appendBreadCrumb(fkModel.getItemBean().getIds(), fkModel.getItemBean());
         buildPanel(viewBean);
     }
 
