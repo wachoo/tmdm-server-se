@@ -7,16 +7,6 @@
 
     <!-- Servlets -->
     <servlet>
-        <servlet-name>dwr-invoker</servlet-name>
-        <display-name>DWR Servlet</display-name>
-        <servlet-class>uk.ltd.getahead.dwr.DWRServlet</servlet-class>
-        <init-param>
-            <param-name>debug</param-name>
-            <param-value>true</param-value>
-        </init-param>
-     </servlet>
-    
-    <servlet>
         <servlet-name>GeneralService</servlet-name>
         <servlet-class>org.talend.mdm.webapp.general.gwt.ProxyGWTServiceImpl</servlet-class>
     </servlet>
@@ -30,12 +20,7 @@
         <servlet-name>LogoutServlet</servlet-name>
         <servlet-class>org.talend.mdm.webapp.general.server.servlet.LogoutServlet</servlet-class>
     </servlet>
-
-    <servlet-mapping>
-        <servlet-name>dwr-invoker</servlet-name>
-        <url-pattern>/login/dwr/*</url-pattern>
-    </servlet-mapping> 
-
+    
     <servlet-mapping>
         <servlet-name>GeneralService</servlet-name>
         <url-pattern>/general/GeneralService</url-pattern>
