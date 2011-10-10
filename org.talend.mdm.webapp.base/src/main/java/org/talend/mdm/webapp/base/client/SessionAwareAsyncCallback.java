@@ -30,7 +30,7 @@ public abstract class SessionAwareAsyncCallback<T> implements AsyncCallback<T> {
             Log.error(caught.toString());
 
         if (caught instanceof SessionTimeoutException) {
-            MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), BaseMessagesFactory.getMessages()
+            MessageBox.alert(BaseMessagesFactory.getMessages().warning_title(), BaseMessagesFactory.getMessages()
                     .session_timeout_error(), new Listener<MessageBoxEvent>() {
 
                 public void handleEvent(MessageBoxEvent be) {

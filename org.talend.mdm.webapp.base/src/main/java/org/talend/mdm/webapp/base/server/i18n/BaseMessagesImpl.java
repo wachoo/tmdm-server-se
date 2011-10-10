@@ -47,8 +47,20 @@ public final class BaseMessagesImpl implements BaseMessages {
         return MESSAGES.getMessage("page_size_notice");
     }
 
+    public String info_title() {
+        return MESSAGES.getMessage("info_title");
+    }
+
     public String error_title() {
         return MESSAGES.getMessage("error_title");
+    }
+
+    public String warning_title() {
+        return MESSAGES.getMessage("warning_title");
+    }
+
+    public String confirm_title() {
+        return MESSAGES.getMessage("confirm_title");
     }
 
     public String unknown_error() {

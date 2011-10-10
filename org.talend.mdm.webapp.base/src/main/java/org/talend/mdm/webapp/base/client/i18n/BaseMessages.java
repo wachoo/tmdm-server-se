@@ -28,7 +28,13 @@ public interface BaseMessages extends Messages {
 
     String page_size_notice();
 
+    String info_title();
+
     String error_title();
+
+    String warning_title();
+
+    String confirm_title();
     
     String unknown_error();
     
