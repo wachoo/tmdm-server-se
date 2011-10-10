@@ -125,18 +125,19 @@ public class ItemsDetailPanel extends ContentPanel {
         if(pattern.equalsIgnoreCase(ItemsDetailPanel.MULTIPLE)){
             TabItem newTab = new TabItem(title);
             newTab.setId(id);
-            newTab.setClosable(true);
+            // newTab.setClosable(true);
             newTab.addStyleName("pad-text");   //$NON-NLS-1$
             newTab.add(panel);
             tabPanel.add(newTab);
-            tabPanel.setSelection(newTab);
+            if (tabPanel.getItemCount() == 1)
+                tabPanel.setSelection(newTab);
         }else{
             TabItem newTab = tabPanel.getItemByItemId(id);
             if(newTab == null){
                 newTab = new TabItem(title); 
                 newTab.setId(id);
                 newTab.setItemId(id);
-                newTab.setClosable(true);
+                // newTab.setClosable(true);
                 newTab.addStyleName("pad-text");   //$NON-NLS-1$
                 panel.setHeight(this.getHeight() - 100);
                 newTab.add(panel);

@@ -44,6 +44,8 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
@@ -168,7 +170,7 @@ public class TreeDetail extends ContentPanel {
             item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, handler));
         }
         if (itemNode.getChildren() != null && itemNode.getChildren().size() > 0) {
-            Map<TypeModel, List<ItemNodeModel>> fkMap = new HashMap<TypeModel, List<ItemNodeModel>>();
+            final Map<TypeModel, List<ItemNodeModel>> fkMap = new HashMap<TypeModel, List<ItemNodeModel>>();
             for (ModelData model : itemNode.getChildren()) {
                 ItemNodeModel node = (ItemNodeModel) model;
                 TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath());
@@ -189,9 +191,15 @@ public class TreeDetail extends ContentPanel {
                     occurMap.put(countMapItem, count + 1);
                 }
             }
-            for (TypeModel model : fkMap.keySet()) {
-                fkRender.RenderForeignKey(fkMap.get(model), model);
-            }
+            DeferredCommand.addCommand(new Command() {
+                
+                public void execute() {
+                    for (TypeModel model : fkMap.keySet()) {
+                        fkRender.RenderForeignKey(fkMap.get(model), model);
+                    }
+                }
+            });
+            
 
             item.getElement().getStyle().setPaddingLeft(3.0, Unit.PX);
         }

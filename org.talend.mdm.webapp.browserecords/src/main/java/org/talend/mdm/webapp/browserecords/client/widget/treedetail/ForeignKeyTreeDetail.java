@@ -44,7 +44,9 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -207,7 +209,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, handler));
         item.setUserObject(itemNode);
         if (itemNode.getChildren() != null && itemNode.getChildren().size() > 0) {
-            Map<TypeModel, List<ItemNodeModel>> fkMap = new HashMap<TypeModel, List<ItemNodeModel>>();
+            final Map<TypeModel, List<ItemNodeModel>> fkMap = new HashMap<TypeModel, List<ItemNodeModel>>();
             for (ModelData model : itemNode.getChildren()) {
                 ItemNodeModel node = (ItemNodeModel) model;
                 TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath());
@@ -225,9 +227,15 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                     item.addItem(buildGWTTree(node));
                 }
             }
-            for (TypeModel tm : fkMap.keySet()) {
-                fkRender.RenderForeignKey(fkMap.get(tm), tm);
-            }
+            DeferredCommand.addCommand(new Command() {
+
+                public void execute() {
+                    for (TypeModel tm : fkMap.keySet()) {
+                        fkRender.RenderForeignKey(fkMap.get(tm), tm);
+                    }
+                }
+            });
+
             item.getElement().getStyle().setPaddingLeft(3.0, Unit.PX);
         }
 
