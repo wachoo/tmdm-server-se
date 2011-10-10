@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.browserecords.client;
+package org.talend.mdm.webapp.browserecords.server.bizhelpers;
 
 import java.io.IOException;
 import java.io.InputStream;
