@@ -1,6 +1,10 @@
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
@@ -137,5 +141,18 @@ public class ForeignKeyUtil {
                 return true;
         }
         return false;
+    }
+
+    public static List<ItemNodeModel> getAllForeignKeyModelParent(ViewBean viewBean, ItemNodeModel parent) {
+        List<ItemNodeModel> list = new ArrayList<ItemNodeModel>();
+        for (ModelData child : parent.getChildren()) {
+            ItemNodeModel childModel = (ItemNodeModel) child;
+            TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(childModel.getBindingPath());
+            if (tm.getForeignkey() != null && !list.contains(parent))
+                list.add(parent);
+            else if (tm.getForeignkey() == null)
+                list.addAll(getAllForeignKeyModelParent(viewBean, childModel));
+        }
+        return list;
     }
 }
