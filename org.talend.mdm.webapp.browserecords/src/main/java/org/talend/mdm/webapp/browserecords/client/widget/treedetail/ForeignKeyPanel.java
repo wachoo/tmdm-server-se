@@ -24,9 +24,11 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 
 import com.extjs.gxt.ui.client.data.TreeModel;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -69,6 +71,7 @@ public class ForeignKeyPanel extends ContentPanel {
         this.fkModels = fkModels;
         createFkButton.setText(fkTypeModel.getLabel(UrlUtil.getLanguage()));
         toolBar.add(createFkButton);
+        addListener();
         this.setTopComponent(toolBar);
 
         List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
@@ -93,8 +96,19 @@ public class ForeignKeyPanel extends ContentPanel {
         grid.addPlugin(columnNo);
         grid.getView().setForceFit(true);
         fillData();
-
+        
         this.add(grid);
+    }
+
+    private void addListener() {
+        createFkButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+            
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                String foreignKeyName = fkTypeModel.getForeignkey().split("/")[0]; //$NON-NLS-1$
+                ForeignKeyUtil.checkChange(true, foreignKeyName, null);
+            }
+        });
     }
 
     private void fillData() {

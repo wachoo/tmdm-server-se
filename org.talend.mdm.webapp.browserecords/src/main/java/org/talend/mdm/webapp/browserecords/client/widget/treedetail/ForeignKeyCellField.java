@@ -151,11 +151,8 @@ public class ForeignKeyCellField extends TextField<ForeignKeyBean> implements Re
                 ForeignKeyBean fkBean = ForeignKeyCellField.this.getValue();
                 if (fkBean == null || fkBean.getId() == null || "".equals(fkBean.getId())) //$NON-NLS-1$
                     return;
-                Dispatcher dispatch = Dispatcher.get();
-                AppEvent event = new AppEvent(BrowseRecordsEvents.ViewForeignKey);
-                event.setData("ids", ForeignKeyCellField.this.getValue().getId().replace("[", "").replace("]", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-                event.setData("concept", ForeignKeyCellField.this.foreignKeyName); //$NON-NLS-1$
-                dispatch.dispatch(event);
+                String ids = ForeignKeyCellField.this.getValue().getId().replace("[", "").replace("]", "");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+                ForeignKeyUtil.checkChange(false, ForeignKeyCellField.this.foreignKeyName, ids);
             }
         });
     }

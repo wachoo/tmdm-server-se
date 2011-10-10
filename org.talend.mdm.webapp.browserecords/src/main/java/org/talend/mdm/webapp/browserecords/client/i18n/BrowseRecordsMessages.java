@@ -294,6 +294,8 @@ public interface BrowseRecordsMessages extends Messages {
 
     String msg_confirm_refresh_tree_detail();
 
+    String msg_confirm_save_tree_detail(String entityName);
+
     String fk_del_title();
 
     String fk_select_title();
