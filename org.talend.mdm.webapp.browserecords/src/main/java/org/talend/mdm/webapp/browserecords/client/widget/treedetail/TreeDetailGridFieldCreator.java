@@ -112,7 +112,6 @@ public class TreeDetailGridFieldCreator {
             field = urlField;
         } else if (dataType instanceof ComplexTypeModel) {
             final ComboBoxField<ComboBoxModel> comboxField = new ComboBoxField<ComboBoxModel>();
-            final boolean isCloned = node.isCloned();
             comboxField.setDisplayField("value"); //$NON-NLS-1$
             comboxField.setValueField("value"); //$NON-NLS-1$
             comboxField.setTypeAhead(true);
@@ -130,23 +129,22 @@ public class TreeDetailGridFieldCreator {
             if (comboxStore.getCount() > 0) {
                 comboxField.setValue(comboxStore.getAt(0));
             }
-            comboxField.addSelectionChangedListener(new SelectionChangedListener<ComboBoxModel>() {
 
-                @Override
-                public void selectionChanged(SelectionChangedEvent<ComboBoxModel> se) {
-                    if (se.getSelectedItem() == null || isCloned) {
-                        return;
-                    }
-                    ComplexTypeModel reusableType = se.getSelectedItem().get("reusableType"); //$NON-NLS-1$
-                    Dispatcher.forwardEvent(BrowseRecordsEvents.UpdatePolymorphism, reusableType);
-                }
-
-            });
             if (node.getRealType() != null && node.getRealType().trim().length() > 0) {
                 comboxField.setValue(comboxStore.findModel("value", node.getRealType())); //$NON-NLS-1$
             } else if (hasValue) {
                 comboxField.setValue(comboxStore.findModel(value.toString(), value));
             }
+
+            comboxField.addSelectionChangedListener(new SelectionChangedListener<ComboBoxModel>() {
+
+                @Override
+                public void selectionChanged(SelectionChangedEvent<ComboBoxModel> se) {
+                    ComplexTypeModel reusableType = se.getSelectedItem().get("reusableType"); //$NON-NLS-1$
+                    Dispatcher.forwardEvent(BrowseRecordsEvents.UpdatePolymorphism, reusableType);
+                }
+
+            });
 
             field = comboxField;
         } else {
