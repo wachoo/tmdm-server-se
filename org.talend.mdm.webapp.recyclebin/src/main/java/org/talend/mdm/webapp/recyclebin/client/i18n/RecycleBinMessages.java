@@ -14,15 +14,10 @@ package org.talend.mdm.webapp.recyclebin.client.i18n;
 
 import com.google.gwt.i18n.client.Messages;
 
-
 /**
- * DOC Administrator  class global comment. Detailled comment
+ * DOC Administrator class global comment. Detailled comment
  */
 public interface RecycleBinMessages extends Messages {
-
-    String confirm_title();
-
-    String error_title();
 
     String dataClusterName();
 
@@ -51,8 +46,4 @@ public interface RecycleBinMessages extends Messages {
     String delete_confirm();
 
     String restore_confirm();
-
-    String page_size_label();
-
-    String page_size_notice();
 }

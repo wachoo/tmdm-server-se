@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
 import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
 import org.talend.mdm.webapp.recyclebin.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.recyclebin.client.resources.icon.Icons;
@@ -147,7 +148,7 @@ public class MainFramePanel extends ContentPanel {
                                     public void onSuccess(Boolean result) {
                                         if (!result)
                                             return;
-                                        MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory
+                                        MessageBox.confirm(BaseMessagesFactory.getMessages().confirm_title(), MessagesFactory
                                                 .getMessages().delete_confirm(), new Listener<MessageBoxEvent>() {
 
                                             public void handleEvent(MessageBoxEvent be) {
@@ -171,7 +172,7 @@ public class MainFramePanel extends ContentPanel {
                                                                     }
 
                                                                     public void onError(Request request, Throwable e) {
-                                                                        MessageBox.alert(MessagesFactory.getMessages()
+                                                                        MessageBox.alert(BaseMessagesFactory.getMessages()
                                                                                 .error_title(), e.getMessage(), null);
                                                                     }
                                                                 });
@@ -179,8 +180,8 @@ public class MainFramePanel extends ContentPanel {
                                                                 try {
                                                                     builder.send();
                                                                 } catch (RequestException e) {
-                                                                    MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                                                            e.getMessage(), null);
+                                                                    MessageBox.alert(BaseMessagesFactory.getMessages()
+                                                                            .error_title(), e.getMessage(), null);
                                                                 }
                                                             }
                                                         }
@@ -215,7 +216,7 @@ public class MainFramePanel extends ContentPanel {
                 image.addClickHandler(new ClickHandler() {
 
                     public void onClick(ClickEvent event) {
-                        MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
+                        MessageBox.confirm(BaseMessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
                                 .restore_confirm(), new Listener<MessageBoxEvent>() {
 
                             public void handleEvent(MessageBoxEvent be) {
