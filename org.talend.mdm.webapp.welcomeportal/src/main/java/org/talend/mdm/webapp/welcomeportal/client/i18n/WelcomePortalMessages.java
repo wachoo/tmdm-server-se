@@ -19,8 +19,6 @@ import com.google.gwt.i18n.client.Messages;
  */
 public interface WelcomePortalMessages extends Messages {
 
-    String error_title();
-
     String welcome_title();
 
     String welcome_panel();
