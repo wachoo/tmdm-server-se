@@ -9,12 +9,13 @@
 // along with this program; if not, write to Talend SA
 // 9 rue Pages 92150 Suresnes, France
 //
-//
+// ============================================================================
 package org.talend.mdm.webapp.browserecords.client;
 
 import com.google.gwt.junit.client.GWTTestCase;
 
-public class BrowseRecordsTest extends GWTTestCase {
+@SuppressWarnings("nls")
+public class BrowseRecordsGWTTest extends GWTTestCase {
 
     public void testOnModuleLoad() {
         // test the entry method without any exception
@@ -28,7 +29,7 @@ public class BrowseRecordsTest extends GWTTestCase {
     @Override
     public String getModuleName() {
         // GWTTestCase Required
-        return "org.talend.mdm.webapp.browserecords.BrowseRecords"; //$NON-NLS-1$
+        return "org.talend.mdm.webapp.browserecords.TestBrowseRecords"; //$NON-NLS-1$
     }
 
 }
