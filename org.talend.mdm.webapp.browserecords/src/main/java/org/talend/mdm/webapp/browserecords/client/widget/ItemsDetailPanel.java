@@ -72,7 +72,7 @@ public class ItemsDetailPanel extends ContentPanel {
         banner.add(textTitle);
         banner.add(textDesc);
         add(banner);
-        
+        tabPanel.setTabScroll(true);
         tabPanel.setAutoHeight(true);
         add(tabPanel);        
     }

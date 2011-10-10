@@ -105,17 +105,35 @@ public class ForeignKeyPanel extends ContentPanel {
     }
 
     private void addFk(ItemNodeModel currentFkModel) {
-        ItemNodeModel parent = (ItemNodeModel) currentFkModel.getParent();
-        ItemNodeModel newFkModel = currentFkModel.clone(false);
-        newFkModel.setParent(parent);
-        int index = parent.indexOf(currentFkModel);
-        parent.insert(newFkModel, index + 1);
-        int row = store.indexOf(currentFkModel);
-        store.insert(newFkModel, row + 1);
+        int min = fkTypeModel.getMinOccurs();
+        int max = fkTypeModel.getMaxOccurs();
+        int count = 1;
+        if (min >= 0 && max > min) {
+            if (store.getCount() >= (max - min)){
+                count = max - min;
+            }
+        }
+        if (store.getCount() < count) {
+            ItemNodeModel parent = (ItemNodeModel) currentFkModel.getParent();
+            ItemNodeModel newFkModel = currentFkModel.clone(false);
+            newFkModel.setParent(parent);
+            int index = parent.indexOf(currentFkModel);
+            parent.insert(newFkModel, index + 1);
+            int row = store.indexOf(currentFkModel);
+            store.insert(newFkModel, row + 1);
+        }
     }
 
     private void delFk(ItemNodeModel currentFkModel) {
-        if (store.getCount() > 1) {
+        int min = fkTypeModel.getMinOccurs();
+        int max = fkTypeModel.getMaxOccurs();
+        int count = 1;
+        if (min >= 0 && max > min) {
+            if (store.getCount() >= (max - min)) {
+                count = max - min;
+            }
+        }
+        if (store.getCount() > count) {
             store.remove(currentFkModel);
             TreeModel parent = currentFkModel.getParent();
             parent.remove(currentFkModel);
