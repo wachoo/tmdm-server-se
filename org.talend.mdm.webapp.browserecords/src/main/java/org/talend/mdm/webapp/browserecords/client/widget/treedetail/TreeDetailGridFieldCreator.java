@@ -44,7 +44,6 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -53,6 +52,7 @@ import com.extjs.gxt.ui.client.widget.form.NumberPropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.ui.Widget;
 
 public class TreeDetailGridFieldCreator {
@@ -160,6 +160,21 @@ public class TreeDetailGridFieldCreator {
 
         if (node.isKey() && hasValue) {
             field.setEnabled(false);
+        }
+
+        // facet set
+        if (field instanceof TextField<?>) {
+            buildFacets(dataType, field);
+            String errorMsg = dataType.getFacetErrorMsgs().get(language);
+            field.setData("facetErrorMsgs", errorMsg);//$NON-NLS-1$        
+            FacetEnum.setFacetValue("maxOccurence", (Widget) field, String.valueOf(dataType.getMaxOccurs())); //$NON-NLS-1$
+
+            if (((TextField<?>) field).getValidator() == null)
+                ((TextField<?>) field).setValidator(TextFieldValidator.getInstance());
+
+            if (errorMsg != null && !errorMsg.equals("") && !((TextField<?>) field).getAllowBlank()) //$NON-NLS-1$                
+                ((TextField<?>) field).getMessages().setBlankText(errorMsg);
+
         }
 
         addFieldListener(field, node);
@@ -282,9 +297,6 @@ public class TreeDetailGridFieldCreator {
         }
 
         field.setWidth(400);
-        field.setData("facetErrorMsgs", dataType.getFacetErrorMsgs().get(language));//$NON-NLS-1$
-        buildFacets(dataType, field);
-        FacetEnum.setFacetValue("maxOccurence", (Widget) field, String.valueOf(dataType.getMaxOccurs())); //$NON-NLS-1$
         return field;
     }
 
