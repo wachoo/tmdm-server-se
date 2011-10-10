@@ -74,8 +74,10 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     private Tree tree;
 
     private TreeItem root;
-    
+
     private ForeignKeyRender fkRender;
+
+    private Map<String, Field<?>> fieldMap = new HashMap<String, Field<?>>();
 
     private ClickHandler handler = new ClickHandler() {
 
@@ -212,7 +214,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode) {
         DynamicTreeItem item = new DynamicTreeItem();
 
-        item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, handler));
+        item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, fieldMap, handler));
         item.setUserObject(itemNode);
         if (itemNode.getChildren() != null && itemNode.getChildren().size() > 0) {
             final Map<TypeModel, List<ItemNodeModel>> fkMap = new HashMap<TypeModel, List<ItemNodeModel>>();
@@ -236,11 +238,13 @@ public class ForeignKeyTreeDetail extends ContentPanel {
 
             if (fkMap.size() > 0) {
                 DeferredCommand.addCommand(new Command() {
+
                     public void execute() {
                         for (TypeModel model : fkMap.keySet()) {
                             fkRender.RenderForeignKey(itemNode, fkMap.get(model), model);
                         }
                         itemNode.addChangeListener(new ChangeListener() {
+
                             public void modelChanged(ChangeEvent event) {
                                 if (event.getType() == ChangeEventSource.Remove) {
                                     ItemNodeModel source = (ItemNodeModel) event.getItem();
@@ -251,7 +255,6 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                     }
                 });
             }
-
 
             item.getElement().getStyle().setPaddingLeft(3.0, Unit.PX);
         }

@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
+import java.util.Map;
+
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
@@ -40,7 +42,8 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class TreeDetailUtil {
 
-    public static Widget createWidget(final ItemNodeModel itemNode, final ViewBean viewBean, ClickHandler h) {
+    public static Widget createWidget(final ItemNodeModel itemNode, final ViewBean viewBean, Map<String, Field<?>> fieldMap,
+            ClickHandler h) {
 
         HorizontalPanel hp = new HorizontalPanel();
         // create Field
@@ -65,7 +68,7 @@ public class TreeDetailUtil {
         if (typeModel.isSimpleType()
                 || (!typeModel.isSimpleType() && ((ComplexTypeModel) typeModel).getReusableComplexTypes().size() > 0)) {
 
-            Field<?> field = TreeDetailGridFieldCreator.createField(itemNode, typeModel, Locale.getLanguage());
+            Field<?> field = TreeDetailGridFieldCreator.createField(itemNode, typeModel, Locale.getLanguage(), fieldMap);
             field.setWidth(200);
             field.addListener(Events.Focus, new Listener<FieldEvent>() {
 

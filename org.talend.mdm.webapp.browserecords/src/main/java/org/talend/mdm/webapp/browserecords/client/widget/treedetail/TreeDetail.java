@@ -44,6 +44,7 @@ import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -60,6 +61,8 @@ public class TreeDetail extends ContentPanel {
     private Tree tree = new Tree();
 
     private TreeItem root;
+
+    private Map<String, Field<?>> fieldMap = new HashMap<String, Field<?>>();
 
     private HashMap<CountMapItem, Integer> occurMap = new HashMap<CountMapItem, Integer>();
 
@@ -82,8 +85,7 @@ public class TreeDetail extends ContentPanel {
                 if (viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getMaxOccurs() < 0
                         || count < viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getMaxOccurs()) {
                     // clone a new item
-                    ItemNodeModel model = selectedModel.clone(
-                            "Clone".equals(arg0.getRelativeElement().getId()) ? true : false); //$NON-NLS-1$
+                    ItemNodeModel model = selectedModel.clone("Clone".equals(arg0.getRelativeElement().getId()) ? true : false); //$NON-NLS-1$
 
                     int selectModelIndex = parentModel.indexOf(selectedModel);
                     parentModel.insert(model, selectModelIndex + 1);
@@ -177,7 +179,7 @@ public class TreeDetail extends ContentPanel {
             if (itemNode.getRealType() != null && itemNode.getRealType().trim().length() > 0) {
                 item.setState(true);
             }
-            item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, handler));
+            item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, fieldMap, handler));
         }
         if (itemNode.getChildren() != null && itemNode.getChildren().size() > 0) {
             final Map<TypeModel, List<ItemNodeModel>> fkMap = new HashMap<TypeModel, List<ItemNodeModel>>();
@@ -204,11 +206,13 @@ public class TreeDetail extends ContentPanel {
             }
             if (fkMap.size() > 0) {
                 DeferredCommand.addCommand(new Command() {
+
                     public void execute() {
                         for (TypeModel model : fkMap.keySet()) {
                             fkRender.RenderForeignKey(itemNode, fkMap.get(model), model);
                         }
                         itemNode.addChangeListener(new ChangeListener() {
+
                             public void modelChanged(ChangeEvent event) {
                                 if (event.getType() == ChangeEventSource.Remove) {
                                     ItemNodeModel source = (ItemNodeModel) event.getItem();
@@ -224,7 +228,7 @@ public class TreeDetail extends ContentPanel {
 
         item.setUserObject(itemNode);
         item.setState(viewBean.getBindingEntityModel().getMetaDataTypes().get(itemNode.getBindingPath()).isAutoExpand());
-        
+
         return item;
     }
 

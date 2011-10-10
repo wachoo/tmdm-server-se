@@ -9,7 +9,6 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-
 public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
 
     private static final long serialVersionUID = 1L;
@@ -25,54 +24,64 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
     private Serializable objectValue;
 
     private boolean isKey;
-    
+
     private String dynamicLabel;
-    
+
     private String realType;
 
     private boolean visible = true;
-    
-    private boolean valid = false;	
+
+    private boolean valid = false;
 
     private boolean hasVisiblueRule = false;
-    
+
     private boolean isCloned = false;
 
+    private boolean mandatory;
+
+    public boolean isMandatory() {
+        return mandatory;
+    }
+
+    public void setMandatory(boolean mandatory) {
+        this.mandatory = mandatory;
+    }
+
     public boolean isHasVisiblueRule() {
-    	if(hasVisiblueRule) {
-    		return true;
-    	}
-    	
-    	List<ModelData> child = getChildren();
-    	
-    	for(ModelData model : child) {
-    		if(((ItemNodeModel) model).isHasVisiblueRule()) {
-    			return true;
-    		}
-    	}
-    	
-		return hasVisiblueRule;
-	}
+        if (hasVisiblueRule) {
+            return true;
+        }
 
-	public void setHasVisiblueRule(boolean hasVisiblueRule) {
-		this.hasVisiblueRule = hasVisiblueRule;
-	}
+        List<ModelData> child = getChildren();
 
-	public boolean isValid() {
+        for (ModelData model : child) {
+            if (((ItemNodeModel) model).isHasVisiblueRule()) {
+                return true;
+            }
+        }
+
+        return hasVisiblueRule;
+    }
+
+    public void setHasVisiblueRule(boolean hasVisiblueRule) {
+        this.hasVisiblueRule = hasVisiblueRule;
+    }
+
+    public boolean isValid() {
         return valid;
     }
-    
+
     public void setValid(boolean valid) {
         this.valid = valid;
     }
 
     public boolean isVisible() {
-		return visible;
-	}
+        return visible;
+    }
 
-	public void setVisible(boolean visible) {
-		this.visible = visible;
-	}
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
 
     private boolean isChangeValue;
 
@@ -85,33 +94,33 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
     }
 
     public String getDynamicLabel() {
-		return dynamicLabel;
-	}
+        return dynamicLabel;
+    }
 
-	public void setDynamicLabel(String dynamicLabel) {
-		this.dynamicLabel = dynamicLabel;
-	}
+    public void setDynamicLabel(String dynamicLabel) {
+        this.dynamicLabel = dynamicLabel;
+    }
 
-	public boolean isKey() {
+    public boolean isKey() {
         return isKey;
     }
-	
+
     public void setKey(boolean isKey) {
         this.isKey = isKey;
     }
-    
+
     public Serializable getObjectValue() {
         return objectValue;
     }
-    
+
     public void setObjectValue(Serializable objectValue) {
         this.objectValue = objectValue;
     }
-    
+
     public ItemNodeModel() {
         set("id", ID++); //$NON-NLS-1$
     }
-    
+
     public ItemNodeModel(String name) {
         set("id", ID++); //$NON-NLS-1$
         set("name", name); //$NON-NLS-1$
@@ -227,7 +236,6 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
     public void setCloned(boolean isCloned) {
         this.isCloned = isCloned;
     }
-
 
     public ItemNodeModel clone(boolean withValue) {
         ItemNodeModel clonedModel = new ItemNodeModel(get("name").toString()); //$NON-NLS-1$
