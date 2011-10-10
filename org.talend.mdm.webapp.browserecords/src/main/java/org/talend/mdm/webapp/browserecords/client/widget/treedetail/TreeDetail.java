@@ -35,6 +35,9 @@ import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.data.ChangeEvent;
+import com.extjs.gxt.ui.client.data.ChangeEventSource;
+import com.extjs.gxt.ui.client.data.ChangeListener;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -60,7 +63,7 @@ public class TreeDetail extends ContentPanel {
 
     private HashMap<CountMapItem, Integer> occurMap = new HashMap<CountMapItem, Integer>();
 
-    private ForeignKeyRender fkRender;
+    private ForeignKeyRender fkRender = new ForeignKeyRenderImpl();
 
     private ClickHandler handler = new ClickHandler() {
 
@@ -68,7 +71,10 @@ public class TreeDetail extends ContentPanel {
             final DynamicTreeItem selected = (DynamicTreeItem) tree.getSelectedItem();
             final DynamicTreeItem parentItem = (DynamicTreeItem) selected.getParentItem();
 
-            final String xpath = selected.getItemNodeModel().getBindingPath();
+            final ItemNodeModel selectedModel = selected.getItemNodeModel();
+            final ItemNodeModel parentModel = (ItemNodeModel) selectedModel.getParent();
+
+            final String xpath = selectedModel.getBindingPath();
             final CountMapItem countMapItem = new CountMapItem(xpath, parentItem);
             final int count = occurMap.containsKey(countMapItem) ? occurMap.get(countMapItem) : 0;
 
@@ -76,8 +82,11 @@ public class TreeDetail extends ContentPanel {
                 if (viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getMaxOccurs() < 0
                         || count < viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getMaxOccurs()) {
                     // clone a new item
-                    ItemNodeModel model = selected.getItemNodeModel().clone(
+                    ItemNodeModel model = selectedModel.clone(
                             "Clone".equals(arg0.getRelativeElement().getId()) ? true : false); //$NON-NLS-1$
+
+                    int selectModelIndex = parentModel.indexOf(selectedModel);
+                    parentModel.insert(model, selectModelIndex + 1);
                     // if it has default value
                     if (viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getDefaultValue() != null)
                         model.setObjectValue(viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getDefaultValue());
@@ -96,6 +105,7 @@ public class TreeDetail extends ContentPanel {
                                             && count > viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath)
                                                     .getMinOccurs()) {
                                         parentItem.removeItem(selected);
+                                        parentModel.remove(selectedModel);
                                         occurMap.put(countMapItem, count - 1);
                                     } else
                                         MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
@@ -160,7 +170,7 @@ public class TreeDetail extends ContentPanel {
         }
     }
 
-    private DynamicTreeItem buildGWTTree(ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue) {
+    private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue) {
         if (item == null) {
             item = new DynamicTreeItem();
             item.setItemNodeModel(itemNode);
@@ -177,9 +187,10 @@ public class TreeDetail extends ContentPanel {
                 if (withDefaultValue && typeModel.getDefaultValue() != null
                         && (node.getObjectValue() == null || node.getObjectValue().equals(""))) //$NON-NLS-1$
                     node.setObjectValue(typeModel.getDefaultValue());
-                if (typeModel.getForeignkey() != null && fkRender != null) {
-                    if (!fkMap.containsKey(typeModel))
+                if (typeModel.getForeignkey() != null) {
+                    if (!fkMap.containsKey(typeModel)) {
                         fkMap.put(typeModel, new ArrayList<ItemNodeModel>());
+                    }
                     fkMap.get(typeModel).add(node);
                 } else if (typeModel.getForeignkey() == null) {
                     TreeItem childItem = buildGWTTree(node, null, withDefaultValue);
@@ -191,16 +202,23 @@ public class TreeDetail extends ContentPanel {
                     occurMap.put(countMapItem, count + 1);
                 }
             }
-            DeferredCommand.addCommand(new Command() {
-                
-                public void execute() {
-                    for (TypeModel model : fkMap.keySet()) {
-                        fkRender.RenderForeignKey(fkMap.get(model), model);
+            if (fkMap.size() > 0) {
+                DeferredCommand.addCommand(new Command() {
+                    public void execute() {
+                        for (TypeModel model : fkMap.keySet()) {
+                            fkRender.RenderForeignKey(itemNode, fkMap.get(model), model);
+                        }
+                        itemNode.addChangeListener(new ChangeListener() {
+                            public void modelChanged(ChangeEvent event) {
+                                if (event.getType() == ChangeEventSource.Remove) {
+                                    ItemNodeModel source = (ItemNodeModel) event.getItem();
+                                    fkRender.removeRelationFkPanel(source);
+                                }
+                            }
+                        });
                     }
-                }
-            });
-            
-
+                });
+            }
             item.getElement().getStyle().setPaddingLeft(3.0, Unit.PX);
         }
 
@@ -318,7 +336,6 @@ public class TreeDetail extends ContentPanel {
             }
 
             items.add(beforeIndex, item);
-            itemNode.getChildren().add(beforeIndex, item.getItemNodeModel());
             this.removeItems();
 
             for (int j = 0; j < items.size(); j++) {
@@ -329,7 +346,6 @@ public class TreeDetail extends ContentPanel {
 
         public void removeItem(DynamicTreeItem item) {
             super.removeItem(item);
-            itemNode.getChildren().remove(item.getItemNodeModel());
         }
 
         public void setItemNodeModel(ItemNodeModel treeNode) {
@@ -453,14 +469,6 @@ public class TreeDetail extends ContentPanel {
         }
 
         return false;
-    }
-
-    public ForeignKeyRender getFkRender() {
-        return fkRender;
-    }
-
-    public void setFkRender(ForeignKeyRender fkRender) {
-        this.fkRender = fkRender;
     }
 
 }

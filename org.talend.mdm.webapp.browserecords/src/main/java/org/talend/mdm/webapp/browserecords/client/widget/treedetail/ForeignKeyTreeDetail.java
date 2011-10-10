@@ -37,6 +37,9 @@ import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.data.ChangeEvent;
+import com.extjs.gxt.ui.client.data.ChangeEventSource;
+import com.extjs.gxt.ui.client.data.ChangeListener;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -206,7 +209,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         buildPanel(viewBean);
     }
 
-    private DynamicTreeItem buildGWTTree(ItemNodeModel itemNode) {
+    private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode) {
         DynamicTreeItem item = new DynamicTreeItem();
 
         item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, handler));
@@ -230,14 +233,25 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                     item.addItem(buildGWTTree(node));
                 }
             }
-            DeferredCommand.addCommand(new Command() {
 
-                public void execute() {
-                    for (TypeModel tm : fkMap.keySet()) {
-                        fkRender.RenderForeignKey(fkMap.get(tm), tm);
+            if (fkMap.size() > 0) {
+                DeferredCommand.addCommand(new Command() {
+                    public void execute() {
+                        for (TypeModel model : fkMap.keySet()) {
+                            fkRender.RenderForeignKey(itemNode, fkMap.get(model), model);
+                        }
+                        itemNode.addChangeListener(new ChangeListener() {
+                            public void modelChanged(ChangeEvent event) {
+                                if (event.getType() == ChangeEventSource.Remove) {
+                                    ItemNodeModel source = (ItemNodeModel) event.getItem();
+                                    fkRender.removeRelationFkPanel(source);
+                                }
+                            }
+                        });
                     }
-                }
-            });
+                });
+            }
+
 
             item.getElement().getStyle().setPaddingLeft(3.0, Unit.PX);
         }

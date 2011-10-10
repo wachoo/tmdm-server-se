@@ -101,7 +101,6 @@ public class ItemsDetailPanel extends ContentPanel {
                     }
                 }
             }
-
             textTitle.setText(title.toString());
             if (subTitle.length() > 0)
                 textDesc.setText(subTitle.substring(0, subTitle.length() - 1));
@@ -121,23 +120,22 @@ public class ItemsDetailPanel extends ContentPanel {
         clearContent();
     }
 
-    public void addTabItem(String title, ContentPanel panel, String pattern, String id){
+    public TabItem addTabItem(String title, ContentPanel panel, String pattern, String id) {
+        TabItem newTab = null;
         if(pattern.equalsIgnoreCase(ItemsDetailPanel.MULTIPLE)){
-            TabItem newTab = new TabItem(title);
+            newTab = new TabItem(title);
             newTab.setId(id);
-            // newTab.setClosable(true);
             newTab.addStyleName("pad-text");   //$NON-NLS-1$
             newTab.add(panel);
             tabPanel.add(newTab);
             if (tabPanel.getItemCount() == 1)
                 tabPanel.setSelection(newTab);
         }else{
-            TabItem newTab = tabPanel.getItemByItemId(id);
+            newTab = tabPanel.getItemByItemId(id);
             if(newTab == null){
                 newTab = new TabItem(title); 
                 newTab.setId(id);
                 newTab.setItemId(id);
-                // newTab.setClosable(true);
                 newTab.addStyleName("pad-text");   //$NON-NLS-1$
                 panel.setHeight(this.getHeight() - 100);
                 newTab.add(panel);
@@ -149,6 +147,7 @@ public class ItemsDetailPanel extends ContentPanel {
                 newTab.layout(true);
             }
         }
+        return newTab;
     }
 
     public ItemPanel getCurrentItemPanel(){
