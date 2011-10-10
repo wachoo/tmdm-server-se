@@ -110,6 +110,8 @@ public class ItemDetailToolBar extends ToolBar {
 
     private ItemBaseModel selectItem;
 
+    private Button taskButton;
+
     public ItemDetailToolBar() {
         this.setBorders(false);
     }
@@ -160,6 +162,7 @@ public class ItemDetailToolBar extends ToolBar {
         this.addSeparator();
         this.addFreshButton();
         this.addRelationButton();
+        this.addOpenTaskButton();
     }
 
     private void initCreateToolBar() {
@@ -535,6 +538,29 @@ public class ItemDetailToolBar extends ToolBar {
         }
         add(generatedviewButton);
     }
+
+    private void addOpenTaskButton() {
+        if (taskButton == null && itemBean.getTaskId() != null
+                && !"".equals(itemBean.getTaskId()) && !"null".equals(itemBean.getTaskId())) {//$NON-NLS-1$ //$NON-NLS-2$
+            ItemDetailToolBar.this.addSeparator();
+            this.taskButton = new Button(MessagesFactory.getMessages().open_task());
+
+            taskButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+                @Override
+                public void componentSelected(ButtonEvent ce) {
+                    initDSC(itemBean.getTaskId());
+                }
+            });
+
+            add(taskButton);
+        }
+    }
+
+    private native boolean initDSC(String taskId)/*-{
+        $wnd.amalto.datastewardship.Datastewardship.taskItem(taskId);
+        return true;
+    }-*/;
 
     private void initSmartViewToolBar() {
         addGeneratedViewButton();

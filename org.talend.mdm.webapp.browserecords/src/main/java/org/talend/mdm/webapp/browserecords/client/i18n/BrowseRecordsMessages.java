@@ -324,4 +324,6 @@ public interface BrowseRecordsMessages extends Messages {
     
     String message_validate_max_occurence(int value);
     
+    String open_task();
+
 }

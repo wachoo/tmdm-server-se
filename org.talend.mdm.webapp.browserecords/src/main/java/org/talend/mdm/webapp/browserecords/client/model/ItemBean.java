@@ -30,6 +30,16 @@ public class ItemBean extends org.talend.mdm.webapp.base.client.model.ItemBean {
 
     private boolean readOnly;
 
+    private String taskId;
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
+
     @Deprecated
     public ItemBean() {
     }

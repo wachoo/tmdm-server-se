@@ -586,6 +586,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     "Browse_items_" + concept, ids, dataModel, dataCluster, DataModelHelper.getEleDecl(), wsItem); //$NON-NLS-1$
             itemBean.setItemXml(wsItem.getContent());
             itemBean.set("time", wsItem.getInsertionTime()); //$NON-NLS-1$
+            if (wsItem.getTaskId() != null && !"".equals(wsItem.getTaskId()) && !"null".equals(wsItem.getTaskId())) { //$NON-NLS-1$ //$NON-NLS-2$
+                itemBean.setTaskId(wsItem.getTaskId());
+            }
             // parse schema
             DataModelHelper.parseSchema(dataModel, concept, entityModel, RoleHelper.getUserRoles());
             // dynamic Assemble
@@ -2091,6 +2094,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 sb.append(str).append("."); //$NON-NLS-1$
             String idsStr = sb.substring(0, sb.length() - 1);
             ItemBean itemBean = new ItemBean(concept, idsStr, wsItem.getContent());
+            if (wsItem.getTaskId() != null && !"".equals(wsItem.getTaskId()) && !"null".equals(wsItem.getTaskId())) { //$NON-NLS-1$ //$NON-NLS-2$
+                itemBean.setTaskId(wsItem.getTaskId());
+            }
 
             String model = getCurrentDataModel();
             EntityModel entityModel = new EntityModel();
