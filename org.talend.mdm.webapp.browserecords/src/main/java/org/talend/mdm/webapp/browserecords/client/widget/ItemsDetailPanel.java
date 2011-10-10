@@ -126,6 +126,7 @@ public class ItemsDetailPanel extends ContentPanel {
             newTab = new TabItem(title);
             newTab.setId(id);
             newTab.addStyleName("pad-text");   //$NON-NLS-1$
+            panel.setHeight(this.getHeight() - 100);
             newTab.add(panel);
             tabPanel.add(newTab);
             if (tabPanel.getItemCount() == 1)
