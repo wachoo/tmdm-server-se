@@ -166,14 +166,7 @@ public class ForeignKeyPanel extends ContentPanel {
                     model.setValid(fkField.isValid());
                 }
             });
-
-            fkField.addListener(Events.Attach, new Listener<FieldEvent>() {
-
-                public void handleEvent(FieldEvent fe) {
-                    model.setValid(fkField.isValid());
-                }
-            });
-
+            model.setValid(fkField.isValid());
             return fkField;
         }
     };

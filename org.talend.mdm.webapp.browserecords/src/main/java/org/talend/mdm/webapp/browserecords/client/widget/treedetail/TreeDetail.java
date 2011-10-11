@@ -204,6 +204,19 @@ public class TreeDetail extends ContentPanel {
                     occurMap.put(countMapItem, count + 1);
                 }
             }
+            itemNode.addChangeListener(new ChangeListener() {
+
+                public void modelChanged(ChangeEvent event) {
+                    if (event.getType() == ChangeEventSource.Remove) {
+                        ItemNodeModel source = (ItemNodeModel) event.getItem();
+                        List<ItemNodeModel> fkContainers = ForeignKeyUtil.getAllForeignKeyModelParent(viewBean, source);
+                        for (ItemNodeModel fkContainer : fkContainers) {
+                            fkRender.removeRelationFkPanel(fkContainer);
+                        }
+                    }
+                }
+            });
+
             if (fkMap.size() > 0) {
                 DeferredCommand.addCommand(new Command() {
 
@@ -211,15 +224,6 @@ public class TreeDetail extends ContentPanel {
                         for (TypeModel model : fkMap.keySet()) {
                             fkRender.RenderForeignKey(itemNode, fkMap.get(model), model);
                         }
-                        itemNode.addChangeListener(new ChangeListener() {
-
-                            public void modelChanged(ChangeEvent event) {
-                                if (event.getType() == ChangeEventSource.Remove) {
-                                    ItemNodeModel source = (ItemNodeModel) event.getItem();
-                                    fkRender.removeRelationFkPanel(source);
-                                }
-                            }
-                        });
                     }
                 });
             }
@@ -239,6 +243,12 @@ public class TreeDetail extends ContentPanel {
         }
         item.setState(true);
         ItemNodeModel treeNode = item.getItemNodeModel();
+
+        List<ItemNodeModel> fkContainers = ForeignKeyUtil.getAllForeignKeyModelParent(viewBean, treeNode);
+        for (ItemNodeModel fkContainer : fkContainers) {
+            fkRender.removeRelationFkPanel(fkContainer);
+        }
+
         treeNode.setRealType(typeModel.getName());
         item.removeItems();
 
@@ -438,7 +448,8 @@ public class TreeDetail extends ContentPanel {
 
                 ItemNodeModel node = (ItemNodeModel) model;
                 if (!node.isValid() && node.getChildCount() == 0) {
-                    com.google.gwt.user.client.Window.alert(node.getName() + "'Value validate failure"); //$NON-NLS-1$
+                    com.google.gwt.user.client.Window.alert(node.getBindingPath()
+                            + "/" + node.getName() + "'Value validate failure"); //$NON-NLS-1$ //$NON-NLS-2$
                     flag = false;
                 }
 

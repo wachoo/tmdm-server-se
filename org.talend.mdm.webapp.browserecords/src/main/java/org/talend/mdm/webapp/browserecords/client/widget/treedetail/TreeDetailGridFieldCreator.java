@@ -328,11 +328,12 @@ public class TreeDetailGridFieldCreator {
     }
 
     private static void buildFacets(TypeModel typeModel, Widget w) {
-        List<FacetModel> facets = ((SimpleTypeModel) typeModel).getFacets();
-        for (FacetModel facet : facets) {
-            FacetEnum.setFacetValue(facet.getName(), w, facet.getValue());
+        if (typeModel instanceof SimpleTypeModel) {
+            List<FacetModel> facets = ((SimpleTypeModel) typeModel).getFacets();
+            for (FacetModel facet : facets) {
+                FacetEnum.setFacetValue(facet.getName(), w, facet.getValue());
+            }
         }
-
     }
 
     private static void setEnumerationValues(TypeModel typeModel, Widget w) {
