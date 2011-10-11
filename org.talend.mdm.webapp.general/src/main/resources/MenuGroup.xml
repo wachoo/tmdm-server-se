@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<menugroup>
+ <groupitem en="Home" fr="Accueil">
+  <item>welcomeportal.WelcomePortal</item>
+  <item>recyclebin.RecycleBin</item>
+ </groupitem>
+ 
+ <groupitem en="Browse" fr="Consultation">
+  <item>browserecords.BrowseRecords</item>
+  <item>ehierarchical.DerivedHierarchy</item>
+  <item>updatereport.UpdateReport</item>
+ </groupitem>
+ 
+  <groupitem en="Govern" fr="Gouvernance">
+  <item>datastewardship.Datastewardship</item>
+  <item>workflowtasks.WorkflowTasks</item>
+  <item>crossreferencing.CrossReferencing</item>
+ </groupitem>
+ 
+  <groupitem en="Administration" fr="Administration">
+  <item>usermanager.UserManager</item>
+  <item>licensemanager.LicenseManager</item>
+ </groupitem>
+ 
+</menugroup>

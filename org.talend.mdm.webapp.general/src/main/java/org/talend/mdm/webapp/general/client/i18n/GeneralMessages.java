@@ -41,6 +41,8 @@ public interface GeneralMessages extends Messages {
     
     String community();
     
+    String othermenu();
+
     String edition();
     
     String connected_to();

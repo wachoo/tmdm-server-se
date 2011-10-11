@@ -19,7 +19,9 @@ import org.talend.mdm.webapp.general.client.General;
 import org.talend.mdm.webapp.general.client.GeneralServiceAsync;
 import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
 import org.talend.mdm.webapp.general.client.resources.icon.Icons;
+import org.talend.mdm.webapp.general.model.GroupItem;
 import org.talend.mdm.webapp.general.model.MenuBean;
+import org.talend.mdm.webapp.general.model.MenuGroup;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -30,6 +32,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.HTML;
 
+@SuppressWarnings("nls")
 public class AccordionMenus extends ContentPanel {
 
     private static AccordionMenus instance;
@@ -55,28 +58,57 @@ public class AccordionMenus extends ContentPanel {
         return instance;
     }
 
-    public void initMenus(List<MenuBean> menus) {
-        ContentPanel menuPanel = new ContentPanel();
+    private void buildMenuGroup(ContentPanel menuPanel, MenuBean mb) {
+        String toCheckMenuID = mb.getContext() + "." + mb.getApplication(); //$NON-NLS-1$
+        String icon = makeImageIconPart(mb, toCheckMenuID);
+        StringBuffer str = new StringBuffer();
+        str.append("<span class='body'>"); //$NON-NLS-1$
+        str.append("<img src='" + icon + "'/>&nbsp;&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$
+        str.append("<span class='desc'>" + mb.getName() + "</span></span>"); //$NON-NLS-1$ //$NON-NLS-2$
+        HTML html = new HTMLMenuItem(mb, str.toString());
+        html.addClickHandler(clickHander);
+        menuPanel.add(html);
+    }
 
-        for (int i = 0; i < menus.size(); i++) {
-            MenuBean item = menus.get(i);
-            String toCheckMenuID = item.getContext() + "." + item.getApplication(); //$NON-NLS-1$
-            String icon = makeImageIconPart(item, toCheckMenuID);
-            StringBuffer str = new StringBuffer();
-            str.append("<span class='body'>"); //$NON-NLS-1$
-            str.append("<img src='" + icon + "'/>&nbsp;&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$
-            str.append("<span class='desc'>" + item.getName() + "</span></span>"); //$NON-NLS-1$ //$NON-NLS-2$
-            HTML html = new HTMLMenuItem(item, str.toString());
-            html.addClickHandler(clickHander);
-            menuPanel.add(html);
-        }
+    private void setCollapsable(ContentPanel menuPanel) {
         menuPanel.setAnimCollapse(false);
         menuPanel.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.accordion()));
         menuPanel.setScrollMode(Scroll.AUTO);
         this.add(menuPanel);
-        this.layout();
     }
 
+    public void initMenus(MenuGroup menuGroup) {
+        List<MenuBean> menus = menuGroup.getMenuBean();
+        for (GroupItem gi : menuGroup.getGroupItem()) {
+
+            ContentPanel menuPanel = new ContentPanel();
+            for (String gi2 : gi.getMenuItems()) {
+                MenuBean mb = getMenuBean(gi2, menus);
+                if (null != mb) {
+                    buildMenuGroup(menuPanel, mb);
+                }
+            }
+            menuPanel.setHeading(gi.getGroupHeader());
+            setCollapsable(menuPanel);
+        }
+
+        ContentPanel otherPanel = new ContentPanel();
+        otherPanel.setHeading(MessageFactory.getMessages().othermenu());
+        for (MenuBean mb : menus) {
+            if (!menuGroup.hasSpecifiedMenu(mb)) {
+                buildMenuGroup(otherPanel, mb);
+            }
+        }
+        setCollapsable(otherPanel);
+        this.layout();
+    }
+    private MenuBean getMenuBean(String menuName, List<MenuBean> menus) {
+        for (MenuBean mb : menus) {
+            if ((mb.getContext() + "." + mb.getApplication()).equals(menuName))
+                return mb;
+        }
+        return null;
+    }
     private String makeImageIconPart(MenuBean item, String toCheckMenuID) {
         String icon = null;
         if (item.getIcon() != null && item.getIcon().trim().length() != 0) {
@@ -154,17 +186,17 @@ public class AccordionMenus extends ContentPanel {
     }
 
     private native boolean initUI(String context, String application, String errorMsg)/*-{
-       if ($wnd.amalto[context]){
-            if ($wnd.amalto[context][application]){
-                $wnd.amalto[context][application].init();
-                return true;
-            } else {
-                $wnd.alert(errorMsg);
-            }
-        } else {
-            $wnd.alert(errorMsg);
-        }
-        return false;
+		if ($wnd.amalto[context]) {
+			if ($wnd.amalto[context][application]) {
+				$wnd.amalto[context][application].init();
+				return true;
+			} else {
+				$wnd.alert(errorMsg);
+			}
+		} else {
+			$wnd.alert(errorMsg);
+		}
+		return false;
     }-*/;
 
     class HTMLMenuItem extends HTML {

@@ -12,13 +12,11 @@
 // ============================================================================
 package org.talend.mdm.webapp.general.client.mvc.view;
 
-import java.util.List;
-
 import org.talend.mdm.webapp.general.client.layout.AccordionMenus;
 import org.talend.mdm.webapp.general.client.layout.BorderLayoutContainer;
 import org.talend.mdm.webapp.general.client.layout.WorkSpace;
 import org.talend.mdm.webapp.general.client.mvc.GeneralEvent;
-import org.talend.mdm.webapp.general.model.MenuBean;
+import org.talend.mdm.webapp.general.model.MenuGroup;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
@@ -44,7 +42,7 @@ public class GeneralView extends View {
         if (type == GeneralEvent.InitFrame) {
             initFrame(event);
         } else if (type == GeneralEvent.LoadMenus) {
-            AccordionMenus.getInstance().initMenus((List<MenuBean>) event.getData());
+            AccordionMenus.getInstance().initMenus((MenuGroup) event.getData());
             Dispatcher dispatcher = Dispatcher.get();
             dispatcher.dispatch(GeneralEvent.LoadActions);
         } else if (type == GeneralEvent.LoadWelcome) {

@@ -26,7 +26,7 @@ import org.talend.mdm.webapp.general.client.mvc.GeneralEvent;
 import org.talend.mdm.webapp.general.client.mvc.view.GeneralView;
 import org.talend.mdm.webapp.general.model.ActionBean;
 import org.talend.mdm.webapp.general.model.LanguageBean;
-import org.talend.mdm.webapp.general.model.MenuBean;
+import org.talend.mdm.webapp.general.model.MenuGroup;
 import org.talend.mdm.webapp.general.model.UserBean;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -91,12 +91,13 @@ public class GeneralController extends Controller {
     }
 
     private void loadMenu(final AppEvent event) {
-        service.getMenus(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<List<MenuBean>>() {
+        service.getMenus(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<MenuGroup>() {
 
-            public void onSuccess(List<MenuBean> result) {
+            public void onSuccess(MenuGroup result) {
                 event.setData(result);
                 forwardToView(view, event);
             }
+
         });
     }
 

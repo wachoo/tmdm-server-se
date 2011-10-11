@@ -15,6 +15,7 @@ import org.talend.mdm.webapp.general.model.ActionBean;
 import org.talend.mdm.webapp.general.model.ComboBoxModel;
 import org.talend.mdm.webapp.general.model.LanguageBean;
 import org.talend.mdm.webapp.general.model.MenuBean;
+import org.talend.mdm.webapp.general.model.MenuGroup;
 import org.talend.mdm.webapp.general.model.UserBean;
 import org.talend.mdm.webapp.general.server.util.Utils;
 import org.w3c.dom.Document;
@@ -40,15 +41,19 @@ public class GeneralAction implements GeneralService {
 
     private static final GWTConfigurationContext configurationContext = new GWTConfigurationContext();
 
-    public List<MenuBean> getMenus(String language) throws ServiceException {
+    public MenuGroup getMenus(String language) throws ServiceException {
+        MenuGroup result = new MenuGroup();
         try {
+
             List<MenuBean> menus = new ArrayList<MenuBean>();
             Utils.getSubMenus(Menu.getRootMenu(), language, menus, 1, 1);
-            return menus;
+            result.setMenuBean(menus);
+            result.setGroupItem(Utils.getGroupItems(language));
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
         }
+        return result;
     }
 
     private List<ComboBoxModel> getClusters() throws Exception {
@@ -148,7 +153,6 @@ public class GeneralAction implements GeneralService {
             throw new ServiceException(e.getLocalizedMessage());
         }
     }
-
     public void logout() throws ServiceException {
         try {
             String username = com.amalto.webapp.core.util.Util.getAjaxSubject().getUsername();

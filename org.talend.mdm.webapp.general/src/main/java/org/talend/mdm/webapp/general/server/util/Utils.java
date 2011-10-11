@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.webapp.general.server.util;
 
 import java.io.IOException;
@@ -11,6 +23,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
+import org.talend.mdm.webapp.general.model.GroupItem;
 import org.talend.mdm.webapp.general.model.LanguageBean;
 import org.talend.mdm.webapp.general.model.MenuBean;
 import org.w3c.dom.Document;
@@ -209,5 +222,37 @@ public class Utils {
             }
         }
         return languages;
+    }
+
+    public static List<GroupItem> getGroupItems(String language) throws IOException, SAXException,
+ ParserConfigurationException {
+        InputStream is = Utils.class.getResourceAsStream("/MenuGroup.xml"); //$NON-NLS-1$
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(is);
+        Element root = doc.getDocumentElement();
+        NodeList nodes = root.getChildNodes();
+        List<GroupItem> giList = new ArrayList<GroupItem>();
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Node node = nodes.item(i);
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                if (node.getNodeName().equals("groupitem")) { //$NON-NLS-1$ 
+                    GroupItem giNew = new GroupItem();
+                    giNew.setGroupHeader(node.getAttributes().getNamedItem(language).getNodeValue());
+                    NodeList items = node.getChildNodes();
+                    List<String> menuItems = new ArrayList<String>();
+                    for (int k = 0; k < items.getLength(); k++) {
+                        Node item = items.item(k);
+                        if (item.getNodeName().equals("item")) { //$NON-NLS-1$
+                            menuItems.add(item.getTextContent());
+                        }
+                    }
+                    giNew.setMenuItems(menuItems);
+                    giList.add(giNew);
+                }
+                }
+            }
+
+        return giList;
     }
 }
