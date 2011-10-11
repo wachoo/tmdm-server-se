@@ -14,10 +14,8 @@ package org.talend.mdm.webapp.browserecords.client.widget;
 
 import java.util.Map;
 
-import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
-import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyUtil;
 
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Composite;
@@ -30,11 +28,11 @@ public class BreadCrumb extends Composite {
 
     public static String DEFAULTNAME = "Talend MDM", DEFAULTLINK = "../talendmdm/secure"; //$NON-NLS-1$ //$NON-NLS-2$    
 
-    public BreadCrumb(Map<String, ItemBean> list) {
+    public BreadCrumb(Map<String, String> list) {
         int i = 0;
 
         for (String name : list.keySet()) {
-            HTML h = initBreadCrumb(list.get(name), name);
+            HTML h = initBreadCrumb(list.get(name), name, list.get(name) != null ? true : false);
             pWidget.add(h);
             ++i;
             if (i != list.size())
@@ -44,28 +42,40 @@ public class BreadCrumb extends Composite {
         initWidget(pWidget);
     }
 
-    public void appendBreadCrumb(String name, ItemBean item) {
+    public void appendBreadCrumb(String concept, String ids) {
         if (pWidget != null) {
+            HTML tmph = new HTML("<a>" + ids + "</a><input value=\"" + concept + "\"' type=\"hidden\">");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$   
+            if (pWidget.getWidget(pWidget.getWidgetCount() - 1).getElement().getInnerHTML().equals(tmph.getHTML()))
+                return;
             pWidget.add(new HTML("&nbsp;&#187;&nbsp;"));//$NON-NLS-1$     
-            HTML h = initBreadCrumb(item, name);
+            HTML h = initBreadCrumb(concept, ids, true);
             pWidget.add(h);
         }
     }
 
-    private HTML initBreadCrumb(final ItemBean item, String name) {
+    private HTML initBreadCrumb(final String concept, final String ids, boolean ifLink) {
         HTML h = null;
-        if (item != null) {
-            h = new HTML("<a>" + name + "</a>");//$NON-NLS-1$ //$NON-NLS-2$            
+        if (ifLink) {
+            h = new HTML("<a>" + ids + "</a><input value=\"" + concept + "\"' type=\"hidden\">");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$             
             h.addClickHandler(new ClickHandler() {
 
-                public void onClick(ClickEvent arg0) {
-                    Dispatcher.forwardEvent(BrowseRecordsEvents.ViewItem, item);
+                public void onClick(ClickEvent event) {
+                    ForeignKeyUtil.displayForeignKey(false, concept, ids);
+                    if (pWidget != null) {
+                        HTML clickedHtml = (HTML) event.getSource();
+                        int index = pWidget.getWidgetIndex(clickedHtml);
+                        if (index > -1) {
+                            while (pWidget.getWidgetCount() - 1 > index) {
+                                pWidget.remove(pWidget.getWidgetCount() - 1);
+                            }
+                        }
+                    }
                 }
 
             });
 
         } else {
-            h = new HTML("<font style=\"color: #2D5593\">" + name + "</font>"); //$NON-NLS-1$ //$NON-NLS-2$
+            h = new HTML("<font style=\"color: #2D5593\">" + ids + "</font>"); //$NON-NLS-1$ //$NON-NLS-2$
         }
         return h;
     }

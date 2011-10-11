@@ -51,9 +51,9 @@ h1 {
 }
 
 a{
-	font:bold;
-    cursor:hand;
-	color: #2D5593;
+	cursor: pointer;
+    font-weight: bold;
+	color: #2D5593 !important;
 }
 
 

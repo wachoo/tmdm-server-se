@@ -122,7 +122,7 @@ public class ForeignKeyUtil {
         }
     }
 
-    private static void displayForeignKey(boolean isCreateForeignKey, final String foreignKeyName, final String ids) {
+    public static void displayForeignKey(boolean isCreateForeignKey, final String foreignKeyName, final String ids) {
         Dispatcher dispatch = Dispatcher.get();
         AppEvent event = new AppEvent(BrowseRecordsEvents.CreateForeignKeyView, foreignKeyName);
         if (!isCreateForeignKey) {

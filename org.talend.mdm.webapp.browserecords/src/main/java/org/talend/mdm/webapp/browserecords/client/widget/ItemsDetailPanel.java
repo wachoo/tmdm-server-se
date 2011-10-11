@@ -14,8 +14,6 @@ package org.talend.mdm.webapp.browserecords.client.widget;
 
 import java.util.List;
 
-import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
-
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.TabItem;
@@ -87,10 +85,10 @@ public class ItemsDetailPanel extends ContentPanel {
         this.breadCrumb.clear();
     }
 
-    public void appendBreadCrumb(String name, ItemBean item) {
+    public void appendBreadCrumb(String concept, String ids) {
         if (this.breadCrumb.getWidget() instanceof BreadCrumb) {
             BreadCrumb curBC = (BreadCrumb) this.breadCrumb.getWidget();
-            curBC.appendBreadCrumb(name, item);
+            curBC.appendBreadCrumb(concept, ids);
         }
     }
 

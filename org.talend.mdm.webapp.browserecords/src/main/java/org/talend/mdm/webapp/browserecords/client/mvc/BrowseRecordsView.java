@@ -135,10 +135,10 @@ public class BrowseRecordsView extends View {
             // breads.add(BreadCrumb.DEFAULTNAME);
             // breads.add(item.getConcept());
             // breads.add(item.getIds());
-            Map<String, ItemBean> breads = new LinkedHashMap<String, ItemBean>();
+            Map<String, String> breads = new LinkedHashMap<String, String>();
             breads.put(BreadCrumb.DEFAULTNAME, null);
             breads.put(item.getConcept(), null);
-            breads.put(item.getIds(), item);
+            breads.put(item.getIds(), item.getConcept());
             ItemsDetailPanel.getInstance().initBreadCrumb(new BreadCrumb(breads));
         }
     }
