@@ -13,7 +13,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/jboss-saaj.jar" sourcepath="talend.mdm.librariessrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/servlet-api.jar" sourcepath="talend.mdm.librariessrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/z.castor-1.0.5-xml.jar" sourcepath="talend.mdm.librariessrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="lib/z.com.amalto.connector.library.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/z.com.amalto.connector.library.jar" sourcepath="/org.talend.mdm.connector.core"/>
 	<classpathentry exported="true" kind="lib" path="lib/z.crimson.jar" sourcepath="talend.mdm.librariessrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/z.jazzy-core.jar" sourcepath="talend.mdm.librariessrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/activation.jar" sourcepath="talend.mdm.librariessrc.zip"/>
@@ -40,11 +40,11 @@
 	<classpathentry exported="true" kind="lib" path="lib/commons-fileupload.jar" sourcepath="talend.mdm.librariessrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-io.jar" sourcepath="talend.mdm.librariessrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/xercesImpl-2.9.1.jar" sourcepath="talend.mdm.librariessrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-collections.jar" sourcepath="talend.mdm.librariessrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/z.bsh-2.0b2.jar" sourcepath="talend.mdm.librariessrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/junit-3.8.1.jar" sourcepath="talend.mdm.librariessrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/asm-3.1.jar" sourcepath="talend.mdm.librariessrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/z.exist.1.4-xmldb.jar" sourcepath="talend.mdm.librariessrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/z.exist.1.4.TalendPatch.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry kind="lib" path="lib/commons-collections.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -114,7 +114,7 @@ public class JobInvoke {
             throw (e);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new JoboxException();
+            throw new JoboxException(e.getCause().getLocalizedMessage());
         }
 
         return result;
