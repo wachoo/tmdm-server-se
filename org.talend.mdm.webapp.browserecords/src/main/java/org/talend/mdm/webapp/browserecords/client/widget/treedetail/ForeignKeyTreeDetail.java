@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
-import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
@@ -222,12 +221,8 @@ public class ForeignKeyTreeDetail extends ContentPanel {
             for (ModelData model : itemNode.getChildren()) {
                 ItemNodeModel node = (ItemNodeModel) model;
                 TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath());
-                if (this.isCreate && this.model != null) {// duplicate
-                    if (typeModel.getType().equals(DataTypeConstants.UUID)
-                            || typeModel.getType().equals(DataTypeConstants.AUTO_INCREMENT)) {
-                        node.setObjectValue(null); // id
-                    }
-                }
+                if (this.isCreate && this.model != null && node.isKey()) // duplicate
+                    node.setObjectValue(null); // id
                 if (typeModel.getForeignkey() != null && fkRender != null) {
                     if (!fkMap.containsKey(typeModel))
                         fkMap.put(typeModel, new ArrayList<ItemNodeModel>());
