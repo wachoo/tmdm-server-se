@@ -122,6 +122,7 @@ public class TreeDetail extends ContentPanel {
     public TreeDetail() {
         this.setHeaderVisible(false);
         this.setHeight(1000);
+        this.setAutoWidth(true);
         this.setScrollMode(Scroll.AUTO);
     }
 

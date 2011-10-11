@@ -51,6 +51,11 @@ public class ItemPanel extends ContentPanel {
 
     }
 
+    public void onAttach() {
+        Window.enableScrolling(true);
+        super.onAttach();
+    }
+
     public ItemPanel(ViewBean viewBean, ItemBean item, String operation) {
         this.viewBean = viewBean;
         this.item = item;

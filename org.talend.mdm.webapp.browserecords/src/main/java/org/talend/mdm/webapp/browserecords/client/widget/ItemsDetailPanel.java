@@ -15,6 +15,9 @@ package org.talend.mdm.webapp.browserecords.client.widget;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
@@ -55,14 +58,12 @@ public class ItemsDetailPanel extends ContentPanel {
         this.setBodyBorder(false);
         this.setHeaderVisible(false);
         this.setLayout(new RowLayout(Orientation.VERTICAL));
-        this.setWidth(800);
         this.setHeight(500);
         this.initPanel();
     }
     
     private void initPanel() {
         add(breadCrumb);
-        // tabPanel.setWidth(450);
         banner.setHeaderVisible(false);
         banner.setHeight("56px"); //$NON-NLS-1$
         banner.setBodyBorder(false);
@@ -73,7 +74,12 @@ public class ItemsDetailPanel extends ContentPanel {
         banner.add(textDesc);
         add(banner);
         tabPanel.setTabScroll(true);
-        tabPanel.setAutoHeight(true);
+        tabPanel.addListener(Events.Resize, new Listener<BaseEvent>() {
+
+            public void handleEvent(BaseEvent be) {
+                tabPanel.setHeight(ItemsDetailPanel.this.getOffsetHeight() - 50);
+            }
+        });
         add(tabPanel);        
     }
 
