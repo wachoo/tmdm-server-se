@@ -50,7 +50,6 @@ import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
-import com.extjs.gxt.ui.client.widget.form.NumberPropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -165,7 +164,7 @@ public class TreeDetailGridFieldCreator {
         }
 
         // facet set
-        if (field instanceof TextField<?>) {
+        if (field instanceof TextField<?> && !(dataType instanceof ComplexTypeModel)) {
             buildFacets(dataType, field);
             String errorMsg = dataType.getFacetErrorMsgs().get(language);
             field.setData("facetErrorMsgs", errorMsg);//$NON-NLS-1$        
@@ -351,7 +350,7 @@ public class TreeDetailGridFieldCreator {
 
         boolean flag = false;
         ItemNodeModel parent = (ItemNodeModel) node.getParent();
-        if (parent.getParent() != null && !parent.isMandatory()) {
+        if (parent != null && parent.getParent() != null && !parent.isMandatory()) {
             List childs = parent.getChildren();
             for (int i = 0; i < childs.size(); i++) {
                 ItemNodeModel child = (ItemNodeModel) childs.get(i);
@@ -381,7 +380,6 @@ public class TreeDetailGridFieldCreator {
         } else {
             setMandatory(field, node.isMandatory());
         }
-
     }
 
     private static void setMandatory(Field<?> field, boolean mandatory) {
