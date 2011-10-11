@@ -122,9 +122,15 @@ public class TreeDetailGridFieldCreator {
             List<ComplexTypeModel> reusableTypes = ((ComplexTypeModel) dataType).getReusableComplexTypes();
             ListStore<ComboBoxModel> comboxStore = new ListStore<ComboBoxModel>();
             comboxField.setStore(comboxStore);
-            for (TypeModel subType : reusableTypes) {
-                ComboBoxModel cbm = new ComboBoxModel(subType.getName(), subType.getName());
-                cbm.set("reusableType", subType); //$NON-NLS-1$
+            for (int i = 0; i < reusableTypes.size(); i++) {
+                ComboBoxModel cbm;
+                if (dataType.isAbstract() && i == 0) {
+                    cbm = new ComboBoxModel(reusableTypes.get(i).getName(),
+                            "[" + MessagesFactory.getMessages().abstract_type() + "]"); //$NON-NLS-1$ //$NON-NLS-2$
+                } else {
+                    cbm = new ComboBoxModel(reusableTypes.get(i).getName(), reusableTypes.get(i).getName());
+                }
+                cbm.set("reusableType", reusableTypes.get(i)); //$NON-NLS-1$
                 comboxStore.add(cbm);
             }
             if (comboxStore.getCount() > 0) {

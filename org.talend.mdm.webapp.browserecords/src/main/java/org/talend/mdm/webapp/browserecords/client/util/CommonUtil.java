@@ -159,7 +159,7 @@ public class CommonUtil {
     	ItemNodeModel parent = (ItemNodeModel) node.getParent();
     	ItemNodeModel root = null;
     	
-    	if(parent.getParent() != null) {
+        if (parent != null && parent.getParent() != null) {
     		root = recrusiveRoot(parent);
     	}
     	else {

@@ -328,4 +328,5 @@ public interface BrowseRecordsMessages extends Messages {
     
     String open_task();
 
+    String abstract_type();
 }
