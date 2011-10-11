@@ -6,6 +6,7 @@ import java.util.List;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
+import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.widget.TabItem;
 
@@ -17,10 +18,11 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
 
     }
 
-    public void RenderForeignKey(ItemNodeModel parentModel, List<ItemNodeModel> fkNodeModelList, TypeModel fkTypeModel) {
+    public void RenderForeignKey(ViewBean viewBean, ItemNodeModel parentModel, List<ItemNodeModel> fkNodeModelList,
+            TypeModel fkTypeModel) {
         if (fkNodeModelList != null) {
 
-            ForeignKeyPanel fkPanel = new ForeignKeyPanel(fkNodeModelList, fkTypeModel);
+            ForeignKeyTablePanel fkPanel = new ForeignKeyTablePanel(viewBean, parentModel, fkNodeModelList, fkTypeModel);
             TabItem tabItem = ItemsDetailPanel.getInstance().addTabItem(fkTypeModel.getXpath(), fkPanel,
                     ItemsDetailPanel.MULTIPLE, fkTypeModel.getXpath());
             relationFk.put(parentModel, tabItem);

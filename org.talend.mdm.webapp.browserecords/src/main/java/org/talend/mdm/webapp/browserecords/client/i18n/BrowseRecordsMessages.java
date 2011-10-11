@@ -328,5 +328,10 @@ public interface BrowseRecordsMessages extends Messages {
     
     String open_task();
 
+    String add_btn();
+
+    String remove_btn();
+
     String abstract_type();
+
 }
