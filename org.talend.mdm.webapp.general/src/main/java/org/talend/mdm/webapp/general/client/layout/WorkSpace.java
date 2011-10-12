@@ -42,7 +42,6 @@ public class WorkSpace extends LayoutContainer {
         super();
         this.setLayout(new FitLayout());
         workTabPanel.setMinTabWidth(115);
-        workTabPanel.setResizeTabs(true);
         workTabPanel.setAnimScroll(true);
         workTabPanel.setTabScroll(true);
         this.add(workTabPanel);
