@@ -47,6 +47,8 @@ public class CommonUtil {
         if (typeModel.isSimpleType() && value != null && nodeModel.getParent() != null) {
             if (value instanceof ForeignKeyBean)
                 root.appendChild(doc.createTextNode(((ForeignKeyBean) value).getId()));
+            else if (value instanceof Date)
+                root.appendChild(doc.createTextNode(DateUtil.convertDate((Date) value)));
             else
                 root.appendChild(doc.createTextNode(value.toString()));
         }
@@ -71,6 +73,7 @@ public class CommonUtil {
         if (model.getMinOccurs() > 1 && model.getMaxOccurs() > model.getMinOccurs()) {
             for (int i = 0; i < model.getMaxOccurs() - model.getMinOccurs(); i++) {
                 ItemNodeModel itemNode = new ItemNodeModel();
+
                 itemNodes.add(itemNode);
                 if (model.getForeignkey() != null)
                     break;
@@ -81,6 +84,9 @@ public class CommonUtil {
         }
 
         for (ItemNodeModel node : itemNodes) {
+            if (model.getMinOccurs() > 0) {
+                node.setMandatory(true);
+            }
             if (model.isSimpleType()) {
                 setDefaultValue(model, node);
             } else {
@@ -154,19 +160,18 @@ public class CommonUtil {
             }
         }
     }
-    
+
     public static ItemNodeModel recrusiveRoot(ItemNodeModel node) {
-    	ItemNodeModel parent = (ItemNodeModel) node.getParent();
-    	ItemNodeModel root = null;
-    	
+        ItemNodeModel parent = (ItemNodeModel) node.getParent();
+        ItemNodeModel root = null;
+
         if (parent != null && parent.getParent() != null) {
-    		root = recrusiveRoot(parent);
-    	}
-    	else {
-    		root = parent;
-    	}
-    	
-    	return root;
+            root = recrusiveRoot(parent);
+        } else {
+            root = parent;
+        }
+
+        return root;
     }
 
     public static String pickOutISOMessage(String message) {

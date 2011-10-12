@@ -46,6 +46,9 @@ public class CommonUtil {
         }
 
         for (ItemNodeModel node : itemNodes) {
+            if (model.getMinOccurs() > 0) {
+                node.setMandatory(true);
+            }
             if (model.isSimpleType()) {
                 setDefaultValue(model, node);
             } else {
