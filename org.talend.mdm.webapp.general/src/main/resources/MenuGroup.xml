@@ -14,7 +14,7 @@
   <groupitem en="Govern" fr="Gouvernance">
   <item>datastewardship.Datastewardship</item>
   <item>workflowtasks.WorkflowTasks</item>
-  <item>crossreferencing.CrossReferencing</item>
+  <item>crossreference.CrossReference</item>
  </groupitem>
  
   <groupitem en="Administration" fr="Administration">
