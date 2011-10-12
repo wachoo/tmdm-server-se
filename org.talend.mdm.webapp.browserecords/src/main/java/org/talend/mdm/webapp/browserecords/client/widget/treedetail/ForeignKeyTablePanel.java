@@ -144,7 +144,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                 public Object render(ItemNodeModel model, String property, ColumnData config, int rowIndex, int colIndex,
                         ListStore<ItemNodeModel> store, Grid<ItemNodeModel> grid) {
                     ForeignKeyBean fkBean = (ForeignKeyBean) model.getObjectValue();
-                    return fkBean != null ? fkBean.getDisplayInfo().split("-")[index] : ""; //$NON-NLS-1$ //$NON-NLS-2$
+                    return fkBean != null && fkBean.getDisplayInfo() != null ? fkBean.getDisplayInfo().split("-")[index] : ""; //$NON-NLS-1$ //$NON-NLS-2$
                 }
             });
             columnConfigs.add(column);
