@@ -57,9 +57,9 @@ public interface BrowseRecordsServiceAsync {
 
     void getView(String viewPk, String language, AsyncCallback<ViewBean> callback);
 
-    void deleteItemBean(ItemBean item, boolean override, AsyncCallback<String> callback);
+    void deleteItemBean(ItemBean item, boolean override, String language, AsyncCallback<String> callback);
 
-    void deleteItemBeans(List<ItemBean> items, boolean override, AsyncCallback<List<String>> callback);
+    void deleteItemBeans(List<ItemBean> items, boolean override, String language, AsyncCallback<List<String>> callback);
 
     void checkFKIntegrity(List<ItemBean> selectedItems, AsyncCallback<Map<ItemBean, FKIntegrityResult>> asyncCallback);
 
@@ -92,7 +92,7 @@ public interface BrowseRecordsServiceAsync {
 
     void getMandatoryFieldList(String tableName, AsyncCallback<List<String>> callback);
 
-    void saveItem(String concept, String ids, String xml, boolean isCreate, AsyncCallback<String> callback);
+    void saveItem(String concept, String ids, String xml, boolean isCreate, String language, AsyncCallback<String> callback);
 
     void getColumnTreeLayout(String concept, AsyncCallback<ColumnTreeLayoutModel> callback);
 

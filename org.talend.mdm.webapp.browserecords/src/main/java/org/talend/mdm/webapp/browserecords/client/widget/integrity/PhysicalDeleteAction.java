@@ -4,6 +4,7 @@ import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
+import org.talend.mdm.webapp.browserecords.client.util.Locale;
 
 import com.extjs.gxt.ui.client.widget.MessageBox;
 
@@ -14,7 +15,7 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 class PhysicalDeleteAction implements DeleteAction {
 
     public void delete(ItemBean item, BrowseRecordsServiceAsync service, boolean override) {
-        service.deleteItemBean(item, override, new SessionAwareAsyncCallback<String>() {
+        service.deleteItemBean(item, override, Locale.getLanguage(), new SessionAwareAsyncCallback<String>() {
 
             public void onSuccess(String msg) {
                 if (msg != null) {

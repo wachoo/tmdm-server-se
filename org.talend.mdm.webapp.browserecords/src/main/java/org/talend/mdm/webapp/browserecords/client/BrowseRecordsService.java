@@ -60,9 +60,9 @@ public interface BrowseRecordsService extends RemoteService {
 
     ViewBean getView(String viewPk, String language) throws ServiceException;
 
-    String deleteItemBean(ItemBean item, boolean override) throws ServiceException;
+    String deleteItemBean(ItemBean item, boolean override, String language) throws ServiceException;
 
-    List<String> deleteItemBeans(List<ItemBean> items, boolean override) throws ServiceException;
+    List<String> deleteItemBeans(List<ItemBean> items, boolean override, String language) throws ServiceException;
 
     Map<ItemBean, FKIntegrityResult> checkFKIntegrity(List<ItemBean> selectedItems) throws ServiceException;
 
@@ -95,7 +95,7 @@ public interface BrowseRecordsService extends RemoteService {
 
     List<String> getMandatoryFieldList(String tableName) throws ServiceException;
 
-    String saveItem(String concept, String ids, String xml, boolean isCreate) throws ServiceException;
+    String saveItem(String concept, String ids, String xml, boolean isCreate, String language) throws ServiceException;
 
     ColumnTreeLayoutModel getColumnTreeLayout(String concept) throws ServiceException;
 

@@ -170,7 +170,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     private static final Pattern extractIdPattern = Pattern.compile("\\[.*?\\]"); //$NON-NLS-1$
 
-    public String deleteItemBean(ItemBean item, boolean override) throws ServiceException {
+    public String deleteItemBean(ItemBean item, boolean override, String language) throws ServiceException {
         try {
             String dataClusterPK = getCurrentDataCluster();
             String concept = item.getConcept();
@@ -187,7 +187,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if (errorNode instanceof Element) {
                     Element errorElement = (Element) errorNode;
                     errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
-                    message = errorElement.getTextContent();
+                    Pattern p = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL);//$NON-NLS-1$//$NON-NLS-2$
+                    message = p.matcher(errorElement.getTextContent()).replaceAll("$1");//$NON-NLS-1$                   
                 }
             }
 
@@ -228,10 +229,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    public List<String> deleteItemBeans(List<ItemBean> items, boolean override) throws ServiceException {
+    public List<String> deleteItemBeans(List<ItemBean> items, boolean override, String language) throws ServiceException {
         List<String> itemResults = new ArrayList<String>();
         for (ItemBean item : items) {
-            String itemResult = deleteItemBean(item, override);
+            String itemResult = deleteItemBean(item, override, language);
             itemResults.add(itemResult);
         }
         return itemResults;
@@ -1590,7 +1591,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    public String saveItem(String concept, String ids, String xml, boolean isCreate) throws ServiceException {
+    public String saveItem(String concept, String ids, String xml, boolean isCreate, String language) throws ServiceException {
 
         try {
             String message = null;
@@ -1617,7 +1618,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
                         org.w3c.dom.Node child = errorElement.getFirstChild();
                         if (child instanceof org.w3c.dom.Text) {
-                            message = child.getTextContent();
+                            Pattern p = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL);//$NON-NLS-1$//$NON-NLS-2$
+                            message = p.matcher(child.getTextContent()).replaceAll("$1");//$NON-NLS-1$                           
                         }
                     }
                 }

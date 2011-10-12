@@ -101,8 +101,8 @@ public class BrowseRecordsController extends Controller {
         ItemBean itemBean = event.getData("ItemBean"); //$NON-NLS-1$
         final Boolean isCreate = event.getData("isCreate"); //$NON-NLS-1$
         final Boolean isClose = event.getData("isClose"); //$NON-NLS-1$
-        service.saveItem(itemBean.getConcept(), itemBean.getIds(), CommonUtil.toXML(model, viewBean), isCreate,
-                new SessionAwareAsyncCallback<String>() {
+        service.saveItem(itemBean.getConcept(), itemBean.getIds(), CommonUtil.toXML(model, viewBean), isCreate, Locale
+                .getLanguage(), new SessionAwareAsyncCallback<String>() {
 
                     @Override
                     protected void doOnFailure(Throwable caught) {
