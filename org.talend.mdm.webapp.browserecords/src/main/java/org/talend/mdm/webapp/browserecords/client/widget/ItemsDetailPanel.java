@@ -12,9 +12,11 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -38,8 +40,8 @@ public class ItemsDetailPanel extends ContentPanel {
 
     private SimplePanel breadCrumb = new SimplePanel();
     private ContentPanel banner = new ContentPanel();
-    Text textTitle = new Text();
-    Text textDesc = new Text();
+    private Text textTitle = new Text();
+    private List<Text> subTitleList = new ArrayList<Text>();
     
     public static ItemsDetailPanel getInstance() {
         if (instance == null) {
@@ -67,11 +69,9 @@ public class ItemsDetailPanel extends ContentPanel {
         banner.setHeaderVisible(false);
         banner.setHeight("56px"); //$NON-NLS-1$
         banner.setBodyBorder(false);
+        banner.setScrollMode(Scroll.AUTO);
         
         textTitle.setStyleName("Title"); //$NON-NLS-1$
-        textDesc.setStyleName("Description"); //$NON-NLS-1$
-        banner.add(textTitle);
-        banner.add(textDesc);
         add(banner);
         tabPanel.setTabScroll(true);
         tabPanel.addListener(Events.Resize, new Listener<BaseEvent>() {
@@ -100,31 +100,33 @@ public class ItemsDetailPanel extends ContentPanel {
 
     public void initBanner(List<String> xpathList) {
         if (xpathList != null && xpathList.size() > 0) {
+            clearBanner();
             banner.getBody().setStyleName("banner"); //$NON-NLS-1$
-            StringBuilder title = new StringBuilder();
-            StringBuilder subTitle = new StringBuilder();
-
-            if (xpathList.size() == 1) {
-                title.append(xpathList.get(0));
-            } else {
-                title.append(xpathList.get(0)).append("-").append(xpathList.get(1)); //$NON-NLS-1$
-                if (xpathList.size() > 2) {
-                    for (int i = 2; i < xpathList.size(); i++) {
-                        subTitle.append(xpathList.get(i)).append("-"); //$NON-NLS-1$
-                    }
-                }
+            int i = 1;
+            for(String str : xpathList){
+                if(i == 1){
+                    textTitle.setText(str);
+                    banner.add(textTitle);
+                    i++;
+                    continue;
+                }               
+                Text subTitle = new Text();
+                subTitle.setStyleName("Description"); //$NON-NLS-1$
+                subTitle.setText(str);
+                subTitleList.add(subTitle);
+                banner.add(subTitle);        
             }
-            textTitle.setText(title.toString());
-            if (subTitle.length() > 0)
-                textDesc.setText(subTitle.substring(0, subTitle.length() - 1));
-            else
-                textDesc.setText(""); //$NON-NLS-1$
+            banner.layout(true);
         }
     }
 
     public void clearBanner() {
         textTitle.setText(null);
-        textDesc.setText(null);
+        for(Text text : subTitleList) {
+            banner.remove(text);
+        }
+        subTitleList.clear();
+        banner.layout(true);
     }
 
     public void clearAll() {
