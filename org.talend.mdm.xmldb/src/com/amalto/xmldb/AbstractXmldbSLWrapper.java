@@ -520,6 +520,10 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
         throw new UnsupportedOperationException();
     }
 
+    public List<String> globalSearch(String dataCluster, String keyword, int start, int end) throws XmlServerException {
+        throw new UnsupportedOperationException(); // By default, this is not supported (see EE implementations of the interface).
+    }
+
     public void doActivate() throws XmlServerException {
         // NOOP
     }

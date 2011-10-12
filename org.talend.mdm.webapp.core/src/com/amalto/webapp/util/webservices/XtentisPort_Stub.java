@@ -13,6 +13,7 @@ import com.sun.xml.rpc.soap.message.*;
 
 import javax.xml.namespace.QName;
 import java.rmi.RemoteException;
+import java.util.List;
 
 import com.sun.xml.rpc.client.SenderException;
 import com.sun.xml.rpc.client.*;
@@ -506,6 +507,10 @@ public class XtentisPort_Stub
     }
 
     public FKIntegrityCheckResult checkFKIntegrity(WSDeleteItem item) throws RemoteException {
+        throw new RuntimeException("Not implemented in web service");
+    }
+
+    public List<String> globalSearch(String dataCluster, String keyword, int start, int end) throws RemoteException {
         throw new RuntimeException("Not implemented in web service");
     }
 

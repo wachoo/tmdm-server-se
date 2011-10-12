@@ -1364,4 +1364,8 @@ public abstract class QueryBuilder {
             LOG.debug(query);
         return query.toString();
     }
+
+    public String getGlobalSearchQuery(String dataCluster, String keyword, int start, int end) {
+        throw new UnsupportedOperationException();
+    }
 }

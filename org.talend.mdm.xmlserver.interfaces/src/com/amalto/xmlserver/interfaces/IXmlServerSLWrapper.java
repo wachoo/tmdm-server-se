@@ -634,4 +634,5 @@ public interface IXmlServerSLWrapper {
     public void rollback() throws XmlServerException;
     public void end() throws XmlServerException;
     public void close() throws XmlServerException;
+    public List<String> globalSearch(String dataCluster, String keyword, int start, int end) throws XmlServerException;
 }

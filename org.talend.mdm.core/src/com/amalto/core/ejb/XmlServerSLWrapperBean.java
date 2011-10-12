@@ -1264,5 +1264,13 @@ public class XmlServerSLWrapperBean implements SessionBean {
             throw new XtentisException(e);
         }
     }
+
+    public List<String> globalSearch( String dataCluster, String keyword, int start, int end ) throws com.amalto.core.util.XtentisException {
+        try {
+            return server.globalSearch(dataCluster, keyword, start, end);
+        } catch (XmlServerException e) {
+            throw new XtentisException(e);
+        }
+    }
 	
 }

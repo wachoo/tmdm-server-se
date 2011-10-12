@@ -407,5 +407,7 @@ public interface XmlServerSLWrapperLocal extends javax.ejb.EJBLocalObject {
 
     public void end() throws XtentisException;
 
-   public void close(  ) throws com.amalto.core.util.XtentisException;
+    public void close(  ) throws com.amalto.core.util.XtentisException;
+
+    public List<String> globalSearch(String dataCluster, String keyword, int start, int end) throws com.amalto.core.util.XtentisException;
 }

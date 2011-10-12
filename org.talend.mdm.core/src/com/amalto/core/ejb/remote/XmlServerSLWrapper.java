@@ -357,4 +357,7 @@ public interface XmlServerSLWrapper
 
    public void close(  )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+
+   public List<String> globalSearch( String dataCluster, String keyword, int start, int end )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 }
