@@ -373,15 +373,14 @@ public class DataModelHelper {
                         } else if ("X_Visible_Rule".equals(appinfoSource)) { //$NON-NLS-1$
                             typeModel.setHasVisibleRule(true);
                             DisplayRulesUtil.getVisibleRules().put(typeModel.getXpath(), appinfoSourceValue);
-                        } else if("X_AutoExpand".equals(appinfoSource)) { //$NON-NLS-1$
-                        	String v = annotList.item(k).getFirstChild().getNodeValue();
-                        	
-                        	if(v != null){
-                        		typeModel.setAutoExpand(Boolean.valueOf(v));
-                        	}
+                        } else if ("X_AutoExpand".equals(appinfoSource)) { //$NON-NLS-1$
+                            String v = annotList.item(k).getFirstChild().getNodeValue();
+
+                            if (v != null) {
+                                typeModel.setAutoExpand(Boolean.valueOf(v));
+                            }
                         }
                     }
-
                 }
             }// end for
             if (Util.isEnterprise())
@@ -478,7 +477,9 @@ public class DataModelHelper {
             if (tm.getDefaultValueExpression() != null && tm.getDefaultValueExpression().trim().length() > 0) {
                 String style = genDefaultValueStyle(concept, path, tm.getDefaultValueExpression());
                 org.dom4j.Document transformedDocumentValue = XmlUtil.styleDocument(dom4jDoc, style);
-                org.dom4j.Node node = transformedDocumentValue.selectSingleNode(path);
+                int beginIndex = path.lastIndexOf("/"); //$NON-NLS-1$
+                String matchPath = beginIndex != -1 ? path.substring(beginIndex) : path;
+                org.dom4j.Node node = transformedDocumentValue.selectSingleNode(concept + "/" + matchPath); //$NON-NLS-1$
                 if (node != null) {
                     tm.setDefaultValue(node.getText());
                 }
