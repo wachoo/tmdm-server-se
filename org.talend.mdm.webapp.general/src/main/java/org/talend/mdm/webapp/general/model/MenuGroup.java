@@ -15,7 +15,7 @@ package org.talend.mdm.webapp.general.model;
 import java.io.Serializable;
 import java.util.List;
 
-@SuppressWarnings("nls")
+
 public class MenuGroup implements Serializable {
 
     private static final long serialVersionUID = 1L;

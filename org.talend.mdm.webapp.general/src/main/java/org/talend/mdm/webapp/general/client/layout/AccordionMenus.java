@@ -32,7 +32,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.HTML;
 
-@SuppressWarnings("nls")
+
 public class AccordionMenus extends ContentPanel {
 
     private static AccordionMenus instance;
@@ -46,8 +46,7 @@ public class AccordionMenus extends ContentPanel {
         this.setHeading(MessageFactory.getMessages().menus());
         this.addStyleName("menus-list"); //$NON-NLS-1$
         this.setLayout(new AccordionLayout());
-        this.setScrollMode(Scroll.AUTO);
-
+        // this.setScrollMode(Scroll.AUTO);// add it for vertical ScrollBar
         // registerOpenPages();
     }
 
@@ -80,7 +79,8 @@ public class AccordionMenus extends ContentPanel {
     public void initMenus(MenuGroup menuGroup) {
         List<MenuBean> menus = menuGroup.getMenuBean();
         for (GroupItem gi : menuGroup.getGroupItem()) {
-
+            if ((null == gi.getMenuItems()) || (gi.getMenuItems().size() == 0))
+                continue;
             ContentPanel menuPanel = new ContentPanel();
             for (String gi2 : gi.getMenuItems()) {
                 MenuBean mb = getMenuBean(gi2, menus);
@@ -94,11 +94,14 @@ public class AccordionMenus extends ContentPanel {
 
         ContentPanel otherPanel = new ContentPanel();
         otherPanel.setHeading(MessageFactory.getMessages().othermenu());
+        boolean hasMiscMenus = false;
         for (MenuBean mb : menus) {
             if (!menuGroup.hasSpecifiedMenu(mb)) {
                 buildMenuGroup(otherPanel, mb);
+                hasMiscMenus = true;
             }
         }
+        if (hasMiscMenus)
         setCollapsable(otherPanel);
         this.layout();
     }
@@ -205,6 +208,7 @@ public class AccordionMenus extends ContentPanel {
 
         public HTMLMenuItem(MenuBean menuBean, String html) {
             super(html);
+            this.setWordWrap(false);
             this.setStyleName("menu-item"); //$NON-NLS-1$
             this.menuBean = menuBean;
             this.getElement().setAttribute("id", "menu-" + menuBean.getContext()); //$NON-NLS-1$//$NON-NLS-2$
