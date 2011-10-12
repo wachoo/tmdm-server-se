@@ -484,6 +484,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     NodeList nodes = com.amalto.core.util.Util.getNodeList(document,
                             StringUtils.substringAfter(foreignKeyPath, "/")); //$NON-NLS-1$
                     if (nodes.getLength() == 1) {
+                        bean.getForeignKeyInfo().put(foreignKeyPath, nodes.item(0).getTextContent());
                         if (formattedId.equals("")) //$NON-NLS-1$
                             formattedId += nodes.item(0).getTextContent();
                         else
