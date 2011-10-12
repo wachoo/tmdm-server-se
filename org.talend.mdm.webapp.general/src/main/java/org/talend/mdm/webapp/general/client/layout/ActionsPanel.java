@@ -5,6 +5,7 @@ import org.talend.mdm.webapp.general.client.mvc.GeneralEvent;
 import org.talend.mdm.webapp.general.model.ActionBean;
 import org.talend.mdm.webapp.general.model.ComboBoxModel;
 
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
@@ -58,6 +59,7 @@ public class ActionsPanel extends ContentPanel {
         this.add(dataContainerBox, formData);
         this.add(dataModelBox, formData);
         this.add(saveBtn, formData);
+        this.setScrollMode(Scroll.AUTO);
 
         initEvent();
     }
