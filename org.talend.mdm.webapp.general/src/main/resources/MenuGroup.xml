@@ -7,7 +7,7 @@
  
  <groupitem en="Browse" fr="Consultation">
   <item>browserecords.BrowseRecords</item>
-  <item>ehierarchical.DerivedHierarchy</item>
+  <item>hierarchy.Hierarchy</item>
   <item>updatereport.UpdateReport</item>
  </groupitem>
  
