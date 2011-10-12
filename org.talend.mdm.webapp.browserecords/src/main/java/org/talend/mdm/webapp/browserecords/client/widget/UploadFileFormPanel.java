@@ -30,8 +30,8 @@ import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
@@ -60,10 +60,6 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
 
     private CheckBox headerLine;
 
-    private ItemsToolBar toolbar;
-
-    private ContentPanel container;
-
     private HiddenField<String> nameField;
         
     private HiddenField<String> headerField;
@@ -71,14 +67,18 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
     private MessageBox waitBar;
     
     private String type;
+
+    private ViewBean viewBean;
     
-    public UploadFileFormPanel(String name, ItemsToolBar tb) {
+    private Window window;
+    
+    public UploadFileFormPanel(ViewBean viewBean, Window window) {
         
-        this.tableName = name;
-        this.toolbar = tb;
-        this.setHeading("Upload data"); //$NON-NLS-1$
+        this.tableName = viewBean.getBindingEntityModel().getConceptName();
+        this.viewBean = viewBean;
+        this.window = window;
         this.setFrame(false);
-        this.setHeaderVisible(true);
+        this.setHeaderVisible(false);
         this.setEncoding(Encoding.MULTIPART);
         this.setMethod(Method.POST);
         this.setWidth("100%"); //$NON-NLS-1$
@@ -111,8 +111,6 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         nameField.setName("concept");//$NON-NLS-1$
         nameField.setValue(tableName);
         this.add(nameField);
-
-        ViewBean viewBean = toolbar.getTableView();
                 
         headerField = new HiddenField<String>();
         headerField.setName("header");//$NON-NLS-1$
@@ -313,15 +311,10 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         String result = be.getResultHtml().replace("pre>", "f>"); //$NON-NLS-1$//$NON-NLS-2$
         waitBar.close();
         if (result.equals("<f>true</f>")) { //$NON-NLS-1$
-            toolbar.renderDownloadPanel(container);
-            ItemsListPanel.getInstance().refreshGrid();
+            window.hide();
         } else {
             MessageBox.alert(MessagesFactory.getMessages().error_title(), result, null);
         }
-    }
-
-    public void setContainer(ContentPanel container) {
-        this.container = container;
     }
 
     public HiddenField<String> getNameField() {
