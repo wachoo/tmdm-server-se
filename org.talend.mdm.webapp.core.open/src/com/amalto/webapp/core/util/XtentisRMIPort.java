@@ -1,6 +1,8 @@
 package com.amalto.webapp.core.util;
 
 import java.rmi.RemoteException;
+import java.util.Collections;
+import java.util.List;
 
 import com.amalto.core.objects.role.ejb.RolePOJO;
 import com.amalto.core.objects.role.ejb.RolePOJOPK;
@@ -462,4 +464,7 @@ public class XtentisRMIPort extends IXtentisRMIPort {
         return null;
     }
 
+    public List<String> globalSearch(String dataCluster, String keyword, int start, int end) throws RemoteException {
+        return Collections.emptyList(); // CE edition doesn't support this feature.
+    }
 }
