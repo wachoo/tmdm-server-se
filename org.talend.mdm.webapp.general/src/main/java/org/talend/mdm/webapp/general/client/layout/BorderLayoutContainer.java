@@ -67,7 +67,7 @@ public class BorderLayoutContainer extends Viewport {
 	    eastData.setCollapsible(true);  
 	    eastData.setMargins(new Margins(0,0,0,5));  
 	  
-	    BorderLayoutData southData = new BorderLayoutData(LayoutRegion.SOUTH, 24);  
+        BorderLayoutData southData = new BorderLayoutData(LayoutRegion.SOUTH, 2);
 	    southData.setSplit(false);  
 	    southData.setCollapsible(false);  
 	    southData.setFloatable(true);  
@@ -76,7 +76,7 @@ public class BorderLayoutContainer extends Viewport {
 	    add(west, westData);  
 	    add(center, centerData);  
 	    add(east, eastData);  
-	    add(south, southData);  
+        add(south, southData);
         south.add(messageHtml);
         registerWorkingMessage();
     }
