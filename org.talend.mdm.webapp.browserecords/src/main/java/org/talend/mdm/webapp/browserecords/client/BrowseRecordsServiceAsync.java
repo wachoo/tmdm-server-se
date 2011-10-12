@@ -111,4 +111,6 @@ public interface BrowseRecordsServiceAsync {
     void executeVisibleRule(String xml, AsyncCallback<List<VisibleRuleResult>> asyncCallback);
 
     void isItemModifiedByOthers(ItemBean itemBean, AsyncCallback<Boolean> callback);
+
+    void saveFkItem(String concept, String ids, Map<String, String> changedNodes, String language, AsyncCallback<String> callback);
 }

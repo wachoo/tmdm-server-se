@@ -97,6 +97,8 @@ public interface BrowseRecordsService extends RemoteService {
 
     String saveItem(String concept, String ids, String xml, boolean isCreate, String language) throws ServiceException;
 
+    String saveFkItem(String concept, String ids, Map<String, String> changedNodes, String language) throws ServiceException;
+    
     ColumnTreeLayoutModel getColumnTreeLayout(String concept) throws ServiceException;
 
     ForeignKeyModel getForeignKeyModel(String concept, String ids, String language) throws ServiceException;

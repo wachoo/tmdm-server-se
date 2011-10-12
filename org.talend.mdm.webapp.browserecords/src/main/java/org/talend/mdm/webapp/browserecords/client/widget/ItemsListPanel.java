@@ -48,8 +48,10 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.LoadListener;
+import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.state.StateManager;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -63,6 +65,10 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.RowEditor;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class ItemsListPanel extends ContentPanel {
@@ -266,86 +272,44 @@ public class ItemsListPanel extends ContentPanel {
         gridContainer.add(grid);
         gridContainer.setHeight(this.getHeight() - ItemsToolBar.getInstance().getHeight()
                 - ItemsToolBar.getInstance().getAdvancedPanel().getHeight());
-        // hookContextMenu();
+        hookContextMenu();
 
         add(gridContainer);
         this.syncSize();
         this.doLayout();
     }
 
-    // private void hookContextMenu() {
-    //
-    // Menu contextMenu = new Menu();
-    //
-    // // MenuItem openInWindow = new MenuItem();
-    // // openInWindow.setText(MessagesFactory.getMessages().openitem_window());
-    // // openInWindow.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openWin()));
-    // // openInWindow.addSelectionListener(new SelectionListener<MenuEvent>() {
-    // //
-    // // @Override
-    // // public void componentSelected(MenuEvent ce) {
-    // // // TODO check dirty status
-    // // ItemBean m = grid.getSelectionModel().getSelectedItem();
-    // // if (m == null) {
-    // // MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
-    // // .grid_record_select(), null);
-    // // return;
-    // // }
-    // // //TODO showItem(m, ItemsView.TARGET_IN_NEW_WINDOW);
-    // // }
-    // // });
-    // //
-    // // MenuItem openInTab = new MenuItem();
-    // // openInTab.setText(MessagesFactory.getMessages().openitem_tab());
-    // // openInTab.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTab()));
-    // // openInTab.addSelectionListener(new SelectionListener<MenuEvent>() {
-    // //
-    // // @Override
-    // // public void componentSelected(MenuEvent ce) {
-    // // ItemBean m = grid.getSelectionModel().getSelectedItem();
-    // // if (m == null) {
-    // // MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
-    // // .grid_record_select(), null);
-    // // return;
-    // // }
-    // // showItem(m, ItemsView.TARGET_IN_NEW_TAB);
-    // // }
-    // // });
-    //
-    // MenuItem editRow = new MenuItem();
-    // editRow.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Edit()));
-    // editRow.setText(MessagesFactory.getMessages().edititem());
-    // editRow.addSelectionListener(new SelectionListener<MenuEvent>() {
-    //
-    // @Override
-    // public void componentSelected(MenuEvent ce) {
-    // ItemBean m = grid.getSelectionModel().getSelectedItem();
-    // if (m == null) {
-    // MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
-    // .grid_record_select(), null);
-    // return;
-    // }
-    // int rowIndex = grid.getStore().indexOf(m);
-    // re.startEditing(rowIndex, true);
-    // }
-    // });
-    //
-    // contextMenu.add(editRow);
-    // // contextMenu.add(openInTab);
-    // // contextMenu.add(openInWindow);
-    //
-    // grid.setContextMenu(contextMenu);
-    //
-    // }
+    private void hookContextMenu() {
+        Menu contextMenu = new Menu();
+        MenuItem editRow = new MenuItem();
+        editRow.setText(MessagesFactory.getMessages().edititem());
+        editRow.addSelectionListener(new SelectionListener<MenuEvent>() {
+            @Override
+            public void componentSelected(MenuEvent ce) {
+                ItemBean m = grid.getSelectionModel().getSelectedItem();
+                if (m == null) {
+                    MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                            .grid_record_select(), null);
+                    return;
+                }
+                int rowIndex = grid.getStore().indexOf(m);
+                re.startEditing(rowIndex, true);
+            }
+        });
 
-    //
-    // public void layoutGrid() {
-    // this.layout(true);
-    // if (gridContainer != null) {
-    // Element parent = DOM.getParent(gridContainer.getElement());
-    // gridContainer.setSize(parent.getOffsetWidth(), parent.getOffsetHeight());
-    // }
-    // }
+        contextMenu.add(editRow);
+    
+     grid.setContextMenu(contextMenu);
+    
+     }
+
+    public void layoutGrid() {
+        this.layout(true);
+        if (gridContainer != null) {
+            Element parent = DOM.getParent(gridContainer.getElement());
+            gridContainer.setSize(parent.getOffsetWidth(), parent.getOffsetHeight());
+        }
+    }
 
     public ListStore<ItemBean> getStore() {
         return store;

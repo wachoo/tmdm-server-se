@@ -1591,6 +1591,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
+    
     public String saveItem(String concept, String ids, String xml, boolean isCreate, String language) throws ServiceException {
 
         try {
@@ -1660,6 +1661,32 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
             throw serviceException;
         }
+    }
+
+    public String saveFkItem(String concept, String ids, Map<String, String> changedNodes, String language)
+            throws ServiceException {
+        String dataCluster = getCurrentDataCluster();
+        // get item
+        WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(dataCluster);
+        String[] idArray = ids.split("\\."); //$NON-NLS-1$
+        WSItem wsItem;
+        try {
+            wsItem = CommonUtil.getPort().getItem(new WSGetItem(new WSItemPK(wsDataClusterPK, concept, idArray)));
+            org.dom4j.Document doc = org.talend.mdm.webapp.base.server.util.XmlUtil.parseText(wsItem.getContent());
+
+            for (String xpath : changedNodes.keySet()) {
+                String value = changedNodes.get(xpath);
+                org.dom4j.Node node = doc.selectSingleNode(xpath);
+                if (node != null) {
+                    node.setText(value);
+                }
+            }
+
+            return saveItem(concept, ids, doc.asXML(), false, language);
+        } catch (Exception e) {
+
+        }
+        return null;
     }
 
     public ColumnTreeLayoutModel getColumnTreeLayout(String concept) throws ServiceException {
