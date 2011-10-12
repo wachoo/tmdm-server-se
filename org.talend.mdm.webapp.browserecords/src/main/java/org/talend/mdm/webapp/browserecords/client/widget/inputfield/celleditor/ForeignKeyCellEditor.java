@@ -34,7 +34,7 @@ public class ForeignKeyCellEditor extends CellEditor {
 
     public Object postProcessValue(Object value) {
 
-        fkBean.set(typeModel.getXpath(), value.toString());
+        fkBean.getForeignKeyInfo().put(typeModel.getXpath(), value.toString());
         return fkBean;
 
     }

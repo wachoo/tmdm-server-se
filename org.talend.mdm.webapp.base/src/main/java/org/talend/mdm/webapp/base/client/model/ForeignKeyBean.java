@@ -12,11 +12,24 @@
 // ============================================================================
 package org.talend.mdm.webapp.base.client.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ForeignKeyBean extends ItemBaseModel {
 
     private static final long serialVersionUID = 1L;
 
     private String foreignKeyPath;
+
+    private Map<String, String> foreignKeyInfo = new HashMap<String, String>();
+
+    public Map<String, String> getForeignKeyInfo() {
+        return foreignKeyInfo;
+    }
+
+    public void setForeignKeyInfo(Map<String, String> foreignKeyInfo) {
+        this.foreignKeyInfo = foreignKeyInfo;
+    }
 
     public String getId() {
         return get("id"); //$NON-NLS-1$
