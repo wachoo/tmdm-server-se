@@ -15,11 +15,13 @@ package org.talend.mdm.webapp.browserecords.client.widget;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
@@ -343,9 +345,61 @@ public class ItemsToolBar extends ToolBar {
         importMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
         uploadMenu.add(importMenu);
         
+        importMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+            @Override
+            public void componentSelected(MenuEvent ce) {
+                
+            }
+        });
+        
         MenuItem exportMenu = new MenuItem(MessagesFactory.getMessages().export_btn());
         exportMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
         uploadMenu.add(exportMenu);
+        
+        exportMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+            @Override
+            public void componentSelected(MenuEvent ce) {
+                ViewBean viewBean = BrowseRecords.getSession().getCurrentView();
+                List<String> viewableXpaths = viewBean.getViewableXpaths();
+                EntityModel entityModel = viewBean.getBindingEntityModel();
+                Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
+                
+                List<String> headerList = new ArrayList<String>();
+                List<String> xPathList = new ArrayList<String>();
+                
+                for (String xpath : viewableXpaths) {
+                    TypeModel typeModel = dataTypes.get(xpath);
+                    String header = typeModel == null ? xpath : ViewUtil.getViewableLabel(Locale.getLanguage(), typeModel);
+                    headerList.add(header);
+                    xPathList.add(xpath);
+                }
+                
+                StringBuilder url = new StringBuilder("/browserecords/download?tableName="); //$NON-NLS-1$
+                url.append(viewBean.getViewPK()).append("&header="); //$NON-NLS-1$
+                int i = 0;
+                int count = headerList.size();
+                for (String header : headerList) {
+                    i++;
+                    url.append(header);
+                    if (i < count)
+                        url.append("@"); //$NON-NLS-1$
+                }
+
+                i = 0;
+                count = xPathList.size();
+                url.append("&xpath="); //$NON-NLS-1$
+                for (String path : xPathList) {
+                    i++;
+                    url.append(path);
+                    if (i < count)
+                        url.append("@"); //$NON-NLS-1$
+                }
+
+                com.google.gwt.user.client.Window.open(url.toString(), "_parent", "location=no"); //$NON-NLS-1$ //$NON-NLS-2$
+            }            
+        });
         
         uploadBtn.setId("uploadMenuInGrid"); //$NON-NLS-1$
         uploadBtn.setMenu(uploadMenu);
