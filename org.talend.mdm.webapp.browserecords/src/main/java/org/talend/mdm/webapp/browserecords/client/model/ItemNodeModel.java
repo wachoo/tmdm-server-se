@@ -21,7 +21,7 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
 
     private String bindingPath;
 
-    private Serializable objectValue;
+    // private Serializable objectValue;
 
     private boolean isKey;
 
@@ -110,11 +110,11 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
     }
 
     public Serializable getObjectValue() {
-        return objectValue;
+        return get("objectValue"); //$NON-NLS-1$
     }
 
     public void setObjectValue(Serializable objectValue) {
-        this.objectValue = objectValue;
+        set("objectValue", objectValue); //$NON-NLS-1$
     }
 
     public ItemNodeModel() {
@@ -149,7 +149,7 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
 
     public String toValue() {
         StringBuffer sb = new StringBuffer();
-        sb.append(objectValue != null ? objectValue.toString() : ""); //$NON-NLS-1$
+        sb.append(getObjectValue() != null ? getObjectValue().toString() : ""); //$NON-NLS-1$
         for (ModelData model : this.getChildren()) {
             ItemNodeModel node = (ItemNodeModel) model;
             sb.append("+\r\n"); //$NON-NLS-1$
@@ -253,7 +253,7 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
         if (this.getRealType() != null)
             clonedModel.setRealType(this.getRealType());
         if (withValue)
-            clonedModel.setObjectValue(objectValue);
+            clonedModel.setObjectValue(getObjectValue());
         return clonedModel;
     }
 

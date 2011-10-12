@@ -5,14 +5,18 @@ import java.util.List;
 
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
+import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
+import org.talend.mdm.webapp.browserecords.client.widget.ForeignKeyRowEditor;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.celleditor.ForeignKeyCellEditor;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator.FieldCreator;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Style.HideMode;
@@ -33,6 +37,8 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
@@ -49,9 +55,6 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Image;
 
-/**
- * ForeignKey Panel : Display ForeignKey information
- */
 public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteriaFK {
 
     private static final int COLUMN_WIDTH = 100;
@@ -88,7 +91,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
     ItemNodeModel currentNodeModel;
 
-    public ForeignKeyTablePanel(ViewBean viewBean, ItemNodeModel parent, final List<ItemNodeModel> fkModels,
+    public ForeignKeyTablePanel(final ViewBean viewBean, ItemNodeModel parent, final List<ItemNodeModel> fkModels,
             final TypeModel fkTypeModel) {
         this.setHeaderVisible(false);
         this.setLayout(new FitLayout());
@@ -135,18 +138,29 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         });
         List<String> foreignKeyInfo = fkTypeModel.getForeignKeyInfo();
         for (int i = 0; i < foreignKeyInfo.size(); i++) {
-            String info = foreignKeyInfo.get(i);
+            final String info = foreignKeyInfo.get(i);
             final int index = i;
-            ColumnConfig column = new ColumnConfig(CommonUtil.getElementFromXpath(info), CommonUtil.getElementFromXpath(info),
+            final ColumnConfig column = new ColumnConfig("objectValue", //$NON-NLS-1$
+                    CommonUtil.getElementFromXpath(info),
                     COLUMN_WIDTH);
             column.setRenderer(new GridCellRenderer<ItemNodeModel>() {
 
                 public Object render(ItemNodeModel model, String property, ColumnData config, int rowIndex, int colIndex,
                         ListStore<ItemNodeModel> store, Grid<ItemNodeModel> grid) {
                     ForeignKeyBean fkBean = (ForeignKeyBean) model.getObjectValue();
-                    return fkBean != null && fkBean.getDisplayInfo() != null ? fkBean.getDisplayInfo().split("-")[index] : ""; //$NON-NLS-1$ //$NON-NLS-2$
+                    String value = fkBean != null && fkBean.getDisplayInfo() != null ? fkBean.getDisplayInfo().split("-")[index] : ""; //$NON-NLS-1$ //$NON-NLS-2$
+                    TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(info);
+                    Field<?> field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false,
+                            Locale.getLanguage());
+
+                    CellEditor cellEditor = new ForeignKeyCellEditor(field, value, typeModel);
+                    if (cellEditor != null) {
+                        column.setEditor(cellEditor);
+                    }
+                    return value;
                 }
             });
+            
             columnConfigs.add(column);
         }
         ColumnConfig columnOpt = new ColumnConfig("", "Operation", COLUMN_WIDTH); //$NON-NLS-1$ //$NON-NLS-2$
@@ -171,9 +185,10 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                 loader.load(config);
             }
         });
-
+        final ForeignKeyRowEditor re = new ForeignKeyRowEditor(fkTypeModel);
         grid.setSelectionModel(sm);
         grid.addPlugin(sm);
+        grid.addPlugin(re);
         grid.setWidth(Window.getClientWidth() - ItemsListPanel.getInstance().getInnerWidth());
         grid.setBorders(true);
         this.add(grid);
