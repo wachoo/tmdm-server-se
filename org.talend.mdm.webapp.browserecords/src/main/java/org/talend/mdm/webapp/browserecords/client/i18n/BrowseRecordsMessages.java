@@ -57,6 +57,10 @@ public interface BrowseRecordsMessages extends Messages {
     String button_upload();
 
     String itemsBrowser_Import_Export();
+    
+    String import_btn();
+    
+    String export_btn();
 
     String page_size_label();
 

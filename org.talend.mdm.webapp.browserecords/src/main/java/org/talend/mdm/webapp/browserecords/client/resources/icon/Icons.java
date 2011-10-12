@@ -101,4 +101,7 @@ public interface Icons extends ClientBundle {
     
     @Source("relations.png")
     ImageResource relations();
+    
+    @Source("page_excel.png")
+    ImageResource page_excel();
 }

@@ -338,8 +338,17 @@ public class ItemsToolBar extends ToolBar {
         add(deleteMenu);
 
         uploadBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
+        Menu uploadMenu = new Menu();
+        MenuItem importMenu = new MenuItem(MessagesFactory.getMessages().import_btn());
+        importMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
+        uploadMenu.add(importMenu);
+        
+        MenuItem exportMenu = new MenuItem(MessagesFactory.getMessages().export_btn());
+        exportMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
+        uploadMenu.add(exportMenu);
+        
         uploadBtn.setId("uploadMenuInGrid"); //$NON-NLS-1$
-
+        uploadBtn.setMenu(uploadMenu);
         uploadBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             @Override
