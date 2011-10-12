@@ -10,6 +10,7 @@ import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
+import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
@@ -30,6 +31,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
@@ -200,8 +202,17 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
                 List<ItemNodeModel> selectedFkModelList = grid.getSelectionModel().getSelectedItems();
                 if (selectedFkModelList != null && selectedFkModelList.size() > 0) {
-                    for (ItemNodeModel itemNodeModel : selectedFkModelList) {
+                    boolean tipMinOccurs = (fkModels.size() - selectedFkModelList.size()) < fkTypeModel.getMinOccurs();
+                    for (int i = selectedFkModelList.size() - 1; i >= 0; i--) {
+                        ItemNodeModel itemNodeModel = selectedFkModelList.get(i);
                         delFk(itemNodeModel);
+                    }
+                    // minOccurs tip
+                    if (tipMinOccurs) {
+                        MessageBox.alert(
+                                MessagesFactory.getMessages().info_title(),
+                                MessagesFactory.getMessages().fk_validate_min_occurence(
+                                        fkTypeModel.getLabel(Locale.getLanguage()), fkTypeModel.getMinOccurs()), null);
                     }
                     pagingBar.refresh();
                 }
@@ -227,9 +238,17 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             newFkModel.setParent(parent);
             fkModels.add(newFkModel);
             parent.setChangeValue(true);
+            grid.getView().layout();
+            pagingBar.last();
+        } else {
+            // maxOccurs tip
+            MessageBox.alert(
+                    MessagesFactory.getMessages().info_title(),
+                    MessagesFactory.getMessages().fk_validate_max_occurence(fkTypeModel.getLabel(Locale.getLanguage()),
+                            fkTypeModel.getMaxOccurs()), null);
+
         }
-        grid.getView().layout();
-        pagingBar.last();
+
     }
 
     private void delFk(ItemNodeModel currentFkModel) {
