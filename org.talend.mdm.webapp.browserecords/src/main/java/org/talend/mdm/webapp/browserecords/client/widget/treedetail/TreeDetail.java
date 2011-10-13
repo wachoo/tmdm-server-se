@@ -295,8 +295,12 @@ public class TreeDetail extends ContentPanel {
         root = buildGWTTree(rootModel, null, false);
         root.setState(true);
         tree = new Tree();
+        List<TreeItem> tmpList = new ArrayList<TreeItem>();
         for (int i = 0; i < root.getChildCount(); i++) {
-            tree.addItem(root.getChild(i));
+            tmpList.add(root.getChild(i));
+        }
+        for (int j = 0; j < tmpList.size(); j++) {
+            tree.addItem(tmpList.get(j));
         }
         // tree.addItem(root);
 
