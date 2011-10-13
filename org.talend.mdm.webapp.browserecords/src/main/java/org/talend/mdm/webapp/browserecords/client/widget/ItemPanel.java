@@ -81,7 +81,7 @@ public class ItemPanel extends ContentPanel {
         } else {
             tree.initTree(viewBean, null);
         }
-
+        tree.setToolBar(toolBar);
         tree.expand();
         this.add(tree);
         // smartPanel.setLayout(new FitLayout());
