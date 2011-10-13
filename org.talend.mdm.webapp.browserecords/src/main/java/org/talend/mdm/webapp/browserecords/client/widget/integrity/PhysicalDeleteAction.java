@@ -18,7 +18,7 @@ class PhysicalDeleteAction implements DeleteAction {
         service.deleteItemBean(item, override, Locale.getLanguage(), new SessionAwareAsyncCallback<String>() {
 
             public void onSuccess(String msg) {
-                if (msg != null) {
+                if (msg != null && !msg.equals("")) { //$NON-NLS-1$
                     MessageBox.info(MessagesFactory.getMessages().info_title(), msg, null);
                 }
             }
