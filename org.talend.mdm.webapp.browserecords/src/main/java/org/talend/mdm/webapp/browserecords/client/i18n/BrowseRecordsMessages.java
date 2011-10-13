@@ -341,5 +341,7 @@ public interface BrowseRecordsMessages extends Messages {
     String fk_validate_min_occurence(String name, int value);
 
     String fk_validate_max_occurence(String name, int value);
+    
+    String import_success_label();
 
 }

@@ -312,6 +312,8 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         waitBar.close();
         if (result.equals("<f>true</f>")) { //$NON-NLS-1$
             window.hide();
+            MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().import_success_label(), null);
+            ItemsListPanel.getInstance().refreshGrid();
         } else {
             MessageBox.alert(MessagesFactory.getMessages().error_title(), result, null);
         }
