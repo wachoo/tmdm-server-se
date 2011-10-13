@@ -25,6 +25,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
@@ -127,6 +128,10 @@ public class BrowseRecordsController extends Controller {
                                     .save_success(), null);
                         if (!isClose && isCreate) {
                             ItemsListPanel.getInstance().lastPage();
+                        }
+
+                        if (isClose) {
+                            ItemsDetailPanel.getInstance().closeCurrentTab();
                         }
                     }
                 });

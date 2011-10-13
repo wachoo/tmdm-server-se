@@ -231,7 +231,6 @@ public class ItemDetailToolBar extends ToolBar {
                 @Override
                 public void componentSelected(ButtonEvent ce) {
                     saveItemAndClose(true);
-                    ItemsDetailPanel.getInstance().closeCurrentTab();
                 }
             });
         }
