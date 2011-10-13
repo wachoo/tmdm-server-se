@@ -89,9 +89,9 @@ public class ControllerServlet extends HttpServlet {
             StringBuilder html = new StringBuilder();
             html.append("<h3>").append(title).append("</h3>"); //$NON-NLS-1$ //$NON-NLS-2$
             html.append("<p><font size='4' color='red'>").append(message).append("</font></p>"); //$NON-NLS-1$ //$NON-NLS-2$
-            html.append("<a href='").append(req.getContextPath()).append("/LogoutServlet?user=").append(username).append("'>").append(forceLogout).append("</a>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            html.append("<a href='").append("/talendmdm/LogoutServlet?user=").append(username).append("'>").append(forceLogout).append("</a>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             html.append("<br/><br/>"); //$NON-NLS-1$
-            html.append("<a href='").append(req.getContextPath()).append("/LogoutServlet'>").append(backLogin).append("</a>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            html.append("<a href='").append("/talendmdm/LogoutServlet'>").append(backLogin).append("</a>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             out.write(html.toString());
         } catch (Exception e) {
             req.getSession().invalidate();
@@ -101,7 +101,7 @@ public class ControllerServlet extends HttpServlet {
             StringBuilder html = new StringBuilder();
             html.append("<h3>").append(title).append("</h3>"); //$NON-NLS-1$ //$NON-NLS-2$
             html.append("<p><font size='4' color='red'>").append(message).append("</font></p>"); //$NON-NLS-1$ //$NON-NLS-2$
-            html.append("<a href='").append(req.getContextPath()).append("/LogoutServlet'>").append(backLogin).append("</a>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            html.append("<a href='").append("/talendmdm/LogoutServlet'>").append(backLogin).append("</a>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             out.write(html.toString());
         }
     }

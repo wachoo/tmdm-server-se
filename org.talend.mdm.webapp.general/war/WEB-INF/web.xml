@@ -16,11 +16,6 @@
         <servlet-class>org.talend.mdm.webapp.general.server.servlet.ControllerServlet</servlet-class>
     </servlet>
 
-    <servlet>
-        <servlet-name>LogoutServlet</servlet-name>
-        <servlet-class>org.talend.mdm.webapp.general.server.servlet.LogoutServlet</servlet-class>
-    </servlet>
-    
     <servlet-mapping>
         <servlet-name>GeneralService</servlet-name>
         <url-pattern>/general/GeneralService</url-pattern>
@@ -30,11 +25,6 @@
         <servlet-name>dispatch</servlet-name>
         <url-pattern>/secure/</url-pattern>
     </servlet-mapping>   
-
-    <servlet-mapping>
-        <servlet-name>LogoutServlet</servlet-name>
-        <url-pattern>/LogoutServlet</url-pattern>
-    </servlet-mapping>
 
     <security-role>
         <role-name>administration</role-name>
