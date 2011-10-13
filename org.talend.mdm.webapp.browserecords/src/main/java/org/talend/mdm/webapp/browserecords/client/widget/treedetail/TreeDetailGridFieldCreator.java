@@ -45,7 +45,6 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -53,6 +52,7 @@ import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.ui.Widget;
 
 public class TreeDetailGridFieldCreator {
@@ -168,6 +168,7 @@ public class TreeDetailGridFieldCreator {
         if (node.isKey() && hasValue) {
             field.setEnabled(false);
         }
+        updateMandatory(field, node, fieldMap);
 
         // facet set
         if (field instanceof TextField<?> && !(dataType instanceof ComplexTypeModel)) {
@@ -184,7 +185,6 @@ public class TreeDetailGridFieldCreator {
 
         }
         fieldMap.put(node.getBindingPath(), field);
-        updateMandatory(field, node, fieldMap);
         addFieldListener(field, node, fieldMap);
         return field;
     }

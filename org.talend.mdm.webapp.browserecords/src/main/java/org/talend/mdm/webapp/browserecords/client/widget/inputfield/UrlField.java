@@ -22,7 +22,6 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.PropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -36,7 +35,7 @@ import com.google.gwt.user.client.ui.Image;
 /**
  * DOC chliu  class global comment. Detailled comment
  */
-public class UrlField extends Field<String> {
+public class UrlField extends TextField<String> {
 
     protected El wrap = new El(DOM.createSpan());
 

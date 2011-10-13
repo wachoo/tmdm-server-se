@@ -22,7 +22,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class MultipleField extends Field<List<Object>> {
+public class MultipleField extends TextField<List<Object>> {
 
     VerticalPanel vp = new VerticalPanel();
 
