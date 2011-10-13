@@ -237,7 +237,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
 
                     public void execute() {
                         for (TypeModel model : fkMap.keySet()) {
-                            fkRender.RenderForeignKey(itemNode, fkMap.get(model), model);
+                            fkRender.RenderForeignKey(itemNode, fkMap.get(model), model, toolBar);
                         }
                         itemNode.addChangeListener(new ChangeListener() {
 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
@@ -13,6 +14,7 @@ import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKeyRowEditor;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.celleditor.ForeignKeyCellEditor;
@@ -32,11 +34,17 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
@@ -47,6 +55,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.dom.client.Style.Cursor;
@@ -67,6 +76,8 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
     Grid<ItemNodeModel> grid;
 
     ToolBar toolBar = new ToolBar();
+
+    ToolBar firstToolBar = new ToolBar();
 
     Button addFkButton = new Button(MessagesFactory.getMessages().add_btn(), AbstractImagePrototype.create(Icons.INSTANCE
             .Create()));
@@ -93,7 +104,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
     ItemNodeModel currentNodeModel;
 
     public ForeignKeyTablePanel(final ViewBean viewBean, ItemNodeModel parent, final List<ItemNodeModel> fkModels,
-            final TypeModel fkTypeModel) {
+            final TypeModel fkTypeModel, final ItemDetailToolBar parentToolBar) {
         this.setHeaderVisible(false);
         this.setLayout(new FitLayout());
         this.setAutoWidth(true);
@@ -104,8 +115,48 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         toolBar.add(addFkButton);
         toolBar.add(new SeparatorToolItem());
         toolBar.add(removeFkButton);
+
+        List<Component> list = parentToolBar.getItems();
+        for (Component component : list) {
+            if (component instanceof Button) {
+                final Button parentButton = (Button) component;
+                Button newButton = new Button();
+                newButton.setText(parentButton.getText());
+                newButton.setIcon(parentButton.getIcon());
+                // newButton.setToolTip(parentButton.getToolTip().getToolTipConfig().getText());
+                newButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+                    @Override
+                    public void componentSelected(ButtonEvent ce) {
+                        parentButton.fireEvent(Events.Select);
+                    }
+                });
+                firstToolBar.add(newButton);
+                firstToolBar.add(new SeparatorToolItem());
+            } else if (component instanceof ComboBox<?>) {
+                @SuppressWarnings("unchecked")
+                ComboBox<ItemBaseModel> parentWorkFlow = (ComboBox<ItemBaseModel>) component;
+                ComboBox<ItemBaseModel> workFlowCombo = new ComboBox<ItemBaseModel>();
+                workFlowCombo.setStore(parentWorkFlow.getStore());
+                workFlowCombo.setDisplayField("value");//$NON-NLS-1$
+                workFlowCombo.setValueField("key");//$NON-NLS-1$
+                workFlowCombo.setTypeAhead(true);
+                workFlowCombo.setTriggerAction(TriggerAction.ALL);
+                workFlowCombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
+
+                    @Override
+                    public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
+                        parentToolBar.setSelectItem(se.getSelectedItem());
+                    }
+                });
+                firstToolBar.add(new FillToolItem());
+                firstToolBar.add(workFlowCombo);
+            }
+        }
         addListener();
-        this.setTopComponent(toolBar);
+        LayoutContainer toolBarPanel = new LayoutContainer();
+        toolBarPanel.add(firstToolBar);
+        toolBarPanel.add(toolBar);
+        this.setTopComponent(toolBarPanel);
 
         fkWindow.setForeignKeyInfos(fkTypeModel.getForeignkey(), fkTypeModel.getForeignKeyInfo());
         fkWindow.setSize(470, 340);
@@ -180,7 +231,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             }
             columnConfigs.add(column);
         }
-        ColumnConfig columnOpt = new ColumnConfig("", "Operation", COLUMN_WIDTH); //$NON-NLS-1$ //$NON-NLS-2$
+        ColumnConfig columnOpt = new ColumnConfig("", "", COLUMN_WIDTH); //$NON-NLS-1$ //$NON-NLS-2$
         columnOpt.setFixed(true);
         columnOpt.setWidth(60);
         columnOpt.setRenderer(optRender);

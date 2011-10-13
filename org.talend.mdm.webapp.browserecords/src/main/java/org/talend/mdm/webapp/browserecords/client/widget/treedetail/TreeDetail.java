@@ -29,6 +29,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
@@ -67,6 +68,8 @@ public class TreeDetail extends ContentPanel {
     private HashMap<CountMapItem, Integer> occurMap = new HashMap<CountMapItem, Integer>();
 
     private ForeignKeyRender fkRender = new ForeignKeyRenderImpl();
+
+    private ItemDetailToolBar toolBar;
 
     private ClickHandler handler = new ClickHandler() {
 
@@ -223,7 +226,7 @@ public class TreeDetail extends ContentPanel {
 
                     public void execute() {
                         for (TypeModel model : fkMap.keySet()) {
-                            fkRender.RenderForeignKey(itemNode, fkMap.get(model), model);
+                            fkRender.RenderForeignKey(itemNode, fkMap.get(model), model, toolBar);
                         }
                     }
                 });
@@ -492,6 +495,10 @@ public class TreeDetail extends ContentPanel {
         }
 
         return false;
+    }
+
+    public void setToolBar(ItemDetailToolBar toolBar) {
+        this.toolBar = toolBar;
     }
 
 }

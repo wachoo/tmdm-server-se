@@ -727,7 +727,7 @@ public class ItemDetailToolBar extends ToolBar {
     public void saveItemAndClose(boolean isClose) {
         boolean validate = false;
         TabPanel tabPanel = ItemsDetailPanel.getInstance().getTabPanel();
-        TabItem tabItem = (TabItem) tabPanel.getSelectedItem();
+        TabItem tabItem = (TabItem) tabPanel.getWidget(0);
         Widget widget = tabItem.getWidget(0);
         Dispatcher dispatch = Dispatcher.get();
         AppEvent app = new AppEvent(BrowseRecordsEvents.SaveItem);
@@ -759,4 +759,9 @@ public class ItemDetailToolBar extends ToolBar {
             MessageBox.alert(MessagesFactory.getMessages().error_title(), "save failure", null); //$NON-NLS-1$
         }
     }
+
+    public void setSelectItem(ItemBaseModel selectItem) {
+        this.selectItem = selectItem;
+    }
+
 }
