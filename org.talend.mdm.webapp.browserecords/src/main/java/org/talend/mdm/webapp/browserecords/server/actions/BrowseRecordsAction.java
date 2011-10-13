@@ -391,7 +391,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                             injectedXpath)).getValue();
                 }
             }
-
+            String fk = model.getForeignkey().split("/")[0];
             if (results != null) {
                 for (String result : results) {
                     ForeignKeyBean bean = new ForeignKeyBean();
@@ -404,10 +404,11 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         }
                     }
                     bean.setId(id);
+
                     if (result != null) {
                         Element root = Util.parse(result).getDocumentElement();
                         if (root.getNodeName().equals("result"))//$NON-NLS-1$
-                            initFKBean(root, bean);
+                            initFKBean(root, bean, fk);
                         else
                             bean.set(root.getNodeName(), root.getTextContent().trim());
                     }
@@ -503,12 +504,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    private void initFKBean(Element ele, ForeignKeyBean bean) {
+    private void initFKBean(Element ele, ForeignKeyBean bean, String fk) {
         for (int i = 0; i < ele.getChildNodes().getLength(); i++) {
             if (ele.getChildNodes().item(i) instanceof Element) {
                 Element curEle = (Element) ele.getChildNodes().item(i);
                 bean.set(curEle.getNodeName(), curEle.getTextContent().trim());
-                initFKBean(curEle, bean);
+                bean.getForeignKeyInfo().put(fk + "/" + curEle.getNodeName(), curEle.getTextContent().trim()); //$NON-NLS-1$
+                initFKBean(curEle, bean, fk);
             }
         }
     }
