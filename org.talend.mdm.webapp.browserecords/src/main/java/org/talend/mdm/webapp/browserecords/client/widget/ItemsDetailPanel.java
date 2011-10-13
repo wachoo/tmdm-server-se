@@ -98,7 +98,7 @@ public class ItemsDetailPanel extends ContentPanel {
         }
     }
 
-    public void initBanner(List<String> xpathList) {
+    public void initBanner(List<String> xpathList, String desc) {
         if (xpathList != null && xpathList.size() > 0) {
             clearBanner();
             banner.getBody().setStyleName("banner"); //$NON-NLS-1$
@@ -118,6 +118,8 @@ public class ItemsDetailPanel extends ContentPanel {
             }
             banner.layout(true);
         }
+        if (desc != null && !desc.equals("")) //$NON-NLS-1$
+            banner.setToolTip(desc);
     }
 
     public void clearBanner() {

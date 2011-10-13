@@ -117,7 +117,7 @@ public class BrowseRecordsView extends View {
     private void onViewItem(AppEvent event) {
         ItemBean item = (ItemBean) event.getData();
         ItemsDetailPanel.getInstance().clearContent();
-        ItemsDetailPanel.getInstance().initBanner(item.getPkInfoList());
+        ItemsDetailPanel.getInstance().initBanner(item.getPkInfoList(), item.getDescription());
         String operation = ItemDetailToolBar.VIEW_OPERATION;
         if (item.getSmartViewMode().equals(ItemBean.PERSOMODE))
             operation = ItemDetailToolBar.PERSONALEVIEW_OPERATION;
