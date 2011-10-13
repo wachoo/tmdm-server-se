@@ -70,7 +70,7 @@ public class SaveRowEditor extends RowEditor<ItemBean> {
                     String elName = key.substring(key.lastIndexOf('/') + 1);
                     createElements(parentPath, elName, (List<?>) value, elementSet, doc);
                 } else {
-                    if (typeModel.getForeignkey() != null) {
+                    if (typeModel.getForeignkey() != null && value != null) {
                         String str = value.toString();
                         value = str.substring(str.lastIndexOf("-") + 1, str.length()); //$NON-NLS-1$
                     }

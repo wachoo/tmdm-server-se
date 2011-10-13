@@ -38,6 +38,7 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
@@ -68,10 +69,10 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
     ToolBar toolBar = new ToolBar();
 
     Button addFkButton = new Button(MessagesFactory.getMessages().add_btn(), AbstractImagePrototype.create(Icons.INSTANCE
-            .add()));
+            .Create()));
 
     Button removeFkButton = new Button(MessagesFactory.getMessages().remove_btn(), AbstractImagePrototype.create(Icons.INSTANCE
-            .remove()));
+            .Delete()));
 
     TypeModel fkTypeModel;
 
@@ -95,8 +96,6 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             final TypeModel fkTypeModel) {
         this.setHeaderVisible(false);
         this.setLayout(new FitLayout());
-        // this.setSize(500, 300);
-        // this.setScrollMode(Scroll.AUTO);
         this.setAutoWidth(true);
         this.parent = parent;
         this.viewBean = viewBean;
@@ -124,22 +123,38 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         final CheckBoxSelectionModel<ItemNodeModel> sm = new CheckBoxSelectionModel<ItemNodeModel>();
         columnConfigs.add(sm.getColumn());
         
-        ColumnConfig idColumn = new ColumnConfig("", "Id", COLUMN_WIDTH); //$NON-NLS-1$ //$NON-NLS-2$
+        final ColumnConfig idColumn = new ColumnConfig("objectValue", "Id", COLUMN_WIDTH); //$NON-NLS-1$ //$NON-NLS-2$
         columnConfigs.add(idColumn);
         idColumn.setRenderer(new GridCellRenderer<ItemNodeModel>() {
                 
             public Object render(ItemNodeModel model, String property, ColumnData config, int rowIndex, int colIndex,
                     ListStore<ItemNodeModel> store, Grid<ItemNodeModel> grid) {
                 model.setValid(true);
+
                 ForeignKeyBean fkBean = (ForeignKeyBean) model.getObjectValue();
-                return fkBean != null ? fkBean.getId() : ""; //$NON-NLS-1$
+                final String value = fkBean != null ? fkBean.getId() : ""; //$NON-NLS-1$
+                return value;
 
             }
         });
+        LabelField f = new LabelField();
+        CellEditor idCellEditor = new CellEditor(f) {
+
+            @Override
+            public Object preProcessValue(Object v) {
+                if (v != null) {
+                    ForeignKeyBean fk = (ForeignKeyBean) v;
+                    return super.preProcessValue(fk.getId());
+                }
+                return null;
+            }
+
+        };
+        idColumn.setEditor(idCellEditor);
         List<String> foreignKeyInfo = fkTypeModel.getForeignKeyInfo();
         for (int i = 0; i < foreignKeyInfo.size(); i++) {
             final String info = foreignKeyInfo.get(i);
-            final int index = i;
+            // final int index = i;
             final ColumnConfig column = new ColumnConfig("objectValue", //$NON-NLS-1$
                     CommonUtil.getElementFromXpath(info),
                     COLUMN_WIDTH);
@@ -148,19 +163,21 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                 public Object render(ItemNodeModel model, String property, ColumnData config, int rowIndex, int colIndex,
                         ListStore<ItemNodeModel> store, Grid<ItemNodeModel> grid) {
                     ForeignKeyBean fkBean = (ForeignKeyBean) model.getObjectValue();
-                    String value = fkBean != null && fkBean.getDisplayInfo() != null ? fkBean.getDisplayInfo().split("-")[index] : ""; //$NON-NLS-1$ //$NON-NLS-2$
-                    TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(info);
-                    Field<?> field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false,
-                            Locale.getLanguage());
+//                    String value = fkBean != null && fkBean.getDisplayInfo() != null ? fkBean.getDisplayInfo().split("-")[index] : ""; //$NON-NLS-1$ //$NON-NLS-2$
+                    String value = fkBean != null && fkBean.getForeignKeyInfo().containsKey(info) ? fkBean.getForeignKeyInfo()
+                            .get(info) : ""; //$NON-NLS-1$
 
-                    CellEditor cellEditor = new ForeignKeyCellEditor(field, value, typeModel);
-                    if (cellEditor != null) {
-                        column.setEditor(cellEditor);
-                    }
                     return value;
                 }
+
             });
-            
+            TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(info);
+            Field<?> field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false, Locale.getLanguage());
+
+            CellEditor cellEditor = new ForeignKeyCellEditor(field, typeModel);
+            if (cellEditor != null) {
+                column.setEditor(cellEditor);
+            }
             columnConfigs.add(column);
         }
         ColumnConfig columnOpt = new ColumnConfig("", "Operation", COLUMN_WIDTH); //$NON-NLS-1$ //$NON-NLS-2$

@@ -1,8 +1,5 @@
 package org.talend.mdm.webapp.browserecords.client.widget;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.shared.TypeModel;
@@ -16,6 +13,7 @@ import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.grid.EditorGrid.ClicksToEdit;
 import com.extjs.gxt.ui.client.widget.grid.RowEditor;
 
 
@@ -27,6 +25,7 @@ public class ForeignKeyRowEditor extends RowEditor<ItemNodeModel> {
 
     public ForeignKeyRowEditor(TypeModel fkTypeModel) {
         this.fkTypeModel = fkTypeModel;
+        this.setClicksToEdit(ClicksToEdit.TWO);
     }
 
     @Override
@@ -43,13 +42,14 @@ public class ForeignKeyRowEditor extends RowEditor<ItemNodeModel> {
         if (saveChanges) {
             final ItemNodeModel node = grid.getSelectionModel().getSelectedItem();
             ForeignKeyBean fkBean = (ForeignKeyBean) node.getObjectValue();
-            Map<String, String> fkValueMap = new HashMap<String, String>();
-
-            for (String foreignKeyInfo : fkTypeModel.getForeignKeyInfo()) {
-                fkValueMap.put(foreignKeyInfo, (String) fkBean.get(foreignKeyInfo));
+            if (fkBean == null) {
+                MessageBox.alert(MessagesFactory.getMessages().message_fail(), MessagesFactory.getMessages().fk_edit_failure(),
+                        null);
+                return;
             }
 
-            service.saveFkItem(fkTypeModel.getForeignkey().split("/")[0], fkBean.getId(), fkValueMap, Locale.getLanguage(), //$NON-NLS-1$
+            String ids = fkBean.getId().replaceAll("\\[", "").replaceAll("\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
+            service.saveFkItem(fkTypeModel.getForeignkey().split("/")[0], ids, fkBean.getForeignKeyInfo(), Locale.getLanguage(), //$NON-NLS-1$
                     new SessionAwareAsyncCallback<String>() {
 
                 @Override

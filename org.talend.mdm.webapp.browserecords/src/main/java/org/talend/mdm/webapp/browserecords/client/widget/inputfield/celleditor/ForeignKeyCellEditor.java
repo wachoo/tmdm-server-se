@@ -11,30 +11,27 @@ public class ForeignKeyCellEditor extends CellEditor {
 
     private TypeModel typeModel;
 
-    private String value;
-
     ForeignKeyBean fkBean;
 
-    public ForeignKeyCellEditor(Field<? extends Object> field, String value, TypeModel typeModel) {
+    public ForeignKeyCellEditor(Field<? extends Object> field, TypeModel typeModel) {
         super(field);
         this.typeModel = typeModel;
-        this.value = value;
-
     }
 
     public Object preProcessValue(Object value) {
         fkBean = (ForeignKeyBean) value;
         if (value == null)
             return null;
-        if (typeModel.getType().getBaseTypeName().equals(DataTypeConstants.STRING.getTypeName())) {
-            return this.value;
+        if (typeModel.getType().getBaseTypeName().equals(DataTypeConstants.STRING.getTypeName())
+                || typeModel.getType().getBaseTypeName().equals(DataTypeConstants.LONG.getTypeName())) {
+            return fkBean.getForeignKeyInfo().get(typeModel.getXpath());
         }
         return null;
     }
 
     public Object postProcessValue(Object value) {
-
-        fkBean.getForeignKeyInfo().put(typeModel.getXpath(), value.toString());
+        if (fkBean != null)
+            fkBean.getForeignKeyInfo().put(typeModel.getXpath(), value.toString());
         return fkBean;
 
     }

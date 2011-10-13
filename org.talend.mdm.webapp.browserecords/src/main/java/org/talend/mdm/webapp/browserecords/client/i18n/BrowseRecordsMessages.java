@@ -344,4 +344,6 @@ public interface BrowseRecordsMessages extends Messages {
     
     String import_success_label();
 
+    String fk_edit_failure();
+
 }

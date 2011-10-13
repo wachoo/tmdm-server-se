@@ -32,7 +32,8 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
             service.getView(viewFkName, Locale.getLanguage(), new SessionAwareAsyncCallback<ViewBean>() {
                 public void onSuccess(ViewBean viewBean) {
                     ForeignKeyTablePanel fkPanel = new ForeignKeyTablePanel(viewBean, parentModel, fkNodeModelList, fkTypeModel);
-                    TabItem tabItem = ItemsDetailPanel.getInstance().addTabItem(fkTypeModel.getXpath(), fkPanel,
+                    String xPath = fkTypeModel.getXpath().substring(fkTypeModel.getXpath().indexOf("/") + 1); //$NON-NLS-1$
+                    TabItem tabItem = ItemsDetailPanel.getInstance().addTabItem(xPath, fkPanel,
                             ItemsDetailPanel.MULTIPLE, fkTypeModel.getXpath());
                     relationFk.put(parentModel, tabItem);
                 }
