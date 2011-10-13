@@ -120,45 +120,42 @@
 
     <build>
         <plugins>
-        <!-- generate jar file with sources and classes -->
-         <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <executions>
-                <execution>
+            <!-- generate jar file with sources and classes -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
                         <configuration>
-                                <finalName>${project.artifactId}</finalName>
-                                <directory>src/main/java</directory>
-                                <directory>src/main/resources</directory>
-                                <excludes>
-                                        <exclude>org/talend/mdm/webapp/browserecords/server/*.*</exclude>
-                                </excludes>
+                            <finalName>${project.artifactId}</finalName>
+                            <excludes>
+                                <exclude>org/talend/mdm/webapp/browserecords/server/**</exclude>
+                            </excludes>
                         </configuration>
                         <goals>
-                                <goal>jar</goal>
+                            <goal>jar</goal>
                         </goals>
-                </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <executions>
-          <execution>
-            <configuration>
-              <finalName>${project.artifactId}</finalName>
-              <directory>src/main/java</directory>
-              <directory>src/main/resources</directory>
-              <excludes>
-                    <exclude>org/talend/mdm/webapp/browserecords/server/*.*</exclude>
-                  </excludes>
-            </configuration>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <finalName>${project.artifactId}</finalName>
+                            <excludes>
+                                <exclude>org/talend/mdm/webapp/browserecords/server/**</exclude>
+                            </excludes>
+                        </configuration>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>gwt-maven-plugin</artifactId>
