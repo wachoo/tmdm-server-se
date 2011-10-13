@@ -28,7 +28,7 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
     }
 
     public void RenderForeignKey(final ItemNodeModel parentModel, final List<ItemNodeModel> fkNodeModelList,
-            final TypeModel fkTypeModel, final ItemDetailToolBar toolBar) {
+            final TypeModel fkTypeModel, final ItemDetailToolBar toolBar, final ViewBean pkViewBean) {
         if (fkNodeModelList != null) {
             String viewFkName = "Browse_items_" + fkTypeModel.getForeignkey().split("/")[0]; //$NON-NLS-1$ //$NON-NLS-2$
             service.getView(viewFkName, Locale.getLanguage(), new SessionAwareAsyncCallback<ViewBean>() {
@@ -41,7 +41,7 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
                     Stack<String> stack = new Stack<String>();
                     do{
 
-                        TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(xp);
+                        TypeModel tm = pkViewBean.getBindingEntityModel().getMetaDataTypes().get(xp);
                         if (tm != null)
                             stack.push(tm.getLabel(Locale.getLanguage()));
                         xp = xp.substring(0, xp.lastIndexOf("/")); //$NON-NLS-1$

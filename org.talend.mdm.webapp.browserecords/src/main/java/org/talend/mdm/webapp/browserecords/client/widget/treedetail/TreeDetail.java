@@ -226,7 +226,7 @@ public class TreeDetail extends ContentPanel {
 
                     public void execute() {
                         for (TypeModel model : fkMap.keySet()) {
-                            fkRender.RenderForeignKey(itemNode, fkMap.get(model), model, toolBar);
+                            fkRender.RenderForeignKey(itemNode, fkMap.get(model), model, toolBar, viewBean);
                         }
                     }
                 });
