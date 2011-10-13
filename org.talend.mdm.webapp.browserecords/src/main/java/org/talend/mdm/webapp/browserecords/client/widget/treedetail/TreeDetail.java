@@ -295,7 +295,10 @@ public class TreeDetail extends ContentPanel {
         root = buildGWTTree(rootModel, null, false);
         root.setState(true);
         tree = new Tree();
-        tree.addItem(root);
+        for (int i = 0; i < root.getChildCount(); i++) {
+            tree.addItem(root.getChild(i));
+        }
+        // tree.addItem(root);
 
         ColumnTreeLayoutModel columnLayoutModel = viewBean.getColumnLayoutModel();
         if (columnLayoutModel != null) {// TODO if create a new PrimaryKey, tree UI should not render according to the
