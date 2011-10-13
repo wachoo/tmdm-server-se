@@ -63,21 +63,17 @@ a{
 	background-image: url(resources/images/default/banner-bg.jpg);
 }
 
-.banner-nobg{
-    background-repeat: repeat-x;
-	background-position: left top;
-	background-image: url("");
-}
-
 .banner .Title{
-	padding-top: 5px;
+	padding-top: 3px;
 	padding-left: 10px;
 	color: #2D5593;
 	font: bold 14px tahoma, verdana, helvetica;    
 }
 
 .banner .Description{
-	padding: 10px;	
+	padding-top: 10px;
+	padding-left: 10px;	
+	padding-bottom: 0;	
 	color: white;
 	font: 12px tahoma, verdana, helvetica;	
 }
