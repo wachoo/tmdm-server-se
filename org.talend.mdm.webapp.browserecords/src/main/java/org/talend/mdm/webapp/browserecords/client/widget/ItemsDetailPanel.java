@@ -29,20 +29,26 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
- * DOC Administrator  class global comment. Detailled comment
+ * DOC Administrator class global comment. Detailled comment
  */
 public class ItemsDetailPanel extends ContentPanel {
 
     private static ItemsDetailPanel instance;
+
     public final static String SINGLETON = "SINGLETON"; //$NON-NLS-1$
+
     public final static String MULTIPLE = "MULTIPLE"; //$NON-NLS-1$
-    private TabPanel tabPanel = new TabPanel();  
+
+    private TabPanel tabPanel = new TabPanel();
 
     private SimplePanel breadCrumb = new SimplePanel();
+
     private ContentPanel banner = new ContentPanel();
+
     private Text textTitle = new Text();
+
     private List<Text> subTitleList = new ArrayList<Text>();
-    
+
     public static ItemsDetailPanel getInstance() {
         if (instance == null) {
             instance = new ItemsDetailPanel();
@@ -51,10 +57,10 @@ public class ItemsDetailPanel extends ContentPanel {
     }
 
     protected void onDetach() {
-    	super.onDetach();
-    	instance = null;
+        super.onDetach();
+        instance = null;
     }
-    
+
     private ItemsDetailPanel() {
         super();
         this.setBodyBorder(false);
@@ -63,14 +69,14 @@ public class ItemsDetailPanel extends ContentPanel {
         this.setHeight(500);
         this.initPanel();
     }
-    
+
     private void initPanel() {
         add(breadCrumb);
         banner.setHeaderVisible(false);
         banner.setHeight("56px"); //$NON-NLS-1$
         banner.setBodyBorder(false);
         banner.setScrollMode(Scroll.AUTO);
-        
+
         textTitle.setStyleName("Title"); //$NON-NLS-1$
         add(banner);
         tabPanel.setTabScroll(true);
@@ -80,7 +86,7 @@ public class ItemsDetailPanel extends ContentPanel {
                 tabPanel.setHeight(ItemsDetailPanel.this.getOffsetHeight() - 50);
             }
         });
-        add(tabPanel);        
+        add(tabPanel);
     }
 
     public void initBreadCrumb(BreadCrumb breadCrumb) {
@@ -103,18 +109,18 @@ public class ItemsDetailPanel extends ContentPanel {
             clearBanner();
             banner.getBody().setStyleName("banner"); //$NON-NLS-1$
             int i = 1;
-            for(String str : xpathList){
-                if(i == 1){
+            for (String str : xpathList) {
+                if (i == 1) {
                     textTitle.setText(str);
                     banner.add(textTitle);
                     i++;
                     continue;
-                }               
+                }
                 Text subTitle = new Text();
                 subTitle.setStyleName("Description"); //$NON-NLS-1$
                 subTitle.setText(str);
                 subTitleList.add(subTitle);
-                banner.add(subTitle);        
+                banner.add(subTitle);
             }
             banner.layout(true);
         }
@@ -124,7 +130,7 @@ public class ItemsDetailPanel extends ContentPanel {
 
     public void clearBanner() {
         textTitle.setText(null);
-        for(Text text : subTitleList) {
+        for (Text text : subTitleList) {
             banner.remove(text);
         }
         subTitleList.clear();
@@ -139,27 +145,27 @@ public class ItemsDetailPanel extends ContentPanel {
 
     public TabItem addTabItem(String title, ContentPanel panel, String pattern, String id) {
         TabItem newTab = null;
-        if(pattern.equalsIgnoreCase(ItemsDetailPanel.MULTIPLE)){
+        if (pattern.equalsIgnoreCase(ItemsDetailPanel.MULTIPLE)) {
             newTab = new TabItem(title);
             newTab.setId(id);
-            newTab.addStyleName("pad-text");   //$NON-NLS-1$
+            newTab.addStyleName("pad-text"); //$NON-NLS-1$
             panel.setHeight(this.getHeight() - 100);
             newTab.add(panel);
             tabPanel.add(newTab);
             if (tabPanel.getItemCount() == 1)
                 tabPanel.setSelection(newTab);
-        }else{
+        } else {
             newTab = tabPanel.getItemByItemId(id);
-            if(newTab == null){
-                newTab = new TabItem(title); 
+            if (newTab == null) {
+                newTab = new TabItem(title);
                 newTab.setId(id);
                 newTab.setItemId(id);
-                newTab.addStyleName("pad-text");   //$NON-NLS-1$
+                newTab.addStyleName("pad-text"); //$NON-NLS-1$
                 panel.setHeight(this.getHeight() - 100);
                 newTab.add(panel);
                 tabPanel.add(newTab);
                 tabPanel.setSelection(newTab);
-            }else{
+            } else {
                 newTab.removeAll();
                 newTab.add(panel);
                 newTab.layout(true);
@@ -168,9 +174,9 @@ public class ItemsDetailPanel extends ContentPanel {
         return newTab;
     }
 
-    public ItemPanel getCurrentItemPanel(){
+    public ItemPanel getCurrentItemPanel() {
         TabItem tabItem = tabPanel.getSelectedItem();
-        if (tabItem != null){
+        if (tabItem != null) {
             Widget w = tabItem.getWidget(0);
             if (w instanceof ItemPanel) {
                 return (ItemPanel) w;
@@ -178,7 +184,7 @@ public class ItemsDetailPanel extends ContentPanel {
         }
         return null;
     }
-    
+
     public void clearContent() {
         tabPanel.removeAll();
     }
@@ -187,7 +193,7 @@ public class ItemsDetailPanel extends ContentPanel {
         return tabPanel.getItemByItemId(itemId);
     }
 
-    public void closeCurrentTab(){
+    public void closeCurrentTab() {
         TabItem itemTab = tabPanel.getSelectedItem();
         tabPanel.remove(itemTab);
     }
@@ -196,4 +202,7 @@ public class ItemsDetailPanel extends ContentPanel {
         return tabPanel;
     }
 
+    public void showBannerVisible(boolean visible) {
+        banner.setVisible(visible);
+    }
 }
