@@ -211,4 +211,8 @@ public class WelcomePortalAction implements WelcomePortalService {
             throw new ServiceException(e.getLocalizedMessage());
         }
     }
+
+    public boolean isEnterpriseVersion() throws ServiceException {
+        return Webapp.INSTANCE.isEnterpriseVersion();
+    }
 }

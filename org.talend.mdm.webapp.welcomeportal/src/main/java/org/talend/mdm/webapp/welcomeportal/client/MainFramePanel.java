@@ -12,20 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.welcomeportal.client;
 
-import java.util.List;
-
-import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
-import org.talend.mdm.webapp.base.client.util.UrlUtil;
-import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
-
 import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.IconButtonEvent;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.event.*;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -39,8 +27,17 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.TextBox;
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.util.UrlUtil;
+import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
+
+import java.util.List;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -60,6 +57,7 @@ public class MainFramePanel extends Portal {
         initAlertPortlet();
         initTaskPortlet();
         initProcessPortlet();
+        initSearchPortlet();
     }
 
     private void itemClick(final String context, final String application) {
@@ -80,6 +78,42 @@ public class MainFramePanel extends Portal {
 
         applyStartPortlet(start);
         this.add(start, 0);
+    }
+
+    private void initSearchPortlet() {
+        final MainFramePanel mainFramePanel = this;
+        service.isEnterpriseVersion(new AsyncCallback<Boolean>() {
+            public void onFailure(Throwable throwable) {
+            }
+
+            public void onSuccess(Boolean isEnterprise) {
+                if (isEnterprise) {  // This feature is MDM EE only.
+                    String name = WelcomePortal.SEARCH;
+                    Portlet searchPortlet = configPortlet(name);
+                    searchPortlet.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.start()));
+                    searchPortlet.setHeading(MessagesFactory.getMessages().search_title());
+
+                    FieldSet set = (FieldSet) searchPortlet.getItemByItemId(WelcomePortal.SEARCH + "Set"); //$NON-NLS-1$
+                    set.setBorders(false);
+                    set.removeAll();
+                    Grid grid = new Grid(1, 2);
+                    final TextBox textBox = new TextBox();
+                    grid.setWidget(0, 0, textBox);
+
+                    Button button = new Button(MessagesFactory.getMessages().search_button_text());
+                    button.addSelectionListener(new SelectionListener<ButtonEvent>() {
+                        @Override
+                        public void componentSelected(ButtonEvent buttonEvent) {
+                            openWindow("/search/?query= " + textBox.getText());
+                        }
+                    });
+                    grid.setWidget(0, 1, button);
+                    set.add(grid);
+
+                    mainFramePanel.add(searchPortlet, 1);
+                }
+            }
+        });
     }
 
     private void applyStartPortlet(Portlet start) {
@@ -343,31 +377,31 @@ public class MainFramePanel extends Portal {
         port.setItemId(name + "Portlet"); //$NON-NLS-1$
         port.getHeader().addTool(new ToolButton("x-tool-refresh", new SelectionListener<IconButtonEvent>() { //$NON-NLS-1$
 
-                    @Override
-                    public void componentSelected(IconButtonEvent ce) {
-                        Portlet selectedPortlet = getPortletById(name + "Portlet"); //$NON-NLS-1$
-                        if (selectedPortlet != null) {
-                            if (name.equals(WelcomePortal.START))
-                                applyStartPortlet(selectedPortlet);
-                            else if (name.equals(WelcomePortal.ALERT))
-                                applyAlertPortlet(selectedPortlet);
-                            else if (name.equals(WelcomePortal.TASK))
-                                applyTaskPortlet(selectedPortlet);
-                            else if (name.equals(WelcomePortal.PROCESS))
-                                applyProcessPortlet(selectedPortlet);
-                        }
+            @Override
+            public void componentSelected(IconButtonEvent ce) {
+                Portlet selectedPortlet = getPortletById(name + "Portlet"); //$NON-NLS-1$
+                if (selectedPortlet != null) {
+                    if (name.equals(WelcomePortal.START))
+                        applyStartPortlet(selectedPortlet);
+                    else if (name.equals(WelcomePortal.ALERT))
+                        applyAlertPortlet(selectedPortlet);
+                    else if (name.equals(WelcomePortal.TASK))
+                        applyTaskPortlet(selectedPortlet);
+                    else if (name.equals(WelcomePortal.PROCESS))
+                        applyProcessPortlet(selectedPortlet);
+                }
 
-                    }
+            }
 
-                }));
+        }));
         port.getHeader().addTool(new ToolButton("x-tool-close", new SelectionListener<IconButtonEvent>() { //$NON-NLS-1$
 
-                    @Override
-                    public void componentSelected(IconButtonEvent ce) {
-                        port.removeFromParent();
-                    }
+            @Override
+            public void componentSelected(IconButtonEvent ce) {
+                port.removeFromParent();
+            }
 
-                }));
+        }));
 
         Label label = new Label();
         label.setItemId(name + "Label"); //$NON-NLS-1$

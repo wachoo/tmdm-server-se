@@ -1,6 +1,7 @@
 package com.amalto.webapp.core.util;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -465,6 +466,6 @@ public class XtentisRMIPort extends IXtentisRMIPort {
     }
 
     public List<String> globalSearch(String dataCluster, String keyword, int start, int end) throws RemoteException {
-        return Collections.emptyList(); // CE edition doesn't support this feature.
+        return new ArrayList<String>(0); // CE edition doesn't support this feature.
     }
 }

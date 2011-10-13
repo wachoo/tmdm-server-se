@@ -47,4 +47,6 @@ public interface WelcomePortalServiceAsync {
 
     void isExpired(AsyncCallback<Boolean> callback);
 
+    void isEnterpriseVersion(AsyncCallback<Boolean> callback);
+
 }
