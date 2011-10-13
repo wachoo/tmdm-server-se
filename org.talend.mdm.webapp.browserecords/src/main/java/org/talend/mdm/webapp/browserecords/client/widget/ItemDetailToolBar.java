@@ -102,6 +102,8 @@ public class ItemDetailToolBar extends ToolBar {
 
     private ItemBean itemBean;
 
+    private ViewBean viewBean;
+    
     private String operation;
 
     private boolean isFkToolBar;
@@ -111,25 +113,53 @@ public class ItemDetailToolBar extends ToolBar {
     private ItemBaseModel selectItem;
 
     private Button taskButton;
+    
+    private Menu deleteMenu;
+    
+    private MenuItem delete_SendToTrash;
+    
+    private MenuItem delete_Delete;
 
     public ItemDetailToolBar() {
         this.setBorders(false);
     }
 
-    public ItemDetailToolBar(ItemBean itemBean, String operation) {
+    public ItemDetailToolBar(ItemBean itemBean, String operation, ViewBean viewBean) {
         this();
         this.itemBean = itemBean;
         this.operation = operation;
+        this.viewBean = viewBean;
         initToolBar();
+        checkEntitlement(viewBean);
     }
 
-    public ItemDetailToolBar(ItemBean itemBean, String operation, boolean isFkToolBar) {
+    public ItemDetailToolBar(ItemBean itemBean, String operation, boolean isFkToolBar, ViewBean viewBean) {
         this();
         this.itemBean = itemBean;
         this.operation = operation;
         this.isFkToolBar = isFkToolBar;
+        this.viewBean = viewBean;
         initToolBar();
+        checkEntitlement(viewBean);
 
+    }
+    
+    private void checkEntitlement(ViewBean viewBean){
+        if(deleteButton == null)
+            return;
+        String concept = this.itemBean.getConcept();
+        boolean denyLogicalDelete = viewBean.getBindingEntityModel().getMetaDataTypes().get(concept).isDenyLogicalDeletable();
+        boolean denyPhysicalDelete = viewBean.getBindingEntityModel().getMetaDataTypes().get(concept).isDenyPhysicalDeleteable();
+        
+        if (denyLogicalDelete && denyPhysicalDelete)
+            deleteButton.setEnabled(false);
+        else{
+            deleteButton.setEnabled(true);
+            if(denyLogicalDelete)
+                delete_SendToTrash.setEnabled(false);
+            if(denyPhysicalDelete)
+                delete_Delete.setEnabled(false);
+        }
     }
 
     private void initToolBar() {
@@ -213,8 +243,8 @@ public class ItemDetailToolBar extends ToolBar {
             deleteButton = new Button(MessagesFactory.getMessages().delete_btn());
             deleteButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
 
-            Menu deleteMenu = new Menu();
-            MenuItem delete_SendToTrash = new MenuItem(MessagesFactory.getMessages().trash_btn());
+            deleteMenu = new Menu();
+            delete_SendToTrash = new MenuItem(MessagesFactory.getMessages().trash_btn());
             delete_SendToTrash.addSelectionListener(new SelectionListener<MenuEvent>() {
 
                 @Override
@@ -241,7 +271,7 @@ public class ItemDetailToolBar extends ToolBar {
             delete_SendToTrash.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Send_to_trash()));
             deleteMenu.add(delete_SendToTrash);
 
-            MenuItem delete_Delete = new MenuItem(MessagesFactory.getMessages().delete_btn());
+            delete_Delete = new MenuItem(MessagesFactory.getMessages().delete_btn());
             deleteMenu.add(delete_Delete);
             delete_Delete.addSelectionListener(new SelectionListener<MenuEvent>() {
 
@@ -475,8 +505,8 @@ public class ItemDetailToolBar extends ToolBar {
                                                 "Please select a process first!", null); //$NON-NLS-1$
                                         return;
                                     }
-                                    final MessageBox waitBar = MessageBox.wait("Processing", "Processing, please wait...",
-                                            "Processing...");
+                                    final MessageBox waitBar = MessageBox.wait("Processing", "Processing, please wait...", //$NON-NLS-1$ //$NON-NLS-2$
+                                            "Processing..."); //$NON-NLS-1$
                                     String[] ids = itemBean.getIds().split("@"); //$NON-NLS-1$
 
                                     service.processItem(itemBean.getConcept(), ids,
@@ -485,9 +515,9 @@ public class ItemDetailToolBar extends ToolBar {
                                                 public void onSuccess(String result) {
                                                     waitBar.close();
                                                     if (result.indexOf("Ok") >= 0) { //$NON-NLS-1$
-                                                        MessageBox.alert("Status", "Process done!", null);
+                                                        MessageBox.alert("Status", "Process done!", null);  //$NON-NLS-1$//$NON-NLS-2$
                                                     } else {
-                                                        MessageBox.alert("Status", "Process failed!", null);
+                                                        MessageBox.alert("Status", "Process failed!", null); //$NON-NLS-1$ //$NON-NLS-2$
                                                     }
                                                 }
                                             });
@@ -722,11 +752,11 @@ public class ItemDetailToolBar extends ToolBar {
         }
         app.setData("viewBean", viewBean); //$NON-NLS-1$
         app.setData(model);
-        app.setData("isClose", isClose);
+        app.setData("isClose", isClose); //$NON-NLS-1$
         if (validate) {
             dispatch.dispatch(app);
         } else {
-            MessageBox.alert(MessagesFactory.getMessages().error_title(), "save failure", null);
+            MessageBox.alert(MessagesFactory.getMessages().error_title(), "save failure", null); //$NON-NLS-1$
         }
     }
 }

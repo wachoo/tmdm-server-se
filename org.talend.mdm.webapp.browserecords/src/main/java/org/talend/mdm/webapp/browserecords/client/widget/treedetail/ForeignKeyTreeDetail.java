@@ -120,7 +120,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         this.viewBean = viewBean;
         this.columnLayoutModel = viewBean.getColumnLayoutModel();
         this.toolBar = new ItemDetailToolBar(new ItemBean(viewBean.getBindingEntityModel().getConceptName(), "", ""), //$NON-NLS-1$//$NON-NLS-2$
-                isCreate ? ItemDetailToolBar.CREATE_OPERATION : ItemDetailToolBar.VIEW_OPERATION, true);
+                isCreate ? ItemDetailToolBar.CREATE_OPERATION : ItemDetailToolBar.VIEW_OPERATION, true, viewBean);
         this.setTopComponent(toolBar);
         buildPanel(viewBean);
     }
@@ -133,7 +133,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         this.viewBean = fkModel.getViewBean();
         this.columnLayoutModel = viewBean.getColumnLayoutModel();
         this.toolBar = new ItemDetailToolBar(fkModel.getItemBean(), isCreate ? ItemDetailToolBar.CREATE_OPERATION
-                : ItemDetailToolBar.VIEW_OPERATION, true);
+                : ItemDetailToolBar.VIEW_OPERATION, true, viewBean);
         this.setTopComponent(toolBar);
         ItemsDetailPanel.getInstance().clearContent();
         ItemsDetailPanel.getInstance().initBanner(fkModel.getItemBean().getPkInfoList(), fkModel.getItemBean().getDescription());

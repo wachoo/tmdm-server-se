@@ -59,7 +59,7 @@ public class ItemPanel extends ContentPanel {
     public ItemPanel(ViewBean viewBean, ItemBean item, String operation) {
         this.viewBean = viewBean;
         this.item = item;
-        this.toolBar = new ItemDetailToolBar(item, operation);
+        this.toolBar = new ItemDetailToolBar(item, operation, viewBean);
         this.operation = operation;
         this.initUI();
     }
