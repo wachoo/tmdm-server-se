@@ -120,6 +120,39 @@
 
     <build>
         <plugins>
+        <!-- generate jar file with sources and classes -->
+        	<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<configuration>
+							<finalName>${project.artifactId}</finalName>
+							<directory>src/main/java</directory>
+							<directory>src/main/resources</directory>
+						</configuration>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<executions>
+					<execution>
+						<configuration>
+							<finalName>${project.artifactId}</finalName>
+							<directory>src/main/java</directory>
+							<directory>src/main/resources</directory>
+						</configuration>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>gwt-maven-plugin</artifactId>
