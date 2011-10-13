@@ -166,7 +166,8 @@ public class CustomFormCtrlBean implements SessionBean {
             if (list.size() > 0) {
                 return list.get(0);
             }
-            return ObjectPOJO.load(CustomFormPOJO.class, cpk);
+            return null;
+            // return ObjectPOJO.load(CustomFormPOJO.class, cpk);
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
