@@ -4,7 +4,7 @@ import java.util.Date;
 
 import com.google.gwt.i18n.client.DateTimeFormat;
 
-//============================================================================
+// ============================================================================
 //
 // Copyright (C) 2006-2011 Talend Inc. - www.talend.com
 //
@@ -18,7 +18,7 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 // ============================================================================
 public class DateUtil {
 
-    private static String datePattern = "yyyy-MM-dd";//$NON-NLS-1$
+    public static String datePattern = "yyyy-MM-dd";//$NON-NLS-1$    
 
     public static String timePattern = "HH:mm:ss";//$NON-NLS-1$
 
@@ -53,6 +53,14 @@ public class DateUtil {
             DateTimeFormat df = DateTimeFormat.getFormat(datePattern);
             DateTimeFormat tf = DateTimeFormat.getFormat(timePattern);
             return df.format(aDate) + "T" + tf.format(aDate);//$NON-NLS-1$
+        }
+        return "";//$NON-NLS-1$
+    }
+
+    public static final String convertDate(Date date) {
+        if (date != null) {
+            DateTimeFormat df = DateTimeFormat.getFormat(datePattern);
+            return df.format(date);//$NON-NLS-1$
         }
         return "";//$NON-NLS-1$
     }

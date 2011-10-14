@@ -36,6 +36,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Locale;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -64,6 +65,7 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecordsService;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyDrawer;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
+import org.talend.mdm.webapp.browserecords.client.model.FormatModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
@@ -440,7 +442,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
         return xPathList;
     }
-    
+
     private String getPKInfos(List<String> xPathList) {
         StringBuilder gettedValue = new StringBuilder();
         for (String pkInfo : xPathList) {
@@ -1513,6 +1515,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         nodeModel.setLabel(model.getLabel(language));
         nodeModel.setDescription(model.getDescriptionMap().get(language));
         nodeModel.setName(el.getNodeName());
+        if (model.getMinOccurs() > 0) {
+            nodeModel.setMandatory(true);
+        }
 
         if (!"".equals(metaDataTypes.get(xpath).getForeignkey()) && metaDataTypes.get(xpath).getForeignkey() != null) { //$NON-NLS-1$
             // set foreignKeyBean
@@ -1594,7 +1599,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    
     public String saveItem(String concept, String ids, String xml, boolean isCreate, String language) throws ServiceException {
 
         try {
@@ -2166,5 +2170,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
         }
+    }
+
+    public String formatValue(FormatModel model) throws ServiceException {
+        return String.format(new Locale(model.getLanguage()), model.getFormat(), model.getObject());
     }
 }

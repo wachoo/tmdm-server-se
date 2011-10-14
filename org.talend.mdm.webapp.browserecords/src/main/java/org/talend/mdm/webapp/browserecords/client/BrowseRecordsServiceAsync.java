@@ -22,6 +22,7 @@ import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyDrawer;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
+import org.talend.mdm.webapp.browserecords.client.model.FormatModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
@@ -113,4 +114,6 @@ public interface BrowseRecordsServiceAsync {
     void isItemModifiedByOthers(ItemBean itemBean, AsyncCallback<Boolean> callback);
 
     void saveFkItem(String concept, String ids, Map<String, String> changedNodes, String language, AsyncCallback<String> callback);
+
+    void formatValue(FormatModel model, AsyncCallback<String> callback);
 }

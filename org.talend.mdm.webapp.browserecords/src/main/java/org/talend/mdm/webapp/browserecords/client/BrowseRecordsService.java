@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,7 @@ import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyDrawer;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
+import org.talend.mdm.webapp.browserecords.client.model.FormatModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
@@ -98,7 +100,7 @@ public interface BrowseRecordsService extends RemoteService {
     String saveItem(String concept, String ids, String xml, boolean isCreate, String language) throws ServiceException;
 
     String saveFkItem(String concept, String ids, Map<String, String> changedNodes, String language) throws ServiceException;
-    
+
     ColumnTreeLayoutModel getColumnTreeLayout(String concept) throws ServiceException;
 
     ForeignKeyModel getForeignKeyModel(String concept, String ids, String language) throws ServiceException;
@@ -116,4 +118,7 @@ public interface BrowseRecordsService extends RemoteService {
     List<VisibleRuleResult> executeVisibleRule(String xml) throws ServiceException;
 
     boolean isItemModifiedByOthers(ItemBean itemBean) throws ServiceException;
+
+    String formatValue(FormatModel model) throws ServiceException;
+
 }

@@ -26,10 +26,14 @@ import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ComboBoxModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.DateUtil;
+import org.talend.mdm.webapp.browserecords.client.util.FormatUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.BooleanField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatDateField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ForeignKeyField;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatNumberField;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.PictureField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.UrlField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator.NumberFieldValidator;
@@ -49,6 +53,7 @@ import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
+import com.extjs.gxt.ui.client.widget.form.NumberPropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -60,6 +65,7 @@ public class TreeDetailGridFieldCreator {
     public static Field<?> createField(ItemNodeModel node, final TypeModel dataType, String language,
             Map<String, Field<?>> fieldMap) {
         // Field
+
         Serializable value = node.getObjectValue();
         Field<?> field;
         boolean hasValue = value != null && !"".equals(value); //$NON-NLS-1$
@@ -191,13 +197,16 @@ public class TreeDetailGridFieldCreator {
 
     @SuppressWarnings("serial")
     public static Field<?> createCustomField(Serializable value, TypeModel dataType, String language) {
-        String pattern = dataType.getDisplayFomats().get("format_" + Locale.getLanguage());
+        String pattern = dataType.getDisplayFomats().get("format_" + Locale.getLanguage()); //$NON-NLS-1$
         Field<?> field;
         boolean hasValue = value != null && !"".equals(value); //$NON-NLS-1$
         String baseType = dataType.getType().getBaseTypeName();
         if (DataTypeConstants.INTEGER.getTypeName().equals(baseType) || DataTypeConstants.INT.getTypeName().equals(baseType)
                 || DataTypeConstants.LONG.getTypeName().equals(baseType)) {
-            NumberField numberField = new NumberField();
+            FormatNumberField numberField = new FormatNumberField();
+            if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$
+                numberField.setFormatPattern(pattern);
+            }
             numberField.setData("numberType", "integer");//$NON-NLS-1$ //$NON-NLS-2$
             numberField.setPropertyEditorType(Integer.class);
             numberField.setValidator(NumberFieldValidator.getInstance());
@@ -205,40 +214,30 @@ public class TreeDetailGridFieldCreator {
                 // numberField.setPropertyEditor(new NumberPropertyEditor(pattern));
             }
             numberField.setValue((hasValue ? Long.parseLong(value.toString()) : null));
-            if (dataType.getMinOccurs() > 0) {
-                numberField.setAllowBlank(false);
-            }
             field = numberField;
         } else if (DataTypeConstants.FLOAT.getTypeName().equals(baseType)
                 || DataTypeConstants.DOUBLE.getTypeName().equals(baseType)) {
-            NumberField numberField = new NumberField();
+            FormatNumberField numberField = new FormatNumberField();
+            if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$
+                numberField.setFormatPattern(pattern);
+            }
             numberField.setData("numberType", "double");//$NON-NLS-1$ //$NON-NLS-2$
             numberField.setPropertyEditorType(Double.class);
             numberField.setValidator(NumberFieldValidator.getInstance());
-            if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$     
-                // numberField.setPropertyEditor(new NumberPropertyEditor(pattern));
-            }
             if (DataTypeConstants.DOUBLE.getTypeName().equals(baseType))
                 numberField.setValue((hasValue ? Double.parseDouble(value.toString()) : null));
             else
                 numberField.setValue((hasValue ? Float.parseFloat(value.toString()) : null));
-            if (dataType.getMinOccurs() > 0) {
-                numberField.setAllowBlank(false);
-            }
             field = numberField;
         } else if (DataTypeConstants.DECIMAL.getTypeName().equals(baseType)) {
-            NumberField numberField = new NumberField();
+            FormatNumberField numberField = new FormatNumberField();
+            if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$
+                numberField.setFormatPattern(pattern);
+            }
             numberField.setData("numberType", "decimal");//$NON-NLS-1$ //$NON-NLS-2$
             numberField.setValidator(NumberFieldValidator.getInstance());
-            if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$     
-                // numberField.setPropertyEditor(new NumberPropertyEditor(pattern));
-            }
             numberField.setPropertyEditorType(Double.class);
-            // NumberFormat nf = NumberFormat.getDecimalFormat();
             numberField.setValue((hasValue ? Double.parseDouble(value.toString()) : null));
-            if (dataType.getMinOccurs() > 0) {
-                numberField.setAllowBlank(false);
-            }
 
             field = numberField;
         } else if (DataTypeConstants.BOOLEAN.getTypeName().equals(baseType)) {
@@ -260,46 +259,43 @@ public class TreeDetailGridFieldCreator {
                 booleanField.setValue((value.toString().equals("true") || value.equals(true)) ? trueValue : falseValue); //$NON-NLS-1$   
             field = booleanField;
         } else if (DataTypeConstants.DATE.getTypeName().equals(baseType)) {
-            DateField dateField = new DateField();
-            if (pattern == null || "".equals(pattern)) { //$NON-NLS-1$
-                pattern = "yyyy-MM-dd"; //$NON-NLS-1$   
+            FormatDateField dateField = new FormatDateField();
+            if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$
+                dateField.setFormatPattern(pattern);
             }
-            dateField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd"));//$NON-NLS-1$
+            dateField.setPropertyEditor(new DateTimePropertyEditor(DateUtil.datePattern));
             if (hasValue)
                 dateField.setValue(DateUtil.convertStringToDate(value.toString()));
-            if (dataType.getMinOccurs() > 0) {
-                dateField.setAllowBlank(false);
-            }
+
             field = dateField;
         } else if (DataTypeConstants.DATETIME.getTypeName().equals(baseType)) {
-            DateField dateTimeField = new DateField();
-            if (pattern == null || "".equals(pattern)) { //$NON-NLS-1$
-                pattern = "yyyy-MM-dd HH:mm:ss";//$NON-NLS-1$   
+            FormatDateField dateTimeField = new FormatDateField();
+            if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$
+                dateTimeField.setFormatPattern(pattern);
             }
-            dateTimeField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd HH:mm:ss"));//$NON-NLS-1$
+            dateTimeField.setPropertyEditor(new DateTimePropertyEditor(DateUtil.dateTimePattern));
             if (hasValue)
                 dateTimeField.setValue(DateUtil.convertStringToDate(DateUtil.dateTimePattern, value.toString()));
-            if (dataType.getMinOccurs() > 0) {
-                dateTimeField.setAllowBlank(false);
-            }
+
             field = dateTimeField;
         } else if (DataTypeConstants.STRING.getTypeName().equals(baseType)) {
-            TextField<String> textField = new TextField<String>();
+            FormatTextField textField = new FormatTextField();
+            if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$
+                textField.setFormatPattern(pattern);
+            }
             textField.setValidator(TextFieldValidator.getInstance());
             textField.setValue(hasValue ? value.toString() : ""); //$NON-NLS-1$
-            if (dataType.getMinOccurs() > 0) {
-                textField.setAllowBlank(false);
-            }
+
             field = textField;
         } else {
-            TextField<String> textField = new TextField<String>();
+            FormatTextField textField = new FormatTextField();
+            if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$
+                textField.setFormatPattern(pattern);
+            }
             textField.setValue(hasValue ? value.toString() : ""); //$NON-NLS-1$
             textField.setValidator(TextFieldValidator.getInstance());
             field = textField;
-            if (dataType.getMinOccurs() > 0) {
-                textField.setAllowBlank(false);
 
-            }
             textField.setMessages(null);
         }
 
@@ -313,14 +309,20 @@ public class TreeDetailGridFieldCreator {
 
             @SuppressWarnings("rawtypes")
             public void handleEvent(FieldEvent fe) {
-                if (fe.getField() instanceof ComboBoxField)
+                if (fe.getField() instanceof FormatTextField) {
+                    node.setObjectValue(((FormatTextField) fe.getField()).getOjbectValue());
+                } else if (fe.getField() instanceof FormatNumberField) {
+                    node.setObjectValue(((FormatNumberField) fe.getField()).getOjbectValue());
+                } else if (fe.getField() instanceof FormatDateField) {
+                    node.setObjectValue(((FormatDateField) fe.getField()).getOjbectValue());
+                } else if (fe.getField() instanceof ComboBoxField) {
                     node.setObjectValue(((ComboBoxModel) fe.getValue()).getValue());
-                else
+                } else {
                     node.setObjectValue(fe.getField() instanceof ComboBox ? ((SimpleComboValue) fe.getValue()).getValue()
                             .toString() : (Serializable) fe.getValue());
+                }
                 node.setChangeValue(true);
                 updateMandatory(field, node, fieldMap);
-                validate(field, node);
             }
         });
 
@@ -361,7 +363,7 @@ public class TreeDetailGridFieldCreator {
             List childs = parent.getChildren();
             for (int i = 0; i < childs.size(); i++) {
                 ItemNodeModel child = (ItemNodeModel) childs.get(i);
-                if (child.getObjectValue() != null && !"".equals(child.getObjectValue())) {
+                if (child.getObjectValue() != null && !"".equals(child.getObjectValue())) { //$NON-NLS-1$
                     flag = true;
                     break;
                 }
@@ -398,6 +400,8 @@ public class TreeDetailGridFieldCreator {
             ((DateField) field).setAllowBlank(!mandatory);
         } else if (field instanceof TextField) {
             ((TextField) field).setAllowBlank(!mandatory);
+        } else if (field instanceof ComboBoxField) {
+            ((ComboBoxField) field).setAllowBlank(!mandatory);
         }
     }
 
