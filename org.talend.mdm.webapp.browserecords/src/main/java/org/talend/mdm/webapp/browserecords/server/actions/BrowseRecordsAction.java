@@ -1656,10 +1656,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), "."), e.getMessage())); //$NON-NLS-1$
             } else {
                 String err = MESSAGES.getMessage("save_fail", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
-                        + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), ".") + e.getMessage()); //$NON-NLS-1$
+                        + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), ".") + ". " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
                 if (e.getMessage().indexOf("ERROR_3:") == 0) { //$NON-NLS-1$
                     err = e.getMessage();
                 }
+                if (e.getMessage().indexOf("<msg") > -1) //$NON-NLS-1$
+                    err = MESSAGES.getMessage("save_validationrule_fail", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
+                            + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), "."), e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
                 // add feature TMDM-2327 SAXException:cvc-complex-type.2.4.b message transform
                 if (e.getMessage().indexOf("cvc-complex-type.2.4.b") != -1) { //$NON-NLS-1$
                     err = MESSAGES.getMessage("save_failEx", concept); //$NON-NLS-1$

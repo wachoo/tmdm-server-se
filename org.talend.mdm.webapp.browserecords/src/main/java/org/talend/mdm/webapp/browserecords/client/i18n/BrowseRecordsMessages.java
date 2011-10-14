@@ -96,6 +96,8 @@ public interface BrowseRecordsMessages extends Messages {
 
     String save_failEx(String value);
 
+    String save_validationrule_fail(String value, String msg);
+
     String empty_entity();
 
     String loading();
