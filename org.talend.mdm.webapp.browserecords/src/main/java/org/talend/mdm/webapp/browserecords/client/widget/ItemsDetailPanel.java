@@ -13,7 +13,9 @@
 package org.talend.mdm.webapp.browserecords.client.widget;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -25,6 +27,7 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -33,7 +36,7 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class ItemsDetailPanel extends ContentPanel {
 
-    private static ItemsDetailPanel instance;
+    private static Map<String, ItemsDetailPanel> instances = new HashMap<String, ItemsDetailPanel>();
 
     public final static String SINGLETON = "SINGLETON"; //$NON-NLS-1$
 
@@ -50,15 +53,18 @@ public class ItemsDetailPanel extends ContentPanel {
     private List<Text> subTitleList = new ArrayList<Text>();
 
     public static ItemsDetailPanel getInstance() {
+        String modelName = GWT.getModuleName();
+        ItemsDetailPanel instance = instances.get(modelName);
         if (instance == null) {
             instance = new ItemsDetailPanel();
+            instances.put(modelName, instance);
         }
         return instance;
     }
 
     protected void onDetach() {
         super.onDetach();
-        instance = null;
+        instances.remove(GWT.getModuleName());
     }
 
     private ItemsDetailPanel() {
