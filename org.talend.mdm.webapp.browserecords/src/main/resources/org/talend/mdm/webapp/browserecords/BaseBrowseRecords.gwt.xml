@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to='browserecords'>
+   <inherits name="org.talend.mdm.webapp.base.BASE" />
+
+
+
+    <!-- Specify the paths for translatable code -->
+    <source path='client' excludes="**/*Test.java"/>
+    <source path='shared' />
+    <source path='model' />
+
+    <stylesheet src='../BrowseRecords.css' />
+</module>
