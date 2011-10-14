@@ -28,7 +28,6 @@ import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -60,7 +59,6 @@ public class ItemsDetailPanel extends ContentPanel {
             instance = new ItemsDetailPanel();
             instances.put(modelName, instance);
         }
-        Window.alert(modelName);
         return instance;
     }
 
