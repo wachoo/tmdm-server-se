@@ -225,7 +225,8 @@ public class PictureField extends TextField<String> {
                     JSONObject jsObject = JSONParser.parse(json).isObject();
                     JSONBoolean success = jsObject.get("success").isBoolean(); //$NON-NLS-1$
                     JSONString message = jsObject.get("message").isString(); //$NON-NLS-1$
-                    com.google.gwt.user.client.Window.alert(success.booleanValue() + ", " + message.stringValue()); //$NON-NLS-1$
+                    MessageBox.alert(MessagesFactory.getMessages().info_title(),
+                            success.booleanValue() + ", " + message.stringValue(), null); //$NON-NLS-1$
                     if (success.booleanValue()) {
                         setValue(message.stringValue());
                     } else {

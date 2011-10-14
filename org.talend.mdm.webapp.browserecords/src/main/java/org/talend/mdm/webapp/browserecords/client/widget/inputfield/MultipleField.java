@@ -15,10 +15,10 @@ import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.ComponentHelper;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -126,7 +126,8 @@ public class MultipleField extends TextField<List<Object>> {
 
             public void onRemove(Field field) {
                 if (!validateRange(value.size() - 1)) {
-                    Window.alert(MessagesFactory.getMessages().multiOccurrence_minimize(min));
+                    MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                            .multiOccurrence_minimize(min), null);
                     return;
                 }
                 field.removeListener(Events.Change, changeListener);
@@ -137,7 +138,8 @@ public class MultipleField extends TextField<List<Object>> {
 
             public void onAdd(Field field) {
                 if (!validateRange(value.size() + 1)) {
-                    Window.alert(MessagesFactory.getMessages().multiOccurrence_maximize(max));
+                    MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                            .multiOccurrence_maximize(max), null);
                     return;
                 }
                 Field newField = createField(dataType.getType().getDefaultValue());

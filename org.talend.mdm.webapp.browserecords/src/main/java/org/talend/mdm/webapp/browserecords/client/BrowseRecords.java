@@ -27,6 +27,7 @@ import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
@@ -251,7 +252,8 @@ public class BrowseRecords implements EntryPoint {
 
             public void onSuccess(AppHeader header) {
                 if (header.getDatacluster() == null || header.getDatamodel() == null) {
-                    Window.alert(MessagesFactory.getMessages().data_model_not_specified());
+                    MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                            .data_model_not_specified(), null);
                     return;
                 }
                 getSession().put(UserSession.APP_HEADER, header);

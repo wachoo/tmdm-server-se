@@ -79,11 +79,11 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -292,10 +292,12 @@ public class ItemsToolBar extends ToolBar {
             @Override
             public void componentSelected(MenuEvent ce) {
                 if (ItemsListPanel.getInstance().getGrid() == null) {
-                    com.google.gwt.user.client.Window.alert(MessagesFactory.getMessages().select_delete_item_record());
+                    MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
+                            .select_delete_item_record(), null);
                 } else {
                     if (getSelectItemNumber() == 0) {
-                        com.google.gwt.user.client.Window.alert(MessagesFactory.getMessages().select_delete_item_record());
+                        MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
+                                .select_delete_item_record(), null);
                     } else {
                         MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
                                 .delete_confirm(), new DeleteItemsBoxListener(service));

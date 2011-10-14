@@ -2,7 +2,6 @@ package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Stack;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.shared.TypeModel;
@@ -35,29 +34,8 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
                 public void onSuccess(ViewBean viewBean) {
                     ForeignKeyTablePanel fkPanel = new ForeignKeyTablePanel(viewBean, parentModel, fkNodeModelList, fkTypeModel,
                             toolBar);
-                    String xp = fkTypeModel.getXpath();
-                    StringBuffer sb = new StringBuffer();
-                    // a/b/c/d
-                    Stack<String> stack = new Stack<String>();
-                    do{
-
-                        TypeModel tm = pkViewBean.getBindingEntityModel().getMetaDataTypes().get(xp);
-                        if (tm != null)
-                            stack.push(tm.getLabel(Locale.getLanguage()));
-                        xp = xp.substring(0, xp.lastIndexOf("/")); //$NON-NLS-1$
-
-                    } while (xp.indexOf("/") != -1); //$NON-NLS-1$
-                    boolean flag = true;
-
-                    while (!stack.isEmpty()) {
-                        if(flag)
-                           flag = false;
-                        else
-                            sb.append("/"); //$NON-NLS-1$
-                        sb.append(stack.pop());
-                    }
-
-                    TabItem tabItem = ItemsDetailPanel.getInstance().addTabItem(sb.toString(), fkPanel,
+                    String xpathLabel = ForeignKeyUtil.transferXpathToLabel(fkTypeModel, pkViewBean);
+                    TabItem tabItem = ItemsDetailPanel.getInstance().addTabItem(xpathLabel, fkPanel,
                             ItemsDetailPanel.MULTIPLE, fkTypeModel.getXpath());
                     relationFk.put(parentModel, tabItem);
                 }

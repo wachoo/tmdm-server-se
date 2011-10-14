@@ -460,16 +460,19 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                             // check value
                             ForeignKeyBean fkBean = (ForeignKeyBean) node.getObjectValue();
                             if (fkBean == null || fkBean.getId() == null) {
-                                com.google.gwt.user.client.Window.alert(MessagesFactory.getMessages().fk_save_validate(
-                                        ForeignKeyUtil.transferXpathToLabel(tm, viewBean), tm.getMinOccurs()));
-
+                                MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                                        .fk_save_validate(ForeignKeyUtil.transferXpathToLabel(tm, viewBean), tm.getMinOccurs()),
+                                        null);
                                 flag = false;
                             }
                         }
 
                     } else {
-                        com.google.gwt.user.client.Window.alert(node.getBindingPath()
-                                + "/" + node.getName() + "'Value validate failure"); //$NON-NLS-1$ //$NON-NLS-2$
+                        // com.google.gwt.user.client.Window.alert(node.getBindingPath()
+                        //                                + "/" + node.getName() + "'Value validate failure"); //$NON-NLS-1$ //$NON-NLS-2$
+                        // Message tip should use gxt's messageBox, but not com.google.gwt.user.client.Window
+                        MessageBox.alert(MessagesFactory.getMessages().error_title(),
+                                node.getBindingPath() + "/" + node.getName() + "'Value validate failure", null); //$NON-NLS-1$//$NON-NLS-2$
                         flag = false;
                     }
 
@@ -486,8 +489,11 @@ public class ForeignKeyTreeDetail extends ContentPanel {
             if (flag) {
                 for (TypeModel fkTypeModel : map.keySet()) {
                     if (fkTypeModel.getMinOccurs() > map.get(fkTypeModel)) {
-                        com.google.gwt.user.client.Window.alert(MessagesFactory.getMessages().fk_save_validate(
-                                ForeignKeyUtil.transferXpathToLabel(fkTypeModel, viewBean), fkTypeModel.getMinOccurs()));
+                        MessageBox.alert(
+                                MessagesFactory.getMessages().error_title(),
+                                MessagesFactory.getMessages().fk_save_validate(
+                                        ForeignKeyUtil.transferXpathToLabel(fkTypeModel, viewBean), fkTypeModel.getMinOccurs()),
+                                null);
                         flag = false;
                         break;
                     }
