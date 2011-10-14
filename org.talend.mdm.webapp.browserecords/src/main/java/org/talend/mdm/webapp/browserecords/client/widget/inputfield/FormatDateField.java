@@ -52,7 +52,6 @@ public class FormatDateField extends DateField {
     @Override
     protected boolean validateValue(String value) {
         if (value.equals(this.getDiplayValue())) {
-            this.fireEvent(Events.Change);
             return true;
         } else {
             if (!super.validateValue(value)) {
@@ -60,6 +59,7 @@ public class FormatDateField extends DateField {
             }
             if (value.length() < 1) { // if it's blank and textfield didn't flag it then
                 // it's valid
+                this.setOjbectValue(null);
                 return true;
             }
 
@@ -107,7 +107,7 @@ public class FormatDateField extends DateField {
                 return false;
             }
 
-            this.setOjbectValue(date);
+            this.setOjbectValue(date);            
 
             if (formatPattern != null) {
                 FormatModel model = new FormatModel(formatPattern, date, Locale.getLanguage());

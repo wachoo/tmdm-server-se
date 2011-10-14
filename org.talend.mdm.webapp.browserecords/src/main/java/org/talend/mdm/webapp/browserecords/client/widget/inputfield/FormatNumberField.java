@@ -50,7 +50,6 @@ public class FormatNumberField extends NumberField {
     @Override
     protected boolean validateValue(String value) {
         if (value.equals(this.getDiplayValue())) {
-            this.fireEvent(Events.Change);
             return true;
         } else {
             // validator should run after super rules
@@ -63,6 +62,7 @@ public class FormatNumberField extends NumberField {
             validator = tv;
             if (value.length() < 1) { // if it's blank and textfield didn't flag it then
                 // its valid it's valid
+                this.setOjbectValue(null);
                 return true;
             }
 

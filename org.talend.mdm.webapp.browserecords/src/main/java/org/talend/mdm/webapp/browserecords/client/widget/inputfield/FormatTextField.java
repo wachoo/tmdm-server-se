@@ -58,6 +58,7 @@ public class FormatTextField extends TextField<String> {
             }
             int length = value.length();
             if (value.length() < 1 || value.equals("")) { //$NON-NLS-1$
+                this.setOjbectValue(null);
                 if (super.getAllowBlank()) {
                     clearInvalid();
                     return true;

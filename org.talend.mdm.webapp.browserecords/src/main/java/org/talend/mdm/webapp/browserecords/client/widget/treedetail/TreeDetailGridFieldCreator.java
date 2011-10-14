@@ -53,6 +53,8 @@ import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
+import com.extjs.gxt.ui.client.widget.form.Radio;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -307,28 +309,41 @@ public class TreeDetailGridFieldCreator {
 
             @SuppressWarnings("rawtypes")
             public void handleEvent(FieldEvent fe) {
+                if (fe.getField() instanceof ComboBoxField) {
+                    node.setObjectValue(((ComboBoxModel) fe.getValue()).getValue());
+                } else if (fe.getField() instanceof RadioGroup){
+                    
+                } else {
+                    node.setObjectValue(fe.getField() instanceof ComboBox ? ((SimpleComboValue) fe.getValue()).getValue()
+                            .toString() : (Serializable) fe.getValue());
+                }
+                node.setChangeValue(true);
+                
+                validate(fe.getField(),node);
+                                
+                updateMandatory(field, node, fieldMap);
+            }
+        });
+        
+        field.addListener(Events.Attach, new Listener<FieldEvent>() {
+
+            @SuppressWarnings("rawtypes")
+            public void handleEvent(FieldEvent fe) {
+                validate(field, node);
+            }
+        });
+
+        field.addListener(Events.Blur, new Listener<FieldEvent>() {
+
+            @SuppressWarnings("rawtypes")
+            public void handleEvent(FieldEvent fe) {
                 if (fe.getField() instanceof FormatTextField) {
                     node.setObjectValue(((FormatTextField) fe.getField()).getOjbectValue());
                 } else if (fe.getField() instanceof FormatNumberField) {
                     node.setObjectValue(((FormatNumberField) fe.getField()).getOjbectValue());
                 } else if (fe.getField() instanceof FormatDateField) {
                     node.setObjectValue(((FormatDateField) fe.getField()).getOjbectValue());
-                } else if (fe.getField() instanceof ComboBoxField) {
-                    node.setObjectValue(((ComboBoxModel) fe.getValue()).getValue());
-                } else {
-                    node.setObjectValue(fe.getField() instanceof ComboBox ? ((SimpleComboValue) fe.getValue()).getValue()
-                            .toString() : (Serializable) fe.getValue());
                 }
-                node.setChangeValue(true);
-                updateMandatory(field, node, fieldMap);
-            }
-        });
-
-        field.addListener(Events.Attach, new Listener<FieldEvent>() {
-
-            @SuppressWarnings("rawtypes")
-            public void handleEvent(FieldEvent fe) {
-                validate(field, node);
             }
         });
     }
@@ -396,11 +411,11 @@ public class TreeDetailGridFieldCreator {
             ((BooleanField) field).setAllowBlank(!mandatory);
         } else if (field instanceof DateField) {
             ((DateField) field).setAllowBlank(!mandatory);
-        } else if (field instanceof TextField) {
-            ((TextField) field).setAllowBlank(!mandatory);
         } else if (field instanceof ComboBoxField) {
             ((ComboBoxField) field).setAllowBlank(!mandatory);
-        }
+        } else if (field instanceof TextField) {
+            ((TextField) field).setAllowBlank(!mandatory);
+        } 
     }
 
     private static void validate(Field<?> field, ItemNodeModel node) {
