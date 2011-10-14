@@ -23,12 +23,7 @@ public class UrlUtil {
             language = getLocaleProperty();
         } else
             language = localeName.split("_")[0]; //$NON-NLS-1$
-
-        if ("zh".equals(language)) { //$NON-NLS-1$
-            return "en"; //$NON-NLS-1$
-        } else {
-            return language;
-        }
+        return language;
     }
 
     private static native String getLocaleProperty() /*-{
