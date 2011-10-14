@@ -19,8 +19,6 @@ import java.util.Set;
 /**
  * Returns the field that references the concept <code>typeName</code>. References are returned as a {@link Set} of
  * {@link com.amalto.core.metadata.ReferenceFieldMetadata}.
- *
- * TODO Allow override conflict resolution (see TMDM-2375)
  */
 class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFieldMetadata>> {
 

@@ -29,9 +29,7 @@ import org.apache.log4j.Logger;
 import java.io.ByteArrayInputStream;
 import java.util.*;
 
-import static com.amalto.core.integrity.FKIntegrityCheckResult.ALLOWED;
-import static com.amalto.core.integrity.FKIntegrityCheckResult.FORBIDDEN;
-import static com.amalto.core.integrity.FKIntegrityCheckResult.FORBIDDEN_OVERRIDE_ALLOWED;
+import static com.amalto.core.integrity.FKIntegrityCheckResult.*;
 
 /**
  * <p>
@@ -145,26 +143,28 @@ public class FKIntegrityChecker {
         // Sort all fields by FK integrity policy
         Map<FKIntegrityCheckResult, Set<FieldMetadata>> checkResultToFields = new HashMap<FKIntegrityCheckResult, Set<FieldMetadata>>();
         for (ReferenceFieldMetadata referenceFieldMetadata : fieldToCheck) {
-            boolean allowOverride = referenceFieldMetadata.allowFKIntegrityOverride();
-            TypeMetadata currentType = referenceFieldMetadata.getContainingType();
-            IWhereItem whereItem = new WhereCondition(referenceFieldMetadata.getContainingType().getName() + '/' + referenceFieldMetadata.getName(), WhereCondition.EQUALS, queryId, WhereCondition.NO_OPERATOR);
-            long count = Util.getXmlServerCtrlLocal().countItems(new LinkedHashMap(), conceptPatternsToClusterName, currentType.getName(), whereItem);
+            if (referenceFieldMetadata.isFKIntegrity()) { // Don't execute a count if we don't care about FK integrity for the field.
+                boolean allowOverride = referenceFieldMetadata.allowFKIntegrityOverride();
+                TypeMetadata currentType = referenceFieldMetadata.getContainingType();
+                IWhereItem whereItem = new WhereCondition(referenceFieldMetadata.getContainingType().getName() + '/' + referenceFieldMetadata.getName(), WhereCondition.EQUALS, queryId, WhereCondition.NO_OPERATOR);
+                long count = Util.getXmlServerCtrlLocal().countItems(new LinkedHashMap(), conceptPatternsToClusterName, currentType.getName(), whereItem);
 
-            if (count > 0) {
-                if(referenceFieldMetadata.isFKIntegrity()) {
+                if (count > 0) {
                     if (allowOverride) {
                         get(checkResultToFields, FORBIDDEN_OVERRIDE_ALLOWED).add(referenceFieldMetadata);
                     } else {
                         get(checkResultToFields, FORBIDDEN).add(referenceFieldMetadata);
                     }
+
                 } else {
-                    // FK does not enforce FK integrity so it's allowed.
                     get(checkResultToFields, ALLOWED).add(referenceFieldMetadata);
                 }
             } else {
+                // FK does not enforce FK integrity so it's allowed.
                 get(checkResultToFields, ALLOWED).add(referenceFieldMetadata);
             }
         }
+
 
         if (checkResultToFields.isEmpty()) {
             // No FK pointing to record was found... returns allowed.
@@ -172,11 +172,11 @@ public class FKIntegrityChecker {
         }
 
         // Interpretation of results
-        if (hasOnly(FORBIDDEN, checkResultToFields, fieldToCheck)) {
+        if (hasOnly(FORBIDDEN, checkResultToFields)) {
             return FORBIDDEN;
-        } else if (hasOnly(FORBIDDEN_OVERRIDE_ALLOWED, checkResultToFields, fieldToCheck)) {
+        } else if (hasOnly(FORBIDDEN_OVERRIDE_ALLOWED, checkResultToFields)) {
             return FORBIDDEN_OVERRIDE_ALLOWED;
-        } else if (hasOnly(ALLOWED, checkResultToFields, fieldToCheck)) {
+        } else if (hasOnly(ALLOWED, checkResultToFields)) {
             return ALLOWED;
         } else {
             // Mixed results (some fields are forbidden and/or forbidden allowed and/or allowed)
@@ -237,24 +237,20 @@ public class FKIntegrityChecker {
         return value;
     }
 
-    private static boolean has(FKIntegrityCheckResult checkResult, Map<FKIntegrityCheckResult, Set<FieldMetadata>> checkResultToFields) {
-        return checkResultToFields.get(checkResult) != null;
-    }
-
     private static void logConflictResolution(Map<FKIntegrityCheckResult, Set<FieldMetadata>> checkResultToFields, FKIntegrityCheckResult conflictResolution) {
         if (logger.isInfoEnabled()) {
             logger.info("Found conflicts in data model relative to FK integrity checks");
             logger.info("= Forbidden deletes =");
-            dumpFields(checkResultToFields, FORBIDDEN, logger);
+            dumpFields(FORBIDDEN, checkResultToFields);
             logger.info("= Forbidden deletes (override allowed) =");
-            dumpFields(checkResultToFields, FORBIDDEN_OVERRIDE_ALLOWED, logger);
+            dumpFields(FORBIDDEN_OVERRIDE_ALLOWED, checkResultToFields);
             logger.info("= Allowed deletes =");
-            dumpFields(checkResultToFields, ALLOWED, logger);
+            dumpFields(ALLOWED, checkResultToFields);
             logger.info("Conflict resolution: " + conflictResolution);
         }
     }
 
-    private static void dumpFields(Map<FKIntegrityCheckResult, Set<FieldMetadata>> checkResultToFields, FKIntegrityCheckResult checkResult, Logger logger) {
+    private static void dumpFields(FKIntegrityCheckResult checkResult, Map<FKIntegrityCheckResult, Set<FieldMetadata>> checkResultToFields) {
         Set<FieldMetadata> fields = checkResultToFields.get(checkResult);
         if (fields != null) {
             for (FieldMetadata fieldMetadata : fields) {
@@ -263,8 +259,25 @@ public class FKIntegrityChecker {
         }
     }
 
-    private static boolean hasOnly(FKIntegrityCheckResult checkResult, Map<FKIntegrityCheckResult, Set<FieldMetadata>> checkResultToFields, Set<ReferenceFieldMetadata> fieldToCheck) {
-        return checkResultToFields.get(checkResult) != null
-                && checkResultToFields.get(checkResult).size() == fieldToCheck.size();
+    /**
+     * @param checkResult A {@link FKIntegrityCheckResult} value.
+     * @param checkResultToFields A {@link Map} containing {@link FieldMetadata} sorted by key {@link FKIntegrityCheckResult} depending on
+     * what kind of integrity check should be performed.
+     * @return true if <code>checkResultToFields</code> contains <b>at least one</b> <code>checkResult</code>, false otherwise.
+     * @see #hasOnly(FKIntegrityCheckResult, java.util.Map)
+     */
+    private static boolean has(FKIntegrityCheckResult checkResult, Map<FKIntegrityCheckResult, Set<FieldMetadata>> checkResultToFields) {
+        return checkResultToFields.get(checkResult) != null;
+    }
+
+    /**
+     * @param checkResult A {@link FKIntegrityCheckResult} value.
+     * @param checkResultToFields A {@link Map} containing {@link FieldMetadata} sorted by key {@link FKIntegrityCheckResult} depending on
+     * what kind of integrity check should be performed.
+     * @return true if <code>checkResultToFields</code> contains <b>only</b> <code>checkResult</code>, false otherwise.
+     * @see #has(FKIntegrityCheckResult, java.util.Map)
+     */
+    private static boolean hasOnly(FKIntegrityCheckResult checkResult, Map<FKIntegrityCheckResult, Set<FieldMetadata>> checkResultToFields) {
+        return checkResultToFields.get(checkResult) != null && checkResultToFields.size() == 1;
     }
 }
