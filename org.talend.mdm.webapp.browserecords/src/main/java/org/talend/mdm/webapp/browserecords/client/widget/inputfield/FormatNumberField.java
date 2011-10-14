@@ -72,7 +72,7 @@ public class FormatNumberField extends NumberField {
             try {
                 d = getPropertyEditor().convertStringValue(v);
             } catch (Exception e) {
-                String error = "";
+                String error = ""; //$NON-NLS-1$
                 if (getMessages().getNanText() == null) {
                     error = GXT.MESSAGES.numberField_nanText(v);
                 } else {
@@ -82,7 +82,7 @@ public class FormatNumberField extends NumberField {
                 return false;
             }
             if (d.doubleValue() < super.getMinValue().doubleValue()) {
-                String error = "";
+                String error = ""; //$NON-NLS-1$
                 if (getMessages().getMinText() == null) {
                     error = GXT.MESSAGES.numberField_minText(super.getMinValue().doubleValue());
                 } else {
@@ -93,7 +93,7 @@ public class FormatNumberField extends NumberField {
             }
 
             if (d.doubleValue() > super.getMaxValue().doubleValue()) {
-                String error = "";
+                String error = ""; //$NON-NLS-1$
                 if (getMessages().getMaxText() == null) {
                     error = GXT.MESSAGES.numberField_maxText(super.getMaxValue().doubleValue());
                 } else {

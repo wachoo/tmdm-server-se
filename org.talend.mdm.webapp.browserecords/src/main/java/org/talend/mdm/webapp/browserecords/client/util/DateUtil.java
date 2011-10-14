@@ -60,7 +60,7 @@ public class DateUtil {
     public static final String convertDate(Date date) {
         if (date != null) {
             DateTimeFormat df = DateTimeFormat.getFormat(datePattern);
-            return df.format(date);//$NON-NLS-1$
+            return df.format(date);
         }
         return "";//$NON-NLS-1$
     }

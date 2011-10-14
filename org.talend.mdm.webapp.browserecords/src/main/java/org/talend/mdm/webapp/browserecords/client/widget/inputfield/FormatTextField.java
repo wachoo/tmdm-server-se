@@ -57,7 +57,7 @@ public class FormatTextField extends TextField<String> {
                 return false;
             }
             int length = value.length();
-            if (value.length() < 1 || value.equals("")) {
+            if (value.length() < 1 || value.equals("")) { //$NON-NLS-1$
                 if (super.getAllowBlank()) {
                     clearInvalid();
                     return true;
@@ -67,7 +67,7 @@ public class FormatTextField extends TextField<String> {
                 }
             }
             if (length < super.getMinLength()) {
-                String error = "";
+                String error = ""; //$NON-NLS-1$
                 if (getMessages().getMinLengthText() == null) {
                     error = GXT.MESSAGES.textField_minLengthText(super.getMinLength());
                 } else {
@@ -78,7 +78,7 @@ public class FormatTextField extends TextField<String> {
             }
 
             if (length > super.getMaxLength()) {
-                String error = "";
+                String error = ""; //$NON-NLS-1$
                 if (getMessages().getMaxLengthText() == null) {
                     error = GXT.MESSAGES.textField_maxLengthText(super.getMaxLength());
                 } else {
