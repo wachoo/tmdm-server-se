@@ -92,7 +92,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
     PagingModelMemoryProxy proxy;
 
     PagingLoader<PagingLoadResult<ModelData>> loader;
-    
+
     ListStore<ItemNodeModel> store;
 
     ItemNodeModel parent;
@@ -173,11 +173,11 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         List<ColumnConfig> columnConfigs = new ArrayList<ColumnConfig>();
         final CheckBoxSelectionModel<ItemNodeModel> sm = new CheckBoxSelectionModel<ItemNodeModel>();
         columnConfigs.add(sm.getColumn());
-        
+
         final ColumnConfig idColumn = new ColumnConfig("objectValue", "Id", COLUMN_WIDTH); //$NON-NLS-1$ //$NON-NLS-2$
         columnConfigs.add(idColumn);
         idColumn.setRenderer(new GridCellRenderer<ItemNodeModel>() {
-                
+
             public Object render(ItemNodeModel model, String property, ColumnData config, int rowIndex, int colIndex,
                     ListStore<ItemNodeModel> store, Grid<ItemNodeModel> grid) {
                 model.setValid(true);
@@ -207,14 +207,13 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             final String info = foreignKeyInfo.get(i);
             // final int index = i;
             final ColumnConfig column = new ColumnConfig("objectValue", //$NON-NLS-1$
-                    CommonUtil.getElementFromXpath(info),
-                    COLUMN_WIDTH);
+                    CommonUtil.getElementFromXpath(info), COLUMN_WIDTH);
             column.setRenderer(new GridCellRenderer<ItemNodeModel>() {
 
                 public Object render(ItemNodeModel model, String property, ColumnData config, int rowIndex, int colIndex,
                         ListStore<ItemNodeModel> store, Grid<ItemNodeModel> grid) {
                     ForeignKeyBean fkBean = (ForeignKeyBean) model.getObjectValue();
-//                    String value = fkBean != null && fkBean.getDisplayInfo() != null ? fkBean.getDisplayInfo().split("-")[index] : ""; //$NON-NLS-1$ //$NON-NLS-2$
+                    //                    String value = fkBean != null && fkBean.getDisplayInfo() != null ? fkBean.getDisplayInfo().split("-")[index] : ""; //$NON-NLS-1$ //$NON-NLS-2$
                     String value = fkBean != null && fkBean.getForeignKeyInfo().containsKey(info) ? fkBean.getForeignKeyInfo()
                             .get(info) : ""; //$NON-NLS-1$
 
@@ -257,7 +256,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         grid.setSelectionModel(sm);
         grid.addPlugin(sm);
         grid.addPlugin(re);
-        grid.setWidth(Window.getClientWidth() - ItemsListPanel.getInstance().getInnerWidth());
+        // grid.setWidth(Window.getClientWidth() - ItemsListPanel.getInstance().getInnerWidth());
         grid.setBorders(true);
         this.add(grid);
 
@@ -272,7 +271,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
     private void addListener() {
         addFkButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-            
+
             @Override
             public void componentSelected(ButtonEvent ce) {
                 addFk();
@@ -347,7 +346,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             ((ItemNodeModel) parent).setChangeValue(true);
         }
     }
-    
+
     GridCellRenderer<ItemNodeModel> optRender = new GridCellRenderer<ItemNodeModel>() {
 
         public Object render(final ItemNodeModel model, String property, ColumnData config, final int rowIndex, int colIndex,
@@ -355,8 +354,9 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             Image selectFKBtn = new Image(Icons.INSTANCE.link());
             selectFKBtn.setTitle(MessagesFactory.getMessages().fk_select_title());
             selectFKBtn.getElement().getStyle().setCursor(Cursor.POINTER);
-            
+
             selectFKBtn.addClickHandler(new ClickHandler() {
+
                 public void onClick(ClickEvent event) {
                     fkWindow.show(viewBean);
                     currentNodeModel = model;
@@ -366,6 +366,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             linkFKBtn.setTitle(MessagesFactory.getMessages().fk_open_title());
             linkFKBtn.getElement().getStyle().setCursor(Cursor.POINTER);
             linkFKBtn.addClickHandler(new ClickHandler() {
+
                 public void onClick(ClickEvent event) {
                     ForeignKeyBean fkBean = (ForeignKeyBean) model.getObjectValue();
                     if (fkBean == null || fkBean.getId() == null || "".equals(fkBean.getId())) //$NON-NLS-1$
