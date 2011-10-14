@@ -15,7 +15,6 @@ import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKeyRowEditor;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
-import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.celleditor.ForeignKeyCellEditor;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator.FieldCreator;
@@ -34,6 +33,7 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -55,13 +55,14 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Image;
 
@@ -108,6 +109,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         this.setHeaderVisible(false);
         this.setLayout(new FitLayout());
         this.setAutoWidth(true);
+        this.setBodyBorder(false);
         this.parent = parent;
         this.viewBean = viewBean;
         this.fkTypeModel = fkTypeModel;
@@ -115,44 +117,8 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         toolBar.add(addFkButton);
         toolBar.add(new SeparatorToolItem());
         toolBar.add(removeFkButton);
-
-        List<Component> list = parentToolBar.getItems();
-        for (Component component : list) {
-            if (component instanceof Button) {
-                final Button parentButton = (Button) component;
-                Button newButton = new Button();
-                newButton.setText(parentButton.getText());
-                newButton.setIcon(parentButton.getIcon());
-                // newButton.setToolTip(parentButton.getToolTip().getToolTipConfig().getText());
-                newButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-                    @Override
-                    public void componentSelected(ButtonEvent ce) {
-                        parentButton.fireEvent(Events.Select);
-                    }
-                });
-                firstToolBar.add(newButton);
-                firstToolBar.add(new SeparatorToolItem());
-            } else if (component instanceof ComboBox<?>) {
-                @SuppressWarnings("unchecked")
-                ComboBox<ItemBaseModel> parentWorkFlow = (ComboBox<ItemBaseModel>) component;
-                ComboBox<ItemBaseModel> workFlowCombo = new ComboBox<ItemBaseModel>();
-                workFlowCombo.setStore(parentWorkFlow.getStore());
-                workFlowCombo.setDisplayField("value");//$NON-NLS-1$
-                workFlowCombo.setValueField("key");//$NON-NLS-1$
-                workFlowCombo.setTypeAhead(true);
-                workFlowCombo.setTriggerAction(TriggerAction.ALL);
-                workFlowCombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
-
-                    @Override
-                    public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
-                        parentToolBar.setSelectItem(se.getSelectedItem());
-                    }
-                });
-                firstToolBar.add(new FillToolItem());
-                firstToolBar.add(workFlowCombo);
-            }
-        }
         addListener();
+        initParentToolBar(parentToolBar);
         LayoutContainer toolBarPanel = new LayoutContainer();
         toolBarPanel.add(firstToolBar);
         toolBarPanel.add(toolBar);
@@ -178,10 +144,9 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         columnConfigs.add(idColumn);
         idColumn.setRenderer(new GridCellRenderer<ItemNodeModel>() {
 
-            public Object render(ItemNodeModel model, String property, ColumnData config, int rowIndex, int colIndex,
+            public Object render(final ItemNodeModel model, String property, ColumnData config, int rowIndex, int colIndex,
                     ListStore<ItemNodeModel> store, Grid<ItemNodeModel> grid) {
-                model.setValid(true);
-
+                model.setValid(false);
                 ForeignKeyBean fkBean = (ForeignKeyBean) model.getObjectValue();
                 final String value = fkBean != null ? fkBean.getId() : ""; //$NON-NLS-1$
                 return value;
@@ -205,7 +170,6 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         List<String> foreignKeyInfo = fkTypeModel.getForeignKeyInfo();
         for (int i = 0; i < foreignKeyInfo.size(); i++) {
             final String info = foreignKeyInfo.get(i);
-            // final int index = i;
             final ColumnConfig column = new ColumnConfig("objectValue", //$NON-NLS-1$
                     CommonUtil.getElementFromXpath(info), COLUMN_WIDTH);
             column.setRenderer(new GridCellRenderer<ItemNodeModel>() {
@@ -213,7 +177,6 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                 public Object render(ItemNodeModel model, String property, ColumnData config, int rowIndex, int colIndex,
                         ListStore<ItemNodeModel> store, Grid<ItemNodeModel> grid) {
                     ForeignKeyBean fkBean = (ForeignKeyBean) model.getObjectValue();
-                    //                    String value = fkBean != null && fkBean.getDisplayInfo() != null ? fkBean.getDisplayInfo().split("-")[index] : ""; //$NON-NLS-1$ //$NON-NLS-2$
                     String value = fkBean != null && fkBean.getForeignKeyInfo().containsKey(info) ? fkBean.getForeignKeyInfo()
                             .get(info) : ""; //$NON-NLS-1$
 
@@ -269,6 +232,77 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         this.setBottomComponent(pagingBar);
     }
 
+    private void initParentToolBar(final ItemDetailToolBar parentToolBar) {
+        List<Component> list = parentToolBar.getItems();
+        boolean separatorFlag = false;
+        for (Component component : list) {
+
+            if (component instanceof Button) {
+                final Button parentButton = (Button) component;
+                Button newButton = new Button();
+                newButton.setText(parentButton.getText());
+                newButton.setIcon(parentButton.getIcon());
+                newButton.setEnabled(parentButton.isEnabled());
+                if (parentButton.getToolTip() != null)
+                    newButton.setToolTip(parentButton.getToolTip().getToolTipConfig().getText());
+                newButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+                    @Override
+                    public void componentSelected(ButtonEvent ce) {
+                        parentButton.fireEvent(Events.Select);
+                    }
+                });
+                if (newButton.getText() != null && MessagesFactory.getMessages().delete_btn().equals(newButton.getText())) {
+                    // Menu
+                    Menu delete = parentButton.getMenu();
+                    Menu newDelete = new Menu();
+                    for (Component menuItem : delete.getItems()) {
+                        final MenuItem mi = (MenuItem) menuItem;
+                        MenuItem newMenuItem = new MenuItem(mi.getText());
+                        newMenuItem.setIcon(mi.getIcon());
+                        newMenuItem.setEnabled(mi.isEnabled());
+                        newMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+                            public void componentSelected(MenuEvent ce) {
+                                mi.fireEvent(Events.Select);
+                            };
+                        });
+                        newDelete.add(newMenuItem);
+                    }
+                    newButton.setMenu(newDelete);
+                }
+                if (separatorFlag) {
+                    if (newButton.getToolTip() == null
+                            || (newButton.getToolTip() != null && !newButton.getToolTip().getToolTipConfig().getText()
+                                    .equals(MessagesFactory.getMessages().launch_process_tooltip())))
+                        firstToolBar.add(new SeparatorToolItem());
+                }
+
+                firstToolBar.add(newButton);
+
+            } else if (component instanceof ComboBox<?>) {
+                @SuppressWarnings("unchecked")
+                ComboBox<ItemBaseModel> parentWorkFlow = (ComboBox<ItemBaseModel>) component;
+                ComboBox<ItemBaseModel> workFlowCombo = new ComboBox<ItemBaseModel>();
+                workFlowCombo.setStore(parentWorkFlow.getStore());
+                workFlowCombo.setDisplayField("value");//$NON-NLS-1$
+                workFlowCombo.setValueField("key");//$NON-NLS-1$
+                workFlowCombo.setTypeAhead(true);
+                workFlowCombo.setTriggerAction(TriggerAction.ALL);
+                workFlowCombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
+
+                    @Override
+                    public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
+                        parentToolBar.setSelectItem(se.getSelectedItem());
+                    }
+                });
+                firstToolBar.add(new FillToolItem());
+                firstToolBar.add(workFlowCombo);
+            }
+            separatorFlag = true;
+        }
+    }
+
     private void addListener() {
         addFkButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
@@ -308,9 +342,10 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         int max = fkTypeModel.getMaxOccurs();
         int count = 1;
         if (min >= 0 && max > min) {
-            if (fkModels.size() < (max - min)) {
-                count = max - min;
-            }
+            // if (fkModels.size() < (max - min)) {
+            // count = max - min;
+            // }
+            count = max;
         }
         if (fkModels.size() < count) {
             ItemNodeModel lastRowModel = fkModels.get(fkModels.size() - 1);
@@ -336,9 +371,10 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
     private void delFk(ItemNodeModel currentFkModel) {
         int min = fkTypeModel.getMinOccurs();
         int count = 1;
-        if (min > 0) {
+        if (min > 0)
             count = min;
-        }
+        else
+            count = 0;
         if (fkModels.size() > count) {
             fkModels.remove(currentFkModel);
             TreeModel parent = currentFkModel.getParent();

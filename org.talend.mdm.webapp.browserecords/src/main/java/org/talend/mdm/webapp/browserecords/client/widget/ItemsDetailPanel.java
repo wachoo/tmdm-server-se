@@ -195,6 +195,14 @@ public class ItemsDetailPanel extends ContentPanel {
         tabPanel.removeAll();
     }
 
+    public void clearChildrenContent() {
+        List<TabItem> items = tabPanel.getItems();
+        for (int i = 0; i < items.size(); i++) {
+            if (i > 0)
+                tabPanel.remove(items.get(i));
+        }
+    }
+
     public TabItem getTabPanelById(String itemId) {
         return tabPanel.getItemByItemId(itemId);
     }

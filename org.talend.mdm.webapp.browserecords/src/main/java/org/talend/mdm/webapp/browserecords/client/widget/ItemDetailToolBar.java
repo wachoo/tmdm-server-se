@@ -371,17 +371,18 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private void refreshTreeDetail() {
-        if (isFkToolBar) {
-            final ForeignKeyTreeDetail fkTree = (ForeignKeyTreeDetail) ItemsDetailPanel.getInstance().getTabPanel()
-                    .getSelectedItem().getWidget(0);
+        final TabItem item = (TabItem) ItemsDetailPanel.getInstance().getTabPanel().getWidget(0);
+        Widget widget = item.getWidget(0);
+        if (widget instanceof ForeignKeyTreeDetail) {
+            isFkToolBar = true;
+            final ForeignKeyTreeDetail fkTree = (ForeignKeyTreeDetail) widget;
             ItemNodeModel root = fkTree.getRootModel();
             refreshTree(null, fkTree, root);
         } else {
-            final ItemPanel itemPanel = (ItemPanel) ItemsDetailPanel.getInstance().getTabPanel().getSelectedItem().getWidget(0);
+            ItemPanel itemPanel = (ItemPanel) widget;
             ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getTree().getItem(0).getUserObject();
             refreshTree(itemPanel, null, root);
         }
-
     }
 
     private void refreshTree(final ItemPanel itemPanel, final ForeignKeyTreeDetail fkTree, final ItemNodeModel root) {

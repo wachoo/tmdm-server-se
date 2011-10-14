@@ -31,6 +31,12 @@ public class ForeignKeyCellEditor extends CellEditor {
         String v = fkBean.getForeignKeyInfo().get(typeModel.getXpath());
         if (value == null)
             return null;
+        // if(field != null)
+        // field.addListener(Events.Change, new Listener<BaseEvent>() {
+        // public void handleEvent(BaseEvent be) {
+        // String s = "1";
+        // };
+        // });
         if (field instanceof SimpleComboBox) {
             if (field instanceof BooleanField) {
                 Boolean bv = Boolean.parseBoolean(v.toString());

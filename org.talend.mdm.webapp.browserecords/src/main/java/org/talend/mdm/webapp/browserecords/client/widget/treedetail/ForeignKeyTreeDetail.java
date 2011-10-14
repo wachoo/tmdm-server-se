@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
@@ -190,6 +191,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                         ForeignKeyTreeDetail.this.getItem(0).removeFromParent();
                         item.set("time", nodeModel.get("time")); //$NON-NLS-1$ //$NON-NLS-2$
                         renderTree(nodeModel);
+                        ItemsDetailPanel.getInstance().clearChildrenContent();
                         ForeignKeyTreeDetail.this.layout();
                     }
 
@@ -443,12 +445,34 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     public boolean validateNode(ItemNodeModel rootNode, boolean flag) {
 
         if (rootNode.getChildren() != null && rootNode.getChildren().size() > 0) {
+            Map<TypeModel, Integer> map = new HashMap<TypeModel, Integer>();
             for (ModelData model : rootNode.getChildren()) {
 
                 ItemNodeModel node = (ItemNodeModel) model;
                 if (!node.isValid() && node.getChildCount() == 0) {
-                    com.google.gwt.user.client.Window.alert(node.getName() + "'Value validate failure"); //$NON-NLS-1$
-                    flag = false;
+                    TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath());
+                    if (tm.getForeignkey() != null) {
+                        // fk minOccurs check
+                        if (!map.containsKey(tm))
+                            map.put(tm, 0);
+                        map.put(tm, map.get(tm) + 1);
+                        if (map.get(tm) <= tm.getMinOccurs()) {
+                            // check value
+                            ForeignKeyBean fkBean = (ForeignKeyBean) node.getObjectValue();
+                            if (fkBean == null || fkBean.getId() == null) {
+                                com.google.gwt.user.client.Window.alert(MessagesFactory.getMessages().fk_save_validate(
+                                        ForeignKeyUtil.transferXpathToLabel(tm, viewBean), tm.getMinOccurs()));
+
+                                flag = false;
+                            }
+                        }
+
+                    } else {
+                        com.google.gwt.user.client.Window.alert(node.getBindingPath()
+                                + "/" + node.getName() + "'Value validate failure"); //$NON-NLS-1$ //$NON-NLS-2$
+                        flag = false;
+                    }
+
                 }
 
                 if (node.getChildren() != null && node.getChildren().size() > 0) {
@@ -459,6 +483,17 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                     break;
                 }
             }
+            if (flag) {
+                for (TypeModel fkTypeModel : map.keySet()) {
+                    if (fkTypeModel.getMinOccurs() > map.get(fkTypeModel)) {
+                        com.google.gwt.user.client.Window.alert(MessagesFactory.getMessages().fk_save_validate(
+                                ForeignKeyUtil.transferXpathToLabel(fkTypeModel, viewBean), fkTypeModel.getMinOccurs()));
+                        flag = false;
+                        break;
+                    }
+                }
+            }
+
         }
         return flag;
     }
