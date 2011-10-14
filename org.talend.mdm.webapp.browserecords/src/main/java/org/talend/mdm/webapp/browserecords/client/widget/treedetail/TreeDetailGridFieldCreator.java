@@ -53,7 +53,6 @@ import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
-import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
@@ -174,7 +173,6 @@ public class TreeDetailGridFieldCreator {
         if (node.isKey() && hasValue) {
             field.setEnabled(false);
         }
-        updateMandatory(field, node, fieldMap);
 
         // facet set
         if (field instanceof TextField<?> && !(dataType instanceof ComplexTypeModel)) {
@@ -191,6 +189,7 @@ public class TreeDetailGridFieldCreator {
 
         }
         fieldMap.put(node.getBindingPath(), field);
+        updateMandatory(field, node, fieldMap);
         addFieldListener(field, node, fieldMap);
         return field;
     }
@@ -311,20 +310,20 @@ public class TreeDetailGridFieldCreator {
             public void handleEvent(FieldEvent fe) {
                 if (fe.getField() instanceof ComboBoxField) {
                     node.setObjectValue(((ComboBoxModel) fe.getValue()).getValue());
-                } else if (fe.getField() instanceof RadioGroup){
-                    
+                } else if (fe.getField() instanceof RadioGroup) {
+
                 } else {
                     node.setObjectValue(fe.getField() instanceof ComboBox ? ((SimpleComboValue) fe.getValue()).getValue()
                             .toString() : (Serializable) fe.getValue());
                 }
                 node.setChangeValue(true);
-                
-                validate(fe.getField(),node);
-                                
+
+                validate(fe.getField(), node);
+
                 updateMandatory(field, node, fieldMap);
             }
         });
-        
+
         field.addListener(Events.Attach, new Listener<FieldEvent>() {
 
             @SuppressWarnings("rawtypes")
@@ -415,7 +414,7 @@ public class TreeDetailGridFieldCreator {
             ((ComboBoxField) field).setAllowBlank(!mandatory);
         } else if (field instanceof TextField) {
             ((TextField) field).setAllowBlank(!mandatory);
-        } 
+        }
     }
 
     private static void validate(Field<?> field, ItemNodeModel node) {
