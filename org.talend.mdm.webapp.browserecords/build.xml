@@ -12,6 +12,7 @@
 	<property name="jboss.dir" value="/c:/opt/jboss_tem" />
 	<property name="jboss.instance.dir" value="${jboss.dir}/server/default" />
 	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy" />
+	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
 	<property name="mdm.build.version" value="${major}.${minor}.${rev}-r${svn.revision}" />
 	<property name="dev.mode.excluded.start" value="" />
 	<property name="dev.mode.excluded.end" value="" />
@@ -36,9 +37,11 @@
 
 	<target name="undeploy" description="undeploy war">
 		<delete file="${jboss.deploy.dir}/org.talend.mdm.webapp.browserecords.war" />
+		<delete file="${jboss.instance.lib}/org.talend.mdm.webapp.browserecords.jar" />
 	</target>
 	<target name="deploy" description="deploy war">
 		<copy file="${build.dir}/org.talend.mdm.webapp.browserecords-${mdm.build.version}.war" tofile="${jboss.deploy.dir}/org.talend.mdm.webapp.browserecords.war" />
+		<copy file="${build.dir}/org.talend.mdm.webapp.browserecords.jar" tofile="${jboss.instance.lib}/org.talend.mdm.webapp.browserecords.jar" />
 	</target>
 
 	<target name="all" depends="package,undeploy,deploy" />
