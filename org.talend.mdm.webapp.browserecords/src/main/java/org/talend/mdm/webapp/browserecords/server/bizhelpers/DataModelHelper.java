@@ -475,17 +475,32 @@ public class DataModelHelper {
         for (String path : pathes) {
             TypeModel tm = metaDataTypes.get(path);
             if (tm.getDefaultValueExpression() != null && tm.getDefaultValueExpression().trim().length() > 0) {
-                String style = genDefaultValueStyle(concept, path, tm.getDefaultValueExpression());
-                org.dom4j.Document transformedDocumentValue = XmlUtil.styleDocument(dom4jDoc, style);
-                int beginIndex = path.lastIndexOf("/"); //$NON-NLS-1$
-                String matchPath = beginIndex != -1 ? path.substring(beginIndex) : path;
-                org.dom4j.Node node = transformedDocumentValue.selectSingleNode(concept + "/" + matchPath); //$NON-NLS-1$
-                if (node != null) {
-                    tm.setDefaultValue(node.getText());
+                // if the rule relates to another rule, then need to set the related xpath firstly
+                for (String subpath : pathes)
+                    if (subpath.lastIndexOf("/") > -1 && tm.getDefaultValueExpression().indexOf(subpath.substring(subpath.lastIndexOf("/"))) > -1) { //$NON-NLS-1$ //$NON-NLS-2$
+                        TypeModel subtm = metaDataTypes.get(subpath);
+                        if (subtm.getDefaultValueExpression() != null && subtm.getDefaultValueExpression().trim().length() > 0)
+                            setDefaultValue(subtm, subpath, concept, dom4jDoc);
                 }
+                setDefaultValue(tm, path, concept, dom4jDoc);
             }
         }
 
+    }
+
+    private static void setDefaultValue(TypeModel tm, String path, String concept, org.dom4j.Document dom4jDoc) throws Exception {
+        String style = genDefaultValueStyle(concept, path, tm.getDefaultValueExpression());
+        org.dom4j.Document transformedDocumentValue = XmlUtil.styleDocument(dom4jDoc, style);
+        int beginIndex = path.lastIndexOf("/"); //$NON-NLS-1$
+        String matchPath = beginIndex != -1 ? path.substring(beginIndex) : path;
+        org.dom4j.Node node = transformedDocumentValue.selectSingleNode(concept + "/" + matchPath); //$NON-NLS-1$
+        if (node != null && node.getText() != null && node.getText().length() > 0) {
+            tm.setDefaultValue(node.getText());
+            // synchronize doc
+            org.dom4j.Node docNode = dom4jDoc.selectSingleNode(path);
+            if (docNode != null)
+                docNode.setText(node.getText());
+        }
     }
 
     private static List<Element> getDefaultXmlData(Document doc, TypeModel model) {
@@ -532,7 +547,7 @@ public class DataModelHelper {
         style.append("<xsl:copy>"); //$NON-NLS-1$
         style.append("<xsl:choose>"); //$NON-NLS-1$
         style.append("<xsl:when test=\"not(text())\">"); //$NON-NLS-1$
-        style.append("<xsl:value-of select=\"" + XmlUtil.escapeXml(valueExpression) + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
+        style.append("<xsl:value-of select=\"/" + XmlUtil.escapeXml(valueExpression) + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
         style.append("</xsl:when> "); //$NON-NLS-1$
         style.append("<xsl:otherwise>"); //$NON-NLS-1$
         style.append("<xsl:value-of select=\".\"/>"); //$NON-NLS-1$
