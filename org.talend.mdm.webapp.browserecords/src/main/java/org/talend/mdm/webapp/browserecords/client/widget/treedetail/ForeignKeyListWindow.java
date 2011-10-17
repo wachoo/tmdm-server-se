@@ -106,6 +106,17 @@ public class ForeignKeyListWindow extends Window {
 
     private List<String> foreignKeyInfo;
 
+    private String foreignKeyFilter;
+
+    public String getForeignKeyFilter() {
+        return foreignKeyFilter;
+    }
+
+    
+    public void setForeignKeyFilter(String foreignKeyFilter) {
+        this.foreignKeyFilter = foreignKeyFilter;
+    }
+
     public ForeignKeyListWindow() {
 
     }
@@ -163,6 +174,8 @@ public class ForeignKeyListWindow extends Window {
         typeModel.setForeignkey(this.foreignKey);
         typeModel.setForeignKeyInfo(this.foreignKeyInfo);
         typeModel.setRetrieveFKinfos(true);
+        typeModel.setFkFilter(this.foreignKeyFilter);
+        final boolean hasFeignKeyFilter = this.foreignKeyFilter != null && !"".equals(this.foreignKeyFilter) ? true : false; //$NON-NLS-1$
 
         xPath = typeModel.getXpath();
         RpcProxy<PagingLoadResult<ForeignKeyBean>> proxy = new RpcProxy<PagingLoadResult<ForeignKeyBean>>() {
@@ -170,7 +183,7 @@ public class ForeignKeyListWindow extends Window {
             @Override
             public void load(final Object loadConfig, final AsyncCallback<PagingLoadResult<ForeignKeyBean>> callback) {
                 service.getForeignKeyList((PagingLoadConfig) loadConfig, typeModel, BrowseRecords.getSession().getAppHeader()
-                        .getDatacluster(), false, getFilterValue(),
+                        .getDatacluster(), hasFeignKeyFilter, getFilterValue(),
                         new SessionAwareAsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>>() {
 
                             @Override

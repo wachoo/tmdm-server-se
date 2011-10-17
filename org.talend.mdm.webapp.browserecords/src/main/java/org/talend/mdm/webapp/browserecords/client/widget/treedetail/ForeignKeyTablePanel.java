@@ -132,6 +132,10 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         fkWindow.setReturnCriteriaFK(this);
         fkWindow.setHeading(MessagesFactory.getMessages().fk_RelatedRecord());
 
+        if (fkTypeModel.getFkFilter() != null && !"".equals(fkTypeModel.getFkFilter())) { //$NON-NLS-1$
+            fkWindow.setForeignKeyFilter(fkTypeModel.getFkFilter());
+        }
+
         proxy = new PagingModelMemoryProxy(this.fkModels);
         loader = new BasePagingLoader<PagingLoadResult<ModelData>>(proxy);
         store = new ListStore<ItemNodeModel>(loader);
