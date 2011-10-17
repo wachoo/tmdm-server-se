@@ -150,8 +150,11 @@ public class ItemsDetailPanel extends ContentPanel {
     }
 
     public TabItem addTabItem(String title, ContentPanel panel, String pattern, String id) {
-        TabItem newTab = null;
+        TabItem newTab = tabPanel.getItemByItemId(id);
         if (pattern.equalsIgnoreCase(ItemsDetailPanel.MULTIPLE)) {
+            if (newTab != null)
+                tabPanel.remove(newTab);
+
             newTab = new TabItem(title);
             newTab.setId(id);
             newTab.addStyleName("pad-text"); //$NON-NLS-1$
@@ -161,7 +164,7 @@ public class ItemsDetailPanel extends ContentPanel {
             if (tabPanel.getItemCount() == 1)
                 tabPanel.setSelection(newTab);
         } else {
-            newTab = tabPanel.getItemByItemId(id);
+
             if (newTab == null) {
                 newTab = new TabItem(title);
                 newTab.setId(id);

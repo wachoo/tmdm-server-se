@@ -31,6 +31,7 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
     public void RenderForeignKey(final ItemNodeModel parentModel, final List<ItemNodeModel> fkNodeModelList,
             final TypeModel fkTypeModel, final ItemDetailToolBar toolBar, final ViewBean pkViewBean) {
         if (pkViewBean == BrowseRecords.getSession().get(UserSession.CURRENT_VIEW)
+                && ((TabItem) ItemsDetailPanel.getInstance().getTabPanel().getWidget(0)).getWidget(0) instanceof ItemPanel
                 && ((ItemPanel) ((TabItem) ItemsDetailPanel.getInstance().getTabPanel().getWidget(0)).getWidget(0)).getToolBar() != toolBar)
             return;
 
