@@ -130,7 +130,6 @@ public class ItemDetailToolBar extends ToolBar {
         this.operation = operation;
         this.viewBean = viewBean;
         initToolBar();
-        checkEntitlement(viewBean);
     }
 
     public ItemDetailToolBar(ItemBean itemBean, String operation, boolean isFkToolBar, ViewBean viewBean) {
@@ -140,8 +139,6 @@ public class ItemDetailToolBar extends ToolBar {
         this.isFkToolBar = isFkToolBar;
         this.viewBean = viewBean;
         initToolBar();
-        checkEntitlement(viewBean);
-
     }
     
     private void checkEntitlement(ViewBean viewBean){
@@ -193,6 +190,7 @@ public class ItemDetailToolBar extends ToolBar {
         this.addFreshButton();
         this.addRelationButton();
         this.addOpenTaskButton();
+        checkEntitlement(viewBean);
     }
 
     private void initCreateToolBar() {
