@@ -47,6 +47,7 @@ import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
@@ -240,23 +241,10 @@ public class TreeDetailGridFieldCreator {
 
             field = numberField;
         } else if (DataTypeConstants.BOOLEAN.getTypeName().equals(baseType)) {
-            BooleanField booleanField = new BooleanField();
-            booleanField.setDisplayField("text");//$NON-NLS-1$
-            SimpleComboValue<Boolean> trueValue = new SimpleComboValue<Boolean>() {
-
-                {
-                    this.setValue(true);
-                    this.set("text", "TRUE");}};//$NON-NLS-1$ //$NON-NLS-2$
-            booleanField.getStore().add(trueValue);
-            SimpleComboValue<Boolean> falseValue = new SimpleComboValue<Boolean>() {
-
-                {
-                    this.setValue(false);
-                    this.set("text", "FALSE");}};//$NON-NLS-1$ //$NON-NLS-2$
-            booleanField.getStore().add(falseValue);
-            if (hasValue)
-                booleanField.setValue((value.toString().equals("true") || value.equals(true)) ? trueValue : falseValue); //$NON-NLS-1$   
-            field = booleanField;
+            CheckBox checkBox = new CheckBox();  
+            checkBox.setBoxLabel(MessagesFactory.getMessages().label_true());
+            checkBox.setValue((value.toString().equals("true") || value.equals(true)) ? true : false); //$NON-NLS-1$
+            field = checkBox;        
         } else if (DataTypeConstants.DATE.getTypeName().equals(baseType)) {
             FormatDateField dateField = new FormatDateField();
             if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$
@@ -310,6 +298,8 @@ public class TreeDetailGridFieldCreator {
             public void handleEvent(FieldEvent fe) {
                 if (fe.getField() instanceof ComboBoxField) {
                     node.setObjectValue(((ComboBoxModel) fe.getValue()).getValue());
+                } else if(fe.getField() instanceof CheckBox) {
+                    node.setObjectValue(fe.getValue().toString());
                 } else {
                     node.setObjectValue(fe.getField() instanceof ComboBox ? ((SimpleComboValue) fe.getValue()).getValue()
                             .toString() : (Serializable) fe.getValue());
@@ -342,7 +332,7 @@ public class TreeDetailGridFieldCreator {
                     node.setObjectValue(((FormatDateField) fe.getField()).getOjbectValue());
                 }
             }
-        });
+        });  
     }
 
     private static void buildFacets(TypeModel typeModel, Widget w) {
