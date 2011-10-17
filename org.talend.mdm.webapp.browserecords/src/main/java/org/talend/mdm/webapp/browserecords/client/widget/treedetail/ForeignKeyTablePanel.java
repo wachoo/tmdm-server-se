@@ -94,6 +94,10 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
     ItemNodeModel currentNodeModel;
 
+    ItemNodeModel lastFkModel;
+
+    int lastFkIndex;
+
     public ForeignKeyTablePanel(final ViewBean viewBean, ItemNodeModel parent, final List<ItemNodeModel> fkModels,
             final TypeModel fkTypeModel, final ItemDetailToolBar parentToolBar) {
         this.setHeaderVisible(false);
@@ -268,10 +272,17 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             // }
             count = max;
         }
-        if (fkModels.size() < count) {
-            ItemNodeModel lastRowModel = fkModels.get(fkModels.size() - 1);
+        if (fkModels.size() < count || max == -1) {
+            ItemNodeModel lastRowModel;
+            int index;
+            if (fkModels.size() > 0 && fkModels.get(fkModels.size() - 1) != null) {
+                lastRowModel = fkModels.get(fkModels.size() - 1);
+                index = parent.indexOf(lastRowModel);
+            } else {
+                lastRowModel = lastFkModel;
+                index = lastFkIndex;
+            }
             ItemNodeModel newFkModel = lastRowModel.clone(false);
-            int index = parent.indexOf(lastRowModel);
             parent.insert(newFkModel, index + 1);
             newFkModel.setParent(parent);
             fkModels.add(newFkModel);
@@ -290,6 +301,8 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
     }
 
     private void delFk(ItemNodeModel currentFkModel) {
+        lastFkModel = currentFkModel;
+        lastFkIndex = parent.indexOf(currentFkModel) - 1;
         int min = fkTypeModel.getMinOccurs();
         int count = 1;
         if (min > 0)

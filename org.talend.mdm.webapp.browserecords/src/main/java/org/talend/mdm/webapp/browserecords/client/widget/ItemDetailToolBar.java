@@ -756,9 +756,8 @@ public class ItemDetailToolBar extends ToolBar {
         Dispatcher dispatch = Dispatcher.get();
         AppEvent app = new AppEvent(BrowseRecordsEvents.SaveItem);
         ItemNodeModel model = null;
-        ViewBean viewBean = null;
-        if (widget instanceof ItemPanel) {// save primary key
-            viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
+        ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
+        if (widget instanceof ItemPanel) {// save primary key            
             ItemPanel itemPanel = (ItemPanel) tabItem.getWidget(0);
             if (itemPanel.getTree().validateTree()) {
                 validate = true;
@@ -769,10 +768,14 @@ public class ItemDetailToolBar extends ToolBar {
 
         } else if (widget instanceof ForeignKeyTreeDetail) { // save foreign key
             ForeignKeyTreeDetail fkDetail = (ForeignKeyTreeDetail) tabItem.getWidget(0);
-            model = fkDetail.getRootModel();
-            app.setData(
-                    "ItemBean", fkDetail.isCreate() ? new ItemBean(fkDetail.getViewBean().getBindingEntityModel().getConceptName(), "", "") : itemBean); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            app.setData("isCreate", fkDetail.isCreate()); //$NON-NLS-1$
+            if (fkDetail.validateTree()) {
+                validate = true;
+                model = fkDetail.getRootModel();
+                app
+                        .setData(
+                                "ItemBean", fkDetail.isCreate() ? new ItemBean(fkDetail.getViewBean().getBindingEntityModel().getConceptName(), "", "") : itemBean); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                app.setData("isCreate", fkDetail.isCreate()); //$NON-NLS-1$
+            }
         }
         app.setData("viewBean", viewBean); //$NON-NLS-1$
         app.setData(model);

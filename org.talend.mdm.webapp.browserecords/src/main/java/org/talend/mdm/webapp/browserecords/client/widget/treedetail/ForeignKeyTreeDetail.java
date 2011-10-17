@@ -41,19 +41,19 @@ import com.extjs.gxt.ui.client.data.ChangeEvent;
 import com.extjs.gxt.ui.client.data.ChangeEventSource;
 import com.extjs.gxt.ui.client.data.ChangeListener;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
 
@@ -79,29 +79,55 @@ public class ForeignKeyTreeDetail extends ContentPanel {
 
     private Map<String, Field<?>> fieldMap = new HashMap<String, Field<?>>();
 
+    private HashMap<CountMapItem, Integer> occurMap = new HashMap<CountMapItem, Integer>();
+
     private ClickHandler handler = new ClickHandler() {
 
         public void onClick(ClickEvent arg0) {
-            DynamicTreeItem selected = (DynamicTreeItem) tree.getSelectedItem();
-            DynamicTreeItem parentItem = (DynamicTreeItem) selected.getParentItem();
+            final DynamicTreeItem selected = (DynamicTreeItem) tree.getSelectedItem();
+            final DynamicTreeItem parentItem = (DynamicTreeItem) selected.getParentItem();
 
-            if ("Add".equals(arg0.getRelativeElement().getId())) { //$NON-NLS-1$
-                // clone a new item
-                DynamicTreeItem clonedItem = new DynamicTreeItem();
-                HTML label = new HTML();
-                label.setHTML(((TreeItemWidget) selected.getWidget()).getLabel().getHTML());
+            final ItemNodeModel selectedModel = selected.getItemNodeModel();
+            final ItemNodeModel parentModel = (ItemNodeModel) selectedModel.getParent();
 
-                Field<?> field = new Field<Object>() {
-                };
-                field.setElement(DOM.clone(((TreeItemWidget) selected.getWidget()).getField().getElement(), true));
-                ((TreeItemWidget) clonedItem.getWidget()).setLabel(label);
-                ((TreeItemWidget) clonedItem.getWidget()).setField(field);
-                ((TreeItemWidget) clonedItem.getWidget()).setHandler(handler);
-                ((TreeItemWidget) clonedItem.getWidget()).setSimpleType(true);
-                ((TreeItemWidget) clonedItem.getWidget()).paint();
-                parentItem.insertItem(clonedItem, parentItem.getChildIndex(selected));
+            final String xpath = selectedModel.getBindingPath();
+            final CountMapItem countMapItem = new CountMapItem(xpath, parentItem);
+            final int count = occurMap.containsKey(countMapItem) ? occurMap.get(countMapItem) : 0;
+
+            if ("Add".equals(arg0.getRelativeElement().getId()) || "Clone".equals(arg0.getRelativeElement().getId())) { //$NON-NLS-1$ //$NON-NLS-2$               
+                if (viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getMaxOccurs() < 0
+                        || count < viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getMaxOccurs()) {
+                    // clone a new item
+                    ItemNodeModel model = selectedModel.clone("Clone".equals(arg0.getRelativeElement().getId()) ? true : false); //$NON-NLS-1$
+
+                    int selectModelIndex = parentModel.indexOf(selectedModel);
+                    parentModel.insert(model, selectModelIndex + 1);
+                    // if it has default value
+                    if (viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getDefaultValue() != null)
+                        model.setObjectValue(viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getDefaultValue());
+                    parentItem.insertItem(buildGWTTree(model, true), parentItem.getChildIndex(selected) + 1);
+                    occurMap.put(countMapItem, count + 1);
+                } else
+                    MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
+                            .multiOccurrence_maximize(count), null);
             } else {
-                parentItem.removeTreeItem(selected);
+                MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages().delete_confirm(),
+                        new Listener<MessageBoxEvent>() {
+
+                            public void handleEvent(MessageBoxEvent be) {
+                                if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                    if (count > 1
+                                            && count > viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath)
+                                                    .getMinOccurs()) {
+                                        parentItem.removeItem(selected);
+                                        parentModel.remove(selectedModel);
+                                        occurMap.put(countMapItem, count - 1);
+                                    } else
+                                        MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
+                                                .multiOccurrence_minimize(count), null);
+                                }
+                            }
+                        });
             }
         }
     };
@@ -156,7 +182,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     }
 
     private void renderTree(ItemNodeModel rootModel) {
-        root = buildGWTTree(rootModel);
+        root = buildGWTTree(rootModel, false);
         tree = new Tree();
         tree.addItem(root);
         root.setState(true);
@@ -215,9 +241,9 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         buildPanel(viewBean);
     }
 
-    private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode) {
+    private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, boolean withDefaultValue) {
         DynamicTreeItem item = new DynamicTreeItem();
-
+        item.setItemNodeModel(itemNode);
         item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, fieldMap, handler));
         item.setUserObject(itemNode);
         if (itemNode.getChildren() != null && itemNode.getChildren().size() > 0) {
@@ -225,6 +251,9 @@ public class ForeignKeyTreeDetail extends ContentPanel {
             for (ModelData model : itemNode.getChildren()) {
                 ItemNodeModel node = (ItemNodeModel) model;
                 TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath());
+                if (withDefaultValue && typeModel.getDefaultValue() != null
+                        && (node.getObjectValue() == null || node.getObjectValue().equals(""))) //$NON-NLS-1$
+                    node.setObjectValue(typeModel.getDefaultValue());
                 if (this.isCreate && this.model != null && node.isKey()) // duplicate
                     node.setObjectValue(null); // id
                 if (typeModel.getForeignkey() != null && fkRender != null) {
@@ -232,7 +261,12 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                         fkMap.put(typeModel, new ArrayList<ItemNodeModel>());
                     fkMap.get(typeModel).add(node);
                 } else if (typeModel.getForeignkey() == null) {
-                    item.addItem(buildGWTTree(node));
+                    item.addItem(buildGWTTree(node, withDefaultValue));
+                    int count = 0;
+                    CountMapItem countMapItem = new CountMapItem(node.getBindingPath(), item);
+                    if (occurMap.containsKey(countMapItem))
+                        count = occurMap.get(countMapItem);
+                    occurMap.put(countMapItem, count + 1);
                 }
             }
 
@@ -297,143 +331,74 @@ public class ForeignKeyTreeDetail extends ContentPanel {
 
     public static class DynamicTreeItem extends TreeItem {
 
+        private ItemNodeModel itemNode;
+
         public DynamicTreeItem() {
             super();
-            this.setWidget(widget);
         }
-
-        private TreeItemWidget widget = new TreeItemWidget();
 
         private List<TreeItem> items = new ArrayList<TreeItem>();
 
-        public void insertItem(TreeItem item, int beforeIndex) {
+        public void insertItem(DynamicTreeItem item, int beforeIndex) {
             int count = this.getChildCount();
-            if (items.size() == 0) {
-                for (int i = 0; i < count; i++) {
-                    items.add(this.getChild(i));
-                }
+
+            for (int i = 0; i < count; i++) {
+                items.add(this.getChild(i));
             }
 
             items.add(beforeIndex, item);
-            super.removeItems();
+            this.removeItems();
 
             for (int j = 0; j < items.size(); j++) {
                 this.addItem(items.get(j));
             }
+            items.clear();
         }
 
-        public void removeTreeItem(TreeItem item) {
+        public void removeItem(DynamicTreeItem item) {
             super.removeItem(item);
-            items.remove(item);
+        }
+
+        public void setItemNodeModel(ItemNodeModel treeNode) {
+            itemNode = treeNode;
+        }
+
+        public ItemNodeModel getItemNodeModel() {
+            return itemNode;
         }
     }
 
-    public static abstract class AbstractTreeItemWidget extends HorizontalPanel {
+    private class CountMapItem {
 
-        public AbstractTreeItemWidget() {
-            super();
+        private String xpath;
+
+        private TreeItem parentItem;
+
+        public CountMapItem(String xpath, TreeItem parentItem) {
+            this.xpath = xpath;
+            this.parentItem = parentItem;
         }
 
-        private boolean isSimpleType;
-
-        public boolean isSimpleType() {
-            return isSimpleType;
+        public String getXpath() {
+            return this.xpath;
         }
 
-        public void setSimpleType(boolean isSimpleType) {
-            this.isSimpleType = isSimpleType;
+        public TreeItem getParentItem() {
+            return this.parentItem;
         }
 
-        public abstract void paint();
-    }
-
-    public static class TreeItemWidget extends AbstractTreeItemWidget {
-
-        public TreeItemWidget() {
-            super();
+        @Override
+        public int hashCode() {
+            return xpath.length();
         }
 
-        ClickHandler handler;
-
-        public void setHandler(ClickHandler handler) {
-            this.handler = handler;
-        }
-
-        Image add;
-
-        Image remove;
-
-        HTML label = new HTML();
-
-        Field<?> field;
-
-        public Field<?> getField() {
-            return field;
-        }
-
-        public void setField(Field<?> field) {
-            this.field = field;
-        }
-
-        public HTML getLabel() {
-            return label;
-        }
-
-        public void setLabel(HTML label) {
-            this.label = label;
-        }
-
-        public void paint() {
-            this.add(label);
-            this.add(field);
-
-            add = buildAdd();
-            add.addClickHandler(handler);
-            remove = buildRemove();
-            remove.addClickHandler(handler);
-            if (isSimpleType()) {
-                this.add(add);
-                this.add(remove);
-            }
-
-            this.setCellWidth(label, "200px"); //$NON-NLS-1$
-        }
-
-        public Image getAdd() {
-            if (add != null) {
-                return add;
-            }
-
-            add = new Image();
-
-            return add;
-        }
-
-        public Image getRemove() {
-            if (remove != null) {
-                return remove;
-            }
-
-            remove = new Image();
-
-            return remove;
-        }
-
-        public static Image buildAdd() {
-            Image add = new Image("/talendmdm/secure/img/genericUI/add.png"); //$NON-NLS-1$
-            add.getElement().setId("Add"); //$NON-NLS-1$
-            add.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
-
-            return add;
-        }
-
-        public static Image buildRemove() {
-            Image remove = new Image("/talendmdm/secure/img/genericUI/delete.png"); //$NON-NLS-1$
-            remove.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
-
-            return remove;
+        @Override
+        public boolean equals(Object o) {
+            CountMapItem item = (CountMapItem) o;
+            return item.getXpath().equals(xpath) && item.getParentItem().equals(parentItem);
         }
     }
+
 
     public boolean validateTree() {
         boolean flag = true;
