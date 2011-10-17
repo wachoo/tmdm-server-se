@@ -60,7 +60,7 @@ public class TreeDetailUtil {
         if (itemNode.isKey() || typeModel.getMinOccurs() >= 1)
             html = html + "<span style=\"color:red\"> *</span>"; //$NON-NLS-1$
 
-        if (null != itemNode.getDescription() && (itemNode.getDescription().trim().length() > 0))
+        if (null != itemNode.getDescription() && (itemNode.getDescription().trim().length() > 0) && xPath.indexOf("/") > -1) //$NON-NLS-1$
             html = html
                     + "<img style='margin-left:16px;' src='/talendmdm/secure/img/genericUI/information_icon.gif' title='" + itemNode.getDescription() + "' />"; //$NON-NLS-1$ //$NON-NLS-2$
         label.setHTML(html);
