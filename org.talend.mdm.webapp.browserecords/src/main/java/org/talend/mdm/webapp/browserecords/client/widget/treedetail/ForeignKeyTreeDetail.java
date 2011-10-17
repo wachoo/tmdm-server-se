@@ -160,6 +160,8 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         tree = new Tree();
         tree.addItem(root);
         root.setState(true);
+        if (root.getElement().getFirstChildElement() != null)
+            root.getElement().getFirstChildElement().setClassName("rootNode"); //$NON-NLS-1$
         if (this.columnLayoutModel != null) {// TODO if create a new ForeignKey, tree UI can not render according to the
                                              // layout template
             HorizontalPanel hp = new HorizontalPanel();
