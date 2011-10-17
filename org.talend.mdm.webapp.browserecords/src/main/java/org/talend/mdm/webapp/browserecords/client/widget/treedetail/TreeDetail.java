@@ -51,8 +51,6 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
@@ -224,14 +222,9 @@ public class TreeDetail extends ContentPanel {
             });
 
             if (fkMap.size() > 0) {
-                DeferredCommand.addCommand(new Command() {
-
-                    public void execute() {
-                        for (TypeModel model : fkMap.keySet()) {
-                            fkRender.RenderForeignKey(itemNode, fkMap.get(model), model, toolBar, viewBean);
-                        }
-                    }
-                });
+                for (TypeModel model : fkMap.keySet()) {
+                    fkRender.RenderForeignKey(itemNode, fkMap.get(model), model, toolBar, viewBean);
+                }
             }
             item.getElement().getStyle().setPaddingLeft(3.0, Unit.PX);
         }

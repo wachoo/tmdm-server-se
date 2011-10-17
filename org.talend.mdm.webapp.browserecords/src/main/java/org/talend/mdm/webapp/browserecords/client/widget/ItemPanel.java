@@ -124,4 +124,8 @@ public class ItemPanel extends ContentPanel {
         return smartPanel;
     }
 
+    public ItemDetailToolBar getToolBar() {
+        return toolBar;
+    }
+
 }
