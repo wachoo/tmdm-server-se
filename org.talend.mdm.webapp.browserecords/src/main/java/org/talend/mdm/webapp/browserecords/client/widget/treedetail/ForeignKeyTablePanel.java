@@ -132,7 +132,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         fkWindow.setReturnCriteriaFK(this);
         fkWindow.setHeading(MessagesFactory.getMessages().fk_RelatedRecord());
 
-        if (fkTypeModel.getFkFilter() != null && !"".equals(fkTypeModel.getFkFilter())) { //$NON-NLS-1$
+        if (fkTypeModel.getFkFilter() != null && fkTypeModel.getFkFilter().length() != 0) {
             fkWindow.setForeignKeyFilter(fkTypeModel.getFkFilter());
         }
 
