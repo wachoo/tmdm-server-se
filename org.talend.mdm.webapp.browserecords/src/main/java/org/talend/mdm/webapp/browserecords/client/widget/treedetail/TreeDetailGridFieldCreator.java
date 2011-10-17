@@ -310,8 +310,6 @@ public class TreeDetailGridFieldCreator {
             public void handleEvent(FieldEvent fe) {
                 if (fe.getField() instanceof ComboBoxField) {
                     node.setObjectValue(((ComboBoxModel) fe.getValue()).getValue());
-                } else if (fe.getField() instanceof RadioGroup) {
-
                 } else {
                     node.setObjectValue(fe.getField() instanceof ComboBox ? ((SimpleComboValue) fe.getValue()).getValue()
                             .toString() : (Serializable) fe.getValue());
@@ -373,6 +371,7 @@ public class TreeDetailGridFieldCreator {
         ItemNodeModel parent = (ItemNodeModel) node.getParent();
         if (parent != null && parent.getParent() != null && !parent.isMandatory()) {
             List childs = parent.getChildren();
+
             for (int i = 0; i < childs.size(); i++) {
                 ItemNodeModel child = (ItemNodeModel) childs.get(i);
                 if (child.getObjectValue() != null && !"".equals(child.getObjectValue())) { //$NON-NLS-1$
@@ -380,24 +379,16 @@ public class TreeDetailGridFieldCreator {
                     break;
                 }
             }
-            if (flag) {
-                for (int i = 0; i < childs.size(); i++) {
-                    ItemNodeModel mandatoryNode = (ItemNodeModel) childs.get(i);
-                    Field<?> updateField = fieldMap.get(mandatoryNode.getBindingPath());
-                    if (updateField != null && mandatoryNode.isMandatory()) {
-                        setMandatory(updateField, mandatoryNode.isMandatory());
-                        updateField.validate();
-                    }
-                }
-            } else {
-                for (int i = 0; i < childs.size(); i++) {
-                    ItemNodeModel mandatoryNode = (ItemNodeModel) childs.get(i);
-                    if (fieldMap.get(mandatoryNode.getBindingPath()) != null && mandatoryNode.isMandatory()) {
-                        setMandatory(fieldMap.get(mandatoryNode.getBindingPath()), !mandatoryNode.isMandatory());
-                        fieldMap.get(mandatoryNode.getBindingPath()).validate();
-                    }
+
+            for (int i = 0; i < childs.size(); i++) {
+                ItemNodeModel mandatoryNode = (ItemNodeModel) childs.get(i);
+                Field<?> updateField = fieldMap.get(mandatoryNode.getBindingPath());
+                if (updateField != null && mandatoryNode.isMandatory()) {
+                    setMandatory(updateField, flag ? mandatoryNode.isMandatory() : !mandatoryNode.isMandatory());
+                    mandatoryNode.setValid(updateField.validate());
                 }
             }
+
         } else {
             setMandatory(field, node.isMandatory());
         }
