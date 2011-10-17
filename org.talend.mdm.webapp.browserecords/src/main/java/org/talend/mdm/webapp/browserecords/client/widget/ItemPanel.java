@@ -46,6 +46,10 @@ public class ItemPanel extends ContentPanel {
     private ItemBean item;
 
     private String operation;
+    
+    private boolean isForeignKeyPanel;
+
+    private ContentPanel contenPanel;
 
     public ItemPanel() {
 
@@ -64,26 +68,41 @@ public class ItemPanel extends ContentPanel {
         this.initUI();
     }
 
+    public ItemPanel(ViewBean viewBean, ItemBean item, String operation, ContentPanel contenPanel) {
+        this.viewBean = viewBean;
+        this.item = item;
+        this.toolBar = new ItemDetailToolBar(item, operation, viewBean);
+        this.operation = operation;
+        this.isForeignKeyPanel = true;
+        this.contenPanel = contenPanel;
+        this.initUI();
+    }
+    
     private void initUI() {
         this.setBodyBorder(false);
         this.setHeaderVisible(false);
         this.setTopComponent(toolBar);
         this.setLayout(new FitLayout());
-        if (ItemDetailToolBar.CREATE_OPERATION.equals(operation)) {
-            tree.initTree(viewBean, null);
-        } else if (ItemDetailToolBar.VIEW_OPERATION.equals(operation)) {
-            tree.initTree(viewBean, item);
-        } else if (ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {
-            tree.initTree(viewBean, item);
-        } else if (ItemDetailToolBar.PERSONALEVIEW_OPERATION.equals(operation)
-                || ItemDetailToolBar.SMARTVIEW_OPERATION.equals(operation)) {
-            tree.initTree(viewBean, item);
-        } else {
-            tree.initTree(viewBean, null);
+        if(!isForeignKeyPanel){
+            if (ItemDetailToolBar.CREATE_OPERATION.equals(operation)) {
+                tree.initTree(viewBean, null);
+            } else if (ItemDetailToolBar.VIEW_OPERATION.equals(operation)) {
+                tree.initTree(viewBean, item);
+            } else if (ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {
+                tree.initTree(viewBean, item);
+            } else if (ItemDetailToolBar.PERSONALEVIEW_OPERATION.equals(operation)
+                    || ItemDetailToolBar.SMARTVIEW_OPERATION.equals(operation)) {
+                tree.initTree(viewBean, item);
+            } else {
+                tree.initTree(viewBean, null);
+            }
+            tree.setToolBar(toolBar);
+            tree.expand();
+            this.add(tree);
+        }else{
+            this.add(contenPanel);
         }
-        tree.setToolBar(toolBar);
-        tree.expand();
-        this.add(tree);
+        
         // smartPanel.setLayout(new FitLayout());
         smartPanel.setVisible(false);
         smartPanel.setHeaderVisible(false);
@@ -127,5 +146,4 @@ public class ItemPanel extends ContentPanel {
     public ItemDetailToolBar getToolBar() {
         return toolBar;
     }
-
 }

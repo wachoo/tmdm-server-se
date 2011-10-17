@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
-import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
@@ -33,18 +32,12 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MenuEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
@@ -55,9 +48,6 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.menu.Menu;
-import com.extjs.gxt.ui.client.widget.menu.MenuItem;
-import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.dom.client.Style.Cursor;
@@ -118,9 +108,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         toolBar.add(new SeparatorToolItem());
         toolBar.add(removeFkButton);
         addListener();
-        initParentToolBar(parentToolBar);
         LayoutContainer toolBarPanel = new LayoutContainer();
-        toolBarPanel.add(firstToolBar);
         toolBarPanel.add(toolBar);
         this.setTopComponent(toolBarPanel);
 
@@ -234,77 +222,6 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         loader.setRemoteSort(true);
 
         this.setBottomComponent(pagingBar);
-    }
-
-    private void initParentToolBar(final ItemDetailToolBar parentToolBar) {
-        List<Component> list = parentToolBar.getItems();
-        boolean separatorFlag = false;
-        for (Component component : list) {
-
-            if (component instanceof Button) {
-                final Button parentButton = (Button) component;
-                Button newButton = new Button();
-                newButton.setText(parentButton.getText());
-                newButton.setIcon(parentButton.getIcon());
-                newButton.setEnabled(parentButton.isEnabled());
-                if (parentButton.getToolTip() != null)
-                    newButton.setToolTip(parentButton.getToolTip().getToolTipConfig().getText());
-                newButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-                    @Override
-                    public void componentSelected(ButtonEvent ce) {
-                        parentButton.fireEvent(Events.Select);
-                    }
-                });
-                if (newButton.getText() != null && MessagesFactory.getMessages().delete_btn().equals(newButton.getText())) {
-                    // Menu
-                    Menu delete = parentButton.getMenu();
-                    Menu newDelete = new Menu();
-                    for (Component menuItem : delete.getItems()) {
-                        final MenuItem mi = (MenuItem) menuItem;
-                        MenuItem newMenuItem = new MenuItem(mi.getText());
-                        newMenuItem.setIcon(mi.getIcon());
-                        newMenuItem.setEnabled(mi.isEnabled());
-                        newMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
-
-                            public void componentSelected(MenuEvent ce) {
-                                mi.fireEvent(Events.Select);
-                            };
-                        });
-                        newDelete.add(newMenuItem);
-                    }
-                    newButton.setMenu(newDelete);
-                }
-                if (separatorFlag) {
-                    if (newButton.getToolTip() == null
-                            || (newButton.getToolTip() != null && !newButton.getToolTip().getToolTipConfig().getText()
-                                    .equals(MessagesFactory.getMessages().launch_process_tooltip())))
-                        firstToolBar.add(new SeparatorToolItem());
-                }
-
-                firstToolBar.add(newButton);
-
-            } else if (component instanceof ComboBox<?>) {
-                @SuppressWarnings("unchecked")
-                ComboBox<ItemBaseModel> parentWorkFlow = (ComboBox<ItemBaseModel>) component;
-                ComboBox<ItemBaseModel> workFlowCombo = new ComboBox<ItemBaseModel>();
-                workFlowCombo.setStore(parentWorkFlow.getStore());
-                workFlowCombo.setDisplayField("value");//$NON-NLS-1$
-                workFlowCombo.setValueField("key");//$NON-NLS-1$
-                workFlowCombo.setTypeAhead(true);
-                workFlowCombo.setTriggerAction(TriggerAction.ALL);
-                workFlowCombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
-
-                    @Override
-                    public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
-                        parentToolBar.setSelectItem(se.getSelectedItem());
-                    }
-                });
-                firstToolBar.add(new FillToolItem());
-                firstToolBar.add(workFlowCombo);
-            }
-            separatorFlag = true;
-        }
     }
 
     private void addListener() {

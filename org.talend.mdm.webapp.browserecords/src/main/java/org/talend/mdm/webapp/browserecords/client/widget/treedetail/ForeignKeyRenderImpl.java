@@ -40,8 +40,9 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
                 public void onSuccess(ViewBean viewBean) {
                     ForeignKeyTablePanel fkPanel = new ForeignKeyTablePanel(viewBean, parentModel, fkNodeModelList, fkTypeModel,
                             toolBar);
+                    ItemPanel itemPanel = new ItemPanel(pkViewBean, toolBar.getItemBean(), toolBar.getOperation(), fkPanel);
                     String xpathLabel = ForeignKeyUtil.transferXpathToLabel(fkTypeModel, pkViewBean);
-                    TabItem tabItem = ItemsDetailPanel.getInstance().addTabItem(xpathLabel, fkPanel,
+                    TabItem tabItem = ItemsDetailPanel.getInstance().addTabItem(xpathLabel, itemPanel,
                             ItemsDetailPanel.MULTIPLE, fkTypeModel.getXpath());
                     relationFk.put(parentModel, tabItem);
                 }

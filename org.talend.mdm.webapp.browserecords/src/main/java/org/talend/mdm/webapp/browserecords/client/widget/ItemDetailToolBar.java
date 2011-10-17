@@ -541,6 +541,7 @@ public class ItemDetailToolBar extends ToolBar {
                         ItemPanel itemPanel = (ItemPanel) ItemsDetailPanel.getInstance().getTabPanel().getItem(0).getWidget(0);
                         itemPanel.getTree().setVisible(false);
                         itemPanel.getSmartPanel().setVisible(true);
+                        ItemsDetailPanel.getInstance().getTabPanel().setSelection(ItemsDetailPanel.getInstance().getTabPanel().getItem(0));
                     }
                 }
 
@@ -555,13 +556,14 @@ public class ItemDetailToolBar extends ToolBar {
             generatedviewButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                 @Override
-                public void componentSelected(ButtonEvent ce) {
+                public void componentSelected(ButtonEvent ce) {  
                     updateViewToolBar();
                     if (ItemsDetailPanel.getInstance().getTabPanel().getItem(0).getWidget(0) instanceof ItemPanel) {
                         ItemPanel itemPanel = (ItemPanel) ItemsDetailPanel.getInstance().getTabPanel().getItem(0).getWidget(0);
                         itemPanel.getTree().setVisible(true);
                         itemPanel.getSmartPanel().setVisible(false);
-                    }
+                        ItemsDetailPanel.getInstance().getTabPanel().setSelection(ItemsDetailPanel.getInstance().getTabPanel().getItem(0));
+                    }                 
                 }
 
             });
@@ -592,7 +594,7 @@ public class ItemDetailToolBar extends ToolBar {
         return true;
     }-*/;
 
-    private void initSmartViewToolBar() {
+    public void initSmartViewToolBar() {
         addGeneratedViewButton();
         addSeparator();
         addSmartViewCombo();
@@ -604,18 +606,42 @@ public class ItemDetailToolBar extends ToolBar {
         this.addJournalButton();
         this.addSeparator();
         this.addFreshButton();
-        this.addSeparator();
         this.addWorkFlosCombo();
     }
-
+    
     private void updateSmartViewToolBar() {
-        this.removeAll();
-        initSmartViewToolBar();
+        List<TabItem> itemList = ItemsDetailPanel.getInstance().getTabPanel().getItems();
+        for(TabItem item : itemList){
+            if(item.getWidget(0) instanceof ItemPanel){
+                ItemPanel itemPanel = (ItemPanel)item.getWidget(0);
+                ItemDetailToolBar toolbar = itemPanel.getToolBar();
+                
+                if(toolbar.getOperation().equals(ItemDetailToolBar.VIEW_OPERATION)){
+                    toolbar.removeAll();
+                    toolbar.initSmartViewToolBar();
+                    toolbar.setOperation(ItemDetailToolBar.SMARTVIEW_OPERATION);
+                    toolbar.layout(true);
+                }        
+            }
+        }
     }
 
     private void updateViewToolBar() {
-        this.removeAll();
-        initViewToolBar();
+        List<TabItem> itemList = ItemsDetailPanel.getInstance().getTabPanel().getItems();
+        for(TabItem item : itemList){
+            if(item.getWidget(0) instanceof ItemPanel){
+                ItemPanel itemPanel = (ItemPanel)item.getWidget(0);
+                ItemDetailToolBar toolbar = itemPanel.getToolBar();
+                
+                if(toolbar.getOperation().equals(ItemDetailToolBar.SMARTVIEW_OPERATION)){
+                    ItemsDetailPanel.getInstance().getTabPanel().setSelection(item);
+                    toolbar.removeAll();
+                    toolbar.initViewToolBar();
+                    toolbar.setOperation(ItemDetailToolBar.VIEW_OPERATION);
+                    toolbar.layout(true);
+                }        
+            }
+        }
     }
 
     private void addSmartViewCombo() {
@@ -762,6 +788,20 @@ public class ItemDetailToolBar extends ToolBar {
 
     public void setSelectItem(ItemBaseModel selectItem) {
         this.selectItem = selectItem;
+    }
+
+    
+    public String getOperation() {
+        return operation;
+    }
+
+    public ItemBean getItemBean() {
+        return itemBean;
+    }
+
+    
+    public void setOperation(String operation) {
+        this.operation = operation;
     }
 
 }
