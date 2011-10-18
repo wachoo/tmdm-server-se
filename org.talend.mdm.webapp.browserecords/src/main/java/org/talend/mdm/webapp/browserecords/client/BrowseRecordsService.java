@@ -49,7 +49,7 @@ public interface BrowseRecordsService extends RemoteService {
 
     ItemBean getItem(ItemBean itemBean, EntityModel entityModel, String language) throws ServiceException;
 
-    String saveItemBean(ItemBean item) throws ServiceException;
+    String saveItemBean(ItemBean item, String language) throws ServiceException;
 
     ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model, String dataClusterPK,
             boolean ifFKFilter, String value) throws ServiceException;

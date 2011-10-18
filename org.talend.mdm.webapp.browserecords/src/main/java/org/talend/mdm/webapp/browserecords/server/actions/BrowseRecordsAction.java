@@ -1541,8 +1541,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    public String saveItemBean(ItemBean item) throws ServiceException {
-        return saveItem(item.getConcept(), item.getIds(), item.getItemXml(), true, null);
+    public String saveItemBean(ItemBean item, String language) throws ServiceException {
+        return saveItem(item.getConcept(), item.getIds(), item.getItemXml(), true, language);
     }
 
     public String saveItem(String concept, String ids, String xml, boolean isCreate, String language) throws ServiceException {

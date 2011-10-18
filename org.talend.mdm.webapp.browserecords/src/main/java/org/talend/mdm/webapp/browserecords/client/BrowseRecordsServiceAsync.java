@@ -52,7 +52,7 @@ public interface BrowseRecordsServiceAsync {
 
     void queryItemBeans(QueryModel config, AsyncCallback<ItemBasePageLoadResult<ItemBean>> callback);
 
-    void saveItemBean(ItemBean item, AsyncCallback<String> callback);
+    void saveItemBean(ItemBean item, String language, AsyncCallback<String> callback);
 
     void getItem(ItemBean itemBean, EntityModel entityModel, String language, AsyncCallback<ItemBean> callback);
 
