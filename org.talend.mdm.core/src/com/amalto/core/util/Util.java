@@ -361,10 +361,9 @@ public class Util {
         // check if dcument parsed correctly against the schema
         if (schema != null) {
             // ignore cvc-complex-type.2.3 error
-            // ignore cvc-complex-type.2.4.b error
             // ignore cvc-complex-type.2.4.a error
             String errors = seh.getErrors();
-            if (!errors.equals("") && errors.indexOf("cvc-complex-type.2.3") == -1 && errors.indexOf("cvc-complex-type.2.4.b") == -1 && errors.indexOf("cvc-complex-type.2.4.a") == -1) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            if (!errors.equals("") && errors.indexOf("cvc-complex-type.2.3") == -1 && errors.indexOf("cvc-complex-type.2.4.a") == -1) { //$NON-NLS-1$  //$NON-NLS-3$ //$NON-NLS-4$
                 String xmlString = Util.nodeToString(element);
                 String err = "The item " + element.getLocalName() + " did not validate against the model: \n" + errors + "\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         + xmlString; // .substring(0, Math.min(100, xmlString.length()));
