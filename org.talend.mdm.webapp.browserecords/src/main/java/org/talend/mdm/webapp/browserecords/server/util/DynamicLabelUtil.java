@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.talend.mdm.webapp.base.shared.TypeModel;
@@ -28,6 +29,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
  */
 public class DynamicLabelUtil {
 
+    private static final Logger LOG = Logger.getLogger(DynamicLabelUtil.class);
     /**
      * 
      * @return
@@ -56,6 +58,7 @@ public class DynamicLabelUtil {
                 }
             }
         } catch (Exception ex) {
+            LOG.error(ex.getMessage(), ex);
         }
     }
 
@@ -64,7 +67,7 @@ public class DynamicLabelUtil {
         Matcher matcher = pattern.matcher(dynamicLabel);
         List<String> dynamicPathes = new ArrayList<String>();
         while (matcher.find()) {
-            dynamicPathes.add(matcher.group().replaceAll("^\\{", "").replaceAll("\\}$", ""));//$NON-NLS-1$ //$NON-NLS-2$
+            dynamicPathes.add(matcher.group().replaceAll("^\\{", "").replaceAll("\\}$", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
         }
 
         // Configuration config = Configuration.getInstance();
@@ -78,10 +81,10 @@ public class DynamicLabelUtil {
         for (String dyPath : dynamicPathes) {
             Element baseEl = (Element) doc.selectSingleNode(basePath);
             try {
-                List els = (List) baseEl.selectNodes(dyPath);//$NON-NLS-1$
+                List els = (List) baseEl.selectNodes(dyPath);
                 if (els == null)
                     continue;
-                String multiValue = "";
+                String multiValue = ""; //$NON-NLS-1$
                 if (els.size() > 0) {
 
                     for (int i = 0; i < els.size(); i++) {
@@ -96,7 +99,7 @@ public class DynamicLabelUtil {
                         // multiValue += fkInfoStr == null ? "" : fkInfoStr;
 
                         // } else {
-                        multiValue += key == null ? "" : key;
+                        multiValue += key == null ? "" : key; //$NON-NLS-1$
                         // }
                     }
 
