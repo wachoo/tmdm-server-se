@@ -68,6 +68,7 @@ public class PictureField extends TextField<String> {
 
     private Dialog dialog = new Dialog() {
 
+        @Override
         protected void onButtonPressed(Button button) {
             super.onButtonPressed(button);
             if (button == getButtonBar().getItemByItemId(YES)) {
@@ -96,7 +97,7 @@ public class PictureField extends TextField<String> {
                 try {
                     reqBuilder.send();
                 } catch (RequestException e) {
-                    MessageBox.alert("RequestException", e.getMessage(), null);//$NON-NLS-1$
+                    MessageBox.alert("RequestException", e.getMessage(), null);
                 }
 
             } else if (button == getButtonBar().getItemByItemId(NO)) {
@@ -157,6 +158,7 @@ public class PictureField extends TextField<String> {
     }-*/;
 
     
+    @Override
     public void setValue(String value) {
         String oldValue = this.value;
         this.value = value;
@@ -173,6 +175,7 @@ public class PictureField extends TextField<String> {
         }
     }
     
+    @Override
     public String getValue(){
         return value;
     }
@@ -185,6 +188,7 @@ public class PictureField extends TextField<String> {
 
         private SelectionListener<ButtonEvent> listener = new SelectionListener<ButtonEvent>() {
 
+            @Override
             public void componentSelected(ButtonEvent ce) {
                 Button button = ce.getButton();
                 if (button == uploadButton) {
@@ -245,6 +249,7 @@ public class PictureField extends TextField<String> {
             addButton(resetButton);
         }
 
+        @Override
         protected void onShow() {
             super.onShow();
             editForm.reset();

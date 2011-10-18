@@ -214,6 +214,7 @@ public class ForeignKeyFieldList extends ContentPanel {
 
         sizeField = new NumberField() {
 
+            @Override
             protected void onRender(Element target, int index) {
                 super.onRender(target, index);
                 inputEl = this.input;
@@ -454,8 +455,7 @@ public class ForeignKeyFieldList extends ContentPanel {
 
                 if (fields.size() < typeModel.getMinOccurs()) {
                     MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
-                            .message_validate_min_occurence(typeModel.getMinOccurs()),
-                            null);
+                            .message_validate_min_occurence(typeModel.getMinOccurs()), null);
                 } else {
                     removeForeignKeyWidget(foreignKeyBeans.get(i));
                 }
@@ -485,8 +485,8 @@ public class ForeignKeyFieldList extends ContentPanel {
 
     public void removeForeignKeyWidget(ForeignKeyBean value) {
         if (fields.size() < typeModel.getMinOccurs()) {
-            MessageBox.alert(MessagesFactory.getMessages().error_title(), "Min occurence is " + typeModel.getMinOccurs(), //$NON-NLS-1$
-                    null);
+            MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                    .message_validate_min_occurence(typeModel.getMinOccurs()), null);
         } else {
             int index = foreignKeyBeans.indexOf(value);
             foreignKeyBeans.remove(index);
@@ -500,8 +500,8 @@ public class ForeignKeyFieldList extends ContentPanel {
         boolean flag = true;
         if (typeModel.getMinOccurs() > 0) {
             if (foreignKeyBeans.size() == 0 || "".equals(foreignKeyBeans.get(0).getId())) { //$NON-NLS-1$
-                MessageBox.alert(MessagesFactory.getMessages().error_title(), "Min occurence is " + typeModel.getMinOccurs(), //$NON-NLS-1$
-                        null);
+                MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                        .message_validate_min_occurence(typeModel.getMinOccurs()), null);
                 flag = false;
             }
         }

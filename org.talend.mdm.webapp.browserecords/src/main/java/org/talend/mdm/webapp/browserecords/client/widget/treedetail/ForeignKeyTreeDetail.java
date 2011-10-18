@@ -225,8 +225,8 @@ public class ForeignKeyTreeDetail extends ContentPanel {
 
                     @Override
                     protected void doOnFailure(Throwable caught) {
-                        MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().refresh_tip()
-                                + " " + MessagesFactory.getMessages().message_fail(), null); //$NON-NLS-1$
+                        MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                                .refresh_error(), null);
                     }
                 });
 
@@ -399,7 +399,6 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         }
     }
 
-
     public boolean validateTree() {
         boolean flag = true;
         ItemNodeModel rootNode = (ItemNodeModel) tree.getItem(0).getUserObject();
@@ -435,8 +434,8 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                         }
 
                     } else {
-                        MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                node.getBindingPath() + '/' + node.getName() + MessagesFactory.getMessages().message_validate_title(), null);
+                        MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                                .validation_error(node.getBindingPath()), null);
                         flag = false;
                     }
 

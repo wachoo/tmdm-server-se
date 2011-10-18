@@ -46,6 +46,8 @@ public interface BrowseRecordsMessages extends Messages {
     String journal_tip();
 
     String refresh_tip();
+    
+    String refresh_error();
 
     String button_reset();
 
@@ -319,7 +321,7 @@ public interface BrowseRecordsMessages extends Messages {
 
     String auto();
 
-    String message_validate_title();
+    String validation_error(String value);
 
     String message_validate_min_occurence(int value);
 

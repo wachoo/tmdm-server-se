@@ -128,7 +128,7 @@ public class TreeDetail extends ContentPanel {
         this.setAutoWidth(true);
         this.setScrollMode(Scroll.AUTO);
     }
-    
+
     public void initTree(ViewBean viewBean, ItemBean itemBean) {
         initTree(viewBean, itemBean, null);
     }
@@ -310,7 +310,6 @@ public class TreeDetail extends ContentPanel {
             root.getElement().getFirstChildElement().setClassName("rootNode"); //$NON-NLS-1$
         tree.addItem(root);
 
-
         ColumnTreeLayoutModel columnLayoutModel = viewBean.getColumnLayoutModel();
         if (columnLayoutModel != null) {// TODO if create a new PrimaryKey, tree UI should not render according to the
                                         // layout template
@@ -411,8 +410,8 @@ public class TreeDetail extends ContentPanel {
 
                     @Override
                     protected void doOnFailure(Throwable caught) {
-                        MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().refresh_tip()
-                                + " " + MessagesFactory.getMessages().message_fail(), null); //$NON-NLS-1$
+                        MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                                .refresh_error(), null);
                     }
                 });
     }
@@ -466,7 +465,7 @@ public class TreeDetail extends ContentPanel {
                 ItemNodeModel node = (ItemNodeModel) model;
                 if (!node.isValid() && node.getChildCount() == 0) {
                     TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath());
-                    if(tm.getForeignkey() != null){
+                    if (tm.getForeignkey() != null) {
                         // fk minOccurs check
                         if (!map.containsKey(tm))
                             map.put(tm, 0);
@@ -484,11 +483,8 @@ public class TreeDetail extends ContentPanel {
                         }
 
                     } else {
-                        // com.google.gwt.user.client.Window.alert(node.getBindingPath()
-                        //                                + "/" + node.getName() + "'Value validate failure"); //$NON-NLS-1$ //$NON-NLS-2$
-                        // Message tip should use gxt's messageBox, but not com.google.gwt.user.client.Window
-                        MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                node.getBindingPath() + "/" + node.getName() + "'Value validate failure", null); //$NON-NLS-1$//$NON-NLS-2$
+                        MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                                .validation_error(node.getBindingPath()), null);
                         flag = false;
                     }
 

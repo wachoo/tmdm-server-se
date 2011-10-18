@@ -278,7 +278,7 @@ public class AdvancedSearchPanel extends FormPanel {
             public void componentSelected(ButtonEvent ce) {
                 try {
                     String curField = expressionTextField.getValue();
-                    if (curField != null && !curField.equals("")) { //$NON-NLS-1$
+                    if (curField != null && curField.length() != 0) {
                         Parser.parse(curField);
                         MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
                                 .valid_expression(), null);

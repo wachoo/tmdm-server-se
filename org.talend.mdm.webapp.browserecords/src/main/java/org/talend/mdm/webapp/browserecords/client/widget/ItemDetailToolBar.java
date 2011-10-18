@@ -415,8 +415,8 @@ public class ItemDetailToolBar extends ToolBar {
 
             @Override
             protected void doOnFailure(Throwable caught) {
-                MessageBox.alert(MessagesFactory.getMessages().refresh_tip(), MessagesFactory.getMessages().refresh_tip()
-                        + " " + MessagesFactory.getMessages().message_fail(), null); //$NON-NLS-1$
+                MessageBox
+                        .alert(MessagesFactory.getMessages().refresh_tip(), MessagesFactory.getMessages().refresh_error(), null);
             }
 
         });
