@@ -19,7 +19,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
@@ -30,10 +29,10 @@ public class UtilTestCase extends TestCase {
 
     public void testDefaultValidate() throws IOException, ParserConfigurationException, SAXException {
         InputStream in = UtilTestCase.class.getResourceAsStream("Agency_ME02.xml");
-        String xml = IOUtils.toString(in);
+        String xml = getStringFromInputStream(in);
         Element element = Util.parse(xml).getDocumentElement();
         InputStream inxsd = UtilTestCase.class.getResourceAsStream("DStar.xsd");
-        String schema = IOUtils.toString(inxsd);
+        String schema = getStringFromInputStream(inxsd);
 
         try {
             Util.defaultValidate(element, schema);
@@ -42,5 +41,12 @@ public class UtilTestCase extends TestCase {
             assertTrue(str
                     .contains("cvc-complex-type.2.4.b: The content of element 'Agency' is not complete. One of '{Id}' is expected"));
         }
+    }
+
+    private static String getStringFromInputStream(InputStream in) throws IOException {
+        int total = in.available();
+        byte[] buf = new byte[total];
+        in.read(buf);
+        return new String(buf);
     }
 }
