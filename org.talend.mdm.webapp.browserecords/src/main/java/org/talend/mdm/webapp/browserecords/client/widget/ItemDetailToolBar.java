@@ -736,16 +736,21 @@ public class ItemDetailToolBar extends ToolBar {
         return true;
     }-*/;
 
-    public static void addTreeDetail(String ids, String concept) {
+    public static void addTreeDetail(String ids, final String concept) {
         String[] idArr = ids.split(","); //$NON-NLS-1$
-        BrowseRecordsServiceAsync brService = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
+        final BrowseRecordsServiceAsync brService = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
         brService.getItemBeanById(concept, idArr, Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBean>() {
 
-            public void onSuccess(ItemBean item) {
-                ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
-                ItemPanel itemPanel = new ItemPanel(viewBean, item, ItemDetailToolBar.VIEW_OPERATION);
-                ItemsDetailPanel.getInstance().addTabItem(
-                        item.getConcept() + " " + item.getIds(), itemPanel, ItemsDetailPanel.MULTIPLE, item.getIds()); //$NON-NLS-1$
+            public void onSuccess(final ItemBean item) {
+                brService.getView("Browse_items_" + concept, Locale.getLanguage(), new SessionAwareAsyncCallback<ViewBean>() { //$NON-NLS-1$
+                    
+                    public void onSuccess(ViewBean viewBean) {
+                        ItemPanel itemPanel = new ItemPanel(viewBean, item, ItemDetailToolBar.VIEW_OPERATION);
+                        ItemsDetailPanel.getInstance().addTabItem(
+                                item.getConcept() + " " + item.getIds(), itemPanel, ItemsDetailPanel.MULTIPLE, item.getIds()); //$NON-NLS-1$
+                    }
+                    
+                }); 
             }
         });
     }
