@@ -17,7 +17,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.celleditor.ForeignKeyCellEditor;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator.FieldCreator;
-import org.talend.mdm.webapp.browserecords.shared.ViewBean;
+import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 
 import com.extjs.gxt.ui.client.Style.HideMode;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
@@ -90,7 +90,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
     ForeignKeyListWindow fkWindow = new ForeignKeyListWindow();
 
-    ViewBean viewBean;
+    EntityModel entityModel;
 
     ItemNodeModel currentNodeModel;
 
@@ -98,14 +98,14 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
     int lastFkIndex;
 
-    public ForeignKeyTablePanel(final ViewBean viewBean, ItemNodeModel parent, final List<ItemNodeModel> fkModels,
+    public ForeignKeyTablePanel(final EntityModel entityModel, ItemNodeModel parent, final List<ItemNodeModel> fkModels,
             final TypeModel fkTypeModel, final ItemDetailToolBar parentToolBar) {
         this.setHeaderVisible(false);
         this.setLayout(new FitLayout());
         this.setAutoWidth(true);
         this.setBodyBorder(false);
         this.parent = parent;
-        this.viewBean = viewBean;
+        this.entityModel = entityModel;
         this.fkTypeModel = fkTypeModel;
         this.fkModels = fkModels;
         toolBar.add(addFkButton);
@@ -180,7 +180,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                 }
 
             });
-            TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(info);
+            TypeModel typeModel = entityModel.getMetaDataTypes().get(info);
             Field<?> field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false, Locale.getLanguage());
 
             CellEditor cellEditor = new ForeignKeyCellEditor(field, typeModel);
@@ -328,7 +328,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             selectFKBtn.addClickHandler(new ClickHandler() {
 
                 public void onClick(ClickEvent event) {
-                    fkWindow.show(viewBean);
+                    fkWindow.show(entityModel);
                     currentNodeModel = model;
                 }
             });

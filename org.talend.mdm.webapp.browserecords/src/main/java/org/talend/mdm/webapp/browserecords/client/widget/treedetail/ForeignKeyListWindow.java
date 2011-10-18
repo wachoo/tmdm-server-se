@@ -28,7 +28,7 @@ import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
-import org.talend.mdm.webapp.browserecords.shared.ViewBean;
+import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BaseListLoadResult;
@@ -54,9 +54,9 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -100,7 +100,7 @@ public class ForeignKeyListWindow extends Window {
 
     private String xPath;
 
-    private ViewBean viewBean;
+    private EntityModel entityModel;
 
     private String foreignKey;
 
@@ -126,11 +126,11 @@ public class ForeignKeyListWindow extends Window {
         this.returnCriteriaFK = returnCriteriaFK;
     }
 
-    public ForeignKeyListWindow(ViewBean viewBean, String fk, List<String> fkInfo) {
+    public ForeignKeyListWindow(EntityModel entityModel, String fk, List<String> fkInfo) {
         this.foreignKey = fk;
         this.foreignKeyInfo = fkInfo;
-        this.viewBean = viewBean;
-        this.fkKey = viewBean.getBindingEntityModel().getConceptName();
+        this.entityModel = entityModel;
+        this.fkKey = entityModel.getConceptName();
     }
 
     public void setForeignKeyInfos(String fk, List<String> fkInfo) {
@@ -138,9 +138,9 @@ public class ForeignKeyListWindow extends Window {
         this.foreignKeyInfo = fkInfo;
     }
 
-    public void setViewBean(ViewBean viewBean) {
-        this.viewBean = viewBean;
-        this.fkKey = viewBean.getBindingEntityModel().getConceptName();
+    public void setEntityModel(EntityModel entityModel) {
+        this.entityModel = entityModel;
+        this.fkKey = entityModel.getConceptName();
     }
 
     public String getFkKey() {
@@ -170,7 +170,7 @@ public class ForeignKeyListWindow extends Window {
     @Override
     protected void onRender(Element parent, int pos) {
         super.onRender(parent, pos);
-        final TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(fkKey);
+        final TypeModel typeModel = entityModel.getMetaDataTypes().get(fkKey);
         typeModel.setForeignkey(this.foreignKey);
         typeModel.setForeignKeyInfo(this.foreignKeyInfo);
         typeModel.setRetrieveFKinfos(true);
@@ -386,8 +386,8 @@ public class ForeignKeyListWindow extends Window {
 
     }
 
-    public void show(ViewBean viewBean) {
-        this.setViewBean(viewBean);
+    public void show(EntityModel entityModel) {
+        this.setEntityModel(entityModel);
         show();
     }
 }

@@ -153,15 +153,15 @@ public class BrowseRecordsController extends Controller {
     }
 
     private void onSelectForeignKeyView(final AppEvent event) {
-        String viewFkName = "Browse_items_" + event.getData().toString(); //$NON-NLS-1$
-        service.getView(viewFkName, Locale.getLanguage(), new SessionAwareAsyncCallback<ViewBean>() {
+        String concept = event.getData().toString();
+        service.getEntityModel(concept, Locale.getLanguage(), new SessionAwareAsyncCallback<EntityModel>() {
 
-            public void onSuccess(ViewBean viewBean) {
-                // forward
-                AppEvent ae = new AppEvent(event.getType(), viewBean);
+            public void onSuccess(EntityModel entityModel) {
+                AppEvent ae = new AppEvent(event.getType(), entityModel);
                 ae.setSource(event.getSource());
                 forwardToView(view, ae);
             }
+
         });
 
     }

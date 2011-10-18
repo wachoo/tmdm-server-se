@@ -13,6 +13,7 @@ import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
+import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -30,21 +31,25 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
 
     public void RenderForeignKey(final ItemNodeModel parentModel, final List<ItemNodeModel> fkNodeModelList,
             final TypeModel fkTypeModel, final ItemDetailToolBar toolBar, final ViewBean pkViewBean) {
-        if (pkViewBean == BrowseRecords.getSession().get(UserSession.CURRENT_VIEW)
-                && ((TabItem) ItemsDetailPanel.getInstance().getTabPanel().getWidget(0)).getWidget(0) instanceof ItemPanel
-                && ((ItemPanel) ((TabItem) ItemsDetailPanel.getInstance().getTabPanel().getWidget(0)).getWidget(0)).getToolBar() != toolBar)
-            return;
-
+        TabItem tabItem = ItemsDetailPanel.getInstance().getTabPanel().getItem(0);
+        if (tabItem != null) {
+            ItemPanel itemPanel = (ItemPanel) tabItem.getWidget(0);
+            if (pkViewBean == BrowseRecords.getSession().get(UserSession.CURRENT_VIEW) && itemPanel instanceof ItemPanel
+                    && itemPanel.getToolBar() != toolBar)
+                return;
+        }
         if (fkNodeModelList != null) {
-            String viewFkName = "Browse_items_" + fkTypeModel.getForeignkey().split("/")[0]; //$NON-NLS-1$ //$NON-NLS-2$
-            service.getView(viewFkName, Locale.getLanguage(), new SessionAwareAsyncCallback<ViewBean>() {
-                public void onSuccess(ViewBean viewBean) {
-                    ForeignKeyTablePanel fkPanel = new ForeignKeyTablePanel(viewBean, parentModel, fkNodeModelList, fkTypeModel,
+            String concept = fkTypeModel.getForeignkey().split("/")[0]; //$NON-NLS-1$ //$NON-NLS-2$
+            service.getEntityModel(concept, Locale.getLanguage(), new SessionAwareAsyncCallback<EntityModel>() {
+
+                public void onSuccess(EntityModel entityModel) {
+                    ForeignKeyTablePanel fkPanel = new ForeignKeyTablePanel(entityModel, parentModel, fkNodeModelList,
+                            fkTypeModel,
                             toolBar);
                     ItemPanel itemPanel = new ItemPanel(pkViewBean, toolBar.getItemBean(), toolBar.getOperation(), fkPanel);
                     String xpathLabel = ForeignKeyUtil.transferXpathToLabel(fkTypeModel, pkViewBean);
-                    TabItem tabItem = ItemsDetailPanel.getInstance().addTabItem(xpathLabel, itemPanel,
-                            ItemsDetailPanel.MULTIPLE, fkTypeModel.getXpath());
+                    TabItem tabItem = ItemsDetailPanel.getInstance().addTabItem(xpathLabel, itemPanel, ItemsDetailPanel.MULTIPLE,
+                            fkTypeModel.getXpath());
                     relationFk.put(parentModel, tabItem);
                 }
             });

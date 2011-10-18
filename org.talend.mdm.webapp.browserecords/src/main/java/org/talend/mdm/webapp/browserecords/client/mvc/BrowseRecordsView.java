@@ -144,9 +144,9 @@ public class BrowseRecordsView extends View {
     }
 
     private void onSelectForeignKeyView(AppEvent event) {
-        ViewBean viewBean = event.getData();
+        EntityModel entityModel = event.getData();
         ForeignKeyListWindow fkListWindow = (ForeignKeyListWindow) event.getSource();
-        fkListWindow.show(viewBean);
+        fkListWindow.show(entityModel);
     }
 
     private void onCreateForeignKeyView(AppEvent event) {
