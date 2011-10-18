@@ -121,7 +121,7 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         file.setAllowBlank(false);
         file.setName("file"); //$NON-NLS-1$
         file.setId("fileUpload");//$NON-NLS-1$   
-        file.setFieldLabel("File"); //$NON-NLS-1$
+        file.setFieldLabel(MessagesFactory.getMessages().label_field_file());
         this.add(file);
 
         List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
@@ -178,7 +178,7 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         separatorCombo = new ComboBox<ItemBaseModel>();
         separatorCombo.setId("sep");//$NON-NLS-1$
         separatorCombo.setName("sep");//$NON-NLS-1$
-        separatorCombo.setFieldLabel("Separator"); //$NON-NLS-1$
+        separatorCombo.setFieldLabel(MessagesFactory.getMessages().label_field_separator());
         separatorCombo.setDisplayField("label"); //$NON-NLS-1$
         separatorCombo.setValueField("key"); //$NON-NLS-1$
         separatorCombo.setStore(separatorStoreList);
@@ -202,7 +202,7 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         textDelimiterCombo = new ComboBox<ItemBaseModel>();
         textDelimiterCombo.setId("delimiter");//$NON-NLS-1$
         textDelimiterCombo.setName("delimiter");//$NON-NLS-1$
-        textDelimiterCombo.setFieldLabel("Text Delimiter"); //$NON-NLS-1$
+        textDelimiterCombo.setFieldLabel(MessagesFactory.getMessages().label_field_delimiter());
         textDelimiterCombo.setDisplayField("label"); //$NON-NLS-1$
         textDelimiterCombo.setValueField("key"); //$NON-NLS-1$
         textDelimiterCombo.setStore(textDelimiterStoreList);

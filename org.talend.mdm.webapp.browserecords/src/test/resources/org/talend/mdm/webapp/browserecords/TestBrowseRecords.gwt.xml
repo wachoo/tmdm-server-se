@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module rename-to='browserecords'>
+<module rename-to='BrowseRecords'>
 	<inherits name="org.talend.mdm.webapp.browserecords.BrowseRecords" />
-	<!-- need to omit the exclusion of GWTTest files to make it tested under 
-		the framework -->
-	<source path='client' />
+    <source path='client'/>
 </module>

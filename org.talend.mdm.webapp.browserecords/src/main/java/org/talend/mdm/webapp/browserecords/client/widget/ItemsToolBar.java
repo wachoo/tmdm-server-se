@@ -355,7 +355,7 @@ public class ItemsToolBar extends ToolBar {
                 window.setPlain(true);  
                 window.setModal(true);  
                 window.setBlinkModal(true);  
-                window.setHeading("Upload data");   //$NON-NLS-1$
+                window.setHeading(MessagesFactory.getMessages().upload_title());
                 window.setLayout(new FitLayout()); 
                 window.setClosable(true);
                 

@@ -244,17 +244,17 @@ public interface BrowseRecordsMessages extends Messages {
     
     String save_close_tip();
     
-    String label_field_table_name();
-    
-    String add_table_duplicated();
-    
-    String add_table_empty_field();
-    
-    String add_table_primary_key();
+    String upload_title();
     
     String label_combo_filetype_select();
     
+    String label_field_file();
+    
     String label_field_filetype();
+    
+    String label_field_separator();
+    
+    String label_field_delimiter();
     
     String label_field_header_first();
     
@@ -271,14 +271,6 @@ public interface BrowseRecordsMessages extends Messages {
     String import_progress_bar_message();
     
     String import_progress_bar_laod();
-    
-    String label_items_browser();
-    
-    String label_combo_select();
-    
-    String label_button_upload_data();
-    
-    String label_button_new_table();
     
     String launch_process_tooltip();
 
