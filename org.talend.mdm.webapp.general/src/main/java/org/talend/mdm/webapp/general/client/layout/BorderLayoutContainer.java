@@ -55,6 +55,7 @@ public class BorderLayoutContainer extends Viewport {
 	    northData.setHideCollapseTool(true);  
 	  
 	    BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 250);  
+        westData.setMaxSize(300);
 	    westData.setSplit(true);  
 	    westData.setCollapsible(true);  
 	    westData.setMargins(new Margins(0,5,0,0));  
@@ -63,6 +64,7 @@ public class BorderLayoutContainer extends Viewport {
 	    centerData.setMargins(new Margins(0));  
 	  
 	    BorderLayoutData eastData = new BorderLayoutData(LayoutRegion.EAST, 240);  
+        eastData.setMaxSize(300);
 	    eastData.setSplit(true);  
 	    eastData.setCollapsible(true);  
 	    eastData.setMargins(new Margins(0,0,0,5));  
