@@ -13,12 +13,15 @@
 package org.talend.mdm.webapp.browserecords.shared;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.ui.Widget;
 
 public enum FacetEnum {
 
+    MIN_OCCURENCE("minOccurence"), //$NON-NLS-1$
+    MAX_OCCURENCE("maxOccurence"), //$NON-NLS-1$
     MIN_INCLUSIVE("minInclusive"), //$NON-NLS-1$
     MAX_INCLUSIVE("maxInclusive"), //$NON-NLS-1$
     MIN_EXCLUSIVE("minExclusive"), //$NON-NLS-1$
@@ -49,7 +52,13 @@ public enum FacetEnum {
 
     public static void setFacetValue(String facet, Widget w, String value) {
         try {
-            if (facet.equals(MIN_INCLUSIVE.getFacetName())) {
+            if (facet.equals(MIN_OCCURENCE.getFacetName())) {
+                Field<?> field = (Field<?>) w;
+                field.setData(MIN_OCCURENCE.getFacetName(), value);
+            } else if (facet.equals(MAX_OCCURENCE.getFacetName())) {
+                Field<?> field = (Field<?>) w;
+                field.setData(MAX_OCCURENCE.getFacetName(), value);
+            } else if (facet.equals(MIN_INCLUSIVE.getFacetName())) {
                 NumberField field = (NumberField) w;
                 // if ("integer".equals(field.getData("numberType"))){
                 // field.setMinValue(Integer.parseInt(value));
@@ -76,19 +85,15 @@ public enum FacetEnum {
                 if (Integer.parseInt(value) > 0) {
                     field.setAllowBlank(false);
                 }
-                field.setMaxLength(Integer.parseInt(value));
-                field.setMinLength(Integer.parseInt(value));
                 field.setData(LENGTH.getFacetName(), value);
             } else if (facet.equals(MIN_LENGTH.getFacetName())) {
                 TextField<String> field = (TextField<String>) w;
                 if (Integer.parseInt(value) > 0) {
                     field.setAllowBlank(false);
                 }
-                field.setMinLength(Integer.parseInt(value));
                 field.setData(MIN_LENGTH.getFacetName(), value);
             } else if (facet.equals(MAX_LENGTH.getFacetName())) {
                 TextField<String> field = (TextField<String>) w;
-                field.setMaxLength(Integer.parseInt(value));
                 field.setData(MAX_LENGTH.getFacetName(), value);
             } else if (facet.equals(TOTAL_DIGITS.getFacetName())) {
                 NumberField field = (NumberField) w;

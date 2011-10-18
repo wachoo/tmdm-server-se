@@ -188,7 +188,7 @@ public class TreeDetailGridFieldCreator {
             if (((TextField<?>) field).getValidator() == null)
                 ((TextField<?>) field).setValidator(TextFieldValidator.getInstance());
 
-            if (errorMsg != null && !errorMsg.equals("") && !((TextField<?>) field).getAllowBlank()) //$NON-NLS-1$                
+            if (errorMsg != null && !errorMsg.equals("")) //$NON-NLS-1$                
                 ((TextField<?>) field).getMessages().setBlankText(errorMsg);
 
         }
@@ -249,10 +249,10 @@ public class TreeDetailGridFieldCreator {
 
             field = numberField;
         } else if (DataTypeConstants.BOOLEAN.getTypeName().equals(baseType)) {
-            CheckBox checkBox = new CheckBox();  
+            CheckBox checkBox = new CheckBox();
             checkBox.setBoxLabel(MessagesFactory.getMessages().label_true());
             checkBox.setValue((value.toString().equals("true") || value.equals(true)) ? true : false); //$NON-NLS-1$
-            field = checkBox;        
+            field = checkBox;
         } else if (DataTypeConstants.DATE.getTypeName().equals(baseType)) {
             FormatDateField dateField = new FormatDateField();
             if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$
@@ -268,7 +268,7 @@ public class TreeDetailGridFieldCreator {
             if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$
                 dateTimeField.setFormatPattern(pattern);
             }
-            dateTimeField.setPropertyEditor(new DateTimePropertyEditor(DateUtil.dateTimePattern));
+            dateTimeField.setPropertyEditor(new DateTimePropertyEditor(DateUtil.formatDateTimePattern));
             if (hasValue)
                 dateTimeField.setValue(DateUtil.convertStringToDate(DateUtil.dateTimePattern, value.toString()));
 
@@ -306,7 +306,7 @@ public class TreeDetailGridFieldCreator {
             public void handleEvent(FieldEvent fe) {
                 if (fe.getField() instanceof ComboBoxField) {
                     node.setObjectValue(((ComboBoxModel) fe.getValue()).getValue());
-                } else if(fe.getField() instanceof CheckBox) {
+                } else if (fe.getField() instanceof CheckBox) {
                     node.setObjectValue(fe.getValue().toString());
                 } else {
                     node.setObjectValue(fe.getField() instanceof ComboBox ? ((SimpleComboValue) fe.getValue()).getValue()
@@ -340,7 +340,7 @@ public class TreeDetailGridFieldCreator {
                     node.setObjectValue(((FormatDateField) fe.getField()).getOjbectValue());
                 }
             }
-        });  
+        });
     }
 
     private static void buildFacets(TypeModel typeModel, Widget w) {
