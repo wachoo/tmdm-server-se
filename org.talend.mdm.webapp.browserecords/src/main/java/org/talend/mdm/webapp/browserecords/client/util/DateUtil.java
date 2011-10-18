@@ -24,6 +24,8 @@ public class DateUtil {
 
     public static String dateTimePattern = "yyyy-MM-ddTHH:mm:ss";//$NON-NLS-1$
 
+    public static String formatDateTimePattern = "yyyy-MM-dd'T'HH:mm:ss";//$NON-NLS-1$
+
     public static final Date convertStringToDate(String aMask, String strDate) {
         if (strDate != null && strDate.trim().length() != 0) {
             DateTimeFormat df = DateTimeFormat.getFormat(aMask);
