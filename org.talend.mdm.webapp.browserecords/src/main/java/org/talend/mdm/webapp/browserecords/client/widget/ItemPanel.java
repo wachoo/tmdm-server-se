@@ -89,7 +89,7 @@ public class ItemPanel extends ContentPanel {
             } else if (ItemDetailToolBar.VIEW_OPERATION.equals(operation)) {
                 tree.initTree(viewBean, item);
             } else if (ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {
-                tree.initTree(viewBean, item);
+                tree.initTree(viewBean, item, operation);
             } else if (ItemDetailToolBar.PERSONALEVIEW_OPERATION.equals(operation)
                     || ItemDetailToolBar.SMARTVIEW_OPERATION.equals(operation)) {
                 tree.initTree(viewBean, item);

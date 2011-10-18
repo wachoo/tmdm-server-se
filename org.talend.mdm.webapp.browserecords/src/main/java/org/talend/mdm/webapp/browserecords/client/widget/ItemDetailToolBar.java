@@ -167,6 +167,8 @@ public class ItemDetailToolBar extends ToolBar {
             initCreateToolBar();
         } else if (operation.equalsIgnoreCase(ItemDetailToolBar.SMARTVIEW_OPERATION)) {
             initSmartViewToolBar();
+        } else if (operation.equalsIgnoreCase(ItemDetailToolBar.DUPLICATE_OPERATION)) {
+            initCreateToolBar();
         }
     }
 
@@ -310,7 +312,7 @@ public class ItemDetailToolBar extends ToolBar {
 
                 @Override
                 public void componentSelected(ButtonEvent ce) {
-                    String title = itemBean.getConcept() + " " + itemBean.getIds(); //$NON-NLS-1$
+                    String title = itemBean.getConcept();
                     if (isFkToolBar) {
                         ForeignKeyTreeDetail fkTree = (ForeignKeyTreeDetail) ItemsDetailPanel.getInstance().getTabPanel()
                                 .getSelectedItem().getWidget(0);
@@ -318,7 +320,7 @@ public class ItemDetailToolBar extends ToolBar {
                         ItemsDetailPanel.getInstance().addTabItem(title, duplicateFkTree, ItemsDetailPanel.MULTIPLE, title);
                     } else {
                         ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
-                        ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.CREATE_OPERATION);
+                        ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.DUPLICATE_OPERATION);
                         ItemsDetailPanel.getInstance().addTabItem(title, itemPanel, ItemsDetailPanel.MULTIPLE, title);
                     }
 
@@ -751,7 +753,7 @@ public class ItemDetailToolBar extends ToolBar {
     public void saveItemAndClose(boolean isClose) {
         boolean validate = false;
         TabPanel tabPanel = ItemsDetailPanel.getInstance().getTabPanel();
-        TabItem tabItem = (TabItem) tabPanel.getWidget(0);
+        TabItem tabItem = (TabItem) tabPanel.getSelectedItem();
         Widget widget = tabItem.getWidget(0);
         Dispatcher dispatch = Dispatcher.get();
         AppEvent app = new AppEvent(BrowseRecordsEvents.SaveItem);

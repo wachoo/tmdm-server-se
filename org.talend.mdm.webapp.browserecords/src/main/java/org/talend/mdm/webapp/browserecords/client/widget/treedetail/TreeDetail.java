@@ -128,8 +128,12 @@ public class TreeDetail extends ContentPanel {
         this.setAutoWidth(true);
         this.setScrollMode(Scroll.AUTO);
     }
-
+    
     public void initTree(ViewBean viewBean, ItemBean itemBean) {
+        initTree(viewBean, itemBean, null);
+    }
+
+    public void initTree(ViewBean viewBean, ItemBean itemBean, final String operation) {
         this.viewBean = viewBean;
         if (itemBean == null) {
             buildPanel();
@@ -138,7 +142,7 @@ public class TreeDetail extends ContentPanel {
                     new SessionAwareAsyncCallback<ItemNodeModel>() {
 
                         public void onSuccess(ItemNodeModel node) {
-                            renderTree(node);
+                            renderTree(node, operation);
                             if (node.isHasVisiblueRule()) {
                                 getItemService().executeVisibleRule(CommonUtil.toXML(node, TreeDetail.this.viewBean),
                                         new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
@@ -177,13 +181,18 @@ public class TreeDetail extends ContentPanel {
     }
 
     private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue) {
+        return buildGWTTree(itemNode, item, withDefaultValue, null);
+    }
+
+    private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue,
+            String operation) {
         if (item == null) {
             item = new DynamicTreeItem();
             item.setItemNodeModel(itemNode);
             if (itemNode.getRealType() != null && itemNode.getRealType().trim().length() > 0) {
                 item.setState(true);
             }
-            item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, fieldMap, handler));
+            item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, fieldMap, handler, operation));
         }
         if (itemNode.getChildren() != null && itemNode.getChildren().size() > 0) {
             final Map<TypeModel, List<ItemNodeModel>> fkMap = new HashMap<TypeModel, List<ItemNodeModel>>();
@@ -199,7 +208,7 @@ public class TreeDetail extends ContentPanel {
                     }
                     fkMap.get(typeModel).add(node);
                 } else if (typeModel.getForeignkey() == null) {
-                    TreeItem childItem = buildGWTTree(node, null, withDefaultValue);
+                    TreeItem childItem = buildGWTTree(node, null, withDefaultValue, operation);
                     item.addItem(childItem);
                     int count = 0;
                     CountMapItem countMapItem = new CountMapItem(node.getBindingPath(), item);
@@ -290,7 +299,11 @@ public class TreeDetail extends ContentPanel {
     }
 
     private void renderTree(ItemNodeModel rootModel) {
-        root = buildGWTTree(rootModel, null, false);
+        renderTree(rootModel, null);
+    }
+
+    private void renderTree(ItemNodeModel rootModel, String operation) {
+        root = buildGWTTree(rootModel, null, false, operation);
         root.setState(true);
         tree = new Tree();
         if (root.getElement().getFirstChildElement() != null)

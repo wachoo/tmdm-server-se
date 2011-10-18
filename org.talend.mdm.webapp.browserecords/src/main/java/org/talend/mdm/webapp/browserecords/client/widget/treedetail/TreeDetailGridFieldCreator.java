@@ -27,6 +27,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ComboBoxModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.DateUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.BooleanField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ForeignKeyField;
@@ -54,7 +55,6 @@ import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
-import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -63,7 +63,7 @@ import com.google.gwt.user.client.ui.Widget;
 public class TreeDetailGridFieldCreator {
 
     public static Field<?> createField(ItemNodeModel node, final TypeModel dataType, String language,
-            Map<String, Field<?>> fieldMap) {
+            Map<String, Field<?>> fieldMap, String operation) {
         // Field
 
         Serializable value = node.getObjectValue();
@@ -171,7 +171,10 @@ public class TreeDetailGridFieldCreator {
             field.setEnabled(!dataType.isReadOnly());
         }
 
-        if (node.isKey() && hasValue) {
+        if (node.isKey() && hasValue && ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {
+            field.setValue(null);
+            field.setEnabled(true);
+        } else if (node.isKey() && hasValue) {
             field.setEnabled(false);
         }
 
@@ -193,6 +196,11 @@ public class TreeDetailGridFieldCreator {
         updateMandatory(field, node, fieldMap);
         addFieldListener(field, node, fieldMap);
         return field;
+    }
+
+    public static Field<?> createField(ItemNodeModel node, final TypeModel dataType, String language,
+            Map<String, Field<?>> fieldMap) {
+        return createField(node, dataType, language, fieldMap, null);
     }
 
     @SuppressWarnings("serial")

@@ -44,6 +44,11 @@ public class TreeDetailUtil {
 
     public static Widget createWidget(final ItemNodeModel itemNode, final ViewBean viewBean, Map<String, Field<?>> fieldMap,
             ClickHandler h) {
+        return createWidget(itemNode, viewBean, fieldMap, h, null);
+    }
+
+    public static Widget createWidget(final ItemNodeModel itemNode, final ViewBean viewBean, Map<String, Field<?>> fieldMap,
+            ClickHandler h, String operation) {
 
         HorizontalPanel hp = new HorizontalPanel();
         // create Field
@@ -68,7 +73,8 @@ public class TreeDetailUtil {
         if (typeModel.isSimpleType()
                 || (!typeModel.isSimpleType() && ((ComplexTypeModel) typeModel).getReusableComplexTypes().size() > 0)) {
 
-            Field<?> field = TreeDetailGridFieldCreator.createField(itemNode, typeModel, Locale.getLanguage(), fieldMap);
+            Field<?> field = TreeDetailGridFieldCreator.createField(itemNode, typeModel, Locale.getLanguage(), fieldMap,
+                    operation);
             field.setWidth(200);
             field.addListener(Events.Focus, new Listener<FieldEvent>() {
 
