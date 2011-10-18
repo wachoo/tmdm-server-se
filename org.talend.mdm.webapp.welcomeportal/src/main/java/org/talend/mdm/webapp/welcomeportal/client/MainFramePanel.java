@@ -104,7 +104,7 @@ public class MainFramePanel extends Portal {
                     button.addSelectionListener(new SelectionListener<ButtonEvent>() {
                         @Override
                         public void componentSelected(ButtonEvent buttonEvent) {
-                            openWindow("/search/?query= " + textBox.getText());
+                            itemClick("search", "Search"); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                     });
                     grid.setWidget(0, 1, button);

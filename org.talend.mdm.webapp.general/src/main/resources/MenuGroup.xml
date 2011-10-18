@@ -9,6 +9,7 @@
   <item>browserecords.BrowseRecords</item>
   <item>hierarchy.Hierarchy</item>
   <item>updatereport.UpdateReport</item>
+  <item>search.Search</item>
  </groupitem>
  
   <groupitem en="Govern" fr="Gouvernance">
