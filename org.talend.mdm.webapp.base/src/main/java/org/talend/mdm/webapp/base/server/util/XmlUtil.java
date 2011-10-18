@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
 import java.util.ArrayList;
@@ -240,7 +241,7 @@ public final class XmlUtil {
     public static Document styleDocument(Document document, String stylesheet) throws Exception {
         // load the transformer using JAXP
         TransformerFactory factory = TransformerFactory.newInstance();
-        Transformer transformer = factory.newTransformer(new StreamSource(stylesheet));
+        Transformer transformer = factory.newTransformer(new StreamSource(new StringReader(stylesheet)));
 
         // now lets style the given document
         DocumentSource source = new DocumentSource(document);
