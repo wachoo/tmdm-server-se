@@ -2150,6 +2150,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             if (wsItem.getTaskId() != null && !"".equals(wsItem.getTaskId()) && !"null".equals(wsItem.getTaskId())) { //$NON-NLS-1$ //$NON-NLS-2$
                 itemBean.setTaskId(wsItem.getTaskId());
             }
+            itemBean.set("time", wsItem.getInsertionTime()); //$NON-NLS-1$
 
             String model = getCurrentDataModel();
             EntityModel entityModel = new EntityModel();
