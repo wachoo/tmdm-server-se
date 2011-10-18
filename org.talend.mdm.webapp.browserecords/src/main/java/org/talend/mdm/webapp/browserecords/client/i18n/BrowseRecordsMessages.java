@@ -14,9 +14,8 @@ package org.talend.mdm.webapp.browserecords.client.i18n;
 
 import com.google.gwt.i18n.client.Messages;
 
-
 /**
- * DOC Administrator  class global comment. Detailled comment
+ * DOC Administrator class global comment. Detailled comment
  */
 public interface BrowseRecordsMessages extends Messages {
 
@@ -37,29 +36,29 @@ public interface BrowseRecordsMessages extends Messages {
     String create(String thing);
 
     String delete_btn();
-    
+
     String duplicate_btn();
-    
+
     String duplicate_tip();
-    
+
     String journal_btn();
-    
+
     String journal_tip();
-    
-    String refresh_tip(); 
+
+    String refresh_tip();
 
     String button_reset();
 
     String save_btn();
-    
+
     String save_tip();
 
     String button_upload();
 
     String itemsBrowser_Import_Export();
-    
+
     String import_btn();
-    
+
     String export_btn();
 
     String page_size_label();
@@ -89,6 +88,8 @@ public interface BrowseRecordsMessages extends Messages {
     String delete_item_record_successNoupdate(String value);
 
     String save_success();
+
+    String save_error();
 
     String save_fail(String value);
 
@@ -239,43 +240,53 @@ public interface BrowseRecordsMessages extends Messages {
     String delete_record_failure();
 
     String delete_record_success();
-    
+
     String save_close_btn();
-    
+
     String save_close_tip();
-    
+
     String upload_title();
-    
+
     String label_combo_filetype_select();
-    
+
     String label_field_file();
-    
+
     String label_field_filetype();
-    
+
     String label_field_separator();
-    
+
     String label_field_delimiter();
-    
+
     String label_field_header_first();
-    
+
     String label_field_encoding();
-    
+
     String label_button_submit();
-    
+
     String error_incompatible_file_type();
-    
+
     String import_progress_bar_title();
-    
+
     String import_progress_bar_message();
-    
+
     String import_progress_bar_laod();
-    
+
     String launch_process_tooltip();
 
+    String process_failed();
+
+    String process_done();
+
+    String process_progress_bar_title();
+
+    String process_progress_bar_message();
+
+    String process_select();
+
     String fk_integrity_fail_open_relations();
-    
+
     String relations_btn();
-    
+
     String relations_tooltip();
 
     String fk_integrity_fail_override();
@@ -307,13 +318,13 @@ public interface BrowseRecordsMessages extends Messages {
     String browse_record_title();
 
     String auto();
-    
+
     String message_validate_title();
-    
+
     String message_validate_min_occurence(int value);
-    
+
     String message_validate_max_occurence(int value);
-    
+
     String open_task();
 
     String add_btn();
@@ -325,7 +336,7 @@ public interface BrowseRecordsMessages extends Messages {
     String fk_validate_min_occurence(String name, int value);
 
     String fk_validate_max_occurence(String name, int value);
-    
+
     String import_success_label();
 
     String fk_edit_failure();

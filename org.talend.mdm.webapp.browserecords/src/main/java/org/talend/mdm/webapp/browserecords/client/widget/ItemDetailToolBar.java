@@ -103,7 +103,7 @@ public class ItemDetailToolBar extends ToolBar {
     private ItemBean itemBean;
 
     private ViewBean viewBean;
-    
+
     private String operation;
 
     private boolean isFkToolBar;
@@ -113,11 +113,11 @@ public class ItemDetailToolBar extends ToolBar {
     private ItemBaseModel selectItem;
 
     private Button taskButton;
-    
+
     private Menu deleteMenu;
-    
+
     private MenuItem delete_SendToTrash;
-    
+
     private MenuItem delete_Delete;
 
     public ItemDetailToolBar() {
@@ -140,21 +140,21 @@ public class ItemDetailToolBar extends ToolBar {
         this.viewBean = viewBean;
         initToolBar();
     }
-    
-    private void checkEntitlement(ViewBean viewBean){
-        if(deleteButton == null)
+
+    private void checkEntitlement(ViewBean viewBean) {
+        if (deleteButton == null)
             return;
         String concept = this.itemBean.getConcept();
         boolean denyLogicalDelete = viewBean.getBindingEntityModel().getMetaDataTypes().get(concept).isDenyLogicalDeletable();
         boolean denyPhysicalDelete = viewBean.getBindingEntityModel().getMetaDataTypes().get(concept).isDenyPhysicalDeleteable();
-        
+
         if (denyLogicalDelete && denyPhysicalDelete)
             deleteButton.setEnabled(false);
-        else{
+        else {
             deleteButton.setEnabled(true);
-            if(denyLogicalDelete)
+            if (denyLogicalDelete)
                 delete_SendToTrash.setEnabled(false);
-            if(denyPhysicalDelete)
+            if (denyPhysicalDelete)
                 delete_Delete.setEnabled(false);
         }
     }
@@ -501,12 +501,14 @@ public class ItemDetailToolBar extends ToolBar {
                                 @Override
                                 public void componentSelected(ButtonEvent ce) {
                                     if (selectItem == null) {
-                                        MessageBox.alert(MessagesFactory.getMessages().warning_title(),
-                                                "Please select a process first!", null); //$NON-NLS-1$
+                                        MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory
+                                                .getMessages().process_select(), null);
                                         return;
                                     }
-                                    final MessageBox waitBar = MessageBox.wait("Processing", "Processing, please wait...", //$NON-NLS-1$ //$NON-NLS-2$
-                                            "Processing..."); //$NON-NLS-1$
+                                    final MessageBox waitBar = MessageBox.wait(MessagesFactory.getMessages()
+                                            .process_progress_bar_title(), MessagesFactory.getMessages()
+                                            .process_progress_bar_message(), MessagesFactory.getMessages()
+                                            .process_progress_bar_title() + "..."); //$NON-NLS-1$
                                     String[] ids = itemBean.getIds().split("@"); //$NON-NLS-1$
 
                                     service.processItem(itemBean.getConcept(), ids,
@@ -515,10 +517,18 @@ public class ItemDetailToolBar extends ToolBar {
                                                 public void onSuccess(String result) {
                                                     waitBar.close();
                                                     if (result.indexOf("Ok") >= 0) { //$NON-NLS-1$
-                                                        MessageBox.alert("Status", "Process done!", null);  //$NON-NLS-1$//$NON-NLS-2$
+                                                        MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory
+                                                                .getMessages().process_done(), null);
                                                     } else {
-                                                        MessageBox.alert("Status", "Process failed!", null); //$NON-NLS-1$ //$NON-NLS-2$
+                                                        MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory
+                                                                .getMessages().process_failed(), null);
                                                     }
+                                                }
+
+                                                @Override
+                                                protected void doOnFailure(Throwable caught) {
+                                                    waitBar.close();
+                                                    super.doOnFailure(caught);
                                                 }
                                             });
                                 }
@@ -541,7 +551,8 @@ public class ItemDetailToolBar extends ToolBar {
                         ItemPanel itemPanel = (ItemPanel) ItemsDetailPanel.getInstance().getTabPanel().getItem(0).getWidget(0);
                         itemPanel.getTree().setVisible(false);
                         itemPanel.getSmartPanel().setVisible(true);
-                        ItemsDetailPanel.getInstance().getTabPanel().setSelection(ItemsDetailPanel.getInstance().getTabPanel().getItem(0));
+                        ItemsDetailPanel.getInstance().getTabPanel()
+                                .setSelection(ItemsDetailPanel.getInstance().getTabPanel().getItem(0));
                     }
                 }
 
@@ -556,14 +567,15 @@ public class ItemDetailToolBar extends ToolBar {
             generatedviewButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                 @Override
-                public void componentSelected(ButtonEvent ce) {  
+                public void componentSelected(ButtonEvent ce) {
                     updateViewToolBar();
                     if (ItemsDetailPanel.getInstance().getTabPanel().getItem(0).getWidget(0) instanceof ItemPanel) {
                         ItemPanel itemPanel = (ItemPanel) ItemsDetailPanel.getInstance().getTabPanel().getItem(0).getWidget(0);
                         itemPanel.getTree().setVisible(true);
                         itemPanel.getSmartPanel().setVisible(false);
-                        ItemsDetailPanel.getInstance().getTabPanel().setSelection(ItemsDetailPanel.getInstance().getTabPanel().getItem(0));
-                    }                 
+                        ItemsDetailPanel.getInstance().getTabPanel()
+                                .setSelection(ItemsDetailPanel.getInstance().getTabPanel().getItem(0));
+                    }
                 }
 
             });
@@ -590,8 +602,8 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private native boolean initDSC(String taskId)/*-{
-        $wnd.amalto.datastewardship.Datastewardship.taskItem(taskId);
-        return true;
+		$wnd.amalto.datastewardship.Datastewardship.taskItem(taskId);
+		return true;
     }-*/;
 
     public void initSmartViewToolBar() {
@@ -608,38 +620,38 @@ public class ItemDetailToolBar extends ToolBar {
         this.addFreshButton();
         this.addWorkFlosCombo();
     }
-    
+
     private void updateSmartViewToolBar() {
         List<TabItem> itemList = ItemsDetailPanel.getInstance().getTabPanel().getItems();
-        for(TabItem item : itemList){
-            if(item.getWidget(0) instanceof ItemPanel){
-                ItemPanel itemPanel = (ItemPanel)item.getWidget(0);
+        for (TabItem item : itemList) {
+            if (item.getWidget(0) instanceof ItemPanel) {
+                ItemPanel itemPanel = (ItemPanel) item.getWidget(0);
                 ItemDetailToolBar toolbar = itemPanel.getToolBar();
-                
-                if(toolbar.getOperation().equals(ItemDetailToolBar.VIEW_OPERATION)){
+
+                if (toolbar.getOperation().equals(ItemDetailToolBar.VIEW_OPERATION)) {
                     toolbar.removeAll();
                     toolbar.initSmartViewToolBar();
                     toolbar.setOperation(ItemDetailToolBar.SMARTVIEW_OPERATION);
                     toolbar.layout(true);
-                }        
+                }
             }
         }
     }
 
     private void updateViewToolBar() {
         List<TabItem> itemList = ItemsDetailPanel.getInstance().getTabPanel().getItems();
-        for(TabItem item : itemList){
-            if(item.getWidget(0) instanceof ItemPanel){
-                ItemPanel itemPanel = (ItemPanel)item.getWidget(0);
+        for (TabItem item : itemList) {
+            if (item.getWidget(0) instanceof ItemPanel) {
+                ItemPanel itemPanel = (ItemPanel) item.getWidget(0);
                 ItemDetailToolBar toolbar = itemPanel.getToolBar();
-                
-                if(toolbar.getOperation().equals(ItemDetailToolBar.SMARTVIEW_OPERATION)){
+
+                if (toolbar.getOperation().equals(ItemDetailToolBar.SMARTVIEW_OPERATION)) {
                     ItemsDetailPanel.getInstance().getTabPanel().setSelection(item);
                     toolbar.removeAll();
                     toolbar.initViewToolBar();
                     toolbar.setOperation(ItemDetailToolBar.VIEW_OPERATION);
                     toolbar.layout(true);
-                }        
+                }
             }
         }
     }
@@ -724,16 +736,18 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private native boolean initJournal(String ids, String concept)/*-{
-        $wnd.amalto.updatereport.UpdateReport.browseUpdateReportWithSearchCriteria(concept, ids, true);
-        return true;
+		$wnd.amalto.updatereport.UpdateReport
+				.browseUpdateReportWithSearchCriteria(concept, ids, true);
+		return true;
     }-*/;
 
     // Please note that this method is duplicated in
     // org.talend.mdm.webapp.browserecords.client.widget.integrity.SingletonDeleteStrategy.initSearchEntityPanel()
     private native boolean initSearchEntityPanel(String arrStr, String ids, String dataObject)/*-{
-        var lineageEntities = arrStr.split(",");
-        $wnd.amalto.itemsbrowser.ItemsBrowser.lineageItem(lineageEntities, ids, dataObject);
-        return true;
+		var lineageEntities = arrStr.split(",");
+		$wnd.amalto.itemsbrowser.ItemsBrowser.lineageItem(lineageEntities, ids,
+				dataObject);
+		return true;
     }-*/;
 
     public static void addTreeDetail(String ids, final String concept) {
@@ -743,14 +757,16 @@ public class ItemDetailToolBar extends ToolBar {
 
             public void onSuccess(final ItemBean item) {
                 brService.getView("Browse_items_" + concept, Locale.getLanguage(), new SessionAwareAsyncCallback<ViewBean>() { //$NON-NLS-1$
-                    
-                    public void onSuccess(ViewBean viewBean) {
-                        ItemPanel itemPanel = new ItemPanel(viewBean, item, ItemDetailToolBar.VIEW_OPERATION);
-                        ItemsDetailPanel.getInstance().addTabItem(
-                                item.getConcept() + " " + item.getIds(), itemPanel, ItemsDetailPanel.MULTIPLE, item.getIds()); //$NON-NLS-1$
-                    }
-                    
-                }); 
+
+                            public void onSuccess(ViewBean viewBean) {
+                                ItemPanel itemPanel = new ItemPanel(viewBean, item, ItemDetailToolBar.VIEW_OPERATION);
+                                ItemsDetailPanel
+                                        .getInstance()
+                                        .addTabItem(
+                                                item.getConcept() + " " + item.getIds(), itemPanel, ItemsDetailPanel.MULTIPLE, item.getIds()); //$NON-NLS-1$
+                            }
+
+                        });
             }
         });
     }
@@ -764,7 +780,7 @@ public class ItemDetailToolBar extends ToolBar {
         AppEvent app = new AppEvent(BrowseRecordsEvents.SaveItem);
         ItemNodeModel model = null;
         ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
-        if (widget instanceof ItemPanel) {// save primary key            
+        if (widget instanceof ItemPanel) {// save primary key
             ItemPanel itemPanel = (ItemPanel) tabItem.getWidget(0);
             if (itemPanel.getTree().validateTree()) {
                 validate = true;
@@ -778,9 +794,8 @@ public class ItemDetailToolBar extends ToolBar {
             if (fkDetail.validateTree()) {
                 validate = true;
                 model = fkDetail.getRootModel();
-                app
-                        .setData(
-                                "ItemBean", fkDetail.isCreate() ? new ItemBean(fkDetail.getViewBean().getBindingEntityModel().getConceptName(), "", "") : itemBean); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                app.setData(
+                        "ItemBean", fkDetail.isCreate() ? new ItemBean(fkDetail.getViewBean().getBindingEntityModel().getConceptName(), "", "") : itemBean); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 app.setData("isCreate", fkDetail.isCreate()); //$NON-NLS-1$
             }
         }
@@ -790,7 +805,7 @@ public class ItemDetailToolBar extends ToolBar {
         if (validate) {
             dispatch.dispatch(app);
         } else {
-            MessageBox.alert(MessagesFactory.getMessages().error_title(), "save failure", null); //$NON-NLS-1$
+            MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().save_error(), null);
         }
     }
 
@@ -798,7 +813,6 @@ public class ItemDetailToolBar extends ToolBar {
         this.selectItem = selectItem;
     }
 
-    
     public String getOperation() {
         return operation;
     }
@@ -807,7 +821,6 @@ public class ItemDetailToolBar extends ToolBar {
         return itemBean;
     }
 
-    
     public void setOperation(String operation) {
         this.operation = operation;
     }

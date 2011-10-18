@@ -119,8 +119,7 @@ public class ForeignKeyUtil {
                         }
                     });
         } else {
-            MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().save_btn() + " " //$NON-NLS-1$
-                    + MessagesFactory.getMessages().message_fail(), null);
+            MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().save_error(), null);
         }
     }
 

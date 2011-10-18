@@ -435,11 +435,8 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                         }
 
                     } else {
-                        // com.google.gwt.user.client.Window.alert(node.getBindingPath()
-                        //                                + "/" + node.getName() + "'Value validate failure"); //$NON-NLS-1$ //$NON-NLS-2$
-                        // Message tip should use gxt's messageBox, but not com.google.gwt.user.client.Window
                         MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                node.getBindingPath() + "/" + node.getName() + "'Value validate failure", null); //$NON-NLS-1$//$NON-NLS-2$
+                                node.getBindingPath() + '/' + node.getName() + MessagesFactory.getMessages().message_validate_title(), null);
                         flag = false;
                     }
 

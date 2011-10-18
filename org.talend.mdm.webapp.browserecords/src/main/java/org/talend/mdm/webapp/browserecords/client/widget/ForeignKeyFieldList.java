@@ -398,8 +398,8 @@ public class ForeignKeyFieldList extends ContentPanel {
             refreshPage(this.getPageCount());
             this.refresh();
         } else {
-            MessageBox.alert(MessagesFactory.getMessages().error_title(), "Max occurence is " + typeModel.getMaxOccurs(), //$NON-NLS-1$
-                    null);
+            MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                    .message_validate_max_occurence(typeModel.getMaxOccurs()), null);
         }
     }
 
@@ -453,7 +453,8 @@ public class ForeignKeyFieldList extends ContentPanel {
             public void componentSelected(ButtonEvent ce) {
 
                 if (fields.size() < typeModel.getMinOccurs()) {
-                    MessageBox.alert(MessagesFactory.getMessages().error_title(), "Min occurence is " + typeModel.getMinOccurs(), //$NON-NLS-1$
+                    MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                            .message_validate_min_occurence(typeModel.getMinOccurs()),
                             null);
                 } else {
                     removeForeignKeyWidget(foreignKeyBeans.get(i));
