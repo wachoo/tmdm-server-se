@@ -922,78 +922,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return doc;
     }
 
-    public String saveItemBean(ItemBean item) throws ServiceException {
-        try {
-            String message = null;
-            // if update, check the item is modified by others?
-            WSPutItemWithReport wsPutItemWithReport = new WSPutItemWithReport(new WSPutItem(new WSDataClusterPK(
-                    getCurrentDataCluster()), item.getItemXml(), new WSDataModelPK(getCurrentDataModel()), true),
-                    "genericUI", true); //$NON-NLS-1$
-            CommonUtil.getPort().putItemWithReport(wsPutItemWithReport);
-
-            if (com.amalto.webapp.core.util.Util.isTransformerExist("beforeSaving_" + item.getConcept())) { //$NON-NLS-1$
-                String outputErrorMessage = wsPutItemWithReport.getSource();
-                String errorCode = null;
-                if (outputErrorMessage != null) {
-                    org.w3c.dom.Document doc = com.amalto.webapp.core.util.Util.parse(outputErrorMessage);
-                    // TODO what if multiple error nodes ?
-                    String xpath = "//report/message"; //$NON-NLS-1$
-                    org.w3c.dom.NodeList checkList = com.amalto.webapp.core.util.Util.getNodeList(doc, xpath);
-                    org.w3c.dom.Node errorNode = null;
-                    if (checkList != null && checkList.getLength() > 0)
-                        errorNode = checkList.item(0);
-                    if (errorNode != null && errorNode instanceof org.w3c.dom.Element) {
-                        org.w3c.dom.Element errorElement = (org.w3c.dom.Element) errorNode;
-                        errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
-                        org.w3c.dom.Node child = errorElement.getFirstChild();
-                        if (child instanceof org.w3c.dom.Text) {
-                            message = child.getTextContent();
-                        }
-                    }
-                }
-
-                if ("info".equals(errorCode)) { //$NON-NLS-1$
-                    if (message == null || message.length() == 0)
-                        message = MESSAGES.getMessage("save_process_validation_success"); //$NON-NLS-1$
-                } else {
-                    // Anything but 0 is unsuccessful
-                    if (message == null || message.length() == 0)
-                        message = MESSAGES.getMessage("save_process_validation_failure"); //$NON-NLS-1$
-                    throw new ServiceException(message);
-                }
-            } else {
-                message = MESSAGES.getMessage("save_record_success"); //$NON-NLS-1$
-            }
-            return message;
-        } catch (ServiceException e) {
-            LOG.error(e.getMessage(), e);
-            throw e;
-        } catch (Exception e) {
-            // TODO UGLY!!!! to be refactored
-            ServiceException serviceException;
-            if (e.getLocalizedMessage().indexOf("routing failed:") == 0) {
-                String saveSUCCE = "Save item '" + item.getConcept() + "."
-                        + com.amalto.webapp.core.util.Util.joinStrings(convertIds(item.getIds()), ".") + "' successfully, But "
-                        + e.getLocalizedMessage();
-                serviceException = new ServiceException(saveSUCCE);
-            } else {
-                String err = "Unable to save item '" + item.getConcept() + "."
-                        + com.amalto.webapp.core.util.Util.joinStrings(convertIds(item.getIds()), ".") + "'"
-                        + e.getLocalizedMessage();
-                if (e.getLocalizedMessage().indexOf("ERROR_3:") == 0) {
-                    err = e.getLocalizedMessage();
-                }
-                // add feature TMDM-2327 SAXException:cvc-complex-type.2.4.b message transform
-                if (e.getLocalizedMessage().indexOf("cvc-complex-type.2.4.b") != -1) { //$NON-NLS-1$
-                    err = "Unable to save item,before saving the '" + item.getConcept() //$NON-NLS-1$
-                            + "' item,please fill the required field's contents"; //$NON-NLS-1$
-                }
-                serviceException = new ServiceException(err);
-            }
-            throw serviceException;
-        }
-    }
-
     private static String[] convertIds(String ids) {
         String patternStr = "\\[.*\\]"; //$NON-NLS-1$
         Pattern idsPattern = Pattern.compile(patternStr);
@@ -1613,6 +1541,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
+    public String saveItemBean(ItemBean item) throws ServiceException {
+        return saveItem(item.getConcept(), item.getIds(), item.getItemXml(), true, null);
+    }
+
     public String saveItem(String concept, String ids, String xml, boolean isCreate, String language) throws ServiceException {
 
         try {
@@ -1640,8 +1572,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
                         org.w3c.dom.Node child = errorElement.getFirstChild();
                         if (child instanceof org.w3c.dom.Text) {
-                            Pattern p = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL);//$NON-NLS-1$//$NON-NLS-2$
-                            message = p.matcher(child.getTextContent()).replaceAll("$1");//$NON-NLS-1$                           
+                            if (language == null)
+                                message = child.getTextContent();
+                            else {
+                                Pattern p = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL);//$NON-NLS-1$//$NON-NLS-2$
+                                message = p.matcher(child.getTextContent()).replaceAll("$1");//$NON-NLS-1$  
+                            }
                         }
                     }
                 }
