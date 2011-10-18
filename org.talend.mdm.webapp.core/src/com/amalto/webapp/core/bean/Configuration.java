@@ -133,6 +133,10 @@ public class Configuration {
     }
 
     private static synchronized void store(String cluster, String model) throws Exception {
+        if (cluster == null)
+            throw new Exception("User does not have access to the container!");
+        else if (model == null)
+            throw new Exception("User does not have access to the model!");
         String xml = Util.getAjaxSubject().getXml();
         Document d = Util.parse(xml);
         NodeList nodeList = Util.getNodeList(d, "//property"); //$NON-NLS-1$
