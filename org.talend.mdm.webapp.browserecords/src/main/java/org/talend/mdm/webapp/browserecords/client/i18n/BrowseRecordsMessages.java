@@ -90,8 +90,6 @@ public interface BrowseRecordsMessages extends Messages {
 
     String save_success();
 
-    String save_successEx(String value, String msg);
-
     String save_fail(String value);
 
     String save_failEx(String value);
@@ -135,14 +133,6 @@ public interface BrowseRecordsMessages extends Messages {
     String fk_RelatedRecord();
 
     String label_select_type();
-
-    String exception_parse_illegalChar(int beginIndex);
-
-    String exception_parse_unknownOperator(String value);
-
-    String exception_parse_missEndBlock(char endBlock, int i);
-
-    String exception_parse_tooManyEndBlock(char endBlock, int i);
 
     String criteria_CONTAINS();
 
