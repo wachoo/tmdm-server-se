@@ -2121,13 +2121,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     String xpath = iterator.next();
                     String firstValue = Util.getFirstTextNode(jobDoc, searchPrefix + xpath);// FIXME:use first node
                     if (null != firstValue && firstValue.length() != 0) {
-                        // XObject xObjectWSItem = XPathAPI.eval(wsItemDoc, xpath, wsItemDoc);
-                        // if (xObjectWSItem != null) {
-                        // NodeList wSItemNodes = xObjectWSItem.nodelist();
-                        // if (wSItemNodes.item(0) != null) {
-                        // wSItemNodes.item(0).setTextContent(firstValue);
-                        // }
-                        // }
+                        NodeList list = Util.getNodeList(wsItemDoc, "/" + xpath); //$NON-NLS-1$
+                        if (list != null && list.getLength() > 0) {
+                            list.item(0).setTextContent(firstValue);
+                        }
                     }
                 }
                 wsItem.setContent(Util.nodeToString(wsItemDoc));

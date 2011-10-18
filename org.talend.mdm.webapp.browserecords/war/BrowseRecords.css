@@ -78,3 +78,7 @@ a{
 	font: 12px tahoma, verdana, helvetica;	
 }
 
+.rootNode{
+	display :none;
+}
+

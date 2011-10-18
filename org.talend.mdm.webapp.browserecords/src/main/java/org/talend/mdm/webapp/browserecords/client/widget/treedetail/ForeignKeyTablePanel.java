@@ -288,7 +288,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             fkModels.add(newFkModel);
             parent.setChangeValue(true);
             grid.getView().layout();
-            pagingBar.last();
+            pagingBar.refresh();
         } else {
             // maxOccurs tip
             MessageBox.alert(
