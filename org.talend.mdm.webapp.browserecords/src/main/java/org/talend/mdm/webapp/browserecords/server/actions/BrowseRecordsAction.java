@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -36,7 +37,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.Locale;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -681,6 +681,20 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     }
                 }
             }
+        }
+    }
+
+    public EntityModel getEntityModel(String concept, String language) throws ServiceException {
+        try {
+            // bind entity model
+            String model = getCurrentDataModel();
+            EntityModel entityModel = new EntityModel();
+            DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
+            DataModelHelper.handleDefaultValue(entityModel);
+            return entityModel;
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
         }
     }
 

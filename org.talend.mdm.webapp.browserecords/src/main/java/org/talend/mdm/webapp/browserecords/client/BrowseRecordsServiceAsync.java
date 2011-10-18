@@ -116,4 +116,6 @@ public interface BrowseRecordsServiceAsync {
     void saveFkItem(String concept, String ids, Map<String, String> changedNodes, String language, AsyncCallback<String> callback);
 
     void formatValue(FormatModel model, AsyncCallback<String> callback);
+
+    void getEntityModel(String concept, String language, AsyncCallback<EntityModel> callback);
 }

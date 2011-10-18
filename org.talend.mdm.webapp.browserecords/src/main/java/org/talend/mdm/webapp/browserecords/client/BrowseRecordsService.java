@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -59,6 +58,8 @@ public interface BrowseRecordsService extends RemoteService {
 
     ForeignKeyDrawer switchForeignKeyType(String targetEntityType, String xpathForeignKey, String xpathInfoForeignKey,
             String fkFilter) throws ServiceException;
+
+    EntityModel getEntityModel(String concept, String language) throws ServiceException;
 
     ViewBean getView(String viewPk, String language) throws ServiceException;
 
