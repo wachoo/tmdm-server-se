@@ -24,8 +24,7 @@ import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.extjs.gxt.ui.client.widget.custom.Portlet;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -99,20 +98,20 @@ public class MainFramePanel extends Portal {
                     set.removeAll();
                     Grid grid = new Grid(1, 2);
                     final TextBox textBox = new TextBox();
+                    textBox.addKeyUpHandler(new KeyUpHandler() {
+                        public void onKeyUp(KeyUpEvent keyUpEvent) {
+                            if (keyUpEvent.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+                                doSearch(textBox);
+                            }
+                        }
+                    });
                     grid.setWidget(0, 0, textBox);
 
                     Button button = new Button(MessagesFactory.getMessages().search_button_text());
                     button.addSelectionListener(new SelectionListener<ButtonEvent>() {
                         @Override
                         public void componentSelected(ButtonEvent buttonEvent) {
-                            // TODO TMDM-2598 Temp code (how to pass a parameter to an application?).
-                            if (Cookies.isCookieEnabled()) {
-                                Cookies.setCookie("org.talend.mdm.search.query", textBox.getText()); //$NON-NLS-1$
-                            } else {
-                                MessageBox.alert("Notice", "Cookies not supported!", null); //$NON-NLS-1$ //$NON-NLS-2$
-                            }
-
-                            itemClick("search", "Search"); //$NON-NLS-1$ //$NON-NLS-2$
+                            doSearch(textBox);
                         }
                     });
                     grid.setWidget(0, 1, button);
@@ -122,6 +121,14 @@ public class MainFramePanel extends Portal {
                 }
             }
         });
+    }
+
+    private void doSearch(TextBox textBox) {
+        // TODO TMDM-2598 Temp code (how to pass a parameter to an application?).
+        if (Cookies.isCookieEnabled()) {
+            Cookies.setCookie("org.talend.mdm.search.query", textBox.getText()); //$NON-NLS-1$
+        }
+        itemClick("search", "Search"); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     private void applyStartPortlet(Portlet start) {
