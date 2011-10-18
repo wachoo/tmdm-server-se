@@ -1,5 +1,6 @@
 package org.talend.mdm.webapp.browserecords.client.widget.inputfield;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.model.FormatModel;
@@ -7,11 +8,9 @@ import org.talend.mdm.webapp.browserecords.client.util.Locale;
 
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class FormatNumberField extends NumberField {
 
@@ -120,15 +119,11 @@ public class FormatNumberField extends NumberField {
 
             if (formatPattern != null) {
                 FormatModel model = new FormatModel(formatPattern, d, Locale.getLanguage());
-                service.formatValue(model, new AsyncCallback<String>() {
+                service.formatValue(model, new SessionAwareAsyncCallback<String>() {
 
                     public void onSuccess(String result) {
                         setDiplayValue(result);
                         setRawValue(result);
-                    }
-
-                    public void onFailure(Throwable caught) {
-
                     }
                 });
 

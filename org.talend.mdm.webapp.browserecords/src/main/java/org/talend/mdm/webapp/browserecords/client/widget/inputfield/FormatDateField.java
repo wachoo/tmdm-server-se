@@ -2,6 +2,7 @@ package org.talend.mdm.webapp.browserecords.client.widget.inputfield;
 
 import java.util.Date;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.model.FormatModel;
@@ -9,11 +10,9 @@ import org.talend.mdm.webapp.browserecords.client.util.Locale;
 
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class FormatDateField extends DateField {
 
@@ -107,19 +106,15 @@ public class FormatDateField extends DateField {
                 return false;
             }
 
-            this.setOjbectValue(date);            
+            this.setOjbectValue(date);
 
             if (formatPattern != null) {
                 FormatModel model = new FormatModel(formatPattern, date, Locale.getLanguage());
-                service.formatValue(model, new AsyncCallback<String>() {
+                service.formatValue(model, new SessionAwareAsyncCallback<String>() {
 
                     public void onSuccess(String result) {
                         setDiplayValue(result);
                         setRawValue(result);
-                    }
-
-                    public void onFailure(Throwable caught) {
-
                     }
                 });
 
