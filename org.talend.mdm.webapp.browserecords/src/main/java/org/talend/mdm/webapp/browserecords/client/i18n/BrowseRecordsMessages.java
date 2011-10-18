@@ -262,8 +262,6 @@ public interface BrowseRecordsMessages extends Messages {
     
     String label_button_submit();
     
-    String label_true();
-    
     String error_incompatible_file_type();
     
     String import_progress_bar_title();

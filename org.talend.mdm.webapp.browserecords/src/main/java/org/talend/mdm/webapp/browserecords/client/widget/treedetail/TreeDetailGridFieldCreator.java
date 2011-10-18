@@ -250,7 +250,6 @@ public class TreeDetailGridFieldCreator {
             field = numberField;
         } else if (DataTypeConstants.BOOLEAN.getTypeName().equals(baseType)) {
             CheckBox checkBox = new CheckBox();
-            checkBox.setBoxLabel(MessagesFactory.getMessages().label_true());
             checkBox.setValue((value.toString().equals("true") || value.equals(true)) ? true : false); //$NON-NLS-1$
             field = checkBox;
         } else if (DataTypeConstants.DATE.getTypeName().equals(baseType)) {
