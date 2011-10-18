@@ -159,7 +159,8 @@ public class CustomFormCtrlBean implements SessionBean {
             for (ObjectPOJOPK pk : c) {
                 CustomFormPOJO pojo = ObjectPOJO.load(CustomFormPOJO.class, pk);
                 HashSet<String> roles = LocalUser.getLocalUser().getRoles();
-                if (roles.contains(pojo.getRole())) {
+                if (roles.contains(pojo.getRole()) && pojo.getDatamodel().equals(cpk.getDatamodel())
+                        && pojo.getEntity().equals(cpk.getEntity())) {
                     list.add(pojo);
                 }
             }
