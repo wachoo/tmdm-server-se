@@ -26,6 +26,7 @@ import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -104,6 +105,13 @@ public class MainFramePanel extends Portal {
                     button.addSelectionListener(new SelectionListener<ButtonEvent>() {
                         @Override
                         public void componentSelected(ButtonEvent buttonEvent) {
+                            // TODO TMDM-2598 Temp code (how to pass a parameter to an application?).
+                            if (Cookies.isCookieEnabled()) {
+                                Cookies.setCookie("org.talend.mdm.search.query", textBox.getText()); //$NON-NLS-1$
+                            } else {
+                                MessageBox.alert("Notice", "Cookies not supported!", null); //$NON-NLS-1$ //$NON-NLS-2$
+                            }
+
                             itemClick("search", "Search"); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                     });
