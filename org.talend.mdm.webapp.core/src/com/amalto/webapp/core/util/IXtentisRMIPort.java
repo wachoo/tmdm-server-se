@@ -28,9 +28,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.naming.InitialContext;
 import javax.naming.NameClassPair;
@@ -2223,8 +2223,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                     new DataModelPOJOPK(wsPutItem.getWsDataModelPK().getPk()));
             Document schema = Util.parseXSD(dataModel.getSchema());
             XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(schema, concept);
-            // validate the xmlString according to schema
-            Util.validate(root, dataModel.getSchema());
+
             // get key values
             String[] ids = com.amalto.core.util.Util.getKeyValuesFromItem(root, conceptKey);
             DataClusterPOJOPK dcpk = new DataClusterPOJOPK(wsPutItem.getWsDataClusterPK().getPk());
