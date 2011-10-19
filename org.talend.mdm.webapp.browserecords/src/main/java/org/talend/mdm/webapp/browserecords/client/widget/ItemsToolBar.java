@@ -345,31 +345,31 @@ public class ItemsToolBar extends ToolBar {
         MenuItem importMenu = new MenuItem(MessagesFactory.getMessages().import_btn());
         importMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
         uploadMenu.add(importMenu);
-        
+
         importMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
 
             @Override
             public void componentSelected(MenuEvent ce) {
-                final Window window = new Window();  
-                window.setSize(500, 260);  
-                window.setPlain(true);  
-                window.setModal(true);  
-                window.setBlinkModal(true);  
+                final Window window = new Window();
+                window.setSize(500, 260);
+                window.setPlain(true);
+                window.setModal(true);
+                window.setBlinkModal(true);
                 window.setHeading(MessagesFactory.getMessages().upload_title());
-                window.setLayout(new FitLayout()); 
+                window.setLayout(new FitLayout());
                 window.setClosable(true);
-                
+
                 ViewBean viewBean = BrowseRecords.getSession().getCurrentView();
                 UploadFileFormPanel formPanel = new UploadFileFormPanel(viewBean, window);
                 window.add(formPanel);
                 window.show();
             }
         });
-        
+
         MenuItem exportMenu = new MenuItem(MessagesFactory.getMessages().export_btn());
         exportMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
         uploadMenu.add(exportMenu);
-        
+
         exportMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
 
             @Override
@@ -378,17 +378,17 @@ public class ItemsToolBar extends ToolBar {
                 List<String> viewableXpaths = viewBean.getViewableXpaths();
                 EntityModel entityModel = viewBean.getBindingEntityModel();
                 Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
-                
+
                 List<String> headerList = new ArrayList<String>();
                 List<String> xPathList = new ArrayList<String>();
-                
+
                 for (String xpath : viewableXpaths) {
                     TypeModel typeModel = dataTypes.get(xpath);
                     String header = typeModel == null ? xpath : ViewUtil.getViewableLabel(Locale.getLanguage(), typeModel);
                     headerList.add(header);
                     xPathList.add(xpath);
                 }
-                
+
                 StringBuilder url = new StringBuilder("/browserecords/download?tableName="); //$NON-NLS-1$
                 url.append(viewBean.getViewPK()).append("&header="); //$NON-NLS-1$
                 int i = 0;
@@ -411,9 +411,9 @@ public class ItemsToolBar extends ToolBar {
                 }
 
                 com.google.gwt.user.client.Window.open(url.toString(), "_parent", "location=no"); //$NON-NLS-1$ //$NON-NLS-2$
-            }            
+            }
         });
-        
+
         uploadBtn.setId("uploadMenuInGrid"); //$NON-NLS-1$
         uploadBtn.setMenu(uploadMenu);
 
@@ -426,8 +426,19 @@ public class ItemsToolBar extends ToolBar {
         RpcProxy<List<ItemBaseModel>> Entityproxy = new RpcProxy<List<ItemBaseModel>>() {
 
             @Override
-            public void load(Object loadConfig, AsyncCallback<List<ItemBaseModel>> callback) {
-                service.getViewsList(Locale.getLanguage(), callback);
+            public void load(Object loadConfig, final AsyncCallback<List<ItemBaseModel>> callback) {
+                service.getViewsList(Locale.getLanguage(), new SessionAwareAsyncCallback<List<ItemBaseModel>>() {
+
+                    @Override
+                    protected void doOnFailure(Throwable caught) {
+                        super.doOnFailure(caught);
+                        callback.onFailure(caught);
+                    }
+
+                    public void onSuccess(List<ItemBaseModel> result) {
+                        callback.onSuccess(result);
+                    }
+                });
             }
         };
 
@@ -558,9 +569,20 @@ public class ItemsToolBar extends ToolBar {
                 RpcProxy<PagingLoadResult<ItemBaseModel>> proxyBookmark = new RpcProxy<PagingLoadResult<ItemBaseModel>>() {
 
                     @Override
-                    public void load(Object loadConfig, AsyncCallback<PagingLoadResult<ItemBaseModel>> callback) {
+                    public void load(Object loadConfig, final AsyncCallback<PagingLoadResult<ItemBaseModel>> callback) {
                         service.querySearchTemplates(entityCombo.getValue().get("value").toString(), true, //$NON-NLS-1$
-                                (PagingLoadConfig) loadConfig, callback);
+                                (PagingLoadConfig) loadConfig, new SessionAwareAsyncCallback<PagingLoadResult<ItemBaseModel>>() {
+
+                                    @Override
+                                    protected void doOnFailure(Throwable caught) {
+                                        super.doOnFailure(caught);
+                                        callback.onFailure(caught);
+                                    }
+
+                                    public void onSuccess(PagingLoadResult<ItemBaseModel> result) {
+                                        callback.onSuccess(result);
+                                    }
+                                });
                     }
                 };
 
