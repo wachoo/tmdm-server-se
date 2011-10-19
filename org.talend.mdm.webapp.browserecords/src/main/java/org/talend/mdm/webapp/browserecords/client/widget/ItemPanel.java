@@ -84,6 +84,7 @@ public class ItemPanel extends ContentPanel {
         this.setTopComponent(toolBar);
         this.setLayout(new FitLayout());
         if(!isForeignKeyPanel){
+            tree.setToolBar(toolBar);
             if (ItemDetailToolBar.CREATE_OPERATION.equals(operation)) {
                 tree.initTree(viewBean, null);
             } else if (ItemDetailToolBar.VIEW_OPERATION.equals(operation)) {
@@ -96,7 +97,6 @@ public class ItemPanel extends ContentPanel {
             } else {
                 tree.initTree(viewBean, null);
             }
-            tree.setToolBar(toolBar);
             tree.expand();
             this.add(tree);
         }else{
