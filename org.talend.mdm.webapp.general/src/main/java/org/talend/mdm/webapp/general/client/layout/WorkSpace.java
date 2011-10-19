@@ -44,10 +44,10 @@ public class WorkSpace extends LayoutContainer {
         workTabPanel.setMinTabWidth(115);
         workTabPanel.setAnimScroll(true);
         workTabPanel.setTabScroll(true);
+        workTabPanel.setCloseContextMenu(true);
         this.add(workTabPanel);
         initEvent();
     }
-
 
     public static WorkSpace getInstance() {
         if (instance == null) {
@@ -58,6 +58,7 @@ public class WorkSpace extends LayoutContainer {
 
     private void initEvent() {
         workTabPanel.addListener(Events.Resize, new Listener<BaseEvent>() {
+
             public void handleEvent(BaseEvent be) {
                 resizeUIObjects();
             }
@@ -180,7 +181,6 @@ public class WorkSpace extends LayoutContainer {
         var parentNode = uiObject.getEl().dom.parentNode;
         uiObject.setSize(parentNode.offsetWidth, parentNode.offsetHeight);
     }-*/;
-
 
     private native void renderUIObject(Element el, JavaScriptObject uiObject)/*-{
         if (!!uiObject.getXType){
