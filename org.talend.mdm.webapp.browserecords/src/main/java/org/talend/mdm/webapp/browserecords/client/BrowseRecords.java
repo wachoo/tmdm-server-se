@@ -52,14 +52,21 @@ public class BrowseRecords implements EntryPoint {
 
     private native void regItemDetails()/*-{
         $wnd.amalto.itemsbrowser.ItemsBrowser.editItemDetails = function(ids, entity, callback){
-        var idstr;
-        if(ids.length == 1){
-        idstr = ids[0];
-        }      
-        var tabPanel = $wnd.amalto.core.getTabPanel();  
-        var panel = tabPanel.getItem("Browse Records");   
-        tabPanel.setSelection(panel.getItemId());  
-        @org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar::addTreeDetail(Ljava/lang/String;Ljava/lang/String;)(idstr, entity)
+            var idstr;
+            var tabPanel = $wnd.amalto.core.getTabPanel();  
+            var panel = tabPanel.getItem("Browse Records");   
+    
+            if(panel == undefined){
+                $wnd.amalto.browserecords.BrowseRecords.init();
+                panel = tabPanel.getItem("Browse Records");  
+            }
+
+            if(ids.length == 1){
+                idstr = ids[0];
+            }
+            tabPanel.setSelection(panel.getItemId());  
+            @org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar::addTreeDetail(Ljava/lang/String;Ljava/lang/String;)(idstr, entity)
+                    
         };
     }-*/;
 
@@ -113,7 +120,8 @@ public class BrowseRecords implements EntryPoint {
                 ids.split("\\."), Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBean>() { //$NON-NLS-1$
 
                     public void onSuccess(final ItemBean item) {
-                        getItemService().getView("Browse_items_" + concept, Locale.getLanguage(), new SessionAwareAsyncCallback<ViewBean>() { //$NON-NLS-1$
+                        getItemService().getView(
+                                "Browse_items_" + concept, Locale.getLanguage(), new SessionAwareAsyncCallback<ViewBean>() { //$NON-NLS-1$
 
                                     public void onSuccess(ViewBean viewBean) {
                                         ItemPanel itemPanel = new ItemPanel(viewBean, item, ItemDetailToolBar.VIEW_OPERATION);
@@ -176,7 +184,7 @@ public class BrowseRecords implements EntryPoint {
         $wnd.amalto.browserecords.BrowseRecords = function(){
 
         function initUI(){
-        instance.@org.talend.mdm.webapp.browserecords.client.BrowseRecords::initUI()();
+            instance.@org.talend.mdm.webapp.browserecords.client.BrowseRecords::initUI()();               
         }
 
         function showTreeDetailPanel(concept, ids){
@@ -192,11 +200,11 @@ public class BrowseRecords implements EntryPoint {
 
     private native void _initUI()/*-{
         var tabPanel = $wnd.amalto.core.getTabPanel();
-        var panel = tabPanel.getItem("Browse Records"); 
+        var panel = tabPanel.getItem("Browse Records");         
         if (panel == undefined){
         @org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer::generateContentPanel()();
         panel = this.@org.talend.mdm.webapp.browserecords.client.BrowseRecords::createPanel()();
-        tabPanel.add(panel);
+        tabPanel.add(panel);        
         }
         tabPanel.setSelection(panel.getItemId());
     }-*/;
