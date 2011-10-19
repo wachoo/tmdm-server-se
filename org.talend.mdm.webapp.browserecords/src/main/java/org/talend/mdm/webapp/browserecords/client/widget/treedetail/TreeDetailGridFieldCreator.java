@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -41,6 +42,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator.Te
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.FacetEnum;
 
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -192,7 +194,7 @@ public class TreeDetailGridFieldCreator {
                 ((TextField<?>) field).getMessages().setBlankText(errorMsg);
 
         }
-        fieldMap.put(node.getBindingPath(), field);
+        fieldMap.put(node.getBindingPath() + node.getId().toString(), field);
         updateMandatory(field, node, fieldMap);
         addFieldListener(field, node, fieldMap);
         return field;
@@ -203,7 +205,6 @@ public class TreeDetailGridFieldCreator {
         return createField(node, dataType, language, fieldMap, null);
     }
 
-    @SuppressWarnings("serial")
     public static Field<?> createCustomField(Serializable value, TypeModel dataType, String language) {
         String pattern = dataType.getDisplayFomats().get("format_" + Locale.getLanguage()); //$NON-NLS-1$
         Field<?> field;
@@ -321,7 +322,6 @@ public class TreeDetailGridFieldCreator {
 
         field.addListener(Events.Attach, new Listener<FieldEvent>() {
 
-            @SuppressWarnings("rawtypes")
             public void handleEvent(FieldEvent fe) {
                 validate(field, node);
             }
@@ -329,7 +329,6 @@ public class TreeDetailGridFieldCreator {
 
         field.addListener(Events.Blur, new Listener<FieldEvent>() {
 
-            @SuppressWarnings("rawtypes")
             public void handleEvent(FieldEvent fe) {
                 if (fe.getField() instanceof FormatTextField) {
                     node.setObjectValue(((FormatTextField) fe.getField()).getOjbectValue());
@@ -362,12 +361,12 @@ public class TreeDetailGridFieldCreator {
         }
     }
 
-    private static void updateMandatory(Field<?> field, ItemNodeModel node, Map<String, Field<?>> fieldMap) {
+    public static void updateMandatory(Field<?> field, ItemNodeModel node, Map<String, Field<?>> fieldMap) {
 
         boolean flag = false;
         ItemNodeModel parent = (ItemNodeModel) node.getParent();
         if (parent != null && parent.getParent() != null && !parent.isMandatory()) {
-            List childs = parent.getChildren();
+            List<ModelData> childs = parent.getChildren();
 
             for (int i = 0; i < childs.size(); i++) {
                 ItemNodeModel child = (ItemNodeModel) childs.get(i);
@@ -376,21 +375,40 @@ public class TreeDetailGridFieldCreator {
                     break;
                 }
             }
-
+            boolean mandatory = false;
+            List<String> xpathList = new ArrayList<String>(); 
             for (int i = 0; i < childs.size(); i++) {
                 ItemNodeModel mandatoryNode = (ItemNodeModel) childs.get(i);
-                Field<?> updateField = fieldMap.get(mandatoryNode.getBindingPath());
+                String xpath = mandatoryNode.getBindingPath();
+                Field<?> updateField = fieldMap.get(xpath + mandatoryNode.getId().toString());
                 if (updateField != null && mandatoryNode.isMandatory()) {
+                    mandatory = true;
+                    if (!xpathList.contains(xpath))
+                        xpathList.add(xpath);
                     setMandatory(updateField, flag ? mandatoryNode.isMandatory() : !mandatoryNode.isMandatory());
                     mandatoryNode.setValid(updateField.validate());
                 }
             }
+            // set mandatory's node (the updateMandatory method may be optimized)
+            if (mandatory && flag) {
+                for (ModelData nodeModel : childs) {
+                    ItemNodeModel itemNode = (ItemNodeModel) nodeModel;
+                    String xpath = itemNode.getBindingPath();
+                    if (xpathList.contains(xpath) && !itemNode.isMandatory()) {
+                        Field<?> updateField = fieldMap.get(xpath + itemNode.getId().toString());
+                        setMandatory(updateField, true);
+                        itemNode.setValid(updateField.validate());
+                    }
+                }
+            }
+
 
         } else {
             setMandatory(field, node.isMandatory());
         }
     }
 
+    @SuppressWarnings("rawtypes")
     private static void setMandatory(Field<?> field, boolean mandatory) {
         if (field instanceof NumberField) {
             ((NumberField) field).setAllowBlank(!mandatory);

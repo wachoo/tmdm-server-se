@@ -122,6 +122,12 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                                         parentItem.removeItem(selected);
                                         parentModel.remove(selectedModel);
                                         occurMap.put(countMapItem, count - 1);
+                                        if (parentModel.getChildCount() > 0) {
+                                            ItemNodeModel child = (ItemNodeModel) parentModel.getChild(0);
+                                            Field<?> field = fieldMap.get(child.getBindingPath() + child.getId().toString());
+                                            if (field != null)
+                                                TreeDetailGridFieldCreator.updateMandatory(field, child, fieldMap);
+                                        }
                                     } else
                                         MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
                                                 .multiOccurrence_minimize(count), null);
