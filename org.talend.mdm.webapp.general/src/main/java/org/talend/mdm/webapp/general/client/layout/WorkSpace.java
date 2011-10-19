@@ -28,6 +28,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.SimplePanel;
 
 public class WorkSpace extends LayoutContainer {
@@ -52,6 +53,7 @@ public class WorkSpace extends LayoutContainer {
     public static WorkSpace getInstance() {
         if (instance == null) {
             instance = new WorkSpace();
+            instance.getElement().setAttribute("workspacetest", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         }
         return instance;
     }
@@ -66,6 +68,7 @@ public class WorkSpace extends LayoutContainer {
         workTabPanel.addListener(Events.Remove, new Listener<ContainerEvent>() {
 
             public void handleEvent(ContainerEvent be) {
+                Window.alert("remove");
                 uiMap.remove(((TabItem) be.getItem()).getItemId());
             }
 
@@ -167,20 +170,20 @@ public class WorkSpace extends LayoutContainer {
         }
     }
 
+
     private void resizeUIObjects() {
         TabItem item = workTabPanel.getSelectedItem();
         if (item != null) {
             JavaScriptObject uiObject = uiMap.get(item.getItemId());
             if (uiObject != null) {
-                resizeUIObject(uiObject);
+                item.layout(true);
+                resizeUIObject(uiObject, workTabPanel.getWidth(), workTabPanel.getHeight());
             }
         }
     }
 
-    native void resizeUIObject(JavaScriptObject uiObject)/*-{
-        var parentNode = uiObject.getEl().dom.parentNode;
-        if(parentNode != null)
-            uiObject.setSize(parentNode.offsetWidth, parentNode.offsetHeight);
+    native void resizeUIObject(JavaScriptObject uiObject, int width, int height)/*-{
+        uiObject.setSize(width, height);
     }-*/;
 
     private native void renderUIObject(Element el, JavaScriptObject uiObject)/*-{
@@ -199,7 +202,6 @@ public class WorkSpace extends LayoutContainer {
         uiObject.render(el);
         uiObject.setSize(el.offsetWidth, el.offsetHeight);
         uiObject.doLayout();
-                         
     }-*/;
 
     public void clearTabs() {
