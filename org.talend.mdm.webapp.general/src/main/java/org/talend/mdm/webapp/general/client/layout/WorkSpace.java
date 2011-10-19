@@ -28,7 +28,6 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.SimplePanel;
 
 public class WorkSpace extends LayoutContainer {
@@ -53,7 +52,6 @@ public class WorkSpace extends LayoutContainer {
     public static WorkSpace getInstance() {
         if (instance == null) {
             instance = new WorkSpace();
-            instance.getElement().setAttribute("workspacetest", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         }
         return instance;
     }
@@ -68,7 +66,6 @@ public class WorkSpace extends LayoutContainer {
         workTabPanel.addListener(Events.Remove, new Listener<ContainerEvent>() {
 
             public void handleEvent(ContainerEvent be) {
-                Window.alert("remove");
                 uiMap.remove(((TabItem) be.getItem()).getItemId());
             }
 
