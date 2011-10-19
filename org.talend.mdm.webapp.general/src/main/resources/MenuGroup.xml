@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<menugroup>
+<menugroup defaultLang="en">
  <groupitem en="Home" fr="Accueil">
   <item>welcomeportal.WelcomePortal</item>
   <item>recyclebin.RecycleBin</item>
