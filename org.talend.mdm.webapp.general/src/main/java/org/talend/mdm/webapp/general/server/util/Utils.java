@@ -231,6 +231,7 @@ public class Utils {
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.parse(is);
         Element root = doc.getDocumentElement();
+        String defaultLang = root.getAttribute("defaultLang"); //$NON-NLS-1$
         NodeList nodes = root.getChildNodes();
         List<GroupItem> giList = new ArrayList<GroupItem>();
         for (int i = 0; i < nodes.getLength(); i++) {
@@ -239,7 +240,10 @@ public class Utils {
                 if (node.getNodeName().equals("groupitem")) { //$NON-NLS-1$ 
                     GroupItem giNew = new GroupItem();
                     Node langNode = node.getAttributes().getNamedItem(language);
-                    giNew.setGroupHeader(langNode == null ? "" : langNode.getNodeValue()); //$NON-NLS-1$
+                    if (langNode == null) {
+                        langNode = node.getAttributes().getNamedItem(defaultLang);
+                    }
+                    giNew.setGroupHeader(langNode.getNodeValue());
                     NodeList items = node.getChildNodes();
                     List<String> menuItems = new ArrayList<String>();
                     for (int k = 0; k < items.getLength(); k++) {
