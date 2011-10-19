@@ -179,7 +179,8 @@ public class WorkSpace extends LayoutContainer {
 
     native void resizeUIObject(JavaScriptObject uiObject)/*-{
         var parentNode = uiObject.getEl().dom.parentNode;
-        uiObject.setSize(parentNode.offsetWidth, parentNode.offsetHeight);
+        if(parentNode != null)
+            uiObject.setSize(parentNode.offsetWidth, parentNode.offsetHeight);
     }-*/;
 
     private native void renderUIObject(Element el, JavaScriptObject uiObject)/*-{
@@ -198,6 +199,7 @@ public class WorkSpace extends LayoutContainer {
         uiObject.render(el);
         uiObject.setSize(el.offsetWidth, el.offsetHeight);
         uiObject.doLayout();
+                         
     }-*/;
 
     public void clearTabs() {
