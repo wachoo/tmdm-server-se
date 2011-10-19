@@ -121,6 +121,8 @@ public class TreeDetailUtil {
 
         hp.setCellWidth(label, "200px"); //$NON-NLS-1$
 
+        hp.setVisible(typeModel.isVisible());
+
         return hp;
     }
 }
