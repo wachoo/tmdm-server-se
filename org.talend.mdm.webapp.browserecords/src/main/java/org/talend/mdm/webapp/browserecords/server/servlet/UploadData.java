@@ -160,7 +160,7 @@ public class UploadData extends HttpServlet {
 
                 while (it.hasNext()) {
                     HSSFRow row = (HSSFRow) it.next();
-                    int count = row.getLastCellNum();
+                    int count = row.getPhysicalNumberOfCells();
                     if (fields.length != count) {
                         cusExceptionFlag = true;
                         throw new ServletException(MESSAGES.getMessage("error_column_width")); //$NON-NLS-1$
