@@ -52,6 +52,9 @@ public class ControllerServlet extends HttpServlet {
         
         Locale locale = LocaleUtil.getLocale(req);
         String language = locale.getLanguage();
+        // temporary
+        if (!"en".equals(language) || !"fr".equals(language)) //$NON-NLS-1$ //$NON-NLS-2$
+            language = "en"; //$NON-NLS-1$
         req.getSession().setAttribute("language", language); //$NON-NLS-1$
         res.setContentType("text/html; charset=UTF-8"); //$NON-NLS-1$
         res.setHeader("Content-Type", "text/html; charset=UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$

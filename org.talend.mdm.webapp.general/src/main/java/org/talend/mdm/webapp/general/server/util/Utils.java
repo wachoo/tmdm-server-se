@@ -238,7 +238,8 @@ public class Utils {
             if (node.getNodeType() == Node.ELEMENT_NODE) {
                 if (node.getNodeName().equals("groupitem")) { //$NON-NLS-1$ 
                     GroupItem giNew = new GroupItem();
-                    giNew.setGroupHeader(node.getAttributes().getNamedItem(language).getNodeValue());
+                    Node langNode = node.getAttributes().getNamedItem(language);
+                    giNew.setGroupHeader(langNode == null ? "" : langNode.getNodeValue()); //$NON-NLS-1$
                     NodeList items = node.getChildNodes();
                     List<String> menuItems = new ArrayList<String>();
                     for (int k = 0; k < items.getLength(); k++) {
