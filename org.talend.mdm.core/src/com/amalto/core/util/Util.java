@@ -343,8 +343,7 @@ public class Util {
         builder.setEntityResolver(new SecurityEntityResolver());
 
         // add by ymli; fix the bug:0009642:remove the null element to match the shema
-//        setNullNode(cloneNode);
-        //comment this line by hcai TMDM-2324
+        setNullNode(cloneNode);
 
         // strip of attributes
         removeAllAttribute(cloneNode, "tmdm:type"); //$NON-NLS-1$

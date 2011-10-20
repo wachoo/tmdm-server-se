@@ -65,6 +65,17 @@ public class UtilTestCase extends TestCase {
             throw new SAXException(e);
         }
 
+         // non mandontory field contains empty mandontory child fields is OK
+        String xml1 = "<Product><Picture>htt:aa</Picture><Id>id1</Id><Name>name2</Name><Description>des1</Description>"
+                + "<Features><Sizes><Size/></Sizes><Colors><Color/></Colors></Features>"
+                + "<Availability>false</Availability><Price>0.0</Price><Family></Family><OnlineStore>gg2@d</OnlineStore></Product>";
+        element = Util.parse(xml1).getDocumentElement();
+        try {
+            Util.defaultValidate(element, schema);
+        } catch (Exception e) {
+            throw new SAXException(e);
+        }
+
     }
 
     private static String getStringFromInputStream(InputStream in) throws IOException {
