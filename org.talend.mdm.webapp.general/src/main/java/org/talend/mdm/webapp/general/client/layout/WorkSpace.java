@@ -174,7 +174,7 @@ public class WorkSpace extends LayoutContainer {
             JavaScriptObject uiObject = uiMap.get(item.getItemId());
             if (uiObject != null) {
                 item.layout(true);
-                resizeUIObject(uiObject, workTabPanel.getWidth(), workTabPanel.getHeight());
+                resizeUIObject(uiObject, workTabPanel.getWidth(), item.getHeight());
             }
         }
     }
