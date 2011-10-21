@@ -1,15 +1,21 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
+
 /*
  * Generated file - Do not edit!
  */
 package org.talend.mdm.service.calljob.ejb.local;
 
-/**
- * Utility class for CallJobServiceBean.
- * @xdoclet-generated at 22-03-10
- * @copyright The XDoclet Team
- * @author XDoclet
- * @version ${version}
- */
 public class CallJobServiceBeanUtil
 {
    /** Cached local home (EJBLocalHome). Uses lazy loading to obtain its value (loaded by getLocalHome() methods). */
@@ -75,9 +81,9 @@ public class CallJobServiceBeanUtil
            hexServerIP = hexFormat(getInt(serverIP), 8);
        }
 
-       String hashcode = hexFormat(System.identityHashCode(o), 8);
+       String hashCode = hexFormat(System.identityHashCode(o), 8);
        tmpBuffer.append(hexServerIP);
-       tmpBuffer.append(hashcode);
+       tmpBuffer.append(hashCode);
 
        long timeNow      = System.currentTimeMillis();
        int timeLow       = (int)timeNow & 0xFFFFFFFF;

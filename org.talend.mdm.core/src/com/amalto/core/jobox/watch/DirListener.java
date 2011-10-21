@@ -1,3 +1,16 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
+
 /*
  * This code is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any
@@ -25,14 +38,18 @@ public interface DirListener {
 
     /**
      * Called when one of the monitored files are created, deleted or modified.
-     * 
+     *
+     * @param newFiles
+     * @param deleteFiles
+     * @param modifyFiles
      */
-    void fileChanged(List newFiles, List deleteFiles, List modifyFiles);
+    void fileChanged(List<String> newFiles, List<String> deleteFiles, List<String> modifyFiles);
 
     /**
      * Called when the job context are changed
      * 
+     * @param jobFile
      * @param context
      */
-    void contextChanged(String jobfile, String context);
+    void contextChanged(String jobFile, String context);
 }

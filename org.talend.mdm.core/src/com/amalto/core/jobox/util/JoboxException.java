@@ -1,41 +1,33 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
+
 package com.amalto.core.jobox.util;
 
-public class JoboxException extends RuntimeException{
+public class JoboxException extends RuntimeException {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1389881251234451454L;
-	/**
-	 * 
-	 */
-	public JoboxException() {
-		// TODO Auto-generated constructor stub
-	}
 
-	/**
-	 * @param message
-	 */
-	public JoboxException(String message) {
-		super(message);
-		// TODO Auto-generated constructor stub
-	}
+    JoboxException() {
+    }
 
-	/**
-	 * @param cause
-	 */
-	public JoboxException(Throwable cause) {
-		super(cause);
-		// TODO Auto-generated constructor stub
-	}
+    public JoboxException(Throwable throwable) {
+        super(throwable);
+    }
 
-	/**
-	 * @param message
-	 * @param cause
-	 */
-	public JoboxException(String message, Throwable cause) {
-		super(message, cause);
-		// TODO Auto-generated constructor stub
-	}
-
+    public JoboxException(String localizedMessage, Throwable throwable) {
+        super(localizedMessage, throwable);
+    }
 }

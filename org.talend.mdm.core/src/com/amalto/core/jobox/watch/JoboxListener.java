@@ -1,3 +1,16 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
+
 package com.amalto.core.jobox.watch;
 
 import java.io.File;
@@ -5,7 +18,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -19,14 +31,13 @@ import com.amalto.core.jobox.util.JoboxUtil;
 
 public class JoboxListener implements DirListener {
 
-    public void fileChanged(List newFiles, List deleteFiles, List modifyFiles) {
+    public void fileChanged(List<String> newFiles, List<String> deleteFiles, List<String> modifyFiles) {
 
         if (newFiles.size() > 0) {
             // new
-            for (Iterator iterator = newFiles.iterator(); iterator.hasNext();) {
-                String jobPackageName = (String) iterator.next();
+            for (String jobPackageName : newFiles) {
                 // deploy
-                JobContainer.getUniqueInstance().getJobDeploy().deploy(jobPackageName);
+                JobContainer.getUniqueInstance().getJobDeployer().deploy(jobPackageName);
                 // add to classpath
                 JobInfo jobInfo = JobContainer.getUniqueInstance().getJobAware()
                         .loadJobInfo(JoboxUtil.trimExtension(jobPackageName));
@@ -36,11 +47,10 @@ public class JoboxListener implements DirListener {
 
         if (deleteFiles.size() > 0) {
             // delete
-            for (Iterator iterator = deleteFiles.iterator(); iterator.hasNext();) {
-                String jobPackageName = (String) iterator.next();
+            for (String jobPackageName : deleteFiles) {
                 String jobEntityName = JoboxUtil.trimExtension(jobPackageName);
                 // undeploy
-                JobContainer.getUniqueInstance().getJobDeploy().undeploy(jobEntityName);
+                JobContainer.getUniqueInstance().getJobDeployer().undeploy(jobEntityName);
                 // remove classpath
                 JobContainer.getUniqueInstance().removeFromJobLoadersPool(jobEntityName);
             }
@@ -48,10 +58,9 @@ public class JoboxListener implements DirListener {
 
         if (modifyFiles.size() > 0) {
             // modify
-            for (Iterator iterator = modifyFiles.iterator(); iterator.hasNext();) {
-                String jobPackageName = (String) iterator.next();
+            for (String jobPackageName : modifyFiles) {
                 // deploy
-                JobContainer.getUniqueInstance().getJobDeploy().deploy(jobPackageName);
+                JobContainer.getUniqueInstance().getJobDeployer().deploy(jobPackageName);
                 // add to classpath
                 JobInfo jobInfo = JobContainer.getUniqueInstance().getJobAware()
                         .loadJobInfo(JoboxUtil.trimExtension(jobPackageName));
@@ -60,17 +69,17 @@ public class JoboxListener implements DirListener {
         }
     }
 
-    public void contextChanged(String entityPath, String context) {
+    public void contextChanged(String jobFile, String context) {
 
-        File entity = new File(entityPath);
-        String sourcePath = entityPath;
-        int dotMark = entityPath.lastIndexOf("."); //$NON-NLS-1$
-        int separateMark = entityPath.lastIndexOf(File.separatorChar);
+        File entity = new File(jobFile);
+        String sourcePath = jobFile;
+        int dotMark = jobFile.lastIndexOf("."); //$NON-NLS-1$
+        int separateMark = jobFile.lastIndexOf(File.separatorChar);
         if (dotMark != -1) {
-            sourcePath = System.getProperty("java.io.tmpdir") + File.separatorChar + entityPath.substring(separateMark, dotMark); //$NON-NLS-1$
+            sourcePath = System.getProperty("java.io.tmpdir") + File.separatorChar + jobFile.substring(separateMark, dotMark); //$NON-NLS-1$
         }
         try {
-            JoboxUtil.extract(entityPath, System.getProperty("java.io.tmpdir") + File.separatorChar); //$NON-NLS-1$
+            JoboxUtil.extract(jobFile, System.getProperty("java.io.tmpdir") + File.separatorChar); //$NON-NLS-1$
         } catch (Exception e1) {
             e1.printStackTrace();
             return;
@@ -85,13 +94,13 @@ public class JoboxListener implements DirListener {
                 Manifest mf = jarFile.getManifest();
 
                 jarIn = new JarInputStream(new FileInputStream(resultList.get(0)));
-                Manifest newmf = jarIn.getManifest();
-                if (newmf == null) {
-                    newmf = new Manifest();
+                Manifest newManifest = jarIn.getManifest();
+                if (newManifest == null) {
+                    newManifest = new Manifest();
                 }
-                newmf.getMainAttributes().putAll(mf.getMainAttributes());
-                newmf.getMainAttributes().putValue("activeContext", context); //$NON-NLS-1$
-                jarOut = new JarOutputStream(new FileOutputStream(resultList.get(0)), newmf);
+                newManifest.getMainAttributes().putAll(mf.getMainAttributes());
+                newManifest.getMainAttributes().putValue("activeContext", context); //$NON-NLS-1$
+                jarOut = new JarOutputStream(new FileOutputStream(resultList.get(0)), newManifest);
                 byte[] buf = new byte[4096];
                 JarEntry entry;
                 while ((entry = jarIn.getNextJarEntry()) != null) {
@@ -125,7 +134,7 @@ public class JoboxListener implements DirListener {
             if (entity.getName().endsWith(".zip")) { //$NON-NLS-1$
                 File sourceFile = new File(sourcePath);
                 try {
-                    JoboxUtil.zip(sourceFile, entityPath);
+                    JoboxUtil.zip(sourceFile, jobFile);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

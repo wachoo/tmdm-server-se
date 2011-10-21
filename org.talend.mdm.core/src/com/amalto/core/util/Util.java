@@ -2528,7 +2528,6 @@ public class Util {
                 final String RUNNING = "XtentisWSBean.executeTransformerV2.running"; //$NON-NLS-1$
                 TransformerContext context = new TransformerContext(new TransformerV2POJOPK("beforeSaving_" + concept)); //$NON-NLS-1$
                 String exchangeData = mergeExchangeData(xml, resultUpdateReport);
-                // String exchangeData = resultUpdateReport;
                 context.put(RUNNING, Boolean.TRUE);
                 TransformerV2CtrlLocal ctrl = getTransformerV2CtrlLocal();
                 TypedContent wsTypedContent = new TypedContent(exchangeData.getBytes("UTF-8"), "text/xml; charset=utf-8"); //$NON-NLS-1$

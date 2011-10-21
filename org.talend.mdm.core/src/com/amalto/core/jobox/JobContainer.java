@@ -1,8 +1,20 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
+
 package com.amalto.core.jobox;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -12,18 +24,26 @@ import java.util.regex.Matcher;
 import com.amalto.core.jobox.component.JobAware;
 import com.amalto.core.jobox.component.JobDeploy;
 import com.amalto.core.jobox.component.JobInvoke;
+import com.amalto.core.jobox.component.JobInvoker;
+import com.amalto.core.jobox.component.MDMJobInvoker;
 import com.amalto.core.jobox.util.JobClassLoader;
 import com.amalto.core.jobox.util.JoboxConfig;
 import com.amalto.core.jobox.util.JoboxUtil;
 import com.amalto.core.jobox.watch.DirMonitor;
 import com.amalto.core.jobox.watch.JoboxListener;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 public class JobContainer {
 
     private static final int WATCH_INTERVAL = 2000;
 
     /** unique instance */
-    private static JobContainer sInstance = null;
+    private static final JobContainer instance = new JobContainer();
+
+    private static final Logger LOGGER = Logger.getLogger(JobContainer.class);
+
+    private final Map<JobInfo, JobClassLoader> jobLoadersPool = new HashMap<JobInfo, JobClassLoader>();
 
     private JoboxConfig joboxConfig = null;
 
@@ -31,48 +51,47 @@ public class JobContainer {
 
     private JobDeploy jobDeploy = null;
 
-    private JobInvoke jobInvoke = null;
-
-    private Map<JobInfo, JobClassLoader> jobLoadersPool = new HashMap<JobInfo, JobClassLoader>();
-
     private DirMonitor monitor;
 
     /**
-     * Private constuctor
+     * Private constructor
      */
     private JobContainer() {
-        super();
     }
 
     /**
-     * Get the unique instance of this class. In order to improve the performance, removed synchronized, using pseudo
+     * @return Returns the unique instance of this class. In order to improve the performance, removed synchronized, using pseudo
      * singleton mode
      */
     public static JobContainer getUniqueInstance() {
-
-        if (sInstance == null) {
-            sInstance = new JobContainer();
-        }
-
-        return sInstance;
-
+        return instance;
     }
 
+    /**
+     * Initializes the Jobox container with the <code>props</code> properties.
+     * @param props A {@link Properties} instance used to create a {@link JoboxConfig}.
+     */
     public void init(Properties props) {
         // init config
         joboxConfig = new JoboxConfig(props);
         // check home
         File joboxDeployPath = new File(joboxConfig.getDeployPath());
         File joboxWorkPath = new File(joboxConfig.getWorkPath());
-        if (!joboxDeployPath.exists())
-            joboxDeployPath.mkdirs();
-        if (!joboxWorkPath.exists())
-            joboxWorkPath.mkdirs();
-        org.apache.log4j.Logger.getLogger(this.getClass()).info("Jobox Home is: " + joboxConfig.getJoboxHome());//$NON-NLS-1$
+        if (!joboxDeployPath.exists()) {
+            if(!joboxDeployPath.mkdirs()) {
+                // TODO Exception
+            }
+        }
+        if (!joboxWorkPath.exists()) {
+            if(!joboxWorkPath.mkdirs()) {
+                // TODO Exception
+            }
+        }
+
+        LOGGER.info("Jobox Home is: " + joboxConfig.getJoboxHome());//$NON-NLS-1$
         // init component
         jobAware = new JobAware(joboxConfig);
         jobDeploy = new JobDeploy(joboxConfig);
-        jobInvoke = new JobInvoke(joboxConfig);
         // clear work folder
         JoboxUtil.cleanFolder(joboxConfig.getWorkPath());
         // redeploy all to work folder
@@ -80,13 +99,12 @@ public class JobContainer {
         // init classpath
         this.jobLoadersPool.clear();
         List<JobInfo> currentJobs = jobAware.findJobsInBox();
-        for (Iterator iterator = currentJobs.iterator(); iterator.hasNext();) {
-            JobInfo jobInfo = (JobInfo) iterator.next();
-
+        for (JobInfo jobInfo : currentJobs) {
             JobClassLoader cl = new JobClassLoader();
             cl.addPath(jobInfo.getClasspath());
-            if (!this.jobLoadersPool.containsKey(jobInfo))
+            if (!this.jobLoadersPool.containsKey(jobInfo)) {
                 this.jobLoadersPool.put(jobInfo, cl);
+            }
         }
         // start monitor
         // Create the monitor
@@ -98,10 +116,9 @@ public class JobContainer {
     }
 
     public void updateJobLoadersPool(JobInfo jobInfo) {
-
         if (this.jobLoadersPool.containsKey(jobInfo)) {
             JobClassLoader jobClassLoader = jobLoadersPool.get(jobInfo);
-            org.apache.log4j.Logger.getLogger(this.getClass()).info("Removing " + jobClassLoader);//$NON-NLS-1$
+            LOGGER.info("Removing " + jobClassLoader);//$NON-NLS-1$
             jobClassLoader = null;
             jobLoadersPool.remove(jobInfo);
         }
@@ -112,10 +129,9 @@ public class JobContainer {
     }
 
     public void removeFromJobLoadersPool(String jobEntityName) {
-
         // parse name and version
-        String jobVersion = "";//$NON-NLS-1$
-        String jobName = "";//$NON-NLS-1$
+        String jobVersion = StringUtils.EMPTY; //$NON-NLS-1$
+        String jobName = StringUtils.EMPTY; //$NON-NLS-1$
         Matcher m = JobAware.jobVersionNamePattern.matcher(jobEntityName);
         while (m.find()) {
             jobName = m.group(1);
@@ -126,7 +142,7 @@ public class JobContainer {
 
         if (this.jobLoadersPool.containsKey(jobInfo)) {
             JobClassLoader jobClassLoader = jobLoadersPool.get(jobInfo);
-            org.apache.log4j.Logger.getLogger(this.getClass()).info("Removing " + jobClassLoader);//$NON-NLS-1$
+            LOGGER.info("Removing " + jobClassLoader); //$NON-NLS-1$
             jobClassLoader = null;
             jobLoadersPool.remove(jobInfo);
         }
@@ -137,51 +153,80 @@ public class JobContainer {
         return jobAware;
     }
 
-    public JobDeploy getJobDeploy() {
+    public JobDeploy getJobDeployer() {
         return jobDeploy;
     }
 
-    public JobInvoke getJobInvoke() {
-        return jobInvoke;
+    public JobInvoker getJobInvoker(String jobName, String version) {
+        JobInfo jobInfo = getJobInfo(jobName, version);
+        Class jobClass = getJobClass(jobInfo);
+        Class[] interfaces = jobClass.getInterfaces();
+        if (interfaces.length > 0) {
+            for (Class currentInterface : interfaces) {
+                if ("routines.system.api.TalendMDMJob".equals(currentInterface.getName())) {
+                    return new MDMJobInvoker(jobInfo);
+                }
+            }
+        }
+
+        // Default invocation
+        return new JobInvoke(jobInfo);
     }
 
+    /**
+     * @return Returns the deploy directory for the jobs.
+     * @see com.amalto.core.jobox.util.JoboxConfig#getDeployPath()
+     */
     public String getDeployDir() {
         return joboxConfig.getDeployPath();
     }
 
+    /**
+     * @return Returns the deploy directory for the jobs.
+     * @see com.amalto.core.jobox.util.JoboxConfig#getWorkPath()
+     */
+    public String getWorkDir() {
+        return joboxConfig.getWorkPath();
+    }
+
+    /**
+     * @param jobName A job name
+     * @param jobVersion A job version
+     * @return Returns the {@link JobInfo} instance for this job if it exists, <code>null</code> otherwise.
+     */
     public JobInfo getJobInfo(String jobName, String jobVersion) {
-
-        JobInfo theJobInfo = null;
         JobInfo jobInfoPK = new JobInfo(jobName, jobVersion);
-
-        Set<JobInfo> jobInfos = this.jobLoadersPool.keySet();
-
-        for (JobInfo jobInfo : jobInfos) {
+        Set<JobInfo> jobInformation = jobLoadersPool.keySet();
+        for (JobInfo jobInfo : jobInformation) {
             if (jobInfo.equals(jobInfoPK)) {
-                theJobInfo = jobInfo;
-                break;
+                return jobInfo;
             }
         }
+        return null;
+    }
 
-        return theJobInfo;
+    /**
+     * @return Returns information about all jobs deployed in this Jobox container.
+     */
+    public Set<JobInfo> getAllJobInfo() {
+        return jobLoadersPool.keySet();
     }
 
     public Class getJobClass(JobInfo jobInfo) {
-        Class clazz = null;
         JobClassLoader jobClassLoader = this.jobLoadersPool.get(jobInfo);
         try {
-            clazz = jobClassLoader.loadClass(jobInfo.getMainclass());
+            return jobClassLoader.loadClass(jobInfo.getMainClass());
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not find class '" + jobInfo.getMainClass() + "'", e);
+            return null;
         }
-        return clazz;
     }
 
     public void setContextStrToBeSaved(String entryPath, String cxt) {
         monitor.changeContextStr(entryPath, cxt);
-        int seporIdx = entryPath.lastIndexOf(File.separatorChar);
-        if (seporIdx != -1) {
-            String entryName = entryPath.substring(seporIdx + 1);
+        int idxSeparator = entryPath.lastIndexOf(File.separatorChar);
+        if (idxSeparator != -1) {
+            String entryName = entryPath.substring(idxSeparator + 1);
             jobDeploy.deploy(entryName);
         }
 

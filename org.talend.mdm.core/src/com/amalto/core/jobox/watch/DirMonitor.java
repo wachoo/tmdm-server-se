@@ -1,3 +1,16 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
+
 package com.amalto.core.jobox.watch;
 
 /*
@@ -17,7 +30,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -35,11 +47,11 @@ import java.util.TimerTask;
  */
 public class DirMonitor {
 
-    private Timer timer_;
+    private final Timer timer;
 
-    private HashMap files_; // File -> Long
+    private final Map<File, DirLog> files; // File -> Long
 
-    private Collection listeners_; // of (FileListener)
+    private final Collection<DirListener> listeners; // of (FileListener)
 
     /**
      * Create a file monitor instance with specified polling interval.
@@ -47,19 +59,18 @@ public class DirMonitor {
      * @param pollingInterval Polling interval in milli seconds.
      */
     public DirMonitor(long pollingInterval) {
-        files_ = new HashMap();
-        listeners_ = new ArrayList();
+        files = new HashMap<File, DirLog>();
+        listeners = new ArrayList<DirListener>();
 
-        // timer_ = new Timer (true);
-        timer_ = new Timer();
-        timer_.schedule(new FileMonitorNotifier(), 0, pollingInterval);
+        timer = new Timer();
+        timer.schedule(new FileMonitorNotifier(), 0, pollingInterval);
     }
 
     /**
      * Stop the file monitor polling.
      */
     public void stop() {
-        timer_.cancel();
+        timer.cancel();
     }
 
     /**
@@ -72,19 +83,9 @@ public class DirMonitor {
      * @param file File to listen for.
      */
     public void addFile(File file) {
-        if (!files_.containsKey(file)) {
-            long modifiedTime = file.exists() ? file.lastModified() : -1;
-            files_.put(file, new DirLog(modifiedTime, file));
+        if (!files.containsKey(file)) {
+            files.put(file, new DirLog(file));
         }
-    }
-
-    /**
-     * Remove specified file for listening.
-     * 
-     * @param file File to remove.
-     */
-    public void removeFile(File file) {
-        files_.remove(file);
     }
 
     /**
@@ -93,7 +94,7 @@ public class DirMonitor {
      * @param fileListener Listener to add.
      */
     public void addListener(DirListener fileListener) {
-        listeners_.add(fileListener);
+        listeners.add(fileListener);
     }
 
     /**
@@ -104,8 +105,7 @@ public class DirMonitor {
      * @param context
      */
     public void changeContextStr(String entityPath, String context) {
-        for (Iterator iter = listeners_.iterator(); iter.hasNext();) {
-            DirListener listener = (DirListener) iter.next();
+        for (DirListener listener : listeners) {
             listener.contextChanged(entityPath, context);
         }
     }
@@ -120,25 +120,23 @@ public class DirMonitor {
             // Loop over the registered files and see which have changed.
             // Use a copy of the list in case listener wants to alter the
             // list within its fileChanged method.
-            Collection files = new ArrayList(files_.keySet());
+            Collection<File> files = new ArrayList<File>(DirMonitor.this.files.keySet());
 
-            for (Iterator i = files.iterator(); i.hasNext();) {
-                File file = (File) i.next();
-                DirLog lastDirLog = (DirLog) files_.get(file);
-                DirLog newDirLog = new DirLog(new Long(file.exists() ? file.lastModified() : -1), file);
+            for (File file : files) {
+                DirLog lastDirLog = DirMonitor.this.files.get(file);
+                DirLog newDirLog = new DirLog(file);
 
                 Map<String, Long> lastFilesMap = lastDirLog.getFilesModifiedTime();
                 Map<String, Long> newFilesMap = newDirLog.getFilesModifiedTime();
 
-                List newFiles = new ArrayList();
-                List deleteFiles = new ArrayList();
-                List modifyFiles = new ArrayList();
+                List<String> newFiles = new ArrayList<String>();
+                List<String> deleteFiles = new ArrayList<String>();
+                List<String> modifyFiles = new ArrayList<String>();
 
-                for (Iterator<String> iterator = newFilesMap.keySet().iterator(); iterator.hasNext();) {
-                    String fileName = iterator.next();
+                for (String fileName : newFilesMap.keySet()) {
                     if (lastFilesMap.containsKey(fileName)) {
-                        long lastModifiedTime = ((Long) lastFilesMap.get(fileName)).longValue();
-                        long newModifiedTime = ((Long) newFilesMap.get(fileName)).longValue();
+                        long lastModifiedTime = lastFilesMap.get(fileName);
+                        long newModifiedTime = newFilesMap.get(fileName);
                         if (newModifiedTime != lastModifiedTime) {
                             modifyFiles.add(fileName);
                         }
@@ -147,8 +145,7 @@ public class DirMonitor {
                     }
                 }
 
-                for (Iterator<String> iterator = lastFilesMap.keySet().iterator(); iterator.hasNext();) {
-                    String fileName = iterator.next();
+                for (String fileName : lastFilesMap.keySet()) {
                     if (!newFilesMap.containsKey(fileName)) {
                         deleteFiles.add(fileName);
                     }
@@ -157,11 +154,10 @@ public class DirMonitor {
                 if (newFiles.size() > 0 || deleteFiles.size() > 0 || modifyFiles.size() > 0) {
 
                     // Register new modified time
-                    files_.put(file, newDirLog);
+                    DirMonitor.this.files.put(file, newDirLog);
 
                     // Notify listeners
-                    for (Iterator j = listeners_.iterator(); j.hasNext();) {
-                        DirListener listener = (DirListener) j.next();
+                    for (DirListener listener : listeners) {
                         listener.fileChanged(newFiles, deleteFiles, modifyFiles);
                     }
                 }
@@ -169,25 +165,4 @@ public class DirMonitor {
             }
         }
     }
-
-    /**
-     * Test this class.
-     * 
-     * @param args Not used.
-     */
-    public static void main(String args[]) {
-        // Create the monitor
-        DirMonitor monitor = new DirMonitor(1000);
-
-        // Add some files to listen for
-        monitor.addFile(new File("E:/base/jobox/deploy"));
-
-        // Add a jobox listener
-        monitor.addListener(new JoboxListener());
-
-        // Avoid program exit
-        while (!false)
-            ;
-    }
-
 }

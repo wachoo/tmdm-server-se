@@ -1,9 +1,21 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
+
 package com.amalto.core.jobox.component;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,7 +29,9 @@ import java.util.regex.Pattern;
 
 import com.amalto.core.jobox.JobInfo;
 import com.amalto.core.jobox.util.JoboxConfig;
+import com.amalto.core.jobox.util.JoboxException;
 import com.amalto.core.jobox.util.JoboxUtil;
+import org.apache.commons.lang.StringUtils;
 
 public class JobAware {
 
@@ -25,7 +39,7 @@ public class JobAware {
 
     private static final String JOBOX_RESERVED_FOLDER_NAME = "tmp"; //$NON-NLS-1$
 
-    private String workDir;
+    private final String workDir;
 
     public JobAware(JoboxConfig joboxConfig) {
         this.workDir = joboxConfig.getWorkPath();
@@ -36,22 +50,15 @@ public class JobAware {
      */
     public List<JobInfo> findJobsInBox() {
         File[] entities = new File(workDir).listFiles(new FileFilter() {
-
-            public boolean accept(File pathname) {
-                if (pathname.isFile() || pathname.getName().equalsIgnoreCase(JOBOX_RESERVED_FOLDER_NAME)) {
-                    return false;
-                }
-                return true;
+            public boolean accept(File pathName) {
+                return !(pathName.isFile() || JOBOX_RESERVED_FOLDER_NAME.equalsIgnoreCase(pathName.getName()));
             }
-
         });
 
         List<JobInfo> jobList = new ArrayList<JobInfo>();
-        for (int i = 0; i < entities.length; i++) {
-            File entity = entities[i];
+        for (File entity : entities) {
             boolean isTISEntry = recognizeTISJob(entity);
             if (isTISEntry) {
-
                 // parse name and version
                 String jobVersion = ""; //$NON-NLS-1$
                 String jobName = ""; //$NON-NLS-1$
@@ -64,7 +71,7 @@ public class JobAware {
                 JobInfo jobInfo = new JobInfo(jobName, jobVersion);
                 setClassPath4TISJob(entity, jobInfo);
                 String propFilePath = analyzeJobParams(entity, jobInfo);
-                guessMainClass(entity, propFilePath, jobInfo);
+                guessMainClass(propFilePath, jobInfo);
                 jobList.add(jobInfo);
             }
         }
@@ -76,8 +83,8 @@ public class JobAware {
         File entity = new File(workDir + File.separator + entityName);
         if (entity.exists()) {
             // parse name and version
-            String jobVersion = ""; //$NON-NLS-1$
-            String jobName = ""; //$NON-NLS-1$
+            String jobVersion = StringUtils.EMPTY; //$NON-NLS-1$
+            String jobName = StringUtils.EMPTY; //$NON-NLS-1$
             Matcher m = jobVersionNamePattern.matcher(entityName);
             while (m.find()) {
                 jobName = m.group(1);
@@ -87,43 +94,46 @@ public class JobAware {
             jobInfo = new JobInfo(jobName, jobVersion);
             setClassPath4TISJob(entity, jobInfo);
             String propFilePath = analyzeJobParams(entity, jobInfo);
-            guessMainClass(entity, propFilePath, jobInfo);
+            guessMainClass(propFilePath, jobInfo);
         }
         return jobInfo;
     }
 
-    private void guessMainClass(File entity, String propFilePath, JobInfo jobInfo) {
-        // FIXME:THIS WAY IS NOT GOOD
+    private void guessMainClass(String propFilePath, JobInfo jobInfo) {
+        // FIX ME:THIS WAY IS NOT GOOD
         if (propFilePath != null) {
             String jobName = jobInfo.getName();
             String className = ""; //$NON-NLS-1$
-            String packagename = ""; //$NON-NLS-1$
+            String packageName = ""; //$NON-NLS-1$
             String splitTag = "/"; //$NON-NLS-1$
             if (File.separator.equals("\\")) //$NON-NLS-1$
                 splitTag = "\\\\"; //$NON-NLS-1$
             String[] parts = propFilePath.split(splitTag);
             boolean startRecord = false;
-            for (int i = 0; i < parts.length; i++) {
-                if (parts[i].equals("contexts")) { //$NON-NLS-1$
+            for (String part : parts) {
+                if (part.equals("contexts")) { //$NON-NLS-1$
                     startRecord = false;
                     break;
                 }
-                if (parts[i].equals(jobName) && !startRecord) {
+                if (part.equals(jobName) && !startRecord) {
                     startRecord = true;
                     continue;
                 }
                 if (startRecord) {
-                    if (packagename.length() == 0)
-                        packagename += parts[i];
-                    else if (packagename.length() > 0)
-                        packagename += "." + parts[i]; //$NON-NLS-1$
+                    if (packageName.length() == 0) {
+                        packageName += part;
+                    } else if (packageName.length() > 0) {
+                        packageName += "." + part; //$NON-NLS-1$
+                    }
                 }
             }
-            if (packagename.length() > 0)
-                className = packagename + "." + jobName; //$NON-NLS-1$
+            if (packageName.length() > 0) {
+                className = packageName + "." + jobName; //$NON-NLS-1$
+            }
 
-            if (className.length() > 0)
-                jobInfo.setMainclass(className);
+            if (className.length() > 0) {
+                jobInfo.setMainClass(className);
+            }
         }
     }
 
@@ -137,21 +147,18 @@ public class JobAware {
                 Properties paramProperties = new Properties();
                 FileInputStream fileReader = new FileInputStream(checkList.get(0));
                 paramProperties.load(fileReader);
-                if (fileReader != null)
-                    fileReader.close();
+                fileReader.close();
 
                 for (Enumeration e = paramProperties.propertyNames(); e.hasMoreElements();) {
                     String key = (String) e.nextElement();
                     String value = paramProperties.getProperty(key);
                     jobInfo.addParam(key, value);
                 }
-
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            throw new JoboxException(e);
         }
+
         return propFilePath;
     }
 
@@ -167,7 +174,7 @@ public class JobAware {
                 if (vendorInfo.trim().toUpperCase().startsWith("TALEND")) //$NON-NLS-1$
                     isTISEntry = true;
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new JoboxException(e);
             }
 
         }
@@ -196,10 +203,9 @@ public class JobAware {
                     classPathsExtArray.add("."); //$NON-NLS-1$
                 if (classPathsArrayList.size() > 0)
                     classPathsExtArray.addAll(classPathsArrayList);
-                for (int i = 0; i < classPathsExtArray.size(); i++) {
-                    String classPath = classPathsExtArray.get(i);
+                for (String classPath : classPathsExtArray) {
                     File libFile = new File(basePath + File.separator + classPath);
-                    ;
+
                     if (libFile.exists()) {
                         if (newClassPath.length() == 0)
                             newClassPath += libFile.getAbsolutePath();
@@ -208,7 +214,7 @@ public class JobAware {
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new JoboxException(e);
             }
 
         }
