@@ -38,6 +38,8 @@ public class RoleWhereCondition {
 	public static RoleWhereCondition parse(String marshalledWC) throws XtentisException{
 		RoleWhereCondition rwc = null;
 		try {
+            if (marshalledWC == null || marshalledWC.trim().length() == 0)
+                return null;
 			rwc = (RoleWhereCondition)Unmarshaller.unmarshal(RoleWhereCondition.class, new StringReader(marshalledWC));
 		} catch (Exception e) {
 			String err = "parse() ERROR UNMARSHALLING WhereCondition \""+marshalledWC+"\": "+e.getClass().getName()+": "+e.getLocalizedMessage();
