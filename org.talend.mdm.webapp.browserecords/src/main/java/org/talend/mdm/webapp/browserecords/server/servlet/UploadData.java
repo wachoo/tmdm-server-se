@@ -222,7 +222,7 @@ public class UploadData extends HttpServlet {
                     xml.append("</" + concept + ">");//$NON-NLS-1$//$NON-NLS-2$
                     // put document (except empty lines)
                     if (!allCellsEmpty)
-                        putDocument(xml.toString());
+                        putDocument(xml.toString(), language);
                 }
 
             } else if ("csv".equals(fileType.toLowerCase())) { //$NON-NLS-1$
@@ -292,7 +292,7 @@ public class UploadData extends HttpServlet {
                     LOG.debug("Added line " + lineNum);//$NON-NLS-1$
                     LOG.trace("--val:\n" + xml);//$NON-NLS-1$
                     // put document
-                    putDocument(xml.toString());
+                    putDocument(xml.toString(), language);
                 }
             }
             writer.print("true");//$NON-NLS-1$
@@ -314,13 +314,26 @@ public class UploadData extends HttpServlet {
 
     }
 
-    private void putDocument(String xml) throws ServletException {
+    private void putDocument(String xml, String language) throws ServletException {
         try {
             Util.getPort().putItem(
                     new WSPutItem(new WSDataClusterPK(this.getCurrentDataCluster()), xml.toString(), new WSDataModelPK(this
                             .getCurrentDataModel()), false));
         } catch (RemoteException e) {
-            throw new ServletException(e.getClass().getName() + ": " + e.getLocalizedMessage()); //$NON-NLS-1$
+            String err = MESSAGES.getMessage("save_fail", ""); //$NON-NLS-1$ //$NON-NLS-2$ 
+            if (e.getMessage().indexOf("ERROR_3:") == 0) { //$NON-NLS-1$
+                err = e.getMessage();
+            }
+
+            if (e.getMessage().indexOf("<msg/>") > -1) //$NON-NLS-1$
+                err = MESSAGES.getMessage("save_validationrule_fail", "", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+            else if (e.getMessage().indexOf("<msg>") > -1 && e.getMessage().indexOf(language.toUpperCase() + ":") == -1) {//$NON-NLS-1$) //$NON-NLS-2$                 
+                err = MESSAGES
+                        .getMessage(
+                                "save_validationrule_fail", "", e.getMessage().replace("<msg>", "[" + language.toUpperCase() + ":").replace("</msg>", "]")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
+            }
+
+            throw new ServletException(err);
         } catch (Exception e) {
             throw new ServletException(e.getClass().getName() + ": " + e.getLocalizedMessage()); //$NON-NLS-1$
         }

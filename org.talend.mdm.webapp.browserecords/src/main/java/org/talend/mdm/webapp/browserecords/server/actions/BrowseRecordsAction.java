@@ -1606,13 +1606,18 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), "."), e.getMessage())); //$NON-NLS-1$
             } else {
                 String err = MESSAGES.getMessage("save_fail", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
-                        + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), ".") + ". " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+                        + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), ".")); //$NON-NLS-1$ 
                 if (e.getMessage().indexOf("ERROR_3:") == 0) { //$NON-NLS-1$
                     err = e.getMessage();
                 }
-                if (e.getMessage().indexOf("<msg") > -1) //$NON-NLS-1$
+
+                if (e.getMessage().indexOf("<msg/>") > -1) //$NON-NLS-1$
                     err = MESSAGES.getMessage("save_validationrule_fail", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
-                            + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), "."), e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+                            + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), "."), ""); //$NON-NLS-1$ //$NON-NLS-2$ 
+                else if (e.getMessage().indexOf("<msg>") > -1 && e.getMessage().indexOf(language.toUpperCase() + ":") == -1) {//$NON-NLS-1$) //$NON-NLS-2$                 
+                    err = MESSAGES.getMessage("save_validationrule_fail", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
+                            + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), "."), e.getMessage().replace("<msg>", "[" + language.toUpperCase() + ":").replace("</msg>", "]")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+                }
                 // add feature TMDM-2327 SAXException:cvc-complex-type.2.4.b message transform
                 if (e.getMessage().indexOf("cvc-complex-type.2.4.b") != -1) { //$NON-NLS-1$
                     err = MESSAGES.getMessage("save_failEx", concept); //$NON-NLS-1$

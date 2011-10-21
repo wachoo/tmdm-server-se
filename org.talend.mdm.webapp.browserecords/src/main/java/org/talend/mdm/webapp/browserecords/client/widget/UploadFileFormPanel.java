@@ -19,6 +19,7 @@ import java.util.Map;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -35,10 +36,10 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.HiddenField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 
 
 /**
@@ -315,7 +316,7 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
             MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().import_success_label(), null);
             ItemsListPanel.getInstance().refreshGrid();
         } else {
-            MessageBox.alert(MessagesFactory.getMessages().error_title(), result, null);
+            MessageBox.alert(MessagesFactory.getMessages().error_title(), CommonUtil.pickOutISOMessage(result), null);
         }
     }
 
