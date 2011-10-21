@@ -11,13 +11,14 @@
 
 package com.amalto.core.integrity;
 
-import com.amalto.core.integrity.ForeignKeyIntegrity;
+import java.util.Set;
+
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.metadata.ReferenceFieldMetadata;
 import com.amalto.core.metadata.TypeMetadata;
 import junit.framework.TestCase;
-
-import java.util.Set;
 
 /**
  *
@@ -150,7 +151,7 @@ public class ForeignKeyIntegrityTest extends TestCase {
     /**
      * A
      * B
-     *
+     * <p/>
      * (no relationship between types).
      *
      * @throws Exception
@@ -226,5 +227,138 @@ public class ForeignKeyIntegrityTest extends TestCase {
         references = getReferencedFields(repository, "D");
         assertEquals(1, references.size());
     }
+
+    /**
+     * A -ref(1)-> C
+     * B -ref(1)-> C
+     *
+     * @throws Exception
+     */
+    public void testModel11() throws Exception {
+        final MetadataRepository repository = getMetadataRepository("model11.xsd");
+
+        ComplexTypeMetadata typeA = repository.getComplexType("A");
+        FieldMetadata field = typeA.getField("refC");
+        assertEquals(ReferenceFieldMetadata.class, field.getClass());
+        ReferenceFieldMetadata referenceFieldMetadata = (ReferenceFieldMetadata) field;
+        assertFalse(referenceFieldMetadata.isFKIntegrity());
+        assertTrue(referenceFieldMetadata.allowFKIntegrityOverride());
+
+        ComplexTypeMetadata typeB = repository.getComplexType("B");
+        field = typeB.getField("refC");
+        assertEquals(ReferenceFieldMetadata.class, field.getClass());
+        referenceFieldMetadata = (ReferenceFieldMetadata) field;
+        assertFalse(referenceFieldMetadata.isFKIntegrity());
+        assertTrue(referenceFieldMetadata.allowFKIntegrityOverride());
+
+        Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "A");
+        assertEquals(0, references.size());
+
+        references = getReferencedFields(repository, "B");
+        assertEquals(0, references.size());
+
+        references = getReferencedFields(repository, "C");
+        assertEquals(2, references.size());
+
+        IntegrityCheckDataSourceMock dataSource = new IntegrityCheckDataSourceMock(repository);
+        FKIntegrityChecker integrityChecker = FKIntegrityChecker.getInstance();
+        String dataCluster = "DataCluster";
+        String typeName = "C";
+        String[] ids = {"1"};
+        assertTrue(integrityChecker.allowDelete(dataCluster, typeName, ids, false, dataSource));
+        FKIntegrityCheckResult policy = integrityChecker.getFKIntegrityPolicy(dataCluster, typeName, ids, dataSource);
+        assertEquals(FKIntegrityCheckResult.ALLOWED, policy);
+
+        assertFalse(dataSource.hasMetConflict());
+    }
+
+    /**
+     * A -ref(1)-> C
+     * B -ref(1)-> C
+     *
+     * @throws Exception
+     */
+    public void testModel12() throws Exception {
+        MetadataRepository repository = getMetadataRepository("model12.xsd");
+
+        ComplexTypeMetadata typeA = repository.getComplexType("A");
+        FieldMetadata field = typeA.getField("refC");
+        assertEquals(ReferenceFieldMetadata.class, field.getClass());
+        ReferenceFieldMetadata referenceFieldMetadata = (ReferenceFieldMetadata) field;
+        assertTrue(referenceFieldMetadata.isFKIntegrity());
+        assertTrue(referenceFieldMetadata.allowFKIntegrityOverride());
+
+        ComplexTypeMetadata typeB = repository.getComplexType("B");
+        field = typeB.getField("refC");
+        assertEquals(ReferenceFieldMetadata.class, field.getClass());
+        referenceFieldMetadata = (ReferenceFieldMetadata) field;
+        assertFalse(referenceFieldMetadata.isFKIntegrity());
+        assertTrue(referenceFieldMetadata.allowFKIntegrityOverride());
+
+        Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "A");
+        assertEquals(0, references.size());
+
+        references = getReferencedFields(repository, "B");
+        assertEquals(0, references.size());
+
+        references = getReferencedFields(repository, "C");
+        assertEquals(2, references.size());
+
+        IntegrityCheckDataSourceMock dataSource = new IntegrityCheckDataSourceMock(repository);
+        FKIntegrityChecker integrityChecker = FKIntegrityChecker.getInstance();
+        String dataCluster = "DataCluster";
+        String typeName = "C";
+        String[] ids = {"1"};
+        assertFalse(integrityChecker.allowDelete(dataCluster, typeName, ids, false, dataSource));
+        FKIntegrityCheckResult policy = integrityChecker.getFKIntegrityPolicy(dataCluster, typeName, ids, dataSource);
+        assertEquals(FKIntegrityCheckResult.FORBIDDEN_OVERRIDE_ALLOWED, policy);
+
+        assertTrue(dataSource.hasMetConflict());
+    }
+
+    /**
+     * A -ref(1)-> C
+     * B -ref(1)-> C
+     *
+     * @throws Exception
+     */
+    public void testModel13() throws Exception {
+        MetadataRepository repository = getMetadataRepository("model13.xsd");
+
+        ComplexTypeMetadata typeA = repository.getComplexType("A");
+        FieldMetadata field = typeA.getField("refC");
+        assertEquals(ReferenceFieldMetadata.class, field.getClass());
+        ReferenceFieldMetadata referenceFieldMetadata = (ReferenceFieldMetadata) field;
+        assertTrue(referenceFieldMetadata.isFKIntegrity());
+        assertTrue(referenceFieldMetadata.allowFKIntegrityOverride());
+
+        ComplexTypeMetadata typeB = repository.getComplexType("B");
+        field = typeB.getField("refC");
+        assertEquals(ReferenceFieldMetadata.class, field.getClass());
+        referenceFieldMetadata = (ReferenceFieldMetadata) field;
+        assertFalse(referenceFieldMetadata.isFKIntegrity());
+        assertFalse(referenceFieldMetadata.allowFKIntegrityOverride());
+
+        Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "A");
+        assertEquals(0, references.size());
+
+        references = getReferencedFields(repository, "B");
+        assertEquals(0, references.size());
+
+        references = getReferencedFields(repository, "C");
+        assertEquals(2, references.size());
+
+        IntegrityCheckDataSourceMock dataSource = new IntegrityCheckDataSourceMock(repository);
+        FKIntegrityChecker integrityChecker = FKIntegrityChecker.getInstance();
+        String dataCluster = "DataCluster";
+        String typeName = "C";
+        String[] ids = {"1"};
+        assertFalse(integrityChecker.allowDelete(dataCluster, typeName, ids, false, dataSource));
+        FKIntegrityCheckResult policy = integrityChecker.getFKIntegrityPolicy(dataCluster, typeName, ids, dataSource);
+        assertEquals(FKIntegrityCheckResult.FORBIDDEN_OVERRIDE_ALLOWED, policy);
+
+        assertTrue(dataSource.hasMetConflict());
+    }
+
 
 }

@@ -11,47 +11,27 @@
 
 package com.amalto.core.integrity;
 
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataRepository;
-import com.amalto.core.metadata.ReferenceFieldMetadata;
-import com.amalto.core.metadata.TypeMetadata;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
-import com.amalto.core.util.Util;
-import com.amalto.core.util.XtentisException;
-import com.amalto.xmlserver.interfaces.IWhereItem;
-import com.amalto.xmlserver.interfaces.WhereCondition;
-import org.apache.log4j.Logger;
-
-import java.io.ByteArrayInputStream;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static com.amalto.core.integrity.FKIntegrityCheckResult.*;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.ReferenceFieldMetadata;
+import com.amalto.core.metadata.TypeMetadata;
+import com.amalto.core.util.XtentisException;
 
 /**
  * <p>
  * Entry point for all FK integrity checks. See below example of use:
- * </p>
- * <p>
- * <code>
- * boolean override = false;<br/>
- * boolean isAllowed = FKIntegrityChecker.getInstance().allowDelete(dataClusterPK, concept, ids, override);<br/>
- * if(!isAllowed) {<br/>
- * &nbsp;&nbsp;Set&lt;ReferenceFieldMetadata&gt; fieldToCheck = getForeignKeyList(concept, clusterName);<br/>
- * &nbsp;&nbsp;System.out.println("Could not delete because following fields points to instance:");<br/>
- * &nbsp;&nbsp;// Iterate over fieldToCheck...<br/>
- * }<br/>
- * </code>
  * </p>
  */
 public class FKIntegrityChecker {
 
     private final static FKIntegrityChecker instance = new FKIntegrityChecker();
 
-    private final static Logger logger = Logger.getLogger(FKIntegrityChecker.class);
+    private static final FKIntegrityCheckDataSource DEFAULT_DATA_SOURCE = new DefaultCheckDataSource();
 
     private FKIntegrityChecker() {
     }
@@ -75,9 +55,28 @@ public class FKIntegrityChecker {
      *                    <b>must</b> return {@link FKIntegrityCheckResult#FORBIDDEN_OVERRIDE_ALLOWED} in this case).
      * @return <code>true</code> if user is allowed to delete instance, <code>false</code> otherwise.
      * @throws XtentisException In case of unexpected error.
+     * @see #allowDelete(String, String, String[], boolean, FKIntegrityCheckDataSource)
      */
     public boolean allowDelete(String clusterName, String concept, String[] ids, boolean override) throws XtentisException {
-        FKIntegrityCheckResult policy = getFKIntegrityPolicy(clusterName, concept, ids);
+        return allowDelete(clusterName, concept, ids, override, DEFAULT_DATA_SOURCE);
+    }
+
+    /**
+     * <p>
+     * Returns a MDM user is allowed to delete an instance of type <code>concept</code> with id <code>ids</code>.
+     * </p>
+     *
+     * @param clusterName An existing cluster name.
+     * @param concept     An existing concept name.
+     * @param ids         An instance ID (an array of values in case of composite keys).
+     * @param override    <code>true</code> if user wants to override fk integrity (but {@link #getFKIntegrityPolicy(String, String, String[])}
+     *                    <b>must</b> return {@link FKIntegrityCheckResult#FORBIDDEN_OVERRIDE_ALLOWED} in this case).
+     * @param dataSource  A {@link FKIntegrityCheckResult} implementation to use during this check.
+     * @return <code>true</code> if user is allowed to delete instance, <code>false</code> otherwise.
+     * @throws XtentisException In case of unexpected error.
+     */
+    public boolean allowDelete(String clusterName, String concept, String[] ids, boolean override, FKIntegrityCheckDataSource dataSource) throws XtentisException {
+        FKIntegrityCheckResult policy = getFKIntegrityPolicy(clusterName, concept, ids, dataSource);
         switch (policy) {
             case FORBIDDEN:
                 return false;
@@ -104,64 +103,56 @@ public class FKIntegrityChecker {
      * @return A value of {@link FKIntegrityCheckResult} that corresponds to the type of policy that should be enforced.
      * @throws XtentisException In case of unexpected error during check.
      * @see FKIntegrityCheckResult
+     * @see #getFKIntegrityPolicy(String, String, String[], FKIntegrityCheckDataSource)
      */
     public FKIntegrityCheckResult getFKIntegrityPolicy(String clusterName, String concept, String[] ids) throws XtentisException {
-        // Extract data model from database
-        String dataModel;
-        try {
-            ItemPOJOPK pk = new ItemPOJOPK(new DataClusterPOJOPK(clusterName), concept, ids);
-            ItemPOJO item = Util.getItemCtrl2Local().getItem(pk);
-            if (item == null) {
-                String id = ""; //$NON-NLS-1$
-                for (String currentIdValue : ids) {
-                    id += "[" + currentIdValue + "]"; //$NON-NLS-1$ //$NON-NLS-2$
-                }
+        return getFKIntegrityPolicy(clusterName, concept, ids, DEFAULT_DATA_SOURCE);
+    }
 
-                throw new RuntimeException("Document with id '" //$NON-NLS-1$
-                        + id
-                        + "' (concept name: '" //$NON-NLS-1$
-                        + concept
-                        + "') has already been deleted."); //$NON-NLS-1$
-            } else {
-                dataModel = item.getDataModelName();
-            }
-        } catch (Exception e) {
-            throw new XtentisException(e);
-        }
+    /**
+     * <p>
+     * Returns what kind of integrity check is allowed when deleting an instance of <code>concept</code> with id <code>ids</code>.
+     * </p>
+     * <p>
+     * <b>Note:</b> The data model name will be extracted from the document stored in database.
+     * </p>
+     *
+     * @param clusterName An existing cluster name.
+     * @param concept     An existing concept name.
+     * @param ids         An instance ID (an array of values in case of composite keys).
+     * @param dataSource  A {@link FKIntegrityCheckResult} implementation to use during this check.
+     * @return A value of {@link FKIntegrityCheckResult} that corresponds to the type of policy that should be enforced.
+     * @throws XtentisException In case of unexpected error during check.
+     * @see FKIntegrityCheckResult
+     */
+    public FKIntegrityCheckResult getFKIntegrityPolicy(String clusterName, String concept, String[] ids, FKIntegrityCheckDataSource dataSource) throws XtentisException {
+        // Extract data model from database
+        String dataModel = dataSource.getDataModel(clusterName, concept, ids);
 
         // Gets field(s) to check
-        Set<ReferenceFieldMetadata> fieldToCheck = getForeignKeyList(concept, dataModel);
-
-        // Query pk where fk could be.
-        String queryId = "";
-        for (String id : ids) {
-            queryId += '[' + id + ']';
-        }
-        LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
-        conceptPatternsToClusterName.put(".*", clusterName);
+        Set<ReferenceFieldMetadata> fieldToCheck = dataSource.getForeignKeyList(concept, dataModel);
 
         // Sort all fields by FK integrity policy
         Map<FKIntegrityCheckResult, Set<FieldMetadata>> checkResultToFields = new HashMap<FKIntegrityCheckResult, Set<FieldMetadata>>();
-        for (ReferenceFieldMetadata referenceFieldMetadata : fieldToCheck) {
-            if (referenceFieldMetadata.isFKIntegrity()) { // Don't execute a count if we don't care about FK integrity for the field.
-                boolean allowOverride = referenceFieldMetadata.allowFKIntegrityOverride();
-                TypeMetadata currentType = referenceFieldMetadata.getContainingType();
-                IWhereItem whereItem = new WhereCondition(referenceFieldMetadata.getContainingType().getName() + '/' + referenceFieldMetadata.getName(), WhereCondition.EQUALS, queryId, WhereCondition.NO_OPERATOR);
-                long count = Util.getXmlServerCtrlLocal().countItems(new LinkedHashMap(), conceptPatternsToClusterName, currentType.getName(), whereItem);
+        for (ReferenceFieldMetadata incomingReference : fieldToCheck) {
+            if (incomingReference.isFKIntegrity()) { // Don't execute a count if we don't care about FK integrity for the field.
+                boolean allowOverride = incomingReference.allowFKIntegrityOverride();
+                TypeMetadata referencingType = incomingReference.getContainingType();
+                long count = dataSource.countInboundReferences(clusterName, ids, referencingType, incomingReference);
 
                 if (count > 0) {
                     if (allowOverride) {
-                        get(checkResultToFields, FORBIDDEN_OVERRIDE_ALLOWED).add(referenceFieldMetadata);
+                        get(checkResultToFields, FORBIDDEN_OVERRIDE_ALLOWED).add(incomingReference);
                     } else {
-                        get(checkResultToFields, FORBIDDEN).add(referenceFieldMetadata);
+                        get(checkResultToFields, FORBIDDEN).add(incomingReference);
                     }
 
                 } else {
-                    get(checkResultToFields, ALLOWED).add(referenceFieldMetadata);
+                    get(checkResultToFields, ALLOWED).add(incomingReference);
                 }
             } else {
-                // FK does not enforce FK integrity so it's allowed.
-                get(checkResultToFields, ALLOWED).add(referenceFieldMetadata);
+                // FK definition does not enforce FK integrity so it's allowed.
+                get(checkResultToFields, ALLOWED).add(incomingReference);
             }
         }
 
@@ -180,6 +171,8 @@ public class FKIntegrityChecker {
             return ALLOWED;
         } else {
             // Mixed results (some fields are forbidden and/or forbidden allowed and/or allowed)
+            // Order of 'if' matters since method should return the less permissive policy (FORBIDDEN has higher priority
+            // than ALLOWED).
             FKIntegrityCheckResult conflictResolution;
             if (has(FORBIDDEN, checkResultToFields)) {
                 conflictResolution = FORBIDDEN;
@@ -188,37 +181,14 @@ public class FKIntegrityChecker {
             } else if (has(ALLOWED, checkResultToFields)) {
                 conflictResolution = ALLOWED;
             } else {
-                throw new IllegalStateException("Cannot infer FK integrity check from data model."); //$NON-NLS-1$
+                throw new IllegalStateException("Cannot resolve FK integrity conflict."); //$NON-NLS-1$
             }
 
             // Log in server's log how conflict was solved.
-            logConflictResolution(checkResultToFields, conflictResolution);
+            dataSource.resolvedConflict(checkResultToFields, conflictResolution);
 
             return conflictResolution;
         }
-    }
-
-    /**
-     * Returns a {@link Set} of {@link com.amalto.core.metadata.FieldMetadata} of all fields that <b>point to</b> the
-     * concept <code>concept</code>. Fields are inferred from data model only (thus no need for id in this method).
-     *
-     * @param dataModelName A data model name
-     * @param concept       A concept name.
-     * @return A {@link Set} of {@link com.amalto.core.metadata.FieldMetadata} or empty set if no field points to
-     *         <code>concept</code>.
-     * @throws XtentisException In case of unexpected error during metadata analysis.
-     */
-    public Set<ReferenceFieldMetadata> getForeignKeyList(String concept, String dataModelName) throws XtentisException {
-        // Get FK(s) to check
-        MetadataRepository mr = new MetadataRepository();
-        try {
-            DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(dataModelName));
-            mr.load(new ByteArrayInputStream(dataModel.getSchema().getBytes("utf-8"))); //$NON-NLS-1$
-        } catch (Exception e) {
-            throw new XtentisException(e);
-        }
-
-        return mr.accept(new ForeignKeyIntegrity(mr.getType(concept)));
     }
 
     /**
@@ -237,32 +207,10 @@ public class FKIntegrityChecker {
         return value;
     }
 
-    private static void logConflictResolution(Map<FKIntegrityCheckResult, Set<FieldMetadata>> checkResultToFields, FKIntegrityCheckResult conflictResolution) {
-        if (logger.isInfoEnabled()) {
-            logger.info("Found conflicts in data model relative to FK integrity checks");
-            logger.info("= Forbidden deletes =");
-            dumpFields(FORBIDDEN, checkResultToFields);
-            logger.info("= Forbidden deletes (override allowed) =");
-            dumpFields(FORBIDDEN_OVERRIDE_ALLOWED, checkResultToFields);
-            logger.info("= Allowed deletes =");
-            dumpFields(ALLOWED, checkResultToFields);
-            logger.info("Conflict resolution: " + conflictResolution);
-        }
-    }
-
-    private static void dumpFields(FKIntegrityCheckResult checkResult, Map<FKIntegrityCheckResult, Set<FieldMetadata>> checkResultToFields) {
-        Set<FieldMetadata> fields = checkResultToFields.get(checkResult);
-        if (fields != null) {
-            for (FieldMetadata fieldMetadata : fields) {
-                logger.info(fieldMetadata.toString());
-            }
-        }
-    }
-
     /**
-     * @param checkResult A {@link FKIntegrityCheckResult} value.
+     * @param checkResult         A {@link FKIntegrityCheckResult} value.
      * @param checkResultToFields A {@link Map} containing {@link FieldMetadata} sorted by key {@link FKIntegrityCheckResult} depending on
-     * what kind of integrity check should be performed.
+     *                            what kind of integrity check should be performed.
      * @return true if <code>checkResultToFields</code> contains <b>at least one</b> <code>checkResult</code>, false otherwise.
      * @see #hasOnly(FKIntegrityCheckResult, java.util.Map)
      */
@@ -271,9 +219,9 @@ public class FKIntegrityChecker {
     }
 
     /**
-     * @param checkResult A {@link FKIntegrityCheckResult} value.
+     * @param checkResult         A {@link FKIntegrityCheckResult} value.
      * @param checkResultToFields A {@link Map} containing {@link FieldMetadata} sorted by key {@link FKIntegrityCheckResult} depending on
-     * what kind of integrity check should be performed.
+     *                            what kind of integrity check should be performed.
      * @return true if <code>checkResultToFields</code> contains <b>only</b> <code>checkResult</code>, false otherwise.
      * @see #has(FKIntegrityCheckResult, java.util.Map)
      */
