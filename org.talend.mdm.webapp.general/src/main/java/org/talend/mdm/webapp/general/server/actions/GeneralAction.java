@@ -21,6 +21,8 @@ import org.talend.mdm.webapp.general.server.util.Utils;
 import org.w3c.dom.Document;
 
 import com.amalto.core.delegator.ILocalUser;
+import com.amalto.core.util.Messages;
+import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.Menu;
 import com.amalto.webapp.core.util.Util;
@@ -40,6 +42,9 @@ public class GeneralAction implements GeneralService {
     private static final Logger LOG = Logger.getLogger(GeneralAction.class);
 
     private static final GWTConfigurationContext configurationContext = new GWTConfigurationContext();
+
+    private static final Messages MESSAGES = MessagesFactory.getMessages(
+            "org.talend.mdm.webapp.general.client.i18n.GeneralMessages", GeneralAction.class.getClassLoader()); //$NON-NLS-1$
 
     public MenuGroup getMenus(String language) throws ServiceException {
         MenuGroup result = new MenuGroup();
@@ -99,7 +104,12 @@ public class GeneralAction implements GeneralService {
             return action;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            throw new ServiceException(e.getLocalizedMessage());
+            String err = e.getLocalizedMessage();
+            if (e.getMessage().equals("nocontainer")) //$NON-NLS-1$
+                err = MESSAGES.getMessage("nocontainer"); //$NON-NLS-1$
+            else if (e.getMessage().equals("nomodel")) //$NON-NLS-1$
+                err = MESSAGES.getMessage("nomodel"); //$NON-NLS-1$
+            throw new ServiceException(err);
         }
 
     }

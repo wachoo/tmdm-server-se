@@ -48,4 +48,8 @@ public interface GeneralMessages extends Messages {
     String connected_to();
 
     String application_undefined(String applicationName);
+
+    String nocontainer();
+
+    String nomodel();
 }
