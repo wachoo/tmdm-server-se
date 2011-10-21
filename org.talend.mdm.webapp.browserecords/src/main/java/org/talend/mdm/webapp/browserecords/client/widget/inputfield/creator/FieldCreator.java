@@ -20,6 +20,7 @@ import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.BooleanField;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatDateField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.MultipleField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.PictureField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.UrlField;
@@ -159,11 +160,12 @@ public class FieldCreator {
                     this.set("text", "FALSE");}});//$NON-NLS-1$ //$NON-NLS-2$
             field = booleanField;
         } else if (DataTypeConstants.DATE.getTypeName().equals(baseType)) {
-            DateField dateField = new DateField();
+            FormatDateField dateField = new FormatDateField();
             dateField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd"));//$NON-NLS-1$
             field = dateField;
         } else if (DataTypeConstants.DATETIME.getTypeName().equals(baseType)) {
-            DateField dateTimeField = new DateField();
+            FormatDateField dateTimeField = new FormatDateField();
+            dateTimeField.setDateTime(true);
             dateTimeField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd HH:mm:ss"));//$NON-NLS-1$
             field = dateTimeField;
         } else if (DataTypeConstants.STRING.getTypeName().equals(baseType)) {

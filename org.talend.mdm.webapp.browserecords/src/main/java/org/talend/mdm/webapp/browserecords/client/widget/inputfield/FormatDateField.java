@@ -24,6 +24,16 @@ public class FormatDateField extends DateField {
 
     private String diplayValue;
 
+    private boolean isDateTime = false;
+
+    public boolean isDateTime() {
+        return isDateTime;
+    }
+
+    public void setDateTime(boolean isDateTime) {
+        this.isDateTime = isDateTime;
+    }
+
     public String getFormatPattern() {
         return formatPattern;
     }

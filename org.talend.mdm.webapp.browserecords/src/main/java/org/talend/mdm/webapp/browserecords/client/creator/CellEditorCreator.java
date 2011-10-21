@@ -14,6 +14,7 @@ package org.talend.mdm.webapp.browserecords.client.creator;
 
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.BooleanField;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatDateField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.celleditor.BooleanFieldCellEditor;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.celleditor.ComboBoxCellEditor;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.celleditor.DateFieldCellEditor;
@@ -39,10 +40,13 @@ public class CellEditorCreator {
             }
         }
 
-        if (field instanceof DateField) {
-            return new DateTimeFieldCellEditor((DateField) field);
-        } else if (field instanceof DateField) {
-            return new DateFieldCellEditor((DateField) field);
+        if (field instanceof FormatDateField) {
+            FormatDateField formatDateField = (FormatDateField) field;
+            if (formatDateField.isDateTime()) {
+                return new DateTimeFieldCellEditor((DateField) field);
+            } else {
+                return new DateFieldCellEditor((DateField) field);
+            }
         }
 
         if (field instanceof NumberField) {
