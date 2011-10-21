@@ -18,13 +18,18 @@ import java.util.Map;
 
 import com.amalto.core.jobox.JobInfo;
 import com.amalto.core.jobox.util.JoboxException;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerV2CtrlBean;
+import org.apache.log4j.Logger;
 import org.dom4j.Document;
 
 public class MDMJobInvoker extends JobInvoker {
 
     public static final String SET_MDM_INPUT_MESSAGE_METHOD = "setMDMInputMessage";
+
     public static final String GET_MDM_OUTPUT_MESSAGE_METHOD = "getMDMOutputMessage";
+
+    public static final String EXCHANGE_XML_PARAMETER = "__talend__exchangeXML__";
+
+    public static final Logger LOGGER = Logger.getLogger(MDMJobInvoker.class);
 
     public MDMJobInvoker(JobInfo jobInfo) {
         super(jobInfo);
@@ -42,9 +47,13 @@ public class MDMJobInvoker extends JobInvoker {
 
             Method getMDMOutputMethod = jobInstance.getClass().getMethod(GET_MDM_OUTPUT_MESSAGE_METHOD);
             Document result = (Document) getMDMOutputMethod.invoke(jobInstance);
-            String[] resultAsString = {result.asXML()};
-
-            return new String[][] {resultAsString};
+            if (result == null) {
+                LOGGER.warn("Job '" + jobInstance.getClass().getName() + "' returned null as result of " + GET_MDM_OUTPUT_MESSAGE_METHOD + "(). Please check job because this is unexpected.");
+                return new String[0][0];
+            } else {
+                String[] resultAsString = {result.asXML()};
+                return new String[][]{resultAsString};
+            }
         } catch (Exception e) {
             throw new JoboxException(e);
         }
@@ -54,7 +63,11 @@ public class MDMJobInvoker extends JobInvoker {
     protected void prepareJobInstance(Object jobInstance, Map<String, String> parameters) throws JoboxException {
         try {
             Method setMDMInputMethod = jobInstance.getClass().getMethod(SET_MDM_INPUT_MESSAGE_METHOD, String.class);
-            setMDMInputMethod.invoke(jobInstance, parameters.get(TransformerV2CtrlBean.DEFAULT_VARIABLE));
+            if (parameters.containsKey(EXCHANGE_XML_PARAMETER)) {
+                setMDMInputMethod.invoke(jobInstance, parameters.get(EXCHANGE_XML_PARAMETER));
+            } else {
+                throw new IllegalArgumentException("Parameter " + EXCHANGE_XML_PARAMETER + " is expected for invocation but was not found."); //$NON-NLS-1$
+            }
         } catch (Exception e) {
             throw new JoboxException(e);
         }

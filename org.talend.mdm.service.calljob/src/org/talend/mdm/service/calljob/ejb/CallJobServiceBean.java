@@ -13,6 +13,7 @@
 
 package org.talend.mdm.service.calljob.ejb;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
@@ -23,11 +24,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.ejb.CreateException;
 import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
+import javax.naming.NamingException;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.ws.BindingProvider;
 
+import com.amalto.core.jobox.component.MDMJobInvoker;
+import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.service.calljob.CompiledParameters;
 import org.talend.mdm.service.calljob.ContextParam;
 import org.talend.mdm.service.calljob.webservices.Args;
@@ -45,6 +52,7 @@ import com.amalto.core.jobox.JobInvokeConfig;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
+import org.xml.sax.SAXException;
 
 /**
  * @author achen
@@ -75,6 +83,7 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
     private static final long serialVersionUID = 1L;
 
     public static final String JNDI_NAME = "amalto/local/service/callJob";
+    public static final String HTTP_PROTOCOL = "http";
 
     /**
      * @throws EJBException
@@ -198,7 +207,6 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
     public String receiveFromInbound(ItemPOJOPK itemPK, String routingOrderID, String compiledParameters) throws XtentisException {
         try {
             CompiledParameters parameters = CompiledParameters.deserialize(compiledParameters);
-            //context.put(PARAMETERS, parameters);
             URL wsdlURL = this.getClass().getResource("/META-INF/wsdl/tis.wsdl");
 
             WSxmlService service = new WSxmlService(wsdlURL, new QName("http://talend.org", "WSxmlService"));
@@ -209,8 +217,8 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
             URI uri = URI.create(parameters.getUrl());
             String protocol = uri.getScheme();
             String jobName = uri.getHost();
-            String jobVersion = uri.getPath();
-            String jobMainClass = uri.getQuery();
+            String jobVersion = uri.getPath().substring(1);
+            String jobMainClass = uri.getQuery() == null ? StringUtils.EMPTY : uri.getQuery();
 
             if (LTJ_PROTOCOL.equals(protocol)) {
                 jobInvokeConfig = new JobInvokeConfig();
@@ -219,8 +227,7 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
                 if (jobMainClass.length() > 0) {
                     jobInvokeConfig.setJobMainClass(jobMainClass);
                 }
-            } else {
-                // TODO HTTP should be supported
+            } else if(!HTTP_PROTOCOL.equalsIgnoreCase(protocol)) { // no action needed for http
                 throw new IllegalArgumentException("Protocol '" + protocol + "' is not supported.");
             }
 
@@ -232,29 +239,15 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
             //execute
 
             //the text should be a map(key=value)
+            String exchangeXML = StringUtils.EMPTY;
             Properties p = new Properties();
             if (parameters.getTisContext() != null) {
                 for (ContextParam kv : parameters.getTisContext()) {
                     String value = kv.getValue();
                     if (kv.isItemXML()) {
-                        //get item string from itempojopk
-                        ItemCtrl2Local itemCtrl2Local = Util.getItemCtrl2Local();
-                        ItemPOJO pojo = itemCtrl2Local.getItem(itemPK);
-                        String updateReportXml = pojo.getProjectionAsString();
-                        Element root = Util.parse(updateReportXml).getDocumentElement();
-                        String concept = Util.getFirstTextNode(root, "Concept");
-                        String key = Util.getFirstTextNode(root, "Key");
-                        String[] ids = key.split("\\.");
-                        String clusterPK = Util.getFirstTextNode(root, "DataCluster");
-                        ItemPOJOPK itemPk = new ItemPOJOPK(new DataClusterPOJOPK(clusterPK), concept, ids);
-                        try {
-                            ItemPOJO itempojo = itemCtrl2Local.getItem(itemPk);
-
-                            String itemXml = itempojo.getProjectionAsString();
-                            value = Util.mergeExchangeData(itemXml, updateReportXml);
-                        } catch (Exception e) {
-                            throw new XtentisException(e);
-                        }
+                        value = createExchangeXML(itemPK);
+                        // TMDM-2633 Always include exchange XML message in parameters (save computed value for later)
+                        exchangeXML = value;
                     }
                     p.setProperty(kv.getName(), value);
                 }
@@ -271,6 +264,11 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
                 argsMap.put(key, value);
             }
 
+            // TMDM-2633: Always include exchange XML message in parameters
+            if (exchangeXML.isEmpty()) { // (don't compute it twice)
+                argsMap.put(MDMJobInvoker.EXCHANGE_XML_PARAMETER, createExchangeXML(itemPK));
+            }
+
             JobContainer.getUniqueInstance().getJobInvoker(jobName, jobVersion).call(argsMap);
             return "callJob Service successfully executed!'";
         } catch (XtentisException xe) {
@@ -281,6 +279,30 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
             org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
             throw new XtentisException(e);
         }
+    }
+
+    private static String createExchangeXML(ItemPOJOPK itemPK) throws XtentisException {
+        //get item string from itempojopk
+        String value;
+        try {
+            ItemCtrl2Local itemCtrl2Local = Util.getItemCtrl2Local();
+            ItemPOJO pojo = itemCtrl2Local.getItem(itemPK);
+            String updateReportXml = pojo.getProjectionAsString();
+            Element root = Util.parse(updateReportXml).getDocumentElement();
+            String concept = Util.getFirstTextNode(root, "Concept");
+            String key = Util.getFirstTextNode(root, "Key");
+            String[] ids = key.split("\\.");
+            String clusterPK = Util.getFirstTextNode(root, "DataCluster");
+            ItemPOJOPK itemPk = new ItemPOJOPK(new DataClusterPOJOPK(clusterPK), concept, ids);
+
+            ItemPOJO itempojo = itemCtrl2Local.getItem(itemPk);
+
+            String itemXml = itempojo.getProjectionAsString();
+            value = Util.mergeExchangeData(itemXml, updateReportXml);
+        } catch (Exception e) {
+            throw new XtentisException(e);
+        }
+        return value;
     }
 
     /**

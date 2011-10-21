@@ -16,6 +16,8 @@ import javax.ejb.SessionBean;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 
+import com.amalto.core.jobox.component.MDMJobInvoker;
+import com.amalto.core.objects.transformers.v2.ejb.TransformerV2CtrlBean;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
@@ -80,14 +82,16 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
 
     private static final String LTJ_PROTOCOL = "ltj";
 
+    private static final String HTTP_PROTOCOL = "http";
+
     private static final String INPUT_TEXT = "text";
 
     private static final String OUTPUT_TEXT = "result";
 
     private static final long serialVersionUID = 1L;
-    
+
     private static final String WSDL_TIS_WSDL = "/wsdl/tis.wsdl";
-    
+
     private static final Logger LOGGER = Logger.getLogger(TISCallTransformerPluginBean.class);
 
     private static final String JNDI_NAME = "amalto/local/transformer/plugin/callJob";
@@ -177,30 +181,30 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
 
             compiledParameters = CompiledParameters.deserialize(parameters);
             URL wsdlResource = TISCallTransformerPluginBean.class.getResource(WSDL_TIS_WSDL);
-            if (wsdlResource == null) {
+            /*if (wsdlResource == null) {
                 throw new IllegalStateException("Could not find resource '" + WSDL_TIS_WSDL + "'");
-            }
+            }*/
             
             WSxmlService service = new WSxmlService(wsdlResource, new QName("http://talend.org", "WSxmlService"));
             WSxml port = service.getWSxml();
 
             //set the parameters
+            JobInvokeConfig jobInvokeConfig;
             URI uri = URI.create(compiledParameters.getUrl());
             String protocol = uri.getScheme();
             String jobName = uri.getHost();
-            String jobVersion = uri.getPath();
-            String jobMainClass = uri.getQuery();
+            String jobVersion = uri.getPath().substring(1);
+            String jobMainClass = uri.getQuery() == null ? StringUtils.EMPTY : uri.getQuery();
 
             if (LTJ_PROTOCOL.equals(protocol)) {
-                JobInvokeConfig jobInvokeConfig = new JobInvokeConfig();
+                jobInvokeConfig = new JobInvokeConfig();
                 jobInvokeConfig.setJobName(jobName);
                 jobInvokeConfig.setJobVersion(jobVersion);
                 if (jobMainClass.length() > 0) {
                     jobInvokeConfig.setJobMainClass(jobMainClass);
                 }
                 context.put(INVOKE_CONFIG, jobInvokeConfig);
-            } else {
-                // TODO HTTP should be supported
+            } else if(!HTTP_PROTOCOL.equalsIgnoreCase(protocol)) { // no action needed for http
                 throw new IllegalArgumentException("Protocol '" + protocol + "' is not supported.");
             }
 
@@ -302,6 +306,7 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
 
             JobInvokeConfig invokeConfig = (JobInvokeConfig) context.get(INVOKE_CONFIG);
             if (invokeConfig != null) {
+                argsMap.put(MDMJobInvoker.EXCHANGE_XML_PARAMETER, new String(context.getFromPipeline(TransformerV2CtrlBean.DEFAULT_VARIABLE).getContentBytes()));
                 String[][] result = JobContainer.getUniqueInstance().getJobInvoker(invokeConfig.getJobName(), invokeConfig.getJobVersion()).call(argsMap);
 
                 for (String[] currentResult : result) {

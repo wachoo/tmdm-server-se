@@ -172,7 +172,7 @@ public class JoboxTest extends TestCase {
         assertEquals(MDMJobInvoker.class, invoker.getClass());
 
         HashMap<String, String> parameters = new HashMap<String, String>();
-        parameters.put(TransformerV2CtrlBean.DEFAULT_VARIABLE, "<exchange><report></report><item><key>0</key></item></exchange>");
+        parameters.put(MDMJobInvoker.EXCHANGE_XML_PARAMETER, "<exchange><report></report><item><key>0</key></item></exchange>");
 
         String[][] result = invoker.call(parameters);
         assertEquals(1, result.length);
@@ -182,6 +182,27 @@ public class JoboxTest extends TestCase {
 
         try {
             invoker.call();
+            fail("Caller must provide exchange message.");
+        } catch (JoboxException e) {
+            // Expected
+        }
+    }
+
+    public void testFailExecuteMDMJob() throws Exception {
+        //init
+        Properties props = new Properties();
+        props.put(JoboxConfig.JOBOX_HOME_PATH, JOBOX_TEST_DIR);
+        deployFileToJobox("testJob1.zip");
+        jobContainer.init(props);
+
+        JobInfo jobInfo = jobContainer.getJobInfo("TestTalendMDMJob", "0.1");
+        assertNotNull(jobInfo);
+
+        JobInvoker invoker = jobContainer.getJobInvoker("TestTalendMDMJob", "0.1");
+        HashMap<String, String> parameters = new HashMap<String, String>();
+        parameters.put("param1", "test");
+        try {
+            invoker.call(parameters);
             fail("Caller must provide exchange message.");
         } catch (JoboxException e) {
             // Expected
