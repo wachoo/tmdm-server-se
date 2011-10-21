@@ -411,7 +411,8 @@ public class ItemsListPanel extends ContentPanel {
     }
 
     public void setEnabledGridSearchButton(boolean enabled) {
-        gridContainer.setEnabled(enabled);
+        grid.setEnabled(enabled);
+        pagingBar.setEnabled(enabled);
         toolBar.searchBut.setEnabled(enabled);
     }
 
