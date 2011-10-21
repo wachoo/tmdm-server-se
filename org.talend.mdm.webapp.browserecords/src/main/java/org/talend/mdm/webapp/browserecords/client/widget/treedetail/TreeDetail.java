@@ -51,6 +51,8 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
@@ -71,17 +73,20 @@ public class TreeDetail extends ContentPanel {
 
     private ItemDetailToolBar toolBar;
 
+    private DynamicTreeItem selectedItem;
+
     private ClickHandler handler = new ClickHandler() {
 
         public void onClick(ClickEvent arg0) {
-            final DynamicTreeItem selected = (DynamicTreeItem) tree.getSelectedItem();
-            final DynamicTreeItem parentItem = (DynamicTreeItem) selected.getParentItem();
-
-            final ItemNodeModel selectedModel = selected.getItemNodeModel();
+            if (selectedItem == null)
+                return;
+            // final DynamicTreeItem selected = (DynamicTreeItem) tree.getSelectedItem();
+            final DynamicTreeItem parentItem = (DynamicTreeItem) selectedItem.getParentItem();
+            final ItemNodeModel selectedModel = selectedItem.getItemNodeModel();
             final ItemNodeModel parentModel = (ItemNodeModel) selectedModel.getParent();
 
             final String xpath = selectedModel.getBindingPath();
-            final CountMapItem countMapItem = new CountMapItem(xpath, parentItem);
+            final CountMapItem countMapItem = new CountMapItem(xpath, parentModel);
             final int count = occurMap.containsKey(countMapItem) ? occurMap.get(countMapItem) : 0;
 
             if ("Add".equals(arg0.getRelativeElement().getId()) || "Clone".equals(arg0.getRelativeElement().getId())) { //$NON-NLS-1$ //$NON-NLS-2$               
@@ -95,7 +100,7 @@ public class TreeDetail extends ContentPanel {
                     // if it has default value
                     if (viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getDefaultValue() != null)
                         model.setObjectValue(viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getDefaultValue());
-                    parentItem.insertItem(buildGWTTree(model, null, true), parentItem.getChildIndex(selected) + 1);
+                    parentItem.insertItem(buildGWTTree(model, null, true), parentItem.getChildIndex(selectedItem) + 1);
                     occurMap.put(countMapItem, count + 1);
                 } else
                     MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
@@ -106,10 +111,11 @@ public class TreeDetail extends ContentPanel {
 
                             public void handleEvent(MessageBoxEvent be) {
                                 if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+
                                     if (count > 1
                                             && count > viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath)
                                                     .getMinOccurs()) {
-                                        parentItem.removeItem(selected);
+                                        parentItem.removeItem(selectedItem);
                                         parentModel.remove(selectedModel);
                                         occurMap.put(countMapItem, count - 1);
                                         if (parentModel.getChildCount() > 0) {
@@ -217,7 +223,7 @@ public class TreeDetail extends ContentPanel {
                     TreeItem childItem = buildGWTTree(node, null, withDefaultValue, operation);
                     item.addItem(childItem);
                     int count = 0;
-                    CountMapItem countMapItem = new CountMapItem(node.getBindingPath(), item);
+                    CountMapItem countMapItem = new CountMapItem(node.getBindingPath(), itemNode);
                     if (occurMap.containsKey(countMapItem))
                         count = occurMap.get(countMapItem);
                     occurMap.put(countMapItem, count + 1);
@@ -251,12 +257,12 @@ public class TreeDetail extends ContentPanel {
     }
 
     public void onUpdatePolymorphism(ComplexTypeModel typeModel) {
-        DynamicTreeItem item = (DynamicTreeItem) tree.getSelectedItem();
-        if (item == null) {
+        // DynamicTreeItem item = (DynamicTreeItem) tree.getSelectedItem();
+        if (selectedItem == null) {
             return;
         }
-        item.setState(true);
-        ItemNodeModel treeNode = item.getItemNodeModel();
+        selectedItem.setState(true);
+        ItemNodeModel treeNode = selectedItem.getItemNodeModel();
 
         List<ItemNodeModel> fkContainers = ForeignKeyUtil.getAllForeignKeyModelParent(viewBean, treeNode);
         for (ItemNodeModel fkContainer : fkContainers) {
@@ -264,7 +270,7 @@ public class TreeDetail extends ContentPanel {
         }
 
         treeNode.setRealType(typeModel.getName());
-        item.removeItems();
+        selectedItem.removeItems();
 
         List<ItemNodeModel> items = CommonUtil.getDefaultTreeModel(typeModel, Locale.getLanguage());
         if (items != null && items.size() > 0) {
@@ -274,7 +280,7 @@ public class TreeDetail extends ContentPanel {
             }
             treeNode.setChildNodes(childrenItems);
         }
-        buildGWTTree(treeNode, item, true);
+        buildGWTTree(treeNode, selectedItem, true);
 
     }
 
@@ -287,20 +293,30 @@ public class TreeDetail extends ContentPanel {
 
     private Tree displayGWTTree(ColumnTreeModel columnLayoutModel) {
         Tree tree = new Tree();
-        if (root != null && root.getChildCount() > 0) {
+        DynamicTreeItem treeRootNode = new DynamicTreeItem();
+        tree.addItem(treeRootNode);
 
+        if (root != null && root.getChildCount() > 0) {
             for (ColumnElement ce : columnLayoutModel.getColumnElements()) {
                 for (int i = 0; i < root.getChildCount(); i++) {
                     TreeItem child = root.getChild(i);
                     ItemNodeModel node = (ItemNodeModel) child.getUserObject();
-                    if (("/" + node.getBindingPath()).equals(ce.getxPath())) { //$NON-NLS-1$
-                        tree.addItem(child);
-                        break;
+                    String xpath = node.getBindingPath();
+                    if (("/" + xpath).equals(ce.getxPath())) { //$NON-NLS-1$
+                        treeRootNode.addItem(child);
+                        TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath);
+                        if (typeModel.getForeignkey() == null && (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1)) {
+                            i--;
+                            continue;
+                        } else
+                            break;
                     }
                 }
             }
         }
-
+        if (treeRootNode.getElement().getFirstChildElement() != null)
+            treeRootNode.getElement().getFirstChildElement().setClassName("rootNode"); //$NON-NLS-1$
+        treeRootNode.setState(true);
         return tree;
     }
 
@@ -324,6 +340,7 @@ public class TreeDetail extends ContentPanel {
             for (ColumnTreeModel ctm : columnLayoutModel.getColumnTreeModels()) {
                 Tree tree = displayGWTTree(ctm);
                 hp.add(tree);
+                addTreeListener(tree);
             }
             hp.setHeight("570px"); //$NON-NLS-1$
             HorizontalPanel spacehp = new HorizontalPanel();
@@ -333,8 +350,18 @@ public class TreeDetail extends ContentPanel {
 
         } else {
             add(tree);
+            addTreeListener(tree);
         }
         this.layout();
+    }
+
+    // get selected item in tree
+    private void addTreeListener(Tree tree) {
+        tree.addSelectionHandler(new SelectionHandler<TreeItem>() {
+            public void onSelection(SelectionEvent<TreeItem> event) {
+                selectedItem = (DynamicTreeItem) event.getSelectedItem();
+            }
+        });
     }
 
     private void recrusiveSetItems(VisibleRuleResult visibleResult, DynamicTreeItem rootItem) {
@@ -426,19 +453,19 @@ public class TreeDetail extends ContentPanel {
 
         private String xpath;
 
-        private TreeItem parentItem;
+        private ItemNodeModel parentModel;
 
-        public CountMapItem(String xpath, TreeItem parentItem) {
+        public CountMapItem(String xpath, ItemNodeModel parentModel) {
             this.xpath = xpath;
-            this.parentItem = parentItem;
+            this.parentModel = parentModel;
         }
 
         public String getXpath() {
             return this.xpath;
         }
 
-        public TreeItem getParentItem() {
-            return this.parentItem;
+        public ItemNodeModel getParentModel() {
+            return this.parentModel;
         }
 
         @Override
@@ -449,7 +476,7 @@ public class TreeDetail extends ContentPanel {
         @Override
         public boolean equals(Object o) {
             CountMapItem item = (CountMapItem) o;
-            return item.getXpath().equals(xpath) && item.getParentItem().equals(parentItem);
+            return item.getXpath().equals(xpath) && item.getParentModel().equals(parentModel);
         }
     }
 

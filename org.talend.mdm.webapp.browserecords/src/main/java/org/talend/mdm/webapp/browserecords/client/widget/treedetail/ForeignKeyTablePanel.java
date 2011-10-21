@@ -216,7 +216,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         grid.addPlugin(sm);
         grid.addPlugin(re);
         // grid.setWidth(Window.getClientWidth() - ItemsListPanel.getInstance().getInnerWidth());
-        grid.setBorders(true);
+        grid.setBorders(false);
         this.add(grid);
 
         pagingBar = new PagingToolBarEx(PAGE_SIZE);
@@ -267,9 +267,6 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         int max = fkTypeModel.getMaxOccurs();
         int count = 1;
         if (min >= 0 && max > min) {
-            // if (fkModels.size() < (max - min)) {
-            // count = max - min;
-            // }
             count = max;
         }
         if (fkModels.size() < count || max == -1) {

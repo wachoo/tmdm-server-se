@@ -9,7 +9,6 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
-import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
@@ -31,15 +30,8 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
 
     public void RenderForeignKey(final ItemNodeModel parentModel, final List<ItemNodeModel> fkNodeModelList,
             final TypeModel fkTypeModel, final ItemDetailToolBar toolBar, final ViewBean pkViewBean) {
-        TabItem tabItem = ItemsDetailPanel.getInstance().getTabPanel().getItem(0);
-        if (tabItem != null) {
-            ItemPanel itemPanel = (ItemPanel) tabItem.getWidget(0);
-            if (pkViewBean == BrowseRecords.getSession().get(UserSession.CURRENT_VIEW) && itemPanel instanceof ItemPanel
-                    && itemPanel.getToolBar() != toolBar)
-                return;
-        }
         if (fkNodeModelList != null) {
-            String concept = fkTypeModel.getForeignkey().split("/")[0]; //$NON-NLS-1$ //$NON-NLS-2$
+            String concept = fkTypeModel.getForeignkey().split("/")[0]; //$NON-NLS-1$
             service.getEntityModel(concept, Locale.getLanguage(), new SessionAwareAsyncCallback<EntityModel>() {
 
                 public void onSuccess(EntityModel entityModel) {

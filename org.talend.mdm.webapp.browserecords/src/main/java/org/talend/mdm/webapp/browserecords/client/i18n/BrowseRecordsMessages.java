@@ -345,4 +345,6 @@ public interface BrowseRecordsMessages extends Messages {
 
     String fk_save_validate(String name, int value);
 
+    String fk_save_validateEx(String name);
+
 }
