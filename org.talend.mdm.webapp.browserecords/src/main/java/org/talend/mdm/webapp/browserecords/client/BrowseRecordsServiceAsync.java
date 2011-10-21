@@ -113,7 +113,7 @@ public interface BrowseRecordsServiceAsync {
 
     void isItemModifiedByOthers(ItemBean itemBean, AsyncCallback<Boolean> callback);
 
-    void saveFkItem(String concept, String ids, Map<String, String> changedNodes, String language, AsyncCallback<String> callback);
+    void updateItem(String concept, String ids, Map<String, String> changedNodes, String language, AsyncCallback<String> callback);
 
     void formatValue(FormatModel model, AsyncCallback<String> callback);
 

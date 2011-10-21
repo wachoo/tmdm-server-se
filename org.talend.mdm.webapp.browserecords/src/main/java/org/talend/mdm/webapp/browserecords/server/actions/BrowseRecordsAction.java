@@ -1628,7 +1628,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    public String saveFkItem(String concept, String ids, Map<String, String> changedNodes, String language)
+    public String updateItem(String concept, String ids, Map<String, String> changedNodes, String language)
             throws ServiceException {
         String dataCluster = getCurrentDataCluster();
         // get item
@@ -1649,9 +1649,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             return saveItem(concept, ids, doc.asXML(), false, language);
         } catch (Exception e) {
-
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
         }
-        return null;
     }
 
     public ColumnTreeLayoutModel getColumnTreeLayout(String concept) throws ServiceException {

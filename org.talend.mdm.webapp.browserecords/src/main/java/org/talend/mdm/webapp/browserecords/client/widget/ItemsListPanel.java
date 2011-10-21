@@ -13,6 +13,8 @@
 package org.talend.mdm.webapp.browserecords.client.widget;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -49,6 +51,7 @@ import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.LoadListener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
+import com.extjs.gxt.ui.client.event.RowEditorEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -56,6 +59,7 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.state.StateManager;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Record;
+import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -262,6 +266,7 @@ public class ItemsListPanel extends ContentPanel {
                 pagingBar.setVisible(true);
             }
         });
+
         grid.setLoadMask(true);
         grid.addPlugin(re);
         grid.addPlugin(sm);
@@ -273,6 +278,75 @@ public class ItemsListPanel extends ContentPanel {
         gridContainer.setHeight(this.getHeight() - ItemsToolBar.getInstance().getHeight()
                 - ItemsToolBar.getInstance().getAdvancedPanel().getHeight());
         hookContextMenu();
+
+        re.addListener(Events.AfterEdit, new Listener<RowEditorEvent>() {
+
+            public void handleEvent(RowEditorEvent be) {
+                Map<String, Object> changes = be.getChanges();
+                Iterator<String> iterator = changes.keySet().iterator();
+                Map<String, String> changedField = new HashMap<String, String>(changes.size());
+
+                while (iterator.hasNext()) {
+                    String path = iterator.next();
+                    String value = (String) changes.get(path);
+                    changedField.put(path, value != null ? value : ""); //$NON-NLS-1$
+                }
+
+                final ItemBean itemBean = grid.getSelectionModel().getSelectedItem();
+
+                service.updateItem(itemBean.getConcept(), itemBean.getIds(), changedField, Locale.getLanguage(),
+                        new SessionAwareAsyncCallback<String>() {
+
+                            @Override
+                            protected void doOnFailure(Throwable caught) {
+                                Record record;
+                                Store<ItemBean> store = grid.getStore();
+                                if (store != null) {
+                                    record = store.getRecord(itemBean);
+                                } else {
+                                    record = null;
+                                }
+
+                                if (record != null) {
+                                    record.reject(false);
+                                }
+
+                                String err = caught.getLocalizedMessage();
+                                if (err != null)
+                                    err.replaceAll("\\[", "{").replaceAll("\\]", "}"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                                MessageBox.alert(MessagesFactory.getMessages().error_title(),
+                                        Locale.getExceptionString(Locale.getLanguage(), err), null);
+
+                            }
+
+                            public void onSuccess(String result) {
+                                Record record;
+                                Store<ItemBean> store = grid.getStore();
+                                if (store != null) {
+                                    record = store.getRecord(itemBean);
+                                } else {
+                                    record = null;
+                                }
+
+                                if (record != null) {
+                                    record.commit(false);
+                                }
+                                MessageBox.alert(MessagesFactory.getMessages().info_title(),
+                                        Locale.getExceptionMessageByLanguage(Locale.getLanguage(), result), null);
+                                // refreshForm(itemBean)
+                                if (itemBean != null) {
+                                    if (gridUpdateLock) {
+                                        return;
+                                    }
+                                    gridUpdateLock = true;
+                                    Dispatcher.forwardEvent(BrowseRecordsEvents.ViewItem, itemBean);
+                                    gridUpdateLock = false;
+                                }
+                            }
+                        });
+            }
+
+        });
 
         add(gridContainer);
         this.syncSize();
