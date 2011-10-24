@@ -56,7 +56,7 @@ public class ItemsDetailPanel extends ContentPanel {
     }
 
     private void initPanel() {
-        add(breadCrumb);
+        add(breadCrumb, new RowData(1, -1));
         // banner.setHeaderVisible(false);
         banner.setHeight("56px"); //$NON-NLS-1$
         // banner.setBodyBorder(false);
@@ -64,11 +64,11 @@ public class ItemsDetailPanel extends ContentPanel {
         banner.setStyleName("banner"); //$NON-NLS-1$ 
 
         textTitle.setStyleName("Title"); //$NON-NLS-1$
-        add(banner);
+        add(banner, new RowData(1, -1));
         tabPanel.setTabScroll(true);
-        tabPanel.setAutoWidth(true);
         add(tabPanel, new RowData(1, 1));
     }
+
 
     public void initBreadCrumb(BreadCrumb breadCrumb) {
         this.breadCrumb.setWidget(breadCrumb);
@@ -139,6 +139,7 @@ public class ItemsDetailPanel extends ContentPanel {
         } else {
             if (newTab == null) {
                 newTab = new TabItem(title);
+                newTab.setLayout(new FitLayout());
                 newTab.setId(id);
                 newTab.setItemId(id);
                 newTab.setLayout(new FitLayout());
