@@ -39,6 +39,12 @@ public class CustomFormPOJOPK extends ObjectPOJOPK {
         this(pk.getIds());
     }
 
+    public CustomFormPOJOPK(String datamodel, String entity) {
+        super(new String[] { datamodel, entity });
+        this.datamodel = datamodel;
+        this.entity = entity;
+    }
+
     public CustomFormPOJOPK(String datamodel, String entity, String name) {
         super(new String[] { datamodel, entity, name });
         this.datamodel = datamodel;
