@@ -12,12 +12,12 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.publiclistener;
 
-import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
+import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 
 /**
  * DOC Administrator class global comment. Detailled comment
  */
 public interface SavedListener {
 
-    public void onSaved(ItemBean itemBean, boolean isClose);
+    public void onSaved(ItemNodeModel itemBean, boolean isClose);
 }

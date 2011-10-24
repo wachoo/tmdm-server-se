@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
+import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -60,7 +61,7 @@ public class StatusObserver {
         }
     }
     
-    public void notifySaved(ItemBean itemBean, boolean isClose) {
+    public void notifySaved(ItemNodeModel itemBean, boolean isClose) {
         if (savedListeners != null){
             for (SavedListener savedListener : savedListeners){
                 savedListener.onSaved(itemBean, isClose);
@@ -88,7 +89,7 @@ public class StatusObserver {
         }
     }
 
-    public void notifyUpdated(ItemBean itemBean, boolean isClose) {
+    public void notifyUpdated(ItemNodeModel itemBean, boolean isClose) {
         if (updatedListeners != null) {
             for (UpdatedListener updatedListener : updatedListeners) {
                 updatedListener.onUpdated(itemBean, isClose);
