@@ -26,6 +26,7 @@ import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnElement;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeModel;
+import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyValidateModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
@@ -245,7 +246,7 @@ public class TreeDetail extends ContentPanel {
 
             if (fkMap.size() > 0) {
                 for (TypeModel model : fkMap.keySet()) {
-                    fkRender.RenderForeignKey(itemNode, fkMap.get(model), model, toolBar, viewBean);
+                    fkRender.RenderForeignKey(itemNode, fkMap.get(model), model, toolBar, viewBean, this);
                 }
             }
             item.getElement().getStyle().setPaddingLeft(3.0, Unit.PX);
@@ -483,7 +484,8 @@ public class TreeDetail extends ContentPanel {
 
     public boolean validateTree() {
         boolean flag = true;
-        ItemNodeModel rootNode = (ItemNodeModel) tree.getItem(0).getUserObject();
+        // ItemNodeModel rootNode = (ItemNodeModel) tree.getItem(0).getUserObject();
+        ItemNodeModel rootNode = (ItemNodeModel) root.getUserObject();
         if (rootNode != null) {
             flag = validateNode(rootNode, flag);
         }
@@ -494,28 +496,25 @@ public class TreeDetail extends ContentPanel {
 
         if (rootNode.getChildren() != null && rootNode.getChildren().size() > 0) {
             Map<TypeModel, Integer> map = new HashMap<TypeModel, Integer>();
+            Map<TypeModel, ForeignKeyValidateModel> fkValidateMap = new HashMap<TypeModel, ForeignKeyValidateModel>();
             for (ModelData model : rootNode.getChildren()) {
 
                 ItemNodeModel node = (ItemNodeModel) model;
                 if (!node.isValid() && node.getChildCount() == 0) {
                     TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath());
+                    boolean parentIsMayNull = rootNode.getParent() != null && !rootNode.isMandatory();
                     if (tm.getForeignkey() != null) {
                         // fk minOccurs check
                         if (!map.containsKey(tm))
                             map.put(tm, 0);
-                        map.put(tm, map.get(tm) + 1);
-                        if (map.get(tm) <= tm.getMinOccurs()) {
-                            // check value
-                            ForeignKeyBean fkBean = (ForeignKeyBean) node.getObjectValue();
-                            if (fkBean == null || fkBean.getId() == null) {
-                                MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
-                                        .fk_save_validate(ForeignKeyUtil.transferXpathToLabel(tm, viewBean), tm.getMinOccurs()),
-                                        null);
-
-                                flag = false;
-                            }
+                        else if (parentIsMayNull && fkValidateMap.get(tm).isNodeValid()) {
+                            map.put(tm, map.get(tm) + 1);
+                            continue;
                         }
-
+                        map.put(tm, map.get(tm) + 1);
+                        ForeignKeyValidateModel fkValidateModel = validateFK(node);
+                        flag = fkValidateModel.isNodeValid();
+                        fkValidateMap.put(tm, fkValidateModel);
                     } else {
                         MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
                                 .validation_error(node.getBindingPath()), null);
@@ -533,21 +532,78 @@ public class TreeDetail extends ContentPanel {
                 }
             }
             if (flag) {
-                for (TypeModel fkTypeModel : map.keySet()) {
-                    if (fkTypeModel.getMinOccurs() > map.get(fkTypeModel)) {
-                        MessageBox.alert(
-                                MessagesFactory.getMessages().error_title(),
-                                MessagesFactory.getMessages().fk_save_validate(
-                                        ForeignKeyUtil.transferXpathToLabel(fkTypeModel, viewBean), fkTypeModel.getMinOccurs()),
-                                null);
-                        flag = false;
-                        break;
+                for (TypeModel typeModel : fkValidateMap.keySet()) {
+                    if (fkValidateMap.get(typeModel).isHaveNodeValue()) {
+                        int count = map.get(typeModel);
+                        if (typeModel.getMinOccurs() > count) {
+                            MessageBox.alert(
+                                    MessagesFactory.getMessages().error_title(),
+                                    MessagesFactory.getMessages().fk_save_validate(
+                                            ForeignKeyUtil.transferXpathToLabel(typeModel, viewBean), typeModel.getMinOccurs()),
+                                    null);
+                            flag = false;
+                            break;
+                        }
                     }
                 }
             }
 
         }
         return flag;
+    }
+
+    private ForeignKeyValidateModel validateFK(ItemNodeModel node) {
+        ItemNodeModel parent = (ItemNodeModel) node.getParent();
+        boolean isHaveNodeValue = false;
+        boolean isNodeValid = true;
+        if (parent != null && parent.getParent() != null && !parent.isMandatory()) {
+            for (ModelData model : parent.getChildren()) {
+                ItemNodeModel nodeModel = (ItemNodeModel) model;
+                if (nodeModel.getObjectValue() != null && nodeModel.getObjectValue().toString().trim().length() > 0) {
+                    if (nodeModel.getObjectValue() instanceof ForeignKeyBean) {
+                        ForeignKeyBean fkBean = (ForeignKeyBean) nodeModel.getObjectValue();
+                        if (fkBean.getId() == null || fkBean.getId().trim().length() == 0)
+                            continue;
+                    }
+                    isHaveNodeValue = true;
+                    break;
+                }
+
+            }
+            if (isHaveNodeValue) {
+                for (ModelData model : parent.getChildren()) {
+                    ItemNodeModel nodeModel = (ItemNodeModel) model;
+                    TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath());
+                    if (tm.getForeignkey() != null) {
+                        if (!validateFKValue(nodeModel)) {
+                            isNodeValid = false;
+                            break;
+                        }
+                    }
+                }
+            }
+        } else {
+            isHaveNodeValue = true;
+            isNodeValid = validateFKValue(node);
+        }
+        return new ForeignKeyValidateModel(isHaveNodeValue, isNodeValid);
+    }
+
+    private boolean validateFKValue(ItemNodeModel node) {
+        if (!node.isValid() && node.getChildCount() == 0) {
+            TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath());
+            // fk minOccurs check
+            if (tm.getMinOccurs() >= 1) {
+                // check value
+                ForeignKeyBean fkBean = (ForeignKeyBean) node.getObjectValue();
+                if (fkBean == null || fkBean.getId() == null) {
+                    MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                            .fk_save_validateEx(ForeignKeyUtil.transferXpathToLabel(tm, viewBean), tm.getMinOccurs()), null);
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private boolean hasVisibleRule(TypeModel typeModel) {
@@ -573,6 +629,22 @@ public class TreeDetail extends ContentPanel {
 
     public void setToolBar(ItemDetailToolBar toolBar) {
         this.toolBar = toolBar;
+    }
+
+    public Map<String, Field<?>> getFieldMap() {
+        return fieldMap;
+    }
+
+    public void setRoot(TreeItem root) {
+        this.root = root;
+    }
+
+    public ItemNodeModel getRootModel() {
+        return (ItemNodeModel) root.getUserObject();
+    }
+
+    public void setViewBean(ViewBean viewBean) {
+        this.viewBean = viewBean;
     }
 
 }

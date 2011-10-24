@@ -25,6 +25,7 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.ui.Frame;
+import com.google.gwt.user.client.ui.TreeItem;
 
 public class ItemPanel extends ContentPanel {
 
@@ -53,20 +54,20 @@ public class ItemPanel extends ContentPanel {
         this.item = item;
         this.toolBar = new ItemDetailToolBar(item, operation, viewBean);
         this.operation = operation;
-        this.initUI();
+        this.initUI(null);
     }
 
-    public ItemPanel(ViewBean viewBean, ItemBean item, String operation, ContentPanel contenPanel) {
+    public ItemPanel(ViewBean viewBean, ItemBean item, String operation, ContentPanel contenPanel, TreeItem root) {
         this.viewBean = viewBean;
         this.item = item;
         this.toolBar = new ItemDetailToolBar(item, operation, viewBean);
         this.operation = operation;
         this.isForeignKeyPanel = true;
         this.contenPanel = contenPanel;
-        this.initUI();
+        this.initUI(root);
     }
     
-    private void initUI() {
+    private void initUI(TreeItem root) {
         this.setBodyBorder(false);
         this.setHeaderVisible(false);
         this.setTopComponent(toolBar);
@@ -88,6 +89,8 @@ public class ItemPanel extends ContentPanel {
             tree.expand();
             this.add(tree, new RowData(1, 1));
         }else{
+            tree.setRoot(root);
+            tree.setViewBean(viewBean);
             this.add(contenPanel, new RowData(1, 1));
         }
         

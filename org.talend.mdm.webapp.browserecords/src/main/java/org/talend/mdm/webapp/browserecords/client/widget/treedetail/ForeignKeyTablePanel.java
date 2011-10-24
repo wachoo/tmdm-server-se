@@ -2,6 +2,7 @@ package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
@@ -28,6 +29,7 @@ import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.PagingModelMemoryProxy;
 import com.extjs.gxt.ui.client.data.TreeModel;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
@@ -98,8 +100,10 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
     int lastFkIndex;
 
+    Map<String, Field<?>> fieldMap;
+
     public ForeignKeyTablePanel(final EntityModel entityModel, ItemNodeModel parent, final List<ItemNodeModel> fkModels,
-            final TypeModel fkTypeModel, final ItemDetailToolBar parentToolBar) {
+            final TypeModel fkTypeModel, final ItemDetailToolBar parentToolBar, Map<String, Field<?>> fieldMap) {
         this.setHeaderVisible(false);
         this.setLayout(new FitLayout());
         this.setAutoWidth(true);
@@ -108,6 +112,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         this.entityModel = entityModel;
         this.fkTypeModel = fkTypeModel;
         this.fkModels = fkModels;
+        this.fieldMap = fieldMap;
         toolBar.add(addFkButton);
         toolBar.add(new SeparatorToolItem());
         toolBar.add(removeFkButton);
@@ -211,6 +216,13 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                 loader.load(config);
             }
         });
+        if (parent.getParent() != null && !parent.isMandatory()) {
+            grid.getView().addListener(Events.Refresh, new Listener<BaseEvent>() {
+                public void handleEvent(BaseEvent be) {
+                    updateSiblingNodes();
+                };
+            });
+        }
         final ForeignKeyRowEditor re = new ForeignKeyRowEditor(fkTypeModel);
         grid.setSelectionModel(sm);
         grid.addPlugin(sm);
@@ -226,6 +238,15 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         loader.setRemoteSort(true);
 
         this.setBottomComponent(pagingBar);
+    }
+
+    private void updateSiblingNodes() {
+        if (parent.getChildCount() > 0) {
+            ItemNodeModel child = (ItemNodeModel) parent.getChild(0);
+            Field<?> field = fieldMap.get(child.getBindingPath() + child.getId().toString());
+            if (field != null)
+                TreeDetailGridFieldCreator.updateMandatory(field, child, fieldMap);
+        }
     }
 
     private void addListener() {

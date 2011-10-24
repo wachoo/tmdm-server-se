@@ -371,6 +371,11 @@ public class TreeDetailGridFieldCreator {
             for (int i = 0; i < childs.size(); i++) {
                 ItemNodeModel child = (ItemNodeModel) childs.get(i);
                 if (child.getObjectValue() != null && !"".equals(child.getObjectValue())) { //$NON-NLS-1$
+                    if(child.getObjectValue() instanceof ForeignKeyBean){
+                        ForeignKeyBean fkBean = (ForeignKeyBean) child.getObjectValue();
+                        if (fkBean.getId() == null || fkBean.getId().trim().length() == 0)
+                            continue;
+                    }
                     flag = true;
                     break;
                 }

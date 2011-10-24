@@ -793,7 +793,7 @@ public class ItemDetailToolBar extends ToolBar {
             ItemPanel itemPanel = (ItemPanel) tabItem.getWidget(0);
             if (itemPanel.getTree().validateTree()) {
                 validate = true;
-                model = (ItemNodeModel) itemPanel.getTree().getTree().getItem(0).getUserObject();
+                model = (ItemNodeModel) itemPanel.getTree().getRootModel();
                 app.setData("ItemBean", itemPanel.getItem()); //$NON-NLS-1$
                 app.setData(
                                 "isCreate", itemPanel.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION) || itemPanel.getOperation().equals(ItemDetailToolBar.DUPLICATE_OPERATION) ? true : false); //$NON-NLS-1$
