@@ -17,6 +17,7 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.Locale;
 
+import javax.security.auth.Subject;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -28,7 +29,7 @@ import org.talend.mdm.webapp.general.server.util.Utils;
 import com.amalto.core.util.LocaleUtil;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
-import com.amalto.webapp.core.util.WebappRepeatedLoginException;
+import com.amalto.core.util.Util;
 
 public class ControllerServlet extends HttpServlet {
 
@@ -49,67 +50,85 @@ public class ControllerServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        
         Locale locale = LocaleUtil.getLocale(req);
         String language = locale.getLanguage();
         req.getSession().setAttribute("language", language); //$NON-NLS-1$
         res.setContentType("text/html; charset=UTF-8"); //$NON-NLS-1$
         res.setHeader("Content-Type", "text/html; charset=UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$
-
         PrintWriter out = res.getWriter();
-        String username = null;
-        
+
         try {
-
-            username = com.amalto.webapp.core.util.Util.getAjaxSubject().getUsername();
-            
-            String html = "<html>\n" + "<head>\n" + "<title>Talend MDM</title>\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    + "<meta id=\"gwt:property\" name=\"gwt:property\" content=\"locale=" + language + "\" >\n"; //$NON-NLS-1$ //$NON-NLS-2$
-            html += "<link rel=\"stylesheet\" type=\"text/css\" href=\"/general/resources/css/gxt-all.css\" />\n"; //$NON-NLS-1$
-            html += "<script type=\"text/javascript\" language=\"javascript\" src=\"/general/general/general.nocache.js\"></script>"; //$NON-NLS-1$
-            html += Utils.getCommonImport();
-
-            List<String> imports = Utils.getJavascriptImport();
-            for (String js : imports) {
-                html += js;
+            if (!sessionExpired()) {
+                String html = getHtml(language);
+                out.write(html);
+            } else {
+                throw new Exception(MESSAGES.getMessage(locale, "session.expired")); //$NON-NLS-1$
             }
-
-            html += "</head>\n" + //$NON-NLS-1$
-
-                    getBody(language, req) + "</html>\n"; //$NON-NLS-1$
-
-            out.write(html);
-
-        } catch (WebappRepeatedLoginException e) {
-            req.getSession().invalidate();
-            String title = MESSAGES.getMessage(locale, "login.error"); //$NON-NLS-1$
-            String message = e.getLocalizedMessage();
-            String backLogin = MESSAGES.getMessage(locale, "back.login"); //$NON-NLS-1$
-            String forceLogout = MESSAGES.getMessage(locale, "force.logout"); //$NON-NLS-1$
-            StringBuilder html = new StringBuilder();
-            html.append("<h3>").append(title).append("</h3>"); //$NON-NLS-1$ //$NON-NLS-2$
-            html.append("<p><font size='4' color='red'>").append(message).append("</font></p>"); //$NON-NLS-1$ //$NON-NLS-2$
-            html.append("<a href='").append("/talendmdm/LogoutServlet?user=").append(username).append("'>").append(forceLogout).append("</a>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-            html.append("<br/><br/>"); //$NON-NLS-1$
-            html.append("<a href='").append("/talendmdm/LogoutServlet'>").append(backLogin).append("</a>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            out.write(html.toString());
         } catch (Exception e) {
             req.getSession().invalidate();
-            String title = MESSAGES.getMessage(locale, "login.error"); //$NON-NLS-1$
             String message = e.getLocalizedMessage();
-            String backLogin = MESSAGES.getMessage(locale, "back.login"); //$NON-NLS-1$
-            StringBuilder html = new StringBuilder();
-            html.append("<h3>").append(title).append("</h3>"); //$NON-NLS-1$ //$NON-NLS-2$
-            html.append("<p><font size='4' color='red'>").append(message).append("</font></p>"); //$NON-NLS-1$ //$NON-NLS-2$
-            html.append("<a href='").append("/talendmdm/LogoutServlet'>").append(backLogin).append("</a>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            if (message == null) {
+                message = MESSAGES.getMessage(locale, "error.occured"); //$NON-NLS-1$
+            }
+            String html = getHtmlError(message, locale);
             out.write(html.toString());
         }
     }
 
+    private boolean sessionExpired() {
+        try {
+            Subject subject = Util.getActiveSubject();
+            return (subject == null) ? true : false;
+        } catch (Exception e) {
+            return true;
+        }
+    }
+
     @SuppressWarnings("nls")
-    protected String getBody(String language, HttpServletRequest request) {
-        return "<body>"
-                + "<iframe src=\"javascript:''\" id=\"__gwt_historyFrame\" tabIndex='-1' style=\"position:absolute;width:0;height:0;border:0\"></iframe>"
-                + "</body>";
+    protected String getHtml(String language) throws Exception {
+        StringBuilder html = new StringBuilder();
+        html.append("<html>");
+        html.append("<head>");
+        html.append("<title>Talend MDM</title>");
+        html.append("<meta id='gwt:property' name='gwt:property' content='locale=").append(language).append("'>");
+        html.append("<link rel='stylesheet' type='text/css' href='/general/resources/css/gxt-all.css'/>");
+        html.append("<script type='text/javascript' language='javascript' src='/general/general/general.nocache.js'></script>"); //$NON-NLS-1$
+        html.append(Utils.getCommonImport());
+        List<String> imports = Utils.getJavascriptImport();
+        for (String js : imports) {
+            html.append(js);
+        }
+        html.append("</head>");
+
+        html.append("<body>");
+        html.append("<iframe src=\"javascript:''\" id='__gwt_historyFrame' tabIndex='-1' style='position:absolute;width:0;height:0;border:0'></iframe>");
+        html.append("</body>");
+        return html.toString();
+    }
+
+    @SuppressWarnings("nls")
+    private String getHtmlError(String message, Locale locale) {
+        StringBuilder html = new StringBuilder();
+        html.append("<html>");
+        html.append("<head>");
+        html.append("<meta http-equiv='Content-Type' content='text/html;charset=UTF-8'/>");
+        html.append("<link rel='stylesheet' type='text/css' href='/talendmdm/auth/loginPage.css'/>");
+        html.append("<table width='100%' class='header1' border='0'>");
+        html.append("<tr><td height='128' width='50%' class='logo'><img src='/talendmdm/auth/logo.png'></td></tr>");
+        html.append("<tr><td class='suiteName' id='suiteName' colspan='2' height='56'>Talend MDM</td></tr>");
+        html.append("</table>");
+        html.append("</head>");
+        html.append("<body style='text-align: center;'>");
+
+        String errorTitle = MESSAGES.getMessage(locale, "login.error"); //$NON-NLS-1$
+        String backLogin = MESSAGES.getMessage(locale, "back.login"); //$NON-NLS-1$     
+
+        html.append("<h3>").append(errorTitle).append("</h3>"); //$NON-NLS-1$ //$NON-NLS-2$
+        html.append("<p><font size='4' color='red'>").append(message).append("</font></p>"); //$NON-NLS-1$ //$NON-NLS-2$
+        html.append("<a href='").append("/talendmdm/LogoutServlet'>").append(backLogin).append("</a>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+        html.append("</body>");
+        html.append("</html>");
+        return html.toString();
     }
 }
