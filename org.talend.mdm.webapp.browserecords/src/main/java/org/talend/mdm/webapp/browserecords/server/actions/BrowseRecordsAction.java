@@ -1421,6 +1421,22 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
+    public ItemNodeModel getDynamicLabel(String xml, ItemNodeModel itemModel, EntityModel entity, String language)
+            throws ServiceException {
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            StringReader sr = new StringReader(xml);
+            InputSource inputSource = new InputSource(sr);
+            Document doc = builder.parse(inputSource);
+            DynamicLabelUtil.getDynamicLabel(XmlUtil.parseDocument(doc), itemModel, entity.getMetaDataTypes(), language);
+            return itemModel;
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
+    }
+
     public ItemNodeModel getItemNodeModel(ItemBean item, EntityModel entity, String language) throws ServiceException {
         try {
             if (item.get("isRefresh") != null) //$NON-NLS-1$
@@ -1435,7 +1451,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             Element root = doc.getDocumentElement();
 
             Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
-            ItemNodeModel itemModel = builderNode(root, entity, "", language); //$NON-NLS-1$
+            Map<String, Integer> multiNodeIndex = new HashMap<String, Integer>();
+            ItemNodeModel itemModel = builderNode(multiNodeIndex, root, entity, "", language); //$NON-NLS-1$
             DynamicLabelUtil.getDynamicLabel(XmlUtil.parseDocument(doc), itemModel, metaDataTypes, language);
             itemModel.set("time", item.get("time")); //$NON-NLS-1$ //$NON-NLS-2$
             return itemModel;
@@ -1445,11 +1462,22 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    private ItemNodeModel builderNode(Element el, EntityModel entity, String xpath, String language) throws Exception {
+    private ItemNodeModel builderNode(Map<String, Integer> multiNodeIndex, Element el, EntityModel entity, String xpath,
+            String language) throws Exception {
         Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
         xpath += (xpath == "" ? el.getNodeName() : "/" + el.getNodeName()); //$NON-NLS-1$//$NON-NLS-2$
         ItemNodeModel nodeModel = new ItemNodeModel(el.getNodeName());
         TypeModel model = metaDataTypes.get(xpath);
+        if (model.getMaxOccurs() > 1 || model.getMaxOccurs() == -1) {
+            Integer index = multiNodeIndex.get(xpath);
+            if (index == null) {
+                nodeModel.setIndex(1);
+                multiNodeIndex.put(xpath, new Integer(1));
+            } else {
+                nodeModel.setIndex(index + 1);
+                multiNodeIndex.put(xpath, nodeModel.getIndex());
+            }
+        }
 
         if (el.getAttribute("xsi:type") != null && el.getAttribute("xsi:type").trim().length() > 0) { //$NON-NLS-1$ //$NON-NLS-2$
             nodeModel.setRealType(el.getAttribute("xsi:type")); //$NON-NLS-1$
@@ -1483,8 +1511,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 for (int i = 0; i < children.getLength(); i++) {
                     Node child = children.item(i);
                     if (child.getNodeType() == Node.ELEMENT_NODE) {
-                        if (typeModel.getXpath().equals(xpath + "/" + child.getNodeName())) { //$NON-NLS-1$
-                            ItemNodeModel childNode = builderNode((Element) child, entity, xpath, language);
+                        if (typeModel.getXpath().equals(xpath + "/" + child.getNodeName())) { //$NON-NLS-1$                            
+                            ItemNodeModel childNode = builderNode(multiNodeIndex, (Element) child, entity, xpath, language);
                             childNode.setHasVisiblueRule(typeModel.isHasVisibleRule());
                             nodeModel.add(childNode);
                             existNodeFlag = true;
@@ -1615,8 +1643,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     err = MESSAGES.getMessage("save_validationrule_fail", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
                             + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), "."), ""); //$NON-NLS-1$ //$NON-NLS-2$ 
                 else if (e.getMessage().indexOf("<msg>") > -1 && e.getMessage().indexOf(language.toUpperCase() + ":") == -1) {//$NON-NLS-1$) //$NON-NLS-2$                 
-                    err = MESSAGES.getMessage("save_validationrule_fail", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
-                            + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), "."), e.getMessage().replace("<msg>", "[" + language.toUpperCase() + ":").replace("</msg>", "]")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+                    err = MESSAGES
+                            .getMessage(
+                                    "save_validationrule_fail", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
+                                            + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), "."), e.getMessage().replace("<msg>", "[" + language.toUpperCase() + ":").replace("</msg>", "]")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
                 }
                 // add feature TMDM-2327 SAXException:cvc-complex-type.2.4.b message transform
                 if (e.getMessage().indexOf("cvc-complex-type.2.4.b") != -1) { //$NON-NLS-1$

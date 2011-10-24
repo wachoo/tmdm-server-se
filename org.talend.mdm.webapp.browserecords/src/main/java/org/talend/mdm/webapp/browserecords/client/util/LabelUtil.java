@@ -32,4 +32,11 @@ public class LabelUtil {
         return false;
     }
 
+    public static String getNormalLabel(String label) {
+        if (label.indexOf(RESERVED_WORD_START_FLAG) != -1) {
+            return label.substring(0, label.indexOf(RESERVED_WORD_START_FLAG));
+        } else {
+            return label;
+        }
+    }
 }

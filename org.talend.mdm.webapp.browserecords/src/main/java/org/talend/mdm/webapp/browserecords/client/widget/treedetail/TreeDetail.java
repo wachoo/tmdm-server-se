@@ -30,6 +30,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyValidateModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
+import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
@@ -96,7 +97,7 @@ public class TreeDetail extends ContentPanel {
                         || count < viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getMaxOccurs()) {
                     // clone a new item
                     ItemNodeModel model = selectedModel.clone("Clone".equals(arg0.getRelativeElement().getId()) ? true : false); //$NON-NLS-1$
-
+                    model.setDynamicLabel(LabelUtil.getNormalLabel(model.getLabel()));
                     int selectModelIndex = parentModel.indexOf(selectedModel);
                     parentModel.insert(model, selectModelIndex + 1);
                     // if it has default value
@@ -360,6 +361,7 @@ public class TreeDetail extends ContentPanel {
     // get selected item in tree
     private void addTreeListener(Tree tree) {
         tree.addSelectionHandler(new SelectionHandler<TreeItem>() {
+
             public void onSelection(SelectionEvent<TreeItem> event) {
                 selectedItem = (DynamicTreeItem) event.getSelectedItem();
             }

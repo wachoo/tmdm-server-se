@@ -21,6 +21,8 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
 
     private String bindingPath;
 
+    private int index = 0;
+
     // private Serializable objectValue;
 
     private boolean isKey;
@@ -38,6 +40,14 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
     private boolean isCloned = false;
 
     private boolean mandatory;
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
 
     public boolean isMandatory() {
         return mandatory;

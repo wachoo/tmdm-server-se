@@ -30,6 +30,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 public class DynamicLabelUtil {
 
     private static final Logger LOG = Logger.getLogger(DynamicLabelUtil.class);
+
     /**
      * 
      * @return
@@ -42,8 +43,9 @@ public class DynamicLabelUtil {
             String label = typeModel.getLabel(language);
             if (org.talend.mdm.webapp.base.server.util.DynamicLabelUtil.isDynamicLabel(label)) {
                 label = replaceForeignPath(itemModel.getBindingPath(), label, parsedDocument);
-                String stylesheet = org.talend.mdm.webapp.base.server.util.DynamicLabelUtil.genStyle(itemModel.getBindingPath(),
-                        label);
+                String stylesheet = org.talend.mdm.webapp.base.server.util.DynamicLabelUtil.genStyle(
+                        itemModel.getIndex() > 0 ? itemModel.getBindingPath() + "[" + itemModel.getIndex() + "]" : itemModel //$NON-NLS-1$ //$NON-NLS-2$
+                                .getBindingPath(), label);
                 String dynamicLB = org.talend.mdm.webapp.base.server.util.DynamicLabelUtil
                         .getParsedLabel(org.talend.mdm.webapp.base.server.util.XmlUtil.styleDocument(parsedDocument, stylesheet));
                 // @temp yguo, set the properties to itemmodel

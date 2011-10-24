@@ -93,6 +93,8 @@ public interface BrowseRecordsService extends RemoteService {
     boolean isExistCriteria(String dataObjectLabel, String id) throws ServiceException;
 
     void saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString) throws ServiceException;
+    
+    ItemNodeModel getDynamicLabel(String xml,ItemNodeModel itemModel, EntityModel entity,String language) throws ServiceException;
 
     ItemNodeModel getItemNodeModel(ItemBean item, EntityModel entity, String language) throws ServiceException;
 

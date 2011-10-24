@@ -59,7 +59,11 @@ public class TreeDetailUtil {
         String html = itemNode.getLabel();
 
         if (LabelUtil.isDynamicLabel(dynamicLabel)) {
-            html = itemNode.getDynamicLabel();
+            if (itemNode.getDynamicLabel() != null && !"".equals(itemNode.getDynamicLabel())) { //$NON-NLS-1$
+                html = itemNode.getDynamicLabel();
+            } else {
+                html = LabelUtil.getNormalLabel(html);
+            }
         }
 
         if (itemNode.isKey() || typeModel.getMinOccurs() >= 1)
