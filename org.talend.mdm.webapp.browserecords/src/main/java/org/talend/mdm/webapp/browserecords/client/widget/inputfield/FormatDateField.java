@@ -20,7 +20,7 @@ public class FormatDateField extends DateField {
 
     private String formatPattern;
 
-    private Date ojbectValue;
+    private String ojbectValue;
 
     private String diplayValue;
 
@@ -42,11 +42,11 @@ public class FormatDateField extends DateField {
         this.formatPattern = formatPattern;
     }
 
-    public Date getOjbectValue() {
+    public String getOjbectValue() {
         return ojbectValue;
     }
 
-    public void setOjbectValue(Date ojbectValue) {
+    public void setOjbectValue(String ojbectValue) {
         this.ojbectValue = ojbectValue;
     }
 
@@ -116,7 +116,7 @@ public class FormatDateField extends DateField {
                 return false;
             }
 
-            this.setOjbectValue(date);
+            this.setOjbectValue(value);
 
             if (formatPattern != null) {
                 FormatModel model = new FormatModel(formatPattern, date, Locale.getLanguage());

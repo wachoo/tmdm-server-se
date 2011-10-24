@@ -47,8 +47,6 @@ public class CommonUtil {
         if (typeModel.isSimpleType() && value != null && nodeModel.getParent() != null) {
             if (value instanceof ForeignKeyBean)
                 root.appendChild(doc.createTextNode(((ForeignKeyBean) value).getId()));
-            else if (value instanceof Date)
-                root.appendChild(doc.createTextNode(DateUtil.convertDate((Date) value)));
             else
                 root.appendChild(doc.createTextNode(value.toString()));
         }
