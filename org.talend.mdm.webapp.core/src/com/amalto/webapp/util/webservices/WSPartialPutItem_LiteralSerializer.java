@@ -32,6 +32,8 @@ public class WSPartialPutItem_LiteralSerializer extends LiteralObjectSerializerB
     private static final QName ns1_overwrite_QNAME = new QName("", "overwrite");
     private static final QName ns3_boolean_TYPE_QNAME = SchemaConstants.QNAME_TYPE_BOOLEAN;
     private CombinedSerializer ns3_myns3__boolean__java_lang_Boolean_Boolean_Serializer;
+    private static final QName ns1_report_QNAME = new QName("", "report");
+    private CombinedSerializer ns3_myns3__boolean__boolean_Boolean_Serializer;
     
     public WSPartialPutItem_LiteralSerializer(QName type, String encodingStyle) {
         this(type, encodingStyle, false);
@@ -45,6 +47,7 @@ public class WSPartialPutItem_LiteralSerializer extends LiteralObjectSerializerB
         ns3_myns3_string__java_lang_String_String_Serializer = (CombinedSerializer)registry.getSerializer("", java.lang.String.class, ns3_string_TYPE_QNAME);
         ns3_myns3__int__java_lang_Integer_Int_Serializer = (CombinedSerializer)registry.getSerializer("", java.lang.Integer.class, ns3_int_TYPE_QNAME);
         ns3_myns3__boolean__java_lang_Boolean_Boolean_Serializer = (CombinedSerializer)registry.getSerializer("", java.lang.Boolean.class, ns3_boolean_TYPE_QNAME);
+        ns3_myns3__boolean__boolean_Boolean_Serializer = (CombinedSerializer)registry.getSerializer("", boolean.class, ns3_boolean_TYPE_QNAME);
     }
     
     public Object doDeserialize(XMLReader reader,
@@ -148,6 +151,22 @@ public class WSPartialPutItem_LiteralSerializer extends LiteralObjectSerializerB
                 reader.nextElementContent();
             }
         }
+        elementName = reader.getName();
+        if (reader.getState() == XMLReader.START) {
+            if (elementName.equals(ns1_report_QNAME)) {
+                member = ns3_myns3__boolean__boolean_Boolean_Serializer.deserialize(ns1_report_QNAME, reader, context);
+                if (member == null) {
+                    throw new DeserializationException("literal.unexpectedNull");
+                }
+                instance.setReport(((Boolean)member).booleanValue());
+                reader.nextElementContent();
+            } else {
+                throw new DeserializationException("literal.unexpectedElementName", new Object[] { ns1_report_QNAME, reader.getName() });
+            }
+        }
+        else {
+            throw new DeserializationException("literal.expectedElementName", reader.getName().toString());
+        }
         
         XMLReaderUtil.verifyReaderState(reader, XMLReader.END);
         return (Object)instance;
@@ -184,5 +203,9 @@ public class WSPartialPutItem_LiteralSerializer extends LiteralObjectSerializerB
         if (instance.getOverwrite() != null) {
             ns3_myns3__boolean__java_lang_Boolean_Boolean_Serializer.serialize(instance.getOverwrite(), ns1_overwrite_QNAME, null, writer, context);
         }
+        if (new Boolean(instance.isReport()) == null) {
+            throw new SerializationException("literal.unexpectedNull");
+        }
+        ns3_myns3__boolean__boolean_Boolean_Serializer.serialize(new Boolean(instance.isReport()), ns1_report_QNAME, null, writer, context);
     }
 }
