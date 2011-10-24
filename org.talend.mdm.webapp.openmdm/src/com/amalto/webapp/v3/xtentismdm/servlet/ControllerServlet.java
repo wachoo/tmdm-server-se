@@ -79,7 +79,7 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
 
                 if (onlineUsers.get(username) != null && req.getSession().getId() != null
                         && !onlineUsers.get(username).equals(req.getSession().getId())) {
-                    throw new WebappRepeatedLoginException(MESSAGES.getMessage(locale, "login.exception.repeated", username)); //$NON-NLS-1$
+                    throw new WebappRepeatedLoginException();
                 }
 
             }
@@ -124,27 +124,16 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
 
         } catch (WebappRepeatedLoginException e) {
             req.getSession().invalidate();
-            String title = MESSAGES.getMessage(locale, "login.error"); //$NON-NLS-1$
-            String message = e.getLocalizedMessage();
-            String backLogin = MESSAGES.getMessage(locale, "back.login"); //$NON-NLS-1$
-            String forceLogout = MESSAGES.getMessage(locale, "force.logout"); //$NON-NLS-1$
-            StringBuilder html = new StringBuilder();
-            html.append("<h3>").append(title).append("</h3>"); //$NON-NLS-1$ //$NON-NLS-2$
-            html.append("<p><font size='4' color='red'>").append(message).append("</font></p>"); //$NON-NLS-1$ //$NON-NLS-2$
-            html.append("<a href='").append(req.getContextPath()).append("/LogoutServlet?user=").append(username).append("'>").append(forceLogout).append("</a>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-            html.append("<br/><br/>"); //$NON-NLS-1$
-            html.append("<a href='").append(req.getContextPath()).append("/LogoutServlet'>").append(backLogin).append("</a>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            out.write(html.toString());
+            String html = getHtmlError(req.getContextPath(),
+                    MESSAGES.getMessage(locale, "login.exception.repeated", username), locale, username, true); //$NON-NLS-1$
+            out.write(html);
         } catch (Exception e) {
             req.getSession().invalidate();
-            String title = MESSAGES.getMessage(locale, "login.error"); //$NON-NLS-1$
             String message = e.getLocalizedMessage();
-            String backLogin = MESSAGES.getMessage(locale, "back.login"); //$NON-NLS-1$
-            StringBuilder html = new StringBuilder();
-            html.append("<h3>").append(title).append("</h3>"); //$NON-NLS-1$ //$NON-NLS-2$
-            html.append("<p><font size='4' color='red'>").append(message).append("</font></p>"); //$NON-NLS-1$ //$NON-NLS-2$
-            html.append("<a href='").append(req.getContextPath()).append("/LogoutServlet'>").append(backLogin).append("</a>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            out.write(html.toString());
+            if (message == null)
+                message = MESSAGES.getMessage(locale, "error.occured"); //$NON-NLS-1$
+            String html = getHtmlError(req.getContextPath(), message, locale, username, false);
+            out.write(html);
         }
     }
 
@@ -239,5 +228,38 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
                 }
         }
         return map;
+    }
+
+    @SuppressWarnings("nls")
+    private String getHtmlError(String contextPath, String message, Locale locale, String username, boolean repeatedLogin) {
+        StringBuilder html = new StringBuilder();
+        html.append("<html>");
+        html.append("<head>");
+        html.append("<meta http-equiv='Content-Type' content='text/html;charset=UTF-8'/>");
+        html.append("<link rel='stylesheet' type='text/css' href='").append(contextPath).append("/auth/loginPage.css'/>");
+        html.append("<table width='100%' class='header1' border='0'>");
+        html.append("<tr><td height='128' width='50%' class='logo'><img src='").append(contextPath)
+                .append("/auth/logo.png'></td></tr>");
+        html.append("<tr><td class='suiteName' id='suiteName' colspan='2' height='56'>Talend MDM</td></tr>");
+        html.append("</table>");
+        html.append("</head>");
+        html.append("<body style='text-align: center;'>");
+
+        String errorTitle = MESSAGES.getMessage(locale, "login.error");
+        String backLogin = MESSAGES.getMessage(locale, "back.login");
+
+        html.append("<h3>").append(errorTitle).append("</h3>");
+        html.append("<p><font size='4' color='red'>").append(message).append("</font></p>");
+        if (repeatedLogin) {
+            String forceLogout = MESSAGES.getMessage(locale, "force.logout");
+            html.append("<a href='").append(contextPath).append("/LogoutServlet?user=").append(username).append("'>")
+                    .append(forceLogout).append("</a>");
+            html.append("<br/><br/>");
+        }
+        html.append("<a href='").append(contextPath).append("/LogoutServlet'>").append(backLogin).append("</a>");
+
+        html.append("</body>");
+        html.append("</html>");
+        return html.toString();
     }
 }
