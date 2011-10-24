@@ -89,6 +89,6 @@ public class CustomFormPOJO extends ObjectPOJO {
      */
     @Override
     public ObjectPOJOPK getPK() {
-        return new CustomFormPOJOPK(datamodel, entity);
+        return new CustomFormPOJOPK(datamodel, entity, name);
     }
 }

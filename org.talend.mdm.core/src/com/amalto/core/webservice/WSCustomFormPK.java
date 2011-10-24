@@ -9,13 +9,15 @@ package com.amalto.core.webservice;
 public class WSCustomFormPK {
     protected java.lang.String datamodel;
     protected java.lang.String entity;
+    protected java.lang.String name;
     
     public WSCustomFormPK() {
     }
     
-    public WSCustomFormPK(java.lang.String datamodel, java.lang.String entity) {
+    public WSCustomFormPK(java.lang.String datamodel, java.lang.String entity, java.lang.String name) {
         this.datamodel = datamodel;
         this.entity = entity;
+        this.name = name;
     }
     
     public java.lang.String getDatamodel() {
@@ -32,5 +34,13 @@ public class WSCustomFormPK {
     
     public void setEntity(java.lang.String entity) {
         this.entity = entity;
+    }
+    
+    public java.lang.String getName() {
+        return name;
+    }
+    
+    public void setName(java.lang.String name) {
+        this.name = name;
     }
 }

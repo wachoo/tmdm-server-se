@@ -24,7 +24,7 @@ public class CustomFormPOJOPK extends ObjectPOJOPK {
 
     String entity;
 
-    
+    String name;
     public CustomFormPOJOPK() {
 
     }
@@ -32,16 +32,18 @@ public class CustomFormPOJOPK extends ObjectPOJOPK {
         super(itemIds);
         datamodel = itemIds[0];
         entity = itemIds[1];
+        name = itemIds[2];
     }
 
     public CustomFormPOJOPK(ObjectPOJOPK pk) {
         this(pk.getIds());
     }
 
-    public CustomFormPOJOPK(String datamodel, String entity) {
-        super(new String[] { datamodel, entity });
+    public CustomFormPOJOPK(String datamodel, String entity, String name) {
+        super(new String[] { datamodel, entity, name });
         this.datamodel = datamodel;
         this.entity = entity;
+        this.name = name;
     }
 
     public String getDatamodel() {
@@ -58,6 +60,14 @@ public class CustomFormPOJOPK extends ObjectPOJOPK {
 
     public void setEntity(String entity) {
         this.entity = entity;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
 
