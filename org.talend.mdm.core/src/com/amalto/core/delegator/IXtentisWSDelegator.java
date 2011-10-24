@@ -1634,6 +1634,16 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
             // now write back updates
             originalItemPOJO.setProjection(originalItem);
+
+            // do report
+            if (partialPutItem.isReport()) {
+                String updatedContent = Util.nodeToString(originalItem);
+                WSPutItem wsPutItem = new WSPutItem(new WSDataClusterPK(partialPutItem.getDatacluster()), updatedContent,
+                        new WSDataModelPK(partialPutItem.getDatamodel()), false);
+                WSPutItemWithReport wsPutItemWithReport = new WSPutItemWithReport(wsPutItem, "genericUI", new Boolean(true));//$NON-NLS-1$
+                putItemWithReport(wsPutItemWithReport);
+            }
+
             pk = Util.getItemCtrl2Local().putItem(originalItemPOJO, dataModelPOJO);
             return new WSItemPK(new WSDataClusterPK(pk.getDataClusterPOJOPK().getUniqueId()), pk.getConceptName(), pk.getIds());
         } catch (XtentisException xe) {

@@ -14,11 +14,12 @@ public class WSPartialPutItem {
     protected java.lang.String keyXPath;
     protected java.lang.Integer startingPosition;
     protected java.lang.Boolean overwrite;
+    protected boolean report;
     
     public WSPartialPutItem() {
     }
     
-    public WSPartialPutItem(java.lang.String xml, java.lang.String datacluster, java.lang.String pivot, java.lang.String datamodel, java.lang.String keyXPath, java.lang.Integer startingPosition, java.lang.Boolean overwrite) {
+    public WSPartialPutItem(java.lang.String xml, java.lang.String datacluster, java.lang.String pivot, java.lang.String datamodel, java.lang.String keyXPath, java.lang.Integer startingPosition, java.lang.Boolean overwrite, boolean report) {
         this.xml = xml;
         this.datacluster = datacluster;
         this.pivot = pivot;
@@ -26,6 +27,7 @@ public class WSPartialPutItem {
         this.keyXPath = keyXPath;
         this.startingPosition = startingPosition;
         this.overwrite = overwrite;
+        this.report = report;
     }
     
     public java.lang.String getXml() {
@@ -82,5 +84,13 @@ public class WSPartialPutItem {
     
     public void setOverwrite(java.lang.Boolean overwrite) {
         this.overwrite = overwrite;
+    }
+    
+    public boolean isReport() {
+        return report;
+    }
+    
+    public void setReport(boolean report) {
+        this.report = report;
     }
 }
