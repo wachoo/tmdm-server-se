@@ -79,11 +79,11 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -270,12 +270,14 @@ public class ItemsToolBar extends ToolBar {
 
                 if (ItemsListPanel.getInstance().getGrid() != null)
                     ItemsListPanel.getInstance().getGrid().getSelectionModel().deselectAll();
-                ItemsDetailPanel.getInstance().clearContent();
-                ItemsDetailPanel.getInstance().initBanner(itemBean.getPkInfoList(), itemBean.getDescription());
+
+                ItemsDetailPanel panel = new ItemsDetailPanel();
+                panel.initBanner(itemBean.getPkInfoList(), itemBean.getDescription());
+                panel.clearBreadCrumb();
                 ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
                 ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.CREATE_OPERATION);
-                ItemsDetailPanel.getInstance().addTabItem(itemBean.getConcept(), itemPanel, ItemsDetailPanel.MULTIPLE,
-                        itemBean.getConcept());
+                panel.addTabItem(itemBean.getConcept(), itemPanel, ItemsDetailPanel.SINGLETON, itemBean.getConcept());
+                ItemsMainTabPanel.getInstance().addMainTabItem(itemBean.getConcept(), panel, itemBean.getConcept());
             }
 
         });

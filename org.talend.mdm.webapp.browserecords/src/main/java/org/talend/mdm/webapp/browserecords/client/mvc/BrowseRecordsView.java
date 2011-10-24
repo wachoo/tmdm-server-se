@@ -35,6 +35,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsSearchContainer;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator.FieldCreator;
@@ -52,6 +53,7 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
@@ -63,6 +65,12 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
  * DOC Administrator class global comment. Detailled comment
  */
 public class BrowseRecordsView extends View {
+
+    public static final String ITEMS_FORM_TARGET = "items_form_target";//$NON-NLS-1$
+
+    public static final String TARGET_IN_NEW_TAB = "target_in_new_tab";//$NON-NLS-1$
+
+    public static final String DEFAULT_ITEMVIEW = "itemView"; //$NON-NLS-1$
 
     public BrowseRecordsView(Controller controller) {
         super(controller);
@@ -94,14 +102,14 @@ public class BrowseRecordsView extends View {
     }
 
     private void onExecuteVisibleRule(AppEvent event) {
-        ItemPanel itemPanel = ItemsDetailPanel.getInstance().getCurrentItemPanel();
+        ItemPanel itemPanel = ItemsMainTabPanel.getInstance().getCurrentViewTabItem().getCurrentItemPanel();
         if (itemPanel != null) {
             itemPanel.onExecuteVisibleRule((List<VisibleRuleResult>) event.getData());
         }
     }
 
     private void onUpdatePolymorphism(AppEvent event) {
-        ItemPanel itemPanel = ItemsDetailPanel.getInstance().getCurrentItemPanel();
+        ItemPanel itemPanel = ItemsMainTabPanel.getInstance().getCurrentViewTabItem().getCurrentItemPanel();
         if (itemPanel != null) {
             itemPanel.onUpdatePolymorphism((ComplexTypeModel) event.getData());
         }
@@ -110,14 +118,15 @@ public class BrowseRecordsView extends View {
     private void onViewForeignKey(AppEvent event) {
         ForeignKeyModel model = event.getData();
         ForeignKeyTreeDetail tree = new ForeignKeyTreeDetail(model, false);
-        ItemsDetailPanel.getInstance().addTabItem(model.getViewBean().getBindingEntityModel().getConceptName(), tree,
+        ItemsMainTabPanel.getInstance().getCurrentViewTabItem().addTabItem(
+                model.getViewBean().getBindingEntityModel().getConceptName(), tree,
                 ItemsDetailPanel.MULTIPLE, model.getViewBean().getDescription());
     }
 
     private void onViewItem(AppEvent event) {
         ItemBean item = (ItemBean) event.getData();
-        ItemsDetailPanel.getInstance().clearContent();
-        ItemsDetailPanel.getInstance().initBanner(item.getPkInfoList(), item.getDescription());
+        String itemsFormTarget = event.getData(BrowseRecordsView.ITEMS_FORM_TARGET);
+
         String operation = ItemDetailToolBar.VIEW_OPERATION;
         if (item.getSmartViewMode().equals(ItemBean.PERSOMODE))
             operation = ItemDetailToolBar.PERSONALEVIEW_OPERATION;
@@ -125,21 +134,38 @@ public class BrowseRecordsView extends View {
             operation = ItemDetailToolBar.SMARTVIEW_OPERATION;
         ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
         ItemPanel itemPanel = new ItemPanel(viewBean, item, operation);
-        ItemsDetailPanel.getInstance().addTabItem(item.getConcept(), itemPanel, ItemsDetailPanel.SINGLETON, "itemView"); //$NON-NLS-1$
-
+        Map<String, String> breads = new LinkedHashMap<String, String>();
         // show breadcrumb
-
-        ItemsDetailPanel.getInstance().clearBreadCrumb();
+        // ItemsDetailPanel.getInstance().clearBreadCrumb();
         if (item != null) {
-            // List<String> breads = new ArrayList<String>();
-            // breads.add(BreadCrumb.DEFAULTNAME);
-            // breads.add(item.getConcept());
-            // breads.add(item.getIds());
-            Map<String, String> breads = new LinkedHashMap<String, String>();
             breads.put(BreadCrumb.DEFAULTNAME, null);
             breads.put(item.getConcept(), null);
             breads.put(item.getIds(), item.getConcept());
-            ItemsDetailPanel.getInstance().initBreadCrumb(new BreadCrumb(breads));
+        }
+
+        if (itemsFormTarget != null && itemsFormTarget.equals(TARGET_IN_NEW_TAB)) {
+            ItemsDetailPanel panel = new ItemsDetailPanel();
+            panel.setId(item.getIds());
+            panel.initBanner(item.getPkInfoList(), item.getDescription());
+            panel.addTabItem(item.getConcept(), itemPanel, ItemsDetailPanel.SINGLETON, item.getIds());
+            panel.initBreadCrumb(new BreadCrumb(breads));
+            ItemsMainTabPanel.getInstance().addMainTabItem(item.getConcept() + " " + item.getIds(), panel, item.getIds()); //$NON-NLS-1$           
+        } else {
+            if (ItemsMainTabPanel.getInstance().getItemByItemId(DEFAULT_ITEMVIEW) != null)
+                ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getItemByItemId(DEFAULT_ITEMVIEW));
+            TabItem defaultItem = new TabItem(item.getConcept() + " " + item.getIds()); //$NON-NLS-1$
+            defaultItem.setId(DEFAULT_ITEMVIEW);
+            defaultItem.setClosable(true);
+            defaultItem.setLayout(new FitLayout());
+
+            ItemsDetailPanel panel = new ItemsDetailPanel();
+            panel.setId(DEFAULT_ITEMVIEW);
+            panel.initBanner(item.getPkInfoList(), item.getDescription());
+            panel.addTabItem(item.getConcept(), itemPanel, ItemsDetailPanel.SINGLETON, DEFAULT_ITEMVIEW);
+            panel.initBreadCrumb(new BreadCrumb(breads));
+            defaultItem.add(panel);
+            ItemsMainTabPanel.getInstance().insert(defaultItem, 0);
+            ItemsMainTabPanel.getInstance().setSelection(defaultItem);
         }
     }
 
@@ -152,7 +178,8 @@ public class BrowseRecordsView extends View {
     private void onCreateForeignKeyView(AppEvent event) {
         ViewBean viewBean = event.getData();
         ForeignKeyTreeDetail tree = new ForeignKeyTreeDetail(viewBean, true);
-        ItemsDetailPanel.getInstance().addTabItem(viewBean.getBindingEntityModel().getConceptName(), tree,
+        ItemsMainTabPanel.getInstance().getCurrentViewTabItem().addTabItem(viewBean.getBindingEntityModel().getConceptName(),
+                tree,
                 ItemsDetailPanel.MULTIPLE, viewBean.getDescription());
 
     }

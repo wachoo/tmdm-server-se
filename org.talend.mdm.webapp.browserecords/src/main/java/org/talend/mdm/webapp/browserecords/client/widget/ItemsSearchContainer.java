@@ -63,7 +63,7 @@ public class ItemsSearchContainer extends LayoutContainer {
         westData.setMaxSize(800);
         add(ItemsListPanel.getInstance(), westData);
 
-        add(ItemsDetailPanel.getInstance(), new BorderLayoutData(LayoutRegion.CENTER));
+        add(ItemsMainTabPanel.getInstance(), new BorderLayoutData(LayoutRegion.CENTER));
     }
 
     public void resizeTop(float size) {

@@ -12,7 +12,9 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.mvc;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
@@ -25,8 +27,9 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
-import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.BreadCrumb;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
@@ -126,12 +129,15 @@ public class BrowseRecordsController extends Controller {
                         else
                             MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
                                     .save_success(), null);
-                        if (!isClose && isCreate) {
-                            ItemsListPanel.getInstance().lastPage();
+                        if (!isClose && isCreate) { 
+                            // refresh item grid
+                            ItemsListPanel.getInstance().lastPage();                                  
+                            
+                            ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
                         }
 
                         if (isClose) {
-                            ItemsDetailPanel.getInstance().closeCurrentTab();
+                            ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
                         }
                     }
                 });
@@ -174,6 +180,9 @@ public class BrowseRecordsController extends Controller {
 
                 public void onSuccess(ItemBean result) {
                     AppEvent ae = new AppEvent(event.getType(), result);
+                    String itemsFormTarget = event.getData(BrowseRecordsView.ITEMS_FORM_TARGET);
+                    if (itemsFormTarget != null)
+                        ae.setData(BrowseRecordsView.ITEMS_FORM_TARGET, itemsFormTarget);
                     forwardToView(view, ae);
                 }
             });

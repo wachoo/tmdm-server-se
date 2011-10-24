@@ -20,24 +20,17 @@ import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
+import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.google.gwt.user.client.Window;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.ui.Frame;
 
 public class ItemPanel extends ContentPanel {
 
     private final TreeDetail tree = new TreeDetail();
 
-    private ContentPanel smartPanel = new ContentPanel() {
-
-        @Override
-        public void onAttach() {
-            Window.enableScrolling(true);
-            setSize(Window.getClientWidth(), Window.getClientHeight());
-            super.onAttach();
-        }
-    };
+    private ContentPanel smartPanel = new ContentPanel();
 
     private ItemDetailToolBar toolBar;
 
@@ -53,11 +46,6 @@ public class ItemPanel extends ContentPanel {
 
     public ItemPanel() {
 
-    }
-
-    public void onAttach() {
-        Window.enableScrolling(true);
-        super.onAttach();
     }
 
     public ItemPanel(ViewBean viewBean, ItemBean item, String operation) {
@@ -82,7 +70,7 @@ public class ItemPanel extends ContentPanel {
         this.setBodyBorder(false);
         this.setHeaderVisible(false);
         this.setTopComponent(toolBar);
-        this.setLayout(new FitLayout());
+        this.setLayout(new RowLayout(Orientation.VERTICAL));
         if(!isForeignKeyPanel){
             tree.setToolBar(toolBar);
             if (ItemDetailToolBar.CREATE_OPERATION.equals(operation)) {
@@ -98,16 +86,14 @@ public class ItemPanel extends ContentPanel {
                 tree.initTree(viewBean, null);
             }
             tree.expand();
-            this.add(tree);
+            this.add(tree, new RowData(1, 1));
         }else{
-            this.add(contenPanel);
+            this.add(contenPanel, new RowData(1, 1));
         }
         
-        // smartPanel.setLayout(new FitLayout());
         smartPanel.setVisible(false);
         smartPanel.setHeaderVisible(false);
-        this.add(smartPanel);
-        // this.setBottomComponent(new PagingToolBarEx(50));
+        this.add(smartPanel, new RowData(1, 1));
     }
 
     public void onUpdatePolymorphism(ComplexTypeModel typeModel) {

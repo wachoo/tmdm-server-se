@@ -71,6 +71,8 @@ public interface BrowseRecordsMessages extends Messages {
 
     String edititem();
 
+    String openitem_tab();
+
     String grid_record_select();
 
     String trash_btn();
@@ -344,7 +346,6 @@ public interface BrowseRecordsMessages extends Messages {
     String fk_edit_failure();
 
     String fk_save_validate(String name, int value);
-
     String fk_save_validateEx(String name);
 
 }

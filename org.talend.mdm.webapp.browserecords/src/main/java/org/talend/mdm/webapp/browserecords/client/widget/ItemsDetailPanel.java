@@ -13,21 +13,18 @@
 package org.talend.mdm.webapp.browserecords.client.widget;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.Text;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -35,8 +32,6 @@ import com.google.gwt.user.client.ui.Widget;
  * DOC Administrator class global comment. Detailled comment
  */
 public class ItemsDetailPanel extends ContentPanel {
-
-    private static Map<String, ItemsDetailPanel> instances = new HashMap<String, ItemsDetailPanel>();
 
     public final static String SINGLETON = "SINGLETON"; //$NON-NLS-1$
 
@@ -46,53 +41,33 @@ public class ItemsDetailPanel extends ContentPanel {
 
     private SimplePanel breadCrumb = new SimplePanel();
 
-    private ContentPanel banner = new ContentPanel();
+    private LayoutContainer banner = new LayoutContainer();
 
     private Text textTitle = new Text();
 
     private List<Text> subTitleList = new ArrayList<Text>();
 
-    public static ItemsDetailPanel getInstance() {
-        String modelName = GWT.getModuleName();
-        ItemsDetailPanel instance = instances.get(modelName);
-        if (instance == null) {
-            instance = new ItemsDetailPanel();
-            instances.put(modelName, instance);
-        }
-        return instance;
-    }
-
-    protected void onDetach() {
-        super.onDetach();
-        instances.remove(GWT.getModuleName());
-    }
-
-    private ItemsDetailPanel() {
+    public ItemsDetailPanel() {
         super();
         this.setBodyBorder(false);
         this.setHeaderVisible(false);
         this.setLayout(new RowLayout(Orientation.VERTICAL));
-        this.setHeight(500);
         this.initPanel();
     }
 
     private void initPanel() {
         add(breadCrumb);
-        banner.setHeaderVisible(false);
+        // banner.setHeaderVisible(false);
         banner.setHeight("56px"); //$NON-NLS-1$
-        banner.setBodyBorder(false);
+        // banner.setBodyBorder(false);
         banner.setScrollMode(Scroll.AUTO);
+        banner.setStyleName("banner"); //$NON-NLS-1$ 
 
         textTitle.setStyleName("Title"); //$NON-NLS-1$
         add(banner);
         tabPanel.setTabScroll(true);
-        tabPanel.addListener(Events.Resize, new Listener<BaseEvent>() {
-
-            public void handleEvent(BaseEvent be) {
-                tabPanel.setHeight(ItemsDetailPanel.this.getOffsetHeight() - 50);
-            }
-        });
-        add(tabPanel);
+        tabPanel.setAutoWidth(true);
+        add(tabPanel, new RowData(1, 1));
     }
 
     public void initBreadCrumb(BreadCrumb breadCrumb) {
@@ -111,9 +86,8 @@ public class ItemsDetailPanel extends ContentPanel {
     }
 
     public void initBanner(List<String> xpathList, String desc) {
+        clearBanner();
         if (xpathList != null && xpathList.size() > 0) {
-            clearBanner();
-            banner.getBody().setStyleName("banner"); //$NON-NLS-1$
             int i = 1;
             for (String str : xpathList) {
                 if (i == 1) {
@@ -157,20 +131,17 @@ public class ItemsDetailPanel extends ContentPanel {
 
             newTab = new TabItem(title);
             newTab.setId(id);
-            newTab.addStyleName("pad-text"); //$NON-NLS-1$
-            panel.setHeight(this.getHeight() - 100);
+            newTab.setLayout(new FitLayout());
             newTab.add(panel);
             tabPanel.add(newTab);
             if (tabPanel.getItemCount() == 1)
                 tabPanel.setSelection(newTab);
         } else {
-
             if (newTab == null) {
                 newTab = new TabItem(title);
                 newTab.setId(id);
                 newTab.setItemId(id);
-                newTab.addStyleName("pad-text"); //$NON-NLS-1$
-                panel.setHeight(this.getHeight() - 100);
+                newTab.setLayout(new FitLayout());
                 newTab.add(panel);
                 tabPanel.add(newTab);
                 tabPanel.setSelection(newTab);

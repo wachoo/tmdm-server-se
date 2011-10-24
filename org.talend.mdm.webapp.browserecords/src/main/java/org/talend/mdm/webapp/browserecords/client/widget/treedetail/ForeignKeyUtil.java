@@ -17,8 +17,8 @@ import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
-import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -38,7 +38,7 @@ public class ForeignKeyUtil {
 
     public static void checkChange(final boolean isCreateForeignKey, final String foreignKeyName, final String ids) {
 
-        Widget widget = ItemsDetailPanel.getInstance().getTabPanel().getItem(0).getWidget(0);
+        Widget widget = ItemsMainTabPanel.getInstance().getCurrentViewTabItem().getTabPanel().getItem(0).getWidget(0);
         final ItemNodeModel root;
         if (widget instanceof ItemPanel)
             root = (ItemNodeModel) ((ItemPanel) widget).getTree().getTree().getItem(0).getUserObject();
@@ -66,7 +66,7 @@ public class ForeignKeyUtil {
 
     private static void saveItem(ItemNodeModel model, final boolean isCreateForeignKey, final String foreignKeyName,
             final String ids) {
-        final Widget widget = ItemsDetailPanel.getInstance().getTabPanel().getItem(0).getWidget(0);
+        final Widget widget = ItemsMainTabPanel.getInstance().getCurrentViewTabItem().getTabPanel().getItem(0).getWidget(0);
         ViewBean viewBean = null;
         ItemBean itemBean = null;
         boolean isCreate = false;

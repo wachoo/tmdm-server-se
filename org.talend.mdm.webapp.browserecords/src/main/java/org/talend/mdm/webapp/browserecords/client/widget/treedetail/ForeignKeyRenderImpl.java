@@ -12,6 +12,7 @@ import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -40,7 +41,8 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
                             toolBar);
                     ItemPanel itemPanel = new ItemPanel(pkViewBean, toolBar.getItemBean(), toolBar.getOperation(), fkPanel);
                     String xpathLabel = ForeignKeyUtil.transferXpathToLabel(fkTypeModel, pkViewBean);
-                    TabItem tabItem = ItemsDetailPanel.getInstance().addTabItem(xpathLabel, itemPanel, ItemsDetailPanel.MULTIPLE,
+                    TabItem tabItem = ItemsMainTabPanel.getInstance().getCurrentViewTabItem().addTabItem(xpathLabel, itemPanel,
+                            ItemsDetailPanel.MULTIPLE,
                             fkTypeModel.getXpath());
                     relationFk.put(parentModel, tabItem);
                 }

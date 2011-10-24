@@ -31,7 +31,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
-import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
@@ -48,6 +48,7 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -136,8 +137,8 @@ public class TreeDetail extends ContentPanel {
 
     public TreeDetail() {
         this.setHeaderVisible(false);
-        this.setHeight(1000);
-        this.setAutoWidth(true);
+        // this.setAutoWidth(true);
+        this.setLayout(new FitLayout());
         this.setScrollMode(Scroll.AUTO);
     }
 
@@ -342,10 +343,10 @@ public class TreeDetail extends ContentPanel {
                 hp.add(tree);
                 addTreeListener(tree);
             }
-            hp.setHeight("570px"); //$NON-NLS-1$
-            HorizontalPanel spacehp = new HorizontalPanel();
-            spacehp.setHeight("10px"); //$NON-NLS-1$
-            add(spacehp);
+            //            hp.setHeight("570px"); //$NON-NLS-1$
+            // HorizontalPanel spacehp = new HorizontalPanel();
+            //            spacehp.setHeight("10px"); //$NON-NLS-1$
+            // add(spacehp);
             add(hp);
 
         } else {
@@ -438,7 +439,7 @@ public class TreeDetail extends ContentPanel {
                         TreeDetail.this.removeAll();
                         item.set("time", node.get("time")); //$NON-NLS-1$ //$NON-NLS-2$
                         renderTree(node);
-                        ItemsDetailPanel.getInstance().clearChildrenContent();
+                        ItemsMainTabPanel.getInstance().getCurrentViewTabItem().clearChildrenContent();
                     }
 
                     @Override

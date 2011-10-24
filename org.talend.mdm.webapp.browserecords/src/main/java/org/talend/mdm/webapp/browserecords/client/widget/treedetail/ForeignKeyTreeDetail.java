@@ -32,7 +32,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
-import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -150,7 +150,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         this.setScrollMode(Scroll.AUTO);
         this.setFkRender(new ForeignKeyRenderImpl());
         // display ForeignKey detail information,the tabPanel need to be clear. including create link refresh.
-        ItemsDetailPanel.getInstance().clearContent();
+        ItemsMainTabPanel.getInstance().getCurrentViewTabItem().clearContent();
     }
 
     public ForeignKeyTreeDetail(ViewBean viewBean, boolean isCreate) {
@@ -174,10 +174,12 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         this.toolBar = new ItemDetailToolBar(fkModel.getItemBean(), isCreate ? ItemDetailToolBar.CREATE_OPERATION
                 : ItemDetailToolBar.VIEW_OPERATION, true, viewBean);
         this.setTopComponent(toolBar);
-        ItemsDetailPanel.getInstance().clearContent();
-        ItemsDetailPanel.getInstance().initBanner(fkModel.getItemBean().getPkInfoList(), fkModel.getItemBean().getDescription());
+        ItemsMainTabPanel.getInstance().getCurrentViewTabItem().clearContent();
+        ItemsMainTabPanel.getInstance().getCurrentViewTabItem().initBanner(fkModel.getItemBean().getPkInfoList(),
+                fkModel.getItemBean().getDescription());
         // Update breadcrumb
-        ItemsDetailPanel.getInstance().appendBreadCrumb(fkModel.getItemBean().getConcept(), fkModel.getItemBean().getIds());
+        ItemsMainTabPanel.getInstance().getCurrentViewTabItem().appendBreadCrumb(fkModel.getItemBean().getConcept(),
+                fkModel.getItemBean().getIds());
         buildPanel(viewBean);
     }
 
@@ -243,7 +245,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                         ForeignKeyTreeDetail.this.getItem(0).removeFromParent();
                         item.set("time", nodeModel.get("time")); //$NON-NLS-1$ //$NON-NLS-2$
                         renderTree(nodeModel);
-                        ItemsDetailPanel.getInstance().clearChildrenContent();
+                        ItemsMainTabPanel.getInstance().getCurrentViewTabItem().clearChildrenContent();
                         ForeignKeyTreeDetail.this.layout();
                     }
 

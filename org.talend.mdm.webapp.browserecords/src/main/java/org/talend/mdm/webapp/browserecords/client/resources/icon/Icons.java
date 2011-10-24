@@ -104,4 +104,7 @@ public interface Icons extends ClientBundle {
     
     @Source("page_excel.png")
     ImageResource page_excel();
+
+    @Source("opentab.png")
+    ImageResource openTab();
 }

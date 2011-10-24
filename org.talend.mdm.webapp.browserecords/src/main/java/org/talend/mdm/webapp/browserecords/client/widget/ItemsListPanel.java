@@ -29,6 +29,8 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
+import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
+import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
@@ -55,6 +57,7 @@ import com.extjs.gxt.ui.client.event.RowEditorEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.state.StateManager;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -71,9 +74,11 @@ import com.extjs.gxt.ui.client.widget.grid.RowEditor;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 public class ItemsListPanel extends ContentPanel {
 
@@ -190,7 +195,7 @@ public class ItemsListPanel extends ContentPanel {
                     }
                 } else {
                     ItemsToolBar.getInstance().searchBut.setEnabled(true);
-                    ItemsDetailPanel.getInstance().clearAll();
+                    ItemsMainTabPanel.getInstance().getCurrentViewTabItem().clearAll();
 
                 }
             }
@@ -238,6 +243,17 @@ public class ItemsListPanel extends ContentPanel {
         if (cm.getColumnCount() > 0) {
             grid.setAutoExpandColumn(cm.getColumn(0).getHeader());
         }
+
+        grid.addListener(Events.OnMouseOver, new Listener<GridEvent<ItemBean>>() {
+
+            public void handleEvent(GridEvent<ItemBean> ge) {
+                int rowIndex = ge.getRowIndex();
+                if (rowIndex != -1) {
+                    ItemBean item = grid.getStore().getAt(rowIndex);
+                    grid.getView().getRow(item).getStyle().setCursor(Style.Cursor.POINTER);
+                }
+            }
+        });
 
         grid.getSelectionModel().addSelectionChangedListener(new SelectionChangedListener<ItemBean>() {
 
@@ -357,6 +373,7 @@ public class ItemsListPanel extends ContentPanel {
         Menu contextMenu = new Menu();
         MenuItem editRow = new MenuItem();
         editRow.setText(MessagesFactory.getMessages().edititem());
+        editRow.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Edit()));
         editRow.addSelectionListener(new SelectionListener<MenuEvent>() {
             @Override
             public void componentSelected(MenuEvent ce) {
@@ -372,6 +389,26 @@ public class ItemsListPanel extends ContentPanel {
         });
 
         contextMenu.add(editRow);
+
+        MenuItem openInTab = new MenuItem();
+        openInTab.setText(MessagesFactory.getMessages().openitem_tab());
+        openInTab.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTab()));
+        openInTab.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+            @Override
+            public void componentSelected(MenuEvent ce) {
+                ItemBean m = grid.getSelectionModel().getSelectedItem();
+                if (m == null) {
+                    MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                            .grid_record_select(), null);
+                    return;
+                }
+                AppEvent evt = new AppEvent(BrowseRecordsEvents.ViewItem, m);
+                evt.setData(BrowseRecordsView.ITEMS_FORM_TARGET, BrowseRecordsView.TARGET_IN_NEW_TAB);
+                Dispatcher.forwardEvent(evt);
+            }
+        });
+        contextMenu.add(openInTab);
     
      grid.setContextMenu(contextMenu);
     
