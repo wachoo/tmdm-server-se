@@ -89,8 +89,6 @@ public interface BrowseRecordsServiceAsync {
     void isExistCriteria(String dataObjectLabel, String id, AsyncCallback<Boolean> callback);
 
     void saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString, AsyncCallback<Void> callback);
-    
-    void getDynamicLabel(String xml,ItemNodeModel itemModel, EntityModel entity,String language, AsyncCallback<ItemNodeModel> callback);
 
     void getItemNodeModel(ItemBean item, EntityModel entity, String language, AsyncCallback<ItemNodeModel> callback);
 

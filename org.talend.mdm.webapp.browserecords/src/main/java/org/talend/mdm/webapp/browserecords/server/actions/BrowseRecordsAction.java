@@ -1421,22 +1421,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    public ItemNodeModel getDynamicLabel(String xml, ItemNodeModel itemModel, EntityModel entity, String language)
-            throws ServiceException {
-        try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            StringReader sr = new StringReader(xml);
-            InputSource inputSource = new InputSource(sr);
-            Document doc = builder.parse(inputSource);
-            DynamicLabelUtil.getDynamicLabel(XmlUtil.parseDocument(doc), itemModel, entity.getMetaDataTypes(), language);
-            return itemModel;
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            throw new ServiceException(e.getLocalizedMessage());
-        }
-    }
-
     public ItemNodeModel getItemNodeModel(ItemBean item, EntityModel entity, String language) throws ServiceException {
         try {
             if (item.get("isRefresh") != null) //$NON-NLS-1$
