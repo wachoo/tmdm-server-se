@@ -21,6 +21,7 @@ import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
@@ -71,6 +72,7 @@ public class ItemPanel extends ContentPanel {
         this.setBodyBorder(false);
         this.setHeaderVisible(false);
         this.setTopComponent(toolBar);
+        this.setScrollMode(Scroll.AUTO);
         this.setLayout(new RowLayout(Orientation.VERTICAL));
         if(!isForeignKeyPanel){
             tree.setToolBar(toolBar);
