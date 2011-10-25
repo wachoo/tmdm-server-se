@@ -18,7 +18,6 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
 /**
  * DOC HSHU class global comment. Detailled comment
@@ -46,7 +45,6 @@ public class ItemsSearchContainer extends LayoutContainer {
         setBorders(false);
 
         ContentPanel topPanel = new ContentPanel();
-        topPanel.setLayout(new FitLayout());
         topPanel.setHeaderVisible(false);
 
         topPanel.add(ItemsToolBar.getInstance());
