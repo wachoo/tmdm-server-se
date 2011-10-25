@@ -28,9 +28,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import javax.naming.InitialContext;
 import javax.naming.NameClassPair;
@@ -733,8 +733,9 @@ public abstract class IXtentisRMIPort implements XtentisPort {
     /***************************************************************************
      * Put Item
      * **************************************************************************/
-
-    public WSItemPK putItem(WSPutItem wsPutItem) throws RemoteException {
+    @SuppressWarnings("nls")
+    protected WSItemPK putItem(WSPutItem wsPutItem, WSPutItemWithReport wsPutItemWithReport, String resultUpdateReport)
+            throws RemoteException {
         try {
             String projection = wsPutItem.getXmlString();
             Element root = Util.parse(projection, null).getDocumentElement();
@@ -752,41 +753,8 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             // load the item first if itemkey provided
             // this only operate non system items
             if (!XSystemObjects.isXSystemObject(XObjectType.DATA_CLUSTER, wsPutItem.getWsDataClusterPK().getPk())) {
-                if (wsPutItem.getIsUpdate()) {
-                     // FIXME BUG 0019650  remove the multi-occurence elements and save,the elements are still displayed
-                     // old node override new when they are different
-//                    if (itemKeyValues.length > 0) {
-                        // check if only update the key ,do nothing see 0012169
-                        // if(Util.isOnlyUpdateKey(root, concept, conceptKey, itemKeyValues))
-                        // return null;
-//                        ItemPOJO pj = new ItemPOJO(dcpk, concept, itemKeyValues, System.currentTimeMillis(), projection);
-//                        String revisionId = LocalUser.getLocalUser().getUniverse().getConceptRevisionID(concept);
-//                        pj = ItemPOJO.load(revisionId, pj.getItemPOJOPK(), false);
-                        // normal case no polym //FIXME a bad solution
-//                        if (pj != null && projection.indexOf("xsi:type") == -1 && projection.indexOf("tmdm:type") == -1) {
-//                            // get updated path
-//                            Node old = pj.getProjection();
-//                            Node newNode = root;
-//                            HashMap<String, UpdateReportItem> updatedPath = Util.compareElement("/" + old.getLocalName(),
-//                                    newNode, old);
-//                            if (updatedPath.size() > 0) {
-//                                if ("sequence".equals(Util.getConceptModelType(concept, dataModel.getSchema()))) { // if
-//                                                                                                                   // the
-//                                                                                                                   // concept
-//                                                                                                                   // is
-//                                                                                                                   // sequence
-//                                    // update the Node according to schema to keep the sequence as the same with the
-//                                    // schema
-//                                    old = Util.updateNodeBySchema(concept, dataModel.getSchema(), old);
-//                                }
-//                                old = Util.updateElement("/" + old.getLocalName(), old, updatedPath);
-//                                projection = Util.getXMLStringFromNode(old);
-//                            } else {// if no update, return see 0012116
-//                                return null;
-//                            }
-//                        }
-//                    }
-                } else {
+                if (!wsPutItem.getIsUpdate()) {
+
                     if (Util.containsUUIDType(concept, dataModel.getSchema(), root)) {
                         // update the item according to datamodel if there is UUID/AUTO_INCREMENT field and it's empty
                         // we need to regenerate an empty field like '<uuid_field/>'
@@ -795,9 +763,17 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                     }
                 }
             }
+            ItemPOJO itemPojo = new ItemPOJO(dcpk, concept, itemKeyValues, System.currentTimeMillis(), projection);
+            // see TMDM-1767
+            // invoke validate
+            processUUIDAndValidate(itemPojo, dataModel.getSchema());
+            // invoke beforeSaving
+            if (wsPutItemWithReport != null) {
+                if (!beforeSaving(wsPutItemWithReport, concept, itemPojo.getProjectionAsString(), resultUpdateReport))
+                    return null;
+            }
 
-            ItemPOJOPK itemPOJOPK = com.amalto.core.util.Util.getItemCtrl2Local().putItem(
-                    new ItemPOJO(dcpk, concept, itemKeyValues, System.currentTimeMillis(), projection), dataModel);
+            ItemPOJOPK itemPOJOPK = com.amalto.core.util.Util.getItemCtrl2Local().putItem(itemPojo, dataModel);
             if (itemPOJOPK == null)
                 return null;
 
@@ -809,8 +785,21 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         } catch (com.amalto.core.util.XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
         } catch (Exception e) {
-            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
+            String prefix = "Unable to create/update the item : ";
+            String err = e.getMessage();
+            // simplify the error message
+            if (("Reporting").equals(wsPutItem.getWsDataModelPK().getPk())) {
+                if (err.indexOf("One of '{ListOfFilters}'") != -1) {
+                    err = "At least one filter must be defined";
+                }
+            }
+            throw new RemoteException(prefix + err);
         }
+
+    }
+
+    public WSItemPK putItem(WSPutItem wsPutItem) throws RemoteException {
+        return putItem(wsPutItem, null, null);
     }
 
     /***************************************************************************
@@ -2204,6 +2193,48 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                 wsUpdateReportItemPOJO.getNewValue());
     }
 
+    protected boolean beforeSaving(WSPutItemWithReport wsPutItemWithReport, String concept, String xml, String resultUpdateReport)
+            throws Exception {
+        // /invoke before saving
+        String outputErrorMessage = null;
+        String errorCode = null;
+        if (wsPutItemWithReport.getInvokeBeforeSaving()) {
+            outputErrorMessage = Util.beforeSaving(concept, xml, resultUpdateReport);
+            if (outputErrorMessage != null) {
+                Document doc = Util.parse(outputErrorMessage);
+                // TODO what if multiple error nodes ?
+                String xpath = "/report/message"; //$NON-NLS-1$
+                Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
+                if (errorNode instanceof Element) {
+                    Element errorElement = (Element) errorNode;
+                    errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
+                }
+            }
+        }
+        wsPutItemWithReport.setSource(outputErrorMessage);
+        return outputErrorMessage == null || "info".equals(errorCode); //$NON-NLS-1$
+    }
+
+    protected void processUUIDAndValidate(ItemPOJO item, String schema) throws Exception {
+        if (schema != null) {
+            String dataCluster = item.getDataClusterPOJOPK().getUniqueId();
+            String concept = item.getConceptName();
+            if (Util.getUUIDNodes(schema, concept).size() > 0) { // check uuid key exists
+
+                Document schema1 = Util.parse(schema);
+                Node n = Util.processUUID(item.getProjection(), schema, dataCluster, concept);
+                XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(schema1, concept);
+                // get key values
+                String[] itemKeyValues = com.amalto.core.util.Util.getKeyValuesFromItem((Element) n, conceptKey);
+                // reset item projection & itemids
+                item.setProjectionAsString(Util.nodeToString(n));
+                item.setItemIds(itemKeyValues);
+            }
+
+            Util.validate(item.getProjection(), schema);
+        }
+    }
+
     public WSItemPK putItemWithReport(WSPutItemWithReport wsPutItemWithReport) throws RemoteException {
         try {
 
@@ -2252,54 +2283,34 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             String resultUpdateReport = Util.createUpdateReport(ids, concept, operationType, updatedPath, wsPutItem
                     .getWsDataModelPK().getPk(), wsPutItem.getWsDataClusterPK().getPk());
 
-            // invoke before saving
-            String outputErrorMessage = null;
-            String errorCode = null;
-            if (wsPutItemWithReport.getInvokeBeforeSaving()) {
-                outputErrorMessage = Util.beforeSaving(concept, projection, resultUpdateReport);
-                if (outputErrorMessage != null) {
-                    Document doc = Util.parse(outputErrorMessage);
-                    // TODO what if multiple error nodes ?
-                    String xpath = "//report/message"; //$NON-NLS-1$
-                    Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
-                    if (errorNode instanceof Element) {
-                        Element errorElement = (Element) errorNode;
-                        errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
-                    }
-                }
-            }
-            wsPutItemWithReport.setSource(outputErrorMessage);
 
             WSItemPK wsi = null;
-            if (outputErrorMessage == null || "info".equals(errorCode)) {//$NON-NLS-1$
-                String dataClusterPK = wsPutItem.getWsDataClusterPK().getPk();
+            String dataClusterPK = wsPutItem.getWsDataClusterPK().getPk();
 
-                org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-                        "[putItem-of-putItemWithReport] in dataCluster:" + dataClusterPK);
-                wsi = putItem(wsPutItem);
-                if (wsi == null)
-                    return null;
-                concept = wsi.getConceptName();
-                ids = wsi.getIds();
-                // additional attributes for data changes log
-                ILocalUser user = LocalUser.getLocalUser();
-                String userName = user.getUsername();
-                String revisionID = "";
-                UniversePOJO universe = user.getUniverse();
-                if (universe != null) {
-                    revisionID = universe.getConceptRevisionID(concept);
-                }
-                String dataModelPK = wsPutItem.getWsDataModelPK().getPk();
+            org.apache.log4j.Logger.getLogger(this.getClass()).debug(
+                    "[putItem-of-putItemWithReport] in dataCluster:" + dataClusterPK);
+            wsi = putItem(wsPutItem, wsPutItemWithReport, resultUpdateReport);
+            if (wsi == null)
+                return null;
+            concept = wsi.getConceptName();
+            ids = wsi.getIds();
+            // additional attributes for data changes log
+            ILocalUser user = LocalUser.getLocalUser();
+            String userName = user.getUsername();
+            String revisionID = "";
+            UniversePOJO universe = user.getUniverse();
+            if (universe != null) {
+                revisionID = universe.getConceptRevisionID(concept);
+            }
+            String dataModelPK = wsPutItem.getWsDataModelPK().getPk();
 
-                org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-                        "[pushUpdateReport-of-putItemWithReport] with concept:" + concept + " operation:" + operationType);
-                UpdateReportPOJO updateReportPOJO = new UpdateReportPOJO(concept, Util.joinStrings(ids, "."), operationType,
-                        source, System.currentTimeMillis(), dataClusterPK, dataModelPK, userName, revisionID,
-                        updateReportItemsMap);
-
+            org.apache.log4j.Logger.getLogger(this.getClass()).debug(
+                    "[pushUpdateReport-of-putItemWithReport] with concept:" + concept + " operation:" + operationType);
+            UpdateReportPOJO updateReportPOJO = new UpdateReportPOJO(concept, Util.joinStrings(ids, "."), operationType, source,
+                    System.currentTimeMillis(), dataClusterPK, dataModelPK, userName, revisionID, updateReportItemsMap);
+            if (resultUpdateReport != null) {
                 WSItemPK itemPK = putItem(new WSPutItem(new WSDataClusterPK("UpdateReport"), updateReportPOJO.serialize(),//$NON-NLS-1$
                         new WSDataModelPK("UpdateReport"), false));//$NON-NLS-1$
-
                 try {
                     routeItemV2(new WSRouteItemV2(itemPK));
                 } catch (RemoteException ex) {
