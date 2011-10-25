@@ -15,7 +15,6 @@ package org.talend.mdm.webapp.browserecords.client;
 import java.util.List;
 import java.util.Map;
 
-import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
