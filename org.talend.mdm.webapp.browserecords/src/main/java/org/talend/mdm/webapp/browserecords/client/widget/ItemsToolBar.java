@@ -14,6 +14,7 @@ package org.talend.mdm.webapp.browserecords.client.widget;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -272,8 +273,15 @@ public class ItemsToolBar extends ToolBar {
                     ItemsListPanel.getInstance().getGrid().getSelectionModel().deselectAll();
 
                 ItemsDetailPanel panel = new ItemsDetailPanel();
-                panel.initBanner(itemBean.getPkInfoList(), itemBean.getDescription());
-                panel.clearBreadCrumb();
+                List<String> pkInfoList = new ArrayList<String>();
+                pkInfoList.add(itemBean.getConcept());
+                panel.initBanner(pkInfoList, itemBean.getDescription());
+                Map<String, String> breads = new LinkedHashMap<String, String>();
+                if (itemBean != null) {
+                    breads.put(BreadCrumb.DEFAULTNAME, null);
+                    breads.put(itemBean.getConcept(), null);
+                }
+                panel.initBreadCrumb(new BreadCrumb(breads));
                 ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
                 ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.CREATE_OPERATION);
                 panel.addTabItem(itemBean.getConcept(), itemPanel, ItemsDetailPanel.SINGLETON, itemBean.getConcept());
