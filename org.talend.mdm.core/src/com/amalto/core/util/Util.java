@@ -3365,8 +3365,11 @@ public class Util {
             for (String v : views) {
                 concepts.add(v.split("/")[0]);
             }
+            String userDM = getUserDataModel();
+            if (userDM == null)
+                return null;
 
-            DataModelPOJO datamodelPojo = Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(getUserDataModel()));
+            DataModelPOJO datamodelPojo = Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(userDM));
             Map<String, XSElementDecl> xsdMap = getConceptMap(datamodelPojo.getSchema());
             HashMap<String, ArrayList<String>> metaDataTypes = new HashMap<String, ArrayList<String>>();
             for (String concept : concepts) {
