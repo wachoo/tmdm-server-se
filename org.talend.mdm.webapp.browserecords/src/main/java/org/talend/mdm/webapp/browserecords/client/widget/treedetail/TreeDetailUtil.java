@@ -18,9 +18,11 @@ import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -43,12 +45,12 @@ import com.google.gwt.user.client.ui.Widget;
 public class TreeDetailUtil {
 
     public static Widget createWidget(final ItemNodeModel itemNode, final ViewBean viewBean, Map<String, Field<?>> fieldMap,
-            ClickHandler h) {
-        return createWidget(itemNode, viewBean, fieldMap, h, null);
+            ClickHandler h, ItemsDetailPanel itemsDetailPanel) {
+        return createWidget(itemNode, viewBean, fieldMap, h, null, itemsDetailPanel);
     }
 
     public static Widget createWidget(final ItemNodeModel itemNode, final ViewBean viewBean, Map<String, Field<?>> fieldMap,
-            ClickHandler h, String operation) {
+            ClickHandler h, String operation, final ItemsDetailPanel itemsDetailPanel) {
 
         HorizontalPanel hp = new HorizontalPanel();
         // create Field
@@ -78,7 +80,7 @@ public class TreeDetailUtil {
                 || (!typeModel.isSimpleType() && ((ComplexTypeModel) typeModel).getReusableComplexTypes().size() > 0)) {
 
             Field<?> field = TreeDetailGridFieldCreator.createField(itemNode, typeModel, Locale.getLanguage(), fieldMap,
-                    operation);
+                    operation, itemsDetailPanel);
             field.setWidth(200);
             field.addListener(Events.Focus, new Listener<FieldEvent>() {
 
@@ -92,6 +94,7 @@ public class TreeDetailUtil {
 
                     app.setData(parent);
                     app.setData("viewBean", viewBean); //$NON-NLS-1$
+                    app.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);
                     Dispatcher.forwardEvent(app);
                 }
             });

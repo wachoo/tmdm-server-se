@@ -13,7 +13,6 @@ import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
-import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -28,13 +27,14 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
     HashMap<ItemNodeModel, TabItem> relationFk = new HashMap<ItemNodeModel, TabItem>();
 
     BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
-
+    
+    
     public ForeignKeyRenderImpl() {
-
+        
     }
 
     public void RenderForeignKey(final ItemNodeModel parentModel, final List<ItemNodeModel> fkNodeModelList,
-            final TypeModel fkTypeModel, final ItemDetailToolBar toolBar, final ViewBean pkViewBean, final ContentPanel cp) {
+            final TypeModel fkTypeModel, final ItemDetailToolBar toolBar, final ViewBean pkViewBean, final ContentPanel cp, final ItemsDetailPanel detailPanel) {
         if (fkNodeModelList != null) {
             String concept = fkTypeModel.getForeignkey().split("/")[0]; //$NON-NLS-1$
             service.getEntityModel(concept, Locale.getLanguage(), new SessionAwareAsyncCallback<EntityModel>() {
@@ -50,10 +50,10 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
                         root = ((ForeignKeyTreeDetail) cp).getRoot();
                     }
                     ForeignKeyTablePanel fkPanel = new ForeignKeyTablePanel(entityModel, parentModel, fkNodeModelList,
-                            fkTypeModel, toolBar, fieldMap);
-                    ItemPanel itemPanel = new ItemPanel(pkViewBean, toolBar.getItemBean(), toolBar.getOperation(), fkPanel, root);
+                            fkTypeModel, fieldMap, detailPanel);
+                    ItemPanel itemPanel = new ItemPanel(pkViewBean, toolBar.getItemBean(), toolBar.getOperation(), fkPanel, root, detailPanel);
                     String xpathLabel = ForeignKeyUtil.transferXpathToLabel(fkTypeModel, pkViewBean);
-                    TabItem tabItem = ItemsMainTabPanel.getInstance().getCurrentViewTabItem().addTabItem(xpathLabel, itemPanel,
+                    TabItem tabItem = detailPanel.addTabItem(xpathLabel, itemPanel,
                             ItemsDetailPanel.MULTIPLE,
                             fkTypeModel.getXpath());
                     relationFk.put(parentModel, tabItem);

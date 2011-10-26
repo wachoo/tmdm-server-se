@@ -30,7 +30,7 @@ import com.google.gwt.user.client.ui.TreeItem;
 
 public class ItemPanel extends ContentPanel {
 
-    private final TreeDetail tree = new TreeDetail();
+    private TreeDetail tree;
 
     private ContentPanel smartPanel = new ContentPanel();
 
@@ -46,22 +46,25 @@ public class ItemPanel extends ContentPanel {
 
     private ContentPanel contenPanel;
 
-    public ItemPanel() {
-
+ 
+    public ItemPanel(ItemsDetailPanel itemsDetailPanel) {
+        tree = new TreeDetail(itemsDetailPanel);
     }
 
-    public ItemPanel(ViewBean viewBean, ItemBean item, String operation) {
+    public ItemPanel(ViewBean viewBean, ItemBean item, String operation, ItemsDetailPanel itemsDetailPanel) {
+        this(itemsDetailPanel);
         this.viewBean = viewBean;
         this.item = item;
-        this.toolBar = new ItemDetailToolBar(item, operation, viewBean);
+        this.toolBar = new ItemDetailToolBar(item, operation, viewBean, itemsDetailPanel);
         this.operation = operation;
         this.initUI(null);
     }
 
-    public ItemPanel(ViewBean viewBean, ItemBean item, String operation, ContentPanel contenPanel, TreeItem root) {
+    public ItemPanel(ViewBean viewBean, ItemBean item, String operation, ContentPanel contenPanel, TreeItem root, ItemsDetailPanel itemsDetailPanel) {
+        this(itemsDetailPanel);
         this.viewBean = viewBean;
         this.item = item;
-        this.toolBar = new ItemDetailToolBar(item, operation, viewBean);
+        this.toolBar = new ItemDetailToolBar(item, operation, viewBean, itemsDetailPanel);
         this.operation = operation;
         this.isForeignKeyPanel = true;
         this.contenPanel = contenPanel;

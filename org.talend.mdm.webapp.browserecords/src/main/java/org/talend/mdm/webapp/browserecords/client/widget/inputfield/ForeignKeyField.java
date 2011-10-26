@@ -5,8 +5,10 @@ import java.util.List;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKeyFieldList;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyListWindow;
 
@@ -41,7 +43,10 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
 
     private ForeignKeyFieldList fkFieldList;
 
-    public ForeignKeyField(String foreignKey, List<String> foreignKeyInfo) {
+    private ItemsDetailPanel itemsDetailPanel;
+    
+    public ForeignKeyField(String foreignKey, List<String> foreignKeyInfo, ItemsDetailPanel itemsDetailPanel) {
+        this.itemsDetailPanel = itemsDetailPanel;
         this.foreignKeyName = foreignKey.split("/")[0]; //$NON-NLS-1$
         this.setFireChangeEventOnSetValue(true);
         this.setReturnCriteriaFK();
@@ -52,8 +57,8 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         fkWindow.setBlinkModal(true);
     }
 
-    public ForeignKeyField(String foreignKey, List<String> foreignKeyInfo, ForeignKeyFieldList fkFieldList) {
-        this(foreignKey, foreignKeyInfo);
+    public ForeignKeyField(String foreignKey, List<String> foreignKeyInfo, ForeignKeyFieldList fkFieldList, ItemsDetailPanel itemsDetailPanel) {
+        this(foreignKey, foreignKeyInfo, itemsDetailPanel);
         this.fkFieldList = fkFieldList;
         this.isFkList = true;
     }
@@ -117,6 +122,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
             public void onClick(ClickEvent arg0) {
                 Dispatcher dispatch = Dispatcher.get();
                 AppEvent event = new AppEvent(BrowseRecordsEvents.CreateForeignKeyView, foreignKeyName);
+                event.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);
                 dispatch.dispatch(event);
             }
         });
@@ -149,6 +155,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
                 AppEvent event = new AppEvent(BrowseRecordsEvents.ViewForeignKey);
                 event.setData("ids", ForeignKeyField.this.getValue().getId().replace("[", "").replace("]", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
                 event.setData("concept", ForeignKeyField.this.foreignKeyName); //$NON-NLS-1$
+                event.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);
                 dispatch.dispatch(event);
             }
         });

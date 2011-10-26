@@ -19,6 +19,7 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKeyFieldList;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
 
 import com.extjs.gxt.ui.client.GXT;
@@ -53,12 +54,15 @@ public class ForeignKeyCellField extends TextField<ForeignKeyBean> implements Re
     private boolean isFkList;
 
     private ForeignKeyFieldList fkFieldList;
+    
+    private ItemsDetailPanel itemsDetailPanel;
 
-    public ForeignKeyCellField(String foreignKey, List<String> foreignKeyInfo) {
+    public ForeignKeyCellField(String foreignKey, List<String> foreignKeyInfo, ItemsDetailPanel itemsDetailPanel) {
         this.foreignKeyName = foreignKey.split("/")[0]; //$NON-NLS-1$
         this.setFireChangeEventOnSetValue(true);
         this.setReturnCriteriaFK();
         this.setWidth(400);
+        this.itemsDetailPanel = itemsDetailPanel;
         fkWindow.setForeignKeyInfos(foreignKey, foreignKeyInfo);
         fkWindow.setSize(470, 340);
         fkWindow.setResizable(false);
@@ -66,8 +70,8 @@ public class ForeignKeyCellField extends TextField<ForeignKeyBean> implements Re
         fkWindow.setBlinkModal(true);
     }
 
-    public ForeignKeyCellField(String foreignKey, List<String> foreignKeyInfo, ForeignKeyFieldList fkFieldList) {
-        this(foreignKey, foreignKeyInfo);
+    public ForeignKeyCellField(String foreignKey, List<String> foreignKeyInfo, ForeignKeyFieldList fkFieldList, ItemsDetailPanel itemsDetailPanel) {
+        this(foreignKey, foreignKeyInfo, itemsDetailPanel);
         this.fkFieldList = fkFieldList;
         this.isFkList = true;
     }
@@ -152,7 +156,7 @@ public class ForeignKeyCellField extends TextField<ForeignKeyBean> implements Re
                 if (fkBean == null || fkBean.getId() == null || "".equals(fkBean.getId())) //$NON-NLS-1$
                     return;
                 String ids = ForeignKeyCellField.this.getValue().getId().replace("[", "").replace("]", "");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-                ForeignKeyUtil.checkChange(false, ForeignKeyCellField.this.foreignKeyName, ids);
+                ForeignKeyUtil.checkChange(false, ForeignKeyCellField.this.foreignKeyName, ids, itemsDetailPanel);
             }
         });
     }

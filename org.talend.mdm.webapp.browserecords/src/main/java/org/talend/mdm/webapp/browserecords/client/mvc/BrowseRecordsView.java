@@ -71,6 +71,8 @@ public class BrowseRecordsView extends View {
     public static final String TARGET_IN_NEW_TAB = "target_in_new_tab";//$NON-NLS-1$
 
     public static final String DEFAULT_ITEMVIEW = "itemView"; //$NON-NLS-1$
+    
+    public static final String ITEMS_DETAIL_PANEL= "itemsDetailPanel"; //$NON-NLS-1$
 
     public BrowseRecordsView(Controller controller) {
         super(controller);
@@ -102,14 +104,16 @@ public class BrowseRecordsView extends View {
     }
 
     private void onExecuteVisibleRule(AppEvent event) {
-        ItemPanel itemPanel = ItemsMainTabPanel.getInstance().getCurrentViewTabItem().getCurrentItemPanel();
+        ItemsDetailPanel detailPanel = event.getData(BrowseRecordsView.ITEMS_DETAIL_PANEL);
+        ItemPanel itemPanel = detailPanel.getCurrentItemPanel();
         if (itemPanel != null) {
             itemPanel.onExecuteVisibleRule((List<VisibleRuleResult>) event.getData());
         }
     }
 
     private void onUpdatePolymorphism(AppEvent event) {
-        ItemPanel itemPanel = ItemsMainTabPanel.getInstance().getCurrentViewTabItem().getCurrentItemPanel();
+        ItemsDetailPanel detailPanel = event.getData(BrowseRecordsView.ITEMS_DETAIL_PANEL);
+        ItemPanel itemPanel = detailPanel.getCurrentItemPanel();
         if (itemPanel != null) {
             itemPanel.onUpdatePolymorphism((ComplexTypeModel) event.getData());
         }
@@ -117,9 +121,9 @@ public class BrowseRecordsView extends View {
 
     private void onViewForeignKey(AppEvent event) {
         ForeignKeyModel model = event.getData();
-        ForeignKeyTreeDetail tree = new ForeignKeyTreeDetail(model, false);
-        ItemsMainTabPanel.getInstance().getCurrentViewTabItem().addTabItem(
-                model.getViewBean().getBindingEntityModel().getConceptName(), tree,
+        ItemsDetailPanel detailPanel = event.getData(BrowseRecordsView.ITEMS_DETAIL_PANEL);
+        ForeignKeyTreeDetail tree = new ForeignKeyTreeDetail(model, false, detailPanel);
+        detailPanel.addTabItem(model.getViewBean().getBindingEntityModel().getConceptName(), tree,
                 ItemsDetailPanel.MULTIPLE, model.getViewBean().getDescription());
     }
 
@@ -133,7 +137,6 @@ public class BrowseRecordsView extends View {
         else if (item.getSmartViewMode().equals(ItemBean.SMARTMODE))
             operation = ItemDetailToolBar.SMARTVIEW_OPERATION;
         ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
-        ItemPanel itemPanel = new ItemPanel(viewBean, item, operation);
         Map<String, String> breads = new LinkedHashMap<String, String>();
         // show breadcrumb
         // ItemsDetailPanel.getInstance().clearBreadCrumb();
@@ -143,12 +146,14 @@ public class BrowseRecordsView extends View {
             breads.put(item.getIds(), item.getConcept());
         }
 
+        ItemsDetailPanel panel = new ItemsDetailPanel();
+        ItemPanel itemPanel = new ItemPanel(viewBean, item, operation, panel);
         if (itemsFormTarget != null && itemsFormTarget.equals(TARGET_IN_NEW_TAB)) {
-            ItemsDetailPanel panel = new ItemsDetailPanel();
+            
             panel.setId(item.getIds());
             panel.initBanner(item.getPkInfoList(), item.getDescription());
             panel.addTabItem(item.getConcept(), itemPanel, ItemsDetailPanel.SINGLETON, item.getIds());
-            panel.initBreadCrumb(new BreadCrumb(breads));
+            panel.initBreadCrumb(new BreadCrumb(breads, panel));
             ItemsMainTabPanel.getInstance().addMainTabItem(item.getConcept() + " " + item.getIds(), panel, item.getIds()); //$NON-NLS-1$           
         } else {
             if (ItemsMainTabPanel.getInstance().getItemByItemId(DEFAULT_ITEMVIEW) != null)
@@ -158,11 +163,10 @@ public class BrowseRecordsView extends View {
             defaultItem.setClosable(true);
             defaultItem.setLayout(new FitLayout());
 
-            ItemsDetailPanel panel = new ItemsDetailPanel();
             panel.setId(DEFAULT_ITEMVIEW);
             panel.initBanner(item.getPkInfoList(), item.getDescription());
             panel.addTabItem(item.getConcept(), itemPanel, ItemsDetailPanel.SINGLETON, DEFAULT_ITEMVIEW);
-            panel.initBreadCrumb(new BreadCrumb(breads));
+            panel.initBreadCrumb(new BreadCrumb(breads, panel));
             defaultItem.add(panel);
             ItemsMainTabPanel.getInstance().insert(defaultItem, 0);
             ItemsMainTabPanel.getInstance().setSelection(defaultItem);
@@ -177,9 +181,9 @@ public class BrowseRecordsView extends View {
 
     private void onCreateForeignKeyView(AppEvent event) {
         ViewBean viewBean = event.getData();
-        ForeignKeyTreeDetail tree = new ForeignKeyTreeDetail(viewBean, true);
-        ItemsMainTabPanel.getInstance().getCurrentViewTabItem().addTabItem(viewBean.getBindingEntityModel().getConceptName(),
-                tree,
+        ItemsDetailPanel detailPanel = event.getData(BrowseRecordsView.ITEMS_DETAIL_PANEL);
+        ForeignKeyTreeDetail tree = new ForeignKeyTreeDetail(viewBean, true, detailPanel);
+        detailPanel.addTabItem(viewBean.getBindingEntityModel().getConceptName(), tree,
                 ItemsDetailPanel.MULTIPLE, viewBean.getDescription());
 
     }

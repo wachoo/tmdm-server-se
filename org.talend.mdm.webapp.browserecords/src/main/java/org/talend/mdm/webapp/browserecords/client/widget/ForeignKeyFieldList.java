@@ -101,10 +101,13 @@ public class ForeignKeyFieldList extends ContentPanel {
     protected El inputEl;
 
     protected NumberField sizeField;
+    
+    private ItemsDetailPanel itemsDetailPanel;
 
-    public ForeignKeyFieldList(ItemNodeModel itemNode, TypeModel typeModel) {
+    public ForeignKeyFieldList(ItemNodeModel itemNode, TypeModel typeModel, ItemsDetailPanel itemsDetailPanel) {
         this.itemNode = itemNode;
         this.typeModel = typeModel;
+        this.itemsDetailPanel = itemsDetailPanel;
         pageSize = 5;
         pageNumber = 1;
         fields = new ArrayList<Field<?>>();
@@ -408,7 +411,7 @@ public class ForeignKeyFieldList extends ContentPanel {
         Field<?> field = null;
         if (typeModel.getForeignkey() != null) {
             ForeignKeyField foreignKeyField = new ForeignKeyField(typeModel.getForeignkey(), typeModel.getForeignKeyInfo(),
-                    ForeignKeyFieldList.this);
+                    ForeignKeyFieldList.this, itemsDetailPanel);
             foreignKeyField.setValue((ForeignKeyBean) value);
             field = foreignKeyField;
             // ((List<ForeignKeyBean>) itemNode.getObjectValue()).add((ForeignKeyBean)value);

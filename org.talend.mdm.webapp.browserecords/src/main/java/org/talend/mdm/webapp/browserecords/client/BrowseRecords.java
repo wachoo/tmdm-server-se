@@ -21,6 +21,7 @@ import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -65,8 +66,8 @@ public class BrowseRecords implements EntryPoint {
                 idstr = ids[0];
             }
             tabPanel.setSelection(panel.getItemId());  
-            @org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar::addTreeDetail(Ljava/lang/String;Ljava/lang/String;)(idstr, entity)
-                    
+            @org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar::getItemsDetailPanelById(Ljava/lang/String;Ljava/lang/String;)(idstr, entity)
+        
         };
     }-*/;
 
@@ -116,6 +117,7 @@ public class BrowseRecords implements EntryPoint {
 
     public void showTreeDetailPanel(final String concept, final String ids) {
 
+        final ItemsDetailPanel panel = new ItemsDetailPanel();
         getItemService().getItemBeanById(concept,
                 ids.split("\\."), Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBean>() { //$NON-NLS-1$
 
@@ -124,7 +126,7 @@ public class BrowseRecords implements EntryPoint {
                                 "Browse_items_" + concept, Locale.getLanguage(), new SessionAwareAsyncCallback<ViewBean>() { //$NON-NLS-1$
 
                                     public void onSuccess(ViewBean viewBean) {
-                                        ItemPanel itemPanel = new ItemPanel(viewBean, item, ItemDetailToolBar.VIEW_OPERATION);
+                                        ItemPanel itemPanel = new ItemPanel(viewBean, item, ItemDetailToolBar.VIEW_OPERATION, panel);
                                         itemPanel.setItemId(concept + "_" + ids); //$NON-NLS-1$
                                         renderPubTreeDetailPanel(itemPanel.getItemId(), itemPanel);
                                     }

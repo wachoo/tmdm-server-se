@@ -12,13 +12,14 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
-import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -36,9 +37,9 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class ForeignKeyUtil {
 
-    public static void checkChange(final boolean isCreateForeignKey, final String foreignKeyName, final String ids) {
+    public static void checkChange(final boolean isCreateForeignKey, final String foreignKeyName, final String ids, final ItemsDetailPanel itemsDetailPanel) {
 
-        Widget widget = ItemsMainTabPanel.getInstance().getCurrentViewTabItem().getTabPanel().getItem(0).getWidget(0);
+        Widget widget = itemsDetailPanel.getTabPanel().getItem(0).getWidget(0);
         final ItemNodeModel root;
         if (widget instanceof ItemPanel)
             root = (ItemNodeModel) ((ItemPanel) widget).getTree().getTree().getItem(0).getUserObject();
@@ -50,23 +51,23 @@ public class ForeignKeyUtil {
 
                 public void handleEvent(MessageBoxEvent be) {
                     if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                        saveItem(root, isCreateForeignKey, foreignKeyName, ids);
+                        saveItem(root, isCreateForeignKey, foreignKeyName, ids, itemsDetailPanel);
                     } else if (Dialog.NO.equals(be.getButtonClicked().getItemId())) {
-                        displayForeignKey(isCreateForeignKey, foreignKeyName, ids);
+                        displayForeignKey(isCreateForeignKey, foreignKeyName, ids, itemsDetailPanel);
                     }
                 }
             });
             msgBox.getDialog().setWidth(550);
             msgBox.getDialog().setButtons(MessageBox.YESNOCANCEL);
         } else {
-            displayForeignKey(isCreateForeignKey, foreignKeyName, ids);
+            displayForeignKey(isCreateForeignKey, foreignKeyName, ids, itemsDetailPanel);
         }
 
     }
 
     private static void saveItem(ItemNodeModel model, final boolean isCreateForeignKey, final String foreignKeyName,
-            final String ids) {
-        final Widget widget = ItemsMainTabPanel.getInstance().getCurrentViewTabItem().getTabPanel().getItem(0).getWidget(0);
+            final String ids, final ItemsDetailPanel itemsDetailPanel) {
+        final Widget widget = itemsDetailPanel.getTabPanel().getItem(0).getWidget(0);
         ViewBean viewBean = null;
         ItemBean itemBean = null;
         boolean isCreate = false;
@@ -115,7 +116,7 @@ public class ForeignKeyUtil {
                             if (widget instanceof ItemPanel && isCreated) {
                                 ItemsListPanel.getInstance().lastPage();
                             }
-                            displayForeignKey(isCreateForeignKey, foreignKeyName, ids);
+                            displayForeignKey(isCreateForeignKey, foreignKeyName, ids, itemsDetailPanel);
                         }
                     });
         } else {
@@ -123,13 +124,15 @@ public class ForeignKeyUtil {
         }
     }
 
-    public static void displayForeignKey(boolean isCreateForeignKey, final String foreignKeyName, final String ids) {
+    public static void displayForeignKey(boolean isCreateForeignKey, final String foreignKeyName, final String ids, ItemsDetailPanel itemsDetailPanel) {
         Dispatcher dispatch = Dispatcher.get();
         AppEvent event = new AppEvent(BrowseRecordsEvents.CreateForeignKeyView, foreignKeyName);
+        event.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);
         if (!isCreateForeignKey) {
             event = new AppEvent(BrowseRecordsEvents.ViewForeignKey);
             event.setData("ids", ids); //$NON-NLS-1$ 
-            event.setData("concept", foreignKeyName); //$NON-NLS-1$
+            event.setData("concept", foreignKeyName); //$NON-NLS-1$        
+            event.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);
         }
         dispatch.dispatch(event);
     }

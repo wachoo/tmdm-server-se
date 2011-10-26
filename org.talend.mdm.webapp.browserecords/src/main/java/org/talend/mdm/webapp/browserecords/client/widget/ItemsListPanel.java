@@ -195,7 +195,7 @@ public class ItemsListPanel extends ContentPanel {
                     }
                 } else {
                     ItemsToolBar.getInstance().searchBut.setEnabled(true);
-                    ItemsMainTabPanel.getInstance().getCurrentViewTabItem().clearAll();
+//                    ItemsMainTabPanel.getInstance().getCurrentViewTabItem().clearAll();
 
                 }
             }

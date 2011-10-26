@@ -281,9 +281,9 @@ public class ItemsToolBar extends ToolBar {
                     breads.put(BreadCrumb.DEFAULTNAME, null);
                     breads.put(itemBean.getConcept(), null);
                 }
-                panel.initBreadCrumb(new BreadCrumb(breads));
+                panel.initBreadCrumb(new BreadCrumb(breads, panel));
                 ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
-                ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.CREATE_OPERATION);
+                ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.CREATE_OPERATION, panel);
                 panel.addTabItem(itemBean.getConcept(), itemPanel, ItemsDetailPanel.SINGLETON, itemBean.getConcept());
                 ItemsMainTabPanel.getInstance().addMainTabItem(itemBean.getConcept(), panel, itemBean.getConcept());
             }

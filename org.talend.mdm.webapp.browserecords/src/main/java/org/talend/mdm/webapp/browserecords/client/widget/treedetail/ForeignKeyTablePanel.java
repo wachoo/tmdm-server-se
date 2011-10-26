@@ -14,7 +14,7 @@ import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKeyRowEditor;
-import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.celleditor.ForeignKeyCellEditor;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator.FieldCreator;
@@ -101,9 +101,13 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
     int lastFkIndex;
 
     Map<String, Field<?>> fieldMap;
+    
+    private ItemsDetailPanel itemsDetailPanel;
 
     public ForeignKeyTablePanel(final EntityModel entityModel, ItemNodeModel parent, final List<ItemNodeModel> fkModels,
-            final TypeModel fkTypeModel, final ItemDetailToolBar parentToolBar, Map<String, Field<?>> fieldMap) {
+            final TypeModel fkTypeModel, Map<String, Field<?>> fieldMap, ItemsDetailPanel itemsDetailPanel) {
+       
+        this.itemsDetailPanel = itemsDetailPanel;
         this.setHeaderVisible(false);
         this.setLayout(new FitLayout());
         this.setAutoWidth(true);
@@ -360,7 +364,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                     if (fkBean == null || fkBean.getId() == null || "".equals(fkBean.getId())) //$NON-NLS-1$
                         return;
                     String ids = fkBean.getId().replace("[", "").replace("]", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-                    ForeignKeyUtil.checkChange(false, fkTypeModel.getForeignkey().split("/")[0], ids); //$NON-NLS-1$
+                    ForeignKeyUtil.checkChange(false, fkTypeModel.getForeignkey().split("/")[0], ids, itemsDetailPanel); //$NON-NLS-1$
                 }
             });
 

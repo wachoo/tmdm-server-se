@@ -72,9 +72,9 @@ public class ItemsMainTabPanel extends TabPanel {
         return null;
     }
 
-    public ItemsDetailPanel getCurrentViewTabItem(){
+/*    public ItemsDetailPanel getCurrentViewTabItem(){
         if (this.getSelectedItem().getWidget(0) instanceof ItemsDetailPanel)
             return (ItemsDetailPanel) this.getSelectedItem().getWidget(0);
         return null;
-    }
+    }*/
 }

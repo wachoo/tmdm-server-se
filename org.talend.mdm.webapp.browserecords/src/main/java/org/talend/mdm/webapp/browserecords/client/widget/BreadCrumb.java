@@ -25,10 +25,13 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 public class BreadCrumb extends Composite {
 
     private HorizontalPanel pWidget = new HorizontalPanel();
+    
+    private ItemsDetailPanel itemsDetailPanel;
 
     public static String DEFAULTNAME = "Talend MDM", DEFAULTLINK = "../talendmdm/secure"; //$NON-NLS-1$ //$NON-NLS-2$    
 
-    public BreadCrumb(Map<String, String> list) {
+    public BreadCrumb(Map<String, String> list, ItemsDetailPanel itemsDetailPanel) {
+        this.itemsDetailPanel = itemsDetailPanel;
         int i = 0;
 
         for (String name : list.keySet()) {
@@ -60,7 +63,7 @@ public class BreadCrumb extends Composite {
             h.addClickHandler(new ClickHandler() {
 
                 public void onClick(ClickEvent event) {
-                    ForeignKeyUtil.displayForeignKey(false, concept, ids);
+                    ForeignKeyUtil.displayForeignKey(false, concept, ids, itemsDetailPanel);
                     if (pWidget != null) {
                         HTML clickedHtml = (HTML) event.getSource();
                         int index = pWidget.getWidgetIndex(clickedHtml);

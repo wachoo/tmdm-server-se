@@ -33,7 +33,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
-import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -85,6 +85,8 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     private HashMap<CountMapItem, Integer> occurMap = new HashMap<CountMapItem, Integer>();
 
     private DynamicTreeItem selectedItem;
+    
+    private ItemsDetailPanel itemsDetailPanel;
 
     private ClickHandler handler = new ClickHandler() {
 
@@ -145,41 +147,42 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         }
     };
 
-    public ForeignKeyTreeDetail() {
+    public ForeignKeyTreeDetail(ItemsDetailPanel itemsDetailPanel) {
+        this.itemsDetailPanel = itemsDetailPanel;
         this.setHeaderVisible(false);
         this.setHeight(Window.getClientHeight() - (60 + 4 * 20));
         this.setScrollMode(Scroll.AUTO);
         this.setFkRender(new ForeignKeyRenderImpl());
         // display ForeignKey detail information,the tabPanel need to be clear. including create link refresh.
-        ItemsMainTabPanel.getInstance().getCurrentViewTabItem().clearContent();
+        itemsDetailPanel.clearContent();
     }
 
-    public ForeignKeyTreeDetail(ViewBean viewBean, boolean isCreate) {
-        this();
+    public ForeignKeyTreeDetail(ViewBean viewBean, boolean isCreate, ItemsDetailPanel itemsDetailPanel) {
+        this(itemsDetailPanel);
         this.isCreate = isCreate;
         this.viewBean = viewBean;
         this.columnLayoutModel = viewBean.getColumnLayoutModel();
         this.toolBar = new ItemDetailToolBar(new ItemBean(viewBean.getBindingEntityModel().getConceptName(), "", ""), //$NON-NLS-1$//$NON-NLS-2$
-                isCreate ? ItemDetailToolBar.CREATE_OPERATION : ItemDetailToolBar.VIEW_OPERATION, true, viewBean);
+                isCreate ? ItemDetailToolBar.CREATE_OPERATION : ItemDetailToolBar.VIEW_OPERATION, true, viewBean, itemsDetailPanel);
         this.setTopComponent(toolBar);
         buildPanel(viewBean);
     }
 
-    public ForeignKeyTreeDetail(ForeignKeyModel fkModel, boolean isCreate) {
-        this();
+    public ForeignKeyTreeDetail(ForeignKeyModel fkModel, boolean isCreate, ItemsDetailPanel itemsDetailPanel) {
+        this(itemsDetailPanel);
         this.isCreate = isCreate;
         this.fkModel = fkModel;
         this.model = fkModel.getNodeModel();
         this.viewBean = fkModel.getViewBean();
         this.columnLayoutModel = viewBean.getColumnLayoutModel();
         this.toolBar = new ItemDetailToolBar(fkModel.getItemBean(), isCreate ? ItemDetailToolBar.CREATE_OPERATION
-                : ItemDetailToolBar.VIEW_OPERATION, true, viewBean);
+                : ItemDetailToolBar.VIEW_OPERATION, true, viewBean, itemsDetailPanel);
         this.setTopComponent(toolBar);
-        ItemsMainTabPanel.getInstance().getCurrentViewTabItem().clearContent();
-        ItemsMainTabPanel.getInstance().getCurrentViewTabItem().initBanner(fkModel.getItemBean().getPkInfoList(),
+        itemsDetailPanel.clearContent();
+        itemsDetailPanel.initBanner(fkModel.getItemBean().getPkInfoList(),
                 fkModel.getItemBean().getDescription());
         // Update breadcrumb
-        ItemsMainTabPanel.getInstance().getCurrentViewTabItem().appendBreadCrumb(fkModel.getItemBean().getConcept(),
+        itemsDetailPanel.appendBreadCrumb(fkModel.getItemBean().getConcept(),
                 fkModel.getItemBean().getIds());
         buildPanel(viewBean);
     }
@@ -246,7 +249,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                         ForeignKeyTreeDetail.this.getItem(0).removeFromParent();
                         item.set("time", nodeModel.get("time")); //$NON-NLS-1$ //$NON-NLS-2$
                         renderTree(nodeModel);
-                        ItemsMainTabPanel.getInstance().getCurrentViewTabItem().clearChildrenContent();
+                        itemsDetailPanel.clearChildrenContent();
                         ForeignKeyTreeDetail.this.layout();
                     }
 
@@ -271,7 +274,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, boolean withDefaultValue) {
         DynamicTreeItem item = new DynamicTreeItem();
         item.setItemNodeModel(itemNode);
-        item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, fieldMap, handler));
+        item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, fieldMap, handler, itemsDetailPanel));
         item.setUserObject(itemNode);
         if (itemNode.getChildren() != null && itemNode.getChildren().size() > 0) {
             final Map<TypeModel, List<ItemNodeModel>> fkMap = new HashMap<TypeModel, List<ItemNodeModel>>();
@@ -303,7 +306,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                     public void execute() {
                         for (TypeModel model : fkMap.keySet()) {
                             fkRender.RenderForeignKey(itemNode, fkMap.get(model), model, toolBar, viewBean,
-                                    ForeignKeyTreeDetail.this);
+                                    ForeignKeyTreeDetail.this, itemsDetailPanel);
                         }
                         itemNode.addChangeListener(new ChangeListener() {
 

@@ -1,5 +1,6 @@
 package org.talend.mdm.webapp.browserecords.client.widget.integrity;
 
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
 
@@ -22,7 +23,8 @@ public class ContainerUpdate implements PostDeleteAction {
     public void doAction() {
         ItemsListPanel.getInstance().refreshGrid();
         // After item has been deleted, close its view tab.
-        ItemsMainTabPanel.getInstance().getCurrentViewTabItem().closeCurrentTab();
+        if (ItemsMainTabPanel.getInstance().getSelectedItem().getWidget(0) instanceof ItemsDetailPanel)
+            ((ItemsDetailPanel)ItemsMainTabPanel.getInstance().getSelectedItem().getWidget(0)).closeCurrentTab();
 
         next.doAction();
     }
