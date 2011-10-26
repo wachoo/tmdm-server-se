@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.browserecords.server.bizhelpers;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -29,6 +30,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.amalto.core.util.Messages;
+import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.util.webservices.WSView;
 
 /**
@@ -93,13 +96,24 @@ public class ViewHelper {
             if (wsView.getName().contains(DEFAULT_VIEW_PREFIX + "_")) { //$NON-NLS-1$
                 Map<String, TypeModel> labelMapSrc = entityModel.getMetaDataTypes();
                 for (int i = 0; i < searchables.length; i++) {
-                    String searchableLabel = labelMapSrc.get(searchables[i]) == null ? searchables[i] : labelMapSrc.get(
-                            searchables[i]).getLabel(language);
-                    if (searchableLabel == null) {
-                        searchableLabel = labelMapSrc.get(searchables[i]).getName();
+                    String searchableLabel;
+                    // add feature TMDM-2679:FT search in web UI,it should be displaying the "whole content" but not the
+                    // entity name in the second drop-down.
+                    if (searchables[i].equals(entityModel.getConceptName())) {
+                        Messages message = MessagesFactory.getMessages(
+                                "org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages",//$NON-NLS-1$
+                                ViewHelper.class.getClassLoader());
+                        searchableLabel = message.getMessage(new Locale(language), "entity_display_name"); //$NON-NLS-1$
                     } else {
-                        if (DynamicLabelUtil.isDynamicLabel(searchableLabel))
+                        searchableLabel = labelMapSrc.get(searchables[i]) == null ? searchables[i] : labelMapSrc.get(
+                                searchables[i]).getLabel(language);
+                        if (searchableLabel == null) {
                             searchableLabel = labelMapSrc.get(searchables[i]).getName();
+                        } else {
+                            if (DynamicLabelUtil.isDynamicLabel(searchableLabel))
+                                searchableLabel = labelMapSrc.get(searchables[i]).getName();
+                        }
+
                     }
                     labelSearchables.put(searchables[i], searchableLabel);
                 }
