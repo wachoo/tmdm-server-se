@@ -79,7 +79,7 @@ public class SearchFieldCreator {
             } else if (typeModel.getType().getBaseTypeName().equals(DataTypeConstants.DATETIME.getBaseTypeName())) {
                 DateTimeField dateField = new DateTimeField();
                 dateField.setMessageTarget("tooltip");//$NON-NLS-1$
-                dateField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd HH:mm:ss"));//$NON-NLS-1$            
+                dateField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd'T'HH:mm:ss"));//$NON-NLS-1$            
                 field = dateField;
                 cons = OperatorConstants.dateOperators;
             } else if (typeModel.getType().getBaseTypeName().equals(DataTypeConstants.BOOLEAN.getBaseTypeName())) {
