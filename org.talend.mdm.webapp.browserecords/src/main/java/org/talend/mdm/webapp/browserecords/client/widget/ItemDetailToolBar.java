@@ -179,10 +179,8 @@ public class ItemDetailToolBar extends ToolBar {
         }
         this.addSaveButton();
         this.addSeparator();
-        if (isFkToolBar) {
-            this.addSaveQuitButton();
-            this.addSeparator();
-        }
+        this.addSaveQuitButton();
+        this.addSeparator();
         this.addDeleteMenu();
         this.addSeparator();
         this.addDuplicateButton();

@@ -12,9 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.mvc;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
@@ -27,8 +25,6 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
-import org.talend.mdm.webapp.browserecords.client.widget.BreadCrumb;
-import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
@@ -129,12 +125,6 @@ public class BrowseRecordsController extends Controller {
                         else
                             MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
                                     .save_success(), null);
-                        if (!isClose && isCreate) { 
-                            // refresh item grid
-                            ItemsListPanel.getInstance().lastPage();                                  
-                            
-                            ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
-                        }
 
                         if (isClose) {
                             ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
