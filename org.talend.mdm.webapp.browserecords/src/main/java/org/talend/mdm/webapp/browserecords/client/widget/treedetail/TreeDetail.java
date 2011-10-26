@@ -33,7 +33,7 @@ import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
-import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
@@ -77,6 +77,8 @@ public class TreeDetail extends ContentPanel {
     private ItemDetailToolBar toolBar;
 
     private DynamicTreeItem selectedItem;
+
+    private ItemsDetailPanel itemsDetailPanel;
 
     private ClickHandler handler = new ClickHandler() {
 
@@ -139,11 +141,12 @@ public class TreeDetail extends ContentPanel {
         }
     };
 
-    public TreeDetail() {
+    public TreeDetail(ItemsDetailPanel itemsDetailPanel) {
         this.setHeaderVisible(false);
         // this.setAutoWidth(true);
         this.setLayout(new FitLayout());
         this.setScrollMode(Scroll.AUTO);
+        this.itemsDetailPanel = itemsDetailPanel;
     }
 
     public void initTree(ViewBean viewBean, ItemBean itemBean) {
@@ -209,7 +212,7 @@ public class TreeDetail extends ContentPanel {
             if (itemNode.getRealType() != null && itemNode.getRealType().trim().length() > 0) {
                 item.setState(true);
             }
-            item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, fieldMap, handler, operation));
+            item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, fieldMap, handler, operation, itemsDetailPanel));
         }
         if (itemNode.getChildren() != null && itemNode.getChildren().size() > 0) {
             final Map<TypeModel, List<ItemNodeModel>> fkMap = new HashMap<TypeModel, List<ItemNodeModel>>();
@@ -249,7 +252,7 @@ public class TreeDetail extends ContentPanel {
 
             if (fkMap.size() > 0) {
                 for (TypeModel model : fkMap.keySet()) {
-                    fkRender.RenderForeignKey(itemNode, fkMap.get(model), model, toolBar, viewBean, this);
+                    fkRender.RenderForeignKey(itemNode, fkMap.get(model), model, toolBar, viewBean, this, itemsDetailPanel);
                 }
             }
             item.getElement().getStyle().setPaddingLeft(3.0, Unit.PX);
@@ -444,7 +447,7 @@ public class TreeDetail extends ContentPanel {
                         TreeDetail.this.removeAll();
                         item.set("time", node.get("time")); //$NON-NLS-1$ //$NON-NLS-2$
                         renderTree(node);
-                        ItemsMainTabPanel.getInstance().getCurrentViewTabItem().clearChildrenContent();
+                        itemsDetailPanel.clearChildrenContent();
                     }
 
                     @Override
