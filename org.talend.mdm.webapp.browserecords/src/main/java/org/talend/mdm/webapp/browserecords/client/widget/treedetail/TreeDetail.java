@@ -98,6 +98,7 @@ public class TreeDetail extends ContentPanel {
                     // clone a new item
                     ItemNodeModel model = selectedModel.clone("Clone".equals(arg0.getRelativeElement().getId()) ? true : false); //$NON-NLS-1$
                     model.setDynamicLabel(LabelUtil.getNormalLabel(model.getLabel()));
+                    model.setMandatory(selectedModel.isMandatory());
                     int selectModelIndex = parentModel.indexOf(selectedModel);
                     parentModel.insert(model, selectModelIndex + 1);
                     // if it has default value
@@ -118,6 +119,7 @@ public class TreeDetail extends ContentPanel {
                                     if (count > 1
                                             && count > viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath)
                                                     .getMinOccurs()) {
+                                        TreeDetailGridFieldCreator.deleteField(selectedModel, fieldMap);
                                         parentItem.removeItem(selectedItem);
                                         parentModel.remove(selectedModel);
                                         occurMap.put(countMapItem, count - 1);

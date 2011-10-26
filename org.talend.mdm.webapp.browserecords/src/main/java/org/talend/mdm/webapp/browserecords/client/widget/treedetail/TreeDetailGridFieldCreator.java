@@ -194,7 +194,7 @@ public class TreeDetailGridFieldCreator {
                 ((TextField<?>) field).getMessages().setBlankText(errorMsg);
 
         }
-        fieldMap.put(node.getBindingPath() + node.getId().toString(), field);
+        fieldMap.put(node.getId().toString(), field);
         updateMandatory(field, node, fieldMap);
         addFieldListener(field, node, fieldMap);
         return field;
@@ -298,6 +298,14 @@ public class TreeDetailGridFieldCreator {
         return field;
     }
 
+    public static void deleteField(ItemNodeModel node, Map<String, Field<?>> fieldMap) {
+
+        Field<?> updateField = fieldMap.get(node.getId().toString());
+        node.setObjectValue(null);
+        updateMandatory(updateField, node, fieldMap);
+        fieldMap.remove(node.getId().toString());
+    }
+
     private static void addFieldListener(final Field<?> field, final ItemNodeModel node, final Map<String, Field<?>> fieldMap) {
 
         field.addListener(Events.Change, new Listener<FieldEvent>() {
@@ -367,46 +375,22 @@ public class TreeDetailGridFieldCreator {
         ItemNodeModel parent = (ItemNodeModel) node.getParent();
         if (parent != null && parent.getParent() != null && !parent.isMandatory()) {
             List<ModelData> childs = parent.getChildren();
-
             for (int i = 0; i < childs.size(); i++) {
                 ItemNodeModel child = (ItemNodeModel) childs.get(i);
                 if (child.getObjectValue() != null && !"".equals(child.getObjectValue())) { //$NON-NLS-1$
-                    if(child.getObjectValue() instanceof ForeignKeyBean){
-                        ForeignKeyBean fkBean = (ForeignKeyBean) child.getObjectValue();
-                        if (fkBean.getId() == null || fkBean.getId().trim().length() == 0)
-                            continue;
-                    }
                     flag = true;
                     break;
                 }
             }
-            boolean mandatory = false;
-            List<String> xpathList = new ArrayList<String>(); 
+
             for (int i = 0; i < childs.size(); i++) {
                 ItemNodeModel mandatoryNode = (ItemNodeModel) childs.get(i);
-                String xpath = mandatoryNode.getBindingPath();
-                Field<?> updateField = fieldMap.get(xpath + mandatoryNode.getId().toString());
+                Field<?> updateField = fieldMap.get(mandatoryNode.getId().toString());
                 if (updateField != null && mandatoryNode.isMandatory()) {
-                    mandatory = true;
-                    if (!xpathList.contains(xpath))
-                        xpathList.add(xpath);
                     setMandatory(updateField, flag ? mandatoryNode.isMandatory() : !mandatoryNode.isMandatory());
                     mandatoryNode.setValid(updateField.validate());
                 }
             }
-            // set mandatory's node (the updateMandatory method may be optimized)
-            if (mandatory && flag) {
-                for (ModelData nodeModel : childs) {
-                    ItemNodeModel itemNode = (ItemNodeModel) nodeModel;
-                    String xpath = itemNode.getBindingPath();
-                    if (xpathList.contains(xpath) && !itemNode.isMandatory()) {
-                        Field<?> updateField = fieldMap.get(xpath + itemNode.getId().toString());
-                        setMandatory(updateField, true);
-                        itemNode.setValid(updateField.validate());
-                    }
-                }
-            }
-
 
         } else {
             setMandatory(field, node.isMandatory());
@@ -421,8 +405,6 @@ public class TreeDetailGridFieldCreator {
             ((BooleanField) field).setAllowBlank(!mandatory);
         } else if (field instanceof DateField) {
             ((DateField) field).setAllowBlank(!mandatory);
-        } else if (field instanceof ComboBoxField) {
-            ((ComboBoxField) field).setAllowBlank(!mandatory);
         } else if (field instanceof TextField) {
             ((TextField) field).setAllowBlank(!mandatory);
         }
