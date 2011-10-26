@@ -13,7 +13,6 @@
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -26,9 +25,11 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ComboBoxModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.util.DateUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.BooleanField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ForeignKeyField;
@@ -48,6 +49,7 @@ import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
@@ -65,14 +67,14 @@ import com.google.gwt.user.client.ui.Widget;
 public class TreeDetailGridFieldCreator {
 
     public static Field<?> createField(ItemNodeModel node, final TypeModel dataType, String language,
-            Map<String, Field<?>> fieldMap, String operation) {
+            Map<String, Field<?>> fieldMap, String operation, final ItemsDetailPanel itemsDetailPanel) {
         // Field
 
         Serializable value = node.getObjectValue();
         Field<?> field;
         boolean hasValue = value != null && !"".equals(value); //$NON-NLS-1$
         if (dataType.getForeignkey() != null) {
-            ForeignKeyField fkField = new ForeignKeyField(dataType.getForeignkey(), dataType.getForeignKeyInfo());
+            ForeignKeyField fkField = new ForeignKeyField(dataType.getForeignkey(), dataType.getForeignKeyInfo(), itemsDetailPanel);
             if (value instanceof ForeignKeyBean) {
                 ForeignKeyBean fkBean = (ForeignKeyBean) value;
                 if (fkBean != null) {
@@ -156,7 +158,10 @@ public class TreeDetailGridFieldCreator {
                 @Override
                 public void selectionChanged(SelectionChangedEvent<ComboBoxModel> se) {
                     ComplexTypeModel reusableType = se.getSelectedItem().get("reusableType"); //$NON-NLS-1$
-                    Dispatcher.forwardEvent(BrowseRecordsEvents.UpdatePolymorphism, reusableType);
+                    AppEvent app = new AppEvent(BrowseRecordsEvents.UpdatePolymorphism);
+                    app.setData(reusableType);
+                    app.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);
+                    Dispatcher.forwardEvent(app);
                 }
 
             });
@@ -201,8 +206,8 @@ public class TreeDetailGridFieldCreator {
     }
 
     public static Field<?> createField(ItemNodeModel node, final TypeModel dataType, String language,
-            Map<String, Field<?>> fieldMap) {
-        return createField(node, dataType, language, fieldMap, null);
+            Map<String, Field<?>> fieldMap, final ItemsDetailPanel itemsDetailPanel) {
+        return createField(node, dataType, language, fieldMap, null, itemsDetailPanel);
     }
 
     public static Field<?> createCustomField(Serializable value, TypeModel dataType, String language) {
