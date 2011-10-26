@@ -180,12 +180,10 @@ public class JoboxTest extends TestCase {
         assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<exchange><report/><item><key>0</key></item></exchange>", result[0][0]);
 
-        try {
-            invoker.call();
-            fail("Caller must provide exchange message.");
-        } catch (JoboxException e) {
-            // Expected
-        }
+        result = invoker.call();
+        assertEquals(1, result.length);
+        assertEquals(1, result[0].length);
+        assertEquals("0", result[0][0]);
     }
 
     public void testFailExecuteMDMJob() throws Exception {
@@ -201,12 +199,11 @@ public class JoboxTest extends TestCase {
         JobInvoker invoker = jobContainer.getJobInvoker("TestTalendMDMJob", "0.1");
         HashMap<String, String> parameters = new HashMap<String, String>();
         parameters.put("param1", "test");
-        try {
-            invoker.call(parameters);
-            fail("Caller must provide exchange message.");
-        } catch (JoboxException e) {
-            // Expected
-        }
+
+        String[][] result = invoker.call(parameters);
+        assertEquals(1, result.length);
+        assertEquals(1, result[0].length);
+        assertEquals("0", result[0][0]);
     }
 
     private static void deployFileToJobox(String jobZipFile) throws URISyntaxException, IOException {

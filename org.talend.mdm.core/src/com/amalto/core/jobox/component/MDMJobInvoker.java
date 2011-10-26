@@ -36,20 +36,15 @@ public class MDMJobInvoker extends JobInvoker {
     }
 
     @Override
-    public String[][] call() throws JoboxException {
-        throw new JoboxException(new UnsupportedOperationException("Caller must provide exchange message."));
-    }
-
-    @Override
     protected String[][] getReturn(Method runJobMethod, Object jobInstance, Object parameter) throws JoboxException {
         try {
-            runJobMethod.invoke(jobInstance, (Object) parameter);
+            Object invokeResult = runJobMethod.invoke(jobInstance, (Object) parameter);
 
             Method getMDMOutputMethod = jobInstance.getClass().getMethod(GET_MDM_OUTPUT_MESSAGE_METHOD);
             Document result = (Document) getMDMOutputMethod.invoke(jobInstance);
             if (result == null) {
-                LOGGER.warn("Job '" + jobInstance.getClass().getName() + "' returned null as result of " + GET_MDM_OUTPUT_MESSAGE_METHOD + "(). Please check job because this is unexpected.");
-                return new String[0][0];
+                // If job didn't return anything for getMDMOutputMessage, returns job invocation result.
+                return (String[][]) invokeResult;
             } else {
                 String[] resultAsString = {result.asXML()};
                 return new String[][]{resultAsString};
@@ -66,7 +61,9 @@ public class MDMJobInvoker extends JobInvoker {
             if (parameters.containsKey(EXCHANGE_XML_PARAMETER)) {
                 setMDMInputMethod.invoke(jobInstance, parameters.get(EXCHANGE_XML_PARAMETER));
             } else {
-                throw new IllegalArgumentException("Parameter " + EXCHANGE_XML_PARAMETER + " is expected for invocation but was not found."); //$NON-NLS-1$
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Exchange parameter not found. No value will be passed to " + SET_MDM_INPUT_MESSAGE_METHOD + "() method."); //$NON-NLS-1$ //$NON-NLS-2$
+                }
             }
         } catch (Exception e) {
             throw new JoboxException(e);
