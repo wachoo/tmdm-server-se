@@ -25,6 +25,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
@@ -138,10 +139,12 @@ public class BrowseRecordsController extends Controller {
 
         String concept = event.getData("concept"); //$NON-NLS-1$
         String ids = event.getData("ids"); //$NON-NLS-1$
+        final ItemsDetailPanel detailPanel = event.getData(BrowseRecordsView.ITEMS_DETAIL_PANEL);
         service.getForeignKeyModel(concept, ids, Locale.getLanguage(), new SessionAwareAsyncCallback<ForeignKeyModel>() {
 
             public void onSuccess(ForeignKeyModel fkModel) {
                 AppEvent ae = new AppEvent(event.getType(), fkModel);
+                ae.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, detailPanel);
                 forwardToView(view, ae);
             };
         });
@@ -181,11 +184,13 @@ public class BrowseRecordsController extends Controller {
 
     private void onCreateForeignKeyView(final AppEvent event) {
         String viewFkName = "Browse_items_" + event.getData().toString(); //$NON-NLS-1$
+        final ItemsDetailPanel detailPanel = event.getData(BrowseRecordsView.ITEMS_DETAIL_PANEL);
         service.getView(viewFkName, Locale.getLanguage(), new SessionAwareAsyncCallback<ViewBean>() {
 
             public void onSuccess(ViewBean viewBean) {
                 // forward
                 AppEvent ae = new AppEvent(event.getType(), viewBean);
+                ae.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, detailPanel);
                 forwardToView(view, ae);
             }
         });
@@ -221,7 +226,8 @@ public class BrowseRecordsController extends Controller {
 
     private void onExecuteVisibleRule(final AppEvent event) {
         final ItemNodeModel model = event.getData();
-        ViewBean viewBean = event.getData("viewBean"); //$NON-NLS-1$
+        final ViewBean viewBean = event.getData("viewBean"); //$NON-NLS-1$
+        final ItemsDetailPanel itemsDetailPanel = event.getData(BrowseRecordsView.ITEMS_DETAIL_PANEL);
         if (model != null) {
             EntityModel entityModel = (EntityModel) BrowseRecords.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
             entityModel.getMetaDataTypes();
@@ -230,7 +236,11 @@ public class BrowseRecordsController extends Controller {
                     new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
 
                         public void onSuccess(List<VisibleRuleResult> arg0) {
-                            forwardToView(view, new AppEvent(BrowseRecordsEvents.ExecuteVisibleRule, arg0));
+                            AppEvent app = new AppEvent(BrowseRecordsEvents.ExecuteVisibleRule);
+                            app.setData(arg0);
+                            app.setData("viewBean", viewBean); //$NON-NLS-1$
+                            app.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);
+                            forwardToView(view, app);
                         }
                     });
         }
