@@ -758,7 +758,7 @@ public class ItemDetailToolBar extends ToolBar {
         return true;
     }-*/;
 
-    public ItemsDetailPanel getItemsDetailPanelById(String ids, final String concept) {
+    public static void getItemsDetailPanelById(String ids, final String concept) {
         String[] idArr = ids.split(","); //$NON-NLS-1$
         final ItemsDetailPanel panel = new ItemsDetailPanel();
         final BrowseRecordsServiceAsync brService = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
@@ -786,7 +786,7 @@ public class ItemDetailToolBar extends ToolBar {
                         });
             }
         });
-        return panel;
+//        return panel;
     }
 
     public void saveItemAndClose(boolean isClose) {
