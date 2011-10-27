@@ -1946,7 +1946,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         });
 
                         function doLogicalDelete(btn, path) {
-                            if (btn == CANCEL_BUTTON[language]) {
+                            if (btn == "cancel") {
                                 return;
                             }
 
@@ -2940,7 +2940,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                             });
 
                             function doLogicalDel(btn, path) {
-                                if (btn == CANCEL_BUTTON[language]) {
+                                if (btn == "cancel") {
                                     return;
                                 }
 
@@ -5406,7 +5406,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                 });
 
         function doLogicalDel(btn, path) {
-            if (btn == CANCEL_BUTTON[language]) {
+            if (btn == "cancel") {
                 return;
             }
             logicalDelOneItem(ids, dataObject, treeIndex, path, refreshCB);
