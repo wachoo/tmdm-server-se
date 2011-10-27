@@ -22,6 +22,16 @@ public class FKField extends TextField<ForeignKeyBean> implements ReturnCriteria
 
     private FKRelRecordWindow relWindow = new FKRelRecordWindow();
 
+    private boolean retrieveFKinfos = false;
+
+    public boolean isRetrieveFKinfos() {
+        return retrieveFKinfos;
+    }
+
+    public void setRetrieveFKinfos(boolean retrieveFKinfos) {
+        this.retrieveFKinfos = retrieveFKinfos;
+    }
+
     public FKField() {
         this.setFireChangeEventOnSetValue(true);
         relWindow.setSize(470, 340);
@@ -94,6 +104,10 @@ public class FKField extends TextField<ForeignKeyBean> implements ReturnCriteria
     }
 
     public void setCriteriaFK(final ForeignKeyBean fk) {
+        if (retrieveFKinfos) {
+            fk.setShowInfo(true);
+        }
+
         setValue(fk);
     }
 

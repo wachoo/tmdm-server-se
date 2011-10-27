@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.base.client.model;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class ForeignKeyBean extends ItemBaseModel {
@@ -20,6 +21,16 @@ public class ForeignKeyBean extends ItemBaseModel {
     private static final long serialVersionUID = 1L;
 
     private String foreignKeyPath;
+
+    private boolean showInfo = false;
+
+    public boolean isShowInfo() {
+        return showInfo;
+    }
+
+    public void setShowInfo(boolean showInfo) {
+        this.showInfo = showInfo;
+    }
 
     private Map<String, String> foreignKeyInfo = new HashMap<String, String>();
 
@@ -62,19 +73,30 @@ public class ForeignKeyBean extends ItemBaseModel {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        if (this.getProperties().keySet().size() > 1) {
-            for (String key : this.getProperties().keySet()) {
-                if (!key.equals("i")) { //$NON-NLS-1$
-                    sb.append(this.getProperties().get(key));
-                    sb.append("-"); //$NON-NLS-1$
-                }
+        if (showInfo && foreignKeyInfo.size() != 0) {
+            Iterator<String> iterator = foreignKeyInfo.values().iterator();
+
+            while (iterator.hasNext()) {
+                sb.append(iterator.next());
+                sb.append("-"); //$NON-NLS-1$
             }
-            return sb.toString().substring(0, sb.toString().length() - 1);
+
+            return sb.toString();
         } else {
-            if (getDisplayInfo() == null && foreignKeyPath == null)
-                return getId();
-            else
-                return getDisplayInfo();
+            if (this.getProperties().keySet().size() > 1) {
+                for (String key : this.getProperties().keySet()) {
+                    if (!key.equals("i")) { //$NON-NLS-1$
+                        sb.append(this.getProperties().get(key));
+                        sb.append("-"); //$NON-NLS-1$
+                    }
+                }
+                return sb.toString().substring(0, sb.toString().length() - 1);
+            } else {
+                if (getDisplayInfo() == null && foreignKeyPath == null)
+                    return getId();
+                else
+                    return getDisplayInfo();
+            }
         }
     }
 }

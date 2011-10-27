@@ -57,6 +57,7 @@ public class FieldCreator {
         } else if (dataType.getForeignkey() != null) {
             FKField fkField = new FKField();
             fkField.Update(dataType.getXpath(), fkField);
+            fkField.setRetrieveFKinfos(dataType.isRetrieveFKinfos());
             field = fkField;
         } else if (dataType.hasEnumeration()) {
             SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
