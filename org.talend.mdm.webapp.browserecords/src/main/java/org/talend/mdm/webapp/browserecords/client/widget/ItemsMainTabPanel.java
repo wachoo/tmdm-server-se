@@ -72,9 +72,16 @@ public class ItemsMainTabPanel extends TabPanel {
         return null;
     }
 
-/*    public ItemsDetailPanel getCurrentViewTabItem(){
+    /**
+     * Get current ItemsDetailPanel.
+     * 
+     * @return current ItemsDetailPanel.
+     * @deprecated This method is deprecated because the singleton pattern should not be used in detailed panel component.
+     */    
+    @Deprecated
+    public ItemsDetailPanel getCurrentViewTabItem(){
         if (this.getSelectedItem().getWidget(0) instanceof ItemsDetailPanel)
             return (ItemsDetailPanel) this.getSelectedItem().getWidget(0);
         return null;
-    }*/
+    }
 }
