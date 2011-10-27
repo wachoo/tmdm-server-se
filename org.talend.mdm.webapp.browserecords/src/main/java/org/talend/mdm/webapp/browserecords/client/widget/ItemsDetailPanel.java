@@ -87,11 +87,17 @@ public class ItemsDetailPanel extends ContentPanel {
 
     public void initBanner(List<String> xpathList, String desc) {
         clearBanner();
+        String toolTipString = ""; //$NON-NLS-1$
+        if (desc != null && !desc.equals("")) //$NON-NLS-1$
+        {
+            toolTipString = "<img style='margin-left:16px;' " + //$NON-NLS-1$
+                    "src='/talendmdm/secure/img/genericUI/information_icon.gif' title='" + desc + "'/>"; //$NON-NLS-1$ //$NON-NLS-2$
+        }
         if (xpathList != null && xpathList.size() > 0) {
             int i = 1;
             for (String str : xpathList) {
                 if (i == 1) {
-                    textTitle.setText(str);
+                    textTitle.setText(str + toolTipString);
                     banner.add(textTitle);
                     i++;
                     continue;
@@ -104,8 +110,7 @@ public class ItemsDetailPanel extends ContentPanel {
             }
             banner.layout(true);
         }
-        if (desc != null && !desc.equals("")) //$NON-NLS-1$
-            banner.setToolTip(desc);
+
     }
 
     public void clearBanner() {
