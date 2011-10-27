@@ -304,7 +304,7 @@ public class ItemsListPanel extends ContentPanel {
 
                 while (iterator.hasNext()) {
                     String path = iterator.next();
-                    String value = (String) changes.get(path);
+                    String value = changes.get(path).toString();
                     changedField.put(path, value != null ? value : ""); //$NON-NLS-1$
                 }
 
