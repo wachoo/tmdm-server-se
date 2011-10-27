@@ -383,7 +383,9 @@ public class DataModelHelper {
                     }
                 }
             }// end for
-            if (Util.isEnterprise())
+            if (!Util.isEnterprise())
+                typeModel.setReadOnly(false);
+            else
                 typeModel.setReadOnly(!writable);
 
             typeModel.setForeignKeyInfo(fkInfoList);

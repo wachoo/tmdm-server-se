@@ -37,7 +37,7 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     private Map<String, String> descriptionMap;
 
-    private boolean readOnly = true;
+    private boolean readOnly = false;
 
     private boolean visible = true;
 

@@ -54,7 +54,6 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -62,6 +61,7 @@ import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.ui.Widget;
 
 public class TreeDetailGridFieldCreator {
@@ -256,7 +256,7 @@ public class TreeDetailGridFieldCreator {
             field = numberField;
         } else if (DataTypeConstants.BOOLEAN.getTypeName().equals(baseType)) {
             CheckBox checkBox = new CheckBox();
-            checkBox.setValue((value.toString().equals("true") || value.equals(true)) ? true : false); //$NON-NLS-1$
+            checkBox.setValue(hasValue ? ((value.toString().equals("true") || value.equals(true)) ? true : false) : null); //$NON-NLS-1$
             field = checkBox;
         } else if (DataTypeConstants.DATE.getTypeName().equals(baseType)) {
             FormatDateField dateField = new FormatDateField();
@@ -265,7 +265,7 @@ public class TreeDetailGridFieldCreator {
             }
             dateField.setPropertyEditor(new DateTimePropertyEditor(DateUtil.datePattern));
             if (hasValue)
-                dateField.setValue(DateUtil.convertStringToDate(value.toString()));
+                dateField.setValue(hasValue ? DateUtil.convertStringToDate(value.toString()) : null);
 
             field = dateField;
         } else if (DataTypeConstants.DATETIME.getTypeName().equals(baseType)) {
@@ -275,7 +275,8 @@ public class TreeDetailGridFieldCreator {
             }
             dateTimeField.setPropertyEditor(new DateTimePropertyEditor(DateUtil.formatDateTimePattern));
             if (hasValue)
-                dateTimeField.setValue(DateUtil.convertStringToDate(DateUtil.dateTimePattern, value.toString()));
+                dateTimeField
+                        .setValue(hasValue ? DateUtil.convertStringToDate(DateUtil.dateTimePattern, value.toString()) : null);
 
             field = dateTimeField;
         } else if (DataTypeConstants.STRING.getTypeName().equals(baseType)) {
