@@ -12,26 +12,36 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
+import org.talend.mdm.webapp.browserecords.client.widget.BreadCrumb;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
@@ -132,4 +142,74 @@ public class TreeDetailUtil {
 
         return hp;
     }
+
+    public static void initItemsDetailPanelById(String ids, final String concept) {
+        String[] idArr = ids.split(","); //$NON-NLS-1$
+        final ItemsDetailPanel panel = new ItemsDetailPanel();
+        final BrowseRecordsServiceAsync brService = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
+        brService.getItemBeanById(concept, idArr, Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBean>() {
+
+            public void onSuccess(final ItemBean item) {
+                brService.getView("Browse_items_" + concept, Locale.getLanguage(), new SessionAwareAsyncCallback<ViewBean>() { //$NON-NLS-1$
+
+                            public void onSuccess(ViewBean viewBean) {
+                                ItemPanel itemPanel = new ItemPanel(viewBean, item, ItemDetailToolBar.VIEW_OPERATION, panel);
+
+                                Map<String, String> breads = new LinkedHashMap<String, String>();
+                                if (item != null) {
+                                    breads.put(BreadCrumb.DEFAULTNAME, null);
+                                    breads.put(item.getConcept(), null);
+                                    breads.put(item.getIds(), item.getConcept());
+                                }
+
+                                panel.setId(item.getIds());
+                                panel.initBanner(item.getPkInfoList(), item.getDescription());
+                                panel.addTabItem(item.getConcept(), itemPanel, ItemsDetailPanel.SINGLETON, item.getIds());
+                                panel.initBreadCrumb(new BreadCrumb(breads, panel));
+
+                                TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(item.getConcept());
+                                String tabItemId = typeModel.getLabel(Locale.getLanguage()) + " " + panel.getItemId(); //$NON-NLS-1$
+                                panel.setItemId(tabItemId);
+                                renderTreeDetailPanel(tabItemId, panel);
+                            }
+
+                        });
+            }
+        });
+    }
+
+    private native static void renderTreeDetailPanel(String itemId, ItemsDetailPanel detailPanel)/*-{
+        var tabPanel = $wnd.amalto.core.getTabPanel();  
+        var panel = @org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil::transferTreeDetailPanel(Lorg/talend/mdm/webapp/browserecords/client/widget/ItemsDetailPanel;)(detailPanel);
+        tabPanel.add(panel);
+        tabPanel.setSelection(itemId);
+    }-*/;
+
+    private native static JavaScriptObject transferTreeDetailPanel(ItemsDetailPanel itemDetailPanel)/*-{
+        var panel = {
+        // imitate extjs's render method, really call gxt code.
+        render : function(el){
+        var rootPanel = @com.google.gwt.user.client.ui.RootPanel::get(Ljava/lang/String;)(el.id);
+        rootPanel.@com.google.gwt.user.client.ui.RootPanel::add(Lcom/google/gwt/user/client/ui/Widget;)(itemDetailPanel);
+        },
+        // imitate extjs's setSize method, really call gxt code.
+        setSize : function(width, height){
+        itemDetailPanel.@org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel::setSize(II)(width, height);
+        },
+        // imitate extjs's getItemId, really return itemId of ContentPanel of GXT.
+        getItemId : function(){
+        return itemDetailPanel.@org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel::getItemId()();
+        },
+        // imitate El object of extjs
+        getEl : function(){
+        var el = itemDetailPanel.@org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel::getElement()();
+        return {dom : el};
+        },
+        // imitate extjs's doLayout method, really call gxt code.
+        doLayout : function(){
+        return itemDetailPanel.@org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel::doLayout()();
+        }
+        };
+        return panel;
+    }-*/;
 }

@@ -13,9 +13,7 @@
 package org.talend.mdm.webapp.browserecords.client.widget;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
@@ -757,37 +755,6 @@ public class ItemDetailToolBar extends ToolBar {
         		dataObject);
         return true;
     }-*/;
-
-    public static void getItemsDetailPanelById(String ids, final String concept) {
-        String[] idArr = ids.split(","); //$NON-NLS-1$
-        final ItemsDetailPanel panel = new ItemsDetailPanel();
-        final BrowseRecordsServiceAsync brService = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
-        brService.getItemBeanById(concept, idArr, Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBean>() {
-
-            public void onSuccess(final ItemBean item) {
-                brService.getView("Browse_items_" + concept, Locale.getLanguage(), new SessionAwareAsyncCallback<ViewBean>() { //$NON-NLS-1$
-
-                            public void onSuccess(ViewBean viewBean) {
-                                ItemPanel itemPanel = new ItemPanel(viewBean, item, ItemDetailToolBar.VIEW_OPERATION, panel);
-                                
-                                Map<String, String> breads = new LinkedHashMap<String, String>();
-                                if (item != null) {
-                                    breads.put(BreadCrumb.DEFAULTNAME, null);
-                                    breads.put(item.getConcept(), null);
-                                    breads.put(item.getIds(), item.getConcept());
-                                }
-                                                                       
-                                panel.setId(item.getIds());
-                                panel.initBanner(item.getPkInfoList(), item.getDescription());
-                                panel.addTabItem(item.getConcept(), itemPanel, ItemsDetailPanel.SINGLETON, item.getIds());
-                                panel.initBreadCrumb(new BreadCrumb(breads, panel));
-                            }
-
-                        });
-            }
-        });
-//        return panel;
-    }
 
     public void saveItemAndClose(boolean isClose) {
         boolean validate = false;
