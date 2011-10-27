@@ -12,15 +12,20 @@ var panelId = "datachangesviewer";
 Ext.extend(amalto.updatereport.HistoryViewer, Ext.Panel, {
 	initUIComponents : function() {
 	    Ext.apply(this, {
-			layout : 'classtable',
+			layout : 'border',
 			title : "Data Changes Viewer",
 			id : panelId,
 			closable:true,
-			border:true,
-			layoutConfig: {columns:2, cls: 'history-viewer'},
+			border : true,
+			defaults: {			    
+			    split: true,
+			    bodyStyle: 'padding:15px'
+			},
 			items:[{
                     title:'Update report details',
-                    colspan: 2,
+                    region: 'north',
+                    cmargins: '0 5 0 0',
+                    height: 200,
                     cellCls: 'history-viewer-header',
                     animate : "false",
                     loader : new Ext.tree.TreeLoader({
@@ -33,7 +38,7 @@ Ext.extend(amalto.updatereport.HistoryViewer, Ext.Panel, {
                         text : "Update",
                         draggable : false,
                         id : "0"
-                    }),
+                    }),                    
                     autoScroll : "true",
                     containerScroll : "true"
                 }, {
@@ -42,16 +47,24 @@ Ext.extend(amalto.updatereport.HistoryViewer, Ext.Panel, {
                     id:1,
                     parentPanelId:panelId,
                     title:'Before',
+                    region: 'west',
+                    width: '50%',
+                    margins: '5 0 0 0',
+                    cmargins: '5 5 0 0',
                     date:this.date,
                     key:this.key,
                     concept:this.concept,
                     dataCluster:this.dataCluster,
                     dataModel:this.dataModel,
-                    action:'before'
+                    action:'before',
+                    autoScroll : "true"                    
                 }, {
                     xtype: "talend.documenthistorypanel",
                     cellCls: 'history-viewer-changes',
                     id:2,
+                    region: 'center',
+                    width: '50%',
+                    margins: '5 0 0 0',
                     parentPanelId:panelId,
                     title:'After',
                     date:this.date,
@@ -59,7 +72,8 @@ Ext.extend(amalto.updatereport.HistoryViewer, Ext.Panel, {
                     concept:this.concept,
                     dataCluster:this.dataCluster,
                     dataModel:this.dataModel,
-                    action:'current'
+                    action:'current',
+                    autoScroll : "true"                    
                 }
             ],
             tbar: ['->',{
