@@ -6424,7 +6424,6 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 }();
 
 
-	
 });
 
 
