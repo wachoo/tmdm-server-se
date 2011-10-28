@@ -996,7 +996,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                     bodyStyle : 'padding:5px;',
                     buttonAlign : 'center',
                     items : manageSearchTemplateGridPanel
-                });
+                });
         manageSearchTemplateWindow.show();
         ManageSearchTemplateStore.load({
                     params : {
