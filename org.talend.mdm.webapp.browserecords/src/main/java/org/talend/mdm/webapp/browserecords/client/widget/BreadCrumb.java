@@ -39,7 +39,7 @@ public class BreadCrumb extends Composite {
             pWidget.add(h);
             ++i;
             if (i != list.size())
-                pWidget.add(new HTML("&nbsp;&#187;&nbsp;"));//$NON-NLS-1$            
+            	pWidget.add(new HTML("&nbsp;&gt;&nbsp;"));//$NON-NLS-1$            
         }
 
         initWidget(pWidget);
@@ -50,7 +50,7 @@ public class BreadCrumb extends Composite {
             HTML tmph = new HTML("<a>" + ids + "</a><input value=\"" + concept + "\"' type=\"hidden\">");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$   
             if (pWidget.getWidget(pWidget.getWidgetCount() - 1).getElement().getInnerHTML().equals(tmph.getHTML()))
                 return;
-            pWidget.add(new HTML("&nbsp;&#187;&nbsp;"));//$NON-NLS-1$     
+            pWidget.add(new HTML("&nbsp;&gt;&nbsp;"));//$NON-NLS-1$      
             HTML h = initBreadCrumb(concept, ids, true);
             pWidget.add(h);
         }
@@ -78,7 +78,7 @@ public class BreadCrumb extends Composite {
             });
 
         } else {
-            h = new HTML("<font style=\"color: #2D5593\">" + ids + "</font>"); //$NON-NLS-1$ //$NON-NLS-2$
+        	h = new HTML("<font>" + ids + "</font>"); //$NON-NLS-1$ //$NON-NLS-2$
         }
         return h;
     }

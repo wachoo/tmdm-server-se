@@ -81,7 +81,7 @@ public interface Icons extends ClientBundle {
     @Source("duplicate.png")
     ImageResource duplicate();
     
-    @Source("refreshToolbar.gif")
+    @Source("refreshToolbar.png")
     ImageResource refreshToolbar();    
 
     @Source("link_go.png")

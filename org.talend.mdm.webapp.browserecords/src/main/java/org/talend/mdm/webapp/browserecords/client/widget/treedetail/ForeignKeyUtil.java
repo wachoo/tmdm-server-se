@@ -39,7 +39,7 @@ public class ForeignKeyUtil {
 
     public static void checkChange(final boolean isCreateForeignKey, final String foreignKeyName, final String ids, final ItemsDetailPanel itemsDetailPanel) {
 
-        Widget widget = itemsDetailPanel.getTabPanel().getItem(0).getWidget(0);
+        Widget widget = itemsDetailPanel.getFirstTabWidget();
         final ItemNodeModel root;
         if (widget instanceof ItemPanel)
             root = (ItemNodeModel) ((ItemPanel) widget).getTree().getTree().getItem(0).getUserObject();
@@ -67,7 +67,7 @@ public class ForeignKeyUtil {
 
     private static void saveItem(ItemNodeModel model, final boolean isCreateForeignKey, final String foreignKeyName,
             final String ids, final ItemsDetailPanel itemsDetailPanel) {
-        final Widget widget = itemsDetailPanel.getTabPanel().getItem(0).getWidget(0);
+        final Widget widget = itemsDetailPanel.getFirstTabWidget();
         ViewBean viewBean = null;
         ItemBean itemBean = null;
         boolean isCreate = false;

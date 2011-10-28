@@ -146,6 +146,8 @@ public class TreeDetail extends ContentPanel {
         // this.setAutoWidth(true);
         this.setLayout(new FitLayout());
         this.setScrollMode(Scroll.AUTO);
+        this.setBorders(false);
+        this.setBodyBorder(false);
         this.itemsDetailPanel = itemsDetailPanel;
     }
 

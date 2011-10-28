@@ -162,7 +162,11 @@ public class ItemDetailToolBar extends ToolBar {
         }
     }
 
+    private static int TOOLBAR_HEIGHT = 29;
     private void initToolBar() {
+    	this.setHeight(TOOLBAR_HEIGHT + "px"); //$NON-NLS-1$
+    	this.addStyleName("ItemDetailToolBar"); //$NON-NLS-1$    	
+    	
         if (operation.equalsIgnoreCase(ItemDetailToolBar.VIEW_OPERATION)
                 || (operation.equalsIgnoreCase(ItemDetailToolBar.PERSONALEVIEW_OPERATION))) {
             initViewToolBar();
@@ -318,7 +322,7 @@ public class ItemDetailToolBar extends ToolBar {
                     panel.initBanner(itemBean.getPkInfoList(), itemBean.getDescription());
                     panel.clearBreadCrumb();
                     if (isFkToolBar) {
-                        ForeignKeyTreeDetail fkTree = (ForeignKeyTreeDetail) itemsDetailPanel.getTabPanel().getSelectedItem().getWidget(0);
+                        ForeignKeyTreeDetail fkTree = (ForeignKeyTreeDetail) itemsDetailPanel.getCurrentlySelectedTabWidget();
                         ForeignKeyTreeDetail duplicateFkTree = new ForeignKeyTreeDetail(fkTree.getFkModel(), true, itemsDetailPanel);
                         panel.addTabItem(title, duplicateFkTree, ItemsDetailPanel.SINGLETON, title);
                         ItemsMainTabPanel.getInstance().addMainTabItem(title, panel, title);
@@ -376,8 +380,7 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private void refreshTreeDetail() {
-        final TabItem item = (TabItem) itemsDetailPanel.getTabPanel().getWidget(0);
-        Widget widget = item.getWidget(0);
+        Widget widget = itemsDetailPanel.getFirstTabWidget();
         if (widget instanceof ForeignKeyTreeDetail) {
             isFkToolBar = true;
             final ForeignKeyTreeDetail fkTree = (ForeignKeyTreeDetail) widget;
@@ -552,12 +555,11 @@ public class ItemDetailToolBar extends ToolBar {
                 @Override
                 public void componentSelected(ButtonEvent ce) {
                     updateSmartViewToolBar();
-                    if (itemsDetailPanel.getTabPanel().getItem(0).getWidget(0) instanceof ItemPanel) {
-                        ItemPanel itemPanel = (ItemPanel) itemsDetailPanel.getTabPanel()
-                                .getItem(0).getWidget(0);
+                    if (itemsDetailPanel.getFirstTabWidget() instanceof ItemPanel) {
+                        ItemPanel itemPanel = (ItemPanel) itemsDetailPanel.getFirstTabWidget();
                         itemPanel.getTree().setVisible(false);
                         itemPanel.getSmartPanel().setVisible(true);
-                        itemsDetailPanel.getTabPanel().setSelection(itemsDetailPanel.getTabPanel().getItem(0));
+                        itemsDetailPanel.selectTabAtIndex(0);
                     }
                 }
 
@@ -574,12 +576,11 @@ public class ItemDetailToolBar extends ToolBar {
                 @Override
                 public void componentSelected(ButtonEvent ce) {
                     updateViewToolBar();
-                    if (itemsDetailPanel.getTabPanel().getItem(0).getWidget(0) instanceof ItemPanel) {
-                        ItemPanel itemPanel = (ItemPanel) itemsDetailPanel.getTabPanel()
-                                .getItem(0).getWidget(0);
+                    if (itemsDetailPanel.getFirstTabWidget() instanceof ItemPanel) {
+                        ItemPanel itemPanel = (ItemPanel) itemsDetailPanel.getFirstTabWidget();
                         itemPanel.getTree().setVisible(true);
                         itemPanel.getSmartPanel().setVisible(false);
-                        itemsDetailPanel.getTabPanel().setSelection(itemsDetailPanel.getTabPanel().getItem(0));
+                        itemsDetailPanel.selectTabAtIndex(0);
                     }
                 }
 
@@ -626,11 +627,13 @@ public class ItemDetailToolBar extends ToolBar {
         this.addWorkFlosCombo();
     }
 
-    private void updateSmartViewToolBar() {
-        List<TabItem> itemList = itemsDetailPanel.getTabPanel().getItems();
-        for (TabItem item : itemList) {
-            if (item.getWidget(0) instanceof ItemPanel) {
-                ItemPanel itemPanel = (ItemPanel) item.getWidget(0);
+    private void updateSmartViewToolBar() {        
+        int tabCount = itemsDetailPanel.getTabCount();
+        
+        for (int i = 0; i < tabCount; ++i) {
+        	Widget widget = itemsDetailPanel.getTabWidgetAtIndex(i);
+            if (widget instanceof ItemPanel) {
+                ItemPanel itemPanel = (ItemPanel) widget;
                 ItemDetailToolBar toolbar = itemPanel.getToolBar();
 
                 if (toolbar.getOperation().equals(ItemDetailToolBar.VIEW_OPERATION)) {
@@ -644,14 +647,16 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private void updateViewToolBar() {
-        List<TabItem> itemList = itemsDetailPanel.getTabPanel().getItems();
-        for (TabItem item : itemList) {
-            if (item.getWidget(0) instanceof ItemPanel) {
-                ItemPanel itemPanel = (ItemPanel) item.getWidget(0);
+        int tabCount = itemsDetailPanel.getTabCount();
+
+        for (int i = 0; i < tabCount; ++i) {
+        	Widget widget = itemsDetailPanel.getTabWidgetAtIndex(i);
+        	if (widget instanceof ItemPanel) {
+                ItemPanel itemPanel = (ItemPanel) widget;
                 ItemDetailToolBar toolbar = itemPanel.getToolBar();
 
                 if (toolbar.getOperation().equals(ItemDetailToolBar.SMARTVIEW_OPERATION)) {
-                    itemsDetailPanel.getTabPanel().setSelection(item);
+                    itemsDetailPanel.selectTabAtIndex(i);
                     toolbar.removeAll();
                     toolbar.initViewToolBar();
                     toolbar.setOperation(ItemDetailToolBar.VIEW_OPERATION);
@@ -674,9 +679,8 @@ public class ItemDetailToolBar extends ToolBar {
 
                 @Override
                 public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
-                    if (itemsDetailPanel.getTabPanel().getItem(0).getWidget(0) instanceof ItemPanel) {
-                        ItemPanel itemPanel = (ItemPanel) itemsDetailPanel.getTabPanel()
-                                .getItem(0).getWidget(0);
+                    if (itemsDetailPanel.getFirstTabWidget() instanceof ItemPanel) {
+                        ItemPanel itemPanel = (ItemPanel) itemsDetailPanel.getFirstTabWidget();
                         String frameUrl = "/itemsbrowser/secure/SmartViewServlet?ids=" + itemBean.getIds() + "&concept=" //$NON-NLS-1$ //$NON-NLS-2$
                                 + itemBean.getConcept() + "&language=" + Locale.getLanguage(); //$NON-NLS-1$
                         if (se.getSelectedItem().get("key") != null) //$NON-NLS-1$
@@ -758,15 +762,13 @@ public class ItemDetailToolBar extends ToolBar {
 
     public void saveItemAndClose(boolean isClose) {
         boolean validate = false;
-        TabPanel tabPanel = itemsDetailPanel.getTabPanel();
-        TabItem tabItem = (TabItem) tabPanel.getSelectedItem();
-        Widget widget = tabItem.getWidget(0);
+        Widget widget = itemsDetailPanel.getCurrentlySelectedTabWidget();
         Dispatcher dispatch = Dispatcher.get();
         AppEvent app = new AppEvent(BrowseRecordsEvents.SaveItem);
         ItemNodeModel model = null;
         ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
         if (widget instanceof ItemPanel) {// save primary key
-            ItemPanel itemPanel = (ItemPanel) tabItem.getWidget(0);
+            ItemPanel itemPanel = (ItemPanel) widget;
             if (itemPanel.getTree().validateTree()) {
                 validate = true;
                 model = (ItemNodeModel) itemPanel.getTree().getRootModel();
@@ -776,7 +778,7 @@ public class ItemDetailToolBar extends ToolBar {
             }
 
         } else if (widget instanceof ForeignKeyTreeDetail) { // save foreign key
-            ForeignKeyTreeDetail fkDetail = (ForeignKeyTreeDetail) tabItem.getWidget(0);
+            ForeignKeyTreeDetail fkDetail = (ForeignKeyTreeDetail) widget;
             if (fkDetail.validateTree()) {
                 validate = true;
                 model = fkDetail.getRootModel();

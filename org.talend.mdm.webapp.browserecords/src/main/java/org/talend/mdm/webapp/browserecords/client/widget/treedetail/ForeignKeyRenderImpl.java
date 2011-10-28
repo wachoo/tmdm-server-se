@@ -13,6 +13,7 @@ import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel.ItemDetailTabPanelContentHandle;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -24,7 +25,7 @@ import com.google.gwt.user.client.ui.TreeItem;
 
 public class ForeignKeyRenderImpl implements ForeignKeyRender {
 
-    HashMap<ItemNodeModel, TabItem> relationFk = new HashMap<ItemNodeModel, TabItem>();
+	HashMap<ItemNodeModel, ItemDetailTabPanelContentHandle> relationFk = new HashMap<ItemNodeModel, ItemDetailTabPanelContentHandle>();
 
     BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
     
@@ -52,19 +53,18 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
                             fkTypeModel, fieldMap, detailPanel, pkViewBean);
                     ItemPanel itemPanel = new ItemPanel(pkViewBean, toolBar.getItemBean(), toolBar.getOperation(), fkPanel, root, detailPanel);
                     String xpathLabel = ForeignKeyUtil.transferXpathToLabel(fkTypeModel, pkViewBean);
-                    TabItem tabItem = detailPanel.addTabItem(xpathLabel, itemPanel,
-                            ItemsDetailPanel.MULTIPLE,
-                            fkTypeModel.getXpath());
-                    relationFk.put(parentModel, tabItem);
+
+                    ItemDetailTabPanelContentHandle handle = detailPanel.addTabItem(xpathLabel, itemPanel, ItemsDetailPanel.MULTIPLE, fkTypeModel.getXpath());
+                    relationFk.put(parentModel, handle);
                 }
             });
         }
     }
     
     public void removeRelationFkPanel(ItemNodeModel parentModel){
-        TabItem tabItem = relationFk.get(parentModel);
+    	ItemDetailTabPanelContentHandle tabItem = relationFk.get(parentModel);
         if (tabItem != null) {
-            tabItem.removeFromParent();
+            tabItem.deleteContent();
         }
     }
 }

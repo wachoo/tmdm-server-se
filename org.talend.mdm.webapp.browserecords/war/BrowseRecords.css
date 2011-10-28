@@ -82,3 +82,257 @@ a{
 	display :none;
 }
 
+#ItemsDetailPanel-ncBorder{
+	background-image: url("resources/images/talend/bg_top_center.gif");	
+}
+
+#ItemsDetailPanel-nwCorner{
+        background-image: url("resources/images/talend/bg_top_left.gif");	
+	background-repeat:no-repeat;
+}
+
+#ItemsDetailPanel-neCorner{
+        background-image: url("resources/images/talend/bg_top_right.gif");	
+	background-repeat:no-repeat;
+}
+
+#ItemsDetailPanel-scBorder{
+	background-image: url("resources/images/talend/bg_bottom_center.gif");	
+}
+
+#ItemsDetailPanel-swCorner{
+        background-image: url("resources/images/talend/bg_bottom_left.gif");	
+	background-repeat:no-repeat;
+}
+
+#ItemsDetailPanel-seCorner{
+        background-image: url("resources/images/talend/bg_bottom_right.gif");	
+	background-repeat:no-repeat;
+}
+
+#ItemsDetailPanel-wBorder{
+	background-image: url("resources/images/talend/bg_left.gif");	
+}
+
+#ItemsDetailPanel-eBorder{
+	background-image: url("resources/images/talend/bg_right.gif");	
+}
+
+#ItemsDetailPanel-breadCrumb{
+        margin-top:5px !important;
+}
+
+#ItemsDetailPanel-breadCrumb font{
+        font-family:Arial, Helvetica, sans-serif !important;
+	font-size:11px !important;
+	color:#36506D !important;
+}
+
+#ItemsDetailPanel-breadCrumb a{
+        font-family:Arial, Helvetica, sans-serif !important;
+	font-size:11px !important;
+	color:#36506D !important;
+	font-weight:bold !important;
+	text-decoration:none !important;
+}
+
+#ItemsDetailPanel-bannerWrapperLeft{
+        background-image:url("resources/images/talend/header_top_left.gif"); 
+	background-repeat:no-repeat;
+}
+
+#ItemsDetailPanel-bannerWrapperRight{
+        background-image:url("resources/images/talend/header_top_right.gif"); 
+	background-repeat:no-repeat;
+}
+
+#ItemsDetailPanel-bannerWrapperCenter{
+        background-image:url("resources/images/talend/header_top_center.gif");
+	background-repeat: repeat-x;
+	vertical-align: middle;
+}
+
+#ItemsDetailPanel-textTitle{
+        color: #27394E;
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 16px;
+	font-weight: bold;
+	text-align: inherit;
+	text-indent: 0;
+	padding-top: 16px;
+}
+
+/* Subtitle in banner, of which there can be more than one. */
+.ItemsDetailPanel-subTitle{
+        color: #FFFFFF;
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 12px;
+	text-align: inherit;
+	text-indent: 0;
+	margin-left: 10;
+}
+
+.gwt-TabBar
+{
+        height: 28px;
+	background-image:url("resources/images/talend/header_bottom_center.gif");
+}
+
+/* Left edge of the tab bar */
+.gwt-TabBar .gwt-TabBarFirst-wrapper 
+{
+        height: 28px;
+	width: 10px;
+	background-image:url("resources/images/talend/header_bottom_left.gif");
+}
+
+/* Rest of the tab bar besides the left edge */
+.gwt-TabBar .gwt-TabBarRest-wrapper 
+{ 
+        height: 28px;
+	background-image:url("resources/images/talend/header_bottom_right.gif");
+	background-repeat:repeat-y;
+	background-position:top right; 
+}
+
+/* Tab in the tab bar. */
+.gwt-TabBar .gwt-TabBarItem 
+{ 
+        height: 28px;
+	width: 170px;
+	background-image:url("resources/images/talend/tab_unselected.gif");
+	margin: 0px;
+	padding: 0px;
+	outline-style: none;
+}
+
+.gwt-TabBar .gwt-TabBarItem .gwt-TabBarItem-first
+{
+        height: 28px;
+	width: 170px;
+	background-image:url("resources/images/talend/home_tab_unselected.gif");
+	margin: 0px;
+	padding: 0px;
+}
+
+.gwt-TabBar .gwt-TabBarItem-selected
+{
+    	background-image:url("resources/images/talend/tab_selected.gif");
+}
+
+.gwt-TabBar .gwt-TabBarItem-selected .gwt-TabBarItem-first
+{
+    	background-image:url("resources/images/talend/home_tab_selected.gif");
+}
+
+.gwt-TabBar .gwt-TabBarItem .gwt-Label
+{
+        text-align: left;
+	color: #92ABC7;
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+	padding-left: 15px;
+	padding-top: 8px;
+	text-decoration: none;
+}
+
+.gwt-TabBar .gwt-TabBarItem-selected .gwt-Label
+{
+        color: #36506D;
+}
+
+
+#ItemsDetailPanel-tabBarContentDivider
+{
+        background-color: #FFFFFF;
+	border-left: 1px solid #3B536E;
+	border-right: 1px solid #3B536E;
+	height: 5px;
+}
+
+#ItemsDetailPanel-tabContent
+{
+        background-color: #FFFFFF;
+	border-left: 1px solid #3B536E;
+	border-right: 1px solid #3B536E;
+	border-bottom: 1px solid #3B536E;
+	height: 100%;
+	overflow: hidden;
+}
+
+.ItemDetailToolBar
+{
+        background-image:url("resources/images/talend/bg_file_menu.gif") !important;
+}
+
+
+.ItemDetailToolBar .x-btn-text
+{
+        color: #333333;
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 12px;
+	vertical-align: text-bottom;
+	text-decoration: none;
+}
+
+.ItemDetailToolBar .xtb-sep
+{
+        background-image:url("resources/images/talend/bg_file_menu_separator.gif") !important;
+}
+
+
+.ItemDetailToolBar .x-btn-text-icon .x-btn-icon-small-left .x-btn-text
+{
+        height: 20px;
+}
+
+
+.ItemDetailToolBar button
+{
+        margin-left: 5px;
+}
+
+.ItemDetailToolBar .x-btn-mc em.x-btn-arrow 
+{
+        background-image:url("resources/images/talend/icon_menu-down.png");
+}
+
+.ItemDetailToolBar .x-btn-tl, 
+.ItemDetailToolBar .x-btn-tr, 
+.ItemDetailToolBar .x-btn-tc, 
+.ItemDetailToolBar .x-btn-ml, 
+.ItemDetailToolBar .x-btn-mr, 
+.ItemDetailToolBar .x-btn-mc, 
+.ItemDetailToolBar .x-btn-bl, 
+.ItemDetailToolBar .x-btn-br, 
+.ItemDetailToolBar .x-btn-bc 
+{
+    background-image: none;
+}
+
+
+.ItemDetailToolBar .x-trigger-wrap-focus .x-form-trigger-over
+{
+    background-position: 0px 0;
+}
+
+.ItemDetailToolBar .x-trigger-wrap-focus .x-form-trigger
+{
+    background-position: 0px 0;
+}
+
+.ItemDetailToolBar .x-form-field-wrap .x-form-trigger
+{
+    background-position: 0px 0;
+}
+
+.ItemDetailToolBar .x-form-field-wrap .x-form-trigger-over
+{
+    background-position: 0px 0;
+}
+
+.ItemDetailToolBar .x-form-focus, textarea.x-form-focus
+{
+    border-color: #B5B8C8;
+}
