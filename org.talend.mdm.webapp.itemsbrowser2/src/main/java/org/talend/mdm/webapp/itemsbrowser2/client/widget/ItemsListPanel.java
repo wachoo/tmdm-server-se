@@ -447,8 +447,12 @@ public class ItemsListPanel extends ContentPanel {
 
                         if (refreshItemForm) {
                             ItemBean m = grid.getSelectionModel().getSelectedItem();
+
+                            if (!ifForm())
+                                showItem(m, ItemsView.TARGET_IN_NEW_TAB);
                             showItem(m, ItemsView.TARGET_IN_SEARCH_TAB);
                         }
+
                     }
                 });
             } else {
@@ -472,5 +476,17 @@ public class ItemsListPanel extends ContentPanel {
         evt.setData(ItemsView.ITEMS_FORM_TARGET, itemsFormTarget);
         Dispatcher.forwardEvent(evt);
     }
+    
+    public native boolean ifForm()/*-{
+        try {
+            if ($wnd.amalto.core){                
+                if ($wnd.amalto.core.getTabPanel().activeTab.id == 'itemsBrowser2Panel')
+                    return true;
+            }
+            return false;
+        } catch (e) {
+            return false;
+        }
+    }-*/;
 
 }

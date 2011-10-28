@@ -1,4 +1,4 @@
-﻿amalto.namespace("amalto.itemsbrowser");
+amalto.namespace("amalto.itemsbrowser");
 
 var atuoValidationFlag = 0;
 var validatinHistory = new Ext.util.MixedCollection();
@@ -3515,17 +3515,10 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         var itemContentPanel;
         tabPanel.items.each(function(item) {
                     if (item.itemid == itemPK2 + "." + dataObject) {
-                        itemContentPanel = item;
-                        return;
+                        itemContentPanel = item;                         
                     }
                 });
-        if (itemContentPanel && isDuplicate == false) {
-            if (itemContentPanel.itemid == itemPK2 + "." + dataObject
-                    && !(parentLink != undefined && parentLink["isWindow"] == "true")) {
-                itemContentPanel.show();
-                return;
-            }
-        };
+       
         // end
 
         // see 0019470 check user's denyCreatable
@@ -3568,7 +3561,36 @@ amalto.itemsbrowser.ItemsBrowser = function() {
             dataObject = _dataObject;
         ItemsBrowserInterface.getRootNode2(dataObject, itemPK2, treeIndex,
                 language, function(rootNode) {
-                    
+                     var myTitle = "";
+  		             if (_dataObject != null)
+  		                 myTitle = _dataObject;
+  		
+  		             if (dataObject != null)
+  		                 myTitle = dataObject;
+  		
+  		             if (rootNode.primaryKeyInfo != null
+  		                     && rootNode.primaryKeyInfo.length > 0) {
+  		                 if (rootNode.name != null)
+  		                     myTitle += " " + rootNode.name;
+  		             } else {
+  		                 if (rootNode.name != null)
+  		                     myTitle = rootNode.name;
+  		                 if (itemPK2 != null) {
+  		                     for (var i = 0; i < itemPK2.length; i++) {
+  		                         myTitle += " " + itemPK2[i];
+  		                     }
+  		                 }
+  		             }
+		             
+		        	 if (itemContentPanel && isDuplicate == false) {
+		                if (itemContentPanel.itemid == itemPK2 + "." + dataObject
+		                        && !(parentLink != undefined && parentLink["isWindow"] == "true")) {
+		                	itemContentPanel.setTitle(myTitle);
+		                    itemContentPanel.show();
+		                    return;
+		                }
+		            }; 
+    		            
                     if (contentPanel == undefined) {
 
                         var smartView = '';
@@ -3606,28 +3628,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         tbDetail.baseOptions = 0;
                         tbDetail.ids = ids;
                         tbDetail.dataObject = dataObject;
-                        tbDetail.treeIndex = treeIndex;
-
-                        var myTitle = "";
-                        if (_dataObject != null)
-                            myTitle = _dataObject;
-
-                        if (dataObject != null)
-                            myTitle = dataObject;
-
-                        if (rootNode.primaryKeyInfo != null
-                                && rootNode.primaryKeyInfo.length > 0) {
-                            if (rootNode.name != null)
-                                myTitle += " " + rootNode.name;
-                        } else {
-                            if (rootNode.name != null)
-                                myTitle = rootNode.name;
-                            if (itemPK2 != null) {
-                                for (var i = 0; i < itemPK2.length; i++) {
-                                    myTitle += " " + itemPK2[i];
-                                }
-                            }
-                        }
+                        tbDetail.treeIndex = treeIndex;                          
 
                         // get item readonly
                         var itempk = itemPK2;
@@ -4034,7 +4035,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 								      for(var i=0; i<ids1.length; i++) {
 								       myTitle +=" "+ids1[i];
 								      } 	                    
-								      contentPanel.setTitle(myTitle);
+//								      contentPanel.setTitle(myTitle);
 								                   								 									
 	                            }	                            
 	                            if (ids1 && ids1.length > 0) {
