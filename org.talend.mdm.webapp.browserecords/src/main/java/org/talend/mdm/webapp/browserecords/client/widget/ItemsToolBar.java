@@ -73,7 +73,6 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -175,7 +174,6 @@ public class ItemsToolBar extends ToolBar {
         userCluster = BrowseRecords.getSession().getAppHeader().getDatacluster();
         this.setBorders(false);
         initToolBar();
-
         relWindow.setHeading(MessagesFactory.getMessages().fk_RelatedRecord());
     }
 
@@ -247,6 +245,7 @@ public class ItemsToolBar extends ToolBar {
         }
 
         updateUserCriteriasList();
+        this.layout(true);
     }
 
     public int getSelectItemNumber() {
@@ -463,7 +462,7 @@ public class ItemsToolBar extends ToolBar {
 
         ListLoader<ListLoadResult<ItemBaseModel>> Entityloader = new BaseListLoader<ListLoadResult<ItemBaseModel>>(Entityproxy);
 
-        HorizontalPanel entityPanel = new HorizontalPanel();
+        // HorizontalPanel entityPanel = new HorizontalPanel();
         final ListStore<ItemBaseModel> list = new ListStore<ItemBaseModel>(Entityloader);
 
         entityCombo.setAutoWidth(true);
@@ -486,8 +485,8 @@ public class ItemsToolBar extends ToolBar {
             }
 
         });
-        entityPanel.add(entityCombo);
-        add(entityPanel);
+        // entityPanel.add(entityCombo);
+        add(entityCombo);
         simplePanel = new SimpleCriterionPanel(null, null, searchBut);
         add(simplePanel);
 

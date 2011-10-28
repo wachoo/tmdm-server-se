@@ -44,7 +44,15 @@ public class ItemsSearchContainer extends LayoutContainer {
         setLayout(new BorderLayout());
         setBorders(false);
 
-        ContentPanel topPanel = new ContentPanel();
+        ContentPanel topPanel = new ContentPanel() {
+
+            @Override
+            protected void onResize(int width, int height) {
+                super.onResize(width, height);
+                this.layout(true);
+            }
+        };
+
         topPanel.setHeaderVisible(false);
 
         topPanel.add(ItemsToolBar.getInstance());
