@@ -28,7 +28,6 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
 
     BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
     
-    
     public ForeignKeyRenderImpl() {
         
     }
@@ -50,7 +49,7 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
                         root = ((ForeignKeyTreeDetail) cp).getRoot();
                     }
                     ForeignKeyTablePanel fkPanel = new ForeignKeyTablePanel(entityModel, parentModel, fkNodeModelList,
-                            fkTypeModel, fieldMap, detailPanel);
+                            fkTypeModel, fieldMap, detailPanel, pkViewBean);
                     ItemPanel itemPanel = new ItemPanel(pkViewBean, toolBar.getItemBean(), toolBar.getOperation(), fkPanel, root, detailPanel);
                     String xpathLabel = ForeignKeyUtil.transferXpathToLabel(fkTypeModel, pkViewBean);
                     TabItem tabItem = detailPanel.addTabItem(xpathLabel, itemPanel,
@@ -68,5 +67,4 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
             tabItem.removeFromParent();
         }
     }
-
 }

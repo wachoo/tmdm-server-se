@@ -19,6 +19,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriter
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.celleditor.ForeignKeyCellEditor;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator.FieldCreator;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
+import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Style.HideMode;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
@@ -106,6 +107,12 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
     public ForeignKeyTablePanel(final EntityModel entityModel, ItemNodeModel parent, final List<ItemNodeModel> fkModels,
             final TypeModel fkTypeModel, Map<String, Field<?>> fieldMap, ItemsDetailPanel itemsDetailPanel) {
+        this(entityModel, parent, fkModels, fkTypeModel, fieldMap, itemsDetailPanel, null);
+    }
+
+    public ForeignKeyTablePanel(final EntityModel entityModel, ItemNodeModel parent, final List<ItemNodeModel> fkModels,
+            final TypeModel fkTypeModel, Map<String, Field<?>> fieldMap, ItemsDetailPanel itemsDetailPanel,
+            ViewBean originalViewBean) {
        
         this.itemsDetailPanel = itemsDetailPanel;
         this.setHeaderVisible(false);
@@ -189,7 +196,16 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                 }
 
             });
-            TypeModel typeModel = entityModel.getMetaDataTypes().get(info);
+
+            TypeModel typeModel;
+
+            if (info.startsWith(".")) { //$NON-NLS-1$//$NON-NLS-2$
+                String ainfo = CommonUtil.convertAbsolutePath(fkTypeModel.getXpath(), info);
+                typeModel = originalViewBean.getBindingEntityModel().getMetaDataTypes().get(ainfo);
+            } else {
+                typeModel = entityModel.getMetaDataTypes().get(info);
+            }
+
             Field<?> field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false, Locale.getLanguage());
 
             CellEditor cellEditor = new ForeignKeyCellEditor(field, typeModel);
