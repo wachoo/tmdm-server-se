@@ -1636,6 +1636,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if (e.getMessage().indexOf("cvc-complex-type.2.4.b") != -1) { //$NON-NLS-1$
                     err = MESSAGES.getMessage("save_failEx", concept); //$NON-NLS-1$
                 }
+                // fix bug TMDM-2743 Could not save on browseRecords
+                // Exception: javax.xml.ws.WebServiceException: Port {http://talend.org}WSxml not found
+                // transform message : WebService Exception, perhaps you can configure the studio to resolve it.
+                if (e.getMessage().indexOf("javax.xml.ws.WebServiceException: Port {http://talend.org}WSxml not found") == 0) { //$NON-NLS-1$
+                    err = MESSAGES.getMessage(new Locale(language), "save_webservice_fail", concept); //$NON-NLS-1$
+                }
                 serviceException = new ServiceException(err);
             }
             throw serviceException;
