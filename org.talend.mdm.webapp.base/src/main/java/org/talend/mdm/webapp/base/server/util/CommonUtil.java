@@ -78,8 +78,13 @@ public class CommonUtil {
                 conditions
                         .add(buildWhereItemsByCriteria(Parser.parse(criteria.substring(0, criteria.indexOf("../../t") - 5) + ")")));//$NON-NLS-1$  //$NON-NLS-2$
             }
-            conditions.add(buildWhereItem(criteria.substring(criteria.indexOf("../../t"), criteria.length() - 1))); //$NON-NLS-1$
-
+            
+            String modifyString = criteria.substring(criteria.indexOf("../../t"), criteria.length() - 1); //$NON-NLS-1$
+            String[] modifyArr = modifyString.split("AND"); //$NON-NLS-1$
+            for(String str : modifyArr){
+                conditions.add(buildWhereItem(str.trim()));
+            }           
+            
             WSWhereAnd and = new WSWhereAnd(conditions.toArray(new WSWhereItem[conditions.size()]));
             wi = new WSWhereItem(null, and, null);
         } else {
