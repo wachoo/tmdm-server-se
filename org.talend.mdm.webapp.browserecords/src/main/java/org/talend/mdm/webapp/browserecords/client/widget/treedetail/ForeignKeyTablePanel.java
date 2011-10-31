@@ -199,11 +199,12 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
             TypeModel typeModel;
 
-            if (info.startsWith(".")) { //$NON-NLS-1$//$NON-NLS-2$
+            if (info.startsWith(".")) { //$NON-NLS-1$
                 String ainfo = CommonUtil.convertAbsolutePath(fkTypeModel.getXpath(), info);
                 typeModel = originalViewBean.getBindingEntityModel().getMetaDataTypes().get(ainfo);
             } else {
                 typeModel = entityModel.getMetaDataTypes().get(info);
+                typeModel = typeModel == null ? originalViewBean.getBindingEntityModel().getMetaDataTypes().get(info) : typeModel;
             }
 
             Field<?> field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false, Locale.getLanguage());
