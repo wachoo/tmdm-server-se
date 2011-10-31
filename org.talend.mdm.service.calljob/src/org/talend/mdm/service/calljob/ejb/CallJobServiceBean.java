@@ -13,32 +13,25 @@
 
 package org.talend.mdm.service.calljob.ejb;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.ejb.CreateException;
 import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
-import javax.naming.NamingException;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 import javax.xml.ws.BindingProvider;
 
 import com.amalto.core.jobox.component.MDMJobInvoker;
 import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.talend.mdm.service.calljob.CompiledParameters;
 import org.talend.mdm.service.calljob.ContextParam;
 import org.talend.mdm.service.calljob.webservices.Args;
-import org.talend.mdm.service.calljob.webservices.ArrayOfXsdString;
 import org.talend.mdm.service.calljob.webservices.WSxml;
 import org.talend.mdm.service.calljob.webservices.WSxmlService;
 import org.w3c.dom.Element;
@@ -52,7 +45,6 @@ import com.amalto.core.jobox.JobInvokeConfig;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
-import org.xml.sax.SAXException;
 
 /**
  * @author achen
@@ -83,7 +75,10 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
     private static final long serialVersionUID = 1L;
 
     public static final String JNDI_NAME = "amalto/local/service/callJob";
+
     public static final String HTTP_PROTOCOL = "http";
+
+    public static final String WSDL_TIS_WSDL = "/META-INF/wsdl/tis.wsdl";
 
     /**
      * @throws EJBException
@@ -117,7 +112,6 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
 	}
 
     /**
-     * @author achen
      * @throws XtentisException
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method 
@@ -207,13 +201,10 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
     public String receiveFromInbound(ItemPOJOPK itemPK, String routingOrderID, String compiledParameters) throws XtentisException {
         try {
             CompiledParameters parameters = CompiledParameters.deserialize(compiledParameters);
-            URL wsdlURL = this.getClass().getResource("/META-INF/wsdl/tis.wsdl");
-
-            WSxmlService service = new WSxmlService(wsdlURL, new QName("http://talend.org", "WSxmlService"));
-            WSxml port = service.getWSxml();
+            JobInvokeConfig jobInvokeConfig = null;
+            WSxml port = null;
 
             //set the parameters
-            JobInvokeConfig jobInvokeConfig;
             URI uri = URI.create(parameters.getUrl());
             String protocol = uri.getScheme();
             String jobName = uri.getHost();
@@ -227,16 +218,33 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
                 if (jobMainClass.length() > 0) {
                     jobInvokeConfig.setJobMainClass(jobMainClass);
                 }
-            } else if(!HTTP_PROTOCOL.equalsIgnoreCase(protocol)) { // no action needed for http
+            } else if (HTTP_PROTOCOL.equalsIgnoreCase(protocol)) {
+                URL wsdlResource = this.getClass().getResource(WSDL_TIS_WSDL);
+                if (wsdlResource == null) {
+                    throw new IllegalStateException("Could not find resource '" + WSDL_TIS_WSDL + "'");
+                }
+
+                WSxmlService service = new WSxmlService(wsdlResource, new QName("http://talend.org", "WSxmlService"));
+                port = service.getWSxml();
+
+                BindingProvider bp = (BindingProvider) port;
+                bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, parameters.getUrl());
+                bp.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, parameters.getUsername());
+                bp.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, parameters.getPassword());
+
+                if (java.lang.reflect.Proxy.getInvocationHandler(port) instanceof org.apache.cxf.jaxws.JaxWsClientProxy) {
+                    org.apache.cxf.endpoint.Client client = org.apache.cxf.frontend.ClientProxy.getClient(port);
+                    if (client != null) {
+                        HTTPConduit conduit = (org.apache.cxf.transport.http.HTTPConduit) client.getConduit();
+                        HTTPClientPolicy policy = new org.apache.cxf.transports.http.configuration.HTTPClientPolicy();
+                        policy.setConnectionTimeout(600000);
+                        policy.setReceiveTimeout(0); // infinitely
+                        conduit.setClient(policy);
+                    }
+                }
+            } else {
                 throw new IllegalArgumentException("Protocol '" + protocol + "' is not supported.");
             }
-
-            BindingProvider bp = (BindingProvider) port;
-            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, parameters.getUrl());
-            bp.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, parameters.getUsername());
-            bp.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, parameters.getPassword());
-
-            //execute
 
             //the text should be a map(key=value)
             String exchangeXML = StringUtils.EMPTY;
@@ -260,16 +268,19 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
                 String value = p.getProperty(key);
                 String param = "--context_param " + key + "=" + value;
                 args.getItem().add(param);
-
                 argsMap.put(key, value);
             }
 
-            // TMDM-2633: Always include exchange XML message in parameters
-            if (exchangeXML.isEmpty()) { // (don't compute it twice)
-                argsMap.put(MDMJobInvoker.EXCHANGE_XML_PARAMETER, createExchangeXML(itemPK));
+            if (jobInvokeConfig != null) {
+                // TMDM-2633: Always include exchange XML message in parameters
+                if (exchangeXML.isEmpty()) { // (don't compute it twice)
+                    argsMap.put(MDMJobInvoker.EXCHANGE_XML_PARAMETER, createExchangeXML(itemPK));
+                }
+                JobContainer.getUniqueInstance().getJobInvoker(jobName, jobVersion).call(argsMap);
+            } else {
+                port.runJob(args).getItem();
             }
 
-            JobContainer.getUniqueInstance().getJobInvoker(jobName, jobVersion).call(argsMap);
             return "callJob Service successfully executed!'";
         } catch (XtentisException xe) {
             throw (xe);

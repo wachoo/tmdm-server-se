@@ -90,7 +90,7 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
 
     private static final long serialVersionUID = 1L;
 
-    private static final String WSDL_TIS_WSDL = "/wsdl/tis.wsdl";
+    private static final String WSDL_TIS_WSDL = "/META-INF/wsdl/tis.wsdl";
 
     private static final Logger LOGGER = Logger.getLogger(TISCallTransformerPluginBean.class);
 
@@ -180,13 +180,6 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
             }
 
             compiledParameters = CompiledParameters.deserialize(parameters);
-            URL wsdlResource = TISCallTransformerPluginBean.class.getResource(WSDL_TIS_WSDL);
-            /*if (wsdlResource == null) {
-                throw new IllegalStateException("Could not find resource '" + WSDL_TIS_WSDL + "'");
-            }*/
-            
-            WSxmlService service = new WSxmlService(wsdlResource, new QName("http://talend.org", "WSxmlService"));
-            WSxml port = service.getWSxml();
 
             //set the parameters
             JobInvokeConfig jobInvokeConfig;
@@ -204,30 +197,37 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
                     jobInvokeConfig.setJobMainClass(jobMainClass);
                 }
                 context.put(INVOKE_CONFIG, jobInvokeConfig);
-            } else if(!HTTP_PROTOCOL.equalsIgnoreCase(protocol)) { // no action needed for http
+            } else if (HTTP_PROTOCOL.equalsIgnoreCase(protocol)) {
+                URL wsdlResource = TISCallTransformerPluginBean.class.getResource(WSDL_TIS_WSDL);
+                if (wsdlResource == null) {
+                    throw new IllegalStateException("Could not find resource '" + WSDL_TIS_WSDL + "'");
+                }
+
+                WSxmlService service = new WSxmlService(wsdlResource, new QName("http://talend.org", "WSxmlService"));
+                WSxml port = service.getWSxml();
+
+                BindingProvider bp = (BindingProvider) port;
+                bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, compiledParameters.getUrl());
+                bp.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, compiledParameters.getUsername());
+                bp.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, compiledParameters.getPassword());
+
+                if (java.lang.reflect.Proxy.getInvocationHandler(port) instanceof org.apache.cxf.jaxws.JaxWsClientProxy) {
+                    org.apache.cxf.endpoint.Client client = org.apache.cxf.frontend.ClientProxy.getClient(port);
+                    if (client != null) {
+                        HTTPConduit conduit = (org.apache.cxf.transport.http.HTTPConduit) client.getConduit();
+                        HTTPClientPolicy policy = new org.apache.cxf.transports.http.configuration.HTTPClientPolicy();
+                        policy.setConnectionTimeout(600000);
+                        policy.setReceiveTimeout(0); // infinitely
+                        conduit.setClient(policy);
+                    }
+                }
+                context.put(PORT, port);
+            } else {
                 throw new IllegalArgumentException("Protocol '" + protocol + "' is not supported.");
             }
 
-            BindingProvider bp = (BindingProvider) port;
-            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, compiledParameters.getUrl());
-            bp.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, compiledParameters.getUsername());
-            bp.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, compiledParameters.getPassword());
-
-            if (java.lang.reflect.Proxy.getInvocationHandler(port) instanceof org.apache.cxf.jaxws.JaxWsClientProxy) {
-                org.apache.cxf.endpoint.Client client = org.apache.cxf.frontend.ClientProxy.getClient(port);
-                if (client != null) {
-                    HTTPConduit conduit = (org.apache.cxf.transport.http.HTTPConduit) client.getConduit();
-                    HTTPClientPolicy policy = new org.apache.cxf.transports.http.configuration.HTTPClientPolicy();
-                    policy.setConnectionTimeout(600000);
-                    policy.setReceiveTimeout(0); // infinitely
-                    conduit.setClient(policy);
-                }
-            }
-
             context.put(CONTENT_TYPE, compiledParameters.getContentType());
-            context.put(PORT, port);
             context.put(TIS_VARIABLE_NAME, compiledParameters.getTisVariableName());
-
         } catch (XtentisException xe) {
             throw (xe);
         } catch (Exception e) {
@@ -247,9 +247,6 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
     public void execute(TransformerPluginContext context) throws XtentisException {
         String contentType = (String) context.get(CONTENT_TYPE);
         try {
-            // recover the port
-            WSxml port = (WSxml) context.get(PORT);
-
             //the text should be a map(key=value)
             Properties p = new Properties();
             if (compiledParameters.getTisContext() != null) {
@@ -305,7 +302,7 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
             List<ArrayOfXsdString> list = new ArrayList<ArrayOfXsdString>();
 
             JobInvokeConfig invokeConfig = (JobInvokeConfig) context.get(INVOKE_CONFIG);
-            if (invokeConfig != null) {
+            if (invokeConfig != null) { // Local test job invocation
                 argsMap.put(MDMJobInvoker.EXCHANGE_XML_PARAMETER, new String(context.getFromPipeline(TransformerV2CtrlBean.DEFAULT_VARIABLE).getContentBytes()));
                 String[][] result = JobContainer.getUniqueInstance().getJobInvoker(invokeConfig.getJobName(), invokeConfig.getJobVersion()).call(argsMap);
 
@@ -317,7 +314,9 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
                     list.add(arrayOfXsdString);
                 }
 
-            } else {
+            } else { // Web service invocation
+                // recover the port
+                WSxml port = (WSxml) context.get(PORT);
                 list = port.runJob(args).getItem();
             }
 
