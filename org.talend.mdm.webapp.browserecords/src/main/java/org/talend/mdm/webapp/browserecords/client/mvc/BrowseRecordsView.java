@@ -152,7 +152,8 @@ public class BrowseRecordsView extends View {
             
             panel.setId(item.getIds());
             panel.initBanner(item.getPkInfoList(), item.getDescription());
-            panel.addTabItem(item.getConcept(), itemPanel, ItemsDetailPanel.SINGLETON, item.getIds());
+            panel.addTabItem(item.getLabel() != null ? item.getLabel() : item.getConcept(), itemPanel,
+                    ItemsDetailPanel.SINGLETON, item.getIds());
             panel.initBreadCrumb(new BreadCrumb(breads, panel));
             ItemsMainTabPanel.getInstance().addMainTabItem(item.getConcept() + " " + item.getIds(), panel, item.getIds()); //$NON-NLS-1$           
         } else {
@@ -165,7 +166,8 @@ public class BrowseRecordsView extends View {
 
             panel.setId(DEFAULT_ITEMVIEW);
             panel.initBanner(item.getPkInfoList(), item.getDescription());
-            panel.addTabItem(item.getConcept(), itemPanel, ItemsDetailPanel.SINGLETON, DEFAULT_ITEMVIEW);
+            panel.addTabItem(item.getLabel() != null ? item.getLabel() : item.getConcept(), itemPanel,
+                    ItemsDetailPanel.SINGLETON, DEFAULT_ITEMVIEW);
             panel.initBreadCrumb(new BreadCrumb(breads, panel));
             defaultItem.add(panel);
             ItemsMainTabPanel.getInstance().insert(defaultItem, 0);

@@ -32,6 +32,16 @@ public class ItemBean extends org.talend.mdm.webapp.base.client.model.ItemBean {
 
     private String taskId;
 
+    private String label;
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
     public String getTaskId() {
         return taskId;
     }
