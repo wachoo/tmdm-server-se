@@ -39,13 +39,13 @@ public class GetService {
     }-*/;
 
     public static native void openItemBrowser(String ids, String conceptName) /*-{
-        var refreshCB = function(operation){
-            if ($doc.getElementById('talend_itemsbrowser2_ItemsBrowser2')==null)return;
-            if (operation == "deleteItem"){
-                @org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService::refreshGrid()();
-            } else {
-                @org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService::refresh(ZLjava/lang/String;)(true, ids);
-            }
+        var refreshCB = function(operation, newids){
+        if ($doc.getElementById('talend_itemsbrowser2_ItemsBrowser2')==null)return;
+        if (operation == "deleteItem"){
+        @org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService::refreshGrid()();
+        } else {
+        @org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService::refresh(ZLjava/lang/String;)(true, newids);
+        }
         };
         $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.openItemBrowser(ids, conceptName, refreshCB);
     }-*/;

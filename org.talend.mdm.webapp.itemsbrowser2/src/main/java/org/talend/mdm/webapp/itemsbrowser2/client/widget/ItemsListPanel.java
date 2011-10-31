@@ -150,6 +150,8 @@ public class ItemsListPanel extends ContentPanel {
 
     private Boolean lock = Boolean.FALSE; // Lock for TMDM-2292 fix
 
+    private ItemBean refreshedItem;
+
     public ItemsListPanel() {
         setLayout(new FitLayout());
         setHeaderVisible(false);
@@ -430,10 +432,14 @@ public class ItemsListPanel extends ContentPanel {
     public void refresh(String ids, final boolean refreshItemForm) {
         if (grid != null) {
             final ListStore<ItemBean> store = grid.getStore();
-            final ItemBean itemBean = store.findModel(ids);
-            if (itemBean != null) {
-                EntityModel entityModel = (EntityModel) Itemsbrowser2.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
-                service.getItem(itemBean, entityModel, new SessionAwareAsyncCallback<ItemBean>() {
+            refreshedItem = store.findModel(ids);
+            EntityModel entityModel = (EntityModel) Itemsbrowser2.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
+            if (refreshedItem == null && ids != null && ids.length() > 0) {
+                // create new item
+                refreshedItem = new ItemBean(entityModel.getConceptName(), ids, null);
+            }
+            if (refreshedItem != null) {
+                service.getItem(refreshedItem, entityModel, new SessionAwareAsyncCallback<ItemBean>() {
 
                     @Override
                     protected void doOnFailure(Throwable caught) {
@@ -441,16 +447,17 @@ public class ItemsListPanel extends ContentPanel {
                     }
 
                     public void onSuccess(ItemBean result) {
-                        Record record = store.getRecord(itemBean);
-                        itemBean.copy(result);
+                        Record record = store.getRecord(refreshedItem);
+                        refreshedItem.copy(result);
                         record.commit(false);
 
                         if (refreshItemForm) {
-                            ItemBean m = grid.getSelectionModel().getSelectedItem();
+                            // ItemBean m = grid.getSelectionModel().getSelectedItem();
 
                             if (!ifForm())
-                                showItem(m, ItemsView.TARGET_IN_NEW_TAB);
-                            showItem(m, ItemsView.TARGET_IN_SEARCH_TAB);
+                                showItem(result, ItemsView.TARGET_IN_NEW_TAB);
+                            if (grid.getSelectionModel().getSelectedItem().equals(result))
+                                showItem(result, ItemsView.TARGET_IN_SEARCH_TAB);
                         }
 
                     }
