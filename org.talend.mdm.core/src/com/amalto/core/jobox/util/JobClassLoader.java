@@ -22,13 +22,17 @@ import org.apache.log4j.Logger;
 
 public class JobClassLoader extends URLClassLoader {
 
-	public JobClassLoader() {
+    public JobClassLoader(URL[] urls) {
 		//We had better use the same class loader hierarchy as the war package
         // fix bug 0022967, use current thread class loader
-        super(new URL[0], Thread.currentThread().getContextClassLoader());
+        super(urls, ClassLoader.getSystemClassLoader().getParent());
 	}
 
-	public void addPath(String paths) {
+    /**
+     * @deprecated DOC achen Comment method "addPath".
+     * @param paths
+     */
+    private void addPath(String paths) {
 		if (paths == null || paths.length() <= 0) {
 			return;
 		}

@@ -13,7 +13,6 @@
 
 package com.amalto.core.jobox.component;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,7 +21,6 @@ import java.util.Map;
 
 import com.amalto.core.jobox.JobContainer;
 import com.amalto.core.jobox.JobInfo;
-import com.amalto.core.jobox.JobInvokeConfig;
 import com.amalto.core.jobox.util.JobNotFoundException;
 import com.amalto.core.jobox.util.JoboxException;
 import com.amalto.core.jobox.util.MissingMainClassException;

@@ -14,12 +14,16 @@
 package com.amalto.core.jobox;
 
 import java.io.File;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import com.amalto.core.jobox.component.JobAware;
 import com.amalto.core.jobox.component.JobDeploy;
@@ -31,8 +35,6 @@ import com.amalto.core.jobox.util.JoboxConfig;
 import com.amalto.core.jobox.util.JoboxUtil;
 import com.amalto.core.jobox.watch.DirMonitor;
 import com.amalto.core.jobox.watch.JoboxListener;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 
 public class JobContainer {
 
@@ -100,8 +102,8 @@ public class JobContainer {
         this.jobLoadersPool.clear();
         List<JobInfo> currentJobs = jobAware.findJobsInBox();
         for (JobInfo jobInfo : currentJobs) {
-            JobClassLoader cl = new JobClassLoader();
-            cl.addPath(jobInfo.getClasspath());
+            URL[] urls = JoboxUtil.getClasspathURLs(jobInfo.getClasspath(), jobInfo);
+            JobClassLoader cl = new JobClassLoader(urls);
             if (!this.jobLoadersPool.containsKey(jobInfo)) {
                 this.jobLoadersPool.put(jobInfo, cl);
             }
@@ -123,8 +125,8 @@ public class JobContainer {
             jobLoadersPool.remove(jobInfo);
         }
 
-        JobClassLoader cl = new JobClassLoader();
-        cl.addPath(jobInfo.getClasspath());
+        URL[] urls = JoboxUtil.getClasspathURLs(jobInfo.getClasspath(), jobInfo);
+        JobClassLoader cl = new JobClassLoader(urls);
         this.jobLoadersPool.put(jobInfo, cl);
     }
 
@@ -214,6 +216,10 @@ public class JobContainer {
 
     public Class getJobClass(JobInfo jobInfo) {
         JobClassLoader jobClassLoader = this.jobLoadersPool.get(jobInfo);
+        // well-behaved Java packages work relative to the
+        // context classloader. Others don't (like commons-logging)
+        Thread.currentThread().setContextClassLoader(jobClassLoader);
+
         try {
             return jobClassLoader.loadClass(jobInfo.getMainClass());
         } catch (ClassNotFoundException e) {

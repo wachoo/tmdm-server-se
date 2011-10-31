@@ -17,10 +17,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+
+import org.apache.log4j.Logger;
 
 import com.amalto.core.jobox.JobInfo;
 
@@ -208,5 +212,26 @@ public class JoboxUtil {
                 is.close();
             }
         }
+    }
+
+    public static URL[] getClasspathURLs(String paths, JobInfo info) {
+        List<URL> urls = new ArrayList<URL>();
+        if (paths == null || paths.length() <= 0) {
+            return urls.toArray(new URL[0]);
+        }
+        String separator = System.getProperty("path.separator"); //$NON-NLS-1$
+        String[] pathToAdds = paths.split(separator);
+        for (String pathToAdd1 : pathToAdds) {
+            if (pathToAdd1 != null && pathToAdd1.length() > 0) {
+                try {
+                    File pathToAdd = new File(pathToAdd1).getCanonicalFile();
+                    urls.add(pathToAdd.toURI().toURL());
+                    Logger.getLogger(JoboxUtil.class).info("Added " + pathToAdd.toURI().toURL() + " to " + info.getName() + ". ");
+                } catch (IOException e) {
+                    throw new JoboxException(e);
+                }
+            }
+        }
+        return urls.toArray(new URL[0]);
     }
 }
