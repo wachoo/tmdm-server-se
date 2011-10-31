@@ -154,7 +154,7 @@ public class TreeDetailUtil {
 
                             public void onSuccess(ViewBean viewBean) {
                                 ItemPanel itemPanel = new ItemPanel(viewBean, item, ItemDetailToolBar.VIEW_OPERATION, panel);
-
+                                itemPanel.getToolBar().setOutMost(true);
                                 Map<String, String> breads = new LinkedHashMap<String, String>();
                                 if (item != null) {
                                     breads.put(BreadCrumb.DEFAULTNAME, null);

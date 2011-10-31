@@ -50,8 +50,6 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.TabItem;
-import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
@@ -75,7 +73,7 @@ public class ItemDetailToolBar extends ToolBar {
     public final static String PERSONALEVIEW_OPERATION = "PERSONALVIEW"; //$NON-NLS-1$
 
     public final static String DUPLICATE_OPERATION = "DUPLICATE_OPERATION"; //$NON-NLS-1$
-
+   
     private Button saveButton;
 
     private Button saveAndCloseButton;
@@ -121,6 +119,8 @@ public class ItemDetailToolBar extends ToolBar {
     private MenuItem delete_Delete;
     
     private ItemsDetailPanel itemsDetailPanel;
+    
+    private boolean isOutMost;
 
     public ItemDetailToolBar(ItemsDetailPanel itemsDetailPanel) {
         this.itemsDetailPanel = itemsDetailPanel;
@@ -168,7 +168,7 @@ public class ItemDetailToolBar extends ToolBar {
     	this.addStyleName("ItemDetailToolBar"); //$NON-NLS-1$    	
     	
         if (operation.equalsIgnoreCase(ItemDetailToolBar.VIEW_OPERATION)
-                || (operation.equalsIgnoreCase(ItemDetailToolBar.PERSONALEVIEW_OPERATION))) {
+                || operation.equalsIgnoreCase(ItemDetailToolBar.PERSONALEVIEW_OPERATION)) {
             initViewToolBar();
         } else if (operation.equalsIgnoreCase(ItemDetailToolBar.CREATE_OPERATION)) {
             initCreateToolBar();
@@ -323,18 +323,26 @@ public class ItemDetailToolBar extends ToolBar {
                     panel.clearBreadCrumb();
                     if (isFkToolBar) {
                         ForeignKeyTreeDetail fkTree = (ForeignKeyTreeDetail) itemsDetailPanel.getCurrentlySelectedTabWidget();
-                        ForeignKeyTreeDetail duplicateFkTree = new ForeignKeyTreeDetail(fkTree.getFkModel(), true, itemsDetailPanel);
+                        ForeignKeyTreeDetail duplicateFkTree = new ForeignKeyTreeDetail(fkTree.getFkModel(), true, panel);
                         panel.addTabItem(title, duplicateFkTree, ItemsDetailPanel.SINGLETON, title);
-                        ItemsMainTabPanel.getInstance().addMainTabItem(title, panel, title);
+                        if(!isOutMost)
+                            ItemsMainTabPanel.getInstance().addMainTabItem(title, panel, title);
                     } else {
-                        ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
-                        ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.DUPLICATE_OPERATION, itemsDetailPanel);
-                        panel.addTabItem(title, itemPanel, ItemsDetailPanel.SINGLETON, title);
-                        ItemsMainTabPanel.getInstance().addMainTabItem(title, panel, title);
+                        ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);                                                
+                        if(!isOutMost){
+                            ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.DUPLICATE_OPERATION, panel);
+                            panel.addTabItem(title, itemPanel, ItemsDetailPanel.SINGLETON, title);
+                            ItemsMainTabPanel.getInstance().addMainTabItem(title, panel, title);
+                        }else{
+                            ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.DUPLICATE_OPERATION, itemsDetailPanel);
+                            itemPanel.getToolBar().setOutMost(true);
+                            itemsDetailPanel.clearContent();
+                            itemsDetailPanel.initBanner(itemBean.getPkInfoList(), itemBean.getDescription());
+                            itemsDetailPanel.clearBreadCrumb();
+                            itemsDetailPanel.addTabItem(title, itemPanel, ItemsDetailPanel.SINGLETON, title);
+                        }
                     }
-
                 }
-
             });
         }
         add(duplicateButton);
@@ -812,5 +820,8 @@ public class ItemDetailToolBar extends ToolBar {
     public void setOperation(String operation) {
         this.operation = operation;
     }
-
+    
+    public void setOutMost(boolean isOutMost) {
+        this.isOutMost = isOutMost;
+    }
 }
