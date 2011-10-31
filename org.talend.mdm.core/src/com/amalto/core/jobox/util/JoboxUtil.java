@@ -30,6 +30,8 @@ import com.amalto.core.jobox.JobInfo;
 
 public class JoboxUtil {
 
+    private static final Logger LOGGER = Logger.getLogger(JoboxUtil.class);
+
     private JoboxUtil() {
     }
 
@@ -217,21 +219,21 @@ public class JoboxUtil {
     public static URL[] getClasspathURLs(String paths, JobInfo info) {
         List<URL> urls = new ArrayList<URL>();
         if (paths == null || paths.length() <= 0) {
-            return urls.toArray(new URL[0]);
+            return new URL[0];
         }
         String separator = System.getProperty("path.separator"); //$NON-NLS-1$
         String[] pathToAdds = paths.split(separator);
-        for (String pathToAdd1 : pathToAdds) {
-            if (pathToAdd1 != null && pathToAdd1.length() > 0) {
+        for (String pathToAdd : pathToAdds) {
+            if (pathToAdd != null && pathToAdd.length() > 0) {
                 try {
-                    File pathToAdd = new File(pathToAdd1).getCanonicalFile();
-                    urls.add(pathToAdd.toURI().toURL());
-                    Logger.getLogger(JoboxUtil.class).info("Added " + pathToAdd.toURI().toURL() + " to " + info.getName() + ". ");
+                    File fileToAdd = new File(pathToAdd).getCanonicalFile();
+                    urls.add(fileToAdd.toURI().toURL());
+                    LOGGER.debug("Added " + fileToAdd.toURI().toURL() + " to job '" + info.getName() + "'. "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 } catch (IOException e) {
                     throw new JoboxException(e);
                 }
             }
         }
-        return urls.toArray(new URL[0]);
+        return urls.toArray(new URL[urls.size()]);
     }
 }

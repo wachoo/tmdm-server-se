@@ -32,7 +32,7 @@ public abstract class JobInvoker {
 
     private final JobInfo jobInfo;
 
-    public JobInvoker(JobInfo jobInfo) {
+    JobInvoker(JobInfo jobInfo) {
         this.jobInfo = jobInfo;
     }
 
@@ -48,13 +48,20 @@ public abstract class JobInvoker {
      */
     public String[][] call(Map<String, String> parameters) {
         String[][] result;
+        ClassLoader previousCallLoader = Thread.currentThread().getContextClassLoader();
 
         try {
+            JobContainer jobContainer = JobContainer.getUniqueInstance();
+
+            // well-behaved Java packages work relative to the
+            // context class loader. Others don't (like commons-logging)
+            Thread.currentThread().setContextClassLoader(jobContainer.getJobClassLoader(jobInfo));
+
             if (jobInfo.getMainClass() == null) {
                 throw new MissingMainClassException();
             }
 
-            Class jobClass = JobContainer.getUniqueInstance().getJobClass(jobInfo);
+            Class jobClass = jobContainer.getJobClass(jobInfo);
             Method runJobMethod = jobClass.getMethod("runJob", String[].class);//$NON-NLS-1$
 
             Map<String, String> paramMap = jobInfo.getDefaultParamMap();
@@ -83,6 +90,8 @@ public abstract class JobInvoker {
             throw e;
         } catch (Exception e) {
             throw new JoboxException(e.getCause().getLocalizedMessage(), e);
+        } finally {
+            Thread.currentThread().setContextClassLoader(previousCallLoader);
         }
 
         return result;

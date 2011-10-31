@@ -27,12 +27,13 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
 import com.amalto.core.jobox.component.JobAware;
 import com.amalto.core.jobox.component.JobInvoker;
 import com.amalto.core.jobox.component.MDMJobInvoker;
 import com.amalto.core.jobox.util.JoboxConfig;
+import com.amalto.core.jobox.util.JoboxException;
+import com.amalto.core.objects.transformers.v2.ejb.TransformerV2CtrlBean;
+import junit.framework.TestCase;
 
 @SuppressWarnings("nls")
 public class JoboxTest extends TestCase {
@@ -122,7 +123,7 @@ public class JoboxTest extends TestCase {
         assertNotNull(jobInfo);
 
         Class jobClass = jobContainer.getJobClass(jobInfo);
-        assertSame(Thread.currentThread().getContextClassLoader(), jobClass.getClassLoader());
+        assertNotSame(Thread.currentThread().getContextClassLoader(), jobClass.getClassLoader());
     }
 
     public void testJobAware() throws Exception {
@@ -161,7 +162,7 @@ public class JoboxTest extends TestCase {
         assertNotNull(jobClass);
         assertEquals("tests.testtalendmdmjob_0_1.TestTalendMDMJob", jobClass.getName());
 
-        assertSame(Thread.currentThread().getContextClassLoader(), jobClass.getClassLoader());
+        assertNotSame(Thread.currentThread().getContextClassLoader(), jobClass.getClassLoader());
 
         Class[] interfaces = jobClass.getInterfaces();
         assertEquals(1, interfaces.length);
@@ -173,16 +174,18 @@ public class JoboxTest extends TestCase {
         HashMap<String, String> parameters = new HashMap<String, String>();
         parameters.put(MDMJobInvoker.EXCHANGE_XML_PARAMETER, "<exchange><report></report><item><key>0</key></item></exchange>");
 
-        // String[][] result = invoker.call(parameters);
-        // assertEquals(1, result.length);
-        // assertEquals(1, result[0].length);
-        // assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-        // "<exchange><report/><item><key>0</key></item></exchange>", result[0][0]);
-        //
-        // result = invoker.call();
-        // assertEquals(1, result.length);
-        // assertEquals(1, result[0].length);
-        // assertEquals("0", result[0][0]);
+        String[][] result = invoker.call(parameters);
+        assertEquals(1, result.length);
+        assertEquals(1, result[0].length);
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<exchange><report/><item><key>0</key></item></exchange>", result[0][0]);
+
+        result = invoker.call();
+        assertEquals(1, result.length);
+        assertEquals(1, result[0].length);
+        assertEquals("0", result[0][0]);
+
+        assertNotSame(Thread.currentThread().getContextClassLoader(), jobClass.getClassLoader());
     }
 
     public void testFailExecuteMDMJob() throws Exception {
@@ -203,6 +206,8 @@ public class JoboxTest extends TestCase {
         assertEquals(1, result.length);
         assertEquals(1, result[0].length);
         assertEquals("0", result[0][0]);
+
+        assertNotSame(Thread.currentThread().getContextClassLoader(), jobContainer.getJobClassLoader(jobInfo));
     }
 
     private static void deployFileToJobox(String jobZipFile) throws URISyntaxException, IOException {

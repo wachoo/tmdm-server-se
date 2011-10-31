@@ -19,17 +19,16 @@ import java.util.Map;
 import com.amalto.core.jobox.JobInfo;
 import com.amalto.core.jobox.util.JoboxException;
 import org.apache.log4j.Logger;
-import org.dom4j.Document;
 
 public class MDMJobInvoker extends JobInvoker {
 
-    public static final String SET_MDM_INPUT_MESSAGE_METHOD = "setMDMInputMessage";
+    private static final String SET_MDM_INPUT_MESSAGE_METHOD = "setMDMInputMessage";
 
-    public static final String GET_MDM_OUTPUT_MESSAGE_METHOD = "getMDMOutputMessage";
+    private static final String GET_MDM_OUTPUT_MESSAGE_METHOD = "getMDMOutputMessage";
 
     public static final String EXCHANGE_XML_PARAMETER = "__talend__exchangeXML__";
 
-    public static final Logger LOGGER = Logger.getLogger(MDMJobInvoker.class);
+    private static final Logger LOGGER = Logger.getLogger(MDMJobInvoker.class);
 
     public MDMJobInvoker(JobInfo jobInfo) {
         super(jobInfo);
@@ -41,12 +40,14 @@ public class MDMJobInvoker extends JobInvoker {
             Object invokeResult = runJobMethod.invoke(jobInstance, (Object) parameter);
 
             Method getMDMOutputMethod = jobInstance.getClass().getMethod(GET_MDM_OUTPUT_MESSAGE_METHOD);
-            Document result = (Document) getMDMOutputMethod.invoke(jobInstance);
-            if (result == null) {
+            Object o = getMDMOutputMethod.invoke(jobInstance);
+            if (o == null) {
                 // If job didn't return anything for getMDMOutputMessage, returns job invocation result.
                 return (String[][]) invokeResult;
             } else {
-                String[] resultAsString = {result.asXML()};
+                // Be careful here: return object is a instance of Document but can't use it because of class cast
+                // issue (caller has different class loader than executor).
+                String[] resultAsString = {o.getClass().getMethod("asXML").invoke(o).toString()};
                 return new String[][]{resultAsString};
             }
         } catch (Exception e) {

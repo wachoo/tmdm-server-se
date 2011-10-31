@@ -214,18 +214,41 @@ public class JobContainer {
         return jobLoadersPool.keySet();
     }
 
+    /**
+     * <p>
+     * Loads the job main class using a specific class loader (isolated from caller class loader).
+     * </p>
+     * <p>
+     * Please note that this method also changes {@link Thread#getContextClassLoader()} <b>during</b> load, if
+     * caller's class loader isn't already the job class loader (as returned by {@link #getJobClassLoader(JobInfo)}).
+     * </p>
+     * <p>
+     * Once this method is completed {@link Thread#getContextClassLoader()} is equals to the caller's classloader.
+     * </p>
+     * @param jobInfo A {@link JobInfo} instance.
+     * @return The entry point class for job execution.
+     */
     public Class getJobClass(JobInfo jobInfo) {
-        JobClassLoader jobClassLoader = this.jobLoadersPool.get(jobInfo);
-        // well-behaved Java packages work relative to the
-        // context classloader. Others don't (like commons-logging)
-        Thread.currentThread().setContextClassLoader(jobClassLoader);
+        ClassLoader previousCallLoader = Thread.currentThread().getContextClassLoader();
+        ClassLoader jobClassLoader = getJobClassLoader(jobInfo);
 
         try {
+            if(previousCallLoader != jobClassLoader) { // TMDM-1733: Change context class loader during job class load.
+                Thread.currentThread().setContextClassLoader(jobClassLoader);
+            }
             return jobClassLoader.loadClass(jobInfo.getMainClass());
         } catch (ClassNotFoundException e) {
             LOGGER.error("Could not find class '" + jobInfo.getMainClass() + "'", e);
             return null;
+        } finally {
+            if (previousCallLoader != jobClassLoader) {
+                Thread.currentThread().setContextClassLoader(previousCallLoader);
+            }
         }
+    }
+
+    public ClassLoader getJobClassLoader(JobInfo jobInfo) {
+        return this.jobLoadersPool.get(jobInfo);
     }
 
     public void setContextStrToBeSaved(String entryPath, String cxt) {
