@@ -363,6 +363,10 @@ public class TreeDetail extends ContentPanel {
             addTreeListener(tree);
         }
         this.layout();
+        String foreignKeyDeleteMessage = rootModel.get("foreignKeyDeleteMessage"); //$NON-NLS-1$
+        if (foreignKeyDeleteMessage != null && foreignKeyDeleteMessage.trim().length() > 0)
+            MessageBox.alert(MessagesFactory.getMessages().warning_title(), foreignKeyDeleteMessage, null).getDialog()
+                    .setWidth(600);
     }
 
     // get selected item in tree

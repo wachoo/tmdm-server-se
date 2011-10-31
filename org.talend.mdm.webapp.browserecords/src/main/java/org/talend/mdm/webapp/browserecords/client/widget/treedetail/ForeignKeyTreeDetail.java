@@ -224,6 +224,9 @@ public class ForeignKeyTreeDetail extends ContentPanel {
             add(tree);
             addTreeListener(tree);
         }
+        String foreignKeyDeleteMessage = rootModel.get("foreignKeyDeleteMessage"); //$NON-NLS-1$
+        if (foreignKeyDeleteMessage != null && foreignKeyDeleteMessage.trim().length() > 0)
+            MessageBox.alert(MessagesFactory.getMessages().warning_title(), foreignKeyDeleteMessage, null);
     }
 
     // get selected item in tree

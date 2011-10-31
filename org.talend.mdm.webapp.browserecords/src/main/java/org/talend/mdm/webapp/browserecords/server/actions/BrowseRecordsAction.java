@@ -102,6 +102,7 @@ import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
+import com.amalto.core.util.XtentisException;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
@@ -1437,7 +1438,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
             Map<String, Integer> multiNodeIndex = new HashMap<String, Integer>();
-            ItemNodeModel itemModel = builderNode(multiNodeIndex, root, entity, "", language); //$NON-NLS-1$
+            StringBuffer foreignKeyDeleteMessage = new StringBuffer();
+            ItemNodeModel itemModel = builderNode(multiNodeIndex, root, entity, "", foreignKeyDeleteMessage, language); //$NON-NLS-1$
             DynamicLabelUtil.getDynamicLabel(XmlUtil.parseDocument(doc), itemModel, metaDataTypes, language);
             itemModel.set("time", item.get("time")); //$NON-NLS-1$ //$NON-NLS-2$
             return itemModel;
@@ -1447,7 +1449,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    private ItemNodeModel builderNode(Map<String, Integer> multiNodeIndex, Element el, EntityModel entity, String xpath,
+    private ItemNodeModel builderNode(Map<String, Integer> multiNodeIndex, Element el, EntityModel entity, String xpath,StringBuffer foreignKeyDeleteMessage,
             String language) throws Exception {
         Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
         xpath += (xpath == "" ? el.getNodeName() : "/" + el.getNodeName()); //$NON-NLS-1$//$NON-NLS-2$
@@ -1475,9 +1477,18 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
 
         if (!"".equals(metaDataTypes.get(xpath).getForeignkey()) && metaDataTypes.get(xpath).getForeignkey() != null) { //$NON-NLS-1$
-            // set foreignKeyBean
-            model.setRetrieveFKinfos(true);
-            nodeModel.setObjectValue(getForeignKeyDesc(model, el.getTextContent()));
+            try {
+                // set foreignKeyBean
+                model.setRetrieveFKinfos(true);
+                nodeModel.setObjectValue(getForeignKeyDesc(model, el.getTextContent()));
+            } catch (Exception e) {
+                if (e instanceof XtentisException) {
+                    if (foreignKeyDeleteMessage.indexOf(e.getMessage()) == -1)
+                        foreignKeyDeleteMessage.append(e.getMessage() + "\r\n"); //$NON-NLS-1$
+                    return null;
+                } else
+                    throw e;
+            }
 
         } else if (model.isSimpleType()) {
             nodeModel.setObjectValue(el.getTextContent());
@@ -1497,9 +1508,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     Node child = children.item(i);
                     if (child.getNodeType() == Node.ELEMENT_NODE) {
                         if (typeModel.getXpath().equals(xpath + "/" + child.getNodeName())) { //$NON-NLS-1$                            
-                            ItemNodeModel childNode = builderNode(multiNodeIndex, (Element) child, entity, xpath, language);
-                            childNode.setHasVisiblueRule(typeModel.isHasVisibleRule());
-                            nodeModel.add(childNode);
+                            ItemNodeModel childNode = builderNode(multiNodeIndex, (Element) child, entity, xpath,
+                                    foreignKeyDeleteMessage, language);
+                            if (childNode != null) {
+                                childNode.setHasVisiblueRule(typeModel.isHasVisibleRule());
+                                nodeModel.add(childNode);
+                            }
                             existNodeFlag = true;
                             if (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {
                                 continue;
@@ -1615,7 +1629,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             // TODO UGLY!!!! to be refactored
             ServiceException serviceException;
             if (e.getMessage().indexOf("routing failed:") == 0) { //$NON-NLS-1$
-                serviceException = new ServiceException(MESSAGES.getMessage("save_successEx", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
+                serviceException = new ServiceException(MESSAGES.getMessage("save_fail", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
                         + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), "."), e.getMessage())); //$NON-NLS-1$
             } else {
                 String err = MESSAGES.getMessage("save_fail", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
