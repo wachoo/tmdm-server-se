@@ -5036,7 +5036,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                 var grid = gridContainerPanel.items.first();
                 grid.store.reload();
             }
-            refreshCB.call();        	
+            refreshCB.call(null, 'saveItem', result.returnValue);        	
         });
 
         DWREngine.setAsync(true);
