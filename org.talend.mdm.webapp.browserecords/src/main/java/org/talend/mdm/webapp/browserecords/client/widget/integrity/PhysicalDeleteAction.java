@@ -14,13 +14,14 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 // Implementation package visibility for class is intended: no need to see this class outside of package
 class PhysicalDeleteAction implements DeleteAction {
 
-    public void delete(ItemBean item, BrowseRecordsServiceAsync service, boolean override) {
+    public void delete(ItemBean item, BrowseRecordsServiceAsync service, boolean override, final PostDeleteAction postDeleteAction) {
         service.deleteItemBean(item, override, Locale.getLanguage(), new SessionAwareAsyncCallback<String>() {
 
             public void onSuccess(String msg) {
                 if (msg != null && !msg.equals("")) { //$NON-NLS-1$
                     MessageBox.info(MessagesFactory.getMessages().info_title(), msg, null);
                 }
+                postDeleteAction.doAction();
             }
         });
     }

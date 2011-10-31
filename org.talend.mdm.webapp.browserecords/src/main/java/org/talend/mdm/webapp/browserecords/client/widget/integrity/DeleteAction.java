@@ -20,15 +20,17 @@ public interface DeleteAction {
     DeleteAction PHYSICAL = new PhysicalDeleteAction();
 
     /**
-     * Delete a single item.
+     * Delete a single item. Implementations of this interface should call <code>postDeleteAction</code> actions after
+     * a successful delete.
      *
      * @param item     The item to be deleted.
      * @param service  The service to be used for communication with MDM server.
      * @param override <code>true</code> if user chose to override FK integrity (when applicable only! see
      *                 {@link org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult}), <code>false</code> otherwise.
-     * @see BrowseRecordsServiceAsync#deleteItemBean(org.talend.mdm.webapp.browserecords.client.model.ItemBean, boolean, com.google.gwt.user.client.rpc.AsyncCallback)
+     * @param postDeleteAction
+     * @see BrowseRecordsServiceAsync#deleteItemBean(org.talend.mdm.webapp.browserecords.client.model.ItemBean, boolean, String, com.google.gwt.user.client.rpc.AsyncCallback)
      * @see BrowseRecordsServiceAsync#logicalDeleteItem(org.talend.mdm.webapp.browserecords.client.model.ItemBean, String, boolean, com.google.gwt.user.client.rpc.AsyncCallback)
      */
-    void delete(ItemBean item, BrowseRecordsServiceAsync service, boolean override);
+    void delete(ItemBean item, BrowseRecordsServiceAsync service, boolean override, PostDeleteAction postDeleteAction);
 }
 

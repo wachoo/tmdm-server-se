@@ -41,7 +41,7 @@ class ListDeleteStrategy implements DeleteStrategy {
                     hasMetForbiddenDeletes = true;
                     break;
                 case ALLOWED:
-                    action.delete(currentItem.getKey(), service, false);
+                    action.delete(currentItem.getKey(), service, false, postDeleteAction);
                     break;
             }
         }
@@ -50,7 +50,5 @@ class ListDeleteStrategy implements DeleteStrategy {
             MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
                     .fk_integrity_list_partial_delete(), null);
         }
-
-        postDeleteAction.doAction();
     }
 }

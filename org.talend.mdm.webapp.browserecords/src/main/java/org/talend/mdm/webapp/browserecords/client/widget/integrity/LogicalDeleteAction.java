@@ -15,10 +15,10 @@ public class LogicalDeleteAction implements DeleteAction {
         this.url = url;
     }
 
-    public void delete(ItemBean item, BrowseRecordsServiceAsync service, boolean override) {
+    public void delete(ItemBean item, BrowseRecordsServiceAsync service, boolean override, final PostDeleteAction postDeleteAction) {
         service.logicalDeleteItem(item, url, override, new SessionAwareAsyncCallback<Void>() {
-
             public void onSuccess(Void arg0) {
+                postDeleteAction.doAction();
             }
         });
     }
