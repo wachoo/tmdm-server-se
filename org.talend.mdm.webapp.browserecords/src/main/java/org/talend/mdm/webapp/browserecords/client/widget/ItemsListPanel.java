@@ -151,7 +151,7 @@ public class ItemsListPanel extends ContentPanel {
 
     private ContentPanel panel;
 
-    private final static int PAGE_SIZE = 10;
+    private final static int PAGE_SIZE = 20;
 
     private PagingToolBarEx pagingBar = null;
 
