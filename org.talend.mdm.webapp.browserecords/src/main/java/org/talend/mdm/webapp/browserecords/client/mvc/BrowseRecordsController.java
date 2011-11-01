@@ -22,9 +22,11 @@ import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
@@ -102,8 +104,9 @@ public class BrowseRecordsController extends Controller {
         ItemBean itemBean = event.getData("ItemBean"); //$NON-NLS-1$
         final Boolean isCreate = event.getData("isCreate"); //$NON-NLS-1$
         final Boolean isClose = event.getData("isClose"); //$NON-NLS-1$
+        final ItemDetailToolBar detailToolBar = event.getData("itemDetailToolBar"); //$NON-NLS-1$
         service.saveItem(itemBean.getConcept(), itemBean.getIds(), CommonUtil.toXML(model, viewBean), isCreate, Locale
-                .getLanguage(), new SessionAwareAsyncCallback<String>() {
+                .getLanguage(), new SessionAwareAsyncCallback<ItemResult>() {
 
                     @Override
                     protected void doOnFailure(Throwable caught) {
@@ -119,19 +122,19 @@ public class BrowseRecordsController extends Controller {
                             super.doOnFailure(caught);
                     }
 
-                    public void onSuccess(String result) {
-                        if (result != "")//$NON-NLS-1$
-                            MessageBox.info(MessagesFactory.getMessages().info_title(),
-                                    result, null);
-                        else
-                            MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
-                                    .save_success(), null);
-
-                        if (isClose) {
-                            ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
-                        }
-                    }
-                });
+            public void onSuccess(ItemResult result) {
+                if (result.getDescription() != "")//$NON-NLS-1$
+                    MessageBox.info(MessagesFactory.getMessages().info_title(), result.getDescription(), null);
+                else
+                    MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().save_success(),
+                            null);
+                if (isClose) {
+                    ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
+                } else {
+                    detailToolBar.refreshTreeDetailByIds(result.getReturnValue());
+                }
+            }
+        });
 
     }
 

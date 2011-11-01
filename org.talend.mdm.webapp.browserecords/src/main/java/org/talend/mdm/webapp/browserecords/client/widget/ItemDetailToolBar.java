@@ -401,6 +401,21 @@ public class ItemDetailToolBar extends ToolBar {
         }
     }
 
+    public void refreshTreeDetailByIds(String ids) {
+        Widget widget = itemsDetailPanel.getFirstTabWidget();
+        if (widget instanceof ForeignKeyTreeDetail) {
+            isFkToolBar = true;
+            final ForeignKeyTreeDetail fkTree = (ForeignKeyTreeDetail) widget;
+            fkTree.getFkModel().getItemBean().setIds(ids);
+            fkTree.refreshTree();
+        } else {
+            ItemPanel itemPanel = (ItemPanel) widget;
+            itemPanel.getItem().setIds(ids);
+            itemPanel.refreshTree();
+        }
+
+    }
+
     private void refreshTree(final ItemPanel itemPanel, final ForeignKeyTreeDetail fkTree, final ItemNodeModel root) {
         ItemBean itemBean = isFkToolBar ? fkTree.getFkModel().getItemBean() : itemPanel.getItem();
         service.isItemModifiedByOthers(itemBean, new SessionAwareAsyncCallback<Boolean>() {
@@ -798,6 +813,7 @@ public class ItemDetailToolBar extends ToolBar {
         app.setData("viewBean", viewBean); //$NON-NLS-1$
         app.setData(model);
         app.setData("isClose", isClose); //$NON-NLS-1$
+        app.setData("itemDetailToolBar", this); //$NON-NLS-1$
         if (validate) {
             dispatch.dispatch(app);
         } else {

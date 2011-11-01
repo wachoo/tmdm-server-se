@@ -68,6 +68,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
 import org.talend.mdm.webapp.browserecords.client.model.FormatModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.Restriction;
 import org.talend.mdm.webapp.browserecords.client.model.SearchTemplate;
@@ -1569,20 +1570,19 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     public String saveItemBean(ItemBean item, String language) throws ServiceException {
-        return saveItem(item.getConcept(), item.getIds(), item.getItemXml(), true, language);
+        return saveItem(item.getConcept(), item.getIds(), item.getItemXml(), true, language).getDescription();
     }
 
-    public String saveItem(String concept, String ids, String xml, boolean isCreate, String language) throws ServiceException {
+    public ItemResult saveItem(String concept, String ids, String xml, boolean isCreate, String language) throws ServiceException {
 
         try {
-            String message = null;
-
             // if update, check the item is modified by others?
             WSPutItemWithReport wsPutItemWithReport = new WSPutItemWithReport(new WSPutItem(new WSDataClusterPK(
                     getCurrentDataCluster()), xml, new WSDataModelPK(getCurrentDataModel()), isCreate ? false : true),
                     "genericUI", true); //$NON-NLS-1$
-            CommonUtil.getPort().putItemWithReport(wsPutItemWithReport);
-
+            WSItemPK wsi = CommonUtil.getPort().putItemWithReport(wsPutItemWithReport);
+            String message = null;
+            int status;
             if (com.amalto.webapp.core.util.Util.isTransformerExist("beforeSaving_" + concept)) { //$NON-NLS-1$
                 String outputErrorMessage = wsPutItemWithReport.getSource();
                 String errorCode = null;
@@ -1612,6 +1612,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if ("info".equals(errorCode)) { //$NON-NLS-1$
                     if (message == null || message.length() == 0)
                         message = MESSAGES.getMessage("save_process_validation_success"); //$NON-NLS-1$
+                    status = ItemResult.SUCCESS;
                 } else {
                     // Anything but 0 is unsuccessful
                     if (message == null || message.length() == 0)
@@ -1620,12 +1621,17 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
             } else {
                 message = MESSAGES.getMessage("save_record_success"); //$NON-NLS-1$
+                status = ItemResult.SUCCESS;
             }
-            return message;
+            if (wsi == null)
+                return new ItemResult(status, message, ids); //$NON-NLS-1$
+            else
+                return new ItemResult(status, message, Util.joinStrings(wsi.getIds(), ".")); //$NON-NLS-1$
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
             throw e;
         } catch (Exception e) {
+            ItemResult result;
             // TODO UGLY!!!! to be refactored
             ServiceException serviceException;
             if (e.getMessage().indexOf("routing failed:") == 0) { //$NON-NLS-1$
@@ -1677,7 +1683,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
             }
 
-            return saveItem(concept, ids, doc.asXML(), false, language);
+            return saveItem(concept, ids, doc.asXML(), false, language).getDescription();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());

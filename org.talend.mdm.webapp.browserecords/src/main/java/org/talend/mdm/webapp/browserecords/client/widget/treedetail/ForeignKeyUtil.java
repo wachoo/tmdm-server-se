@@ -12,6 +12,7 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
@@ -94,7 +95,7 @@ public class ForeignKeyUtil {
         if (validateSuccess) {
             BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
             service.saveItem(itemBean.getConcept(), itemBean.getIds(), CommonUtil.toXML(model, viewBean), isCreate, Locale
-                    .getLanguage(), new SessionAwareAsyncCallback<String>() {
+                    .getLanguage(), new SessionAwareAsyncCallback<ItemResult>() {
 
                         @Override
                         protected void doOnFailure(Throwable caught) {
@@ -110,15 +111,15 @@ public class ForeignKeyUtil {
                                 super.doOnFailure(caught);
                         }
 
-                        public void onSuccess(String result) {
-                            MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
-                                    .save_success(), null);
-                            if (widget instanceof ItemPanel && isCreated) {
-                                ItemsListPanel.getInstance().lastPage();
-                            }
-                            displayForeignKey(isCreateForeignKey, foreignKeyName, ids, itemsDetailPanel);
-                        }
-                    });
+                public void onSuccess(ItemResult result) {
+                    MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().save_success(),
+                            null);
+                    if (widget instanceof ItemPanel && isCreated) {
+                        ItemsListPanel.getInstance().lastPage();
+                    }
+                    displayForeignKey(isCreateForeignKey, foreignKeyName, ids, itemsDetailPanel);
+                }
+            });
         } else {
             MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().save_error(), null);
         }

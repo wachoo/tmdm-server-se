@@ -26,6 +26,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
 import org.talend.mdm.webapp.browserecords.client.model.FormatModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.Restriction;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
@@ -98,7 +99,7 @@ public interface BrowseRecordsService extends RemoteService {
 
     List<String> getMandatoryFieldList(String tableName) throws ServiceException;
 
-    String saveItem(String concept, String ids, String xml, boolean isCreate, String language) throws ServiceException;
+    ItemResult saveItem(String concept, String ids, String xml, boolean isCreate, String language) throws ServiceException;
 
     String updateItem(String concept, String ids, Map<String, String> changedNodes, String language) throws ServiceException;
 

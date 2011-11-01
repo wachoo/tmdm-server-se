@@ -25,6 +25,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
 import org.talend.mdm.webapp.browserecords.client.model.FormatModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.Restriction;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
@@ -93,7 +94,7 @@ public interface BrowseRecordsServiceAsync {
 
     void getMandatoryFieldList(String tableName, AsyncCallback<List<String>> callback);
 
-    void saveItem(String concept, String ids, String xml, boolean isCreate, String language, AsyncCallback<String> callback);
+    void saveItem(String concept, String ids, String xml, boolean isCreate, String language, AsyncCallback<ItemResult> callback);
 
     void getColumnTreeLayout(String concept, AsyncCallback<ColumnTreeLayoutModel> callback);
 
