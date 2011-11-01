@@ -553,13 +553,27 @@ public abstract class ObjectPOJO implements Serializable{
     @SuppressWarnings("nls")
     private static Set<String> getSystemObjectIDs(String cluster) {
     	if(Util.isEnterprise()){
-    		if("amaltoOBJECTSDataCluster".equals(cluster))return XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER).keySet();
+            if ("amaltoOBJECTSDataCluster".equals(cluster)) {
+                Set<String> ret = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER).keySet();
+                // ignore Revsion MDMItemImages MDMMigration
+                ret.remove(XSystemObjects.DC_REVISION.getName());
+                ret.remove(XSystemObjects.DC_MDMItemImages.getName());
+                ret.remove(XSystemObjects.DC_MDMMigration.getName());
+                return ret;
+            }
     		if("amaltoOBJECTSMenu".equals(cluster))return XSystemObjects.getXSystemObjects(XObjectType.MENU).keySet();
     		if("amaltoOBJECTSRole".equals(cluster))return XSystemObjects.getXSystemObjects(XObjectType.ROLE).keySet();
     		if("amaltoOBJECTSDataModel".equals(cluster))return XSystemObjects.getXSystemObjects(XObjectType.DATA_MODEL).keySet();
     	}
     	else{
-    		if("amaltoOBJECTSDataCluster".equals(cluster))return XSystemObjects.getXSystemObjectsTOM(XObjectType.DATA_CLUSTER).keySet();
+            if ("amaltoOBJECTSDataCluster".equals(cluster)) {
+                Set<String> ret = XSystemObjects.getXSystemObjectsTOM(XObjectType.DATA_CLUSTER).keySet();
+                // ignore Revsion MDMItemImages MDMMigration
+                ret.remove(XSystemObjects.DC_REVISION.getName());
+                ret.remove(XSystemObjects.DC_MDMItemImages.getName());
+                ret.remove(XSystemObjects.DC_MDMMigration.getName());
+                return ret;
+            }
         	if("amaltoOBJECTSMenu".equals(cluster))return XSystemObjects.getXSystemObjectsTOM(XObjectType.MENU).keySet();
         	if("amaltoOBJECTSRole".equals(cluster))return XSystemObjects.getXSystemObjectsTOM(XObjectType.ROLE).keySet();
         	if("amaltoOBJECTSDataModel".equals(cluster))return XSystemObjects.getXSystemObjectsTOM(XObjectType.DATA_MODEL).keySet();
