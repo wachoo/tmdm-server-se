@@ -25,7 +25,6 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
-import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.ContainerUpdate;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.DeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.DeleteCallback;
@@ -301,7 +300,6 @@ public class ItemDetailToolBar extends ToolBar {
             });
 
             delete_Delete.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
-
             deleteButton.setMenu(deleteMenu);
         }
 
@@ -317,6 +315,7 @@ public class ItemDetailToolBar extends ToolBar {
 
                 @Override
                 public void componentSelected(ButtonEvent ce) {
+
                     String title = itemBean.getConcept();
                     ItemsDetailPanel panel = new ItemsDetailPanel();
                     panel.initBanner(itemBean.getPkInfoList(), itemBean.getDescription());
@@ -328,7 +327,6 @@ public class ItemDetailToolBar extends ToolBar {
                         if(!isOutMost)
                             ItemsMainTabPanel.getInstance().addMainTabItem(title, panel, title);
                     } else {
-                        ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);                                                
                         if(!isOutMost){
                             ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.DUPLICATE_OPERATION, panel);
                             panel.addTabItem(title, itemPanel, ItemsDetailPanel.SINGLETON, title);
@@ -789,15 +787,13 @@ public class ItemDetailToolBar extends ToolBar {
         Dispatcher dispatch = Dispatcher.get();
         AppEvent app = new AppEvent(BrowseRecordsEvents.SaveItem);
         ItemNodeModel model = null;
-        ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
         if (widget instanceof ItemPanel) {// save primary key
             ItemPanel itemPanel = (ItemPanel) widget;
             if (itemPanel.getTree().validateTree()) {
                 validate = true;
                 model = (ItemNodeModel) itemPanel.getTree().getRootModel();
                 app.setData("ItemBean", itemPanel.getItem()); //$NON-NLS-1$
-                app.setData(
-                                "isCreate", itemPanel.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION) || itemPanel.getOperation().equals(ItemDetailToolBar.DUPLICATE_OPERATION) ? true : false); //$NON-NLS-1$
+                app.setData("isCreate", itemPanel.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION) || itemPanel.getOperation().equals(ItemDetailToolBar.DUPLICATE_OPERATION) ? true : false); //$NON-NLS-1$
             }
 
         } else if (widget instanceof ForeignKeyTreeDetail) { // save foreign key
@@ -805,8 +801,7 @@ public class ItemDetailToolBar extends ToolBar {
             if (fkDetail.validateTree()) {
                 validate = true;
                 model = fkDetail.getRootModel();
-                app.setData(
-                        "ItemBean", fkDetail.isCreate() ? new ItemBean(fkDetail.getViewBean().getBindingEntityModel().getConceptName(), "", "") : itemBean); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                app.setData("ItemBean", fkDetail.isCreate() ? new ItemBean(fkDetail.getViewBean().getBindingEntityModel().getConceptName(), "", "") : itemBean); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 app.setData("isCreate", fkDetail.isCreate()); //$NON-NLS-1$
             }
         }
@@ -839,5 +834,10 @@ public class ItemDetailToolBar extends ToolBar {
     
     public void setOutMost(boolean isOutMost) {
         this.isOutMost = isOutMost;
+    }
+
+    
+    public boolean isOutMost() {
+        return isOutMost;
     }
 }
