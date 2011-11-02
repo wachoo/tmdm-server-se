@@ -121,6 +121,8 @@ public class ItemsListPanel extends ContentPanel {
                 public void onSuccess(ItemBasePageLoadResult<ItemBean> result) {
                     callback.onSuccess(new BasePagingLoadResult<ItemBean>(result.getData(), result.getOffset(), result
                             .getTotalLength()));
+                    if (result.getTotalLength() == 0)
+                        ItemsMainTabPanel.getInstance().removeAll();
                 }
 
                 @Override

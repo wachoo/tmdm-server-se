@@ -207,6 +207,7 @@ public class ItemsToolBar extends ToolBar {
         // reset search results
 
         ItemsListPanel.getInstance().resetGrid();
+        ItemsMainTabPanel.getInstance().removeAll();
 
         searchBut.setEnabled(true);
         advancedBut.setEnabled(true);
