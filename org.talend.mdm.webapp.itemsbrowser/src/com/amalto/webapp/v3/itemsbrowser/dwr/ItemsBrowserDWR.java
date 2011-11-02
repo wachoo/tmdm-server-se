@@ -64,11 +64,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
-import src.com.amalto.core.ejb.ItemPOJOPK;
-import src.com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import src.com.amalto.core.util.LocalUser;
-import src.com.amalto.core.util.MessagesFactory;
-
+import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.Messages;
+import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.bean.ComboItemBean;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.ListRange;
