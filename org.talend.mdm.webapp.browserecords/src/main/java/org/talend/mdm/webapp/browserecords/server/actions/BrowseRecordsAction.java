@@ -101,9 +101,9 @@ import com.amalto.core.integrity.FKIntegrityCheckResult;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.util.EntityNotFoundException;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
-import com.amalto.core.util.XtentisException;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
@@ -458,7 +458,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return gettedValue.toString();
     }
 
-    private ForeignKeyBean getForeignKeyDesc(TypeModel model, String ids) throws Exception {
+    private ForeignKeyBean getForeignKeyDesc(TypeModel model, String ids, boolean isNeedExceptionMessage) throws Exception {
         String xpathForeignKey = model.getForeignkey();
         if (xpathForeignKey == null) {
             return null;
@@ -470,40 +470,49 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         ForeignKeyBean bean = new ForeignKeyBean();
         bean.setId(ids);
         bean.setForeignKeyPath(model.getXpath());
-
-        if (!model.isRetrieveFKinfos()) {
-            return bean;
-        } else {
-            ItemPOJOPK pk = new ItemPOJOPK();
-            String[] itemId = extractIdWithBrackets(ids);
-            pk.setIds(itemId);
-            pk.setConceptName(model.getForeignkey().split("/")[0]); //$NON-NLS-1$
-            pk.setDataClusterPOJOPK(new DataClusterPOJOPK(getCurrentDataCluster()));
-            ItemPOJO item = com.amalto.core.util.Util.getItemCtrl2Local().getItem(pk);
-
-            if (item != null) {
-                org.w3c.dom.Document document = item.getProjection().getOwnerDocument();
-                List<String> foreignKeyInfo = model.getForeignKeyInfo();
-                String formattedId = ""; // Id formatted using foreign key info //$NON-NLS-1$
-                for (String foreignKeyPath : foreignKeyInfo) {
-                    NodeList nodes = com.amalto.core.util.Util.getNodeList(document,
-                            StringUtils.substringAfter(foreignKeyPath, "/")); //$NON-NLS-1$
-                    if (nodes.getLength() == 1) {
-                        bean.getForeignKeyInfo().put(foreignKeyPath, nodes.item(0).getTextContent());
-                        if (formattedId.equals("")) //$NON-NLS-1$
-                            formattedId += nodes.item(0).getTextContent();
-                        else
-                            formattedId += "-" + nodes.item(0).getTextContent(); //$NON-NLS-1$
-                    } else {
-                        throw new IllegalArgumentException(MESSAGES.getMessage("label_exception_xpath_not_match", //$NON-NLS-1$
-                                foreignKeyPath, nodes.getLength()));
-                    }
-                }
-
-                bean.setDisplayInfo(formattedId);
+        try {
+            if (!model.isRetrieveFKinfos()) {
                 return bean;
             } else {
+                ItemPOJOPK pk = new ItemPOJOPK();
+                String[] itemId = extractIdWithBrackets(ids);
+                pk.setIds(itemId);
+                pk.setConceptName(model.getForeignkey().split("/")[0]); //$NON-NLS-1$
+                pk.setDataClusterPOJOPK(new DataClusterPOJOPK(getCurrentDataCluster()));
+                ItemPOJO item = com.amalto.core.util.Util.getItemCtrl2Local().getItem(pk);
+
+                if (item != null) {
+                    org.w3c.dom.Document document = item.getProjection().getOwnerDocument();
+                    List<String> foreignKeyInfo = model.getForeignKeyInfo();
+                    String formattedId = ""; // Id formatted using foreign key info //$NON-NLS-1$
+                    for (String foreignKeyPath : foreignKeyInfo) {
+                        NodeList nodes = com.amalto.core.util.Util.getNodeList(document,
+                                StringUtils.substringAfter(foreignKeyPath, "/")); //$NON-NLS-1$
+                        if (nodes.getLength() == 1) {
+                            bean.getForeignKeyInfo().put(foreignKeyPath, nodes.item(0).getTextContent());
+                            if (formattedId.equals("")) //$NON-NLS-1$
+                                formattedId += nodes.item(0).getTextContent();
+                            else
+                                formattedId += "-" + nodes.item(0).getTextContent(); //$NON-NLS-1$
+                        } else {
+                            throw new IllegalArgumentException(MESSAGES.getMessage("label_exception_xpath_not_match", //$NON-NLS-1$
+                                    foreignKeyPath, nodes.getLength()));
+                        }
+                    }
+
+                    bean.setDisplayInfo(formattedId);
+                    return bean;
+                } else {
+                    return null;
+                }
+            }
+        } catch (EntityNotFoundException e) {
+            if (!isNeedExceptionMessage)
                 return null;
+            else {
+                // fix bug TMDM-2757
+                bean.set("foreignKeyDeleteMessage", e.getMessage()); //$NON-NLS-1$
+                return bean;
             }
         }
     }
@@ -642,7 +651,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                 if (typeModel.getForeignkey() != null) {
                                     itemBean.set(path, path + "-" + value.getTextContent()); //$NON-NLS-1$
                                     itemBean.setForeignkeyDesc(
-                                            path + "-" + value.getTextContent(), getForeignKeyDesc(typeModel, value.getTextContent())); //$NON-NLS-1$
+                                            path + "-" + value.getTextContent(), getForeignKeyDesc(typeModel, value.getTextContent(), false)); //$NON-NLS-1$    
+
                                 } else {
                                     itemBean.set(path, value.getTextContent());
                                 }
@@ -678,7 +688,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     if (typeModel != null && typeModel.getForeignkey() != null) {
                         itemBean.set(path, path + "-" + value.getTextContent()); //$NON-NLS-1$
                         itemBean.setForeignkeyDesc(
-                                path + "-" + value.getTextContent(), getForeignKeyDesc(typeModel, value.getTextContent())); //$NON-NLS-1$
+                                path + "-" + value.getTextContent(), getForeignKeyDesc(typeModel, value.getTextContent(), false)); //$NON-NLS-1$
                     } else {
                         itemBean.set(path, value.getTextContent());
                     }
@@ -1443,6 +1453,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             ItemNodeModel itemModel = builderNode(multiNodeIndex, root, entity, "", foreignKeyDeleteMessage, language); //$NON-NLS-1$
             DynamicLabelUtil.getDynamicLabel(XmlUtil.parseDocument(doc), itemModel, metaDataTypes, language);
             itemModel.set("time", item.get("time")); //$NON-NLS-1$ //$NON-NLS-2$
+            itemModel.set("foreignKeyDeleteMessage", foreignKeyDeleteMessage.toString()); //$NON-NLS-1$
             return itemModel;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -1476,21 +1487,20 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         if (model.getMinOccurs() > 0) {
             nodeModel.setMandatory(true);
         }
-
-        if (!"".equals(metaDataTypes.get(xpath).getForeignkey()) && metaDataTypes.get(xpath).getForeignkey() != null) { //$NON-NLS-1$
-            try {
-                // set foreignKeyBean
-                model.setRetrieveFKinfos(true);
-                nodeModel.setObjectValue(getForeignKeyDesc(model, el.getTextContent()));
-            } catch (Exception e) {
-                if (e instanceof XtentisException) {
-                    if (foreignKeyDeleteMessage.indexOf(e.getMessage()) == -1)
-                        foreignKeyDeleteMessage.append(e.getMessage() + "\r\n"); //$NON-NLS-1$
-                    return null;
-                } else
-                    throw e;
+        String foreignKey = metaDataTypes.get(xpath).getForeignkey();
+        if (foreignKey != null && foreignKey.trim().length() > 0) {
+            // set foreignKeyBean
+            model.setRetrieveFKinfos(true);
+            ForeignKeyBean fkBean = getForeignKeyDesc(model, el.getTextContent(), true);
+            if (fkBean != null) {
+                String fkNotFoundMessage = fkBean.get("foreignKeyDeleteMessage"); //$NON-NLS-1$
+                if (fkNotFoundMessage != null) {// fix bug TMDM-2757
+                    if (foreignKeyDeleteMessage.indexOf(fkNotFoundMessage) == -1)
+                        foreignKeyDeleteMessage.append(fkNotFoundMessage + "\r\n"); //$NON-NLS-1$
+                    return nodeModel;
+                }
+                nodeModel.setObjectValue(fkBean);
             }
-
         } else if (model.isSimpleType()) {
             nodeModel.setObjectValue(el.getTextContent());
         }
@@ -1511,10 +1521,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         if (typeModel.getXpath().equals(xpath + "/" + child.getNodeName())) { //$NON-NLS-1$                            
                             ItemNodeModel childNode = builderNode(multiNodeIndex, (Element) child, entity, xpath,
                                     foreignKeyDeleteMessage, language);
-                            if (childNode != null) {
-                                childNode.setHasVisiblueRule(typeModel.isHasVisibleRule());
-                                nodeModel.add(childNode);
-                            }
+                            childNode.setHasVisiblueRule(typeModel.isHasVisibleRule());
+                            nodeModel.add(childNode);
                             existNodeFlag = true;
                             if (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {
                                 continue;

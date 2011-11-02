@@ -17,8 +17,6 @@ import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 import javax.naming.InitialContext;
 
-import com.amalto.core.integrity.FKIntegrityCheckResult;
-import com.amalto.core.integrity.FKIntegrityChecker;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.talend.mdm.commmon.util.core.CommonUtil;
 import org.talend.mdm.commmon.util.core.EDBType;
@@ -28,6 +26,8 @@ import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
+import com.amalto.core.integrity.FKIntegrityCheckResult;
+import com.amalto.core.integrity.FKIntegrityChecker;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
@@ -38,6 +38,7 @@ import com.amalto.core.objects.transformers.v2.util.TypedContent;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
+import com.amalto.core.util.EntityNotFoundException;
 import com.amalto.core.util.JazzyConfiguration;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
@@ -170,7 +171,7 @@ public class ItemCtrl2Bean implements SessionBean {
             if (pojo == null) {
                 String err = "The item '" + pk.getUniqueID() + "' cannot be found.";
                 org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-                throw new XtentisException(err);
+                throw new EntityNotFoundException(err);
             }
             return pojo;
         } catch (XtentisException e) {
