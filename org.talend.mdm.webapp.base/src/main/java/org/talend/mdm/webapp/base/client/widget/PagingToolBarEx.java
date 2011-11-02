@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonGroup;
 import com.extjs.gxt.ui.client.widget.button.SplitButton;
@@ -37,19 +38,24 @@ import com.extjs.gxt.ui.client.widget.menu.SeparatorMenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.Widget;
 
 public class PagingToolBarEx extends PagingToolBar {
 
     private El inputEl;
+
+    NumberField sizeField;
 
     public PagingToolBarEx(int pageSize) {
         super(pageSize);
         setLayout(new PagingToolBarExLayout());
         LabelToolItem sizeLabel = new LabelToolItem(BaseMessagesFactory.getMessages().page_size_label());
 
-        final NumberField sizeField = new NumberField() {
+        sizeField = new NumberField() {
 
             @Override
             protected void onRender(Element target, int index) {
@@ -77,10 +83,15 @@ public class PagingToolBarEx extends PagingToolBar {
                 }
             }
         });
-        sizeField.setValue(pageSize);
+
+        Grid grid = new Grid(1, 2);
+        grid.setWidget(0, 0, sizeLabel);
+        grid.setWidget(0, 1, sizeField);
+
+        WidgetComponent sizeComp = new WidgetComponent(grid);
+
         this.insert(new SeparatorToolItem(), this.getItemCount() - 2);
-        this.insert(sizeLabel, this.getItemCount() - 2);
-        this.insert(sizeField, this.getItemCount() - 2);
+        this.insert(sizeComp, this.getItemCount() - 2);
     }
 
     protected void onResize(int width, int height) {
@@ -114,6 +125,8 @@ public class PagingToolBarEx extends PagingToolBar {
 
     class PagingToolBarExLayout extends ToolBarLayout {
 
+        private El tempInputEl;
+
         protected void initMore() {
             super.initMore();
             moreMenu.setWidth(250);
@@ -145,6 +158,51 @@ public class PagingToolBarEx extends PagingToolBar {
                 LabelToolItem l = (LabelToolItem) c;
                 MenuItem item = new MenuItem(l.getLabel());
                 menu.add(item);
+            } else if (c instanceof WidgetComponent) {
+                WidgetComponent wc = (WidgetComponent) c;
+                Widget wg = wc.getWidget();
+                if (wg instanceof Grid){
+                    final NumberField sizeF = new NumberField() {
+
+                        protected void onRender(Element target, int index) {
+                            super.onRender(target, index);
+                            tempInputEl = this.input;
+                        }
+                    };
+
+                    sizeF.setWidth(30);
+                    sizeF.setValidator(validator);
+                    sizeF.addListener(Events.Change, new Listener<BaseEvent>() {
+
+                        @Override
+                        public void handleEvent(BaseEvent be) {
+                            sizeField.setValue((int) Double.parseDouble(sizeF.getValue() + "")); //$NON-NLS-1$
+                            if (!sizeField.isFireChangeEventOnSetValue()) {
+                                sizeField.fireEvent(Events.Change);
+                            }
+                            moreMenu.hide();
+                        }
+                    });
+
+                    sizeF.addListener(Events.KeyDown, new Listener<FieldEvent>() {
+
+                        @Override
+                        public void handleEvent(FieldEvent fe) {
+                            if (fe.getKeyCode() == KeyCodes.KEY_ENTER) {
+                                blur(tempInputEl.dom);
+                            }
+                        }
+                    });
+                    
+                    sizeF.setValue((int) (Double.parseDouble(sizeField.getValue() + ""))); //$NON-NLS-1$
+                    Grid sizeGrid = new Grid(1, 2);
+                    sizeGrid.setWidget(0, 0, new LabelToolItem(BaseMessagesFactory.getMessages().page_size_label()));
+                    sizeGrid.setWidget(0, 1, sizeF);
+                    sizeGrid.getElement().getStyle().setMarginLeft(24D, Unit.PX);
+                    WidgetComponent wcc = new WidgetComponent(sizeGrid);
+                    wcc.setStyleName("x-menu-item"); //$NON-NLS-1$
+                    menu.add(wcc);
+                }
             } else if (c instanceof Button) {
                 final Button b = (Button) c;
                 String menuText = b.getText();
