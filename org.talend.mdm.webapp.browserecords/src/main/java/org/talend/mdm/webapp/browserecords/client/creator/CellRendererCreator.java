@@ -48,7 +48,11 @@ public class CellRendererCreator {
                         ListStore<ModelData> store, Grid<ModelData> grid) {
                     ItemBean itemBean = (ItemBean) model;
                     ForeignKeyBean fkBean = itemBean.getForeignkeyDesc((String) model.get(property));
-                    return fkBean == null ? "" : fkBean.toString();//$NON-NLS-1$
+                    if (fkBean == null) {
+                        return ""; //$NON-NLS-1$
+                    }
+                    fkBean.setShowInfo(true);
+                    return fkBean.toString();
                 }
             };
             return renderer;
