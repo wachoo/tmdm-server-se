@@ -79,11 +79,11 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -889,6 +889,8 @@ public class ItemsToolBar extends ToolBar {
                 @Override
                 public void componentSelected(ButtonEvent ce) {
                     advancedPanel.cleanCriteria();
+                    advancedPanel.layout(true);
+                    ItemsSearchContainer.getInstance().resizeTop(30 + advancedPanel.getOffsetHeight());
 
                     if (ItemsListPanel.getInstance().gridContainer != null)
                         ItemsListPanel.getInstance().gridContainer.setHeight(ItemsToolBar.this.getParent().getOffsetHeight()

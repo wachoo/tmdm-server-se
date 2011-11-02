@@ -21,6 +21,7 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsSearchContainer;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -90,7 +91,7 @@ public class AdvancedSearchPanel extends FormPanel {
             expressionTextField.setValue(express);
             String condition = c.indexOf(")") > -1 ? c.substring(c.indexOf(modifiedON), c.length() - 1) : c.substring(c.indexOf(modifiedON), c.length()); //$NON-NLS-1$
             if (instance.getItemByItemId("modifiedon") == null) { //$NON-NLS-1$
-                instance.insert(addCriteriaContainer("modifiedon"), instance.getItemCount() - 1, new FormData("60%")); //$NON-NLS-1$  //$NON-NLS-2$
+                instance.insert(addCriteriaContainer("modifiedon"), instance.getItemCount() - 1, new FormData("75%")); //$NON-NLS-1$  //$NON-NLS-2$
                 instance.layout(true);
             }
             DateField fromfield = (DateField) ((LayoutContainer) ((LayoutContainer) this.getItemByItemId("modifiedon")) //$NON-NLS-1$
@@ -134,7 +135,7 @@ public class AdvancedSearchPanel extends FormPanel {
 
     public String getCriteria() {
         MultipleCriteria criteriaStore = (MultipleCriteria) BrowseRecords.getSession().get(UserSession.CUSTOMIZE_CRITERION_STORE);
-        String express = criteriaStore.toString();// expressionTextField.getValue();
+        String express = criteriaStore != null ? criteriaStore.toString() : null;// expressionTextField.getValue();
         String curCriteria = null, curDate = null;
         if (instance.getItemByItemId("modifiedon") != null) { //$NON-NLS-1$ 
             DateField fromfield = (DateField) ((LayoutContainer) ((LayoutContainer) this.getItemByItemId("modifiedon")) //$NON-NLS-1$
@@ -381,9 +382,10 @@ public class AdvancedSearchPanel extends FormPanel {
                 if (se.getSelectedItem() != null) {
                     String selvalue = se.getSelectedItem().get("value"); //$NON-NLS-1$                   
                     if (selvalue.equals("modifiedon") && instance.getItemByItemId("modifiedonField1") == null) { //$NON-NLS-1$  //$NON-NLS-2$
-                        instance.insert(addCriteriaContainer("modifiedon"), instance.getItemCount() - 1, new FormData("60%")); //$NON-NLS-1$  //$NON-NLS-2$
+                        instance.insert(addCriteriaContainer("modifiedon"), instance.getItemCount() - 1, new FormData("75%")); //$NON-NLS-1$  //$NON-NLS-2$
                     }
                     instance.layout(true);
+                    ItemsSearchContainer.getInstance().resizeTop(30 + instance.getOffsetHeight());
                 }
             }
 

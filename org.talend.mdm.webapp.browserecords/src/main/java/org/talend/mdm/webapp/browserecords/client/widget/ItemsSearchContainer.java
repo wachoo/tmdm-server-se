@@ -49,6 +49,8 @@ public class ItemsSearchContainer extends LayoutContainer {
             @Override
             protected void onResize(int width, int height) {
                 super.onResize(width, height);
+                ItemsToolBar.getInstance().setWidth(width);
+                ItemsToolBar.getInstance().getAdvancedPanel().setWidth(width);
                 this.layout(true);
             }
         };
