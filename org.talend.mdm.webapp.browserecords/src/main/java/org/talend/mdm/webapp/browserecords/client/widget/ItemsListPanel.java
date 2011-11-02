@@ -20,9 +20,11 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.exception.ParserException;
+import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.client.util.Parser;
 import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
@@ -304,10 +306,20 @@ public class ItemsListPanel extends ContentPanel {
                 Iterator<String> iterator = changes.keySet().iterator();
                 Map<String, String> changedField = new HashMap<String, String>(changes.size());
 
+                EntityModel entityModel = (EntityModel) BrowseRecords.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
+
                 while (iterator.hasNext()) {
                     String path = iterator.next();
+                    TypeModel tm = entityModel.getMetaDataTypes().get(path);
                     String value = changes.get(path).toString();
-                    changedField.put(path, value != null ? value : ""); //$NON-NLS-1$
+                    if (tm.getForeignkey() != null) {
+                        ItemBean itemBean = grid.getSelectionModel().getSelectedItem();
+                        ForeignKeyBean fkBean = itemBean.getForeignkeyDesc(value);
+                        changedField.put(path, fkBean.getId());
+                    } else {
+                        changedField.put(path, value != null ? value : ""); //$NON-NLS-1$                        
+                    }
+
                 }
 
                 final ItemBean itemBean = grid.getSelectionModel().getSelectedItem();
