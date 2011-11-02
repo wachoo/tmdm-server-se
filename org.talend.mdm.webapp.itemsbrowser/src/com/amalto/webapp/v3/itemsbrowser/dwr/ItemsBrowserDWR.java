@@ -64,11 +64,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.util.LocalUser;
-import com.amalto.core.util.Messages;
-import com.amalto.core.util.MessagesFactory;
+import src.com.amalto.core.ejb.ItemPOJOPK;
+import src.com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import src.com.amalto.core.util.LocalUser;
+import src.com.amalto.core.util.MessagesFactory;
+
 import com.amalto.webapp.core.bean.ComboItemBean;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.ListRange;
@@ -2343,9 +2343,10 @@ public class ItemsBrowserDWR {
         return -1;
     }
 
-    public static ItemResult saveItem(String[] ids, String concept, boolean newItem, int docIndex) throws Exception {
+    public static ItemResult saveItem(String[] ids, String concept, boolean newItem, int docIndex, String language)
+            throws Exception {
         WebContext ctx = WebContextFactory.get();
-
+        Locale locale = new Locale(language);
         try {
             Configuration config = Configuration.getInstance();
             String dataModelPK = config.getModel();
@@ -2488,16 +2489,16 @@ public class ItemsBrowserDWR {
 
                 if ("info".equals(errorCode)) { //$NON-NLS-1$
                     if (message == null || message.length() == 0)
-                        message = MESSAGES.getMessage("save.process.validation.success"); //$NON-NLS-1$
+                        message = MESSAGES.getMessage(locale, "save.process.validation.success"); //$NON-NLS-1$
                     status = ItemResult.SUCCESS;
                 } else {
                     // Anything but 0 is unsuccessful
                     if (message == null || message.length() == 0)
-                        message = MESSAGES.getMessage("save.process.validation.failure"); //$NON-NLS-1$
+                        message = MESSAGES.getMessage(locale, "save.process.validation.failure"); //$NON-NLS-1$
                     status = ItemResult.FAILURE;
                 }
             } else {
-                message = MESSAGES.getMessage("save.success"); //$NON-NLS-1$
+                message = MESSAGES.getMessage(locale, "save.success"); //$NON-NLS-1$
                 status = ItemResult.SUCCESS;
             }
 
@@ -2506,19 +2507,20 @@ public class ItemsBrowserDWR {
         } catch (Exception e) {
             ItemResult result;
             // TODO Ugly isn't it ?
-            if (e.getLocalizedMessage().indexOf("routing failed:") == 0) {
-                String saveSUCCE = "Save item '" + concept + "." + Util.joinStrings(ids, ".") + "' successfully, But "
-                        + e.getLocalizedMessage();
+            if (e.getLocalizedMessage().indexOf("routing failed:") == 0) { //$NON-NLS-1$
+                String saveSUCCE = MESSAGES.getMessage(locale, "save.success.but.exist.exception",
+                        concept + "." + Util.joinStrings(ids, "."), e.getLocalizedMessage());
                 result = new ItemResult(ItemResult.FAILURE, saveSUCCE);
             } else {
-                String err = "Unable to save item '" + concept + "." + Util.joinStrings(ids, ".") + "'" + e.getLocalizedMessage();
+                String err = MESSAGES.getMessage(locale, "save.fail", concept + "." + Util.joinStrings(ids, "."),
+                        e.getLocalizedMessage());
                 // fix bug 0014896
                 if (e.getLocalizedMessage().indexOf("ERROR_3:") == 0) {//$NON-NLS-1$
                     err = e.getLocalizedMessage();
                 }
                 // add feature TMDM-2327 SAXException:cvc-complex-type.2.4.b message transform
                 if (e.getLocalizedMessage().indexOf("cvc-complex-type.2.4.b") != -1) { //$NON-NLS-1$
-                    err = "Unable to save item,before saving the '" + concept + "' item,please fill the required field's contents";//$NON-NLS-1$ /$NON-NLS-2$
+                    err = MESSAGES.getMessage(locale, "save.failEx", concept); //$NON-NLS-1$
                 }
                 result = new ItemResult(ItemResult.FAILURE, err);
             }

@@ -3394,7 +3394,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
             return;
         }       
         ItemsBrowserInterface.saveItem(itemPK, dataObject, newItem[treeIndex],
-                treeIndex, {
+                treeIndex, language, {
                     callback : function(result) {
                         amalto.core.ready(result);
                         if (result.status == 2) { // unchanged                        	
@@ -3406,13 +3406,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                     amalto.core.ready(result.substring(8));
                                     Ext.MessageBox.alert("Status",
                                             result.description.substring(8));
-                                } else if (result.description
-                                        .indexOf('Unable to save item') == 0) {
-                                    amalto.core.ready();
-                                    showExceptionMsg(result.description, null,
-                                            treeIndex);
-                                } else if (result.description
-                                        .indexOf('Save item') == 0) {
+                                } else {
                                     amalto.core.ready();
                                     showExceptionMsg(result.description, null,
                                             treeIndex);
@@ -5205,7 +5199,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         tbDetail.items.get('saveBTN').disable();
         tbDetail.items.get('saveAndQBTN').disable();
         ItemsBrowserInterface.saveItem(itemPK, dataObject, newItem[treeIndex],
-                treeIndex, {
+                treeIndex, language, {
                     callback : function(result) {
                         amalto.core.ready(result);
                         if (result.status == 2) { // unchanged
@@ -5217,13 +5211,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                     amalto.core.ready(result.substring(8));
                                     Ext.MessageBox.alert("Status",
                                             result.description.substring(8));
-                                } else if (result.description
-                                        .indexOf('Unable to save item') == 0) {
-                                    amalto.core.ready();
-                                    showExceptionMsg(result.description, null,
-                                            treeIndex);
-                                } else if (result.description
-                                        .indexOf('Save item') == 0) {
+                                } else {
                                     amalto.core.ready();
                                     showExceptionMsg(result.description, null,
                                             treeIndex);
