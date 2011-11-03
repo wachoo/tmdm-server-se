@@ -2156,8 +2156,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     public List<VisibleRuleResult> executeVisibleRule(String xml) throws ServiceException {
         try {
-            DisplayRulesUtil displayUtil = new DisplayRulesUtil(DataModelHelper.getEleDecl());
             org.dom4j.Document doc = org.talend.mdm.webapp.base.server.util.XmlUtil.parseText(xml);
+            String model = getCurrentDataModel();
+            String concept = doc.getRootElement().getName();
+            XSElementDecl root = DataModelHelper.getBusinessConcept(model, concept);
+            DisplayRulesUtil displayUtil = new DisplayRulesUtil(root);
+
             List<DisplayRule> displayRules = displayUtil.handleVisibleRules(doc);
 
             List<VisibleRuleResult> res = new ArrayList<VisibleRuleResult>(displayRules.size());

@@ -97,7 +97,7 @@ public class DataModelHelper {
      * 
      * @throws Exception
      */
-    private static XSElementDecl getBusinessConcept(String model, String concept) {
+    public static XSElementDecl getBusinessConcept(String model, String concept) {
         XSElementDecl eleDecl = null;
         try {
             if (!BaseConfiguration.isStandalone()) {
