@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.general.client.mvc.view;
 
+import org.talend.mdm.webapp.general.client.Cookies;
 import org.talend.mdm.webapp.general.client.layout.AccordionMenus;
 import org.talend.mdm.webapp.general.client.layout.BorderLayoutContainer;
 import org.talend.mdm.webapp.general.client.layout.WorkSpace;
@@ -45,6 +46,9 @@ public class GeneralView extends View {
             AccordionMenus.getInstance().initMenus((MenuGroup) event.getData());
             Dispatcher dispatcher = Dispatcher.get();
             dispatcher.dispatch(GeneralEvent.LoadActions);
+            if ((Boolean) Cookies.getValue("AccordionMenus")) { //$NON-NLS-1$
+                AccordionMenus.getInstance().collapse();
+            }
         } else if (type == GeneralEvent.LoadWelcome) {
             loadWelcome(event);
         }

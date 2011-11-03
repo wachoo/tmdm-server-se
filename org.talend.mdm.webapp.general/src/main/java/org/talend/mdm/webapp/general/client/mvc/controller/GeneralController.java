@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
+import org.talend.mdm.webapp.general.client.Cookies;
 import org.talend.mdm.webapp.general.client.General;
 import org.talend.mdm.webapp.general.client.GeneralServiceAsync;
 import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
@@ -97,7 +98,6 @@ public class GeneralController extends Controller {
                 event.setData(result);
                 forwardToView(view, event);
             }
-
         });
     }
 
@@ -117,6 +117,9 @@ public class GeneralController extends Controller {
 
             public void onSuccess(ActionBean result) {
                 ActionsPanel.getInstance().loadAction(result);
+                if ((Boolean) Cookies.getValue("ActionsPanel")) { //$NON-NLS-1$
+                    ActionsPanel.getInstance().collapse();
+                }
             }
         });
     }

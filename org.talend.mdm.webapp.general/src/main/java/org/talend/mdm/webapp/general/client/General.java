@@ -13,6 +13,8 @@
 package org.talend.mdm.webapp.general.client;
 
 import org.talend.mdm.webapp.general.client.boundary.PubService;
+import org.talend.mdm.webapp.general.client.layout.AccordionMenus;
+import org.talend.mdm.webapp.general.client.layout.ActionsPanel;
 import org.talend.mdm.webapp.general.client.message.PublicMessageService;
 import org.talend.mdm.webapp.general.client.mvc.GeneralEvent;
 import org.talend.mdm.webapp.general.client.mvc.controller.GeneralController;
@@ -31,7 +33,7 @@ public class General implements EntryPoint {
 
     public void onModuleLoad() {
         XDOM.setAutoIdPrefix(GWT.getModuleName() + "-" + XDOM.getAutoIdPrefix()); //$NON-NLS-1$
-
+        recordStatus();
         // standalone initialization Ext nvironment. solve JavaScript code conflict.
         // these code come from Gxt sdk
         GeneralEnvironment.loadAll();
@@ -47,6 +49,18 @@ public class General implements EntryPoint {
         dispatcher.addController(new GeneralController());
         dispatcher.dispatch(GeneralEvent.LoadUser);
 
+    }
+
+    public native void recordStatus()/*-{
+        var instance = this;
+        $wnd.onunload = function(){
+            instance.@org.talend.mdm.webapp.general.client.General::recordPanelStatus()();
+        };
+    }-*/;
+
+    public void recordPanelStatus() {
+        Cookies.setValue("ActionsPanel", ActionsPanel.getInstance().isCollapsed()); //$NON-NLS-1$
+        Cookies.setValue("AccordionMenus", AccordionMenus.getInstance().isCollapsed()); //$NON-NLS-1$
     }
 
     private native void registerPubService()/*-{
