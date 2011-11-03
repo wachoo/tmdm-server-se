@@ -12,9 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.model;
 
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public class ItemBean extends org.talend.mdm.webapp.base.client.model.ItemBean {
 
@@ -35,8 +33,6 @@ public class ItemBean extends org.talend.mdm.webapp.base.client.model.ItemBean {
     private String taskId;
 
     private String label;
-
-    private Map<String, Date> originalMap;
     
     public String getLabel() {
         if (label == null) {
@@ -103,13 +99,5 @@ public class ItemBean extends org.talend.mdm.webapp.base.client.model.ItemBean {
 
     public void setReadOnly(boolean readOnly) {
         this.readOnly = readOnly;
-    }
-    
-    public Map<String, Date> getOriginalMap() {
-        return originalMap;
-    }
-
-    public void setOriginalMap(Map<String, Date> originalMap) {
-        this.originalMap = originalMap;
     }
 }
