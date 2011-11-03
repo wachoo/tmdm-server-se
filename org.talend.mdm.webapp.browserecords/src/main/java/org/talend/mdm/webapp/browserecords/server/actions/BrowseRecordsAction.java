@@ -863,6 +863,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
 
             Set<String> keySet = formatMap.keySet();
+            Map<String, Date> originalMap = new HashMap<String, Date>();
             SimpleDateFormat sdf = null;
 
             for (String key : keySet) {
@@ -877,6 +878,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                             sdf = new SimpleDateFormat(dateTimeFormat, java.util.Locale.ENGLISH);
                         }
                         Date date = sdf.parse(dateText.trim());
+                        originalMap.put(key, date);
                         Calendar calendar = Calendar.getInstance();
                         calendar.setTime(date);
                         String formatValue = com.amalto.webapp.core.util.Util.formatDate(value[0], calendar);
@@ -887,6 +889,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             ItemBean itemBean = new ItemBean(concept,
                     CommonUtil.joinStrings(idsArray, "."), Util.nodeToString(doc.getDocumentElement()));//$NON-NLS-1$
+            itemBean.setOriginalMap(originalMap);
             if (checkSmartViewExists(concept, language))
                 itemBean.setSmartViewMode(ItemBean.SMARTMODE);
             else if (checkSmartViewExistsByOpt(concept, language))

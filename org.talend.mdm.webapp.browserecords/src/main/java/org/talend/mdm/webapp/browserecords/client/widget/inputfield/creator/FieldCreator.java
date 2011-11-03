@@ -13,11 +13,13 @@
 package org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator;
 
 import java.util.List;
+import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.shared.FacetModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.client.util.FormatUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.BooleanField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatDateField;
@@ -161,8 +163,10 @@ public class FieldCreator {
                     this.set("text", "FALSE");}});//$NON-NLS-1$ //$NON-NLS-2$
             field = booleanField;
         } else if (DataTypeConstants.DATE.getTypeName().equals(baseType)) {
+            Map<String, String> formatMap = dataType.getDisplayFomats();
+            String pattern = formatMap.get("format_" + language.toLowerCase()); //$NON-NLS-1$
             FormatDateField dateField = new FormatDateField();
-            dateField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd"));//$NON-NLS-1$
+            dateField.setPropertyEditor(new DateTimePropertyEditor(FormatUtil.convertDatePattren(pattern)));
             field = dateField;
         } else if (DataTypeConstants.DATETIME.getTypeName().equals(baseType)) {
             FormatDateField dateTimeField = new FormatDateField();

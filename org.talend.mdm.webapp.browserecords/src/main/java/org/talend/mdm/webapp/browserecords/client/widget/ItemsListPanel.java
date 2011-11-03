@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.browserecords.client.widget;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -33,6 +34,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
+import org.talend.mdm.webapp.browserecords.client.util.DateUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
@@ -307,22 +309,24 @@ public class ItemsListPanel extends ContentPanel {
                 Map<String, String> changedField = new HashMap<String, String>(changes.size());
 
                 EntityModel entityModel = (EntityModel) BrowseRecords.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
-
+                final ItemBean itemBean = grid.getSelectionModel().getSelectedItem();
+                Map<String, Date> originalMap = itemBean.getOriginalMap();
+                
                 while (iterator.hasNext()) {
                     String path = iterator.next();
                     TypeModel tm = entityModel.getMetaDataTypes().get(path);
                     String value = changes.get(path).toString();
                     if (tm.getForeignkey() != null) {
-                        ItemBean itemBean = grid.getSelectionModel().getSelectedItem();
                         ForeignKeyBean fkBean = itemBean.getForeignkeyDesc(value);
                         changedField.put(path, fkBean.getId());
                     } else {
+                        if(originalMap.containsKey(path)){
+                            Date date = originalMap.get(path);
+                            value = DateUtil.getDate(date);
+                        }
                         changedField.put(path, value != null ? value : ""); //$NON-NLS-1$                        
                     }
-
                 }
-
-                final ItemBean itemBean = grid.getSelectionModel().getSelectedItem();
 
                 service.updateItem(itemBean.getConcept(), itemBean.getIds(), changedField, Locale.getLanguage(),
                         new SessionAwareAsyncCallback<String>() {

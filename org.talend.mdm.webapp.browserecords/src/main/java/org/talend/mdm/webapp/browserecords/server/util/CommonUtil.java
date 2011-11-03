@@ -82,10 +82,6 @@ public class CommonUtil {
         } else {
             if (model.getType().getTypeName().equals(DataTypeConstants.BOOLEAN.getTypeName())) {
                 node.setObjectValue((Serializable) DataTypeConstants.BOOLEAN.getDefaultValue());
-            } else if (model.getType().getTypeName().equals(DataTypeConstants.DATE.getTypeName())) {
-                DateFormat df = new SimpleDateFormat("yyyy-MM-dd"); //$NON-NLS-1$
-                String dateStr = df.format((Date) DataTypeConstants.DATE.getDefaultValue());
-                node.setObjectValue(dateStr);
             } else if (model.getType().getTypeName().equals(DataTypeConstants.DATETIME.getTypeName())) {
                 DateFormat df = new SimpleDateFormat("yyyy-MM-dd"); //$NON-NLS-1$
                 DateFormat tf = new SimpleDateFormat("HH:mm:ss"); //$NON-NLS-1$
