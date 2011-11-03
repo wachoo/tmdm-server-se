@@ -28,9 +28,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.naming.InitialContext;
 import javax.naming.NameClassPair;
@@ -2203,7 +2203,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             if (outputErrorMessage != null) {
                 Document doc = Util.parse(outputErrorMessage);
                 // TODO what if multiple error nodes ?
-                String xpath = "/report/message"; //$NON-NLS-1$
+                String xpath = "//report/message"; //$NON-NLS-1$
                 Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
                 if (errorNode instanceof Element) {
                     Element errorElement = (Element) errorNode;
