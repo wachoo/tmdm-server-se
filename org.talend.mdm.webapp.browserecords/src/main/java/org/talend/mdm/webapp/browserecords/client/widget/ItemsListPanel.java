@@ -113,6 +113,8 @@ public class ItemsListPanel extends ContentPanel {
 
             // validate criteria on client-side first
             try {
+                if (qm.getCriteria() == null)
+                    return;
                 Parser.parse(qm.getCriteria());
             } catch (ParserException e) {
                 MessageBox.alert(MessagesFactory.getMessages().error_title(), e.getMessage(), null);
@@ -454,19 +456,24 @@ public class ItemsListPanel extends ContentPanel {
     }
 
     public void refreshGrid() {
-        if(pagingBar != null)           
+        if (pagingBar != null && pagingBar.getItemCount() > 0)
             pagingBar.refresh();
+        else {
+            Dispatcher.forwardEvent(BrowseRecordsEvents.SearchView);
+        }
     }
     
     public void lastPage() {
-        if(pagingBar != null)
+        if (pagingBar != null && pagingBar.getItemCount() > 0)
             pagingBar.last();        
     } 
 
     public void resetGrid() {
         store.removeAll();
-        if (pagingBar != null)
-            pagingBar.clear();
+        if (pagingBar != null) {
+            grid.removeFromParent();
+            pagingBar.removeAll();
+        }
     }
 
     public void refresh(String ids, final boolean refreshItemForm) {

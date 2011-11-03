@@ -79,11 +79,11 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -181,7 +181,7 @@ public class ItemsToolBar extends ToolBar {
         qm.setDataClusterPK(userCluster);
         qm.setView(BrowseRecords.getSession().getCurrentView());
         qm.setModel(BrowseRecords.getSession().getCurrentEntityModel());
-        if (isSimple) {
+        if (isSimple || (advancedPanel == null || !advancedPanel.isVisible())) {
             SimpleCriterion simpCriterion = simplePanel.getCriteria();
             MultipleCriteria criteriaStore = (MultipleCriteria) BrowseRecords.getSession().get(
                     UserSession.CUSTOMIZE_CRITERION_STORE);

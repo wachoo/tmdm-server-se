@@ -411,7 +411,9 @@ public class ItemDetailToolBar extends ToolBar {
             itemPanel.getItem().setIds(ids);
             itemPanel.refreshTree();
         }
-
+        this.removeAll();
+        operation = ItemDetailToolBar.VIEW_OPERATION;
+        initToolBar();
     }
 
     private void refreshTree(final ItemPanel itemPanel, final ForeignKeyTreeDetail fkTree, final ItemNodeModel root) {

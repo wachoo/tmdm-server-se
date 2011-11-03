@@ -28,6 +28,7 @@ import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
@@ -133,6 +134,7 @@ public class BrowseRecordsController extends Controller {
                 } else {
                     detailToolBar.refreshTreeDetailByIds(result.getReturnValue());
                 }
+                ItemsListPanel.getInstance().refreshGrid();
             }
         });
 
