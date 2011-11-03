@@ -183,12 +183,7 @@ public class ForeignKeyHelper {
 
                 // Although we should filter within FK and FKInfo values, to keep some backward compatibility with
                 // previous behavior, filtering is done on all of the values of a record
-                String fkWhere;
-                if (MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
-                    fkWhere = conceptName + "/../* CONTAINS " + value; //$NON-NLS-1$
-                } else {
-                    fkWhere = conceptName + "/../. CONTAINS " + value; //$NON-NLS-1$
-                }
+                String fkWhere = conceptName + "/../* CONTAINS " + value; //$NON-NLS-1$
 
                 WSWhereItem wc = com.amalto.webapp.core.util.Util.buildWhereItems(fkWhere);
                 condition.add(wc);
