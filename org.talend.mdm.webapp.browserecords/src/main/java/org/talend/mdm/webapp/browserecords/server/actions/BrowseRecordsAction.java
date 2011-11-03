@@ -334,11 +334,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     if (whereItem != null)
                         condition.add(whereItem);
                     WSWhereItem wc = null;
-                    String strConcept = conceptName + "/. CONTAINS "; //$NON-NLS-1$
-
-                    if (MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
-                        strConcept = conceptName + "//* CONTAINS "; //$NON-NLS-1$
-                    }
+                    String strConcept = conceptName + "/../* CONTAINS "; //$NON-NLS-1$
                     wc = com.amalto.webapp.core.util.Util.buildWhereItem(strConcept + value);
                     condition.add(wc);
                     WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
