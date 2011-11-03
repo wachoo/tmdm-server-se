@@ -61,7 +61,6 @@ public class ItemsSearchContainer extends LayoutContainer {
         topPanel.add(ItemsToolBar.getInstance().getAdvancedPanel());
         northData = new BorderLayoutData(LayoutRegion.NORTH);
         northData.setSize(30);
-        northData.setSplit(true);
         add(topPanel, northData);
 
         BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 400);
