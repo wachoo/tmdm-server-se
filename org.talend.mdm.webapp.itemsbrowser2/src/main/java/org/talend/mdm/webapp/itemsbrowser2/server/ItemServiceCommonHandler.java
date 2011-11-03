@@ -169,6 +169,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 }
 
                 Set<String> keySet = formatMap.keySet();
+                Map<String, Date> originalMap = new HashMap<String, Date>();
                 SimpleDateFormat sdf = null;
 
                 for (String key : keySet) {
@@ -186,6 +187,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                                 sdf = new SimpleDateFormat(dateTimeFormat, java.util.Locale.ENGLISH);
                             }
                             Date date = sdf.parse(dateText.trim());
+                            originalMap.put(key, date);
                             Calendar calendar = Calendar.getInstance();
                             calendar.setTime(date);
                             String formatValue = com.amalto.webapp.core.util.Util.formatDate(value[0], calendar);
@@ -195,6 +197,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 }
 
                 ItemBean itemBean = new ItemBean(concept, CommonUtil.joinStrings(idsArray, "."), doc.asXML());//$NON-NLS-1$ 
+                itemBean.setOriginalMap(originalMap);
                 dynamicAssembleByResultOrder(itemBean, viewBean, entityModel);
                 itemBeans.add(itemBean);
             }

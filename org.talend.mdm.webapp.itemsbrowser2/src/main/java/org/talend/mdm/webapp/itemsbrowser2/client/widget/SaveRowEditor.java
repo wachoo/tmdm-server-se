@@ -1,5 +1,6 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.widget;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.DateUtil;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -51,13 +53,15 @@ public class SaveRowEditor extends RowEditor<ItemBean> {
             Map<String, Element> elementSet = new HashMap<String, Element>();
 
             final ItemBean itemBean = grid.getSelectionModel().getSelectedItem();
+            Map<String, Date> originalMap = itemBean.getOriginalMap();
             Map<String, TypeModel> metaType = Itemsbrowser2.getSession().getCurrentEntityModel().getMetaDataTypes();
+            
             for (String index : metaType.keySet()) {
                 TypeModel typeModel = metaType.get(index);
                 Object value = itemBean.get(typeModel.getXpath());
+                String key = typeModel.getXpath();
 
                 if (value instanceof List) {
-                    String key = typeModel.getXpath();
                     String parentPath = key.substring(0, key.lastIndexOf('/'));
                     String elName = key.substring(key.lastIndexOf('/') + 1);
                     createElements(parentPath, elName, (List) value, elementSet, doc);
@@ -65,6 +69,11 @@ public class SaveRowEditor extends RowEditor<ItemBean> {
                     if (typeModel.getForeignkey() != null) {
                         String str = value.toString();
                         value = str.substring(str.lastIndexOf("-") + 1, str.length()); //$NON-NLS-1$
+                    }else{
+                        if(originalMap.containsKey(key)){
+                            Date date = originalMap.get(key);
+                            value = DateUtil.getDate(date);
+                        }
                     }
                     createElements(typeModel.getXpath(), value == null ? "" : value.toString(), elementSet, doc);//$NON-NLS-1$
                 }
