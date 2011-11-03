@@ -15,20 +15,17 @@ package org.talend.mdm.webapp.base.server;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.talend.mdm.commmon.util.core.EDBType;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
-import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
-import org.talend.mdm.webapp.base.shared.TypeModel;
-import org.talend.mdm.webapp.base.server.ForeignKeyHelper;
-
 import com.amalto.webapp.util.webservices.WSWhereAnd;
 import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.WSWhereItem;
 import com.amalto.webapp.util.webservices.WSWhereOperator;
 import com.amalto.webapp.util.webservices.WSWhereOr;
-
 import junit.framework.TestCase;
+import org.talend.mdm.commmon.util.core.EDBType;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 
 @SuppressWarnings("nls")
 public class ForeignKeyHelperTest extends TestCase {
@@ -119,7 +116,7 @@ public class ForeignKeyHelperTest extends TestCase {
         whereItem = whereItems[0];
         whereCond = whereItem.getWhereCondition();
         assertNotNull(whereCond);
-        assertEquals("ProductFamily/../.", whereCond.getLeftPath());
+        assertEquals("ProductFamily/../*", whereCond.getLeftPath());
         assertEquals(WSWhereOperator._CONTAINS, whereCond.getOperator().getValue());
         assertEquals("Hats", whereCond.getRightValueOrPath());
 
@@ -156,7 +153,7 @@ public class ForeignKeyHelperTest extends TestCase {
         whereItem = whereItems[0];
         whereCond = whereItem.getWhereCondition();
         assertNotNull(whereCond);
-        assertEquals("ProductFamily/../.", whereCond.getLeftPath());
+        assertEquals("ProductFamily/../*", whereCond.getLeftPath());
         assertEquals(WSWhereOperator._CONTAINS, whereCond.getOperator().getValue());
         assertEquals("Hats", whereCond.getRightValueOrPath());
 
