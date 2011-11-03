@@ -158,7 +158,6 @@ public class TreeDetailUtil {
                                 Map<String, String> breads = new LinkedHashMap<String, String>();
                                 if (item != null) {
                                     breads.put(BreadCrumb.DEFAULTNAME, null);
-                                    breads.put(item.getConcept(), null);
                                     breads.put(item.getIds(), item.getConcept());
                                 }
 

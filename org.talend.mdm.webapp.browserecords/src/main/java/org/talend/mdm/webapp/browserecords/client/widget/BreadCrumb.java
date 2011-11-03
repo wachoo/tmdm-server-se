@@ -47,7 +47,7 @@ public class BreadCrumb extends Composite {
 
     public void appendBreadCrumb(String concept, String ids) {
         if (pWidget != null) {
-            HTML tmph = new HTML("<a>" + ids + "</a><input value=\"" + concept + "\"' type=\"hidden\">");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$   
+            HTML tmph = new HTML("<a>" + concept + " " + ids + "</a><input value=\"" + concept + "\"' type=\"hidden\">");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$   
             if (pWidget.getWidget(pWidget.getWidgetCount() - 1).getElement().getInnerHTML().equals(tmph.getHTML()))
                 return;
             pWidget.add(new HTML("&nbsp;&gt;&nbsp;"));//$NON-NLS-1$      
@@ -58,8 +58,13 @@ public class BreadCrumb extends Composite {
 
     private HTML initBreadCrumb(final String concept, final String ids, boolean ifLink) {
         HTML h = null;
+        String title;
+        if (concept != null)
+            title = concept + " " + ids; //$NON-NLS-1$
+        else
+            title = ids;
         if (ifLink) {
-            h = new HTML("<a>" + ids + "</a><input value=\"" + concept + "\"' type=\"hidden\">");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$             
+            h = new HTML("<a>" + title + "</a><input value=\"" + concept + "\"' type=\"hidden\">");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$             
             h.addClickHandler(new ClickHandler() {
 
                 public void onClick(ClickEvent event) {
@@ -78,7 +83,7 @@ public class BreadCrumb extends Composite {
             });
 
         } else {
-        	h = new HTML("<font>" + ids + "</font>"); //$NON-NLS-1$ //$NON-NLS-2$
+            h = new HTML("<font>" + title + "</font>"); //$NON-NLS-1$ //$NON-NLS-2$
         }
         return h;
     }

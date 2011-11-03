@@ -142,7 +142,6 @@ public class BrowseRecordsView extends View {
         // ItemsDetailPanel.getInstance().clearBreadCrumb();
         if (item != null) {
             breads.put(BreadCrumb.DEFAULTNAME, null);
-            breads.put(item.getConcept(), null);
             breads.put(item.getIds(), item.getConcept());
         }
 
