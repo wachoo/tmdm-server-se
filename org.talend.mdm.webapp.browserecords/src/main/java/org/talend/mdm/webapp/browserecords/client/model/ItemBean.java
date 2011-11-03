@@ -39,6 +39,9 @@ public class ItemBean extends org.talend.mdm.webapp.base.client.model.ItemBean {
     private Map<String, Date> originalMap;
     
     public String getLabel() {
+        if (label == null) {
+            return getConcept();
+        }
         return label;
     }
 

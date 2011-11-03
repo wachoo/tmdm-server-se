@@ -316,7 +316,7 @@ public class ItemDetailToolBar extends ToolBar {
                 @Override
                 public void componentSelected(ButtonEvent ce) {
 
-                    String title = itemBean.getConcept();
+                    String title = itemBean.getLabel();
                     ItemsDetailPanel panel = new ItemsDetailPanel();
                     panel.initBanner(itemBean.getPkInfoList(), itemBean.getDescription());
                     panel.clearBreadCrumb();

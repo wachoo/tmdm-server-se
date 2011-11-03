@@ -14,7 +14,9 @@ package org.talend.mdm.webapp.browserecords.shared;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
+import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
@@ -43,6 +45,17 @@ public class EntityModel implements IsSerializable {
 
     public void setConceptName(String conceptName) {
         this.conceptName = conceptName;
+    }
+
+    public String getConceptLabel() {
+        Set<String> xpaths = metaDataTypes.keySet();
+        for (String path : xpaths) {
+            TypeModel typeModel = metaDataTypes.get(path);
+            if (path.endsWith(conceptName)) {
+                return typeModel.getLabel(UrlUtil.getLanguage());
+            }
+        }
+        return conceptName;
     }
 
     public String[] getKeys() {

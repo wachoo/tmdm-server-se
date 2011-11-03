@@ -163,7 +163,7 @@ public class TreeDetailUtil {
 
                                 panel.setId(item.getIds());
                                 panel.initBanner(item.getPkInfoList(), item.getDescription());
-                                panel.addTabItem(item.getConcept(), itemPanel, ItemsDetailPanel.SINGLETON, item.getIds());
+                                panel.addTabItem(item.getLabel(), itemPanel, ItemsDetailPanel.SINGLETON, item.getIds());
                                 panel.initBreadCrumb(new BreadCrumb(breads, panel));
 
                                 TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(item.getConcept());

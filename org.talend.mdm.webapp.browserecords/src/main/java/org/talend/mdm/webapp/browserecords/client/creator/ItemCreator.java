@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
@@ -43,6 +44,12 @@ public class ItemCreator {
         Set<String> xpaths = types.keySet();
         for (String path : xpaths) {
             TypeModel typeModel = types.get(path);
+
+            if (path.endsWith(itemBean.getConcept())) {
+                itemBean.setLabel(typeModel.getLabel(UrlUtil.getLanguage()));
+                itemBean.setDescription(typeModel.getDescriptionMap().get(UrlUtil.getLanguage()));
+            }
+
             if (typeModel.isSimpleType()) {
 
                 if (typeModel.getType().equals(DataTypeConstants.DATE)) {

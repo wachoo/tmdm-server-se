@@ -274,18 +274,19 @@ public class ItemsToolBar extends ToolBar {
 
                 ItemsDetailPanel panel = new ItemsDetailPanel();
                 List<String> pkInfoList = new ArrayList<String>();
-                pkInfoList.add(itemBean.getConcept());
+                pkInfoList.add(itemBean.getLabel());
                 panel.initBanner(pkInfoList, itemBean.getDescription());
                 Map<String, String> breads = new LinkedHashMap<String, String>();
                 if (itemBean != null) {
                     breads.put(BreadCrumb.DEFAULTNAME, null);
-                    breads.put(itemBean.getConcept(), null);
+                    breads.put(itemBean.getLabel(), null);
                 }
                 panel.initBreadCrumb(new BreadCrumb(breads, panel));
                 ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
                 ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.CREATE_OPERATION, panel);
-                panel.addTabItem(itemBean.getConcept(), itemPanel, ItemsDetailPanel.SINGLETON, itemBean.getConcept());
-                ItemsMainTabPanel.getInstance().addMainTabItem(itemBean.getConcept(), panel, itemBean.getConcept());
+                panel.addTabItem(itemBean.getLabel(), itemPanel,
+                        ItemsDetailPanel.SINGLETON, itemBean.getConcept());
+                ItemsMainTabPanel.getInstance().addMainTabItem(itemBean.getLabel(), panel, itemBean.getConcept());
             }
 
         });
