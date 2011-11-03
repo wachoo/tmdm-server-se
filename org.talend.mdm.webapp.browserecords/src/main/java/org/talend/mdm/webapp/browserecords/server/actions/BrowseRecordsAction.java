@@ -407,7 +407,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                 id += "[" + (nodes.item(i).getTextContent() == null ? "" : nodes.item(i).getTextContent()) + "]"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$
                         }
                     }
-                    bean.setId(id);
 
                     if (result != null) {
                         Element root = Util.parse(result).getDocumentElement();
@@ -416,6 +415,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         else
                             bean.set(root.getNodeName(), root.getTextContent().trim());
                     }
+
+                    bean.setId(id);
                     fkBeans.add(bean);
                 }
             }
