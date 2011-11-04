@@ -31,6 +31,7 @@ import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
+import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
@@ -80,11 +81,11 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -182,7 +183,7 @@ public class ItemsToolBar extends ToolBar {
         qm.setDataClusterPK(userCluster);
         qm.setView(BrowseRecords.getSession().getCurrentView());
         qm.setModel(BrowseRecords.getSession().getCurrentEntityModel());
-        if (isSimple || (advancedPanel == null || !advancedPanel.isVisible())) {
+        if (isSimple || advancedPanel == null) {
             SimpleCriterion simpCriterion = simplePanel.getCriteria();
             MultipleCriteria criteriaStore = (MultipleCriteria) BrowseRecords.getSession().get(
                     UserSession.CUSTOMIZE_CRITERION_STORE);
@@ -195,8 +196,15 @@ public class ItemsToolBar extends ToolBar {
             criteriaStore.add(simpCriterion);
             BrowseRecords.getSession().put(UserSession.CUSTOMIZE_CRITERION_STORE, criteriaStore);
             qm.setCriteria(simplePanel.getCriteria().toString());
-        } else
+        } else {
+            if (!advancedPanel.isVisible()) {
+                advancedPanel.setVisible(true);
+                advancedBut.toggle(true);
+                advancedPanelVisible = true;
+                ItemsSearchContainer.getInstance().resizeTop(30 + advancedPanel.getOffsetHeight());
+            }
             qm.setCriteria(advancedPanel.getCriteria());
+        }
     }
 
     public void updateToolBar(ViewBean viewBean) {
@@ -809,7 +817,28 @@ public class ItemsToolBar extends ToolBar {
                         if (advancedPanel == null) {
                             advancedPanel = new AdvancedSearchPanel(simplePanel.getView(), null);
                         }
+
+                        MultipleCriteria mutilCriteria = new MultipleCriteria();
+                        if (CommonUtil.isSimpleCriteria(arg0)) {
+                            SimpleCriterion criteria = buildCriterion(arg0);
+                            mutilCriteria.add(criteria);
+                        } else if (arg0.indexOf(" AND ") != -1) { //$NON-NLS-1$
+                            mutilCriteria.setOperator("AND"); //$NON-NLS-1$
+                            String[] xquery = arg0.split("AND"); //$NON-NLS-1$
+                            for (int i = 0; i < xquery.length && xquery[i].indexOf(AdvancedSearchPanel.modifiedON) == -1; i++) {
+                                mutilCriteria.add(buildCriterion(xquery[i]));
+                            }
+                        } else if (arg0.indexOf(" OR ") != -1) { //$NON-NLS-1$
+                            mutilCriteria.setOperator("OR"); //$NON-NLS-1$
+                            String[] xquery = arg0.split("OR"); //$NON-NLS-1$
+                            for (int i = 0; i < xquery.length && xquery[i].indexOf(AdvancedSearchPanel.modifiedON) == -1; i++) {
+                                mutilCriteria.add(buildCriterion(xquery[i]));
+                            }
+                        }
+
+                        BrowseRecords.getSession().put(UserSession.CUSTOMIZE_CRITERION_STORE, mutilCriteria);
                         advancedPanel.setCriteria(arg0);
+                        ItemsSearchContainer.getInstance().resizeTop(30 + advancedPanel.getOffsetHeight());
                         String viewPk = entityCombo.getValue().get("value"); //$NON-NLS-1$
                         Dispatcher.forwardEvent(BrowseRecordsEvents.SearchView, viewPk);
                         winBookmark.close();
@@ -817,6 +846,16 @@ public class ItemsToolBar extends ToolBar {
 
                 });
 
+    }
+
+    private SimpleCriterion buildCriterion(String xquery) {
+        String[] query = xquery.trim().split(" "); //$NON-NLS-1$
+        SimpleCriterion criteria = null;
+        if (query.length == 3) {
+            criteria = new SimpleCriterion(query[0].replace("(", ""), query[1], query[2].replace(")", "")); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+        }
+
+        return criteria;
     }
 
     public FormPanel getAdvancedPanel() {

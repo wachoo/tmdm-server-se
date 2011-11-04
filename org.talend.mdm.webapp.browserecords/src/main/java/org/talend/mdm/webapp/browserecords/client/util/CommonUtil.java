@@ -227,4 +227,11 @@ public class CommonUtil {
         return sb.toString();
     }
 
+    public static boolean isSimpleCriteria(String criteria) {
+        if (criteria.indexOf(" AND ") == -1 && criteria.indexOf(" OR ") == -1) { //$NON-NLS-1$//$NON-NLS-2$
+            return true;
+        }
+
+        return false;
+    }
 }

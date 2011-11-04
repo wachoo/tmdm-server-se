@@ -76,7 +76,7 @@ public class AdvancedSearchPanel extends FormPanel {
 
     private static String le = "LOWER_THAN_OR_EQUAL";//$NON-NLS-1$
 
-    private static String modifiedON = "../../t";//$NON-NLS-1$
+    public static String modifiedON = "../../t";//$NON-NLS-1$
 
     private static String blank = " ";//$NON-NLS-1$
 
