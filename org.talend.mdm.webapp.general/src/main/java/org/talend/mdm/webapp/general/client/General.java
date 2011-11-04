@@ -94,6 +94,12 @@ public class General implements EntryPoint {
         },
         un: function(eventName, handler){
         workspace.@org.talend.mdm.webapp.general.client.layout.WorkSpace::un(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(eventName, handler);
+        },
+        updateCurrentTabText: function(tabText){
+        workspace.@org.talend.mdm.webapp.general.client.layout.WorkSpace::updateCurrentTabText(Ljava/lang/String;)(tabText);
+        },
+        closeCurrentTab: function(){
+        workspace.@org.talend.mdm.webapp.general.client.layout.WorkSpace::closeCurrentTab()();
         }
         };
         // return global TabPanel

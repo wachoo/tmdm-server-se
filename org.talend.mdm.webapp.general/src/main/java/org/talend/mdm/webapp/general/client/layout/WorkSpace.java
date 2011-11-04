@@ -149,6 +149,20 @@ public class WorkSpace extends LayoutContainer {
         workTabPanel.setSelection(item);
     }
 
+    public void updateCurrentTabText(String tabText) {
+        TabItem tabItem = workTabPanel.getSelectedItem();
+        if (tabItem != null) {
+            tabItem.setText(tabText);
+        }
+    }
+
+    public void closeCurrentTab() {
+        TabItem tabItem = workTabPanel.getSelectedItem();
+        if (tabItem != null) {
+            workTabPanel.remove(tabItem);
+        }
+    }
+
     public native String getTitleUIObject(JavaScriptObject uiObject)/*-{
         if (uiObject.title){
         if (typeof uiObject.title == "string"){
