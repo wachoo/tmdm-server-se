@@ -39,7 +39,7 @@
 	
 	<target name="deploy">
         <copy todir="${jboss.dir}" overwrite="true">
-            <fileset dir="deploy" includes="run.bat,run.sh,Talend_license.txt" />
+            <fileset dir="deploy" includes="run.bat,run.sh,Talend_license.txt,TMDM-Server-MacOSX.command" />
         </copy>		
 		<copy todir="${jboss.instance.lib}" overwrite="true">
 			<fileset dir="deploy/lib"/>
