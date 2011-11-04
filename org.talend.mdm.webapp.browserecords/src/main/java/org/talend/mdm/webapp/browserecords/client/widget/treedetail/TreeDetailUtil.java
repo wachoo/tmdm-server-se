@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -175,6 +176,32 @@ public class TreeDetailUtil {
                         });
             }
         });
+    }
+
+    public static void initItemsDetailPanelByItemPanel(ViewBean viewBean, ItemBean itemBean) {
+
+        final ItemsDetailPanel itemsDetailPanel = new ItemsDetailPanel();
+
+        ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.DUPLICATE_OPERATION, itemsDetailPanel);
+        itemPanel.getToolBar().setOutMost(true);
+
+        Map<String, String> breads = new LinkedHashMap<String, String>();
+        if (itemBean != null) {
+            breads.put(BreadCrumb.DEFAULTNAME, null);
+            breads.put(itemBean.getIds(), itemBean.getConcept());
+        }
+
+        itemsDetailPanel.setId(itemBean.getIds());
+        itemsDetailPanel.initBanner(itemBean.getPkInfoList(), itemBean.getDescription());
+        itemsDetailPanel.addTabItem(itemBean.getLabel(), itemPanel, ItemsDetailPanel.SINGLETON, itemBean.getIds());
+        itemsDetailPanel.initBreadCrumb(new BreadCrumb(breads, itemsDetailPanel));
+
+        TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(itemBean.getConcept());
+        String tabItemId = typeModel.getLabel(Locale.getLanguage())
+                + " " + itemsDetailPanel.getItemId() + " " + new Date().getTime(); //$NON-NLS-1$ //$NON-NLS-2$
+        itemsDetailPanel.setItemId(tabItemId);
+        renderTreeDetailPanel(tabItemId, itemsDetailPanel);
+
     }
 
     private native static void renderTreeDetailPanel(String itemId, ItemsDetailPanel detailPanel)/*-{

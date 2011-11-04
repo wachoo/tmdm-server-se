@@ -34,6 +34,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.integrity.NoOpPostDelet
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.PhysicalDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.PostDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTreeDetail;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -334,12 +335,7 @@ public class ItemDetailToolBar extends ToolBar {
                             panel.addTabItem(title, itemPanel, ItemsDetailPanel.SINGLETON, title);
                             ItemsMainTabPanel.getInstance().addMainTabItem(title, panel, title);
                         }else{
-                            ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.DUPLICATE_OPERATION, itemsDetailPanel);
-                            itemPanel.getToolBar().setOutMost(true);
-                            itemsDetailPanel.clearContent();
-                            itemsDetailPanel.initBanner(itemBean.getPkInfoList(), itemBean.getDescription());
-                            itemsDetailPanel.clearBreadCrumb();
-                            itemsDetailPanel.addTabItem(title, itemPanel, ItemsDetailPanel.SINGLETON, title);
+                            TreeDetailUtil.initItemsDetailPanelByItemPanel(viewBean, itemBean);
                         }
                     }
                 }
