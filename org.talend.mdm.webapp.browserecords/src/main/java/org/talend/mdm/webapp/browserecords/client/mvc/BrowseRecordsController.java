@@ -100,9 +100,9 @@ public class BrowseRecordsController extends Controller {
 
     private void onSaveItem(AppEvent event) {
         // TODO the following code need to be refactor, it is the demo code
-        ItemNodeModel model = event.getData();
+        final ItemNodeModel model = event.getData();
         ViewBean viewBean = event.getData("viewBean"); //$NON-NLS-1$
-        ItemBean itemBean = event.getData("ItemBean"); //$NON-NLS-1$
+        final ItemBean itemBean = event.getData("ItemBean"); //$NON-NLS-1$
         final Boolean isCreate = event.getData("isCreate"); //$NON-NLS-1$
         final Boolean isClose = event.getData("isClose"); //$NON-NLS-1$
         final ItemDetailToolBar detailToolBar = event.getData("itemDetailToolBar"); //$NON-NLS-1$
@@ -130,7 +130,10 @@ public class BrowseRecordsController extends Controller {
                     MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().save_success(),
                             null);
                 if (isClose) {
-                    ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
+                    if (detailToolBar.isOutMost())
+                        detailToolBar.closeOutTabPanel(model.getLabel() + " " + itemBean.getIds()); //$NON-NLS-1$
+                    else
+                        ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
                 } else {
                     detailToolBar.refreshTreeDetailByIds(result.getReturnValue());
                 }

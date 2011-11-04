@@ -842,4 +842,12 @@ public class ItemDetailToolBar extends ToolBar {
     public boolean isOutMost() {
         return isOutMost;
     }
+
+    public native void closeOutTabPanel(String itemId)/*-{
+        var tabPanel = $wnd.amalto.core.getTabPanel();
+        var outPanel = tabPanel.getItem(itemId);
+        if (outPanel != undefined){        
+        tabPanel.remove(itemId);
+        }
+    }-*/;
 }
