@@ -31,7 +31,7 @@ public class LogicalDeleteAction implements DeleteAction {
 
             public void onSuccess(Void arg0) {
                 if (bar != null && bar.isOutMost())
-                    bar.closeOutTabPanel(item.getLabel() + " " + item.getIds()); //$NON-NLS-1$
+                    bar.closeOutTabPanel();
 
                 postDeleteAction.doAction();
             }

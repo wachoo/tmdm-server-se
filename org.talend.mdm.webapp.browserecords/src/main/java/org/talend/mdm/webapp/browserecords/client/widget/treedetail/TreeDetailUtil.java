@@ -168,7 +168,9 @@ public class TreeDetailUtil {
                                 panel.initBreadCrumb(new BreadCrumb(breads, panel));
 
                                 TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(item.getConcept());
+
                                 String tabItemId = typeModel.getLabel(Locale.getLanguage()) + " " + panel.getItemId(); //$NON-NLS-1$
+                                panel.setHeading(tabItemId);
                                 panel.setItemId(tabItemId);
                                 renderTreeDetailPanel(tabItemId, panel);
                             }
@@ -197,8 +199,8 @@ public class TreeDetailUtil {
         itemsDetailPanel.initBreadCrumb(new BreadCrumb(breads, itemsDetailPanel));
 
         TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(itemBean.getConcept());
-        String tabItemId = typeModel.getLabel(Locale.getLanguage())
-                + " " + itemsDetailPanel.getItemId() + " " + new Date().getTime(); //$NON-NLS-1$ //$NON-NLS-2$
+        String tabItemId = typeModel.getLabel(Locale.getLanguage()) + " " + new Date().getTime(); //$NON-NLS-1$
+        itemsDetailPanel.setHeading(typeModel.getLabel(Locale.getLanguage()));
         itemsDetailPanel.setItemId(tabItemId);
         renderTreeDetailPanel(tabItemId, itemsDetailPanel);
 
@@ -234,6 +236,9 @@ public class TreeDetailUtil {
         // imitate extjs's doLayout method, really call gxt code.
         doLayout : function(){
         return itemDetailPanel.@org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel::doLayout()();
+        },
+        title : function(){
+        return itemDetailPanel.@org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel::getHeading()();
         }
         };
         return panel;

@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.browserecords.client.mvc;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
@@ -101,7 +102,7 @@ public class BrowseRecordsController extends Controller {
     private void onSaveItem(AppEvent event) {
         // TODO the following code need to be refactor, it is the demo code
         final ItemNodeModel model = event.getData();
-        ViewBean viewBean = event.getData("viewBean"); //$NON-NLS-1$
+        final ViewBean viewBean = event.getData("viewBean"); //$NON-NLS-1$
         final ItemBean itemBean = event.getData("ItemBean"); //$NON-NLS-1$
         final Boolean isCreate = event.getData("isCreate"); //$NON-NLS-1$
         final Boolean isClose = event.getData("isClose"); //$NON-NLS-1$
@@ -131,11 +132,17 @@ public class BrowseRecordsController extends Controller {
                             null);
                 if (isClose) {
                     if (detailToolBar.isOutMost())
-                        detailToolBar.closeOutTabPanel(model.getLabel() + " " + itemBean.getIds()); //$NON-NLS-1$
+                        detailToolBar.closeOutTabPanel();
                     else
                         ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
                 } else {
-                    detailToolBar.refreshTreeDetailByIds(result.getReturnValue());
+                    if (detailToolBar.isOutMost()){
+                        TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(itemBean.getConcept());
+                        String tabText = typeModel.getLabel(Locale.getLanguage()) + " " + result.getReturnValue(); //$NON-NLS-1$
+                        detailToolBar.updateOutTabPanel(tabText);
+                    } else { 
+                        detailToolBar.refreshTreeDetailByIds(result.getReturnValue());
+                    }
                 }
                 ItemsListPanel.getInstance().refreshGrid();
             }

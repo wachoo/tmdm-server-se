@@ -36,7 +36,7 @@ public class PhysicalDeleteAction implements DeleteAction {
                     MessageBox.info(MessagesFactory.getMessages().info_title(), msg, null);
                 }
                 if (bar != null && bar.isOutMost())
-                    bar.closeOutTabPanel(item.getLabel() + " " + item.getIds()); //$NON-NLS-1$
+                    bar.closeOutTabPanel();
 
                 postDeleteAction.doAction();
             }
