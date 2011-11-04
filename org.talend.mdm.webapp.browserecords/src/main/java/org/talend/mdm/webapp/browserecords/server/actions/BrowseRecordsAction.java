@@ -623,7 +623,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             for (String path : xpaths) {
                 TypeModel typeModel = types.get(path);
                 // set pkinfo and description on entity
-                if (path.endsWith(itemBean.getConcept())) {
+                if (path.equals(itemBean.getConcept())) {
                     List<String> pkInfoList = getPKInfoList(typeModel, itemBean.getIds(), docXml, language);
                     itemBean.setPkInfoList(pkInfoList);
                     itemBean.setLabel(typeModel.getLabel(language));
