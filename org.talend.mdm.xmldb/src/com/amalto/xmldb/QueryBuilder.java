@@ -356,7 +356,7 @@ public abstract class QueryBuilder {
                         }
                     }
                 }                
-                if(metaDataTypes==null){ //fix 0021067, if can't get metaDataTypes
+                if (metaDataTypes == null || metaDataTypes.size() == 0) { // fix 0021067, if can't get metaDataTypes
                 	isNum = isLeftPathNum || isRightValueNum;
                 }else{
                 	isNum = isLeftPathNum && isRightValueNum;
