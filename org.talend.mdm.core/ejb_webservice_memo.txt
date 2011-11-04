@@ -1,10 +1,19 @@
+## PREREQUISITES ##
+
+1. JWSDP
+You'll need Java Web Services Developer Pack 1.5 (JWSDP) installed on your computer to run ANT scripts for WSDL generation.
+JWSDP (1.5) isn't on SVN so you'll need to download and install it separately.
+
+2. XDoclet
+You'll also need XDoclet (version 1.2.3.patched). This isn't on SVN so you'll need to download and install it separately.
+
 ###############################################################################
 *******the following explain the steps to add/modify webservice ***********
 *******methods in tom/tem**************************************************
 ###############################################################################
 1.add/modify a webservice method in tom ( for MDM Open edition)
   (1) add/modify the webservice method in org.talend.mdm.core.open/src/META-INF/wsdl
-  (2) run org.talend.mdm.core.open/wsdl_compile.xml/default target to generate webservice skeleton classes.
+  (2) run org.talend.mdm.core.open/wsdl_compile.xml "default" target to generate webservice skeleton classes.
   (3) implement the method in org.talend.mdm.core.open/com.amalto.core.ejb.XtentisWSBean
   (4) run org.talend.mdm.core.open/xdoclet_generate.xml/xdoclet-generation target(this step is necessary only when you add a method) to generate ejb skeleton classes
   (5) run org.talend.mdm.core.open/merge_with_core.xml/default target. to move the webservice classes to org.talend.mdm.core project.
