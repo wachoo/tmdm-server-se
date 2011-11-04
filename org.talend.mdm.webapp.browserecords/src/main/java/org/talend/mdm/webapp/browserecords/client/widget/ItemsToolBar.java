@@ -44,6 +44,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.integrity.DeleteCallbac
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.ListRefresh;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.LogicalDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.NoOpPostDeleteAction;
+import org.talend.mdm.webapp.browserecords.client.widget.integrity.PhysicalDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.PostDeleteAction;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
@@ -333,7 +334,7 @@ public class ItemsToolBar extends ToolBar {
                             if (list.getGrid() != null) {
                                 PostDeleteAction postDeleteAction = new ListRefresh(new ContainerUpdate(
                                         NoOpPostDeleteAction.INSTANCE));
-                                DeleteAction deleteAction = new LogicalDeleteAction(be.getValue());
+                                DeleteAction deleteAction = new LogicalDeleteAction(be.getValue(), null);
                                 service.checkFKIntegrity(list.getGrid().getSelectionModel().getSelectedItems(),
                                         new DeleteCallback(deleteAction, postDeleteAction, service));
                             }
@@ -1060,6 +1061,7 @@ public class ItemsToolBar extends ToolBar {
             if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
                 if (list.getGrid() != null) {
                     PostDeleteAction postDeleteAction = new ListRefresh(new ContainerUpdate(NoOpPostDeleteAction.INSTANCE));
+                    ((PhysicalDeleteAction) DeleteAction.PHYSICAL).setToolBar(null);
                     service.checkFKIntegrity(list.getGrid().getSelectionModel().getSelectedItems(), new DeleteCallback(
                             DeleteAction.PHYSICAL, postDeleteAction, service));
                 }
