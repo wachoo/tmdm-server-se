@@ -350,4 +350,6 @@ public interface BrowseRecordsMessages extends Messages {
 
     String entity_display_name();
 
+    String save_success_but_exist_exception(String name, String message);
+
 }

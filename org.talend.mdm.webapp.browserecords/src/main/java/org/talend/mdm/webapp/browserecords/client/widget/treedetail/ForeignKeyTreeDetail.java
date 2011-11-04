@@ -53,8 +53,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Tree;
@@ -303,26 +301,23 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                     occurMap.put(countMapItem, count + 1);
                 }
             }
+            itemNode.addChangeListener(new ChangeListener() {
 
-            if (fkMap.size() > 0) {
-                DeferredCommand.addCommand(new Command() {
-
-                    public void execute() {
-                        for (TypeModel model : fkMap.keySet()) {
-                            fkRender.RenderForeignKey(itemNode, fkMap.get(model), model, toolBar, viewBean,
-                                    ForeignKeyTreeDetail.this, itemsDetailPanel);
+                public void modelChanged(ChangeEvent event) {
+                    if (event.getType() == ChangeEventSource.Remove) {
+                        ItemNodeModel source = (ItemNodeModel) event.getItem();
+                        List<ItemNodeModel> fkContainers = ForeignKeyUtil.getAllForeignKeyModelParent(viewBean, source);
+                        for (ItemNodeModel fkContainer : fkContainers) {
+                            fkRender.removeRelationFkPanel(fkContainer);
                         }
-                        itemNode.addChangeListener(new ChangeListener() {
-
-                            public void modelChanged(ChangeEvent event) {
-                                if (event.getType() == ChangeEventSource.Remove) {
-                                    ItemNodeModel source = (ItemNodeModel) event.getItem();
-                                    fkRender.removeRelationFkPanel(source);
-                                }
-                            }
-                        });
                     }
-                });
+                }
+            });
+            if (fkMap.size() > 0) {
+                for (TypeModel model : fkMap.keySet()) {
+                    fkRender.RenderForeignKey(itemNode, fkMap.get(model), model, toolBar, viewBean, ForeignKeyTreeDetail.this,
+                            itemsDetailPanel);
+                }
             }
 
             item.getElement().getStyle().setPaddingLeft(3.0, Unit.PX);

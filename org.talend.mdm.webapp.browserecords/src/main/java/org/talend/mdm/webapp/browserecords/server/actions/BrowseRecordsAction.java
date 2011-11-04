@@ -391,7 +391,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                             injectedXpath)).getValue();
                 }
             }
-            String fk = model.getForeignkey().split("/")[0];
+            String fk = model.getForeignkey().split("/")[0]; //$NON-NLS-1$
             if (results != null) {
                 for (String result : results) {
                     ForeignKeyBean bean = new ForeignKeyBean();
@@ -506,11 +506,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         } catch (EntityNotFoundException e) {
             if (!isNeedExceptionMessage)
                 return null;
-            else {
-                // fix bug TMDM-2757
-                bean.set("foreignKeyDeleteMessage", e.getMessage()); //$NON-NLS-1$
-                return bean;
-            }
+            // fix bug TMDM-2757
+            bean.set("foreignKeyDeleteMessage", e.getMessage()); //$NON-NLS-1$
+            return bean;
         }
     }
 
@@ -1582,7 +1580,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     public ItemResult saveItem(String concept, String ids, String xml, boolean isCreate, String language) throws ServiceException {
-
+        Locale locale = new Locale(language);
         try {
             // if update, check the item is modified by others?
             WSPutItemWithReport wsPutItemWithReport = new WSPutItemWithReport(new WSPutItem(new WSDataClusterPK(
@@ -1619,51 +1617,50 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
                 if ("info".equals(errorCode)) { //$NON-NLS-1$
                     if (message == null || message.length() == 0)
-                        message = MESSAGES.getMessage("save_process_validation_success"); //$NON-NLS-1$
+                        message = MESSAGES.getMessage(locale, "save_process_validation_success"); //$NON-NLS-1$
                     status = ItemResult.SUCCESS;
                 } else {
                     // Anything but 0 is unsuccessful
                     if (message == null || message.length() == 0)
-                        message = MESSAGES.getMessage("save_process_validation_failure"); //$NON-NLS-1$
+                        message = MESSAGES.getMessage(locale, "save_process_validation_failure"); //$NON-NLS-1$
                     throw new ServiceException(message);
                 }
             } else {
-                message = MESSAGES.getMessage("save_record_success"); //$NON-NLS-1$
+                message = MESSAGES.getMessage(locale, "save_record_success"); //$NON-NLS-1$
                 status = ItemResult.SUCCESS;
             }
             if (wsi == null)
-                return new ItemResult(status, message, ids); //$NON-NLS-1$
+                return new ItemResult(status, message, ids);
             else
                 return new ItemResult(status, message, Util.joinStrings(wsi.getIds(), ".")); //$NON-NLS-1$
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            ItemResult result;
             // TODO UGLY!!!! to be refactored
             ServiceException serviceException;
             if (e.getMessage().indexOf("routing failed:") == 0) { //$NON-NLS-1$
-                serviceException = new ServiceException(MESSAGES.getMessage("save_fail", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
+                serviceException = new ServiceException(MESSAGES.getMessage(locale,
+                        "save_success_but_exist_exception", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
                         + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), "."), e.getMessage())); //$NON-NLS-1$
             } else {
-                String err = MESSAGES.getMessage("save_fail", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
+                String err = MESSAGES.getMessage(locale, "save_fail", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
                         + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), ".")); //$NON-NLS-1$ 
                 if (e.getMessage().indexOf("ERROR_3:") == 0) { //$NON-NLS-1$
                     err = e.getMessage();
                 }
 
                 if (e.getMessage().indexOf("<msg/>") > -1) //$NON-NLS-1$
-                    err = MESSAGES.getMessage("save_validationrule_fail", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
+                    err = MESSAGES.getMessage(locale, "save_validationrule_fail", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
                             + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), "."), ""); //$NON-NLS-1$ //$NON-NLS-2$ 
                 else if (e.getMessage().indexOf("<msg>") > -1 && e.getMessage().indexOf(language.toUpperCase() + ":") == -1) {//$NON-NLS-1$) //$NON-NLS-2$                 
-                    err = MESSAGES
-                            .getMessage(
-                                    "save_validationrule_fail", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
-                                            + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), "."), e.getMessage().replace("<msg>", "[" + language.toUpperCase() + ":").replace("</msg>", "]")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+                    err = MESSAGES.getMessage(locale, "save_validationrule_fail", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
+                            + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), "."), //$NON-NLS-1$
+                            e.getMessage().replace("<msg>", "[" + language.toUpperCase() + ":").replace("</msg>", "]")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
                 }
                 // add feature TMDM-2327 SAXException:cvc-complex-type.2.4.b message transform
                 if (e.getMessage().indexOf("cvc-complex-type.2.4.b") != -1) { //$NON-NLS-1$
-                    err = MESSAGES.getMessage("save_failEx", concept); //$NON-NLS-1$
+                    err = MESSAGES.getMessage(locale, "save_failEx", concept); //$NON-NLS-1$
                 }
 
                 serviceException = new ServiceException(err);
