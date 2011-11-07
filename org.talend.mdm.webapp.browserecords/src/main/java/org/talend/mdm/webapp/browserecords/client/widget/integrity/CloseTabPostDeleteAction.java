@@ -1,0 +1,46 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
+
+package org.talend.mdm.webapp.browserecords.client.widget.integrity;
+
+import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
+
+/**
+ * Close a record tab once delete is completed.
+ */
+public class CloseTabPostDeleteAction implements PostDeleteAction {
+
+    private final PostDeleteAction next;
+
+    private final ItemDetailToolBar bar;
+
+    /**
+     * @param bar The render toolbar(record could be opened from many places)
+     * @param next If you don't know what to pass as <code>next</code> argument, check the
+     * constant {@link NoOpPostDeleteAction#INSTANCE}.
+     */
+    public CloseTabPostDeleteAction(ItemDetailToolBar bar, PostDeleteAction next) {
+        if (bar == null) {
+            throw new IllegalArgumentException("Bar argument cannot be null"); //$NON-NLS-1$
+        }
+        this.bar = bar;
+        this.next = next;
+    }
+
+    public void doAction() {
+        if (bar.isOutMost()) {
+            bar.closeOutTabPanel();
+        }
+        next.doAction();
+    }
+}

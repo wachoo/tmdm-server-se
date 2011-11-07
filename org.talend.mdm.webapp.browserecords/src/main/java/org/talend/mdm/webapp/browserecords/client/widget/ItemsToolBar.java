@@ -342,7 +342,7 @@ public class ItemsToolBar extends ToolBar {
                             if (list.getGrid() != null) {
                                 PostDeleteAction postDeleteAction = new ListRefresh(new ContainerUpdate(
                                         NoOpPostDeleteAction.INSTANCE));
-                                DeleteAction deleteAction = new LogicalDeleteAction(be.getValue(), null);
+                                DeleteAction deleteAction = new LogicalDeleteAction(be.getValue());
                                 service.checkFKIntegrity(list.getGrid().getSelectionModel().getSelectedItems(),
                                         new DeleteCallback(deleteAction, postDeleteAction, service));
                             }
@@ -1100,7 +1100,6 @@ public class ItemsToolBar extends ToolBar {
             if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
                 if (list.getGrid() != null) {
                     PostDeleteAction postDeleteAction = new ListRefresh(new ContainerUpdate(NoOpPostDeleteAction.INSTANCE));
-                    ((PhysicalDeleteAction) DeleteAction.PHYSICAL).setToolBar(null);
                     service.checkFKIntegrity(list.getGrid().getSelectionModel().getSelectedItems(), new DeleteCallback(
                             DeleteAction.PHYSICAL, postDeleteAction, service));
                 }
