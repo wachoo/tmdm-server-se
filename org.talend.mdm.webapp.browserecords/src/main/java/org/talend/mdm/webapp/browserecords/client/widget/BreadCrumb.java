@@ -49,7 +49,7 @@ public class BreadCrumb extends Composite {
 
     public void appendBreadCrumb(String concept, String label, String ids) {
         if (pWidget != null) {
-            HTML tmph = new HTML("<a>" + concept + " " + ids + "</a><input value=\"" + concept + "\"' type=\"hidden\">");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$   
+            HTML tmph = new HTML("<a>" + label + " " + ids + "</a><input value=\"" + concept + "\"' type=\"hidden\">");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$   
             if (pWidget.getWidget(pWidget.getWidgetCount() - 1).getElement().getInnerHTML().equals(tmph.getHTML()))
                 return;
             pWidget.add(new HTML("&nbsp;&gt;&nbsp;"));//$NON-NLS-1$      
