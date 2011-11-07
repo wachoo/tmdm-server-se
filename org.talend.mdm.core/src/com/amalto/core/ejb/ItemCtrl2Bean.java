@@ -427,9 +427,9 @@ public class ItemCtrl2Bean implements SessionBean {
      * @ejb.facade-method
      */
     public ArrayList<String> xPathsSearch(DataClusterPOJOPK dataClusterPOJOPK, String forceMainPivot,
-            ArrayList<String> viewablePaths, IWhereItem whereItem, int spellThreshold, int start, int limit)
+            ArrayList<String> viewablePaths, IWhereItem whereItem, int spellThreshold, int start, int limit, boolean returnCount)
             throws XtentisException {
-        return xPathsSearch(dataClusterPOJOPK, forceMainPivot, viewablePaths, whereItem, spellThreshold, null, null, start, limit);
+        return xPathsSearch(dataClusterPOJOPK, forceMainPivot, viewablePaths, whereItem, spellThreshold, null, null, start, limit, returnCount);
     }
 
     /**
@@ -455,7 +455,7 @@ public class ItemCtrl2Bean implements SessionBean {
      */
     public ArrayList<String> xPathsSearch(DataClusterPOJOPK dataClusterPOJOPK, String forceMainPivot,
             ArrayList<String> viewablePaths, IWhereItem whereItem, int spellThreshold, String orderBy, String direction,
-            int start, int limit) throws XtentisException {
+            int start, int limit, boolean returnCount) throws XtentisException {
         try {
 
             if (viewablePaths.size() == 0) {
@@ -485,7 +485,7 @@ public class ItemCtrl2Bean implements SessionBean {
             XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
 
             String query = server.getItemsQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, forceMainPivot,
-                    viewablePaths, whereItem, orderBy, direction, start, limit, spellThreshold);
+                    viewablePaths, whereItem, orderBy, direction, start, limit, spellThreshold, returnCount, Collections.emptyMap());
 
             return server.runQuery(null, null, query, null);
 
@@ -709,7 +709,7 @@ public class ItemCtrl2Bean implements SessionBean {
 
             ArrayList<String> col = xPathsSearch(dataClusterPOJOPK, null,
                     new ArrayList<String>(Arrays.asList(new String[] { businessElementPath })), whereItem, spellThreshold,
-                    orderBy, direction, 0, -1);
+                    orderBy, direction, 0, -1, false);
 
             Pattern p = Pattern.compile("<.*>(.*?)</.*>", Pattern.DOTALL);
             for (Iterator<String> iter = col.iterator(); iter.hasNext();) {

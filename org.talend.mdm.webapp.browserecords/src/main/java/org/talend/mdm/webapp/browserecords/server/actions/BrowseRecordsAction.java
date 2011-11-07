@@ -18,23 +18,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,10 +29,34 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.xpath.XPathExpressionException;
 
+import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.integrity.FKIntegrityCheckResult;
+import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
+import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.util.EntityNotFoundException;
+import com.amalto.core.util.Messages;
+import com.amalto.core.util.MessagesFactory;
+import com.amalto.webapp.core.bean.Configuration;
+import com.amalto.webapp.core.bean.UpdateReportItem;
+import com.amalto.webapp.core.dmagent.SchemaWebAgent;
+import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.core.util.XmlUtil;
+import com.amalto.webapp.core.util.XtentisWebappException;
+import com.amalto.webapp.util.webservices.*;
+import com.extjs.gxt.ui.client.Style.SortDir;
+import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
+import com.extjs.gxt.ui.client.data.PagingLoadConfig;
+import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.sun.xml.xsom.XSAnnotation;
+import com.sun.xml.xsom.XSComplexType;
+import com.sun.xml.xsom.XSElementDecl;
+import com.sun.xml.xsom.XSParticle;
+import com.sun.xml.xsom.XSSchemaSet;
+import com.sun.xml.xsom.parser.XSOMParser;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.core.EDBType;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -62,16 +70,7 @@ import org.talend.mdm.webapp.base.server.BaseConfiguration;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsService;
-import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
-import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyDrawer;
-import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
-import org.talend.mdm.webapp.browserecords.client.model.FormatModel;
-import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
-import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
-import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
-import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
-import org.talend.mdm.webapp.browserecords.client.model.Restriction;
-import org.talend.mdm.webapp.browserecords.client.model.SearchTemplate;
+import org.talend.mdm.webapp.browserecords.client.model.*;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ItemHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.RoleHelper;
@@ -95,73 +94,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.integrity.FKIntegrityCheckResult;
-import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
-import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.util.EntityNotFoundException;
-import com.amalto.core.util.Messages;
-import com.amalto.core.util.MessagesFactory;
-import com.amalto.webapp.core.bean.Configuration;
-import com.amalto.webapp.core.bean.UpdateReportItem;
-import com.amalto.webapp.core.dmagent.SchemaWebAgent;
-import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.core.util.XmlUtil;
-import com.amalto.webapp.core.util.XtentisWebappException;
-import com.amalto.webapp.util.webservices.WSBoolean;
-import com.amalto.webapp.util.webservices.WSByteArray;
-import com.amalto.webapp.util.webservices.WSCount;
-import com.amalto.webapp.util.webservices.WSCountItemsByCustomFKFilters;
-import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSDataModelPK;
-import com.amalto.webapp.util.webservices.WSDeleteItem;
-import com.amalto.webapp.util.webservices.WSDropItem;
-import com.amalto.webapp.util.webservices.WSDroppedItemPK;
-import com.amalto.webapp.util.webservices.WSExecuteTransformerV2;
-import com.amalto.webapp.util.webservices.WSExistsItem;
-import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
-import com.amalto.webapp.util.webservices.WSGetDataModel;
-import com.amalto.webapp.util.webservices.WSGetItem;
-import com.amalto.webapp.util.webservices.WSGetItemsByCustomFKFilters;
-import com.amalto.webapp.util.webservices.WSGetTransformer;
-import com.amalto.webapp.util.webservices.WSGetTransformerPKs;
-import com.amalto.webapp.util.webservices.WSGetView;
-import com.amalto.webapp.util.webservices.WSGetViewPKs;
-import com.amalto.webapp.util.webservices.WSItem;
-import com.amalto.webapp.util.webservices.WSItemPK;
-import com.amalto.webapp.util.webservices.WSPutItem;
-import com.amalto.webapp.util.webservices.WSPutItemWithReport;
-import com.amalto.webapp.util.webservices.WSRouteItemV2;
-import com.amalto.webapp.util.webservices.WSStringArray;
-import com.amalto.webapp.util.webservices.WSStringPredicate;
-import com.amalto.webapp.util.webservices.WSTransformer;
-import com.amalto.webapp.util.webservices.WSTransformerContext;
-import com.amalto.webapp.util.webservices.WSTransformerContextPipelinePipelineItem;
-import com.amalto.webapp.util.webservices.WSTransformerPK;
-import com.amalto.webapp.util.webservices.WSTransformerV2PK;
-import com.amalto.webapp.util.webservices.WSTypedContent;
-import com.amalto.webapp.util.webservices.WSView;
-import com.amalto.webapp.util.webservices.WSViewPK;
-import com.amalto.webapp.util.webservices.WSViewSearch;
-import com.amalto.webapp.util.webservices.WSWhereAnd;
-import com.amalto.webapp.util.webservices.WSWhereCondition;
-import com.amalto.webapp.util.webservices.WSWhereItem;
-import com.amalto.webapp.util.webservices.WSWhereOperator;
-import com.amalto.webapp.util.webservices.WSWhereOr;
-import com.amalto.webapp.util.webservices.WSXPathsSearch;
-import com.extjs.gxt.ui.client.Style.SortDir;
-import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
-import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.extjs.gxt.ui.client.data.PagingLoadResult;
-import com.sun.xml.xsom.XSAnnotation;
-import com.sun.xml.xsom.XSComplexType;
-import com.sun.xml.xsom.XSElementDecl;
-import com.sun.xml.xsom.XSParticle;
-import com.sun.xml.xsom.XSSchemaSet;
-import com.sun.xml.xsom.parser.XSOMParser;
-
 /**
  * DOC Administrator class global comment. Detailled comment
  */
@@ -173,6 +105,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             "org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages", BrowseRecordsAction.class.getClassLoader()); //$NON-NLS-1$
 
     private static final Pattern extractIdPattern = Pattern.compile("\\[.*?\\]"); //$NON-NLS-1$
+
+    private static final Pattern TOTAL_COUNT_PATTERN = Pattern.compile("<totalCount>(.*)</totalCount>"); //$NON-NLS-1$
 
     public String deleteItemBean(ItemBean item, boolean override, String language) throws ServiceException {
         try {
@@ -287,15 +221,16 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         String xpathInfoForeignKey = model.getForeignKeyInfo().toString().replaceAll("\\[", "").replaceAll("\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
         // in search panel, the fkFilter is empty
         String fkFilter = ""; //$NON-NLS-1$
-        if (ifFKFilter)
+        if (ifFKFilter) {
             fkFilter = model.getFkFilter();
+        }
 
-        if (xpathForeignKey == null)
+        if (xpathForeignKey == null) {
             return null;
+        }
 
         List<ForeignKeyBean> fkBeans = new ArrayList<ForeignKeyBean>();
         String[] results = null;
-        String count = null;
 
         try {
             String initxpathForeignKey = ""; //$NON-NLS-1$
@@ -310,32 +245,31 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             // get FK filter
             WSWhereItem fkFilterWi = com.amalto.webapp.core.util.Util.getConditionFromFKFilter(xpathForeignKey, xpathForeignKey,
                     fkFilter);
-            if (fkFilterWi != null)
+            if (fkFilterWi != null) {
                 whereItem = fkFilterWi;
+            }
             initxpathForeignKey = initxpathForeignKey.split("/")[0]; //$NON-NLS-1$
 
             xpathInfoForeignKey = xpathInfoForeignKey == null ? "" : xpathInfoForeignKey; //$NON-NLS-1$
             // foreign key set by business concept
             if (initxpathForeignKey.split("/").length == 1) { //$NON-NLS-1$
-                String conceptName = initxpathForeignKey;
                 // determine if we have xPath Infos: e.g. labels to display
                 String[] xpathInfos = new String[1];
-                if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null)//$NON-NLS-1$
+                if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) { //$NON-NLS-1$
                     xpathInfos = xpathInfoForeignKey.split(","); //$NON-NLS-1$
-                else
-                    xpathInfos[0] = conceptName;
+                } else {
+                    xpathInfos[0] = initxpathForeignKey;
+                }
                 value = value == null ? "" : value; //$NON-NLS-1$
 
                 // build query - add a content condition on the pivot if we search for a particular value
-                String filteredConcept = conceptName;
-
                 if (value != null && !"".equals(value.trim()) && !".*".equals(value.trim())) { //$NON-NLS-1$ //$NON-NLS-2$
                     List<WSWhereItem> condition = new ArrayList<WSWhereItem>();
-                    if (whereItem != null)
+                    if (whereItem != null) {
                         condition.add(whereItem);
-                    WSWhereItem wc = null;
-                    String strConcept = conceptName + "/../* CONTAINS "; //$NON-NLS-1$
-                    wc = com.amalto.webapp.core.util.Util.buildWhereItem(strConcept + value);
+                    }
+                    String strConcept = initxpathForeignKey + "/../* CONTAINS "; //$NON-NLS-1$
+                    WSWhereItem wc = com.amalto.webapp.core.util.Util.buildWhereItem(strConcept + value);
                     condition.add(wc);
                     WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
                     WSWhereItem whand = new WSWhereItem(null, and, null);
@@ -347,74 +281,74 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 ArrayList<String> xPaths = new ArrayList<String>();
                 if (model.isRetrieveFKinfos())
                     // add the xPath Infos Path
-                    for (int i = 0; i < xpathInfos.length; i++) {
-                        xPaths.add(com.amalto.webapp.core.util.Util.getFormatedFKInfo(
-                                xpathInfos[i].replaceFirst(conceptName, filteredConcept), filteredConcept));
+                    for (String xpathInfo : xpathInfos) {
+                        xPaths.add(Util.getFormatedFKInfo(
+                                xpathInfo.replaceFirst(initxpathForeignKey, initxpathForeignKey), initxpathForeignKey));
                     }
                 // add the key paths last, since there may be multiple keys
-                xPaths.add(filteredConcept + "/../../i"); //$NON-NLS-1$
+                xPaths.add(initxpathForeignKey + "/../../i"); //$NON-NLS-1$
                 // order by
                 String orderbyPath = null;
-                if (!MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
-                    if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) { //$NON-NLS-1$
-                        orderbyPath = com.amalto.webapp.core.util.Util.getFormatedFKInfo(
-                                xpathInfos[0].replaceFirst(conceptName, filteredConcept), filteredConcept);
-                    }
+                if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) { //$NON-NLS-1$
+                    orderbyPath = com.amalto.webapp.core.util.Util.getFormatedFKInfo(
+                            xpathInfos[0].replaceFirst(initxpathForeignKey, initxpathForeignKey), initxpathForeignKey);
                 }
 
                 // Run the query
                 if (!com.amalto.webapp.core.util.Util.isCustomFilter(fkFilter)) {
-
                     results = CommonUtil
                             .getPort()
                             .xPathsSearch(
                                     new WSXPathsSearch(new WSDataClusterPK(dataClusterPK), null, new WSStringArray(xPaths
                                             .toArray(new String[xPaths.size()])), whereItem, -1, config.getOffset(), config
-                                            .getLimit(), orderbyPath, null)).getStrings();
-                    count = CommonUtil.getPort()
-                            .count(new WSCount(new WSDataClusterPK(dataClusterPK), conceptName, whereItem, -1)).getValue();
-
+                                            .getLimit(), orderbyPath, null, true)).getStrings();
                 } else {
-
                     String injectedXpath = com.amalto.webapp.core.util.Util.getInjectedXpath(fkFilter);
                     results = CommonUtil
                             .getPort()
                             .getItemsByCustomFKFilters(
-                                    new WSGetItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName,
+                                    new WSGetItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), initxpathForeignKey,
                                             new WSStringArray(xPaths.toArray(new String[xPaths.size()])), injectedXpath, config
                                                     .getOffset(), config.getLimit(), orderbyPath, null)).getStrings();
-
-                    count = CommonUtil
-                            .getPort()
-                            .countItemsByCustomFKFilters(
-                                    new WSCountItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName,
-                                            injectedXpath)).getValue();
                 }
             }
             String fk = model.getForeignkey().split("/")[0]; //$NON-NLS-1$
             if (results != null) {
-                for (String result : results) {
+                for (int currentResult = 1; currentResult < results.length; currentResult++) {
+                    if (results[currentResult] == null) {
+                        // Ignore null results.
+                        continue;
+                    }
+                    Element resultAsDOM = Util.parse(results[currentResult]).getDocumentElement();
+
                     ForeignKeyBean bean = new ForeignKeyBean();
                     String id = ""; //$NON-NLS-1$
-                    NodeList nodes = Util.getNodeList(Util.parse(result), "//i"); //$NON-NLS-1$
+                    NodeList nodes = Util.getNodeList(resultAsDOM, "//i"); //$NON-NLS-1$
                     if (nodes != null) {
                         for (int i = 0; i < nodes.getLength(); i++) {
-                            if (nodes.item(i) instanceof Element)
+                            if (nodes.item(i) instanceof Element) {
                                 id += "[" + (nodes.item(i).getTextContent() == null ? "" : nodes.item(i).getTextContent()) + "]"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$
+                            }
                         }
                     }
 
-                    if (result != null) {
-                        Element root = Util.parse(result).getDocumentElement();
-                        if (root.getNodeName().equals("result"))//$NON-NLS-1$
-                            initFKBean(root, bean, fk);
-                        else
-                            bean.set(root.getNodeName(), root.getTextContent().trim());
+                    if (resultAsDOM.getNodeName().equals("result")) { //$NON-NLS-1$
+                        initFKBean(resultAsDOM, bean, fk);
+                    } else {
+                        bean.set(resultAsDOM.getNodeName(), resultAsDOM.getTextContent().trim());
                     }
 
                     bean.setId(id);
                     fkBeans.add(bean);
                 }
+            }
+
+            Matcher matcher = TOTAL_COUNT_PATTERN.matcher(results[0]);
+            String count;
+            if (matcher.matches()) {
+                count = matcher.group(1);
+            } else {
+                throw new IllegalArgumentException("Total count '" + results[0] + "' does not match expected format"); //$NON-NLS-1$ //$NON-NLS-2$
             }
 
             return new ItemBasePageLoadResult<ForeignKeyBean>(fkBeans, config.getOffset(), Integer.valueOf(count));

@@ -553,7 +553,8 @@ public class CrossReferencingTransformerPluginBean extends TransformerPluginV2Ct
 				wAnd,
 				-1, 	//spell
 				0,		//start
-				1		//limit
+				1,		//limit
+                false
 		);
 
 		String val = "";

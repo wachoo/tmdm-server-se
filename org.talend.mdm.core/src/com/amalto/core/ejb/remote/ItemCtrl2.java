@@ -3,7 +3,11 @@
  */
 package com.amalto.core.ejb.remote;
 
+import java.util.ArrayList;
+
 import com.amalto.core.integrity.FKIntegrityCheckResult;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.xmlserver.interfaces.IWhereItem;
 
 /**
  * Remote interface for ItemCtrl2.
@@ -110,6 +114,7 @@ public interface ItemCtrl2
 
    /**
     * Returns an ordered collection of results searched in a cluster and specifying an optional condition<br/> The results are xml objects made of elements constituted by the specified viewablePaths
+    *
     * @param dataClusterPOJOPK The Data Cluster where to run the query
     * @param forceMainPivot An optional pivot that will appear first in the list of pivots in the query<br> : This allows forcing cartesian products: for instance Order Header vs Order Line
     * @param viewablePaths The list of elements returned in each result
@@ -117,14 +122,16 @@ public interface ItemCtrl2
     * @param spellThreshold The condition spell checking threshold. A negative value de-activates spell
     * @param start The first item index (starts at zero)
     * @param limit The maximum number of items to return
+    * @param returnCount
     * @return The ordered list of results
     * @throws XtentisException
     */
-   public java.util.ArrayList xPathsSearch( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String forceMainPivot,java.util.ArrayList viewablePaths,com.amalto.xmlserver.interfaces.IWhereItem whereItem,int spellThreshold,int start,int limit )
+   public java.util.ArrayList xPathsSearch(DataClusterPOJOPK dataClusterPOJOPK, String forceMainPivot, ArrayList viewablePaths, IWhereItem whereItem, int spellThreshold, int start, int limit, boolean returnCount)
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**
     * Returns an ordered collection of results searched in a cluster and specifying an optional condition<br/> The results are xml objects made of elements constituted by the specified viewablePaths
+    *
     * @param dataClusterPOJOPK The Data Cluster where to run the query
     * @param forceMainPivot An optional pivot that will appear first in the list of pivots in the query<br> : This allows forcing cartesian products: for instance Order Header vs Order Line
     * @param viewablePaths The list of elements returned in each result
@@ -134,10 +141,11 @@ public interface ItemCtrl2
     * @param direction One of {@link IXmlServerSLWrapper#ORDER_ASCENDING} or {@link IXmlServerSLWrapper#ORDER_DESCENDING}
     * @param start The first item index (starts at zero)
     * @param limit The maximum number of items to return
+    * @param returnCount
     * @return The ordered list of results
     * @throws XtentisException
     */
-   public java.util.ArrayList xPathsSearch( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String forceMainPivot,java.util.ArrayList viewablePaths,com.amalto.xmlserver.interfaces.IWhereItem whereItem,int spellThreshold,java.lang.String orderBy,java.lang.String direction,int start,int limit )
+   public java.util.ArrayList xPathsSearch(DataClusterPOJOPK dataClusterPOJOPK, String forceMainPivot, ArrayList viewablePaths, IWhereItem whereItem, int spellThreshold, String orderBy, String direction, int start, int limit, boolean returnCount)
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**

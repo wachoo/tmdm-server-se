@@ -158,21 +158,21 @@ public class ItemCtrl2Remote extends Observable
 
    }
 
-   public java.util.ArrayList xPathsSearch ( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String forceMainPivot,java.util.ArrayList viewablePaths,com.amalto.xmlserver.interfaces.IWhereItem whereItem,int spellThreshold,int start,int limit )
+   public java.util.ArrayList xPathsSearch ( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String forceMainPivot,java.util.ArrayList viewablePaths,com.amalto.xmlserver.interfaces.IWhereItem whereItem,int spellThreshold,int start,int limit,boolean returnCount )
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {
         java.util.ArrayList retval;
-       retval =  getSession().xPathsSearch( dataClusterPOJOPK,forceMainPivot,viewablePaths,whereItem,spellThreshold,start,limit );
+       retval =  getSession().xPathsSearch( dataClusterPOJOPK,forceMainPivot,viewablePaths,whereItem,spellThreshold,start,limit,returnCount );
 
       return retval;
 
    }
 
-   public java.util.ArrayList xPathsSearch ( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String forceMainPivot,java.util.ArrayList viewablePaths,com.amalto.xmlserver.interfaces.IWhereItem whereItem,int spellThreshold,java.lang.String orderBy,java.lang.String direction,int start,int limit )
+   public java.util.ArrayList xPathsSearch ( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String forceMainPivot,java.util.ArrayList viewablePaths,com.amalto.xmlserver.interfaces.IWhereItem whereItem,int spellThreshold,java.lang.String orderBy,java.lang.String direction,int start,int limit,boolean returnCount)
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {
         java.util.ArrayList retval;
-       retval =  getSession().xPathsSearch( dataClusterPOJOPK,forceMainPivot,viewablePaths,whereItem,spellThreshold,orderBy,direction,start,limit );
+       retval =  getSession().xPathsSearch( dataClusterPOJOPK,forceMainPivot,viewablePaths,whereItem,spellThreshold,orderBy,direction,start,limit,returnCount );
 
       return retval;
 

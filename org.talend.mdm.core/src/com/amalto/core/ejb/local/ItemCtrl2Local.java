@@ -148,7 +148,7 @@ public interface ItemCtrl2Local
     * @return The ordered list of results
     * @throws XtentisException
     */
-   public java.util.ArrayList xPathsSearch( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String forceMainPivot,java.util.ArrayList viewablePaths,com.amalto.xmlserver.interfaces.IWhereItem whereItem,int spellThreshold,int start,int limit ) throws com.amalto.core.util.XtentisException;
+   public java.util.ArrayList xPathsSearch( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String forceMainPivot,java.util.ArrayList viewablePaths,com.amalto.xmlserver.interfaces.IWhereItem whereItem,int spellThreshold,int start,int limit,boolean returnCount ) throws com.amalto.core.util.XtentisException;
 
    /**
     * Returns an ordered collection of results searched in a cluster and specifying an optional condition<br/> The results are xml objects made of elements constituted by the specified viewablePaths
@@ -164,7 +164,7 @@ public interface ItemCtrl2Local
     * @return The ordered list of results
     * @throws XtentisException
     */
-   public java.util.ArrayList xPathsSearch( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String forceMainPivot,java.util.ArrayList viewablePaths,com.amalto.xmlserver.interfaces.IWhereItem whereItem,int spellThreshold,java.lang.String orderBy,java.lang.String direction,int start,int limit ) throws com.amalto.core.util.XtentisException;
+   public java.util.ArrayList xPathsSearch( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String forceMainPivot,java.util.ArrayList viewablePaths,com.amalto.xmlserver.interfaces.IWhereItem whereItem,int spellThreshold,java.lang.String orderBy,java.lang.String direction,int start,int limit,boolean returnCount ) throws com.amalto.core.util.XtentisException;
 
    /**
     * Get items hierarchical tree according to pivots

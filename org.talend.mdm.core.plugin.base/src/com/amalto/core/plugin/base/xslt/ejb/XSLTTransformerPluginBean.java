@@ -620,7 +620,8 @@ public class XSLTTransformerPluginBean extends TransformerPluginV2CtrlBean  impl
 					wAnd,
 					-1, 	//spell
 					0,		//start
-					1		//limit
+					1,		//limit
+                    false
 			);
 
 			String val = "";

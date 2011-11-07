@@ -16,11 +16,12 @@ public class WSXPathsSearch {
     protected int maxItems;
     protected java.lang.String orderBy;
     protected java.lang.String direction;
-    
+    protected boolean returnCount;
+
     public WSXPathsSearch() {
     }
     
-    public WSXPathsSearch(com.amalto.core.webservice.WSDataClusterPK wsDataClusterPK, java.lang.String pivotPath, com.amalto.core.webservice.WSStringArray viewablePaths, com.amalto.core.webservice.WSWhereItem whereItem, int spellTreshold, int skip, int maxItems, java.lang.String orderBy, java.lang.String direction) {
+    public WSXPathsSearch(com.amalto.core.webservice.WSDataClusterPK wsDataClusterPK, java.lang.String pivotPath, com.amalto.core.webservice.WSStringArray viewablePaths, com.amalto.core.webservice.WSWhereItem whereItem, int spellTreshold, int skip, int maxItems, java.lang.String orderBy, java.lang.String direction, boolean returnCount) {
         this.wsDataClusterPK = wsDataClusterPK;
         this.pivotPath = pivotPath;
         this.viewablePaths = viewablePaths;
@@ -30,6 +31,7 @@ public class WSXPathsSearch {
         this.maxItems = maxItems;
         this.orderBy = orderBy;
         this.direction = direction;
+        this.returnCount = returnCount;
     }
     
     public com.amalto.core.webservice.WSDataClusterPK getWsDataClusterPK() {
@@ -102,5 +104,9 @@ public class WSXPathsSearch {
     
     public void setDirection(java.lang.String direction) {
         this.direction = direction;
+    }
+
+    public boolean isReturnCount() {
+        return returnCount;
     }
 }
