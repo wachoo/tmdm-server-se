@@ -278,7 +278,7 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 			title : amalto.updatereport.UpdateReportLocal.get("title"),
 			items : [{
 				frame : false,
-				height : 150,
+				height : 160,
 				layout : "fit",
 				split : true,
 				title : amalto.updatereport.UpdateReportLocal.get("searchPanel_tile"),
