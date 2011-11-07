@@ -12,8 +12,9 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget;
 
-import java.util.Map;
+import java.util.List;
 
+import org.talend.mdm.webapp.browserecords.client.model.BreadCrumbModel;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyUtil;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -30,12 +31,13 @@ public class BreadCrumb extends Composite {
 
     public static String DEFAULTNAME = "Talend MDM", DEFAULTLINK = "../talendmdm/secure"; //$NON-NLS-1$ //$NON-NLS-2$    
 
-    public BreadCrumb(Map<String, String> list, ItemsDetailPanel itemsDetailPanel) {
+    public BreadCrumb(List<BreadCrumbModel> list, ItemsDetailPanel itemsDetailPanel) {
         this.itemsDetailPanel = itemsDetailPanel;
         int i = 0;
 
-        for (String name : list.keySet()) {
-            HTML h = initBreadCrumb(list.get(name), name, list.get(name) != null ? true : false);
+        for (BreadCrumbModel bcm : list) {
+
+            HTML h = initBreadCrumb(bcm.getConcept(), bcm.getLabel(), bcm.getIds(), bcm.isIfLink());
             pWidget.add(h);
             ++i;
             if (i != list.size())
@@ -45,22 +47,22 @@ public class BreadCrumb extends Composite {
         initWidget(pWidget);
     }
 
-    public void appendBreadCrumb(String concept, String ids) {
+    public void appendBreadCrumb(String concept, String label, String ids) {
         if (pWidget != null) {
             HTML tmph = new HTML("<a>" + concept + " " + ids + "</a><input value=\"" + concept + "\"' type=\"hidden\">");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$   
             if (pWidget.getWidget(pWidget.getWidgetCount() - 1).getElement().getInnerHTML().equals(tmph.getHTML()))
                 return;
             pWidget.add(new HTML("&nbsp;&gt;&nbsp;"));//$NON-NLS-1$      
-            HTML h = initBreadCrumb(concept, ids, true);
+            HTML h = initBreadCrumb(concept, label, ids, true);
             pWidget.add(h);
         }
     }
 
-    private HTML initBreadCrumb(final String concept, final String ids, boolean ifLink) {
+    private HTML initBreadCrumb(final String concept, String label, final String ids, boolean ifLink) {
         HTML h = null;
         String title;
-        if (concept != null)
-            title = concept + " " + ids; //$NON-NLS-1$
+        if (label != null)
+            title = label + " " + ids; //$NON-NLS-1$
         else
             title = ids;
         if (ifLink) {
@@ -87,4 +89,5 @@ public class BreadCrumb extends Composite {
         }
         return h;
     }
+
 }

@@ -14,7 +14,6 @@ package org.talend.mdm.webapp.browserecords.client.mvc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +23,7 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.creator.CellEditorCreator;
 import org.talend.mdm.webapp.browserecords.client.creator.CellRendererCreator;
+import org.talend.mdm.webapp.browserecords.client.model.BreadCrumbModel;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
@@ -137,13 +137,13 @@ public class BrowseRecordsView extends View {
         else if (item.getSmartViewMode().equals(ItemBean.SMARTMODE))
             operation = ItemDetailToolBar.SMARTVIEW_OPERATION;
         ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
-        Map<String, String> breads = new LinkedHashMap<String, String>();
+        List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
         // show breadcrumb
         // ItemsDetailPanel.getInstance().clearBreadCrumb();
         if (item != null) {
-            breads.put(BreadCrumb.DEFAULTNAME, null);
-            breads.put(item.getLabel(), null);
-            breads.put(item.getIds(), item.getConcept());
+            breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, false)); //$NON-NLS-1$
+            breads.add(new BreadCrumbModel("", item.getLabel(), null, false)); //$NON-NLS-1$
+            breads.add(new BreadCrumbModel(item.getConcept(), item.getLabel(), item.getIds(), true));
         }
 
         ItemsDetailPanel panel = new ItemsDetailPanel();

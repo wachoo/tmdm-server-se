@@ -14,7 +14,6 @@ package org.talend.mdm.webapp.browserecords.client.widget;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +27,7 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.creator.ItemCreator;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.browserecords.client.model.BreadCrumbModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
@@ -81,11 +81,11 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -285,10 +285,10 @@ public class ItemsToolBar extends ToolBar {
                 List<String> pkInfoList = new ArrayList<String>();
                 pkInfoList.add(itemBean.getLabel());
                 panel.initBanner(pkInfoList, itemBean.getDescription());
-                Map<String, String> breads = new LinkedHashMap<String, String>();
+                List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
                 if (itemBean != null) {
-                    breads.put(BreadCrumb.DEFAULTNAME, null);
-                    breads.put(itemBean.getLabel(), null);
+                    breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, false)); //$NON-NLS-1$
+                    breads.add(new BreadCrumbModel("", itemBean.getLabel(), null, false)); //$NON-NLS-1$
                 }
                 panel.initBreadCrumb(new BreadCrumb(breads, panel));
                 ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
@@ -300,11 +300,11 @@ public class ItemsToolBar extends ToolBar {
 
         });
 
-        deleteMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
+        // deleteMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
         Menu sub = new Menu();
         MenuItem delMenu = new MenuItem(MessagesFactory.getMessages().delete_btn());
         delMenu.setId("physicalDelMenuInGrid");//$NON-NLS-1$
-        delMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
+        // delMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
 
         // TODO duplicate with recordToolbar
         delMenu.addSelectionListener(new SelectionListener<MenuEvent>() {

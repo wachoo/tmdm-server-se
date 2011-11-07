@@ -12,8 +12,9 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
@@ -22,6 +23,7 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.browserecords.client.model.BreadCrumbModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
@@ -156,10 +158,10 @@ public class TreeDetailUtil {
                             public void onSuccess(ViewBean viewBean) {
                                 ItemPanel itemPanel = new ItemPanel(viewBean, item, ItemDetailToolBar.VIEW_OPERATION, panel);
                                 itemPanel.getToolBar().setOutMost(true);
-                                Map<String, String> breads = new LinkedHashMap<String, String>();
+                                List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
                                 if (item != null) {
-                                    breads.put(BreadCrumb.DEFAULTNAME, null);
-                                    breads.put(item.getIds(), item.getConcept());
+                                    breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, false)); //$NON-NLS-1$
+                                    breads.add(new BreadCrumbModel(item.getConcept(), item.getLabel(), item.getIds(), true));
                                 }
 
                                 panel.setId(item.getIds());
@@ -187,10 +189,10 @@ public class TreeDetailUtil {
         ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.DUPLICATE_OPERATION, itemsDetailPanel);
         itemPanel.getToolBar().setOutMost(true);
 
-        Map<String, String> breads = new LinkedHashMap<String, String>();
+        List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
         if (itemBean != null) {
-            breads.put(BreadCrumb.DEFAULTNAME, null);
-            breads.put(itemBean.getIds(), itemBean.getConcept());
+            breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, false)); //$NON-NLS-1$
+            breads.add(new BreadCrumbModel(itemBean.getConcept(), itemBean.getLabel(), itemBean.getIds(), true));
         }
 
         itemsDetailPanel.setId(itemBean.getIds());

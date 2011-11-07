@@ -180,7 +180,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         itemsDetailPanel.initBanner(fkModel.getItemBean().getPkInfoList(),
                 fkModel.getItemBean().getDescription());
         // Update breadcrumb
-        itemsDetailPanel.appendBreadCrumb(fkModel.getItemBean().getConcept(),
+        itemsDetailPanel.appendBreadCrumb(fkModel.getItemBean().getConcept(), fkModel.getItemBean().getLabel(),
                 fkModel.getItemBean().getIds());
         buildPanel(viewBean);
     }
