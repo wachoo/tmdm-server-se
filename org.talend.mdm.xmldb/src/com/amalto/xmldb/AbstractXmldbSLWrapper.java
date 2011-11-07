@@ -351,7 +351,7 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
                     if (m < pivotPaths.length - 1)
                         xqOrderby.append(","); //$NON-NLS-1$
                     // see 0016991, using the first element as pivot
-                    xqOrderby.append("$").append(pivotPaths[m] + "[0]").append(" "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    xqOrderby.append("$").append(pivotPaths[m] + "[1]").append(" "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     // add direction
                     if (pivotDirections != null && pivotDirections.length > 0)
                         xqOrderby.append(pivotDirections[m] == null ? "" : " " + pivotDirections[m] + " "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -359,7 +359,7 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
 
                 for (int m = 0; m < indexPaths.length; m++) {
                     // see 0016991, using the first element as pivot
-                    xqOrderby.append(",").append("$").append(indexPaths[m] + "[0]").append(" "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    xqOrderby.append(",").append("$").append(indexPaths[m] + "[1]").append(" "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                     // add direction
                     if (indexDirections != null && indexDirections.length > 0)
                         xqOrderby.append(indexDirections[m] == null ? "" : " " + indexDirections[m] + " "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
