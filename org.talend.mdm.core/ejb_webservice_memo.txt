@@ -16,7 +16,7 @@ You'll also need XDoclet (version 1.2.3.patched). This isn't on SVN so you'll ne
   (2) run org.talend.mdm.core.open/wsdl_compile.xml "default" target to generate webservice skeleton classes.
   (3) implement the method in org.talend.mdm.core.open/com.amalto.core.ejb.XtentisWSBean
   (4) run org.talend.mdm.core.open/xdoclet_generate.xml/xdoclet-generation target(this step is necessary only when you add a method) to generate ejb skeleton classes
-  (5) run org.talend.mdm.core.open/merge_with_core.xml/default target. to move the webservice classes to org.talend.mdm.core project.
+  (5) run org.talend.mdm.core.open/merge_with_core.xml "default" target. to move the webservice classes to org.talend.mdm.core project.
     
    you NEED to do the following step 2. that mean you need add/modify the webservice both in org.talend.mdm.core.open/org.talend.mdm.core.enterprise
   
@@ -25,17 +25,20 @@ You'll also need XDoclet (version 1.2.3.patched). This isn't on SVN so you'll ne
   (2) run org.talend.mdm.core.enterprise/wsdl_compile.xml/default target to generate webservice skeleton classes.
   (3) implement the method in org.talend.mdm.core.enterprise/com.amalto.core.ejb.XtentisEnterpriseWSBean
   (4) run org.talend.mdm.core.enterprise/xdoclet_generate.xml/xdoclet-generation target(this step is necessary only when you add a method) to generate ejb skeleton classes
-  (5) run org.talend.mdm.core.enterprise/merge_with_core.xml/default target. to move the webservice classes to org.talend.mdm.core project.
-  
+  (5) run org.talend.mdm.core.enterprise/merge_with_core.xml "default" target. to move the webservice classes to org.talend.mdm.core project.
+      Note: if modification is both shared by Open *and* Enterprise editions, this merge is not necessary.
+      Note: if Open and Enterprise editions are checked out in different directories, the script must be modified.
+
 3. after that, you need to apply the above modification  to org.talend.mdm.workbench as the following steps:
 (1). replace all files in org.talend.mdm.workbench/wsdl/* with those files in org.talend.mdm.core.enterprise/src/META-INF/wsdl
-(2). run wsdl_client.xml default target  to generate the webserice client classes 
+(2). run wsdl_client.xml "default" target  to generate the webservice client classes
 
 4. after that, you need to apply the modification  to org.talend.mdm.webapp.core as the following steps:
-(1). run org.talend.mdm.webapp.core/wsdl_client.xml default target to generate the webserice client classes 
+(1). run org.talend.mdm.webapp.core/wsdl_client.xml default target to generate the webservice client classes
+     Note: if Open and Enterprise editions are checked out in different directories, the config file org.talend.mdm.webapp.core/config.xml must be modified.
 
 5. you NEED apply the modification to TDI/components/TOP team
-(1). give the org.talend.mdm.core.enterprise/src/META-INF/wsdl files to them. they generate the webservice classes files themself.
+(1). give the org.talend.mdm.core.enterprise/src/META-INF/wsdl files to them. they generate the webservice classes files themselves.
 
 
 ###############################################################################

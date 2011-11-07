@@ -513,7 +513,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                     XConverter.WS2VO(wsXPathsSearch.getWhereItem()), wsXPathsSearch.getSpellTreshold(),
                     wsXPathsSearch.getOrderBy(), wsXPathsSearch.getDirection(), wsXPathsSearch.getSkip(),
                     wsXPathsSearch.getMaxItems(),
-                    wsXPathsSearch.isReturnCount());
+                    wsXPathsSearch.getReturnCount());
             return new WSStringArray((String[]) res.toArray(new String[res.size()]));
         } catch (com.amalto.core.util.XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));

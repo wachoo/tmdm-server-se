@@ -101,7 +101,8 @@ public class ReportingDWR {
 					0,
 					Integer.MAX_VALUE,
 					null, //order by
-					null //direction
+					null, //direction
+                    false
 				)
 			).getStrings();
 		
@@ -252,7 +253,8 @@ public class ReportingDWR {
 						skip,
 						max,
 						sortColumn, //order by
-						sortDirection //direction
+						sortDirection, //direction
+                        false
 					)
 				).getStrings();
 			

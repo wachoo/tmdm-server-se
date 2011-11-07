@@ -379,7 +379,8 @@ public class HierarchicalDWR {
 					0,
 					Integer.MAX_VALUE,
 					null, //order by
-					null //direction
+					null, //direction
+                    false
 				)
 			).getStrings();
 		

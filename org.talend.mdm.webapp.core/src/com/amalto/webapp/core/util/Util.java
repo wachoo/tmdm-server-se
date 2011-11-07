@@ -1383,7 +1383,7 @@ public class Util {
             if (!isCustomFilter(fkFilter)) {
                 results = getPort().xPathsSearch(
                         new WSXPathsSearch(new WSDataClusterPK(config.getCluster()), null, new WSStringArray(xPaths
-                                .toArray(new String[xPaths.size()])), whereItem, -1, start, limit, orderbyPath, null))
+                                .toArray(new String[xPaths.size()])), whereItem, -1, start, limit, orderbyPath, null, false))
                         .getStrings();
             } else {
                 results = getPort().getItemsByCustomFKFilters(

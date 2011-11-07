@@ -64,7 +64,7 @@ public class ForeignKeyHelper {
                             .xPathsSearch(
                                     new WSXPathsSearch(new WSDataClusterPK(dataClusterPK), null, new WSStringArray(xPaths
                                             .toArray(new String[xPaths.size()])), whereItem, -1, config.getOffset(), config
-                                            .getLimit(), orderbyPath, null)).getStrings();
+                                            .getLimit(), orderbyPath, null, false)).getStrings();
                     count = CommonUtil.getPort()
                             .count(new WSCount(new WSDataClusterPK(dataClusterPK), conceptName, whereItem, -1)).getValue();
 

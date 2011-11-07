@@ -1031,7 +1031,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                 null,// pivot
                                 new WSStringArray(new String[] { "BrowseItem/CriteriaName", "BrowseItem/Shared" }), wi, -1, localStart, localLimit, null, // order //$NON-NLS-1$ //$NON-NLS-2$
                                 // by
-                                null // direction
+                                null, // direction
+                                false
                         )).getStrings();
         return results;
 

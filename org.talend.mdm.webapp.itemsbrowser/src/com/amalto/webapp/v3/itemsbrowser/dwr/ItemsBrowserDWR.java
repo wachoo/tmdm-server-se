@@ -4440,8 +4440,8 @@ public class ItemsBrowserDWR {
                     .xPathsSearch(new WSXPathsSearch(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), null,// pivot
                             new WSStringArray(new String[] { "BrowseItem/CriteriaName" }), wi, -1, localStart, localLimit, null, // order//$NON-NLS-1$
                             // by
-                            null // direction
-                            )).getStrings();
+                            null, // direction
+                            false)).getStrings();
 
             // Map<String, String> map = new HashMap<String, String>();
 
