@@ -23,6 +23,10 @@ public class JoboxException extends RuntimeException {
     JoboxException() {
     }
 
+    public JoboxException(String message) {
+        super(message);
+    }
+
     public JoboxException(Throwable throwable) {
         super(throwable);
     }

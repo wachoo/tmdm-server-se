@@ -30,9 +30,8 @@ import java.util.Set;
 import com.amalto.core.jobox.component.JobAware;
 import com.amalto.core.jobox.component.JobInvoker;
 import com.amalto.core.jobox.component.MDMJobInvoker;
+import com.amalto.core.jobox.util.JobNotFoundException;
 import com.amalto.core.jobox.util.JoboxConfig;
-import com.amalto.core.jobox.util.JoboxException;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerV2CtrlBean;
 import junit.framework.TestCase;
 
 @SuppressWarnings("nls")
@@ -195,19 +194,22 @@ public class JoboxTest extends TestCase {
         deployFileToJobox("testJob1.zip");
         jobContainer.init(props);
 
-        JobInfo jobInfo = jobContainer.getJobInfo("TestTalendMDMJob", "0.1");
+        JobInfo jobInfo = jobContainer.getJobInfo("TestTalendMDMJob_Name", "0.1");
         assertNotNull(jobInfo);
 
-        JobInvoker invoker = jobContainer.getJobInvoker("TestTalendMDMJob", "0.1");
-        HashMap<String, String> parameters = new HashMap<String, String>();
-        parameters.put("param1", "test");
+        try {
+            jobContainer.getJobInvoker("TestTalendMDMJob_Name", "0.1");
+            fail("Job does not exist");
+        } catch (JobNotFoundException e) {
+            // Expected
+        }
 
-        String[][] result = invoker.call(parameters);
-        assertEquals(1, result.length);
-        assertEquals(1, result[0].length);
-        assertEquals("0", result[0][0]);
-
-        assertNotSame(Thread.currentThread().getContextClassLoader(), jobContainer.getJobClassLoader(jobInfo));
+        try {
+            jobContainer.getJobInvoker("TestTalendMDMJob", "0.2");
+            fail("Job version does not exist");
+        } catch (JobNotFoundException e) {
+            // Expected
+        }
     }
 
     private static void deployFileToJobox(String jobZipFile) throws URISyntaxException, IOException {

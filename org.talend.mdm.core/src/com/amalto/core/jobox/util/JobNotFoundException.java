@@ -14,4 +14,7 @@
 package com.amalto.core.jobox.util;
 
 public class JobNotFoundException extends JoboxException {
+    public JobNotFoundException(String jobName, String version) {
+        super("Could not find job '" + jobName + "' in version '" + version + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    }
 }

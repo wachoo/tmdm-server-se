@@ -22,6 +22,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 
+import com.amalto.core.jobox.util.JobNotFoundException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -159,8 +160,19 @@ public class JobContainer {
         return jobDeploy;
     }
 
+    /**
+     * Return the {@link JobInvoker} implementation to execute the job.
+     * @param jobName A job name
+     * @param version A job version
+     * @return A {@link JobInvoker} implementation depending on job.
+     * @throws JobNotFoundException if {@link #getJobInfo(String, String)} returns null (i.e. the job does not exist).
+     */
     public JobInvoker getJobInvoker(String jobName, String version) {
         JobInfo jobInfo = getJobInfo(jobName, version);
+        if (jobInfo == null) {
+            throw new JobNotFoundException(jobName, version);
+        }
+
         Class jobClass = getJobClass(jobInfo);
         Class[] interfaces = jobClass.getInterfaces();
         if (interfaces.length > 0) {
