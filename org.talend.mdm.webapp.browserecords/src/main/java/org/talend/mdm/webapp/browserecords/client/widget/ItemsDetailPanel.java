@@ -30,9 +30,15 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TabBar;
 import com.google.gwt.user.client.ui.Widget;
+
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -237,6 +243,13 @@ public class ItemsDetailPanel extends ContentPanel {
             ItemsDetailPanel.this.closeTabPanelWithId(id);
         }
     }
+    
+    
+
+
+
+    
+    
 
     /**
      * Custom tab panel within ItemsDetailPanel that supports the desired custom look and feel.
@@ -245,8 +258,16 @@ public class ItemsDetailPanel extends ContentPanel {
 
         public static final int TAB_BAR_HEIGHT = 28;
 
-        public static final int TAB_BAR_CONTENT_DIVIDER_HEIGHT = 5;
+        // This is very specific to the current look and feel which uses fixed
+        // size tabs which has exactly 130px to display the text.
+        public static final int TAB_LABEL_MAX_WIDTH = 130;
 
+        // There is unfortunately no way to easily get the scrollbar size
+        // But it seems fairly standard that operating systems use 16px or 18px 
+        // This should be set to the maximum pixel size of scrollbars on any system
+        public static final int SCROLL_BAR_HEIGHT = 18;
+                     
+        
         // Internal state, saves id's and panels corresponding to each tab
         private Vector<String> tabIds = new Vector<String>();
 
@@ -255,7 +276,8 @@ public class ItemsDetailPanel extends ContentPanel {
         // Visual elements, the tab bar, a horizontal spacer, and the content panel
         private TabBar tabBar = new TabBar();
 
-        private LayoutContainer tabBarContentDivider = new LayoutContainer();
+        // Panel containing tabBar so that when there are too many tabs, a horizontal scrollbar appears
+        private ScrollPanel tabBarScrollPanel = new ScrollPanel();
 
         private LayoutContainer tabContent = new LayoutContainer();
 
@@ -268,42 +290,15 @@ public class ItemsDetailPanel extends ContentPanel {
         private int curTabContentInnerWidth = 0;
 
         private int curTabContentInnerHeight = 0;
-
-        /**
-         * Get the number of tabs.
-         * 
-         * @return The number of tabs.
-         */
-        public int getTabCount() {
-            return this.tabBar.getTabCount();
-        }
-
-        /**
-         * Called by resize listener to recalculate what tabContent and the within it should be in size. What is within
-         * must be smaller due to borders of tabContent.
-         */
-        private void calcTabContentSize() {
-            this.curTabContentHeight = this.getHeight() - TAB_BAR_HEIGHT - TAB_BAR_CONTENT_DIVIDER_HEIGHT;
-            if (this.curTabContentHeight < 0)
-                this.curTabContentHeight = 0;
-
-            this.curTabContentWidth = this.getWidth();
-
-            this.curTabContentInnerHeight = this.curTabContentHeight - 1;
-            if (this.curTabContentInnerHeight < 0)
-                this.curTabContentInnerHeight = 0;
-
-            this.curTabContentInnerWidth = this.curTabContentWidth - 2;
-            if (this.curTabContentInnerWidth < 0)
-                this.curTabContentInnerWidth = 0;
-        }
-
+        
+        
         /**
          * ItemsDetailTabPanel constructor.
          */
         public ItemsDetailTabPanel() {
             this.setLayout(new RowLayout(Orientation.VERTICAL));
-
+           
+                    
             // Resize listener for the tab panel, recalculate sizes needed and resize everything within
             this.addListener(Events.Resize, new Listener<BoxComponentEvent>() {
 
@@ -341,15 +336,46 @@ public class ItemsDetailPanel extends ContentPanel {
                     newPanel.setWidth(ItemsDetailTabPanel.this.curTabContentInnerWidth);
                 }
             });
-            this.add(this.tabBar);
-
-            this.tabBarContentDivider.setId("ItemsDetailPanel-tabBarContentDivider");  //$NON-NLS-1$
-            this.add(this.tabBarContentDivider);
-
+            this.tabBarScrollPanel.getElement().setId("ItemsDetailPanel-tabBarScrollPanel"); //$NON-NLS-1$
+            this.tabBarScrollPanel.setHeight((SCROLL_BAR_HEIGHT + TAB_BAR_HEIGHT) + "px"); //$NON-NLS-1$
+            this.tabBar.getElement().setId("ItemsDetailPanel-tabBar"); //$NON-NLS-1$
+            this.tabBarScrollPanel.setWidget(this.tabBar);
+            this.add(tabBarScrollPanel);
+            
             this.tabContent.setId("ItemsDetailPanel-tabContent"); //$NON-NLS-1$
             this.add(this.tabContent);
         }
+        
+        /**
+         * Get the number of tabs.
+         * 
+         * @return The number of tabs.
+         */
+        public int getTabCount() {
+            return this.tabBar.getTabCount();
+        }
 
+        /**
+         * Called by resize listener to recalculate what tabContent and the within it should be in size. What is within
+         * must be smaller due to borders of tabContent.
+         */
+        private void calcTabContentSize() {
+            this.curTabContentHeight = this.getHeight() - TAB_BAR_HEIGHT - SCROLL_BAR_HEIGHT;
+            if (this.curTabContentHeight < 0)
+                this.curTabContentHeight = 0;
+
+            this.curTabContentWidth = this.getWidth();
+
+            this.curTabContentInnerHeight = this.curTabContentHeight - 1;
+            if (this.curTabContentInnerHeight < 0)
+                this.curTabContentInnerHeight = 0;
+
+            this.curTabContentInnerWidth = this.curTabContentWidth - 2;
+            if (this.curTabContentInnerWidth < 0)
+                this.curTabContentInnerWidth = 0;
+        }
+
+        
         /**
          * Add a new tab.
          * 
@@ -366,11 +392,10 @@ public class ItemsDetailPanel extends ContentPanel {
                     // Adding a first tab
 
                     // Create the tab, which must be special because it is the first
-                    // It must have the Home icon in it
-                    Text firstTabText = new Text(title);
-                    firstTabText.addStyleName("gwt-Label"); //$NON-NLS-1$
-                    SimplePanel firstTabPanel = new SimplePanel();
-                    firstTabPanel.add(firstTabText);
+                    // It must have the Home icon in it                	
+                	Label tabLabel = this.createTabLabel(title);
+                	SimplePanel firstTabPanel = new SimplePanel();
+                    firstTabPanel.add(tabLabel);
                     firstTabPanel.addStyleName("gwt-TabBarItem-first"); //$NON-NLS-1$
                     this.tabBar.addTab(firstTabPanel);
 
@@ -382,10 +407,11 @@ public class ItemsDetailPanel extends ContentPanel {
 
                     // Select the tab
                     this.tabBar.selectTab(0);
-                } else {
+                } else {                    
                     // Create the tab
-                    this.tabBar.addTab(title);
-
+                	Label tabLabel = this.createTabLabel(title);
+                    this.tabBar.addTab(tabLabel);
+                    
                     // Save the ID
                     this.tabIds.add(id);
 
@@ -399,15 +425,15 @@ public class ItemsDetailPanel extends ContentPanel {
                     if (this.getTabCount() == 0) {
                         // Create the first tab, which must be special because it is
                         // the first. It must have the Home icon in it
-                        Text firstTabText = new Text(title);
-                        firstTabText.addStyleName("gwt-Label"); //$NON-NLS-1$
-                        SimplePanel firstTabPanel = new SimplePanel();
-                        firstTabPanel.add(firstTabText);
+                    	Label tabLabel = this.createTabLabel(title);
+                    	SimplePanel firstTabPanel = new SimplePanel();
+                    	firstTabPanel.add(tabLabel);
                         firstTabPanel.addStyleName("gwt-TabBarItem-first"); //$NON-NLS-1$
                         this.tabBar.addTab(firstTabPanel);
                     } else {
                         // Create the tab
-                        this.tabBar.addTab(title);
+                    	Label tabLabel = this.createTabLabel(title);
+                        this.tabBar.addTab(tabLabel);
                     }
 
                     // Save the ID
@@ -437,6 +463,75 @@ public class ItemsDetailPanel extends ContentPanel {
             return new ItemDetailTabPanelContentHandle(id);
         }
 
+
+        /**
+         * Takes care of truncating and adding ellipsis to the tab label if it is
+         * too long. This actually calculates exactly how long the rendered text
+         * will be and truncates it as little as possible.
+         * 
+         * Takes care of adding tooltip to the tab label for when mouse hovers over 
+         * the label.
+         * 
+         * @param title The text to display in the label.
+         * @return label to add to tab.
+         */
+        private Label createTabLabel(String title)
+        {
+        	StringBuffer shortenedTitle = new StringBuffer(title);
+        	int labelWidth = this.getTabLabelWidth(title);
+        	int shortenedTitleLength = shortenedTitle.length();
+        	if (labelWidth > TAB_LABEL_MAX_WIDTH) 
+        	{
+        		shortenedTitle.append("...");
+        		while(shortenedTitleLength > 0 && labelWidth > TAB_LABEL_MAX_WIDTH) 
+        		{
+        			shortenedTitle.deleteCharAt(--shortenedTitleLength);
+        			labelWidth = this.getTabLabelWidth(shortenedTitle.toString());
+        		}
+        	}
+        	
+        	Label tabLabel = new Label(shortenedTitle.toString());
+        	tabLabel.addStyleName("ItemsDetailPanel-tabLabel"); //$NON-NLS-1$
+        	tabLabel.addStyleName("gwt-Label"); //$NON-NLS-1$
+        	tabLabel.getElement().setAttribute("title", title); //$NON-NLS-1$
+        	        	
+        	return tabLabel;
+        }
+        
+        
+        /**
+         * Returns the rendered width of the text if it was displayed
+         * as a tab label, with all relevant styles applied. This is a
+         * hack from classic JavaScript, where we create an absolutely
+         * positioned invisible auto sized div, apply the label's font
+         * styles to it, then get its width. Note that we make sure it
+         * is physically attached to DOM before we get width to ensure
+         * it has been rendered with the CSS styles.
+         * 
+         * @param title
+         * @return
+         */       
+        private Element tabLabelWidthFinder = null;
+        private int getTabLabelWidth(String title)
+        {
+        	if (this.tabLabelWidthFinder == null) 
+        	{
+        		this.tabLabelWidthFinder = DOM.getElementById("ItemsDetailPanel-tabLabelWidthFinder"); //$NON-NLS-1$
+        		
+        		if (this.tabLabelWidthFinder == null)
+        		{
+        			this.tabLabelWidthFinder = DOM.createDiv();
+        			this.tabLabelWidthFinder.setId("ItemsDetailPanel-tabLabelWidthFinder"); //$NON-NLS-1$
+        			DOM.appendChild(RootPanel.get().getElement(), this.tabLabelWidthFinder);
+        		}
+        	}
+        	
+        	this.tabLabelWidthFinder.setInnerText(title);
+
+        	// offset width includes padding, border, margins
+        	return this.tabLabelWidthFinder.getOffsetWidth();
+        }
+                        
         /**
          * This does nothing if index is not valid. If tab is selected, tries to select next one if there is one, and if
          * not, select the previous one.

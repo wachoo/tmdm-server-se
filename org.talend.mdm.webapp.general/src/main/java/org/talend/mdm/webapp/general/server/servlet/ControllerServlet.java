@@ -87,6 +87,7 @@ public class ControllerServlet extends HttpServlet {
     @SuppressWarnings("nls")
     protected String getHtml(String language) throws Exception {
         StringBuilder html = new StringBuilder();
+        html.append("<!DOCTYPE html>");
         html.append("<html>");
         html.append("<head>");
         html.append("<title>Talend MDM</title>");
