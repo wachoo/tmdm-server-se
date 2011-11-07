@@ -11,6 +11,17 @@
 
 package talend.webapp.v3.updatereport.servlet;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.Date;
+
+import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.log4j.Logger;
+
 import com.amalto.core.history.Document;
 import com.amalto.core.history.DocumentHistoryNavigator;
 import com.amalto.core.history.DocumentTransformer;
@@ -20,15 +31,6 @@ import com.amalto.core.metadata.TypeMetadata;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.util.Util;
-import org.apache.log4j.Logger;
-
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.Date;
 
 /**
  *
@@ -63,7 +65,7 @@ public class DocumentHistoryServlet extends AbstractDocumentHistoryServlet {
         if (documentTypeMetadata == null) {
             try {
                 // Initialize type metadata information
-                DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(typeName));
+                DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(dataClusterName));
                 if (dataModel == null) {
                     throw new IllegalArgumentException("Data model '" + typeName + "' does not exist.");
                 }
