@@ -14,7 +14,6 @@ package org.talend.mdm.webapp.welcomeportal.client;
 
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 
 import com.google.gwt.user.client.rpc.RemoteService;
@@ -41,4 +40,6 @@ public interface WelcomePortalService extends RemoteService {
     public boolean isExpired() throws ServiceException;
 
     boolean isEnterpriseVersion() throws ServiceException;
+
+    public String getMenuLabel(String language, String id) throws Exception;
 }

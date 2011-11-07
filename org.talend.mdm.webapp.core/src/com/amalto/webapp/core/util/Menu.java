@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.talend.mdm.commmon.util.core.CommonUtil;
 
@@ -155,7 +153,7 @@ public class Menu {
 		}
 	}
 	
-	private static HashMap<String, Menu> getMenuIndex() throws XtentisWebappException{
+    private static HashMap<String, Menu> getMenuIndex() throws XtentisWebappException {
 
 		//The index of Menu Entries
 		HashMap<String, Menu> menuIndex = new HashMap<String, Menu>();
@@ -313,4 +311,9 @@ public class Menu {
 
 	}
 		
+    public static String getMenuLabel(String language, String menuIndex) throws Exception {
+        HashMap<String, Menu> menus = getMenuIndex();
+        Menu menu = menus.get(menuIndex);
+        return menu.getLabels().get(language.equals("zh") ? "en" : language); //$NON-NLS-1$ //$NON-NLS-2$
+    }
 }

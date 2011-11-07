@@ -215,4 +215,8 @@ public class WelcomePortalAction implements WelcomePortalService {
     public boolean isEnterpriseVersion() throws ServiceException {
         return Webapp.INSTANCE.isEnterpriseVersion();
     }
+
+    public String getMenuLabel(String language, String id) throws Exception {
+        return Menu.getMenuLabel(language, id);
+    }
 }

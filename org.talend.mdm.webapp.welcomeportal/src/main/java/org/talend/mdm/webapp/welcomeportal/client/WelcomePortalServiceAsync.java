@@ -49,4 +49,6 @@ public interface WelcomePortalServiceAsync {
 
     void isEnterpriseVersion(AsyncCallback<Boolean> callback);
 
+    void getMenuLabel(String language, String id, AsyncCallback<String> callback);
+
 }

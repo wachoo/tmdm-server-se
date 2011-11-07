@@ -12,8 +12,20 @@
 // ============================================================================
 package org.talend.mdm.webapp.welcomeportal.client;
 
+import java.util.List;
+
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.util.UrlUtil;
+import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
+
 import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.event.*;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.IconButtonEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -24,7 +36,11 @@ import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.extjs.gxt.ui.client.widget.custom.Portlet;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -32,12 +48,6 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.TextBox;
-import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
-import org.talend.mdm.webapp.base.client.util.UrlUtil;
-import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
-
-import java.util.List;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -131,40 +141,51 @@ public class MainFramePanel extends Portal {
         itemClick("search", "Search"); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
-    private void applyStartPortlet(Portlet start) {
-        FieldSet set = (FieldSet) start.getItemByItemId(WelcomePortal.START + "Set"); //$NON-NLS-1$
-        set.setHeading(MessagesFactory.getMessages().useful_links());
-        set.removeAll();
-        StringBuilder sb1 = new StringBuilder(
-                "<span id=\"ItemsBrowser\" style=\"padding-right:8px;cursor: pointer; width:150;\" title=\"" + MessagesFactory.getMessages().browse_items() + "\""); //$NON-NLS-1$ //$NON-NLS-2$
-        sb1.append("<IMG SRC=\"/talendmdm/secure/img/menu/browse.png\"/>&nbsp;"); //$NON-NLS-1$
-        sb1.append(MessagesFactory.getMessages().browse_items());
-        sb1.append("</span>"); //$NON-NLS-1$
-        HTML browseHtml = new HTML(sb1.toString());
-        browseHtml.addClickHandler(new ClickHandler() {
+    private void applyStartPortlet(final Portlet start) {
+        service.getMenuLabel(UrlUtil.getLanguage(), WelcomePortal.BROWSEAPP, new AsyncCallback<String>() {
 
-            public void onClick(ClickEvent event) {
-                itemClick(WelcomePortal.BROWSECONTEXT, WelcomePortal.BROWSEAPP);
+            public void onFailure(Throwable arg0) {
+                // TODO Auto-generated method stub
+
             }
 
-        });
-        set.add(browseHtml);
-        StringBuilder sb2 = new StringBuilder(
-                "<span id=\"Journal\" style=\"padding-right:8px;cursor: pointer; width:150;\" title=\"" + MessagesFactory.getMessages().journal() + "\""); //$NON-NLS-1$ //$NON-NLS-2$
-        sb2.append("<IMG SRC=\"/talendmdm/secure/img/menu/updatereport.png\"/>&nbsp;"); //$NON-NLS-1$
-        sb2.append(MessagesFactory.getMessages().journal());
-        sb2.append("</span>"); //$NON-NLS-1$
-        HTML journalHtml = new HTML(sb2.toString());
-        journalHtml.addClickHandler(new ClickHandler() {
+            public void onSuccess(String arg0) {
+                // TODO Auto-generated method stub
+                FieldSet set = (FieldSet) start.getItemByItemId(WelcomePortal.START + "Set"); //$NON-NLS-1$
+                set.setHeading(MessagesFactory.getMessages().useful_links());
+                set.removeAll();
+                StringBuilder sb1 = new StringBuilder(
+                        "<span id=\"ItemsBrowser\" style=\"padding-right:8px;cursor: pointer; width:150;\" title=\"" + MessagesFactory.getMessages().browse_items() + "\""); //$NON-NLS-1$ //$NON-NLS-2$
+                sb1.append("<IMG SRC=\"/talendmdm/secure/img/menu/browse.png\"/>&nbsp;"); //$NON-NLS-1$
+                sb1.append(arg0);
+                sb1.append("</span>"); //$NON-NLS-1$
+                HTML browseHtml = new HTML(sb1.toString());
+                browseHtml.addClickHandler(new ClickHandler() {
 
-            public void onClick(ClickEvent event) {
-                itemClick(WelcomePortal.JOURNALCONTEXT, WelcomePortal.JOURNALAPP);
+                    public void onClick(ClickEvent event) {
+                        itemClick(WelcomePortal.BROWSECONTEXT, WelcomePortal.BROWSEAPP);
+                    }
+
+                });
+                set.add(browseHtml);
+                StringBuilder sb2 = new StringBuilder(
+                        "<span id=\"Journal\" style=\"padding-right:8px;cursor: pointer; width:150;\" title=\"" + MessagesFactory.getMessages().journal() + "\""); //$NON-NLS-1$ //$NON-NLS-2$
+                sb2.append("<IMG SRC=\"/talendmdm/secure/img/menu/updatereport.png\"/>&nbsp;"); //$NON-NLS-1$
+                sb2.append(MessagesFactory.getMessages().journal());
+                sb2.append("</span>"); //$NON-NLS-1$
+                HTML journalHtml = new HTML(sb2.toString());
+                journalHtml.addClickHandler(new ClickHandler() {
+
+                    public void onClick(ClickEvent event) {
+                        itemClick(WelcomePortal.JOURNALCONTEXT, WelcomePortal.JOURNALAPP);
+                    }
+
+                });
+
+                set.add(journalHtml);
+                set.layout(true);
             }
-
         });
-
-        set.add(journalHtml);
-        set.layout(true);
     }
 
     private void initAlertPortlet() {
