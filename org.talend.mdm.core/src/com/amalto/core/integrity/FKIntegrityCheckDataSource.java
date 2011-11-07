@@ -61,9 +61,13 @@ public interface FKIntegrityCheckDataSource {
     long countInboundReferences(String clusterName, String[] ids, TypeMetadata fromType, ReferenceFieldMetadata fromReference) throws XtentisException;
 
     /**
+     * <p>
      * Returns a {@link java.util.Set} of {@link com.amalto.core.metadata.FieldMetadata} of all fields that <b>point to</b> the
      * concept <code>concept</code>. Fields are inferred from data model only (thus no need for id in this method).
-     *
+     * </p>
+     * <p>
+     * Returns a empty set if type in <code>concept</code> does not exist.
+     * </p>
      * @param dataModel A data model name
      * @param concept   A concept name.
      * @return A {@link java.util.Set} of {@link com.amalto.core.metadata.ReferenceFieldMetadata} or empty set if no field points to

@@ -11,10 +11,10 @@
 
 package com.amalto.core.integrity;
 
-import com.amalto.core.metadata.*;
-
 import java.util.HashSet;
 import java.util.Set;
+
+import com.amalto.core.metadata.*;
 
 /**
  * Returns the field that references the concept <code>typeName</code>. References are returned as a {@link Set} of
@@ -35,6 +35,9 @@ class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFieldMetad
      * @param type A type.
      */
     public ForeignKeyIntegrity(TypeMetadata type) {
+        if (type == null) {
+            throw new IllegalArgumentException("Type argument cannot be null"); //$NON-NLS-1$
+        }
         this.type = type;
     }
 

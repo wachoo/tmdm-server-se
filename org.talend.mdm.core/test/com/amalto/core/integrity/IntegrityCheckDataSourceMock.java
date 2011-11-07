@@ -13,6 +13,7 @@
 
 package com.amalto.core.integrity;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,7 +45,12 @@ class IntegrityCheckDataSourceMock implements FKIntegrityCheckDataSource {
     }
 
     public Set<ReferenceFieldMetadata> getForeignKeyList(String concept, String dataModel) throws XtentisException {
-        return repository.accept(new ForeignKeyIntegrity(repository.getType(concept)));
+        TypeMetadata type = repository.getType(concept);
+        if (type != null) {
+            return repository.accept(new ForeignKeyIntegrity(type));
+        } else {
+            return Collections.emptySet();
+        }
     }
 
     public void resolvedConflict(Map<FKIntegrityCheckResult, Set<FieldMetadata>> checkResultToFields, FKIntegrityCheckResult conflictResolution) {

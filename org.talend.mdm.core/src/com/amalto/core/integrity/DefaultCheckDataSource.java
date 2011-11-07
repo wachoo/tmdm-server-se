@@ -14,6 +14,7 @@
 package com.amalto.core.integrity;
 
 import java.io.ByteArrayInputStream;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -89,7 +90,13 @@ class DefaultCheckDataSource implements FKIntegrityCheckDataSource {
             throw new XtentisException(e);
         }
 
-        return mr.accept(new ForeignKeyIntegrity(mr.getType(concept)));
+        TypeMetadata type = mr.getType(concept);
+        if (type != null) {
+            return mr.accept(new ForeignKeyIntegrity(type));
+        } else {
+            logger.warn("Type '" + concept + "' does not exist anymore in data model '" + dataModel + "'. No integrity check will be performed."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            return Collections.emptySet();
+        }
     }
 
     public void resolvedConflict(Map<FKIntegrityCheckResult, Set<FieldMetadata>> checkResultToFields, FKIntegrityCheckResult conflictResolution) {
