@@ -12,6 +12,7 @@
 // ============================================================================
 package com.amalto.xmldb;
 
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -270,8 +271,6 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
             String[] pivotDirections, String[] indexDirections, int start, int limit) throws XmlServerException {
 
         try {
-
-            
             StringBuilder xq = new StringBuilder();
             StringBuilder xqFor = new StringBuilder();
             StringBuilder xqWhere = new StringBuilder();
@@ -522,6 +521,10 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
 
     public List<String> globalSearch(String dataCluster, String keyword, int start, int end) throws XmlServerException {
         throw new UnsupportedOperationException(); // By default, this is not supported (see EE implementations of the interface).
+    }
+    
+    public void exportDocuments(String revisionId, String clusterName, int start, int end, OutputStream outputStream) throws XmlServerException {
+        throw new UnsupportedOperationException();
     }
 
     public void doActivate() throws XmlServerException {

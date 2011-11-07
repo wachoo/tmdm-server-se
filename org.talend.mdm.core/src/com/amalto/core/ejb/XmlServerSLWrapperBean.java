@@ -12,6 +12,7 @@
 // ============================================================================
 package com.amalto.core.ejb;
 
+import java.io.OutputStream;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -1268,6 +1269,14 @@ public class XmlServerSLWrapperBean implements SessionBean {
     public List<String> globalSearch( String dataCluster, String keyword, int start, int end ) throws com.amalto.core.util.XtentisException {
         try {
             return server.globalSearch(dataCluster, keyword, start, end);
+        } catch (XmlServerException e) {
+            throw new XtentisException(e);
+        }
+    }
+
+    public void exportDocuments(String revisionId, String clusterName, int start, int end, OutputStream outputStream) throws com.amalto.core.util.XtentisException {
+        try {
+            server.exportDocuments(revisionId, clusterName, start, end, outputStream);
         } catch (XmlServerException e) {
             throw new XtentisException(e);
         }

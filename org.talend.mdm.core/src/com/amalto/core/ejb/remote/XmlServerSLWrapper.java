@@ -3,6 +3,7 @@
  */
 package com.amalto.core.ejb.remote;
 
+import java.io.OutputStream;
 import java.util.List;
 
 import org.xml.sax.InputSource;
@@ -359,5 +360,8 @@ public interface XmlServerSLWrapper
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    public List<String> globalSearch( String dataCluster, String keyword, int start, int end )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+    
+   public void exportDocuments( String revisionId, String clusterName, int start, int end, OutputStream outputStream )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 }

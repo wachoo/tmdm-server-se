@@ -3,6 +3,7 @@
  */
 package com.amalto.core.ejb.local;
 
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -407,7 +408,9 @@ public interface XmlServerSLWrapperLocal extends javax.ejb.EJBLocalObject {
 
     public void end() throws XtentisException;
 
-    public void close(  ) throws com.amalto.core.util.XtentisException;
+    public void close() throws com.amalto.core.util.XtentisException;
 
+    public void exportDocuments(String revisionId, String clusterName, int start, int end, OutputStream outputStream) throws com.amalto.core.util.XtentisException;
+    
     public List<String> globalSearch(String dataCluster, String keyword, int start, int end) throws com.amalto.core.util.XtentisException;
 }

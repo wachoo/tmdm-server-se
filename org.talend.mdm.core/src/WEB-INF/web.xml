@@ -49,6 +49,12 @@
       </init-param>
    </servlet>
 
+   <servlet>
+      <servlet-name>exportServlet</servlet-name>
+      <display-name>export Servlet</display-name>
+      <servlet-class>com.amalto.core.servlet.ExportServlet</servlet-class>
+   </servlet>
+
    <filter>
        <filter-name>errorFilter</filter-name>
        <filter-class>com.amalto.core.servlet.ErrorFilter</filter-class>
@@ -66,6 +72,10 @@
    <servlet-mapping>
       <servlet-name>loadServlet</servlet-name>
       <url-pattern>/loadServlet</url-pattern>
+   </servlet-mapping>
+    <servlet-mapping>
+      <servlet-name>exportServlet</servlet-name>
+      <url-pattern>/exportServlet</url-pattern>
    </servlet-mapping>
 
    <!-- Enable bulk load servlet to print out full exception stack trace in case of error/exception -->
