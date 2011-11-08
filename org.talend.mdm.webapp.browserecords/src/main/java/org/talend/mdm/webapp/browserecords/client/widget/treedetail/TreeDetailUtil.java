@@ -160,8 +160,9 @@ public class TreeDetailUtil {
                                 itemPanel.getToolBar().setOutMost(true);
                                 List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
                                 if (item != null) {
-                                    breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, false)); //$NON-NLS-1$
-                                    breads.add(new BreadCrumbModel(item.getConcept(), item.getLabel(), item.getIds(), true));
+                                    breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, null, false)); //$NON-NLS-1$
+                                    breads.add(new BreadCrumbModel(item.getConcept(), item.getLabel(), item.getIds(), item
+                                            .getDisplayPKInfo().equals(item.getLabel()) ? null : item.getDisplayPKInfo(), true));
                                 }
 
                                 panel.setId(item.getIds());
@@ -191,8 +192,9 @@ public class TreeDetailUtil {
 
         List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
         if (itemBean != null) {
-            breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, false)); //$NON-NLS-1$
-            breads.add(new BreadCrumbModel(itemBean.getConcept(), itemBean.getLabel(), itemBean.getIds(), true));
+            breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, null, false)); //$NON-NLS-1$
+            breads.add(new BreadCrumbModel(itemBean.getConcept(), itemBean.getLabel(), itemBean.getIds(), itemBean
+                    .getDisplayPKInfo().equals(itemBean.getLabel()) ? null : itemBean.getDisplayPKInfo(), true));
         }
 
         itemsDetailPanel.setId(itemBean.getIds());

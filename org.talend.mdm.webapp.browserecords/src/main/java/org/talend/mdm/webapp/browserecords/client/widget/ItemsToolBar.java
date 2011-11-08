@@ -45,7 +45,6 @@ import org.talend.mdm.webapp.browserecords.client.widget.integrity.DeleteCallbac
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.ListRefresh;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.LogicalDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.NoOpPostDeleteAction;
-import org.talend.mdm.webapp.browserecords.client.widget.integrity.PhysicalDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.PostDeleteAction;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
@@ -287,8 +286,8 @@ public class ItemsToolBar extends ToolBar {
                 panel.initBanner(pkInfoList, itemBean.getDescription());
                 List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
                 if (itemBean != null) {
-                    breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, false)); //$NON-NLS-1$
-                    breads.add(new BreadCrumbModel("", itemBean.getLabel(), null, false)); //$NON-NLS-1$
+                    breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, null, false)); //$NON-NLS-1$
+                    breads.add(new BreadCrumbModel("", itemBean.getLabel(), null, null, false)); //$NON-NLS-1$
                 }
                 panel.initBreadCrumb(new BreadCrumb(breads, panel));
                 ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);

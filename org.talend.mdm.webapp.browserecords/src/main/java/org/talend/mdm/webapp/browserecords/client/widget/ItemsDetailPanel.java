@@ -131,10 +131,10 @@ public class ItemsDetailPanel extends ContentPanel {
         this.breadCrumb.clear();
     }
 
-    public void appendBreadCrumb(String concept, String label, String ids) {
+    public void appendBreadCrumb(String concept, String label, String ids, String pkInfo) {
         if (this.breadCrumb.getWidget() instanceof BreadCrumb) {
             BreadCrumb curBC = (BreadCrumb) this.breadCrumb.getWidget();
-            curBC.appendBreadCrumb(concept, label, ids);
+            curBC.appendBreadCrumb(concept, label, ids, pkInfo);
         }
     }
 

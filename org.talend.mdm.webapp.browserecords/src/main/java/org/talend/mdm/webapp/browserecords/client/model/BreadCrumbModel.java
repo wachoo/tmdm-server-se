@@ -25,16 +25,19 @@ public class BreadCrumbModel implements Serializable {
 
     private String label;
 
+    private String pkInfo;
+
     private boolean ifLink;
 
     public BreadCrumbModel() {
 
     }
 
-    public BreadCrumbModel(String concept, String label, String ids, boolean ifLink) {
+    public BreadCrumbModel(String concept, String label, String ids, String pkInfo, boolean ifLink) {
         this.concept = concept;
         this.label = label;
         this.ids = ids;
+        this.pkInfo = pkInfo;
         this.ifLink = ifLink;
     }
 
@@ -60,6 +63,14 @@ public class BreadCrumbModel implements Serializable {
 
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    public String getPkInfo() {
+        return pkInfo;
+    }
+
+    public void setPkInfo(String pkInfo) {
+        this.pkInfo = pkInfo;
     }
 
     public boolean isIfLink() {

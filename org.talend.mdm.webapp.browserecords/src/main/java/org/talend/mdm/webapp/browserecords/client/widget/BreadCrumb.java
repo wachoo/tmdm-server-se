@@ -37,7 +37,7 @@ public class BreadCrumb extends Composite {
 
         for (BreadCrumbModel bcm : list) {
 
-            HTML h = initBreadCrumb(bcm.getConcept(), bcm.getLabel(), bcm.getIds(), bcm.isIfLink());
+            HTML h = initBreadCrumb(bcm.getConcept(), bcm.getLabel(), bcm.getIds(), bcm.getPkInfo(), bcm.isIfLink());
             pWidget.add(h);
             ++i;
             if (i != list.size())
@@ -47,22 +47,38 @@ public class BreadCrumb extends Composite {
         initWidget(pWidget);
     }
 
-    public void appendBreadCrumb(String concept, String label, String ids) {
+    public void appendBreadCrumb(String concept, String label, String ids, String pkInfo) {
         if (pWidget != null) {
-            HTML tmph = new HTML("<a>" + label + " " + ids + "</a><input value=\"" + concept + "\"' type=\"hidden\">");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$   
+            String title;
+            if (label != null) {
+                if (pkInfo != null)
+                    title = label + " " + pkInfo; //$NON-NLS-1$
+                else if (ids != null)
+                    title = label + " " + ids; //$NON-NLS-1$
+                else
+                    title = label;
+            } else
+                title = ids;
+            HTML tmph = new HTML("<a>" + title + "</a><input value=\"" + concept + "\"' type=\"hidden\">");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$    
             if (pWidget.getWidget(pWidget.getWidgetCount() - 1).getElement().getInnerHTML().equals(tmph.getHTML()))
                 return;
             pWidget.add(new HTML("&nbsp;&gt;&nbsp;"));//$NON-NLS-1$      
-            HTML h = initBreadCrumb(concept, label, ids, true);
+            HTML h = initBreadCrumb(concept, label, ids, pkInfo, true);
             pWidget.add(h);
         }
     }
 
-    private HTML initBreadCrumb(final String concept, String label, final String ids, boolean ifLink) {
+    private HTML initBreadCrumb(final String concept, String label, final String ids, String pkInfo, boolean ifLink) {
         HTML h = null;
         String title;
-        if (label != null)
-            title = label + " " + ids; //$NON-NLS-1$
+        if (label != null) {
+            if (pkInfo != null)
+                title = label + " " + pkInfo; //$NON-NLS-1$
+            else if (ids != null)
+                title = label + " " + ids; //$NON-NLS-1$
+            else
+                title = label;
+        }
         else
             title = ids;
         if (ifLink) {

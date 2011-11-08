@@ -141,9 +141,9 @@ public class BrowseRecordsView extends View {
         // show breadcrumb
         // ItemsDetailPanel.getInstance().clearBreadCrumb();
         if (item != null) {
-            breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, false)); //$NON-NLS-1$
-            breads.add(new BreadCrumbModel("", item.getLabel(), null, false)); //$NON-NLS-1$
-            breads.add(new BreadCrumbModel(item.getConcept(), item.getLabel(), item.getIds(), true));
+            breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, null, false)); //$NON-NLS-1$           
+            breads.add(new BreadCrumbModel(item.getConcept(), item.getLabel(), item.getIds(), item.getDisplayPKInfo().equals(
+                    item.getLabel()) ? null : item.getDisplayPKInfo(), true));
         }
 
         ItemsDetailPanel panel = new ItemsDetailPanel();
