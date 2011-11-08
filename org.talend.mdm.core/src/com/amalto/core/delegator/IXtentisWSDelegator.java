@@ -986,7 +986,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     new DataClusterPOJOPK(wsXPathsSearch.getWsDataClusterPK().getPk()), wsXPathsSearch.getPivotPath(),
                     new ArrayList<String>(Arrays.asList(wsXPathsSearch.getViewablePaths().getStrings())),
                     WS2VO(wsXPathsSearch.getWhereItem()), wsXPathsSearch.getSpellTreshold(), wsXPathsSearch.getOrderBy(),
-                    wsXPathsSearch.getDirection(), wsXPathsSearch.getSkip(), wsXPathsSearch.getMaxItems(), wsXPathsSearch.isReturnCount());
+                    wsXPathsSearch.getDirection(), wsXPathsSearch.getSkip(), wsXPathsSearch.getMaxItems(), wsXPathsSearch.getReturnCount());
             return new WSStringArray((String[]) res.toArray(new String[res.size()]));
         } catch (XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
