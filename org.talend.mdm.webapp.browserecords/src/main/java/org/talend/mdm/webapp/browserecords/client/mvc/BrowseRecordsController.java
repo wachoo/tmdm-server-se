@@ -28,6 +28,7 @@ import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
@@ -140,7 +141,14 @@ public class BrowseRecordsController extends Controller {
                         TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(itemBean.getConcept());
                         String tabText = typeModel.getLabel(Locale.getLanguage()) + " " + result.getReturnValue(); //$NON-NLS-1$
                         detailToolBar.updateOutTabPanel(tabText);
-                    } else { 
+                        if (ItemsMainTabPanel.getInstance().getDefaultViewTabItem() != null
+                                && ItemsMainTabPanel.getInstance().getDefaultViewTabItem().getFirstTabWidget() instanceof ItemPanel) {
+                            ItemPanel mainPanel = (ItemPanel) ItemsMainTabPanel.getInstance().getDefaultViewTabItem()
+                                    .getFirstTabWidget();
+                            mainPanel.refreshTree();
+                        }
+
+                    } else {
                         detailToolBar.refreshTreeDetailByIds(result.getReturnValue());
                     }
                 }
