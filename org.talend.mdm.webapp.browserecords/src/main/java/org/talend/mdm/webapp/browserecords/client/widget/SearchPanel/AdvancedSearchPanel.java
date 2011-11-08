@@ -45,11 +45,11 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.ColumnData;
 import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
@@ -319,6 +319,7 @@ public class AdvancedSearchPanel extends FormPanel {
                 validButton.addStyleName("x-form-valid-btn"); //$NON-NLS-1$
                 validButton.render(wrap.dom);
                 super.onRender(target, index);
+                input.setEnabled(false);
             }
 
             @Override
@@ -357,7 +358,6 @@ public class AdvancedSearchPanel extends FormPanel {
         });
 
         expressionTextField.setFieldLabel(MessagesFactory.getMessages().search_expression());
-        expressionTextField.setEnabled(false);
         this.add(expressionTextField, new FormData("70%")); //$NON-NLS-1$
 
         cb = new ComboBox<BaseModel>();
