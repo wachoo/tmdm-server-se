@@ -16,8 +16,6 @@ import javax.ejb.SessionBean;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 
-import com.amalto.core.jobox.component.MDMJobInvoker;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerV2CtrlBean;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
@@ -39,7 +37,9 @@ import talend.core.transformer.plugin.v2.tiscall.webservices.WSxmlService;
 
 import com.amalto.core.jobox.JobContainer;
 import com.amalto.core.jobox.JobInvokeConfig;
+import com.amalto.core.jobox.component.MDMJobInvoker;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerPluginV2CtrlBean;
+import com.amalto.core.objects.transformers.v2.ejb.TransformerV2CtrlBean;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginContext;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
 import com.amalto.core.objects.transformers.v2.util.TypedContent;
@@ -186,6 +186,9 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
             URI uri = URI.create(compiledParameters.getUrl());
             String protocol = uri.getScheme();
             String jobName = uri.getHost();
+            if (jobName == null) {
+                jobName = uri.getAuthority();
+            }
             String jobVersion = uri.getPath().substring(1);
             String jobMainClass = uri.getQuery() == null ? StringUtils.EMPTY : uri.getQuery();
 

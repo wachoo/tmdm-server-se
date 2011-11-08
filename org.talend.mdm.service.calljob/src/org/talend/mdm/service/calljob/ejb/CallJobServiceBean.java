@@ -25,7 +25,6 @@ import javax.ejb.SessionBean;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 
-import com.amalto.core.jobox.component.MDMJobInvoker;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
@@ -42,6 +41,7 @@ import com.amalto.core.ejb.ServiceCtrlBean;
 import com.amalto.core.ejb.local.ItemCtrl2Local;
 import com.amalto.core.jobox.JobContainer;
 import com.amalto.core.jobox.JobInvokeConfig;
+import com.amalto.core.jobox.component.MDMJobInvoker;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
@@ -208,6 +208,9 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
             URI uri = URI.create(parameters.getUrl());
             String protocol = uri.getScheme();
             String jobName = uri.getHost();
+            if (jobName == null) {
+                jobName = uri.getAuthority();
+            }
             String jobVersion = uri.getPath().substring(1);
             String jobMainClass = uri.getQuery() == null ? StringUtils.EMPTY : uri.getQuery();
 
