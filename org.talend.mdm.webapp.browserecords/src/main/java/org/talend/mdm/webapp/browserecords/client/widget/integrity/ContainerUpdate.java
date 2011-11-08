@@ -21,6 +21,7 @@ public class ContainerUpdate implements PostDeleteAction {
     }
 
     public void doAction() {
+        ItemsListPanel.getInstance().getGrid().getSelectionModel().select(-1, false);
         ItemsListPanel.getInstance().refreshGrid();
         // After item has been deleted, close its view tab.
         if (ItemsMainTabPanel.getInstance().getSelectedItem().getWidget(0) instanceof ItemsDetailPanel)
