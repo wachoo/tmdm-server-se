@@ -312,10 +312,6 @@ a{
     margin-left: 5px;
 }
 
-.ItemDetailToolBar .x-btn-mc em.x-btn-arrow 
-{
-    background-image:url("resources/images/talend/icon_menu-down.png");
-}
 
 .ItemDetailToolBar .x-btn-tl, 
 .ItemDetailToolBar .x-btn-tr, 
