@@ -14,6 +14,7 @@ package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -217,7 +218,7 @@ public class TreeDetail extends ContentPanel {
             item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, fieldMap, handler, operation, itemsDetailPanel));
         }
         if (itemNode.getChildren() != null && itemNode.getChildren().size() > 0) {
-            final Map<TypeModel, List<ItemNodeModel>> fkMap = new HashMap<TypeModel, List<ItemNodeModel>>();
+            final Map<TypeModel, List<ItemNodeModel>> fkMap = new LinkedHashMap<TypeModel, List<ItemNodeModel>>();
             for (ModelData model : itemNode.getChildren()) {
                 ItemNodeModel node = (ItemNodeModel) model;
                 TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath());

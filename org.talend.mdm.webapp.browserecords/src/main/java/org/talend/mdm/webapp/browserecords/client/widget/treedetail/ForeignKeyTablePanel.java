@@ -105,6 +105,10 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
     
     private ItemsDetailPanel itemsDetailPanel;
 
+    public ForeignKeyTablePanel() {
+        super();
+    }
+
     public ForeignKeyTablePanel(final EntityModel entityModel, ItemNodeModel parent, final List<ItemNodeModel> fkModels,
             final TypeModel fkTypeModel, Map<String, Field<?>> fieldMap, ItemsDetailPanel itemsDetailPanel) {
         this(entityModel, parent, fkModels, fkTypeModel, fieldMap, itemsDetailPanel, null);
@@ -113,7 +117,12 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
     public ForeignKeyTablePanel(final EntityModel entityModel, ItemNodeModel parent, final List<ItemNodeModel> fkModels,
             final TypeModel fkTypeModel, Map<String, Field<?>> fieldMap, ItemsDetailPanel itemsDetailPanel,
             ViewBean originalViewBean) {
-       
+        initContent(entityModel, parent, fkModels, fkTypeModel, fieldMap, itemsDetailPanel, originalViewBean);
+    }
+
+    public void initContent(final EntityModel entityModel, ItemNodeModel parent, final List<ItemNodeModel> fkModels,
+            final TypeModel fkTypeModel, Map<String, Field<?>> fieldMap, ItemsDetailPanel itemsDetailPanel,
+            ViewBean originalViewBean) {
         this.itemsDetailPanel = itemsDetailPanel;
         this.setHeaderVisible(false);
         this.setLayout(new FitLayout());
@@ -124,6 +133,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         this.fkTypeModel = fkTypeModel;
         this.fkModels = fkModels;
         this.fieldMap = fieldMap;
+
         toolBar.add(addFkButton);
         toolBar.add(new SeparatorToolItem());
         toolBar.add(removeFkButton);

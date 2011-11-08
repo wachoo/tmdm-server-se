@@ -36,26 +36,32 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
             final TypeModel fkTypeModel, final ItemDetailToolBar toolBar, final ViewBean pkViewBean, final ContentPanel cp, final ItemsDetailPanel detailPanel) {
         if (fkNodeModelList != null) {
             String concept = fkTypeModel.getForeignkey().split("/")[0]; //$NON-NLS-1$
+
+            final Map<String, Field<?>> fieldMap;
+            TreeItem root;
+            if (cp instanceof TreeDetail) {
+                fieldMap = ((TreeDetail) cp).getFieldMap();
+                root = ((TreeDetail) cp).getTree().getItem(0);
+            } else {
+                fieldMap = ((ForeignKeyTreeDetail) cp).getFieldMap();
+                root = ((ForeignKeyTreeDetail) cp).getRoot();
+            }
+            final ForeignKeyTablePanel fkPanel = new ForeignKeyTablePanel();
+
+            ItemPanel itemPanel = new ItemPanel(pkViewBean, toolBar.getItemBean(), toolBar.getOperation(), fkPanel, root,
+                    detailPanel);
+            itemPanel.getToolBar().setOutMost(toolBar.isOutMost());
+            String xpathLabel = ForeignKeyUtil.transferXpathToLabel(fkTypeModel, pkViewBean);
+            ItemDetailTabPanelContentHandle handle = detailPanel.addTabItem(xpathLabel, itemPanel, ItemsDetailPanel.MULTIPLE,
+                    fkTypeModel.getXpath());
+            relationFk.put(parentModel, handle);
             service.getEntityModel(concept, Locale.getLanguage(), new SessionAwareAsyncCallback<EntityModel>() {
 
                 public void onSuccess(EntityModel entityModel) {
-                    Map<String, Field<?>> fieldMap;
-                    TreeItem root;
-                    if (cp instanceof TreeDetail) {
-                        fieldMap = ((TreeDetail) cp).getFieldMap();
-                        root = ((TreeDetail) cp).getTree().getItem(0);
-                    } else {
-                        fieldMap = ((ForeignKeyTreeDetail) cp).getFieldMap();
-                        root = ((ForeignKeyTreeDetail) cp).getRoot();
-                    }
-                    ForeignKeyTablePanel fkPanel = new ForeignKeyTablePanel(entityModel, parentModel, fkNodeModelList,
-                            fkTypeModel, fieldMap, detailPanel, pkViewBean);
-                    ItemPanel itemPanel = new ItemPanel(pkViewBean, toolBar.getItemBean(), toolBar.getOperation(), fkPanel, root, detailPanel);
-                    itemPanel.getToolBar().setOutMost(toolBar.isOutMost());
-                    String xpathLabel = ForeignKeyUtil.transferXpathToLabel(fkTypeModel, pkViewBean);
-
-                    ItemDetailTabPanelContentHandle handle = detailPanel.addTabItem(xpathLabel, itemPanel, ItemsDetailPanel.MULTIPLE, fkTypeModel.getXpath());
-                    relationFk.put(parentModel, handle);
+                    fkPanel
+                            .initContent(entityModel, parentModel, fkNodeModelList, fkTypeModel, fieldMap, detailPanel,
+                                    pkViewBean);
+                    fkPanel.layout(true);
                 }
             });
         }
