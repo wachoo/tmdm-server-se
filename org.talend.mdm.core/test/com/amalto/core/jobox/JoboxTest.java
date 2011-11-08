@@ -121,7 +121,7 @@ public class JoboxTest extends TestCase {
         JobInfo jobInfo = jobContainer.getJobInfo("TestTalendMDMJob", "0.1");
         assertNotNull(jobInfo);
 
-        Class jobClass = jobContainer.getJobClass(jobInfo);
+        Class<?> jobClass = jobContainer.getJobClass(jobInfo);
         assertNotSame(Thread.currentThread().getContextClassLoader(), jobClass.getClassLoader());
     }
 
@@ -157,13 +157,13 @@ public class JoboxTest extends TestCase {
         JobInfo jobInfo = jobContainer.getJobInfo("TestTalendMDMJob", "0.1");
         assertNotNull(jobInfo);
 
-        Class jobClass = jobContainer.getJobClass(jobInfo);
+        Class<?> jobClass = jobContainer.getJobClass(jobInfo);
         assertNotNull(jobClass);
         assertEquals("tests.testtalendmdmjob_0_1.TestTalendMDMJob", jobClass.getName());
 
         assertNotSame(Thread.currentThread().getContextClassLoader(), jobClass.getClassLoader());
 
-        Class[] interfaces = jobClass.getInterfaces();
+        Class<?>[] interfaces = jobClass.getInterfaces();
         assertEquals(1, interfaces.length);
         assertEquals("routines.system.api.TalendMDMJob", interfaces[0].getName());
 
@@ -194,18 +194,18 @@ public class JoboxTest extends TestCase {
         deployFileToJobox("testJob1.zip");
         jobContainer.init(props);
 
-        JobInfo jobInfo = jobContainer.getJobInfo("TestTalendMDMJob_Name", "0.1");
-        assertNotNull(jobInfo);
+        JobInfo jobInfo = jobContainer.getJobInfo("TestTalendMDMJob_NonExistent", "0.1");
+        assertNull(jobInfo);
 
         try {
-            jobContainer.getJobInvoker("TestTalendMDMJob_Name", "0.1");
+            jobContainer.getJobInvoker("TestTalendMDMJob_NonExistent", "0.1");
             fail("Job does not exist");
         } catch (JobNotFoundException e) {
             // Expected
         }
 
         try {
-            jobContainer.getJobInvoker("TestTalendMDMJob", "0.2");
+            jobContainer.getJobInvoker("TestTalendMDMJob", "NonExistentVersion");
             fail("Job version does not exist");
         } catch (JobNotFoundException e) {
             // Expected
