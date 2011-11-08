@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
@@ -91,6 +92,11 @@ public class TreeDetailUtil {
         hp.add(label);
         if (typeModel.isSimpleType()
                 || (!typeModel.isSimpleType() && ((ComplexTypeModel) typeModel).getReusableComplexTypes().size() > 0)) {
+
+            if (typeModel.getType().equals(DataTypeConstants.AUTO_INCREMENT)
+                    && ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {
+                itemNode.setObjectValue(""); //$NON-NLS-1$
+            }
 
             Field<?> field = TreeDetailGridFieldCreator.createField(itemNode, typeModel, Locale.getLanguage(), fieldMap,
                     operation, itemsDetailPanel);

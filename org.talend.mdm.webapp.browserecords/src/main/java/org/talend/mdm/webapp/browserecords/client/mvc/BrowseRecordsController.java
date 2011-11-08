@@ -141,16 +141,15 @@ public class BrowseRecordsController extends Controller {
                         TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(itemBean.getConcept());
                         String tabText = typeModel.getLabel(Locale.getLanguage()) + " " + result.getReturnValue(); //$NON-NLS-1$
                         detailToolBar.updateOutTabPanel(tabText);
+
                         if (ItemsMainTabPanel.getInstance().getDefaultViewTabItem() != null
                                 && ItemsMainTabPanel.getInstance().getDefaultViewTabItem().getFirstTabWidget() instanceof ItemPanel) {
                             ItemPanel mainPanel = (ItemPanel) ItemsMainTabPanel.getInstance().getDefaultViewTabItem()
                                     .getFirstTabWidget();
                             mainPanel.refreshTree();
                         }
-
-                    } else {
-                        detailToolBar.refreshTreeDetailByIds(result.getReturnValue());
                     }
+                    detailToolBar.refreshTreeDetailByIds(result.getReturnValue());
                 }
                 ItemsListPanel.getInstance().refreshGrid();
             }
