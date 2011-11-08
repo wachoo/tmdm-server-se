@@ -249,6 +249,7 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
      */
     public void execute(TransformerPluginContext context) throws XtentisException {
         String contentType = (String) context.get(CONTENT_TYPE);
+        JobInvokeConfig invokeConfig = (JobInvokeConfig) context.get(INVOKE_CONFIG);
         try {
             //the text should be a map(key=value)
             Properties p = new Properties();
@@ -304,7 +305,6 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
             //Build call parameters
             List<ArrayOfXsdString> list = new ArrayList<ArrayOfXsdString>();
 
-            JobInvokeConfig invokeConfig = (JobInvokeConfig) context.get(INVOKE_CONFIG);
             if (invokeConfig != null) { // Local test job invocation
                 argsMap.put(MDMJobInvoker.EXCHANGE_XML_PARAMETER, new String(context.getFromPipeline(TransformerV2CtrlBean.DEFAULT_VARIABLE).getContentBytes()));
                 String[][] result = JobContainer.getUniqueInstance().getJobInvoker(invokeConfig.getJobName(), invokeConfig.getJobVersion()).call(argsMap);
@@ -382,7 +382,12 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
         } catch (XtentisException xe) {
             throw (xe);
         } catch (Exception e) {
-            String err = "Could not execute the tisCall transformer plugin " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            String err;
+            if (invokeConfig != null) {
+                err = "Could not execute the tisCall transformer plugin for job " + invokeConfig.getJobName() + " in version " + invokeConfig.getJobVersion(); //$NON-NLS-1$ //$NON-NLS-2$
+            } else {
+                err = "Could not execute the tisCall transformer plugin for service " + compiledParameters.getUrl(); //$NON-NLS-1$
+            }
             LOGGER.error(err, e);
             throw new XtentisException(e);
         }

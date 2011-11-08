@@ -25,16 +25,6 @@ import javax.ejb.SessionBean;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.transport.http.HTTPConduit;
-import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
-import org.talend.mdm.service.calljob.CompiledParameters;
-import org.talend.mdm.service.calljob.ContextParam;
-import org.talend.mdm.service.calljob.webservices.Args;
-import org.talend.mdm.service.calljob.webservices.WSxml;
-import org.talend.mdm.service.calljob.webservices.WSxmlService;
-import org.w3c.dom.Element;
-
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ServiceCtrlBean;
@@ -45,6 +35,16 @@ import com.amalto.core.jobox.component.MDMJobInvoker;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
+import org.apache.log4j.Logger;
+import org.talend.mdm.service.calljob.CompiledParameters;
+import org.talend.mdm.service.calljob.ContextParam;
+import org.talend.mdm.service.calljob.webservices.Args;
+import org.talend.mdm.service.calljob.webservices.WSxml;
+import org.talend.mdm.service.calljob.webservices.WSxmlService;
+import org.w3c.dom.Element;
 
 /**
  * @author achen
@@ -73,6 +73,8 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
 	private static final String LTJ_PROTOCOL = "ltj";
 
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOGGER = Logger.getLogger(CallJobServiceBean.class);
 
     public static final String JNDI_NAME = "amalto/local/service/callJob";
 
@@ -199,9 +201,16 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
      * @ejb.facade-method
      */
     public String receiveFromInbound(ItemPOJOPK itemPK, String routingOrderID, String compiledParameters) throws XtentisException {
+        JobInvokeConfig jobInvokeConfig = null;
+        CompiledParameters parameters;
         try {
-            CompiledParameters parameters = CompiledParameters.deserialize(compiledParameters);
-            JobInvokeConfig jobInvokeConfig = null;
+            parameters = CompiledParameters.deserialize(compiledParameters);
+        } catch (Exception e) {
+            LOGGER.error("Could not read parameters", e);
+            throw new XtentisException(e);
+        }
+
+        try {
             WSxml port = null;
 
             //set the parameters
@@ -288,9 +297,13 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
         } catch (XtentisException xe) {
             throw (xe);
         } catch (Exception e) {
-            String err = "Could not execute callJob service " +
-                    e.getClass().getName() + ": " + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+            String err;
+            if (jobInvokeConfig != null) {
+                err = "Could not execute callJob service for job " + jobInvokeConfig.getJobName() + " in version " + jobInvokeConfig.getJobVersion(); //$NON-NLS-1$ //$NON-NLS-2$
+            } else {
+                err = "Could not execute callJob service for service " + parameters.getUrl(); //$NON-NLS-1$
+            }
+            LOGGER.error(err, e);
             throw new XtentisException(e);
         }
     }
