@@ -285,6 +285,7 @@ public class MainFramePanel extends ContentPanel {
         pagetoolBar.bind(loader);
         grid.setLoadMask(true);
         grid.setStateId("trashgrid");//$NON-NLS-1$
+        grid.setStateful(true);
         grid.addListener(Events.Attach, new Listener<GridEvent<ItemsTrashItem>>() {
 
             public void handleEvent(GridEvent<ItemsTrashItem> be) {
