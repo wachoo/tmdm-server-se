@@ -58,8 +58,10 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
@@ -335,16 +337,31 @@ public class ForeignKeyListWindow extends Window {
 
         // change label display
         boolean retrieveFKinfos = typeModel.isRetrieveFKinfos();
+        boolean isDisplayKeyInfo = false;
         if (retrieveFKinfos) {
             List<String> foreignKeyInfo = typeModel.getForeignKeyInfo();
+            if (foreignKeyInfo.contains(typeModel.getForeignkey()))
+                isDisplayKeyInfo = true;
             for (String info : foreignKeyInfo) {
                 columns.add(new ColumnConfig(CommonUtil.getElementFromXpath(info), CommonUtil.getElementFromXpath(info),
                         COLUMN_WIDTH));
             }
-            if (columns.size() == 0)
-                columns.add(new ColumnConfig("i", CommonUtil.getElementFromXpath(typeModel.getXpath()), COLUMN_WIDTH)); //$NON-NLS-1$
-        } else
+        }
+        if (columns.size() == 0) {
             columns.add(new ColumnConfig("i", CommonUtil.getElementFromXpath(typeModel.getXpath()), COLUMN_WIDTH)); //$NON-NLS-1$
+            isDisplayKeyInfo = true;
+        }
+
+        // fix bug TMDM-2829
+        if (!isDisplayKeyInfo) {
+            ColumnConfig columnConfig = columns.get(0);
+            columnConfig.setRenderer(new GridCellRenderer<ForeignKeyBean>() {
+                public Object render(final ForeignKeyBean fkBean, String property, ColumnData config, int rowIndex, int colIndex,
+                        ListStore<ForeignKeyBean> store, Grid<ForeignKeyBean> grid) {
+                    return fkBean != null ? fkBean.get(property) + "-" + fkBean.getId() : ""; //$NON-NLS-1$ //$NON-NLS-2$
+                }
+            });
+        }
 
         ColumnModel cm = new ColumnModel(columns);
         relatedRecordGrid = new Grid<ForeignKeyBean>(store, cm);

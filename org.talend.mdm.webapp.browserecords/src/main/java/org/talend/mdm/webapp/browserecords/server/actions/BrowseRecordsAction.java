@@ -18,7 +18,23 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,32 +45,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.xpath.XPathExpressionException;
 
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.integrity.FKIntegrityCheckResult;
-import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
-import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.util.EntityNotFoundException;
-import com.amalto.core.util.Messages;
-import com.amalto.core.util.MessagesFactory;
-import com.amalto.webapp.core.bean.Configuration;
-import com.amalto.webapp.core.bean.UpdateReportItem;
-import com.amalto.webapp.core.dmagent.SchemaWebAgent;
-import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.core.util.XmlUtil;
-import com.amalto.webapp.core.util.XtentisWebappException;
-import com.amalto.webapp.util.webservices.*;
-import com.extjs.gxt.ui.client.Style.SortDir;
-import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
-import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.extjs.gxt.ui.client.data.PagingLoadResult;
-import com.sun.xml.xsom.XSAnnotation;
-import com.sun.xml.xsom.XSComplexType;
-import com.sun.xml.xsom.XSElementDecl;
-import com.sun.xml.xsom.XSParticle;
-import com.sun.xml.xsom.XSSchemaSet;
-import com.sun.xml.xsom.parser.XSOMParser;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
@@ -70,7 +60,16 @@ import org.talend.mdm.webapp.base.server.BaseConfiguration;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsService;
-import org.talend.mdm.webapp.browserecords.client.model.*;
+import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
+import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyDrawer;
+import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
+import org.talend.mdm.webapp.browserecords.client.model.FormatModel;
+import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
+import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
+import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
+import org.talend.mdm.webapp.browserecords.client.model.Restriction;
+import org.talend.mdm.webapp.browserecords.client.model.SearchTemplate;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ItemHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.RoleHelper;
@@ -93,6 +92,72 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+
+import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.integrity.FKIntegrityCheckResult;
+import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
+import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.util.EntityNotFoundException;
+import com.amalto.core.util.Messages;
+import com.amalto.core.util.MessagesFactory;
+import com.amalto.webapp.core.bean.Configuration;
+import com.amalto.webapp.core.bean.UpdateReportItem;
+import com.amalto.webapp.core.dmagent.SchemaWebAgent;
+import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.core.util.XmlUtil;
+import com.amalto.webapp.core.util.XtentisWebappException;
+import com.amalto.webapp.util.webservices.WSBoolean;
+import com.amalto.webapp.util.webservices.WSByteArray;
+import com.amalto.webapp.util.webservices.WSDataClusterPK;
+import com.amalto.webapp.util.webservices.WSDataModelPK;
+import com.amalto.webapp.util.webservices.WSDeleteItem;
+import com.amalto.webapp.util.webservices.WSDropItem;
+import com.amalto.webapp.util.webservices.WSDroppedItemPK;
+import com.amalto.webapp.util.webservices.WSExecuteTransformerV2;
+import com.amalto.webapp.util.webservices.WSExistsItem;
+import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
+import com.amalto.webapp.util.webservices.WSGetDataModel;
+import com.amalto.webapp.util.webservices.WSGetItem;
+import com.amalto.webapp.util.webservices.WSGetItemsByCustomFKFilters;
+import com.amalto.webapp.util.webservices.WSGetTransformer;
+import com.amalto.webapp.util.webservices.WSGetTransformerPKs;
+import com.amalto.webapp.util.webservices.WSGetView;
+import com.amalto.webapp.util.webservices.WSGetViewPKs;
+import com.amalto.webapp.util.webservices.WSItem;
+import com.amalto.webapp.util.webservices.WSItemPK;
+import com.amalto.webapp.util.webservices.WSPutItem;
+import com.amalto.webapp.util.webservices.WSPutItemWithReport;
+import com.amalto.webapp.util.webservices.WSRouteItemV2;
+import com.amalto.webapp.util.webservices.WSStringArray;
+import com.amalto.webapp.util.webservices.WSStringPredicate;
+import com.amalto.webapp.util.webservices.WSTransformer;
+import com.amalto.webapp.util.webservices.WSTransformerContext;
+import com.amalto.webapp.util.webservices.WSTransformerContextPipelinePipelineItem;
+import com.amalto.webapp.util.webservices.WSTransformerPK;
+import com.amalto.webapp.util.webservices.WSTransformerV2PK;
+import com.amalto.webapp.util.webservices.WSTypedContent;
+import com.amalto.webapp.util.webservices.WSView;
+import com.amalto.webapp.util.webservices.WSViewPK;
+import com.amalto.webapp.util.webservices.WSViewSearch;
+import com.amalto.webapp.util.webservices.WSWhereAnd;
+import com.amalto.webapp.util.webservices.WSWhereCondition;
+import com.amalto.webapp.util.webservices.WSWhereItem;
+import com.amalto.webapp.util.webservices.WSWhereOperator;
+import com.amalto.webapp.util.webservices.WSWhereOr;
+import com.amalto.webapp.util.webservices.WSXPathsSearch;
+import com.extjs.gxt.ui.client.Style.SortDir;
+import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
+import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
+import com.extjs.gxt.ui.client.data.PagingLoadConfig;
+import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.sun.xml.xsom.XSAnnotation;
+import com.sun.xml.xsom.XSComplexType;
+import com.sun.xml.xsom.XSElementDecl;
+import com.sun.xml.xsom.XSParticle;
+import com.sun.xml.xsom.XSSchemaSet;
+import com.sun.xml.xsom.parser.XSOMParser;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -474,8 +539,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
 
                 fkEntityType = SchemaWebAgent.getInstance().getBusinessConcept(fkEntity).getCorrespondTypeName();
-                entityReusableType = SchemaWebAgent.getInstance().getReusableType(fkEntityType);
-                entityReusableType.load();
+                if (fkEntityType != null)
+                    entityReusableType = SchemaWebAgent.getInstance().getReusableType(fkEntityType);
+                if (entityReusableType != null)
+                    entityReusableType.load();
 
                 List<ReusableType> subtypes = SchemaWebAgent.getInstance().getMySubtypes(fkEntityType, true);
                 for (ReusableType reusableType : subtypes) {
@@ -497,7 +564,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             List<Restriction> ret = new ArrayList<Restriction>();
 
-            if (fkEntityType != null && !entityReusableType.isAbstract()) {
+            if (fkEntityType != null && entityReusableType != null && !entityReusableType.isAbstract()) {
                 Restriction re = new Restriction();
                 re.setName(entityReusableType.getName());
                 re.setValue(entityReusableType.getLabelMap().get(language) == null ? entityReusableType.getName()

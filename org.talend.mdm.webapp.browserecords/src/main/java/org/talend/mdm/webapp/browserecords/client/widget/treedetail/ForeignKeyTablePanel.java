@@ -190,8 +190,9 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         };
         idColumn.setEditor(idCellEditor);
         List<String> foreignKeyInfo = fkTypeModel.getForeignKeyInfo();
-        for (int i = 0; i < foreignKeyInfo.size(); i++) {
-            final String info = foreignKeyInfo.get(i);
+        for (final String info : foreignKeyInfo) {
+            if (info.equals(fkTypeModel.getForeignkey()))
+                continue;
             final ColumnConfig column = new ColumnConfig("objectValue", //$NON-NLS-1$
                     CommonUtil.getElementFromXpath(info), COLUMN_WIDTH);
             column.setRenderer(new GridCellRenderer<ItemNodeModel>() {
