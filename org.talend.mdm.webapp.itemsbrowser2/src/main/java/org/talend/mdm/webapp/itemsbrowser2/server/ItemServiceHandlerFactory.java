@@ -17,6 +17,8 @@ import org.talend.mdm.webapp.itemsbrowser2.client.ItemsService;
 
 public class ItemServiceHandlerFactory {
 
+    private static Object locker = new Object();
+
     /**
      * DOC HSHU ItemServiceHandlerFactory constructor comment.
      */
@@ -25,16 +27,16 @@ public class ItemServiceHandlerFactory {
 
     /**
      * DOC HSHU Comment method "createHandler".
+     * 
      * @return
      */
     public static ItemsService createHandler() {
-        
-        if (!BaseConfiguration.isStandalone()) {
-            return new ItemServiceHandler();
-        } else {
-            return new ItemServiceProxyHandler();
+        synchronized (locker) {
+            if (!BaseConfiguration.isStandalone()) {
+                return new ItemServiceHandler();
+            } else {
+                return new ItemServiceProxyHandler();
+            }
         }
-
     }
-
 }
