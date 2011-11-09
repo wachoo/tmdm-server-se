@@ -131,7 +131,7 @@ public class BrowseRecordsController extends Controller {
                 else
                     MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().save_success(),
                             null);
-                if (isClose) {
+                if (isClose || isCreate) {
                     if (detailToolBar.isOutMost())
                         detailToolBar.closeOutTabPanel();
                     else
