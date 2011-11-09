@@ -251,8 +251,8 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                         model = nodeModel;
                         ForeignKeyTreeDetail.this.getItem(0).removeFromParent();
                         item.set("time", nodeModel.get("time")); //$NON-NLS-1$ //$NON-NLS-2$
-                        renderTree(nodeModel);
                         itemsDetailPanel.clearChildrenContent();
+                        renderTree(nodeModel);
                         ForeignKeyTreeDetail.this.layout();
                     }
 

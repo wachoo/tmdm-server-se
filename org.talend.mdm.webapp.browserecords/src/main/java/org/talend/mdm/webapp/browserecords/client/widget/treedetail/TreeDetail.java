@@ -453,8 +453,8 @@ public class TreeDetail extends ContentPanel {
                     public void onSuccess(ItemNodeModel node) {
                         TreeDetail.this.removeAll();
                         item.set("time", node.get("time")); //$NON-NLS-1$ //$NON-NLS-2$
-                        renderTree(node);
                         itemsDetailPanel.clearChildrenContent();
+                        renderTree(node);
                     }
 
                     @Override
@@ -659,6 +659,10 @@ public class TreeDetail extends ContentPanel {
 
     public void setViewBean(ViewBean viewBean) {
         this.viewBean = viewBean;
+    }
+
+    public ItemsDetailPanel getItemsDetailPanel() {
+        return itemsDetailPanel;
     }
 
 }
