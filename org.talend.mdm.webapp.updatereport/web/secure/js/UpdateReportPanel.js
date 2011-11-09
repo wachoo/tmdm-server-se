@@ -304,18 +304,25 @@ Ext
 																amalto.updatereport.UpdateReportLocal
 																		.get("lines_per_page")
 																		+ " : "),
-														new Ext.form.TextField(
+														new Ext.form.NumberField(
 																{
 																	id : 'updateRLineMaxItems',
 																	value : this
 																			.getCookie('updateReportPaging_pageSize'),
 																	width : 30,
+																	validator : function(v){
+																		var vi = parseInt(v);
+																		if (v == vi){
+																			return true;
+																		}
+																		return false;
+																	},
 																	listeners : {
 																		'specialkey' : function(
 																				a,
 																				e) {
 																			if (e
-																					.getKey() == e.ENTER) {
+																					.getKey() == e.ENTER && a.isValid(true)) {
 																				var lineMax = DWRUtil
 																						.getValue('updateRLineMaxItems');
 																				if (lineMax == null
