@@ -459,7 +459,7 @@ public class ItemsListPanel extends ContentPanel {
         if (pagingBar != null && pagingBar.getItemCount() > 0) {
             if (grid.getSelectionModel().getSelectedItem() != null) {
                 String ids = grid.getSelectionModel().getSelectedItem().getIds();
-                refresh(ids, false);
+                refresh(ids, true);
             } else
                 pagingBar.refresh();
         }
@@ -494,11 +494,10 @@ public class ItemsListPanel extends ContentPanel {
                         Record record = store.getRecord(itemBean);
                         itemBean.copy(result);
                         record.commit(false);
-                        // TODO refresh other opened form
-                        // if (refreshItemForm) {
-                        // ItemBean m = grid.getSelectionModel().getSelectedItem();
-                        // showItem(m, ItemsView.TARGET_IN_SEARCH_TAB);
-                        // }
+
+                        if (refreshItemForm) {
+                            Dispatcher.forwardEvent(BrowseRecordsEvents.ViewItem, itemBean);
+                        }
                     }
                 });
             } else {
