@@ -111,26 +111,30 @@ public class BrowseRecordsController extends Controller {
         service.saveItem(itemBean.getConcept(), itemBean.getIds(), CommonUtil.toXML(model, viewBean), isCreate, Locale
                 .getLanguage(), new SessionAwareAsyncCallback<ItemResult>() {
 
-                    @Override
-                    protected void doOnFailure(Throwable caught) {
-                        String err = caught.getMessage();
-                        if (err != null) {
-                            if (err.indexOf("ERROR_3:") == 0) { //$NON-NLS-1$
-                                // add for before saving transformer check
-                                MessageBox.alert(MessagesFactory.getMessages().error_title(), err.substring(8), null);
-                            } else
-                                MessageBox.alert(MessagesFactory.getMessages().error_title(), CommonUtil.pickOutISOMessage(err),
-                                        null);
-                        } else
-                            super.doOnFailure(caught);
-                    }
+            @Override
+            protected void doOnFailure(Throwable caught) {
+                String err = caught.getMessage();
+                if (err != null) {
+                    if (err.indexOf("ERROR_3:") == 0) { //$NON-NLS-1$
+                        // add for before saving transformer check
+                        MessageBox.alert(MessagesFactory.getMessages().error_title(), err.substring(8), null);
+                    } else
+                        MessageBox.alert(MessagesFactory.getMessages().error_title(), CommonUtil.pickOutISOMessage(err), null);
+                } else
+                    super.doOnFailure(caught);
+            }
+
+
 
             public void onSuccess(ItemResult result) {
+                MessageBox msgBox = null;
                 if (result.getDescription() != "")//$NON-NLS-1$
-                    MessageBox.info(MessagesFactory.getMessages().info_title(), result.getDescription(), null);
+                    msgBox = MessageBox.info(MessagesFactory.getMessages().info_title(), result.getDescription(), null);
                 else
-                    MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().save_success(),
+                    msgBox = MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
+                            .save_success(),
                             null);
+                setTimeout(msgBox, 1000);
                 if (isClose || isCreate) {
                     if (detailToolBar.isOutMost())
                         detailToolBar.closeOutTabPanel();
@@ -154,8 +158,13 @@ public class BrowseRecordsController extends Controller {
                 ItemsListPanel.getInstance().refreshGrid();
             }
         });
-
     }
+
+    private native void setTimeout(MessageBox msgBox, int millisecond)/*-{
+        $wnd.setTimeout(function(){
+        msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
+        }, millisecond);
+    }-*/;
 
     private void onViewForeignKey(final AppEvent event) {
 
