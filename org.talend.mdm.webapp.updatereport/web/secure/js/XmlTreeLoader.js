@@ -87,8 +87,14 @@ Ext.ux.XmlTreeLoader = Ext.extend(Ext.tree.TreeLoader, {
     
     // private override
     createNode : function(node){
+    	var nodeText = "";
+    	if (node.textContent == undefined)
+    		nodeText = node.tagName + (node.childNodes.length == 1 && node.text != null ? ":" + node.text : "");
+    	else
+    		nodeText = node.tagName + (node.childNodes.length == 1 && node.textContent != null ? ":" + node.textContent : "");
+    	
         var attr = {
-            text: node.tagName + (node.childNodes.length == 1 && node.textContent != null ? ":" + node.textContent : ""),
+            text: nodeText,
             leaf: node.childNodes.length == 0
         };
         
