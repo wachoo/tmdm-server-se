@@ -12,7 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.general.client.mvc.view;
 
-import org.talend.mdm.webapp.general.client.Cookies;
+import org.talend.mdm.webapp.base.client.util.Cookies;
 import org.talend.mdm.webapp.general.client.layout.AccordionMenus;
 import org.talend.mdm.webapp.general.client.layout.BorderLayoutContainer;
 import org.talend.mdm.webapp.general.client.layout.WorkSpace;
