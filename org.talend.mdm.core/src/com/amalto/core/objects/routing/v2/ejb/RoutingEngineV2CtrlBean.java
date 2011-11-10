@@ -34,7 +34,6 @@ import com.amalto.core.ejb.local.ItemCtrl2Local;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocal;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingRuleCtrlLocal;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
-import com.amalto.core.util.AutoIncrementGenerator;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
@@ -271,9 +270,9 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject {
 			}else{
 				String condition=routingRule.getCondition();
 				//TODO
-				condition=condition.replaceAll("\\sAnd\\s|\\sand\\s|\\sAND\\s", " && ");
-				condition=condition.replaceAll("\\sOr\\s|\\sor\\s|\\sOR\\s", " || ");
-				condition=condition.replaceAll("\\sNot\\s|\\snot\\s|\\sNOT\\s|Not\\s|not\\s|NOT\\s", " !");
+                condition = condition.replaceAll("\\s*And\\s*|\\s*and\\s*|\\s*AND\\s*", " && "); //$NON-NLS-1$ //$NON-NLS-2$
+                condition = condition.replaceAll("\\s*Or\\s*|\\s*or\\s*|\\s*OR\\s*", " || "); //$NON-NLS-1$//$NON-NLS-2$
+                condition = condition.replaceAll("\\s*Not\\s*|\\s*not\\s*|\\s*NOT\\s*", " !"); //$NON-NLS-1$ //$NON-NLS-2$
 				String compileCondition=new String (condition);
 //				Pattern p=Pattern.compile("C([0-9]+)", Pattern.CASE_INSENSITIVE);
 //				Matcher m=p.matcher(condition);
