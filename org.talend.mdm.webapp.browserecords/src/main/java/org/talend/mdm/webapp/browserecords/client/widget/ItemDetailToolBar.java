@@ -25,13 +25,13 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
+import org.talend.mdm.webapp.browserecords.client.widget.integrity.CloseTabPostDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.ContainerUpdate;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.DeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.DeleteCallback;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.ListRefresh;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.LogicalDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.NoOpPostDeleteAction;
-import org.talend.mdm.webapp.browserecords.client.widget.integrity.CloseTabPostDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.PostDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTreeDetail;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil;
@@ -218,8 +218,15 @@ public class ItemDetailToolBar extends ToolBar {
 
                 @Override
                 public void componentSelected(ButtonEvent ce) {
-                    // TODO the following code need to be refactor, it is the demo code
-                    saveItemAndClose(false);
+                    Widget widget = itemsDetailPanel.getFirstTabWidget();
+                    ItemPanel itemPanel = (ItemPanel) widget;
+                    ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getTree().getItem(0).getUserObject();
+                    if(isChangeValue(root)) {
+                        saveItemAndClose(false);
+                    } else {
+                        MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
+                                .no_change_info(), null);
+                    }
                 }
             });
         }
@@ -236,7 +243,15 @@ public class ItemDetailToolBar extends ToolBar {
 
                 @Override
                 public void componentSelected(ButtonEvent ce) {
-                    saveItemAndClose(true);
+                    Widget widget = itemsDetailPanel.getFirstTabWidget();
+                    ItemPanel itemPanel = (ItemPanel) widget;
+                    ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getTree().getItem(0).getUserObject();
+                    if (isChangeValue(root)) {
+                        saveItemAndClose(true);
+                    } else {
+                        MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
+                                .no_change_info(), null);
+                    }
                 }
             });
         }

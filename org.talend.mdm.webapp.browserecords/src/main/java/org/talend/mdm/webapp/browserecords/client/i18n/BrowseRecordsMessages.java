@@ -352,4 +352,5 @@ public interface BrowseRecordsMessages extends Messages {
 
     String save_success_but_exist_exception(String name, String message);
 
+    String no_change_info();
 }
