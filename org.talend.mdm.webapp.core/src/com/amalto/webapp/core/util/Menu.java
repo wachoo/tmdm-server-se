@@ -314,6 +314,8 @@ public class Menu {
     public static String getMenuLabel(String language, String menuIndex) throws Exception {
         HashMap<String, Menu> menus = getMenuIndex();
         Menu menu = menus.get(menuIndex);
-        return menu.getLabels().get(language.equals("zh") ? "en" : language); //$NON-NLS-1$ //$NON-NLS-2$
+        if ((null == language) || (language.trim().equals(""))) //$NON-NLS-1$
+            language = "en"; //$NON-NLS-1$
+        return menu.getLabels().get(language);
     }
 }
