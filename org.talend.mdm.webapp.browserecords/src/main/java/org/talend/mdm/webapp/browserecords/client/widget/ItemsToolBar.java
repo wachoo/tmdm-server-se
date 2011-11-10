@@ -174,6 +174,7 @@ public class ItemsToolBar extends ToolBar {
         // init user saved model
         userCluster = BrowseRecords.getSession().getAppHeader().getDatacluster();
         this.setBorders(false);
+        this.setId("ItemsToolBar"); //$NON-NLS-1$
         initToolBar();
         relWindow.setHeading(MessagesFactory.getMessages().fk_RelatedRecord());
     }

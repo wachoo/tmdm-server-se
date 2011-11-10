@@ -33,12 +33,10 @@ import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TabBar;
 import com.google.gwt.user.client.ui.Widget;
-
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -243,13 +241,6 @@ public class ItemsDetailPanel extends ContentPanel {
             ItemsDetailPanel.this.closeTabPanelWithId(id);
         }
     }
-    
-    
-
-
-
-    
-    
 
     /**
      * Custom tab panel within ItemsDetailPanel that supports the desired custom look and feel.
@@ -263,11 +254,10 @@ public class ItemsDetailPanel extends ContentPanel {
         public static final int TAB_LABEL_MAX_WIDTH = 130;
 
         // There is unfortunately no way to easily get the scrollbar size
-        // But it seems fairly standard that operating systems use 16px or 18px 
+        // But it seems fairly standard that operating systems use 16px or 18px
         // This should be set to the maximum pixel size of scrollbars on any system
         public static final int SCROLL_BAR_HEIGHT = 18;
-                     
-        
+
         // Internal state, saves id's and panels corresponding to each tab
         private Vector<String> tabIds = new Vector<String>();
 
@@ -290,15 +280,13 @@ public class ItemsDetailPanel extends ContentPanel {
         private int curTabContentInnerWidth = 0;
 
         private int curTabContentInnerHeight = 0;
-        
-        
+
         /**
          * ItemsDetailTabPanel constructor.
          */
         public ItemsDetailTabPanel() {
             this.setLayout(new RowLayout(Orientation.VERTICAL));
-           
-                    
+
             // Resize listener for the tab panel, recalculate sizes needed and resize everything within
             this.addListener(Events.Resize, new Listener<BoxComponentEvent>() {
 
@@ -313,7 +301,7 @@ public class ItemsDetailPanel extends ContentPanel {
                     // Resize what is in tabContent, if anything
                     Widget contentWidget = ItemsDetailTabPanel.this.tabContent.getWidget(0);
                     if (contentWidget != null) {
-                        contentWidget.setHeight(ItemsDetailTabPanel.this.curTabContentInnerHeight + "px");  //$NON-NLS-1$
+                        contentWidget.setHeight(ItemsDetailTabPanel.this.curTabContentInnerHeight + "px"); //$NON-NLS-1$
                         contentWidget.setWidth(ItemsDetailTabPanel.this.curTabContentInnerWidth + "px"); //$NON-NLS-1$
                     }
                 }
@@ -341,11 +329,11 @@ public class ItemsDetailPanel extends ContentPanel {
             this.tabBar.getElement().setId("ItemsDetailPanel-tabBar"); //$NON-NLS-1$
             this.tabBarScrollPanel.setWidget(this.tabBar);
             this.add(tabBarScrollPanel);
-            
+
             this.tabContent.setId("ItemsDetailPanel-tabContent"); //$NON-NLS-1$
             this.add(this.tabContent);
         }
-        
+
         /**
          * Get the number of tabs.
          * 
@@ -375,7 +363,6 @@ public class ItemsDetailPanel extends ContentPanel {
                 this.curTabContentInnerWidth = 0;
         }
 
-        
         /**
          * Add a new tab.
          * 
@@ -392,9 +379,9 @@ public class ItemsDetailPanel extends ContentPanel {
                     // Adding a first tab
 
                     // Create the tab, which must be special because it is the first
-                    // It must have the Home icon in it                	
-                	Label tabLabel = this.createTabLabel(title);
-                	SimplePanel firstTabPanel = new SimplePanel();
+                    // It must have the Home icon in it
+                    Label tabLabel = this.createTabLabel(title);
+                    SimplePanel firstTabPanel = new SimplePanel();
                     firstTabPanel.add(tabLabel);
                     firstTabPanel.addStyleName("gwt-TabBarItem-first"); //$NON-NLS-1$
                     this.tabBar.addTab(firstTabPanel);
@@ -407,11 +394,11 @@ public class ItemsDetailPanel extends ContentPanel {
 
                     // Select the tab
                     this.tabBar.selectTab(0);
-                } else {                    
+                } else {
                     // Create the tab
-                	Label tabLabel = this.createTabLabel(title);
+                    Label tabLabel = this.createTabLabel(title);
                     this.tabBar.addTab(tabLabel);
-                    
+
                     // Save the ID
                     this.tabIds.add(id);
 
@@ -425,14 +412,14 @@ public class ItemsDetailPanel extends ContentPanel {
                     if (this.getTabCount() == 0) {
                         // Create the first tab, which must be special because it is
                         // the first. It must have the Home icon in it
-                    	Label tabLabel = this.createTabLabel(title);
-                    	SimplePanel firstTabPanel = new SimplePanel();
-                    	firstTabPanel.add(tabLabel);
+                        Label tabLabel = this.createTabLabel(title);
+                        SimplePanel firstTabPanel = new SimplePanel();
+                        firstTabPanel.add(tabLabel);
                         firstTabPanel.addStyleName("gwt-TabBarItem-first"); //$NON-NLS-1$
                         this.tabBar.addTab(firstTabPanel);
                     } else {
                         // Create the tab
-                    	Label tabLabel = this.createTabLabel(title);
+                        Label tabLabel = this.createTabLabel(title);
                         this.tabBar.addTab(tabLabel);
                     }
 
@@ -463,75 +450,63 @@ public class ItemsDetailPanel extends ContentPanel {
             return new ItemDetailTabPanelContentHandle(id);
         }
 
-
         /**
-         * Takes care of truncating and adding ellipsis to the tab label if it is
-         * too long. This actually calculates exactly how long the rendered text
-         * will be and truncates it as little as possible.
+         * Takes care of truncating and adding ellipsis to the tab label if it is too long. This actually calculates
+         * exactly how long the rendered text will be and truncates it as little as possible.
          * 
-         * Takes care of adding tooltip to the tab label for when mouse hovers over 
-         * the label.
+         * Takes care of adding tooltip to the tab label for when mouse hovers over the label.
          * 
          * @param title The text to display in the label.
          * @return label to add to tab.
          */
-        private Label createTabLabel(String title)
-        {
-        	StringBuffer shortenedTitle = new StringBuffer(title);
-        	int labelWidth = this.getTabLabelWidth(title);
-        	int shortenedTitleLength = shortenedTitle.length();
-        	if (labelWidth > TAB_LABEL_MAX_WIDTH) 
-        	{
-        		shortenedTitle.append("...");
-        		while(shortenedTitleLength > 0 && labelWidth > TAB_LABEL_MAX_WIDTH) 
-        		{
-        			shortenedTitle.deleteCharAt(--shortenedTitleLength);
-        			labelWidth = this.getTabLabelWidth(shortenedTitle.toString());
-        		}
-        	}
-        	
-        	Label tabLabel = new Label(shortenedTitle.toString());
-        	tabLabel.addStyleName("ItemsDetailPanel-tabLabel"); //$NON-NLS-1$
-        	tabLabel.addStyleName("gwt-Label"); //$NON-NLS-1$
-        	tabLabel.getElement().setAttribute("title", title); //$NON-NLS-1$
-        	        	
-        	return tabLabel;
+        private Label createTabLabel(String title) {
+            StringBuffer shortenedTitle = new StringBuffer(title);
+            int labelWidth = this.getTabLabelWidth(title);
+            int shortenedTitleLength = shortenedTitle.length();
+            if (labelWidth > TAB_LABEL_MAX_WIDTH) {
+                shortenedTitle.append("..."); //$NON-NLS-1$
+                while (shortenedTitleLength > 0 && labelWidth > TAB_LABEL_MAX_WIDTH) {
+                    shortenedTitle.deleteCharAt(--shortenedTitleLength);
+                    labelWidth = this.getTabLabelWidth(shortenedTitle.toString());
+                }
+            }
+
+            Label tabLabel = new Label(shortenedTitle.toString());
+            tabLabel.addStyleName("ItemsDetailPanel-tabLabel"); //$NON-NLS-1$
+            tabLabel.addStyleName("gwt-Label"); //$NON-NLS-1$
+            tabLabel.getElement().setAttribute("title", title); //$NON-NLS-1$
+
+            return tabLabel;
         }
-        
-        
+
         /**
-         * Returns the rendered width of the text if it was displayed
-         * as a tab label, with all relevant styles applied. This is a
-         * hack from classic JavaScript, where we create an absolutely
-         * positioned invisible auto sized div, apply the label's font
-         * styles to it, then get its width. Note that we make sure it
-         * is physically attached to DOM before we get width to ensure
-         * it has been rendered with the CSS styles.
+         * Returns the rendered width of the text if it was displayed as a tab label, with all relevant styles applied.
+         * This is a hack from classic JavaScript, where we create an absolutely positioned invisible auto sized div,
+         * apply the label's font styles to it, then get its width. Note that we make sure it is physically attached to
+         * DOM before we get width to ensure it has been rendered with the CSS styles.
          * 
          * @param title
          * @return
-         */       
+         */
         private Element tabLabelWidthFinder = null;
-        private int getTabLabelWidth(String title)
-        {
-        	if (this.tabLabelWidthFinder == null) 
-        	{
-        		this.tabLabelWidthFinder = DOM.getElementById("ItemsDetailPanel-tabLabelWidthFinder"); //$NON-NLS-1$
-        		
-        		if (this.tabLabelWidthFinder == null)
-        		{
-        			this.tabLabelWidthFinder = DOM.createDiv();
-        			this.tabLabelWidthFinder.setId("ItemsDetailPanel-tabLabelWidthFinder"); //$NON-NLS-1$
-        			DOM.appendChild(RootPanel.get().getElement(), this.tabLabelWidthFinder);
-        		}
-        	}
-        	
-        	this.tabLabelWidthFinder.setInnerText(title);
 
-        	// offset width includes padding, border, margins
-        	return this.tabLabelWidthFinder.getOffsetWidth();
+        private int getTabLabelWidth(String title) {
+            if (this.tabLabelWidthFinder == null) {
+                this.tabLabelWidthFinder = DOM.getElementById("ItemsDetailPanel-tabLabelWidthFinder"); //$NON-NLS-1$
+
+                if (this.tabLabelWidthFinder == null) {
+                    this.tabLabelWidthFinder = DOM.createDiv();
+                    this.tabLabelWidthFinder.setId("ItemsDetailPanel-tabLabelWidthFinder"); //$NON-NLS-1$
+                    DOM.appendChild(DOM.getElementById("ItemsToolBar"), this.tabLabelWidthFinder); //$NON-NLS-1$
+                }
+            }
+
+            this.tabLabelWidthFinder.setInnerText(title);
+
+            // offset width includes padding, border, margins
+            return this.tabLabelWidthFinder.getOffsetWidth();
         }
-                        
+
         /**
          * This does nothing if index is not valid. If tab is selected, tries to select next one if there is one, and if
          * not, select the previous one.
@@ -685,20 +660,20 @@ public class ItemsDetailPanel extends ContentPanel {
      */
     private LayoutContainer newBannerWrapper(LayoutContainer banner) {
         LayoutContainer bannerWrapper = new LayoutContainer(new BorderLayout());
-        bannerWrapper.setId("ItemsDetailPanel-bannerWrapper");  //$NON-NLS-1$
+        bannerWrapper.setId("ItemsDetailPanel-bannerWrapper"); //$NON-NLS-1$
         bannerWrapper.setHeight(BANNER_HEIGHT);
 
         LayoutContainer bannerWrapperLeft = new LayoutContainer();
         bannerWrapperLeft.setWidth(BANNER_WRAPPER_LEFT_BORDER_WIDTH);
-        bannerWrapperLeft.setId("ItemsDetailPanel-bannerWrapperLeft");  //$NON-NLS-1$
+        bannerWrapperLeft.setId("ItemsDetailPanel-bannerWrapperLeft"); //$NON-NLS-1$
         bannerWrapper.add(bannerWrapperLeft, newBorderData(LayoutRegion.WEST, BANNER_WRAPPER_LEFT_BORDER_WIDTH));
 
         LayoutContainer bannerWrapperRight = new LayoutContainer();
         bannerWrapperRight.setWidth(BANNER_WRAPPER_RIGHT_BORDER_WIDTH);
-        bannerWrapperRight.setId("ItemsDetailPanel-bannerWrapperRight");  //$NON-NLS-1$
+        bannerWrapperRight.setId("ItemsDetailPanel-bannerWrapperRight"); //$NON-NLS-1$
         bannerWrapper.add(bannerWrapperRight, newBorderData(LayoutRegion.EAST, BANNER_WRAPPER_RIGHT_BORDER_WIDTH));
 
-        banner.setId("ItemsDetailPanel-bannerWrapperCenter");  //$NON-NLS-1$
+        banner.setId("ItemsDetailPanel-bannerWrapperCenter"); //$NON-NLS-1$
         bannerWrapper.add(banner, newBorderCenterData());
 
         return bannerWrapper;
@@ -717,48 +692,48 @@ public class ItemsDetailPanel extends ContentPanel {
     private void initBorderPanels() {
         // North strip of the background
         LayoutContainer nBorder = new LayoutContainer(new BorderLayout());
-        nBorder.setId("ItemsDetailPanel-nBorder");  //$NON-NLS-1$
+        nBorder.setId("ItemsDetailPanel-nBorder"); //$NON-NLS-1$
 
         LayoutContainer nwCorner = new LayoutContainer();
-        nwCorner.setId("ItemsDetailPanel-nwCorner");  //$NON-NLS-1$
+        nwCorner.setId("ItemsDetailPanel-nwCorner"); //$NON-NLS-1$
         nBorder.add(nwCorner, newBorderData(LayoutRegion.WEST, SIDE_BORDER_WIDTH));
 
         LayoutContainer neCorner = new LayoutContainer();
-        neCorner.setId("ItemsDetailPanel-neCorner");  //$NON-NLS-1$
+        neCorner.setId("ItemsDetailPanel-neCorner"); //$NON-NLS-1$
         nBorder.add(neCorner, newBorderData(LayoutRegion.EAST, SIDE_BORDER_WIDTH));
 
         // ncBorder is an instance variable because we put the breadcrumb in it
-        ncBorder.setId("ItemsDetailPanel-ncBorder");  //$NON-NLS-1$
+        ncBorder.setId("ItemsDetailPanel-ncBorder"); //$NON-NLS-1$
         nBorder.add(this.ncBorder, newBorderCenterData());
 
         this.add(nBorder, newBorderData(LayoutRegion.NORTH, NORTH_BORDER_HEIGHT));
 
         // South strip of the background
         LayoutContainer sBorder = new LayoutContainer(new BorderLayout());
-        sBorder.setId("ItemsDetail-sBorder");  //$NON-NLS-1$
+        sBorder.setId("ItemsDetail-sBorder"); //$NON-NLS-1$
 
         LayoutContainer swCorner = new LayoutContainer();
-        swCorner.setId("ItemsDetailPanel-swCorner");  //$NON-NLS-1$
+        swCorner.setId("ItemsDetailPanel-swCorner"); //$NON-NLS-1$
         sBorder.add(swCorner, newBorderData(LayoutRegion.WEST, SIDE_BORDER_WIDTH));
 
         LayoutContainer seCorner = new LayoutContainer();
-        seCorner.setId("ItemsDetailPanel-seCorner");  //$NON-NLS-1$
+        seCorner.setId("ItemsDetailPanel-seCorner"); //$NON-NLS-1$
         sBorder.add(seCorner, newBorderData(LayoutRegion.EAST, SIDE_BORDER_WIDTH));
 
         LayoutContainer scBorder = new LayoutContainer();
-        scBorder.setId("ItemsDetailPanel-scBorder");  //$NON-NLS-1$
+        scBorder.setId("ItemsDetailPanel-scBorder"); //$NON-NLS-1$
         sBorder.add(scBorder, newBorderCenterData());
 
         this.add(sBorder, newBorderData(LayoutRegion.SOUTH, SOUTH_BORDER_HEIGHT));
 
         // West strip of the background
         LayoutContainer wBorder = new LayoutContainer();
-        wBorder.setId("ItemsDetailPanel-wBorder");  //$NON-NLS-1$
+        wBorder.setId("ItemsDetailPanel-wBorder"); //$NON-NLS-1$
         this.add(wBorder, newBorderData(LayoutRegion.WEST, SIDE_BORDER_WIDTH));
 
         // East strip of the background
         LayoutContainer eBorder = new LayoutContainer();
-        eBorder.setId("ItemsDetailPanel-eBorder");  //$NON-NLS-1$
+        eBorder.setId("ItemsDetailPanel-eBorder"); //$NON-NLS-1$
         this.add(eBorder, newBorderData(LayoutRegion.EAST, SIDE_BORDER_WIDTH));
 
         // Main panel containing all the content
