@@ -342,7 +342,7 @@ public class ItemDetailToolBar extends ToolBar {
 
                 @Override
                 public void componentSelected(ButtonEvent ce) {
-
+                    ItemsListPanel.getInstance().setCreate(true);
                     String title = itemBean.getLabel();
                     ItemsDetailPanel panel = new ItemsDetailPanel();
                     panel.initBanner(itemBean.getPkInfoList(), itemBean.getDescription());
@@ -361,6 +361,10 @@ public class ItemDetailToolBar extends ToolBar {
                         }else{
                             TreeDetailUtil.initItemsDetailPanelByItemPanel(viewBean, itemBean);
                         }
+                    }
+                    if (!isOutMost) {
+                        if (ItemsListPanel.getInstance().getGrid() != null)
+                            ItemsListPanel.getInstance().getGrid().getSelectionModel().deselectAll();
                     }
                 }
             });

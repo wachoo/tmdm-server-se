@@ -135,7 +135,8 @@ public class BrowseRecordsController extends Controller {
                             .save_success(),
                             null);
                 setTimeout(msgBox, 1000);
-                if (isClose || isCreate) {
+
+                if (isClose) {
                     if (detailToolBar.isOutMost())
                         detailToolBar.closeOutTabPanel();
                     else

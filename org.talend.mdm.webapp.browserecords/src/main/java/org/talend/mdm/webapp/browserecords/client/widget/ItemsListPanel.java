@@ -461,7 +461,7 @@ public class ItemsListPanel extends ContentPanel {
                 String ids = grid.getSelectionModel().getSelectedItem().getIds();
                 refresh(ids, true);
             } else
-                pagingBar.refresh();
+                pagingBar.last();
         }
         else {
             ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchBut);
