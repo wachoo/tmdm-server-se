@@ -122,9 +122,16 @@ public class BrowseRecordsView extends View {
     private void onViewForeignKey(AppEvent event) {
         ForeignKeyModel model = event.getData();
         ItemsDetailPanel detailPanel = event.getData(BrowseRecordsView.ITEMS_DETAIL_PANEL);
-        ForeignKeyTreeDetail tree = new ForeignKeyTreeDetail(model, false, detailPanel);
-        detailPanel.addTabItem(model.getViewBean().getBindingEntityModel().getConceptLabel(), tree,
-                ItemsDetailPanel.MULTIPLE, model.getViewBean().getDescription());
+        ItemBean fkItemBean = model.getItemBean();
+        ViewBean fkViewBean = model.getViewBean();
+        detailPanel.clearContent();
+        detailPanel.clearBanner();      
+        String pkInfo = fkItemBean.getDisplayPKInfo().equals(fkItemBean.getLabel())? null : fkItemBean.getDisplayPKInfo();
+        detailPanel.appendBreadCrumb(fkItemBean.getConcept(), fkItemBean.getLabel(), fkItemBean.getIds(), pkInfo);
+        ItemPanel itemPanel = new ItemPanel(fkViewBean, fkItemBean, ItemDetailToolBar.VIEW_OPERATION, detailPanel);
+        detailPanel.setId(fkItemBean.getIds());
+        detailPanel.initBanner(fkItemBean.getPkInfoList(), fkItemBean.getDescription());
+        detailPanel.addTabItem(fkItemBean.getLabel(), itemPanel, ItemsDetailPanel.SINGLETON, fkItemBean.getIds());
     }
 
     private void onViewItem(AppEvent event) {
