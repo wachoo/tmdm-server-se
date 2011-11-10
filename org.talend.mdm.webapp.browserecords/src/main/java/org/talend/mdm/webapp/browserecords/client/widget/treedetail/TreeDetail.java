@@ -573,16 +573,20 @@ public class TreeDetail extends ContentPanel {
         if (parent != null && parent.getParent() != null && !parent.isMandatory()) {
             for (ModelData model : parent.getChildren()) {
                 ItemNodeModel nodeModel = (ItemNodeModel) model;
-                if (nodeModel.getObjectValue() != null && nodeModel.getObjectValue().toString().trim().length() > 0) {
+                if (nodeModel.getObjectValue() != null) {
                     if (nodeModel.getObjectValue() instanceof ForeignKeyBean) {
                         ForeignKeyBean fkBean = (ForeignKeyBean) nodeModel.getObjectValue();
-                        if (fkBean.getId() == null || fkBean.getId().trim().length() == 0)
+                        if (fkBean.getId() == null || fkBean.getId().trim().length() == 0) {
                             continue;
+                        } else {
+                            isHaveNodeValue = true;
+                            break;
+                        }
+                    } else if (nodeModel.getObjectValue().toString().trim().length() > 0) {
+                        isHaveNodeValue = true;
+                        break;
                     }
-                    isHaveNodeValue = true;
-                    break;
                 }
-
             }
             if (isHaveNodeValue) {
                 for (ModelData model : parent.getChildren()) {

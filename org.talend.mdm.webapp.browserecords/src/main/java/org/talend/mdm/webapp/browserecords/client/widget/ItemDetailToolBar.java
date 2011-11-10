@@ -798,7 +798,7 @@ public class ItemDetailToolBar extends ToolBar {
 
     public void saveItemAndClose(boolean isClose) {
         boolean validate = false;
-        Widget widget = itemsDetailPanel.getCurrentlySelectedTabWidget();
+        Widget widget = itemsDetailPanel.getFirstTabWidget();
         Dispatcher dispatch = Dispatcher.get();
         AppEvent app = new AppEvent(BrowseRecordsEvents.SaveItem);
         ItemNodeModel model = null;
