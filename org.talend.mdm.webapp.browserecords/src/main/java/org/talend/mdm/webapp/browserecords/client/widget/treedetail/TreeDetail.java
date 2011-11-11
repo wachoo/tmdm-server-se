@@ -253,6 +253,8 @@ public class TreeDetail extends ContentPanel {
             itemNode.addChangeListener(new ChangeListener() {
 
                 public void modelChanged(ChangeEvent event) {
+                    ItemNodeModel root = (ItemNodeModel) tree.getItem(0).getUserObject();
+                    root.setChangeValue(true);
                     if (event.getType() == ChangeEventSource.Remove) {
                         ItemNodeModel source = (ItemNodeModel) event.getItem();
                         List<ItemNodeModel> fkContainers = ForeignKeyUtil.getAllForeignKeyModelParent(viewBean, source);
