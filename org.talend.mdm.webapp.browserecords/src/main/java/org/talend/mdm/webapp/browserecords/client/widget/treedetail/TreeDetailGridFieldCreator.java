@@ -179,7 +179,6 @@ public class TreeDetailGridFieldCreator {
         }
 
         if (node.isKey() && hasValue && ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {
-            field.setValue(null);
             field.setEnabled(true);
         } else if (node.isKey() && hasValue) {
             field.setEnabled(false);

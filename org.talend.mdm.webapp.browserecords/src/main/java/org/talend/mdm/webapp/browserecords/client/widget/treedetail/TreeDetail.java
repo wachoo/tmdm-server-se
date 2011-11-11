@@ -207,6 +207,8 @@ public class TreeDetail extends ContentPanel {
         return buildGWTTree(itemNode, item, withDefaultValue, null);
     }
 
+    private boolean isFirstKey = true;
+
     private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue,
             String operation) {
         if (item == null) {
@@ -214,6 +216,14 @@ public class TreeDetail extends ContentPanel {
             item.setItemNodeModel(itemNode);
             if (itemNode.getRealType() != null && itemNode.getRealType().trim().length() > 0) {
                 item.setState(true);
+            }
+            if (ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {
+                if (itemNode.isKey()) {
+                    if (isFirstKey) {
+                        itemNode.setObjectValue(null);
+                        isFirstKey = false;
+                    }
+                }
             }
             item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, fieldMap, handler, operation, itemsDetailPanel));
         }
@@ -336,7 +346,9 @@ public class TreeDetail extends ContentPanel {
     }
 
     private void renderTree(ItemNodeModel rootModel, String operation) {
+
         root = buildGWTTree(rootModel, null, false, operation);
+        isFirstKey = true;
         root.setState(true);
         tree = new Tree();
         if (root.getElement().getFirstChildElement() != null)
