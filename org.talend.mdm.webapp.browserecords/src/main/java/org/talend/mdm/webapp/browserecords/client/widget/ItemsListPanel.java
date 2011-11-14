@@ -38,6 +38,7 @@ import org.talend.mdm.webapp.browserecords.client.util.DateUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
+import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HideMode;
@@ -488,7 +489,9 @@ public class ItemsListPanel extends ContentPanel {
             final ItemBean itemBean = store.findModel(ids);
             if (itemBean != null) {
                 EntityModel entityModel = (EntityModel) BrowseRecords.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
-                service.getItem(itemBean, entityModel, Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBean>() {
+                ViewBean viewbean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
+                service.getItem(itemBean, viewbean.getViewPK(), entityModel, Locale.getLanguage(),
+                        new SessionAwareAsyncCallback<ItemBean>() {
 
                    public void onSuccess(ItemBean result) {
                         Record record = store.getRecord(itemBean);

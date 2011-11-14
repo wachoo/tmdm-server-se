@@ -148,7 +148,6 @@ import com.amalto.webapp.util.webservices.WSWhereOperator;
 import com.amalto.webapp.util.webservices.WSWhereOr;
 import com.amalto.webapp.util.webservices.WSXPathsSearch;
 import com.extjs.gxt.ui.client.Style.SortDir;
-import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
@@ -585,7 +584,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    public ItemBean getItem(ItemBean itemBean, EntityModel entityModel, String language) throws ServiceException {
+    public ItemBean getItem(ItemBean itemBean, String viewPK, EntityModel entityModel, String language) throws ServiceException {
         try {
             String dataCluster = getCurrentDataCluster();
             String dataModel = getCurrentDataModel();
@@ -594,9 +593,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(dataCluster);
             String[] ids = itemBean.getIds() == null ? null : itemBean.getIds().split("\\.");//$NON-NLS-1$
             WSItem wsItem = CommonUtil.getPort()
-                    .getItem(new WSGetItem(new WSItemPK(wsDataClusterPK, itemBean.getConcept(), ids)));
+                    .getItem(new WSGetItem(new WSItemPK(wsDataClusterPK, itemBean.getConcept(), ids)));           
             extractUsingTransformerThroughView(concept,
-                    "Browse_items_" + concept, ids, dataModel, dataCluster, DataModelHelper.getEleDecl(), wsItem); //$NON-NLS-1$
+                    viewPK, ids, dataModel, dataCluster, DataModelHelper.getEleDecl(), wsItem); //$NON-NLS-1$
             itemBean.setItemXml(wsItem.getContent());
             itemBean.set("time", wsItem.getInsertionTime()); //$NON-NLS-1$
             if (wsItem.getTaskId() != null && !"".equals(wsItem.getTaskId()) && !"null".equals(wsItem.getTaskId())) { //$NON-NLS-1$ //$NON-NLS-2$
@@ -1437,7 +1436,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     public ItemNodeModel getItemNodeModel(ItemBean item, EntityModel entity, String language) throws ServiceException {
         try {
             if (item.get("isRefresh") != null) //$NON-NLS-1$
-                item = getItem(item, entity, language); // itemBean need to be get from server when refresh tree.
+                item = getItem(item, "Browse_items_" + item.getConcept(), entity, language); // itemBean need to be get from server when refresh tree. //$NON-NLS-1$
             String xml = item.getItemXml();
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -1735,7 +1734,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             ViewBean viewBean = getView(viewPk, language);
 
             ItemBean itemBean = new ItemBean(concept, ids, null);
-            itemBean = getItem(itemBean, viewBean.getBindingEntityModel(), language);
+            itemBean = getItem(itemBean, viewPk, viewBean.getBindingEntityModel(), language);
             if (checkSmartViewExists(concept, language))
                 itemBean.setSmartViewMode(ItemBean.SMARTMODE);
             else if (checkSmartViewExistsByOpt(concept, language))

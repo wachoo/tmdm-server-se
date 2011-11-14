@@ -201,7 +201,8 @@ public class BrowseRecordsController extends Controller {
         ItemBean item = (ItemBean) event.getData();
         if (item != null) {
             EntityModel entityModel = (EntityModel) BrowseRecords.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
-            service.getItem(item, entityModel, Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBean>() {
+            ViewBean viewbean = (ViewBean)BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
+            service.getItem(item,viewbean.getViewPK(),entityModel, Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBean>() {
 
                 public void onSuccess(ItemBean result) {
                     AppEvent ae = new AppEvent(event.getType(), result);
