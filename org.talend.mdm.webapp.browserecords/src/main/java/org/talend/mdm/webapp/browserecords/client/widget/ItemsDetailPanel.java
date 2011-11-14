@@ -497,7 +497,7 @@ public class ItemsDetailPanel extends ContentPanel {
                 if (this.tabLabelWidthFinder == null) {
                     this.tabLabelWidthFinder = DOM.createDiv();
                     this.tabLabelWidthFinder.setId("ItemsDetailPanel-tabLabelWidthFinder"); //$NON-NLS-1$
-                    DOM.appendChild(DOM.getElementById("ItemsToolBar"), this.tabLabelWidthFinder); //$NON-NLS-1$
+                    DOM.appendChild(DOM.getElementById("MDMCenterWorkspace"), this.tabLabelWidthFinder); //$NON-NLS-1$
                 }
             }
 
