@@ -3238,7 +3238,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         else
                             tbDetail.baseOptions |= O_ACTION;
 
-                        var viewName = getSelectedViewName(dataObject);
+                        var viewName = getSelectedViewName2(dataObject);
                         // add for duplicate case
                         if (isDuplicate) {
                             ItemsBrowserInterface.setTree(dataObject, viewName,
@@ -4093,7 +4093,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         else
                             tbDetail.baseOptions |= O_ACTION;
 
-                        var viewName = getSelectedViewName(dataObject);
+                        var viewName = getSelectedViewName2(dataObject);
                         // add for duplicate case
                         if (isDuplicate) {
                             ItemsBrowserInterface.setTree(dataObject, viewName,
@@ -4361,6 +4361,19 @@ amalto.itemsbrowser.ItemsBrowser = function() {
             viewName = "Browse_items_" + dataObject;
         }
         return viewName;
+    }
+    
+    function getSelectedViewName2(dataObject) {
+	    var viewName = "";
+	    if (Ext.get('EntityComboBox') != null) {
+	    	if (Ext.get('EntityComboBox').dom.lastChild != null)
+	    		viewName = Ext.get('EntityComboBox').dom.lastChild.value;
+	    	else
+	    		viewName = viewName = "Browse_items_" + dataObject;
+	    } else {
+	        viewName = "Browse_items_" + dataObject;
+	    }
+	    return viewName;
     }
 
     function updateNode2(id, node, value, treeIndex) {
