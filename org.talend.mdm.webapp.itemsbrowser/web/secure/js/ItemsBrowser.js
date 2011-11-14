@@ -4369,7 +4369,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 	    	if (Ext.get('EntityComboBox').dom.lastChild != null)
 	    		viewName = Ext.get('EntityComboBox').dom.lastChild.value;
 	    	else
-	    		viewName = viewName = "Browse_items_" + dataObject;
+	    		viewName = "Browse_items_" + dataObject;
 	    } else {
 	        viewName = "Browse_items_" + dataObject;
 	    }
