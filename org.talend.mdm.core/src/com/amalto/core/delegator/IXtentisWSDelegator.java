@@ -1801,7 +1801,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             }
         }
         wsPutItemWithReport.setSource(outputErrorMessage);
-        return outputErrorMessage == null || "info".equals(errorCode); //$NON-NLS-1$
+        return "info".equals(errorCode); //$NON-NLS-1$
     }
 
     private void processUUIDAndValidate(ItemPOJO item, String schema) throws Exception {
