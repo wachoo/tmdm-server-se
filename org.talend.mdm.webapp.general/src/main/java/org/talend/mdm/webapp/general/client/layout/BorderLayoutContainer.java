@@ -37,6 +37,7 @@ public class BorderLayoutContainer extends Viewport {
 		ContentPanel north = BrandingBar.getInstance();
 		LayoutContainer west = AccordionMenus.getInstance();
 		WorkSpace center = WorkSpace.getInstance();  
+		center.setId("MDMCenterWorkspace"); //$NON-NLS-1$
 		center.setBorders(false);
 		center.setScrollMode(Scroll.AUTOX);  
 
