@@ -348,6 +348,8 @@ public class UpdateReportDetailsServelt extends HttpServlet {
                 if (term instanceof XSElementDecl && ((XSElementDecl) term).getName().equals(path)) {
                     XSElementDecl childElem = (XSElementDecl) child.getTerm();
                     XSAnnotation xsa = childElem.getAnnotation();
+                    if (xsa == null)
+                        continue;
                     Element el = (Element) xsa.getAnnotation();
                     NodeList annotList = el.getChildNodes();
 
