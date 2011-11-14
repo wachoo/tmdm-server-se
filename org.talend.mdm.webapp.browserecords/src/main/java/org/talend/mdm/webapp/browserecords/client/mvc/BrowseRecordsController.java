@@ -136,11 +136,14 @@ public class BrowseRecordsController extends Controller {
                             null);
                 setTimeout(msgBox, 1000);
 
+                if (!detailToolBar.isOutMost() && (isClose || isCreate))
+                    ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
+
                 if (isClose) {
                     if (detailToolBar.isOutMost())
                         detailToolBar.closeOutTabPanel();
-                    else
-                        ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
+                    // else
+                    // ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
                 } else {
                     if (detailToolBar.isOutMost()){
                         TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(itemBean.getConcept());
