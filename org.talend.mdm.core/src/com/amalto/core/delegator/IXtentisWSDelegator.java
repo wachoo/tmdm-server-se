@@ -1792,7 +1792,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             if (outputErrorMessage != null) {
                 Document doc = Util.parse(outputErrorMessage);
                 // TODO what if multiple error nodes ?
-                String xpath = "/report/message"; //$NON-NLS-1$
+                String xpath = "//report/message"; //$NON-NLS-1$
                 Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
                 if (errorNode instanceof Element) {
                     Element errorElement = (Element) errorNode;
@@ -1801,7 +1801,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             }
         }
         wsPutItemWithReport.setSource(outputErrorMessage);
-        return outputErrorMessage == null || errorCode == null || "info".equals(errorCode); //$NON-NLS-1$
+        return outputErrorMessage == null || "info".equals(errorCode); //$NON-NLS-1$
     }
 
     private void processUUIDAndValidate(ItemPOJO item, String schema) throws Exception {
