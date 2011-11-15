@@ -286,8 +286,9 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
             if (jobInvokeConfig != null) {
                 // TMDM-2633: Always include exchange XML message in parameters
                 if (exchangeXML.isEmpty()) { // (don't compute it twice)
-                    argsMap.put(MDMJobInvoker.EXCHANGE_XML_PARAMETER, createExchangeXML(itemPK));
+                    exchangeXML = createExchangeXML(itemPK);
                 }
+                argsMap.put(MDMJobInvoker.EXCHANGE_XML_PARAMETER, exchangeXML);
                 JobContainer.getUniqueInstance().getJobInvoker(jobName, jobVersion).call(argsMap);
             } else {
                 port.runJob(args).getItem();
