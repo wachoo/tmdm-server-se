@@ -68,6 +68,7 @@ public class BorderLayoutContainer extends Viewport {
         eastData.setMaxSize(300);
 	    eastData.setSplit(true);  
 	    eastData.setCollapsible(true);  
+	    eastData.setFloatable(false);  
 	    eastData.setMargins(new Margins(0,0,0,5));  
 	  
         BorderLayoutData southData = new BorderLayoutData(LayoutRegion.SOUTH, 2);
