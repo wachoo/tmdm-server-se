@@ -352,11 +352,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 // add the key paths last, since there may be multiple keys
                 xPaths.add(initxpathForeignKey + "/../../i"); //$NON-NLS-1$
                 // order by
-                String orderbyPath = null;
-                if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) { //$NON-NLS-1$
-                    orderbyPath = com.amalto.webapp.core.util.Util.getFormatedFKInfo(
-                            xpathInfos[0].replaceFirst(initxpathForeignKey, initxpathForeignKey), initxpathForeignKey);
-                }
+                // TMDM-2907, set FK as default order expression to avoid multi-value filed
+                String orderbyPath = xpathForeignKey;
 
                 // Run the query
                 if (!com.amalto.webapp.core.util.Util.isCustomFilter(fkFilter)) {
