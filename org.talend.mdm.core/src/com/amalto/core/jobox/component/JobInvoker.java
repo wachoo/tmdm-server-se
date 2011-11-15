@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import com.amalto.core.jobox.JobContainer;
 import com.amalto.core.jobox.JobInfo;
@@ -49,13 +50,17 @@ public abstract class JobInvoker {
     public String[][] call(Map<String, String> parameters) {
         String[][] result;
         ClassLoader previousCallLoader = Thread.currentThread().getContextClassLoader();
+        Properties previousProperties = System.getProperties();
+
 
         try {
             JobContainer jobContainer = JobContainer.getUniqueInstance();
+            System.setProperties(jobContainer.getStandardProperties());
 
             // well-behaved Java packages work relative to the
             // context class loader. Others don't (like commons-logging)
-            Thread.currentThread().setContextClassLoader(jobContainer.getJobClassLoader(jobInfo));
+            ClassLoader jobClassLoader = jobContainer.getJobClassLoader(jobInfo);
+            Thread.currentThread().setContextClassLoader(jobClassLoader);
 
             if (jobInfo.getMainClass() == null) {
                 throw new MissingMainClassException();
@@ -89,9 +94,10 @@ public abstract class JobInvoker {
         } catch (JobNotFoundException e) {
             throw e;
         } catch (Exception e) {
-            throw new JoboxException(e.getCause().getLocalizedMessage(), e);
+            throw new JoboxException(e.getLocalizedMessage(), e);
         } finally {
             Thread.currentThread().setContextClassLoader(previousCallLoader);
+            System.setProperties(previousProperties);
         }
 
         return result;

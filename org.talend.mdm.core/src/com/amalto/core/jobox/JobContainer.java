@@ -22,20 +22,20 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 
-import com.amalto.core.jobox.util.JobNotFoundException;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-
 import com.amalto.core.jobox.component.JobAware;
 import com.amalto.core.jobox.component.JobDeploy;
 import com.amalto.core.jobox.component.JobInvoke;
 import com.amalto.core.jobox.component.JobInvoker;
 import com.amalto.core.jobox.component.MDMJobInvoker;
+import com.amalto.core.jobox.properties.StandardPropertiesStrategyFactory;
 import com.amalto.core.jobox.util.JobClassLoader;
+import com.amalto.core.jobox.util.JobNotFoundException;
 import com.amalto.core.jobox.util.JoboxConfig;
 import com.amalto.core.jobox.util.JoboxUtil;
 import com.amalto.core.jobox.watch.DirMonitor;
 import com.amalto.core.jobox.watch.JoboxListener;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 public class JobContainer {
 
@@ -55,6 +55,8 @@ public class JobContainer {
     private JobDeploy jobDeploy = null;
 
     private DirMonitor monitor;
+
+    private Properties standardProperties = new Properties();
 
     /**
      * Private constructor
@@ -116,6 +118,16 @@ public class JobContainer {
         monitor.addFile(new File(this.getDeployDir()));
         // Add a jobox listener
         monitor.addListener(new JoboxListener());
+
+        // Initialize default system properties
+        standardProperties = StandardPropertiesStrategyFactory.create().getStandardProperties();
+    }
+
+    /**
+     * @return Returns default JVM properties
+     */
+    public Properties getStandardProperties() {
+        return standardProperties;
     }
 
     public void updateJobLoadersPool(JobInfo jobInfo) {
@@ -272,4 +284,5 @@ public class JobContainer {
         }
 
     }
+
 }
