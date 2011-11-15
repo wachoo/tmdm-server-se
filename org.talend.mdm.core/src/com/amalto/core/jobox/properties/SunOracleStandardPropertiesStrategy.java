@@ -27,6 +27,7 @@ class SunOracleStandardPropertiesStrategy implements StandardPropertiesStrategy 
     public static final String SUN_PROPERTIES = "sun.conf";
 
     public Properties getStandardProperties() {
+	/*
         Properties properties = new Properties();
         try {
             URL resource = this.getClass().getResource(SUN_PROPERTIES);
@@ -51,7 +52,8 @@ class SunOracleStandardPropertiesStrategy implements StandardPropertiesStrategy 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+	*/
 
-        return properties;
+        return System.getProperties();
     }
 }
