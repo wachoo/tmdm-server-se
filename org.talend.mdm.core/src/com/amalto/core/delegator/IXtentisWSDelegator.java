@@ -1785,7 +1785,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     private boolean beforeSaving(com.amalto.core.webservice.WSPutItemWithReport wsPutItemWithReport, String concept, String xml,
             String resultUpdateReport) throws Exception {
         // /invoke before saving
-        String outputErrorMessage = null;
+        String outputErrorMessage;
         String errorCode = null;
         if (wsPutItemWithReport.getInvokeBeforeSaving()) {
             outputErrorMessage = Util.beforeSaving(concept, xml, resultUpdateReport);
@@ -1799,9 +1799,12 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
                 }
             }
+            wsPutItemWithReport.setSource(outputErrorMessage);
+            return "info".equals(errorCode); //$NON-NLS-1$
+        } else {
+            // TMDM-2932 when getInvokeBeforeSaving() returns false, this method must return true.
+            return true;
         }
-        wsPutItemWithReport.setSource(outputErrorMessage);
-        return "info".equals(errorCode); //$NON-NLS-1$
     }
 
     private void processUUIDAndValidate(ItemPOJO item, String schema) throws Exception {
