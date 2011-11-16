@@ -230,7 +230,8 @@ public class ItemDetailToolBar extends ToolBar {
                     Widget widget = itemsDetailPanel.getFirstTabWidget();
                     ItemPanel itemPanel = (ItemPanel) widget;
                     ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getTree().getItem(0).getUserObject();
-                    if(isChangeValue(root)) {
+                    if (operation.equalsIgnoreCase(ItemDetailToolBar.CREATE_OPERATION)
+                            || operation.equalsIgnoreCase(ItemDetailToolBar.DUPLICATE_OPERATION) || isChangeValue(root)) {
                         saveItemAndClose(false);
                     } else {
                         MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
@@ -255,7 +256,8 @@ public class ItemDetailToolBar extends ToolBar {
                     Widget widget = itemsDetailPanel.getFirstTabWidget();
                     ItemPanel itemPanel = (ItemPanel) widget;
                     ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getTree().getItem(0).getUserObject();
-                    if (isChangeValue(root)) {
+                    if (operation.equalsIgnoreCase(ItemDetailToolBar.CREATE_OPERATION)
+                            || operation.equalsIgnoreCase(ItemDetailToolBar.DUPLICATE_OPERATION) || isChangeValue(root)) {
                         saveItemAndClose(true);
                     } else {
                         MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
