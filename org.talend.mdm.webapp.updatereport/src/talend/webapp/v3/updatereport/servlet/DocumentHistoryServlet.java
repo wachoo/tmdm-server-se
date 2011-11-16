@@ -62,23 +62,25 @@ public class DocumentHistoryServlet extends AbstractDocumentHistoryServlet {
 
         TypeMetadata documentTypeMetadata = metadataRepository.getType(typeName);
         if (documentTypeMetadata == null) {
-            try {
-                // Initialize type metadata information
-                DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(dataClusterName));
-                if (dataModel == null) {
-                    throw new IllegalArgumentException("Data model '" + typeName + "' does not exist.");
-                }
+            synchronized (metadataRepository) {
+                try {
+                    // Initialize type metadata information
+                    DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(dataClusterName));
+                    if (dataModel == null) {
+                        throw new IllegalArgumentException("Data model '" + typeName + "' does not exist.");
+                    }
 
-                String schemaString = dataModel.getSchema();
-                metadataRepository.load(new ByteArrayInputStream(schemaString.getBytes("UTF-8")));  //$NON-NLS-1$
+                    String schemaString = dataModel.getSchema();
+                    metadataRepository.load(new ByteArrayInputStream(schemaString.getBytes("UTF-8")));  //$NON-NLS-1$
 
-                // Tries to load the type information again
-                documentTypeMetadata = metadataRepository.getType(typeName);
-                if (documentTypeMetadata == null) {
-                    throw new IllegalArgumentException("Cannot find type information for type '" + typeName + "'");
+                    // Tries to load the type information again
+                    documentTypeMetadata = metadataRepository.getType(typeName);
+                    if (documentTypeMetadata == null) {
+                        throw new IllegalArgumentException("Cannot find type information for type '" + typeName + "'");
+                    }
+                } catch (Exception e) {
+                    throw new ServletException("Could not initialize type information", e);
                 }
-            } catch (Exception e) {
-                throw new ServletException("Could not initialize type information", e);
             }
         }
 
