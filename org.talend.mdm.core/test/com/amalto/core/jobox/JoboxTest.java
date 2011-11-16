@@ -27,12 +27,13 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import junit.framework.TestCase;
+
 import com.amalto.core.jobox.component.JobAware;
 import com.amalto.core.jobox.component.JobInvoker;
 import com.amalto.core.jobox.component.MDMJobInvoker;
 import com.amalto.core.jobox.util.JobNotFoundException;
 import com.amalto.core.jobox.util.JoboxConfig;
-import junit.framework.TestCase;
 
 @SuppressWarnings("nls")
 public class JoboxTest extends TestCase {
@@ -73,20 +74,6 @@ public class JoboxTest extends TestCase {
 
         File workDir = new File(jobContainer.getWorkDir());
         assertTrue(workDir.exists());
-    }
-
-    public void testFailedDeploy() throws Exception {
-        //init
-        Properties props = new Properties();
-        props.put(JoboxConfig.JOBOX_HOME_PATH, JOBOX_TEST_DIR);
-        jobContainer.init(props);
-
-        try {
-            jobContainer.getJobDeployer().deploy("testJob1.zip");
-            fail();
-        } catch (Exception e) {
-            // Expected
-        }
     }
 
     public void testSuccessfulDeploy() throws Exception {
@@ -244,5 +231,19 @@ public class JoboxTest extends TestCase {
         assertTrue(deployedFile.exists());
         assertTrue(deployedFile.length() > 0);
         assertEquals(jobFile.length(), deployedFile.length());
+    }
+
+    public void testDeployJob() throws InterruptedException {
+        // init
+        Properties props = new Properties();
+        props.put(JoboxConfig.JOBOX_HOME_PATH, JOBOX_TEST_DIR);
+        jobContainer.init(props);
+
+        try {
+            jobContainer.getJobDeployer().deploy("testJob1.zip");
+        } catch (Exception e) {
+            // Expected
+        }
+        Thread.sleep(6000);
     }
 }

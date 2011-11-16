@@ -14,11 +14,18 @@
 package com.amalto.core.jobox.component;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import com.amalto.core.jobox.util.JoboxConfig;
 import com.amalto.core.jobox.util.JoboxException;
 import com.amalto.core.jobox.util.JoboxUtil;
-import org.apache.log4j.Logger;
 
 /**
  * This class handles all deployment relative actions for the Jobox container.
@@ -31,12 +38,20 @@ public class JobDeploy {
 
     private final String workDir;
 
+    private  Map<String, AtomicInteger> failedDeployJob = new HashMap<String, AtomicInteger>();
+
+    private int jobReDeployMaxTimes = 3;
+
     /**
      * @param joboxConfig A {@link JoboxConfig} configuration.
      */
     public JobDeploy(JoboxConfig joboxConfig) {
         this.deployDir = joboxConfig.getDeployPath();
         this.workDir = joboxConfig.getWorkPath();
+        String times = MDMConfiguration.getConfiguration().getProperty("job.redeploy.max.times"); //$NON-NLS-1$
+        if (times != null) {
+            jobReDeployMaxTimes = Integer.valueOf(times);
+        }
     }
 
     /**
@@ -57,14 +72,24 @@ public class JobDeploy {
      * @see com.amalto.core.jobox.util.JoboxConfig#getDeployPath()
      * @see com.amalto.core.jobox.util.JoboxConfig#getWorkPath()
      */
-    public void deploy(String jobName) {
+    public void deploy(final String jobName) {
         try {
             JoboxUtil.extract(deployDir + File.separator + jobName, workDir + File.separator);
+            LOGGER.info("Job " + jobName + " has been deployed successfully! ");//$NON-NLS-1$//$NON-NLS-2$            
         } catch (Exception e) {
-            LOGGER.error("Job " + jobName + " has not been deployed due to exception:", e);//$NON-NLS-1$//$NON-NLS-2$
-            throw new JoboxException(e);
+
+            Timer timer = new Timer();
+            timer.schedule(new RedeployJobTask(jobName), 100, 2000);
+            synchronized (failedDeployJob) {
+                AtomicInteger leftTimes = failedDeployJob.get(jobName);
+                if (leftTimes.get() >= jobReDeployMaxTimes) {
+                    LOGGER.error("Job " + jobName + " has not been deployed due to exception:" + e.getLocalizedMessage());//$NON-NLS-1$//$NON-NLS-2$
+                    throw new JoboxException(e);
+                }
+            }
         }
-        LOGGER.info("Job " + jobName + " has been deployed successfully! ");//$NON-NLS-1$//$NON-NLS-2$
+
+
     }
 
     /**
@@ -85,6 +110,41 @@ public class JobDeploy {
         String[] fileNames = new File(deployDir).list();
         for (String filename : fileNames) {
             undeploy(filename);
+        }
+    }
+
+    /**
+     * 
+     * DOC achen JobDeploy class global comment. Detailled comment
+     */
+    private class RedeployJobTask extends TimerTask {
+
+        String jobName;
+
+        RedeployJobTask(String jobName) {
+            this.jobName = jobName;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see java.util.TimerTask#run()
+         */
+        @Override
+        public void run() {
+            synchronized (failedDeployJob) {
+                AtomicInteger leftTimes = failedDeployJob.get(jobName);
+                if (leftTimes == null) {
+                    leftTimes = new AtomicInteger(1);
+                    failedDeployJob.put(jobName, leftTimes);
+                }
+                if (leftTimes.get() < jobReDeployMaxTimes) {
+                    leftTimes.incrementAndGet();
+                    failedDeployJob.put(jobName, leftTimes);
+                    LOGGER.info("Redeploy Job " + jobName + " " + leftTimes.get() + " times."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    deploy(jobName);
+                }
+            }
         }
     }
 }
