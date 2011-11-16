@@ -13,10 +13,10 @@ package talend.webapp.v3.updatereport.servlet;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Date;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -49,8 +49,7 @@ public class DocumentHistoryServlet extends AbstractDocumentHistoryServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Parameters parameters = getParameters(req);
-
-        ServletOutputStream outputStream = resp.getOutputStream();
+        PrintWriter outputStream = resp.getWriter();
         Date historyDate = new Date(parameters.getDate());
 
         String typeName = parameters.getConceptName();
@@ -84,7 +83,7 @@ public class DocumentHistoryServlet extends AbstractDocumentHistoryServlet {
         }
 
         // Now does the actual writing to client
-        resp.setContentType("text/xml");  //$NON-NLS-1$
+        resp.setContentType("text/xml;charset=UTF-8"); //$NON-NLS-1$
         outputStream.println("<history>"); //$NON-NLS-1$
         {
             // Go to date history
