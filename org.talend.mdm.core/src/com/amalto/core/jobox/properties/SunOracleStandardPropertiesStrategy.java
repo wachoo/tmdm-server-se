@@ -23,7 +23,7 @@ import java.util.Properties;
  */
 class SunOracleStandardPropertiesStrategy implements StandardPropertiesStrategy {
 
-    public static final String SUN_PROPERTIES = "sun.conf";
+    private static final String SUN_PROPERTIES = "sun.conf";
 
     public Properties getStandardProperties() {
         Properties properties = new Properties();

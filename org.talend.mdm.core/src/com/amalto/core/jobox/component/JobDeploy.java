@@ -38,7 +38,7 @@ public class JobDeploy {
 
     private final String workDir;
 
-    private  Map<String, AtomicInteger> failedDeployJob = new HashMap<String, AtomicInteger>();
+    private final Map<String, AtomicInteger> failedDeployJob = new HashMap<String, AtomicInteger>();
 
     private int jobReDeployMaxTimes = 3;
 
@@ -114,12 +114,11 @@ public class JobDeploy {
     }
 
     /**
-     * 
-     * DOC achen JobDeploy class global comment. Detailled comment
+     *
      */
     private class RedeployJobTask extends TimerTask {
 
-        String jobName;
+        final String jobName;
 
         RedeployJobTask(String jobName) {
             this.jobName = jobName;
