@@ -74,9 +74,10 @@
 
       <copy todir="${basedir}/target/test-classes" verbose="true">
         <fileset dir="${basedir}/test" excludes="**/*.java"/>
+        <fileset dir="${basedir}/src" includes="**/*.conf"/>
       </copy>
 
-      <javac srcdir="${basedir}/test" destdir="${basedir}/target/test-classes">
+      <javac srcdir="${basedir}/test" destdir="${basedir}/target/test-classes" debug="true">
         <classpath>
           <path refid="compile.classpath" />
         </classpath>
