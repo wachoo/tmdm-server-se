@@ -60,9 +60,11 @@ public class DocumentHistoryServlet extends AbstractDocumentHistoryServlet {
                 parameters.getId(),
                 parameters.getRevisionId());
 
-        TypeMetadata documentTypeMetadata = metadataRepository.getType(typeName);
-        if (documentTypeMetadata == null) {
-            synchronized (metadataRepository) {
+        TypeMetadata documentTypeMetadata;
+        synchronized (metadataRepository) {
+            documentTypeMetadata = metadataRepository.getType(typeName);
+            if (documentTypeMetadata == null) {
+
                 try {
                     // Initialize type metadata information
                     DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(dataClusterName));
@@ -81,6 +83,7 @@ public class DocumentHistoryServlet extends AbstractDocumentHistoryServlet {
                 } catch (Exception e) {
                     throw new ServletException("Could not initialize type information", e);
                 }
+
             }
         }
 
