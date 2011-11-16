@@ -14,9 +14,8 @@
 package com.amalto.core.jobox.properties;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.net.URL;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Properties;
 
 /**
@@ -27,15 +26,14 @@ class SunOracleStandardPropertiesStrategy implements StandardPropertiesStrategy 
     public static final String SUN_PROPERTIES = "sun.conf";
 
     public Properties getStandardProperties() {
-	/*
         Properties properties = new Properties();
         try {
-            URL resource = this.getClass().getResource(SUN_PROPERTIES);
+            InputStream resource = this.getClass().getResourceAsStream(SUN_PROPERTIES);
             if (resource == null) {
                 throw new RuntimeException("Expected file '" + SUN_PROPERTIES + "' but wasn't found.");
             }
 
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(resource.toURI())));
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(resource));
             {
                 String line = bufferedReader.readLine();
                 while (line != null) {
@@ -49,11 +47,10 @@ class SunOracleStandardPropertiesStrategy implements StandardPropertiesStrategy 
                 }
             }
             bufferedReader.close();
+
+            return properties;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-	*/
-
-        return System.getProperties();
     }
 }
