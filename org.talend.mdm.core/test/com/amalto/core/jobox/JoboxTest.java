@@ -27,13 +27,13 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
 import com.amalto.core.jobox.component.JobAware;
 import com.amalto.core.jobox.component.JobInvoker;
 import com.amalto.core.jobox.component.MDMJobInvoker;
+import com.amalto.core.jobox.properties.ThreadIsolatedSystemProperties;
 import com.amalto.core.jobox.util.JobNotFoundException;
 import com.amalto.core.jobox.util.JoboxConfig;
+import junit.framework.TestCase;
 
 @SuppressWarnings({"nls", "ResultOfMethodCallIgnored"})
 public class JoboxTest extends TestCase {
@@ -41,10 +41,13 @@ public class JoboxTest extends TestCase {
     public static final String JOBOX_TEST_DIR = "/tmp/jobox";
 
     private JobContainer jobContainer;
+    private Properties previousProperties;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
+        previousProperties = System.getProperties();
+        System.setProperties(ThreadIsolatedSystemProperties.getInstance());
         jobContainer = JobContainer.getUniqueInstance();
         Properties props = new Properties();
         props.put(JoboxConfig.JOBOX_HOME_PATH, JOBOX_TEST_DIR);
@@ -64,6 +67,7 @@ public class JoboxTest extends TestCase {
         }
 
         jobContainer = null; // TODO shut down method?
+        System.setProperties(previousProperties);
     }
 
     public void testInit() throws Exception {
