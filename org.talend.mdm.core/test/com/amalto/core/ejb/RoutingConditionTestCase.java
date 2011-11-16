@@ -21,12 +21,13 @@ import junit.framework.TestCase;
 @SuppressWarnings("nls")
 public class RoutingConditionTestCase extends TestCase {
 
-    private String compileCondition(String condition) {
-        String compileConditon = condition;
-        compileConditon = compileConditon.replaceAll("\\s*And\\s*|\\s*and\\s*|\\s*AND\\s*", " && "); //$NON-NLS-1$ //$NON-NLS-2$
-        compileConditon = compileConditon.replaceAll("\\s*Or\\s*|\\s*or\\s*|\\s*OR\\s*", " || "); //$NON-NLS-1$//$NON-NLS-2$
-        compileConditon = compileConditon.replaceAll("\\s*Not\\s*|\\s*not\\s*|\\s*NOT\\s*", " !"); //$NON-NLS-1$ //$NON-NLS-2$
-        return compileConditon;
+    private static String compileCondition(String condition) {
+        String compiled = condition;
+        compiled = compiled.replaceAll("(\\s+)([aA][nN][dD])(\\s+|\\(*)", "$1&&$3"); //$NON-NLS-1$ //$NON-NLS-2$
+        compiled = compiled.replaceAll("(\\s+)([oO][rR])(\\s+|\\(*)", "$1||$3"); //$NON-NLS-1$//$NON-NLS-2$
+        compiled = compiled.replaceAll("(\\s+)([n|N][oO][tT])(\\s+|\\(*)", "$1!$3"); //$NON-NLS-1$ //$NON-NLS-2$
+
+        return compiled;
     }
 
     public void testRoutingRuleCondition() {
@@ -46,6 +47,18 @@ public class RoutingConditionTestCase extends TestCase {
         condition = "C1 and (C2 OR C3)";
         condition = compileCondition(condition);
         assertEquals("C1 && (C2 || C3)", condition);
+
+        condition = "Store and (C2 or C3)";
+        condition = compileCondition(condition);
+        assertEquals("Store && (C2 || C3)", condition);
+
+        condition = "Pand and (C2 or sort)";
+        condition = compileCondition(condition);
+        assertEquals("Pand && (C2 || sort)", condition);
+
+        condition = "Noth and (C2 or sort)";
+        condition = compileCondition(condition);
+        assertEquals("Noth && (C2 || sort)", condition);
 
     }
 

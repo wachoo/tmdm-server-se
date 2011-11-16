@@ -270,10 +270,8 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject {
 			}else{
 				String condition=routingRule.getCondition();
 				//TODO
-                condition = condition.replaceAll("\\s*And\\s*|\\s*and\\s*|\\s*AND\\s*", " && "); //$NON-NLS-1$ //$NON-NLS-2$
-                condition = condition.replaceAll("\\s*Or\\s*|\\s*or\\s*|\\s*OR\\s*", " || "); //$NON-NLS-1$//$NON-NLS-2$
-                condition = condition.replaceAll("\\s*Not\\s*|\\s*not\\s*|\\s*NOT\\s*", " !"); //$NON-NLS-1$ //$NON-NLS-2$
-				String compileCondition=new String (condition);
+                String compileCondition = compileCondition(condition);
+
 //				Pattern p=Pattern.compile("C([0-9]+)", Pattern.CASE_INSENSITIVE);
 //				Matcher m=p.matcher(condition);
 				Collection<RoutingRuleExpressionPOJO> routingExpressions = routingRule.getRoutingExpressions();
@@ -393,6 +391,15 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject {
 		return routingRulesThatMatched.toArray(new RoutingRulePOJOPK[routingRulesThatMatched.size()]);
     }
     
+    private static String compileCondition(String condition) {
+        String compiled = condition;
+        compiled = compiled.replaceAll("(\\s+)([aA][nN][dD])(\\s+|\\(*)", "$1&&$3"); //$NON-NLS-1$ //$NON-NLS-2$
+        compiled = compiled.replaceAll("(\\s+)([oO][rR])(\\s+|\\(*)", "$1||$3"); //$NON-NLS-1$//$NON-NLS-2$
+        compiled = compiled.replaceAll("(\\s+)([n|N][oO][tT])(\\s+|\\(*)", "$1!$3"); //$NON-NLS-1$ //$NON-NLS-2$
+
+        return compiled;
+    }
+
     
     /**
      * Check that a rule actually matches a document
