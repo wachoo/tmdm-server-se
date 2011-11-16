@@ -11,9 +11,9 @@
 
 package com.amalto.core.metadata;
 
-import junit.framework.TestCase;
-
 import java.io.InputStream;
+
+import junit.framework.TestCase;
 
 /**
  *
@@ -40,6 +40,14 @@ public class MetadataRepositoryTest extends TestCase {
         MetadataRepository repository = new MetadataRepository();
 
         InputStream stream = getClass().getResourceAsStream("schema3.xsd");
+        repository.load(stream);
+        // repository.accept(new ConsoleDumpMetadataVisitor());
+    }
+
+    public void test4() {
+        MetadataRepository repository = new MetadataRepository();
+
+        InputStream stream = getClass().getResourceAsStream("schema4.xsd");
         repository.load(stream);
         // repository.accept(new ConsoleDumpMetadataVisitor());
     }
