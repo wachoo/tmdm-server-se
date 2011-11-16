@@ -18,10 +18,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import com.amalto.core.jobox.JobContainer;
 import com.amalto.core.jobox.JobInfo;
+import com.amalto.core.jobox.properties.ThreadIsolatedSystemProperties;
 import com.amalto.core.jobox.util.JobNotFoundException;
 import com.amalto.core.jobox.util.JoboxException;
 import com.amalto.core.jobox.util.MissingMainClassException;
@@ -50,12 +50,16 @@ public abstract class JobInvoker {
     public String[][] call(Map<String, String> parameters) {
         String[][] result;
         ClassLoader previousCallLoader = Thread.currentThread().getContextClassLoader();
-        Properties previousProperties = System.getProperties();
+        ThreadIsolatedSystemProperties isolatedSystemProperties = ThreadIsolatedSystemProperties.getInstance();
 
+        if (System.getProperties() != isolatedSystemProperties) {
+            throw new IllegalStateException("Expected system properties to support thread isolation."); //$NON-NLS-1$
+        }
 
         try {
             JobContainer jobContainer = JobContainer.getUniqueInstance();
-            System.setProperties(jobContainer.getStandardProperties());
+            // Isolate current running thread with JVM standard properties (TMDM-2933).
+            isolatedSystemProperties.isolateThread(Thread.currentThread(), jobContainer.getStandardProperties());
 
             // well-behaved Java packages work relative to the
             // context class loader. Others don't (like commons-logging)
@@ -97,7 +101,8 @@ public abstract class JobInvoker {
             throw new JoboxException(e.getLocalizedMessage(), e);
         } finally {
             Thread.currentThread().setContextClassLoader(previousCallLoader);
-            System.setProperties(previousProperties);
+            // Reintegrate thread into global system properties world.
+            isolatedSystemProperties.integrateThread(Thread.currentThread());
         }
 
         return result;
