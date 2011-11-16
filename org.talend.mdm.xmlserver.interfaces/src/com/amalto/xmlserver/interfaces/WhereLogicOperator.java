@@ -1,15 +1,31 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
+
 package com.amalto.xmlserver.interfaces;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class WhereLogicOperator implements IWhereItem {
 
 	public final static int AND = 1;
+
 	public final static int OR = 2;
-	
-	ArrayList<IWhereItem> whereItems = new ArrayList<IWhereItem>();
-	int type = AND;
+
+    private final List<IWhereItem> whereItems = new ArrayList<IWhereItem>();
+
+    int type = AND;
 	
 
 	public WhereLogicOperator(int type) {
@@ -17,7 +33,7 @@ public class WhereLogicOperator implements IWhereItem {
 		this.type = type;
 	}
 	
-	public WhereLogicOperator(int type, ArrayList<IWhereItem> whereElements) {
+	public WhereLogicOperator(int type, List<IWhereItem> whereElements) {
 		super();
 		this.type = type;
 		whereItems.addAll(whereElements);
@@ -39,7 +55,7 @@ public class WhereLogicOperator implements IWhereItem {
 		return whereItems.size();
 	}
 	
-	public ArrayList<IWhereItem> getItems() {
+	public List<IWhereItem> getItems() {
 		return whereItems;
 	}
 	

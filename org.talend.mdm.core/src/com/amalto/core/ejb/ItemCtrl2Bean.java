@@ -4,7 +4,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
@@ -15,17 +15,10 @@ import java.util.regex.Pattern;
 import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
-import javax.naming.InitialContext;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.talend.mdm.commmon.util.core.CommonUtil;
-import org.talend.mdm.commmon.util.core.EDBType;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
 import com.amalto.core.integrity.FKIntegrityCheckResult;
 import com.amalto.core.integrity.FKIntegrityChecker;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
@@ -43,11 +36,18 @@ import com.amalto.core.util.JazzyConfiguration;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
+import com.amalto.xmlserver.interfaces.CustomWhereCondition;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
 import com.amalto.xmlserver.interfaces.ItemPKCriteria;
+import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.WhereOr;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.CommonUtil;
+import org.talend.mdm.commmon.util.core.EDBType;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 /**
  * @author Bruno Grieder
@@ -70,7 +70,7 @@ public class ItemCtrl2Bean implements SessionBean {
 
     public static final long serialVersionUID = 200;
 
-    // private SessionContext context;
+    private static final Logger LOGGER = Logger.getLogger(ItemCtrl2Bean.class);
 
     /**
      * ItemCtrlBean.java Constructor
@@ -86,7 +86,6 @@ public class ItemCtrl2Bean implements SessionBean {
      * @see javax.ejb.SessionBean#setSessionContext(javax.ejb.SessionContext)
      */
     public void setSessionContext(SessionContext ctx) throws EJBException, RemoteException {
-        // context=ctx;
     }
 
     /*
@@ -117,12 +116,14 @@ public class ItemCtrl2Bean implements SessionBean {
      * Create method
      *
      * @ejb.create-method view-type = "local"
+     * @throws javax.ejb.CreateException Thrown by J2EE container.
      */
     public void ejbCreate() throws javax.ejb.CreateException {
     }
 
     /**
      * Post Create method
+     * @throws javax.ejb.CreateException Thrown by J2EE container.
      */
     public void ejbPostCreate() throws javax.ejb.CreateException {
     }
@@ -130,14 +131,16 @@ public class ItemCtrl2Bean implements SessionBean {
     /**
      * Creates or updates a item
      *
-     * @throws XtentisException
+     * @param item The new item, null is not allowed.
+     * @param dataModel Null is allowed.
+     * @throws XtentisException In case of error in MDM code.
+     * @return A PK to the newly created record.
      *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
-    public ItemPOJOPK putItem(ItemPOJO item, DataModelPOJO datamodel) throws XtentisException {
-
-        return putItem(item, (datamodel == null ? null : datamodel.getSchema()), (datamodel == null ? null : datamodel.getName()));
+    public ItemPOJOPK putItem(ItemPOJO item, DataModelPOJO dataModel) throws XtentisException {
+        return putItem(item, (dataModel == null ? null : dataModel.getSchema()), (dataModel == null ? null : dataModel.getName()));
     }
 
     protected ItemPOJOPK putItem(ItemPOJO item, String schema, String dataModelName) throws XtentisException {
@@ -145,9 +148,11 @@ public class ItemCtrl2Bean implements SessionBean {
     }
 
     /**
-     * updates a item taskId
+     * updates a item taskId. Is equivalent to {@link #putItem(ItemPOJO, String, String)}.
      *
-     * @throws XtentisException
+     * @param item The item to update
+     * @throws XtentisException In case of error in MDM code.
+     * @return A PK to the updated item.
      *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
@@ -159,7 +164,9 @@ public class ItemCtrl2Bean implements SessionBean {
     /**
      * Get item
      *
-     * @throws XtentisException
+     * @param pk The item PK.
+     * @return The MDM record for the provided PK.
+     * @throws XtentisException In case of error in MDM code.
      *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
@@ -170,7 +177,7 @@ public class ItemCtrl2Bean implements SessionBean {
             ItemPOJO pojo = ItemPOJO.load(pk);
             if (pojo == null) {
                 String err = "The item '" + pk.getUniqueID() + "' cannot be found.";
-                org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+                LOGGER.error(err);
                 throw new EntityNotFoundException(err);
             }
             return pojo;
@@ -179,7 +186,7 @@ public class ItemCtrl2Bean implements SessionBean {
         } catch (Exception e) {
             String err = "Unable to get the item " + pk.toString() + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+            LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }
     }
@@ -187,18 +194,20 @@ public class ItemCtrl2Bean implements SessionBean {
     /**
      * Get item with revisionID
      *
-     * @throws XtentisException
+     * @param revisionID The item revision
+     * @param pk The item PK
+     * @throws XtentisException In case of error in MDM code.
+     * @return The MDM record for the PK.
      *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
     public ItemPOJO getItem(String revisionID, ItemPOJOPK pk) throws XtentisException {
-
         try {
             ItemPOJO pojo = ItemPOJO.load(revisionID, pk);
             if (pojo == null) {
                 String err = "The item '" + pk.getUniqueID() + "' cannot be found.";
-                org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+                LOGGER.error(err);
                 throw new XtentisException(err);
             }
             return pojo;
@@ -207,45 +216,48 @@ public class ItemCtrl2Bean implements SessionBean {
         } catch (Exception e) {
             String err = "Unable to get the item " + pk.toString() + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+            LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }
     }
 
     /**
-     * Is Item modified by others - no exception is thrown: true|false
+     * Is Item modified by others - no exception is thrown: true|false.
      *
-     * @throws XtentisException
+     * @param item A record PK.
+     * @param time Time of modification.
+     * @return True is last modification of record is after time, false otherwise.
+     * @throws XtentisException In case of error in MDM code.
      *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
     public boolean isItemModifiedByOther(ItemPOJOPK item, long time) throws XtentisException {
         ItemPOJO pojo = ItemPOJO.adminLoad(item);
-        if (pojo == null)
-        	return true;
-            //throw new XtentisException("The record don't exists, it's already been deleted by someone!");
-        return time != pojo.getInsertionTime();
+        return pojo == null || time != pojo.getInsertionTime();
     }
 
     /**
      * Get an item - no exception is thrown: returns null if not found
      *
-     * @throws XtentisException
+     * @param pk MDM record PK
+     * @return True if item with PK exists in database.
+     * @throws XtentisException In case of error in MDM code.
      *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
     public ItemPOJO existsItem(ItemPOJOPK pk) throws XtentisException {
-
         try {
             return ItemPOJO.load(pk);
         } catch (XtentisException e) {
             return null;
         } catch (Exception e) {
-            String info = "Could not check whether this item exists:  " + pk.toString() + ": " + e.getClass().getName() + ": "
+            if (LOGGER.isDebugEnabled()) {
+                String info = "Could not check whether this item exists:  " + pk.toString() + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(info, e);
+                LOGGER.debug(info, e);
+            }
             return null;
         }
     }
@@ -253,7 +265,11 @@ public class ItemCtrl2Bean implements SessionBean {
     /**
      * Remove an item - returns null if no item was deleted
      *
-     * @throws XtentisException
+     * @param pk PK of the item to be deleted.
+     * @param override Override FK integrity when deleting instance. Please note that this parameter is only taken into
+     * account if the data model allows override.
+     * @return The PK of the deleted item.
+     * @throws XtentisException In case of error in MDM code.
      *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
@@ -263,8 +279,9 @@ public class ItemCtrl2Bean implements SessionBean {
         String conceptName = pk.getConceptName();
         String[] ids = pk.getIds();
 
-        org.apache.log4j.Logger.getLogger(this.getClass()).trace(
-                "Deleting " + dataClusterName + "." + Util.joinStrings(ids, "."));
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Deleting " + dataClusterName + "." + Util.joinStrings(ids, "."));
+        }
         boolean allowDelete = FKIntegrityChecker.getInstance().allowDelete(dataClusterName, conceptName, ids, override);
         if (!allowDelete) {
             throw new RuntimeException("Cannot delete instance '" + pk.getUniqueID() + "' (concept name: " + conceptName + ") due to FK integrity constraints.");
@@ -277,7 +294,7 @@ public class ItemCtrl2Bean implements SessionBean {
         } catch (Exception e) {
             String err = "Unable to remove the item " + pk.toString() + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+            LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }
     }
@@ -285,19 +302,27 @@ public class ItemCtrl2Bean implements SessionBean {
     /**
      * Delete items in a stateless mode: open a connection --> perform delete --> close the connection
      *
-     * @throws XtentisException
+     * @param dataClusterPOJOPK Data cluster where items will be deleted.
+     * @param conceptName Concept name of the soon-to-be-deleted items.
+     * @param search A condition for items to be deleted.
+     * @param spellThreshold Unused parameter.
+     * @param override Override FK integrity when deleting instance. Please note that this parameter is only taken into
+     * account if the data model allows override.
+     * @return Number of deleted items.
+     * @throws XtentisException In case of error in MDM code.
      *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
-    public int deleteItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem search, int spellThreshold,boolean override)
+    // TODO override is not taken into account here?
+    public int deleteItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem search, int spellThreshold, boolean override)
             throws XtentisException {
 
         // get the universe and revision ID
         UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
         if (universe == null) {
             String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+            LOGGER.error(err);
             throw new XtentisException(err);
         }
 
@@ -310,30 +335,27 @@ public class ItemCtrl2Bean implements SessionBean {
         LinkedHashMap<String, String> patternsToClusterName = new LinkedHashMap<String, String>();
         patternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId());
 
-        XmlServerSLWrapperLocal server = null;
-        try {
-            server = ((XmlServerSLWrapperLocalHome) new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-        } catch (Exception e) {
-            String err = "Unable to delete items of concept '" + conceptName + "': unable to access the XML Server wrapper";
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-            throw new XtentisException(err, e);
-        }
-
+        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
         try {
             return server.deleteItems(patternsToRevisionID, patternsToClusterName, conceptName, search);
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
             String err = "Unable to delete the items: " + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+            LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }
     }
 
     /**
-     * Drop an item - returns null if no item was dropped
+     * Drop an item - returns null if no item was dropped. This is logical delete (i.e. send to trash)
      *
-     * @throws XtentisException
+     * @param itemPOJOPK PK of item to be sent to trash.
+     * @param partPath Use this parameter too only drop a part of the document (a XPath evaluated from the document's root).
+     * @param override Override FK integrity when deleting instance. Please note that this parameter is only taken into
+     * account if the data model allows override.
+     * @return A PK to the item in the MDM trash.
+     * @throws XtentisException In case of error in MDM code.
      *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
@@ -343,8 +365,9 @@ public class ItemCtrl2Bean implements SessionBean {
         String conceptName = itemPOJOPK.getConceptName();
         String[] ids = itemPOJOPK.getIds();
 
-        org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-                "Dropping " + dataClusterName + "." + Util.joinStrings(ids, "."));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Dropping " + dataClusterName + "." + Util.joinStrings(ids, "."));
+        }
         boolean allowDelete = FKIntegrityChecker.getInstance().allowDelete(dataClusterName, conceptName, ids, override);
         if (!allowDelete) {
             throw new RuntimeException("Cannot delete instance '" + itemPOJOPK.getUniqueID() + "' (concept name: " + conceptName + ") due to FK integrity constraints.");
@@ -357,7 +380,7 @@ public class ItemCtrl2Bean implements SessionBean {
         } catch (Exception e) {
             String err = "Unable to drop the item " + itemPOJOPK.toString() + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+            LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }
     }
@@ -373,7 +396,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param start The first item index (starts at zero)
      * @param limit The maximum number of items to return
      * @return The ordered list of results
-     * @throws XtentisException
+     * @throws XtentisException In case of error in MDM code.
      *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
@@ -396,7 +419,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param start The first item index (starts at zero)
      * @param limit The maximum number of items to return
      * @return The ordered list of results
-     * @throws XtentisException
+     * @throws XtentisException In case of error in MDM code.
      *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
@@ -420,8 +443,9 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param spellThreshold The condition spell checking threshold. A negative value de-activates spell
      * @param start The first item index (starts at zero)
      * @param limit The maximum number of items to return
+     * @param returnCount True if total search count should be returned as first result.
      * @return The ordered list of results
-     * @throws XtentisException
+     * @throws XtentisException In case of error in MDM code.
      *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
@@ -447,8 +471,9 @@ public class ItemCtrl2Bean implements SessionBean {
      * {@link IXmlServerSLWrapper#ORDER_DESCENDING}
      * @param start The first item index (starts at zero)
      * @param limit The maximum number of items to return
+     * @param returnCount True if total search count should be returned as first result.
      * @return The ordered list of results
-     * @throws XtentisException
+     * @throws XtentisException In case of error in MDM code.
      *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
@@ -457,26 +482,39 @@ public class ItemCtrl2Bean implements SessionBean {
             ArrayList<String> viewablePaths, IWhereItem whereItem, int spellThreshold, String orderBy, String direction,
             int start, int limit, boolean returnCount) throws XtentisException {
         try {
-
             if (viewablePaths.size() == 0) {
                 String err = "The list of viewable xPaths must contain at least one element";
-                org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+                LOGGER.error(err);
                 throw new XtentisException(err);
+            }
+
+            // Check if user is allowed to read the cluster
+            ILocalUser user = LocalUser.getLocalUser();
+            boolean authorized = false;
+            if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
+                authorized = true;
+            } else if (user.userCanRead(DataClusterPOJO.class, dataClusterPOJOPK.getUniqueId())) {
+                authorized = true;
+            }
+            if (!authorized) {
+                throw new XtentisException("Unauthorized read access on data cluster '" + dataClusterPOJOPK.getUniqueId() + "' by user '"
+                        + user.getUsername() + "'");
             }
 
             // get the universe and revision ID
             UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
             if (universe == null) {
                 String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-                org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+                LOGGER.error(err);
                 throw new XtentisException(err);
             }
 
             // build the patterns to revision ID map
             LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(
                     universe.getItemsRevisionIDs());
-            if (universe.getDefaultItemRevisionID() != null)
+            if (universe.getDefaultItemRevisionID() != null) {
                 conceptPatternsToRevisionID.put(".*", universe.getDefaultItemRevisionID());
+            }
 
             // build the patterns to cluster map - only one cluster at this stage
             LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
@@ -493,7 +531,7 @@ public class ItemCtrl2Bean implements SessionBean {
             throw (e);
         } catch (Exception e) {
             String err = "Unable to single search: " + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+            LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }
     }
@@ -513,7 +551,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param start The first item index (starts at zero)
      * @param limit The maximum number of items to return
      * @return The ordered list of results
-     * @throws XtentisException
+     * @throws XtentisException In case of error in MDM code.
      *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
@@ -529,8 +567,8 @@ public class ItemCtrl2Bean implements SessionBean {
     }
 
     /**
-     * @param clusterName
-     * @param conceptName
+     * @param clusterName A data cluster name.
+     * @param conceptName A concept name
      * @param PKXpaths
      * @param FKXpath
      * @param labelXpath
@@ -554,13 +592,12 @@ public class ItemCtrl2Bean implements SessionBean {
     /**
      * Count the items denoted by concept name meeting the optional condition whereItem
      *
-     * @param dataClusterPOJOPK
-     * @param conceptName
-     * @param whereItem
-     * @param spellThreshold
+     * @param dataClusterPOJOPK A data cluster PK.
+     * @param conceptName A concept name.
+     * @param whereItem A condition on returned count.
+     * @param spellThreshold Unused parameter.
      * @return The number of items found
-     * @throws XtentisException
-     *
+     * @throws XtentisException In case of error in MDM code.
      *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
@@ -573,7 +610,7 @@ public class ItemCtrl2Bean implements SessionBean {
             UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
             if (universe == null) {
                 String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-                org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+                LOGGER.error(err);
                 throw new XtentisException(err);
             }
 
@@ -587,24 +624,13 @@ public class ItemCtrl2Bean implements SessionBean {
             LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
             conceptPatternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId());
 
-            XmlServerSLWrapperLocal server = null;
-            try {
-                server = ((XmlServerSLWrapperLocalHome) new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME))
-                        .create();
-            } catch (Exception e) {
-                String err = "Unable to search items in data cluster '" + dataClusterPOJOPK.getUniqueId()
-                        + "': unable to access the XML Server wrapper";
-                org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-                throw new XtentisException(err, e);
-            }
-
+            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
             return server.countItems(conceptPatternsToRevisionID, conceptPatternsToClusterName, conceptName, whereItem);
-
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
             String err = "Unable to single search: " + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+            LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }
     }
@@ -623,7 +649,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param start The first item index (starts at zero)
      * @param limit The maximum number of items to return
      * @return The ordered list of results
-     * @throws XtentisException
+     * @throws XtentisException In case of error in MDM code.
      *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
@@ -669,7 +695,7 @@ public class ItemCtrl2Bean implements SessionBean {
         } catch (Exception e) {
             String err = "Unable to quick search  " + searchValue + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+            LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }
     }
@@ -686,14 +712,13 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param direction One of {@link IXmlServerSLWrapper#ORDER_ASCENDING} or
      * {@link IXmlServerSLWrapper#ORDER_DESCENDING}
      * @return The list of values
-     * @throws XtentisException
+     * @throws XtentisException In case of error in MDM code.
      *
      *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
     public ArrayList<String> getFullPathValues(DataClusterPOJOPK dataClusterPOJOPK,
-    // ViewPOJOPK viewPOJOPK,
             String businessElementPath, IWhereItem whereItem, int spellThreshold, String orderBy, String direction)
             throws XtentisException {
 
@@ -703,17 +728,16 @@ public class ItemCtrl2Bean implements SessionBean {
             String conceptName = ItemPOJO.getConceptFromPath(businessElementPath);
             if (conceptName == null) {
                 String err = "Unable to recover the concept from business Element path '" + businessElementPath + "'";
-                org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+                LOGGER.error(err);
                 throw new XtentisException(err);
             }
 
             ArrayList<String> col = xPathsSearch(dataClusterPOJOPK, null,
-                    new ArrayList<String>(Arrays.asList(new String[] { businessElementPath })), whereItem, spellThreshold,
+                    new ArrayList<String>(Arrays.asList(businessElementPath)), whereItem, spellThreshold,
                     orderBy, direction, 0, -1, false);
 
             Pattern p = Pattern.compile("<.*>(.*?)</.*>", Pattern.DOTALL);
-            for (Iterator<String> iter = col.iterator(); iter.hasNext();) {
-                String li = iter.next();
+            for (String li : col) {
                 Matcher m = p.matcher(li);
                 if (m.matches())
                     res.add(StringEscapeUtils.unescapeXml(m.group(1)));
@@ -726,7 +750,7 @@ public class ItemCtrl2Bean implements SessionBean {
             throw (e);
         } catch (Exception e) {
             String err = "Unable to get values for the Business Element \"" + businessElementPath + "\"";
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+            LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }
     }
@@ -736,7 +760,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * This call is asynchronous and results will be pushed via the passed {@link TransformerCallBack}
      *
      * @param dataClusterPOJOPK The Data Cluster where to run the query
-     * @param context The {@link TransformerContext} containi the inital context and the transformer name
+     * @param context The {@link TransformerContext} contains the initial context and the transformer name
      * @param globalCallBack The callback function called by the transformer when it completes a step
      * @param viewPOJOPK A filtering view
      * @param whereItem The condition
@@ -746,6 +770,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * {@link IXmlServerSLWrapper#ORDER_DESCENDING}
      * @param start The first item index (starts at zero)
      * @param limit The maximum number of items to return
+     * @throws com.amalto.core.util.XtentisException In case of error in MDM code.
      *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
@@ -755,37 +780,38 @@ public class ItemCtrl2Bean implements SessionBean {
             String direction, int start, int limit) throws XtentisException {
 
         try {
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug("extractUsingTransformerThroughView() ");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("extractUsingTransformerThroughView() ");
+            }
 
             context.put("com.amalto.core.ejb.itemctrl.globalCallBack", globalCallBack);
-            context.put("com.amalto.core.ejb.itemctrl.count", new Integer(0));
+            context.put("com.amalto.core.ejb.itemctrl.count", 0);
 
             // perform search
             ArrayList<String> raws = viewSearch(dataClusterPOJOPK, viewPOJOPK, whereItem, spellThreshold, orderBy, direction,
                     start, limit);
 
             // transform
-            for (Iterator<String> iter = raws.iterator(); iter.hasNext();) {
-                String raw = iter.next();
+            for (String raw : raws) {
                 Util.getTransformerV2CtrlLocal().execute(context,
                         new TypedContent(raw.getBytes("utf-8"), "text/xml; charset=\"utf-8\""), new TransformerCallBack() {
 
-                            public void contentIsReady(TransformerContext context) throws XtentisException {
-                                // add numberd content to the pipeline
-                                TypedContent content = context.getFromPipeline(DEFAULT_VARIABLE);
-                                int count = ((Integer) context.get("com.amalto.core.ejb.itemctrl.count")).intValue() + 1;
-                                context.putInPipeline("com.amalto.core.extract." + count, content);
-                                // context.put(TransformerCtrlBean.CTX_PIPELINE, pipeline);
-                                context.put("com.amalto.core.ejb.itemctrl.count", new Integer(count));
-                                TransformerCallBack globalCallBack = (TransformerCallBack) context
-                                        .get("com.amalto.core.ejb.itemctrl.globalCallBack");
-                                globalCallBack.contentIsReady(context);
-                            }
+                    public void contentIsReady(TransformerContext context) throws XtentisException {
+                        // add numbered content to the pipeline
+                        TypedContent content = context.getFromPipeline(DEFAULT_VARIABLE);
+                        int count = (Integer) context.get("com.amalto.core.ejb.itemctrl.count") + 1;
+                        context.putInPipeline("com.amalto.core.extract." + count, content);
+                        // context.put(TransformerCtrlBean.CTX_PIPELINE, pipeline);
+                        context.put("com.amalto.core.ejb.itemctrl.count", count);
+                        TransformerCallBack globalCallBack = (TransformerCallBack) context
+                                .get("com.amalto.core.ejb.itemctrl.globalCallBack");
+                        globalCallBack.contentIsReady(context);
+                    }
 
-                            public void done(TransformerContext context) throws XtentisException {
-                                // do not notify
-                            }
-                        });// execute
+                    public void done(TransformerContext context) throws XtentisException {
+                        // do not notify
+                    }
+                });// execute
             }
 
             // notify that it is the end
@@ -797,7 +823,7 @@ public class ItemCtrl2Bean implements SessionBean {
             String err = "Unable to extract items using transformer " + context.getTransformerV2POJOPK().getUniqueId()
                     + " through view " + viewPOJOPK.getUniqueId() + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+            LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }
     }
@@ -825,7 +851,9 @@ public class ItemCtrl2Bean implements SessionBean {
             String orderBy, String direction, int start, int limit) throws XtentisException {
 
         try {
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug("extractUsingTransformerThroughView() ");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("extractUsingTransformerThroughView() ");
+            }
 
             TransformerContext context = new TransformerContext(transformerPOJOPK);
             ArrayList<TypedContent> content = new ArrayList<TypedContent>();
@@ -844,10 +872,11 @@ public class ItemCtrl2Bean implements SessionBean {
             extractUsingTransformerThroughView(dataClusterPOJOPK, context, globalCallBack, viewPOJOPK, whereItem, spellThreshold,
                     orderBy, direction, start, limit);
 
-            while (!((Boolean) context.get("com.amalto.core.itemctrl2.ready")).booleanValue()) {
+            while (!(Boolean) context.get("com.amalto.core.itemctrl2.ready")) {
                 try {
                     Thread.sleep(50);
                 } catch (InterruptedException e) {
+                    LOGGER.error("Error while waiting for transformer's end", e);
                 }
             }
             return context;
@@ -857,7 +886,7 @@ public class ItemCtrl2Bean implements SessionBean {
         } catch (Exception e) {
             String err = "Unable to extract items using transformer " + transformerPOJOPK.getUniqueId() + " through view "
                     + viewPOJOPK.getUniqueId() + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+            LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }
 
@@ -872,6 +901,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param dataClusterPOJOPK The unique ID of the cluster, <code>null</code> to run from the head of the revision ID
      * @param query The query in the native language
      * @param parameters Optional parameter values to replace the %n in the query before execution
+     * @return Query results as list of String.
      *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
@@ -881,14 +911,11 @@ public class ItemCtrl2Bean implements SessionBean {
 
         XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
         try {
-
-            ArrayList<String> res = server.runQuery(revisionID,
+            return server.runQuery(revisionID,
                     (dataClusterPOJOPK == null ? null : dataClusterPOJOPK.getUniqueId()), query, parameters);
-            return res;
-
         } catch (Exception e) {
             String err = "Unable to perform a direct query: " + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+            LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }
     }
@@ -908,10 +935,9 @@ public class ItemCtrl2Bean implements SessionBean {
     /**
      * Returns a map with keys being the concepts found in the Data Cluster and as value the revisionID
      *
-     * @param dataClusterPOJOPK
-     * @param universe
+     * @param dataClusterPOJOPK A data cluster PK.
      * @return A {@link TreeMap} of concept names to revision IDs
-     * @throws XtentisException
+     * @throws XtentisException In case of error in MDM code.
      *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
@@ -923,8 +949,8 @@ public class ItemCtrl2Bean implements SessionBean {
     /**
      * Returns a map with keys being the concepts found in the Data Cluster and as value the revisionID
      *
-     * @param dataClusterPOJOPK
-     * @param universe
+     * @param dataClusterPOJOPK A data cluster PK.
+     * @param universe Universe
      * @return A {@link TreeMap} of concept names to revision IDs
      * @throws XtentisException
      *
@@ -958,16 +984,18 @@ public class ItemCtrl2Bean implements SessionBean {
                 universe = user.getUniverse();
 
             // make sure we do not check a revision twice
-            ArrayList<String> revisionsChecked = new ArrayList<String>();
+            Set<String> revisionsChecked = new HashSet<String>();
 
             // First go through every revision
             Set<String> patterns = universe.getItemsRevisionIDs().keySet();
-            for (Iterator<String> iterator = patterns.iterator(); iterator.hasNext();) {
-                String pattern = iterator.next();
+            for (String pattern : patterns) {
                 String revisionID = universe.getConceptRevisionID(pattern);
                 String revisionKey = (revisionID == null) || "".equals(revisionID) ? "__$DEFAULT$__" : revisionID;
-                if (revisionsChecked.contains(revisionKey))
+                if (revisionsChecked.contains(revisionKey)) {
                     continue;
+                } else {
+                    revisionsChecked.add(revisionKey);
+                }
                 // fetch all the concepts
                 String collectionpath = CommonUtil.getPath(revisionID, dataClusterPOJOPK.getUniqueId());
                 query = "distinct-values(collection(\"" + collectionpath + "\")/ii/n/text())";
@@ -976,10 +1004,10 @@ public class ItemCtrl2Bean implements SessionBean {
                 }
                 ArrayList<String> conceptsFound = runQuery(revisionID, dataClusterPOJOPK, query, null);
                 // validate the concepts found
-                for (Iterator<String> iterator2 = conceptsFound.iterator(); iterator2.hasNext();) {
-                    String concept = iterator2.next();
-                    if (concept.matches(pattern) && (concepts.get(concept) == null))
+                for (String concept : conceptsFound) {
+                    if (concept.matches(pattern) && (concepts.get(concept) == null)) {
                         concepts.put(concept, revisionID == null ? "" : revisionID);
+                    }
                 }
             }
 
@@ -997,10 +1025,10 @@ public class ItemCtrl2Bean implements SessionBean {
 
                 ArrayList<String> conceptsFound = runQuery(revisionID, dataClusterPOJOPK, query, null);
                 // validate the concepts found
-                for (Iterator<String> iterator2 = conceptsFound.iterator(); iterator2.hasNext();) {
-                    String concept = iterator2.next();
-                    if (concepts.get(concept) == null)
+                for (String concept : conceptsFound) {
+                    if (concepts.get(concept) == null) {
                         concepts.put(concept, revisionID == null ? "" : revisionID);
+                    }
                 }
             }
 
@@ -1008,7 +1036,7 @@ public class ItemCtrl2Bean implements SessionBean {
 
         } catch (Exception e) {
             String err = "Unable to search for concept names in the data cluster '" + dataClusterPOJOPK.getUniqueId() + "'";
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+            LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }
     }
@@ -1049,7 +1077,7 @@ public class ItemCtrl2Bean implements SessionBean {
             UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
             if (universe == null) {
                 String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-                org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+                LOGGER.error(err);
                 throw new XtentisException(err);
             }
 
@@ -1084,130 +1112,38 @@ public class ItemCtrl2Bean implements SessionBean {
             // Run query
             ArrayList<String> results = runQuery(revisionID, new DataClusterPOJOPK(dataClusterName), xquery, null);
 
-            long count = Long.parseLong(results.get(0));
-
-            return count;
-
+            return Long.parseLong(results.get(0));
         } catch (Exception e) {
             String err = "Unable to count the elements! ";
-            org.apache.log4j.Logger.getLogger("INFO SYSTRACE " + this.getClass()).info(err, e);
+            LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }
 
     }
 
     /**
-     * @param dataClusterPOJOPK
-     * @param conceptName
-     * @param viewablePaths
-     * @param injectedXpath
-     * @param start
-     * @param limit
-     * @param orderbyPath
-     * @param direction
-     * @return
-     * @throws XtentisException
-     *
+     * @param dataClusterPOJOPK A data cluster name
+     * @param viewablePaths     Viewable paths in the result
+     * @param customXPath       A custom XPath-based condition to be added as-is to the XQuery (no validation)
+     * @param whereItem         A addition where condition
+     * @param start             A start position for paging results
+     * @param limit             Size of results page.
+     * @param orderBy           A optional order by
+     * @param direction         Direction for the order by.
+     * @param returnCount       If true, returns total match count as first result.
+     * @return The equivalent of a {@link #xPathsSearch(com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK, String, java.util.ArrayList, com.amalto.xmlserver.interfaces.IWhereItem, int, String, String, int, int, boolean)} using a
+     *         custom XPath as additional condition.
+     * @throws XtentisException In case of MDM server error.
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
-    public ArrayList<String> getItemsByCustomFKFilters(DataClusterPOJOPK dataClusterPOJOPK, String conceptName,
-            ArrayList<String> viewablePaths, String injectedXpath, int start, int limit, String orderbyPath, String direction)
+    public ArrayList<String> getItemsByCustomFKFilters(DataClusterPOJOPK dataClusterPOJOPK, ArrayList<String> viewablePaths,
+                                                       String customXPath, IWhereItem whereItem, int start, int limit,
+                                                       String orderBy, String direction, boolean returnCount)
             throws XtentisException {
-
-        try {
-
-            String dataClusterName = dataClusterPOJOPK.getUniqueId();
-
-            // check parameters
-            if (viewablePaths.size() == 0) {
-                String err = "The list of viewable xPaths must contain at least one element";
-                org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-                throw new XtentisException(err);
-            }
-
-            // Check if user is allowed to read the cluster
-            ILocalUser user = LocalUser.getLocalUser();
-            boolean authorized = false;
-            if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
-                authorized = true;
-            } else if (user.userCanRead(DataClusterPOJO.class, dataClusterName)) {
-                authorized = true;
-            }
-            if (!authorized) {
-                throw new XtentisException("Unauthorized read access on data cluster '" + dataClusterName + "' by user '"
-                        + user.getUsername() + "'");
-            }
-
-            // Get the universe and revision ID
-            String revisionID = null;
-
-            UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
-            if (universe == null) {
-                String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-                org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-                throw new XtentisException(err);
-            }
-
-            if (conceptName == null) {
-                if (universe.getItemsRevisionIDs().size() > 0) {
-                    throw new RemoteException("User " + user.getUsername() + " is using items coming from multiple revisions."
-                            + " In that particular case, the concept must be specified");
-                } else {
-                    revisionID = universe.getDefaultItemRevisionID();
-                }
-            } else {
-                revisionID = universe.getConceptRevisionID(conceptName);
-            }
-
-            injectedXpath = injectedXpath == null ? "" : injectedXpath;
-
-            // Get collectionpath take revision into account
-            String collectionpath = CommonUtil.getPath(revisionID, dataClusterName);
-
-            // build baseQuery
-            String baseQuery = "collection(\"" + collectionpath + "\")//p/" + injectedXpath;
-            ;
-            if (orderbyPath != null && orderbyPath.length() > 0) {
-                orderbyPath = Util.replaceXpathPivot(conceptName, orderbyPath, "$r");
-                baseQuery = "for $r in " + baseQuery + " order by " + orderbyPath;
-                if (direction != null && direction.length() > 0)
-                    baseQuery += (" " + direction);
-                baseQuery += " return $r ";
-            }
-
-            // build result
-            StringBuffer resultQuery = new StringBuffer();
-            resultQuery.append("<result>");
-            for (String viewablePath : viewablePaths) {
-                if (viewablePath != null && viewablePath.length() > 0) {
-                    String lastElem = viewablePath.substring(viewablePath.lastIndexOf("/") + 1);
-                    String replacedXpath = Util.replaceXpathPivot(conceptName, viewablePath, "$pivot0");
-                    resultQuery.append("{if (" + replacedXpath + ") then " + replacedXpath + " else <" + lastElem + "/>}");
-                }
-            }
-            resultQuery.append("</result>");
-
-            // Build query
-            StringBuffer xquery = new StringBuffer();
-            xquery.append("let $_leres0_ := ").append(baseQuery)
-                    .append("\n for $pivot0 in subsequence($_leres0_," + start + "," + limit + ")")
-                    .append("\n return " + resultQuery.toString());
-
-            System.out.println(xquery.toString());
-
-            // Run query
-            ArrayList<String> results = runQuery(revisionID, new DataClusterPOJOPK(dataClusterName), xquery.toString(), null);
-            return results;
-
-        } catch (XtentisException e) {
-            throw (e);
-        } catch (Exception e) {
-            String err = "Unable to get items by custom FK filters " + ": " + e.getClass().getName() + ": "
-                    + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
-            throw new XtentisException(err, e);
-        }
+        IWhereItem customWhereCondition = new CustomWhereCondition(customXPath);
+        IWhereItem xPathSearchCondition = new WhereAnd(Arrays.asList(whereItem, customWhereCondition));
+        return xPathsSearch(dataClusterPOJOPK, null, viewablePaths, xPathSearchCondition, 0, orderBy, direction, start, limit, returnCount);
     }
 
     public ArrayList<String> getItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem whereItem,
@@ -1229,12 +1165,13 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param spellThreshold The condition spell checking threshold. A negative value de-activates spell
      * @param start The first item index (starts at zero)
      * @param limit The maximum number of items to return
+     * @param totalCountOnFirstRow If true, return total search count as first result.
      * @return The ordered list of results
-     * 
+     * @throws XtentisException In case of error in MDM code.
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
-     * 
-     * @throws XtentisException
+     *
      */
     public ArrayList<String> getItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem whereItem,
             int spellThreshold, int start, int limit, boolean totalCountOnFirstRow) throws XtentisException {
@@ -1253,12 +1190,13 @@ public class ItemCtrl2Bean implements SessionBean {
      * {@link IXmlServerSLWrapper#ORDER_DESCENDING}
      * @param start The first item index (starts at zero)
      * @param limit The maximum number of items to return
+     * @param totalCountOnFirstRow If true, return total search count as first result.
      * @return The ordered list of results
-     * 
+     * @throws XtentisException In case of error in MDM code.
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
-     * 
-     * @throws XtentisException
+     *
      */
     public ArrayList<String> getItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem whereItem,
             int spellThreshold, String orderBy, String direction, int start, int limit, boolean totalCountOnFirstRow)
@@ -1268,7 +1206,7 @@ public class ItemCtrl2Bean implements SessionBean {
         UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
         if (universe == null) {
             String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+            LOGGER.error(err);
             throw new XtentisException(err);
         }
 
@@ -1296,7 +1234,7 @@ public class ItemCtrl2Bean implements SessionBean {
             throw (e);
         } catch (Exception e) {
             String err = "Unable to get the items: " + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+            LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }
     }

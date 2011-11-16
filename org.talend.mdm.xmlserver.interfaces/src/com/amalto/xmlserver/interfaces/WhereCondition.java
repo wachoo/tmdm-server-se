@@ -1,13 +1,22 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
+
 /*
  * Created on 9 août 2005
  */
 package com.amalto.xmlserver.interfaces;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.w3c.dom.Document;
 
@@ -72,7 +81,7 @@ public class WhereCondition implements IWhereItem, Serializable {
     private boolean isRightValueXPath;
 
     /**
-     * Constructor used by Castor to unmarshell the WhereCondition
+     * Constructor used by Castor to unmarshall the WhereCondition
      */
     public WhereCondition() {
     }
@@ -92,6 +101,7 @@ public class WhereCondition implements IWhereItem, Serializable {
      * @param operator
      * @param rightValueOrPath
      * @param stringPredicate
+     * @param spellCheck
      */
     public WhereCondition(String leftPath, String operator, String rightValueOrPath, String stringPredicate, boolean spellCheck) {
         super();
@@ -114,6 +124,7 @@ public class WhereCondition implements IWhereItem, Serializable {
         return operator;
     }
 
+    // Used by unmarshaller
     public void setOperator(String operator) {
         this.operator = operator;
     }
@@ -147,6 +158,7 @@ public class WhereCondition implements IWhereItem, Serializable {
         return stringPredicate;
     }
 
+    // Used by unmarshaller
     public void setStringPredicate(String stringPredicate) {
         this.stringPredicate = stringPredicate;
     }
@@ -158,15 +170,8 @@ public class WhereCondition implements IWhereItem, Serializable {
         return spellCheck;
     }
 
-    /**
-     * @param spellCheck The spellCheck to set.
-     */
-    public void setSpellCheck(boolean spellCheck) {
-        this.spellCheck = spellCheck;
-    }
-
-    private String xmlEncode(String uncoded) {
-        String encoded = uncoded;
+    private String xmlEncode(String unEncoded) {
+        String encoded = unEncoded;
         encoded = encoded.replaceAll("&", "&amp;");
         encoded = encoded.replaceAll(">", "&gt;");
         encoded = encoded.replaceAll("<", "&lt;");
@@ -174,7 +179,6 @@ public class WhereCondition implements IWhereItem, Serializable {
     }
 
     public String serialize() {
-
         return "<wherecondition>" + "	<leftpath>" + xmlEncode(getLeftPath()) + "</leftpath>" + "	<operator>"
                 + xmlEncode(getOperator()) + "</operator>" + "	<rightvalueorpath>" + xmlEncode(getRightValueOrPath())
                 + "</rightvalueorpath>" + "	<stringpredicate>" + xmlEncode(getStringPredicate()) + "</stringpredicate>"
@@ -189,59 +193,6 @@ public class WhereCondition implements IWhereItem, Serializable {
                 .getDocumentElement(), "./spellcheck")));
     }
 
-    /**
-     * Detects Intra joins
-     * 
-     * @param wcs
-     * @return <code>true</code> if there are intr joins
-     */
-    public static boolean hasIntraJoin(ArrayList<WhereCondition> wcs) {
-        for (Iterator<WhereCondition> iter = wcs.iterator(); iter.hasNext();) {
-            WhereCondition condition = iter.next();
-            if (WhereCondition.JOINS.equals(condition.getOperator())) {
-                String leftConcept = getConceptFromPath(condition.getLeftPath());
-                String rightConcept = getConceptFromPath(condition.getRightValueOrPath());
-                if ((leftConcept != null) && (rightConcept != null) && (leftConcept.equals(rightConcept)))
-                    return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Detects Intra joins
-     * 
-     * @param item The {@link IWhereItem} to inspect
-     * @return <code>true</code> if there are intra joins
-     */
-    public static boolean hasIntraJoin(IWhereItem item) throws XmlServerException {
-
-        try {
-            if (item == null)
-                return false;
-            if (item instanceof WhereLogicOperator) {
-                ArrayList<IWhereItem> c = ((WhereLogicOperator) item).getItems();
-                for (Iterator<IWhereItem> iter = c.iterator(); iter.hasNext();) {
-                    if (hasIntraJoin(iter.next()))
-                        return true;
-                }
-                return false;
-            } else if (item instanceof WhereCondition) {
-                WhereCondition wc = (WhereCondition) item;
-                String leftConcept = getConceptFromPath(wc.getLeftPath());
-                String rightConcept = getConceptFromPath(wc.getRightValueOrPath());
-                if ((leftConcept != null) && (rightConcept != null) && (leftConcept.equals(rightConcept)))
-                    return true;
-                return false;
-            } else {
-                throw new XmlServerException("Unknown element of whereCondition: " + item.getClass().getName());
-            }
-        } catch (Exception e) {
-            throw new XmlServerException("Unable to detect intra document join: " + e.getLocalizedMessage());
-        }
-
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -251,35 +202,4 @@ public class WhereCondition implements IWhereItem, Serializable {
         return "(" + getLeftPath() + " " + getOperator() + " " + getRightValueOrPath() + " " + getStringPredicate() + " "
                 + isSpellCheck() + ")";
     }
-
-    public static void main(String[] args) {
-
-        try {
-            WhereCondition wc = new WhereCondition("toto", ">", "titi", "NONE");
-
-            System.out.println(wc.serialize());
-            System.out.println(Util.getFirstTextNode(Util.parse(wc.serialize()).getDocumentElement(), "./operator"));
-        } catch (Exception e) {
-        }
-    }
-
-    private static Pattern pathWithoutConditions = Pattern.compile("(.*?)[\\[|/].*");
-
-    /**
-     * Returns the first part - eg. the concept - from the path
-     * 
-     * @param path
-     * @return the Concept
-     */
-    private static String getConceptFromPath(String path) {
-        if (!path.endsWith("/"))
-            path += "/";
-        Matcher m = pathWithoutConditions.matcher(path);
-        if (m.matches()) {
-            return m.group(1);
-        } else {
-            return null;
-        }
-    }
-
 }

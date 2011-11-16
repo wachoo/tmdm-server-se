@@ -3408,7 +3408,7 @@ public class Util {
         if (whereItem == null)
             return null;
         if (whereItem instanceof WhereLogicOperator) {
-            ArrayList<IWhereItem> subItems = ((WhereLogicOperator) whereItem).getItems();
+            List<IWhereItem> subItems = ((WhereLogicOperator) whereItem).getItems();
 
             for (int i = subItems.size() - 1; i >= 0; i--) {
                 IWhereItem item = subItems.get(i);

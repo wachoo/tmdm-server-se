@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -101,9 +102,22 @@ public class PartialXQLPackage {
     private Map<String, String> getPivotWhereMap(String xqWhere) {
         Map<String, String> pivotWhereMap = new HashMap<String, String>();
         Matcher m = pPattern.matcher(xqWhere);
+        boolean hasMatched = false;
         while (m.find()) {
             pivotWhereMap.put(m.group(), null);
+            hasMatched = true;
         }
+
+        // If the where clause did not match pattern, it means it doesn't contain
+        // any 'pivot' variable. This is then considered as a condition expression to
+        // be added to all pivots in forInCollection.
+        if (!hasMatched) {
+            Set<String> pivots = forInCollectionMap.keySet();
+            for (String pivot : pivots) {
+                pivotWhereMap.put(pivot, xqWhere);
+            }
+        }
+
         return pivotWhereMap;
     }
 

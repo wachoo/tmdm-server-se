@@ -6,7 +6,9 @@ package com.amalto.core.ejb.remote;
 
 import java.util.*;
 
-/**
+import com.amalto.xmlserver.interfaces.IWhereItem;
+
+ /**
  * This class is remote adapter to ItemCtrl2. It provides convenient way to access
  * facade session bean. Inverit from this class to provide reasonable caching and event handling capabilities.
  *
@@ -285,11 +287,11 @@ public class ItemCtrl2Remote extends Observable
 
    }
 
-   public java.util.ArrayList getItemsByCustomFKFilters ( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String conceptName,java.util.ArrayList viewablePaths,java.lang.String injectedXpath,int start,int limit,java.lang.String orderbyPath,java.lang.String direction )
+   public java.util.ArrayList getItemsByCustomFKFilters ( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.util.ArrayList viewablePaths,java.lang.String injectedXpath,IWhereItem whereItem,int start,int limit,java.lang.String orderbyPath,java.lang.String direction,boolean returnCount )
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {
         java.util.ArrayList retval;
-       retval =  getSession().getItemsByCustomFKFilters( dataClusterPOJOPK,conceptName,viewablePaths,injectedXpath,start,limit,orderbyPath,direction );
+       retval =  getSession().getItemsByCustomFKFilters( dataClusterPOJOPK,viewablePaths,injectedXpath,whereItem,start,limit,orderbyPath,direction,returnCount );
 
       return retval;
 

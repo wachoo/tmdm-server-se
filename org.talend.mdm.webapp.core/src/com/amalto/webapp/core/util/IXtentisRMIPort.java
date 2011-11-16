@@ -21,15 +21,7 @@ import java.io.ObjectOutputStream;
 import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.Map.Entry;
 
 import javax.naming.InitialContext;
@@ -2430,11 +2422,12 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         try {
             ArrayList res = Util.getItemCtrl2Local().getItemsByCustomFKFilters(
                     new DataClusterPOJOPK(wsGetItemsByCustomFKFilters.getWsDataClusterPK().getPk()),
-                    wsGetItemsByCustomFKFilters.getConceptName(),
                     new ArrayList<String>(Arrays.asList(wsGetItemsByCustomFKFilters.getViewablePaths().getStrings())),
-                    wsGetItemsByCustomFKFilters.getInjectedXpath(), wsGetItemsByCustomFKFilters.getSkip(),
+                    wsGetItemsByCustomFKFilters.getInjectedXpath(), XConverter.WS2VO(wsGetItemsByCustomFKFilters.getWhereItem()),
+                    wsGetItemsByCustomFKFilters.getSkip(),
                     wsGetItemsByCustomFKFilters.getMaxItems(), wsGetItemsByCustomFKFilters.getOrderBy(),
-                    wsGetItemsByCustomFKFilters.getDirection());
+                    wsGetItemsByCustomFKFilters.getDirection(),
+                    wsGetItemsByCustomFKFilters.getReturnCount());
             return new WSStringArray((String[]) res.toArray(new String[res.size()]));
         } catch (XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));

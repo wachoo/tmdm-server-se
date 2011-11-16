@@ -13,13 +13,20 @@
 
 package com.amalto.xmlserver.interfaces;
 
-import java.io.Serializable;
+public class CustomWhereCondition implements IWhereItem {
 
-/**
- * A holder to hold WhereCondition, WhereAnd, WhereOr 
- * @author bgrieder
- *
- */
-public interface IWhereItem extends Serializable {
- 
+    private final String customCondition;
+
+    public CustomWhereCondition(String customCondition) {
+        this.customCondition = customCondition;
+    }
+
+    public String getCondition() {
+        return customCondition;
+    }
+
+    @Override
+    public String toString() {
+        return customCondition;
+    }
 }

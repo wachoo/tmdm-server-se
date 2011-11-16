@@ -15,11 +15,13 @@ public class WSGetItemsByCustomFKFilters {
     protected int maxItems;
     protected java.lang.String orderBy;
     protected java.lang.String direction;
-    
+    protected boolean returnCount;
+    protected com.amalto.webapp.util.webservices.WSWhereItem whereItem;
+
     public WSGetItemsByCustomFKFilters() {
     }
     
-    public WSGetItemsByCustomFKFilters(com.amalto.webapp.util.webservices.WSDataClusterPK wsDataClusterPK, java.lang.String conceptName, com.amalto.webapp.util.webservices.WSStringArray viewablePaths, java.lang.String injectedXpath, int skip, int maxItems, java.lang.String orderBy, java.lang.String direction) {
+    public WSGetItemsByCustomFKFilters(WSDataClusterPK wsDataClusterPK, String conceptName, WSStringArray viewablePaths, String injectedXpath, int skip, int maxItems, String orderBy, String direction, boolean returnCount, com.amalto.webapp.util.webservices.WSWhereItem whereItem) {
         this.wsDataClusterPK = wsDataClusterPK;
         this.conceptName = conceptName;
         this.viewablePaths = viewablePaths;
@@ -28,6 +30,8 @@ public class WSGetItemsByCustomFKFilters {
         this.maxItems = maxItems;
         this.orderBy = orderBy;
         this.direction = direction;
+        this.returnCount = returnCount;
+        this.whereItem = whereItem;
     }
     
     public com.amalto.webapp.util.webservices.WSDataClusterPK getWsDataClusterPK() {
@@ -92,5 +96,21 @@ public class WSGetItemsByCustomFKFilters {
     
     public void setDirection(java.lang.String direction) {
         this.direction = direction;
+    }
+
+    public boolean getReturnCount() {
+        return returnCount;
+    }
+
+    public void setReturnCount(boolean returnCount) {
+        this.returnCount = returnCount;
+    }
+
+    public com.amalto.webapp.util.webservices.WSWhereItem getWhereItem() {
+        return whereItem;
+    }
+
+    public void setWhereItem(com.amalto.webapp.util.webservices.WSWhereItem whereItem) {
+        this.whereItem = whereItem;
     }
 }

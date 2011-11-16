@@ -40,6 +40,7 @@ import com.amalto.commons.core.utils.xpath.ri.compiler.Path;
 import com.amalto.commons.core.utils.xpath.ri.compiler.Step;
 import com.amalto.xmldb.util.PartialXQLPackage;
 import com.amalto.xmldb.util.QueryBuilderContext;
+import com.amalto.xmlserver.interfaces.CustomWhereCondition;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 import com.amalto.xmlserver.interfaces.WhereCondition;
@@ -154,7 +155,12 @@ public abstract class QueryBuilder {
      * Builds the xQuery Return statement for an Items Query
      * 
      *
+     * @param isItemQuery
+     * @param rootElementNamesToRevisionID
+     * @param rootElementNamesToClusterName
      * @param pivotsMap
+     * @param partialXQLPackage
+     * @param queryBuilderContext
      * @return
      * @throws XmlServerException
      */
@@ -180,7 +186,7 @@ public abstract class QueryBuilder {
                 revisionID = rootElementNamesToRevisionID.get(rootElementName);
             }
             // determine cluster
-            String clusterName = null;
+            String clusterName;
             if (isItemQuery) {
                 clusterName = getClusterName(rootElementNamesToClusterName, path);
             } else {
@@ -227,9 +233,10 @@ public abstract class QueryBuilder {
     /**
      * Build the Query Where clause
      * 
-     * @param where
+     * @param whereItem
      * @param pivots
      * @param whereItem
+     * @param metaDataTypes
      * @return
      * @throws XmlServerException
      */
@@ -248,42 +255,48 @@ public abstract class QueryBuilder {
         try {
             if (whereItem instanceof WhereLogicOperator) {
                 Collection<IWhereItem> subItems = ((WhereLogicOperator) whereItem).getItems();
-                if (subItems.size() == 0)
+                if (subItems.size() == 0) {
                     throw new XmlServerException("The logic operator must contain at least one element");
-                if (subItems.size() == 1)
-                    return // unnecessary AND or OR
-                    buildWhere(where, pivots, subItems.iterator().next(), object);
+                }
+                if (subItems.size() == 1) {
+                    return buildWhere(where, pivots, subItems.iterator().next(), object); // unnecessary AND or OR
+                }
+
                 int i = 0;
-                for (Iterator<IWhereItem> iter = subItems.iterator(); iter.hasNext();) {
-                    IWhereItem item = iter.next();
-                    if (i == 0)
+                for (IWhereItem item : subItems) {
+                    if (i == 0) {
                         where.append("("); //$NON-NLS-1$
+                    }
                     buildWhere(where, pivots, item, object);
                     where.append(")");//$NON-NLS-1$
-                    if (i < subItems.size() - 1)
+                    if (i < subItems.size() - 1) {
                         if (item instanceof WhereCondition) {
                             if (WhereCondition.PRE_OR.equals(((WhereCondition) item).getStringPredicate())) {
                                 where.append(" or ("); //$NON-NLS-1$
                             } else {
                                 where.append(" and ("); //$NON-NLS-1$
                             }
-                        } else if (((WhereLogicOperator) whereItem).getType() == WhereLogicOperator.AND)
+                        } else if (((WhereLogicOperator) whereItem).getType() == WhereLogicOperator.AND) {
                             where.append(" and ("); //$NON-NLS-1$
-                        else
+                        } else {
                             where.append(" or ("); //$NON-NLS-1$
-
+                        }
+                    }
                     i++;
-                }// for
+                }
                 return where.toString();
-
             } else if (whereItem instanceof WhereCondition) {
                 WhereCondition condition = (WhereCondition) whereItem;
-                if (object == null || object instanceof Map)
+                if (object == null || object instanceof Map) {
                     where.append(buildWhereCondition(condition, pivots, (Map<String, ArrayList<String>>) object));
-                else if (object instanceof Boolean)
+                } else if (object instanceof Boolean) {
                     where.append(buildWhereCondition(condition, pivots, (Boolean) object));
-                else
+                } else {
                     throw new IllegalArgumentException();
+                }
+                return where.toString();
+            } else if (whereItem instanceof CustomWhereCondition) {
+                where.append(((CustomWhereCondition) whereItem).getCondition());
                 return where.toString();
             } else {
                 throw new XmlServerException("Unknown Where Type : " + whereItem.getClass().getName());
@@ -291,7 +304,7 @@ public abstract class QueryBuilder {
         } catch (Exception e) {
             String err = "Unable to build the XQuery Where Clause : " + e.getLocalizedMessage();
             LOG.error(err, e);
-            throw new XmlServerException(err);
+            throw new XmlServerException(err, e);
         }
     }
 
@@ -344,14 +357,14 @@ public abstract class QueryBuilder {
                     List<String> types = metaDataTypes.get(leftPath);
                     if (types != null) {
                         String type = types.get(0);
-                        if (type.indexOf("xsd:double") >= 0 || type.indexOf("xsd:float") >= 0 || type.indexOf("xsd:integer") >= 0 //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                                || type.indexOf("xsd:decimal") >= 0 || type.indexOf("xsd:byte") >= 0 //$NON-NLS-1$ //$NON-NLS-2$
-                                || type.indexOf("xsd:int") >= 0 || type.indexOf("xsd:long") >= 0 //$NON-NLS-1$ //$NON-NLS-2$
-                                || type.indexOf("xsd:negativeInteger") >= 0 || type.indexOf("xsd:nonNegativeInteger") >= 0 //$NON-NLS-1$ //$NON-NLS-2$
-                                || type.indexOf("xsd:nonPositiveInteger") >= 0 || type.indexOf("xsd:positiveInteger") >= 0 //$NON-NLS-1$ //$NON-NLS-2$
-                                || type.indexOf("xsd:short") >= 0 || type.indexOf("xsd:unsignedLong") >= 0 //$NON-NLS-1$ //$NON-NLS-2$
-                                || type.indexOf("xsd:unsignedInt") >= 0 || type.indexOf("xsd:unsignedShort") >= 0 //$NON-NLS-1$ //$NON-NLS-2$
-                                || type.indexOf("xsd:unsignedByte") >= 0) { //$NON-NLS-1$
+                        if (type.contains("xsd:double") || type.contains("xsd:float") || type.contains("xsd:integer") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                || type.contains("xsd:decimal") || type.contains("xsd:byte") //$NON-NLS-1$ //$NON-NLS-2$
+                                || type.contains("xsd:int") || type.contains("xsd:long") //$NON-NLS-1$ //$NON-NLS-2$
+                                || type.contains("xsd:negativeInteger") || type.contains("xsd:nonNegativeInteger") //$NON-NLS-1$ //$NON-NLS-2$
+                                || type.contains("xsd:nonPositiveInteger") || type.contains("xsd:positiveInteger") //$NON-NLS-1$ //$NON-NLS-2$
+                                || type.contains("xsd:short") || type.contains("xsd:unsignedLong") //$NON-NLS-1$ //$NON-NLS-2$
+                                || type.contains("xsd:unsignedInt") || type.contains("xsd:unsignedShort") //$NON-NLS-1$ //$NON-NLS-2$
+                                || type.contains("xsd:unsignedByte")) { //$NON-NLS-1$
                             isLeftPathNum = true;
                         }
                     }
@@ -570,6 +583,11 @@ public abstract class QueryBuilder {
 
     /**
      * Build a where condition in XQuery using paths relative to the provided list of pivots
+     * @param wc
+     * @param pivots
+     * @param useValueComparisons
+     * @return
+     * @throws com.amalto.xmlserver.interfaces.XmlServerException
      */
     protected String buildWhereCondition(WhereCondition wc, LinkedHashMap<String, String> pivots, boolean useValueComparisons)
             throws XmlServerException {
@@ -590,6 +608,7 @@ public abstract class QueryBuilder {
                     Double.parseDouble(wc.getRightValueOrPath().trim());
                     isNum = true;
                 } catch (Exception e) {
+                    // Ignored (just a test for numeric values).
                 }
             }
 
@@ -790,11 +809,15 @@ public abstract class QueryBuilder {
 
     /**
      * Scans the pivots and build a relative path to one of the pivots using the absolute path provided.<br/>
-     * If no pivot is found a new pivaot is created<br/>
+     * If no pivot is found a new pivot is created<br/>
      * <br/>
      * Say we have a pivot named pivot0 referencing <code>Country/name</code>, the path <code>Country/name/EN</code>
      * will become <code>$pivot0/EN</code>
-     * 
+     *
+     * @param bename
+     * @param pivots
+     * @return
+     * @throws com.amalto.xmlserver.interfaces.XmlServerException
      */
     private String getPathFromPivots(String bename, HashMap<String, String> pivots) throws XmlServerException {
         try {
@@ -849,7 +872,11 @@ public abstract class QueryBuilder {
      * <br/>
      * Say the pivot is referencing <code>Country/name</code>, the path <code>Country/name/EN</code> will become
      * <code>$pivot0/EN</code>
-     * 
+     *
+     * @param pivot
+     * @param path
+     * @return
+     * @throws com.amalto.xmlserver.interfaces.XmlServerException
      */
     private String getPathFromPivot(String pivot, String path) throws XmlServerException {
         try {
@@ -901,6 +928,8 @@ public abstract class QueryBuilder {
 
     /**
      * check if is validated function.
+     * @param value
+     * @return
      */
     public static boolean isValidatedFunction(String value) {
         Pattern pattern = Pattern.compile("\\S+\\((\\S,*)*\\)$"); //$NON-NLS-1$
@@ -922,6 +951,8 @@ public abstract class QueryBuilder {
      * @param direction
      * @param start
      * @param limit
+     * @param withTotalCountOnFirstRow
+     * @param metaDataTypes
      * @return
      * @throws XmlServerException
      */
@@ -933,8 +964,9 @@ public abstract class QueryBuilder {
         try {
             // build Pivots Map
             LinkedHashMap<String, String> pivotsMap = new LinkedHashMap<String, String>();
-            if (forceMainPivot != null)
+            if (forceMainPivot != null) {
                 pivotsMap.put("$pivot0", forceMainPivot); //$NON-NLS-1$
+            }
 
             if (start < 0 || limit < 0 || limit == Integer.MAX_VALUE) {
                 start = 0;
@@ -963,7 +995,7 @@ public abstract class QueryBuilder {
             } else {
                 factorFirstPivotInMap(pivotsMap, orderBy);
                 boolean isNumber = false;
-                if (!"".equals(direction) && direction != null && direction.indexOf(":") != -1) { //$NON-NLS-1$ //$NON-NLS-2$
+                if (!"".equals(direction) && direction != null && direction.contains(":")) { //$NON-NLS-1$ //$NON-NLS-2$
                     isNumber = true;
                     direction = direction.substring(direction.indexOf(":") + 1); //$NON-NLS-1$
                  }
@@ -1013,7 +1045,7 @@ public abstract class QueryBuilder {
                 String expr = forInCollectionMap.get(root);
                 if (pivotWhereMap.get(root) != null && pivotWhereMap.get(root).length() > 0)
                     expr = expr + " [ " + pivotWhereMap.get(root) + " ] "; //$NON-NLS-1$ //$NON-NLS-2$
-                else if (xqWhere.indexOf("../../t") > -1) {// add modified condition if there is no pivotWhereMap  //$NON-NLS-1$
+                else if (xqWhere.contains("../../t")) {// add modified condition if there is no pivotWhereMap  //$NON-NLS-1$
                     expr = expr + " [ " + xqWhere + " ] "; //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 if (partialXQLPackage.isUseGlobalOrderBy())
@@ -1305,11 +1337,11 @@ public abstract class QueryBuilder {
         if (!useFTSearch && wsContentKeywords != null && wsContentKeywords.length() != 0)
             query.append("[").append(matchesStr).append("(./p/* , '").append(wsContentKeywords).append("')]");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-        Long fromDate = criteria.getFromDate().longValue();
+        Long fromDate = criteria.getFromDate();
         if (fromDate > 0)
             query.append("[./t >= ").append(fromDate).append("]"); //$NON-NLS-1$ //$NON-NLS-2$
 
-        Long toDate = criteria.getToDate().longValue();
+        Long toDate = criteria.getToDate();
         if (toDate > 0)
             query.append("[./t <= ").append(toDate).append("]"); //$NON-NLS-1$ //$NON-NLS-2$
 

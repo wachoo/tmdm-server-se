@@ -21,18 +21,8 @@ import java.io.ObjectOutputStream;
 import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
-import java.util.SortedSet;
 import java.util.regex.Pattern;
 
 import javax.ejb.EJBException;
@@ -47,31 +37,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.log4j.Logger;
-import org.jboss.security.Base64Encoder;
-import org.talend.mdm.commmon.util.core.ICoreConstants;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.talend.mdm.commmon.util.webapp.XObjectType;
-import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
-import org.xml.sax.InputSource;
-
-import sun.misc.BASE64Decoder;
-
-import com.amalto.core.ejb.DroppedItemPOJO;
-import com.amalto.core.ejb.DroppedItemPOJOPK;
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.ejb.ObjectPOJO;
-import com.amalto.core.ejb.TransformerCtrlBean;
-import com.amalto.core.ejb.TransformerPOJO;
-import com.amalto.core.ejb.TransformerPOJOPK;
-import com.amalto.core.ejb.UpdateReportItemPOJO;
-import com.amalto.core.ejb.UpdateReportPOJO;
+import com.amalto.core.ejb.*;
 import com.amalto.core.ejb.local.TransformerCtrlLocal;
 import com.amalto.core.migration.MigrationRepository;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
@@ -84,18 +50,7 @@ import com.amalto.core.objects.menu.ejb.MenuEntryPOJO;
 import com.amalto.core.objects.menu.ejb.MenuPOJO;
 import com.amalto.core.objects.menu.ejb.MenuPOJOPK;
 import com.amalto.core.objects.menu.ejb.local.MenuCtrlLocal;
-import com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJOPK;
-import com.amalto.core.objects.routing.v2.ejb.ActiveRoutingOrderV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.ActiveRoutingOrderV2POJOPK;
-import com.amalto.core.objects.routing.v2.ejb.CompletedRoutingOrderV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.CompletedRoutingOrderV2POJOPK;
-import com.amalto.core.objects.routing.v2.ejb.FailedRoutingOrderV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.FailedRoutingOrderV2POJOPK;
-import com.amalto.core.objects.routing.v2.ejb.RoutingEngineV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.RoutingRuleExpressionPOJO;
-import com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJO;
-import com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJOPK;
+import com.amalto.core.objects.routing.v2.ejb.*;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocal;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingRuleCtrlLocal;
@@ -114,18 +69,7 @@ import com.amalto.core.objects.transformers.v2.util.TypedContent;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
-import com.amalto.core.util.ArrayListHolder;
-import com.amalto.core.util.AutoIncrementGenerator;
-import com.amalto.core.util.LocalUser;
-import com.amalto.core.util.TransformerPluginContext;
-import com.amalto.core.util.TransformerPluginSpec;
-import com.amalto.core.util.UpdateReportItem;
-import com.amalto.core.util.Util;
-import com.amalto.core.util.Version;
-import com.amalto.core.util.WhereConditionFilter;
-import com.amalto.core.util.WhereConditionForcePivotFilter;
-import com.amalto.core.util.XSDKey;
-import com.amalto.core.util.XtentisException;
+import com.amalto.core.util.*;
 import com.amalto.core.webservice.*;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.ItemPKCriteria;
@@ -133,6 +77,19 @@ import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.WhereOr;
 import com.sun.org.apache.xpath.internal.XPathAPI;
+import org.apache.log4j.Logger;
+import org.jboss.security.Base64Encoder;
+import org.talend.mdm.commmon.util.core.ICoreConstants;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.talend.mdm.commmon.util.webapp.XObjectType;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
+import org.xml.sax.InputSource;
+import sun.misc.BASE64Decoder;
 
 public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
@@ -4546,13 +4503,14 @@ new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids),
     public WSStringArray getItemsByCustomFKFilters(WSGetItemsByCustomFKFilters wsGetItemsByCustomFKFilters)
             throws RemoteException {
         try {
+            Map context = Collections.emptyMap();
             ArrayList res = Util.getItemCtrl2Local().getItemsByCustomFKFilters(
                     new DataClusterPOJOPK(wsGetItemsByCustomFKFilters.getWsDataClusterPK().getPk()),
-                    wsGetItemsByCustomFKFilters.getConceptName(),
                     new ArrayList<String>(Arrays.asList(wsGetItemsByCustomFKFilters.getViewablePaths().getStrings())),
-                    wsGetItemsByCustomFKFilters.getInjectedXpath(), wsGetItemsByCustomFKFilters.getSkip(),
+                    wsGetItemsByCustomFKFilters.getInjectedXpath(), WS2VO(wsGetItemsByCustomFKFilters.getWhereItem(), new WhereConditionForcePivotFilter(context)),
+                    wsGetItemsByCustomFKFilters.getSkip(),
                     wsGetItemsByCustomFKFilters.getMaxItems(), wsGetItemsByCustomFKFilters.getOrderBy(),
-                    wsGetItemsByCustomFKFilters.getDirection());
+                    wsGetItemsByCustomFKFilters.getDirection(), wsGetItemsByCustomFKFilters.getReturnCount());
             return new WSStringArray((String[]) res.toArray(new String[res.size()]));
         } catch (XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));

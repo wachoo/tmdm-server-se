@@ -10,6 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
+
 package com.amalto.xmlserver.interfaces;
 
 import java.io.OutputStream;

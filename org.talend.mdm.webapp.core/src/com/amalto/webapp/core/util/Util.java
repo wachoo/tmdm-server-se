@@ -1389,7 +1389,7 @@ public class Util {
                 results = getPort().getItemsByCustomFKFilters(
                         new WSGetItemsByCustomFKFilters(new WSDataClusterPK(config.getCluster()), conceptName, new WSStringArray(
                                 xPaths.toArray(new String[xPaths.size()])), getInjectedXpath(fkFilter), start, limit,
-                                orderbyPath, null)).getStrings();
+                                orderbyPath, null, false, whereItem)).getStrings();
             }
 
             if (results == null)

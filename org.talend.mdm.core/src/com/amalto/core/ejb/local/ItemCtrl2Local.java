@@ -3,6 +3,7 @@
  */
 package com.amalto.core.ejb.local;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -276,7 +277,7 @@ public interface ItemCtrl2Local
 
    public long countItemsByCustomFKFilters( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String conceptName,java.lang.String injectedXpath ) throws com.amalto.core.util.XtentisException;
 
-   public java.util.ArrayList getItemsByCustomFKFilters( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String conceptName,java.util.ArrayList viewablePaths,java.lang.String injectedXpath,int start,int limit,java.lang.String orderbyPath,java.lang.String direction ) throws com.amalto.core.util.XtentisException;
+   public java.util.ArrayList getItemsByCustomFKFilters(DataClusterPOJOPK dataClusterPOJOPK, ArrayList viewablePaths, String injectedXpath, IWhereItem whereItem, int start, int limit, String orderByPath, String direction, boolean returnCount) throws com.amalto.core.util.XtentisException;
 
    public FKIntegrityCheckResult checkFKIntegrity(String dataCluster, String concept, String[] ids) throws com.amalto.core.util.XtentisException;
 }
