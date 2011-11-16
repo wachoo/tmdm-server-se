@@ -35,7 +35,7 @@ import com.amalto.core.jobox.component.MDMJobInvoker;
 import com.amalto.core.jobox.util.JobNotFoundException;
 import com.amalto.core.jobox.util.JoboxConfig;
 
-@SuppressWarnings("nls")
+@SuppressWarnings({"nls", "ResultOfMethodCallIgnored"})
 public class JoboxTest extends TestCase {
 
     public static final String JOBOX_TEST_DIR = "/tmp/jobox";
@@ -46,12 +46,15 @@ public class JoboxTest extends TestCase {
     public void setUp() throws Exception {
         super.setUp();
         jobContainer = JobContainer.getUniqueInstance();
+        Properties props = new Properties();
+        props.put(JoboxConfig.JOBOX_HOME_PATH, JOBOX_TEST_DIR);
+        jobContainer.init(props);
     }
 
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
-
+        jobContainer.getJobDeployer().undeployAll();
         jobContainer.getJobDeployer().undeployAll();
 
         File deployDir = new File(jobContainer.getDeployDir());
@@ -64,11 +67,6 @@ public class JoboxTest extends TestCase {
     }
 
     public void testInit() throws Exception {
-        //init
-        Properties props = new Properties();
-        props.put(JoboxConfig.JOBOX_HOME_PATH, JOBOX_TEST_DIR);
-        jobContainer.init(props);
-
         File deployDir = new File(jobContainer.getDeployDir());
         assertTrue(deployDir.exists());
 
