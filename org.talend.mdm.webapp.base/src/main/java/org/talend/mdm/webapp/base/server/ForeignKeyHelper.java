@@ -76,7 +76,7 @@ public class ForeignKeyHelper {
                             .getItemsByCustomFKFilters(
                                     new WSGetItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName,
                                             new WSStringArray(xPaths.toArray(new String[xPaths.size()])), injectedXpath, config
-                                                    .getOffset(), config.getLimit(), orderbyPath, null)).getStrings();
+                                                    .getOffset(), config.getLimit(), orderbyPath, null, false, whereItem)).getStrings();
 
                     count = CommonUtil
                             .getPort()

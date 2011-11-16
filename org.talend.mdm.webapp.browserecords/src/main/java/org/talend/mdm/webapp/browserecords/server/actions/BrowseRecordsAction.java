@@ -352,8 +352,11 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 // add the key paths last, since there may be multiple keys
                 xPaths.add(initxpathForeignKey + "/../../i"); //$NON-NLS-1$
                 // order by
-                // TMDM-2907, set FK as default order expression to avoid multi-value filed
-                String orderbyPath = xpathForeignKey;
+                String orderbyPath = null;
+                if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) { //$NON-NLS-1$
+                    orderbyPath = com.amalto.webapp.core.util.Util.getFormatedFKInfo(
+                            xpathInfos[0].replaceFirst(initxpathForeignKey, initxpathForeignKey), initxpathForeignKey);
+                }
 
                 // Run the query
                 if (!com.amalto.webapp.core.util.Util.isCustomFilter(fkFilter)) {
@@ -370,7 +373,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                             .getItemsByCustomFKFilters(
                                     new WSGetItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), initxpathForeignKey,
                                             new WSStringArray(xPaths.toArray(new String[xPaths.size()])), injectedXpath, config
-                                                    .getOffset(), config.getLimit(), orderbyPath, null)).getStrings();
+                                                    .getOffset(), config.getLimit(), orderbyPath, null, true, whereItem)).getStrings();
                 }
             }
             String fk = model.getForeignkey().split("/")[0]; //$NON-NLS-1$
@@ -589,12 +592,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             // get item
             WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(dataCluster);
             String[] ids = itemBean.getIds() == null ? null : itemBean.getIds().split("\\.");//$NON-NLS-1$
-
-            // parse schema
-            DataModelHelper.parseSchema(dataModel, concept, entityModel, RoleHelper.getUserRoles());
-
             WSItem wsItem = CommonUtil.getPort()
-                    .getItem(new WSGetItem(new WSItemPK(wsDataClusterPK, itemBean.getConcept(), ids)));
+                    .getItem(new WSGetItem(new WSItemPK(wsDataClusterPK, itemBean.getConcept(), ids)));           
             extractUsingTransformerThroughView(concept,
                     viewPK, ids, dataModel, dataCluster, DataModelHelper.getEleDecl(), wsItem); //$NON-NLS-1$
             itemBean.setItemXml(wsItem.getContent());
@@ -602,7 +601,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             if (wsItem.getTaskId() != null && !"".equals(wsItem.getTaskId()) && !"null".equals(wsItem.getTaskId())) { //$NON-NLS-1$ //$NON-NLS-2$
                 itemBean.setTaskId(wsItem.getTaskId());
             }
-
+            // parse schema
+            DataModelHelper.parseSchema(dataModel, concept, entityModel, RoleHelper.getUserRoles());
             // dynamic Assemble
             dynamicAssemble(itemBean, entityModel, language);
 
