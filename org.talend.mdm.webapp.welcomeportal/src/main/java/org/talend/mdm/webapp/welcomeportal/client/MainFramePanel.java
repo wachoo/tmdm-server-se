@@ -21,12 +21,10 @@ import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -151,8 +149,7 @@ public class MainFramePanel extends Portal {
 
             public void onSuccess(String arg0) {
                 // TODO Auto-generated method stub
-                FieldSet set = (FieldSet) start.getItemByItemId(WelcomePortal.START + "Set"); //$NON-NLS-1$
-                set.setHeading(MessagesFactory.getMessages().useful_links());
+                FieldSet set = (FieldSet) start.getItemByItemId(WelcomePortal.START + "Set"); //$NON-NLS-1$                
                 set.removeAll();
                 StringBuilder sb1 = new StringBuilder(
                         "<span id=\"ItemsBrowser\" style=\"padding-right:8px;cursor: pointer; width:150;\" title=\"" + MessagesFactory.getMessages().browse_items() + "\""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -211,8 +208,7 @@ public class MainFramePanel extends Portal {
         final Label label = (Label) alert.getItemByItemId(WelcomePortal.ALERT + "Label"); //$NON-NLS-1$
         label.setText(MessagesFactory.getMessages().loading_alert_msg());
 
-        final FieldSet set = (FieldSet) alert.getItemByItemId(WelcomePortal.ALERT + "Set"); //$NON-NLS-1$
-        set.setHeading(MessagesFactory.getMessages().alerts_title());
+        final FieldSet set = (FieldSet) alert.getItemByItemId(WelcomePortal.ALERT + "Set"); //$NON-NLS-1$        
         set.removeAll();
         final HTML alertHtml = new HTML();
         final StringBuilder sb = new StringBuilder(
@@ -276,8 +272,7 @@ public class MainFramePanel extends Portal {
         final Label label = (Label) task.getItemByItemId(WelcomePortal.TASK + "Label"); //$NON-NLS-1$
         label.setText(MessagesFactory.getMessages().loading_task_msg());
 
-        final FieldSet set = (FieldSet) task.getItemByItemId(WelcomePortal.TASK + "Set"); //$NON-NLS-1$
-        set.setHeading(MessagesFactory.getMessages().tasks_title());
+        final FieldSet set = (FieldSet) task.getItemByItemId(WelcomePortal.TASK + "Set"); //$NON-NLS-1$        
         set.removeAll();
         final HTML taskHtml = new HTML();
         final StringBuilder sb = new StringBuilder(
@@ -327,8 +322,7 @@ public class MainFramePanel extends Portal {
         final Label label = (Label) process.getItemByItemId(WelcomePortal.PROCESS + "Label"); //$NON-NLS-1$
         label.setText(MessagesFactory.getMessages().process_desc());
 
-        final FieldSet set = (FieldSet) process.getItemByItemId(WelcomePortal.PROCESS + "Set"); //$NON-NLS-1$
-        set.setHeading(MessagesFactory.getMessages().process_title());
+        final FieldSet set = (FieldSet) process.getItemByItemId(WelcomePortal.PROCESS + "Set"); //$NON-NLS-1$        
         set.removeAll();
         service.getStandaloneProcess(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<List<String>>() {
 
@@ -338,14 +332,16 @@ public class MainFramePanel extends Portal {
                     set.setVisible(false);
                 } else {
                     for (final String str : list) {
-                        HorizontalPanel panel = new HorizontalPanel();
-                        Button btn = new Button();
-                        btn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.launch()));
-                        btn.setId(str + "Btn"); //$NON-NLS-1$                        
-                        btn.addListener(Events.Select, new SelectionListener<ButtonEvent>() {
+                        HTML processHtml = new HTML();
+                        StringBuilder sb = new StringBuilder(
+                                "<span id=\"processes" + str + "\" style=\"padding-right:8px;cursor: pointer;\""); //$NON-NLS-1$ //$NON-NLS-2$
+                        sb.append("<IMG SRC=\"/talendmdm/secure/img/genericUI/runnable_bullet.png\"/>&nbsp;"); //$NON-NLS-1$
+                        sb.append(str.replace("Runnable#", "")); //$NON-NLS-1$ //$NON-NLS-2$
+                        sb.append("</span>"); //$NON-NLS-1$
+                        processHtml.setHTML(sb.toString());
+                        processHtml.addClickHandler(new ClickHandler() {
 
-                            @Override
-                            public void componentSelected(ButtonEvent ce) {
+                            public void onClick(ClickEvent arg0) {
                                 service.isExpired(new SessionAwareAsyncCallback<Boolean>() {
 
                                     public void onSuccess(Boolean result) {
@@ -385,16 +381,10 @@ public class MainFramePanel extends Portal {
                                         });
                                     }
                                 });
-
                             }
 
                         });
-                        panel.add(btn);
-                        Label processLabel = new Label();
-                        processLabel.setId(str + "label"); //$NON-NLS-1$
-                        processLabel.setText(str.replace("Runnable#", "")); //$NON-NLS-1$ //$NON-NLS-2$
-                        panel.add(processLabel);
-                        set.add(panel);
+                        set.add(processHtml);
                         set.layout(true);
                     }
                 }
@@ -450,6 +440,7 @@ public class MainFramePanel extends Portal {
         set.setStyleAttribute("padding", "5px"); //$NON-NLS-1$ //$NON-NLS-2$
         set.setStyleAttribute("margin-left", "10px");//$NON-NLS-1$ //$NON-NLS-2$
         set.setStyleAttribute("margin-right", "10px");//$NON-NLS-1$ //$NON-NLS-2$
+        set.setBorders(false);
 
         port.add(set);
         return port;
