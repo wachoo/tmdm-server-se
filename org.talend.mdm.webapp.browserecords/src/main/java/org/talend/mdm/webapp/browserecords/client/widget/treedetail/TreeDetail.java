@@ -65,7 +65,7 @@ public class TreeDetail extends ContentPanel {
 
     private ViewBean viewBean;
 
-    private Tree tree = new Tree();
+    private TreeEx tree = new TreeEx();
 
     private TreeItem root;
 
@@ -315,7 +315,7 @@ public class TreeDetail extends ContentPanel {
     }
 
     private Tree displayGWTTree(ColumnTreeModel columnLayoutModel) {
-        Tree tree = new Tree();
+        Tree tree = new TreeEx();
         DynamicTreeItem treeRootNode = new DynamicTreeItem();
         tree.addItem(treeRootNode);
 
@@ -352,7 +352,7 @@ public class TreeDetail extends ContentPanel {
         root = buildGWTTree(rootModel, null, false, operation);
         isFirstKey = true;
         root.setState(true);
-        tree = new Tree();
+        tree = new TreeEx();
         if (root.getElement().getFirstChildElement() != null)
             root.getElement().getFirstChildElement().setClassName("rootNode"); //$NON-NLS-1$
         tree.addItem(root);

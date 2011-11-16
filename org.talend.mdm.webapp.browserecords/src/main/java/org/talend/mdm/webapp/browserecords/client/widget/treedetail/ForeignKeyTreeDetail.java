@@ -73,7 +73,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
 
     private ColumnTreeLayoutModel columnLayoutModel;
 
-    private Tree tree;
+    private TreeEx tree;
 
     private TreeItem root;
 
@@ -200,7 +200,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
 
     private void renderTree(ItemNodeModel rootModel) {
         root = buildGWTTree(rootModel, false);
-        tree = new Tree();
+        tree = new TreeEx();
         tree.addItem(root);
         root.setState(true);
         if (root.getElement().getFirstChildElement() != null)
