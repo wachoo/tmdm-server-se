@@ -126,12 +126,14 @@ public class TreeDetailUtil {
             addNodeImg.getElement().setId("Add"); //$NON-NLS-1$
             addNodeImg.setTitle(MessagesFactory.getMessages().clone_title());
             addNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
-            addNodeImg.addClickHandler(h);
+            if(!typeModel.isReadOnly())
+                addNodeImg.addClickHandler(h);
             Image removeNodeImg = new Image("/talendmdm/secure/img/genericUI/delete.png"); //$NON-NLS-1$
             removeNodeImg.getElement().setId("Remove"); //$NON-NLS-1$
             removeNodeImg.setTitle(MessagesFactory.getMessages().remove_title());
             removeNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
-            removeNodeImg.addClickHandler(h);
+            if(!typeModel.isReadOnly())
+                removeNodeImg.addClickHandler(h);
 
             hp.add(addNodeImg);
             hp.add(removeNodeImg);
@@ -140,7 +142,8 @@ public class TreeDetailUtil {
                 cloneNodeImg.getElement().setId("Clone"); //$NON-NLS-1$
                 cloneNodeImg.setTitle(MessagesFactory.getMessages().deepclone_title());
                 cloneNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
-                cloneNodeImg.addClickHandler(h);
+                if(!typeModel.isReadOnly())
+                    cloneNodeImg.addClickHandler(h);
                 hp.add(cloneNodeImg);
             }
         }

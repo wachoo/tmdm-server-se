@@ -40,14 +40,16 @@ public class UrlField extends TextField<String> {
     protected El wrap = new El(DOM.createSpan());
 
     protected El input = new El(DOM.createAnchor());
-
+    
     protected Element handler = new Image(Icons.INSTANCE.add_element()).getElement();
 
     private EditWindow editWin = new EditWindow();
-
+    
+    private boolean readOnly;
+    
     public UrlField() {
         setFireChangeEventOnSetValue(true);
-        editWin.setHeading(MessagesFactory.getMessages().url_field_title());//$NON-NLS-1$
+        editWin.setHeading(MessagesFactory.getMessages().url_field_title());
         editWin.setSize(600, 150);
         regJs(handler);
         propertyEditor = new PropertyEditor<String>() {
@@ -82,8 +84,10 @@ public class UrlField extends TextField<String> {
     }
 
     private void handlerClick() {
-        editWin.setValue(getValue());
-        editWin.show();
+        if(!readOnly){
+            editWin.setValue(getValue());
+            editWin.show();
+        }     
     }
 
     private native void regJs(Element el)/*-{
@@ -158,5 +162,11 @@ public class UrlField extends TextField<String> {
                 }
             }
         }
+    }
+
+    @Override
+    public void setReadOnly(boolean readOnly) {
+        super.setReadOnly(readOnly);
+        this.readOnly = readOnly;
     }
 }

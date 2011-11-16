@@ -65,6 +65,8 @@ public class PictureField extends TextField<String> {
     protected Element addHandler = new Image(Icons.INSTANCE.image_add()).getElement();
 
     private EditWindow editWin = new EditWindow();
+    
+    private boolean readOnly;
 
     private Dialog dialog = new Dialog() {
 
@@ -97,11 +99,11 @@ public class PictureField extends TextField<String> {
                 try {
                     reqBuilder.send();
                 } catch (RequestException e) {
-                    MessageBox.alert("RequestException", e.getMessage(), null);
+                    MessageBox.alert("RequestException", e.getMessage(), null); //$NON-NLS-1$
                 }
 
             } else if (button == getButtonBar().getItemByItemId(NO)) {
-
+                dialog.hide();
             }
         }
     };
@@ -143,11 +145,13 @@ public class PictureField extends TextField<String> {
     }
 
     private void handlerClick(Element el) {
-        if (el == addHandler) {
-            editWin.show();
-        } else if (el == delHandler) {
-            dialog.show();
-        }
+        if(!readOnly){
+            if (el == addHandler) {
+                editWin.show();
+            } else if (el == delHandler) {
+                dialog.show();
+            } 
+        }     
     }
 
     private native void regJs(Element el)/*-{
@@ -180,6 +184,12 @@ public class PictureField extends TextField<String> {
         return value;
     }
 
+    @Override
+    public void setReadOnly(boolean readOnly) {
+        super.setReadOnly(readOnly);
+        this.readOnly = readOnly;
+    }
+    
     class EditWindow extends Window {
 
         private FormPanel editForm = new FormPanel();
