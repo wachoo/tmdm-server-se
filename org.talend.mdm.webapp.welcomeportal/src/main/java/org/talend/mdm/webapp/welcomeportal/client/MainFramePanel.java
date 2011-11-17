@@ -95,7 +95,7 @@ public class MainFramePanel extends Portal {
                 if (isEnterprise) { // This feature is MDM EE only.
                     String name = WelcomePortal.SEARCH;
                     Portlet searchPortlet = configPortlet(name);
-                    searchPortlet.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.start()));
+                    searchPortlet.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.find()));
                     searchPortlet.setHeading(MessagesFactory.getMessages().search_title());
 
                     FieldSet set = (FieldSet) searchPortlet.getItemByItemId(WelcomePortal.SEARCH + "Set"); //$NON-NLS-1$

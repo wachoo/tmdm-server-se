@@ -43,4 +43,7 @@ public interface Icons extends ClientBundle {
     
     @Source("launch_process.png")
     ImageResource launch();
+
+    @Source("find.png")
+    ImageResource find();
 }

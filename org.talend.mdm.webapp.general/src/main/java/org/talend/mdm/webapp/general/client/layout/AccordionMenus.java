@@ -142,6 +142,8 @@ public class AccordionMenus extends ContentPanel {
             icon = "/talendmdm/secure/img/menu/license.png"; //$NON-NLS-1$
         } else if ("datastewardship.Datastewardship".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "/talendmdm/secure/img/menu/stewardship.png"; //$NON-NLS-1$
+        } else if ("search.Search".equals(toCheckMenuID)) { //$NON-NLS-1$
+            icon = "/talendmdm/secure/img/menu/find.png"; //$NON-NLS-1$
         } else {
             // default menus icon
             icon = "/talendmdm/secure/img/menu/default.gif"; //$NON-NLS-1$
