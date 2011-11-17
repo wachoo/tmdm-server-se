@@ -41,7 +41,6 @@ import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
@@ -90,12 +89,10 @@ public class MainFramePanel extends Portal {
 
     private void initSearchPortlet() {
         final MainFramePanel mainFramePanel = this;
-        service.isEnterpriseVersion(new AsyncCallback<Boolean>() {
-            public void onFailure(Throwable throwable) {
-            }
+        service.isEnterpriseVersion(new SessionAwareAsyncCallback<Boolean>() {
 
             public void onSuccess(Boolean isEnterprise) {
-                if (isEnterprise) {  // This feature is MDM EE only.
+                if (isEnterprise) { // This feature is MDM EE only.
                     String name = WelcomePortal.SEARCH;
                     Portlet searchPortlet = configPortlet(name);
                     searchPortlet.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.start()));
@@ -107,6 +104,7 @@ public class MainFramePanel extends Portal {
                     Grid grid = new Grid(1, 2);
                     final TextBox textBox = new TextBox();
                     textBox.addKeyUpHandler(new KeyUpHandler() {
+
                         public void onKeyUp(KeyUpEvent keyUpEvent) {
                             if (keyUpEvent.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
                                 doSearch(textBox);
@@ -117,6 +115,7 @@ public class MainFramePanel extends Portal {
 
                     Button button = new Button(MessagesFactory.getMessages().search_button_text());
                     button.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
                         @Override
                         public void componentSelected(ButtonEvent buttonEvent) {
                             doSearch(textBox);
@@ -140,21 +139,15 @@ public class MainFramePanel extends Portal {
     }
 
     private void applyStartPortlet(final Portlet start) {
-        service.getMenuLabel(UrlUtil.getLanguage(), WelcomePortal.BROWSEAPP, new AsyncCallback<String>() {
+        service.getMenuLabel(UrlUtil.getLanguage(), WelcomePortal.BROWSEAPP, new SessionAwareAsyncCallback<String>() {
 
-            public void onFailure(Throwable arg0) {
-                // TODO Auto-generated method stub
-
-            }
-
-            public void onSuccess(String arg0) {
-                // TODO Auto-generated method stub
+            public void onSuccess(String id) {
                 FieldSet set = (FieldSet) start.getItemByItemId(WelcomePortal.START + "Set"); //$NON-NLS-1$                
                 set.removeAll();
                 StringBuilder sb1 = new StringBuilder(
                         "<span id=\"ItemsBrowser\" style=\"padding-right:8px;cursor: pointer; width:150;\" title=\"" + MessagesFactory.getMessages().browse_items() + "\""); //$NON-NLS-1$ //$NON-NLS-2$
                 sb1.append("<IMG SRC=\"/talendmdm/secure/img/menu/browse.png\"/>&nbsp;"); //$NON-NLS-1$
-                sb1.append(arg0);
+                sb1.append(id);
                 sb1.append("</span>"); //$NON-NLS-1$
                 HTML browseHtml = new HTML(sb1.toString());
                 browseHtml.addClickHandler(new ClickHandler() {
@@ -403,31 +396,31 @@ public class MainFramePanel extends Portal {
         port.setItemId(name + "Portlet"); //$NON-NLS-1$
         port.getHeader().addTool(new ToolButton("x-tool-refresh", new SelectionListener<IconButtonEvent>() { //$NON-NLS-1$
 
-            @Override
-            public void componentSelected(IconButtonEvent ce) {
-                Portlet selectedPortlet = getPortletById(name + "Portlet"); //$NON-NLS-1$
-                if (selectedPortlet != null) {
-                    if (name.equals(WelcomePortal.START))
-                        applyStartPortlet(selectedPortlet);
-                    else if (name.equals(WelcomePortal.ALERT))
-                        applyAlertPortlet(selectedPortlet);
-                    else if (name.equals(WelcomePortal.TASK))
-                        applyTaskPortlet(selectedPortlet);
-                    else if (name.equals(WelcomePortal.PROCESS))
-                        applyProcessPortlet(selectedPortlet);
-                }
+                    @Override
+                    public void componentSelected(IconButtonEvent ce) {
+                        Portlet selectedPortlet = getPortletById(name + "Portlet"); //$NON-NLS-1$
+                        if (selectedPortlet != null) {
+                            if (name.equals(WelcomePortal.START))
+                                applyStartPortlet(selectedPortlet);
+                            else if (name.equals(WelcomePortal.ALERT))
+                                applyAlertPortlet(selectedPortlet);
+                            else if (name.equals(WelcomePortal.TASK))
+                                applyTaskPortlet(selectedPortlet);
+                            else if (name.equals(WelcomePortal.PROCESS))
+                                applyProcessPortlet(selectedPortlet);
+                        }
 
-            }
+                    }
 
-        }));
+                }));
         port.getHeader().addTool(new ToolButton("x-tool-close", new SelectionListener<IconButtonEvent>() { //$NON-NLS-1$
 
-            @Override
-            public void componentSelected(IconButtonEvent ce) {
-                port.removeFromParent();
-            }
+                    @Override
+                    public void componentSelected(IconButtonEvent ce) {
+                        port.removeFromParent();
+                    }
 
-        }));
+                }));
 
         Label label = new Label();
         label.setItemId(name + "Label"); //$NON-NLS-1$
@@ -455,11 +448,11 @@ public class MainFramePanel extends Portal {
     }
 
     private native void openWindow(String url)/*-{
-        window.open(url);
+		window.open(url);
     }-*/;
 
     private native void initUI(String context, String application)/*-{
-        var initFunction = $wnd.amalto[context][application].init();
-        setTimeout(initFunction,'50');
+		var initFunction = $wnd.amalto[context][application].init();
+		setTimeout(initFunction, '50');
     }-*/;
 }
