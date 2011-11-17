@@ -1032,6 +1032,7 @@ public class ItemsBrowserDWR {
         int maxOccurs = xsp.getMaxOccurs();
         // idToXpath.put(nodeCount,xpath);//keep map <node id -> xpath> in the session
         treeNode.setName(xsp.getTerm().asElementDecl().getName());
+        treeNode.setLabel(xsp.getTerm().asElementDecl().getName());
         treeNode.setDocumentation(""); //$NON-NLS-1$
         treeNode.setVisible(true);
 

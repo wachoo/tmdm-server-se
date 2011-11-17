@@ -4668,9 +4668,9 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         // siblingNode's value.
 //        siblingNode.itemData.value = "";
         var cloneobj = cloneObject(siblingNode.itemData);
-        var index = cloneobj.labelOtherLanguage.indexOf("{");
+        var index = cloneobj.label.indexOf("{");
         if(index != -1)
-        	cloneobj.name = cloneobj.labelOtherLanguage.substring(0, index);
+        	cloneobj.name = cloneobj.label.substring(0, index);
         var newNode = new amalto.itemsbrowser.ItemNode(
                 cloneobj, true, treeIndex,
                 siblingNode.parent, true, true, isReadOnlyinItem, parentLink);

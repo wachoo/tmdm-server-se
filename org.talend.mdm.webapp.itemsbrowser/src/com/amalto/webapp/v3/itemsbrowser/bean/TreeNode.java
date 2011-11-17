@@ -102,6 +102,17 @@ public class TreeNode implements Cloneable {
     private boolean isAbstract = false;
 
     private boolean autoExpand;
+
+    private String label;
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
     public boolean isAbstract() {
         return isAbstract;
     }
@@ -212,6 +223,7 @@ public class TreeNode implements Cloneable {
                         String appinfoSource = annotList.item(k).getAttributes().getNamedItem("source").getNodeValue();
                         if (X_Label.equals(appinfoSource)) {
                             setName(annotList.item(k).getFirstChild().getNodeValue());
+                            setLabel(annotList.item(k).getFirstChild().getNodeValue());
                         } else if (appinfoSource.contains("X_Label")) {
                             setLabelOtherLanguage(annotList.item(k).getFirstChild().getNodeValue());
                         } else if ("X_Write".equals(appinfoSource)) {
