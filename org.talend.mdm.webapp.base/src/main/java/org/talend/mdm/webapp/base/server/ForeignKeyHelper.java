@@ -15,6 +15,15 @@ package org.talend.mdm.webapp.base.server;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.amalto.webapp.core.util.XtentisWebappException;
+import com.amalto.webapp.util.webservices.WSDataClusterPK;
+import com.amalto.webapp.util.webservices.WSGetItemsByCustomFKFilters;
+import com.amalto.webapp.util.webservices.WSStringArray;
+import com.amalto.webapp.util.webservices.WSWhereAnd;
+import com.amalto.webapp.util.webservices.WSWhereCondition;
+import com.amalto.webapp.util.webservices.WSWhereItem;
+import com.amalto.webapp.util.webservices.WSXPathsSearch;
+import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import org.apache.log4j.Logger;
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -26,18 +35,6 @@ import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.base.server.util.XmlUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 
-import com.amalto.webapp.core.util.XtentisWebappException;
-import com.amalto.webapp.util.webservices.WSCount;
-import com.amalto.webapp.util.webservices.WSCountItemsByCustomFKFilters;
-import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSGetItemsByCustomFKFilters;
-import com.amalto.webapp.util.webservices.WSStringArray;
-import com.amalto.webapp.util.webservices.WSWhereAnd;
-import com.amalto.webapp.util.webservices.WSWhereCondition;
-import com.amalto.webapp.util.webservices.WSWhereItem;
-import com.amalto.webapp.util.webservices.WSXPathsSearch;
-import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-
 public class ForeignKeyHelper {
 
     private static final Logger LOG = Logger.getLogger(ForeignKeyHelper.class);
@@ -47,13 +44,12 @@ public class ForeignKeyHelper {
 
         try {
             ForeignKeyHolder holder = getForeignKeyHolder(model, ifFKFilter, value);
-            String[] results;
-            String count;
+            String[] results = new String[] { "0" };
 
             if (holder != null) {
                 String conceptName = holder.conceptName;
                 List<String> xPaths = holder.xpaths;
-                String orderbyPath = holder.orderbyPath;
+                String orderByPath = holder.orderbyPath;
                 WSWhereItem whereItem = holder.whereItem;
                 String fkFilter = holder.fkFilter;
 
@@ -64,34 +60,22 @@ public class ForeignKeyHelper {
                             .xPathsSearch(
                                     new WSXPathsSearch(new WSDataClusterPK(dataClusterPK), null, new WSStringArray(xPaths
                                             .toArray(new String[xPaths.size()])), whereItem, -1, config.getOffset(), config
-                                            .getLimit(), orderbyPath, null, false)).getStrings();
-                    count = CommonUtil.getPort()
-                            .count(new WSCount(new WSDataClusterPK(dataClusterPK), conceptName, whereItem, -1)).getValue();
-
+                                            .getLimit(), orderByPath, null, true)).getStrings();
                 } else {
-
                     String injectedXpath = com.amalto.webapp.core.util.Util.getInjectedXpath(fkFilter);
                     results = CommonUtil
                             .getPort()
                             .getItemsByCustomFKFilters(
                                     new WSGetItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName,
                                             new WSStringArray(xPaths.toArray(new String[xPaths.size()])), injectedXpath, config
-                                                    .getOffset(), config.getLimit(), orderbyPath, null, false, whereItem)).getStrings();
-
-                    count = CommonUtil
-                            .getPort()
-                            .countItemsByCustomFKFilters(
-                                    new WSCountItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName,
-                                            injectedXpath)).getValue();
+                                                    .getOffset(), config.getLimit(), orderByPath, null, true, whereItem)).getStrings();
                 }
-            } else {
-                results = null;
-                count = null;
             }
 
             List<ForeignKeyBean> fkBeans = new ArrayList<ForeignKeyBean>();
             if (results != null) {
-                for (String result : results) {
+                for (int i = 1; i < results.length; i++) { // TMDM-2834: first result is count
+                    String result = results[i];
                     ForeignKeyBean bean = new ForeignKeyBean();
                     String id = ""; //$NON-NLS-1$
                     List<Node> nodes = XmlUtil.getValuesFromXPath(XmlUtil.parseText(result), "//i"); //$NON-NLS-1$
@@ -103,16 +87,17 @@ public class ForeignKeyHelper {
                     bean.setId(id);
                     if (result != null) {
                         Element root = XmlUtil.parseText(result).getRootElement();
-                        if (root.getName().equals("result"))//$NON-NLS-1$
+                        if (root.getName().equals("result")) {//$NON-NLS-1$
                             initFKBean(root, bean);
-                        else
+                        } else {
                             bean.set(root.getName(), root.getTextTrim());
+                        }
                     }
                     fkBeans.add(bean);
                 }
             }
 
-            return new ItemBasePageLoadResult<ForeignKeyBean>(fkBeans, config.getOffset(), Integer.valueOf(count));
+            return new ItemBasePageLoadResult<ForeignKeyBean>(fkBeans, config.getOffset(), Integer.valueOf(results[0]));
         } catch (XtentisWebappException e) {
             LOG.error(e.getMessage(), e);
         } catch (Exception e) {

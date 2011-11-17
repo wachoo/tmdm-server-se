@@ -1307,8 +1307,8 @@ public class Util {
             String xpathInfoForeignKey, String fkFilter, boolean isCount) throws RemoteException, Exception {
         if (xpathForeignKey == null)
             return null;
-        String initxpathForeignKey = ""; //$NON-NLS-1$
-        initxpathForeignKey = getForeignPathFromPath(xpathForeignKey);
+        String initXpathForeignKey = ""; //$NON-NLS-1$
+        initXpathForeignKey = getForeignPathFromPath(xpathForeignKey);
 
         WSWhereCondition whereCondition = getConditionFromPath(xpathForeignKey);
         WSWhereItem whereItem = null;
@@ -1322,89 +1322,81 @@ public class Util {
         if (fkFilterWi != null)
             whereItem = fkFilterWi;
         Configuration config = Configuration.getInstance();
-        // aiming modify there is bug when initxpathForeignKey when it's like 'conceptname/key'
-        // so we convert initxpathForeignKey to 'conceptname'
-        initxpathForeignKey = initxpathForeignKey.split("/")[0]; //$NON-NLS-1$
+        // aiming modify there is bug when initXpathForeignKey when it's like 'conceptname/key'
+        // so we convert initXpathForeignKey to 'conceptname'
+        initXpathForeignKey = initXpathForeignKey.split("/")[0]; //$NON-NLS-1$
         // end
         xpathInfoForeignKey = xpathInfoForeignKey == null ? "" : xpathInfoForeignKey; //$NON-NLS-1$
         // foreign key set by business concept
-        if (initxpathForeignKey.split("/").length == 1) { //$NON-NLS-1$
-            String conceptName = initxpathForeignKey;
-
+        if (initXpathForeignKey.split("/").length == 1) { //$NON-NLS-1$
             // determine if we have xPath Infos: e.g. labels to display
             String[] xpathInfos = new String[1];
-            if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) //$NON-NLS-1$
+            if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) { //$NON-NLS-1$
                 xpathInfos = xpathInfoForeignKey.split(","); //$NON-NLS-1$
-            else
-                xpathInfos[0] = conceptName;
+            } else {
+                xpathInfos[0] = initXpathForeignKey;
+            }
             // aiming add .* to value
             value = value == null ? "" : value; //$NON-NLS-1$
             // end
             // build query - add a content condition on the pivot if we search for a particular value
-            String filteredConcept = conceptName;
             // hshu fix bug 0013849: Lazy loading of FK picker always get records from the first 20 records of all
             // records
             if (value != null && !"".equals(value.trim()) && !".*".equals(value.trim())) { //$NON-NLS-1$ //$NON-NLS-2$
                 List<WSWhereItem> condition = new ArrayList<WSWhereItem>();
                 if (whereItem != null)
                     condition.add(whereItem);
-                String fkWhere;
-                if (MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
-                    fkWhere = conceptName + "/../* CONTAINS " + value; //$NON-NLS-1$
-                } else {
-                    fkWhere = conceptName + "/../. CONTAINS " + value; //$NON-NLS-1$
-                }
-                
+                String fkWhere = initXpathForeignKey + "/../* CONTAINS " + value; //$NON-NLS-1$
+
                 WSWhereItem wc = buildWhereItems(fkWhere);
                 condition.add(wc);
                 WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
-                WSWhereItem whand = new WSWhereItem(null, and, null);
-                if (whand != null)
-                    whereItem = whand;
+                WSWhereItem whereAnd = new WSWhereItem(null, and, null);
+                if (whereAnd != null) {
+                    whereItem = whereAnd;
+                }
             }
 
             // add the xPath Infos Path
             ArrayList<String> xPaths = new ArrayList<String>();
-            for (int i = 0; i < xpathInfos.length; i++) {
-                xPaths.add(getFormatedFKInfo(xpathInfos[i].replaceFirst(conceptName, filteredConcept), filteredConcept));
+            for (String xpathInfo : xpathInfos) {
+                xPaths.add(getFormatedFKInfo(xpathInfo.replaceFirst(initXpathForeignKey, initXpathForeignKey), initXpathForeignKey));
             }
             // add the key paths last, since there may be multiple keys
-            xPaths.add(filteredConcept + "/../../i"); //$NON-NLS-1$
+            xPaths.add(initXpathForeignKey + "/../../i"); //$NON-NLS-1$
             // order by
-            String orderbyPath = null;
+            String orderByPath = null;
             if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) { //$NON-NLS-1$
-                orderbyPath = getFormatedFKInfo(xpathInfos[0].replaceFirst(conceptName, filteredConcept), filteredConcept);
-            } else {
-
+                orderByPath = getFormatedFKInfo(xpathInfos[0].replaceFirst(initXpathForeignKey, initXpathForeignKey), initXpathForeignKey);
             }
 
             // Run the query
-            String[] results = null;
+            String[] results;
             if (!isCustomFilter(fkFilter)) {
                 results = getPort().xPathsSearch(
                         new WSXPathsSearch(new WSDataClusterPK(config.getCluster()), null, new WSStringArray(xPaths
-                                .toArray(new String[xPaths.size()])), whereItem, -1, start, limit, orderbyPath, null, false))
+                                .toArray(new String[xPaths.size()])), whereItem, -1, start, limit, orderByPath, null, true))
                         .getStrings();
             } else {
                 results = getPort().getItemsByCustomFKFilters(
-                        new WSGetItemsByCustomFKFilters(new WSDataClusterPK(config.getCluster()), conceptName, new WSStringArray(
+                        new WSGetItemsByCustomFKFilters(new WSDataClusterPK(config.getCluster()), initXpathForeignKey, new WSStringArray(
                                 xPaths.toArray(new String[xPaths.size()])), getInjectedXpath(fkFilter), start, limit,
-                                orderbyPath, null, false, whereItem)).getStrings();
+                                orderByPath, null, true, whereItem)).getStrings();
             }
 
-            if (results == null)
-                results = new String[0];
+            if (results == null) {
+                results = new String[] { "0" }; // No result (count = 0)
+            }
 
             JSONObject json = new JSONObject();
-            // json.put("count", results.length);
-
             JSONArray rows = new JSONArray();
             json.put("rows", rows); //$NON-NLS-1$
 
             // add (?i) to incasesensitive
             // parse the results - each result contains the xPathInfo values, followed by the keys
             // the first row is totalCount
-            for (int i = 0; i < results.length; i++) {
+            // TMDM-2834: Starts from second result (first one is count).
+            for (int i = 1; i < results.length; i++) {
                 // process no infos case
                 if (!results[i].startsWith("<result>")) { //$NON-NLS-1$
                     results[i] = "<result>" + results[i] + "</result>"; //$NON-NLS-1$ //$NON-NLS-2$
@@ -1448,14 +1440,13 @@ public class Util {
             // edit by ymli; fix the bug:0011918: set the pageSize correctly.
             // FIXME: why do you invoke this method twice
             if (isCount) {
-                json.put("count", countForeignKey_filter(xpathForeignKey, xpathInfoForeignKey, fkFilter, value)); //$NON-NLS-1$
+                json.put("count", results[0]); //$NON-NLS-1$
             }
 
             return json.toString();
         }
 
-        throw new Exception("this should not happen");
-
+        throw new Exception("Unexpected concept name: '" + initXpathForeignKey + "'");
     }
 
     public static String countForeignKey_filter(String xpathForeignKey, String xpathForeignKeyinfo, String fkFilter)
