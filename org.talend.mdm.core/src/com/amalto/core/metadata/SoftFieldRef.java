@@ -40,7 +40,7 @@ public class SoftFieldRef implements FieldMetadata {
     }
 
     public String getType() {
-        return getField().getType();
+        return getField().getDeclaringType().getName();
     }
 
     public boolean hasForeignKeyInfo() {
