@@ -85,9 +85,9 @@ public class TreeDetailUtil {
         if (itemNode.isKey() || typeModel.getMinOccurs() >= 1)
             html = html + "<span style=\"color:red\"> *</span>"; //$NON-NLS-1$
 
-        if (null != itemNode.getDescription() && (itemNode.getDescription().trim().length() > 0) && xPath.indexOf("/") > -1) //$NON-NLS-1$
-            html = html
-                    + "<img style='margin-left:16px;' src='/talendmdm/secure/img/genericUI/information_icon.gif' title='" + itemNode.getDescription() + "' />"; //$NON-NLS-1$ //$NON-NLS-2$
+        if (null != itemNode.getDescription() && (itemNode.getDescription().trim().length() > 0) && xPath.indexOf("/") > -1) { //$NON-NLS-1$
+            html = html + "<img style='margin-left:16px;' src='/talendmdm/secure/img/genericUI/information_icon.gif' title='" + convertSpecialHTMLCharacter(itemNode.getDescription()) + "' />"; //$NON-NLS-1$ //$NON-NLS-2$         
+        }
         label.setHTML(html);
         hp.add(label);
         if (typeModel.isSimpleType()
@@ -155,6 +155,12 @@ public class TreeDetailUtil {
         return hp;
     }
 
+    public static String convertSpecialHTMLCharacter(String label){
+        label = label.replaceAll("'", "&acute;");  //$NON-NLS-1$//$NON-NLS-2$
+        label = label.replaceAll("\"", "&quot;");  //$NON-NLS-1$//$NON-NLS-2$
+        return label;
+    }
+    
     public static void initItemsDetailPanelById(String ids, final String concept) {
         String[] idArr = ids.split(","); //$NON-NLS-1$
         final ItemsDetailPanel panel = new ItemsDetailPanel();
