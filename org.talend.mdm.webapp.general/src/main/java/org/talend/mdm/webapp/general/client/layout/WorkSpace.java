@@ -26,8 +26,11 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.SimplePanel;
 
 public class WorkSpace extends LayoutContainer {
@@ -70,6 +73,23 @@ public class WorkSpace extends LayoutContainer {
             }
 
         });
+        workTabPanel.addListener(Events.Select, new Listener<ContainerEvent<TabPanel, TabItem>>() {
+
+            public void handleEvent(ContainerEvent<TabPanel, TabItem> be) {
+                History.newItem(be.getItem().getItemId());
+            }
+        });
+
+        History.addValueChangeHandler(new ValueChangeHandler<String>() {
+
+            public void onValueChange(ValueChangeEvent<String> event) {
+                // Parse the history token, It is the itemId
+                String historyToken = event.getValue();
+                setSelection(historyToken);
+            }
+        });
+
+
     }
 
     public JavaScriptObject getItem(String itemId) {
