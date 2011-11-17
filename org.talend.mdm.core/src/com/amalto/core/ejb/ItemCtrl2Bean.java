@@ -1053,72 +1053,14 @@ public class ItemCtrl2Bean implements SessionBean {
      */
     public long countItemsByCustomFKFilters(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, String injectedXpath)
             throws XtentisException {
-
         try {
-
-            String dataClusterName = dataClusterPOJOPK.getUniqueId();
-
-            // Check if user is allowed to read the cluster
-            ILocalUser user = LocalUser.getLocalUser();
-            boolean authorized = false;
-            if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
-                authorized = true;
-            } else if (user.userCanRead(DataClusterPOJO.class, dataClusterName)) {
-                authorized = true;
-            }
-            if (!authorized) {
-                throw new XtentisException("Unauthorized read access on data cluster '" + dataClusterName + "' by user '"
-                        + user.getUsername() + "'");
-            }
-
-            // Get the universe and revision ID
-            String revisionID = null;
-
-            UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
-            if (universe == null) {
-                String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-                LOGGER.error(err);
-                throw new XtentisException(err);
-            }
-
-            if (conceptName == null) {
-                if (universe.getItemsRevisionIDs().size() > 0) {
-                    throw new RemoteException("User " + user.getUsername() + " is using items coming from multiple revisions."
-                            + " In that particular case, the concept must be specified");
-                } else {
-                    revisionID = universe.getDefaultItemRevisionID();
-                }
-            } else {
-                revisionID = universe.getConceptRevisionID(conceptName);
-            }
-
-            injectedXpath = injectedXpath == null ? "" : injectedXpath;
-
-            // Get collectionpath take revision into account
-            String collectionpath = CommonUtil.getPath(revisionID, dataClusterName);
-
-            // Build query
-            StringBuffer itemsQuery = new StringBuffer();
-            itemsQuery.append("let $_leres0_ := ").append("collection(\"" + collectionpath + "\")").append("//p/")
-                    .append(injectedXpath).append("\n for $pivot0 in subsequence($_leres0_,1," + Integer.MAX_VALUE + ")")
-                    .append("\n return if ($pivot0) then $pivot0 else <" + conceptName + "/>");
-
-            String xquery = "let $zcount := ";
-            xquery += itemsQuery.toString();
-            xquery += "\n return count($zcount)";
-
-            System.out.println(xquery);
-
-            // Run query
-            ArrayList<String> results = runQuery(revisionID, new DataClusterPOJOPK(dataClusterName), xquery, null);
-
-            return Long.parseLong(results.get(0));
+            IWhereItem whereItem = new WhereAnd(Arrays.<IWhereItem>asList(new CustomWhereCondition(injectedXpath)));
+            return count(dataClusterPOJOPK, conceptName, whereItem, 0);
         } catch (Exception e) {
-            String err = "Unable to count the elements! ";
+            String err = "Unable to count the elements! "; //$NON-NLS-1$
             LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }
-
     }
 
     /**
