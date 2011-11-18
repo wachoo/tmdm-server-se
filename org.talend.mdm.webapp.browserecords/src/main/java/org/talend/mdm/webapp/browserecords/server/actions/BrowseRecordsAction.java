@@ -286,7 +286,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         // in search panel, the fkFilter is empty
         String fkFilter = ""; //$NON-NLS-1$
         if (ifFKFilter) {
-            fkFilter = model.getFkFilter();
+            fkFilter = model.getFkFilter().replaceAll("&quot;", "\""); //$NON-NLS-1$ //$NON-NLS-2$
         }
 
         if (xpathForeignKey == null) {

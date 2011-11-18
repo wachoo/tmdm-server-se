@@ -1440,7 +1440,15 @@ public class Util {
             // edit by ymli; fix the bug:0011918: set the pageSize correctly.
             // FIXME: why do you invoke this method twice
             if (isCount) {
-                json.put("count", results[0]); //$NON-NLS-1$
+                Pattern TOTAL_COUNT_PATTERN = Pattern.compile("<totalCount>(.*)</totalCount>"); //$NON-NLS-1$
+                Matcher matcher = TOTAL_COUNT_PATTERN.matcher(results[0]);
+                String count = "0"; //$NON-NLS-1$
+                if (matcher.matches()) {
+                    count = matcher.group(1);
+                } else {
+                    throw new IllegalArgumentException("Total count '" + results[0] + "' does not match expected format"); //$NON-NLS-1$ //$NON-NLS-2$
+                }
+                json.put("count", count); //$NON-NLS-1$
             }
 
             return json.toString();

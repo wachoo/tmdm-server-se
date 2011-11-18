@@ -16,6 +16,12 @@ import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.CommonUtil;
+import org.talend.mdm.commmon.util.core.EDBType;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+
 import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
@@ -43,11 +49,6 @@ import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.WhereOr;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.core.CommonUtil;
-import org.talend.mdm.commmon.util.core.EDBType;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 /**
  * @author Bruno Grieder
@@ -1084,7 +1085,11 @@ public class ItemCtrl2Bean implements SessionBean {
                                                        String orderBy, String direction, boolean returnCount)
             throws XtentisException {
         IWhereItem customWhereCondition = new CustomWhereCondition(customXPath);
-        IWhereItem xPathSearchCondition = new WhereAnd(Arrays.asList(whereItem, customWhereCondition));
+        IWhereItem xPathSearchCondition;
+        if (whereItem != null)
+            xPathSearchCondition = new WhereAnd(Arrays.asList(whereItem, customWhereCondition));
+        else
+            xPathSearchCondition = customWhereCondition;
         return xPathsSearch(dataClusterPOJOPK, null, viewablePaths, xPathSearchCondition, 0, orderBy, direction, start, limit, returnCount);
     }
 
