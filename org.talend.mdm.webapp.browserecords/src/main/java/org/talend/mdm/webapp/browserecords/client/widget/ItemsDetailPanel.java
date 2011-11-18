@@ -19,6 +19,7 @@ import java.util.Vector;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.BoxComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -28,6 +29,7 @@ import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.google.gwt.dom.client.Style.Overflow;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.DOM;
@@ -66,6 +68,7 @@ public class ItemsDetailPanel extends ContentPanel {
 
     public ItemsDetailPanel() {
         super();
+        breadCrumb.getElement().getStyle().setOverflow(Overflow.HIDDEN);
         this.setBodyBorder(false);
         this.setHeaderVisible(false);
         this.initPanel();
@@ -86,6 +89,13 @@ public class ItemsDetailPanel extends ContentPanel {
 
         // Add breadcrumb to north gray border
         ncBorder.add(breadCrumb);
+        ncBorder.addListener(Events.Resize, new Listener<BaseEvent>() {
+
+            public void handleEvent(BaseEvent be) {
+                BreadCrumb bc = (BreadCrumb) breadCrumb.getWidget();
+                bc.adjust();
+            }
+        });
 
         // Configure the textTitle within the banner
         textTitle.setId("ItemsDetailPanel-textTitle"); //$NON-NLS-1$
