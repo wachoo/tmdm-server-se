@@ -221,8 +221,8 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             Field<?> field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false, Locale.getLanguage());
 
             CellEditor cellEditor = new ForeignKeyCellEditor(field, typeModel);
-            if (cellEditor != null) {
-                column.setEditor(cellEditor);
+            if (cellEditor != null) {    
+                column.setEditor(cellEditor);                              
             }
             columnConfigs.add(column);
         }
@@ -258,7 +258,15 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         final ForeignKeyRowEditor re = new ForeignKeyRowEditor(fkTypeModel);
         grid.setSelectionModel(sm);
         grid.addPlugin(sm);
-        grid.addPlugin(re);
+        
+        if(entityModel.getMetaDataTypes() != null){
+            TypeModel fkType = entityModel.getMetaDataTypes().get(entityModel.getConceptName());
+            if(fkType != null){
+                if(!fkType.isReadOnly())
+                    grid.addPlugin(re);   
+            }
+        }
+        
         // grid.setWidth(Window.getClientWidth() - ItemsListPanel.getInstance().getInnerWidth());
         grid.setBorders(false);
         this.add(grid);
@@ -313,6 +321,11 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
             }
         });
+        
+        if(fkTypeModel.isReadOnly()){
+            addFkButton.setEnabled(false);
+            removeFkButton.setEnabled(false);
+        }
     }
 
     private void addFk() {
@@ -374,14 +387,16 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             Image selectFKBtn = new Image(Icons.INSTANCE.link());
             selectFKBtn.setTitle(MessagesFactory.getMessages().fk_select_title());
             selectFKBtn.getElement().getStyle().setCursor(Cursor.POINTER);
+            if(!fkTypeModel.isReadOnly()){
+                selectFKBtn.addClickHandler(new ClickHandler() {
 
-            selectFKBtn.addClickHandler(new ClickHandler() {
-
-                public void onClick(ClickEvent event) {
-                    fkWindow.show(entityModel);
-                    currentNodeModel = model;
-                }
-            });
+                    public void onClick(ClickEvent event) {
+                        fkWindow.show(entityModel);
+                        currentNodeModel = model;
+                    }
+                });
+            }
+            
             Image linkFKBtn = new Image(Icons.INSTANCE.link_go());
             linkFKBtn.setTitle(MessagesFactory.getMessages().fk_open_title());
             linkFKBtn.getElement().getStyle().setCursor(Cursor.POINTER);
