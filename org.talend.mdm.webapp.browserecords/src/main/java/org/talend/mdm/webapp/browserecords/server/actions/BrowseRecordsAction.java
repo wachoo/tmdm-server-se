@@ -307,11 +307,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
 
             // get FK filter
-            WSWhereItem fkFilterWi = com.amalto.webapp.core.util.Util.getConditionFromFKFilter(xpathForeignKey, xpathForeignKey,
-                    fkFilter);
-            if (fkFilterWi != null) {
-                whereItem = fkFilterWi;
-            }
+            // WSWhereItem fkFilterWi = com.amalto.webapp.core.util.Util.getConditionFromFKFilter(xpathForeignKey,
+            // xpathForeignKey,
+            // fkFilter);
+            // if (fkFilterWi != null) {
+            // whereItem = fkFilterWi;
+            // }
             initxpathForeignKey = initxpathForeignKey.split("/")[0]; //$NON-NLS-1$
 
             xpathInfoForeignKey = xpathInfoForeignKey == null ? "" : xpathInfoForeignKey; //$NON-NLS-1$

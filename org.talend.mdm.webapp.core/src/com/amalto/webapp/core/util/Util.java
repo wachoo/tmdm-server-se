@@ -1317,10 +1317,10 @@ public class Util {
         }
 
         // get FK filter
-        WSWhereItem fkFilterWi = null;
-        fkFilterWi = getConditionFromFKFilter(xpathForeignKey, xpathInfoForeignKey, fkFilter);
-        if (fkFilterWi != null)
-            whereItem = fkFilterWi;
+        // WSWhereItem fkFilterWi = null;
+        // fkFilterWi = getConditionFromFKFilter(xpathForeignKey, xpathInfoForeignKey, fkFilter);
+        // if (fkFilterWi != null)
+        // whereItem = fkFilterWi;
         Configuration config = Configuration.getInstance();
         // aiming modify there is bug when initXpathForeignKey when it's like 'conceptname/key'
         // so we convert initXpathForeignKey to 'conceptname'
