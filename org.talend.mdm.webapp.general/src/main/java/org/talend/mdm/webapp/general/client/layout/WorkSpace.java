@@ -26,11 +26,8 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.SimplePanel;
 
 public class WorkSpace extends LayoutContainer {
@@ -73,23 +70,6 @@ public class WorkSpace extends LayoutContainer {
             }
 
         });
-        workTabPanel.addListener(Events.Select, new Listener<ContainerEvent<TabPanel, TabItem>>() {
-
-            public void handleEvent(ContainerEvent<TabPanel, TabItem> be) {
-                History.newItem(be.getItem().getItemId());
-            }
-        });
-
-        History.addValueChangeHandler(new ValueChangeHandler<String>() {
-
-            public void onValueChange(ValueChangeEvent<String> event) {
-                // Parse the history token, It is the itemId
-                String historyToken = event.getValue();
-                setSelection(historyToken);
-            }
-        });
-
-
     }
 
     public JavaScriptObject getItem(String itemId) {
@@ -119,13 +99,13 @@ public class WorkSpace extends LayoutContainer {
     }
 
     native boolean callJs(JavaScriptObject handler, String id)/*-{
-        var tabPanel = $wnd.amalto.core.getTabPanel();
-        var tabItem = {
-        getId: function(){
-        return id;
-        }
-        };
-        return handler(tabPanel, tabItem);
+		var tabPanel = $wnd.amalto.core.getTabPanel();
+		var tabItem = {
+			getId : function() {
+				return id;
+			}
+		};
+		return handler(tabPanel, tabItem);
     }-*/;
 
     public void un(String eventName, JavaScriptObject handler) {
@@ -157,6 +137,7 @@ public class WorkSpace extends LayoutContainer {
             item.setLayout(new FitLayout());
             SimplePanel content = new SimplePanel() {
 
+                @Override
                 protected void onLoad() {
                     renderUIObject(this.getElement(), uiObject);
                 }
@@ -184,14 +165,14 @@ public class WorkSpace extends LayoutContainer {
     }
 
     public native String getTitleUIObject(JavaScriptObject uiObject)/*-{
-        if (uiObject.title){
-        if (typeof uiObject.title == "string"){
-        return uiObject.title;
-        } else if (typeof uiObject.title == "function"){
-        return uiObject.title();
-        }
-        }
-        return null;
+		if (uiObject.title) {
+			if (typeof uiObject.title == "string") {
+				return uiObject.title;
+			} else if (typeof uiObject.title == "function") {
+				return uiObject.title();
+			}
+		}
+		return null;
     }-*/;
 
     public void setSelection(String itemId) {
@@ -200,7 +181,6 @@ public class WorkSpace extends LayoutContainer {
             workTabPanel.setSelection(item);
         }
     }
-
 
     private void resizeUIObjects() {
         TabItem item = workTabPanel.getSelectedItem();
@@ -214,7 +194,7 @@ public class WorkSpace extends LayoutContainer {
     }
 
     native void resizeUIObject(JavaScriptObject uiObject, int width, int height)/*-{
-        uiObject.setSize(width, height);
+		uiObject.setSize(width, height);
     }-*/;
 
     private native void renderUIObject(Element el, JavaScriptObject uiObject)/*-{
@@ -245,10 +225,10 @@ public class WorkSpace extends LayoutContainer {
     }
 
     public native void loadApp(String context, String application)/*-{
-        if ($wnd.amalto[context]){
-        if ($wnd.amalto[context][application]){        
-        $wnd.amalto[context][application].init();               
-        }
-        }
+		if ($wnd.amalto[context]) {
+			if ($wnd.amalto[context][application]) {
+				$wnd.amalto[context][application].init();
+			}
+		}
     }-*/;
 }
