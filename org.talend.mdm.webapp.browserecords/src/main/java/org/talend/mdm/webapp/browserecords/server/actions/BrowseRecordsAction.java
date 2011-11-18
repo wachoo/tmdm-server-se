@@ -402,6 +402,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         bean.set(resultAsDOM.getNodeName(), resultAsDOM.getTextContent().trim());
                     }
 
+                    bean.setPolyMorphismEntity(initxpathForeignKey);
                     bean.setId(id);
                     fkBeans.add(bean);
                 }
@@ -463,7 +464,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
 
         ForeignKeyBean bean = new ForeignKeyBean();
-        bean.setId(ids);
+        String ployMorphismIds[] = ids.split("\\|\\|"); //$NON-NLS-1$
+        bean.setId(ployMorphismIds.length == 2 ? ployMorphismIds[0] : ids);
         bean.setForeignKeyPath(model.getXpath());
         try {
             if (!model.isRetrieveFKinfos()) {
@@ -472,7 +474,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 ItemPOJOPK pk = new ItemPOJOPK();
                 String[] itemId = extractIdWithBrackets(ids);
                 pk.setIds(itemId);
-                pk.setConceptName(model.getForeignkey().split("/")[0]); //$NON-NLS-1$
+                pk.setConceptName(ployMorphismIds.length == 2 ? ployMorphismIds[1] : model.getForeignkey().split("/")[0]); //$NON-NLS-1$
                 pk.setDataClusterPOJOPK(new DataClusterPOJOPK(getCurrentDataCluster()));
                 ItemPOJO item = com.amalto.core.util.Util.getItemCtrl2Local().getItem(pk);
 

@@ -24,6 +24,16 @@ public class ForeignKeyBean extends ItemBaseModel {
 
     private boolean showInfo = false;
 
+    private String polyMorphismEntity;
+
+    public String getPolyMorphismEntity() {
+        return polyMorphismEntity;
+    }
+
+    public void setPolyMorphismEntity(String polyMorphismEntity) {
+        this.polyMorphismEntity = polyMorphismEntity;
+    }
+
     public boolean isShowInfo() {
         return showInfo;
     }

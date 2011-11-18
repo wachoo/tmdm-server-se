@@ -46,7 +46,8 @@ public class CommonUtil {
         Serializable value = nodeModel.getObjectValue();
         if (typeModel.isSimpleType() && value != null && nodeModel.getParent() != null) {
             if (value instanceof ForeignKeyBean)
-                root.appendChild(doc.createTextNode(((ForeignKeyBean) value).getId()));
+                root.appendChild(doc.createTextNode(((ForeignKeyBean) value).getId() + "||" //$NON-NLS-1$
+                        + ((ForeignKeyBean) value).getPolyMorphismEntity()));
             else
                 root.appendChild(doc.createTextNode(value.toString()));
         }
