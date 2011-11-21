@@ -307,12 +307,11 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
 
             // get FK filter
-            // WSWhereItem fkFilterWi = com.amalto.webapp.core.util.Util.getConditionFromFKFilter(xpathForeignKey,
-            // xpathForeignKey,
-            // fkFilter);
-            // if (fkFilterWi != null) {
-            // whereItem = fkFilterWi;
-            // }
+//            WSWhereItem fkFilterWi = com.amalto.webapp.core.util.Util.getConditionFromFKFilter(xpathForeignKey, xpathForeignKey,
+//                    fkFilter);
+//            if (fkFilterWi != null) {
+//                whereItem = fkFilterWi;
+//            }
             initxpathForeignKey = initxpathForeignKey.split("/")[0]; //$NON-NLS-1$
 
             xpathInfoForeignKey = xpathInfoForeignKey == null ? "" : xpathInfoForeignKey; //$NON-NLS-1$
@@ -465,8 +464,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
 
         ForeignKeyBean bean = new ForeignKeyBean();
-        String ployMorphismIds[] = ids.split("\\|\\|"); //$NON-NLS-1$
-        bean.setId(ployMorphismIds.length == 2 ? ployMorphismIds[0] : ids);
+        bean.setId(ids); 
         bean.setForeignKeyPath(model.getXpath());
         try {
             if (!model.isRetrieveFKinfos()) {
@@ -475,7 +473,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 ItemPOJOPK pk = new ItemPOJOPK();
                 String[] itemId = extractIdWithBrackets(ids);
                 pk.setIds(itemId);
-                pk.setConceptName(ployMorphismIds.length == 2 ? ployMorphismIds[1] : model.getForeignkey().split("/")[0]); //$NON-NLS-1$
+                pk.setConceptName(model.getForeignkey().split("/")[0]); //$NON-NLS-1$
                 pk.setDataClusterPOJOPK(new DataClusterPOJOPK(getCurrentDataCluster()));
                 ItemPOJO item = com.amalto.core.util.Util.getItemCtrl2Local().getItem(pk);
 
