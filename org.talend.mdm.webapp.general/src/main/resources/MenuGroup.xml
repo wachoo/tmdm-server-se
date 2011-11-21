@@ -2,7 +2,7 @@
 <menugroup defaultLang="en">
  <groupitem en="Home" fr="Accueil">
   <item>welcomeportal.WelcomePortal</item>
-  <item>recyclebin.RecycleBin</item>
+  <item>browserecords.BrowseRecords</item>
  </groupitem>
  
  <groupitem en="Browse" fr="Consultation">
@@ -10,6 +10,7 @@
   <item>hierarchy.Hierarchy</item>
   <item>updatereport.UpdateReport</item>
   <item>search.Search</item>
+  <item>recyclebin.RecycleBin</item>
  </groupitem>
  
   <groupitem en="Govern" fr="Gouvernance">
