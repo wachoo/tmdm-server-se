@@ -402,7 +402,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         bean.set(resultAsDOM.getNodeName(), resultAsDOM.getTextContent().trim());
                     }
 
-                    bean.setPolyMorphismEntity(initxpathForeignKey);
                     bean.setId(id);
                     fkBeans.add(bean);
                 }
@@ -596,7 +595,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             WSItem wsItem = CommonUtil.getPort()
                     .getItem(new WSGetItem(new WSItemPK(wsDataClusterPK, itemBean.getConcept(), ids)));           
             extractUsingTransformerThroughView(concept,
-                    viewPK, ids, dataModel, dataCluster, DataModelHelper.getEleDecl(), wsItem); //$NON-NLS-1$
+                    viewPK, ids, dataModel, dataCluster, DataModelHelper.getEleDecl(), wsItem);
             itemBean.setItemXml(wsItem.getContent());
             itemBean.set("time", wsItem.getInsertionTime()); //$NON-NLS-1$
             if (wsItem.getTaskId() != null && !"".equals(wsItem.getTaskId()) && !"null".equals(wsItem.getTaskId())) { //$NON-NLS-1$ //$NON-NLS-2$
