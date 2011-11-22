@@ -21,7 +21,7 @@ import com.sun.xml.xsom.XSElementDecl;
 import com.sun.xml.xsom.XSParticle;
 
 /**
- * DOC HSHU class global comment. Detailled comment
+ *
  */
 public class AccessRightAnalyzer {
 
@@ -36,7 +36,12 @@ public class AccessRightAnalyzer {
     }
 
     public void calculate() {
-        travelXSElement(businessConcept.getE(), "/" + businessConcept.getName(), appinfoSourceHolder);
+        XSElementDecl element = businessConcept.getE();
+        // TMDM-2979: Be careful when handling element, accessing it (even only for reading it) in MT context
+        // is dangerous.
+        synchronized (element) { // Local variable, but businessConcept is cached... so shared by all threads.
+            travelXSElement(element, "/" + businessConcept.getName(), appinfoSourceHolder);
+        }
     }
 
     private void travelXSElement(XSElementDecl e, String currentXPath, AppinfoSourceHolder appinfoSourceHolder) {
@@ -47,9 +52,8 @@ public class AccessRightAnalyzer {
             if (e.getType().isComplexType()) {
                 XSParticle[] subParticles = e.getType().asComplexType().getContentType().asParticle().getTerm().asModelGroup().getChildren();
                 if (subParticles != null) {
-                    for (int i = 0; i < subParticles.length; i++) {
-                        XSParticle xsParticle = subParticles[i];
-                        travelParticle(xsParticle,currentXPath, appinfoSourceHolder);
+                    for (XSParticle xsParticle : subParticles) {
+                        travelParticle(xsParticle, currentXPath, appinfoSourceHolder);
                     }
                 }
             }
@@ -60,8 +64,8 @@ public class AccessRightAnalyzer {
     private void travelParticle(XSParticle xsParticle, String currentXPath, AppinfoSourceHolder appinfoSourceHolder) {
         if (xsParticle.getTerm().asModelGroup() != null) {
             XSParticle[] xsps = xsParticle.getTerm().asModelGroup().getChildren();
-            for (int j = 0; j < xsps.length; j++) {
-                travelParticle(xsps[j],currentXPath, appinfoSourceHolder);
+            for (XSParticle xsp : xsps) {
+                travelParticle(xsp, currentXPath, appinfoSourceHolder);
             }
         }else if(xsParticle.getTerm().asElementDecl()!=null) {
             XSElementDecl subElement = xsParticle.getTerm().asElementDecl();
