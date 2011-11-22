@@ -93,7 +93,9 @@ public class ItemsDetailPanel extends ContentPanel {
 
             public void handleEvent(BaseEvent be) {
                 BreadCrumb bc = (BreadCrumb) breadCrumb.getWidget();
-                bc.adjust();
+                if (bc != null) {
+                    bc.adjust();
+                }
             }
         });
 
