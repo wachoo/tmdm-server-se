@@ -2188,24 +2188,29 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 
     protected boolean beforeSaving(WSPutItemWithReport wsPutItemWithReport, String concept, String xml, String resultUpdateReport)
             throws Exception {
-        // /invoke before saving
-        String outputErrorMessage = null;
-        String errorCode = null;
+        //Do we call Triggers&Before processes?
         if (wsPutItemWithReport.getInvokeBeforeSaving()) {
-            outputErrorMessage = Util.beforeSaving(concept, xml, resultUpdateReport);
-            if (outputErrorMessage != null) {
+            // invoke BeforeSaving process if it exists
+            String outputErrorMessage = Util.beforeSaving(concept, xml, resultUpdateReport);
+            if (outputErrorMessage != null) { //when a process was found 
                 Document doc = Util.parse(outputErrorMessage);
                 // TODO what if multiple error nodes ?
                 String xpath = "//report/message"; //$NON-NLS-1$
                 Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
+                String errorCode = null;
                 if (errorNode instanceof Element) {
                     Element errorElement = (Element) errorNode;
                     errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
-                }
+                }                                   
+                wsPutItemWithReport.setSource(outputErrorMessage);
+                return "info".equals(errorCode); //$NON-NLS-1$
+            } else { //when no process was found 
+                return true;
             }
+        } else {
+            // TMDM-2932 when getInvokeBeforeSaving() returns false, this method must return true.
+            return true;
         }
-        wsPutItemWithReport.setSource(outputErrorMessage);
-        return outputErrorMessage == null || "info".equals(errorCode); //$NON-NLS-1$
     }
 
     protected void processUUIDAndValidate(ItemPOJO item, String schema) throws Exception {

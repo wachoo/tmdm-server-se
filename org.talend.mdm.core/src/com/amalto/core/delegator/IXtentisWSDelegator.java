@@ -1785,25 +1785,25 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     private boolean beforeSaving(com.amalto.core.webservice.WSPutItemWithReport wsPutItemWithReport, String concept, String xml,
             String resultUpdateReport) throws Exception {
-        // /invoke before saving
-        String outputErrorMessage;
-        String errorCode = null;
+        //Do we call Triggers&Before processes?
         if (wsPutItemWithReport.getInvokeBeforeSaving()) {
-            outputErrorMessage = Util.beforeSaving(concept, xml, resultUpdateReport);
-            if (outputErrorMessage != null) {
+            // invoke BeforeSaving process if it exists
+            String outputErrorMessage = Util.beforeSaving(concept, xml, resultUpdateReport);
+            if (outputErrorMessage != null) { //when a process was found 
                 Document doc = Util.parse(outputErrorMessage);
                 // TODO what if multiple error nodes ?
                 String xpath = "//report/message"; //$NON-NLS-1$
                 Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
+                String errorCode = null;
                 if (errorNode instanceof Element) {
                     Element errorElement = (Element) errorNode;
                     errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
-                }
-            } else {
+                }                                   
+                wsPutItemWithReport.setSource(outputErrorMessage);
+                return "info".equals(errorCode); //$NON-NLS-1$
+            } else { //when no process was found 
                 return true;
             }
-            wsPutItemWithReport.setSource(outputErrorMessage);
-            return "info".equals(errorCode); //$NON-NLS-1$
         } else {
             // TMDM-2932 when getInvokeBeforeSaving() returns false, this method must return true.
             return true;
@@ -1925,8 +1925,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 WSItemPK itemPK = putItem(new WSPutItem(new WSDataClusterPK("UpdateReport"), updateReportPOJO.serialize(), //$NON-NLS-1$
                         new WSDataModelPK("UpdateReport"), false)); //$NON-NLS-1$
 
-                routeItemV2(new WSRouteItemV2(itemPK));
-
+                if (wsPutItemWithReport.getInvokeBeforeSaving())
+                    routeItemV2(new WSRouteItemV2(itemPK));
             }
 
 
