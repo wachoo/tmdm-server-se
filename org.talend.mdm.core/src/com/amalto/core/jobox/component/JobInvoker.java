@@ -58,13 +58,13 @@ public abstract class JobInvoker {
 
         try {
             JobContainer jobContainer = JobContainer.getUniqueInstance();
-            // Isolate current running thread with JVM standard properties (TMDM-2933).
-            isolatedSystemProperties.isolateThread(Thread.currentThread(), jobContainer.getStandardProperties());
-
             // well-behaved Java packages work relative to the
             // context class loader. Others don't (like commons-logging)
             ClassLoader jobClassLoader = jobContainer.getJobClassLoader(jobInfo);
             Thread.currentThread().setContextClassLoader(jobClassLoader);
+
+            // Isolate current running thread with JVM standard properties (TMDM-2933).
+            isolatedSystemProperties.isolateThread(Thread.currentThread(), jobContainer.getStandardProperties());
 
             if (jobInfo.getMainClass() == null) {
                 throw new MissingMainClassException();
@@ -100,9 +100,9 @@ public abstract class JobInvoker {
         } catch (Exception e) {
             throw new JoboxException(e.getLocalizedMessage(), e);
         } finally {
-            Thread.currentThread().setContextClassLoader(previousCallLoader);
             // Reintegrate thread into global system properties world.
             isolatedSystemProperties.integrateThread(Thread.currentThread());
+            Thread.currentThread().setContextClassLoader(previousCallLoader);
         }
 
         return result;
