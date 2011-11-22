@@ -42,7 +42,7 @@ import org.apache.log4j.Logger;
  */
 public class ThreadIsolatedSystemProperties extends Properties {
 
-    private static final Map<Thread, Properties> threadProperties = new HashMap<Thread, Properties>();
+    private static final Map<ClassLoader, Properties> threadProperties = new HashMap<ClassLoader, Properties>();
 
     private static final Logger LOGGER = Logger.getLogger(ThreadIsolatedSystemProperties.class);
 
@@ -77,7 +77,7 @@ public class ThreadIsolatedSystemProperties extends Properties {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Isolating thread '" + thread.getName() + "'");  //$NON-NLS-1$  //$NON-NLS-2$
             }
-            threadProperties.put(thread, new Properties(threadDefault));
+            threadProperties.put(thread.getContextClassLoader(), new Properties(threadDefault));
         }
     }
 
@@ -91,7 +91,7 @@ public class ThreadIsolatedSystemProperties extends Properties {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Integrating thread '" + thread.getName() + "'");  //$NON-NLS-1$  //$NON-NLS-2$
             }
-            threadProperties.remove(thread);
+            threadProperties.remove(thread.getContextClassLoader());
         }
     }
 
@@ -101,11 +101,15 @@ public class ThreadIsolatedSystemProperties extends Properties {
      */
     Properties getThreadProperties(Thread thread) {
         synchronized (threadProperties) {
+            if(thread == null) {
+                return defaultSystemProperties;
+            }
+
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Requesting for thread system properties '" + thread.getName() + "'");  //$NON-NLS-1$  //$NON-NLS-2$
             }
 
-            Properties currentThreadProperties = threadProperties.get(thread);
+            Properties currentThreadProperties = threadProperties.get(thread.getContextClassLoader());
             if (currentThreadProperties == null) {
                 if (LOGGER.isTraceEnabled()) {
                     LOGGER.trace("Thread '" + thread.getName() + "' is not isolated. Return default properties");  //$NON-NLS-1$  //$NON-NLS-2$

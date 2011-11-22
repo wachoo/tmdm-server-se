@@ -13,6 +13,8 @@
 
 package com.amalto.core.jobox.properties;
 
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -49,6 +51,7 @@ public class SystemPropertiesIsolationTest extends TestCase {
         List<Thread> threads = new ArrayList<Thread>(runs.size());
         for (SystemModifierRunnable run : runs) {
             Thread newThread = new Thread(run);
+            newThread.setContextClassLoader(new URLClassLoader(new URL[0], ClassLoader.getSystemClassLoader()));
             ThreadIsolatedSystemProperties.getInstance().isolateThread(newThread, System.getProperties());
             threads.add(newThread);
         }
@@ -72,6 +75,7 @@ public class SystemPropertiesIsolationTest extends TestCase {
         List<Thread> threads = new ArrayList<Thread>(runs.size());
         for (SystemModifierRunnable run : runs) {
             Thread newThread = new Thread(run);
+            newThread.setContextClassLoader(new URLClassLoader(new URL[0], ClassLoader.getSystemClassLoader()));
             threads.add(newThread);
         }
         for (Thread thread : threads) {
@@ -99,6 +103,7 @@ public class SystemPropertiesIsolationTest extends TestCase {
         List<Thread> threads = new ArrayList<Thread>(isolatedRuns.size());
         for (SystemModifierRunnable run : isolatedRuns) {
             Thread newThread = new Thread(run);
+            newThread.setContextClassLoader(new URLClassLoader(new URL[0], ClassLoader.getSystemClassLoader()));
             ThreadIsolatedSystemProperties.getInstance().isolateThread(newThread, System.getProperties());
             threads.add(newThread);
         }
@@ -132,6 +137,7 @@ public class SystemPropertiesIsolationTest extends TestCase {
         List<Thread> threads = new ArrayList<Thread>(isolatedRuns.size());
         for (SystemModifierRunnable run : isolatedRuns) {
             Thread newThread = new Thread(run);
+            newThread.setContextClassLoader(new URLClassLoader(new URL[0], ClassLoader.getSystemClassLoader()));
             ThreadIsolatedSystemProperties.getInstance().isolateThread(newThread, System.getProperties());
             threads.add(newThread);
         }

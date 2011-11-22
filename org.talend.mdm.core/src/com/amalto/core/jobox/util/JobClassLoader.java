@@ -23,4 +23,4 @@ public class JobClassLoader extends URLClassLoader {
         // fix bug 0022967, use current thread class loader
         super(urls, ClassLoader.getSystemClassLoader().getParent());
     }
-}
+ }
