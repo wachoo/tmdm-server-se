@@ -54,8 +54,9 @@ public class DocumentHistoryServlet extends AbstractDocumentHistoryServlet {
 
         String typeName = parameters.getConceptName();
         String dataClusterName = parameters.getDataClusterName();
+        String dataModelName = parameters.getDataModelName();
         DocumentHistoryNavigator navigator = factory.getHistory(dataClusterName,
-                parameters.getDataModelName(),
+                dataModelName,
                 typeName,
                 parameters.getId(),
                 parameters.getRevisionId());
@@ -67,7 +68,7 @@ public class DocumentHistoryServlet extends AbstractDocumentHistoryServlet {
 
                 try {
                     // Initialize type metadata information
-                    DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(dataClusterName));
+                    DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(dataModelName));
                     if (dataModel == null) {
                         throw new IllegalArgumentException("Data model '" + typeName + "' does not exist.");
                     }
@@ -78,12 +79,11 @@ public class DocumentHistoryServlet extends AbstractDocumentHistoryServlet {
                     // Tries to load the type information again
                     documentTypeMetadata = metadataRepository.getType(typeName);
                     if (documentTypeMetadata == null) {
-                        throw new IllegalArgumentException("Cannot find type information for type '" + typeName + "'");
+                        throw new IllegalArgumentException("Cannot find type information for type '" + typeName + "' in data cluster '" + dataClusterName + "', in data model '" + dataModelName + "'");
                     }
                 } catch (Exception e) {
                     throw new ServletException("Could not initialize type information", e);
                 }
-
             }
         }
 
