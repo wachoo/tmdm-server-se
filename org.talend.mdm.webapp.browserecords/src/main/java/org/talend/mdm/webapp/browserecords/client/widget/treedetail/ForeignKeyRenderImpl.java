@@ -20,6 +20,8 @@ import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.TreeItem;
 
 public class ForeignKeyRenderImpl implements ForeignKeyRender {
@@ -51,9 +53,10 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
             ItemPanel itemPanel = new ItemPanel(pkViewBean, toolBar.getItemBean(), toolBar.getOperation(), fkPanel, root,
                     detailPanel);
             itemPanel.getToolBar().setOutMost(toolBar.isOutMost());
-            String xpathLabel = ForeignKeyUtil.transferXpathToLabel(fkTypeModel, pkViewBean);
-            ItemDetailTabPanelContentHandle handle = detailPanel.addTabItem(xpathLabel, itemPanel, ItemsDetailPanel.MULTIPLE,
-                    fkTypeModel.getXpath());
+            String xpathLabel = ForeignKeyUtil.transferXpathToLabel(parentModel);
+            ItemDetailTabPanelContentHandle handle = detailPanel.addTabItem(xpathLabel, itemPanel, ItemsDetailPanel.MULTIPLE, GWT
+                    .getModuleName()
+                    + DOM.createUniqueId());
             relationFk.put(parentModel, handle);
             service.getEntityModel(concept, Locale.getLanguage(), new SessionAwareAsyncCallback<EntityModel>() {
 
@@ -71,6 +74,7 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
     	ItemDetailTabPanelContentHandle tabItem = relationFk.get(parentModel);
         if (tabItem != null) {
             tabItem.deleteContent();
+            relationFk.remove(parentModel);
         }
     }
 }
