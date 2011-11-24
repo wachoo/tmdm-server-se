@@ -594,6 +594,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             // get item
             WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(dataCluster);
             String[] ids = itemBean.getIds() == null ? null : itemBean.getIds().split("\\.");//$NON-NLS-1$
+
+            // parse schema firstly, then use element declaration (DataModelHelper.getEleDecl)
+            DataModelHelper.parseSchema(dataModel, concept, entityModel, RoleHelper.getUserRoles());
+
             WSItem wsItem = CommonUtil.getPort()
                     .getItem(new WSGetItem(new WSItemPK(wsDataClusterPK, itemBean.getConcept(), ids)));           
             extractUsingTransformerThroughView(concept,
@@ -603,8 +607,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             if (wsItem.getTaskId() != null && !"".equals(wsItem.getTaskId()) && !"null".equals(wsItem.getTaskId())) { //$NON-NLS-1$ //$NON-NLS-2$
                 itemBean.setTaskId(wsItem.getTaskId());
             }
-            // parse schema
-            DataModelHelper.parseSchema(dataModel, concept, entityModel, RoleHelper.getUserRoles());
+
             // dynamic Assemble
             dynamicAssemble(itemBean, entityModel, language);
 
