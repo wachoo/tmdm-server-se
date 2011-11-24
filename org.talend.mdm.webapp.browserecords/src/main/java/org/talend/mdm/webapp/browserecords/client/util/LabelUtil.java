@@ -39,4 +39,10 @@ public class LabelUtil {
             return label;
         }
     }
+    
+    public static String convertSpecialHTMLCharacter(String label){
+        label = label.replaceAll("'", "&acute;");  //$NON-NLS-1$//$NON-NLS-2$
+        label = label.replaceAll("\"", "&quot;");  //$NON-NLS-1$//$NON-NLS-2$
+        return label;
+    }
 }

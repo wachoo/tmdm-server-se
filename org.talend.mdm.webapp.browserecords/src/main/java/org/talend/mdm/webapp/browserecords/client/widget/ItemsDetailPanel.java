@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
+
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -151,10 +153,9 @@ public class ItemsDetailPanel extends ContentPanel {
     public void initBanner(List<String> xpathList, String desc) {
         clearBanner();
         String toolTipString = ""; //$NON-NLS-1$
-        if (desc != null && !desc.equals("")) //$NON-NLS-1$
-        {
+        if (desc != null && !desc.equals("")) { //$NON-NLS-1$
             toolTipString = "<img style='margin-left:16px;' " + //$NON-NLS-1$
-                    "src='/talendmdm/secure/img/genericUI/information_icon.gif' title='" + desc + "'/>"; //$NON-NLS-1$ //$NON-NLS-2$
+                    "src='/talendmdm/secure/img/genericUI/information_icon.gif' title='" + LabelUtil.convertSpecialHTMLCharacter(desc) + "'/>"; //$NON-NLS-1$ //$NON-NLS-2$
         }
         if (xpathList != null && xpathList.size() > 0) {
             int i = 1;
@@ -173,7 +174,7 @@ public class ItemsDetailPanel extends ContentPanel {
             }
             banner.layout(true);
         }
-
+        
     }
 
     public void clearBanner() {

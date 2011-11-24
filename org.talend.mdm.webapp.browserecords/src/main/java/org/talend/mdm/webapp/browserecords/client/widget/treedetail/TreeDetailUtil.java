@@ -86,7 +86,7 @@ public class TreeDetailUtil {
             html = html + "<span style=\"color:red\"> *</span>"; //$NON-NLS-1$
 
         if (null != itemNode.getDescription() && (itemNode.getDescription().trim().length() > 0) && xPath.indexOf("/") > -1) { //$NON-NLS-1$
-            html = html + "<img style='margin-left:16px;' src='/talendmdm/secure/img/genericUI/information_icon.gif' title='" + convertSpecialHTMLCharacter(itemNode.getDescription()) + "' />"; //$NON-NLS-1$ //$NON-NLS-2$         
+            html = html + "<img style='margin-left:16px;' src='/talendmdm/secure/img/genericUI/information_icon.gif' title='" + LabelUtil.convertSpecialHTMLCharacter(itemNode.getDescription()) + "' />"; //$NON-NLS-1$ //$NON-NLS-2$         
         }
         label.setHTML(html);
         hp.add(label);
@@ -153,12 +153,6 @@ public class TreeDetailUtil {
         hp.setVisible(typeModel.isVisible());
 
         return hp;
-    }
-
-    public static String convertSpecialHTMLCharacter(String label){
-        label = label.replaceAll("'", "&acute;");  //$NON-NLS-1$//$NON-NLS-2$
-        label = label.replaceAll("\"", "&quot;");  //$NON-NLS-1$//$NON-NLS-2$
-        return label;
     }
     
     public static void initItemsDetailPanelById(String ids, final String concept) {
