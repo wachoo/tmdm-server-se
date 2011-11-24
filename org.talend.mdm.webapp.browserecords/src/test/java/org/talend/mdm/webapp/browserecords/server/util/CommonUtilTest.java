@@ -1,13 +1,20 @@
 package org.talend.mdm.webapp.browserecords.server.util;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
+import org.junit.Test;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
+import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
+
+import com.extjs.gxt.ui.client.data.ModelData;
 
 @SuppressWarnings("nls")
 public class CommonUtilTest extends TestCase {
@@ -45,6 +52,28 @@ public class CommonUtilTest extends TestCase {
             sb.append(stack.pop());
         }
         Assert.assertEquals("hello/peili/liang", sb.toString());
+    }
+
+    @Test
+    public void testGetRealPath() throws Exception {
+        ItemNodeModel nodeModel = TestData.getModel();
+        List<String> xpathes = TestData.getXpathes();
+        Iterator<String> iter = xpathes.iterator();
+        assertPath(nodeModel, iter);
+    }
+
+    private void assertPath(ItemNodeModel nodeModel, Iterator<String> iter) {
+        String xpath = iter.next();
+        String nodePath = CommonUtil.getRealXPath(nodeModel);
+        Assert.assertEquals(xpath, nodePath);
+
+        List<ModelData> children = nodeModel.getChildren();
+        if (children != null) {
+            for (ModelData child : children) {
+                assertPath((ItemNodeModel) child, iter);
+            }
+        }
+
     }
 
 }
