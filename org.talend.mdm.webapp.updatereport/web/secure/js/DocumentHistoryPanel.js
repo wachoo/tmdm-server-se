@@ -27,7 +27,9 @@ Ext.extend(amalto.updatereport.DocumentHistoryPanel, Ext.Panel, {
                     parentPanelId:this.parentPanelId,
 			        listeners: { 'render' : function(button) {
                             UpdateReportInterface.isAdminUser(function(data) {
-                                button.disabled = !data;
+                                if(!data) {
+                                    button.disable(true);
+                                }
 		                    });
                         }
                     },
