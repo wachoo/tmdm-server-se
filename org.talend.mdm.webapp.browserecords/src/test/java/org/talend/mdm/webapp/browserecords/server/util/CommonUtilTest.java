@@ -21,7 +21,6 @@ import java.util.Stack;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import org.junit.Test;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
@@ -66,7 +65,7 @@ public class CommonUtilTest extends TestCase {
         Assert.assertEquals("hello/peili/liang", sb.toString());
     }
 
-    @Test
+
     public void testGetRealPath() throws Exception {
         ItemNodeModel nodeModel = TestData.getModel();
         List<String> xpathes = TestData.getXpathes();
