@@ -162,9 +162,9 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         final CheckBoxSelectionModel<ItemNodeModel> sm = new CheckBoxSelectionModel<ItemNodeModel>();
         columnConfigs.add(sm.getColumn());
 
-        final ColumnConfig idColumn = new ColumnConfig("objectValue", "Id", COLUMN_WIDTH); //$NON-NLS-1$ //$NON-NLS-2$
-        columnConfigs.add(idColumn);
-        idColumn.setRenderer(new GridCellRenderer<ItemNodeModel>() {
+        final ColumnConfig keyColumn = new ColumnConfig("objectValue", convertKeys(entityModel.getKeys()), COLUMN_WIDTH); //$NON-NLS-1$
+        columnConfigs.add(keyColumn);
+        keyColumn.setRenderer(new GridCellRenderer<ItemNodeModel>() {
 
             public Object render(final ItemNodeModel model, String property, ColumnData config, int rowIndex, int colIndex,
                     ListStore<ItemNodeModel> store, Grid<ItemNodeModel> grid) {
@@ -176,7 +176,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             }
         });
         LabelField f = new LabelField();
-        CellEditor idCellEditor = new CellEditor(f) {
+        CellEditor keyCellEditor = new CellEditor(f) {
 
             @Override
             public Object preProcessValue(Object v) {
@@ -188,36 +188,28 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             }
 
         };
-        idColumn.setEditor(idCellEditor);
+        keyColumn.setEditor(keyCellEditor);
         List<String> foreignKeyInfo = fkTypeModel.getForeignKeyInfo();
         for (final String info : foreignKeyInfo) {
-            if (info.equals(fkTypeModel.getForeignkey()))
+            final String fkInfo = info.startsWith(".") ? CommonUtil.convertAbsolutePath(fkTypeModel.getForeignkey(), info) : info; //$NON-NLS-1$
+            if (fkInfo.equals(fkTypeModel.getForeignkey()))
                 continue;
             final ColumnConfig column = new ColumnConfig("objectValue", //$NON-NLS-1$
-                    CommonUtil.getElementFromXpath(info), COLUMN_WIDTH);
+                    CommonUtil.getElementFromXpath(fkInfo), COLUMN_WIDTH);
             column.setRenderer(new GridCellRenderer<ItemNodeModel>() {
 
                 public Object render(ItemNodeModel model, String property, ColumnData config, int rowIndex, int colIndex,
                         ListStore<ItemNodeModel> store, Grid<ItemNodeModel> grid) {
                     ForeignKeyBean fkBean = (ForeignKeyBean) model.getObjectValue();
-                    String value = fkBean != null && fkBean.getForeignKeyInfo().containsKey(info) ? fkBean.getForeignKeyInfo()
-                            .get(info) : ""; //$NON-NLS-1$
+                    String value = fkBean != null && fkBean.getForeignKeyInfo().containsKey(fkInfo) ? fkBean.getForeignKeyInfo()
+                            .get(fkInfo) : ""; //$NON-NLS-1$
 
                     return value;
                 }
 
             });
 
-            TypeModel typeModel;
-
-            if (info.startsWith(".")) { //$NON-NLS-1$
-                String ainfo = CommonUtil.convertAbsolutePath(fkTypeModel.getXpath(), info);
-                typeModel = originalViewBean.getBindingEntityModel().getMetaDataTypes().get(ainfo);
-            } else {
-                typeModel = entityModel.getMetaDataTypes().get(info);
-                typeModel = typeModel == null ? originalViewBean.getBindingEntityModel().getMetaDataTypes().get(info) : typeModel;
-            }
-
+            TypeModel typeModel = entityModel.getMetaDataTypes().get(fkInfo);
             Field<?> field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false, Locale.getLanguage());
 
             CellEditor cellEditor = new ForeignKeyCellEditor(field, typeModel);
@@ -287,6 +279,18 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             if (field != null)
                 TreeDetailGridFieldCreator.updateMandatory(field, child, fieldMap);
         }
+    }
+
+    private String convertKeys(String[] keys){
+        if (keys.length == 1)
+            return CommonUtil.getElementFromXpath(keys[0]);
+        StringBuffer sb = new StringBuffer();
+        for(int i = 0; i< keys.length; i++){
+            if(i != 0)
+                sb.append("-"); //$NON-NLS-1$
+            sb.append(CommonUtil.getElementFromXpath(keys[i]));
+        }
+        return sb.toString();
     }
 
     private void addListener() {
@@ -423,6 +427,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
     public void setCriteriaFK(ForeignKeyBean fk) {
         // TODO check fk exist
         currentNodeModel.setObjectValue(fk);
+        currentNodeModel.setTypeName(fk.getTypeName());
         currentNodeModel.setChangeValue(true);
         grid.getView().refresh(false);
     }

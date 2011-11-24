@@ -41,6 +41,16 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
 
     private boolean mandatory;
 
+    private String typeName;
+
+    public String getTypeName() {
+        return typeName;
+    }
+
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
+    }
+
     public int getIndex() {
         return index;
     }
@@ -260,6 +270,7 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
         clonedModel.setDescription(description);
         clonedModel.setDynamicLabel(dynamicLabel);
         clonedModel.setCloned(true);
+        clonedModel.setTypeName(typeName);
         if (this.getRealType() != null)
             clonedModel.setRealType(this.getRealType());
         if (withValue)

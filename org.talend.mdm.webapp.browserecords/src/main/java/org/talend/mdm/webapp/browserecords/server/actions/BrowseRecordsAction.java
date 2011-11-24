@@ -388,6 +388,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     Element resultAsDOM = Util.parse(results[currentResult]).getDocumentElement();
 
                     ForeignKeyBean bean = new ForeignKeyBean();
+                    BusinessConcept businessConcept = SchemaWebAgent.getInstance().getBusinessConcept(fk);
+                    if (businessConcept != null && businessConcept.getCorrespondTypeName() != null)
+                        bean.setTypeName(businessConcept.getCorrespondTypeName());
                     String id = ""; //$NON-NLS-1$
                     NodeList nodes = Util.getNodeList(resultAsDOM, "//i"); //$NON-NLS-1$
                     if (nodes != null) {
@@ -455,7 +458,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return gettedValue.toString();
     }
 
-    private ForeignKeyBean getForeignKeyDesc(TypeModel model, String ids, boolean isNeedExceptionMessage) throws Exception {
+    private ForeignKeyBean getForeignKeyDesc(TypeModel model, String ids, boolean isNeedExceptionMessage, String modelType)
+            throws Exception {
         String xpathForeignKey = model.getForeignkey();
         if (xpathForeignKey == null) {
             return null;
@@ -474,7 +478,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 ItemPOJOPK pk = new ItemPOJOPK();
                 String[] itemId = extractIdWithBrackets(ids);
                 pk.setIds(itemId);
-                pk.setConceptName(model.getForeignkey().split("/")[0]); //$NON-NLS-1$
+                String conceptName = model.getForeignkey().split("/")[0]; //$NON-NLS-1$
+                // get deriveType's conceptName, otherwise getItem() method will throw exception.
+                if(modelType != null && modelType.trim().length() > 0){
+                    BusinessConcept businessConcept = SchemaWebAgent.getInstance().getFirstBusinessConceptFromRootType(modelType);
+                    if(businessConcept != null)    
+                        conceptName = businessConcept.getName();
+                }
+                pk.setConceptName(conceptName);
                 pk.setDataClusterPOJOPK(new DataClusterPOJOPK(getCurrentDataCluster()));
                 ItemPOJO item = com.amalto.core.util.Util.getItemCtrl2Local().getItem(pk);
 
@@ -649,9 +660,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                             } else {
 
                                 if (typeModel.getForeignkey() != null) {
+                                    String modelType = value.getAttribute("tmdm:type"); //$NON-NLS-1$
                                     itemBean.set(path, path + "-" + value.getTextContent()); //$NON-NLS-1$
                                     itemBean.setForeignkeyDesc(
-                                            path + "-" + value.getTextContent(), getForeignKeyDesc(typeModel, value.getTextContent(), false)); //$NON-NLS-1$    
+                                            path + "-" + value.getTextContent(), getForeignKeyDesc(typeModel, value.getTextContent(), false, modelType)); //$NON-NLS-1$    
 
                                 } else {
                                     itemBean.set(path, value.getTextContent());
@@ -686,9 +698,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     TypeModel typeModel = entityModel.getMetaDataTypes().get(path);
 
                     if (typeModel != null && typeModel.getForeignkey() != null) {
+                        String modelType = ((Element) value).getAttribute("tmdm:type"); //$NON-NLS-1$
                         itemBean.set(path, path + "-" + value.getTextContent()); //$NON-NLS-1$
                         itemBean.setForeignkeyDesc(
-                                path + "-" + value.getTextContent(), getForeignKeyDesc(typeModel, value.getTextContent(), false)); //$NON-NLS-1$
+                                path + "-" + value.getTextContent(), getForeignKeyDesc(typeModel, value.getTextContent(), false, modelType)); //$NON-NLS-1$
                     } else {
                         itemBean.set(path, value.getTextContent());
                     }
@@ -1495,7 +1508,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         if (foreignKey != null && foreignKey.trim().length() > 0) {
             // set foreignKeyBean
             model.setRetrieveFKinfos(true);
-            ForeignKeyBean fkBean = getForeignKeyDesc(model, el.getTextContent(), true);
+            String modelType = el.getAttribute("tmdm:type"); //$NON-NLS-1$
+            if (modelType != null && modelType.trim().length() > 0)
+                nodeModel.setTypeName(modelType);
+            ForeignKeyBean fkBean = getForeignKeyDesc(model, el.getTextContent(), true, modelType);
             if (fkBean != null) {
                 String fkNotFoundMessage = fkBean.get("foreignKeyDeleteMessage"); //$NON-NLS-1$
                 if (fkNotFoundMessage != null) {// fix bug TMDM-2757

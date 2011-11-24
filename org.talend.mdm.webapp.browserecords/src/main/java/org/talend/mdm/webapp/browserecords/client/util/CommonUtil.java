@@ -91,6 +91,9 @@ public class CommonUtil {
             root.setAttribute("xsi:type", nodeModel.getRealType()); //$NON-NLS-1$
         }
 
+        if (nodeModel.getTypeName() != null)
+            root.setAttribute("tmdm:type", nodeModel.getTypeName()); //$NON-NLS-1$
+
         List<ModelData> children = nodeModel.getChildren();
         if (children != null) {
             for (ModelData child : children) {
