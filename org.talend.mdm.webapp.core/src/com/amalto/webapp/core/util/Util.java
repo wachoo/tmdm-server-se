@@ -130,13 +130,15 @@ public class Util {
 
     private static String endpoint_address = "http://localhost:" + port + "/talend/TalendPort"; //$NON-NLS-1$ //$NON-NLS-2$
 
+    private static Pattern TOTAL_COUNT_PATTERN = Pattern.compile("<totalCount>(.*)</totalCount>"); //$NON-NLS-1$
+
     public static int _AUTO_ = 0;
 
     public static int _FORCE_RMI_ = 1;
 
     public static int _FORCE_WEB_SERVICE_ = 2;
 
-    public static String DATE_FORMAT_PREFIX = "%t"; //$NON-NLS-1$
+    public static String DATE_FORMAT_PREFIX = "%t"; //$NON-NLS-1$  
 
     /*********************************************************************
      * WEB SERVICES
@@ -1316,11 +1318,13 @@ public class Util {
             whereItem = new WSWhereItem(whereCondition, null, null);
         }
 
-        // get FK filter
-        // WSWhereItem fkFilterWi = null;
-        // fkFilterWi = getConditionFromFKFilter(xpathForeignKey, xpathInfoForeignKey, fkFilter);
-        // if (fkFilterWi != null)
-        // whereItem = fkFilterWi;
+        if (!isCustomFilter(fkFilter)) {
+            // get FK filter
+            WSWhereItem fkFilterWi = getConditionFromFKFilter(xpathForeignKey, xpathInfoForeignKey, fkFilter);
+            if (fkFilterWi != null)
+                whereItem = fkFilterWi;
+        }
+
         Configuration config = Configuration.getInstance();
         // aiming modify there is bug when initXpathForeignKey when it's like 'conceptname/key'
         // so we convert initXpathForeignKey to 'conceptname'
@@ -1440,7 +1444,6 @@ public class Util {
             // edit by ymli; fix the bug:0011918: set the pageSize correctly.
             // FIXME: why do you invoke this method twice
             if (isCount) {
-                Pattern TOTAL_COUNT_PATTERN = Pattern.compile("<totalCount>(.*)</totalCount>"); //$NON-NLS-1$
                 Matcher matcher = TOTAL_COUNT_PATTERN.matcher(results[0]);
                 String count = "0"; //$NON-NLS-1$
                 if (matcher.matches()) {
