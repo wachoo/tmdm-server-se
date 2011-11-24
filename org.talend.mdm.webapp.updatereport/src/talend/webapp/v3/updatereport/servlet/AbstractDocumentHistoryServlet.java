@@ -11,12 +11,13 @@
 
 package talend.webapp.v3.updatereport.servlet;
 
-import com.amalto.core.history.DocumentHistory;
-import com.amalto.core.history.DocumentHistoryFactory;
+import java.util.Map;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Map;
+
+import com.amalto.core.history.DocumentHistory;
+import com.amalto.core.history.DocumentHistoryFactory;
 
 /**
  *
@@ -53,7 +54,8 @@ abstract class AbstractDocumentHistoryServlet extends HttpServlet {
         String conceptName = getParameterString(parameters, CONCEPT_PARAMETER, true);
         String revisionId = getParameterString(parameters, REVISION_PARAMETER, false);
         String action = getParameterString(parameters, ACTION_PARAMETER, true);
-        String[] id = new String[]{getParameterString(parameters, KEY_PARAMETER, true)}; // TODO Support composite key
+        // Web UI sends key values separated by '.' character
+        String[] id = getParameterString(parameters, KEY_PARAMETER, true).split("\\.");
 
         return new Parameters(date, dataClusterName, dataModelName, conceptName, id, revisionId, action);
     }
