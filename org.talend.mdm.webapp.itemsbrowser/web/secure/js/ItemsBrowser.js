@@ -5943,14 +5943,11 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                 combo.focus(true, 100);
                                 // combo.setSize(foreignKeyWindow.getSize());
                                 combo.reset();
-                                if (count < 500) {
+                                combo.setRawValue("");
+                                combo.doQuery(".*", true);
+                                combo.focus();
+                                combo.expand();
 
-                                    combo.setRawValue("");
-                                    combo.doQuery(".*", true);
-                                    combo.focus();
-                                    combo.expand();
-
-                                }
                             });
 
                     /*
