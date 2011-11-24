@@ -187,7 +187,7 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
 		 this.wrap = this.wrap({cls: "x-form-field-wrap"});
 		 this.trigger = this.wrap.createChild(this.triggerConfig ||
 		 {tag: "img", src: Ext.BLANK_IMAGE_URL, cls: "x-form-trigger " + this.triggerClass});
-		 if(this.hideTrigger){
+		 if(this.hideTrigger || this.readOnly){
 		 this.trigger.setDisplayed(false);
 		 }
 		 this.initTrigger();
