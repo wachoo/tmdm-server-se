@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
@@ -53,7 +54,7 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
             ItemPanel itemPanel = new ItemPanel(pkViewBean, toolBar.getItemBean(), toolBar.getOperation(), fkPanel, root,
                     detailPanel);
             itemPanel.getToolBar().setOutMost(toolBar.isOutMost());
-            String xpathLabel = ForeignKeyUtil.transferXpathToLabel(parentModel);
+            String xpathLabel = ForeignKeyUtil.transferXpathToLabel(parentModel) + fkTypeModel.getLabel(UrlUtil.getLanguage());
             ItemDetailTabPanelContentHandle handle = detailPanel.addTabItem(xpathLabel, itemPanel, ItemsDetailPanel.MULTIPLE, GWT
                     .getModuleName()
                     + DOM.createUniqueId());
