@@ -148,11 +148,12 @@ public class DisplayRulesUtil {
                     for (DisplayRule displayRule : dspRules) {
                         style.append("<xsl:choose> "); //$NON-NLS-1$
                         style.append("<xsl:when test=\"not(text())\"> "); //$NON-NLS-1$
-                        if (isLiteralData(displayRule.getValue())) {
+                        if (isLiteralData(XmlUtil.escapeXml(displayRule.getValue()))) {
                             style
-                                    .append("<xsl:text>" + Util.stripLeadingAndTrailingQuotes(displayRule.getValue()) + "</xsl:text>"); //$NON-NLS-1$ //$NON-NLS-2$
+                                    .append("<xsl:text>" + Util.stripLeadingAndTrailingQuotes(XmlUtil.escapeXml(displayRule.getValue())) + "</xsl:text>"); //$NON-NLS-1$ //$NON-NLS-2$
                         } else {
-                            style.append("<xsl:value-of select=\"" + getPureValue(displayRule.getValue()) + "\"/> "); //$NON-NLS-1$ //$NON-NLS-2$
+                            style
+                                    .append("<xsl:value-of select=\"" + getPureValue(XmlUtil.escapeXml(displayRule.getValue())) + "\"/> "); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                         style.append("</xsl:when> "); //$NON-NLS-1$                    
                         style.append("<xsl:otherwise><xsl:value-of select=\".\"/></xsl:otherwise> "); //$NON-NLS-1$
@@ -194,7 +195,7 @@ public class DisplayRulesUtil {
 
                 if (dspRules.size() > 0)
                     for (DisplayRule displayRule : dspRules) {
-                        style.append("<xsl:if test=\"not(" + getPureValue(displayRule.getValue()) + ")\"> "); //$NON-NLS-1$ //$NON-NLS-2$ 
+                        style.append("<xsl:if test=\"not(" + getPureValue(XmlUtil.escapeXml(displayRule.getValue())) + ")\"> "); //$NON-NLS-1$ //$NON-NLS-2$ 
                         style.append("<xsl:attribute name=\"t:visible\">false</xsl:attribute> "); //$NON-NLS-1$ 
                         style.append("</xsl:if>"); //$NON-NLS-1$
                     }

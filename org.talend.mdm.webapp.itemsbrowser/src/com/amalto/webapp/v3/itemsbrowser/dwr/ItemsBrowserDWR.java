@@ -30,9 +30,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -1071,7 +1071,7 @@ public class ItemsBrowserDWR {
         ArrayList<String> infos = treeNode.getForeignKeyInfo();
 
         try {
-            String value = StringEscapeUtils.escapeHtml(Util.getFirstTextNode(d, xpath));
+            String value = Util.getFirstTextNode(d, xpath);
             treeNode.setValue(value);
             if (infos != null && treeNode.isRetrieveFKinfos()) {
 
@@ -1157,7 +1157,7 @@ public class ItemsBrowserDWR {
                 while (it.hasNext()) {
                     XSFacet xsf = it.next();
                     if ("enumeration".equals(xsf.getName())) { //$NON-NLS-1$
-                        enumeration.add(StringEscapeUtils.escapeHtml(xsf.getValue().toString()));
+                        enumeration.add(xsf.getValue().toString());
                     } else {
                         Restriction r = new Restriction(xsf.getName(), xsf.getValue().toString());
                         restrictions.add(r);
@@ -1189,7 +1189,7 @@ public class ItemsBrowserDWR {
                             nodeAutorization.add(xpath + "[" + (i + 1) + "]"); //$NON-NLS-1$ //$NON-NLS-2$
                         idToXpath.put(nodeCount, xpath + "[" + (i + 1) + "]"); //$NON-NLS-1$ //$NON-NLS-2$
                         TreeNode treeNodeTmp = (TreeNode) treeNode.clone();
-                        String value = StringEscapeUtils.escapeHtml(nodeList.item(i).getTextContent());
+                        String value = nodeList.item(i).getTextContent();
                         treeNodeTmp.setValue(value);
                         treeNodeTmp.setBindingPath(xpath + "[" + (i + 1) + "]"); //$NON-NLS-1$ //$NON-NLS-2$
                         if (nodeList.item(i).getFirstChild() != null && infos != null && treeNode.isRetrieveFKinfos()
@@ -1221,7 +1221,7 @@ public class ItemsBrowserDWR {
                         nodeAutorization.add(xpath);
                     idToXpath.put(nodeCount, xpath);
 
-                    treeNode.setValue(StringEscapeUtils.escapeHtml(Util.getFirstTextNode(d, xpath)));
+                    treeNode.setValue(Util.getFirstTextNode(d, xpath));
 
                     // key is readonly for editing record.
                     if (treeNode.isKey() && treeNode.getValue() != null) {
@@ -1733,7 +1733,7 @@ public class ItemsBrowserDWR {
             if (displayRule.getType().equals(BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE)) {
                 String xpathInRule = displayRule.getXpath();
                 if (XpathUtil.checkDefalutByXpath(sourcePath, xpathInRule))
-                    return displayRule.getValue();
+                    return XmlUtil.escapeXml(displayRule.getValue());
             }
         }
         return null;
@@ -1909,7 +1909,7 @@ public class ItemsBrowserDWR {
         if (xpath == null)
             return "Nothing to update";//$NON-NLS-1$
 
-        String updateStatus = updateNode2(xpath, StringEscapeUtils.unescapeHtml(content), docIndex);
+        String updateStatus = updateNode2(xpath, content, docIndex);
 
         try {
             updateDspRules(docIndex, (Document) ctx.getSession().getAttribute("itemDocument" + docIndex),//$NON-NLS-1$

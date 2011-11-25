@@ -109,6 +109,8 @@ public class XmlUtil {
     }
     
     public static String escapeXml(String value) {
+        if (value == null)
+            return null;
         boolean isEscaped=false;
         if(value.indexOf("&quot;")!=-1||
            value.indexOf("&amp;")!=-1||

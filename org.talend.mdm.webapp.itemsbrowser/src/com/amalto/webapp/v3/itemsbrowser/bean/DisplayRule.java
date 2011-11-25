@@ -12,7 +12,6 @@
 // ============================================================================
 package com.amalto.webapp.v3.itemsbrowser.bean;
 
-import com.amalto.webapp.core.util.XmlUtil;
 
 
 /**
@@ -60,7 +59,6 @@ public class DisplayRule{
 
     
     public String getValue() {
-        if(value!=null)value=XmlUtil.escapeXml(value);
         return value;
     }
 
