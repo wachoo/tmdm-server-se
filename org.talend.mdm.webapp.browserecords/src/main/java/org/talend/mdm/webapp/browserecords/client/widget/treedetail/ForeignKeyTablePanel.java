@@ -203,7 +203,8 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                     ForeignKeyBean fkBean = (ForeignKeyBean) model.getObjectValue();
                     String value = fkBean != null && fkBean.getForeignKeyInfo().containsKey(fkInfo) ? fkBean.getForeignKeyInfo()
                             .get(fkInfo) : ""; //$NON-NLS-1$
-
+                    if (fkBean != null && fkBean.getForeignKeyInfo().get(info) != null && "".equals(value)) //$NON-NLS-1$
+                        value = fkBean.getForeignKeyInfo().get(info);
                     return value;
                 }
 

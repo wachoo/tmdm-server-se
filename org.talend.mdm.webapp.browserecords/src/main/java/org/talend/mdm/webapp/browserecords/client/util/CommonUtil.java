@@ -19,6 +19,10 @@ import com.google.gwt.xml.client.XMLParser;
 
 public class CommonUtil {
 
+    public static final String XMLNS_TMDM = "xmlns:tmdm"; //$NON-NLS-1$
+
+    public static final String XMLNS_TMDM_VALUE = "http://www.talend.com/mdm"; //$NON-NLS-1$
+
     public static String getXpathSuffix(String xpath) {
         return xpath.substring(xpath.lastIndexOf('/') + 1);
     }
@@ -70,13 +74,15 @@ public class CommonUtil {
 
     public static String toXML(ItemNodeModel nodeModel, ViewBean viewBean) {
         Document doc = XMLParser.createDocument();
-        Element root = _toXML(doc, nodeModel, viewBean);
+        Element root = _toXML(doc, nodeModel, viewBean, nodeModel);
+        if (nodeModel.get(XMLNS_TMDM) != null)
+            root.setAttribute(XMLNS_TMDM, XMLNS_TMDM_VALUE);
         root.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance"); //$NON-NLS-1$//$NON-NLS-2$
         doc.appendChild(root);
         return doc.toString();
     }
 
-    private static Element _toXML(Document doc, ItemNodeModel nodeModel, ViewBean viewBean) {
+    private static Element _toXML(Document doc, ItemNodeModel nodeModel, ViewBean viewBean, ItemNodeModel rootModel) {
         Element root = doc.createElement(nodeModel.getName());
         TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(nodeModel.getBindingPath());
         Serializable value = nodeModel.getObjectValue();
@@ -91,13 +97,15 @@ public class CommonUtil {
             root.setAttribute("xsi:type", nodeModel.getRealType()); //$NON-NLS-1$
         }
 
-        if (nodeModel.getTypeName() != null)
+        if (nodeModel.getTypeName() != null){
             root.setAttribute("tmdm:type", nodeModel.getTypeName()); //$NON-NLS-1$
+            rootModel.set(XMLNS_TMDM, XMLNS_TMDM_VALUE);
+        }
 
         List<ModelData> children = nodeModel.getChildren();
         if (children != null) {
             for (ModelData child : children) {
-                Element el = _toXML(doc, (ItemNodeModel) child, viewBean);
+                Element el = _toXML(doc, (ItemNodeModel) child, viewBean, rootModel);
                 root.appendChild(el);
             }
         }
