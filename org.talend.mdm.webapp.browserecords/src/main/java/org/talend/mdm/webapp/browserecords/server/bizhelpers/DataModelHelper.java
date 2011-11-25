@@ -467,6 +467,8 @@ public class DataModelHelper {
         String concept = entity.getConceptName();
         Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
         TypeModel typeModel = metaDataTypes.get(concept);
+        if(typeModel == null)
+            throw new Exception("typemodel_is_null"); //$NON-NLS-1$
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.newDocument();

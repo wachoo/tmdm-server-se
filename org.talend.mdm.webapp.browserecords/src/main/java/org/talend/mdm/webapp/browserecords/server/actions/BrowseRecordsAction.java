@@ -719,10 +719,17 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             DataModelHelper.handleDefaultValue(entityModel);
             return entityModel;
         } catch (Exception e) {
+            Locale locale = new Locale(language);
+            String message = MESSAGES.getMessage(locale, "typemodel_is_null");
+            if(message != null){
+                LOG.error(message, e);
+                throw new ServiceException(message);
+            }                
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
         }
     }
+    
 
     public ViewBean getView(String viewPk, String language) throws ServiceException {
         try {
@@ -759,6 +766,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             return vb;
         } catch (Exception e) {
+            Locale locale = new Locale(language);
+            String message = MESSAGES.getMessage(locale, "typemodel_is_null");
+            if(message != null){
+                LOG.error(message, e);
+                throw new ServiceException(message);
+            }   
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
         }
@@ -780,10 +793,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if ("/".equalsIgnoreCase(path)) { //$NON-NLS-1$
                     pushUpdateReport(ids, concept, "LOGIC_DELETE"); //$NON-NLS-1$
                 }
-                // TODO updatereport
-
                 else
-                    throw new ServiceException("dropItem is NULL");
+                    throw new ServiceException(MESSAGES.getMessage("dropItem_null")); //$NON-NLS-1$
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
@@ -2057,14 +2068,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             // execute
             WSTransformer wsTransformer = Util.getPort().getTransformer(new WSGetTransformer(new WSTransformerPK(transformerPK)));
             if (wsTransformer.getPluginSpecs() == null || wsTransformer.getPluginSpecs().length == 0)
-                throw new ServiceException("The Plugin Specs of this process is undefined! ");
+                throw new ServiceException(MESSAGES.getMessage("plugin_Undefined")); //$NON-NLS-1$
             WSTransformerContextPipelinePipelineItem[] entries = null;
             if (isATransformerExist) {
 
                 entries = Util.getPort().executeTransformerV2(wsExecuteTransformerV2).getPipeline().getPipelineItem();
 
             } else {
-                throw new ServiceException("The target process is not existed! ");
+                throw new ServiceException(MESSAGES.getMessage("target_NotExist")); //$NON-NLS-1$
             }
 
             WSTransformerContextPipelinePipelineItem entrie = null;
@@ -2167,6 +2178,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             return itemBean;
         } catch (Exception e) {
+            Locale locale = new Locale(language);
+            String message = MESSAGES.getMessage(locale, "typemodel_is_null");
+            if(message != null){
+                LOG.error(message, e);
+                throw new ServiceException(message);
+            }   
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
         }
