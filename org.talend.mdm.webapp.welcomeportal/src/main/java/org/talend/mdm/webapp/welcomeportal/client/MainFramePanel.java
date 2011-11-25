@@ -324,12 +324,14 @@ public class MainFramePanel extends Portal {
                     label.setText(MessagesFactory.getMessages().no_standalone_process());
                     set.setVisible(false);
                 } else {
-                    for (final String str : list) {
+                    for (int j = 0; j < list.size(); j = j + 2) {
+                        final String str = list.get(j);
+                        String strDesc = list.get(j + 1);
                         HTML processHtml = new HTML();
                         StringBuilder sb = new StringBuilder(
                                 "<span id=\"processes" + str + "\" style=\"padding-right:8px;cursor: pointer;\""); //$NON-NLS-1$ //$NON-NLS-2$
                         sb.append("<IMG SRC=\"/talendmdm/secure/img/genericUI/runnable_bullet.png\"/>&nbsp;"); //$NON-NLS-1$
-                        sb.append(str.replace("Runnable#", "")); //$NON-NLS-1$ //$NON-NLS-2$
+                        sb.append(strDesc.replace("Runnable#", "")); //$NON-NLS-1$ //$NON-NLS-2$
                         sb.append("</span>"); //$NON-NLS-1$
                         processHtml.setHTML(sb.toString());
                         processHtml.addClickHandler(new ClickHandler() {
@@ -448,11 +450,11 @@ public class MainFramePanel extends Portal {
     }
 
     private native void openWindow(String url)/*-{
-		window.open(url);
+        window.open(url);
     }-*/;
 
     private native void initUI(String context, String application)/*-{
-		var initFunction = $wnd.amalto[context][application].init();
-		setTimeout(initFunction, '50');
+        var initFunction = $wnd.amalto[context][application].init();
+        setTimeout(initFunction, '50');
     }-*/;
 }
