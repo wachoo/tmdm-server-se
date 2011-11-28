@@ -37,7 +37,9 @@ import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTr
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
+import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -51,6 +53,7 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.ComponentHelper;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -68,6 +71,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -881,12 +885,56 @@ public class ItemDetailToolBar extends ToolBar {
         tabPanel.updateCurrentTabText(tabText);
     }-*/;
 
+    class MenuEx extends Menu {
+
+        public MenuEx() {
+            super();
+            monitorWindowResize = false;
+        }
+    }
+
     class ToolBarExLayout extends ToolBarLayout {
 
         protected void initMore() {
-            super.initMore();
+            if (more == null) {
+                moreMenu = new MenuEx();
+                moreMenu.addListener(Events.BeforeShow, new Listener<MenuEvent>() {
+
+                    public void handleEvent(MenuEvent be) {
+                        clearMenu();
+                        for (Component c : container.getItems()) {
+
+                            if (isHidden(c)) {
+                                addComponentToMenu(be.getContainer(), c);
+                            }
+                        }
+                        if (be.getContainer().getItemCount() == 0) {
+                            be.getContainer().add(new HeaderMenuItem(getNoItemsMenuText()));
+                        }
+                    }
+
+                });
+
+                more = new Button();
+                more.addStyleName("x-toolbar-more"); //$NON-NLS-1$
+                more.setIcon(GXT.IMAGES.toolbar_more());
+                more.setMenu(moreMenu);
+
+            }
+            Element td = insertCell(more, getExtrasTr(), 100);
+            if (more.isRendered()) {
+                td.appendChild(more.el().dom);
+            } else {
+                more.render(td);
+            }
+            ComponentHelper.doAttach(more);
+
             moreMenu.setWidth(230);
         }
+
+        private native El getExtrasTr()/*-{
+            return this.@com.extjs.gxt.ui.client.widget.layout.ToolBarLayout::extrasTr;
+        }-*/;
 
         @SuppressWarnings("unchecked")
         protected void addComponentToMenu(Menu menu, Component c) {
