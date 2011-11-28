@@ -1274,9 +1274,9 @@ public class XmlServerSLWrapperBean implements SessionBean {
         }
     }
 
-    public void exportDocuments(String revisionId, String clusterName, int start, int end, boolean includeMetadata,  OutputStream outputStream) throws com.amalto.core.util.XtentisException {
+    public void exportDocuments(String revisionId, String clusterName, int start, int end, OutputStream outputStream) throws com.amalto.core.util.XtentisException {
         try {
-            server.exportDocuments(revisionId, clusterName, start, end, includeMetadata, outputStream);
+            server.exportDocuments(revisionId, clusterName, start, end, outputStream);
         } catch (XmlServerException e) {
             throw new XtentisException(e);
         }

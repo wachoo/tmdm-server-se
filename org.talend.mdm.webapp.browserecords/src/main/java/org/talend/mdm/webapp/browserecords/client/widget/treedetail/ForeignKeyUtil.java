@@ -185,15 +185,4 @@ public class ForeignKeyUtil {
         }
         return sb.toString();
     }
-
-    public static String transferXpathToLabel(ItemNodeModel nodeModel) {
-        String realXPath = ""; //$NON-NLS-1$
-        ItemNodeModel current = nodeModel;
-        while (current != null) {
-            String name = current.getDynamicLabel() == null ? current.getLabel() : current.getDynamicLabel();
-            realXPath = name + "/" + realXPath; //$NON-NLS-1$
-            current = (ItemNodeModel) current.getParent();
-        }
-        return realXPath;
-    }
 }

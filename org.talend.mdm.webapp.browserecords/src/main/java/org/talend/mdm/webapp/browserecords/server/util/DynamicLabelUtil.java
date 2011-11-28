@@ -18,30 +18,11 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.jxpath.JXPathContext;
 import org.apache.log4j.Logger;
-import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
-import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import com.amalto.webapp.core.bean.Configuration;
-import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSDataModelPK;
-import com.amalto.webapp.util.webservices.WSGetDataModel;
-import com.amalto.webapp.util.webservices.WSGetItem;
-import com.amalto.webapp.util.webservices.WSItem;
-import com.amalto.webapp.util.webservices.WSItemPK;
-import com.sun.xml.xsom.XSAnnotation;
-import com.sun.xml.xsom.XSComplexType;
-import com.sun.xml.xsom.XSElementDecl;
-import com.sun.xml.xsom.XSParticle;
-import com.sun.xml.xsom.XSType;
 
 /**
  * DOC HSHU class global comment. Detailled comment
@@ -61,7 +42,7 @@ public class DynamicLabelUtil {
             TypeModel typeModel = metaDataTypes.get(xpath);
             String label = typeModel.getLabel(language);
             if (org.talend.mdm.webapp.base.server.util.DynamicLabelUtil.isDynamicLabel(label)) {
-                label = replaceForeignPath(CommonUtil.getRealXPath(itemModel), label, parsedDocument);
+                label = replaceForeignPath(itemModel.getBindingPath(), label, parsedDocument);
                 String stylesheet = org.talend.mdm.webapp.base.server.util.DynamicLabelUtil.genStyle(
                         itemModel.getIndex() > 0 ? itemModel.getBindingPath() + "[" + itemModel.getIndex() + "]" : itemModel //$NON-NLS-1$ //$NON-NLS-2$
                                 .getBindingPath(), label);
@@ -91,13 +72,13 @@ public class DynamicLabelUtil {
             dynamicPathes.add(matcher.group().replaceAll("^\\{", "").replaceAll("\\}$", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
         }
 
-        Configuration config = Configuration.getInstance();
-        String dataModelPK = config.getModel();
-        String xsd = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(dataModelPK))).getXsdSchema();
-        Map<String, XSElementDecl> map = com.amalto.core.util.Util.getConceptMap(xsd);
-        Map<String, XSType> typeMap = com.amalto.core.util.Util.getConceptTypeMap(xsd);
+        // Configuration config = Configuration.getInstance();
+        // String dataModelPK = config.getModel();
+        // String xsd = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(dataModelPK))).getXsdSchema();
+        // Map<String, XSElementDecl> map = com.amalto.core.util.Util.getConceptMap(xsd);
+        // Map<String, XSType> typeMap = com.amalto.core.util.Util.getConceptTypeMap(xsd);
         basePath = basePath.startsWith("/") ? basePath.substring(1) : basePath; //$NON-NLS-1$
-        XSElementDecl xsed = map.get(basePath.split("/")[0]); //$NON-NLS-1$
+        //        XSElementDecl xsed = map.get(basePath.split("/")[0]); //$NON-NLS-1$
 
         for (String dyPath : dynamicPathes) {
             Element baseEl = (Element) doc.selectSingleNode(basePath);
@@ -111,15 +92,17 @@ public class DynamicLabelUtil {
                     for (int i = 0; i < els.size(); i++) {
                         List<org.dom4j.Element> pathNodes = getPathNode((org.dom4j.Element) els.get(i));
                         String key = ((org.dom4j.Element) els.get(i)).getStringValue();
-                        Object[] fkObj = getForeign(xsed, pathNodes, 0, typeMap);
-                        if (fkObj != null && ((List<String>) fkObj[1]).size() > 0) {
-                            String foreignkey = (String) fkObj[0];
-                            List<String> fkInfos = (List<String>) fkObj[1];
-                            String fkInfoStr = getFKInfo(key, foreignkey, fkInfos);
-                            multiValue += fkInfoStr == null ? "" : fkInfoStr;
-                         } else {
-                            multiValue += key == null ? "" : key; //$NON-NLS-1$
-                        }
+                        // Object[] fkObj = getForeign(xsed, pathNodes, 0, typeMap);
+                        // if (fkObj != null && ((List<String>)fkObj[1]).size() > 0) {
+                        // String foreignkey = (String) fkObj[0];
+                        // List<String> fkInfos = (List<String>) fkObj[1];
+
+                        // String fkInfoStr = getFKInfo(key, foreignkey, fkInfos);
+                        // multiValue += fkInfoStr == null ? "" : fkInfoStr;
+
+                        // } else {
+                        multiValue += key == null ? "" : key; //$NON-NLS-1$
+                        // }
                     }
 
                     dynamicLabel = dynamicLabel.replace("{" + dyPath + "}", multiValue == null ? "" : multiValue); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -131,138 +114,6 @@ public class DynamicLabelUtil {
         }
 
         return dynamicLabel;
-    }
-
-    private static Object[] getForeign(XSElementDecl xsed, List<org.dom4j.Element> pathNodes, int pos, Map<String, XSType> typeMap) {
-
-        XSType xsct = null;
-        org.dom4j.Element el = pathNodes.get(pos);
-        Attribute attr = el.attribute("type"); //$NON-NLS-1$
-        String xsiType = attr == null ? null : attr.getStringValue();
-        if (xsiType != null && !xsiType.equals("")) { //$NON-NLS-1$
-            xsct = typeMap.get(xsiType);
-        } else {
-            xsct = xsed.getType();
-        }
-
-        if (pos < pathNodes.size() - 1) {
-            XSParticle[] xsp = ((XSComplexType) xsct).getContentType().asParticle().getTerm().asModelGroup().getChildren();
-            for (XSParticle xs : xsp) {
-                List<XSElementDecl> dels = getElementDecls(xs);
-                for (XSElementDecl del : dels) {
-                    if (del.getName().equals(pathNodes.get(pos + 1).getName())) {
-                        Object[] fkObj = getForeign(del, pathNodes, pos + 1, typeMap);
-                        if (fkObj != null) {
-                            return fkObj;
-                        }
-                    }
-                }
-            }
-        } else {
-            XSAnnotation anno = xsed.getAnnotation();
-            if (anno != null) {
-                org.w3c.dom.Element annotation = (org.w3c.dom.Element) anno.getAnnotation();
-                if (annotation != null) {
-                    NodeList annotList = annotation.getChildNodes();
-                    if (annotList != null) {
-                        Object[] fkObj = new Object[2];
-                        String fk = null;
-                        List<String> fkInfo = new ArrayList<String>();
-                        for (int k = 0; k < annotList.getLength(); k++) {
-                            if ("appinfo".equals(annotList.item(k).getLocalName())) { //$NON-NLS-1$ 
-                                Node source = annotList.item(k).getAttributes().getNamedItem("source"); //$NON-NLS-1$
-                                if (source == null)
-                                    continue;
-                                String appinfoSource = source.getNodeValue();
-                                if ("X_ForeignKey".equals(appinfoSource)) { //$NON-NLS-1$
-                                    fk = annotList.item(k).getFirstChild().getNodeValue();
-                                    ;
-                                } else if ("X_ForeignKeyInfo".equals(appinfoSource)) { //$NON-NLS-1$
-                                    fkInfo.add(annotList.item(k).getFirstChild().getNodeValue());
-                                }
-                            }
-                        }
-                        if (fk != null) {
-                            fkObj[0] = fk;
-                            fkObj[1] = fkInfo;
-                            return fkObj;
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    private static List<XSElementDecl> getElementDecls(XSParticle xs) {
-        List<XSElementDecl> elDecls = new ArrayList<XSElementDecl>();
-        if (xs.getTerm().asModelGroup() != null) { // is complex type
-            XSParticle[] xsps = xs.getTerm().asModelGroup().getChildren();
-            for (int i = 0; i < xsps.length; i++) {
-                elDecls.addAll(getElementDecls(xsps[i]));
-            }
-        }
-        XSElementDecl del = xs.getTerm().asElementDecl();
-        if (del != null) {
-            elDecls.add(del);
-        }
-        return elDecls;
-    }
-
-    private static String getFKInfo(String key, String foreignkey, List<String> fkInfos) {
-        try {
-            if (key == null || key.trim().length() == 0)
-                return null;
-
-            List<String> ids = new ArrayList<String>();
-
-            if (!key.matches("^\\[(.*?)\\]$")) { //$NON-NLS-1$
-                ids.add(key);
-            } else {
-                Pattern p = Pattern.compile("\\[(.*?)\\]"); //$NON-NLS-1$
-                Matcher m = p.matcher(key);
-                while (m.find()) {
-                    ids.add(m.group(1));
-                }
-            }
-
-            // Collections.reverse(ids);
-            String concept = Util.getForeignPathFromPath(foreignkey);
-            concept = concept.split("/")[0]; //$NON-NLS-1$
-            Configuration config = Configuration.getInstance();
-            String dataClusterPK = config.getCluster();
-
-            WSItemPK wsItem = new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, (String[]) ids.toArray(new String[ids
-                    .size()]));
-            WSItem item = Util.getPort().getItem(new WSGetItem(wsItem));
-            if (item != null) {
-                String content = item.getContent();
-                Node node = Util.parse(content).getDocumentElement();
-                if (fkInfos.size() > 0) {
-                    StringBuffer sb = new StringBuffer();
-                    for (int i = 0; i < fkInfos.size(); i++) {
-                        String info = fkInfos.get(i);
-                        JXPathContext jxpContext = JXPathContext.newContext(node);
-                        jxpContext.setLenient(true);
-                        info = info.replaceFirst(concept + "/", ""); //$NON-NLS-1$ //$NON-NLS-2$
-                        String fkinfo = (String) jxpContext.getValue(info, String.class);
-                        if (fkinfo != null && fkinfo.length() != 0) {
-                            sb.append(fkinfo);
-                        }
-                        if (i < fkInfos.size() - 1 && fkInfos.size() > 1) {
-                            sb.append("-"); //$NON-NLS-1$
-                        }
-                    }
-                    return sb.toString();
-                } else {
-                    return key;
-                }
-            }
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            return key;
-        }
-        return null;
     }
 
     private static List<org.dom4j.Element> getPathNode(org.dom4j.Element el) {

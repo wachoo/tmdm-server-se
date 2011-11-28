@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServletResponse;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 public class ExportServlet extends HttpServlet {
@@ -37,10 +36,6 @@ public class ExportServlet extends HttpServlet {
     private static final String PARAMETER_START = "start";
 
     private static final String PARAMETER_END = "end";
-
-    private static final Logger LOGGER = Logger.getLogger(ExportServlet.class);
-
-    private static final String PARAMETER_INCLUDE_METADATA = "includeMetadata";
 
     public ExportServlet() {
         super();
@@ -60,11 +55,10 @@ public class ExportServlet extends HttpServlet {
             throw new ServletException(e);
         }
 
-        String revisionId = getParameter(request, PARAMETER_REVISION, true);
-        String clusterName = getParameter(request, PARAMETER_CLUSTER, true);
-        int start = Integer.parseInt(getParameter(request, PARAMETER_START, true));
-        int end = Integer.parseInt(getParameter(request, PARAMETER_END, true));
-        boolean includeMetadata = Boolean.parseBoolean(getParameter(request, PARAMETER_INCLUDE_METADATA, false, "false"));  //$NON-NLS-1$
+        String revisionId = request.getParameter(PARAMETER_REVISION);
+        String clusterName = request.getParameter(PARAMETER_CLUSTER);
+        int start = Integer.parseInt(request.getParameter(PARAMETER_START));
+        int end = Integer.parseInt(request.getParameter(PARAMETER_END));
 
         ServletOutputStream outputStream;
         try {
@@ -75,28 +69,16 @@ public class ExportServlet extends HttpServlet {
 
         try {
             resp.setContentType("text/xml");
-            server.exportDocuments(revisionId, clusterName, start, end, includeMetadata, outputStream);
+            server.exportDocuments(revisionId, clusterName, start, end, outputStream);
         } catch (XtentisException e) {
             throw new ServletException(e);
         } finally {
             try {
                 outputStream.flush();
             } catch (IOException e) {
-                LOGGER.error("Error during flush", e);
+                Logger.getLogger(ExportServlet.class).error("Error during flush", e);
             }
         }
-    }
-
-    private static String getParameter(HttpServletRequest request, String parameter, boolean isMandatory) {
-        return getParameter(request, parameter, isMandatory, StringUtils.EMPTY);
-    }
-
-    private static String getParameter(HttpServletRequest request, String parameter, boolean isMandatory, String defaultValue) {
-        String value = request.getParameter(parameter);
-        if (value == null && isMandatory) {
-            throw new IllegalArgumentException("Parameter '" + parameter + "' is mandatory and not set.");
-        }
-        return defaultValue;
     }
 }
 

@@ -637,5 +637,5 @@ public interface IXmlServerSLWrapper {
     public void end() throws XmlServerException;
     public void close() throws XmlServerException;
     public List<String> globalSearch(String dataCluster, String keyword, int start, int end) throws XmlServerException;
-    public void exportDocuments(String revisionId, String clusterName, int start, int end, boolean includeMetadata, OutputStream outputStream) throws XmlServerException;
+    public void exportDocuments(String revisionId, String clusterName, int start, int end, OutputStream outputStream) throws XmlServerException;
 }

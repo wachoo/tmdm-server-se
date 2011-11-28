@@ -457,17 +457,16 @@ public class ItemsListPanel extends ContentPanel {
     }
 
     public void refreshGrid() {
-        if (gridContainer != null) {// refresh when grid is not empty
-            if (pagingBar != null && pagingBar.getItemCount() > 0) {
-                if (grid.getSelectionModel().getSelectedItem() != null) {
-                    String ids = grid.getSelectionModel().getSelectedItem().getIds();
-                    refresh(ids, true);
-                } else
-                    pagingBar.last();
-            } else {
-                ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchBut);
-                ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, be);
-            }
+        if (pagingBar != null && pagingBar.getItemCount() > 0) {
+            if (grid.getSelectionModel().getSelectedItem() != null) {
+                String ids = grid.getSelectionModel().getSelectedItem().getIds();
+                refresh(ids, true);
+            } else
+                pagingBar.last();
+        }
+        else {
+            ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchBut);
+            ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, be);
         }
     }
     
