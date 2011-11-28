@@ -187,11 +187,13 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
 		 this.wrap = this.wrap({cls: "x-form-field-wrap"});
 		 this.trigger = this.wrap.createChild(this.triggerConfig ||
 		 {tag: "img", src: Ext.BLANK_IMAGE_URL, cls: "x-form-trigger " + this.triggerClass});
-		 if(this.hideTrigger || this.readOnly){
-		 this.trigger.setDisplayed(false);
+		 var hide = this.hideTrigger || this.readOnly;
+		 this.trigger.setDisplayed(!hide);
+		 if(!hide){
+			 this.initTrigger();
+			 this.initTriggerAppearance();
 		 }
-		 this.initTrigger();
-		 this.initTriggerAppearance();
+
 		 if(!this.width){
 		 this.wrap.setWidth(this.el.getWidth()+this.trigger.getWidth());
 		 }
