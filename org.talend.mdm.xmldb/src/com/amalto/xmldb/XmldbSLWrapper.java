@@ -475,43 +475,46 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
      * 
      */
     public long putDocumentFromString(String xmlString, String uniqueID, String clusterName, String revisionID,
-            String documentType) throws XmlServerException {
-        if (LOG.isTraceEnabled())
+                                      String documentType) throws XmlServerException {
+        if (LOG.isTraceEnabled()) {
             LOG.trace("putDocumentFromString() [R-" + revisionID + "/" + clusterName + "/" + uniqueID + "]");
+        }
+
+        if (!existCluster(revisionID, clusterName)) {
+            throw new XmlServerException("Cluster '" + clusterName + "' (revision: '" + revisionID + "') does not exist");
+        }
+
 
         long startT = System.currentTimeMillis();
         try {
-
             String encodedID = URLEncoder.encode(uniqueID, "UTF-8");
 
             boolean binary = true;
-            if (IXmlServerSLWrapper.TYPE_DOCUMENT.equals(documentType))
+            if (IXmlServerSLWrapper.TYPE_DOCUMENT.equals(documentType)) {
                 binary = false;
+            }
 
             org.xmldb.api.base.Collection col = getCollection(revisionID, clusterName, true);
             Resource document;
-            if (binary)
+            if (binary) {
                 document = col.createResource(encodedID, "BinaryResource");
-            else
+            } else {
                 document = col.createResource(encodedID, "XMLResource");
+            }
             // remove xml declaration
             xmlString = xmlString.replaceFirst("<\\?xml.*\\?>", "");
             document.setContent(xmlString);
             col.storeResource(document);
-            // update item cache
-            // ItemCacheKey key=new ItemCacheKey(revisionID,uniqueID,clusterName);
-            // itemsCache.put(key, document.getContent().toString());
         } catch (XmlServerException e) {
             throw (e);
         } catch (Exception e) {
             String err = "Unable to put the document from string in cluster " + clusterName + " on "
                     + getFullURL(revisionID, clusterName) + ": ";
-            LOG.info(err, e);
+            LOG.error(err, e);
             return -1;
         }
-        long time = System.currentTimeMillis() - startT;
 
-        return time;
+        return System.currentTimeMillis() - startT;
     }
 
     /**
@@ -522,6 +525,9 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
      */
     public long putDocumentFromDOM(Element root, String uniqueID, String clusterName, String revisionID)
             throws XmlServerException {
+        if (!existCluster(revisionID, clusterName)) {
+            throw new XmlServerException("Cluster '" + clusterName + "' (revision: '" + revisionID + "') does not exist");
+        }
 
         long startT = System.currentTimeMillis();
         try {
