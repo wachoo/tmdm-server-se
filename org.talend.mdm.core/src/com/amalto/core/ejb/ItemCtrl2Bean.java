@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
@@ -72,6 +73,8 @@ public class ItemCtrl2Bean implements SessionBean {
     public static final long serialVersionUID = 200;
 
     private static final Logger LOGGER = Logger.getLogger(ItemCtrl2Bean.class);
+
+    private static final JazzyConfiguration DEFAULT_JAZZY_CONFIGURATION = new JazzyConfiguration();
 
     /**
      * ItemCtrlBean.java Constructor
@@ -641,10 +644,12 @@ public class ItemCtrl2Bean implements SessionBean {
      *
      * @param dataClusterPOJOPK The Data Cluster where to run the query
      * @param viewPOJOPK The View
-     * @param searchValue The value/sentenced searched
-     * @param matchAllWords If <code>true</code>, the items must match all the words in the sentence
+     * @param searchValue The value searched. If empty, null or equals to "*", this method is equivalent to a view search
+     * with no filter.
+     * @param matchAllWords If <code>true</code>, the searchValue is separated into keywords using " " (white space) as
+     * separator. Match will be done with a OR condition on each field.
      * @param spellThreshold The condition spell checking threshold. A negative value de-activates spell
-     * @param orderBy The full path of the item user to order
+     * @param orderBy An optional full path of the item used to order results.
      * @param direction One of {@link IXmlServerSLWrapper#ORDER_ASCENDING} or
      * {@link IXmlServerSLWrapper#ORDER_DESCENDING}
      * @param start The first item index (starts at zero)
@@ -658,39 +663,50 @@ public class ItemCtrl2Bean implements SessionBean {
     public ArrayList<String> quickSearch(DataClusterPOJOPK dataClusterPOJOPK, ViewPOJOPK viewPOJOPK, String searchValue,
             boolean matchAllWords, int spellThreshold, String orderBy, String direction, int start, int limit)
             throws XtentisException {
-
-        ArrayList<String> result = new ArrayList<String>();
-        boolean isSpellCheck = (spellThreshold >= (new JazzyConfiguration()).getMinTreshold());
-
         try {
-            ViewPOJO view = Util.getViewCtrlLocalHome().create().getView(viewPOJOPK);
-            ArrayList<String> searchable = view.getSearchableBusinessElements().getList();
-
             // check if there actually is a search value
-            if ((searchValue == null) || "".equals(searchValue) || "*".equals(searchValue)) { // $NON-NLS-1$ // $NON-NLS-2$
+            if (!matchAllWords && (searchValue == null) || "".equals(searchValue) || "*".equals(searchValue)) { // $NON-NLS-1$ // $NON-NLS-2$
                 return viewSearch(dataClusterPOJOPK, viewPOJOPK, null, spellThreshold, orderBy, direction, start, limit);
+            } else {
+                boolean isSpellCheck = (spellThreshold >= DEFAULT_JAZZY_CONFIGURATION.getMinTreshold());
+                ViewPOJO view = Util.getViewCtrlLocal().getView(viewPOJOPK);
+                ArrayList<String> searchableFields = view.getSearchableBusinessElements().getList();
+                Iterator<String> iterator = searchableFields.iterator();
+                while (iterator.hasNext()) {
+                    String searchableField = iterator.next();
+                    // Exclude searchable elements that don't include a '/' since we are generating XPath expressions
+                    // (exclude 'Entity' elements but keep 'Entity/Id').
+                    if (!searchableField.contains("/")) {
+                        iterator.remove();
+                    }
+                }
+
+                List<String> keywords;
+                if (matchAllWords) {
+                    keywords = new ArrayList<String>();
+                    String[] allKeywords = searchValue.split("\\p{Space}+");
+                    Collections.addAll(keywords, allKeywords);
+                } else {
+                    keywords = Collections.singletonList(searchValue);
+                }
+                IWhereItem searchItem;
+                if (searchableFields.isEmpty()) {
+                    return new ArrayList<String>(0);
+                } else {
+                    WhereOr whereOr = new WhereOr();
+                    for (String fieldName : searchableFields) {
+                        WhereOr nestedOr = new WhereOr();
+                        for (String keyword : keywords) {
+                            WhereCondition nestedCondition = new WhereCondition(fieldName, WhereCondition.CONTAINS, keyword.trim(), WhereCondition.PRE_OR, isSpellCheck);
+                            nestedOr.add(nestedCondition);
+                        }
+                        whereOr.add(nestedOr);
+                    }
+                    searchItem = whereOr;
+                }
+
+                return viewSearch(dataClusterPOJOPK, viewPOJOPK, searchItem, spellThreshold, orderBy, direction, start, limit);
             }
-
-            // if there is search Value, incorporate it in the Where Clause
-            boolean isNumber = searchValue.matches("\\d+"); // $NON-NLS-1$
-
-            // loop over searchable elements
-            WhereOr mainOR = new WhereOr();
-            for (String be : searchable) {
-                mainOR.add(new WhereCondition(be, WhereCondition.CONTAINS, searchValue, (matchAllWords ? WhereCondition.PRE_AND : WhereCondition.PRE_OR), isSpellCheck));
-            }// end for viewable elements
-
-            if (mainOR.getSize() == 0) {
-                return result; // HUHH!
-            }
-
-            IWhereItem searchItem = mainOR;
-            if (mainOR.getSize() == 1) {
-                // gain one level
-                searchItem = mainOR.getItem(0);
-            }
-
-            return viewSearch(dataClusterPOJOPK, viewPOJOPK, searchItem, spellThreshold, orderBy, direction, start, limit);
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
