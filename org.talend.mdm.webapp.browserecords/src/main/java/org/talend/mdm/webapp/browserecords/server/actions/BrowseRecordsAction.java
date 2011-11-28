@@ -2168,14 +2168,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             return itemBean;
         } catch (Exception e) {
-            Locale locale = new Locale(language);
-            String message = MESSAGES.getMessage(locale, "typemodel_is_null");
-            if(message != null){
-                LOG.error(message, e);
-                throw new ServiceException(message);
-            }   
             LOG.error(e.getMessage(), e);
-            throw new ServiceException(e.getLocalizedMessage());
+            Locale locale = new Locale(language);
+            throw new ServiceException(MESSAGES.getMessage(locale, "parse_model_error")); //$NON-NLS-1$
         }
     }
 
