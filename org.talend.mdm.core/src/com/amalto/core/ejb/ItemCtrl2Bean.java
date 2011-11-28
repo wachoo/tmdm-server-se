@@ -646,8 +646,9 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param viewPOJOPK The View
      * @param searchValue The value searched. If empty, null or equals to "*", this method is equivalent to a view search
      * with no filter.
-     * @param matchAllWords If <code>true</code>, the searchValue is separated into keywords using " " (white space) as
-     * separator. Match will be done with a OR condition on each field.
+     * @param matchWholeSentence If <code>false</code>, the searchValue is separated into keywords using " " (white space) as
+     * separator. Match will be done with a OR condition on each field. If <code>true</code>, the keyword is considered
+     * as a whole sentence and matching is done on the whole sentence (not each word).
      * @param spellThreshold The condition spell checking threshold. A negative value de-activates spell
      * @param orderBy An optional full path of the item used to order results.
      * @param direction One of {@link IXmlServerSLWrapper#ORDER_ASCENDING} or
@@ -661,11 +662,11 @@ public class ItemCtrl2Bean implements SessionBean {
      * @ejb.facade-method
      */
     public ArrayList<String> quickSearch(DataClusterPOJOPK dataClusterPOJOPK, ViewPOJOPK viewPOJOPK, String searchValue,
-            boolean matchAllWords, int spellThreshold, String orderBy, String direction, int start, int limit)
+            boolean matchWholeSentence, int spellThreshold, String orderBy, String direction, int start, int limit)
             throws XtentisException {
         try {
             // check if there actually is a search value
-            if (!matchAllWords && (searchValue == null) || "".equals(searchValue) || "*".equals(searchValue)) { // $NON-NLS-1$ // $NON-NLS-2$
+            if ((searchValue == null) || "".equals(searchValue) || "*".equals(searchValue)) { // $NON-NLS-1$ // $NON-NLS-2$
                 return viewSearch(dataClusterPOJOPK, viewPOJOPK, null, spellThreshold, orderBy, direction, start, limit);
             } else {
                 boolean isSpellCheck = (spellThreshold >= DEFAULT_JAZZY_CONFIGURATION.getMinTreshold());
@@ -682,11 +683,11 @@ public class ItemCtrl2Bean implements SessionBean {
                 }
 
                 List<String> keywords;
-                if (matchAllWords) {
+                if (!matchWholeSentence) { // Match on each word.
                     keywords = new ArrayList<String>();
                     String[] allKeywords = searchValue.split("\\p{Space}+");
                     Collections.addAll(keywords, allKeywords);
-                } else {
+                } else { // Match on whole sentence
                     keywords = Collections.singletonList(searchValue);
                 }
                 IWhereItem searchItem;
