@@ -719,14 +719,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             DataModelHelper.handleDefaultValue(entityModel);
             return entityModel;
         } catch (Exception e) {
-            Locale locale = new Locale(language);
-            String message = MESSAGES.getMessage(locale, "typemodel_is_null");
-            if(message != null){
-                LOG.error(message, e);
-                throw new ServiceException(message);
-            }                
             LOG.error(e.getMessage(), e);
-            throw new ServiceException(e.getLocalizedMessage());
+            Locale locale = new Locale(language);
+            throw new ServiceException(MESSAGES.getMessage(locale, "parse_model_error")); //$NON-NLS-1$
         }
     }
     
@@ -766,14 +761,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             return vb;
         } catch (Exception e) {
-            Locale locale = new Locale(language);
-            String message = MESSAGES.getMessage(locale, "typemodel_is_null");
-            if(message != null){
-                LOG.error(message, e);
-                throw new ServiceException(message);
-            }   
             LOG.error(e.getMessage(), e);
-            throw new ServiceException(e.getLocalizedMessage());
+            Locale locale = new Locale(language);
+            throw new ServiceException(MESSAGES.getMessage(locale, "parse_model_error")); //$NON-NLS-1$
         }
     }
 
@@ -1869,7 +1859,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             WSTransformer wsTransformer = Util.getPort().getTransformer(new WSGetTransformer(new WSTransformerPK(transformerPK)));
             if (wsTransformer.getPluginSpecs() == null || wsTransformer.getPluginSpecs().length == 0)
-                throw new ServiceException(MESSAGES.getMessage("plugin_specs")); //$NON-NLS-1$
+                throw new ServiceException(MESSAGES.getMessage("plugin_specs_undefined")); //$NON-NLS-1$
 
             boolean outputReport = false;
             String downloadUrl = "";//$NON-NLS-1$
@@ -1892,7 +1882,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     }
                 }
             } else {
-                throw new ServiceException(MESSAGES.getMessage("process_existed")); //$NON-NLS-1$
+                throw new ServiceException(MESSAGES.getMessage("process_not_found")); //$NON-NLS-1$
             }
 
             if (LOG.isDebugEnabled())
@@ -2068,14 +2058,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             // execute
             WSTransformer wsTransformer = Util.getPort().getTransformer(new WSGetTransformer(new WSTransformerPK(transformerPK)));
             if (wsTransformer.getPluginSpecs() == null || wsTransformer.getPluginSpecs().length == 0)
-                throw new ServiceException(MESSAGES.getMessage("plugin_Undefined")); //$NON-NLS-1$
+                throw new ServiceException(MESSAGES.getMessage("plugin_specs_undefined")); //$NON-NLS-1$
             WSTransformerContextPipelinePipelineItem[] entries = null;
             if (isATransformerExist) {
 
                 entries = Util.getPort().executeTransformerV2(wsExecuteTransformerV2).getPipeline().getPipelineItem();
 
             } else {
-                throw new ServiceException(MESSAGES.getMessage("target_NotExist")); //$NON-NLS-1$
+                throw new ServiceException(MESSAGES.getMessage("process_not_found")); //$NON-NLS-1$
             }
 
             WSTransformerContextPipelinePipelineItem entrie = null;
