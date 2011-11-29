@@ -2,6 +2,7 @@ package org.talend.mdm.webapp.browserecords.server.servlet;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Properties;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -18,14 +19,16 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.Node;
-import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.base.server.util.XmlUtil;
+import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
 
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSViewPK;
 import com.amalto.webapp.util.webservices.WSViewSearch;
+import com.amalto.webapp.util.webservices.WSWhereItem;
 
 public class DownloadData extends HttpServlet {
 
@@ -66,7 +69,7 @@ public class DownloadData extends HttpServlet {
         }
 
         try {
-            this.getTableContent(xpathArr, tableName, concept, sheet);
+            this.getTableContent(xpathArr, concept, sheet, request);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
@@ -91,12 +94,43 @@ public class DownloadData extends HttpServlet {
         return config.getCluster();
     }
 
-    private void getTableContent(String[] xpathArr, String tableName, String concept, HSSFSheet sheet) throws Exception {
+    private String[] getItemBeans(String dataClusterPK, String viewPk, String criteria, int skip,
+            int max, String sortDir, String sortCol, String language) throws Exception {
+
+        WSWhereItem wi = null;
+        if (criteria != null)
+            wi = CommonUtil.buildWhereItems(criteria);
         String[] results = CommonUtil
                 .getPort()
                 .viewSearch(
-                        new WSViewSearch(new WSDataClusterPK(getCurrentDataCluster()), new WSViewPK(tableName), null, -1, 0, -1,
-                                null, null)).getStrings();
+                new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewPk), wi, -1, skip, max, sortCol, sortDir))
+                .getStrings();
+
+        return results;
+    }
+
+    private void getTableContent(String[] xpathArr, String concept, HSSFSheet sheet, HttpServletRequest request) throws Exception {
+
+        String dataCluster = request.getParameter("dataCluster"); //$NON-NLS-1$
+        String viewPk = request.getParameter("viewPk"); //$NON-NLS-1$
+        String criteria = request.getParameter("criteria"); //$NON-NLS-1$
+        String language = request.getParameter("language"); //$NON-NLS-1$
+
+        String sortField = request.getParameter("sortField"); //$NON-NLS-1$
+        String sortDir = request.getParameter("sortDir"); //$NON-NLS-1$
+        //        int offset = Integer.parseInt(request.getParameter("offset")); //$NON-NLS-1$
+        //        int limit = Integer.parseInt(request.getParameter("limit")); //$NON-NLS-1$
+
+        Properties mdmConfig = MDMConfiguration.getConfiguration();
+        
+        Object value =  mdmConfig.get("max.export.browserecord"); //$NON-NLS-1$
+
+        int maxCount = 1000;
+        if (value != null) {
+            maxCount = Integer.parseInt(value.toString());
+        }
+
+        String[] results = getItemBeans(dataCluster, viewPk, criteria, 0, maxCount, sortDir, sortField, language);
 
         for (int i = 1; i < results.length; i++) {
             Document doc = parseResultDocument(results[i], "result"); //$NON-NLS-1$

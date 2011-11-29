@@ -99,6 +99,8 @@ public class ItemsListPanel extends ContentPanel {
 		this.isCreate = isCreate;
 	}
 
+    private QueryModel currentQueryModel;
+
 	BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
 
     RpcProxy<PagingLoadResult<ItemBean>> proxy = new RpcProxy<PagingLoadResult<ItemBean>>() {
@@ -130,16 +132,23 @@ public class ItemsListPanel extends ContentPanel {
                             .getTotalLength()));
                     if (result.getTotalLength() == 0)
                         ItemsMainTabPanel.getInstance().removeAll();
+
+                    currentQueryModel = qm;
                 }
 
                 @Override
                 protected void doOnFailure(Throwable caught) {
                     super.doOnFailure(caught);
                     callback.onSuccess(new BasePagingLoadResult<ItemBean>(new ArrayList<ItemBean>(), 0, 0));
+                    currentQueryModel = null;
                 }
             });
         }
     };
+
+    public QueryModel getCurrentQueryModel() {
+        return currentQueryModel;
+    }
 
     ModelKeyProvider<ItemBean> keyProvidernew = new ModelKeyProvider<ItemBean>() {
 

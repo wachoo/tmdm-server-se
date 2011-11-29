@@ -13,11 +13,13 @@
 package org.talend.mdm.webapp.browserecords.client.widget;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
@@ -33,6 +35,7 @@ import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
+import org.talend.mdm.webapp.browserecords.client.util.PostDataUtil;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKRelRecordWindow;
@@ -80,11 +83,11 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -395,43 +398,11 @@ public class ItemsToolBar extends ToolBar {
 
             @Override
             public void componentSelected(MenuEvent ce) {
-                ViewBean viewBean = BrowseRecords.getSession().getCurrentView();
-                List<String> viewableXpaths = viewBean.getViewableXpaths();
-                EntityModel entityModel = viewBean.getBindingEntityModel();
-                Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
-
-                List<String> headerList = new ArrayList<String>();
-                List<String> xPathList = new ArrayList<String>();
-
-                for (String xpath : viewableXpaths) {
-                    TypeModel typeModel = dataTypes.get(xpath);
-                    String header = typeModel == null ? xpath : ViewUtil.getViewableLabel(Locale.getLanguage(), typeModel);
-                    headerList.add(header);
-                    xPathList.add(xpath);
+                QueryModel queryModel = ItemsListPanel.getInstance().getCurrentQueryModel();
+                if (queryModel != null) {
+                    Map<String, String> param = buidlExportParameter(queryModel);
+                    PostDataUtil.postData("/browserecords/download", param); //$NON-NLS-1$
                 }
-
-                StringBuilder url = new StringBuilder("/browserecords/download?tableName="); //$NON-NLS-1$
-                url.append(viewBean.getViewPK()).append("&header="); //$NON-NLS-1$
-                int i = 0;
-                int count = headerList.size();
-                for (String header : headerList) {
-                    i++;
-                    url.append(header);
-                    if (i < count)
-                        url.append("@"); //$NON-NLS-1$
-                }
-
-                i = 0;
-                count = xPathList.size();
-                url.append("&xpath="); //$NON-NLS-1$
-                for (String path : xPathList) {
-                    i++;
-                    url.append(path);
-                    if (i < count)
-                        url.append("@"); //$NON-NLS-1$
-                }
-
-                com.google.gwt.user.client.Window.open(url.toString(), "_parent", "location=no"); //$NON-NLS-1$ //$NON-NLS-2$
             }
         });
 
@@ -783,6 +754,91 @@ public class ItemsToolBar extends ToolBar {
         add(bookmarkBtn);
 
         initAdvancedPanel();
+    }
+
+    private Map<String, String> buidlExportParameter(QueryModel queryModel) {
+        ViewBean viewBean = BrowseRecords.getSession().getCurrentView();
+        List<String> viewableXpaths = viewBean.getViewableXpaths();
+        EntityModel entityModel = viewBean.getBindingEntityModel();
+        Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
+
+        List<String> headerList = new ArrayList<String>();
+        List<String> xPathList = new ArrayList<String>();
+
+        for (String xpath : viewableXpaths) {
+            TypeModel typeModel = dataTypes.get(xpath);
+            String header = typeModel == null ? xpath : ViewUtil.getViewableLabel(Locale.getLanguage(), typeModel);
+            headerList.add(header);
+            xPathList.add(xpath);
+        }
+
+        Map<String, String> param = new HashMap<String, String>();
+
+        StringBuffer header = new StringBuffer();
+        int i = 0;
+        int count = headerList.size();
+        for (String head : headerList) {
+            i++;
+            header.append(head);
+            if (i < count)
+                header.append("@"); //$NON-NLS-1$
+        }
+        StringBuffer xpath = new StringBuffer();
+
+        i = 0;
+        count = xPathList.size();
+        for (String path : xPathList) {
+            i++;
+            xpath.append(path);
+            if (i < count)
+                xpath.append("@"); //$NON-NLS-1$
+        }
+
+
+
+        queryModel.getModel();
+        queryModel.getCriteria();
+        queryModel.getLanguage();
+
+        param.put("tableName", viewBean.getViewPK()); //$NON-NLS-1$
+        param.put("header", header.toString()); //$NON-NLS-1$
+        param.put("xpath", xpath.toString()); //$NON-NLS-1$
+
+        param.put("dataCluster", queryModel.getDataClusterPK()); //$NON-NLS-1$
+        param.put("viewPk", queryModel.getView().getViewPK()); //$NON-NLS-1$
+        param.put("criteria", queryModel.getCriteria()); //$NON-NLS-1$
+        param.put("language", queryModel.getLanguage()); //$NON-NLS-1$
+
+        PagingLoadConfig pagingLoad = queryModel.getPagingLoadConfig();
+        String sortDir = null;
+        if (SortDir.ASC.equals(pagingLoad.getSortDir())) {
+            sortDir = "ascending"; //$NON-NLS-1$
+        }
+        if (SortDir.DESC.equals(pagingLoad.getSortDir())) {
+            sortDir = "descending"; //$NON-NLS-1$
+        }
+        Map<String, TypeModel> types = queryModel.getModel().getMetaDataTypes();
+        TypeModel typeModel = types.get(pagingLoad.getSortField());
+        if (typeModel != null) {
+            if (DataTypeConstants.INTEGER.getTypeName().equals(typeModel.getType().getBaseTypeName())
+                    || DataTypeConstants.INT.getTypeName().equals(typeModel.getType().getBaseTypeName())
+                    || DataTypeConstants.LONG.getTypeName().equals(typeModel.getType().getBaseTypeName())
+                    || DataTypeConstants.DECIMAL.getTypeName().equals(typeModel.getType().getBaseTypeName())
+                    || DataTypeConstants.FLOAT.getTypeName().equals(typeModel.getType().getBaseTypeName())
+                    || DataTypeConstants.DOUBLE.getTypeName().equals(typeModel.getType().getBaseTypeName())) {
+                sortDir = "NUMBER:" + sortDir; //$NON-NLS-1$
+            }
+        }
+
+        if (pagingLoad.getSortField() != null) {
+            param.put("sortField", pagingLoad.getSortField()); //$NON-NLS-1$
+        }
+        if (sortDir != null) {
+            param.put("sortDir", sortDir); //$NON-NLS-1$
+        }
+        param.put("offset", Integer.toString(pagingLoad.getOffset())); //$NON-NLS-1$
+        param.put("limit", Integer.toString(pagingLoad.getLimit())); //$NON-NLS-1$
+        return param;
     }
 
     private void updateUserCriteriasList() {
