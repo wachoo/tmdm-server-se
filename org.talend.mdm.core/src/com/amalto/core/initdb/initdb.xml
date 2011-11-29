@@ -130,6 +130,10 @@
 		<item>
 			<name>amaltoOBJECTSroutingservices</name>
 			<list></list>			
-		</item>																
+		</item>			
+		<item>
+			<name>amaltoOBJECTSCustomForm</name>
+			<list></list>			
+		</item>	
 	</Clusters>
 </root>
