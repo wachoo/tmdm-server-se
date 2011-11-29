@@ -3154,6 +3154,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
                         tbDetail.saveItemHandler = function() {
                         	tbDetail.items.get('saveBTN').disable();
+                        	amalto.core.working();
                             // @temp yguo,
                             saveForGXT(ids, dataObject, treeIndex, tbDetail, function() {                            			
                                         tbDetail.refreshItemHandler(ids, true);
@@ -3217,6 +3218,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
                         tbDetail.saveItemAndQuitHandler = function() {
                         	tbDetail.items.get('saveBTN').disable();
+                        	amalto.core.working();
                             saveForGXT(ids, dataObject, treeIndex, tbDetail, function() {
                                         // @TEMP YGUO, CLOSE THE WINDOW
                                         handleCallback.refreshRecord();
@@ -3396,7 +3398,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         ItemsBrowserInterface.saveItem(itemPK, dataObject, newItem[treeIndex],
                 treeIndex, language, {
                     callback : function(result) {
-                        amalto.core.ready(result);
+                        amalto.core.ready(result.description);
                         if (result.status == 2) { // unchanged                        	
                             amalto.core.ready(ALERT_NO_CHANGE[language]);
                         } else if (result.status == 1) { // failure
@@ -5218,7 +5220,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         ItemsBrowserInterface.saveItem(itemPK, dataObject, newItem[treeIndex],
                 treeIndex, language, {
                     callback : function(result) {
-                        amalto.core.ready(result);
+                        amalto.core.ready(result.description);
                         if (result.status == 2) { // unchanged
                             amalto.core.ready(ALERT_NO_CHANGE[language]);
                         } else if (result.status == 1) { // failure
