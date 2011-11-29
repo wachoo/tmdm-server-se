@@ -47,6 +47,8 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.EDBType;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -281,20 +283,21 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,
             String dataClusterPK, boolean ifFKFilter, String value) throws ServiceException {
         String xpathForeignKey = model.getForeignkey();
-        // to verify
-        String xpathInfoForeignKey = model.getForeignKeyInfo().toString().replaceAll("\\[", "").replaceAll("\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-        // in search panel, the fkFilter is empty
-        String fkFilter = ""; //$NON-NLS-1$
-        if (ifFKFilter) {
-            fkFilter = model.getFkFilter().replaceAll("&quot;", "\""); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-
         if (xpathForeignKey == null) {
             return null;
         }
 
+        // to verify
+        String xpathInfoForeignKey = model.getForeignKeyInfo().toString().replaceAll("\\[", "").replaceAll("\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+        // in search panel, the fkFilter is empty
+        String fkFilter;
+        if (ifFKFilter)
+            fkFilter = model.getFkFilter().replaceAll("&quot;", "\""); //$NON-NLS-1$ //$NON-NLS-2$
+        else
+            fkFilter = ""; //$NON-NLS-1$
+
         List<ForeignKeyBean> fkBeans = new ArrayList<ForeignKeyBean>();
-        String[] results = null;
+        String[] results;
 
         try {
             String initxpathForeignKey = ""; //$NON-NLS-1$
@@ -316,12 +319,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             initxpathForeignKey = initxpathForeignKey.split("/")[0]; //$NON-NLS-1$
 
-            xpathInfoForeignKey = xpathInfoForeignKey == null ? "" : xpathInfoForeignKey; //$NON-NLS-1$
+            if (xpathInfoForeignKey == null)
+                xpathInfoForeignKey = ""; //$NON-NLS-1$
+
             // foreign key set by business concept
             if (initxpathForeignKey.split("/").length == 1) { //$NON-NLS-1$
                 // determine if we have xPath Infos: e.g. labels to display
                 String[] xpathInfos = new String[1];
-                if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) { //$NON-NLS-1$
+                if (xpathInfoForeignKey.length() != 0) {
                     xpathInfos = xpathInfoForeignKey.split(","); //$NON-NLS-1$
                 } else {
                     xpathInfos[0] = initxpathForeignKey;
@@ -348,16 +353,18 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if (model.isRetrieveFKinfos())
                     // add the xPath Infos Path
                     for (String xpathInfo : xpathInfos) {
-                        xPaths.add(Util.getFormatedFKInfo(
-                                xpathInfo.replaceFirst(initxpathForeignKey, initxpathForeignKey), initxpathForeignKey));
+                        xPaths.add(Util.getFormatedFKInfo(xpathInfo.replaceFirst(initxpathForeignKey, initxpathForeignKey),
+                                initxpathForeignKey));
                     }
                 // add the key paths last, since there may be multiple keys
                 xPaths.add(initxpathForeignKey + "/../../i"); //$NON-NLS-1$
                 // order by
                 String orderbyPath = null;
-                if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) { //$NON-NLS-1$
-                    orderbyPath = com.amalto.webapp.core.util.Util.getFormatedFKInfo(
-                            xpathInfos[0].replaceFirst(initxpathForeignKey, initxpathForeignKey), initxpathForeignKey);
+                if (!MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
+                    if (xpathInfoForeignKey.length() != 0) {
+                        orderbyPath = com.amalto.webapp.core.util.Util.getFormatedFKInfo(
+                                xpathInfos[0].replaceFirst(initxpathForeignKey, initxpathForeignKey), initxpathForeignKey);
+                    }
                 }
 
                 // Run the query
@@ -375,9 +382,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                             .getItemsByCustomFKFilters(
                                     new WSGetItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), initxpathForeignKey,
                                             new WSStringArray(xPaths.toArray(new String[xPaths.size()])), injectedXpath, config
-                                                    .getOffset(), config.getLimit(), orderbyPath, null, true, whereItem)).getStrings();
+                                                    .getOffset(), config.getLimit(), orderbyPath, null, true, whereItem))
+                            .getStrings();
                 }
-            }
+            } else
+                results = null;
+
             String fk = model.getForeignkey().split("/")[0]; //$NON-NLS-1$
             if (results != null) {
                 for (int currentResult = 1; currentResult < results.length; currentResult++) {
@@ -469,7 +479,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
 
         ForeignKeyBean bean = new ForeignKeyBean();
-        bean.setId(ids); 
+        bean.setId(ids);
         bean.setForeignKeyPath(model.getXpath());
         try {
             if (!model.isRetrieveFKinfos()) {
@@ -480,9 +490,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 pk.setIds(itemId);
                 String conceptName = model.getForeignkey().split("/")[0]; //$NON-NLS-1$
                 // get deriveType's conceptName, otherwise getItem() method will throw exception.
-                if(modelType != null && modelType.trim().length() > 0){
+                if (modelType != null && modelType.trim().length() > 0) {
                     BusinessConcept businessConcept = SchemaWebAgent.getInstance().getFirstBusinessConceptFromRootType(modelType);
-                    if(businessConcept != null)    
+                    if (businessConcept != null)
                         conceptName = businessConcept.getName();
                 }
                 pk.setConceptName(conceptName);
@@ -610,9 +620,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             DataModelHelper.parseSchema(dataModel, concept, entityModel, RoleHelper.getUserRoles());
 
             WSItem wsItem = CommonUtil.getPort()
-                    .getItem(new WSGetItem(new WSItemPK(wsDataClusterPK, itemBean.getConcept(), ids)));           
-            extractUsingTransformerThroughView(concept,
-                    viewPK, ids, dataModel, dataCluster, DataModelHelper.getEleDecl(), wsItem);
+                    .getItem(new WSGetItem(new WSItemPK(wsDataClusterPK, itemBean.getConcept(), ids)));
+            extractUsingTransformerThroughView(concept, viewPK, ids, dataModel, dataCluster, DataModelHelper.getEleDecl(), wsItem);
             itemBean.setItemXml(wsItem.getContent());
             itemBean.set("time", wsItem.getInsertionTime()); //$NON-NLS-1$
             if (wsItem.getTaskId() != null && !"".equals(wsItem.getTaskId()) && !"null".equals(wsItem.getTaskId())) { //$NON-NLS-1$ //$NON-NLS-2$
@@ -724,7 +733,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             throw new ServiceException(MESSAGES.getMessage(locale, "parse_model_error")); //$NON-NLS-1$
         }
     }
-    
 
     public ViewBean getView(String viewPk, String language) throws ServiceException {
         try {
@@ -782,8 +790,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             if (wsItem != null && xml != null)
                 if ("/".equalsIgnoreCase(path)) { //$NON-NLS-1$
                     pushUpdateReport(ids, concept, "LOGIC_DELETE"); //$NON-NLS-1$
-                }
-                else
+                } else
                     throw new ServiceException(MESSAGES.getMessage("dropItem_null")); //$NON-NLS-1$
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -1117,8 +1124,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                 new WSStringArray(new String[] { "BrowseItem/CriteriaName", "BrowseItem/Shared" }), wi, -1, localStart, localLimit, null, // order //$NON-NLS-1$ //$NON-NLS-2$
                                 // by
                                 null, // direction
-                                false
-                        )).getStrings();
+                                false)).getStrings();
         return results;
 
     }
@@ -1479,8 +1485,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    private ItemNodeModel builderNode(Map<String, Integer> multiNodeIndex, Element el, EntityModel entity, String xpath,StringBuffer foreignKeyDeleteMessage,
-            String language) throws Exception {
+    private ItemNodeModel builderNode(Map<String, Integer> multiNodeIndex, Element el, EntityModel entity, String xpath,
+            StringBuffer foreignKeyDeleteMessage, String language) throws Exception {
         Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
         xpath += (xpath == "" ? el.getNodeName() : "/" + el.getNodeName()); //$NON-NLS-1$//$NON-NLS-2$
         ItemNodeModel nodeModel = new ItemNodeModel(el.getNodeName());
@@ -1665,7 +1671,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             if (e.getMessage().indexOf("routing failed:") == 0) { //$NON-NLS-1$
                 serviceException = new ServiceException(MESSAGES.getMessage(locale,
                         "save_success_but_exist_exception", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
-                        + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), "."), e.getMessage())); //$NON-NLS-1$
+                                + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), "."), e.getMessage())); //$NON-NLS-1$
             } else {
                 String err = MESSAGES.getMessage(locale, "save_fail", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
                         + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), ".")); //$NON-NLS-1$ 
