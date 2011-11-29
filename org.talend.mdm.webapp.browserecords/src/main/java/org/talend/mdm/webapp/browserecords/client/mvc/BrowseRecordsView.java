@@ -129,53 +129,154 @@ public class BrowseRecordsView extends View {
     }
 
     private void onViewItem(AppEvent event) {
+       	
         ItemBean item = (ItemBean) event.getData();
-        String itemsFormTarget = event.getData(BrowseRecordsView.ITEMS_FORM_TARGET);
+        String itemConcept = null;
+        String itemLabel = null;
+        String itemDisplayPKInfo = null;
+        String itemIds = null;
+        List<String> itemPkInfoList = null;
+        String itemDescription = null;
 
+        
         String operation = ItemDetailToolBar.VIEW_OPERATION;
-        if (item.getSmartViewMode().equals(ItemBean.PERSOMODE))
+        String smartViewMode = item.getSmartViewMode();
+        if (smartViewMode.equals(ItemBean.PERSOMODE))
             operation = ItemDetailToolBar.PERSONALEVIEW_OPERATION;
-        else if (item.getSmartViewMode().equals(ItemBean.SMARTMODE))
+        else if (smartViewMode.equals(ItemBean.SMARTMODE))
             operation = ItemDetailToolBar.SMARTVIEW_OPERATION;
+                
+        
         ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
         List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
+        
+        
         // show breadcrumb
         // ItemsDetailPanel.getInstance().clearBreadCrumb();
+        
         if (item != null) {
+        	itemConcept = item.getConcept();
+        	itemLabel = item.getLabel();
+        	itemDisplayPKInfo = item.getDisplayPKInfo();
+        	itemIds = item.getIds();
+        	itemPkInfoList = item.getPkInfoList();
+        	itemDescription = item.getDescription();
+        		
             breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, null, false)); //$NON-NLS-1$           
-            breads.add(new BreadCrumbModel(item.getConcept(), item.getLabel(), item.getIds(), item.getDisplayPKInfo().equals(
-                    item.getLabel()) ? null : item.getDisplayPKInfo(), true));
+            breads.add(new BreadCrumbModel(
+            		itemConcept, 
+            		itemLabel, 
+            		itemIds, 
+            		itemDisplayPKInfo.equals(itemLabel) ? null : itemDisplayPKInfo, true));
         }
+        
 
-        ItemsDetailPanel panel = new ItemsDetailPanel();
-        ItemPanel itemPanel = new ItemPanel(viewBean, item, operation, panel);
-        if (itemsFormTarget != null && itemsFormTarget.equals(TARGET_IN_NEW_TAB)) {
-
-            panel.setId(item.getIds());
-            panel.initBanner(item.getPkInfoList(), item.getDescription());
-            panel.addTabItem(item.getLabel(), itemPanel,
-                    ItemsDetailPanel.SINGLETON, item.getIds());
-            panel.initBreadCrumb(new BreadCrumb(breads, panel));
-            ItemsMainTabPanel.getInstance().addMainTabItem(item.getLabel() + " " + item.getIds(), panel, item.getIds()); //$NON-NLS-1$           
+        ItemsMainTabPanel itemsMainTabPanel = ItemsMainTabPanel.getInstance();
+        
+        
+        if (TARGET_IN_NEW_TAB.equals(event.getData(BrowseRecordsView.ITEMS_FORM_TARGET))) {
+        	// Open in a new tab in ItemsMainTabPanel
+        	
+        	ItemsDetailPanel itemsDetailPanel = this.buildNewItemsDetailPanel(
+        			viewBean, item, operation, itemIds, itemPkInfoList, 
+        			itemDescription, itemLabel, breads);
+        	
+            itemsMainTabPanel.addMainTabItem(
+            		itemLabel + " " + itemIds, //$NON-NLS-1$ 
+            		itemsDetailPanel, 
+            		itemIds); 
+            
         } else {
-            if (ItemsMainTabPanel.getInstance().getItemByItemId(DEFAULT_ITEMVIEW) != null)
-                ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getItemByItemId(DEFAULT_ITEMVIEW));
-            TabItem defaultItem = new TabItem(item.getConcept() + " " + item.getIds()); //$NON-NLS-1$
-            defaultItem.setId(DEFAULT_ITEMVIEW);
-            defaultItem.setClosable(true);
-            defaultItem.setLayout(new FitLayout());
+        	// Open in default tab in ItemsMainTabPanel, which may ormay not already exist
+        	
+        	TabItem defaultTabItem = itemsMainTabPanel.getItemByItemId(DEFAULT_ITEMVIEW);
+            
+        	if (defaultTabItem != null) {
+            	// Default tab exists in ItemsMainTabPanel
+        		// Reuse the default tab
+        		
+        		defaultTabItem.setText(itemConcept + " " + itemIds); //$NON-NLS-1$
 
-            panel.setId(DEFAULT_ITEMVIEW);
-            panel.initBanner(item.getPkInfoList(), item.getDescription());
-            panel.addTabItem(item.getLabel() != null ? item.getLabel() : item.getConcept(), itemPanel,
-                    ItemsDetailPanel.SINGLETON, DEFAULT_ITEMVIEW);
-            panel.initBreadCrumb(new BreadCrumb(breads, panel));
-            defaultItem.add(panel);
-            ItemsMainTabPanel.getInstance().insert(defaultItem, 0);
-            ItemsMainTabPanel.getInstance().setSelection(defaultItem);
+        		ItemsDetailPanel itemsDetailPanel = (ItemsDetailPanel)defaultTabItem.getItemByItemId(DEFAULT_ITEMVIEW);
+            	
+            	if (itemsDetailPanel == null) {
+            		// ItemsDetailPanel does not exist in default tab of ItemsMainTabPanel
+            		// Create new ItemDetailPanel within the default tab
+            		
+            		defaultTabItem.removeAll();
+            		defaultTabItem.add(this.buildNewItemsDetailPanel(
+							viewBean, item, operation, DEFAULT_ITEMVIEW, itemPkInfoList, 
+							itemDescription, itemLabel != null ? itemLabel : itemConcept, breads));
+            	}
+            	else {
+            		// ItemsDetailPanel exists in default tab of ItemsMainTabPanel
+            		// Reuse the ItemsDetailPanel
+            		
+            		itemsDetailPanel.clearAll();
+            		itemsDetailPanel.initBanner(itemPkInfoList, itemDescription);
+            		   
+            		ItemPanel itemPanel = new ItemPanel(viewBean, item, operation, itemsDetailPanel);
+            		itemsDetailPanel.addTabItem(itemLabel != null ? itemLabel : itemConcept, 
+            				itemPanel, ItemsDetailPanel.SINGLETON, DEFAULT_ITEMVIEW);
+            		
+                    itemsDetailPanel.initBreadCrumb(new BreadCrumb(breads, itemsDetailPanel));
+            	}
+            	
+            	itemsMainTabPanel.setSelection(defaultTabItem);
+            }
+            else {
+            	// Default tab does not exist in ItemsMainTabPanel, create it
+            	
+            	TabItem tabItem = 
+            		this.buildNewItemsMainTabPanelTabItem(itemConcept, itemIds, 
+            				this.buildNewItemsDetailPanel(
+            						viewBean, item, operation, DEFAULT_ITEMVIEW, itemPkInfoList, 
+            						itemDescription, itemLabel != null ? itemLabel : itemConcept, breads));
+            	itemsMainTabPanel.insert(tabItem, 0);
+            	itemsMainTabPanel.setSelection(tabItem);
+            }
         }
     }
 
+    private TabItem buildNewItemsMainTabPanelTabItem(String itemConcept, String itemIds, ItemsDetailPanel itemsDetailPanel)
+    {
+        TabItem tabItem = new TabItem(itemConcept + " " + itemIds); //$NON-NLS-1$
+        tabItem.setId(DEFAULT_ITEMVIEW);
+        tabItem.setClosable(true);
+        tabItem.setLayout(new FitLayout());
+        tabItem.add(itemsDetailPanel);
+        
+        return tabItem;
+    }
+    
+    private ItemsDetailPanel buildNewItemsDetailPanel(
+    		ViewBean viewBean, 
+    		ItemBean item, 
+    		String operation, 
+    		String itemIds, 
+    		List<String> itemPkInfoList,
+    		String itemDescription,
+    		String itemLabel,
+    		List<BreadCrumbModel> breads)
+    {
+    	ItemsDetailPanel itemsDetailPanel = new ItemsDetailPanel();
+    	ItemPanel itemPanel = new ItemPanel(viewBean, item, operation, itemsDetailPanel);
+
+    	itemsDetailPanel.setId(itemIds);
+
+    	itemsDetailPanel.initBanner(itemPkInfoList, itemDescription);
+
+    	itemsDetailPanel.addTabItem(
+    			itemLabel, 
+    			itemPanel,
+    			ItemsDetailPanel.SINGLETON, 
+    			itemIds);
+
+    	itemsDetailPanel.initBreadCrumb(new BreadCrumb(breads, itemsDetailPanel));
+
+    	return itemsDetailPanel;
+    }
+    
     private void onSelectForeignKeyView(AppEvent event) {
         EntityModel entityModel = event.getData();
         ForeignKeyListWindow fkListWindow = (ForeignKeyListWindow) event.getSource();

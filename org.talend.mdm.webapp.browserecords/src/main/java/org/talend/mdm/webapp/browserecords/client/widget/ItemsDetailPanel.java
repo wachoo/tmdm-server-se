@@ -34,6 +34,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.dom.client.Style.Overflow;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Label;
@@ -278,6 +279,7 @@ public class ItemsDetailPanel extends ContentPanel {
 
         // Visual elements, the tab bar, a horizontal spacer, and the content panel
         private TabBar tabBar = new TabBar();
+        private HandlerRegistration handlerRegistration = null;
 
         // Panel containing tabBar so that when there are too many tabs, a horizontal scrollbar appears
         private ScrollPanel tabBarScrollPanel = new ScrollPanel();
@@ -320,8 +322,33 @@ public class ItemsDetailPanel extends ContentPanel {
                 }
             });
 
-            // Tab selection listener for tab panel, change the content displayed and size it appropriately
-            this.tabBar.addSelectionHandler(new SelectionHandler<Integer>() {
+            this.buildNewTabBar();
+            
+            this.tabBarScrollPanel.getElement().setId("ItemsDetailPanel-tabBarScrollPanel"); //$NON-NLS-1$
+            this.tabBarScrollPanel.setHeight((SCROLL_BAR_HEIGHT + TAB_BAR_HEIGHT) + "px"); //$NON-NLS-1$
+            this.add(tabBarScrollPanel);
+
+            this.tabContent.setId("ItemsDetailPanel-tabContent"); //$NON-NLS-1$
+            this.add(this.tabContent);
+        }
+
+        /**
+         * Decommission the previous tabBar if there is one and replace it with a new one.
+         * The reason we do it this way is so that clearing the ItemsDetailPanel when it is
+         * already rendered is fast. If we removed the tabs from the existing tabBar one by
+         * one, each removal will have to be rendered. By making it fast to clear a rendered
+         * ItemsDetailPanel, we can reuse it to display a record of the same entity.
+         */
+        private void buildNewTabBar()
+        {
+        	if (this.handlerRegistration != null) 
+        	{
+        		handlerRegistration.removeHandler();
+        	}
+        	
+        	this.tabBar = new TabBar();
+        	// Tab selection listener for tab panel, change the content displayed and size it appropriately
+            this.handlerRegistration = this.tabBar.addSelectionHandler(new SelectionHandler<Integer>() {
 
                 public void onSelection(SelectionEvent<Integer> arg0) {
 
@@ -337,16 +364,10 @@ public class ItemsDetailPanel extends ContentPanel {
                     newPanel.setWidth(ItemsDetailTabPanel.this.curTabContentInnerWidth);
                 }
             });
-            this.tabBarScrollPanel.getElement().setId("ItemsDetailPanel-tabBarScrollPanel"); //$NON-NLS-1$
-            this.tabBarScrollPanel.setHeight((SCROLL_BAR_HEIGHT + TAB_BAR_HEIGHT) + "px"); //$NON-NLS-1$
             this.tabBar.getElement().setId("ItemsDetailPanel-tabBar"); //$NON-NLS-1$
             this.tabBarScrollPanel.setWidget(this.tabBar);
-            this.add(tabBarScrollPanel);
-
-            this.tabContent.setId("ItemsDetailPanel-tabContent"); //$NON-NLS-1$
-            this.add(this.tabContent);
         }
-
+        
         /**
          * Get the number of tabs.
          * 
@@ -598,9 +619,10 @@ public class ItemsDetailPanel extends ContentPanel {
          * Clear both display and internal state.
          */
         public void clear() {
-            while (this.getTabCount() > 0) {
-                this.closeTabAtIndex(0);
-            }
+        	this.buildNewTabBar();
+        	this.tabIds.removeAllElements();
+        	this.tabPanels.removeAllElements();
+        	this.tabContent.removeAll();
         }
 
         /**
