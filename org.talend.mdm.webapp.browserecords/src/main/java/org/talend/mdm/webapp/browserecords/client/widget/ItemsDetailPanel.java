@@ -156,7 +156,8 @@ public class ItemsDetailPanel extends ContentPanel {
         String toolTipString = ""; //$NON-NLS-1$
         if (desc != null && !desc.equals("")) { //$NON-NLS-1$
             toolTipString = "<img style='margin-left:16px;' " + //$NON-NLS-1$
-                    "src='/talendmdm/secure/img/genericUI/information_icon.gif' title='" + LabelUtil.convertSpecialHTMLCharacter(desc) + "'/>"; //$NON-NLS-1$ //$NON-NLS-2$
+                    "src='/talendmdm/secure/img/genericUI/information_icon.gif' title='"
+                    + LabelUtil.convertSpecialHTMLCharacter(desc) + "'/>"; //$NON-NLS-1$ //$NON-NLS-2$
         }
         if (xpathList != null && xpathList.size() > 0) {
             int i = 1;
@@ -175,7 +176,7 @@ public class ItemsDetailPanel extends ContentPanel {
             }
             banner.layout(true);
         }
-        
+
     }
 
     public void clearBanner() {
@@ -263,10 +264,6 @@ public class ItemsDetailPanel extends ContentPanel {
 
         public static final int TAB_BAR_HEIGHT = 28;
 
-        // This is very specific to the current look and feel which uses fixed
-        // size tabs which has exactly 130px to display the text.
-        public static final int TAB_LABEL_MAX_WIDTH = 130;
-
         // There is unfortunately no way to easily get the scrollbar size
         // But it seems fairly standard that operating systems use 16px or 18px
         // This should be set to the maximum pixel size of scrollbars on any system
@@ -279,6 +276,7 @@ public class ItemsDetailPanel extends ContentPanel {
 
         // Visual elements, the tab bar, a horizontal spacer, and the content panel
         private TabBar tabBar = new TabBar();
+
         private HandlerRegistration handlerRegistration = null;
 
         // Panel containing tabBar so that when there are too many tabs, a horizontal scrollbar appears
@@ -323,7 +321,7 @@ public class ItemsDetailPanel extends ContentPanel {
             });
 
             this.buildNewTabBar();
-            
+
             this.tabBarScrollPanel.getElement().setId("ItemsDetailPanel-tabBarScrollPanel"); //$NON-NLS-1$
             this.tabBarScrollPanel.setHeight((SCROLL_BAR_HEIGHT + TAB_BAR_HEIGHT) + "px"); //$NON-NLS-1$
             this.add(tabBarScrollPanel);
@@ -333,21 +331,18 @@ public class ItemsDetailPanel extends ContentPanel {
         }
 
         /**
-         * Decommission the previous tabBar if there is one and replace it with a new one.
-         * The reason we do it this way is so that clearing the ItemsDetailPanel when it is
-         * already rendered is fast. If we removed the tabs from the existing tabBar one by
-         * one, each removal will have to be rendered. By making it fast to clear a rendered
+         * Decommission the previous tabBar if there is one and replace it with a new one. The reason we do it this way
+         * is so that clearing the ItemsDetailPanel when it is already rendered is fast. If we removed the tabs from the
+         * existing tabBar one by one, each removal will have to be rendered. By making it fast to clear a rendered
          * ItemsDetailPanel, we can reuse it to display a record of the same entity.
          */
-        private void buildNewTabBar()
-        {
-        	if (this.handlerRegistration != null) 
-        	{
-        		handlerRegistration.removeHandler();
-        	}
-        	
-        	this.tabBar = new TabBar();
-        	// Tab selection listener for tab panel, change the content displayed and size it appropriately
+        private void buildNewTabBar() {
+            if (this.handlerRegistration != null) {
+                handlerRegistration.removeHandler();
+            }
+
+            this.tabBar = new TabBar();
+            // Tab selection listener for tab panel, change the content displayed and size it appropriately
             this.handlerRegistration = this.tabBar.addSelectionHandler(new SelectionHandler<Integer>() {
 
                 public void onSelection(SelectionEvent<Integer> arg0) {
@@ -367,7 +362,7 @@ public class ItemsDetailPanel extends ContentPanel {
             this.tabBar.getElement().setId("ItemsDetailPanel-tabBar"); //$NON-NLS-1$
             this.tabBarScrollPanel.setWidget(this.tabBar);
         }
-        
+
         /**
          * Get the number of tabs.
          * 
@@ -484,6 +479,20 @@ public class ItemsDetailPanel extends ContentPanel {
             return new ItemDetailTabPanelContentHandle(id);
         }
 
+        // These are pixel measurements for determining when to truncate labels
+        // They are highly dependent on the specific font used and are very particular
+        // to the current look and feel.
+        public static final int APPROXIMATE_LABEL_LETTER_WIDTH = 10;
+
+        public static final int TAB_LABEL_WIDTH = 130;
+
+        public static final int APPROXIMATE_ELLIPSIS_WIDTH = 9;
+
+        public static final int MAX_LETTERS_PER_LABEL = TAB_LABEL_WIDTH / APPROXIMATE_LABEL_LETTER_WIDTH;
+
+        public static final int LETTERS_PER_LABEL_AFTER_TRUNCATE = (TAB_LABEL_WIDTH - APPROXIMATE_ELLIPSIS_WIDTH)
+                / APPROXIMATE_LABEL_LETTER_WIDTH;
+
         /**
          * Takes care of truncating and adding ellipsis to the tab label if it is too long. This actually calculates
          * exactly how long the rendered text will be and truncates it as little as possible.
@@ -494,51 +503,17 @@ public class ItemsDetailPanel extends ContentPanel {
          * @return label to add to tab.
          */
         private Label createTabLabel(String title) {
-            StringBuffer shortenedTitle = new StringBuffer(title);
-            int labelWidth = this.getTabLabelWidth(title);
-            int shortenedTitleLength = shortenedTitle.length();
-            if (labelWidth > TAB_LABEL_MAX_WIDTH) {
-                shortenedTitle.append("..."); //$NON-NLS-1$
-                while (shortenedTitleLength > 0 && labelWidth > TAB_LABEL_MAX_WIDTH) {
-                    shortenedTitle.deleteCharAt(--shortenedTitleLength);
-                    labelWidth = this.getTabLabelWidth(shortenedTitle.toString());
-                }
+            String shortTitle = title;
+            if (shortTitle.length() > MAX_LETTERS_PER_LABEL) {
+                shortTitle = shortTitle.substring(0, LETTERS_PER_LABEL_AFTER_TRUNCATE) + "..."; //$NON-NLS-1$
             }
 
-            Label tabLabel = new Label(shortenedTitle.toString());
+            Label tabLabel = new Label(shortTitle);
             tabLabel.addStyleName("ItemsDetailPanel-tabLabel"); //$NON-NLS-1$
             tabLabel.addStyleName("gwt-Label"); //$NON-NLS-1$
             tabLabel.getElement().setAttribute("title", title); //$NON-NLS-1$
 
             return tabLabel;
-        }
-
-        /**
-         * Returns the rendered width of the text if it was displayed as a tab label, with all relevant styles applied.
-         * This is a hack from classic JavaScript, where we create an absolutely positioned invisible auto sized div,
-         * apply the label's font styles to it, then get its width. Note that we make sure it is physically attached to
-         * DOM before we get width to ensure it has been rendered with the CSS styles.
-         * 
-         * @param title
-         * @return
-         */
-        private Element tabLabelWidthFinder = null;
-
-        private int getTabLabelWidth(String title) {
-            if (this.tabLabelWidthFinder == null) {
-                this.tabLabelWidthFinder = DOM.getElementById("ItemsDetailPanel-tabLabelWidthFinder"); //$NON-NLS-1$
-
-                if (this.tabLabelWidthFinder == null) {
-                    this.tabLabelWidthFinder = DOM.createDiv();
-                    this.tabLabelWidthFinder.setId("ItemsDetailPanel-tabLabelWidthFinder"); //$NON-NLS-1$
-                    DOM.appendChild(DOM.getElementById("MDMCenterWorkspace"), this.tabLabelWidthFinder); //$NON-NLS-1$
-                }
-            }
-
-            this.tabLabelWidthFinder.setInnerText(title);
-
-            // offset width includes padding, border, margins
-            return this.tabLabelWidthFinder.getOffsetWidth();
         }
 
         /**
@@ -619,10 +594,10 @@ public class ItemsDetailPanel extends ContentPanel {
          * Clear both display and internal state.
          */
         public void clear() {
-        	this.buildNewTabBar();
-        	this.tabIds.removeAllElements();
-        	this.tabPanels.removeAllElements();
-        	this.tabContent.removeAll();
+            this.buildNewTabBar();
+            this.tabIds.removeAllElements();
+            this.tabPanels.removeAllElements();
+            this.tabContent.removeAll();
         }
 
         /**

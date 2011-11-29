@@ -38,7 +38,6 @@ import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -75,20 +74,42 @@ public class BrowseRecordsController extends Controller {
     @Override
     public void handleEvent(AppEvent event) {
         int eventTypeCode = event.getType().getEventCode();
-        switch(eventTypeCode)
-        {
-        case BrowseRecordsEvents.GetViewCode: onGetView(event); break;
-        case BrowseRecordsEvents.SearchViewCode: onSearchView(event); break;
-        case BrowseRecordsEvents.InitFrameCode: forwardToView(view, event); break;
-        case BrowseRecordsEvents.InitSearchContainerCode: forwardToView(view, event); break;
-        case BrowseRecordsEvents.CreateForeignKeyViewCode: onCreateForeignKeyView(event); break;
-        case BrowseRecordsEvents.SelectForeignKeyViewCode: onSelectForeignKeyView(event); break;
-        case BrowseRecordsEvents.ViewItemCode: onViewItem(event); break;
-        case BrowseRecordsEvents.ViewForeignKeyCode: onViewForeignKey(event); break;
-        case BrowseRecordsEvents.SaveItemCode: onSaveItem(event); break;
-        case BrowseRecordsEvents.UpdatePolymorphismCode: forwardToView(view, event); break;
-        case BrowseRecordsEvents.ExecuteVisibleRuleCode: onExecuteVisibleRule(event); break;
-        default: break;
+        switch (eventTypeCode) {
+        case BrowseRecordsEvents.GetViewCode:
+            onGetView(event);
+            break;
+        case BrowseRecordsEvents.SearchViewCode:
+            onSearchView(event);
+            break;
+        case BrowseRecordsEvents.InitFrameCode:
+            forwardToView(view, event);
+            break;
+        case BrowseRecordsEvents.InitSearchContainerCode:
+            forwardToView(view, event);
+            break;
+        case BrowseRecordsEvents.CreateForeignKeyViewCode:
+            onCreateForeignKeyView(event);
+            break;
+        case BrowseRecordsEvents.SelectForeignKeyViewCode:
+            onSelectForeignKeyView(event);
+            break;
+        case BrowseRecordsEvents.ViewItemCode:
+            onViewItem(event);
+            break;
+        case BrowseRecordsEvents.ViewForeignKeyCode:
+            onViewForeignKey(event);
+            break;
+        case BrowseRecordsEvents.SaveItemCode:
+            onSaveItem(event);
+            break;
+        case BrowseRecordsEvents.UpdatePolymorphismCode:
+            forwardToView(view, event);
+            break;
+        case BrowseRecordsEvents.ExecuteVisibleRuleCode:
+            onExecuteVisibleRule(event);
+            break;
+        default:
+            break;
         }
     }
 
@@ -100,60 +121,59 @@ public class BrowseRecordsController extends Controller {
         final Boolean isCreate = event.getData("isCreate"); //$NON-NLS-1$
         final Boolean isClose = event.getData("isClose"); //$NON-NLS-1$
         final ItemDetailToolBar detailToolBar = event.getData("itemDetailToolBar"); //$NON-NLS-1$
-        service.saveItem(itemBean.getConcept(), itemBean.getIds(), CommonUtil.toXML(model, viewBean), isCreate, Locale
-                .getLanguage(), new SessionAwareAsyncCallback<ItemResult>() {
+        service.saveItem(itemBean.getConcept(), itemBean.getIds(), CommonUtil.toXML(model, viewBean), isCreate,
+                Locale.getLanguage(), new SessionAwareAsyncCallback<ItemResult>() {
 
-            @Override
-            protected void doOnFailure(Throwable caught) {
-                String err = caught.getMessage();
-                if (err != null) {
-                    if (err.indexOf("ERROR_3:") == 0) { //$NON-NLS-1$
-                        // add for before saving transformer check
-                        MessageBox.alert(MessagesFactory.getMessages().error_title(), err.substring(8), null);
-                    } else
-                        MessageBox.alert(MessagesFactory.getMessages().error_title(), CommonUtil.pickOutISOMessage(err), null);
-                } else
-                    super.doOnFailure(caught);
-            }
-
-
-
-            public void onSuccess(ItemResult result) {
-                MessageBox msgBox = null;
-                if (result.getDescription() != "")//$NON-NLS-1$
-                    msgBox = MessageBox.info(MessagesFactory.getMessages().info_title(), result.getDescription(), null);
-                else
-                    msgBox = MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
-                            .save_success(),
-                            null);
-                setTimeout(msgBox, 1000);
-
-                if (!detailToolBar.isOutMost() && (isClose || isCreate))
-                    ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
-
-                if (isClose) {
-                    if (detailToolBar.isOutMost())
-                        detailToolBar.closeOutTabPanel();
-                    // else
-                    // ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
-                } else {
-                    if (detailToolBar.isOutMost()){
-                        TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(itemBean.getConcept());
-                        String tabText = typeModel.getLabel(Locale.getLanguage()) + " " + result.getReturnValue(); //$NON-NLS-1$
-                        detailToolBar.updateOutTabPanel(tabText);
-
-                        if (ItemsMainTabPanel.getInstance().getDefaultViewTabItem() != null
-                                && ItemsMainTabPanel.getInstance().getDefaultViewTabItem().getFirstTabWidget() instanceof ItemPanel) {
-                            ItemPanel mainPanel = (ItemPanel) ItemsMainTabPanel.getInstance().getDefaultViewTabItem()
-                                    .getFirstTabWidget();
-                            mainPanel.refreshTree();
-                        }
+                    @Override
+                    protected void doOnFailure(Throwable caught) {
+                        String err = caught.getMessage();
+                        if (err != null) {
+                            if (err.indexOf("ERROR_3:") == 0) { //$NON-NLS-1$
+                                // add for before saving transformer check
+                                MessageBox.alert(MessagesFactory.getMessages().error_title(), err.substring(8), null);
+                            } else
+                                MessageBox.alert(MessagesFactory.getMessages().error_title(), CommonUtil.pickOutISOMessage(err),
+                                        null);
+                        } else
+                            super.doOnFailure(caught);
                     }
-                    detailToolBar.refreshTreeDetailByIds(result.getReturnValue());
-                }
-                ItemsListPanel.getInstance().refreshGrid();
-            }
-        });
+
+                    public void onSuccess(ItemResult result) {
+                        MessageBox msgBox = null;
+                        if (result.getDescription() != "")//$NON-NLS-1$
+                            msgBox = MessageBox.info(MessagesFactory.getMessages().info_title(), result.getDescription(), null);
+                        else
+                            msgBox = MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
+                                    .save_success(), null);
+                        setTimeout(msgBox, 1000);
+
+                        if (!detailToolBar.isOutMost() && (isClose || isCreate))
+                            ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
+
+                        if (isClose) {
+                            if (detailToolBar.isOutMost())
+                                detailToolBar.closeOutTabPanel();
+                            // else
+                            // ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
+                        } else {
+                            if (detailToolBar.isOutMost()) {
+                                TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes()
+                                        .get(itemBean.getConcept());
+                                String tabText = typeModel.getLabel(Locale.getLanguage()) + " " + result.getReturnValue(); //$NON-NLS-1$
+                                detailToolBar.updateOutTabPanel(tabText);
+
+                                if (ItemsMainTabPanel.getInstance().getDefaultViewTabItem() != null
+                                        && ItemsMainTabPanel.getInstance().getDefaultViewTabItem().getFirstTabWidget() instanceof ItemPanel) {
+                                    ItemPanel mainPanel = (ItemPanel) ItemsMainTabPanel.getInstance().getDefaultViewTabItem()
+                                            .getFirstTabWidget();
+                                    mainPanel.refreshTree();
+                                }
+                            }
+                            detailToolBar.refreshTreeDetailByIds(result.getReturnValue());
+                        }
+                        ItemsListPanel.getInstance().refreshGrid();
+                    }
+                });
     }
 
     private native void setTimeout(MessageBox msgBox, int millisecond)/*-{
@@ -196,17 +216,18 @@ public class BrowseRecordsController extends Controller {
         ItemBean item = (ItemBean) event.getData();
         if (item != null) {
             EntityModel entityModel = (EntityModel) BrowseRecords.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
-            ViewBean viewbean = (ViewBean)BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
-            service.getItem(item,viewbean.getViewPK(),entityModel, Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBean>() {
+            ViewBean viewbean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
+            service.getItem(item, viewbean.getViewPK(), entityModel, Locale.getLanguage(),
+                    new SessionAwareAsyncCallback<ItemBean>() {
 
-                public void onSuccess(ItemBean result) {
-                    AppEvent ae = new AppEvent(event.getType(), result);
-                    String itemsFormTarget = event.getData(BrowseRecordsView.ITEMS_FORM_TARGET);
-                    if (itemsFormTarget != null)
-                        ae.setData(BrowseRecordsView.ITEMS_FORM_TARGET, itemsFormTarget);
-                    forwardToView(view, ae);
-                }
-            });
+                        public void onSuccess(ItemBean result) {
+                            AppEvent ae = new AppEvent(event.getType(), result);
+                            String itemsFormTarget = event.getData(BrowseRecordsView.ITEMS_FORM_TARGET);
+                            if (itemsFormTarget != null)
+                                ae.setData(BrowseRecordsView.ITEMS_FORM_TARGET, itemsFormTarget);
+                            forwardToView(view, ae);
+                        }
+                    });
         }
     }
 
