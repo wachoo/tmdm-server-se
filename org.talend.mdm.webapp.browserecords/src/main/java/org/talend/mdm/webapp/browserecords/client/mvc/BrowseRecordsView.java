@@ -80,26 +80,20 @@ public class BrowseRecordsView extends View {
 
     @Override
     protected void handleEvent(AppEvent event) {
-        if (event.getType() == BrowseRecordsEvents.InitFrame) {
-            onInitFrame(event);
-        } else if (event.getType() == BrowseRecordsEvents.InitSearchContainer) {
-            onInitSearchContainer(event);
-        } else if (event.getType() == BrowseRecordsEvents.GetView) {
-            onGetView(event);
-        } else if (event.getType() == BrowseRecordsEvents.SearchView) {
-            onSearchView(event);
-        } else if (event.getType() == BrowseRecordsEvents.CreateForeignKeyView) {
-            onCreateForeignKeyView(event);
-        } else if (event.getType() == BrowseRecordsEvents.SelectForeignKeyView) {
-            onSelectForeignKeyView(event);
-        } else if (event.getType() == BrowseRecordsEvents.ViewItem) {
-            onViewItem(event);
-        } else if (event.getType() == BrowseRecordsEvents.ViewForeignKey) {
-            onViewForeignKey(event);
-        } else if (event.getType() == BrowseRecordsEvents.UpdatePolymorphism) {
-            onUpdatePolymorphism(event);
-        } else if (event.getType() == BrowseRecordsEvents.ExecuteVisibleRule) {
-            onExecuteVisibleRule(event);
+        int eventTypeCode = event.getType().getEventCode();
+        switch(eventTypeCode)
+        {
+        case BrowseRecordsEvents.InitFrameCode: onInitFrame(event); break;
+        case BrowseRecordsEvents.InitSearchContainerCode: onInitSearchContainer(event); break;
+        case BrowseRecordsEvents.GetViewCode: onGetView(event);break;
+        case BrowseRecordsEvents.SearchViewCode: onSearchView(event); break;
+        case BrowseRecordsEvents.CreateForeignKeyViewCode: onCreateForeignKeyView(event); break;
+        case BrowseRecordsEvents.SelectForeignKeyViewCode: onSelectForeignKeyView(event); break;
+        case BrowseRecordsEvents.ViewItemCode: onViewItem(event); break;
+        case BrowseRecordsEvents.ViewForeignKeyCode: onViewForeignKey(event); break;
+        case BrowseRecordsEvents.UpdatePolymorphismCode: onUpdatePolymorphism(event); break;
+        case BrowseRecordsEvents.ExecuteVisibleRuleCode: onExecuteVisibleRule(event); break;
+        default: break;
         }
     }
 

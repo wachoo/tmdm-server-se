@@ -74,29 +74,21 @@ public class BrowseRecordsController extends Controller {
 
     @Override
     public void handleEvent(AppEvent event) {
-        EventType type = event.getType();
-        if (type == BrowseRecordsEvents.GetView) {
-            onGetView(event);
-        } else if (event.getType() == BrowseRecordsEvents.SearchView) {
-            onSearchView(event);
-        } else if (type == BrowseRecordsEvents.InitFrame) {
-            forwardToView(view, event);
-        } else if (type == BrowseRecordsEvents.InitSearchContainer) {
-            forwardToView(view, event);
-        } else if (type == BrowseRecordsEvents.CreateForeignKeyView) {
-            onCreateForeignKeyView(event);
-        } else if (type == BrowseRecordsEvents.SelectForeignKeyView) {
-            onSelectForeignKeyView(event);
-        } else if (type == BrowseRecordsEvents.ViewItem) {
-            onViewItem(event);
-        } else if (type == BrowseRecordsEvents.ViewForeignKey) {
-            onViewForeignKey(event);
-        } else if (type == BrowseRecordsEvents.SaveItem) {
-            onSaveItem(event);
-        } else if (type == BrowseRecordsEvents.UpdatePolymorphism) {
-            forwardToView(view, event);
-        } else if (type == BrowseRecordsEvents.ExecuteVisibleRule) {
-            onExecuteVisibleRule(event);
+        int eventTypeCode = event.getType().getEventCode();
+        switch(eventTypeCode)
+        {
+        case BrowseRecordsEvents.GetViewCode: onGetView(event); break;
+        case BrowseRecordsEvents.SearchViewCode: onSearchView(event); break;
+        case BrowseRecordsEvents.InitFrameCode: forwardToView(view, event); break;
+        case BrowseRecordsEvents.InitSearchContainerCode: forwardToView(view, event); break;
+        case BrowseRecordsEvents.CreateForeignKeyViewCode: onCreateForeignKeyView(event); break;
+        case BrowseRecordsEvents.SelectForeignKeyViewCode: onSelectForeignKeyView(event); break;
+        case BrowseRecordsEvents.ViewItemCode: onViewItem(event); break;
+        case BrowseRecordsEvents.ViewForeignKeyCode: onViewForeignKey(event); break;
+        case BrowseRecordsEvents.SaveItemCode: onSaveItem(event); break;
+        case BrowseRecordsEvents.UpdatePolymorphismCode: forwardToView(view, event); break;
+        case BrowseRecordsEvents.ExecuteVisibleRuleCode: onExecuteVisibleRule(event); break;
+        default: break;
         }
     }
 
