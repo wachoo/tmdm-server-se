@@ -48,9 +48,7 @@ public class BreadCrumb extends Composite {
         if (pWidget != null) {
             String title;
             if (label != null) {
-                if (pkInfo != null)
-                    title = label + " " + pkInfo; //$NON-NLS-1$
-                else if (ids != null)
+                if (ids != null)
                     title = label + " " + ids; //$NON-NLS-1$
                 else
                     title = label;
@@ -69,9 +67,7 @@ public class BreadCrumb extends Composite {
         HTML h = null;
         String title;
         if (label != null) {
-            if (pkInfo != null)
-                title = label + " " + pkInfo; //$NON-NLS-1$
-            else if (ids != null)
+            if (ids != null)
                 title = label + " " + ids; //$NON-NLS-1$
             else
                 title = label;
