@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.util;
 
-import com.extjs.gxt.ui.client.GXT;
 
 /**
  * DOC HSHU class global comment. Detailled comment
@@ -42,15 +41,8 @@ public class LabelUtil {
         }
     }
     
-    public static String convertSpecialHTMLCharacter(String label){
-        return convertSpecialHTMLCharacterByBrowser(label, GXT.isIE);
-    }
-
-    public static String convertSpecialHTMLCharacterByBrowser(String label, boolean isIE) {
-        if (!isIE)
-            label = label.replaceAll("'", "&apos;"); //$NON-NLS-1$//$NON-NLS-2$
-        else
-            label = label.replaceAll("'", "&#39;"); //$NON-NLS-1$ //$NON-NLS-2$
+    public static String convertSpecialHTMLCharacter(String label) {
+        label = label.replaceAll("'", "&#39;"); //$NON-NLS-1$ //$NON-NLS-2$
         label = label.replaceAll("\"", "&quot;"); //$NON-NLS-1$//$NON-NLS-2$
         return label;
     }
