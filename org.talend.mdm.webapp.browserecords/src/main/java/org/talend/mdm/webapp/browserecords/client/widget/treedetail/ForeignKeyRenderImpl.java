@@ -27,27 +27,30 @@ import com.google.gwt.user.client.ui.TreeItem;
 
 public class ForeignKeyRenderImpl implements ForeignKeyRender {
 
-	HashMap<ItemNodeModel, ItemDetailTabPanelContentHandle> relationFk = new HashMap<ItemNodeModel, ItemDetailTabPanelContentHandle>();
+    HashMap<ItemNodeModel, ItemDetailTabPanelContentHandle> relationFk = new HashMap<ItemNodeModel, ItemDetailTabPanelContentHandle>();
 
     BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
-    
+
     public ForeignKeyRenderImpl() {
-        
+
     }
 
     public void RenderForeignKey(final ItemNodeModel parentModel, final List<ItemNodeModel> fkNodeModelList,
-            final TypeModel fkTypeModel, final ItemDetailToolBar toolBar, final ViewBean pkViewBean, final ContentPanel cp, final ItemsDetailPanel detailPanel) {
+            final TypeModel fkTypeModel, final ItemDetailToolBar toolBar, final ViewBean pkViewBean, final ContentPanel cp,
+            final ItemsDetailPanel detailPanel) {
         if (fkNodeModelList != null) {
             String concept = fkTypeModel.getForeignkey().split("/")[0]; //$NON-NLS-1$
 
             final Map<String, Field<?>> fieldMap;
             TreeItem root;
             if (cp instanceof TreeDetail) {
-                fieldMap = ((TreeDetail) cp).getFieldMap();
-                root = ((TreeDetail) cp).getTree().getItem(0);
+                TreeDetail treeDetail = (TreeDetail) cp;
+                fieldMap = treeDetail.getFieldMap();
+                root = treeDetail.getTree().getItem(0);
             } else {
-                fieldMap = ((ForeignKeyTreeDetail) cp).getFieldMap();
-                root = ((ForeignKeyTreeDetail) cp).getRoot();
+                ForeignKeyTreeDetail fkTreeDetail = (ForeignKeyTreeDetail) cp;
+                fieldMap = fkTreeDetail.getFieldMap();
+                root = fkTreeDetail.getRoot();
             }
             final ForeignKeyTablePanel fkPanel = new ForeignKeyTablePanel();
 
@@ -55,24 +58,21 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
                     detailPanel);
             itemPanel.getToolBar().setOutMost(toolBar.isOutMost());
             String xpathLabel = ForeignKeyUtil.transferXpathToLabel(parentModel) + fkTypeModel.getLabel(UrlUtil.getLanguage());
-            ItemDetailTabPanelContentHandle handle = detailPanel.addTabItem(xpathLabel, itemPanel, ItemsDetailPanel.MULTIPLE, GWT
-                    .getModuleName()
-                    + DOM.createUniqueId());
+            ItemDetailTabPanelContentHandle handle = detailPanel.addTabItem(xpathLabel, itemPanel, ItemsDetailPanel.MULTIPLE,
+                    GWT.getModuleName() + DOM.createUniqueId());
             relationFk.put(parentModel, handle);
             service.getEntityModel(concept, Locale.getLanguage(), new SessionAwareAsyncCallback<EntityModel>() {
 
                 public void onSuccess(EntityModel entityModel) {
-                    fkPanel
-                            .initContent(entityModel, parentModel, fkNodeModelList, fkTypeModel, fieldMap, detailPanel,
-                                    pkViewBean);
+                    fkPanel.initContent(entityModel, parentModel, fkNodeModelList, fkTypeModel, fieldMap, detailPanel, pkViewBean);
                     fkPanel.layout(true);
                 }
             });
         }
     }
-    
-    public void removeRelationFkPanel(ItemNodeModel parentModel){
-    	ItemDetailTabPanelContentHandle tabItem = relationFk.get(parentModel);
+
+    public void removeRelationFkPanel(ItemNodeModel parentModel) {
+        ItemDetailTabPanelContentHandle tabItem = relationFk.get(parentModel);
         if (tabItem != null) {
             tabItem.deleteContent();
             relationFk.remove(parentModel);

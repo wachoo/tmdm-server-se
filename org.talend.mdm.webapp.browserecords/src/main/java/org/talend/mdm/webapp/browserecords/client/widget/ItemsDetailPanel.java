@@ -35,8 +35,6 @@ import com.google.gwt.dom.client.Style.Overflow;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -156,8 +154,8 @@ public class ItemsDetailPanel extends ContentPanel {
         String toolTipString = ""; //$NON-NLS-1$
         if (desc != null && !desc.equals("")) { //$NON-NLS-1$
             toolTipString = "<img style='margin-left:16px;' " + //$NON-NLS-1$
-                    "src='/talendmdm/secure/img/genericUI/information_icon.gif' title='"
-                    + LabelUtil.convertSpecialHTMLCharacter(desc) + "'/>"; //$NON-NLS-1$ //$NON-NLS-2$
+                    "src='/talendmdm/secure/img/genericUI/information_icon.gif' title='" //$NON-NLS-1$
+                    + LabelUtil.convertSpecialHTMLCharacter(desc) + "'/>"; //$NON-NLS-1$ 
         }
         if (xpathList != null && xpathList.size() > 0) {
             int i = 1;

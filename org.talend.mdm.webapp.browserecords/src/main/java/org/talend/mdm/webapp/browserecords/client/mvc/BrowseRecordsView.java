@@ -196,7 +196,7 @@ public class BrowseRecordsView extends View {
                     itemsDetailPanel, itemIds);
 
         } else {
-            // Open in default tab in ItemsMainTabPanel, which may ormay not already exist
+            // Open in default tab in ItemsMainTabPanel, which may or may not already exist
 
             TabItem defaultTabItem = itemsMainTabPanel.getItemByItemId(DEFAULT_ITEMVIEW);
 

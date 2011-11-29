@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -161,13 +162,14 @@ public class TreeDetail extends ContentPanel {
         if (itemBean == null) {
             buildPanel();
         } else {
-            getItemService().getItemNodeModel(itemBean, viewBean.getBindingEntityModel(), Locale.getLanguage(),
+            final BrowseRecordsServiceAsync itemService = getItemService();
+            itemService.getItemNodeModel(itemBean, viewBean.getBindingEntityModel(), Locale.getLanguage(),
                     new SessionAwareAsyncCallback<ItemNodeModel>() {
 
                         public void onSuccess(ItemNodeModel node) {
                             renderTree(node, operation);
                             if (node.isHasVisiblueRule()) {
-                                getItemService().executeVisibleRule(CommonUtil.toXML(node, TreeDetail.this.viewBean),
+                                itemService.executeVisibleRule(CommonUtil.toXML(node, TreeDetail.this.viewBean),
                                         new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
 
                                             public void onSuccess(List<VisibleRuleResult> arg0) {
@@ -214,7 +216,8 @@ public class TreeDetail extends ContentPanel {
         if (item == null) {
             item = new DynamicTreeItem();
             item.setItemNodeModel(itemNode);
-            if (itemNode.getRealType() != null && itemNode.getRealType().trim().length() > 0) {
+            String itemRealType = itemNode.getRealType();
+            if (itemRealType != null && itemRealType.trim().length() > 0) {
                 item.setState(true);
             }
             if (ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {
@@ -227,24 +230,32 @@ public class TreeDetail extends ContentPanel {
             }
             item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, fieldMap, handler, operation, itemsDetailPanel));
         }
-        if (itemNode.getChildren() != null && itemNode.getChildren().size() > 0) {
+
+        List<ModelData> itemNodeChildren = itemNode.getChildren();
+        Map<String, TypeModel> metaDataTypes = viewBean.getBindingEntityModel().getMetaDataTypes();
+        if (itemNodeChildren != null && itemNodeChildren.size() > 0) {
             final Map<TypeModel, List<ItemNodeModel>> fkMap = new LinkedHashMap<TypeModel, List<ItemNodeModel>>();
-            for (ModelData model : itemNode.getChildren()) {
+            for (ModelData model : itemNodeChildren) {
                 ItemNodeModel node = (ItemNodeModel) model;
-                TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath());
-                if (withDefaultValue && typeModel.getDefaultValue() != null
-                        && (node.getObjectValue() == null || node.getObjectValue().equals(""))) //$NON-NLS-1$
-                    node.setObjectValue(typeModel.getDefaultValue());
-                if (typeModel.getForeignkey() != null) {
+                Serializable nodeObjectValue = node.getObjectValue();
+                String nodeBindingPath = node.getBindingPath();
+
+                TypeModel typeModel = metaDataTypes.get(nodeBindingPath);
+                String typeModelFK = typeModel.getForeignkey();
+                String typeModelDefaultValue = typeModel.getDefaultValue();
+                if (withDefaultValue && typeModelDefaultValue != null
+                        && (nodeObjectValue == null || nodeObjectValue.equals(""))) //$NON-NLS-1$
+                    node.setObjectValue(typeModelDefaultValue);
+                if (typeModelFK != null) {
                     if (!fkMap.containsKey(typeModel)) {
                         fkMap.put(typeModel, new ArrayList<ItemNodeModel>());
                     }
                     fkMap.get(typeModel).add(node);
-                } else if (typeModel.getForeignkey() == null) {
+                } else if (typeModelFK == null) {
                     TreeItem childItem = buildGWTTree(node, null, withDefaultValue, operation);
                     item.addItem(childItem);
                     int count = 0;
-                    CountMapItem countMapItem = new CountMapItem(node.getBindingPath(), itemNode);
+                    CountMapItem countMapItem = new CountMapItem(nodeBindingPath, itemNode);
                     if (occurMap.containsKey(countMapItem))
                         count = occurMap.get(countMapItem);
                     occurMap.put(countMapItem, count + 1);
