@@ -23,9 +23,9 @@ public class RoutingConditionTestCase extends TestCase {
 
     private static String compileCondition(String condition) {
         String compiled = condition;
-        compiled = compiled.replaceAll("(\\s+)([aA][nN][dD])(\\s+|\\(*)", "$1&&$3"); //$NON-NLS-1$ //$NON-NLS-2$
-        compiled = compiled.replaceAll("(\\s+)([oO][rR])(\\s+|\\(*)", "$1||$3"); //$NON-NLS-1$//$NON-NLS-2$
-        compiled = compiled.replaceAll("(\\s+)([n|N][oO][tT])(\\s+|\\(*)", "$1!$3"); //$NON-NLS-1$ //$NON-NLS-2$
+        compiled = compiled.replaceAll("(\\s+)([aA][nN][dD])(\\s+|\\(+)", "$1&&$3"); //$NON-NLS-1$ //$NON-NLS-2$
+        compiled = compiled.replaceAll("(\\s+)([oO][rR])(\\s+|\\(+)", "$1||$3"); //$NON-NLS-1$//$NON-NLS-2$
+        compiled = compiled.replaceAll("(\\s+)([nN][oO][tT])(\\s+|\\(+)", "$1!$3"); //$NON-NLS-1$ //$NON-NLS-2$
 
         return compiled;
     }
@@ -43,7 +43,6 @@ public class RoutingConditionTestCase extends TestCase {
         condition = compileCondition(condition);
         assertEquals("(C1 && C2) || C3", condition);
 
-
         condition = "C1 and (C2 OR C3)";
         condition = compileCondition(condition);
         assertEquals("C1 && (C2 || C3)", condition);
@@ -60,6 +59,9 @@ public class RoutingConditionTestCase extends TestCase {
         condition = compileCondition(condition);
         assertEquals("Noth && (C2 || sort)", condition);
 
+        condition = "workflow and andsave and notgood";
+        condition = compileCondition(condition);
+        assertEquals("workflow && andsave && notgood", condition);
     }
 
 }

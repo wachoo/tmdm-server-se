@@ -393,9 +393,9 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject {
     
     private static String compileCondition(String condition) {
         String compiled = condition;
-        compiled = compiled.replaceAll("(\\s+)([aA][nN][dD])(\\s+|\\(*)", "$1&&$3"); //$NON-NLS-1$ //$NON-NLS-2$
-        compiled = compiled.replaceAll("(\\s+)([oO][rR])(\\s+|\\(*)", "$1||$3"); //$NON-NLS-1$//$NON-NLS-2$
-        compiled = compiled.replaceAll("(\\s+)([n|N][oO][tT])(\\s+|\\(*)", "$1!$3"); //$NON-NLS-1$ //$NON-NLS-2$
+        compiled = compiled.replaceAll("(\\s+)([aA][nN][dD])(\\s+|\\(+)", "$1&&$3"); //$NON-NLS-1$ //$NON-NLS-2$
+        compiled = compiled.replaceAll("(\\s+)([oO][rR])(\\s+|\\(+)", "$1||$3"); //$NON-NLS-1$//$NON-NLS-2$
+        compiled = compiled.replaceAll("(\\s+)([nN][oO][tT])(\\s+|\\(+)", "$1!$3"); //$NON-NLS-1$ //$NON-NLS-2$
 
         return compiled;
     }
