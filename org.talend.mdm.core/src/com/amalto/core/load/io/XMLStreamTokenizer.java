@@ -13,8 +13,7 @@ package com.amalto.core.load.io;
 
 import org.apache.log4j.Logger;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Enumeration;
 
 /**
@@ -52,7 +51,7 @@ public class XMLStreamTokenizer implements Enumeration<String> {
 
     private final ResettableStringWriter stringWriter = new ResettableStringWriter();
 
-    private final InputStream inputStream;
+    private final Reader inputStream;
 
     private String currentNextElement;
 
@@ -61,7 +60,11 @@ public class XMLStreamTokenizer implements Enumeration<String> {
     private int previousCharacter;
 
     public XMLStreamTokenizer(InputStream inputStream) {
-        this.inputStream = inputStream;
+        this.inputStream = new InputStreamReader(inputStream);
+    }
+
+    public XMLStreamTokenizer(InputStream inputStream, String encoding) throws UnsupportedEncodingException {
+        this.inputStream = new InputStreamReader(inputStream, encoding);
     }
 
     public boolean hasMoreElements() {
@@ -86,7 +89,7 @@ public class XMLStreamTokenizer implements Enumeration<String> {
             boolean isEndElement = false;
             boolean isProcessingInstruction = false;
             String currentElementName = "";
-            boolean  lockElementName = false;
+            boolean lockElementName = false;
             int currentLevel = 0;
 
             while (!isFragmentComplete && (read = inputStream.read()) > 0) {
