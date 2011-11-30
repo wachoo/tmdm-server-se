@@ -47,8 +47,6 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.core.EDBType;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -59,6 +57,7 @@ import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.client.model.SubTypeBean;
 import org.talend.mdm.webapp.base.server.BaseConfiguration;
+import org.talend.mdm.webapp.base.server.ForeignKeyHelper;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsService;
@@ -122,7 +121,6 @@ import com.amalto.webapp.util.webservices.WSExistsItem;
 import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
 import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.amalto.webapp.util.webservices.WSGetItem;
-import com.amalto.webapp.util.webservices.WSGetItemsByCustomFKFilters;
 import com.amalto.webapp.util.webservices.WSGetTransformer;
 import com.amalto.webapp.util.webservices.WSGetTransformerPKs;
 import com.amalto.webapp.util.webservices.WSGetView;
@@ -171,8 +169,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             "org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages", BrowseRecordsAction.class.getClassLoader()); //$NON-NLS-1$
 
     private static final Pattern extractIdPattern = Pattern.compile("\\[.*?\\]"); //$NON-NLS-1$
-
-    private static final Pattern TOTAL_COUNT_PATTERN = Pattern.compile("<totalCount>(.*)</totalCount>"); //$NON-NLS-1$
 
     public String deleteItemBean(ItemBean item, boolean override, String language) throws ServiceException {
         try {
@@ -282,155 +278,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,
             String dataClusterPK, boolean ifFKFilter, String value) throws ServiceException {
-        String xpathForeignKey = model.getForeignkey();
-        if (xpathForeignKey == null) {
-            return null;
-        }
-
-        // to verify
-        String xpathInfoForeignKey = model.getForeignKeyInfo().toString().replaceAll("\\[", "").replaceAll("\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-        // in search panel, the fkFilter is empty
-        String fkFilter;
-        if (ifFKFilter)
-            fkFilter = model.getFkFilter().replaceAll("&quot;", "\""); //$NON-NLS-1$ //$NON-NLS-2$
-        else
-            fkFilter = ""; //$NON-NLS-1$
-
-        List<ForeignKeyBean> fkBeans = new ArrayList<ForeignKeyBean>();
-        String[] results;
-
         try {
-            String initxpathForeignKey = ""; //$NON-NLS-1$
-            initxpathForeignKey = com.amalto.webapp.core.util.Util.getForeignPathFromPath(xpathForeignKey);
-
-            WSWhereCondition whereCondition = com.amalto.webapp.core.util.Util.getConditionFromPath(xpathForeignKey);
-            WSWhereItem whereItem = null;
-            if (whereCondition != null) {
-                whereItem = new WSWhereItem(whereCondition, null, null);
-            }
-
-            if (!com.amalto.webapp.core.util.Util.isCustomFilter(fkFilter)) {
-                // get FK filter
-                WSWhereItem fkFilterWi = com.amalto.webapp.core.util.Util.getConditionFromFKFilter(xpathForeignKey,
-                        xpathInfoForeignKey, fkFilter);
-                if (fkFilterWi != null)
-                    whereItem = fkFilterWi;
-            }
-
-            initxpathForeignKey = initxpathForeignKey.split("/")[0]; //$NON-NLS-1$
-
-            if (xpathInfoForeignKey == null)
-                xpathInfoForeignKey = ""; //$NON-NLS-1$
-
-            // foreign key set by business concept
-            if (initxpathForeignKey.split("/").length == 1) { //$NON-NLS-1$
-                // determine if we have xPath Infos: e.g. labels to display
-                String[] xpathInfos = new String[1];
-                if (xpathInfoForeignKey.length() != 0) {
-                    xpathInfos = xpathInfoForeignKey.split(","); //$NON-NLS-1$
-                } else {
-                    xpathInfos[0] = initxpathForeignKey;
-                }
-                value = value == null ? "" : value; //$NON-NLS-1$
-
-                // build query - add a content condition on the pivot if we search for a particular value
-                if (value != null && !"".equals(value.trim()) && !".*".equals(value.trim())) { //$NON-NLS-1$ //$NON-NLS-2$
-                    List<WSWhereItem> condition = new ArrayList<WSWhereItem>();
-                    if (whereItem != null) {
-                        condition.add(whereItem);
-                    }
-                    String strConcept = initxpathForeignKey + "/../* CONTAINS "; //$NON-NLS-1$
-                    WSWhereItem wc = com.amalto.webapp.core.util.Util.buildWhereItem(strConcept + value);
-                    condition.add(wc);
-                    WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
-                    WSWhereItem whand = new WSWhereItem(null, and, null);
-                    if (whand != null)
-                        whereItem = whand;
-                }
-
-                // add the xPath Infos Path
-                ArrayList<String> xPaths = new ArrayList<String>();
-                if (model.isRetrieveFKinfos())
-                    // add the xPath Infos Path
-                    for (String xpathInfo : xpathInfos) {
-                        xPaths.add(Util.getFormatedFKInfo(xpathInfo.replaceFirst(initxpathForeignKey, initxpathForeignKey),
-                                initxpathForeignKey));
-                    }
-                // add the key paths last, since there may be multiple keys
-                xPaths.add(initxpathForeignKey + "/../../i"); //$NON-NLS-1$
-                // order by
-                String orderbyPath = null;
-                if (!MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
-                    if (xpathInfoForeignKey.length() != 0) {
-                        orderbyPath = com.amalto.webapp.core.util.Util.getFormatedFKInfo(
-                                xpathInfos[0].replaceFirst(initxpathForeignKey, initxpathForeignKey), initxpathForeignKey);
-                    }
-                }
-
-                // Run the query
-                if (!com.amalto.webapp.core.util.Util.isCustomFilter(fkFilter)) {
-                    results = CommonUtil
-                            .getPort()
-                            .xPathsSearch(
-                                    new WSXPathsSearch(new WSDataClusterPK(dataClusterPK), null, new WSStringArray(xPaths
-                                            .toArray(new String[xPaths.size()])), whereItem, -1, config.getOffset(), config
-                                            .getLimit(), orderbyPath, null, true)).getStrings();
-                } else {
-                    String injectedXpath = com.amalto.webapp.core.util.Util.getInjectedXpath(fkFilter);
-                    results = CommonUtil
-                            .getPort()
-                            .getItemsByCustomFKFilters(
-                                    new WSGetItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), initxpathForeignKey,
-                                            new WSStringArray(xPaths.toArray(new String[xPaths.size()])), injectedXpath, config
-                                                    .getOffset(), config.getLimit(), orderbyPath, null, true, whereItem))
-                            .getStrings();
-                }
-            } else
-                results = null;
-
-            String fk = model.getForeignkey().split("/")[0]; //$NON-NLS-1$
-            if (results != null) {
-                for (int currentResult = 1; currentResult < results.length; currentResult++) {
-                    if (results[currentResult] == null) {
-                        // Ignore null results.
-                        continue;
-                    }
-                    Element resultAsDOM = Util.parse(results[currentResult]).getDocumentElement();
-
-                    ForeignKeyBean bean = new ForeignKeyBean();
-                    BusinessConcept businessConcept = SchemaWebAgent.getInstance().getBusinessConcept(fk);
-                    if (businessConcept != null && businessConcept.getCorrespondTypeName() != null)
-                        bean.setTypeName(businessConcept.getCorrespondTypeName());
-                    String id = ""; //$NON-NLS-1$
-                    NodeList nodes = Util.getNodeList(resultAsDOM, "//i"); //$NON-NLS-1$
-                    if (nodes != null) {
-                        for (int i = 0; i < nodes.getLength(); i++) {
-                            if (nodes.item(i) instanceof Element) {
-                                id += "[" + (nodes.item(i).getTextContent() == null ? "" : nodes.item(i).getTextContent()) + "]"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$
-                            }
-                        }
-                    }
-
-                    if (resultAsDOM.getNodeName().equals("result")) { //$NON-NLS-1$
-                        initFKBean(resultAsDOM, bean, fk);
-                    } else {
-                        bean.set(resultAsDOM.getNodeName(), resultAsDOM.getTextContent().trim());
-                    }
-
-                    bean.setId(id);
-                    fkBeans.add(bean);
-                }
-            }
-
-            Matcher matcher = TOTAL_COUNT_PATTERN.matcher(results[0]);
-            String count;
-            if (matcher.matches()) {
-                count = matcher.group(1);
-            } else {
-                throw new IllegalArgumentException("Total count '" + results[0] + "' does not match expected format"); //$NON-NLS-1$ //$NON-NLS-2$
-            }
-
-            return new ItemBasePageLoadResult<ForeignKeyBean>(fkBeans, config.getOffset(), Integer.valueOf(count));
+            return ForeignKeyHelper.getForeignKeyList(config, model, dataClusterPK, ifFKFilter, value);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
@@ -530,17 +379,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             // fix bug TMDM-2757
             bean.set("foreignKeyDeleteMessage", e.getMessage()); //$NON-NLS-1$
             return bean;
-        }
-    }
-
-    private void initFKBean(Element ele, ForeignKeyBean bean, String fk) {
-        for (int i = 0; i < ele.getChildNodes().getLength(); i++) {
-            if (ele.getChildNodes().item(i) instanceof Element) {
-                Element curEle = (Element) ele.getChildNodes().item(i);
-                bean.set(curEle.getNodeName(), curEle.getTextContent().trim());
-                bean.getForeignKeyInfo().put(fk + "/" + curEle.getNodeName(), curEle.getTextContent().trim()); //$NON-NLS-1$
-                initFKBean(curEle, bean, fk);
-            }
         }
     }
 

@@ -406,12 +406,12 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             ItemResult result;
             // TODO UGLY!!!! to be refactored
             if (e.getLocalizedMessage().indexOf("routing failed:") == 0) {//$NON-NLS-1$ 
-                String saveSUCCE = "Save item '" + item.getConcept() + "."//$NON-NLS-1$ //$NON-NLS-2$ 
-                        + com.amalto.webapp.core.util.Util.joinStrings(convertIds(item.getIds()), ".")//$NON-NLS-1$
+                String saveSUCCE = "Save item '" + item.getConcept() + "."
+                        + com.amalto.webapp.core.util.Util.joinStrings(convertIds(item.getIds()), ".")
                         + "' successfully, But " + e.getLocalizedMessage();//$NON-NLS-1$ 
                 result = new ItemResult(ItemResult.FAILURE, saveSUCCE);
             } else {
-                String err = "Unable to save item '" + item.getConcept() + "."//$NON-NLS-1$ //$NON-NLS-2$ 
+                String err = "Unable to save item '" + item.getConcept() + "."
                         + com.amalto.webapp.core.util.Util.joinStrings(convertIds(item.getIds()), ".") + "'"//$NON-NLS-1$ //$NON-NLS-2$
                         + e.getLocalizedMessage();
                 if (e.getLocalizedMessage().indexOf("ERROR_3:") == 0) {//$NON-NLS-1$
@@ -419,7 +419,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 }
                 // add feature TMDM-2327 SAXException:cvc-complex-type.2.4.b message transform
                 if (e.getLocalizedMessage().indexOf("cvc-complex-type.2.4.b") != -1) { //$NON-NLS-1$
-                    err = "Unable to save item,before saving the '" + item.getConcept() + "' item,please fill the required field's contents";//$NON-NLS-1$ //$NON-NLS-2$
+                    err = "Unable to save item,before saving the '" + item.getConcept()
+                            + "' item,please fill the required field's contents";
                 }
                 result = new ItemResult(ItemResult.FAILURE, err);
             }
@@ -782,9 +783,14 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     @Override
     public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,
             String dataClusterPK, boolean ifFKFilter, String value) {
-        return ForeignKeyHelper.getForeignKeyList(config, model, dataClusterPK, ifFKFilter, value);
+        try {
+            return ForeignKeyHelper.getForeignKeyList(config, model, dataClusterPK, ifFKFilter, value);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            return null;
+        }
     }
-           
+
     @Override
     public boolean isExistCriteria(String dataObjectLabel, String id) {
         try {
@@ -825,7 +831,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             WSItemPK pk = CommonUtil.getPort().putItem(
                     new WSPutItem(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), searchTemplate
                             .marshal2String(), new WSDataModelPK(XSystemObjects.DM_SEARCHTEMPLATE.getName()), false));
-            
+
             String returnString;
             if (pk != null)
                 returnString = "OK";//$NON-NLS-1$
@@ -937,8 +943,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                                     new WSStringArray(new String[] { "BrowseItem/CriteriaName", "BrowseItem/Shared" }), wi, -1, localStart, localLimit, null, // order //$NON-NLS-1$ //$NON-NLS-2$
                                     // by
                                     null, // direction
-                                    false
-                            )).getStrings();
+                                    false)).getStrings();
             return results;
 
         } catch (XtentisWebappException e) {
