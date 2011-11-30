@@ -12,8 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.base.client.model;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 public class ForeignKeyBean extends ItemBaseModel {
@@ -82,27 +82,32 @@ public class ForeignKeyBean extends ItemBaseModel {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
         if (showInfo && foreignKeyInfo.size() != 0) {
-            Iterator<String> iterator = foreignKeyInfo.values().iterator();
-
-            while (iterator.hasNext()) {
-                sb.append(iterator.next());
-                sb.append("-"); //$NON-NLS-1$
+            StringBuilder sb = new StringBuilder();
+            Collection<String> fkInfoValues = foreignKeyInfo.values();
+            int i = 0;
+            for (String fkInfoValue : fkInfoValues) {
+                if (i > 0)
+                    sb.append('-');
+                sb.append(fkInfoValue);
+                i++;
             }
-
             return sb.toString();
         } else {
             if (this.getProperties().keySet().size() > 1) {
+                StringBuilder sb = new StringBuilder();
+                int i = 0;
                 for (String key : this.getProperties().keySet()) {
                     if (!key.equals("i")) { //$NON-NLS-1$
+                        if (i > 0)
+                            sb.append('-');
                         sb.append(this.getProperties().get(key));
-                        sb.append("-"); //$NON-NLS-1$
+                        i++;
                     }
                 }
-                return sb.toString().substring(0, sb.toString().length() - 1);
+                return sb.toString();
             } else {
-                if (getDisplayInfo() == null && foreignKeyPath == null)
+                if (getDisplayInfo() == null)
                     return getId();
                 else
                     return getDisplayInfo();
