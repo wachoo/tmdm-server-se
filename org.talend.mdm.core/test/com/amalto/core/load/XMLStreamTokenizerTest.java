@@ -163,7 +163,7 @@ public class XMLStreamTokenizerTest extends TestCase {
 
         assertEquals(4, docCount);
     }
-
+/*
     public void testNonUTF8Characters() throws Exception {
         XMLStreamTokenizer tokenizer = new XMLStreamTokenizer(this.getClass().getResourceAsStream("xmlTokenizer2.xml"), "CP1252");
 
@@ -184,4 +184,5 @@ public class XMLStreamTokenizerTest extends TestCase {
         }
         assertEquals(2, docCount);
     }
+*/
 }
