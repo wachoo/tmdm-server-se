@@ -15,17 +15,18 @@ package org.talend.mdm.webapp.base.server;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.amalto.webapp.util.webservices.WSWhereAnd;
-import com.amalto.webapp.util.webservices.WSWhereCondition;
-import com.amalto.webapp.util.webservices.WSWhereItem;
-import com.amalto.webapp.util.webservices.WSWhereOperator;
-import com.amalto.webapp.util.webservices.WSWhereOr;
 import junit.framework.TestCase;
+
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+
+import com.amalto.webapp.util.webservices.WSWhereAnd;
+import com.amalto.webapp.util.webservices.WSWhereCondition;
+import com.amalto.webapp.util.webservices.WSWhereItem;
+import com.amalto.webapp.util.webservices.WSWhereOperator;
 
 @SuppressWarnings("nls")
 public class ForeignKeyHelperTest extends TestCase {
@@ -55,20 +56,6 @@ public class ForeignKeyHelperTest extends TestCase {
         assertEquals(1, whereItems.length);
         WSWhereItem whereItem = whereItems[0];
         whereAnd = whereItem.getWhereAnd();
-        assertNull(whereAnd);
-        WSWhereOr whereOr = whereItem.getWhereOr();
-        assertNotNull(whereOr);
-        whereItems = whereOr.getWhereItems();
-        assertNotNull(whereItems);
-        assertEquals(1, whereItems.length);
-        whereItem = whereItems[0];
-        whereAnd = whereItem.getWhereAnd();
-        assertNotNull(whereAnd);
-        whereItems = whereAnd.getWhereItems();
-        assertNotNull(whereItems);
-        assertEquals(1, whereItems.length);
-        whereItem = whereItems[0];
-        whereAnd = whereItem.getWhereAnd();
         assertNotNull(whereAnd);
         whereItems = whereAnd.getWhereItems();
         assertNotNull(whereItems);
@@ -95,20 +82,6 @@ public class ForeignKeyHelperTest extends TestCase {
         assertEquals(1, whereItems.length);
         whereItem = whereItems[0];
         whereAnd = whereItem.getWhereAnd();
-        assertNull(whereAnd);
-        whereOr = whereItem.getWhereOr();
-        assertNotNull(whereOr);
-        whereItems = whereOr.getWhereItems();
-        assertNotNull(whereItems);
-        assertEquals(1, whereItems.length);
-        whereItem = whereItems[0];
-        whereAnd = whereItem.getWhereAnd();
-        assertNotNull(whereAnd);
-        whereItems = whereAnd.getWhereItems();
-        assertNotNull(whereItems);
-        assertEquals(1, whereItems.length);
-        whereItem = whereItems[0];
-        whereAnd = whereItem.getWhereAnd();
         assertNotNull(whereAnd);
         whereItems = whereAnd.getWhereItems();
         assertNotNull(whereItems);
@@ -126,20 +99,6 @@ public class ForeignKeyHelperTest extends TestCase {
         assertNotNull(result);
         assertEquals("[ProductFamily/../../i]", result.xpaths.toString());
         whereAnd = result.whereItem.getWhereAnd();
-        assertNotNull(whereAnd);
-        whereItems = whereAnd.getWhereItems();
-        assertNotNull(whereItems);
-        assertEquals(1, whereItems.length);
-        whereItem = whereItems[0];
-        whereAnd = whereItem.getWhereAnd();
-        assertNull(whereAnd);
-        whereOr = whereItem.getWhereOr();
-        assertNotNull(whereOr);
-        whereItems = whereOr.getWhereItems();
-        assertNotNull(whereItems);
-        assertEquals(1, whereItems.length);
-        whereItem = whereItems[0];
-        whereAnd = whereItem.getWhereAnd();
         assertNotNull(whereAnd);
         whereItems = whereAnd.getWhereItems();
         assertNotNull(whereItems);
