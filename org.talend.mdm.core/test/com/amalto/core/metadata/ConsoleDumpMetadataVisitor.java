@@ -32,9 +32,9 @@ class ConsoleDumpMetadataVisitor extends DefaultMetadataVisitor<Void> {
     @Override
     public Void visit(ReferenceFieldMetadata metadata) {
         if (metadata.isKey()) {
-            System.out.print("\t[Field (Complex) (Key)] " + metadata.getName());
+            System.out.print("\t[Field (FK) (Key)] " + metadata.getName());
         } else {
-            System.out.print("\t[Field (Complex)] " + metadata.getName());
+            System.out.print("\t[Field (FK -> " + metadata.getReferencedType().getName() + ")] " + metadata.getName());
         }
 
         System.out.println(" [FKIntegrity=" + metadata.isFKIntegrity() + " / FKIntegrityOverride=" + metadata.allowFKIntegrityOverride() + "]");

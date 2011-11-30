@@ -11,15 +11,11 @@
 
 package com.amalto.core.integrity;
 
+import com.amalto.core.metadata.*;
+import junit.framework.TestCase;
+
 import java.util.Collections;
 import java.util.Set;
-
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataRepository;
-import com.amalto.core.metadata.ReferenceFieldMetadata;
-import com.amalto.core.metadata.TypeMetadata;
-import junit.framework.TestCase;
 
 /**
  *
@@ -411,5 +407,11 @@ public class ForeignKeyIntegrityTest extends TestCase {
         assertEquals(FKIntegrityCheckResult.FORBIDDEN, policy);
     }
 
+    public void test15() throws Exception {
+        MetadataRepository repository = getMetadataRepository("model15.xsd");
 
+        // Check FK integrity checks following TMDM-3051
+        Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "Product");
+        assertEquals(1, references.size());
+    }
 }
