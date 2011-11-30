@@ -35,6 +35,7 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
     private final Map<String, ComplexTypeMetadata> complexTypeMetadataCache = new HashMap<String, ComplexTypeMetadata>();
 
     private String targetNamespace;
+    private final Map<String,String> complexTypeToXmlElementName = new HashMap<String, String>();
 
     public TypeMetadata getType(String name) {
         return getType(StringUtils.EMPTY, name);
@@ -105,7 +106,13 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
                     QName baseTypeName = ((XmlSchemaComplexContentExtension) content).getBaseTypeName();
                     if (!typeMetadataStack.empty()) {
                         ComplexTypeMetadata typeMetadata = typeMetadataStack.peek();
-                        typeMetadata.addSuperType(new SoftTypeRef(this, baseTypeName.getLocalPart()));
+                        // Check if base type has already been parsed (means a complex type has been visited). If no
+                        // complex type was visited, this is a direct reference to an element.
+                        String fieldTypeName = complexTypeToXmlElementName.get(baseTypeName.getLocalPart());
+                        if (fieldTypeName == null) {
+                            fieldTypeName = baseTypeName.getLocalPart();
+                        }
+                        typeMetadata.addSuperType(new SoftTypeRef(this, fieldTypeName));
                     }
                 }
             }
@@ -125,6 +132,7 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
                 createTypeMetadata(element);
             }
         } else if (element.getSchemaType() instanceof XmlSchemaComplexType) {
+            complexTypeToXmlElementName.put(element.getSchemaType().getName(), element.getName());
             createTypeMetadata(element);
         }
 
@@ -135,41 +143,43 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
         String typeName = element.getName();
         XmlSchemaType schemaType = element.getSchemaType();
 
-        ComplexTypeMetadata typeMetadata = (ComplexTypeMetadata) getType(targetNamespace, typeName);
-        if (typeMetadata == null) {
-            typeMetadata = new ComplexTypeMetadata(targetNamespace, typeName, new HashSet<TypeMetadata>());
-            addTypeMetadata(typeMetadata);
-        }
+        if (schemaType instanceof XmlSchemaComplexType) {
+            ComplexTypeMetadata typeMetadata = (ComplexTypeMetadata) getType(targetNamespace, typeName);
+            if (typeMetadata == null) {
+                typeMetadata = new ComplexTypeMetadata(targetNamespace, typeName, new HashSet<TypeMetadata>());
+                addTypeMetadata(typeMetadata);
+            }
 
-        // Find key fields for the new type
-        Set<String> idFields = new HashSet<String>();
-        XmlSchemaObjectCollection constraints = element.getConstraints();
-        Iterator constraintsIterator = constraints.getIterator();
-        while (constraintsIterator.hasNext()) {
-            Object nextConstraint = constraintsIterator.next();
-            if (nextConstraint instanceof XmlSchemaUnique) {
-                XmlSchemaUnique xmlSchemaUnique = (XmlSchemaUnique) nextConstraint;
-                XmlSchemaObjectCollection fields = xmlSchemaUnique.getFields();
-                Iterator uniqueIterator = fields.getIterator();
-                while (uniqueIterator.hasNext()) {
-                    XmlSchemaXPath idPath = (XmlSchemaXPath) uniqueIterator.next();
-                    idFields.add(idPath.getXPath());
+            // Find key fields for the new type
+            Set<String> idFields = new HashSet<String>();
+            XmlSchemaObjectCollection constraints = element.getConstraints();
+            Iterator constraintsIterator = constraints.getIterator();
+            while (constraintsIterator.hasNext()) {
+                Object nextConstraint = constraintsIterator.next();
+                if (nextConstraint instanceof XmlSchemaUnique) {
+                    XmlSchemaUnique xmlSchemaUnique = (XmlSchemaUnique) nextConstraint;
+                    XmlSchemaObjectCollection fields = xmlSchemaUnique.getFields();
+                    Iterator uniqueIterator = fields.getIterator();
+                    while (uniqueIterator.hasNext()) {
+                        XmlSchemaXPath idPath = (XmlSchemaXPath) uniqueIterator.next();
+                        idFields.add(idPath.getXPath());
+                    }
+                } else {
+                    throw new IllegalArgumentException("Constraint of type '" + nextConstraint.getClass().getName() + "' not supported.");
                 }
-            } else {
-                throw new IllegalArgumentException("Constraint of type '" + nextConstraint.getClass().getName() + "' not supported.");
             }
-        }
 
-        typeMetadataStack.push(typeMetadata);
-        {
-            typeMetadataKeyStack.push(idFields);
+            typeMetadataStack.push(typeMetadata);
             {
-                XmlSchemaWalker.walk(schemaType, this);
+                typeMetadataKeyStack.push(idFields);
+                {
+                    XmlSchemaWalker.walk(schemaType, this);
+                }
+                typeMetadataKeyStack.pop();
             }
-            typeMetadataKeyStack.pop();
+            typeMetadataStack.pop();
+            complexTypeMetadataCache.put(typeName, typeMetadata);
         }
-        typeMetadataStack.pop();
-        complexTypeMetadataCache.put(typeName, typeMetadata);
     }
 
     private FieldMetadata createFieldMetadata(XmlSchemaElement element) {
