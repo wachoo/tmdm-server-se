@@ -45,7 +45,7 @@ public class CellEditorCreator {
             if (formatDateField.isDateTime()) {
                 return new DateTimeFieldCellEditor((DateField) field);
             } else {
-                return new DateFieldCellEditor((DateField) field);
+                return new DateFieldCellEditor((FormatDateField) field);
             }
         }
 

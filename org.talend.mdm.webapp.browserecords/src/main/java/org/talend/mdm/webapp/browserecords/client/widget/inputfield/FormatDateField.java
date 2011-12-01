@@ -23,6 +23,8 @@ public class FormatDateField extends DateField {
     private String ojbectValue;
 
     private String diplayValue;
+    
+    private boolean showFormateValue;
 
     private boolean isDateTime = false;
 
@@ -56,6 +58,15 @@ public class FormatDateField extends DateField {
 
     public void setDiplayValue(String diplayValue) {
         this.diplayValue = diplayValue;
+    }
+    
+    public boolean isShowFormateValue() {
+        return showFormateValue;
+    }
+
+    
+    public void setShowFormateValue(boolean showFormateValue) {
+        this.showFormateValue = showFormateValue;
     }
 
     @Override
@@ -124,10 +135,11 @@ public class FormatDateField extends DateField {
 
                     public void onSuccess(String result) {
                         setDiplayValue(result);
-                        setRawValue(result);
+                        if (isShowFormateValue()){
+                            setRawValue(result);
+                        }                        
                     }
                 });
-
             }
             return true;
         }

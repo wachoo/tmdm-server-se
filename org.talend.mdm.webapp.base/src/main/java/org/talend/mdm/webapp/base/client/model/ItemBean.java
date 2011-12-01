@@ -34,6 +34,8 @@ public class ItemBean extends ItemBaseModel {
 
     private Map<String, Date> originalMap;
     
+    private Map<String, String> formateMap;
+    
     @Deprecated
     public ItemBean() {
     }
@@ -99,6 +101,8 @@ public class ItemBean extends ItemBaseModel {
         this.foreignkeyDesc = itemBean.foreignkeyDesc;
         setItemXml(itemBean.getItemXml());
         Collection<String> names = itemBean.getPropertyNames();
+        setOriginalMap(itemBean.getOriginalMap());
+        setFormateMap(itemBean.getFormateMap());
         for (String name : names) {
             this.set(name, itemBean.get(name));
         }
@@ -124,5 +128,15 @@ public class ItemBean extends ItemBaseModel {
     
     public void setOriginalMap(Map<String, Date> originalMap) {
         this.originalMap = originalMap;
+    }
+
+    
+    public Map<String, String> getFormateMap() {
+        return formateMap;
+    }
+
+    
+    public void setFormateMap(Map<String, String> formateMap) {
+        this.formateMap = formateMap;
     }
 }

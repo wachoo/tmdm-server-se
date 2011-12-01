@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.exception.ParserException;
@@ -506,8 +507,17 @@ public class ItemsListPanel extends ContentPanel {
                    public void onSuccess(ItemBean result) {
                         Record record = store.getRecord(itemBean);
                         itemBean.copy(result);
+                        Map<String,String> formateMap = result.getFormateMap();
+                        Set fomateKeySet = formateMap.keySet();
+                        Iterator fomatekeyIt = fomateKeySet.iterator();
+                        
+                        while (fomatekeyIt.hasNext()){
+                            String key = (String)fomatekeyIt.next();
+                            record.set(key, formateMap.get(key));  
+                            
+                        }
                         record.commit(false);
-
+                        
                         if (refreshItemForm) {
                             Dispatcher.forwardEvent(BrowseRecordsEvents.ViewItem, itemBean);
                         }

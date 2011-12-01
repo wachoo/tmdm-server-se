@@ -447,6 +447,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     public ItemBean getItem(ItemBean itemBean, String viewPK, EntityModel entityModel, String language) throws ServiceException {
         try {
+            String dateFormat = "yyyy-MM-dd"; //$NON-NLS-1$
+            String dateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss"; //$NON-NLS-1$
+            
             String dataCluster = getCurrentDataCluster();
             String dataModel = getCurrentDataModel();
             String concept = itemBean.getConcept();
@@ -464,7 +467,33 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             itemBean.set("time", wsItem.getInsertionTime()); //$NON-NLS-1$
             if (wsItem.getTaskId() != null && !"".equals(wsItem.getTaskId()) && !"null".equals(wsItem.getTaskId())) { //$NON-NLS-1$ //$NON-NLS-2$
                 itemBean.setTaskId(wsItem.getTaskId());
-            }
+            }            
+            
+            SimpleDateFormat sdf = null;
+            Map<String, String[]> formatMap = this.checkDisplayFormat(entityModel, language);
+            Set<String> keySet = formatMap.keySet();
+            for (String key : keySet) {
+                String[] value = formatMap.get(key);
+                org.dom4j.Document doc = org.talend.mdm.webapp.base.server.util.XmlUtil.parseText(itemBean.getItemXml());
+                org.dom4j.Node node = doc.selectSingleNode(key);
+                String dateText = node.getText();
+
+                if (dateText != null) {
+                    if (dateText.trim().length() != 0) {
+                        if (value[1].equalsIgnoreCase("DATE")) { //$NON-NLS-1$
+                            sdf = new SimpleDateFormat(dateFormat, java.util.Locale.ENGLISH);
+                        } else if (value[1].equalsIgnoreCase("DATETIME")) { //$NON-NLS-1$
+                            sdf = new SimpleDateFormat(dateTimeFormat, java.util.Locale.ENGLISH);
+                        }
+                        Date date = sdf.parse(dateText.trim());    
+                        itemBean.getOriginalMap().put(key, date);
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTime(date);
+                        String formatValue = com.amalto.webapp.core.util.Util.formatDate(value[0], calendar);
+                        itemBean.getFormateMap().put(key, formatValue);                       
+                    }
+                }
+            }            
 
             // dynamic Assemble
             dynamicAssemble(itemBean, entityModel, language);
@@ -723,6 +752,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             Set<String> keySet = formatMap.keySet();
             Map<String, Date> originalMap = new HashMap<String, Date>();
+            Map<String, String> formateValueMap = new HashMap<String, String>();
             SimpleDateFormat sdf = null;
 
             for (String key : keySet) {
@@ -741,6 +771,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         Calendar calendar = Calendar.getInstance();
                         calendar.setTime(date);
                         String formatValue = com.amalto.webapp.core.util.Util.formatDate(value[0], calendar);
+                        formateValueMap.put(key, formatValue);
                         Util.getNodeList(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")).item(0).setTextContent(formatValue); //$NON-NLS-1$ //$NON-NLS-2$
                     }
                 }
@@ -749,6 +780,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             ItemBean itemBean = new ItemBean(concept,
                     CommonUtil.joinStrings(idsArray, "."), Util.nodeToString(doc.getDocumentElement()));//$NON-NLS-1$
             itemBean.setOriginalMap(originalMap);
+            itemBean.setFormateMap(formateValueMap);
             if (checkSmartViewExists(concept, language))
                 itemBean.setSmartViewMode(ItemBean.SMARTMODE);
             else if (checkSmartViewExistsByOpt(concept, language))

@@ -54,6 +54,7 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -61,7 +62,6 @@ import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.ui.Widget;
 
 public class TreeDetailGridFieldCreator {
@@ -259,10 +259,13 @@ public class TreeDetailGridFieldCreator {
             field = checkBox;
         } else if (DataTypeConstants.DATE.getTypeName().equals(baseType)) {
             FormatDateField dateField = new FormatDateField();
-            if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$
+            if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$                
                 dateField.setFormatPattern(pattern);
+                dateField.setShowFormateValue(true);
             }
-            dateField.setPropertyEditor(new DateTimePropertyEditor(DateUtil.datePattern));
+                dateField.setPropertyEditor(new DateTimePropertyEditor(DateUtil.datePattern));
+                    
+            
             if (hasValue)
                 dateField.setValue(hasValue ? DateUtil.convertStringToDate(value.toString()) : null);
 
