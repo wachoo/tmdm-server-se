@@ -163,14 +163,14 @@ public class XMLStreamTokenizerTest extends TestCase {
 
         assertEquals(4, docCount);
     }
-/*
+
     public void testNonUTF8Characters() throws Exception {
         XMLStreamTokenizer tokenizer = new XMLStreamTokenizer(this.getClass().getResourceAsStream("xmlTokenizer2.xml"), "CP1252");
 
         int docCount = 0;
         while (tokenizer.hasMoreElements()) {
             String nextElement = tokenizer.nextElement();
-            assertFalse(nextElement.contains("Accès")); // Wrong encoding so should fail
+            assertFalse(nextElement.contains("Acc\u00E8s")); // Wrong encoding so should fail
             docCount++;
         }
         assertEquals(2, docCount);
@@ -179,10 +179,10 @@ public class XMLStreamTokenizerTest extends TestCase {
         docCount = 0;
         while (tokenizer.hasMoreElements()) {
             String nextElement = tokenizer.nextElement();
-            assertTrue(nextElement.contains("Accès"));  // Right encoding so should succeed
+            assertTrue(nextElement.contains("Acc\u00E8s"));  // Right encoding so should succeed
             docCount++;
         }
         assertEquals(2, docCount);
     }
-*/
+
 }
