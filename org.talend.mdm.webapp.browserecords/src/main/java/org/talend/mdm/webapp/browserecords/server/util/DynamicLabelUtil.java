@@ -137,7 +137,7 @@ public class DynamicLabelUtil {
 
         XSType xsct = null;
         org.dom4j.Element el = pathNodes.get(pos);
-        Attribute attr = el.attribute("type"); //$NON-NLS-1$
+        Attribute attr = el.attribute("xsi:type"); //$NON-NLS-1$
         String xsiType = attr == null ? null : attr.getStringValue();
         if (xsiType != null && !xsiType.equals("")) { //$NON-NLS-1$
             xsct = typeMap.get(xsiType);
