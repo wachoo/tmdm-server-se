@@ -12,21 +12,17 @@
 // ============================================================================
 package org.talend.mdm.webapp.base.client.util;
 
-import com.google.gwt.i18n.client.LocaleInfo;
-
 public class UrlUtil {
 
     public static String getLanguage() {
-        String localeName = LocaleInfo.getCurrentLocale().getLocaleName();
-        String language;
-        if (localeName.equals("default")) { //$NON-NLS-1$
-            language = getLocaleProperty();
-        } else
-            language = localeName.split("_")[0]; //$NON-NLS-1$
-        return language;
+        return getCurrentLanguage();
     }
-
-    private static native String getLocaleProperty() /*-{
+    
+    private static native String getCurrentLanguage() /*-{
+        return $wnd.language;
+    }-*/;
+        
+    public static native String getLocaleProperty() /*-{
         var metaArray = $doc.getElementsByTagName("meta");
         for (var i = 0; i < metaArray.length; i++) {
             if (metaArray[i].getAttribute("name") == "gwt:property") {
