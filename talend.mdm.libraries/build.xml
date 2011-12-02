@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="B2BOX" default="all">
+<project name="talend.mdm.libraries" default="all">
 	
 	<property name="version.props" value="version.properties"/>
 		
@@ -39,8 +39,9 @@
 	
 	<target name="deploy">
         <copy todir="${jboss.dir}" overwrite="true">
-            <fileset dir="deploy" includes="run.bat,run.sh,Talend_license.txt,TMDM-Server-MacOSX.command" />
-        </copy>		
+            <fileset dir="deploy" includes="run.bat,run.sh,run.command,Talend_license.txt" />
+        </copy>
+		
 		<copy todir="${jboss.instance.lib}" overwrite="true">
 			<fileset dir="deploy/lib"/>
 		</copy>
@@ -66,8 +67,8 @@
         </copy>
 		
 	    <copy todir="${jboss.deploy.dir}">
-	            <fileset dir="eXist" includes="${exist.version}.war/**"/>
-	        </copy>
+	        <fileset dir="eXist" includes="${exist.version}.war/**"/>
+	    </copy>
 		
     </target>
 </project>
