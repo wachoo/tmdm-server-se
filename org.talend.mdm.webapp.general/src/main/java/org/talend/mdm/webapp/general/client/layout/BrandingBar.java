@@ -90,8 +90,7 @@ public class BrandingBar extends ContentPanel {
                     } else if (query.startsWith("?language=" + lang)) { //$NON-NLS-1$
                         query = query.replaceAll("language=" + lang + "&?", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     }
-
-                    setHref(path + query + "&language=" + languageBox.getValue(languageBox.getSelectedIndex())); //$NON-NLS-1$
+                    setHref(path + query + "&language=" + languageBox.getValue(languageBox.getSelectedIndex())); //$NON-NLS-1$                    
                 }
             }
         });
@@ -169,12 +168,18 @@ public class BrandingBar extends ContentPanel {
     }
 
     public void buildLanguage(List<LanguageBean> languages) {
+        String language = languages.get(0).getValue();
         for (LanguageBean lang : languages) {
             languageBox.addItem(lang.getText(), lang.getValue());
             if (lang.isSelected()) {
+                language = lang.getValue();
                 languageBox.setSelectedIndex(languageBox.getItemCount() - 1);
             }
         }
+        setCurrentLocale(language);
     }
-
+    
+    public static native String setCurrentLocale(String language)/*-{
+       $wnd.language = language;
+    }-*/;
 }

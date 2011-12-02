@@ -215,12 +215,16 @@ public class Utils {
                     lang.setText(node.getTextContent());
                     String value = node.getAttributes().getNamedItem("value").getNodeValue(); //$NON-NLS-1$
                     lang.setValue(value);
-                    if (value.equals(selectedLang))
+                    if (value.equals(selectedLang)){
                         lang.setSelected(true);
+                    }                        
                     languages.add(lang);
                 }
             }
         }
+        
+        if(selectedLang == null)
+            languages.get(0).setSelected(true);
         return languages;
     }
 

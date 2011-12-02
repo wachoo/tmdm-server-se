@@ -79,9 +79,9 @@ public class GeneralController extends Controller {
             forwardToView(view, event);
         }
     }
-
+ 
     private void loadLanguages(AppEvent event) {
-        service.getLanguages(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<List<LanguageBean>>() {
+        service.getLanguages(UrlUtil.getLocaleProperty(), new SessionAwareAsyncCallback<List<LanguageBean>>() {
 
             public void onSuccess(List<LanguageBean> result) {
                 BrandingBar.getInstance().buildLanguage(result);
