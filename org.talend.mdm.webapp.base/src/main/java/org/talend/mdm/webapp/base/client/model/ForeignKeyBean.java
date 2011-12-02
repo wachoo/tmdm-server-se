@@ -26,6 +26,16 @@ public class ForeignKeyBean extends ItemBaseModel {
 
     private String typeName;
 
+    private String conceptName;
+
+    public String getConceptName() {
+        return conceptName;
+    }
+
+    public void setConceptName(String conceptName) {
+        this.conceptName = conceptName;
+    }
+
     public String getTypeName() {
         return typeName;
     }

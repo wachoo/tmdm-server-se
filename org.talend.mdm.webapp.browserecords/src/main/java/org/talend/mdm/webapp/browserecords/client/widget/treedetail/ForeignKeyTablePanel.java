@@ -418,7 +418,8 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                     if (fkBean == null || fkBean.getId() == null || "".equals(fkBean.getId())) //$NON-NLS-1$
                         return;
                     String ids = fkBean.getId().replace("[", "").replace("]", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-                    ForeignKeyUtil.checkChange(false, fkTypeModel.getForeignkey().split("/")[0], ids, itemsDetailPanel); //$NON-NLS-1$
+                    ForeignKeyUtil.checkChange(false, fkBean.getConceptName() != null ? fkBean.getConceptName() : fkTypeModel
+                            .getForeignkey().split("/")[0], ids, itemsDetailPanel); //$NON-NLS-1$
                 }
             });
 

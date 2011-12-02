@@ -98,8 +98,10 @@ public class ForeignKeyHelper {
 
                 ForeignKeyBean bean = new ForeignKeyBean();
                 BusinessConcept businessConcept = SchemaWebAgent.getInstance().getBusinessConcept(fk);
-                if (businessConcept != null && businessConcept.getCorrespondTypeName() != null)
+                if (businessConcept != null && businessConcept.getCorrespondTypeName() != null) {
                     bean.setTypeName(businessConcept.getCorrespondTypeName());
+                    bean.setConceptName(fk);
+                }
                 String id = ""; //$NON-NLS-1$
                 NodeList nodes = Util.getNodeList(resultAsDOM, "//i"); //$NON-NLS-1$
                 if (nodes != null) {

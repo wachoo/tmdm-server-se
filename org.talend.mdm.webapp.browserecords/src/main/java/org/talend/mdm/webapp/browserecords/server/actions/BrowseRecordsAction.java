@@ -341,8 +341,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 // get deriveType's conceptName, otherwise getItem() method will throw exception.
                 if (modelType != null && modelType.trim().length() > 0) {
                     BusinessConcept businessConcept = SchemaWebAgent.getInstance().getFirstBusinessConceptFromRootType(modelType);
-                    if (businessConcept != null)
+                    if (businessConcept != null) {
                         conceptName = businessConcept.getName();
+                        bean.setConceptName(conceptName);
+                    }
                 }
                 pk.setConceptName(conceptName);
                 pk.setDataClusterPOJOPK(new DataClusterPOJOPK(getCurrentDataCluster()));
