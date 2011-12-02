@@ -135,5 +135,21 @@
 			<name>amaltoOBJECTSCustomForm</name>
 			<list></list>			
 		</item>	
+		<item>
+			<name>amaltoOBJECTSLicense</name>
+			<list></list>			
+		</item>	
+		<item>
+			<name>MDMItemImages</name>
+			<list></list>			
+		</item>	
+		<item>
+			<name>MDMDomainObjects</name>
+			<list></list>			
+		</item>	
+		<item>
+			<name>MDMMigration</name>
+			<list></list>			
+		</item>			
 	</Clusters>
 </root>
