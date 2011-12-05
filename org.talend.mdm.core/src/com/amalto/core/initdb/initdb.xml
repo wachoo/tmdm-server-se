@@ -25,12 +25,30 @@
 			<name>UpdateReport</name>
 			<list></list>
 		</item>	
-		
 		<item>
             <name>SearchTemplate</name>
             <list></list>
+        </item>
+        <item>
+            <name>MDMItemsTrash</name>
+            <list></list>           
         </item> 
-		
+		<item>
+            <name>MDMItemImages</name>
+            <list></list>           
+        </item>
+        <item>
+            <name>MDMDomainObjects</name>
+            <list></list>           
+        </item> 
+        <item>
+            <name>MDMMigration</name>
+            <list></list>           
+        </item>         
+        <item>
+            <name>Revision</name>
+            <list></list>           
+        </item>     
 			
 		<!--amalto objects-->
 		<item>
@@ -138,22 +156,6 @@
 		<item>
 			<name>amaltoOBJECTSLicense</name>
 			<list></list>			
-		</item>	
-		<item>
-			<name>MDMItemImages</name>
-			<list></list>			
-		</item>	
-		<item>
-			<name>MDMDomainObjects</name>
-			<list></list>			
-		</item>	
-		<item>
-			<name>MDMMigration</name>
-			<list></list>			
-		</item>			
-		<item>
-			<name>Revision</name>
-			<list></list>			
-		</item>			
+		</item>		
 	</Clusters>
 </root>
