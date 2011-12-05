@@ -1567,6 +1567,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     err = MESSAGES.getMessage(locale, "save_failEx", concept); //$NON-NLS-1$
                 }
 
+                if(e.getMessage().indexOf("cvc-pattern-valid") != -1){ //$NON-NLS-1$
+                    err = MESSAGES.getMessage(locale, "save_pattern_fail", concept); //$NON-NLS-1$
+                }
+                
                 serviceException = new ServiceException(err);
             }
             throw serviceException;
