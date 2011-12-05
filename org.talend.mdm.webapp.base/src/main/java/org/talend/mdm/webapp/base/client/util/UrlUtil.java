@@ -12,10 +12,15 @@
 // ============================================================================
 package org.talend.mdm.webapp.base.client.util;
 
+
 public class UrlUtil {
 
     public static String getLanguage() {
-        return getCurrentLanguage();
+        String lang = getCurrentLanguage();
+        if (lang == null || lang.trim().length() == 0) {
+            return getLocaleProperty();
+        }
+        return lang;
     }
     
     private static native String getCurrentLanguage() /*-{
