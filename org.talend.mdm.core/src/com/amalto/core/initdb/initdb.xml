@@ -151,5 +151,9 @@
 			<name>MDMMigration</name>
 			<list></list>			
 		</item>			
+		<item>
+			<name>Revision</name>
+			<list></list>			
+		</item>			
 	</Clusters>
 </root>
