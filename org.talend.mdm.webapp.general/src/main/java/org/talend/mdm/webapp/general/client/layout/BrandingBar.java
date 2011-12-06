@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.general.client.layout;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.general.client.General;
 import org.talend.mdm.webapp.general.client.GeneralServiceAsync;
 import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
@@ -176,10 +177,6 @@ public class BrandingBar extends ContentPanel {
                 languageBox.setSelectedIndex(languageBox.getItemCount() - 1);
             }
         }
-        setCurrentLocale(language);
+        UrlUtil.setCurrentLocale(language);
     }
-    
-    public static native String setCurrentLocale(String language)/*-{
-       $wnd.language = language;
-    }-*/;
 }
