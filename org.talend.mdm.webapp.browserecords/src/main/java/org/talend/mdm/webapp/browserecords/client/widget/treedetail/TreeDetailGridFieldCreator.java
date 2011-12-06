@@ -54,7 +54,6 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -62,6 +61,7 @@ import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.ui.Widget;
 
 public class TreeDetailGridFieldCreator {
@@ -187,6 +187,7 @@ public class TreeDetailGridFieldCreator {
         // facet set
         if (field instanceof TextField<?> && !(dataType instanceof ComplexTypeModel)) {
             buildFacets(dataType, field);
+
             String errorMsg = dataType.getFacetErrorMsgs().get(language);
             field.setData("facetErrorMsgs", errorMsg);//$NON-NLS-1$        
             FacetEnum.setFacetValue("maxOccurence", (Widget) field, String.valueOf(dataType.getMaxOccurs())); //$NON-NLS-1$
@@ -298,8 +299,6 @@ public class TreeDetailGridFieldCreator {
             textField.setValue(hasValue ? value.toString() : ""); //$NON-NLS-1$
             textField.setValidator(TextFieldValidator.getInstance());
             field = textField;
-
-            textField.setMessages(null);
         }
 
         field.setWidth(400);

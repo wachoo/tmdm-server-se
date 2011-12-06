@@ -23,7 +23,7 @@ public class DataTypeCreator {
 
     public static DataType getDataType(String typeName, String baseTypeName) {
 
-        if (typeName == null || typeName.trim().length() == 0)
+        if ((typeName == null || typeName.trim().length() == 0) && "anyType".equals(baseTypeName)) //$NON-NLS-1$
             return DataTypeConstants.UNKNOW;
 
         DataTypeConstants[] values = DataTypeConstants.values();
@@ -32,7 +32,8 @@ public class DataTypeCreator {
                 return value;
             }
         }
-
+        if (typeName == null)
+            typeName = "unknow"; //$NON-NLS-1$
         return new DataTypeCustomized(typeName, baseTypeName);
     }
 

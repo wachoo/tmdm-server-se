@@ -22,6 +22,10 @@ public class FormatTextField extends TextField<String> {
 
     private String diplayValue;
 
+    public FormatTextField() {
+        super();
+    }
+
     public String getFormatPattern() {
         return formatPattern;
     }
