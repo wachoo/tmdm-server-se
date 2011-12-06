@@ -26,6 +26,8 @@ package com.amalto.core.jobox.watch;
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+import com.amalto.core.jobox.JobContainer;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -157,11 +159,16 @@ public class DirMonitor {
                     DirMonitor.this.files.put(file, newDirLog);
 
                     // Notify listeners
-                    for (DirListener listener : listeners) {
-                        listener.fileChanged(newFiles, deleteFiles, modifyFiles);
+                    JobContainer container = JobContainer.getUniqueInstance();
+                    try {
+                        container.lock(true);
+                        for (DirListener listener : listeners) {
+                            listener.fileChanged(newFiles, deleteFiles, modifyFiles);
+                        }
+                    } finally {
+                        container.unlock(true);
                     }
                 }
-
             }
         }
     }

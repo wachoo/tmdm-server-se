@@ -13,20 +13,6 @@
 
 package com.amalto.core.jobox;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-
 import com.amalto.core.jobox.component.JobAware;
 import com.amalto.core.jobox.component.JobInvoker;
 import com.amalto.core.jobox.component.MDMJobInvoker;
@@ -35,12 +21,19 @@ import com.amalto.core.jobox.util.JobNotFoundException;
 import com.amalto.core.jobox.util.JoboxConfig;
 import junit.framework.TestCase;
 
+import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.*;
+
 @SuppressWarnings({"nls", "ResultOfMethodCallIgnored"})
 public class JoboxTest extends TestCase {
 
     public static final String JOBOX_TEST_DIR = "/tmp/jobox";
 
     private JobContainer jobContainer;
+
     private Properties previousProperties;
 
     @Override
@@ -58,16 +51,19 @@ public class JoboxTest extends TestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
         jobContainer.getJobDeployer().undeployAll();
-        jobContainer.getJobDeployer().undeployAll();
 
-        File deployDir = new File(jobContainer.getDeployDir());
+        undeployAllFiles();
+
+        jobContainer = null; // TODO shut down method?
+        System.setProperties(previousProperties);
+    }
+
+    private static void undeployAllFiles() {
+        File deployDir = new File(JOBOX_TEST_DIR + "/deploy");
         File[] files = deployDir.listFiles();
         for (File file : files) {
             file.delete();
         }
-
-        jobContainer = null; // TODO shut down method?
-        System.setProperties(previousProperties);
     }
 
     public void testInit() throws Exception {
@@ -176,6 +172,43 @@ public class JoboxTest extends TestCase {
         assertNotSame(Thread.currentThread().getContextClassLoader(), jobClass.getClassLoader());
     }
 
+    public void testDeployExecuteUndeploy() throws Exception {
+        Properties props = new Properties();
+        props.put(JoboxConfig.JOBOX_HOME_PATH, JOBOX_TEST_DIR);
+        deployFileToJobox("TestTalendMDMJob_0.1.zip");
+        jobContainer.init(props);
+
+        Set<DeployUndeployRunnable> deployUndeployTests = new HashSet<DeployUndeployRunnable>();
+        for (int i = 0; i < 1; i++) {
+            deployUndeployTests.add(new DeployUndeployRunnable());
+        }
+        Set<ExecuteRunnable> executeTests = new HashSet<ExecuteRunnable>();
+        for (int i = 0; i < 5; i++) {
+            executeTests.add(new ExecuteRunnable());
+        }
+
+        Set<Thread> threads = new HashSet<Thread>();
+        for (Runnable currentRunnable : deployUndeployTests) {
+            threads.add(new Thread(currentRunnable));
+        }
+        for (Runnable currentRunnable : executeTests) {
+            threads.add(new Thread(currentRunnable));
+        }
+        for (Thread thread : threads) {
+            thread.start();
+        }
+        for (Thread thread : threads) {
+            thread.join();
+        }
+
+        for (DeployUndeployRunnable test : deployUndeployTests) {
+            assertEquals(0, test.errorCount);
+        }
+        for (ExecuteRunnable test : executeTests) {
+            assertEquals(0, test.errorCount);
+        }
+    }
+
     public void testFailExecuteMDMJob() throws Exception {
         //init
         Properties props = new Properties();
@@ -246,6 +279,44 @@ public class JoboxTest extends TestCase {
         } catch (Exception e) {
             // Expected
         }
-        Thread.sleep(6000);
+    }
+
+    private static class DeployUndeployRunnable implements Runnable {
+        private int errorCount = 0;
+
+        public void run() {
+            for (int i = 0; i < 10; i++) {
+                try {
+                    undeployAllFiles();
+                    Thread.sleep((long) (Math.random() * 1000));
+                    deployFileToJobox("TestTalendMDMJob_0.1.zip");
+                } catch (Exception e) {
+                    errorCount++;
+                }
+            }
+        }
+    }
+
+    private class ExecuteRunnable implements Runnable {
+        private int errorCount = 0;
+
+        public void run() {
+            for (int i = 0; i < 10; i++) {
+                try {
+                    HashMap<String, String> parameters = new HashMap<String, String>();
+                    parameters.put(MDMJobInvoker.EXCHANGE_XML_PARAMETER, "<exchange><report></report><item><key>0</key></item></exchange>");
+                    JobInvoker invoker;
+                    try {
+                        invoker = jobContainer.getJobInvoker("TestTalendMDMJob", "0.1");
+                        invoker.call(parameters);
+                    } catch (JobNotFoundException e) {
+                        // Might happen (in case we executed right after a undeploy).
+                    }
+                    Thread.sleep((long) (Math.random() * 1000));
+                } catch (Exception e) {
+                    errorCount++;
+                }
+            }
+        }
     }
 }

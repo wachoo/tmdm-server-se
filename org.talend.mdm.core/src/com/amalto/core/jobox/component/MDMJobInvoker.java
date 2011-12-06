@@ -13,13 +13,16 @@
 
 package com.amalto.core.jobox.component;
 
-import java.lang.reflect.Method;
-import java.util.Map;
-
-import com.amalto.core.jobox.JobInfo;
 import com.amalto.core.jobox.util.JoboxException;
 import org.apache.log4j.Logger;
 
+import java.lang.reflect.Method;
+import java.util.Map;
+
+/**
+ * Implementation of {@link JobInvoker} for jobs that implements 'routines.system.api.TalendMDMJob' (i.e. Jobs that
+ * contain a tMDMTriggerInput or tMDMTriggerOutput  component).
+ */
 public class MDMJobInvoker extends JobInvoker {
 
     private static final String SET_MDM_INPUT_MESSAGE_METHOD = "setMDMInputMessage";
@@ -30,8 +33,8 @@ public class MDMJobInvoker extends JobInvoker {
 
     private static final Logger LOGGER = Logger.getLogger(MDMJobInvoker.class);
 
-    public MDMJobInvoker(JobInfo jobInfo) {
-        super(jobInfo);
+    public MDMJobInvoker(String jobName, String version) {
+        super(jobName, version);
     }
 
     @Override

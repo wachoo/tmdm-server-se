@@ -13,16 +13,19 @@
 
 package com.amalto.core.jobox.component;
 
+import com.amalto.core.jobox.util.JoboxException;
+
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import com.amalto.core.jobox.JobInfo;
-import com.amalto.core.jobox.util.JoboxException;
-
+/**
+ * Implementation of {@link JobInvoker} for all jobs that <b>do not</b> implement 'routines.system.api.TalendMDMJob' (i.e. Jobs that
+ * do not contain a tMDMTriggerInput or tMDMTriggerOutput component).
+ */
 public class JobInvoke extends JobInvoker {
 
-    public JobInvoke(JobInfo jobInfo) {
-        super(jobInfo);
+    public JobInvoke(String jobName, String version) {
+        super(jobName, version);
     }
 
     @Override
