@@ -41,4 +41,8 @@ public class UrlUtil {
         }
         return "en";
     }-*/;
+    
+    public static native String setCurrentLocale(String language)/*-{
+        $wnd.language = language;
+     }-*/;
 }
