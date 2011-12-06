@@ -51,6 +51,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
@@ -121,11 +122,12 @@ public class TreeDetailUtil {
 
         }
 
-        if ((typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) && typeModel.getForeignkey() == null) {
+        if (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {
+            double leftMargin = typeModel.getForeignkey() == null ? 5.0D : 75.0D;
             Image addNodeImg = new Image("/talendmdm/secure/img/genericUI/add.png"); //$NON-NLS-1$
             addNodeImg.getElement().setId("Add"); //$NON-NLS-1$
             addNodeImg.setTitle(MessagesFactory.getMessages().clone_title());
-            addNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
+            addNodeImg.getElement().getStyle().setMarginLeft(leftMargin, Unit.PX);
             if(!typeModel.isReadOnly())
                 addNodeImg.addClickHandler(h);
             Image removeNodeImg = new Image("/talendmdm/secure/img/genericUI/delete.png"); //$NON-NLS-1$
@@ -136,7 +138,9 @@ public class TreeDetailUtil {
                 removeNodeImg.addClickHandler(h);
 
             hp.add(addNodeImg);
+            hp.setCellVerticalAlignment(addNodeImg, VerticalPanel.ALIGN_BOTTOM);
             hp.add(removeNodeImg);
+            hp.setCellVerticalAlignment(removeNodeImg, VerticalPanel.ALIGN_BOTTOM);
             if (!typeModel.isSimpleType() && itemNode.getParent() != null) {
                 Image cloneNodeImg = new Image("/talendmdm/secure/img/genericUI/add-group.png"); //$NON-NLS-1$
                 cloneNodeImg.getElement().setId("Clone"); //$NON-NLS-1$
@@ -145,6 +149,7 @@ public class TreeDetailUtil {
                 if(!typeModel.isReadOnly())
                     cloneNodeImg.addClickHandler(h);
                 hp.add(cloneNodeImg);
+                hp.setCellVerticalAlignment(cloneNodeImg, VerticalPanel.ALIGN_BOTTOM);
             }
         }
 

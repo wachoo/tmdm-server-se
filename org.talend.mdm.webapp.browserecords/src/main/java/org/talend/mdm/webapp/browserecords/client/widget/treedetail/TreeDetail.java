@@ -42,9 +42,6 @@ import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.data.ChangeEvent;
-import com.extjs.gxt.ui.client.data.ChangeEventSource;
-import com.extjs.gxt.ui.client.data.ChangeListener;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -108,7 +105,7 @@ public class TreeDetail extends ContentPanel {
                     // if it has default value
                     if (viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getDefaultValue() != null)
                         model.setObjectValue(viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getDefaultValue());
-                    parentItem.insertItem(buildGWTTree(model, null, true), parentItem.getChildIndex(selectedItem) + 1);
+                    parentItem.insertItem(buildGWTTree(model, null, true, false), parentItem.getChildIndex(selectedItem) + 1);
                     occurMap.put(countMapItem, count + 1);
                 } else
                     MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
@@ -205,14 +202,15 @@ public class TreeDetail extends ContentPanel {
         }
     }
 
-    private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue) {
-        return buildGWTTree(itemNode, item, withDefaultValue, null);
+    private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue,
+            boolean isRoot) {
+        return buildGWTTree(itemNode, item, withDefaultValue, null, isRoot);
     }
 
     private boolean isFirstKey = true;
 
     private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue,
-            String operation) {
+            String operation, boolean isRoot) {
         if (item == null) {
             item = new DynamicTreeItem();
             item.setItemNodeModel(itemNode);
@@ -246,13 +244,14 @@ public class TreeDetail extends ContentPanel {
                 if (withDefaultValue && typeModelDefaultValue != null
                         && (nodeObjectValue == null || nodeObjectValue.equals(""))) //$NON-NLS-1$
                     node.setObjectValue(typeModelDefaultValue);
-                if (typeModelFK != null) {
+                if (typeModelFK != null && isRoot) {
                     if (!fkMap.containsKey(typeModel)) {
                         fkMap.put(typeModel, new ArrayList<ItemNodeModel>());
                     }
                     fkMap.get(typeModel).add(node);
-                } else if (typeModelFK == null) {
-                    TreeItem childItem = buildGWTTree(node, null, withDefaultValue, operation);
+                }
+                if (!isRoot || typeModelFK == null) {
+                    TreeItem childItem = buildGWTTree(node, null, withDefaultValue, operation, false);
                     item.addItem(childItem);
                     int count = 0;
                     CountMapItem countMapItem = new CountMapItem(nodeBindingPath, itemNode);
@@ -261,22 +260,8 @@ public class TreeDetail extends ContentPanel {
                     occurMap.put(countMapItem, count + 1);
                 }
             }
-            itemNode.addChangeListener(new ChangeListener() {
 
-                public void modelChanged(ChangeEvent event) {
-                    ItemNodeModel root = (ItemNodeModel) tree.getItem(0).getUserObject();
-                    root.setChangeValue(true);
-                    if (event.getType() == ChangeEventSource.Remove) {
-                        ItemNodeModel source = (ItemNodeModel) event.getItem();
-                        List<ItemNodeModel> fkContainers = ForeignKeyUtil.getAllForeignKeyModelParent(viewBean, source);
-                        for (ItemNodeModel fkContainer : fkContainers) {
-                            fkRender.removeRelationFkPanel(fkContainer);
-                        }
-                    }
-                }
-            });
-
-            if (fkMap.size() > 0) {
+            if (fkMap.size() > 0 && isRoot) {
                 for (TypeModel model : fkMap.keySet()) {
                     fkRender.RenderForeignKey(itemNode, fkMap.get(model), model, toolBar, viewBean, this, itemsDetailPanel);
                 }
@@ -314,7 +299,7 @@ public class TreeDetail extends ContentPanel {
             }
             treeNode.setChildNodes(childrenItems);
         }
-        buildGWTTree(treeNode, selectedItem, true);
+        buildGWTTree(treeNode, selectedItem, true, false);
 
     }
 
@@ -360,7 +345,7 @@ public class TreeDetail extends ContentPanel {
 
     private void renderTree(ItemNodeModel rootModel, String operation) {
 
-        root = buildGWTTree(rootModel, null, false, operation);
+        root = buildGWTTree(rootModel, null, false, operation, true);
         isFirstKey = true;
         root.setState(true);
         tree = new TreeEx();

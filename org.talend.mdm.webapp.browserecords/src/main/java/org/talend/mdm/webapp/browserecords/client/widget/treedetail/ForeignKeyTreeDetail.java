@@ -39,9 +39,6 @@ import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.data.ChangeEvent;
-import com.extjs.gxt.ui.client.data.ChangeEventSource;
-import com.extjs.gxt.ui.client.data.ChangeListener;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -113,7 +110,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                     // if it has default value
                     if (viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getDefaultValue() != null)
                         model.setObjectValue(viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getDefaultValue());
-                    parentItem.insertItem(buildGWTTree(model, true), parentItem.getChildIndex(selectedItem) + 1);
+                    parentItem.insertItem(buildGWTTree(model, true, false), parentItem.getChildIndex(selectedItem) + 1);
                     occurMap.put(countMapItem, count + 1);
                 } else
                     MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
@@ -200,7 +197,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     }
 
     private void renderTree(ItemNodeModel rootModel) {
-        root = buildGWTTree(rootModel, false);
+        root = buildGWTTree(rootModel, false, true);
         tree = new TreeEx();
         tree.addItem(root);
         root.setState(true);
@@ -275,7 +272,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         buildPanel(viewBean);
     }
 
-    private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, boolean withDefaultValue) {
+    private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, boolean withDefaultValue, boolean isRoot) {
         DynamicTreeItem item = new DynamicTreeItem();
         item.setItemNodeModel(itemNode);
         item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, fieldMap, handler, itemsDetailPanel));
@@ -290,12 +287,13 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                     node.setObjectValue(typeModel.getDefaultValue());
                 if (this.isCreate && this.model != null && node.isKey()) // duplicate
                     node.setObjectValue(null); // id
-                if (typeModel.getForeignkey() != null && fkRender != null) {
+                if (typeModel.getForeignkey() != null && fkRender != null && isRoot) {
                     if (!fkMap.containsKey(typeModel))
                         fkMap.put(typeModel, new ArrayList<ItemNodeModel>());
                     fkMap.get(typeModel).add(node);
-                } else if (typeModel.getForeignkey() == null) {
-                    item.addItem(buildGWTTree(node, withDefaultValue));
+                }
+                if (!isRoot || typeModel.getForeignkey() == null) {
+                    item.addItem(buildGWTTree(node, withDefaultValue, false));
                     int count = 0;
                     CountMapItem countMapItem = new CountMapItem(node.getBindingPath(), itemNode);
                     if (occurMap.containsKey(countMapItem))
@@ -303,19 +301,8 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                     occurMap.put(countMapItem, count + 1);
                 }
             }
-            itemNode.addChangeListener(new ChangeListener() {
 
-                public void modelChanged(ChangeEvent event) {
-                    if (event.getType() == ChangeEventSource.Remove) {
-                        ItemNodeModel source = (ItemNodeModel) event.getItem();
-                        List<ItemNodeModel> fkContainers = ForeignKeyUtil.getAllForeignKeyModelParent(viewBean, source);
-                        for (ItemNodeModel fkContainer : fkContainers) {
-                            fkRender.removeRelationFkPanel(fkContainer);
-                        }
-                    }
-                }
-            });
-            if (fkMap.size() > 0) {
+            if (fkMap.size() > 0 && isRoot) {
                 for (TypeModel model : fkMap.keySet()) {
                     fkRender.RenderForeignKey(itemNode, fkMap.get(model), model, toolBar, viewBean, ForeignKeyTreeDetail.this,
                             itemsDetailPanel);
