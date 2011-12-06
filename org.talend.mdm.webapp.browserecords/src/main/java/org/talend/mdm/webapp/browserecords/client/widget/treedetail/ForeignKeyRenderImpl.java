@@ -59,6 +59,8 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
             itemPanel.getToolBar().setOutMost(toolBar.isOutMost());
             String xpathLabel = ForeignKeyUtil.transferXpathToLabel(parentModel) + fkTypeModel.getLabel(UrlUtil.getLanguage());
             xpathLabel = xpathLabel.substring(xpathLabel.indexOf('/') + 1);
+            if(cp != detailPanel.getTreeDetail())
+                return;
             ItemDetailTabPanelContentHandle handle = detailPanel.addTabItem(xpathLabel, itemPanel, ItemsDetailPanel.MULTIPLE,
                     GWT.getModuleName() + DOM.createUniqueId());
             relationFk.put(parentModel, handle);

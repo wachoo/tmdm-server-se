@@ -49,6 +49,7 @@ public class ItemPanel extends ContentPanel {
 
     public ItemPanel(ItemsDetailPanel itemsDetailPanel) {
         tree = new TreeDetail(itemsDetailPanel);
+        itemsDetailPanel.setTreeDetail(tree);
     }
 
     public ItemPanel(ViewBean viewBean, ItemBean item, String operation, ItemsDetailPanel itemsDetailPanel) {
@@ -61,7 +62,7 @@ public class ItemPanel extends ContentPanel {
     }
 
     public ItemPanel(ViewBean viewBean, ItemBean item, String operation, ContentPanel contenPanel, TreeItem root, ItemsDetailPanel itemsDetailPanel) {
-        this(itemsDetailPanel);
+        tree = new TreeDetail(itemsDetailPanel);
         this.viewBean = viewBean;
         this.item = item;
         this.toolBar = new ItemDetailToolBar(item, operation, viewBean, itemsDetailPanel);

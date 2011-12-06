@@ -148,6 +148,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
 
     public ForeignKeyTreeDetail(ItemsDetailPanel itemsDetailPanel) {
         this.itemsDetailPanel = itemsDetailPanel;
+        itemsDetailPanel.setTreeDetail(this);
         this.setHeaderVisible(false);
         this.setHeight(Window.getClientHeight() - (60 + 4 * 20));
         this.setScrollMode(Scroll.AUTO);

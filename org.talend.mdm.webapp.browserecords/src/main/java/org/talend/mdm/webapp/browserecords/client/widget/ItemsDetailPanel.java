@@ -67,6 +67,8 @@ public class ItemsDetailPanel extends ContentPanel {
 
     private List<Text> subTitleList = new ArrayList<Text>();
 
+    private ContentPanel treeDetail;
+
     public ItemsDetailPanel() {
         super();
         breadCrumb.getElement().getStyle().setOverflow(Overflow.HIDDEN);
@@ -772,5 +774,13 @@ public class ItemsDetailPanel extends ContentPanel {
         ncData.setSplit(false);
         ncData.setCollapsible(false);
         return ncData;
+    }
+
+    public ContentPanel getTreeDetail() {
+        return treeDetail;
+    }
+
+    public void setTreeDetail(ContentPanel treeDetail) {
+        this.treeDetail = treeDetail;
     }
 }
