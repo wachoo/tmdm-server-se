@@ -262,6 +262,7 @@ public class MainFramePanel extends Portal {
     }
 
     private void applyTaskPortlet(Portlet task) {
+
         final Label label = (Label) task.getItemByItemId(WelcomePortal.TASK + "Label"); //$NON-NLS-1$
         label.setText(MessagesFactory.getMessages().loading_task_msg());
 
@@ -273,7 +274,9 @@ public class MainFramePanel extends Portal {
         service.getTaskMsg(new SessionAwareAsyncCallback<Integer>() {
 
             public void onSuccess(Integer num) {
+
                 if (num.equals(0)) {
+
                     label.setText(MessagesFactory.getMessages().no_tasks());
                     set.setVisible(false);
                 } else {
@@ -284,8 +287,10 @@ public class MainFramePanel extends Portal {
                     sbNum.append(MessagesFactory.getMessages().waiting_task_suffix());
                     sb.append(sbNum.toString());
                     label.setText(MessagesFactory.getMessages().tasks_desc());
+                    set.setVisible(true);
                 }
                 sb.append("</span>"); //$NON-NLS-1$
+
                 taskHtml.setHTML(sb.toString());
             }
 
