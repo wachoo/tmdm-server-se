@@ -437,6 +437,7 @@ Ext
 										this,
 										{
 											layout : "border",
+
 											title : amalto.updatereport.UpdateReportLocal
 													.get("title"),
 											items : [
@@ -444,10 +445,10 @@ Ext
 														frame : false,
 														height : 160,
 														layout : "fit",
-														split : true,
+														split : false,
+														collapsible : true,
 														title : amalto.updatereport.UpdateReportLocal
 																.get("searchPanel_tile"),
-														collapsible : true,
 														border : false,
 														items : [ {
 															height : 30,
