@@ -280,7 +280,7 @@ public class MainFramePanel extends Portal {
                     StringBuilder sbNum = new StringBuilder(
                             "<IMG SRC=\"/talendmdm/secure/img/genericUI/task-list-icon.png\"/>&nbsp;"); //$NON-NLS-1$                                
                     sbNum.append(MessagesFactory.getMessages().waiting_task_prefix());
-                    sbNum.append(num);
+                    sbNum.append("<b style=\"color: red;\">" + num + "</b>"); //$NON-NLS-1$ //$NON-NLS-2$
                     sbNum.append(MessagesFactory.getMessages().waiting_task_suffix());
                     sb.append(sbNum.toString());
                     label.setText(MessagesFactory.getMessages().tasks_desc());
