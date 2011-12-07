@@ -50,8 +50,9 @@ public class TextFieldValidator implements Validator {
         }
         
         String pattern = field.getData(FacetEnum.PATTERN.getFacetName());
-        if (pattern != null && !pattern.equals("")) { //$NON-NLS-1$            
-            if (!AUTO_INCREMENT.equals(value) && value.split(pattern) == null) {
+
+        if (pattern != null && !pattern.equals("") && value != null) { //$NON-NLS-1$            
+            if (!value.matches(pattern)) {
                 succeed = false;
                 defaultMessage += MessagesFactory.getMessages().check_pattern(value, pattern) + "\n";//$NON-NLS-1$
             }
