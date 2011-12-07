@@ -39,6 +39,7 @@ import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -261,4 +262,14 @@ public class TreeDetailUtil {
         };
         return panel;
     }-*/;
+
+    public static boolean isChangeValue(ItemNodeModel model) {
+        if (model.isChangeValue())
+            return true;
+        for (ModelData node : model.getChildren()) {
+            if (isChangeValue((ItemNodeModel) node))
+                return true;
+        }
+        return false;
+    }
 }

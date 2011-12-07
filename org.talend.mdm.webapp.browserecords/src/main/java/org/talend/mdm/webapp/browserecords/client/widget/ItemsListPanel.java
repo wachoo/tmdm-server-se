@@ -32,12 +32,15 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
+import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.DateUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTreeDetail;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -59,6 +62,7 @@ import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.LoadListener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.RowEditorEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
@@ -70,8 +74,10 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -81,10 +87,13 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.user.client.ui.Widget;
 
 public class ItemsListPanel extends ContentPanel {
 
@@ -175,6 +184,10 @@ public class ItemsListPanel extends ContentPanel {
     private PagingToolBarEx pagingBar = null;
 
     private Boolean gridUpdateLock = Boolean.FALSE;
+
+    private ItemDetailToolBar toolBar;
+
+    private ItemNodeModel root;
 
     private static ItemsListPanel instance;
 
@@ -277,16 +290,29 @@ public class ItemsListPanel extends ContentPanel {
         grid.getSelectionModel().addSelectionChangedListener(new SelectionChangedListener<ItemBean>() {
 
             @Override
-            public void selectionChanged(SelectionChangedEvent<ItemBean> se) {
-                ItemBean item = se.getSelectedItem();
-                if (item != null) {
-                    if (gridUpdateLock) {
-                        return;
+            public void selectionChanged(final SelectionChangedEvent<ItemBean> se) {
+                DeferredCommand.addCommand(new Command() {
+                    
+                    public void execute() {
+                        if (isCurrentRecordChange()) {
+                            MessageBox msgBox = MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory
+                                    .getMessages()
+                                    .msg_confirm_save_tree_detailEx(root.getLabel()), new Listener<MessageBoxEvent>() {
+
+                                public void handleEvent(MessageBoxEvent be) {
+                                    if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+                                        toolBar.saveItemAndClose(true);
+                                    }
+                                    selectRow(se);
+                                }
+                            });
+                            msgBox.getDialog().setWidth(550);
+                        } else
+                            selectRow(se);
+        
                     }
-                    gridUpdateLock = true;
-                    Dispatcher.forwardEvent(BrowseRecordsEvents.ViewItem, item);
-                    gridUpdateLock = false;
-                }
+                });
+
             }
         });
 
@@ -529,6 +555,40 @@ public class ItemsListPanel extends ContentPanel {
         } else {
             ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchBut);
             ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, be);
+        }
+    }
+
+    private boolean isCurrentRecordChange() {
+        TabItem tabItem = ItemsMainTabPanel.getInstance().getItemByItemId(BrowseRecordsView.DEFAULT_ITEMVIEW);
+        if (tabItem != null) {
+            ItemsDetailPanel itemsDetailPanel = (ItemsDetailPanel) tabItem.getItemByItemId(BrowseRecordsView.DEFAULT_ITEMVIEW);
+            if (itemsDetailPanel != null && itemsDetailPanel.getFirstTabWidget() != null) {
+                Widget widget = itemsDetailPanel.getFirstTabWidget();
+                if (widget instanceof ForeignKeyTreeDetail) {
+                    final ForeignKeyTreeDetail fkTree = (ForeignKeyTreeDetail) widget;
+                    toolBar = fkTree.getToolBar();
+                    root = fkTree.getRootModel();
+                } else {
+                    ItemPanel itemPanel = (ItemPanel) widget;
+                    toolBar = itemPanel.getToolBar();
+                    root = (ItemNodeModel) itemPanel.getTree().getTree().getItem(0).getUserObject();
+                }
+                return root != null ? TreeDetailUtil.isChangeValue(root) : false;
+            }
+
+        }
+        return false;
+    }
+
+    private void selectRow(SelectionChangedEvent<ItemBean> se) {
+        ItemBean item = se.getSelectedItem();
+        if (item != null) {
+            if (gridUpdateLock) {
+                return;
+            }
+            gridUpdateLock = true;
+            Dispatcher.forwardEvent(BrowseRecordsEvents.ViewItem, item);
+            gridUpdateLock = false;
         }
     }
 }

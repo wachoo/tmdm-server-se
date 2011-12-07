@@ -40,7 +40,6 @@ import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.core.El;
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -235,7 +234,8 @@ public class ItemDetailToolBar extends ToolBar {
                     ItemPanel itemPanel = (ItemPanel) widget;
                     ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getTree().getItem(0).getUserObject();
                     if (operation.equalsIgnoreCase(ItemDetailToolBar.CREATE_OPERATION)
-                            || operation.equalsIgnoreCase(ItemDetailToolBar.DUPLICATE_OPERATION) || isChangeValue(root)) {
+                            || operation.equalsIgnoreCase(ItemDetailToolBar.DUPLICATE_OPERATION)
+                            || TreeDetailUtil.isChangeValue(root)) {
                         saveItemAndClose(false);
                     } else {
                         MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
@@ -261,7 +261,8 @@ public class ItemDetailToolBar extends ToolBar {
                     ItemPanel itemPanel = (ItemPanel) widget;
                     ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getTree().getItem(0).getUserObject();
                     if (operation.equalsIgnoreCase(ItemDetailToolBar.CREATE_OPERATION)
-                            || operation.equalsIgnoreCase(ItemDetailToolBar.DUPLICATE_OPERATION) || isChangeValue(root)) {
+                            || operation.equalsIgnoreCase(ItemDetailToolBar.DUPLICATE_OPERATION)
+                            || TreeDetailUtil.isChangeValue(root)) {
                         saveItemAndClose(true);
                     } else {
                         MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
@@ -453,7 +454,7 @@ public class ItemDetailToolBar extends ToolBar {
         service.isItemModifiedByOthers(itemBean, new SessionAwareAsyncCallback<Boolean>() {
 
             public void onSuccess(Boolean result) {
-                if (isChangeValue(root) || result) {
+                if (TreeDetailUtil.isChangeValue(root) || result) {
                     MessageBox
                             .confirm(MessagesFactory.getMessages().confirm_title(),
                                     MessagesFactory.getMessages().msg_confirm_refresh_tree_detail(),
@@ -483,16 +484,6 @@ public class ItemDetailToolBar extends ToolBar {
             }
 
         });
-    }
-
-    private boolean isChangeValue(ItemNodeModel model) {
-        if (model.isChangeValue())
-            return true;
-        for (ModelData node : model.getChildren()) {
-            if (isChangeValue((ItemNodeModel) node))
-                return true;
-        }
-        return false;
     }
 
     private void addRelationButton() {

@@ -574,4 +574,8 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         return fieldMap;
     }
 
+    public ItemDetailToolBar getToolBar() {
+        return toolBar;
+    }
+
 }
