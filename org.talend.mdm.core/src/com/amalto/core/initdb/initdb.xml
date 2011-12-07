@@ -55,12 +55,12 @@
 			<name>amaltoOBJECTSActiveRoutingOrderV2</name>
 			<list></list>								
 		</item>
-		<!--	
+			
 		<item>
 			<name>amaltoOBJECTSBackgroundJob</name>
 			<list></list>			
 		</item>
-		-->
+		
 		<item>
 			<name>amaltoOBJECTSCompletedRoutingOrderV2</name>
 			<list></list>			
@@ -155,6 +155,10 @@
 		</item>	
 		<item>
 			<name>amaltoOBJECTSLicense</name>
+			<list></list>			
+		</item>		
+		<item>
+			<name>amaltoOBJECTSVersioningSystem</name>
 			<list></list>			
 		</item>		
 	</Clusters>
