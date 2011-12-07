@@ -136,6 +136,10 @@ public class JobContainer {
     }
 
     public void updateJobLoadersPool(JobInfo jobInfo) {
+        if (jobInfo == null) {
+            throw new IllegalArgumentException("Job info argument can not be null."); //$NON-NLS-1$
+        }
+
         if (jobLoadersPool.containsKey(jobInfo)) {
             JobClassLoader jobClassLoader = jobLoadersPool.get(jobInfo);
             log("Removing " + jobClassLoader);//$NON-NLS-1$
@@ -148,6 +152,7 @@ public class JobContainer {
         URL[] urls = JoboxUtil.getClasspathURLs(jobInfo.getClasspath(), jobInfo);
         JobClassLoader cl = new JobClassLoader(urls);
         jobLoadersPool.put(jobInfo, cl);
+        log("Adding new class loader " + cl); //$NON-NLS-1$
     }
 
     public void removeFromJobLoadersPool(String jobEntityName) {
@@ -164,7 +169,7 @@ public class JobContainer {
 
         if (this.jobLoadersPool.containsKey(jobInfo)) {
             JobClassLoader jobClassLoader = jobLoadersPool.get(jobInfo);
-            LOGGER.info("Removing " + jobClassLoader); //$NON-NLS-1$
+            log("Removing class loader " + jobClassLoader); //$NON-NLS-1$
             jobClassLoader = null;
             jobLoadersPool.remove(jobInfo);
         }

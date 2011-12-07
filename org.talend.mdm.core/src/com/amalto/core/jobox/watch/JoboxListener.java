@@ -13,35 +13,53 @@
 
 package com.amalto.core.jobox.watch;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.jar.JarInputStream;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
-
 import com.amalto.core.jobox.JobContainer;
 import com.amalto.core.jobox.JobInfo;
+import com.amalto.core.jobox.component.JobAware;
+import com.amalto.core.jobox.component.JobDeploy;
+import com.amalto.core.jobox.util.JoboxException;
 import com.amalto.core.jobox.util.JoboxUtil;
+import org.apache.log4j.Logger;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.jar.*;
 
 public class JoboxListener implements DirListener {
 
+    private static final Logger LOGGER = Logger.getLogger(JoboxListener.class);
+    
     public void fileChanged(List<String> newFiles, List<String> deleteFiles, List<String> modifyFiles) {
-
-        if (newFiles.size() > 0) {
-            // new
+        JobContainer container = JobContainer.getUniqueInstance();
+        JobDeploy jobDeployer = container.getJobDeployer();
+        JobAware jobAware = container.getJobAware();
+        
+        if (newFiles.size() > 0) { // new
             for (String jobPackageName : newFiles) {
+                String warningMessage = "Attempted to deploy new job '" + jobPackageName + "' but has been deleted by concurrent process."; //$NON-NLS-1$ //$NON-NLS-2$
+                String modifiedWarningMessage = "Attempted to update job '" + jobPackageName + "' but is being modified by concurrent process.";  //$NON-NLS-1$ //$NON-NLS-2$
+
                 // deploy
-                JobContainer.getUniqueInstance().getJobDeployer().deploy(jobPackageName);
+                try {
+                    jobDeployer.deploy(jobPackageName);
+                } catch (JoboxException e) {
+                    if (e.getCause() instanceof FileNotFoundException) {
+                        LOGGER.warn(warningMessage);
+                    } else if (e.getCause() instanceof EOFException) {
+                        LOGGER.warn(modifiedWarningMessage);
+                    } else {
+                        throw e;
+                    }
+                }
+                
                 // add to classpath
-                JobInfo jobInfo = JobContainer.getUniqueInstance().getJobAware()
-                        .loadJobInfo(JoboxUtil.trimExtension(jobPackageName));
-                JobContainer.getUniqueInstance().updateJobLoadersPool(jobInfo);
+                JobInfo jobInfo = jobAware.loadJobInfo(JoboxUtil.trimExtension(jobPackageName));
+                if (jobInfo != null) {
+                    container.updateJobLoadersPool(jobInfo);
+                } else {
+                    LOGGER.warn(warningMessage); 
+                }
             }
         }
 
@@ -50,21 +68,38 @@ public class JoboxListener implements DirListener {
             for (String jobPackageName : deleteFiles) {
                 String jobEntityName = JoboxUtil.trimExtension(jobPackageName);
                 // undeploy
-                JobContainer.getUniqueInstance().getJobDeployer().undeploy(jobEntityName);
+                jobDeployer.undeploy(jobEntityName);
                 // remove classpath
-                JobContainer.getUniqueInstance().removeFromJobLoadersPool(jobEntityName);
+                container.removeFromJobLoadersPool(jobEntityName);
             }
         }
 
         if (modifyFiles.size() > 0) {
             // modify
             for (String jobPackageName : modifyFiles) {
+                String deletedWarningMessage = "Attempted to update job '" + jobPackageName + "' but has been deleted by concurrent process.";  //$NON-NLS-1$ //$NON-NLS-2$
+                String modifiedWarningMessage = "Attempted to update job '" + jobPackageName + "' but has been modified by concurrent process.";  //$NON-NLS-1$ //$NON-NLS-2$
+                
                 // deploy
-                JobContainer.getUniqueInstance().getJobDeployer().deploy(jobPackageName);
+                try {
+                    jobDeployer.deploy(jobPackageName);
+                } catch (JoboxException e) {
+                    if (e.getCause() instanceof FileNotFoundException) {
+                        LOGGER.warn(deletedWarningMessage);
+                    } else if (e.getCause() instanceof EOFException) {
+                        LOGGER.warn(modifiedWarningMessage);
+                    } else {
+                        throw e;
+                    }
+                }
+                
                 // add to classpath
-                JobInfo jobInfo = JobContainer.getUniqueInstance().getJobAware()
-                        .loadJobInfo(JoboxUtil.trimExtension(jobPackageName));
-                JobContainer.getUniqueInstance().updateJobLoadersPool(jobInfo);
+                JobInfo jobInfo = jobAware.loadJobInfo(JoboxUtil.trimExtension(jobPackageName));
+                if (jobInfo != null) {
+                    container.updateJobLoadersPool(jobInfo);
+                } else {
+                    LOGGER.warn(deletedWarningMessage);
+                }
             }
         }
     }

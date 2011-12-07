@@ -41,14 +41,24 @@ public class JobDeploy {
     }
 
     /**
+     * <p>
      * Force deployment of all files in deploy directory.
+     * </p>
+     * <p>
+     * This method does not fail if anything goes wrong (error is printed out in log only). This prevents the whole
+     * container to fail if only one ZIP file is corrupted.
+     * </p>
      * @see com.amalto.core.jobox.util.JoboxConfig#getDeployPath()
      * @see #deploy(String)
      */
     public void deployAll() {
         String[] fileNames = new File(deployDir).list();
         for (String filename : fileNames) {
-            deploy(filename);
+            try {
+                deploy(filename);
+            } catch (JoboxException e) {
+                LOGGER.error("Could not deploy '" + filename + "' due to exception.", e);
+            }
         }
     }
 
