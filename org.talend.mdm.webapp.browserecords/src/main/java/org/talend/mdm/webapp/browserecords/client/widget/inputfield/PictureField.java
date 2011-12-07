@@ -155,10 +155,10 @@ public class PictureField extends TextField<String> {
     }
 
     private native void regJs(Element el)/*-{
-        var instance = this;
-        el.onclick = function(){
-        instance.@org.talend.mdm.webapp.browserecords.client.widget.inputfield.PictureField::handlerClick(Lcom/google/gwt/user/client/Element;)(this);
-        };
+		var instance = this;
+		el.onclick = function() {
+			instance.@org.talend.mdm.webapp.browserecords.client.widget.inputfield.PictureField::handlerClick(Lcom/google/gwt/user/client/Element;)(this);
+		};
     }-*/;
 
     
@@ -168,7 +168,9 @@ public class PictureField extends TextField<String> {
         this.value = value;
 
         if (value != null && value.length() != 0) {
+
             if (!value.startsWith("/imageserver/")) //$NON-NLS-1$
+                image.setSize("150", "300");
                 this.value = "/imageserver/" + value; //$NON-NLS-1$
             image.setUrl(this.value);
         } else {
@@ -239,8 +241,12 @@ public class PictureField extends TextField<String> {
                     JSONObject jsObject = JSONParser.parse(json).isObject();
                     JSONBoolean success = jsObject.get("success").isBoolean(); //$NON-NLS-1$
                     JSONString message = jsObject.get("message").isString(); //$NON-NLS-1$
-                    MessageBox.alert(MessagesFactory.getMessages().info_title(),
-                            success.booleanValue() + ", " + message.stringValue(), null); //$NON-NLS-1$
+                    if (success.booleanValue())
+                        MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
+                                .upload_pic_ok(), null);
+                    else
+                        MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                                .upload_pic_fail(), null);
                     if (success.booleanValue()) {
                         setValue(message.stringValue());
                     } else {
