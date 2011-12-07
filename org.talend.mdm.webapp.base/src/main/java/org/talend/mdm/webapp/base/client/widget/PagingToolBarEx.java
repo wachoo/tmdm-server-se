@@ -174,7 +174,7 @@ public class PagingToolBarEx extends PagingToolBar {
                     sizeF.setValidator(validator);
                     sizeF.addListener(Events.Change, new Listener<BaseEvent>() {
 
-                        @Override
+
                         public void handleEvent(BaseEvent be) {
                             sizeField.setValue((int) Double.parseDouble(sizeF.getValue() + "")); //$NON-NLS-1$
                             if (!sizeField.isFireChangeEventOnSetValue()) {
@@ -186,7 +186,7 @@ public class PagingToolBarEx extends PagingToolBar {
 
                     sizeF.addListener(Events.KeyDown, new Listener<FieldEvent>() {
 
-                        @Override
+
                         public void handleEvent(FieldEvent fe) {
                             if (fe.getKeyCode() == KeyCodes.KEY_ENTER) {
                                 blur(tempInputEl.dom);
