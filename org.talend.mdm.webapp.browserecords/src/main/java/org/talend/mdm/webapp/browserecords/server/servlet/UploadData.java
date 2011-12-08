@@ -11,8 +11,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -83,14 +86,16 @@ public class UploadData extends HttpServlet {
         String language = "en"; // default//$NON-NLS-1$
         String encoding = "utf-8";//$NON-NLS-1$
         String header = ""; //$NON-NLS-1$
+        String mandatoryField = "";
         boolean cusExceptionFlag = false;
 
         boolean headersOnFirstLine = false;
         int lineNum = 0;
+        response.setCharacterEncoding("UTF-8"); //$NON-NLS-1$
         PrintWriter writer = response.getWriter();
 
         request.setCharacterEncoding("UTF-8");//$NON-NLS-1$
-
+        
         try {
             if (!FileUploadBase.isMultipartContent(request)) {
                 throw new ServletException(MESSAGES.getMessage("error_upload"));//$NON-NLS-1$
@@ -138,6 +143,8 @@ public class UploadData extends HttpServlet {
                         encoding = item.getString();
                     if (name.equals("header"))//$NON-NLS-1$
                         header = item.getString();
+                    if (name.equals("mandatoryField"))//$NON-NLS-1$
+                        mandatoryField = item.getString();
                     if (name.equals("headersOnFirstLine"))//$NON-NLS-1$
                         headersOnFirstLine = "on".equals(item.getString());//$NON-NLS-1$
                 } else {
@@ -149,8 +156,15 @@ public class UploadData extends HttpServlet {
                 }// if field
             }// while item
 
+            Locale locale = new Locale(language);
             concept = ViewHelper.getConceptFromDefaultViewName(viewPK);
             String[] fields = header.split("@"); //$NON-NLS-1$
+            Set<String> mandatorySet = chechMandatoryField(mandatoryField, fields);
+            
+            if(mandatorySet.size() > 0){
+                cusExceptionFlag = true;
+                throw new ServletException(MESSAGES.getMessage(locale, "error_missing_mandatory_field")); //$NON-NLS-1$
+            }
 
             if ("excel".equals(fileType.toLowerCase())) {//$NON-NLS-1$
                 POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(file));
@@ -163,7 +177,7 @@ public class UploadData extends HttpServlet {
                     int count = row.getPhysicalNumberOfCells();
                     if (fields.length != count) {
                         cusExceptionFlag = true;
-                        throw new ServletException(MESSAGES.getMessage("error_column_width")); //$NON-NLS-1$
+                        throw new ServletException(MESSAGES.getMessage(locale, "error_column_width")); //$NON-NLS-1$
                     }
 
                     ++lineNum;
@@ -239,7 +253,7 @@ public class UploadData extends HttpServlet {
                     String[] splits = line.split(separator);
                     if (fields.length != splits.length) {
                         cusExceptionFlag = true;
-                        throw new ServletException(MESSAGES.getMessage("error_column_width")); //$NON-NLS-1$
+                        throw new ServletException(MESSAGES.getMessage(locale, "error_column_width")); //$NON-NLS-1$
                     }
                     // rebuild the values by checking delimiters
                     ArrayList<String> values = new ArrayList<String>();
@@ -314,6 +328,24 @@ public class UploadData extends HttpServlet {
 
     }
 
+    private Set<String> chechMandatoryField(String mandatoryField, String[] fields){
+        Set<String> fieldSet = new HashSet<String>();
+        for(String field : fields)
+            fieldSet.add(field);
+        
+        String[] mandatoryFields = mandatoryField.split("@"); //$NON-NLS-1$
+        Set<String> mandatorySet = new HashSet<String>();
+        for(String field : mandatoryFields)
+            mandatorySet.add(field);
+        
+        for(String str : fields){
+            if(mandatorySet.contains(str))
+                mandatorySet.remove(str);
+        }
+        
+        return mandatorySet;
+    }
+    
     private void putDocument(String xml, String language) throws ServletException {
         try {
             Util.getPort().putItem(
@@ -391,5 +423,4 @@ public class UploadData extends HttpServlet {
         }
         return result;
     }
-
 }

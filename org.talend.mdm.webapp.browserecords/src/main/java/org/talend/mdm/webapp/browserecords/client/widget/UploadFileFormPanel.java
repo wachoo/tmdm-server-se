@@ -15,8 +15,10 @@ package org.talend.mdm.webapp.browserecords.client.widget;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
+import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
@@ -65,6 +67,10 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         
     private HiddenField<String> headerField;
 
+    private HiddenField<String> mandatoryField;
+    
+    private HiddenField<String> languageField;
+    
     private MessageBox waitBar;
     
     private String type;
@@ -106,6 +112,24 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         return sb.toString();
     }
     
+    private String getMandatoryStr(ViewBean viewBean){
+        EntityModel entityModel = viewBean.getBindingEntityModel();         
+        Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
+        Set<String> keySet = dataTypes.keySet();
+        StringBuilder sb = new StringBuilder();
+        
+        for(String key : keySet){
+            TypeModel typeModel = dataTypes.get(key);
+            if(typeModel != null){
+                if(typeModel.getMaxOccurs() == 1 && typeModel.getMinOccurs() == 1){
+                    sb.append(typeModel.getName()).append("@"); //$NON-NLS-1$
+                }
+            }
+        }
+
+        return sb.toString();
+    }
+    
     private void renderForm() {
 
         nameField = new HiddenField<String>();
@@ -117,6 +141,16 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         headerField.setName("header");//$NON-NLS-1$
         headerField.setValue(this.getHeaderStr(viewBean));
         this.add(headerField);
+        
+        mandatoryField = new HiddenField<String>();
+        mandatoryField.setName("mandatoryField");//$NON-NLS-1$
+        mandatoryField.setValue(this.getMandatoryStr(viewBean));
+        this.add(mandatoryField);
+        
+        languageField = new HiddenField<String>();
+        languageField.setName("language");//$NON-NLS-1$
+        languageField.setValue(UrlUtil.getLanguage());
+        this.add(languageField);
         
         file = new FileUploadField();
         file.setAllowBlank(false);
