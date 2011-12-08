@@ -176,7 +176,7 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
 			frame : false,
 			height : 170,
 			layout : "fit",
-			split : true,
+			split : false,
 			title : "Search Panel",
 			collapsible : true,
 			border: false,
