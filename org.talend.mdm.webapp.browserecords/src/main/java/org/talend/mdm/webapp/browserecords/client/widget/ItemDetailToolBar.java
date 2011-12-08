@@ -134,6 +134,8 @@ public class ItemDetailToolBar extends ToolBar {
     
     private boolean isOutMost;
 
+    private boolean readOnly;
+
     public ItemDetailToolBar(ItemsDetailPanel itemsDetailPanel) {
         this.itemsDetailPanel = itemsDetailPanel;
         this.setBorders(false);
@@ -145,6 +147,7 @@ public class ItemDetailToolBar extends ToolBar {
         this.itemBean = itemBean;
         this.operation = operation;
         this.viewBean = viewBean;
+        this.readOnly = viewBean.getBindingEntityModel().isReadOnly();
         initToolBar();
     }
 
@@ -154,6 +157,7 @@ public class ItemDetailToolBar extends ToolBar {
         this.operation = operation;
         this.isFkToolBar = isFkToolBar;
         this.viewBean = viewBean;
+        this.readOnly = viewBean.getBindingEntityModel().isReadOnly();
         initToolBar();
     }
 
@@ -193,31 +197,40 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private void initViewToolBar() {
-        if (!operation.equalsIgnoreCase(ItemDetailToolBar.VIEW_OPERATION)) {
-            addPersonalViewButton();
+        if (this.readOnly)
+            this.addRelationButton();
+        else {
+            if (!operation.equalsIgnoreCase(ItemDetailToolBar.VIEW_OPERATION)) {
+                addPersonalViewButton();
+                this.addSeparator();
+            }
+            this.addSaveButton();
             this.addSeparator();
+            this.addSaveQuitButton();
+            this.addSeparator();
+            this.addDeleteMenu();
+            this.addSeparator();
+            this.addDuplicateButton();
+            this.addSeparator();
+            this.addJournalButton();
+            this.addSeparator();
+            this.addFreshButton();
+            this.addRelationButton();
+            this.addOpenTaskButton();
+            checkEntitlement(viewBean);
         }
-        this.addSaveButton();
-        this.addSeparator();
-        this.addSaveQuitButton();
-        this.addSeparator();
-        this.addDeleteMenu();
-        this.addSeparator();
-        this.addDuplicateButton();
-        this.addSeparator();
-        this.addJournalButton();
-        this.addSeparator();
-        this.addFreshButton();
-        this.addRelationButton();
-        this.addOpenTaskButton();
-        checkEntitlement(viewBean);
+
     }
 
     private void initCreateToolBar() {
-        this.addSaveButton();
-        this.addSeparator();
-        this.addSaveQuitButton();
-        this.addRelationButton();
+        if (this.readOnly)
+            this.addRelationButton();
+        else {
+            this.addSaveButton();
+            this.addSeparator();
+            this.addSaveQuitButton();
+            this.addRelationButton();
+        }
     }
 
     private void addSaveButton() {
@@ -527,7 +540,8 @@ public class ItemDetailToolBar extends ToolBar {
                 new SessionAwareAsyncCallback<List<ItemBaseModel>>() {
 
                     public void onSuccess(List<ItemBaseModel> processList) {
-                        add(new FillToolItem());
+                        if (!readOnly)
+                            add(new FillToolItem());
                         ListStore<ItemBaseModel> workFlowList = new ListStore<ItemBaseModel>();
                         workFlowList.add(processList);
                         if (workFlowCombo == null) {
@@ -659,18 +673,22 @@ public class ItemDetailToolBar extends ToolBar {
     }-*/;
 
     public void initSmartViewToolBar() {
-        addGeneratedViewButton();
-        addSeparator();
-        addSmartViewCombo();
-        addSeparator();
-        addPrintButton();
-        addSeparator();
-        this.addDuplicateButton();
-        this.addSeparator();
-        this.addJournalButton();
-        this.addSeparator();
-        this.addFreshButton();
-        this.addWorkFlosCombo();
+        if (this.readOnly)
+            this.addWorkFlosCombo();
+        else {
+            addGeneratedViewButton();
+            addSeparator();
+            addSmartViewCombo();
+            addSeparator();
+            addPrintButton();
+            addSeparator();
+            this.addDuplicateButton();
+            this.addSeparator();
+            this.addJournalButton();
+            this.addSeparator();
+            this.addFreshButton();
+            this.addWorkFlosCombo();
+        }
     }
 
     private void updateSmartViewToolBar() {        
@@ -1023,4 +1041,9 @@ public class ItemDetailToolBar extends ToolBar {
             }
         }
     }
+
+    public boolean isReadOnly() {
+        return readOnly;
+    }
+
 }

@@ -659,6 +659,10 @@ public class TreeDetail extends ContentPanel {
         this.toolBar = toolBar;
     }
 
+    public ItemDetailToolBar getToolBar() {
+        return toolBar;
+    }
+
     public Map<String, Field<?>> getFieldMap() {
         return fieldMap;
     }

@@ -153,6 +153,8 @@ public class DataModelHelper {
             // parse annotation
             if (typeModel != null) {
                 parseAnnotation(currentXPath, e, typeModel, roles);
+                if (parentTypeModel != null && !typeModel.isReadOnly() && entityModel.isReadOnly())
+                    entityModel.setReadOnly(false);
                 typeModel.setMinOccurs(minOccurs);
                 typeModel.setMaxOccurs(maxOccurs);
             }

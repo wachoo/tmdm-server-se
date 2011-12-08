@@ -40,7 +40,6 @@ import org.talend.mdm.webapp.browserecords.client.widget.ItemsSearchContainer;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator.FieldCreator;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyListWindow;
-import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTreeDetail;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
@@ -277,8 +276,11 @@ public class BrowseRecordsView extends View {
     private void onCreateForeignKeyView(AppEvent event) {
         ViewBean viewBean = event.getData();
         ItemsDetailPanel detailPanel = event.getData(BrowseRecordsView.ITEMS_DETAIL_PANEL);
-        ForeignKeyTreeDetail tree = new ForeignKeyTreeDetail(viewBean, true, detailPanel);
-        detailPanel.addTabItem(viewBean.getBindingEntityModel().getConceptLabel(), tree, ItemsDetailPanel.MULTIPLE,
+        // ForeignKeyTreeDetail tree = new ForeignKeyTreeDetail(viewBean, true, detailPanel);
+        detailPanel.clearContent();
+        ItemPanel itemPanel = new ItemPanel(viewBean, new ItemBean(viewBean.getBindingEntityModel().getConceptName(), "", ""), //$NON-NLS-1$//$NON-NLS-2$
+                ItemDetailToolBar.CREATE_OPERATION, detailPanel);
+        detailPanel.addTabItem(viewBean.getBindingEntityModel().getConceptLabel(), itemPanel, ItemsDetailPanel.MULTIPLE,
                 viewBean.getDescription());
 
     }

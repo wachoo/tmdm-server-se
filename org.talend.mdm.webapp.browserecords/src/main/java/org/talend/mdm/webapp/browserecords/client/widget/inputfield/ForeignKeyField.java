@@ -11,6 +11,8 @@ import org.talend.mdm.webapp.browserecords.client.widget.ForeignKeyFieldList;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyListWindow;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTreeDetail;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail;
 
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.core.El;
@@ -18,6 +20,7 @@ import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.ComponentHelper;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -47,6 +50,8 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
 
     private ItemsDetailPanel itemsDetailPanel;
     
+    private boolean readOnly;
+
     public ForeignKeyField(String foreignKey, List<String> foreignKeyInfo, ItemsDetailPanel itemsDetailPanel) {
         this.itemsDetailPanel = itemsDetailPanel;
         this.foreignKeyName = foreignKey.split("/")[0]; //$NON-NLS-1$
@@ -57,6 +62,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         fkWindow.setResizable(false);
         fkWindow.setModal(true);
         fkWindow.setBlinkModal(true);
+        fkButtonControl();
     }
 
     public ForeignKeyField(String foreignKey, List<String> foreignKeyInfo, ForeignKeyFieldList fkFieldList, ItemsDetailPanel itemsDetailPanel) {
@@ -102,6 +108,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
 
         Element tr = DOM.createTR();
         Element body = DOM.createTBody();
+
         Element selectTD = DOM.createTD();
         Element addTD = DOM.createTD();
         Element cleanTD = DOM.createTD();
@@ -117,10 +124,15 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         wrap.appendChild(foreignDiv);
 
         setElement(wrap.dom, target, index);
-        selectTD.appendChild(selectFKBtn.getElement());
-        addTD.appendChild(addFKBtn.getElement());
-        cleanTD.appendChild(cleanFKBtn.getElement());
-        relationTD.appendChild(relationFKBtn.getElement());
+        if (this.readOnly) {
+            relationTD.appendChild(relationFKBtn.getElement());
+        } else {
+            selectTD.appendChild(selectFKBtn.getElement());
+            addTD.appendChild(addFKBtn.getElement());
+            cleanTD.appendChild(cleanFKBtn.getElement());
+            relationTD.appendChild(relationFKBtn.getElement());
+        }
+
         addListener();
 
         this.setAutoWidth(true);
@@ -208,5 +220,16 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
     public void setReturnCriteriaFK() {
         fkWindow.setReturnCriteriaFK(this);
         fkWindow.setHeading(MessagesFactory.getMessages().fk_RelatedRecord());
+    }
+
+    private void fkButtonControl() {
+        ContentPanel cp = itemsDetailPanel.getTreeDetail();
+        if (cp instanceof TreeDetail) {
+            TreeDetail treeDetail = (TreeDetail) cp;
+            readOnly = treeDetail.getToolBar().isReadOnly();
+        } else {
+            ForeignKeyTreeDetail fkTreeDetail = (ForeignKeyTreeDetail) cp;
+            readOnly = fkTreeDetail.getToolBar().isReadOnly();
+        }
     }
 }

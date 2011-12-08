@@ -32,11 +32,21 @@ public class EntityModel implements IsSerializable {
 
     private Map<String, TypeModel> metaDataTypes;//TODO: Change to SortedMap
 
+    private boolean readOnly = true;
+
     /**
      * DOC HSHU EntityModel constructor comment.
      */
     public EntityModel() {
         this.metaDataTypes = new LinkedHashMap<String, TypeModel>();//Can I use linked hashMap?
+    }
+
+    public boolean isReadOnly() {
+        return readOnly;
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
     }
 
     public String getConceptName() {
