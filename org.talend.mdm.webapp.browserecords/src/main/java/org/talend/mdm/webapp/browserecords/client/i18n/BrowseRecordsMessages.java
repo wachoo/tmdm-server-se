@@ -46,7 +46,7 @@ public interface BrowseRecordsMessages extends Messages {
     String journal_tip();
 
     String refresh_tip();
-    
+
     String refresh_error();
 
     String button_reset();
@@ -298,8 +298,6 @@ public interface BrowseRecordsMessages extends Messages {
     String msg_confirm_refresh_tree_detail();
 
     String msg_confirm_save_tree_detail(String entityName);
-    
-    String msg_confirm_save_tree_detailEx(String entityName);
 
     String fk_del_title();
 
@@ -348,7 +346,6 @@ public interface BrowseRecordsMessages extends Messages {
     String fk_edit_failure();
 
     String fk_save_validate(String name, int value);
-    String fk_save_validateEx(String name, int value);
 
     String entity_display_name();
 

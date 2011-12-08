@@ -98,20 +98,20 @@ import com.google.gwt.user.client.ui.Widget;
 public class ItemsListPanel extends ContentPanel {
 
     List<ItemBean> selectedItems = null;
-    
+
     private boolean isCreate = false;
 
     public boolean isCreate() {
-		return isCreate;
-	}
+        return isCreate;
+    }
 
-	public void setCreate(boolean isCreate) {
-		this.isCreate = isCreate;
-	}
+    public void setCreate(boolean isCreate) {
+        this.isCreate = isCreate;
+    }
 
     private QueryModel currentQueryModel;
 
-	BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
+    BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
 
     RpcProxy<PagingLoadResult<ItemBean>> proxy = new RpcProxy<PagingLoadResult<ItemBean>>() {
 
@@ -197,11 +197,11 @@ public class ItemsListPanel extends ContentPanel {
         }
         return instance;
     }
-    
+
     @Override
     protected void onDetach() {
-    	super.onDetach();
-    	instance = null;
+        super.onDetach();
+        instance = null;
     }
 
     private ItemsListPanel() {
@@ -218,16 +218,16 @@ public class ItemsListPanel extends ContentPanel {
             public void loaderLoad(LoadEvent le) {
                 if (store.getModels().size() > 0) {
                     if (selectedItems == null) {
-                    	//search and create
-                    	if(isCreate)
-                    		grid.getSelectionModel().select(grid.getStore().getCount() - 1, false);
-                    	else
-                    		grid.getSelectionModel().select(0, false);
-                    	isCreate = false;
+                        // search and create
+                        if (isCreate)
+                            grid.getSelectionModel().select(grid.getStore().getCount() - 1, false);
+                        else
+                            grid.getSelectionModel().select(0, false);
+                        isCreate = false;
                     }
                 } else {
                     ItemsToolBar.getInstance().searchBut.setEnabled(true);
-//                    ItemsMainTabPanel.getInstance().getCurrentViewTabItem().clearAll();
+                    // ItemsMainTabPanel.getInstance().getCurrentViewTabItem().clearAll();
 
                 }
             }
@@ -258,7 +258,7 @@ public class ItemsListPanel extends ContentPanel {
         gridContainer.setHeaderVisible(false);
         int usePageSize = PAGE_SIZE;
         if (StateManager.get().get("grid") != null) //$NON-NLS-1$
-            usePageSize = Integer.valueOf(((Map<?,?>) StateManager.get().get("grid")).get("limit").toString()); //$NON-NLS-1$ //$NON-NLS-2$
+            usePageSize = Integer.valueOf(((Map<?, ?>) StateManager.get().get("grid")).get("limit").toString()); //$NON-NLS-1$ //$NON-NLS-2$
         pagingBar = new PagingToolBarEx(usePageSize);
         pagingBar.setHideMode(HideMode.VISIBILITY);
         pagingBar.getMessages().setDisplayMsg(MessagesFactory.getMessages().page_displaying_records());
@@ -292,24 +292,24 @@ public class ItemsListPanel extends ContentPanel {
             @Override
             public void selectionChanged(final SelectionChangedEvent<ItemBean> se) {
                 DeferredCommand.addCommand(new Command() {
-                    
+
                     public void execute() {
                         if (isCurrentRecordChange()) {
                             MessageBox msgBox = MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory
-                                    .getMessages()
-                                    .msg_confirm_save_tree_detailEx(root.getLabel()), new Listener<MessageBoxEvent>() {
+                                    .getMessages().msg_confirm_save_tree_detail(root.getLabel()),
+                                    new Listener<MessageBoxEvent>() {
 
-                                public void handleEvent(MessageBoxEvent be) {
-                                    if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                        toolBar.saveItemAndClose(true);
-                                    }
-                                    selectRow(se);
-                                }
-                            });
+                                        public void handleEvent(MessageBoxEvent be) {
+                                            if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+                                                toolBar.saveItemAndClose(true);
+                                            }
+                                            selectRow(se);
+                                        }
+                                    });
                             msgBox.getDialog().setWidth(550);
                         } else
                             selectRow(se);
-        
+
                     }
                 });
 
@@ -350,7 +350,7 @@ public class ItemsListPanel extends ContentPanel {
                 EntityModel entityModel = (EntityModel) BrowseRecords.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
                 final ItemBean itemBean = grid.getSelectionModel().getSelectedItem();
                 Map<String, Date> originalMap = itemBean.getOriginalMap();
-                
+
                 while (iterator.hasNext()) {
                     String path = iterator.next();
                     TypeModel tm = entityModel.getMetaDataTypes().get(path);
@@ -359,7 +359,7 @@ public class ItemsListPanel extends ContentPanel {
                         ForeignKeyBean fkBean = itemBean.getForeignkeyDesc(value);
                         changedField.put(path, fkBean.getId());
                     } else {
-                        if(originalMap.containsKey(path)){
+                        if (originalMap.containsKey(path)) {
                             Date date = originalMap.get(path);
                             value = DateUtil.getDate(date);
                         }
@@ -432,6 +432,7 @@ public class ItemsListPanel extends ContentPanel {
         editRow.setText(MessagesFactory.getMessages().edititem());
         editRow.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Edit()));
         editRow.addSelectionListener(new SelectionListener<MenuEvent>() {
+
             @Override
             public void componentSelected(MenuEvent ce) {
                 ItemBean m = grid.getSelectionModel().getSelectedItem();
@@ -466,10 +467,10 @@ public class ItemsListPanel extends ContentPanel {
             }
         });
         contextMenu.add(openInTab);
-    
-     grid.setContextMenu(contextMenu);
-    
-     }
+
+        grid.setContextMenu(contextMenu);
+
+    }
 
     public void layoutGrid() {
         this.layout(true);
@@ -506,11 +507,11 @@ public class ItemsListPanel extends ContentPanel {
             }
         }
     }
-    
+
     public void lastPage() {
         if (pagingBar != null && pagingBar.getItemCount() > 0)
-            pagingBar.last();        
-    } 
+            pagingBar.last();
+    }
 
     public void resetGrid() {
         store.removeAll();
@@ -530,25 +531,25 @@ public class ItemsListPanel extends ContentPanel {
                 service.getItem(itemBean, viewbean.getViewPK(), entityModel, Locale.getLanguage(),
                         new SessionAwareAsyncCallback<ItemBean>() {
 
-                   public void onSuccess(ItemBean result) {
-                        Record record = store.getRecord(itemBean);
-                        itemBean.copy(result);
-                        Map<String,String> formateMap = result.getFormateMap();
-                        Set fomateKeySet = formateMap.keySet();
-                        Iterator fomatekeyIt = fomateKeySet.iterator();
-                        
-                        while (fomatekeyIt.hasNext()){
-                            String key = (String)fomatekeyIt.next();
-                            record.set(key, formateMap.get(key));  
-                            
-                        }
-                        record.commit(false);
-                        
-                        if (refreshItemForm) {
-                            Dispatcher.forwardEvent(BrowseRecordsEvents.ViewItem, itemBean);
-                        }
-                    }
-                });
+                            public void onSuccess(ItemBean result) {
+                                Record record = store.getRecord(itemBean);
+                                itemBean.copy(result);
+                                Map<String, String> formateMap = result.getFormateMap();
+                                Set<String> fomateKeySet = formateMap.keySet();
+                                Iterator<String> fomatekeyIt = fomateKeySet.iterator();
+
+                                while (fomatekeyIt.hasNext()) {
+                                    String key = fomatekeyIt.next();
+                                    record.set(key, formateMap.get(key));
+
+                                }
+                                record.commit(false);
+
+                                if (refreshItemForm) {
+                                    Dispatcher.forwardEvent(BrowseRecordsEvents.ViewItem, itemBean);
+                                }
+                            }
+                        });
             } else {
                 pagingBar.first();
             }

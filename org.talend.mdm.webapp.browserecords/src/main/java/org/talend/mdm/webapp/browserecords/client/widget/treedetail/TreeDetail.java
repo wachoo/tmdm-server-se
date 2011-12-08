@@ -241,8 +241,7 @@ public class TreeDetail extends ContentPanel {
                 TypeModel typeModel = metaDataTypes.get(nodeBindingPath);
                 String typeModelFK = typeModel.getForeignkey();
                 String typeModelDefaultValue = typeModel.getDefaultValue();
-                if (withDefaultValue && typeModelDefaultValue != null
-                        && (nodeObjectValue == null || nodeObjectValue.equals(""))) //$NON-NLS-1$
+                if (withDefaultValue && typeModelDefaultValue != null && (nodeObjectValue == null || nodeObjectValue.equals(""))) //$NON-NLS-1$
                     node.setObjectValue(typeModelDefaultValue);
                 if (typeModelFK != null && isRoot) {
                     if (!fkMap.containsKey(typeModel)) {
@@ -625,8 +624,10 @@ public class TreeDetail extends ContentPanel {
                 // check value
                 ForeignKeyBean fkBean = (ForeignKeyBean) node.getObjectValue();
                 if (fkBean == null || fkBean.getId() == null) {
-                    MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
-                            .fk_save_validateEx(ForeignKeyUtil.transferXpathToLabel(tm, viewBean), tm.getMinOccurs()), null);
+                    MessageBox.alert(
+                            MessagesFactory.getMessages().error_title(),
+                            MessagesFactory.getMessages().fk_save_validate(ForeignKeyUtil.transferXpathToLabel(tm, viewBean),
+                                    tm.getMinOccurs()), null);
                     return false;
                 }
             }

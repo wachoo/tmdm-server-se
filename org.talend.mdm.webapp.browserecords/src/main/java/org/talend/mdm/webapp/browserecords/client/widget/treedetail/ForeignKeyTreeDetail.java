@@ -81,7 +81,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     private HashMap<CountMapItem, Integer> occurMap = new HashMap<CountMapItem, Integer>();
 
     private DynamicTreeItem selectedItem;
-    
+
     private ItemsDetailPanel itemsDetailPanel;
 
     private ClickHandler handler = new ClickHandler() {
@@ -159,8 +159,10 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         this.isCreate = isCreate;
         this.viewBean = viewBean;
         this.columnLayoutModel = viewBean.getColumnLayoutModel();
-        this.toolBar = new ItemDetailToolBar(new ItemBean(viewBean.getBindingEntityModel().getConceptName(), "", ""), //$NON-NLS-1$//$NON-NLS-2$
-                isCreate ? ItemDetailToolBar.CREATE_OPERATION : ItemDetailToolBar.VIEW_OPERATION, true, viewBean, itemsDetailPanel);
+        this.toolBar = new ItemDetailToolBar(
+                new ItemBean(viewBean.getBindingEntityModel().getConceptName(), "", ""), //$NON-NLS-1$//$NON-NLS-2$
+                isCreate ? ItemDetailToolBar.CREATE_OPERATION : ItemDetailToolBar.VIEW_OPERATION, true, viewBean,
+                itemsDetailPanel);
         this.setTopComponent(toolBar);
         buildPanel(viewBean);
     }
@@ -176,11 +178,11 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                 : ItemDetailToolBar.VIEW_OPERATION, true, viewBean, itemsDetailPanel);
         this.setTopComponent(toolBar);
         itemsDetailPanel.clearContent();
-        itemsDetailPanel.initBanner(fkModel.getItemBean().getPkInfoList(),
-                fkModel.getItemBean().getDescription());
+        itemsDetailPanel.initBanner(fkModel.getItemBean().getPkInfoList(), fkModel.getItemBean().getDescription());
         // Update breadcrumb
-        itemsDetailPanel.appendBreadCrumb(fkModel.getItemBean().getConcept(), fkModel.getItemBean().getLabel(),
-                fkModel.getItemBean().getIds(), fkModel.getItemBean().getDisplayPKInfo().equals(fkModel.getItemBean().getLabel())? null : fkModel.getItemBean().getDisplayPKInfo());
+        itemsDetailPanel.appendBreadCrumb(fkModel.getItemBean().getConcept(), fkModel.getItemBean().getLabel(), fkModel
+                .getItemBean().getIds(), fkModel.getItemBean().getDisplayPKInfo().equals(fkModel.getItemBean().getLabel()) ? null
+                : fkModel.getItemBean().getDisplayPKInfo());
         buildPanel(viewBean);
     }
 
@@ -487,13 +489,13 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                     if (fkValidateMap.get(typeModel).isHaveNodeValue()) {
                         int count = map.get(typeModel);
                         if (typeModel.getMinOccurs() > count) {
-                                MessageBox.alert(
-                                        MessagesFactory.getMessages().error_title(),
-                                        MessagesFactory.getMessages().fk_save_validate(
+                            MessageBox.alert(
+                                    MessagesFactory.getMessages().error_title(),
+                                    MessagesFactory.getMessages().fk_save_validate(
                                             ForeignKeyUtil.transferXpathToLabel(typeModel, viewBean), typeModel.getMinOccurs()),
                                     null);
-                                flag = false;
-                                break;
+                            flag = false;
+                            break;
                         }
                     }
                 }
@@ -552,8 +554,9 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                 // check value
                 ForeignKeyBean fkBean = (ForeignKeyBean) node.getObjectValue();
                 if (fkBean == null || fkBean.getId() == null) {
-                    MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
-                            .fk_save_validateEx(ForeignKeyUtil.transferXpathToLabel(tm, viewBean),
+                    MessageBox.alert(
+                            MessagesFactory.getMessages().error_title(),
+                            MessagesFactory.getMessages().fk_save_validate(ForeignKeyUtil.transferXpathToLabel(tm, viewBean),
                                     tm.getMinOccurs()), null);
                     return false;
                 }
