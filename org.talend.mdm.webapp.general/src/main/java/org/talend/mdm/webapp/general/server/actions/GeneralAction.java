@@ -179,7 +179,7 @@ public class GeneralAction implements GeneralService {
         try {
             return Webapp.INSTANCE.isExpired();
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            LOG.error(e.getMessage());
             throw new ServiceException(e.getLocalizedMessage());
         }
     }
