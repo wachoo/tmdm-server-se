@@ -44,7 +44,9 @@ import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Image;
 
@@ -170,12 +172,17 @@ public class PictureField extends TextField<String> {
         if (value != null && value.length() != 0) {
 
             if (!value.startsWith("/imageserver/")) //$NON-NLS-1$
-                image.setSize("150", "300");
                 this.value = "/imageserver/" + value; //$NON-NLS-1$
             image.setUrl(this.value);
+
         } else {
             image.setUrl(DefaultImage);
         }
+        DeferredCommand.addCommand(new Command() {
+            public void execute() {
+                image.setWidth("180px");
+            }
+        });
         if (isFireChangeEventOnSetValue()) {
           fireChangeEvent(oldValue, value);
         }
