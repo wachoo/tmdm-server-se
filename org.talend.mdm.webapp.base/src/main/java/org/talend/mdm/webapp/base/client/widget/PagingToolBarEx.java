@@ -94,6 +94,7 @@ public class PagingToolBarEx extends PagingToolBar {
         this.insert(sizeComp, this.getItemCount() - 2);
     }
 
+    @Override
     protected void onResize(int width, int height) {
         super.onResize(width, height);
         this.layout(true);
@@ -127,11 +128,13 @@ public class PagingToolBarEx extends PagingToolBar {
 
         private El tempInputEl;
 
+        @Override
         protected void initMore() {
             super.initMore();
             moreMenu.setWidth(250);
         }
 
+        @Override
         protected void addComponentToMenu(Menu menu, Component c) {
             if (c instanceof SeparatorToolItem) {
                 menu.add(new SeparatorMenuItem());
@@ -161,9 +164,10 @@ public class PagingToolBarEx extends PagingToolBar {
             } else if (c instanceof WidgetComponent) {
                 WidgetComponent wc = (WidgetComponent) c;
                 Widget wg = wc.getWidget();
-                if (wg instanceof Grid){
+                if (wg instanceof Grid) {
                     final NumberField sizeF = new NumberField() {
 
+                        @Override
                         protected void onRender(Element target, int index) {
                             super.onRender(target, index);
                             tempInputEl = this.input;
@@ -173,7 +177,6 @@ public class PagingToolBarEx extends PagingToolBar {
                     sizeF.setWidth(30);
                     sizeF.setValidator(validator);
                     sizeF.addListener(Events.Change, new Listener<BaseEvent>() {
-
 
                         public void handleEvent(BaseEvent be) {
                             sizeField.setValue((int) Double.parseDouble(sizeF.getValue() + "")); //$NON-NLS-1$
@@ -186,14 +189,13 @@ public class PagingToolBarEx extends PagingToolBar {
 
                     sizeF.addListener(Events.KeyDown, new Listener<FieldEvent>() {
 
-
                         public void handleEvent(FieldEvent fe) {
                             if (fe.getKeyCode() == KeyCodes.KEY_ENTER) {
                                 blur(tempInputEl.dom);
                             }
                         }
                     });
-                    
+
                     sizeF.setValue((int) (Double.parseDouble(sizeField.getValue() + ""))); //$NON-NLS-1$
                     Grid sizeGrid = new Grid(1, 2);
                     sizeGrid.setWidget(0, 0, new LabelToolItem(BaseMessagesFactory.getMessages().page_size_label()));
@@ -233,7 +235,7 @@ public class PagingToolBarEx extends PagingToolBar {
                 g.setItemId(c.getItemId());
                 menu.add(new SeparatorMenuItem());
                 String heading = g.getHeading();
-                if (heading != null && heading.length() > 0 && !heading.equals("&#160;")) {
+                if (heading != null && heading.length() > 0 && !heading.equals("&#160;")) { //$NON-NLS-1$
                     menu.add(new HeaderMenuItem(g.getHeading()));
                 }
                 for (Component c2 : g.getItems()) {
@@ -242,7 +244,7 @@ public class PagingToolBarEx extends PagingToolBar {
                 menu.add(new SeparatorMenuItem());
             }
 
-              if (menu.getItemCount() > 0) {
+            if (menu.getItemCount() > 0) {
                 if (menu.getItem(0) instanceof SeparatorMenuItem) {
                     menu.remove(menu.getItem(0));
                 }
