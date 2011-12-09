@@ -109,7 +109,7 @@ public class ForeignKeyBean extends ItemBaseModel {
                 int i = 0;
                 for (String key : this.getProperties().keySet()) {
                     if (!key.equals("i")) { //$NON-NLS-1$
-                        if (i > 0)
+                        if (i > 0 && !"".equals(sb.toString())) //$NON-NLS-1$
                             sb.append('-');
                         sb.append(this.getProperties().get(key));
                         i++;

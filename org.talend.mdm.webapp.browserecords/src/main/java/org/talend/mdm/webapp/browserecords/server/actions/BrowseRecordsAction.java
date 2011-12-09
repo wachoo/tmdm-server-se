@@ -363,9 +363,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                 formattedId += nodes.item(0).getTextContent();
                             else
                                 formattedId += "-" + nodes.item(0).getTextContent(); //$NON-NLS-1$
-                        } else {
-                            throw new IllegalArgumentException(MESSAGES.getMessage("label_exception_xpath_not_match", //$NON-NLS-1$
-                                    foreignKeyPath, nodes.getLength()));
                         }
                     }
 
