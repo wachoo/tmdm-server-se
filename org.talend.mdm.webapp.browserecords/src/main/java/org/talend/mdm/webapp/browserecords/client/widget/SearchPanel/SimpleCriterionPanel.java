@@ -15,20 +15,19 @@ package org.talend.mdm.webapp.browserecords.client.widget.SearchPanel;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.base.shared.TypeModel;
-import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
-import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKField;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.SpinnerField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator.SearchFieldCreator;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.allen_sauer.gwt.log.client.Log;
-import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
@@ -45,11 +44,11 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.Widget;
 
 /**
  * DOC stephane class global comment. Detailled comment
@@ -60,6 +59,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
 
     private ComboBoxField<BaseModel> operatorComboBox;
 
+    @SuppressWarnings("rawtypes")
     private Field field;
 
     private Button searchBut;
@@ -73,10 +73,6 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
     private ListStore<BaseModel> list = new ListStore<BaseModel>();
 
     private ListStore<BaseModel> operatorlist = new ListStore<BaseModel>();
-
-    private ListStore<BaseModel> valuelist = new ListStore<BaseModel>();
-
-    private BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
 
     public SimpleCriterionPanel(final MultipleCriteriaPanel ancestor, final Panel parent, Button searchBut) {
         super();
@@ -114,9 +110,9 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
             add(new Image(Icons.INSTANCE.remove()) {
 
                 {
-                    addClickListener(new ClickListener() {
+                    addClickHandler(new ClickHandler() {
 
-                        public void onClick(Widget sender) {
+                        public void onClick(ClickEvent ce) {
                             parent.remove(SimpleCriterionPanel.this);
                             if (ancestor != null)
                                 ancestor.redraw();
@@ -170,10 +166,10 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         operatorComboBox.setValue(operatorlist.getAt(0));
     }
 
-    private void adaptOperatorAndValue() {
+    private TypeModel adaptOperatorAndValue() {
         content.removeAll();
-        field = null;
-        field = SearchFieldCreator.createField(itemsPredicates.get(getKey()));
+        TypeModel typeModel = itemsPredicates.get(getKey());
+        field = SearchFieldCreator.createField(typeModel);
         if (field != null) {
             field.setId("SimpleSearchValueFiled"); //$NON-NLS-1$
             if (field instanceof FKField)
@@ -192,6 +188,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         }
         setOperatorComboBox(SearchFieldCreator.cons);
         content.layout();
+        return typeModel;
     }
 
     public void focusField() {
@@ -208,6 +205,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         return operatorComboBox.getValue().get("value"); //$NON-NLS-1$
     }
 
+    @SuppressWarnings("rawtypes")
     private String getValue() {
 
         if (field != null) {
@@ -244,10 +242,11 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         }
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public void setCriterion(SimpleCriterion criterion) {
         try {
             keyComboBox.setValue(list.findModel("value", criterion.getKey())); //$NON-NLS-1$
-            adaptOperatorAndValue();
+            TypeModel typeModel = adaptOperatorAndValue();
             operatorComboBox.setValue(operatorlist.findModel("value", criterion.getOperator())); //$NON-NLS-1$
             if (field != null) {
                 if (field instanceof DateField) {
@@ -267,6 +266,22 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
                     fk.setId(criterion.getValue());
                     fk.setDisplayInfo(criterion.getInfo());
                     ((FKField) field).setValue(fk);
+                } else if (field instanceof SpinnerField) {
+                    String dataType = typeModel.getType().getBaseTypeName();
+                    String value = criterion.getValue();
+                    if (dataType.equals(DataTypeConstants.INT.getBaseTypeName())
+                            || dataType.equals(DataTypeConstants.INTEGER.getBaseTypeName())) {
+                        field.setValue(value != null ? Integer.parseInt(value.toString()) : null);
+                    } else if (dataType.equals(DataTypeConstants.SHORT.getBaseTypeName())) {
+                        field.setValue(value != null ? Short.parseShort(value.toString()) : null);
+                    } else if (dataType.equals(DataTypeConstants.LONG.getBaseTypeName())) {
+                        field.setValue(value != null ? Long.parseLong(value.toString()) : null);
+                    } else if (dataType.equals(DataTypeConstants.DOUBLE.getBaseTypeName())
+                            || dataType.equals(DataTypeConstants.DECIMAL.getBaseTypeName())) {
+                        field.setValue(value != null ? Double.parseDouble(value.toString()) : null);
+                    } else if (dataType.equals(DataTypeConstants.FLOAT.getBaseTypeName())) {
+                        field.setValue(value != null ? Float.parseFloat(value.toString()) : null);
+                    }
                 } else {
                     field.setValue(criterion.getValue());
                 }
