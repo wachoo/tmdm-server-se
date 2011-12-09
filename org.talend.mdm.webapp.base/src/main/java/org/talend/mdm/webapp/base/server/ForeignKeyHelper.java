@@ -113,7 +113,7 @@ public class ForeignKeyHelper {
                 }
 
                 if (resultAsDOM.getNodeName().equals("result")) { //$NON-NLS-1$
-                    initFKBean(resultAsDOM, bean, fk);
+                    initFKBean(resultAsDOM, bean, fk, model.getForeignKeyInfo());
                 } else {
                     bean.set(resultAsDOM.getNodeName(), resultAsDOM.getTextContent().trim());
                 }
@@ -241,13 +241,15 @@ public class ForeignKeyHelper {
         return null;
     }
 
-    private static void initFKBean(Element ele, ForeignKeyBean bean, String fk) {
+    private static void initFKBean(Element ele, ForeignKeyBean bean, String fk, List<String> getForeignKeyInfos) {           
         for (int i = 0; i < ele.getChildNodes().getLength(); i++) {
             if (ele.getChildNodes().item(i) instanceof Element) {
                 Element curEle = (Element) ele.getChildNodes().item(i);
                 bean.set(curEle.getNodeName(), curEle.getTextContent().trim());
-                bean.getForeignKeyInfo().put(fk + "/" + curEle.getNodeName(), curEle.getTextContent().trim()); //$NON-NLS-1$
-                initFKBean(curEle, bean, fk);
+                if (getForeignKeyInfos.contains(fk + "/" + curEle.getNodeName())){ //$NON-NLS-1$
+                    bean.getForeignKeyInfo().put(fk + "/" + curEle.getNodeName(), curEle.getTextContent().trim()); //$NON-NLS-1$
+                }                
+                initFKBean(curEle, bean, fk ,getForeignKeyInfos);
             }
         }
     }
