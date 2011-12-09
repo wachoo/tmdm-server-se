@@ -21,4 +21,5 @@ public interface StandardPropertiesStrategy {
      *         properties that can allow a simple Java's main method to be executed without any issue.
      */
     Properties getStandardProperties();
+
 }

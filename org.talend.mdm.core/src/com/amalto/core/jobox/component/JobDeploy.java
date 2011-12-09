@@ -79,7 +79,6 @@ public class JobDeploy {
      * @see com.amalto.core.jobox.util.JoboxConfig#getDeployPath()
      * @see com.amalto.core.jobox.util.JoboxConfig#getWorkPath()
      * @see JobContainer#lock(boolean)
-     * @return The job directory name.
      */
     public void deploy(String jobZipFileName) {
         try {

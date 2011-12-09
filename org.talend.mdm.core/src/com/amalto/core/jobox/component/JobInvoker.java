@@ -87,6 +87,7 @@ public abstract class JobInvoker {
                 throw new MissingMainClassException();
             }
 
+            // container.updateJobLoadersPool(jobInfo);
             Class jobClass = container.getJobClass(jobInfo);
             Method runJobMethod = jobClass.getMethod("runJob", String[].class);//$NON-NLS-1$
 

@@ -13,20 +13,10 @@
 
 package com.amalto.core.jobox.properties;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.io.Writer;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
 import org.apache.log4j.Logger;
+
+import java.io.*;
+import java.util.*;
 
 /**
  * <p>
@@ -74,10 +64,15 @@ public class ThreadIsolatedSystemProperties extends Properties {
      */
     public void isolateThread(Thread thread, Properties threadDefault) {
         synchronized (threadProperties) {
+            if (threadDefault == this) {
+                // Prevents infinite loops for system property lookup.
+                throw new IllegalArgumentException("Cannot accept instance " + threadDefault.getClass().getName() + " as parameter."); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Isolating thread '" + thread.getName() + "'");  //$NON-NLS-1$  //$NON-NLS-2$
             }
-            threadProperties.put(thread.getContextClassLoader(), new Properties(threadDefault));
+            threadProperties.put(thread.getContextClassLoader(), threadDefault);
         }
     }
 

@@ -13,25 +13,21 @@
 
 package com.amalto.core.jobox.component;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Properties;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.amalto.core.jobox.JobInfo;
 import com.amalto.core.jobox.util.JoboxConfig;
 import com.amalto.core.jobox.util.JoboxException;
 import com.amalto.core.jobox.util.JoboxUtil;
 import org.apache.commons.lang.StringUtils;
+
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.*;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class JobAware {
 

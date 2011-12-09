@@ -17,6 +17,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Properties;
+import java.util.StringTokenizer;
 
 /**
  * Implementation of {@link StandardPropertiesStrategy} for Sun/Oracle JVM (tested on 1.6)
@@ -24,6 +25,10 @@ import java.util.Properties;
 class SunOracleStandardPropertiesStrategy implements StandardPropertiesStrategy {
 
     private static final String SUN_PROPERTIES = "sun.conf";
+
+    public static final String SUN_BOOT_CLASS_PATH = "sun.boot.class.path";
+
+    public static final String JAVA_CLASS_PATH = "java.class.path";
 
     public Properties getStandardProperties() {
         Properties properties = new Properties();
@@ -40,12 +45,28 @@ class SunOracleStandardPropertiesStrategy implements StandardPropertiesStrategy 
                     if (!line.startsWith("#")) { // Ignore comments in file
                         String systemProperty = System.getProperty(line);
                         if (systemProperty != null) { // java.util.Properties throws NPE when calling put with null
-                            properties.put(line, systemProperty);
+                            if (SUN_BOOT_CLASS_PATH.equals(line)) {
+                                StringBuilder filteredValue = filterJBoss(systemProperty);
+                                properties.put(line, filteredValue.toString());
+                            } else if ("java.endorsed.dirs".equals(line)) {
+                                // Skip it!
+                            } else if (JAVA_CLASS_PATH.equals(line)) {
+                                StringBuilder filteredValue = filterJBoss(System.getProperty(SUN_BOOT_CLASS_PATH));
+                                properties.put(line, filteredValue.toString());
+                            } else {
+                                properties.put(line, systemProperty);
+                            }
                         }
                     }
                     line = bufferedReader.readLine();
                 }
             }
+
+            // Ensure jobs takes the default JDK implementations
+            properties.put("javax.xml.soap.MessageFactory", "com.sun.xml.internal.messaging.saaj.soap.ver1_1.SOAPMessageFactory1_1Impl");
+            properties.put("javax.xml.soap.MetaFactory", "com.sun.xml.internal.messaging.saaj.soap.SAAJMetaFactoryImpl");
+            properties.put("javax.xml.soap.SOAPFactory", "");
+
             bufferedReader.close();
 
             return properties;
@@ -53,4 +74,21 @@ class SunOracleStandardPropertiesStrategy implements StandardPropertiesStrategy 
             throw new RuntimeException(e);
         }
     }
+
+    private StringBuilder filterJBoss(String systemProperty) {
+        StringBuilder filteredValue = new StringBuilder();
+        StringTokenizer tokenizer = new StringTokenizer(systemProperty, ":");
+        while (tokenizer.hasMoreElements()) {
+            String current = tokenizer.nextToken();
+            if (!current.contains("jboss")) {
+                filteredValue.append(current);
+                if (tokenizer.hasMoreElements()) {
+                    filteredValue.append(":");
+                }
+            }
+
+        }
+        return filteredValue;
+    }
+
 }

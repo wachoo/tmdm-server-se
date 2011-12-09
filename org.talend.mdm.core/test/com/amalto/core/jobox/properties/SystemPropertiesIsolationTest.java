@@ -13,14 +13,14 @@
 
 package com.amalto.core.jobox.properties;
 
+import junit.framework.TestCase;
+
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-
-import junit.framework.TestCase;
 
 public class SystemPropertiesIsolationTest extends TestCase {
 
@@ -52,7 +52,7 @@ public class SystemPropertiesIsolationTest extends TestCase {
         for (SystemModifierRunnable run : runs) {
             Thread newThread = new Thread(run);
             newThread.setContextClassLoader(new URLClassLoader(new URL[0], ClassLoader.getSystemClassLoader()));
-            ThreadIsolatedSystemProperties.getInstance().isolateThread(newThread, System.getProperties());
+            ThreadIsolatedSystemProperties.getInstance().isolateThread(newThread, new Properties());
             threads.add(newThread);
         }
         for (Thread thread : threads) {
@@ -104,7 +104,7 @@ public class SystemPropertiesIsolationTest extends TestCase {
         for (SystemModifierRunnable run : isolatedRuns) {
             Thread newThread = new Thread(run);
             newThread.setContextClassLoader(new URLClassLoader(new URL[0], ClassLoader.getSystemClassLoader()));
-            ThreadIsolatedSystemProperties.getInstance().isolateThread(newThread, System.getProperties());
+            ThreadIsolatedSystemProperties.getInstance().isolateThread(newThread, new Properties());
             threads.add(newThread);
         }
         for (SystemModifierRunnable nonIsolatedRun : nonIsolatedRuns) {
@@ -138,7 +138,7 @@ public class SystemPropertiesIsolationTest extends TestCase {
         for (SystemModifierRunnable run : isolatedRuns) {
             Thread newThread = new Thread(run);
             newThread.setContextClassLoader(new URLClassLoader(new URL[0], ClassLoader.getSystemClassLoader()));
-            ThreadIsolatedSystemProperties.getInstance().isolateThread(newThread, System.getProperties());
+            ThreadIsolatedSystemProperties.getInstance().isolateThread(newThread, new Properties());
             threads.add(newThread);
         }
 

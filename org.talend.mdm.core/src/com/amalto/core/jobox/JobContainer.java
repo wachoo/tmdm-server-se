@@ -98,7 +98,7 @@ public class JobContainer {
             }
         }
 
-        // LOGGER.info("Jobox Home is: " + joboxConfig.getJoboxHome());//$NON-NLS-1$
+        LOGGER.info("Jobox Home is: " + joboxConfig.getJoboxHome()); //$NON-NLS-1$
         // init component
         jobAware = new JobAware(joboxConfig);
         jobDeploy = new JobDeploy(joboxConfig);
@@ -132,7 +132,7 @@ public class JobContainer {
      * @return Returns default JVM properties
      */
     public Properties getStandardProperties() {
-        return standardProperties;
+        return StandardPropertiesStrategyFactory.create().getStandardProperties();
     }
 
     public void updateJobLoadersPool(JobInfo jobInfo) {
@@ -152,7 +152,7 @@ public class JobContainer {
         URL[] urls = JoboxUtil.getClasspathURLs(jobInfo.getClasspath(), jobInfo);
         JobClassLoader cl = new JobClassLoader(urls);
         jobLoadersPool.put(jobInfo, cl);
-        log("Adding new class loader " + cl); //$NON-NLS-1$
+        LOGGER.info("Adding new class loader " + cl); //$NON-NLS-1$
     }
 
     public void removeFromJobLoadersPool(String jobEntityName) {
@@ -169,7 +169,7 @@ public class JobContainer {
 
         if (this.jobLoadersPool.containsKey(jobInfo)) {
             JobClassLoader jobClassLoader = jobLoadersPool.get(jobInfo);
-            log("Removing class loader " + jobClassLoader); //$NON-NLS-1$
+            LOGGER.info("Removing class loader " + jobClassLoader); //$NON-NLS-1$
             jobClassLoader = null;
             jobLoadersPool.remove(jobInfo);
         }
@@ -300,18 +300,17 @@ public class JobContainer {
 
     /**
      * Locks repository <i>if needed</i>, this depends on <code>forModification</code> if:
-     * <p/>
      * <ul>
      * <li>true: calling thread is a deploy thread as it's trying to modify the container.</li>
      * <li>false: calling thread is an executor thread only trying to see if no 'deploy' thread is working on container</li>
      * </ul>
-     * <p/>
      * <p>
      * If calling thread is a deploy thread, it will wait for all executors to complete (whatever job they may be executing).
      * Once wait is over, the thread will acquire all execution permits so no executor thread can run before the deploy
      * thread is complete.
      * </p>
-     * @param forModification <code>true</code> is calling thread is a deploy thread, <code>false</code> otherwise.
+     * @param forModification <code>true</code> if calling thread is a deploy thread (a thread that performs modification
+     *                        on the container), <code>false</code> otherwise.
      * @see #unlock(boolean)
      */
     public void lock(boolean forModification) {
@@ -349,19 +348,22 @@ public class JobContainer {
     }
 
     /**
-     * Locks repository <i>if needed</i>, this depends on <code>forModification</code> if:
-     * <p/>
+     * Unlocks repository, action actually performed depends on <code>forModification</code>, if:
      * <ul>
      * <li>true: calling thread is a deploy thread as it's trying to modify the container.</li>
      * <li>false: calling thread is an executor thread only trying to see if no 'deploy' thread is working on container</li>
      * </ul>
-     * <p/>
      * <p>
-     * If calling thread is a deploy thread, it will release all semaphore's permits so all executors threads can now
+     * If calling thread is a deploy thread, it will release exclusive lock so all executors threads can now
      * run.
      * </p>
+     * <p>
+     * If calling thread is a executor thread, it will decrease the count of current executors threads and wake up any
+     * thread waiting for executor count = 0.
+     * </p>
      *
-     * @param forModification <code>true</code> is calling thread is a deploy thread, <code>false</code> otherwise.
+     * @param forModification <code>true</code> if calling thread is a deploy thread (a thread that performs modification
+     *                        on the container), <code>false</code> otherwise.
      * @see #lock(boolean)
      */
     public void unlock(boolean forModification) {
