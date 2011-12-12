@@ -157,8 +157,8 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		//if(ancestor) check = true;
 		if(itemData.key||(itemData.minOccurs>=1  )) mandatory='<span style="color:red">*</span>';
 		// (itemData.parent==null || (itemData.parent!=null && itemData.parent.minOccurs>=1))
-		var descInfo = '<img src="img/genericUI/information_icon.gif" style="visibility: hidden"/>';
-		if(itemData.description!=null)descInfo='<img src="img/genericUI/information_icon.gif" ext:qtitle="Description" ext:qtip="'+itemData.description+'"/>';
+		var descInfo = '<img src="img/genericUI/information_icon.png" style="visibility: hidden"/>';
+		if(itemData.description!=null)descInfo='<img src="img/genericUI/information_icon.png" ext:qtitle="Description" ext:qtip="'+itemData.description+'"/>';
 		var polymSelector = "";
 		if(itemData.polymiorphism&&itemData.subTypes.length>0){
 			

@@ -88,7 +88,7 @@ public class TreeDetailUtil {
             html = html + "<span style=\"color:red\"> *</span>"; //$NON-NLS-1$
 
         if (null != itemNode.getDescription() && (itemNode.getDescription().trim().length() > 0) && xPath.indexOf("/") > -1) { //$NON-NLS-1$
-            html = html + "<img style='margin-left:16px;' src='/talendmdm/secure/img/genericUI/information_icon.gif' title='" + LabelUtil.convertSpecialHTMLCharacter(itemNode.getDescription()) + "' />"; //$NON-NLS-1$ //$NON-NLS-2$         
+            html = html + "<img style='margin-left:16px;' src='/talendmdm/secure/img/genericUI/information_icon.png' title='" + LabelUtil.convertSpecialHTMLCharacter(itemNode.getDescription()) + "' />"; //$NON-NLS-1$ //$NON-NLS-2$         
         }
         label.setHTML(html);
         hp.add(label);

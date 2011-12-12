@@ -2838,7 +2838,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                     + rootNode.name + '</div>';
                         if (rootNode.description != null
                                 && rootNode.description != "")
-                            descInfo = ' <img src="img/genericUI/information_icon.gif" ext:qtitle="Description" ext:qtip="'
+                            descInfo = ' <img src="img/genericUI/information_icon.png" ext:qtitle="Description" ext:qtip="'
                                     + rootNode.description + '"/>';
                         nameTmp = nameTmp + descInfo;
                         var node1 = new YAHOO.widget.HTMLNode(nameTmp, root,
@@ -3808,7 +3808,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                     + rootNode.name + '</div>';
                         if (rootNode.description != null
                                 && rootNode.description != "")
-                            descInfo = ' <img src="img/genericUI/information_icon.gif" ext:qtitle="Description" ext:qtip="'
+                            descInfo = ' <img src="img/genericUI/information_icon.png" ext:qtitle="Description" ext:qtip="'
                                     + rootNode.description + '"/>';
                         nameTmp = nameTmp + descInfo;
                         var node1 = new YAHOO.widget.HTMLNode(nameTmp, root,
