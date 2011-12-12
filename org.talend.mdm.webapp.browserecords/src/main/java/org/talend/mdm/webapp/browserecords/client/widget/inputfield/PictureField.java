@@ -51,9 +51,9 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Image;
 
 public class PictureField extends TextField<String> {
-    
+
     private static final String CONTEXT_PATH = GWT.getModuleBaseURL().replaceFirst(GWT.getModuleName() + "/", ""); //$NON-NLS-1$ //$NON-NLS-2$
-    
+
     private static final String DefaultImage = CONTEXT_PATH + "images/icons/no_image.gif"; //$NON-NLS-1$
 
     protected El wrap = new El(DOM.createSpan());
@@ -67,7 +67,7 @@ public class PictureField extends TextField<String> {
     protected Element addHandler = new Image(Icons.INSTANCE.image_add()).getElement();
 
     private EditWindow editWin = new EditWindow();
-    
+
     private boolean readOnly;
 
     private Dialog dialog = new Dialog() {
@@ -76,8 +76,9 @@ public class PictureField extends TextField<String> {
         protected void onButtonPressed(Button button) {
             super.onButtonPressed(button);
             if (button == getButtonBar().getItemByItemId(YES)) {
-                
-                RequestBuilder reqBuilder = new RequestBuilder(RequestBuilder.GET, "/imageserver/secure/ImageDeleteServlet?uri=" + value);//$NON-NLS-1$
+
+                RequestBuilder reqBuilder = new RequestBuilder(RequestBuilder.GET,
+                        "/imageserver/secure/ImageDeleteServlet?uri=" + value);//$NON-NLS-1$
 
                 reqBuilder.setCallback(new RequestCallback() {
 
@@ -87,7 +88,8 @@ public class PictureField extends TextField<String> {
                         JSONBoolean success = jsObject.get("success").isBoolean(); //$NON-NLS-1$
                         JSONString message = jsObject.get("message").isString(); //$NON-NLS-1$
                         boolean succeed = success.booleanValue();
-                        MessageBox.alert(succeed ? MessagesFactory.getMessages().message_success() : MessagesFactory.getMessages().message_fail(), message.stringValue(), null);
+                        MessageBox.alert(succeed ? MessagesFactory.getMessages().message_success() : MessagesFactory
+                                .getMessages().message_fail(), message.stringValue(), null);
                         if (succeed) {
                             setValue(null);
                         }
@@ -147,13 +149,13 @@ public class PictureField extends TextField<String> {
     }
 
     private void handlerClick(Element el) {
-        if(!readOnly){
+        if (!readOnly) {
             if (el == addHandler) {
                 editWin.show();
             } else if (el == delHandler) {
                 dialog.show();
-            } 
-        }     
+            }
+        }
     }
 
     private native void regJs(Element el)/*-{
@@ -163,7 +165,6 @@ public class PictureField extends TextField<String> {
 		};
     }-*/;
 
-    
     @Override
     public void setValue(String value) {
         String oldValue = this.value;
@@ -179,17 +180,26 @@ public class PictureField extends TextField<String> {
             image.setUrl(DefaultImage);
         }
         DeferredCommand.addCommand(new Command() {
+
             public void execute() {
-                image.setWidth("180px");
+                // Shrink the image if too big, keep aspect ratio
+                int width = image.getWidth();
+                int height = image.getHeight();
+                if (width > 0 && width > height) {
+                    if (width > 150)
+                        image.setPixelSize(150, (int) (height * 150 / width));
+                } else if (height > 150) {
+                    image.setPixelSize((int) (width * 150 / height), 150);
+                }
             }
         });
         if (isFireChangeEventOnSetValue()) {
-          fireChangeEvent(oldValue, value);
+            fireChangeEvent(oldValue, value);
         }
     }
-    
+
     @Override
-    public String getValue(){
+    public String getValue() {
         return value;
     }
 
@@ -198,7 +208,7 @@ public class PictureField extends TextField<String> {
         super.setReadOnly(readOnly);
         this.readOnly = readOnly;
     }
-    
+
     class EditWindow extends Window {
 
         private FormPanel editForm = new FormPanel();
