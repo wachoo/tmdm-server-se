@@ -79,7 +79,6 @@ set JBOSS_CLASSPATH=%RUN_CLASSPATH%
 rem Setup JBoss specific properties
 set JAVA_OPTS=%JAVA_OPTS% -Dprogram.name=%PROGNAME%
 
-
 rem Add -server to the JVM options, if supported
 "%JAVA%" -version 2>&1 | findstr /I hotspot > nul
 if not errorlevel == 1 (set JAVA_OPTS=%JAVA_OPTS% -server)
@@ -95,6 +94,10 @@ rem JAVA_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,address=8787,server=y,suspen
 
 rem Setup the java endorsed dirs
 set JBOSS_ENDORSED_DIRS=%JBOSS_HOME%\lib\endorsed
+
+rem Setup Bonita specific properties
+set BONITA_OPTS=-Dorg.ow2.bonita.environment=%JBOSS_HOME%\server\default\conf\bonita-environment.xml
+set JAVA_OPTS=%JAVA_OPTS% %BONITA_OPTS%
 
 echo ===============================================================================
 echo.

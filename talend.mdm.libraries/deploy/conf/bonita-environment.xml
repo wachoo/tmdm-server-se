@@ -31,14 +31,14 @@
 
       <!-- Description: Configuration of the Hibernate session factory used by Bonita core. -->
       <hibernate-configuration name='hibernate-configuration:core' >
-        <properties file='/Users/ctoum/Talend/TMDM_TDQEEMPX-Server-All-r67267-V4.2.3/jboss-4.2.2.GA/server/default/conf/bonita-hibernate-core.properties' />
+        <properties file='bonita-hibernate-core.properties' />
         <mappings resource='bonita.mappings.hbm.xml' />
         <cache-configuration resource='bonita.core.cache.xml' usage='read-write' />
       </hibernate-configuration>
 
       <!-- Description: Configuration of the Hibernate session factory used by Bonita history. -->
       <hibernate-configuration name='hibernate-configuration:history' >
-        <properties file='/Users/ctoum/Talend/TMDM_TDQEEMPX-Server-All-r67267-V4.2.3/jboss-4.2.2.GA/server/default/conf/bonita-hibernate-history.properties' />
+        <properties file='bonita-hibernate-history.properties' />
         <mappings resource='bonita.mappings.hbm.xml' />
         <cache-configuration resource='bonita.history.cache.xml' usage='nonstrict-read-write' />
       </hibernate-configuration>
