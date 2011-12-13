@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.HashSet;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
@@ -78,6 +79,11 @@ public class TreeDetail extends ContentPanel {
     private DynamicTreeItem selectedItem;
 
     private ItemsDetailPanel itemsDetailPanel;
+    
+    // In case of custom layout, which displays some elements and not others,
+    // we store the DynamicTreeItem corresponding to the displayed elements in
+    // this set.
+    private HashSet<TreeItem> customLayoutDisplayedElements = new HashSet<TreeItem>();
 
     private ClickHandler handler = new ClickHandler() {
 
@@ -322,6 +328,10 @@ public class TreeDetail extends ContentPanel {
                     String xpath = node.getBindingPath();
                     if (("/" + xpath).equals(ce.getxPath())) { //$NON-NLS-1$
                         treeRootNode.addItem(child);
+                        
+                        // Record the fact that we are displaying this element in the custom layout.
+                        customLayoutDisplayedElements.add(child);
+                        
                         TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath);
                         if (typeModel.getForeignkey() == null && (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1)) {
                             i--;
@@ -368,6 +378,23 @@ public class TreeDetail extends ContentPanel {
             // add(spacehp);
             add(hp);
 
+            
+            // For those TreeItems that are not attached because of the custom layout
+            // we need to set the valid flags of their ItemNodeModel's to true. This
+            // is normally set by the attach listeners of the corresponding fields,
+            // which are never called since these fields are not attached due to 
+            // custom layout. So we set the valid flags manually here. We set it to
+            // true without checking since we assume whatever we got from the server
+            // is valid.
+            int childCount = root.getChildCount();
+            for (int i = 0; i < childCount; ++i) {
+            	TreeItem child = root.getChild(i);
+            	if (!customLayoutDisplayedElements.contains(child)) {
+            		if (child instanceof DynamicTreeItem) {
+            			TreeDetail.setValidFlags((DynamicTreeItem)child);
+            		}
+            	}
+            }            
         } else {
             add(tree);
             addTreeListener(tree);
@@ -377,6 +404,27 @@ public class TreeDetail extends ContentPanel {
         if (foreignKeyDeleteMessage != null && foreignKeyDeleteMessage.trim().length() > 0)
             MessageBox.alert(MessagesFactory.getMessages().warning_title(), foreignKeyDeleteMessage, null).getDialog()
                     .setWidth(600);
+    }
+
+     
+    /**
+     * Recursively set the valid flags of the ItemNodeModel's corresponding
+     * to the dynamicTreeItem and all its children dynamicTreeItem's to true.
+     * Used to set the valid flag for all those items excluded from the display
+     * because of a custom layout. Because they are not displayed, their valid
+     * flags are not set by their attach handlers, which is where the valid flag
+     * is normally set for fields that are displayed.
+     */
+    private static void setValidFlags(DynamicTreeItem dynamicTreeItem)
+    {
+		dynamicTreeItem.getItemNodeModel().setValid(true);
+		int childCount = dynamicTreeItem.getChildCount();
+		for (int i = 0; i < childCount; ++i) {
+			TreeItem child = dynamicTreeItem.getChild(i);
+			if (child instanceof DynamicTreeItem) {
+				TreeDetail.setValidFlags((DynamicTreeItem)child);
+			}
+		}
     }
 
     // get selected item in tree
@@ -685,3 +733,4 @@ public class TreeDetail extends ContentPanel {
     }
 
 }
+
