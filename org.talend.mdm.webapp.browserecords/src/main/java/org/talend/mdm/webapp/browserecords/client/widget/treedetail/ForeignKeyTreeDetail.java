@@ -110,7 +110,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                     // if it has default value
                     if (viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getDefaultValue() != null)
                         model.setObjectValue(viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getDefaultValue());
-                    parentItem.insertItem(buildGWTTree(model, true, false), parentItem.getChildIndex(selectedItem) + 1);
+                    parentItem.insertItem(buildGWTTree(model, true), parentItem.getChildIndex(selectedItem) + 1);
                     occurMap.put(countMapItem, count + 1);
                 } else
                     MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
@@ -143,7 +143,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         }
     };
 
-    public ForeignKeyTreeDetail(ItemsDetailPanel itemsDetailPanel) {
+    private ForeignKeyTreeDetail(ItemsDetailPanel itemsDetailPanel) {
         this.itemsDetailPanel = itemsDetailPanel;
         itemsDetailPanel.setTreeDetail(this);
         this.setHeaderVisible(false);
@@ -152,19 +152,6 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         this.setFkRender(new ForeignKeyRenderImpl());
         // display ForeignKey detail information,the tabPanel need to be clear. including create link refresh.
         itemsDetailPanel.clearContent();
-    }
-
-    public ForeignKeyTreeDetail(ViewBean viewBean, boolean isCreate, ItemsDetailPanel itemsDetailPanel) {
-        this(itemsDetailPanel);
-        this.isCreate = isCreate;
-        this.viewBean = viewBean;
-        this.columnLayoutModel = viewBean.getColumnLayoutModel();
-        this.toolBar = new ItemDetailToolBar(
-                new ItemBean(viewBean.getBindingEntityModel().getConceptName(), "", ""), //$NON-NLS-1$//$NON-NLS-2$
-                isCreate ? ItemDetailToolBar.CREATE_OPERATION : ItemDetailToolBar.VIEW_OPERATION, true, viewBean,
-                itemsDetailPanel);
-        this.setTopComponent(toolBar);
-        buildPanel(viewBean);
     }
 
     public ForeignKeyTreeDetail(ForeignKeyModel fkModel, boolean isCreate, ItemsDetailPanel itemsDetailPanel) {
@@ -199,7 +186,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     }
 
     private void renderTree(ItemNodeModel rootModel) {
-        root = buildGWTTree(rootModel, false, true);
+        root = buildGWTTree(rootModel, false);
         tree = new TreeEx();
         tree.addItem(root);
         root.setState(true);
@@ -274,12 +261,15 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         buildPanel(viewBean);
     }
 
-    private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, boolean withDefaultValue, boolean isRoot) {
+    private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, boolean withDefaultValue) {
         DynamicTreeItem item = new DynamicTreeItem();
         item.setItemNodeModel(itemNode);
         item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, fieldMap, handler, itemsDetailPanel));
         item.setUserObject(itemNode);
-        if (itemNode.getChildren() != null && itemNode.getChildren().size() > 0) {
+
+        List<ModelData> itemNodeChildren = itemNode.getChildren();
+        if (itemNodeChildren != null && itemNodeChildren.size() > 0) {
+            Map<String, TypeModel> metaDataTypes = viewBean.getBindingEntityModel().getMetaDataTypes();
             final Map<TypeModel, List<ItemNodeModel>> fkMap = new LinkedHashMap<TypeModel, List<ItemNodeModel>>();
             for (ModelData model : itemNode.getChildren()) {
                 ItemNodeModel node = (ItemNodeModel) model;
@@ -289,27 +279,36 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                     node.setObjectValue(typeModel.getDefaultValue());
                 if (this.isCreate && this.model != null && node.isKey()) // duplicate
                     node.setObjectValue(null); // id
-                if (typeModel.getForeignkey() != null && fkRender != null && isRoot) {
+
+                boolean isFKDisplayedIntoTab = fkRender != null
+                        && TreeDetail.isFKDisplayedIntoTab(node, typeModel, metaDataTypes);
+
+                if (isFKDisplayedIntoTab) {
                     if (!fkMap.containsKey(typeModel))
                         fkMap.put(typeModel, new ArrayList<ItemNodeModel>());
                     fkMap.get(typeModel).add(node);
-                }
-                if (!isRoot || typeModel.getForeignkey() == null) {
-                    item.addItem(buildGWTTree(node, withDefaultValue, false));
-                    int count = 0;
-                    CountMapItem countMapItem = new CountMapItem(node.getBindingPath(), itemNode);
-                    if (occurMap.containsKey(countMapItem))
-                        count = occurMap.get(countMapItem);
-                    occurMap.put(countMapItem, count + 1);
+                } else {
+                    TreeItem childItem = buildGWTTree(node, withDefaultValue);
+                    if (childItem != null) {
+                        item.addItem(childItem);
+                        int count = 0;
+                        CountMapItem countMapItem = new CountMapItem(node.getBindingPath(), itemNode);
+                        if (occurMap.containsKey(countMapItem))
+                            count = occurMap.get(countMapItem);
+                        occurMap.put(countMapItem, count + 1);
+                    }
                 }
             }
 
-            if (fkMap.size() > 0 && isRoot) {
+            if (fkMap.size() > 0) {
                 for (TypeModel model : fkMap.keySet()) {
                     fkRender.RenderForeignKey(itemNode, fkMap.get(model), model, toolBar, viewBean, ForeignKeyTreeDetail.this,
                             itemsDetailPanel);
                 }
             }
+
+            if (itemNodeChildren.size() > 0 && item.getChildCount() == 0)
+                return null; // All went to FK Tab, in that case return null so the tree item is not added
 
             item.getElement().getStyle().setPaddingLeft(3.0, Unit.PX);
         }

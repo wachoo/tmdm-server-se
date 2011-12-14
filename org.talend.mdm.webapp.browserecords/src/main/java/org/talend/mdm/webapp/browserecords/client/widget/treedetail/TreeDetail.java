@@ -79,7 +79,7 @@ public class TreeDetail extends ContentPanel {
     private DynamicTreeItem selectedItem;
 
     private ItemsDetailPanel itemsDetailPanel;
-    
+
     // In case of custom layout, which displays some elements and not others,
     // we store the DynamicTreeItem corresponding to the displayed elements in
     // this set.
@@ -111,7 +111,7 @@ public class TreeDetail extends ContentPanel {
                     // if it has default value
                     if (viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getDefaultValue() != null)
                         model.setObjectValue(viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getDefaultValue());
-                    parentItem.insertItem(buildGWTTree(model, null, true, false), parentItem.getChildIndex(selectedItem) + 1);
+                    parentItem.insertItem(buildGWTTree(model, null, true), parentItem.getChildIndex(selectedItem) + 1);
                     occurMap.put(countMapItem, count + 1);
                 } else
                     MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
@@ -208,15 +208,14 @@ public class TreeDetail extends ContentPanel {
         }
     }
 
-    private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue,
-            boolean isRoot) {
-        return buildGWTTree(itemNode, item, withDefaultValue, null, isRoot);
+    private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue) {
+        return buildGWTTree(itemNode, item, withDefaultValue, null);
     }
 
     private boolean isFirstKey = true;
 
     private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue,
-            String operation, boolean isRoot) {
+            String operation) {
         if (item == null) {
             item = new DynamicTreeItem();
             item.setItemNodeModel(itemNode);
@@ -236,8 +235,9 @@ public class TreeDetail extends ContentPanel {
         }
 
         List<ModelData> itemNodeChildren = itemNode.getChildren();
-        Map<String, TypeModel> metaDataTypes = viewBean.getBindingEntityModel().getMetaDataTypes();
+
         if (itemNodeChildren != null && itemNodeChildren.size() > 0) {
+            Map<String, TypeModel> metaDataTypes = viewBean.getBindingEntityModel().getMetaDataTypes();
             final Map<TypeModel, List<ItemNodeModel>> fkMap = new LinkedHashMap<TypeModel, List<ItemNodeModel>>();
             for (ModelData model : itemNodeChildren) {
                 ItemNodeModel node = (ItemNodeModel) model;
@@ -245,32 +245,39 @@ public class TreeDetail extends ContentPanel {
                 String nodeBindingPath = node.getBindingPath();
 
                 TypeModel typeModel = metaDataTypes.get(nodeBindingPath);
-                String typeModelFK = typeModel.getForeignkey();
                 String typeModelDefaultValue = typeModel.getDefaultValue();
                 if (withDefaultValue && typeModelDefaultValue != null && (nodeObjectValue == null || nodeObjectValue.equals(""))) //$NON-NLS-1$
                     node.setObjectValue(typeModelDefaultValue);
-                if (typeModelFK != null && isRoot) {
+
+                boolean isFKDisplayedIntoTab = isFKDisplayedIntoTab(node, typeModel, metaDataTypes);
+
+                if (isFKDisplayedIntoTab) {
                     if (!fkMap.containsKey(typeModel)) {
                         fkMap.put(typeModel, new ArrayList<ItemNodeModel>());
                     }
                     fkMap.get(typeModel).add(node);
-                }
-                if (!isRoot || typeModelFK == null) {
-                    TreeItem childItem = buildGWTTree(node, null, withDefaultValue, operation, false);
-                    item.addItem(childItem);
-                    int count = 0;
-                    CountMapItem countMapItem = new CountMapItem(nodeBindingPath, itemNode);
-                    if (occurMap.containsKey(countMapItem))
-                        count = occurMap.get(countMapItem);
-                    occurMap.put(countMapItem, count + 1);
+                } else {
+                    TreeItem childItem = buildGWTTree(node, null, withDefaultValue, operation);
+                    if (childItem != null) { //
+                        item.addItem(childItem);
+                        int count = 0;
+                        CountMapItem countMapItem = new CountMapItem(nodeBindingPath, itemNode);
+                        if (occurMap.containsKey(countMapItem))
+                            count = occurMap.get(countMapItem);
+                        occurMap.put(countMapItem, count + 1);
+                    }
                 }
             }
 
-            if (fkMap.size() > 0 && isRoot) {
+            if (fkMap.size() > 0) {
                 for (TypeModel model : fkMap.keySet()) {
                     fkRender.RenderForeignKey(itemNode, fkMap.get(model), model, toolBar, viewBean, this, itemsDetailPanel);
                 }
             }
+
+            if (itemNodeChildren.size() > 0 && item.getChildCount() == 0)
+                return null; // All went to FK Tab, in that case return null so the tree item is not added
+
             item.getElement().getStyle().setPaddingLeft(3.0, Unit.PX);
         }
 
@@ -278,6 +285,36 @@ public class TreeDetail extends ContentPanel {
         item.setState(viewBean.getBindingEntityModel().getMetaDataTypes().get(itemNode.getBindingPath()).isAutoExpand());
 
         return item;
+    }
+
+    static boolean isFKDisplayedIntoTab(ItemNodeModel node, TypeModel typeModel, Map<String, TypeModel> metaDataTypes) {
+        String typeModelFK = typeModel.getForeignkey();
+        if (typeModelFK == null)
+            return false; // Not a FK
+
+        ItemNodeModel parentNode = (ItemNodeModel) node.getParent();
+        if (parentNode == null)
+            return false; // It is root
+        else {
+            ItemNodeModel grandParentNode = (ItemNodeModel) parentNode.getParent();
+            if (grandParentNode == null) {
+                return true;// parentNode is the root node
+            } else if (grandParentNode.getParent() == null) {
+                // grandParentNode is the root node then
+                // TMDM-3123 : Is it the only contained in a complex type with maxOccurs >=1 ?
+                String parentNodeBindingPath = parentNode.getBindingPath();
+                TypeModel parentTypeModel = metaDataTypes.get(parentNodeBindingPath);
+                if (!parentTypeModel.isSimpleType()) {
+                    ComplexTypeModel parentComplexTypeModel = (ComplexTypeModel) parentTypeModel;
+                    if (parentComplexTypeModel.getSubTypes().size() == 1) {
+                        if (parentComplexTypeModel.getMaxOccurs() == 0 || parentComplexTypeModel.getMaxOccurs() == 1) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public void onUpdatePolymorphism(ComplexTypeModel typeModel) {
@@ -304,7 +341,7 @@ public class TreeDetail extends ContentPanel {
             }
             treeNode.setChildNodes(childrenItems);
         }
-        buildGWTTree(treeNode, selectedItem, true, false);
+        buildGWTTree(treeNode, selectedItem, true);
 
     }
 
@@ -328,10 +365,10 @@ public class TreeDetail extends ContentPanel {
                     String xpath = node.getBindingPath();
                     if (("/" + xpath).equals(ce.getxPath())) { //$NON-NLS-1$
                         treeRootNode.addItem(child);
-                        
+
                         // Record the fact that we are displaying this element in the custom layout.
                         customLayoutDisplayedElements.add(child);
-                        
+
                         TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath);
                         if (typeModel.getForeignkey() == null && (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1)) {
                             i--;
@@ -354,7 +391,7 @@ public class TreeDetail extends ContentPanel {
 
     private void renderTree(ItemNodeModel rootModel, String operation) {
 
-        root = buildGWTTree(rootModel, null, false, operation, true);
+        root = buildGWTTree(rootModel, null, false, operation);
         isFirstKey = true;
         root.setState(true);
         tree = new TreeEx();
@@ -378,23 +415,22 @@ public class TreeDetail extends ContentPanel {
             // add(spacehp);
             add(hp);
 
-            
             // For those TreeItems that are not attached because of the custom layout
             // we need to set the valid flags of their ItemNodeModel's to true. This
             // is normally set by the attach listeners of the corresponding fields,
-            // which are never called since these fields are not attached due to 
+            // which are never called since these fields are not attached due to
             // custom layout. So we set the valid flags manually here. We set it to
             // true without checking since we assume whatever we got from the server
             // is valid.
             int childCount = root.getChildCount();
             for (int i = 0; i < childCount; ++i) {
-            	TreeItem child = root.getChild(i);
-            	if (!customLayoutDisplayedElements.contains(child)) {
-            		if (child instanceof DynamicTreeItem) {
-            			TreeDetail.setValidFlags((DynamicTreeItem)child);
-            		}
-            	}
-            }            
+                TreeItem child = root.getChild(i);
+                if (!customLayoutDisplayedElements.contains(child)) {
+                    if (child instanceof DynamicTreeItem) {
+                        TreeDetail.setValidFlags((DynamicTreeItem) child);
+                    }
+                }
+            }
         } else {
             add(tree);
             addTreeListener(tree);
@@ -406,25 +442,21 @@ public class TreeDetail extends ContentPanel {
                     .setWidth(600);
     }
 
-     
     /**
-     * Recursively set the valid flags of the ItemNodeModel's corresponding
-     * to the dynamicTreeItem and all its children dynamicTreeItem's to true.
-     * Used to set the valid flag for all those items excluded from the display
-     * because of a custom layout. Because they are not displayed, their valid
-     * flags are not set by their attach handlers, which is where the valid flag
-     * is normally set for fields that are displayed.
+     * Recursively set the valid flags of the ItemNodeModel's corresponding to the dynamicTreeItem and all its children
+     * dynamicTreeItem's to true. Used to set the valid flag for all those items excluded from the display because of a
+     * custom layout. Because they are not displayed, their valid flags are not set by their attach handlers, which is
+     * where the valid flag is normally set for fields that are displayed.
      */
-    private static void setValidFlags(DynamicTreeItem dynamicTreeItem)
-    {
-		dynamicTreeItem.getItemNodeModel().setValid(true);
-		int childCount = dynamicTreeItem.getChildCount();
-		for (int i = 0; i < childCount; ++i) {
-			TreeItem child = dynamicTreeItem.getChild(i);
-			if (child instanceof DynamicTreeItem) {
-				TreeDetail.setValidFlags((DynamicTreeItem)child);
-			}
-		}
+    private static void setValidFlags(DynamicTreeItem dynamicTreeItem) {
+        dynamicTreeItem.getItemNodeModel().setValid(true);
+        int childCount = dynamicTreeItem.getChildCount();
+        for (int i = 0; i < childCount; ++i) {
+            TreeItem child = dynamicTreeItem.getChild(i);
+            if (child instanceof DynamicTreeItem) {
+                TreeDetail.setValidFlags((DynamicTreeItem) child);
+            }
+        }
     }
 
     // get selected item in tree
@@ -733,4 +765,3 @@ public class TreeDetail extends ContentPanel {
     }
 
 }
-
