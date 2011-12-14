@@ -129,6 +129,7 @@ public class TreeDetail extends ContentPanel {
                                         TreeDetailGridFieldCreator.deleteField(selectedModel, fieldMap);
                                         parentItem.removeItem(selectedItem);
                                         parentModel.remove(selectedModel);
+                                        parentModel.setChangeValue(true);
                                         occurMap.put(countMapItem, count - 1);
                                         if (parentModel.getChildCount() > 0) {
                                             ItemNodeModel child = (ItemNodeModel) parentModel.getChild(0);
