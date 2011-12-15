@@ -108,6 +108,7 @@ public class TreeDetail extends ContentPanel {
                     model.setMandatory(selectedModel.isMandatory());
                     int selectModelIndex = parentModel.indexOf(selectedModel);
                     parentModel.insert(model, selectModelIndex + 1);
+                    parentModel.setChangeValue(true);
                     // if it has default value
                     if (viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getDefaultValue() != null)
                         model.setObjectValue(viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getDefaultValue());
