@@ -448,7 +448,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         try {
             String dateFormat = "yyyy-MM-dd"; //$NON-NLS-1$
             String dateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss"; //$NON-NLS-1$
-            
+
             String dataCluster = getCurrentDataCluster();
             String dataModel = getCurrentDataModel();
             String concept = itemBean.getConcept();
@@ -466,8 +466,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             itemBean.set("time", wsItem.getInsertionTime()); //$NON-NLS-1$
             if (wsItem.getTaskId() != null && !"".equals(wsItem.getTaskId()) && !"null".equals(wsItem.getTaskId())) { //$NON-NLS-1$ //$NON-NLS-2$
                 itemBean.setTaskId(wsItem.getTaskId());
-            }            
-            
+            }
+
             SimpleDateFormat sdf = null;
             Map<String, String[]> formatMap = this.checkDisplayFormat(entityModel, language);
             Set<String> keySet = formatMap.keySet();
@@ -484,15 +484,15 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         } else if (value[1].equalsIgnoreCase("DATETIME")) { //$NON-NLS-1$
                             sdf = new SimpleDateFormat(dateTimeFormat, java.util.Locale.ENGLISH);
                         }
-                        Date date = sdf.parse(dateText.trim());    
+                        Date date = sdf.parse(dateText.trim());
                         itemBean.getOriginalMap().put(key, date);
                         Calendar calendar = Calendar.getInstance();
                         calendar.setTime(date);
                         String formatValue = com.amalto.webapp.core.util.Util.formatDate(value[0], calendar);
-                        itemBean.getFormateMap().put(key, formatValue);                       
+                        itemBean.getFormateMap().put(key, formatValue);
                     }
                 }
-            }            
+            }
 
             // dynamic Assemble
             dynamicAssemble(itemBean, entityModel, language);
@@ -1564,10 +1564,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     err = MESSAGES.getMessage(locale, "save_failEx", concept); //$NON-NLS-1$
                 }
 
-                if(e.getMessage().indexOf("cvc-pattern-valid") != -1){ //$NON-NLS-1$
+                if (e.getMessage().indexOf("cvc-pattern-valid") != -1) { //$NON-NLS-1$
                     err = MESSAGES.getMessage(locale, "save_pattern_fail", concept); //$NON-NLS-1$
                 }
-                
+
                 serviceException = new ServiceException(err);
             }
             throw serviceException;
@@ -1752,11 +1752,19 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     if (item.getVariable().equals("output_url")) {//$NON-NLS-1$
                         byte[] bytes = item.getWsTypedContent().getWsBytes().getBytes();
                         String content = new String(bytes);
-                        Document resultDoc = Util.parse(content);
-                        NodeList attrList = Util.getNodeList(resultDoc, "//attr");//$NON-NLS-1$
-                        if (attrList != null && attrList.getLength() > 0) {
-                            downloadUrl = attrList.item(0).getTextContent();
-                            outputReport = true;
+                        if (LOG.isDebugEnabled())
+                            LOG.debug("Received output_url "+ content); //$NON-NLS-1$
+                        try {
+                            Document resultDoc = Util.parse(content);
+
+                            NodeList attrList = Util.getNodeList(resultDoc, "//attr");//$NON-NLS-1$
+                            if (attrList != null && attrList.getLength() > 0) {
+                                downloadUrl = attrList.item(0).getTextContent();
+                                outputReport = true;
+                            }
+                        } catch (Exception e) {
+                            LOG.error(e.getMessage(), e);
+                            throw new ServiceException(MESSAGES.getMessage("process_output_url_error")); //$NON-NLS-1$
                         }
                     }
                 }

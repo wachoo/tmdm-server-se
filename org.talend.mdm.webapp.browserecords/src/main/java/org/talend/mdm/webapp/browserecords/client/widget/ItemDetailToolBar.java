@@ -85,7 +85,7 @@ public class ItemDetailToolBar extends ToolBar {
     public final static String PERSONALEVIEW_OPERATION = "PERSONALVIEW"; //$NON-NLS-1$
 
     public final static String DUPLICATE_OPERATION = "DUPLICATE_OPERATION"; //$NON-NLS-1$
-   
+
     private Button saveButton;
 
     private Button saveAndCloseButton;
@@ -129,9 +129,9 @@ public class ItemDetailToolBar extends ToolBar {
     private MenuItem delete_SendToTrash;
 
     private MenuItem delete_Delete;
-    
+
     private ItemsDetailPanel itemsDetailPanel;
-    
+
     private boolean isOutMost;
 
     private boolean readOnly;
@@ -151,7 +151,8 @@ public class ItemDetailToolBar extends ToolBar {
         initToolBar();
     }
 
-    public ItemDetailToolBar(ItemBean itemBean, String operation, boolean isFkToolBar, ViewBean viewBean, ItemsDetailPanel itemsDetailPanel) {
+    public ItemDetailToolBar(ItemBean itemBean, String operation, boolean isFkToolBar, ViewBean viewBean,
+            ItemsDetailPanel itemsDetailPanel) {
         this(itemsDetailPanel);
         this.itemBean = itemBean;
         this.operation = operation;
@@ -180,10 +181,11 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private static int TOOLBAR_HEIGHT = 29;
+
     private void initToolBar() {
-    	this.setHeight(TOOLBAR_HEIGHT + "px"); //$NON-NLS-1$
-    	this.addStyleName("ItemDetailToolBar"); //$NON-NLS-1$    	
-    	
+        this.setHeight(TOOLBAR_HEIGHT + "px"); //$NON-NLS-1$
+        this.addStyleName("ItemDetailToolBar"); //$NON-NLS-1$    	
+
         if (operation.equalsIgnoreCase(ItemDetailToolBar.VIEW_OPERATION)
                 || operation.equalsIgnoreCase(ItemDetailToolBar.PERSONALEVIEW_OPERATION)) {
             initViewToolBar();
@@ -331,10 +333,8 @@ public class ItemDetailToolBar extends ToolBar {
 
                         public void handleEvent(MessageBoxEvent be) {
                             if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                                PostDeleteAction postDeleteAction = new ListRefresh(
-                                        new ContainerUpdate(
-                                                new CloseTabPostDeleteAction(ItemDetailToolBar.this,
-                                                        NoOpPostDeleteAction.INSTANCE)));
+                                PostDeleteAction postDeleteAction = new ListRefresh(new ContainerUpdate(
+                                        new CloseTabPostDeleteAction(ItemDetailToolBar.this, NoOpPostDeleteAction.INSTANCE)));
                                 List<ItemBean> list = new ArrayList<ItemBean>();
                                 list.add(itemBean);
                                 service.checkFKIntegrity(list, new DeleteCallback(DeleteAction.PHYSICAL, postDeleteAction,
@@ -371,14 +371,14 @@ public class ItemDetailToolBar extends ToolBar {
                         ForeignKeyTreeDetail fkTree = (ForeignKeyTreeDetail) itemsDetailPanel.getCurrentlySelectedTabWidget();
                         ForeignKeyTreeDetail duplicateFkTree = new ForeignKeyTreeDetail(fkTree.getFkModel(), true, panel);
                         panel.addTabItem(title, duplicateFkTree, ItemsDetailPanel.SINGLETON, title);
-                        if(!isOutMost)
+                        if (!isOutMost)
                             ItemsMainTabPanel.getInstance().addMainTabItem(title, panel, title);
                     } else {
-                        if(!isOutMost){
+                        if (!isOutMost) {
                             ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.DUPLICATE_OPERATION, panel);
                             panel.addTabItem(title, itemPanel, ItemsDetailPanel.SINGLETON, title);
                             ItemsMainTabPanel.getInstance().addMainTabItem(title, panel, title);
-                        }else{
+                        } else {
                             TreeDetailUtil.initItemsDetailPanelByItemPanel(viewBean, itemBean);
                         }
                     }
@@ -582,15 +582,17 @@ public class ItemDetailToolBar extends ToolBar {
                                     service.processItem(itemBean.getConcept(), ids,
                                             (String) selectItem.get("key"), new SessionAwareAsyncCallback<String>() { //$NON-NLS-1$
 
-                                                public void onSuccess(String result) {
+                                                public void onSuccess(final String urlResult) {
                                                     waitBar.close();
-                                                    if (result.indexOf("Ok") >= 0) { //$NON-NLS-1$
-                                                        MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory
-                                                                .getMessages().process_done(), null);
-                                                    } else {
-                                                        MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory
-                                                                .getMessages().process_failed(), null);
-                                                    }
+                                                    MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory
+                                                            .getMessages().process_done(), new Listener<MessageBoxEvent>() {
+
+                                                        public void handleEvent(MessageBoxEvent be) {
+                                                            if (urlResult != null && urlResult.length() > 0) {
+                                                                openWindow(urlResult);
+                                                            }
+                                                        }
+                                                    });
                                                 }
 
                                                 @Override
@@ -668,8 +670,8 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private native boolean initDSC(String taskId)/*-{
-        $wnd.amalto.datastewardship.Datastewardship.taskItem(taskId);
-        return true;
+		$wnd.amalto.datastewardship.Datastewardship.taskItem(taskId);
+		return true;
     }-*/;
 
     public void initSmartViewToolBar() {
@@ -691,11 +693,11 @@ public class ItemDetailToolBar extends ToolBar {
         }
     }
 
-    private void updateSmartViewToolBar() {        
+    private void updateSmartViewToolBar() {
         int tabCount = itemsDetailPanel.getTabCount();
-        
+
         for (int i = 0; i < tabCount; ++i) {
-        	Widget widget = itemsDetailPanel.getTabWidgetAtIndex(i);
+            Widget widget = itemsDetailPanel.getTabWidgetAtIndex(i);
             if (widget instanceof ItemPanel) {
                 ItemPanel itemPanel = (ItemPanel) widget;
                 ItemDetailToolBar toolbar = itemPanel.getToolBar();
@@ -714,8 +716,8 @@ public class ItemDetailToolBar extends ToolBar {
         int tabCount = itemsDetailPanel.getTabCount();
 
         for (int i = 0; i < tabCount; ++i) {
-        	Widget widget = itemsDetailPanel.getTabWidgetAtIndex(i);
-        	if (widget instanceof ItemPanel) {
+            Widget widget = itemsDetailPanel.getTabWidgetAtIndex(i);
+            if (widget instanceof ItemPanel) {
                 ItemPanel itemPanel = (ItemPanel) widget;
                 ItemDetailToolBar toolbar = itemPanel.getToolBar();
 
@@ -810,18 +812,18 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private native boolean initJournal(String ids, String concept)/*-{
-        $wnd.amalto.updatereport.UpdateReport
-        		.browseUpdateReportWithSearchCriteria(concept, ids, true);
-        return true;
+		$wnd.amalto.updatereport.UpdateReport
+				.browseUpdateReportWithSearchCriteria(concept, ids, true);
+		return true;
     }-*/;
 
     // Please note that this method is duplicated in
     // org.talend.mdm.webapp.browserecords.client.widget.integrity.SingletonDeleteStrategy.initSearchEntityPanel()
     private native boolean initSearchEntityPanel(String arrStr, String ids, String dataObject)/*-{
-        var lineageEntities = arrStr.split(",");
-        $wnd.amalto.itemsbrowser.ItemsBrowser.lineageItem(lineageEntities, ids,
-        		dataObject);
-        return true;
+		var lineageEntities = arrStr.split(",");
+		$wnd.amalto.itemsbrowser.ItemsBrowser.lineageItem(lineageEntities, ids,
+				dataObject);
+		return true;
     }-*/;
 
     public void saveItemAndClose(boolean isClose) {
@@ -836,7 +838,8 @@ public class ItemDetailToolBar extends ToolBar {
                 validate = true;
                 model = (ItemNodeModel) itemPanel.getTree().getRootModel();
                 app.setData("ItemBean", itemPanel.getItem()); //$NON-NLS-1$
-                app.setData("isCreate", itemPanel.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION) || itemPanel.getOperation().equals(ItemDetailToolBar.DUPLICATE_OPERATION) ? true : false); //$NON-NLS-1$
+                app.setData(
+                        "isCreate", itemPanel.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION) || itemPanel.getOperation().equals(ItemDetailToolBar.DUPLICATE_OPERATION) ? true : false); //$NON-NLS-1$
             }
 
         } else if (widget instanceof ForeignKeyTreeDetail) { // save foreign key
@@ -844,7 +847,8 @@ public class ItemDetailToolBar extends ToolBar {
             if (fkDetail.validateTree()) {
                 validate = true;
                 model = fkDetail.getRootModel();
-                app.setData("ItemBean", fkDetail.isCreate() ? new ItemBean(fkDetail.getViewBean().getBindingEntityModel().getConceptName(), "", "") : itemBean); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                app.setData(
+                        "ItemBean", fkDetail.isCreate() ? new ItemBean(fkDetail.getViewBean().getBindingEntityModel().getConceptName(), "", "") : itemBean); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 app.setData("isCreate", fkDetail.isCreate()); //$NON-NLS-1$
             }
         }
@@ -874,24 +878,23 @@ public class ItemDetailToolBar extends ToolBar {
     public void setOperation(String operation) {
         this.operation = operation;
     }
-    
+
     public void setOutMost(boolean isOutMost) {
         this.isOutMost = isOutMost;
     }
 
-    
     public boolean isOutMost() {
         return isOutMost;
     }
 
     public native void closeOutTabPanel()/*-{
-        var tabPanel = $wnd.amalto.core.getTabPanel();
-        tabPanel.closeCurrentTab();
+		var tabPanel = $wnd.amalto.core.getTabPanel();
+		tabPanel.closeCurrentTab();
     }-*/;
 
     public native void updateOutTabPanel(String tabText)/*-{
-        var tabPanel = $wnd.amalto.core.getTabPanel();
-        tabPanel.updateCurrentTabText(tabText);
+		var tabPanel = $wnd.amalto.core.getTabPanel();
+		tabPanel.updateCurrentTabText(tabText);
     }-*/;
 
     class MenuEx extends Menu {
@@ -942,7 +945,7 @@ public class ItemDetailToolBar extends ToolBar {
         }
 
         private native El getExtrasTr()/*-{
-            return this.@com.extjs.gxt.ui.client.widget.layout.ToolBarLayout::extrasTr;
+			return this.@com.extjs.gxt.ui.client.widget.layout.ToolBarLayout::extrasTr;
         }-*/;
 
         @SuppressWarnings("unchecked")
@@ -1045,5 +1048,9 @@ public class ItemDetailToolBar extends ToolBar {
     public boolean isReadOnly() {
         return readOnly;
     }
+
+    private native void openWindow(String url)/*-{
+		window.open(url);
+    }-*/;
 
 }
