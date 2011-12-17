@@ -1,9 +1,0 @@
-<updateaction>
-	
-	<operation>INSERT</operation>
-	<part>
-	    <!-- UPDATE will using key field-->
-		<content><Customer mapping-table="tuser"> 	<CustomerId mapping-field="id" key-field="true">"TEST008"</CustomerId> 	<Name mapping-field="name">"TEST008"</Name> 	<Address mapping-field="address">"United States"</Address> </Customer> </content>
-	</part>
-	
-</updateaction>

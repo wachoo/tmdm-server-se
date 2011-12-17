@@ -32,6 +32,42 @@ public class CommonUtil {
         return xpath;
     }
 
+    public static String getRealXPath(ItemNodeModel nodeModel){
+        String realXPath = ""; //$NON-NLS-1$
+        ItemNodeModel current = nodeModel;
+        boolean isFirst = true;
+        while (current != null){
+            String name = getNodeNameWithIndex(current);
+            current = (ItemNodeModel) current.getParent();
+            if (isFirst) {
+                realXPath = name;
+                isFirst = false;
+                continue;
+            }
+            realXPath = name + "/" + realXPath; //$NON-NLS-1$
+
+        }
+        return realXPath;
+    }
+
+    private static String getNodeNameWithIndex(ItemNodeModel nodeModel) {
+        ItemNodeModel parent = (ItemNodeModel) nodeModel.getParent();
+        if (parent != null) {
+            List<ModelData> children = parent.getChildren();
+            int index = 0;
+            for (ModelData child : children) {
+                ItemNodeModel childModel = (ItemNodeModel) child;
+                if (childModel.getName().equals(nodeModel.getName())) {
+                    index++;
+                    if (childModel == nodeModel) {
+                        return nodeModel.getName() + "[" + index + "]"; //$NON-NLS-1$//$NON-NLS-2$
+                    }
+                }
+            }
+        }
+        return nodeModel.getName();
+    }
+
     public static String toXML(ItemNodeModel nodeModel, ViewBean viewBean) {
         Document doc = XMLParser.createDocument();
         Element root = _toXML(doc, nodeModel, viewBean);

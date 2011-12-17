@@ -1086,10 +1086,11 @@ public class ItemCtrl2Bean implements SessionBean {
             throws XtentisException {
         IWhereItem customWhereCondition = new CustomWhereCondition(customXPath);
         IWhereItem xPathSearchCondition;
-        if (whereItem != null)
+        if (whereItem != null) {
             xPathSearchCondition = new WhereAnd(Arrays.asList(whereItem, customWhereCondition));
-        else
+        } else {
             xPathSearchCondition = customWhereCondition;
+        }
         return xPathsSearch(dataClusterPOJOPK, null, viewablePaths, xPathSearchCondition, 0, orderBy, direction, start, limit, returnCount);
     }
 

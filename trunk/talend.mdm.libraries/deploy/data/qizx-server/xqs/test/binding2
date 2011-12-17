@@ -1,9 +1,0 @@
-
-declare boundary-space preserve;
-
-(: request parameters :)
-declare variable $param:file as xs:hexBinary external;
-
-<response>
-  <param type="{$param:file instance of xs:hexBinary}">{ $param:file }</param>
-</response>

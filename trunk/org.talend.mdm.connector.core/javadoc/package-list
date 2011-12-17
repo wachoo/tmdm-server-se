@@ -1,6 +1,0 @@
-com.amalto.connector.implementation
-com.amalto.connector.interfaces
-com.amalto.connector.jca
-com.amalto.connector.mail
-com.amalto.connector.mdb
-com.amalto.connector.util

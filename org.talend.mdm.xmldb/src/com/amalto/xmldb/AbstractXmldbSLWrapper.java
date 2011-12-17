@@ -523,7 +523,7 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
         throw new UnsupportedOperationException(); // By default, this is not supported (see EE implementations of the interface).
     }
     
-    public void exportDocuments(String revisionId, String clusterName, int start, int end, OutputStream outputStream) throws XmlServerException {
+    public void exportDocuments(String revisionId, String clusterName, int start, int end, boolean includeMetadata, OutputStream outputStream) throws XmlServerException {
         throw new UnsupportedOperationException();
     }
 
