@@ -1,0 +1,74 @@
+RELEASE NOTES
+
+This service handles SMTP calls
+
+When a transformer is passed in the 'transformer' parameter of the routing rule, 
+the service will mail the content contained in the 'body' variable of the output pipeline of the transformer.
+
+In addition, attachments can be provided through the use of a 'files' variable in the transformer
+containing a semicolon separated list of filenames which will be read during the email creation.
+
+There are two ways to specify the recipients of the e-mail, by providing a list of comma separated email-addresses
+-either in a 'to' parameters of the routing rule
+-and/or in a 'recipient' variable of the the transformer
+
+The sender must be specified in the 'from' parameter of the routing rule.
+
+The subject is made of
+-the content of the optional 'subjectprefix' parameter of the routing rule
+-followed by the content of the 'subject' variable of the transformer 
+
+In addition, a 'bcc' parameter can be specified in the routing to indicate a one or more blind copy
+recipient email addresses which must be separated by commas.
+
+1.5.0 NOT RELEASED
+Compliance with core 2.2.0
+
+1.4.0
+Made fully comply with core 2.19+. Remove routing orders update.
+
+1.3.2
+Made fully comply with core 2.18+.
+Rewrote documentation
+
+1.3.1 
+Fixed JNDI Name issue in service meta data
+Move to transformer V2
+Fixed call to Routing Order update
+Add pdf,xls and doc attachments capabilities.
+
+1.3.0
+Added attachment capabilities.
+Added XML parameters support.
+
+1.2.1
+Changed output variable name from 'html' to 'body'.
+Fixed content-type issue of the body. The content-type is the one reported by the transformer on the output variable 'body'.
+
+1.2.0
+Improved to use a transformer which can be passed as a parameter to the Routing Rule (transformer=)
+The body of the e-mail must be called 'html' in the transformer output variables (the content type must be text/html and the encoding must be utf-8)
+In addition, the transformer can generate 
+  -a variable called 'recipients' containing a list of  e-mail address separated by commas. The list will augment the recipients list passed in the "to" parameter of the routing rule.
+  -a variable called 'subject' containing an e-mail subject which will be appended after the 'subjectprefix' passed as a parameter in the routing rule 
+
+1.1.0
+	Adapted for core 2.15.0
+
+1.0.5 
+	Changed jndi pathes according to the new naming (jca/smtpsender > jca/xtentis/connector/smtp)
+	
+1.0.4 
+	Bug fixes
+	
+1.0.3 
+	B2BOX 0.9 RELEASE
+	
+1.0.2 
+	bug fixes
+	
+1.0.1 
+	xstl names bug fixes
+	
+1.0.0 
+	Initial release

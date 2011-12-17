@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="com/amalto/core/test/ZZCoreV2EJBTest.java|com/amalto/core/ejb/OutboundPluginBeanOLD.java|com/amalto/core/ejb/OutboundPluginCtrlBeanOLD.java|com/amalto/core/ejb/OutboundAdaptorBeanOLD.java|com/amalto/core/ejb/OutboundAdaptorCtrlBeanOLD.java|com/amalto/core/ejb/DocumentCtrlBean.java|com/amalto/core/ejb/XmlServerSFWrapperBean.java" kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/talend.mdm.libraries"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.connector.core"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

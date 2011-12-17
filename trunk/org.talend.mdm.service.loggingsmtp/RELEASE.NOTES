@@ -1,0 +1,28 @@
+RELEASE NOTES
+
+This service handles sending Logging Events as an HTML form via Smtp
+
+On start/configuration save, it will automatically create a Transformer, "Logging Events to Smtp HTML Transformer",
+that transforms a logging_event into an HTML form. It will also create Routing Rule "Logging events to loggingSMTP service",
+that routes logging events to this service. 
+This routing rule should be edited so that the correct values are passed th the parameters (see below). 
+
+
+Routing Rule Parameters
+from: the email address (or addresses separated by comma) of the sender
+to: the email address (or addresses separated by comma) of the receiver
+bcc: the email address (or addresses separated by comma) of the receivers of blind copies
+subjectprefix: the prefix of the subject of the email
+
+
+1.0.2 
+Improved Error handling.
+
+1.0.1
+Remove dependencies to old transformers
+Now complies with 2.18+ core versions
+Clean up mix-up with smtp service
+Added documentation in RELEASE NOTES
+
+1.0.0
+Initial release for core 2.15+

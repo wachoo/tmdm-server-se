@@ -1,0 +1,11 @@
+<data-cluster-pOJO>
+    <name>UpdateReport</name>
+    <vocabulary/>
+    <description>Update Report Data Cluster</description>
+    <PK>
+        <ids>UpdateReport</ids>
+        <unique-id>UpdateReport</unique-id>
+    </PK>
+    <last-synch>test</last-synch>
+    <last-error/>
+</data-cluster-pOJO>

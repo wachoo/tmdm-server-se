@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ====================================================================== 
+
+     Xtentis MDM
+     XML server Interface
+                   
+     bgrieder                                                                
+     ====================================================================== -->
+<project name="MDM-XmlServer" default="all">
+    <description>
+    	XML server Interface
+    </description>
+	
+	<property name="jar" value="z.mdm.xmlserver.jar"/>
+	
+	
+	<!--  DO  NOT CHANGE ANYTHING BELOW THIS LINE  -->
+	
+	<property name="version.props" value="version.properties"/>
+	<property name="jboss.dir" value="/opt/jboss"/>
+	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
+	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
+	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
+
+    <!-- ================================= 
+          target: all              
+         ================================= -->
+    <target name="all" depends="version,package,undeploy,deploy">
+		<!--eclipse.refreshLocal resource="org.talend.mdm.xmlserver.interfaces"/-->
+    </target>
+
+    <target name="version"  description="Maintain build.date property">
+       	<propertyfile file="${version.props}"  comment="streek build date">
+       		<entry key="build.date" type="date" value="now" />
+       	</propertyfile>
+     </target>
+
+   	<target name="package">
+		<buildnumber file="${version.props}"/>
+		<property file="${version.props}" />
+   	   	<property name="version.build.new" value="${major}-${minor}-${rev}_${build.number}"  />
+   		<jar destfile="${jar}">
+   			<zipfileset dir=".">
+   				<include name="version.properties"/>
+   			</zipfileset>
+   			<zipfileset dir=".">
+   				<include name="RELEASE.NOTES"/>
+   			</zipfileset>
+   			<zipfileset dir="bin" includes="**/*.class"/>
+   		</jar>
+    </target>
+		
+    <target name="undeploy" description="--> remove packages">
+    	<!-- delete 2+ version -->
+		<delete file="${jboss.instance.lib}/${jar}"/>
+    </target>
+	
+	<target name="deploy">
+		<echo>Deploying build: ${version.build.new}</echo>
+		<copy file="${jar}" tofile="${jboss.instance.lib}/${jar}"/>
+    </target>
+
+</project>
+

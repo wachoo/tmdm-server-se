@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="com/amalto/core/test/ZZCoreV2EJBTest.java|com/amalto/core/ejb/OutboundPluginBeanOLD.java|com/amalto/core/ejb/OutboundPluginCtrlBeanOLD.java|com/amalto/core/ejb/OutboundAdaptorBeanOLD.java|com/amalto/core/ejb/OutboundAdaptorCtrlBeanOLD.java|com/amalto/core/ejb/DocumentCtrlBean.java|com/amalto/core/ejb/XmlServerSFWrapperBean.java|com/amalto/core/plugin/base/version/" kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.xmlserver.interfaces"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.talend.mdm.core"/>
+	<classpathentry kind="lib" path="lib/z.saxon9.jar"/>
+	<classpathentry kind="lib" path="lib/z.saxon9-ant.jar"/>
+	<classpathentry kind="lib" path="lib/z.saxon9-dom.jar"/>
+	<classpathentry kind="lib" path="lib/z.saxon9-jdom.jar"/>
+	<classpathentry kind="lib" path="lib/z.saxon9-s9api.jar"/>
+	<classpathentry kind="lib" path="lib/z.saxon9-sql.jar"/>
+	<classpathentry kind="lib" path="lib/z.saxon9-xom.jar"/>
+	<classpathentry kind="lib" path="lib/z.saxon9-xpath.jar"/>
+	<classpathentry kind="lib" path="lib/z.saxon9-xqj.jar"/>
+	<classpathentry kind="lib" path="lib/z.saxon9-dom4j.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/talend.mdm.libraries"/>
+	<classpathentry kind="lib" path="lib/z.itext2.0.0.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

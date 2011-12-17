@@ -1,0 +1,34 @@
+RELEASE NOTES
+
+2.0.0 NOT RELEASED
+Added Universe parameter to all calls
+
+1.3.2
+Cleaned-up Build Path
+
+1.3.1
+Improved WhereContion for unmarshalling
+
+1.3.0
+Added Stored Procedures - core-2.11.0
+
+1.2.0
+Added directQuery in line with core 2.10.0
+
+1.1.4
+Added the NO_OPERATOR operator
+
+1.1.3
+Fixed build.xml: name of deployed library
+
+1.1.2
+Ticket 28 - Cleaned up librairies
+
+1.1.1
+Fixed issue with xml encoding of predicates of WhereConditions
+
+1.1.0
+Added delete documents
+
+1.1.0
+Initial release

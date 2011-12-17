@@ -1,0 +1,313 @@
+RELEASE NOTES
+
+The core Xtentis Data Manager and Subscription Engine
+
+2.20.0 NOT RELEASED
+Clean up for release to Talend
+
+2.19.4 
+Added WSCount webservices to count occurrences of an xPath
+More improvements to the Subscription Engine
+
+2.19.3
+Fixed issue where under heavy load, the routing engine could re-process the same routing order twice
+
+2.19.2
+Automatic update of JNDI service names in the DB to remove characters causing db backup/restore issues
+Routing Engine stopped when shutdown detected
+Bug fixes in the the web services of Transformer V2
+
+2.19.1
+Added a mechanism to cater for DB exceptions when querying for routing orders to process under heavy DB load.
+
+2.19.0
+Routing Engine V2. + Improved JAAS/Roles integration
+a-The number of simultaneous running routing engine threads can now be controlled using 
+	the mdm.conf property 'routing.engine.executors'. Defaults to 20.
+b-Routing Orders marked as active but with an execution time greater than a determined value, 
+	are automatically moved to the FAILED queue. 
+	The value in seconds can be set in the mdm.conf property 'routing.engine.maxexecutiontime'. Defaults to 5 minutes
+d-Verification of users rights derived from Roles on object instances is much faster. 
+	Coupled with the newly released com.amalto.jaas.xtentis.jboss-1.3.0, the speed increase is highly significant.	 
+e-The conf file mdm.conf is now first read from the root of the jboss directory then 
+	from /etc/amalto/mdm.conf on Linux or c:\amalto\mdm.conf on Windows
+f-The Service Interface has changed. Services should NO MORE update Routing Orders directly.
+	To append a message to the Routing Order message, 
+		-in case of success, simply return the String to be appended on the call to receiveFromInbound
+		-in case of failure simply throw an Exception with a message. The message will be appended  
+g-Fix for the getItemsByCriteria search on key ids bug.
+h- ItemCtrl2.getItem now throws an Exception instead of returning null when an item is not found. Use existsItem to check the existence of an Item.
+
+2.18.3
+Fixed NPE issues with NULL ids in items.
+Improved Item parsing and escaping.
+
+2.18.2
+Removed caching of JCA connection factories so that connectors can be hot re-deployed
+
+2.18.1
+Changes to routing order creations in Routing Engine bean to avoid non creation of certain routing orders under heavy load.
+
+2.18.0
+Implementation of Transformer V2
+Improvements on Exception handling
+Better Cache handling
+Bug Fixing on Transformers:
+	- Fixed Background Job stopping despite Transformer still running
+	- Fixed issue with Extraction Using a Transformer
+	- Fixed issue projecting wrong content when projecting from a Transformer using a Decision Table
+	- Allow Null decision Tables - Decision Tables will be deprecated soon
+	- Fixed data Models cache issue on Transformers
+	-Fixed ProjectUsingTransformer - note: this method is deprecated: use a project plugin
+Added synchronous executeUntilDone on transformers
+Fixed ServiceCtrlBean#receiveFromOutbound to be able to return a Serializable to the connector
+Fixed authentication issues that showed up with the new JBoss 4.2.2
+Fixed ejbTimeouts being systematically called on bean instantiation with JBoss 4.2.2
+
+
+2.17.1 
+Fixed issue in Project File not allowing default variable as output
+Fixed direct projection of data thru a transformer
+
+2.17.0
+Transformers improvement. Substantial speed increase on execution.
+Plugins working with previous cores do not work with that version.
+Added a web service to list Transformer Plugins
+Added a web service to list Services
+
+2.16.2
+Fixes bug on deleteItem not returning null when no item is actually deleted
+
+2.16.1
+Bug Fixes to item extractions using transformers
+
+2.16.0
+Added processFile and processByte using Transformers
+Added Background Jobs with corresponding web services for the 2 methods above
+Build Path fixes
+
+2.15.2
+Fixed missing description in Transformer constructor
+Fixed NPE on Transformer with no plugins
+Limited BAM logging
+
+2.15.1 
+Fixed two critical bugs
+	-failing projectItemUsingTransformer
+	-systematic trim of keys, to align toeXist buggy behaviour trimming fileds automatically
+Fixed RoutingRuleExpression name deserialization issue
+
+2.15.0
+Fixed access rights issue on the Schema for Schema
+Fixed put and delete Business Concept issues
+Fixed ejb not bound issues on Data Clusters
+Improved Exception handling of the XML Server wrapper
+Added input/ouytput variables to transformers
+
+2.14.2
+Fixed Routing Engine rights issue
+Added existsXXX web services. which avoid an exception to be thrown  when checking for existence of an instance
+Reinstated web service: putBusinessConceptSchema
+Added Web Services: getConceptsInDataCluster and getItemsPKsByCriteria, initial release of getComponentVersion
+
+2.14.1
+Fixed missing "project and extract using Transformer" web services in wsdl 
+
+2.14.0
+Fixed Class Cast Exception on Transformer calls
+Moved Data Model to POJOs
+Moved Data Clusters to POJOs
+Moved Routing Rules to POJOs
+Added Menus
+
+2.13.1
+Revamped roles to allow for parameters on object types (for instance additional filters on views)
+Views moved to POJO. Not all objects support roles yet.
+Fixed NPE on admin determination in Local User
+Fixed getViewPKs class cast exception
+
+
+2.13.0
+Added Roles at the core level
+This is an intermediate release  - Not suited for production use on roles due to the limited number of objects concerned
+The objects using roles in this release are the Stored Procedures, The Transfomer and TransformerPlugin, the Roles themselves.
+To update to this release
+	-update the core
+	-update com.amalto.webapp.util
+	-run http://localhost:8080/datamanager/upgrade with the admin login  
+
+2.12.2
+Removed check on existence of business elements in Views which was too simplistic
+
+2.12.1
+Removed CDATA from RoutingOrders
+Added getRoutingOrderPKs RMI Call
+
+2.12.0
+Added Transformers
+Improved QuickSearch to accept * and ""
+Fixed bug in validating parser that puts a nillable attribute in elements which are ref
+
+2.11.4
+Changed GUID of Routing Orders
+
+2.11.3
+Made Routing Rules reentrant
+
+2.11.2
+Fixed identification of active user using RMI calls
+
+2.11.1
+Fixed JNDI name of Stored Procedure Ctrl
+
+2.11.0
+Added Stored Procedures
+
+2.10.2
+More compliance fixes with eXist 1.1.1
+
+2.10.1
+Fixed vocabulary update when projecting or putting an item.
+Compliance with eXist 1.1.1
+
+2.10.0
+Added the possibility to execute any service method via serviceAction
+Added web service WSPutItem to directly puhs an item to the repository (validating)
+Added web service WSDirectQuery to perform direct XQueries on compliant XQuery servers 
+
+2.9.4
+Added the NO_OPERATOR operator
+
+2.9.3
+Fixed partial update issue when generating key by cross-referencing
+
+2.9.2
+Fixed issue on Xerces SAX Parser with Java 5 not printing namespaces
+
+2.9.1
+More Crimson parser removal fixes
+
+2.9.0
+Changed names of serialize concepts (incompatible with previous versions) to be inline with eXist 1.0+
+Fixed load of documents (no clean-up of previously loaded items)
+Cleaned-up ItemCtrl
+
+2.8.3
+Minor Bug Fixes
+
+2.8.2
+Fixed issue in SaxHandler with nested subelement having the same name as the root element
+Changed the TIMESTAMP to an ISO conformant format 
+
+2.8.1
+Now spells words all uppercase
+
+2.8.0
+Revamped putDocument: deprecated PutDocument2 which is replaced by
+	-puDocumentInAFile (AsJob) and
+	-putDocumentInAString (as Job)
+Re-enabled uploadDocumentByChunks
+Fixed cache issue when adding new vocabulary
+
+2.7.12
+Added service data to service
+
+2.7.11
+Fixed Routing Order search (Class Cast)
+
+2.7.10
+Fixed Routing Orders search by Criteria
+
+2.7.9
+Tcket 66 - Search routing orders
+
+2.7.8
+Ticket 42 - DataModel with null description
+Fixed send error for documents with no routing rules
+
+2.7.7
+Bug fixing to the routing engine (routing rules matching)
+
+2.7.6
+Bug fixing on the service framework - Improvement to the routing engine
+
+2.7.5
+Ticket 40: Fixed NPE on doInitialize()
+
+2.7.4
+RoutingOrderCriteria: futher fix 
+
+2.7.3
+RoutingOrder: allow null values in RoutingOrderCriteria 
+
+2.7.2
+RoutingOrder: fixed maxdate<mindate and query
+
+2.7.1
+Added WS getDataClusterPKs and getDataModelPKs 
+
+2.7.0 May 24
+Added router and services framework
+
+2.6.3 May 22
+Ticket 21 - Build Librairies Pathes
+Router not finalized
+
+2.6.2 May 18
+ItemCtr2Item: extractItem. Removed <result></result> tag around the result to be consistent with singleExtract
+
+2.6.1 May17
+Ticket #13 - InboundAdaptorLocal Not Bound
+
+2.6.0 May16
+Fixed most ejbFindByCriteria issues (ticket#7)
+Improved loading for Data Clusters and Data Models 
+
+2.5.0 May 11
+Improvements to spell check speed (caching)
+Improvements to partial updates (multi level nodes creation)
+
+2.4.1 May 9
+Minor corrections to logging
+
+2.4.0 May 3rd
+Added get Items
+
+2.3.3 May 3rd
+Fixed ProjectItem cache issues.
+
+2.3.2 April 28
+Fixed NPE on extract
+
+2.3.1 April 28
+Allowed "[a-zA-Z~_][a-zA-Z0-9\\/ -_]*~?" as pattern for view names
+
+2.3.0 April 27
+Completely overhauled item. Moved to POJO rather than Bean.
+Added deleteItems
+
+2.2.2 - Avril 12
+Minor modifications to DataCluster for JCA support
+
+2.2.1 - Avril 10
+Added Xtentis JCA Connector Support
+wsdl changed
+
+2.2.0  - 7 March 2006
+Refactored an cleaned up the querying API to add support for other XML Servers
+Removed stateful querying. All querying is now stateless; no sessions to close.
+Added support for "ORing" between where conditions and complex where conditions, except in views (flat and)
+Significant change of querying interfaces making queries of previous versions incompatible with those of this version
+Added possibility to enable/disable spellchecking on a per WhereCondition basis
+Possibility to specify the spellchecking treshold
+
+2.1.1 - 15 Feb 2006
+Refactor of from clause in Xyleme wrapper to support intra document queries
+
+2.1.0 - January 2006
+Added outbound support
+
+2.0.0 - October 2005
+Full XML Schema support
+
+Previous changes lost themselves during sleepless nights....

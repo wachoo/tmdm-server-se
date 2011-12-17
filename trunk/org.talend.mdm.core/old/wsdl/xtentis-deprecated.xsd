@@ -1,0 +1,1397 @@
+<xsd:schema 
+	elementFormDefault="unqualified"
+	targetNamespace="urn-com-amalto-xtentis-webservice"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:tns="urn-com-amalto-xtentis-webservice"
+	>
+
+	<xsd:include schemaLocation="xtentis-core.xsd"/>
+	
+	<!-- *****************************************************
+		S O U R C E 
+		*******************************************************-->
+	
+	<xsd:complexType name="WSSource">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="description" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSSource" type="tns:WSSource"/>
+	
+	<xsd:complexType name="WSSourcePK">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" name="pk" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSSourcePK" type="tns:WSSourcePK"/>
+	
+	<xsd:complexType name="WSSourceArray">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsSources" type="tns:WSSource"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSSourceArray" type = "tns:WSSourceArray"/>
+	
+	<!-- Operations -->
+	
+	<xsd:complexType name="WSPutSource">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsSource" type="tns:WSSource"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSPutSource" type="tns:WSPutSource"/>
+	
+	<xsd:complexType name="WSGetSource">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsSourcePK" type="tns:WSSourcePK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetSource" type="tns:WSGetSource"/>
+	
+	<xsd:complexType name="WSDeleteSource">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsSourcePK" type="tns:WSSourcePK"/>
+		</xsd:sequence>		
+	</xsd:complexType>			
+	<xsd:element name="WSDeleteSource" type="tns:WSDeleteSource"/>
+	
+	<xsd:complexType name="WSRegexSources">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="regex" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSRegexSources" type="tns:WSRegexSources"/>
+	
+	
+	<!-- *****************************************************
+		D E S T I N A T I O N 
+		*******************************************************-->
+	
+	<xsd:complexType name="WSDestination">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="description" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSDestination" type="tns:WSDestination"/>
+	
+	<xsd:complexType name="WSDestinationPK">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" name="pk" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSDestinationPK" type="tns:WSDestinationPK"/>
+	
+	<xsd:complexType name="WSDestinationArray">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsDestinations" type="tns:WSDestination"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSDestinationArray" type = "tns:WSDestinationArray"/>
+	
+	<!-- Operations -->
+	
+	<xsd:complexType name="WSPutDestination">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDestination" type="tns:WSDestination"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSPutDestination" type="tns:WSPutDestination"/>
+	
+	<xsd:complexType name="WSGetDestination">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDestinationPK" type="tns:WSDestinationPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetDestination" type="tns:WSGetDestination"/>
+	
+	<xsd:complexType name="WSDeleteDestination">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDestinationPK" type="tns:WSDestinationPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>			
+	<xsd:element name="WSDeleteDestination" type="tns:WSDeleteDestination"/>
+	
+	<xsd:complexType name="WSRegexDestinations">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="regex" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSRegexDestinations" type="tns:WSRegexDestinations"/>
+
+<!-- *****************************************************
+		              T R A N S F O R M
+		              
+		              Transforms have been deprecated
+	*******************************************************-->
+	
+	<xsd:simpleType name="WSTransformType">
+		<xsd:restriction base="xsd:NMTOKEN">
+    		<xsd:enumeration value="CACHE"/>
+    		<xsd:enumeration value="ITEMS"/>
+			<xsd:enumeration value="UNKNOWN"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:complexType name="WSTransform">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="description" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="xslt" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSTransform" type = "tns:WSTransform"/>
+
+	<xsd:complexType name="WSTransformPK">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="pk" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSTransformPK" type="tns:WSTransformPK"/>		
+
+	<xsd:complexType name="WSTransformArray">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsTransforms" type="tns:WSTransform"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSTransformArray" type = "tns:WSTransformArray"/>
+
+	<!-- Operations -->
+
+	<xsd:complexType name="WSPutTransform">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsTransform" type="tns:WSTransform"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSPutTransform" type="tns:WSPutTransform"/>
+
+	<xsd:complexType name="WSGetTransform">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsTransformPK" type="tns:WSTransformPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetTransform" type="tns:WSGetTransform"/>
+	
+	<xsd:complexType name="WSDeleteTransform">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsTransformPK" type="tns:WSTransformPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSDeleteTransform" type="tns:WSDeleteTransform"/>
+	
+	<xsd:complexType name="WSRegexTransforms">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="regex" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSRegexTransforms" type="tns:WSRegexTransforms"/>
+
+	
+	<!-- *****************************************************
+		              I N B O U N D    P L U G I N
+	*******************************************************-->
+
+	<xsd:complexType name="WSInboundPlugin">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="description" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="jndiname" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="parameters" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSInboundPlugin" type = "tns:WSInboundPlugin"/>
+
+	<xsd:complexType name="WSInboundPluginPK">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="pk" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSInboundPluginPK" type="tns:WSInboundPluginPK"/>		
+
+	<xsd:complexType name="WSInboundPluginArray">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsInboundPlugins" type="tns:WSInboundPlugin"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSInboundPluginArray" type = "tns:WSInboundPluginArray"/>
+		
+	<xsd:complexType name="WSInboundHTMLBodyForm">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="form" type="xsd:string"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="WSInboundHTMLBodyForm" type="tns:WSInboundHTMLBodyForm"/>
+	
+
+	<!-- Operations -->
+
+	<xsd:complexType name="WSPutInboundPlugin">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsInboundPlugin" type="tns:WSInboundPlugin"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSPutInboundPlugin" type="tns:WSPutInboundPlugin"/>
+
+	<xsd:complexType name="WSGetInboundPlugin">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsInboundPluginPK" type="tns:WSInboundPluginPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetInboundPlugin" type="tns:WSGetInboundPlugin"/>
+	
+	<xsd:complexType name="WSGetInboundPluginsByCriteria">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsInboundPlugin" type="tns:WSInboundPlugin"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="numberOfItems" type="xsd:int"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetInboundPluginsByCriteria" type = "tns:WSGetInboundPluginsByCriteria"/>
+
+	<xsd:complexType name="WSDeleteInboundPlugin">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsInboundPluginPK" type="tns:WSInboundPluginPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSDeleteInboundPlugin" type="tns:WSDeleteInboundPlugin"/>
+	
+	<xsd:complexType name="WSRegexInboundPlugins">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="regex" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSRegexInboundPlugins" type="tns:WSRegexInboundPlugins"/>
+
+	<xsd:complexType name="WSGetInboundHTMLBodyForm">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="wsInboundPluginPK" type="tns:WSInboundPluginPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="source" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="adaptor" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="localFilePath" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="returnURL" type="xsd:string"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="WSGetInboundHTMLBodyForm" type="tns:WSGetInboundHTMLBodyForm"/>
+
+	<xsd:complexType name="WSExecuteInboundPlugin">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="wsInboundPluginPK" type="tns:WSInboundPluginPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="source" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="adaptor" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="localFilePath" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="returnURL" type="xsd:string"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="WSExecuteInboundPlugin" type="tns:WSExecuteInboundPlugin"/>
+
+	<!-- *****************************************************
+		              I N B O U N D     A D A P T O R
+		*******************************************************-->
+
+	<xsd:complexType name="WSInboundAdaptor">
+		<xsd:annotation>
+			<xsd:documentation>
+				An Inbound Apdaptor
+				The xslt contains the main transformation.
+				Transforms are being deprecated.
+			</xsd:documentation>
+		</xsd:annotation>										
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="name" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="description" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="wsDataModelPK" type="tns:WSDataModelPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="wsSourcePK" type="tns:WSSourcePK"/>				
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="xslt" type="xsd:string"/>
+			<xsd:element minOccurs="0" maxOccurs="unbounded" nillable="true" name="WSInboundPluginPKs" type="tns:WSInboundPluginPK"/>		
+			<xsd:element minOccurs="0" maxOccurs="unbounded" nillable="true" name="wsPreTransformPKs" type="tns:WSTransformPK"/>
+			<xsd:element minOccurs="0" maxOccurs="unbounded" nillable="true" name="updates">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="xpath" type="xsd:string"/>
+						<xsd:element minOccurs="0" maxOccurs="unbounded" nillable="false" name="keys" type="xsd:string"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element> 
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSInboundAdaptor" type = "tns:WSInboundAdaptor"/>
+	
+	<xsd:complexType name="WSInboundAdaptorPK">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="pk" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+		<xsd:element name="WSInboundAdaptorPK" type = "tns:WSInboundAdaptorPK"/>
+
+	<xsd:complexType name="WSInboundAdaptorArray">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="unbounded" name="wsInboundAdaptors" type="tns:WSInboundAdaptor"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSInboundAdaptorArray" type = "tns:WSInboundAdaptorArray"/>
+
+	<!-- Action -->
+	
+	<xsd:complexType name="WSPutInboundAdaptor">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="wsInboundAdaptor" type="tns:WSInboundAdaptor"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSPutInboundAdaptor" type="tns:WSPutInboundAdaptor"/>
+	
+	<xsd:complexType name="WSGetInboundAdaptorsByCriteria">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" name="wsInboundAdaptor" type="tns:WSInboundAdaptor"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="numberOfItems" type="xsd:int"/>
+		</xsd:sequence>		
+	</xsd:complexType>	
+	<xsd:element name="WSGetInboundAdaptorsByCriteria" type = "tns:WSGetInboundAdaptorsByCriteria"/>	
+
+	<xsd:complexType name="WSGetInboundAdaptor">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="wsInboundAdaptorPK" type="tns:WSInboundAdaptorPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetInboundAdaptor" type="tns:WSGetInboundAdaptor"/>
+	
+	<xsd:complexType name="WSDeleteInboundAdaptor">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="wsInboundAdaptorPK" type="tns:WSInboundAdaptorPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSDeleteInboundAdaptor" type="tns:WSDeleteInboundAdaptor"/>
+	
+	<xsd:complexType name="WSRegexInboundAdaptors">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="regex" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSRegexInboundAdaptors" type="tns:WSRegexInboundAdaptors"/>
+
+	
+	<xsd:complexType name="WSReprocessDocuments">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="wsInboundAdaptorPK" type="tns:WSInboundAdaptorPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSReprocessDocuments" type="tns:WSReprocessDocuments"/>
+
+
+	<!-- *****************************************************
+		  O U T B O U N D    P L U G I N
+		*******************************************************-->
+	
+	<xsd:complexType name="WSOutboundPlugin">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="description" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="jndiname" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="parameters" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSOutboundPlugin" type = "tns:WSOutboundPlugin"/>
+	
+	<xsd:complexType name="WSOutboundPluginPK">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="pk" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSOutboundPluginPK" type="tns:WSOutboundPluginPK"/>		
+	
+	<xsd:complexType name="WSOutboundPluginArray">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsOutboundPlugins" type="tns:WSOutboundPlugin"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSOutboundPluginArray" type = "tns:WSOutboundPluginArray"/>
+	
+	<xsd:complexType name="WSOutboundHTMLBodyForm">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="form" type="xsd:string"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="WSOutboundHTMLBodyForm" type="tns:WSOutboundHTMLBodyForm"/>
+	
+	
+	<!-- Operations -->
+	
+	<xsd:complexType name="WSPutOutboundPlugin">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsOutboundPlugin" type="tns:WSOutboundPlugin"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSPutOutboundPlugin" type="tns:WSPutOutboundPlugin"/>
+	
+	<xsd:complexType name="WSGetOutboundPlugin">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsOutboundPluginPK" type="tns:WSOutboundPluginPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetOutboundPlugin" type="tns:WSGetOutboundPlugin"/>
+	
+	<xsd:complexType name="WSGetOutboundPluginsByCriteria">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsOutboundPlugin" type="tns:WSOutboundPlugin"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="numberOfItems" type="xsd:int"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetOutboundPluginsByCriteria" type = "tns:WSGetOutboundPluginsByCriteria"/>
+	
+	<xsd:complexType name="WSDeleteOutboundPlugin">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsOutboundPluginPK" type="tns:WSOutboundPluginPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSDeleteOutboundPlugin" type="tns:WSDeleteOutboundPlugin"/>
+	
+	<xsd:complexType name="WSRegexOutboundPlugins">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="regex" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSRegexOutboundPlugins" type="tns:WSRegexOutboundPlugins"/>
+	
+	<xsd:complexType name="WSGetOutboundHTMLBodyForm">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="wsOutboundPluginPK" type="tns:WSOutboundPluginPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="source" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="adaptor" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="localFilePath" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="returnURL" type="xsd:string"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="WSGetOutboundHTMLBodyForm" type="tns:WSGetOutboundHTMLBodyForm"/>
+	
+	<xsd:complexType name="WSExecuteOutboundPlugin">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="wsOutboundPluginPK" type="tns:WSOutboundPluginPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="source" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="adaptor" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="localFilePath" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="returnURL" type="xsd:string"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="WSExecuteOutboundPlugin" type="tns:WSExecuteOutboundPlugin"/>
+	
+	<!-- *****************************************************
+		  O U T B O U N D     A D A P T O R
+		*******************************************************-->
+	
+	<xsd:complexType name="WSOutboundAdaptor">
+		<xsd:annotation>
+			<xsd:documentation>
+				An Outbound Apdaptor
+				The xslt contains the main transformation.
+				Transforms are being deprecated.
+			</xsd:documentation>
+		</xsd:annotation>		
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="name" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="description" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="wsDataModelPK" type="tns:WSDataModelPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="wsDestinationPK" type="tns:WSDestinationPK"/>				
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="xslt" type="xsd:string"/>
+			<xsd:element minOccurs="0" maxOccurs="unbounded" nillable="false" name="WSOutboundPluginPKs" type="tns:WSOutboundPluginPK"/>		
+			<xsd:element minOccurs="0" maxOccurs="unbounded" nillable="false" name="wsPreTransformPKs" type="tns:WSTransformPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSOutboundAdaptor" type = "tns:WSOutboundAdaptor"/>
+	
+	<xsd:complexType name="WSOutboundAdaptorPK">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="pk" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSOutboundAdaptorPK" type = "tns:WSOutboundAdaptorPK"/>
+	
+	<xsd:complexType name="WSOutboundAdaptorArray">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="unbounded" name="wsOutboundAdaptors" type="tns:WSOutboundAdaptor"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSOutboundAdaptorArray" type = "tns:WSOutboundAdaptorArray"/>
+	
+	<!-- Action -->
+	
+	<xsd:complexType name="WSPutOutboundAdaptor">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="wsOutboundAdaptor" type="tns:WSOutboundAdaptor"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSPutOutboundAdaptor" type="tns:WSPutOutboundAdaptor"/>
+	
+	<xsd:complexType name="WSGetOutboundAdaptorsByCriteria">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" name="wsOutboundAdaptor" type="tns:WSOutboundAdaptor"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="numberOfItems" type="xsd:int"/>
+		</xsd:sequence>		
+	</xsd:complexType>	
+	<xsd:element name="WSGetOutboundAdaptorsByCriteria" type = "tns:WSGetOutboundAdaptorsByCriteria"/>	
+	
+	<xsd:complexType name="WSGetOutboundAdaptor">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="wsOutboundAdaptorPK" type="tns:WSOutboundAdaptorPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetOutboundAdaptor" type="tns:WSGetOutboundAdaptor"/>
+	
+	<xsd:complexType name="WSDeleteOutboundAdaptor">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="wsOutboundAdaptorPK" type="tns:WSOutboundAdaptorPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSDeleteOutboundAdaptor" type="tns:WSDeleteOutboundAdaptor"/>
+	
+	<xsd:complexType name="WSRegexOutboundAdaptors">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="regex" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSRegexOutboundAdaptors" type="tns:WSRegexOutboundAdaptors"/>
+	
+	
+
+	<!-- *****************************************************
+		                   D O C U M E N T
+	*******************************************************-->
+
+	<xsd:complexType name="WSDocument">
+		<xsd:annotation>
+			<xsd:documentation>
+				When cachedataclusterpk is null, the default cache will be used.
+				To get full automatic synchronizations of items in a data cluster, make sure the data cluster is registered in all autoxxxdatacluster
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="description" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsInboundAdaptorPK" type="tns:WSInboundAdaptorPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="keepInCache" type="xsd:boolean"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="wsCacheDataClusterPK" type="tns:WSDataClusterPK"/>
+
+			<xsd:element minOccurs="0" maxOccurs="unbounded"  name="wsAutoAddDataClusterPKs" type="tns:WSDataClusterPK"/>
+			<xsd:element minOccurs="0" maxOccurs="unbounded"  name="wsAutoUpdateDataClusterPKs" type="tns:WSDataClusterPK"/>
+			<xsd:element minOccurs="0" maxOccurs="unbounded"  name="wsAutoRemoveDataClusterPKs" type="tns:WSDataClusterPK"/>
+			
+			<xsd:element minOccurs="0" maxOccurs="1"  nillable="true" name="xslt" type="xsd:string"/>
+
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="WSDocument" type="tns:WSDocument"/>
+
+
+
+	<xsd:complexType name="WSDocumentArray">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="unbounded" name="WSDocuments" type="tns:WSDocument"/>
+		</xsd:sequence>				
+	</xsd:complexType>
+	<xsd:element name="WSDocumentArray" type="tns:WSDocumentArray"/>
+
+
+	<!-- Operations -->
+
+	<xsd:complexType name="WSPutDocumentInAFile">
+		<xsd:annotation>
+			<xsd:documentation>
+				Processes a file containing multiple Items synchronously. A Document must be created first.
+				The filename is the absolute path of a file ON THE XTENTIS MDM SERVER
+				Use UploadByChunks or the fast multi-part mime upload servlet to load a file on the server first.
+				The isDelete flag marks the load as a delete load: all items in the file will be deleted in the repository.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" name="wsDocument" type="tns:WSDocument"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="isDelete" type="xsd:boolean"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="filename" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="fileCharset" type="xsd:string"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="WSPutDocumentInAFile" type="tns:WSPutDocumentInAFile"/>
+	
+
+	<xsd:complexType name="WSPutDocumentInAFileAsJob">
+		<xsd:annotation>
+			<xsd:documentation>
+				Processes a file containing multiple Items asynhronously. A Document must be created first.
+				Once the process is started, a JobPK will be returned. Use getJob to monitor the status of the load.
+				The filename is the absolute path of a file ON THE XTENTIS MDM SERVER
+				Use UploadByChunks or the fast multi-part mime upload servlet to load a file on the server first.
+				The isDelete flag marks the load as a delete load: all items in the file will be deleted in the repository.
+			</xsd:documentation>
+		</xsd:annotation>		
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" name="wsDocument" type="tns:WSDocument"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="isDelete" type="xsd:boolean"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="filename" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="fileCharset" type="xsd:string"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="WSPutDocumentInAFileAsJob" type="tns:WSPutDocumentInAFileAsJob"/>
+
+	<xsd:complexType name="WSPutDocumentInAString">
+		<xsd:annotation>
+			<xsd:documentation>
+				Processes a string containing multiple Items synchronously. A Document must be created first.
+				This is a shortcut to uploading a file then using putDocumentInAFile; however, the string should not
+				be "too big" or the server may choke.
+				The filename is the absolute path of a file ON THE XTENTIS MDM SERVER
+				Use UploadByChunks or the fast multi-part mime upload servlet to load a file on the server first.
+				The isDelete flag marks the load as a delete load: all items in the file will be deleted in the repository.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" name="wsDocument" type="tns:WSDocument"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="isDelete" type="xsd:boolean"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="documentString" type="xsd:string"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="WSPutDocumentInAString" type="tns:WSPutDocumentInAString"/>
+	
+	
+	<xsd:complexType name="WSPutDocumentInAStringAsJob">
+		<xsd:annotation>
+			<xsd:documentation>
+				Processes a file containing multiple Items asynhronously. A Document must be created first.
+				This is a shortcut to uploading a file then using putDocumentInAFileAsJob; however, the string should not
+				be "too big" or the server may choke.				
+				Once the process is started, a JobPK will be returned. Use getJob to monitor the status of the load.
+				The filename is the absolute path of a file ON THE XTENTIS MDM SERVER
+				Use UploadByChunks or the fast multi-part mime upload servlet to load a file on the server first.
+				The isDelete flag marks the load as a delete load: all items in the file will be deleted in the repository.
+			</xsd:documentation>
+		</xsd:annotation>		
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" name="wsDocument" type="tns:WSDocument"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="isDelete" type="xsd:boolean"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="documentString" type="xsd:string"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="WSPutDocumentInAStringAsJob" type="tns:WSPutDocumentInAStringAsJob"/>
+
+	<xsd:complexType name="WSPutDocument2">
+		<xsd:annotation>
+			<xsd:documentation>
+				DEPRECATED: use putDocumentInAFile instead
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" name="wsDocument" type="tns:WSDocument"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="isDelete" type="xsd:boolean"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="filename" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="fileCharset" type="xsd:string"/>
+			<xsd:element minOccurs="0" maxOccurs="1" name="partialMapXpath" type="xsd:string" nillable="true"/>
+			<xsd:element minOccurs="0" maxOccurs="unbounded" name="partialMapKey" type="xsd:string" nillable="true"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="WSPutDocument2" type="tns:WSPutDocument2"/>
+	
+	<xsd:complexType name="WSPutDocument2AsJob">
+		<xsd:annotation>
+			<xsd:documentation>
+				DEPRECATED: use putDocumentInAFileAsJob instead
+			</xsd:documentation>
+		</xsd:annotation>		
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" name="wsDocument" type="tns:WSDocument"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="isDelete" type="xsd:boolean"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="filename" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="fileCharset" type="xsd:string"/>
+			<xsd:element minOccurs="0" maxOccurs="1" name="partialMapXpath" type="xsd:string" nillable="true"/>
+			<xsd:element minOccurs="0" maxOccurs="unbounded" name="partialMapKey" type="xsd:string" nillable="true"/>			
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="WSPutDocument2AsJob" type="tns:WSPutDocument2AsJob"/>
+
+	<!-- disabled in this version -->
+	<xsd:complexType name="WSLoadDocumentUpdates">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" name="wsDocument" type="tns:WSDocument"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="filename" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="fileCharset" type="xsd:string"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="WSLoadDocumentUpdates" type="tns:WSLoadDocumentUpdates"/>
+	
+	<!-- disabled in this version -->
+	<xsd:complexType name="WSLoadDocumentUpdatesAsJob">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" name="wsDocument" type="tns:WSDocument"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="filename" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="fileCharset" type="xsd:string"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="WSLoadDocumentUpdatesAsJob" type="tns:WSLoadDocumentUpdatesAsJob"/>
+
+	<!-- disabled in this version -->
+	<xsd:complexType name="WSLoadDocumentDeletes">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" name="wsDocument" type="tns:WSDocument"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="filename" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="fileCharset" type="xsd:string"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="WSLoadDocumentDeletes" type="tns:WSLoadDocumentDeletes"/>
+	
+	<!-- disabled in this version -->
+	<xsd:complexType name="WSLoadDocumentDeletesAsJob">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" name="wsdocument" type="tns:WSDocument"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="filename" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="fileCharset" type="xsd:string"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="WSLoadDocumentDeletesAsJob" type="tns:WSLoadDocumentDeletesAsJob"/>
+
+	<xsd:complexType name="WSGetDocument">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" name="wsDocumentPK" type="tns:WSDocumentPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetDocument" type="tns:WSGetDocument"/>
+
+	<xsd:complexType name="WSGetDocumentsByCriteria">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" name="criteria" type="tns:WSDocument"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="numberOfItems" type="xsd:int"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetDocumentsByCriteria" type="tns:WSGetDocumentsByCriteria"/>
+	
+	<xsd:complexType name="WSDeleteDocument">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" name="wsDocumentPK" type="tns:WSDocumentPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>		
+	<xsd:element name="WSDeleteDocument" type="tns:WSDeleteDocument"/>	
+	
+	<xsd:complexType name="WSRegexDocuments">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" name="regex" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSRegexDocuments" type="tns:WSRegexDocuments"/>
+
+	<xsd:complexType name="WSProcessDocument">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" name="wsDocumentPK" type="tns:WSDocumentPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="wsDataClusterPK" type="tns:WSDataClusterPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="add" type="xsd:boolean"/> <!-- add new items to cluster -->
+			<xsd:element minOccurs="1" maxOccurs="1" name="update" type="xsd:boolean"/> <!-- update existing items in cluster -->
+			<xsd:element minOccurs="1" maxOccurs="1" name="remove" type="xsd:boolean"/> <!-- remove old items in cluster -->			
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSProcessDocument" type="tns:WSProcessDocument"/>
+
+	<xsd:complexType name="WSUploadDocumentByChunks">
+		<xsd:annotation>
+			<xsd:documentation>
+				Only if the document is small and there is NO other choice
+				Webservices do not work well for large documents.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" name="filePath" nillable="true" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="stringPiece" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="encoding" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSUploadDocumentByChunks" type="tns:WSUploadDocumentByChunks"/>
+		
+
+
+	<!-- *****************************************************
+		                              J O B
+		                              
+		                       DEPRECATED
+	*******************************************************-->
+
+	<xsd:simpleType name="jobStatusType">
+		<xsd:restriction base="xsd:NMTOKEN">
+			<xsd:enumeration value="SCHEDULED"/>
+			<xsd:enumeration value="RUNNING"/>
+    		<xsd:enumeration value="COMPLETED"/>
+    		<xsd:enumeration value="SUSPENDED"/>
+			<xsd:enumeration value="CANCEL_REQUESTED"/>
+			<xsd:enumeration value="STOPPED"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:complexType name="WSJob">
+		<xsd:annotation>
+			<xsd:documentation>
+				Jobs are created and updated by asynchronous methods of th type putDocumentInAFileAsJob
+				Use getJob to read the progress of the job and read the status.
+				To cancel a job, put/overwrite the job with the status CANCEL_REQUESTED
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" name="id" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="name" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="status" type="tns:jobStatusType"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="message" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="percentage" type="xsd:int"/>
+			<xsd:element minOccurs="1" maxOccurs="1" name="timestamp" type="xsd:string"/>		
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSJob" type="tns:WSJob"/>
+
+	<xsd:complexType name="WSJobArray">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="unbounded" name="WSJobs" type="tns:WSJob"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSJobArray" type = "tns:WSJobArray"/>
+
+	<xsd:complexType name="WSJobPK">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" name="pk" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>			
+	<xsd:element name="WSJobPK" type="tns:WSJobPK"/>
+
+	<!-- Action -->
+
+	<xsd:complexType name="WSPutJob">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" name="wsJob" type="tns:WSJob"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSPutJob" type="tns:WSPutJob"/>
+
+	<xsd:complexType name="WSGetJob">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" name="pk" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetJob" type="tns:WSGetJob"/>
+
+	<xsd:complexType name="WSRegexJobs">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1" name="regex" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSRegexJobs" type="tns:WSRegexJobs"/>
+
+
+	
+	<!-- *****************************************************
+		     I T E M S - Deprecated Operations
+		*******************************************************-->	
+
+	<!-- Deprecated -->
+	<xsd:complexType name="WSProjectItem">
+		<xsd:annotation>
+			<xsd:documentation>
+				Deprecated - use ProcessUsingTransformer or ProcessFileUsingTransformer
+				Projects an item to the appropriate concept accoring ot the rules set by the intbound adaptor
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="xmlString" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsInboundAdaptorPK" type="tns:WSInboundAdaptorPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataClusterPK" type="tns:WSDataClusterPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="createIfDoesNotExist" type="xsd:boolean"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="updateIfExists" type="xsd:boolean"/>
+			<xsd:element minOccurs="0" maxOccurs="1"  nillable="true" name="username" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSProjectItem" type="tns:WSProjectItem"/>
+	
+	
+	<!-- deprecated -->
+	<xsd:complexType name="WSExtractItem">
+		<xsd:annotation>
+			<xsd:documentation>
+				Deprecated - use Transformers
+				Find an item and extract it in the format set by the outbound adaptor
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsOutboundAdaptorPK" type="tns:WSOutboundAdaptorPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsGetItem" type="tns:WSGetItem"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSExtractItem" type="tns:WSExtractItem"/>
+	
+	<xsd:complexType name="WSSingleExtract">
+		<xsd:annotation>
+			<xsd:documentation>
+				Deprecated  - use Transformers
+				Find an item and extract it in the format set by the outbound adaptor
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsOutboundAdaptorPK" type="tns:WSOutboundAdaptorPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsSingleSearch" type="tns:WSSingleSearch"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSSingleExtract" type="tns:WSSingleExtract"/>
+	
+	<!-- *****************************************************
+		E X T R A C T    I T E M S
+		*******************************************************-->
+	
+	<xsd:complexType name="WSExtractedContent">
+		<xsd:annotation>
+			<xsd:documentation>
+				Content extracted using one of the ExtractUsingTransformer web service
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="wsByteArray" type="tns:WSByteArray"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="contentType" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSExtractedContent" type="tns:WSExtractedContent"/>
+	
+	<xsd:complexType name="WSPipeline">
+		<xsd:annotation>
+			<xsd:documentation>
+				The pipeline after running a transformer
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="true" name="typedContentEntry">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="output" type="xsd:string"/>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="wsExtractedContent" type="tns:WSExtractedContent"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSPipeline" type="tns:WSPipeline"/>
+	
+	
+	<xsd:complexType name="WSExtractUsingTransformer">
+		<xsd:annotation>
+			<xsd:documentation>
+				Extracts data using a Transformer
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsItemPK" type="tns:WSItemPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsTransformerPK" type="tns:WSTransformerPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSExtractUsingTransformer" type="tns:WSExtractUsingTransformer"/>
+	
+	<xsd:complexType name="WSExtractUsingTransformerThruView">
+		<xsd:annotation>
+			<xsd:documentation>
+				Extract data using a Transformer and thru a View
+				Data is returned in the pipeline in com.amalto.core.extract.xxx
+				where xxx is sequential number starting from 1
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataClusterPK" type="tns:WSDataClusterPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsTransformerPK" type="tns:WSTransformerPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsViewPK" type="tns:WSViewPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="whereItem" type="tns:WSWhereItem"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="spellTreshold" type="xsd:int"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="skip" type="xsd:int"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="maxItems" type="xsd:int"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSExtractUsingTransformerThruView" type="tns:WSExtractUsingTransformerThruView"/>
+	
+	<!-- *****************************************************
+		Transformers -  DEPRECATED - Use Transformers V2
+		
+		*******************************************************-->
+	
+	<xsd:complexType name="WSTransformerPluginSpec">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="PluginJNDI" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="description" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="input" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="output" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="parameters" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSTransformerPluginSpec" type = "tns:WSTransformerPluginSpec"/>	
+	
+	<xsd:complexType name="WSTransformer">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="description" type="xsd:string"/>
+			<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="pluginSpecs" type="tns:WSTransformerPluginSpec"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSTransformer" type = "tns:WSTransformer"/>
+	
+	<xsd:complexType name="WSTransformerPK">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="pk" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSTransformerPK" type="tns:WSTransformerPK"/>		
+	
+	<xsd:complexType name="WSTransformerPKArray">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsTransformerPK" type="tns:WSTransformerPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSTransformerPKArray" type = "tns:WSTransformerPKArray"/>
+	
+	<xsd:complexType name="WSGetTransformer">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsTransformerPK" type="tns:WSTransformerPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetTransformer" type="tns:WSGetTransformer"/>
+	
+	<xsd:complexType name="WSExistsTransformer">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsTransformerPK" type="tns:WSTransformerPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSExistsTransformer" type="tns:WSExistsTransformer"/>
+	
+	<xsd:complexType name="WSPutTransformer">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsTransformer" type="tns:WSTransformer"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSPutTransformer" type="tns:WSPutTransformer"/>
+	
+	<xsd:complexType name="WSDeleteTransformer">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsTransformerPK" type="tns:WSTransformerPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSDeleteTransformer" type="tns:WSDeleteTransformer"/>
+	
+	<xsd:complexType name="WSGetTransformerPKs">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="regex" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetTransformerPKs" type="tns:WSGetTransformerPKs"/>
+	
+	<xsd:complexType name="WSProcessBytesUsingTransformer">
+		<xsd:annotation>
+			<xsd:documentation>
+				Process Bytes after transformation in a Transformer
+				and using a DecisionTable for the ouput variables
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsBytes" type="tns:WSByteArray"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="contentType" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsTransformerPK" type="tns:WSTransformerPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="wsOutputDecisionTable" type="tns:WSOutputDecisionTable"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSProcessBytesUsingTransformer" type="tns:WSProcessBytesUsingTransformer"/>
+	
+	<xsd:complexType name="WSProcessFileUsingTransformer">
+		<xsd:annotation>
+			<xsd:documentation>
+				Processes the content of a local (to the data manager)  file 
+				after transformation in a Transformer
+				and using a DecisionTable for the ouput variables
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="fileName" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="contentType" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsTransformerPK" type="tns:WSTransformerPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="wsOutputDecisionTable" type="tns:WSOutputDecisionTable"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSProcessFileUsingTransformer" type="tns:WSProcessFileUsingTransformer"/>		
+	
+	<xsd:complexType name="WSProcessBytesUsingTransformerAsBackgroundJob">
+		<xsd:annotation>
+			<xsd:documentation>
+				Process Bytes after transformation in a Transformer
+				and using a DecisionTable for the ouput variables
+				Uses a Background Job. Call getBackGroundJob to follow the Job Process
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsBytes" type="tns:WSByteArray"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="contentType" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsTransformerPK" type="tns:WSTransformerPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsOutputDecisionTable" type="tns:WSOutputDecisionTable"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSProcessBytesUsingTransformerAsBackgroundJob" type="tns:WSProcessBytesUsingTransformerAsBackgroundJob"/>
+	
+	<xsd:complexType name="WSProcessFileUsingTransformerAsBackgroundJob">
+		<xsd:annotation>
+			<xsd:documentation>
+				Processes the content of a local (to the data manager)  file 
+				after transformation in a Transformer
+				and using a DecisionTable for the ouput variables
+				Uses a Background Job. Call getBackGroundJob to follow the Job Process
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="fileName" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="contentType" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsTransformerPK" type="tns:WSTransformerPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsOutputDecisionTable" type="tns:WSOutputDecisionTable"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSProcessFileUsingTransformerAsBackgroundJob" type="tns:WSProcessFileUsingTransformerAsBackgroundJob"/>		
+	
+	
+	<xsd:complexType name="WSOutputDecisionTable">
+		<xsd:annotation>
+			<xsd:documentation>
+				Used by the WSProcess...UsingTransformer
+				The decision Tables specifies what happens to the ouptut variables
+				NONE: the variables is present in the pipeline with its content
+				DISCARD: the variable and its content is removed from the pipeline before the web service returns
+				PROJECT(DataCluster,DataModel[,overwrite]): the content is projected to DataCluster after having been validated by DataModel. 
+				"overwrite" specifies whether to overwrite an existing item and is true by default. 
+				Possible values are true or false
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="decisions">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="outputVariableName" type="xsd:string"/>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="decision" type="xsd:string"/>						
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSOutputDecisionTable" type="tns:WSOutputDecisionTable"/>
+	
+	
+	
+	<!-- *****************************************************
+		Transformer Plugins  - Objects
+		*******************************************************-->
+	
+	<xsd:complexType name="WSExistsTransformerPlugin">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="jndiName" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSExistsTransformerPlugin" type="tns:WSExistsTransformerPlugin"/>
+	
+	
+	<xsd:complexType name="WSTransformerPluginPutConfiguration">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="jndiName" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="configuration" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSTransformerPluginPutConfiguration" type="tns:WSTransformerPluginPutConfiguration"/>
+	
+	<xsd:complexType name="WSTransformerPluginGetConfiguration">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="jndiName" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="optionalParameter" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSTransformerPluginGetConfiguration" type="tns:WSTransformerPluginGetConfiguration"/>
+	
+	<xsd:complexType name="WSTransformerPluginDetails">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="description" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="documentation" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="parametersSchema" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSTransformerPluginDetails" type = "tns:WSTransformerPluginDetails"/>	
+	
+	<xsd:complexType name="WSGetTransformerPluginDetails">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="jndiName" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="language" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetTransformerPluginDetails" type="tns:WSGetTransformerPluginDetails"/>
+	
+	<xsd:complexType name="WSTransformerPluginsList">
+		<xsd:sequence >
+			<xsd:element name="Item" minOccurs="0" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="jndiName" type="xsd:string"/>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="description" type="xsd:string"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSTransformerPluginsList" type="tns:WSTransformerPluginsList"/>
+	
+	<!-- *****************************************************
+		Transformer Plugins  - Operations
+		*******************************************************-->
+	
+	<xsd:complexType name="WSGetTransformerPluginsList">
+		<xsd:annotation>
+			<xsd:documentation>
+				Returns the list of available Transformer Plugins in a WSTransformerPluginsList 
+				that provides their JNDI Name and Description in the requested language
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="language" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetTransformerPluginsList" type="tns:WSGetTransformerPluginsList"/>
+	
+	
+	<!-- *****************************************************
+		ROUTER 
+		*******************************************************-->
+	<xsd:simpleType name="WSRouterStatus">
+		<xsd:restriction base="xsd:NMTOKEN">
+			<xsd:enumeration value="DEAD"/>
+			<xsd:enumeration value="STOPPED"/>
+			<xsd:enumeration value="SUSPENDED"/>
+			<xsd:enumeration value="RUNNING"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:element name="WSRouterStatus" type="tns:WSRouterStatus"/>
+	
+	<xsd:complexType name="WSExecuteRoutingOrderNow">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="routingOrderPK" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSExecuteRoutingOrderNow" type="tns:WSExecuteRoutingOrderNow"/>
+	
+	<xsd:complexType name="WSRouteItemNow">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsItemPK" type="tns:WSItemPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSRouteItemNow" type="tns:WSRouteItemNow"/>
+	
+	<xsd:simpleType name="WSRouterActionCode">
+		<xsd:restriction base="xsd:NMTOKEN">
+			<xsd:enumeration value="START"/>
+			<xsd:enumeration value="STOP"/>
+			<xsd:enumeration value="SUSPEND"/>
+			<xsd:enumeration value="RESUME"/>
+			<xsd:enumeration value="STATUS"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:element name="WSRouterActionCode" type="tns:WSRouterActionCode"/>
+	
+	<xsd:complexType name="WSRouterAction">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsAction" type="tns:WSRouterActionCode"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSRouterAction" type="tns:WSRouterAction"/>
+	
+	<!-- *****************************************************
+		ROUTING ORDERS
+		*******************************************************-->
+	
+	
+	<xsd:simpleType name="WSRoutingOrderType">
+		<xsd:restriction base="xsd:NMTOKEN">
+			<xsd:enumeration value="CACHE"/>
+			<xsd:enumeration value="ITEMS"/>
+			<xsd:enumeration value="UNKNOWN"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:complexType name="WSRoutingOrder">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="id" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="queue" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsItemPK" type="tns:WSItemPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="service" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="parameters" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="time" type="xsd:long"/>
+			<xsd:element minOccurs="0" maxOccurs="1"  nillable="false" name="message" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSRoutingOrder" type = "tns:WSRoutingOrder"/>
+	
+	<xsd:complexType name="WSRoutingOrderCriteria">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="id" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="queue" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="documentType" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="idsSearch" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="service" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="parameters" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="time" type="xsd:long"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSRoutingOrderCriteria" type = "tns:WSRoutingOrderCriteria"/>
+	
+	
+	
+	<xsd:complexType name="WSRoutingOrderPK">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="pk" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSRoutingOrderPK" type="tns:WSRoutingOrderPK"/>		
+	
+	<xsd:complexType name="WSRoutingOrderArray">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsRoutingOrders" type="tns:WSRoutingOrder"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSRoutingOrderArray" type = "tns:WSRoutingOrderArray"/>
+	
+	<!-- Operations -->
+	<!--
+		Routing Orders are only created by the router from routing rules
+		
+		<xsd:complexType name="WSPutRoutingOrder">
+		<xsd:sequence>
+		<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsRoutingOrder" type="tns:WSRoutingOrder"/>
+		</xsd:sequence>		
+		</xsd:complexType>
+		<xsd:element name="WSPutRoutingOrder" type="tns:WSPutRoutingOrder"/>
+	-->
+	
+	<xsd:complexType name="WSGetRoutingOrder">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsRoutingOrderPK" type="tns:WSRoutingOrderPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetRoutingOrder" type="tns:WSGetRoutingOrder"/>
+	
+	<xsd:complexType name="WSExistsRoutingOrder">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsRoutingOrderPK" type="tns:WSRoutingOrderPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSExistsRoutingOrder" type="tns:WSExistsRoutingOrder"/>
+	
+	<xsd:complexType name="WSGetRoutingOrdersByCriteria">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsRoutingOrderCriteria" type="tns:WSRoutingOrderCriteria"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="minTime" type="xsd:long"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="maxTime" type="xsd:long"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="numberOfItems" type="xsd:int"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetRoutingOrdersByCriteria" type = "tns:WSGetRoutingOrdersByCriteria"/>
+	
+	
+	<xsd:complexType name="WSDeleteRoutingOrder">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsRoutingOrderPK" type="tns:WSRoutingOrderPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSDeleteRoutingOrder" type="tns:WSDeleteRoutingOrder"/>
+		
+	
+	<!-- <<<<<<<<<<<<<<<<<<<<<<<   Deprecated    *******************************************    --> 
+	
+	
+	
+</xsd:schema>

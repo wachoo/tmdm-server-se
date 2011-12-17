@@ -1,0 +1,34 @@
+CONNECTION MANAGEMENT
+(Hell, the guy who did this must have died of his headache)
+
+
+0 server [SERVER]
+	new ManagedConnectionFactory()
+	new ConnectionManager()
+
+1 ApplicationComponent: [IMPLEMENT]
+	1.1 JNDI lookup ConnectionFactory  (Server allocates and pass (ManagedConnectionFactory and ConnectionManager) in the constructor)
+			Object createConnectionFactory(ConnectionManager cxManager)
+			
+	1.2 Connection=ConnectionFactory.getConnection(ConnectionSpec)
+		OR
+	1.3 Connection=ConnectionFactory.getConnection()
+
+2 ConnectionFactory.getConnection(): [IMPLEMENT]
+	2.1 ConnectionSpec -> ConnectionRequestInfo
+	2.2 Connection = ConnectionManager.allocateConnection(ManagedConnectionfFactory, ConnectionRequestInfo);
+
+3 ConnectionManager.allocateConnection() [SERVER]
+	3.1 ManagedConnection = ManagedConnectionFactory.createManagedConnection(Subject, ConnectionRequestInfo)
+		OR
+	3.2 ManagedConnection = ManagedConnectionFactory.matchManagedConnections(Set connectionSet,	Subject, ConnectionRequestInfo)
+
+4 ManagedConnectionFactory.create[match]ManagedConnection	 [IMPLEMENT]
+	4.1 return ManagedConnection
+
+5 ConnectionManager.allocateConnection() [SERVER]
+	5.1 (Connection) Object ManagedConnection.getConnection(Subject, ConnectionRequestInfo)
+	
+6 ManagedConnection.getConnection() [IMPLEMENT]
+	6.1 return new Connection()
+	

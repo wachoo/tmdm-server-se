@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/talend.mdm.libraries/lib/commons-codec.jar" sourcepath="/talend.mdm.libraries/talend.mdm.librariessrc.zip"/>
+	<classpathentry kind="lib" path="/talend.mdm.libraries/lib/commons-httpclient.jar" sourcepath="/talend.mdm.libraries/talend.mdm.librariessrc.zip"/>
+	<classpathentry kind="lib" path="/talend.mdm.libraries/lib/commons-logging.jar" sourcepath="/talend.mdm.libraries/talend.mdm.librariessrc.zip"/>
+	<classpathentry kind="lib" path="/talend.mdm.libraries/lib/z.commons-lang-2.1.jar" sourcepath="/talend.mdm.libraries/talend.mdm.librariessrc.zip"/>
+	<classpathentry kind="lib" path="/talend.mdm.libraries/lib/junit-3.8.1.jar" sourcepath="/talend.mdm.libraries/talend.mdm.librariessrc.zip"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

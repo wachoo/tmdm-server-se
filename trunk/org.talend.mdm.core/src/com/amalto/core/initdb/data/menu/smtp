@@ -1,0 +1,23 @@
+<menu-pOJO>
+    <menu-entries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="java:com.amalto.core.objects.menu.ejb.MenuEntryPOJO">
+        <descriptions xsi:type="java:org.exolab.castor.mapping.MapItem">
+            <key xsi:type="java:java.lang.String">en</key>
+            <value xsi:type="java:java.lang.String">SMTP Service Setup</value>
+        </descriptions>
+        <descriptions xsi:type="java:org.exolab.castor.mapping.MapItem">
+            <key xsi:type="java:java.lang.String">fr</key>
+            <value xsi:type="java:java.lang.String">Paramétrage du Service SMTP</value>
+        </descriptions>
+        <application>SmtpAdapter</application>
+        <context>smtp</context>
+        <id>smtp</id>
+    </menu-entries>
+    <name>smtp</name>
+    <description>smtp configure setup</description>
+    <PK>
+        <ids>smtp</ids>
+        <unique-id>smtp</unique-id>
+    </PK>
+    <last-synch>test</last-synch>
+    <last-error/>
+</menu-pOJO>

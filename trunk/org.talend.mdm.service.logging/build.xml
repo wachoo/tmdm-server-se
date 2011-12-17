@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ====================================================================== 
+ 20 déc. 2005 09:21:22                                                        
+ 
+ mdm Service Logging
+ 
+ jfeltesse                                                                
+ ====================================================================== -->
+ <project name="Logging Service build" default="all">
+  
+ 	
+	<property name="jar" value="zz.30.mdm.service.logging.ejb.jar"/>
+ 	
+ 	
+  	<property name="version.props" value="version.properties"/>
+  
+  	<property name="jboss.dir" value="/opt/jboss"/>
+  	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
+  	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
+  	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
+  
+  <!-- ================================= 
+   target: all              
+   ================================= -->
+  <target name="all" depends="version,package,undeploy,deploy" />
+  
+  <target name="version"  description="Maintain build.date property">
+   <propertyfile file="${version.props}"  comment="streek build date">
+    <entry key="build.date" type="date" value="now" />
+   </propertyfile>
+  </target>
+  
+  <target name="package">
+	<buildnumber file="${version.props}"/>
+  	<property file="${version.props}" />
+   	<property name="version.build.new" value="${major}-${minor}-${rev}_${build.number}"  />
+	<jar destfile="${jar}">
+		<zipfileset dir="src/META-INF" prefix="META-INF">
+			<include name="ejb-jar.xml"/>
+		</zipfileset>
+		<zipfileset dir="src/META-INF" prefix="META-INF">
+			<include name="jboss.xml"/>
+		</zipfileset>
+		<zipfileset dir=".">
+			<include name="RELEASE.NOTES"/>
+		</zipfileset>
+		<zipfileset dir=".">
+			<include name="version.properties"/>
+		</zipfileset>
+		<zipfileset dir="bin" includes="**/ejb/**/*.class"/>
+		<zipfileset dir="bin" includes="**/util/**/*.class"/>
+		<zipfileset dir="xslt" prefix="com/amalto/service/logging/ejb" includes="**/*.*"/>
+	</jar>
+  </target>
+  
+  <target name="undeploy" description="--> remove packages">		
+   <delete>
+    <fileset dir="${jboss.deploy.dir}" includes="zz.*.mdm.service.logging.ejb.jar"/>
+   </delete>
+  </target>
+  
+  <target name="deploy">
+   <echo>Deploying build: ${version.build.new}</echo>
+   <copy file="zz.30.mdm.service.logging.ejb.jar" tofile="${jboss.deploy.dir}/zz.30.mdm.service.logging.ejb.jar"/>
+  </target>
+  
+ </project>
+ 

@@ -1,0 +1,58 @@
+/***************************************************************************************
+MENUS
+****************************************************************************************/
+
+#menus-body{
+	overflow:auto;
+	
+}
+
+.menus-list{
+	padding:1px;
+}
+.menus-list a{
+	border:1px solid white;
+	display:block;
+	margin-bottom:2px;
+	text-decoration:none;
+}
+.menus-list a .body{
+	padding:5px 2px 5px 15px;
+	/* background-position: 2px 5px; */
+	background-repeat: no-repeat;
+	font:bold 12px tahoma, verdana, helvetica;
+	color: #2d5593;
+	display:block;
+}
+.menus-list a .desc{
+	font:normal 11px tahoma, verdana, helvetica;
+	color: #222222;
+}
+.menus-list a:hover, .menus-list .selected{
+	text-decoration: none;
+	border:1px solid #c3daf9;
+	background-color:#ddecfe;
+}
+.menus-list .selected{
+	/* background-image: url('/b2box3/secure/img/post-bg.gif'); */
+	border:1px solid #c3daf9;
+}
+div .sub-body{
+	position:relative;
+	left: 15px;
+}
+
+.menus-list a.x-item-disabled{
+	font:normal 11px tahoma, verdana, helvetica;
+	color: #888888;
+	border:1px solid #ffffff;
+	background-color:#ffffff;
+}
+
+.menus-list a.x-item-disabled:hover, .menus-list .selected .x-item-disabled{
+	border:1px solid #ffffff;
+	background-color:#ffffff;
+	display:block;
+	margin-bottom:2px;
+	text-decoration:none;
+}

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="B2BOX" default="all">
+	
+	<property name="version.props" value="version.properties"/>
+		
+	<property name="jboss.dir" value="c:/opt/jboss"/>
+	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
+	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
+	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
+
+	<property name="jar" value="zz.30.service.loggingsmtp.jar"/>
+
+    <!-- ================================= 
+          targets           
+         ================================= -->
+	<target name="all" depends="version,package,undeploy,deploy" description="--> B2BOX WebApp">
+	</target>
+	
+   	<target name="version"  description="Maintain build.date property">
+   		<buildnumber file="${version.props}" />
+       	<propertyfile file="${version.props}">
+       		<entry key="build.date" type="date" value="now" />
+       	</propertyfile>   	
+     </target>
+
+   	<target name="package">
+		<jar destfile="${jar}">
+			<zipfileset dir="src/META-INF" prefix="META-INF">
+				<include name="ejb-jar.xml"/>
+			</zipfileset>
+			<zipfileset dir="src/META-INF" prefix="META-INF">
+				<include name="jboss.xml"/>
+			</zipfileset>
+			<zipfileset dir=".">
+				<include name="RELEASE.NOTES"/>
+			</zipfileset>
+			<zipfileset dir=".">
+				<include name="version.properties"/>
+			</zipfileset>
+			<zipfileset dir="bin" includes="**/ejb/**/*.class"/>
+			<zipfileset dir="bin" includes="**/util/**/*.class"/>
+			<zipfileset dir="xslt" prefix="com/amalto/service/loggingsmtp/ejb" includes="**/*.*"/>
+		</jar>
+
+    </target>
+		
+    <target name="undeploy" description="remove packages">		
+		<delete>
+			<fileset dir="${jboss.deploy.dir}" includes="${jar}"/>
+		</delete>
+    </target>
+	
+	<target name="deploy">
+		<echo>Deploying ${jar} </echo>
+     	<copy file="${jar}" tofile="${jboss.deploy.dir}/${jar}"/>        
+    </target>
+
+
+</project>
+

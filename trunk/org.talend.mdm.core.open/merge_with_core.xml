@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="merge_all" name="XtentisCore - Merge">
+
+	<property name="from.dir" value="./src/com/amalto/core/webservice" />
+	<property name="to.dir" value="../org.talend.mdm.core/src/com/amalto/core/webservice" />
+
+	<target name="merge_all">
+
+		<echo>Move WS files</echo>
+		<move todir="${to.dir}">
+			<fileset dir="${from.dir}">
+				<exclude name="XtentisPort.java" />
+				<exclude name="XtentisPort_Impl.java" />
+				<exclude name="XtentisService.java" />
+			</fileset>
+		</move>
+
+		<echo>Refresh resources</echo>
+		<eclipse.refreshLocal resource="org.talend.mdm.core" />
+		<eclipse.refreshLocal resource="org.talend.mdm.core.open" />
+		
+	</target>
+
+</project>

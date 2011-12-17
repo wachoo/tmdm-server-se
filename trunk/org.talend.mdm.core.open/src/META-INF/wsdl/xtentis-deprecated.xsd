@@ -1,0 +1,253 @@
+<xsd:schema 
+	elementFormDefault="unqualified"
+	targetNamespace="urn-com-amalto-xtentis-webservice"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:tns="urn-com-amalto-xtentis-webservice"
+	>
+
+	
+	<!-- *****************************************************
+		E X T R A C T    I T E M S
+		*******************************************************-->
+	
+	<xsd:complexType name="WSExtractedContent">
+		<xsd:annotation>
+			<xsd:documentation>
+				Content extracted using one of the ExtractUsingTransformer web service
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="wsByteArray" type="tns:WSByteArray"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="contentType" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSExtractedContent" type="tns:WSExtractedContent"/>
+	
+	<xsd:complexType name="WSPipeline">
+		<xsd:annotation>
+			<xsd:documentation>
+				The pipeline after running a transformer
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="true" name="typedContentEntry">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="output" type="xsd:string"/>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="wsExtractedContent" type="tns:WSExtractedContent"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSPipeline" type="tns:WSPipeline"/>
+	
+	
+	<xsd:complexType name="WSExtractUsingTransformer">
+		<xsd:annotation>
+			<xsd:documentation>
+				Extracts data using a Transformer
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsItemPK" type="tns:WSItemPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsTransformerPK" type="tns:WSTransformerPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSExtractUsingTransformer" type="tns:WSExtractUsingTransformer"/>
+	
+	<xsd:complexType name="WSExtractUsingTransformerThruView">
+		<xsd:annotation>
+			<xsd:documentation>
+				Extract data using a Transformer and thru a View
+				Data is returned in the pipeline in com.amalto.core.extract.xxx
+				where xxx is sequential number starting from 1
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataClusterPK" type="tns:WSDataClusterPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsTransformerPK" type="tns:WSTransformerPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsViewPK" type="tns:WSViewPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="whereItem" type="tns:WSWhereItem"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="spellTreshold" type="xsd:int"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="skip" type="xsd:int"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="maxItems" type="xsd:int"/>
+			<xsd:element minOccurs="0" maxOccurs="1"  nillable="true" name="orderBy" type="xsd:string"/>
+			<xsd:element minOccurs="0" maxOccurs="1"  nillable="true" name="direction" type="xsd:string"/>			
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSExtractUsingTransformerThruView" type="tns:WSExtractUsingTransformerThruView"/>
+	
+	<!-- *****************************************************
+		Transformers -  DEPRECATED - Use Transformers V2
+		
+		*******************************************************-->
+	
+	<xsd:complexType name="WSTransformerPluginSpec">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="PluginJNDI" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="description" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="input" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="output" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="parameters" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSTransformerPluginSpec" type = "tns:WSTransformerPluginSpec"/>	
+	
+	<xsd:complexType name="WSTransformer">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="description" type="xsd:string"/>
+			<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="pluginSpecs" type="tns:WSTransformerPluginSpec"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSTransformer" type = "tns:WSTransformer"/>
+	
+	<xsd:complexType name="WSTransformerPK">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="pk" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSTransformerPK" type="tns:WSTransformerPK"/>		
+	
+	<xsd:complexType name="WSTransformerPKArray">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsTransformerPK" type="tns:WSTransformerPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSTransformerPKArray" type = "tns:WSTransformerPKArray"/>
+	
+	<xsd:complexType name="WSGetTransformer">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsTransformerPK" type="tns:WSTransformerPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetTransformer" type="tns:WSGetTransformer"/>
+	
+	<xsd:complexType name="WSExistsTransformer">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsTransformerPK" type="tns:WSTransformerPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSExistsTransformer" type="tns:WSExistsTransformer"/>
+	
+	<xsd:complexType name="WSPutTransformer">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsTransformer" type="tns:WSTransformer"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSPutTransformer" type="tns:WSPutTransformer"/>
+	
+	<xsd:complexType name="WSDeleteTransformer">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsTransformerPK" type="tns:WSTransformerPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSDeleteTransformer" type="tns:WSDeleteTransformer"/>
+	
+	<xsd:complexType name="WSGetTransformerPKs">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="regex" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetTransformerPKs" type="tns:WSGetTransformerPKs"/>
+	
+	<xsd:complexType name="WSProcessBytesUsingTransformer">
+		<xsd:annotation>
+			<xsd:documentation>
+				Process Bytes after transformation in a Transformer
+				and using a DecisionTable for the ouput variables
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsBytes" type="tns:WSByteArray"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="contentType" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsTransformerPK" type="tns:WSTransformerPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="wsOutputDecisionTable" type="tns:WSOutputDecisionTable"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSProcessBytesUsingTransformer" type="tns:WSProcessBytesUsingTransformer"/>
+	
+	<xsd:complexType name="WSProcessFileUsingTransformer">
+		<xsd:annotation>
+			<xsd:documentation>
+				Processes the content of a local (to the data manager)  file 
+				after transformation in a Transformer
+				and using a DecisionTable for the ouput variables
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="fileName" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="contentType" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsTransformerPK" type="tns:WSTransformerPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="wsOutputDecisionTable" type="tns:WSOutputDecisionTable"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSProcessFileUsingTransformer" type="tns:WSProcessFileUsingTransformer"/>		
+	
+	<xsd:complexType name="WSProcessBytesUsingTransformerAsBackgroundJob">
+		<xsd:annotation>
+			<xsd:documentation>
+				Process Bytes after transformation in a Transformer
+				and using a DecisionTable for the ouput variables
+				Uses a Background Job. Call getBackGroundJob to follow the Job Process
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsBytes" type="tns:WSByteArray"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="contentType" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsTransformerPK" type="tns:WSTransformerPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsOutputDecisionTable" type="tns:WSOutputDecisionTable"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSProcessBytesUsingTransformerAsBackgroundJob" type="tns:WSProcessBytesUsingTransformerAsBackgroundJob"/>
+	
+	<xsd:complexType name="WSProcessFileUsingTransformerAsBackgroundJob">
+		<xsd:annotation>
+			<xsd:documentation>
+				Processes the content of a local (to the data manager)  file 
+				after transformation in a Transformer
+				and using a DecisionTable for the ouput variables
+				Uses a Background Job. Call getBackGroundJob to follow the Job Process
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="fileName" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="contentType" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsTransformerPK" type="tns:WSTransformerPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsOutputDecisionTable" type="tns:WSOutputDecisionTable"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSProcessFileUsingTransformerAsBackgroundJob" type="tns:WSProcessFileUsingTransformerAsBackgroundJob"/>		
+	
+	
+	<xsd:complexType name="WSOutputDecisionTable">
+		<xsd:annotation>
+			<xsd:documentation>
+				Used by the WSProcess...UsingTransformer
+				The decision Tables specifies what happens to the ouptut variables
+				NONE: the variables is present in the pipeline with its content
+				DISCARD: the variable and its content is removed from the pipeline before the web service returns
+				PROJECT(DataCluster,DataModel[,overwrite]): the content is projected to DataCluster after having been validated by DataModel. 
+				"overwrite" specifies whether to overwrite an existing item and is true by default. 
+				Possible values are true or false
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="decisions">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="outputVariableName" type="xsd:string"/>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="decision" type="xsd:string"/>						
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSOutputDecisionTable" type="tns:WSOutputDecisionTable"/>
+	
+	
+	
+
+	
+</xsd:schema>

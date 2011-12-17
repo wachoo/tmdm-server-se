@@ -1,0 +1,40 @@
+RELEASE NOTES
+
+This service handles Logging Events
+
+1.1.0 NOT RELEASED
+For compliance with core 2.20.0
+
+1.0.10
+Improved logging mechanism (faster, less loops)
+Complies with core 2.18+
+
+1.0.9 
+Removed the use of an Inbound Adaptor
+
+1.0.8 
+Compliance with logging connector v1.2.0 ( add a serviceName parameter calling startConnector) - works with previous connector version
+
+1.0.7 
+Changed to be inline with core 2.9.0
+
+1.0.6 
+Changed jndi pathes according to the new naming (jca/logginglistener > jca/xtentis/connector/logging)
+
+1.0.5 
+Removed the 'period' parameter
+
+1.0.4 
+B2BOX 0.9 RELEASE
+
+1.0.3 
+Hard coded parameter pattern with com.amalto. like regex
+
+1.0.2 
+Support for the new version of the connector with the pattern parameter
+
+1.0.1 
+Bug fixes
+
+1.0.0 
+Initial release

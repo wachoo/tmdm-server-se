@@ -1,0 +1,10 @@
+<!-- UPDATE ACTION XML FILE TO BE SENT TO THE CONNECTOR -->
+<updateaction>
+	
+	<!-- REQUIRED -->
+	<operation>{operation type}</operation>
+	<part>
+		<content>{the content of this part}</content>
+	</part>
+	
+</updateaction>

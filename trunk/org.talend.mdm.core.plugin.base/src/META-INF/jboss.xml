@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE jboss PUBLIC "-//JBoss//DTD JBOSS 4.0//EN" "http://www.jboss.org/j2ee/dtd/jboss_4_0.dtd">
+
+<jboss>
+
+   <security-domain>java:/jaas/xtentisSecurity</security-domain>
+   <unauthenticated-principal>guest</unauthenticated-principal>
+
+   <enterprise-beans>
+
+     <!--
+       To add beans that you have deployment descriptor info for, add
+       a file to your XDoclet merge directory called jboss-beans.xml that contains
+       the <session></session>, <entity></entity> and <message-driven></message-driven>
+       markup for those beans.
+     -->
+
+      <session>
+         <ejb-name>GroovyPluginBean</ejb-name>
+         <local-jndi-name>amalto/local/transformer/plugin/groovy</local-jndi-name>
+
+        <method-attributes>
+        </method-attributes>
+      </session>
+      <session>
+         <ejb-name>BatchProjectPlugin</ejb-name>
+         <local-jndi-name>amalto/local/transformer/plugin/batchproject</local-jndi-name>
+
+        <method-attributes>
+        </method-attributes>
+      </session>
+      <session>
+         <ejb-name>CodecPlugin</ejb-name>
+         <local-jndi-name>amalto/local/transformer/plugin/codec</local-jndi-name>
+
+        <method-attributes>
+        </method-attributes>
+      </session>
+      <session>
+         <ejb-name>ProjectTransformerPlugin</ejb-name>
+         <local-jndi-name>amalto/local/transformer/plugin/project</local-jndi-name>
+
+        <method-attributes>
+        </method-attributes>
+      </session>
+      <session>
+         <ejb-name>xPathTransformerPlugin</ejb-name>
+         <local-jndi-name>amalto/local/transformer/plugin/xpath</local-jndi-name>
+
+        <method-attributes>
+        </method-attributes>
+      </session>
+      <session>
+         <ejb-name>FixedLengthParserTransformerPlugin</ejb-name>
+         <local-jndi-name>amalto/local/transformer/plugin/fixedlengthparser</local-jndi-name>
+
+        <method-attributes>
+        </method-attributes>
+      </session>
+      <session>
+         <ejb-name>ReplaceTransformerPlugin</ejb-name>
+         <local-jndi-name>amalto/local/transformer/plugin/replace</local-jndi-name>
+
+        <method-attributes>
+        </method-attributes>
+      </session>
+      <session>
+         <ejb-name>DumpAndGoPlugin</ejb-name>
+         <local-jndi-name>amalto/local/transformer/plugin/dumpandgo</local-jndi-name>
+
+        <method-attributes>
+        </method-attributes>
+      </session>
+      <session>
+         <ejb-name>RouteTransformerPlugin</ejb-name>
+         <local-jndi-name>amalto/local/transformer/plugin/route</local-jndi-name>
+
+        <method-attributes>
+        </method-attributes>
+      </session>
+      <session>
+         <ejb-name>XSLTTransformerPlugin</ejb-name>
+         <local-jndi-name>amalto/local/transformer/plugin/xslt</local-jndi-name>
+
+        <method-attributes>
+        </method-attributes>
+      </session>
+      <session>
+         <ejb-name>PartialUpdateTransformerPlugin</ejb-name>
+         <local-jndi-name>amalto/local/transformer/plugin/partialupdate</local-jndi-name>
+
+        <method-attributes>
+        </method-attributes>
+      </session>
+      <session>
+         <ejb-name>RegexpTransformerPlugin</ejb-name>
+         <local-jndi-name>amalto/local/transformer/plugin/regexp</local-jndi-name>
+
+        <method-attributes>
+        </method-attributes>
+      </session>
+      <session>
+         <ejb-name>GroupedLinesReaderTransformerPlugin</ejb-name>
+         <local-jndi-name>amalto/local/transformer/plugin/groupedlinesreader</local-jndi-name>
+
+        <method-attributes>
+        </method-attributes>
+      </session>
+      <session>
+         <ejb-name>CrossReferencingTransformerPluginBean</ejb-name>
+         <local-jndi-name>amalto/local/transformer/plugin/crossreferencing</local-jndi-name>
+
+        <method-attributes>
+        </method-attributes>
+      </session>
+      <session>
+         <ejb-name>LineReaderTransformerPlugin</ejb-name>
+         <local-jndi-name>amalto/local/transformer/plugin/linereader</local-jndi-name>
+
+        <method-attributes>
+        </method-attributes>
+      </session>
+      <session>
+         <ejb-name>CSVParserTransformerPlugin</ejb-name>
+         <local-jndi-name>amalto/local/transformer/plugin/csvparser</local-jndi-name>
+
+        <method-attributes>
+        </method-attributes>
+      </session>
+
+    <!--
+      write a merge file jboss-webservices.ent for webservice-description 
+    -->
+
+   </enterprise-beans>
+
+     <!--
+       To specify your own assembly descriptor info here, add a file to your
+       XDoclet merge directory called jboss-assembly-descriptor.xml that contains
+       the <assembly-descriptor></assembly-descriptor> markup.
+     -->
+   <assembly-descriptor>
+    <!-- message destinations -->
+     <!--
+       To specify additional message-destination elements, add a file in the merge
+       directory called jboss-message-destinations.ent that contains them.
+     -->
+   </assembly-descriptor>
+
+   <resource-managers>
+   </resource-managers>
+
+  <!--
+    | for container settings, you can merge in jboss-container.xml
+    | this can contain <invoker-proxy-bindings/> and <container-configurations/>
+  -->
+
+</jboss>

@@ -1,0 +1,38 @@
+/***************************************************************************************
+MENUS
+****************************************************************************************/
+
+
+.menus-list{
+	padding:1px;
+}
+.menus-list .menu-item{
+	border:1px solid white;
+	display:block;
+	margin-bottom:2px;
+	text-decoration:none;
+	cursor: pointer;
+}
+.menus-list .menu-item .body{
+	padding:5px 2px 5px 15px;
+	/* background-position: 2px 5px; */
+	background-repeat: no-repeat;
+	font: 12px tahoma, verdana, helvetica;
+	color: #2d5593;
+	display:block;
+}
+
+.menus-list .menu-item:hover, .menus-list .menu-item.selected{
+	text-decoration: none;
+	border:1px solid #c3daf9;
+	background-color:#ddecfe;
+}
+
+
+.menus-list .menu-item.x-item-disabled:hover, .menus-list .selected .x-item-disabled{
+	border:1px solid #ffffff;
+	background-color:#ffffff;
+	display:block;
+	margin-bottom:2px;
+	text-decoration:none;
+}

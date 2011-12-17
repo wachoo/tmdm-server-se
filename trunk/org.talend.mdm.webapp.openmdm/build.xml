@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="B2BOX" default="all">
+	
+	<property name="version.props" value="version.properties"/>
+		
+	<property name="jboss.dir" value="e:/opt/jboss"/>
+	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
+	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
+	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
+
+	<property name="webapp.core.lib" value="../org.talend.mdm.webapp.core/z.mdm.webapp.core.jar"/>
+	<property name="war" value="zz.20.openmdm.webapp.war"/>
+
+    <!-- ================================= 
+          target: all              
+         ================================= -->
+	<target name="all" depends="version,package,undeploy,deploy" description="--> B2BOX WebApp">
+		<!--eclipse.refreshLocal resource="../"/-->
+	</target>
+	
+   	<target name="version"  description="Maintain build.date property">
+   		<buildnumber file="${version.props}" />
+       	<propertyfile file="${version.props}">
+       		<entry key="build.date" type="date" value="now" />
+       	</propertyfile>   	
+     </target>
+
+   	<target name="package">
+		<property file="${version.props}" />
+		<copy file="RELEASE.NOTES" tofile="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES"/>
+		<jar destfile="${war}">
+			<zipfileset dir="src/WEB-INF" prefix="WEB-INF">
+				<include name="web.xml" />
+			</zipfileset>
+			<zipfileset dir="src/WEB-INF" prefix="WEB-INF">
+				<include name="jboss-web.xml" />
+			</zipfileset>
+			<zipfileset dir="src/WEB-INF" prefix="WEB-INF">
+				<include name="dwr.xml" />
+			</zipfileset>
+			<zipfileset dir="src/WEB-INF" prefix="WEB-INF">
+				<include name="context.xml" />
+			</zipfileset>
+			<!--<zipfileset file="${webapp.core.lib}" prefix="WEB-INF/lib"/>-->
+			<zipfileset dir=".">
+				<include name="version.properties" />
+			</zipfileset>
+			<zipfileset dir=".">
+				<include name="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES" />
+			</zipfileset>
+			<zipfileset dir="bin" prefix="WEB-INF/classes" includes="**/*.class" />
+			<zipfileset dir="web" includes="**/*" />
+			<zipfileset dir="src" prefix="WEB-INF/classes" includes="**/*.xsl" />
+			<zipfileset dir="src" prefix="WEB-INF/classes" includes="**/*.xml" />
+			<zipfileset dir="src" prefix="WEB-INF/classes" includes="**/*.properties" />
+			<zipfileset dir="libs" prefix="WEB-INF/lib" includes="*.jar" />
+		</jar>
+   		<delete file="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES" />
+    </target>
+		
+    <target name="undeploy" description="remove packages">		
+		<delete>
+			<fileset dir="${jboss.deploy.dir}" includes="${war}"/>
+		</delete>
+    </target>
+	
+	<target name="deploy">
+		<echo>Deploying ${war} </echo>
+     	<copy file="${war}" tofile="${jboss.deploy.dir}/${war}"/>        
+    </target>
+
+
+</project>
+

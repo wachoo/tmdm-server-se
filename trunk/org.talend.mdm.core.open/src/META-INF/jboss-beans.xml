@@ -1,0 +1,8 @@
+<session>
+    <ejb-name>XtentisWS</ejb-name>
+    <port-component>
+        <port-component-name>XtentisPort</port-component-name>
+        <port-component-uri>/talend/TalendPort</port-component-uri>
+        <auth-method>BASIC</auth-method>
+    </port-component>
+</session>

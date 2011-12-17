@@ -1,0 +1,67 @@
+<Fournisseur xmlns:default="urn:schemas-microsoft-com:office:spreadsheet">
+    <ID>213792</ID>
+    <RaisonSociale>IBM FRANCE</RaisonSociale>
+    <Activite>Editeur de Logiciels</Activite>
+    <Produits/>
+    <Adresse>
+        <Rue1>BP 34216</Rue1>
+        <Rue2/>
+        <CodePostal>75767</CodePostal>
+        <Ville>PARIS CEDEX 16</Ville>
+        <Pays>FRANCE</Pays>
+    </Adresse>
+    <Contacts>
+        <SiteWeb/>
+        <Telephone/>
+        <Fax/>
+        <Email/>
+    </Contacts>
+    <FormeJuridique/>
+    <CapitalSocial/>
+    <DUNS>27-526-7227</DUNS>
+    <CodeAPE/>
+    <SIREN/>
+    <SIRET>43425755510213</SIRET>
+    <CodeIntraCommunautaire/>
+    <ListeClients>
+        <ClientSAFRAN>
+            <Nom>Client ajouté</Nom>
+            <Contact>
+                <Nom>Nom ajouté</Nom>
+            </Contact>
+        </ClientSAFRAN>
+        <ClientSAFRAN>
+            <Nom>Client ajouté 1</Nom>
+            <Contact>
+                <Nom>Nom modifié 1</Nom>
+            </Contact>
+        </ClientSAFRAN>
+        <ClientSAFRAN>
+            <Nom>Client ajouté 2</Nom>
+            <Contact>
+                <Nom>Nom ajouté 2</Nom>
+            </Contact>
+        </ClientSAFRAN>
+    </ListeClients>
+    <ListeInformationsFinancieres/>
+    <ListeDomainesFamilles>
+        <ListeDomaines/>
+        <ListeFamilles/>
+    </ListeDomainesFamilles>
+    <TypeFiche>Etablissement</TypeFiche>
+    <LogFiche>
+        <Entree>
+            <TimeStamp>20060905T18:23:57.320 CEST</TimeStamp>
+            <Utilisateur>admin</Utilisateur>
+            <Description>Initialisation</Description>
+        </Entree>
+    </LogFiche>
+    <Garant>
+        <Nom>Purch</Nom>
+        <Prenom>Mike</Prenom>
+        <SocieteSafran>SNECMA MOTEURS</SocieteSafran>
+        <Fonction>Acheteur</Fonction>
+    </Garant>
+    <ListePiecesJointes/>
+</Fournisseur>
+

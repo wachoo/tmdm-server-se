@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app >
+    <!-- <distributable/> -->
+
+    <servlet>
+        <servlet-name>init</servlet-name>
+        <display-name>init</display-name>
+        <servlet-class>com.amalto.commons.core.webapp.InitServlet</servlet-class>
+        <!-- the core start-up servlet is at 999 -->
+        <load-on-startup>1000</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>init</servlet-name>
+        <url-pattern>/secure/init</url-pattern>
+    </servlet-mapping>
+
+</web-app>
+

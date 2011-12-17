@@ -1,0 +1,30 @@
+<!-- Sample outbound mail xml -->
+
+<!-- MAILS XML FILE TO BE SENT TO THE CONNECTOR -->
+<outboundmails>
+	
+	<!-- Several emails can be defined, they will be processed one after another -->
+	<email>
+		
+		<!-- REQUIRED -->
+		<from>{from address}</from>
+		<to>{to address}</to>
+		
+		<!-- OPTIONAL -->
+		<cc>{carbon copy addresses}</cc>
+		<bcc>{blind carbon copy addresses}</bcc>
+		<subject>{email subject}</subject>
+		
+		<!--
+			Several parts can be defined but in that case the global content-type of the email will multipart/mixed
+			ie, no multipart/alternative (2 identical text/plain & text/html for the same text) stuff.
+		-->
+		<part>
+			<mime-type>{a mime content-type (text/xml, image/jpeg etc.). Fallbacks to text/xml.}</mime-type>
+			<charset>{charset of this part (ISO-8859-1, UTF-8...). Fallbacks to UTF-8.}</charset>
+			<content>{the content of this part}</content>			
+		</part>
+			
+	</email>
+		
+</outboundmails>

@@ -1,0 +1,43 @@
+RELEASE NOTES
+
+The Logging Connector is a daemon listening on a given port and collecting log4j events as they come.
+
+1.2.1
+Small Improvement to code and logging
+
+1.2.0 
+LoggingResourceAdapter take a servicename parameter instead of hard coded "Logging" value
+
+1.1.4 
+Packaging and naming shift
+
+1.1.3 
+Removed the 'period' parameter : the connector now waits and is being notified when new events occur
+
+1.1.2 
+Added RELEASE.NOTES and version.properties to the connector packages' root
+
+1.1.1 
+B2BOX 0.9 RELEASE
+
+1.1.0 
+Filtering of the log messages using a pattern parameter added
+
+1.0.5 
+Bug fixes
+
+1.0.4 
+Packaging & deployment bugs fixes
+
+1.0.3 
+Minor bug fixes
+
+1.0.2 
+Deployment bugs fixes
+
+1.0.1 
+Minor bug fixes and buildpath cleaning
+
+1.0.0 
+Initial release
+

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="B2BOX" default="all">
+	
+	<property name="version.props" value="version.properties"/>
+		
+	<property name="jboss.dir" value="/opt/jboss"/>
+	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
+	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
+	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
+
+	<property name="jar" value="z.mdm.connector.library.jar"/>
+
+    <!-- ================================= 
+          target: all              
+         ================================= -->
+	<target name="all" depends="version,package,undeploy,deploy"/>
+	
+   	<target name="version"  description="Maintain build.date property">
+   		<buildnumber file="${version.props}" />
+       	<propertyfile file="${version.props}">
+       		<entry key="build.date" type="date" value="now" />
+       		<entry key="built.by" type="string" value="${user.name}" />
+       		<entry key="java.version" type="string" value="${java.vm.version}" />
+       	</propertyfile>   	
+     </target>
+
+   	<target name="package">
+		<property file="${version.props}" />
+		<copy file="RELEASE.NOTES" tofile="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES"/>
+		<jar destfile="${jar}">
+			<zipfileset dir=".">
+				<include name="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES" />
+				<include name="version.properties" />
+			</zipfileset>
+			<zipfileset dir="bin" includes="**/*.class" />
+			<zipfileset dir="." includes="javadoc/**/*.*" />
+		</jar>
+   		<delete file="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES"/>
+    </target>
+		
+    <target name="undeploy" description="remove packages">		
+		<delete>
+			<fileset dir="${jboss.instance.lib}" includes="${jar}"/>
+		</delete>
+    </target>
+	
+	<target name="deploy">
+		<echo>Deploying ${jar} </echo>
+     	<copy file="${jar}" tofile="${jboss.instance.lib}/${jar}"/>        
+    </target>
+
+
+</project>
+

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dwr>
+    <allow>
+        <convert converter="bean" match="java.lang.Exception"/>
+        <convert converter="bean" match="java.lang.StackTraceElement"/>
+        
+        <create creator="new" javascript="SmtpAdapterInterface">
+            <param name="class" value="com.amalto.webapp.v3.adapter.smtp.dwr.SmtpServiceDWR"/>
+        </create>          
+        
+        <convert converter="bean" match="com.amalto.webapp.core.util.dwr.ExtJSFormResponse"/>
+
+        <convert converter="bean" match="com.amalto.webapp.v3.adapter.smtp.dwr.SmtpConfigurationBean"/>
+        
+    </allow>
+
+</dwr>
