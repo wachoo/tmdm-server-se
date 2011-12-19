@@ -52,6 +52,7 @@ public class BrowseRecords implements EntryPoint {
     private RootPanel panel;
 
     private native void regItemDetails()/*-{
+    	    	
         $wnd.amalto.itemsbrowser.ItemsBrowser.editItemDetails = function(ids, entity, callback){
         var idstr;
         if(ids.length == 1){
@@ -67,8 +68,6 @@ public class BrowseRecords implements EntryPoint {
     public void onModuleLoad() {
         if (GWT.isScript()) {
             registerPubService();
-            regItemDetails();
-            Log.setUncaughtExceptionHandler();
             Registry.register(BROWSERECORDS_SERVICE, GWT.create(BrowseRecordsService.class));
 
             // register user session
@@ -77,6 +76,10 @@ public class BrowseRecords implements EntryPoint {
             // add controller to dispatcher
             final Dispatcher dispatcher = Dispatcher.get();
             dispatcher.addController(new BrowseRecordsController());
+
+            regItemDetails();
+            Log.setUncaughtExceptionHandler();
+            
         } else {
 
             Log.setUncaughtExceptionHandler();
