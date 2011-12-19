@@ -407,7 +407,7 @@ public class ForeignKeyIntegrityTest extends TestCase {
         assertEquals(FKIntegrityCheckResult.FORBIDDEN, policy);
     }
 
-    public void test15() throws Exception {
+    public void testModel15() throws Exception {
         MetadataRepository repository = getMetadataRepository("model15.xsd");
 
         // Check FK integrity checks following TMDM-3051

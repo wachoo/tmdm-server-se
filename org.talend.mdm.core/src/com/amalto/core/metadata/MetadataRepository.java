@@ -35,7 +35,10 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
     private final Map<String, ComplexTypeMetadata> complexTypeMetadataCache = new HashMap<String, ComplexTypeMetadata>();
 
     private String targetNamespace;
+    
     private final Map<String,String> complexTypeToXmlElementName = new HashMap<String, String>();
+
+    private final Map<String, String> elementNameToComplexType = new HashMap<String, String>();
 
     public TypeMetadata getType(String name) {
         return getType(StringUtils.EMPTY, name);
@@ -46,11 +49,19 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
         if (nameSpaceTypes == null) {
             return null;
         }
-        return nameSpaceTypes.get(name);
+        TypeMetadata typeMetadata = nameSpaceTypes.get(name);
+        if (typeMetadata == null) {
+            typeMetadata = nameSpaceTypes.get(elementNameToComplexType.get(name));
+        }
+        return typeMetadata;
     }
 
     public ComplexTypeMetadata getComplexType(String name) {
-        return complexTypeMetadataCache.get(name);
+        ComplexTypeMetadata typeMetadata = complexTypeMetadataCache.get(name);
+        if (typeMetadata == null) {
+            typeMetadata = complexTypeMetadataCache.get(elementNameToComplexType.get(name));
+        }
+        return typeMetadata;
     }
 
     public Collection<TypeMetadata> getTypes() {
@@ -133,6 +144,7 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
             }
         } else if (element.getSchemaType() instanceof XmlSchemaComplexType) {
             complexTypeToXmlElementName.put(element.getSchemaType().getName(), element.getName());
+            elementNameToComplexType.put(element.getName(), element.getSchemaType().getName());
             createTypeMetadata(element);
         }
 
@@ -140,11 +152,16 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
     }
 
     private void createTypeMetadata(XmlSchemaElement element) {
-        String typeName = element.getName();
         XmlSchemaType schemaType = element.getSchemaType();
+        String typeName = schemaType.getName() != null ? schemaType.getName() : element.getName();
 
         if (schemaType instanceof XmlSchemaComplexType) {
-            ComplexTypeMetadata typeMetadata = (ComplexTypeMetadata) getType(targetNamespace, typeName);
+            ComplexTypeMetadata typeMetadata;
+            try {
+                typeMetadata = (ComplexTypeMetadata) getType(targetNamespace, typeName);
+            } catch (ClassCastException e) {
+                throw new RuntimeException("Unexpected type '" + schemaType.getName() + "'");
+            }
             if (typeMetadata == null) {
                 typeMetadata = new ComplexTypeMetadata(targetNamespace, typeName, new HashSet<TypeMetadata>());
                 addTypeMetadata(typeMetadata);
