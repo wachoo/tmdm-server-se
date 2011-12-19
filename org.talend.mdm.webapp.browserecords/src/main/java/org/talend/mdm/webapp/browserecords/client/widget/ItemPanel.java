@@ -76,7 +76,7 @@ public class ItemPanel extends ContentPanel {
         this.setBodyBorder(false);
         this.setHeaderVisible(false);
         this.setTopComponent(toolBar);
-        this.setScrollMode(Scroll.AUTO);
+        this.setScrollMode(Scroll.NONE);
         this.setLayout(new RowLayout(Orientation.VERTICAL));
         if(!isForeignKeyPanel){
             tree.setToolBar(toolBar);

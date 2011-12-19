@@ -152,7 +152,7 @@ public class TreeDetail extends ContentPanel {
         this.setHeaderVisible(false);
         // this.setAutoWidth(true);
         this.setLayout(new FitLayout());
-        this.setScrollMode(Scroll.AUTO);
+        this.setScrollMode(Scroll.NONE);
         this.setBorders(false);
         this.setBodyBorder(false);
         this.itemsDetailPanel = itemsDetailPanel;
@@ -397,6 +397,7 @@ public class TreeDetail extends ContentPanel {
         isFirstKey = true;
         root.setState(true);
         tree = new TreeEx();
+        tree.getElement().setId("TreeDetail-tree");
         if (root.getElement().getFirstChildElement() != null)
             root.getElement().getFirstChildElement().setClassName("rootNode"); //$NON-NLS-1$
         tree.addItem(root);
