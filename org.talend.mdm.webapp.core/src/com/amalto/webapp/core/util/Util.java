@@ -125,7 +125,7 @@ public class Util {
     private static String port = null;
     static {
         port = MDMConfiguration.getConfiguration().getProperty("xmldb.server.port"); //$NON-NLS-1$
-        port = port == null ? "8080" : port;
+        port = port == null ? "8080" : port; //$NON-NLS-1$
     }
 
     private static String endpoint_address = "http://localhost:" + port + "/talend/TalendPort"; //$NON-NLS-1$ //$NON-NLS-2$
@@ -149,10 +149,10 @@ public class Util {
         try {
             as = Util.getAjaxSubject();
         } catch (Exception e) {
-            throw new XtentisWebappException("Unable to access the logged user data");
+            throw new XtentisWebappException("Unable to access the logged user data"); //$NON-NLS-1$
         }
         if (as == null)
-            throw new XtentisWebappException("Session Expired");
+            throw new XtentisWebappException("Session Expired"); //$NON-NLS-1$
         // org.apache.log4j.Category.getInstance(Util.class).debug("getPort() ");
         String[] mdm = as.getMDMData();
         String url = "http://" + mdm[0] + "/talend/TalendPort"; //$NON-NLS-1$ //$NON-NLS-2$
@@ -183,9 +183,9 @@ public class Util {
 
     }
 
-    private static XtentisPort getPort(String username, String password, int force) throws XtentisWebappException {
-        return getPort(endpoint_address, username, password, force);
-    }
+    // private static XtentisPort getPort(String username, String password, int force) throws XtentisWebappException {
+    // return getPort(endpoint_address, username, password, force);
+    // }
 
     private static XtentisPort getWSPort(String endpointAddress, String username, String password) throws XtentisWebappException {
         try {
@@ -197,7 +197,7 @@ public class Util {
             return (XtentisPort) stub;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new XtentisWebappException("Unable to access endpoint at: " + endpointAddress + ": " + e.getLocalizedMessage());
+            throw new XtentisWebappException("Unable to access endpoint at: " + endpointAddress + ": " + e.getLocalizedMessage()); //$NON-NLS-1$//$NON-NLS-2$
         }
     }
 
@@ -326,7 +326,7 @@ public class Util {
         if (fkFilter.equals("null")) //$NON-NLS-1$
             return null;
 
-        int additionalInfo = fkFilter.indexOf("-", fkFilter.lastIndexOf("#") > -1 ? fkFilter.lastIndexOf("#") + 1 : 0); //$NON-NLS-1$ //$NON-NLS-2$
+        int additionalInfo = fkFilter.indexOf("-", fkFilter.lastIndexOf("#") > -1 ? fkFilter.lastIndexOf("#") + 1 : 0); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         String additionalValue = null;
         if (additionalInfo != -1) {
             additionalValue = fkFilter.substring(additionalInfo + 1);
@@ -689,7 +689,7 @@ public class Util {
             rootNS = namespaceHolder.getDocumentElement();
             rootNS.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:" + prefix, namespace); //$NON-NLS-1$ //$NON-NLS-2$
         } catch (Exception e) {
-            String err = "Error creating a namespace holder document: " + e.getLocalizedMessage();
+            String err = "Error creating a namespace holder document: " + e.getLocalizedMessage(); //$NON-NLS-1$
             throw new Exception(err);
         }
         return rootNS;
@@ -722,7 +722,7 @@ public class Util {
             builder.setErrorHandler(seh);
             d = builder.parse(new InputSource(new StringReader(xmlString)));
         } catch (Exception e) {
-            String err = "Unable to parse the document" + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage() + "\n "
+            String err = "Unable to parse the document" + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage() + "\n " //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                     + xmlString;
             throw new Exception(err);
         }
@@ -731,7 +731,7 @@ public class Util {
         if (schema != null) {
             String errors = seh.getErrors();
             if (!errors.equals("")) { //$NON-NLS-1$
-                String err = "Document  did not parse against schema: \n" + errors + "\n" + xmlString;
+                String err = "Document  did not parse against schema: \n" + errors + "\n" + xmlString; //$NON-NLS-1$//$NON-NLS-2$
                 throw new Exception(err);
             }
         }
@@ -769,7 +769,7 @@ public class Util {
                 results = new String[] { xo.toString() };
             }
         } catch (Exception e) {
-            String err = "Unable to get the text node(s) of " + xPath + ": " + e.getClass().getName() + ": "
+            String err = "Unable to get the text node(s) of " + xPath + ": " + e.getClass().getName() + ": " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     + e.getLocalizedMessage();
             throw new XtentisWebappException(err);
         }
@@ -809,16 +809,16 @@ public class Util {
     }
 
     public static String getPrincipalMember(String key) throws Exception {
-        String result = "";
+        String result = ""; //$NON-NLS-1$
         // Get the Authenticated Subject
 
         Subject subject = (Subject) PolicyContext.getContext("javax.security.auth.Subject.container"); //$NON-NLS-1$
 
         // Now look for a Group
 
-        Set principals = subject.getPrincipals(Principal.class);
+        Set<Principal> principals = subject.getPrincipals(Principal.class);
 
-        Iterator iter = principals.iterator();
+        Iterator<Principal> iter = principals.iterator();
 
         while (iter.hasNext())
 
@@ -833,7 +833,7 @@ public class Util {
 
                 {
 
-                    Enumeration en = sg.members();
+                    Enumeration<?> en = sg.members();
 
                     while (en.hasMoreElements())
 
@@ -927,9 +927,9 @@ public class Util {
             return md.digest();
         } catch (NoSuchAlgorithmException e) {
             // log.error("Cannot find MD5 algorithm", e);
-            throw new RuntimeException("Cannot find MD5 algorithm");
+            throw new RuntimeException("Cannot find MD5 algorithm"); //$NON-NLS-1$
         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("No such encoding: " + charset);
+            throw new RuntimeException("No such encoding: " + charset); //$NON-NLS-1$
         }
     }
 
@@ -953,7 +953,7 @@ public class Util {
      */
     public static String toHexString(byte[] bytes) {
         if (bytes == null) {
-            throw new IllegalArgumentException("byte array must not be null");
+            throw new IllegalArgumentException("byte array must not be null"); //$NON-NLS-1$
         }
         StringBuffer hex = new StringBuffer(bytes.length * 2);
         for (int i = 0; i < bytes.length; i++) {
@@ -1049,7 +1049,7 @@ public class Util {
         Properties props = new Properties();
         is = clazz.getResourceAsStream(PROP_FILE);
         if (is == null) {
-            throw new RuntimeException("Couldn't find: " + PROP_FILE + " on CLASSPATH");
+            throw new RuntimeException("Couldn't find: " + PROP_FILE + " on CLASSPATH"); //$NON-NLS-1$ //$NON-NLS-2$
         }
         try {
             props.load(is);
@@ -1351,7 +1351,15 @@ public class Util {
                 if (whereItem != null)
                     condition.add(whereItem);
                 String fkWhere = initXpathForeignKey + "/../* CONTAINS " + value; //$NON-NLS-1$
-
+                if (xpathInfoForeignKey.trim().length() > 0) {
+                    StringBuffer sb = new StringBuffer();
+                    for (String fkInfo : xpathInfos) {
+                        sb.append(fkInfo.startsWith(".") ? convertAbsolutePath(xpathForeignKey, fkInfo) : fkInfo + " CONTAINS " + value); //$NON-NLS-1$ //$NON-NLS-2$
+                        sb.append(" OR "); //$NON-NLS-1$
+                    }
+                    sb.append(xpathForeignKey + " CONTAINS " + value); //$NON-NLS-1$
+                    fkWhere = sb.toString();
+                }
                 WSWhereItem wc = buildWhereItems(fkWhere);
                 condition.add(wc);
                 WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
@@ -1364,14 +1372,16 @@ public class Util {
             // add the xPath Infos Path
             ArrayList<String> xPaths = new ArrayList<String>();
             for (String xpathInfo : xpathInfos) {
-                xPaths.add(getFormatedFKInfo(xpathInfo.replaceFirst(initXpathForeignKey, initXpathForeignKey), initXpathForeignKey));
+                xPaths.add(getFormatedFKInfo(xpathInfo.replaceFirst(initXpathForeignKey, initXpathForeignKey),
+                        initXpathForeignKey));
             }
             // add the key paths last, since there may be multiple keys
             xPaths.add(initXpathForeignKey + "/../../i"); //$NON-NLS-1$
             // order by
             String orderByPath = null;
             if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) { //$NON-NLS-1$
-                orderByPath = getFormatedFKInfo(xpathInfos[0].replaceFirst(initXpathForeignKey, initXpathForeignKey), initXpathForeignKey);
+                orderByPath = getFormatedFKInfo(xpathInfos[0].replaceFirst(initXpathForeignKey, initXpathForeignKey),
+                        initXpathForeignKey);
             }
 
             // Run the query
@@ -1383,13 +1393,13 @@ public class Util {
                         .getStrings();
             } else {
                 results = getPort().getItemsByCustomFKFilters(
-                        new WSGetItemsByCustomFKFilters(new WSDataClusterPK(config.getCluster()), initXpathForeignKey, new WSStringArray(
-                                xPaths.toArray(new String[xPaths.size()])), getInjectedXpath(fkFilter), start, limit,
-                                orderByPath, null, true, whereItem)).getStrings();
+                        new WSGetItemsByCustomFKFilters(new WSDataClusterPK(config.getCluster()), initXpathForeignKey,
+                                new WSStringArray(xPaths.toArray(new String[xPaths.size()])), getInjectedXpath(fkFilter), start,
+                                limit, orderByPath, null, true, whereItem)).getStrings();
             }
 
             if (results == null) {
-                results = new String[] { "0" }; // No result (count = 0)
+                results = new String[] { "0" }; // No result (count = 0) //$NON-NLS-1$
             }
 
             JSONObject json = new JSONObject();
@@ -1457,7 +1467,7 @@ public class Util {
             return json.toString();
         }
 
-        throw new Exception("Unexpected concept name: '" + initXpathForeignKey + "'");
+        throw new Exception("Unexpected concept name: '" + initXpathForeignKey + "'"); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     public static String countForeignKey_filter(String xpathForeignKey, String xpathForeignKeyinfo, String fkFilter)
@@ -1534,6 +1544,7 @@ public class Util {
         return isCustom;
     }
 
+    @SuppressWarnings("deprecation")
     public static String outputValidateDate(String dataValue, String format) throws ParseException {
         Pattern datePtn = Pattern
                 .compile("((\\d{1,2}\\/){2}\\d{4})?(\\d{1,2}\\/\\d{4})?(\\d{1,2})?(\\d{1,2}\\/\\d{1,2})?(\\d{4})?((\\d{1,2}\\/)(\\d{1,2}\\/)(\\d{1,4}))?");//$NON-NLS-1$
@@ -1648,6 +1659,7 @@ public class Util {
     public static boolean isTransformerExist(String transformerPK) {
         try {
             boolean isBeforeSavingTransformerExist = false;
+            @SuppressWarnings("unchecked")
             Collection<TransformerV2POJOPK> wst = com.amalto.core.util.Util.getTransformerV2CtrlLocal().getTransformerPKs("*"); //$NON-NLS-1$
             for (TransformerV2POJOPK id : wst) {
                 if (id.getIds()[0].equals(transformerPK)) {
@@ -1744,23 +1756,23 @@ public class Util {
         String key = keyBuilder.length() == 0 ? "null" : keyBuilder.toString(); //$NON-NLS-1$
 
         StringBuilder sb = new StringBuilder();
-        sb.append("<Update><UserName>").append(username).append("</UserName><Source>genericUI</Source><TimeInMillis>") //$NON-NLS-1$
+        sb.append("<Update><UserName>").append(username).append("</UserName><Source>genericUI</Source><TimeInMillis>") //$NON-NLS-1$ //$NON-NLS-2$
                 .append(System.currentTimeMillis()).append("</TimeInMillis><OperationType>") //$NON-NLS-1$
                 .append(StringEscapeUtils.escapeXml(operationType)).append("</OperationType><RevisionID>").append(revisionId) //$NON-NLS-1$
-                .append("</RevisionID><DataCluster>").append(dataClusterPK).append("</DataCluster><DataModel>") //$NON-NLS-1$
+                .append("</RevisionID><DataCluster>").append(dataClusterPK).append("</DataCluster><DataModel>") //$NON-NLS-1$ //$NON-NLS-2$
                 .append(dataModelPK).append("</DataModel><Concept>").append(StringEscapeUtils.escapeXml(concept)) //$NON-NLS-1$
-                .append("</Concept><Key>").append(StringEscapeUtils.escapeXml(key)).append("</Key>"); //$NON-NLS-1$
+                .append("</Concept><Key>").append(StringEscapeUtils.escapeXml(key)).append("</Key>"); //$NON-NLS-1$ //$NON-NLS-2$
 
         if ("UPDATE".equals(operationType)) { //$NON-NLS-1$
             Collection<UpdateReportItem> list = updatedPath.values();
             boolean isUpdate = false;
             for (Iterator<UpdateReportItem> iter = list.iterator(); iter.hasNext();) {
                 UpdateReportItem item = iter.next();
-                String oldValue = item.getOldValue() == null ? "" : item.getOldValue();
-                String newValue = item.getNewValue() == null ? "" : item.getNewValue();
+                String oldValue = item.getOldValue() == null ? "" : item.getOldValue(); //$NON-NLS-1$
+                String newValue = item.getNewValue() == null ? "" : item.getNewValue(); //$NON-NLS-1$
                 if (newValue.equals(oldValue))
                     continue;
-                sb.append("<Item>   <path>").append(StringEscapeUtils.escapeXml(item.getPath())).append("</path>   <oldValue>")//$NON-NLS-1$
+                sb.append("<Item>   <path>").append(StringEscapeUtils.escapeXml(item.getPath())).append("</path>   <oldValue>")//$NON-NLS-1$ //$NON-NLS-2$
                         .append(StringEscapeUtils.escapeXml(oldValue)).append("</oldValue>   <newValue>")//$NON-NLS-1$
                         .append(StringEscapeUtils.escapeXml(newValue)).append("</newValue></Item>");//$NON-NLS-1$
                 isUpdate = true;
@@ -1820,5 +1832,32 @@ public class Util {
         }
 
         return formatValue;
+    }
+
+    public static String convertAbsolutePath(String currentPath, String xpath) {
+        StringBuffer sb = new StringBuffer();
+        String[] ops = xpath.split("/"); //$NON-NLS-1$
+        String[] eles = currentPath.split("/"); //$NON-NLS-1$
+        int num = 0;
+
+        if (xpath.startsWith("..")) { //$NON-NLS-1$
+            for (int i = 0; i < ops.length; i++) {
+                if (ops[i].equals("..")) { //$NON-NLS-1$
+                    num += 1;
+                }
+            }
+
+            for (int i = 0; i < eles.length - num; i++) {
+                sb.append(eles[i]);
+                sb.append("/"); //$NON-NLS-1$
+            }
+        } else if (xpath.startsWith(".")) { //$NON-NLS-1$
+            sb.append(eles[0]);
+            sb.append("/"); //$NON-NLS-1$
+        }
+
+        sb.append(ops[ops.length - 1]);
+
+        return sb.toString();
     }
 }

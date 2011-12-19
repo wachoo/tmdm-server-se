@@ -8,6 +8,7 @@ import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.base.shared.XpathUtil;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
@@ -191,7 +192,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         keyColumn.setEditor(keyCellEditor);
         List<String> foreignKeyInfo = fkTypeModel.getForeignKeyInfo();
         for (final String info : foreignKeyInfo) {
-            final String fkInfo = info.startsWith(".") ? CommonUtil.convertAbsolutePath(fkTypeModel.getForeignkey(), info) : info; //$NON-NLS-1$
+            final String fkInfo = info.startsWith(".") ? XpathUtil.convertAbsolutePath(fkTypeModel.getForeignkey(), info) : info; //$NON-NLS-1$
             if (fkInfo.equals(fkTypeModel.getForeignkey()))
                 continue;
             final ColumnConfig column = new ColumnConfig("objectValue", //$NON-NLS-1$
