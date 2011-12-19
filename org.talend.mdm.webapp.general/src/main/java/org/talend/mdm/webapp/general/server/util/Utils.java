@@ -145,14 +145,23 @@ public class Utils {
         // boolean isItemsbrowser2Exist = false;
         boolean isBrowserRecordExist = false;
 
-        for (String importMenu : imports) {
-            if (importMenu.indexOf("src=\"/itemsbrowser/secure/js/ItemsBrowser.js\"") != -1)isItemsbrowserExist = true;//$NON-NLS-1$
+        // Index in imports where browserecords is, if it exists
+        int browseRecordsIndex = -1;
+
+        int importsSize = imports.size();
+        for (int i = 0; i < importsSize; ++i) {
+        	String importsString = imports.get(i);
+            if (importsString.indexOf("src=\"/itemsbrowser/secure/js/ItemsBrowser.js\"") != -1)isItemsbrowserExist = true;//$NON-NLS-1$
             //            if (importMenu.indexOf("src=\"/itemsbrowser2/secure/js/ItemsBrowser2.js\"") != -1)isItemsbrowser2Exist = true;//$NON-NLS-1$
-            if (importMenu.indexOf("src=\"/browserecords/browserecords/browserecords.nocache.js\"") != -1)isBrowserRecordExist = true;//$NON-NLS-1$
+            if (importsString.indexOf("src=\"/browserecords/browserecords/browserecords.nocache.js\"") != -1) {
+            	isBrowserRecordExist = true;//$NON-NLS-1$
+            	browseRecordsIndex = i;
+            }
         }
         if (isBrowserRecordExist && !isItemsbrowserExist) {
-            imports.add("<script type=\"text/javascript\" src=\"/itemsbrowser/secure/dwr/interface/ItemsBrowserInterface.js\"></script>\n");//$NON-NLS-1$
-            imports.add("<script type=\"text/javascript\" src=\"/itemsbrowser/secure/js/ItemsBrowser.js\"></script>\n");//$NON-NLS-1$
+        	// Insert imports before browserecords since browserecords uses JS objects in these imports
+        	imports.add(browseRecordsIndex, "<script type=\"text/javascript\" src=\"/itemsbrowser/secure/js/ItemsBrowser.js\"></script>\n");//$NON-NLS-1$
+        	imports.add(browseRecordsIndex, "<script type=\"text/javascript\" src=\"/itemsbrowser/secure/dwr/interface/ItemsBrowserInterface.js\"></script>\n");//$NON-NLS-1$
         }
     }
 
