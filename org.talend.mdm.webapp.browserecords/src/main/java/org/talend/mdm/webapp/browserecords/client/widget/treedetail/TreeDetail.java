@@ -621,6 +621,8 @@ public class TreeDetail extends ContentPanel {
                         ForeignKeyValidateModel fkValidateModel = validateFK(node);
                         flag = fkValidateModel.isNodeValid();
                         fkValidateMap.put(tm, fkValidateModel);
+                    } else if(parentIsMayNull) {
+                        continue;
                     } else {
                         MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
                                 .validation_error(node.getBindingPath()), null);
