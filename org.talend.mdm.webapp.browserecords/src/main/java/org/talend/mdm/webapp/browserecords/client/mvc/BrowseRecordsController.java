@@ -169,7 +169,7 @@ public class BrowseRecordsController extends Controller {
                                     mainPanel.refreshTree();
                                 }
                             }
-                            detailToolBar.refreshTreeDetailByIds(result.getReturnValue());
+                            // detailToolBar.refreshTreeDetailByIds(result.getReturnValue());
                         }
                         ItemsListPanel.getInstance().refreshGrid();
                     }
