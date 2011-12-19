@@ -730,12 +730,12 @@ Ext
 						DWRUtil.setValue('source', '');
 						DWRUtil.setValue('operationType', '');
 						DWRUtil.setValue('startDate', '');
-						DWRUtil.setValue('endDate', '');
+	                    DWRUtil.setValue('endDate', '');
 						this.criteria = "";
 						searchCriteria = "";
 					},
 
-					getRequestParam : function() {
+					getRequestParam : function(startDateOfTimeLine,endDateOfTimeLine) {
 						var requestParam = "";
 
 						var concept = DWRUtil.getValue('concept');
@@ -751,12 +751,27 @@ Ext
 						if (operationType != "")
 							requestParam += ",operationType:'" + operationType
 									+ "'";
-						var startDate = DWRUtil.getValue('startDate');
-						if (startDate != "")
-							requestParam += ",startDate:'" + startDate + "'";
-						var endDate = DWRUtil.getValue('endDate');
-						if (endDate != "")
-							requestParam += ",endDate:'" + endDate + "'";
+						var startDate = DWRUtil.getValue('startDate');					
+						if (startDate != ""){
+							if (typeof(startDateOfTimeLine) != "undefined" && startDateOfTimeLine != "" && startDateOfTimeLine > startDate){
+								requestParam += ",startDate:'" + startDateOfTimeLine + "'"; 
+							}else{
+								requestParam += ",startDate:'" + startDate + "'";
+							}		
+						}else if (typeof(startDateOfTimeLine) != "undefined" && startDateOfTimeLine != ""){
+							requestParam += ",startDate:'" + startDateOfTimeLine + "'";
+						}												
+						var endDate = DWRUtil.getValue('endDate');					
+						if (endDate != ""){
+							if (typeof(endDateOfTimeLine) != "undefined" && endDateOfTimeLine != "" && endDateOfTimeLine < endDate){
+								requestParam += ",endDate:'" + endDateOfTimeLine + "'";
+							}else{
+								requestParam += ",endDate:'" + endDate + "'";
+							}
+							
+						}else if (typeof(endDateOfTimeLine) != "undefined" && endDateOfTimeLine != ""){
+							requestParam += ",endDate:'" + endDateOfTimeLine + "'";
+						}							
 						if (this.isItemsBrowser == true)
 							requestParam += ",itemsBrowser:'"
 									+ this.isItemsBrowser + "'";
@@ -803,3 +818,5 @@ Ext
 								+ expireDate.toGMTString();
 					}
 				});
+
+
