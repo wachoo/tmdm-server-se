@@ -1,10 +1,24 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package com.amalto.webapp.v3.itemsbrowser.dwr;
 
 import java.util.HashMap;
 
 import junit.framework.TestCase;
 
+import com.amalto.core.webservice.WSWhereOperator;
 import com.amalto.webapp.core.bean.UpdateReportItem;
+import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.WSWhereItem;
 import com.amalto.webapp.v3.itemsbrowser.bean.TreeNode;
@@ -44,5 +58,91 @@ public class ItemsBrowserDWRTest extends TestCase {
         String rightValue = condition.getRightValueOrPath();
         assertTrue("NYC -".equals(rightValue));
 
+    }
+
+    public void test_Util_ForeignKeyWhereCondition() throws Exception {
+        String value = "Hats";
+        String xpathForeignKey = "ProductFamily/Id";
+        String xpathInfoForeignKey = "ProductFamily/Name";
+        // 1. foreignKeyInfo = ProductFamily/Name
+        WSWhereItem whereItem = Mock_UtilForeignKeyWhereCondition(xpathForeignKey, xpathInfoForeignKey, value);
+        assertNotNull(whereItem);
+        assertNotNull(whereItem.getWhereOr());
+        assertNotNull(whereItem.getWhereOr().getWhereItems());
+        assertEquals(2, whereItem.getWhereOr().getWhereItems().length);
+
+        WSWhereItem whereItem1 = whereItem.getWhereOr().getWhereItems()[0];
+        WSWhereCondition condition1 = whereItem1.getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0]
+                .getWhereCondition();
+        assertEquals("ProductFamily/Name", condition1.getLeftPath());
+        assertEquals(WSWhereOperator._CONTAINS, condition1.getOperator().getValue());
+        assertEquals("Hats", condition1.getRightValueOrPath());
+
+        WSWhereItem whereItem2 = whereItem.getWhereOr().getWhereItems()[1];
+        WSWhereCondition condition2 = whereItem2.getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0]
+                .getWhereCondition();
+        assertEquals("ProductFamily/Id", condition2.getLeftPath());
+        assertEquals(WSWhereOperator._CONTAINS, condition2.getOperator().getValue());
+        assertEquals("Hats", condition2.getRightValueOrPath());
+
+        // 2. foreignKeyInfo = ProductFamily/Name,ProductFaimly/Description
+        xpathInfoForeignKey = "ProductFamily/Name,ProductFamily/Description";
+        whereItem = Mock_UtilForeignKeyWhereCondition(xpathForeignKey, xpathInfoForeignKey, value);
+        assertEquals(3, whereItem.getWhereOr().getWhereItems().length);
+        whereItem1 = whereItem.getWhereOr().getWhereItems()[0];
+        condition1 = whereItem1.getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0].getWhereCondition();
+        assertEquals("ProductFamily/Name", condition1.getLeftPath());
+        assertEquals(WSWhereOperator._CONTAINS, condition1.getOperator().getValue());
+        assertEquals("Hats", condition1.getRightValueOrPath());
+
+        whereItem2 = whereItem.getWhereOr().getWhereItems()[1];
+        condition2 = whereItem2.getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0].getWhereCondition();
+        assertEquals("ProductFamily/Description", condition2.getLeftPath());
+        assertEquals(WSWhereOperator._CONTAINS, condition2.getOperator().getValue());
+        assertEquals("Hats", condition2.getRightValueOrPath());
+
+        WSWhereItem whereItem3 = whereItem.getWhereOr().getWhereItems()[2];
+        WSWhereCondition condition3 = whereItem3.getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0]
+                .getWhereCondition();
+        assertEquals("ProductFamily/Id", condition3.getLeftPath());
+        assertEquals(WSWhereOperator._CONTAINS, condition3.getOperator().getValue());
+        assertEquals("Hats", condition3.getRightValueOrPath());
+
+        // 3. foreignKeyInfo is null
+        xpathInfoForeignKey = "";
+        whereItem = Mock_UtilForeignKeyWhereCondition(xpathForeignKey, xpathInfoForeignKey, value);
+        assertEquals(1, whereItem.getWhereOr().getWhereItems().length);
+        whereItem1 = whereItem.getWhereOr().getWhereItems()[0];
+        condition1 = whereItem1.getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0].getWhereCondition();
+        assertEquals("ProductFamily/../*", condition1.getLeftPath());
+        assertEquals(WSWhereOperator._CONTAINS, condition1.getOperator().getValue());
+        assertEquals("Hats", condition1.getRightValueOrPath());
+
+    }
+
+    /**
+     * DOC Administrator Comment method "Mock_UtilForeignKeyWhereCondition". Mock buildWhereItems in
+     * com.amalto.webapp.core.util.Util.getForeignKeyList method
+     * 
+     * @return
+     * @throws Exception
+     */
+    private WSWhereItem Mock_UtilForeignKeyWhereCondition(String xpathForeignKey, String xpathInfoForeignKey, String value)
+            throws Exception {
+        String initXpathForeignKey = Util.getForeignPathFromPath(xpathForeignKey);
+        initXpathForeignKey = initXpathForeignKey.split("/")[0]; //$NON-NLS-1$
+        String[] fkInfos = new String[1];
+        fkInfos = xpathInfoForeignKey.split(",");
+        String fkWhere = initXpathForeignKey + "/../* CONTAINS " + value; //$NON-NLS-1$
+        if (xpathInfoForeignKey.trim().length() > 0) {
+            StringBuffer sb = new StringBuffer();
+            for (String fkInfo : fkInfos) {
+                sb.append(fkInfo.startsWith(".") ? Util.convertAbsolutePath(xpathForeignKey, fkInfo) : fkInfo + " CONTAINS " + value); //$NON-NLS-1$ //$NON-NLS-2$
+                sb.append(" OR "); //$NON-NLS-1$
+            }
+            sb.append(xpathForeignKey + " CONTAINS " + value); //$NON-NLS-1$
+            fkWhere = sb.toString();
+        }
+        return Util.buildWhereItems(fkWhere);
     }
 }

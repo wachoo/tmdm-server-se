@@ -23,7 +23,6 @@ import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 
-import com.amalto.webapp.util.webservices.WSWhereAnd;
 import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.WSWhereItem;
 import com.amalto.webapp.util.webservices.WSWhereOperator;
@@ -41,80 +40,63 @@ public class ForeignKeyHelperTest extends TestCase {
         model.setXpath("Product/Family");
         boolean ifFKFilter = false;
         String value = "Hats";
+
+        // 1. ForeignKeyInfo = ProductFamily/Name
         MDMConfiguration.getConfiguration().setProperty("xmldb.type", EDBType.QIZX.getName());
-
         ForeignKeyHelper.ForeignKeyHolder result = ForeignKeyHelper.getForeignKeyHolder(model, ifFKFilter, value);
-        assertNotNull(result);
-        assertEquals("ProductFamily", result.conceptName);
-        assertEquals("", result.fkFilter);
-        assertNull(result.orderbyPath);
-        assertEquals("[ProductFamily/../../i]", result.xpaths.toString());
-        WSWhereAnd whereAnd = result.whereItem.getWhereAnd();
-        assertNotNull(whereAnd);
-        WSWhereItem[] whereItems = whereAnd.getWhereItems();
-        assertNotNull(whereItems);
-        assertEquals(1, whereItems.length);
-        WSWhereItem whereItem = whereItems[0];
-        whereAnd = whereItem.getWhereAnd();
-        assertNotNull(whereAnd);
-        whereItems = whereAnd.getWhereItems();
-        assertNotNull(whereItems);
-        assertEquals(1, whereItems.length);
-        whereItem = whereItems[0];
-        WSWhereCondition whereCond = whereItem.getWhereCondition();
-        assertNotNull(whereCond);
-        assertEquals("ProductFamily/../*", whereCond.getLeftPath());
-        assertEquals(WSWhereOperator._CONTAINS, whereCond.getOperator().getValue());
-        assertEquals("Hats", whereCond.getRightValueOrPath());
+        WSWhereItem whereItem = result.whereItem;
+        assertNotNull(whereItem);
+        assertNotNull(whereItem.getWhereAnd());
+        assertNotNull(whereItem.getWhereAnd().getWhereItems());
 
-        MDMConfiguration.getConfiguration().setProperty("xmldb.type", EDBType.EXIST.getName());
-        model.setRetrieveFKinfos(true);
+        WSWhereItem whereItem1 = whereItem.getWhereAnd().getWhereItems()[0];
+        WSWhereCondition condition1 = whereItem1.getWhereOr().getWhereItems()[0].getWhereAnd().getWhereItems()[0].getWhereAnd()
+                .getWhereItems()[0]
+                .getWhereCondition();
+        assertEquals("ProductFamily/Name", condition1.getLeftPath());
+        assertEquals(WSWhereOperator._CONTAINS, condition1.getOperator().getValue());
+        assertEquals("Hats", condition1.getRightValueOrPath());
+
+        WSWhereItem whereItem2 = whereItem1.getWhereOr().getWhereItems()[1];
+        WSWhereCondition condition2 = whereItem2.getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0]
+                .getWhereCondition();
+        assertEquals("ProductFamily/Id", condition2.getLeftPath());
+        assertEquals(WSWhereOperator._CONTAINS, condition2.getOperator().getValue());
+        assertEquals("Hats", condition2.getRightValueOrPath());
+
+        // 2. foreignKeyInfo = ProductFamily/Name,ProductFaimly/Description
+        foreignKeyInfos.add("ProductFamily/Description");
         result = ForeignKeyHelper.getForeignKeyHolder(model, ifFKFilter, value);
-        assertNotNull(result);
-        assertEquals("ProductFamily", result.conceptName);
-        assertEquals("", result.fkFilter);
-        assertEquals("ProductFamily/Name", result.orderbyPath);
-        assertEquals("[ProductFamily/Name, ProductFamily/../../i]", result.xpaths.toString());
-        whereAnd = result.whereItem.getWhereAnd();
-        assertNotNull(whereAnd);
-        whereItems = whereAnd.getWhereItems();
-        assertNotNull(whereItems);
-        assertEquals(1, whereItems.length);
-        whereItem = whereItems[0];
-        whereAnd = whereItem.getWhereAnd();
-        assertNotNull(whereAnd);
-        whereItems = whereAnd.getWhereItems();
-        assertNotNull(whereItems);
-        assertEquals(1, whereItems.length);
-        whereItem = whereItems[0];
-        whereCond = whereItem.getWhereCondition();
-        assertNotNull(whereCond);
-        assertEquals("ProductFamily/../*", whereCond.getLeftPath());
-        assertEquals(WSWhereOperator._CONTAINS, whereCond.getOperator().getValue());
-        assertEquals("Hats", whereCond.getRightValueOrPath());
+        whereItem = result.whereItem;
+        whereItem1 = whereItem.getWhereAnd().getWhereItems()[0];
+        condition1 = whereItem1.getWhereOr().getWhereItems()[0].getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0]
+                .getWhereCondition();
+        assertEquals("ProductFamily/Name", condition1.getLeftPath());
+        assertEquals(WSWhereOperator._CONTAINS, condition1.getOperator().getValue());
+        assertEquals("Hats", condition1.getRightValueOrPath());
 
-        model.setRetrieveFKinfos(false);
-        foreignKeyInfos.add("ProductFamily/FirstName");
+        whereItem2 = whereItem1.getWhereOr().getWhereItems()[1];
+        condition2 = whereItem2.getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0].getWhereCondition();
+        assertEquals("ProductFamily/Description", condition2.getLeftPath());
+        assertEquals(WSWhereOperator._CONTAINS, condition2.getOperator().getValue());
+        assertEquals("Hats", condition2.getRightValueOrPath());
+
+        WSWhereItem whereItem3 = whereItem1.getWhereOr().getWhereItems()[2];
+        WSWhereCondition condition3 = whereItem3.getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0]
+                .getWhereCondition();
+        assertEquals("ProductFamily/Id", condition3.getLeftPath());
+        assertEquals(WSWhereOperator._CONTAINS, condition3.getOperator().getValue());
+        assertEquals("Hats", condition3.getRightValueOrPath());
+
+        // 3. foreignKeyInfo is null
+        foreignKeyInfos.clear();
         result = ForeignKeyHelper.getForeignKeyHolder(model, ifFKFilter, value);
-        assertNotNull(result);
-        assertEquals("[ProductFamily/../../i]", result.xpaths.toString());
-        whereAnd = result.whereItem.getWhereAnd();
-        assertNotNull(whereAnd);
-        whereItems = whereAnd.getWhereItems();
-        assertNotNull(whereItems);
-        assertEquals(1, whereItems.length);
-        whereItem = whereItems[0];
-        whereAnd = whereItem.getWhereAnd();
-        assertNotNull(whereAnd);
-        whereItems = whereAnd.getWhereItems();
-        assertNotNull(whereItems);
-        assertEquals(1, whereItems.length);
-        whereItem = whereItems[0];
-        whereCond = whereItem.getWhereCondition();
-        assertNotNull(whereCond);
-        assertEquals("ProductFamily/../*", whereCond.getLeftPath());
-        assertEquals(WSWhereOperator._CONTAINS, whereCond.getOperator().getValue());
-        assertEquals("Hats", whereCond.getRightValueOrPath());
-
+        whereItem = result.whereItem;
+        whereItem1 = whereItem.getWhereAnd().getWhereItems()[0];
+        condition1 = whereItem1.getWhereOr().getWhereItems()[0].getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0]
+                .getWhereCondition();
+        assertEquals("ProductFamily/../*", condition1.getLeftPath());
+        assertEquals(WSWhereOperator._CONTAINS, condition1.getOperator().getValue());
+        assertEquals("Hats", condition1.getRightValueOrPath());
     }
 }

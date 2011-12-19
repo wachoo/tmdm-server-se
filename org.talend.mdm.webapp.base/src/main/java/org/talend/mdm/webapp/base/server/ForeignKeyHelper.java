@@ -25,6 +25,7 @@ import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.base.shared.XpathUtil;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -203,8 +204,18 @@ public class ForeignKeyHelper {
                 if (whereItem != null) {
                     condition.add(whereItem);
                 }
-                String strConcept = initxpathForeignKey + "/../* CONTAINS "; //$NON-NLS-1$
-                WSWhereItem wc = Util.buildWhereItem(strConcept + value);
+                String fkWhere = initxpathForeignKey + "/../* CONTAINS " + value; //$NON-NLS-1$
+                if (xpathInfoForeignKey.trim().length() > 0) {
+                    StringBuffer sb = new StringBuffer();
+                    for (String fkInfo : xpathInfos) {
+                        sb.append(fkInfo.startsWith(".") ? XpathUtil.convertAbsolutePath(xpathForeignKey, fkInfo) : fkInfo + " CONTAINS " + value); //$NON-NLS-1$ //$NON-NLS-2$
+                        sb.append(" OR "); //$NON-NLS-1$
+                    }
+                    sb.append(xpathForeignKey + " CONTAINS " + value); //$NON-NLS-1$
+                    fkWhere = sb.toString();
+                }
+
+                WSWhereItem wc = Util.buildWhereItems(fkWhere);
                 condition.add(wc);
                 WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
                 WSWhereItem whand = new WSWhereItem(null, and, null);
@@ -241,15 +252,15 @@ public class ForeignKeyHelper {
         return null;
     }
 
-    private static void initFKBean(Element ele, ForeignKeyBean bean, String fk, List<String> getForeignKeyInfos) {           
+    private static void initFKBean(Element ele, ForeignKeyBean bean, String fk, List<String> getForeignKeyInfos) {
         for (int i = 0; i < ele.getChildNodes().getLength(); i++) {
             if (ele.getChildNodes().item(i) instanceof Element) {
                 Element curEle = (Element) ele.getChildNodes().item(i);
                 bean.set(curEle.getNodeName(), curEle.getTextContent().trim());
-                if (getForeignKeyInfos.contains(fk + "/" + curEle.getNodeName())){ //$NON-NLS-1$
+                if (getForeignKeyInfos.contains(fk + "/" + curEle.getNodeName())) { //$NON-NLS-1$
                     bean.getForeignKeyInfo().put(fk + "/" + curEle.getNodeName(), curEle.getTextContent().trim()); //$NON-NLS-1$
-                }                
-                initFKBean(curEle, bean, fk ,getForeignKeyInfos);
+                }
+                initFKBean(curEle, bean, fk, getForeignKeyInfos);
             }
         }
     }
