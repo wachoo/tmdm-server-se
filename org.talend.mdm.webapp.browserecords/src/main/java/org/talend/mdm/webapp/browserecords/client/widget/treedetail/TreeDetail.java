@@ -112,7 +112,7 @@ public class TreeDetail extends ContentPanel {
                     // if it has default value
                     if (viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getDefaultValue() != null)
                         model.setObjectValue(viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getDefaultValue());
-                    parentItem.insertItem(buildGWTTree(model, null, true), parentItem.getChildIndex(selectedItem) + 1);
+                    parentItem.insertItem(buildGWTTree(model, null, true, null), parentItem.getChildIndex(selectedItem) + 1);
                     occurMap.put(countMapItem, count + 1);
                 } else
                     MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
@@ -210,14 +210,22 @@ public class TreeDetail extends ContentPanel {
         }
     }
 
-    private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue) {
-        return buildGWTTree(itemNode, item, withDefaultValue, null);
+    private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue,String operation) {
+        Map<TypeModel, List<ItemNodeModel>> foreighKeyMap = new LinkedHashMap<TypeModel, List<ItemNodeModel>>();
+        DynamicTreeItem reuslt = buildGWTTree(itemNode, item, withDefaultValue, operation,foreighKeyMap);
+        if (foreighKeyMap.size() > 0) {
+            for (TypeModel model : foreighKeyMap.keySet()) {
+                fkRender.RenderForeignKey(itemNode, foreighKeyMap.get(model), model, toolBar, viewBean, this, itemsDetailPanel);
+            }
+        }
+        return reuslt;
+        
     }
 
     private boolean isFirstKey = true;
 
     private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue,
-            String operation) {
+            String operation,Map<TypeModel, List<ItemNodeModel>> foreighKeyMap) {
         if (item == null) {
             item = new DynamicTreeItem();
             item.setItemNodeModel(itemNode);
@@ -240,7 +248,6 @@ public class TreeDetail extends ContentPanel {
 
         if (itemNodeChildren != null && itemNodeChildren.size() > 0) {
             Map<String, TypeModel> metaDataTypes = viewBean.getBindingEntityModel().getMetaDataTypes();
-            final Map<TypeModel, List<ItemNodeModel>> fkMap = new LinkedHashMap<TypeModel, List<ItemNodeModel>>();
             for (ModelData model : itemNodeChildren) {
                 ItemNodeModel node = (ItemNodeModel) model;
                 Serializable nodeObjectValue = node.getObjectValue();
@@ -254,12 +261,12 @@ public class TreeDetail extends ContentPanel {
                 boolean isFKDisplayedIntoTab = isFKDisplayedIntoTab(node, typeModel, metaDataTypes);
 
                 if (isFKDisplayedIntoTab) {
-                    if (!fkMap.containsKey(typeModel)) {
-                        fkMap.put(typeModel, new ArrayList<ItemNodeModel>());
+                    if (!foreighKeyMap.containsKey(typeModel)) {
+                        foreighKeyMap.put(typeModel, new ArrayList<ItemNodeModel>());
                     }
-                    fkMap.get(typeModel).add(node);
+                    foreighKeyMap.get(typeModel).add(node);
                 } else {
-                    TreeItem childItem = buildGWTTree(node, null, withDefaultValue, operation);
+                    TreeItem childItem = buildGWTTree(node, null, withDefaultValue, operation,foreighKeyMap);
                     if (childItem != null) { //
                         item.addItem(childItem);
                         int count = 0;
@@ -268,12 +275,6 @@ public class TreeDetail extends ContentPanel {
                             count = occurMap.get(countMapItem);
                         occurMap.put(countMapItem, count + 1);
                     }
-                }
-            }
-
-            if (fkMap.size() > 0) {
-                for (TypeModel model : fkMap.keySet()) {
-                    fkRender.RenderForeignKey(itemNode, fkMap.get(model), model, toolBar, viewBean, this, itemsDetailPanel);
                 }
             }
 
@@ -343,7 +344,7 @@ public class TreeDetail extends ContentPanel {
             }
             treeNode.setChildNodes(childrenItems);
         }
-        buildGWTTree(treeNode, selectedItem, true);
+        buildGWTTree(treeNode, selectedItem, true,null);
 
     }
 

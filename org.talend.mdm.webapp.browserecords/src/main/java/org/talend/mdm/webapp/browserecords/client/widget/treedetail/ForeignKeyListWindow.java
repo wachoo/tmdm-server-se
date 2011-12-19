@@ -356,7 +356,14 @@ public class ForeignKeyListWindow extends Window {
 
                 public Object render(final ForeignKeyBean fkBean, String property, ColumnData config, int rowIndex, int colIndex,
                         ListStore<ForeignKeyBean> store, Grid<ForeignKeyBean> grid) {
-                    return fkBean != null ? fkBean.get(property) + "-" + fkBean.getId() : ""; //$NON-NLS-1$ //$NON-NLS-2$
+                    String result = ""; //$NON-NLS-1$
+                    if (fkBean != null){
+                        if (fkBean.get(property) != null && !"".equals(fkBean.get(property))){ //$NON-NLS-1$
+                            result = fkBean.get(property) + "-"; //$NON-NLS-1$
+                        }
+                        return result = result + fkBean.getId();
+                    }
+                    return result;               
                 }
             });
         }
