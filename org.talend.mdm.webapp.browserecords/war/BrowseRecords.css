@@ -356,3 +356,8 @@ a{
 {
     overflow: auto;
 }
+
+#TreeDetail-root
+{
+    width: 90%;
+}
