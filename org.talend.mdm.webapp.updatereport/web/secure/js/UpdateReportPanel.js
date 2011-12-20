@@ -735,7 +735,7 @@ Ext
 						searchCriteria = "";
 					},
 
-					getRequestParam : function() {
+					getRequestParam : function(startDateOfTimeLine,endDateOfTimeLine) {
 						var requestParam = "";
 
 						var concept = DWRUtil.getValue('concept');

@@ -1,6 +1,12 @@
 var timeLinePanelHeight = false;
 var jsonData4Timeline = false;
 var initDate4Timeline = false;
+var lastLoadTime;
+var currentTime;
+var startTime;
+var endTime;
+var tempTime;
+var eventSource1;
 
 function callback(msg){
 
@@ -25,7 +31,7 @@ function renderTimeline(jsonData, initDate){
 	var tabPanel = Ext.getCmp("tabPanel");
 	if(tabPanel.getActiveTab().getId() != "timelinePanel")
 	    return;
-    var eventSource1 = new Timeline.DefaultEventSource();
+    eventSource1 = new Timeline.DefaultEventSource();
     
     var theme1 = Timeline.ClassicTheme.create();
     theme1.autoWidth = true; 
@@ -76,6 +82,46 @@ function renderTimeline(jsonData, initDate){
         
     Timeline.create(tl_el, bandInfos, Timeline.HORIZONTAL);
     eventSource1.loadJSON(jsonData, document.location.href);
+    
+    timeLine.getBand(0).addOnScrollListener(function(band) {  
+   	 
+    });
+    
+    timeLine.getBand(1).addOnScrollListener(function(band) {    	
+		startTime = band.getMinVisibleDate();
+		endTime = band.getMaxVisibleDate();
+	    tempTime = band.getCenterVisibleDate();
+	    setTimeout('loadDate()',200)  
+    });
+    
+    timeLine.getBand(2).addOnScrollListener(function(band) {    	
+       
+    });
+}
+
+function loadDate()
+{	
+	if (tempTime == currentTime && currentTime != lastLoadTime){		
+		var tabPanel = amalto.core.getTabPanel();		
+		var result = UpdateReportInterface.getReportString(
+				0, 10000,
+				tabPanel.getItem('UpdateReportPanel').getRequestParam(startTime.pattern("yyyy-MM-dd hh:mm:ss"),endTime.pattern("yyyy-MM-dd hh:mm:ss")), language,loadDateCallback);		
+		lastLoadTime = currentTime;
+	}
+	currentTime = tempTime;
+}
+
+function loadDateCallback(result)
+{
+	var obj = result.split("@||@");	
+	
+	if(obj[2] == "true"){
+		result=eval('('+obj[0]+')');  
+	}else{
+		result = false;
+	}
+	eventSource1.clear();
+	eventSource1.loadJSON(result, document.location.href);
 }
 
 function showDialog(ids, key, epochTime, concept, dataCluster, dataModel){
@@ -105,3 +151,37 @@ function showDialog(ids, key, epochTime, concept, dataCluster, dataModel){
         amalto.core.doLayout();
     }
 };
+
+Date.prototype.pattern=function(fmt) {        
+    var o = {        
+    "M+" : this.getMonth()+1,      
+    "d+" : this.getDate(),
+    "h+" : this.getHours() == 0 ? 12 : this.getHours(),
+    "H+" : this.getHours(),        
+    "m+" : this.getMinutes(),     
+    "s+" : this.getSeconds(),       
+    "q+" : Math.floor((this.getMonth()+3)/3),     
+    "S" : this.getMilliseconds()    
+    };        
+    var week = {        
+    "0" : "\u65e5",        
+    "1" : "\u4e00",        
+    "2" : "\u4e8c",        
+    "3" : "\u4e09",        
+    "4" : "\u56db",        
+    "5" : "\u4e94",        
+    "6" : "\u516d"       
+    };        
+    if(/(y+)/.test(fmt)){        
+        fmt=fmt.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));        
+    }        
+    if(/(E+)/.test(fmt)){        
+        fmt=fmt.replace(RegExp.$1, ((RegExp.$1.length>1) ? (RegExp.$1.length>2 ? "\u661f\u671f" : "\u5468") : "")+week[this.getDay()+""]);        
+    }        
+    for(var k in o){        
+        if(new RegExp("("+ k +")").test(fmt)){        
+            fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));        
+        }        
+    }        
+    return fmt;        
+}  
