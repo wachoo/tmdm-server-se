@@ -260,8 +260,19 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         this.viewBean = viewBean;
         buildPanel(viewBean);
     }
-
+    
     private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, boolean withDefaultValue) {
+        Map<TypeModel, List<ItemNodeModel>> foreighKeyMap = new LinkedHashMap<TypeModel, List<ItemNodeModel>>();
+        DynamicTreeItem reuslt = buildGWTTree(itemNode, withDefaultValue,foreighKeyMap);
+        if (foreighKeyMap.size() > 0) {
+            for (TypeModel model : foreighKeyMap.keySet()) {
+                fkRender.RenderForeignKey(itemNode, foreighKeyMap.get(model), model, toolBar, viewBean, this, itemsDetailPanel);
+            }
+        }
+        return reuslt;        
+    }
+
+    private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, boolean withDefaultValue,Map<TypeModel, List<ItemNodeModel>> foreighKeyMap) {
         DynamicTreeItem item = new DynamicTreeItem();
         item.setItemNodeModel(itemNode);
         item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, fieldMap, handler, itemsDetailPanel));
@@ -269,8 +280,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
 
         List<ModelData> itemNodeChildren = itemNode.getChildren();
         if (itemNodeChildren != null && itemNodeChildren.size() > 0) {
-            Map<String, TypeModel> metaDataTypes = viewBean.getBindingEntityModel().getMetaDataTypes();
-            final Map<TypeModel, List<ItemNodeModel>> fkMap = new LinkedHashMap<TypeModel, List<ItemNodeModel>>();
+            Map<String, TypeModel> metaDataTypes = viewBean.getBindingEntityModel().getMetaDataTypes();            
             for (ModelData model : itemNode.getChildren()) {
                 ItemNodeModel node = (ItemNodeModel) model;
                 TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath());
@@ -284,9 +294,9 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                         && TreeDetail.isFKDisplayedIntoTab(node, typeModel, metaDataTypes);
 
                 if (isFKDisplayedIntoTab) {
-                    if (!fkMap.containsKey(typeModel))
-                        fkMap.put(typeModel, new ArrayList<ItemNodeModel>());
-                    fkMap.get(typeModel).add(node);
+                    if (!foreighKeyMap.containsKey(typeModel))
+                    	foreighKeyMap.put(typeModel, new ArrayList<ItemNodeModel>());
+                    foreighKeyMap.get(typeModel).add(node);
                 } else {
                     TreeItem childItem = buildGWTTree(node, withDefaultValue);
                     if (childItem != null) {
@@ -298,14 +308,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                         occurMap.put(countMapItem, count + 1);
                     }
                 }
-            }
-
-            if (fkMap.size() > 0) {
-                for (TypeModel model : fkMap.keySet()) {
-                    fkRender.RenderForeignKey(itemNode, fkMap.get(model), model, toolBar, viewBean, ForeignKeyTreeDetail.this,
-                            itemsDetailPanel);
-                }
-            }
+            } 
 
             if (itemNodeChildren.size() > 0 && item.getChildCount() == 0)
                 return null; // All went to FK Tab, in that case return null so the tree item is not added
