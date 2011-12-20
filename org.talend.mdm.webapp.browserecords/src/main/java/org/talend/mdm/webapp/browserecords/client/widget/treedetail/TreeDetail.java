@@ -356,6 +356,7 @@ public class TreeDetail extends ContentPanel {
 
     private Tree displayGWTTree(ColumnTreeModel columnLayoutModel) {
         Tree tree = new TreeEx();
+        
         DynamicTreeItem treeRootNode = new DynamicTreeItem();
         tree.addItem(treeRootNode);
 
@@ -397,11 +398,12 @@ public class TreeDetail extends ContentPanel {
         isFirstKey = true;
         root.setState(true);
         tree = new TreeEx();
-        tree.getElement().setId("TreeDetail-tree");
+        tree.getElement().setId("TreeDetail-tree"); //$NON-NLS-1$
         if (root.getElement().getFirstChildElement() != null)
             root.getElement().getFirstChildElement().setClassName("rootNode"); //$NON-NLS-1$
         tree.addItem(root);
-
+        root.getElement().setId("TreeDetail-root"); //$NON-NLS-1$
+        
         ColumnTreeLayoutModel columnLayoutModel = viewBean.getColumnLayoutModel();
         if (columnLayoutModel != null) {// TODO if create a new PrimaryKey, tree UI should not render according to the
                                         // layout template
@@ -755,6 +757,7 @@ public class TreeDetail extends ContentPanel {
 
     public void setRoot(TreeItem root) {
         this.root = root;
+        root.getElement().setId("TreeDetail-root"); //$NON-NLS-1$
     }
 
     public ItemNodeModel getRootModel() {
