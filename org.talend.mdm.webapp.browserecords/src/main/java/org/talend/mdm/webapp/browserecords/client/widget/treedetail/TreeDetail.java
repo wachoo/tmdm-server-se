@@ -15,10 +15,10 @@ package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashSet;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
@@ -758,7 +758,9 @@ public class TreeDetail extends ContentPanel {
 
     public void setRoot(TreeItem root) {
         this.root = root;
-        root.getElement().setId("TreeDetail-root"); //$NON-NLS-1$
+        if (root != null && root.getElement() != null) {
+            root.getElement().setId("TreeDetail-root"); //$NON-NLS-1$
+        }
     }
 
     public ItemNodeModel getRootModel() {
