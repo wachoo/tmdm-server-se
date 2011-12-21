@@ -21,6 +21,8 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
 
     private String bindingPath;
 
+    private String typePath;
+
     private int index = 0;
 
     // private Serializable objectValue;
@@ -220,6 +222,14 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
         this.bindingPath = bindingPath;
     }
 
+    public String getTypePath() {
+        return typePath;
+    }
+
+    public void setTypePath(String typePath) {
+        this.typePath = typePath;
+    }
+
     public void setName(String name) {
         set("name", name); //$NON-NLS-1$
     }
@@ -260,6 +270,7 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
     public ItemNodeModel clone(boolean withValue) {
         ItemNodeModel clonedModel = new ItemNodeModel(get("name").toString()); //$NON-NLS-1$
         clonedModel.setBindingPath(getBindingPath());
+        clonedModel.setTypePath(getTypePath());
         List<ItemNodeModel> clonedList = new ArrayList<ItemNodeModel>();
         for (ModelData data : this.getChildren()) {
             ItemNodeModel clonedData = ((ItemNodeModel) data).clone(withValue);

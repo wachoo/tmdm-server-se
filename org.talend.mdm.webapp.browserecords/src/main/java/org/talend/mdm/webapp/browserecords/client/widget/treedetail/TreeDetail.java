@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
@@ -96,12 +97,13 @@ public class TreeDetail extends ContentPanel {
             final ItemNodeModel parentModel = (ItemNodeModel) selectedModel.getParent();
 
             final String xpath = selectedModel.getBindingPath();
+            final String typePath = selectedModel.getTypePath();
             final CountMapItem countMapItem = new CountMapItem(xpath, parentModel);
             final int count = occurMap.containsKey(countMapItem) ? occurMap.get(countMapItem) : 0;
 
             if ("Add".equals(arg0.getRelativeElement().getId()) || "Clone".equals(arg0.getRelativeElement().getId())) { //$NON-NLS-1$ //$NON-NLS-2$               
-                if (viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getMaxOccurs() < 0
-                        || count < viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getMaxOccurs()) {
+                if (viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath).getMaxOccurs() < 0
+                        || count < viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath).getMaxOccurs()) {
                     // clone a new item
                     ItemNodeModel model = selectedModel.clone("Clone".equals(arg0.getRelativeElement().getId()) ? true : false); //$NON-NLS-1$
                     model.setDynamicLabel(LabelUtil.getNormalLabel(model.getLabel()));
@@ -110,9 +112,9 @@ public class TreeDetail extends ContentPanel {
                     parentModel.insert(model, selectModelIndex + 1);
                     parentModel.setChangeValue(true);
                     // if it has default value
-                    if (viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getDefaultValue() != null)
-                        model.setObjectValue(viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getDefaultValue());
-                    parentItem.insertItem(buildGWTTree(model, null, true,null), parentItem.getChildIndex(selectedItem) + 1);
+                    if (viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath).getDefaultValue() != null)
+                        model.setObjectValue(viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath).getDefaultValue());
+                    parentItem.insertItem(buildGWTTree(model, null, true, null), parentItem.getChildIndex(selectedItem) + 1);
                     occurMap.put(countMapItem, count + 1);
                 } else
                     MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
@@ -125,7 +127,7 @@ public class TreeDetail extends ContentPanel {
                                 if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
 
                                     if (count > 1
-                                            && count > viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath)
+                                            && count > viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath)
                                                     .getMinOccurs()) {
                                         TreeDetailGridFieldCreator.deleteField(selectedModel, fieldMap);
                                         parentItem.removeItem(selectedItem);
@@ -165,7 +167,7 @@ public class TreeDetail extends ContentPanel {
     public void initTree(ViewBean viewBean, ItemBean itemBean, final String operation) {
         this.viewBean = viewBean;
         if (itemBean == null) {
-            buildPanel();
+            buildPanel(operation);
         } else {
             final BrowseRecordsServiceAsync itemService = getItemService();
             itemService.getItemNodeModel(itemBean, viewBean.getBindingEntityModel(), Locale.getLanguage(),
@@ -190,24 +192,25 @@ public class TreeDetail extends ContentPanel {
         }
     }
 
-    private void buildPanel() {
+    private void buildPanel(final String operation) {
+        getItemService().createDefaultItemNodeModel(viewBean, Locale.getLanguage(), new SessionAwareAsyncCallback<ItemNodeModel>() {
+            public void onSuccess(ItemNodeModel result) {
+                
+                renderTree(result, operation);
+                if (hasVisibleRule(viewBean.getBindingEntityModel().getMetaDataTypes().get(
+                        viewBean.getBindingEntityModel().getConceptName()))) {
+                            getItemService().executeVisibleRule(CommonUtil.toXML(result, viewBean),
+                            new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
 
-        List<ItemNodeModel> models = CommonUtil.getDefaultTreeModel(
-                viewBean.getBindingEntityModel().getMetaDataTypes().get(viewBean.getBindingEntityModel().getConceptName()),
-                Locale.getLanguage());
-        renderTree(models.get(0));
-        if (hasVisibleRule(viewBean.getBindingEntityModel().getMetaDataTypes()
-                .get(viewBean.getBindingEntityModel().getConceptName()))) {
-            getItemService().executeVisibleRule(CommonUtil.toXML(models.get(0), viewBean),
-                    new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
-
-                        public void onSuccess(List<VisibleRuleResult> arg0) {
-                            for (VisibleRuleResult visibleRuleResult : arg0) {
-                                recrusiveSetItems(visibleRuleResult, (DynamicTreeItem) root);
-                            }
-                        }
-                    });
-        }
+                                public void onSuccess(List<VisibleRuleResult> arg0) {
+                                    for (VisibleRuleResult visibleRuleResult : arg0) {
+                                        recrusiveSetItems(visibleRuleResult, (DynamicTreeItem) root);
+                                    }
+                                }
+                            });
+                }
+            }
+                });
     }
 
     private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue,String operation) {
@@ -218,7 +221,7 @@ public class TreeDetail extends ContentPanel {
                 fkRender.RenderForeignKey(itemNode, foreighKeyMap.get(model), model, toolBar, viewBean, this, itemsDetailPanel);
             }
         }
-        return reuslt;        
+        return reuslt;
     }
 
     private boolean isFirstKey = true;
@@ -246,13 +249,14 @@ public class TreeDetail extends ContentPanel {
         List<ModelData> itemNodeChildren = itemNode.getChildren();
 
         if (itemNodeChildren != null && itemNodeChildren.size() > 0) {
-            Map<String, TypeModel> metaDataTypes = viewBean.getBindingEntityModel().getMetaDataTypes();           
+            Map<String, TypeModel> metaDataTypes = viewBean.getBindingEntityModel().getMetaDataTypes();
             for (ModelData model : itemNodeChildren) {
                 ItemNodeModel node = (ItemNodeModel) model;
                 Serializable nodeObjectValue = node.getObjectValue();
                 String nodeBindingPath = node.getBindingPath();
+                String typePath = node.getTypePath();
 
-                TypeModel typeModel = metaDataTypes.get(nodeBindingPath);
+                TypeModel typeModel = metaDataTypes.get(typePath);
                 String typeModelDefaultValue = typeModel.getDefaultValue();
                 if (withDefaultValue && typeModelDefaultValue != null && (nodeObjectValue == null || nodeObjectValue.equals(""))) //$NON-NLS-1$
                     node.setObjectValue(typeModelDefaultValue);
@@ -261,7 +265,7 @@ public class TreeDetail extends ContentPanel {
 
                 if (isFKDisplayedIntoTab) {
                     if (!foreighKeyMap.containsKey(typeModel)) {
-                    	foreighKeyMap.put(typeModel, new ArrayList<ItemNodeModel>());
+                        foreighKeyMap.put(typeModel, new ArrayList<ItemNodeModel>());
                     }
                     foreighKeyMap.get(typeModel).add(node);
                 } else {
@@ -284,7 +288,7 @@ public class TreeDetail extends ContentPanel {
         }
 
         item.setUserObject(itemNode);
-        item.setState(viewBean.getBindingEntityModel().getMetaDataTypes().get(itemNode.getBindingPath()).isAutoExpand());
+        item.setState(viewBean.getBindingEntityModel().getMetaDataTypes().get(itemNode.getTypePath()).isAutoExpand());
 
         return item;
     }
@@ -325,7 +329,7 @@ public class TreeDetail extends ContentPanel {
             return;
         }
         selectedItem.setState(true);
-        ItemNodeModel treeNode = selectedItem.getItemNodeModel();
+        final ItemNodeModel treeNode = selectedItem.getItemNodeModel();
 
         List<ItemNodeModel> fkContainers = ForeignKeyUtil.getAllForeignKeyModelParent(viewBean, treeNode);
         for (ItemNodeModel fkContainer : fkContainers) {
@@ -335,16 +339,26 @@ public class TreeDetail extends ContentPanel {
         treeNode.setRealType(typeModel.getName());
         selectedItem.removeItems();
 
-        List<ItemNodeModel> items = CommonUtil.getDefaultTreeModel(typeModel, Locale.getLanguage());
-        if (items != null && items.size() > 0) {
-            List<ItemNodeModel> childrenItems = new ArrayList<ItemNodeModel>();
-            for (ModelData modelData : items.get(0).getChildren()) {
-                childrenItems.add((ItemNodeModel) modelData);
-            }
-            treeNode.setChildNodes(childrenItems);
-        }
-        buildGWTTree(treeNode, selectedItem, true,null);
+        String contextPath = CommonUtil.getRealXPath(treeNode);
+        String typePath = CommonUtil.getRealTypePath(treeNode);
+        typePath = typePath.replaceAll(":" + treeNode.getRealType() + "$", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        ItemNodeModel rootNode = (ItemNodeModel) root.getUserObject();
+        treeNode.removeAll();
+        String xml = CommonUtil.toXML(rootNode, viewBean);
 
+        getItemService().createSubItemNodeModel(viewBean, xml, typePath, contextPath, treeNode.getRealType(), UrlUtil.getLanguage(),
+                new SessionAwareAsyncCallback<ItemNodeModel>() {
+
+
+            public void onSuccess(ItemNodeModel result) {
+                ModelData[] children = result.getChildren().toArray(new ModelData[0]);
+                for (ModelData child : children) {
+                    treeNode.add(child);
+                }
+                buildGWTTree(treeNode, selectedItem, false, null);
+            }
+        });
+        
     }
 
     public void onExecuteVisibleRule(List<VisibleRuleResult> visibleResults) {
@@ -366,13 +380,14 @@ public class TreeDetail extends ContentPanel {
                     TreeItem child = root.getChild(i);
                     ItemNodeModel node = (ItemNodeModel) child.getUserObject();
                     String xpath = node.getBindingPath();
+                    String typePath = node.getTypePath();
                     if (("/" + xpath).equals(ce.getxPath())) { //$NON-NLS-1$
                         treeRootNode.addItem(child);
 
                         // Record the fact that we are displaying this element in the custom layout.
                         customLayoutDisplayedElements.add(child);
 
-                        TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath);
+                        TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath);
                         if (typeModel.getForeignkey() == null && (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1)) {
                             i--;
                             continue;
@@ -609,7 +624,7 @@ public class TreeDetail extends ContentPanel {
 
                 ItemNodeModel node = (ItemNodeModel) model;
                 if (!node.isValid() && node.getChildCount() == 0) {
-                    TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath());
+                    TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getTypePath());
                     boolean parentIsMayNull = rootNode.getParent() != null && !rootNode.isMandatory();
                     if (tm.getForeignkey() != null) {
                         // fk minOccurs check
@@ -687,7 +702,7 @@ public class TreeDetail extends ContentPanel {
             if (isHaveNodeValue) {
                 for (ModelData model : parent.getChildren()) {
                     ItemNodeModel nodeModel = (ItemNodeModel) model;
-                    TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath());
+                    TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getTypePath());
                     if (tm.getForeignkey() != null) {
                         if (!validateFKValue(nodeModel)) {
                             isNodeValid = false;
@@ -705,7 +720,7 @@ public class TreeDetail extends ContentPanel {
 
     private boolean validateFKValue(ItemNodeModel node) {
         if (!node.isValid() && node.getChildCount() == 0) {
-            TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath());
+            TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getTypePath());
             // fk minOccurs check
             if (tm.getMinOccurs() >= 1) {
                 // check value
