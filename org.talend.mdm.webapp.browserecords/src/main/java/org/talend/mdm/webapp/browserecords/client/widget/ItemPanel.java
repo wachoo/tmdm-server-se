@@ -81,7 +81,7 @@ public class ItemPanel extends ContentPanel {
         if(!isForeignKeyPanel){
             tree.setToolBar(toolBar);
             if (ItemDetailToolBar.CREATE_OPERATION.equals(operation)) {
-                tree.initTree(viewBean, null);
+                tree.initTree(viewBean, null, operation);
             } else if (ItemDetailToolBar.VIEW_OPERATION.equals(operation)) {
                 tree.initTree(viewBean, item);
             } else if (ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {

@@ -19,12 +19,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -39,14 +35,12 @@ import org.talend.mdm.webapp.browserecords.client.creator.DataTypeCreator;
 import org.talend.mdm.webapp.browserecords.server.displayrule.DisplayRulesUtil;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.amalto.core.util.Util;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
-import com.amalto.webapp.core.util.XmlUtil;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSConceptKey;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
@@ -206,7 +200,6 @@ public class DataModelHelper {
             }
 
             if (subTypes != null && subTypes.size() > 0) {
-                typeModel.setPolymorphism(true);
                 typeModel.setAbstract(new ReusableType(e.getType()).isAbstract());
                 ComplexTypeModel parentType = (ComplexTypeModel) typeModel;
                 ComplexTypeModel abstractReusableComplexType = new ComplexTypeModel(typeName, DataTypeCreator.getDataType(
@@ -233,13 +226,16 @@ public class DataModelHelper {
                     if (!reusableType.isAbstract()) {
                         ComplexTypeModel reusableComplexType = new ComplexTypeModel(reusableType.getName(),
                                 DataTypeCreator.getDataType(reusableType.getName(), baseTypeName));
+                        reusableComplexType.setPolymorphism(true);
                         XSModelGroup group = reusableType.getXsParticle().getTerm().asModelGroup();
                         if (group != null) {
                             XSParticle[] subParticles = group.getChildren();
                             if (subParticles != null) {
                                 for (int i = 0; i < subParticles.length; i++) {
                                     XSParticle xsParticle = subParticles[i];
-                                    travelParticle(xsParticle, currentXPath, entityModel, reusableComplexType, roles);
+
+                                    travelParticle(xsParticle,
+                                            currentXPath + ":" + reusableType.getName(), entityModel, reusableComplexType, roles); //$NON-NLS-1$
                                 }
                             }
                         }
@@ -275,7 +271,8 @@ public class DataModelHelper {
             // return null
         }
         if (typeModel != null) {
-            typeModel.setXpath(currentXPath);
+            typeModel.setXpath(currentXPath.replaceAll(":\\w+", "")); //$NON-NLS-1$//$NON-NLS-2$
+            typeModel.setTypePath(currentXPath);
             typeModel.setNillable(e.isNillable());
         }
         return typeModel;
@@ -465,105 +462,4 @@ public class DataModelHelper {
 
     }
 
-    public static void handleDefaultValue(EntityModel entity) throws Exception {
-        String concept = entity.getConceptName();
-        Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
-        TypeModel typeModel = metaDataTypes.get(concept);
-        if(typeModel == null)
-            throw new Exception("parse_model_error"); //$NON-NLS-1$
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        Document doc = builder.newDocument();
-        List<Element> result = getDefaultXmlData(doc, typeModel);
-        doc.appendChild(result.get(0));
-        org.dom4j.Document dom4jDoc = XmlUtil.parseDocument(doc);
-        Set<String> pathes = metaDataTypes.keySet();
-        for (String path : pathes) {
-            TypeModel tm = metaDataTypes.get(path);
-            if (tm.getDefaultValueExpression() != null && tm.getDefaultValueExpression().trim().length() > 0) {
-                // if the rule relates to another rule, then need to set the related xpath firstly
-                for (String subpath : pathes)
-                    if (subpath.lastIndexOf("/") > -1 && tm.getDefaultValueExpression().indexOf(subpath.substring(subpath.lastIndexOf("/"))) > -1) { //$NON-NLS-1$ //$NON-NLS-2$
-                        TypeModel subtm = metaDataTypes.get(subpath);
-                        if (subtm.getDefaultValueExpression() != null && subtm.getDefaultValueExpression().trim().length() > 0)
-                            setDefaultValue(subtm, subpath, concept, dom4jDoc);
-                }
-                setDefaultValue(tm, path, concept, dom4jDoc);
-            }
-        }
-
-    }
-
-    private static void setDefaultValue(TypeModel tm, String path, String concept, org.dom4j.Document dom4jDoc) throws Exception {
-        String style = genDefaultValueStyle(concept, path, tm.getDefaultValueExpression());
-        org.dom4j.Document transformedDocumentValue = XmlUtil.styleDocument(dom4jDoc, style);
-        int beginIndex = path.lastIndexOf("/"); //$NON-NLS-1$
-        String matchPath = beginIndex != -1 ? path.substring(beginIndex) : path;
-        org.dom4j.Node node = transformedDocumentValue.selectSingleNode(concept + "/" + matchPath); //$NON-NLS-1$
-        if (node != null && node.getText() != null && node.getText().length() > 0) {
-            tm.setDefaultValue(node.getText());
-            // synchronize doc
-            org.dom4j.Node docNode = dom4jDoc.selectSingleNode(path);
-            if (docNode != null)
-                docNode.setText(node.getText());
-        }
-    }
-
-    private static List<Element> getDefaultXmlData(Document doc, TypeModel model) {
-        List<Element> itemNodes = new ArrayList<Element>();
-        if (model.getMinOccurs() > 1 && model.getMaxOccurs() > model.getMinOccurs()) {
-            for (int i = 0; i < model.getMaxOccurs() - model.getMinOccurs(); i++) {
-                Element itemNode = doc.createElement(model.getName());
-                itemNodes.add(itemNode);
-            }
-        } else {
-            Element itemNode = doc.createElement(model.getName());
-            itemNodes.add(itemNode);
-        }
-
-        for (Element node : itemNodes) {
-            if (!model.isSimpleType()) {
-                ComplexTypeModel complexModel = (ComplexTypeModel) model;
-                List<TypeModel> children = complexModel.getSubTypes();
-                List<Element> list = new ArrayList<Element>();
-                for (TypeModel typeModel : children) {
-                    list.addAll(getDefaultXmlData(doc, typeModel));
-                }
-                for (Element e : list) {
-                    node.appendChild(e);
-                }
-            }
-        }
-        return itemNodes;
-
-    }
-
-    private static String genDefaultValueStyle(String concept, String xpath, String valueExpression) {
-        StringBuffer style = new StringBuffer();
-        style.append("<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:fn=\"http://www.w3.org/2005/xpath-functions\" xmlns:t=\"http://www.talend.com/2010/MDM\" version=\"2.0\">"); //$NON-NLS-1$
-
-        style.append("<xsl:output method=\"xml\" indent=\"yes\" omit-xml-declaration=\"yes\"/>"); //$NON-NLS-1$
-        style.append("<xsl:template match=\"/" + concept + "\">"); //$NON-NLS-1$//$NON-NLS-2$
-        style.append("<xsl:copy>"); //$NON-NLS-1$
-        style.append("<xsl:apply-templates select=\"/" + xpath + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
-        style.append("</xsl:copy>"); //$NON-NLS-1$
-        style.append("</xsl:template>"); //$NON-NLS-1$
-
-        style.append("<xsl:template match=\"/" + xpath + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
-        style.append("<xsl:copy>"); //$NON-NLS-1$
-        style.append("<xsl:choose>"); //$NON-NLS-1$
-        style.append("<xsl:when test=\"not(text())\">"); //$NON-NLS-1$
-        style.append("<xsl:value-of select=\"/" + XmlUtil.escapeXml(valueExpression) + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
-        style.append("</xsl:when> "); //$NON-NLS-1$
-        style.append("<xsl:otherwise>"); //$NON-NLS-1$
-        style.append("<xsl:value-of select=\".\"/>"); //$NON-NLS-1$
-        style.append("</xsl:otherwise>"); //$NON-NLS-1$
-        style.append("</xsl:choose> "); //$NON-NLS-1$
-        style.append("</xsl:copy>"); //$NON-NLS-1$
-        style.append("</xsl:template>"); //$NON-NLS-1$
-        style.append("</xsl:stylesheet>"); //$NON-NLS-1$
-
-        return style.toString();
-
-    }
 }

@@ -54,17 +54,22 @@ public class DynamicLabelUtil {
      * 
      * @return
      */
-    public static void getDynamicLabel(Document parsedDocument, ItemNodeModel itemModel, Map<String, TypeModel> metaDataTypes,
+    public static void getDynamicLabel(Document parsedDocument, String baseXpath, ItemNodeModel itemModel,
+            Map<String, TypeModel> metaDataTypes,
             String language) {
         try {
-            String xpath = itemModel.getBindingPath();
-            TypeModel typeModel = metaDataTypes.get(xpath);
+            String typePath = itemModel.getTypePath();
+            TypeModel typeModel = metaDataTypes.get(typePath);
+            String fullxpath;
+            if (baseXpath == null || baseXpath.trim().length() == 0) {
+                fullxpath = CommonUtil.getRealXPath(itemModel);
+            } else {
+                fullxpath = baseXpath + "/" + CommonUtil.getRealXPath(itemModel); //$NON-NLS-1$
+            }
             String label = typeModel.getLabel(language);
             if (org.talend.mdm.webapp.base.server.util.DynamicLabelUtil.isDynamicLabel(label)) {
-                label = replaceForeignPath(CommonUtil.getRealXPath(itemModel), label, parsedDocument);
-                String stylesheet = org.talend.mdm.webapp.base.server.util.DynamicLabelUtil.genStyle(
-                        itemModel.getIndex() > 0 ? itemModel.getBindingPath() + "[" + itemModel.getIndex() + "]" : itemModel //$NON-NLS-1$ //$NON-NLS-2$
-                                .getBindingPath(), label);
+                label = replaceForeignPath(fullxpath, label, parsedDocument);
+                String stylesheet = org.talend.mdm.webapp.base.server.util.DynamicLabelUtil.genStyle(fullxpath, label);
                 String dynamicLB = org.talend.mdm.webapp.base.server.util.DynamicLabelUtil
                         .getParsedLabel(org.talend.mdm.webapp.base.server.util.XmlUtil.styleDocument(parsedDocument, stylesheet));
                 // @temp yguo, set the properties to itemmodel
@@ -75,7 +80,7 @@ public class DynamicLabelUtil {
                 return;
             } else {
                 for (int i = 0; i < itemModel.getChildCount(); i++) {
-                    getDynamicLabel(parsedDocument, (ItemNodeModel) itemModel.getChild(i), metaDataTypes, language);
+                    getDynamicLabel(parsedDocument, baseXpath, (ItemNodeModel) itemModel.getChild(i), metaDataTypes, language);
                 }
             }
         } catch (Exception ex) {
@@ -116,7 +121,7 @@ public class DynamicLabelUtil {
                             String foreignkey = (String) fkObj[0];
                             List<String> fkInfos = (List<String>) fkObj[1];
                             String fkInfoStr = getFKInfo(key, foreignkey, fkInfos);
-                            multiValue += fkInfoStr == null ? "" : fkInfoStr;
+                            multiValue += fkInfoStr == null ? "" : fkInfoStr; //$NON-NLS-1$
                          } else {
                             multiValue += key == null ? "" : key; //$NON-NLS-1$
                         }

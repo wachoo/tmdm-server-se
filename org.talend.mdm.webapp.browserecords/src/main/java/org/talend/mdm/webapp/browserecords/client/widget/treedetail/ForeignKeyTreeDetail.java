@@ -96,20 +96,21 @@ public class ForeignKeyTreeDetail extends ContentPanel {
             final ItemNodeModel parentModel = (ItemNodeModel) selectedModel.getParent();
 
             final String xpath = selectedModel.getBindingPath();
+            final String typePath = selectedModel.getTypePath();
             final CountMapItem countMapItem = new CountMapItem(xpath, parentModel);
             final int count = occurMap.containsKey(countMapItem) ? occurMap.get(countMapItem) : 0;
 
             if ("Add".equals(arg0.getRelativeElement().getId()) || "Clone".equals(arg0.getRelativeElement().getId())) { //$NON-NLS-1$ //$NON-NLS-2$               
-                if (viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getMaxOccurs() < 0
-                        || count < viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getMaxOccurs()) {
+                if (viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath).getMaxOccurs() < 0
+                        || count < viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath).getMaxOccurs()) {
                     // clone a new item
                     ItemNodeModel model = selectedModel.clone("Clone".equals(arg0.getRelativeElement().getId()) ? true : false); //$NON-NLS-1$
 
                     int selectModelIndex = parentModel.indexOf(selectedModel);
                     parentModel.insert(model, selectModelIndex + 1);
                     // if it has default value
-                    if (viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getDefaultValue() != null)
-                        model.setObjectValue(viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath).getDefaultValue());
+                    if (viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath).getDefaultValue() != null)
+                        model.setObjectValue(viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath).getDefaultValue());
                     parentItem.insertItem(buildGWTTree(model, true), parentItem.getChildIndex(selectedItem) + 1);
                     occurMap.put(countMapItem, count + 1);
                 } else
@@ -122,7 +123,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                             public void handleEvent(MessageBoxEvent be) {
                                 if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
                                     if (count > 1
-                                            && count > viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath)
+                                            && count > viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath)
                                                     .getMinOccurs()) {
                                         parentItem.removeItem(selectedItem);
                                         parentModel.remove(selectedModel);
@@ -283,7 +284,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
             Map<String, TypeModel> metaDataTypes = viewBean.getBindingEntityModel().getMetaDataTypes();            
             for (ModelData model : itemNode.getChildren()) {
                 ItemNodeModel node = (ItemNodeModel) model;
-                TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath());
+                TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getTypePath());
                 if (withDefaultValue && typeModel.getDefaultValue() != null
                         && (node.getObjectValue() == null || node.getObjectValue().equals(""))) //$NON-NLS-1$
                     node.setObjectValue(typeModel.getDefaultValue());
@@ -330,9 +331,10 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                     TreeItem child = root.getChild(i);
                     ItemNodeModel node = (ItemNodeModel) child.getUserObject();
                     String xpath = node.getBindingPath();
+                    String typePath = node.getTypePath();
                     if (("/" + xpath).equals(ce.getxPath())) { //$NON-NLS-1$
                         treeRootNode.addItem(child);
-                        TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(xpath);
+                        TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath);
                         if (typeModel.getForeignkey() == null && (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1)) {
                             i--;
                             continue;
@@ -456,7 +458,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
 
                 ItemNodeModel node = (ItemNodeModel) model;
                 if (!node.isValid() && node.getChildCount() == 0) {
-                    TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath());
+                    TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getTypePath());
                     boolean parentIsMayNull = rootNode.getParent() != null && !rootNode.isMandatory();
                     if (tm.getForeignkey() != null) {
                         // fk minOccurs check
@@ -532,7 +534,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
             if (isHaveNodeValue) {
                 for (ModelData model : parent.getChildren()) {
                     ItemNodeModel nodeModel = (ItemNodeModel) model;
-                    TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath());
+                    TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getTypePath());
                     if (tm.getForeignkey() != null) {
                         if (!validateFKValue(nodeModel)) {
                             isNodeValid = false;
@@ -550,7 +552,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
 
     private boolean validateFKValue(ItemNodeModel node) {
         if (!node.isValid() && node.getChildCount() == 0) {
-            TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getBindingPath());
+            TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getTypePath());
             // fk minOccurs check
             if (tm.getMinOccurs() >= 1) {
                 // check value
