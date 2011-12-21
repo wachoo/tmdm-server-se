@@ -97,7 +97,13 @@ public interface BrowseRecordsService extends RemoteService {
 
     ItemNodeModel getItemNodeModel(ItemBean item, EntityModel entity, String language) throws ServiceException;
 
+    ItemNodeModel createDefaultItemNodeModel(ViewBean viewBean, String language) throws ServiceException;
+
+    ItemNodeModel createSubItemNodeModel(ViewBean viewBean, String xml, String typePath, String contextPath, String realType,String language) throws ServiceException;
+
     List<String> getMandatoryFieldList(String tableName) throws ServiceException;
+
+    ItemResult saveItem(ViewBean viewBean, String ids, String xml, boolean isCreate, String language) throws ServiceException;
 
     ItemResult saveItem(String concept, String ids, String xml, boolean isCreate, String language) throws ServiceException;
 

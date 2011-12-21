@@ -94,6 +94,8 @@ public interface BrowseRecordsServiceAsync {
 
     void getMandatoryFieldList(String tableName, AsyncCallback<List<String>> callback);
 
+    void saveItem(ViewBean viewBean, String ids, String xml, boolean isCreate, String language, AsyncCallback<ItemResult> callback);
+
     void saveItem(String concept, String ids, String xml, boolean isCreate, String language, AsyncCallback<ItemResult> callback);
 
     void getColumnTreeLayout(String concept, AsyncCallback<ColumnTreeLayoutModel> callback);
@@ -119,4 +121,9 @@ public interface BrowseRecordsServiceAsync {
     void formatValue(FormatModel model, AsyncCallback<String> callback);
 
     void getEntityModel(String concept, String language, AsyncCallback<EntityModel> callback);
+
+    void createDefaultItemNodeModel(ViewBean viewBean, String language, AsyncCallback<ItemNodeModel> callback);
+
+    void createSubItemNodeModel(ViewBean viewBean, String xml, String typePath, String contextPath, String realType,
+            String language, AsyncCallback<ItemNodeModel> callback);
 }
