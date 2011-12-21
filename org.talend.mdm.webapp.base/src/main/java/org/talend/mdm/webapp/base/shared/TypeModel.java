@@ -33,6 +33,8 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     private String xpath;
 
+    private String typePath;
+
     private Map<String, String> labelMap;
 
     private Map<String, String> descriptionMap;
@@ -67,7 +69,7 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     private boolean denyPhysicalDeleteable = false;
     
-    private boolean polymorphism = true;
+    private boolean polymorphism;
 
     private ArrayList<SubTypeBean> reusableTypes;
 
@@ -119,6 +121,14 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     public void setXpath(String xpath) {
         this.xpath = xpath;
+    }
+
+    public String getTypePath() {
+        return typePath;
+    }
+
+    public void setTypePath(String typePath) {
+        this.typePath = typePath;
     }
 
     public String getLabel(String language) {
