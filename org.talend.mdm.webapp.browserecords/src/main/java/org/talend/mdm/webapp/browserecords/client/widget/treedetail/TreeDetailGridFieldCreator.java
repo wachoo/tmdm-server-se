@@ -55,7 +55,6 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -63,6 +62,7 @@ import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.ui.Widget;
 
 public class TreeDetailGridFieldCreator {
@@ -181,6 +181,8 @@ public class TreeDetailGridFieldCreator {
         }
 
         if (node.isKey() && hasValue && ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {
+            field.setEnabled(true);
+        } else if (node.isKey() && hasValue && ItemDetailToolBar.CREATE_OPERATION.equals(operation)) {
             field.setEnabled(true);
         } else if (node.isKey() && hasValue) {
             field.setEnabled(false);

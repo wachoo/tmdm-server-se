@@ -71,7 +71,8 @@ public class TreeDetailUtil {
         HorizontalPanel hp = new HorizontalPanel();
         // create Field
         String xPath = itemNode.getBindingPath();
-        TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(xPath);
+        String typePath = itemNode.getTypePath();
+        TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath);
         String dynamicLabel = typeModel.getLabel(Locale.getLanguage());
         HTML label = new HTML();
         String html = itemNode.getLabel();

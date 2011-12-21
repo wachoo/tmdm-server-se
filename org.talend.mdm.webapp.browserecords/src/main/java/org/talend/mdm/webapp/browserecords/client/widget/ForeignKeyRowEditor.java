@@ -13,8 +13,8 @@ import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.grid.EditorGrid.ClicksToEdit;
 import com.extjs.gxt.ui.client.widget.grid.RowEditor;
+import com.extjs.gxt.ui.client.widget.grid.EditorGrid.ClicksToEdit;
 
 
 public class ForeignKeyRowEditor extends RowEditor<ItemNodeModel> {
@@ -47,7 +47,6 @@ public class ForeignKeyRowEditor extends RowEditor<ItemNodeModel> {
                         null);
                 return;
             }
-
             String ids = fkBean.getId().replaceAll("\\[", "").replaceAll("\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
             service.updateItem(fkTypeModel.getForeignkey().split("/")[0], ids, fkBean.getForeignKeyInfo(), Locale.getLanguage(), //$NON-NLS-1$
                     new SessionAwareAsyncCallback<String>() {

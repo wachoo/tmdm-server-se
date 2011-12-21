@@ -36,6 +36,30 @@ public class CommonUtil {
         return xpath;
     }
 
+    public static String getRealTypePath(ItemNodeModel nodeModel) {
+        String realXPath = ""; //$NON-NLS-1$
+        ItemNodeModel current = nodeModel;
+        boolean isFirst = true;
+        while (current != null) {
+            String name;
+            if (current.getRealType() != null) {
+                name = current.getName() + ":" + current.getRealType(); //$NON-NLS-1$
+            } else {
+                name = current.getName();
+            }
+
+            current = (ItemNodeModel) current.getParent();
+            if (isFirst) {
+                realXPath = name;
+                isFirst = false;
+                continue;
+            }
+            realXPath = name + "/" + realXPath; //$NON-NLS-1$
+
+        }
+        return realXPath;
+    }
+
     public static String getRealXPath(ItemNodeModel nodeModel){
         String realXPath = ""; //$NON-NLS-1$
         ItemNodeModel current = nodeModel;
@@ -84,7 +108,7 @@ public class CommonUtil {
 
     private static Element _toXML(Document doc, ItemNodeModel nodeModel, ViewBean viewBean, ItemNodeModel rootModel) {
         Element root = doc.createElement(nodeModel.getName());
-        TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(nodeModel.getBindingPath());
+        TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(nodeModel.getTypePath());
         Serializable value = nodeModel.getObjectValue();
         if (typeModel.isSimpleType() && value != null && nodeModel.getParent() != null) {
             if (value instanceof ForeignKeyBean)
@@ -145,6 +169,7 @@ public class CommonUtil {
             }
             node.setName(model.getName());
             node.setBindingPath(model.getXpath());
+            node.setTypePath(model.getTypePath());
             node.setDescription(model.getDescriptionMap().get(language));
             node.setLabel(model.getLabel(language));
         }

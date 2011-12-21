@@ -121,7 +121,7 @@ public class BrowseRecordsController extends Controller {
         final Boolean isCreate = event.getData("isCreate"); //$NON-NLS-1$
         final Boolean isClose = event.getData("isClose"); //$NON-NLS-1$
         final ItemDetailToolBar detailToolBar = event.getData("itemDetailToolBar"); //$NON-NLS-1$
-        service.saveItem(itemBean.getConcept(), itemBean.getIds(), CommonUtil.toXML(model, viewBean), isCreate,
+        service.saveItem(viewBean, itemBean.getIds(), CommonUtil.toXML(model, viewBean), isCreate,
                 Locale.getLanguage(), new SessionAwareAsyncCallback<ItemResult>() {
 
                     @Override

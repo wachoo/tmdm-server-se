@@ -94,7 +94,7 @@ public class ForeignKeyUtil {
         final boolean isCreated = isCreate;
         if (validateSuccess) {
             BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
-            service.saveItem(itemBean.getConcept(), itemBean.getIds(), CommonUtil.toXML(model, viewBean), isCreate, Locale
+            service.saveItem(viewBean, itemBean.getIds(), CommonUtil.toXML(model, viewBean), isCreate, Locale
                     .getLanguage(), new SessionAwareAsyncCallback<ItemResult>() {
 
                         @Override
@@ -152,7 +152,7 @@ public class ForeignKeyUtil {
         List<ItemNodeModel> list = new ArrayList<ItemNodeModel>();
         for (ModelData child : parent.getChildren()) {
             ItemNodeModel childModel = (ItemNodeModel) child;
-            TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(childModel.getBindingPath());
+            TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(childModel.getTypePath());
             if (tm.getForeignkey() != null && !list.contains(parent))
                 list.add(parent);
             else if (tm.getForeignkey() == null)

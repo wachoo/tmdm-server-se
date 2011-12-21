@@ -47,6 +47,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.dom4j.DocumentHelper;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -75,6 +76,8 @@ import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ItemHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.RoleHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
+import org.talend.mdm.webapp.browserecords.server.defaultrule.DefVRule;
+import org.talend.mdm.webapp.browserecords.server.defaultrule.XSLTUtil;
 import org.talend.mdm.webapp.browserecords.server.displayrule.DisplayRule;
 import org.talend.mdm.webapp.browserecords.server.displayrule.DisplayRulesUtil;
 import org.talend.mdm.webapp.browserecords.server.provider.DefaultSmartViewProvider;
@@ -591,7 +594,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             String model = getCurrentDataModel();
             EntityModel entityModel = new EntityModel();
             DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
-            DataModelHelper.handleDefaultValue(entityModel);
             return entityModel;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -613,7 +615,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             String concept = ViewHelper.getConceptFromDefaultViewName(viewPk);
             EntityModel entityModel = new EntityModel();
             DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
-            DataModelHelper.handleDefaultValue(entityModel);
+
             // DisplayRulesUtil.setRoot(DataModelHelper.getEleDecl());
             vb.setBindingEntityModel(entityModel);
 
@@ -1343,8 +1345,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
             Map<String, Integer> multiNodeIndex = new HashMap<String, Integer>();
             StringBuffer foreignKeyDeleteMessage = new StringBuffer();
-            ItemNodeModel itemModel = builderNode(multiNodeIndex, root, entity, "", foreignKeyDeleteMessage, language); //$NON-NLS-1$
-            DynamicLabelUtil.getDynamicLabel(XmlUtil.parseDocument(doc), itemModel, metaDataTypes, language);
+            ItemNodeModel itemModel = builderNode(multiNodeIndex, root, entity, "", "", true, foreignKeyDeleteMessage, language); //$NON-NLS-1$ //$NON-NLS-2$
+            DynamicLabelUtil.getDynamicLabel(XmlUtil.parseDocument(doc), "", itemModel, metaDataTypes, language); //$NON-NLS-1$
             itemModel.set("time", item.get("time")); //$NON-NLS-1$ //$NON-NLS-2$
             itemModel.set("foreignKeyDeleteMessage", foreignKeyDeleteMessage.toString()); //$NON-NLS-1$
             return itemModel;
@@ -1354,24 +1356,116 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    private ItemNodeModel builderNode(Map<String, Integer> multiNodeIndex, Element el, EntityModel entity, String xpath,
+    public ItemNodeModel createDefaultItemNodeModel(ViewBean viewBean, String language) throws ServiceException {
+        String concept = viewBean.getBindingEntityModel().getConceptName();
+
+        EntityModel entity = viewBean.getBindingEntityModel();
+        Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
+        ItemNodeModel itemModel;
+        try {
+
+            DefVRule dfRule = new DefVRule(metaDataTypes);
+            TypeModel typeModel = metaDataTypes.get(concept);
+            Document doc = dfRule.getSubXML(typeModel, null, language);
+            org.dom4j.Document doc4j = XmlUtil.parseDocument(doc);
+            XSLTUtil util = new XSLTUtil(metaDataTypes);
+            List<TypeModel> hasBeenProcessed = util.orderProcess(doc4j);
+
+            for (TypeModel tm : hasBeenProcessed) {
+                util.setDefaultValue(tm.getXpath(), concept, doc4j, tm.getDefaultValueExpression());
+            }
+
+            Document resultDoc = dfRule.parseDocument(doc4j);
+            Map<String, Integer> multiNodeIndex = new HashMap<String, Integer>();
+            StringBuffer foreignKeyDeleteMessage = new StringBuffer();
+            Element root = resultDoc.getDocumentElement();
+            itemModel = builderNode(multiNodeIndex, root, entity, "", "", false, foreignKeyDeleteMessage, language); //$NON-NLS-1$ //$NON-NLS-2$
+            DynamicLabelUtil.getDynamicLabel(doc4j, "", itemModel, metaDataTypes, language); //$NON-NLS-1$
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getMessage());
+        }
+        return itemModel;
+    }
+
+
+    public ItemNodeModel createSubItemNodeModel(ViewBean viewBean, String xml, String typePath, String contextPath,
+            String realType, String language) throws ServiceException {
+        EntityModel entity = viewBean.getBindingEntityModel();
+        String concept = entity.getConceptName();
+        Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
+        ItemNodeModel itemModel;
+        try {
+            DefVRule dfRule = new DefVRule(metaDataTypes);
+            TypeModel typeModel = metaDataTypes.get(typePath);
+            org.dom4j.Document mainDoc = DocumentHelper.parseText(xml);
+            org.dom4j.Document subDoc = XmlUtil.parseDocument(dfRule.getSubXML(typeModel, realType, language));
+            org.dom4j.Document doc4j = dfRule.mergeDoc(mainDoc, subDoc, contextPath);
+
+            XSLTUtil util = new XSLTUtil(metaDataTypes);
+            List<TypeModel> hasBeenProcessed = util.orderProcess(doc4j);
+
+            for (TypeModel tm : hasBeenProcessed) {
+                util.setDefaultValue(tm.getXpath(), concept, doc4j, tm.getDefaultValueExpression());
+            }
+
+            Document resultDoc = dfRule.getSubDoc(doc4j, contextPath);
+            Map<String, Integer> multiNodeIndex = new HashMap<String, Integer>();
+            StringBuffer foreignKeyDeleteMessage = new StringBuffer();
+            Element root = resultDoc.getDocumentElement();
+            String baseXpath = contextPath.substring(0, contextPath.lastIndexOf('/'));
+            itemModel = builderNode(multiNodeIndex, root, entity, baseXpath, "", true, foreignKeyDeleteMessage, language); //$NON-NLS-1$
+            DynamicLabelUtil.getDynamicLabel(doc4j, baseXpath, itemModel, metaDataTypes, language);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getMessage());
+        }
+        return itemModel;
+    }
+
+    private ItemNodeModel builderNode(Map<String, Integer> multiNodeIndex, Element el, EntityModel entity, String baseXpath,
+            String xpath, boolean isPolyType,
             StringBuffer foreignKeyDeleteMessage, String language) throws Exception {
         Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
-        xpath += (xpath == "" ? el.getNodeName() : "/" + el.getNodeName()); //$NON-NLS-1$//$NON-NLS-2$
+        String realType = el.getAttribute("xsi:type"); //$NON-NLS-1$
+        if (isPolyType) {
+            xpath += ("".equals(xpath) ? el.getNodeName() : "/" + el.getNodeName()); //$NON-NLS-1$//$NON-NLS-2$
+            if (realType != null && realType.trim().length() > 0) {
+                xpath += ":" + realType; //$NON-NLS-1$
+            }
+        } else {
+            xpath += ("".equals(xpath) ? el.getNodeName() : "/" + el.getNodeName()); //$NON-NLS-1$//$NON-NLS-2$
+        }
+        String typePath;
+        if ("".equals(baseXpath)) { //$NON-NLS-1$
+            typePath = xpath.replaceAll("\\[\\d+\\]", ""); //$NON-NLS-1$//$NON-NLS-2$
+        } else {
+            typePath = (baseXpath + "/" + xpath).replaceAll("\\[\\d+\\]", ""); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+        }
+        typePath = typePath.replaceAll(":" + realType + "$", ""); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
         ItemNodeModel nodeModel = new ItemNodeModel(el.getNodeName());
-        TypeModel model = metaDataTypes.get(xpath);
+
+        TypeModel model = metaDataTypes.get(typePath);
+        nodeModel.setBindingPath(model.getXpath());
+        nodeModel.setTypePath(model.getTypePath());
+        String realXPath = xpath;
+        if (isPolyType) {
+            realXPath = realXPath.replaceAll(":\\w+", ""); //$NON-NLS-1$//$NON-NLS-2$
+        }
+
         if (model.getMaxOccurs() > 1 || model.getMaxOccurs() == -1) {
-            Integer index = multiNodeIndex.get(xpath);
+
+            Integer index = multiNodeIndex.get(realXPath);
             if (index == null) {
                 nodeModel.setIndex(1);
-                multiNodeIndex.put(xpath, new Integer(1));
+                multiNodeIndex.put(realXPath, new Integer(1));
             } else {
                 nodeModel.setIndex(index + 1);
-                multiNodeIndex.put(xpath, nodeModel.getIndex());
+                multiNodeIndex.put(realXPath, nodeModel.getIndex());
             }
         }
 
-        if (el.getAttribute("xsi:type") != null && el.getAttribute("xsi:type").trim().length() > 0) { //$NON-NLS-1$ //$NON-NLS-2$
+        if (realType != null && realType.trim().length() > 0) {
             nodeModel.setRealType(el.getAttribute("xsi:type")); //$NON-NLS-1$
         }
         nodeModel.setLabel(model.getLabel(language));
@@ -1380,7 +1474,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         if (model.getMinOccurs() > 0) {
             nodeModel.setMandatory(true);
         }
-        String foreignKey = metaDataTypes.get(xpath).getForeignkey();
+        String foreignKey = metaDataTypes.get(typePath).getForeignkey();
         if (foreignKey != null && foreignKey.trim().length() > 0) {
             // set foreignKeyBean
             model.setRetrieveFKinfos(true);
@@ -1414,8 +1508,16 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 for (int i = 0; i < children.getLength(); i++) {
                     Node child = children.item(i);
                     if (child.getNodeType() == Node.ELEMENT_NODE) {
-                        if (typeModel.getXpath().equals(xpath + "/" + child.getNodeName())) { //$NON-NLS-1$                            
-                            ItemNodeModel childNode = builderNode(multiNodeIndex, (Element) child, entity, xpath,
+                        String tem_typePath;
+                        if (realType != null && realType.trim().length() > 0) {
+                            tem_typePath = typePath + ":" + realType + "/" + child.getNodeName(); //$NON-NLS-1$ //$NON-NLS-2$
+                        } else {
+                            tem_typePath = typePath + "/" + child.getNodeName(); //$NON-NLS-1$
+                        }
+
+                        if (typeModel.getTypePath().equals(tem_typePath)) {
+                            ItemNodeModel childNode = builderNode(multiNodeIndex, (Element) child, entity, baseXpath, xpath,
+                                    isPolyType,
                                     foreignKeyDeleteMessage, language);
                             childNode.setHasVisiblueRule(typeModel.isHasVisibleRule());
                             nodeModel.add(childNode);
@@ -1436,7 +1538,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
         }
         for (String key : entity.getKeys()) {
-            if (key.equals(xpath))
+            if (key.equals(realXPath))
                 nodeModel.setKey(true);
         }
         return nodeModel;
@@ -1574,6 +1676,27 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.talend.mdm.webapp.browserecords.client.BrowseRecordsService#saveItem(org.talend.mdm.webapp.browserecords.
+     * shared.ViewBean, java.lang.String, java.lang.String, boolean, java.lang.String)
+     */
+    public ItemResult saveItem(ViewBean viewBean, String ids, String xml, boolean isCreate, String language)
+            throws ServiceException {
+        EntityModel entityModel = viewBean.getBindingEntityModel();
+        String concept = entityModel.getConceptName();
+        // try {
+        // DefVRule dfRule = new DefVRule(entityModel.getMetaDataTypes());
+        // xml = dfRule.setDefaultValue(xml, language);
+        // } catch (Exception e) {
+        // LOG.error(e.getMessage(), e);
+        // throw new ServiceException(e.getLocalizedMessage());
+        // }
+        return saveItem(concept, ids, xml, isCreate, language);
+    }
+    
     public String updateItem(String concept, String ids, Map<String, String> changedNodes, String language)
             throws ServiceException {
         String dataCluster = getCurrentDataCluster();
@@ -2047,7 +2170,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             String model = getCurrentDataModel();
             EntityModel entityModel = new EntityModel();
             DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
-            DataModelHelper.handleDefaultValue(entityModel);
             // DisplayRulesUtil.setRoot(DataModelHelper.getEleDecl());
 
             DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
@@ -2090,4 +2212,5 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     public String formatValue(FormatModel model) throws ServiceException {
         return String.format(new Locale(model.getLanguage()), model.getFormat(), model.getObject());
     }
+
 }
