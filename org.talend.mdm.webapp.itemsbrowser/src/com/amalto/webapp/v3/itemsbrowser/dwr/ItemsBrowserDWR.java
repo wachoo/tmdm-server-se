@@ -30,9 +30,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -195,7 +195,7 @@ public class ItemsBrowserDWR {
         String dataCluster = config.getCluster();
 
         if (model == null || model.length() == 0) {
-            throw new Exception("The Data Model can't be empty!");
+            throw new Exception("The Data Model can't be empty!"); //$NON-NLS-1$
         } else {
             // fix bug0017075, syn the to property to PROVISIONING
             Configuration.initialize(dataCluster, model);
@@ -308,7 +308,7 @@ public class ItemsBrowserDWR {
         Map<String, XSElementDecl> map = CommonDWR.getConceptMap(dataModelPK);
         XSElementDecl decl = map.get(concept);
         if (decl == null) {
-            String err = "Concept '" + concept + "' is not found in model '" + dataModelPK + "'";
+            String err = "Concept '" + concept + "' is not found in model '" + dataModelPK + "'"; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
             LOG.error(err);
             return null;
         }
@@ -330,11 +330,11 @@ public class ItemsBrowserDWR {
 
     private void updateRootNodeByPKInfo(String dataClusterPK, String concept, String[] ids, TreeNode rootNode, int docIndex)
             throws Exception {
-
+        WebContext ctx = WebContextFactory.get();
         if (ids != null) {
             WSItem wsItem = Util.getPort().getItem(new WSGetItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
             rootNode.setTaskId(wsItem.getTaskId());
-            WebContext ctx = WebContextFactory.get();
+            ctx.getSession().setAttribute("existItem", true); //$NON-NLS-1$
             Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$
             Document document = Util.parse(wsItem.getContent());
             if (d != null && !document.isEqualNode(d)) {
@@ -365,6 +365,9 @@ public class ItemsBrowserDWR {
                 }
                 // FIXME: when extractUsingTransformerThroughView
             }
+        } else {
+            ctx.getSession().removeAttribute("xpathToTreeNode"); //$NON-NLS-1$
+            ctx.getSession().removeAttribute("existItem"); //$NON-NLS-1$
         }
     }
 
@@ -399,6 +402,7 @@ public class ItemsBrowserDWR {
      * @param nodeId the id of the root node in yui tree
      * @return an error or succes message
      */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public String setTree(String concept, String viewName, String[] ids, int nodeId, boolean foreignKey, int docIndex,
             boolean refresh) throws Exception {
         WebContext ctx = WebContextFactory.get();
@@ -477,13 +481,13 @@ public class ItemsBrowserDWR {
 
                 DisplayRulesUtil displayRulesUtil = new DisplayRulesUtil(xsed);
                 ctx.getSession().setAttribute("itemDocument_displayRulesUtil" + docIndex, displayRulesUtil); //$NON-NLS-1$
-                Document itemDocument = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$
+
                 ctx.getSession().setAttribute("polymToBusinessConcept" + docIndex, new HashMap<List, BusinessConcept>());//$NON-NLS-1$
                 ctx.getSession().setAttribute("polymToDisplayRulesUtil" + docIndex, new HashMap<List, DisplayRulesUtil>());//$NON-NLS-1$
                 // updateDspRules(docIndex, itemDocument, concept);
 
             } catch (Exception e) {
-                throw new XtentisWebappException("Exception happened during parsing display rules! ", e);
+                throw new XtentisWebappException("Exception happened during parsing display rules! ", e); //$NON-NLS-1$
             }
 
             ctx.getSession().setAttribute("xpathToPolymType" + docIndex, new HashMap<String, String>()); //$NON-NLS-1$
@@ -530,12 +534,14 @@ public class ItemsBrowserDWR {
         }
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private void updateDspRules(int docIndex, Document itemDocument, String concept) throws Exception {
         Configuration config = Configuration.getInstance();
         String dataModelPK = config.getModel();
         WebContext ctx = WebContextFactory.get();
         if (ctx.getSession().getAttribute("itemDocument_displayRulesUtil" + docIndex) == null) //$NON-NLS-1$
             return;
+
 
         HashMap<List, BusinessConceptForBrowser> polymToBusinessConcept = (HashMap<List, BusinessConceptForBrowser>) ctx
                 .getSession().getAttribute("polymToBusinessConcept" + docIndex); //$NON-NLS-1$  
@@ -547,7 +553,7 @@ public class ItemsBrowserDWR {
 
         HashMap<String, String> SortedxpathToPolymType = null;
 
-        Document doc = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$ //$NON-NLS-2$
+        Document doc = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$
         DisplayRulesUtil displayRulesUtil = null;
         BusinessConceptForBrowser businessConcept = getBusinessConcept(polymToBusinessConcept, xpathToPolymType);
         List<DisplayRule> dspRules = new ArrayList<DisplayRule>();
@@ -570,7 +576,7 @@ public class ItemsBrowserDWR {
                 List<Node> rawNodeList = new ArrayList<Node>();
                 for (Iterator<String> iterator = SortedxpathToPolymType.keySet().iterator(); iterator.hasNext();) {
                     String xpath = (String) iterator.next();
-                    if (xpath.indexOf("[") > -1) {
+                    if (xpath.indexOf("[") > -1) { //$NON-NLS-1$
                         String mainPath = XpathUtil.getMainXpath(xpath);
                         String basePath = "//xsd:element[@name=\"" + mainPath.substring(mainPath.lastIndexOf("/") + 1) + "\"]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$                       
                         Node rawNode = Util.getNodeList(xsdDoc, basePath).item(0);
@@ -654,7 +660,7 @@ public class ItemsBrowserDWR {
                 tmpDocument = null;
                 transformedDocumentValue = null;
             } catch (Exception e) {
-                throw new XtentisWebappException(MESSAGES.getMessage("style.error"), e);
+                throw new XtentisWebappException(MESSAGES.getMessage("style.error"), e); //$NON-NLS-1$
             }
         }
 
@@ -828,7 +834,7 @@ public class ItemsBrowserDWR {
             // execute
             WSTransformer wsTransformer = Util.getPort().getTransformer(new WSGetTransformer(new WSTransformerPK(transformerPK)));
             if (wsTransformer.getPluginSpecs() == null || wsTransformer.getPluginSpecs().length == 0)
-                throw new Exception("The Plugin Specs of this process is undefined! ");
+                throw new Exception("The Plugin Specs of this process is undefined! "); //$NON-NLS-1$
             WSTransformerContextPipelinePipelineItem[] entries = null;
             if (isATransformerExist) {
 
@@ -836,7 +842,7 @@ public class ItemsBrowserDWR {
 
             } else {
                 // return false;
-                throw new Exception("The target process is not existed! ");
+                throw new Exception("The target process is not existed! "); //$NON-NLS-1$
             }
 
             WSTransformerContextPipelinePipelineItem entrie = null;
@@ -925,6 +931,7 @@ public class ItemsBrowserDWR {
         return ret;
     }
 
+    @SuppressWarnings("unchecked")
     private void setChildrenWithKeyMask(int id, String language, boolean foreignKey, int docIndex, boolean maskKey,
             boolean choice, XSParticle xsp, ArrayList<TreeNode> list, HashMap<String, TreeNode> xpathToTreeNode,
             String parentXpath) throws ParseException {
@@ -1020,6 +1027,10 @@ public class ItemsBrowserDWR {
         treeNode.setChoice(choice);
         String xpath = parentXpath + "/" + xsp.getTerm().asElementDecl().getName(); //$NON-NLS-1$
         treeNode.setBindingPath(xpath);
+        if (ctx.getSession().getAttribute("existItem") == null && xpathToTreeNode.containsKey(xpath)) //$NON-NLS-1$
+            treeNode.setDisplayDefalutValue(xpathToTreeNode.get(xpath).isDisplayDefalutValue());
+        if (ctx.getSession().getAttribute("existItem") != null) //$NON-NLS-1$
+            treeNode.setDisplayDefalutValue(false);
         // aiming modify see 9642 some node's parent is null
         String parentxpath = XpathUtil.getMainXpath(parentXpath); // parent xpath maybe A.fileds[1]
         if (xpathToTreeNode.containsKey(parentxpath)) {
@@ -1102,7 +1113,7 @@ public class ItemsBrowserDWR {
                 try {
                     NodeList nodeList = Util.getNodeList(d, xpath);
                     for (int i = 0; i < nodeList.getLength(); i++) {
-                        String specificXpath = xpath + '[' + (i + 1) + ']'; //$NON-NLS-1$ //$NON-NLS-2$
+                        String specificXpath = xpath + '[' + (i + 1) + ']';
                         idToXpath.put(nodeCount, specificXpath); 
                         xpathToParticle.put(specificXpath, particle); 
                         TreeNode treeNodeTmp = (TreeNode) treeNode.clone();
@@ -1405,17 +1416,18 @@ public class ItemsBrowserDWR {
             }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            throw new XtentisWebappException("Exception happened during parsing dynamic label! ");
+            throw new XtentisWebappException("Exception happened during parsing dynamic label! "); //$NON-NLS-1$
         }
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private String replaceForeignPath(String basePath, String dynamicLabel, org.dom4j.Document doc) throws Exception {
 
         Pattern pattern = Pattern.compile("\\{.*?\\}");//$NON-NLS-1$
         Matcher matcher = pattern.matcher(dynamicLabel);
         List<String> dynamicPathes = new ArrayList<String>();
         while (matcher.find()) {
-            dynamicPathes.add(matcher.group().replaceAll("^\\{", "").replaceAll("\\}$", ""));//$NON-NLS-1$ //$NON-NLS-2$
+            dynamicPathes.add(matcher.group().replaceAll("^\\{", "").replaceAll("\\}$", ""));//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
         }
 
         Configuration config = Configuration.getInstance();
@@ -1429,10 +1441,10 @@ public class ItemsBrowserDWR {
         for (String dyPath : dynamicPathes) {
             org.dom4j.Element baseEl = (org.dom4j.Element) doc.selectSingleNode(basePath);
             try {
-                List els = (List) baseEl.selectNodes(dyPath);//$NON-NLS-1$
+                List els = (List) baseEl.selectNodes(dyPath);
                 if (els == null)
                     continue;
-                String multiValue = "";
+                String multiValue = ""; //$NON-NLS-1$
                 if (els.size() > 0){
 
 	                for (int i = 0; i < els.size();i++){
@@ -1444,10 +1456,10 @@ public class ItemsBrowserDWR {
 		                    List<String> fkInfos = (List<String>) fkObj[1];
 
 		                    String fkInfoStr = getFKInfo(key, foreignkey, fkInfos);
-		                    multiValue += fkInfoStr == null ? "" : fkInfoStr;
+                            multiValue += fkInfoStr == null ? "" : fkInfoStr; //$NON-NLS-1$
 
 		                } else {
-		                	multiValue += key == null ? "" : key;
+                            multiValue += key == null ? "" : key; //$NON-NLS-1$
 		                }
 	                }
 	                
@@ -1547,6 +1559,7 @@ public class ItemsBrowserDWR {
         return elDecls;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private TreeNode[] handleDisplayRules(TreeNode[] nodes, int docIndex) throws XtentisWebappException {
         try {
             List<DisplayRule> dspRules = (List<DisplayRule>) WebContextFactory.get().getSession()
@@ -1561,11 +1574,12 @@ public class ItemsBrowserDWR {
             }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            throw new XtentisWebappException("Exception happened during parsing display rules! ");
+            throw new XtentisWebappException("Exception happened during parsing display rules! "); //$NON-NLS-1$
         }
         return nodes;
     }
 
+    @SuppressWarnings("unchecked")
     public TreeNode[] getChildrenWithKeyMask(int id, int nodeCount, String language, boolean foreignKey, int docIndex,
             boolean maskKey, String selectedExtendType, String bindpath) throws Exception {
         synchronized (locker) {
@@ -1574,11 +1588,7 @@ public class ItemsBrowserDWR {
             HashMap<Integer, XSParticle> idToParticle = (HashMap<Integer, XSParticle>) ctx.getSession().getAttribute(
                     "idToParticle"); //$NON-NLS-1$
             HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath" + docIndex); //$NON-NLS-1$
-            HashMap<String, XSParticle> xpathToParticle = (HashMap<String, XSParticle>) ctx.getSession().getAttribute(
-                    "xpathToParticle"); //$NON-NLS-1$
-            ArrayList<String> nodeAutorization = (ArrayList<String>) ctx.getSession().getAttribute("nodeAutorization"); //$NON-NLS-1$
             Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$
-            String[] keys = (String[]) ctx.getSession().getAttribute("foreignKeys"); //$NON-NLS-1$
             HashMap<String, TreeNode> xpathToTreeNode = (HashMap<String, TreeNode>) ctx.getSession().getAttribute(
                     "xpathToTreeNode"); //$NON-NLS-1$
             selectedExtendType = (selectedExtendType != null && selectedExtendType.equals("") ? null : selectedExtendType);//$NON-NLS-1$
@@ -1651,9 +1661,10 @@ public class ItemsBrowserDWR {
             boolean choice = false;
 
             XSParticle[] xsp = null;
-            XSParticle selXsp = idToParticle.get(id);
             if (idToParticle == null)
                 return null;
+            XSParticle selXsp = idToParticle.get(id);
+
             if (selXsp == null && bindpath != null) {// simple type case, no children
                 // fix bug 0023102, sometimes the complex arrow disappear after you operation Browse record a while
                 String pxpath = bindpath;
@@ -1949,12 +1960,10 @@ public class ItemsBrowserDWR {
         return checkMap.isEmpty() ? null : checkMap;
     }
 
+    @SuppressWarnings("unchecked")
     public synchronized static String updateNode2(String xpath, String content, int docIndex) {
         WebContext ctx = WebContextFactory.get();
         Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$        
-        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath" + docIndex); //$NON-NLS-1$
-        ArrayList<String> nodeAutorization = (ArrayList<String>) ctx.getSession().getAttribute("nodeAutorization"); //$NON-NLS-1$
-
         try {
             String oldValue = Util.getFirstTextNode(d, xpath);
             if (content.equals(oldValue))
@@ -1996,12 +2005,15 @@ public class ItemsBrowserDWR {
             if (xpath.lastIndexOf("]") == xpath.length() - 1 && node == null) { //$NON-NLS-1$
                 node = xpathToTreeNode.get(xpath.replaceAll("\\[\\d+\\]$", "[1]")); //$NON-NLS-1$ //$NON-NLS-2$
             }
-            if (node != null) //$NON-NLS-1$
+            if (node != null) {
                 node.setValue(content);
-            return "Node updated";
+                if (content == null || content.trim().length() == 0)
+                    node.setDisplayDefalutValue(false);
+            }
+            return "Node updated"; //$NON-NLS-1$
         } catch (Exception e2) {
             LOG.error(e2.getMessage(), e2);
-            return "Error";
+            return "Error"; //$NON-NLS-1$
         }
     }
 
@@ -2287,7 +2299,7 @@ public class ItemsBrowserDWR {
             }
             XSParticle particle = idToParticle.get(id);
             if (particle == null)// remove simple node
-                updatedPath.put(path, ri); //$NON-NLS-1$ //$NON-NLS-2$
+                updatedPath.put(path, ri);
             else if (particle.getTerm().isElementDecl()) {
                 if (particle.getTerm().asElementDecl().getType().isSimpleType()) {
                     updatedPath.put(path, ri);
@@ -2353,17 +2365,18 @@ public class ItemsBrowserDWR {
             String dataModelPK = config.getModel();
             String dataClusterPK = config.getCluster();
             if (dataModelPK == null || dataModelPK.trim().length() == 0)
-                throw new Exception("Data Model can't be empty!");
+                throw new Exception("Data Model can't be empty!"); //$NON-NLS-1$
             if (dataClusterPK == null || dataClusterPK.trim().length() == 0)
-                throw new Exception("Data Container can't be empty!");
+                throw new Exception("Data Container can't be empty!"); //$NON-NLS-1$
             Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$
-            Document bk = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex + "_backup"); //$NON-NLS-1$
+            Document bk = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex + "_backup"); //$NON-NLS-1$ //$NON-NLS-2$
 
             reFillXsdByXML(d, dataModelPK, concept, docIndex);
             // added by lzhang, make sure there is no empty node which has DSP value
-            d = filledByDspValue(dataModelPK, concept, d, docIndex);
+            // d = filledByDspValue(dataModelPK, concept, d, docIndex);
 
             // filter item xml
+            @SuppressWarnings("unchecked")
             HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession().getAttribute(
                     "xpathToPolymType" + docIndex); //$NON-NLS-1$
 
@@ -2414,6 +2427,7 @@ public class ItemsBrowserDWR {
                         ((Element) Util.getNodeList(d, xpath).item(0)).setAttribute("xsi:type", xpathToPolymType.get(xpath)); //$NON-NLS-1$
                 }
             }
+            @SuppressWarnings("unchecked")
             HashMap<String, String> xpathToPolymFKType = (HashMap<String, String>) ctx.getSession().getAttribute(
                     "xpathToPolymFKType" + docIndex); //$NON-NLS-1$
             if (xpathToPolymFKType != null && xpathToPolymFKType.size() > 0) {
