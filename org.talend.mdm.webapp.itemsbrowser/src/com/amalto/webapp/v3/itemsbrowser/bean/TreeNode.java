@@ -105,6 +105,16 @@ public class TreeNode implements Cloneable {
 
     private String label;
 
+    private boolean isDisplayDefalutValue = true;
+
+    public boolean isDisplayDefalutValue() {
+        return isDisplayDefalutValue;
+    }
+
+    public void setDisplayDefalutValue(boolean isDisplayDefalutValue) {
+        this.isDisplayDefalutValue = isDisplayDefalutValue;
+    }
+
     public String getLabel() {
         return label;
     }

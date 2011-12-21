@@ -132,7 +132,7 @@ public class DisplayRulesUtil {
     private String translateDefaultValueSchema() {
         StringBuffer style = new StringBuffer();
         if (tmpls.isEmpty())
-            travelXSElement(root, "/" + root.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+            travelXSElement(root, "/" + root.getName()); //$NON-NLS-1$ 
 
         HashMap<String, Integer> indexMap = new HashMap<String, Integer>();
         for (TemplateBean tmp : tmpls) {
@@ -393,7 +393,7 @@ public class DisplayRulesUtil {
             String xpathInRule = XmlUtil.normalizeXpath(displayRule.getXpath());
             if (displayRule.getType().equals(BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE)) {
                 if (XpathUtil.checkDefalutByXpath(xpath, xpathInRule)) {
-                    if (node.getValue() == null || node.getValue().trim().equals("")) { //$NON-NLS-1$
+                    if (node.isDisplayDefalutValue() && (node.getValue() == null || node.getValue().trim().length() == 0)) {
                         node.setValue(displayRule.getValue());
                         ItemsBrowserDWR.updateNode2(xpath, node.getValue(), docIndex);
                     }
