@@ -26,4 +26,22 @@
             </EntitesPresentes>
         </Perimetre>
     </detailContrat>
+    <detailContrat xsi:type="AP-RE">
+        <Perimetre>
+            <EntitesPresentes>
+                <EDAs>
+                    <EDA>
+                        <eda>[111]</eda>
+                        <dateDebutApplication/>
+                        <dateFinApplication/>
+                    </EDA>
+                    <EDA>
+                        <eda>[222]</eda>
+                        <dateDebutApplication/>
+                        <dateFinApplication/>
+                    </EDA>
+                </EDAs>
+            </EntitesPresentes>
+        </Perimetre>
+    </detailContrat>
 </Contrat>

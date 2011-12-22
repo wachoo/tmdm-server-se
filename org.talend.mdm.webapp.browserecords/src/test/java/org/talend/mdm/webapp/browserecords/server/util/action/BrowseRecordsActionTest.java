@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.webapp.browserecords.server.util.action;
 
 import java.util.LinkedHashMap;
@@ -77,7 +89,7 @@ public class BrowseRecordsActionTest extends TestCase {
         return item;
     }
 
-    private EntityModel getEntityModel() {
+    public static EntityModel getEntityModel() {
         Map<String, TypeModel> metadata = new LinkedHashMap<String, TypeModel>();
         DataTypeCustomized agency = new DataTypeCustomized("AgencyType", "anyType");
         ComplexTypeModel complexModel = new ComplexTypeModel("Agency", agency);
@@ -91,6 +103,7 @@ public class BrowseRecordsActionTest extends TestCase {
         typeModel.getLabelMap().put("fr", "Identifiant");
         typeModel.getLabelMap().put("en", "Identifier");
         typeModel.setXpath("Agency/Id");
+        typeModel.setTypePath("Agency/Id");
         metadata.put("Agency/Id", typeModel);
 
         typeModel = new SimpleTypeModel("Name", DataTypeConstants.STRING);
@@ -100,12 +113,14 @@ public class BrowseRecordsActionTest extends TestCase {
         typeModel.setMinOccurs(1);
         metadata.put("Agency/Name", typeModel);
         typeModel.setXpath("Agency/Name");
+        typeModel.setTypePath("Agency/Name");
         complexModel.addSubType(typeModel);
 
         typeModel = new SimpleTypeModel("City", DataTypeConstants.STRING);
         typeModel.getLabelMap().put("fr", "City");
         typeModel.getLabelMap().put("en", "City");
         typeModel.setXpath("Agency/City");
+        typeModel.setTypePath("Agency/City");
         metadata.put("Agency/City", typeModel);
         complexModel.addSubType(typeModel);
 
@@ -113,6 +128,7 @@ public class BrowseRecordsActionTest extends TestCase {
         typeModel.getLabelMap().put("fr", "State");
         typeModel.getLabelMap().put("en", "State");
         typeModel.setXpath("Agency/State");
+        typeModel.setTypePath("Agency/State");
         metadata.put("Agency/State", typeModel);
         complexModel.addSubType(typeModel);
 
@@ -120,6 +136,7 @@ public class BrowseRecordsActionTest extends TestCase {
         typeModel.getLabelMap().put("fr", "Zip");
         typeModel.getLabelMap().put("en", "Zip");
         typeModel.setXpath("Agency/Zip");
+        typeModel.setTypePath("Agency/Zip");
         metadata.put("Agency/Zip", typeModel);
         complexModel.addSubType(typeModel);
 
@@ -127,6 +144,7 @@ public class BrowseRecordsActionTest extends TestCase {
         typeModel.getLabelMap().put("fr", "Region");
         typeModel.getLabelMap().put("en", "Region");
         typeModel.setXpath("Agency/Region");
+        typeModel.setTypePath("Agency/Region");
         metadata.put("Agency/Region", typeModel);
         complexModel.addSubType(typeModel);
 
@@ -134,6 +152,7 @@ public class BrowseRecordsActionTest extends TestCase {
         typeModel.getLabelMap().put("fr", "MoreInfo");
         typeModel.getLabelMap().put("en", "MoreInfo");
         typeModel.setXpath("Agency/MoreInfo");
+        typeModel.setTypePath("Agency/MoreInfo");
         metadata.put("Agency/MoreInfo", typeModel);
         complexModel.addSubType(typeModel);
 
