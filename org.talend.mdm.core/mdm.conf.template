@@ -9,6 +9,7 @@
 ######################################################
 # System Setting
 ######################################################
+http.server.port=8080
 
 system.data.auto.init=true
 system.data.auto.upgrade=true
