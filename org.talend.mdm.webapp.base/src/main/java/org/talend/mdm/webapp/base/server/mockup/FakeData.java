@@ -12,9 +12,11 @@
 // ============================================================================
 package org.talend.mdm.webapp.base.server.mockup;
 
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+
 public class FakeData {
 
-    public static final String MDM_DEFAULT_ENDPOINTADDRESS = "http://localhost:8080/talend/TalendPort";//$NON-NLS-1$
+    public static final String MDM_DEFAULT_ENDPOINTADDRESS = "http://localhost:" + MDMConfiguration.getHttpPort() + "/talend/TalendPort";//$NON-NLS-1$
 
     public static final String MDM_DEFAULT_USERNAME = "administrator";//$NON-NLS-1$
 

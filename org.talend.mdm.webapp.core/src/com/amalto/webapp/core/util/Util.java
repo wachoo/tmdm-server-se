@@ -124,8 +124,7 @@ public class Util {
 
     private static String port = null;
     static {
-        port = MDMConfiguration.getConfiguration().getProperty("xmldb.server.port"); //$NON-NLS-1$
-        port = port == null ? "8080" : port; //$NON-NLS-1$
+        port = MDMConfiguration.getHttpPort();
     }
 
     private static String endpoint_address = "http://localhost:" + port + "/talend/TalendPort"; //$NON-NLS-1$ //$NON-NLS-2$
