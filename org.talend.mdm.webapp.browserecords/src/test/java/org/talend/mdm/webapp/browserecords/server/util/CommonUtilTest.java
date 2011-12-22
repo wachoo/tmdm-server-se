@@ -68,12 +68,17 @@ public class CommonUtilTest extends TestCase {
 
     public void testGetRealPath() throws Exception {
         ItemNodeModel nodeModel = TestData.getModel();
-        List<String> xpathes = TestData.getXpathes();
+        // 1. getPathWithIndex
+        List<String> xpathes = TestData.getXpathes("xpathes.properties");
         Iterator<String> iter = xpathes.iterator();
-        assertPath(nodeModel, iter);
+        assertPathWithIndex(nodeModel, iter);
+        // 2. getRealTypePath
+        xpathes = TestData.getXpathes("realTypePathes.properties");
+        iter = xpathes.iterator();
+        assertRealTypePath(nodeModel, iter);
     }
 
-    private void assertPath(ItemNodeModel nodeModel, Iterator<String> iter) {
+    private void assertPathWithIndex(ItemNodeModel nodeModel, Iterator<String> iter) {
         String xpath = iter.next();
         String nodePath = CommonUtil.getRealXPath(nodeModel);
         Assert.assertEquals(xpath, nodePath);
@@ -81,10 +86,28 @@ public class CommonUtilTest extends TestCase {
         List<ModelData> children = nodeModel.getChildren();
         if (children != null) {
             for (ModelData child : children) {
-                assertPath((ItemNodeModel) child, iter);
+                assertPathWithIndex((ItemNodeModel) child, iter);
             }
         }
+    }
+    
+    private void assertRealTypePath(ItemNodeModel nodeModel, Iterator<String> iter) {
+        String xpath = iter.next();
+        String nodeRealTypePath = CommonUtil.getRealTypePath(nodeModel);
+        assertEquals(xpath, nodeRealTypePath);
 
+        List<ModelData> children = nodeModel.getChildren();
+        if (children != null) {
+            for (ModelData child : children) {
+                assertRealTypePath((ItemNodeModel) child, iter);
+            }
+        }
+    }
+    
+    public void test_polymorphismTypeXpathRegex() {
+        String xpath = "Person:Student/Name";
+        xpath = xpath.replaceAll(":\\w+", "");
+        assertEquals("Person/Name", xpath);
     }
 
 }

@@ -23,6 +23,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -31,7 +32,9 @@ public class TestData {
 
     private static ItemNodeModel builder(Node node) {
         ItemNodeModel nodeModel = new ItemNodeModel(node.getNodeName());
-
+        String realType = ((Element) node).getAttribute("xsi:type"); //$NON-NLS-1$
+        if (realType != null && realType.trim().length() > 0)
+            nodeModel.setRealType(realType);
         NodeList children = node.getChildNodes();
         if (children != null) {
             for (int i = 0; i < children.getLength(); i++) {
@@ -50,9 +53,9 @@ public class TestData {
         return nodeModel;
     }
 
-    public static List<String> getXpathes() throws Exception {
+    public static List<String> getXpathes(String fileName) throws Exception {
         List<String> xpathes = new ArrayList<String>();
-        InputStream is = TestData.class.getResourceAsStream("../../xpathes.properties"); //$NON-NLS-1$
+        InputStream is = TestData.class.getResourceAsStream("../../" + fileName); //$NON-NLS-1$
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
         String ln = br.readLine();
         while (ln != null) {
