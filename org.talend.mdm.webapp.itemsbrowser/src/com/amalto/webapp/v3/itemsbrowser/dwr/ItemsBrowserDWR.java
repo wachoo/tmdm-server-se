@@ -402,7 +402,6 @@ public class ItemsBrowserDWR {
      * @param nodeId the id of the root node in yui tree
      * @return an error or succes message
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     public String setTree(String concept, String viewName, String[] ids, int nodeId, boolean foreignKey, int docIndex,
             boolean refresh) throws Exception {
         WebContext ctx = WebContextFactory.get();
@@ -534,7 +533,6 @@ public class ItemsBrowserDWR {
         }
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     private void updateDspRules(int docIndex, Document itemDocument, String concept) throws Exception {
         Configuration config = Configuration.getInstance();
         String dataModelPK = config.getModel();
@@ -931,7 +929,6 @@ public class ItemsBrowserDWR {
         return ret;
     }
 
-    @SuppressWarnings("unchecked")
     private void setChildrenWithKeyMask(int id, String language, boolean foreignKey, int docIndex, boolean maskKey,
             boolean choice, XSParticle xsp, ArrayList<TreeNode> list, HashMap<String, TreeNode> xpathToTreeNode,
             String parentXpath) throws ParseException {
@@ -1420,7 +1417,6 @@ public class ItemsBrowserDWR {
         }
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     private String replaceForeignPath(String basePath, String dynamicLabel, org.dom4j.Document doc) throws Exception {
 
         Pattern pattern = Pattern.compile("\\{.*?\\}");//$NON-NLS-1$
@@ -1559,7 +1555,6 @@ public class ItemsBrowserDWR {
         return elDecls;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     private TreeNode[] handleDisplayRules(TreeNode[] nodes, int docIndex) throws XtentisWebappException {
         try {
             List<DisplayRule> dspRules = (List<DisplayRule>) WebContextFactory.get().getSession()
@@ -1579,7 +1574,6 @@ public class ItemsBrowserDWR {
         return nodes;
     }
 
-    @SuppressWarnings("unchecked")
     public TreeNode[] getChildrenWithKeyMask(int id, int nodeCount, String language, boolean foreignKey, int docIndex,
             boolean maskKey, String selectedExtendType, String bindpath) throws Exception {
         synchronized (locker) {
@@ -1733,7 +1727,6 @@ public class ItemsBrowserDWR {
     }
 
     // added by lzhang, update treenode value if it has DspRules
-    @SuppressWarnings("unchecked")
     public String updateNodeDspValue(int docIndex, int newId) {
         WebContext ctx = WebContextFactory.get();
         List<DisplayRule> dspRules = (List<DisplayRule>) WebContextFactory.get().getSession()
@@ -1960,7 +1953,6 @@ public class ItemsBrowserDWR {
         return checkMap.isEmpty() ? null : checkMap;
     }
 
-    @SuppressWarnings("unchecked")
     public synchronized static String updateNode2(String xpath, String content, int docIndex) {
         WebContext ctx = WebContextFactory.get();
         Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$        
@@ -2376,7 +2368,6 @@ public class ItemsBrowserDWR {
             // d = filledByDspValue(dataModelPK, concept, d, docIndex);
 
             // filter item xml
-            @SuppressWarnings("unchecked")
             HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession().getAttribute(
                     "xpathToPolymType" + docIndex); //$NON-NLS-1$
 
@@ -2427,7 +2418,6 @@ public class ItemsBrowserDWR {
                         ((Element) Util.getNodeList(d, xpath).item(0)).setAttribute("xsi:type", xpathToPolymType.get(xpath)); //$NON-NLS-1$
                 }
             }
-            @SuppressWarnings("unchecked")
             HashMap<String, String> xpathToPolymFKType = (HashMap<String, String>) ctx.getSession().getAttribute(
                     "xpathToPolymFKType" + docIndex); //$NON-NLS-1$
             if (xpathToPolymFKType != null && xpathToPolymFKType.size() > 0) {
@@ -4329,7 +4319,6 @@ public class ItemsBrowserDWR {
      * @param criterias
      * @return //[Country/isoCode EQUALS 33, , OR, ] //[Country/isoCode CONTAINS *]
      */
-    @SuppressWarnings("finally")
     public String saveCriteria(String viewPK, String templateName, boolean isShared, String[][] criteriasString) {
         String returnString = "OK";//$NON-NLS-1$
         try {
