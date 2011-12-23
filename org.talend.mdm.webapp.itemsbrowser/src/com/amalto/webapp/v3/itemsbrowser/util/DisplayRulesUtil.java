@@ -393,7 +393,7 @@ public class DisplayRulesUtil {
             String xpathInRule = XmlUtil.normalizeXpath(displayRule.getXpath());
             if (displayRule.getType().equals(BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE)) {
                 if (XpathUtil.checkDefalutByXpath(xpath, xpathInRule)) {
-                    if (node.isDisplayDefalutValue() && (node.getValue() == null || node.getValue().trim().length() == 0)) {
+                    if ((node.getValue() == null || node.getValue().trim().length() == 0) && node.isDisplayDefalutValue()) {
                         node.setValue(displayRule.getValue());
                         ItemsBrowserDWR.updateNode2(xpath, node.getValue(), docIndex);
                     }
