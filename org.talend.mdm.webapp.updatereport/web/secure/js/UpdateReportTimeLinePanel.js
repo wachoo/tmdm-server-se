@@ -80,7 +80,7 @@ function renderTimeline(jsonData, initDate){
     bandInfos[1].highlight = true;
     bandInfos[2].highlight = true;
         
-    Timeline.create(tl_el, bandInfos, Timeline.HORIZONTAL);
+    var timeLine = Timeline.create(tl_el, bandInfos, Timeline.HORIZONTAL);
     eventSource1.loadJSON(jsonData, document.location.href);
     
     timeLine.getBand(0).addOnScrollListener(function(band) {  
