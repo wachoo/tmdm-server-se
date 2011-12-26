@@ -42,6 +42,7 @@ import com.sun.xml.xsom.XSAnnotation;
 import com.sun.xml.xsom.XSComplexType;
 import com.sun.xml.xsom.XSElementDecl;
 import com.sun.xml.xsom.XSParticle;
+
 /**
  * DOC HSHU class global comment. Detailled comment
  */
@@ -158,9 +159,10 @@ public class SchemaWebAgent extends SchemaManager {
         return super.getBusinessConcept(conceptName, dataModelID);
 
     }
-    
+
     /**
      * DOC HSHU Comment method "getFirstBusinessConceptFromRootType".
+     * 
      * @param typeName
      * @return
      * @throws Exception
@@ -168,10 +170,10 @@ public class SchemaWebAgent extends SchemaManager {
     public BusinessConcept getFirstBusinessConceptFromRootType(String typeName) throws Exception {
         BusinessConcept targetBusinessConcept = null;
         DataModelID dataModelID = getMyDataModelTicket();
-        List<BusinessConcept> businessConcepts=super.getBusinessConcepts(dataModelID);
+        List<BusinessConcept> businessConcepts = super.getBusinessConcepts(dataModelID);
         for (BusinessConcept businessConcept : businessConcepts) {
             String businessConceptTypeName = businessConcept.getCorrespondTypeName();
-            if (businessConceptTypeName!= null && businessConceptTypeName.equals(typeName)) {
+            if (businessConceptTypeName != null && businessConceptTypeName.equals(typeName)) {
                 targetBusinessConcept = businessConcept;
                 break;
             }
@@ -195,16 +197,18 @@ public class SchemaWebAgent extends SchemaManager {
 
     /**
      * DOC HSHU Comment method "getMySubtypes".
+     * 
      * @param parentTypeName
      * @return
      * @throws Exception
      */
-    public List<ReusableType> getMySubtypes(String parentTypeName) throws Exception{
-        return getMySubtypes(parentTypeName,false);
+    public List<ReusableType> getMySubtypes(String parentTypeName) throws Exception {
+        return getMySubtypes(parentTypeName, false);
     }
-    
+
     /**
      * DOC HSHU Comment method "getMySubtypes".
+     * 
      * @param parentTypeName
      * @param deep
      * @return
@@ -214,11 +218,11 @@ public class SchemaWebAgent extends SchemaManager {
         List<ReusableType> subTypes = new ArrayList<ReusableType>();
 
         DataModelBean dataModelBean = getFromPool(getMyDataModelTicket());
-        
+
         List<ReusableType> reusableTypes = dataModelBean.getReusableTypes();
-        
+
         setMySubtypes(parentTypeName, subTypes, reusableTypes, deep);
-        
+
         return subTypes;
 
     }
@@ -227,15 +231,15 @@ public class SchemaWebAgent extends SchemaManager {
         DataModelBean dataModelBean = getFromPool(getMyDataModelTicket());
         List<ReusableType> reusableTypes = dataModelBean.getReusableTypes();
         List<ReusableType> parentsTypes = new ArrayList<ReusableType>();
-        
+
         getParents(subTypeName, reusableTypes, parentsTypes);
 
         return parentsTypes;
     }
-    
+
     private void getParents(String subTypeName, List<ReusableType> reusableTypes, List<ReusableType> parentsTypes) {
-        for(ReusableType reusableType : reusableTypes) {
-            if(reusableType.getName().equals(subTypeName)) {
+        for (ReusableType reusableType : reusableTypes) {
+            if (reusableType.getName().equals(subTypeName)) {
                 String parentName = reusableType.getParentName();
                 ReusableType type = findParentType(parentName, reusableTypes);
                 if (type != null) {
@@ -261,25 +265,26 @@ public class SchemaWebAgent extends SchemaManager {
 
     /**
      * DOC HSHU Comment method "setMySubtypes".
+     * 
      * @param parentTypeName
      * @param subTypes
      * @param reusableTypes
      * @param deep
      */
     private void setMySubtypes(String parentTypeName, List<ReusableType> subTypes, List<ReusableType> reusableTypes, boolean deep) {
-        List<String> checkList=new ArrayList<String>();
-        
+        List<String> checkList = new ArrayList<String>();
+
         for (ReusableType reusableType : reusableTypes) {
-               if (reusableType.getParentName() != null && reusableType.getParentName().equals(parentTypeName)) {    
-                       subTypes.add(reusableType);
-                       checkList.add(reusableType.getName());
-               }
+            if (reusableType.getParentName() != null && reusableType.getParentName().equals(parentTypeName)) {
+                subTypes.add(reusableType);
+                checkList.add(reusableType.getName());
+            }
         }
-        
-        if(deep) {
-            if(checkList.size()>0) {
+
+        if (deep) {
+            if (checkList.size() > 0) {
                 for (String storedTypeName : checkList) {
-                    setMySubtypes(storedTypeName, subTypes, reusableTypes,deep);
+                    setMySubtypes(storedTypeName, subTypes, reusableTypes, deep);
                 }
             }
         }
@@ -339,13 +344,13 @@ public class SchemaWebAgent extends SchemaManager {
 
         return revision;
     }
-    
+
     public Map<String, String> getReferenceEntities(ReusableType reusableType, String entityName) throws Exception {
         Map<String, String> references = new HashMap<String, String>();
         XSParticle xsparticle = reusableType.getXsParticle();
         List<XSParticle> xsps = reusableType.getAllChildren(xsparticle);
         String reusableName = reusableType.getName();
-        
+
         if (xsps.size() > 0) {
             for (XSParticle xsp : xsps) {
                 XSAnnotation xsa = xsp.getTerm().asElementDecl() == null ? null : xsp.getTerm().asElementDecl().getAnnotation();
@@ -374,22 +379,27 @@ public class SchemaWebAgent extends SchemaManager {
         return references;
     }
 
-    
     /**
      * DOC HSHU Comment method "getReferenceEntities".
-     * @throws Exception 
+     * 
+     * @throws Exception
      */
     public List<String> getReferenceEntities(String entityName) throws Exception {
-        List<String> references=new ArrayList<String>();
+        List<String> references = new ArrayList<String>();
         DataModelID dataModelID = getMyDataModelTicket();
-        //check business concepts
-        List<BusinessConcept> businessConcepts = getBusinessConcepts(dataModelID);
+        DataModelBean dataModelBean = getFromPool(dataModelID);
+        List<BusinessConcept> businessConcepts = dataModelBean.getBusinessConcepts();
+        List<ReusableType> reuseTypeList = dataModelBean.getReusableTypes();
+        for (ReusableType type : reuseTypeList) {
+            type.load();
+        }
         List<String> extendType = new ArrayList<String>();
         extendType.add(entityName);
 
         for (BusinessConcept businessConcept : businessConcepts) {
+            businessConcept.setReuseTypeList(reuseTypeList);
             businessConcept.load();
-            String bcName=businessConcept.getName();
+            String bcName = businessConcept.getName();
 
             if (bcName.equals(entityName)) {
                 List<ReusableType> parentTypes = getMyParents(getBusinessConcept(bcName).getCorrespondTypeName());
@@ -405,9 +415,10 @@ public class SchemaWebAgent extends SchemaManager {
                 }
             }
 
-            Map<String, String> foreignKeyMap=businessConcept.getForeignKeyMap();
+            Map<String, String> foreignKeyMap = businessConcept.getForeignKeyMap();
             Collection<String> fkPaths = foreignKeyMap.values();
             List<String> types = getBindingType(businessConcept.getE());
+            Collection<String> inheritanceFKCollection = businessConcept.getInheritanceForeignKeyMap().values();
 
             for (String type : types) {
                 List<ReusableType> subTypes = getMySubtypes(type);
@@ -421,11 +432,19 @@ public class SchemaWebAgent extends SchemaManager {
 
             for (String fkPath : fkPaths) {
                 if (isFkPoint2Entity(fkPath, extendType)) {
-                    if(!references.contains(bcName))references.add(bcName);
+                    if (!references.contains(bcName))
+                        references.add(bcName);
+                }
+            }
+
+            for (String inheritanceFK : inheritanceFKCollection) {
+                if (isFkPoint2Entity(inheritanceFK, extendType)) {
+                    if (!references.contains(bcName))
+                        references.add(bcName);
                 }
             }
         }
-        
+
         return references;
 
     }
@@ -467,19 +486,19 @@ public class SchemaWebAgent extends SchemaManager {
 
         return contained;
     }
-    
+
     /**
      * 
      * @param concept
      * @return
      * @throws Exception
      */
-    public boolean isEntityDenyPhysicalDeletable(String concept)throws Exception{
-    	Configuration config = Configuration.getInstance();
-    	Map<String,XSElementDecl> conceptMap=CommonDWR.getConceptMap(config.getModel());
+    public boolean isEntityDenyPhysicalDeletable(String concept) throws Exception {
+        Configuration config = Configuration.getInstance();
+        Map<String, XSElementDecl> conceptMap = CommonDWR.getConceptMap(config.getModel());
         XSElementDecl decl = conceptMap.get(concept);
         if (decl == null) {
-            //String err = "Concept '" + concept + "' is not found in model '" + config.getModel() + "'";
+            // String err = "Concept '" + concept + "' is not found in model '" + config.getModel() + "'";
             return false;
         }
         XSAnnotation xsa = decl.getAnnotation();
@@ -490,35 +509,34 @@ public class SchemaWebAgent extends SchemaManager {
             NodeList annotList = el.getChildNodes();
 
             for (int k = 0; k < annotList.getLength(); k++) {
-                if ("appinfo".equals(annotList.item(k).getLocalName())) {
-                    Node source = annotList.item(k).getAttributes().getNamedItem("source");
+                if ("appinfo".equals(annotList.item(k).getLocalName())) { //$NON-NLS-1$
+                    Node source = annotList.item(k).getAttributes().getNamedItem("source"); //$NON-NLS-1$
                     if (source == null)
                         continue;
-                    String appinfoSource = annotList.item(k).getAttributes().getNamedItem("source").getNodeValue();
-                    if ("X_Deny_PhysicalDelete".equals(appinfoSource)) {
+                    String appinfoSource = annotList.item(k).getAttributes().getNamedItem("source").getNodeValue(); //$NON-NLS-1$
+                    if ("X_Deny_PhysicalDelete".equals(appinfoSource)) { //$NON-NLS-1$
                         if (roles.contains(annotList.item(k).getFirstChild().getNodeValue())) {
-                           return true;
+                            return true;
                         }
                     }
                 }
             }
         }
-    	return false;
+        return false;
     }
-    
-    
+
     /**
      * 
      * @param concept
      * @return
      * @throws Exception
      */
-    public boolean isEntityDenyCreatable(String concept)throws Exception{
-    	Configuration config = Configuration.getInstance();
-    	Map<String,XSElementDecl> conceptMap=CommonDWR.getConceptMap(config.getModel());
+    public boolean isEntityDenyCreatable(String concept) throws Exception {
+        Configuration config = Configuration.getInstance();
+        Map<String, XSElementDecl> conceptMap = CommonDWR.getConceptMap(config.getModel());
         XSElementDecl decl = conceptMap.get(concept);
         if (decl == null) {
-            //String err = "Concept '" + concept + "' is not found in model '" + config.getModel() + "'";
+            // String err = "Concept '" + concept + "' is not found in model '" + config.getModel() + "'";
             return false;
         }
         XSAnnotation xsa = decl.getAnnotation();
@@ -529,22 +547,22 @@ public class SchemaWebAgent extends SchemaManager {
             NodeList annotList = el.getChildNodes();
 
             for (int k = 0; k < annotList.getLength(); k++) {
-                if ("appinfo".equals(annotList.item(k).getLocalName())) {
-                    Node source = annotList.item(k).getAttributes().getNamedItem("source");
+                if ("appinfo".equals(annotList.item(k).getLocalName())) { //$NON-NLS-1$
+                    Node source = annotList.item(k).getAttributes().getNamedItem("source"); //$NON-NLS-1$
                     if (source == null)
                         continue;
-                    String appinfoSource = annotList.item(k).getAttributes().getNamedItem("source").getNodeValue();
-                    if ("X_Deny_Create".equals(appinfoSource)) {
+                    String appinfoSource = annotList.item(k).getAttributes().getNamedItem("source").getNodeValue(); //$NON-NLS-1$
+                    if ("X_Deny_Create".equals(appinfoSource)) { //$NON-NLS-1$
                         if (roles.contains(annotList.item(k).getFirstChild().getNodeValue())) {
-                           return true;
+                            return true;
                         }
                     }
                 }
             }
         }
-    	return false;
-    }    
-    
+        return false;
+    }
+
     /**
      * 
      * DOC achen Comment method "getXPath2ParticleMap".
@@ -553,30 +571,31 @@ public class SchemaWebAgent extends SchemaManager {
      * @return
      * @throws Exception
      */
-    public Map<String, XSParticle> getXPath2ParticleMap(String concept)throws Exception{
+    public Map<String, XSParticle> getXPath2ParticleMap(String concept) throws Exception {
         Configuration config = Configuration.getInstance();
-        Map<String,XSElementDecl> conceptMap=CommonDWR.getConceptMap(config.getModel());
-        XSComplexType xsct = (XSComplexType)(conceptMap.get(concept).getType());
+        Map<String, XSElementDecl> conceptMap = CommonDWR.getConceptMap(config.getModel());
+        XSComplexType xsct = (XSComplexType) (conceptMap.get(concept).getType());
         XSParticle[] xsp = xsct.getContentType().asParticle().getTerm().asModelGroup().getChildren();
-        HashMap<String,XSParticle> xpathToParticle = new HashMap<String,XSParticle>();
-        for (int j = 0; j < xsp.length; j++) {  
+        HashMap<String, XSParticle> xpathToParticle = new HashMap<String, XSParticle>();
+        for (int j = 0; j < xsp.length; j++) {
             getChildrenXpath2Particle(xsp[j], concept, xpathToParticle);
         }
         return xpathToParticle;
     }
 
-    private void getChildrenXpath2Particle(XSParticle xsp, String xpathParent,HashMap<String,XSParticle> xpathToParticle){
-        if(xsp.getTerm().asModelGroup()!=null){ //is complex type
-            XSParticle[] xsps=xsp.getTerm().asModelGroup().getChildren();
+    private void getChildrenXpath2Particle(XSParticle xsp, String xpathParent, HashMap<String, XSParticle> xpathToParticle) {
+        if (xsp.getTerm().asModelGroup() != null) { // is complex type
+            XSParticle[] xsps = xsp.getTerm().asModelGroup().getChildren();
             for (int i = 0; i < xsps.length; i++) {
                 getChildrenXpath2Particle(xsps[i], xpathParent, xpathToParticle);
             }
         }
-        if(xsp.getTerm().asElementDecl()==null) return;
+        if (xsp.getTerm().asElementDecl() == null)
+            return;
         String xpath = xpathParent + "/" + xsp.getTerm().asElementDecl().getName(); //$NON-NLS-1$
-        if(xsp.getTerm().asElementDecl().getType().isComplexType()){
+        if (xsp.getTerm().asElementDecl().getType().isComplexType()) {
             XSParticle particle = xsp.getTerm().asElementDecl().getType().asComplexType().getContentType().asParticle();
-            if(particle!=null){
+            if (particle != null) {
                 XSParticle[] xsps = particle.getTerm().asModelGroup().getChildren();
                 String pxpath = xpathParent + "/" + xsp.getTerm().asElementDecl().getName(); //$NON-NLS-1$
                 xpathToParticle.put(pxpath, xsp);
@@ -587,6 +606,6 @@ public class SchemaWebAgent extends SchemaManager {
         } else {
             xpathToParticle.put(xpath, xsp);
         }
-        
+
     }
 }
