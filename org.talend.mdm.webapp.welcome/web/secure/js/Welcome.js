@@ -1,4 +1,5 @@
 amalto.namespace("amalto.welcome");
+loadResource("/core/secure/ext-2.2/source/locale/ext-lang-fr.js","");
 
 amalto.welcome.Welcome = function () {
 	loadResource("/welcome/secure/css/Welcome.css", "" );
