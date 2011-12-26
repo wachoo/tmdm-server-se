@@ -23,7 +23,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.sun.xml.xsom.XSElementDecl;
 import com.sun.xml.xsom.XSParticle;
+import com.sun.xml.xsom.XSTerm;
 import com.sun.xml.xsom.XSType;
 
 /**
@@ -38,10 +40,12 @@ public class ReusableType {
     private String parentName;
 
     private boolean isAbstract;
-    
-    private String orderValue = null;
-    
-    private Map<String, String> labelMap = null;
+
+    private String orderValue;
+
+    private Map<String, String> labelMap;
+
+    private Map<String, String> foreignKeyMap;
 
     // TODO: translate it from technique to business logic
     // mainly maintain the relationships among different business concepts
@@ -53,35 +57,61 @@ public class ReusableType {
         parentName = xsType.getBaseType().getName();// Is this the best way?
         isAbstract = xsType.asComplexType().isAbstract();
     }
-    
+
     @Deprecated
     public ReusableType(String name) {
         super();
         this.name = name;
     }
-    
-    /**
-     * DOC HSHU Comment method "load".
-     */
+
     public void load() {
-         beforeLoad();
-         parseRootAnnotation(this.xsType);
-    }
-    
-    /**
-     * DOC HSHU Comment method "beforeLoad".
-     * 
-     */
-    private void beforeLoad() {
-        //prepare
-        labelMap=new HashMap<String, String>();
-        orderValue=null;
+        beforeLoad();
+        parseRootAnnotation(this.xsType);
+        if (this.xsType.isComplexType())
+            traverseXSType(this.xsType.asComplexType().getContentType().asParticle(), "/" + this.xsType.getName()); //$NON-NLS-1$
     }
 
-    /**
-     * DOC HSHU Comment method "parseRootAnnotation".
-     * @param xsType
-     */
+    private void beforeLoad() {
+        labelMap = new HashMap<String, String>();
+        foreignKeyMap = new HashMap<String, String>();
+        orderValue = null;
+    }
+
+    private void traverseXSType(XSParticle e, String currentXPath) {
+        XSParticle[] particles = e.getTerm().asModelGroup().getChildren();
+        for (XSParticle p : particles) {
+            XSTerm pterm = p.getTerm();
+            if (pterm.isElementDecl()) {
+                XSElementDecl el = pterm.asElementDecl();
+                parseAnnotation(el, currentXPath + "/" + el.getName()); //$NON-NLS-1$
+            } else {
+                traverseXSType(p, currentXPath);
+            }
+        }
+    }
+
+    private void parseAnnotation(XSElementDecl e, String currentXPath) {
+        if (e.getAnnotation() != null && e.getAnnotation().getAnnotation() != null) {
+            Element annotations = (Element) e.getAnnotation().getAnnotation();
+            NodeList annotList = annotations.getChildNodes();
+            for (int k = 0; k < annotList.getLength(); k++) {
+                if ("appinfo".equals(annotList.item(k).getLocalName())) { //$NON-NLS-1$
+                    Node source = annotList.item(k).getAttributes().getNamedItem("source"); //$NON-NLS-1$
+                    if (source == null)
+                        continue;
+                    String appinfoSource = source.getNodeValue();
+                    if (annotList.item(k) != null && annotList.item(k).getFirstChild() != null) {
+                        String appinfoSourceValue = annotList.item(k).getFirstChild().getNodeValue();
+                        if (appinfoSource.equals("X_ForeignKey")) { //$NON-NLS-1$
+                            foreignKeyMap.put(currentXPath, appinfoSourceValue);
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+
     private void parseRootAnnotation(XSType xsType) {
         if (xsType.getAnnotation() != null && xsType.getAnnotation().getAnnotation() != null) {
             Element annotations = (Element) xsType.getAnnotation().getAnnotation();
@@ -97,8 +127,8 @@ public class ReusableType {
                         if (appinfoSource.contains("X_Label")) {//$NON-NLS-1$
                             this.labelMap.put(getLangFromLabelAnnotation(appinfoSource), appinfoSourceValue);
                         } else if (appinfoSource.equals("X_Order_Value")) {//$NON-NLS-1$
-                            this.orderValue=appinfoSourceValue;
-                        } 
+                            this.orderValue = appinfoSourceValue;
+                        }
                     }
 
                 }
@@ -106,31 +136,21 @@ public class ReusableType {
         }
     }
 
-    /**
-     * DOC HSHU Comment method "getLangFromLabelAnnotation".
-     * @param label
-     * @return
-     */
     private String getLangFromLabelAnnotation(String label) {
-        String format="X_Label_(.+)";//$NON-NLS-1$
+        String format = "X_Label_(.+)";//$NON-NLS-1$
         String lang = getLangFromAnnotation(label, format);
         return lang;
     }
-    
-    /**
-     * DOC HSHU Comment method "getLangFromAnnotation".
-     * @param label
-     * @param format
-     * @return
-     */
+
     private String getLangFromAnnotation(String label, String format) {
-        String lang="EN";//$NON-NLS-1$
+        String lang = "EN";//$NON-NLS-1$
         Pattern p = Pattern.compile(format);
         Matcher matcher = p.matcher(label);
-        while(matcher.find()){
-            lang=matcher.group(1);
+        while (matcher.find()) {
+            lang = matcher.group(1);
         }
-        if(lang!=null)lang=lang.toLowerCase();
+        if (lang != null)
+            lang = lang.toLowerCase();
         return lang;
     }
 
@@ -141,7 +161,7 @@ public class ReusableType {
     public String getParentName() {
         return parentName;
     }
-    
+
     public boolean isAbstract() {
         return isAbstract;
     }
@@ -149,11 +169,11 @@ public class ReusableType {
     public void setAbstract(boolean isAbstract) {
         this.isAbstract = isAbstract;
     }
-    
+
     public String getOrderValue() {
         return orderValue;
     }
-   
+
     public Map<String, String> getLabelMap() {
         return labelMap;
     }
@@ -213,6 +233,14 @@ public class ReusableType {
     @Override
     public String toString() {
         return "[name=" + name + "]";//$NON-NLS-1$ //$NON-NLS-2$
+    }
+
+    public Map<String, String> getForeignKeyMap() {
+        return foreignKeyMap;
+    }
+
+    public void setForeignKeyMap(Map<String, String> foreignKeyMap) {
+        this.foreignKeyMap = foreignKeyMap;
     }
 
 }
