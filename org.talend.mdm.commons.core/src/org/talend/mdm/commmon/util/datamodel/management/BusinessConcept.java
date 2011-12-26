@@ -13,7 +13,10 @@
 package org.talend.mdm.commmon.util.datamodel.management;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -30,15 +33,15 @@ public class BusinessConcept {
 
     private static final boolean Lazy_Load = true;
 
-    public static final String APPINFO_X_HIDE = "X_Hide";
+    public static final String APPINFO_X_HIDE = "X_Hide"; //$NON-NLS-1$
 
-    public static final String APPINFO_X_WRITE = "X_Write";
+    public static final String APPINFO_X_WRITE = "X_Write"; //$NON-NLS-1$
 
-    public static final String APPINFO_X_DEFAULT_VALUE_RULE = "X_Default_Value_Rule";
+    public static final String APPINFO_X_DEFAULT_VALUE_RULE = "X_Default_Value_Rule"; //$NON-NLS-1$
 
-    public static final String APPINFO_X_VISIBLE_RULE = "X_Visible_Rule";
+    public static final String APPINFO_X_VISIBLE_RULE = "X_Visible_Rule"; //$NON-NLS-1$
 
-    public static final String APPINFO_X_FOREIGNKEY = "X_ForeignKey";
+    public static final String APPINFO_X_FOREIGNKEY = "X_ForeignKey"; //$NON-NLS-1$
 
     private XSElementDecl e;
 
@@ -51,6 +54,14 @@ public class BusinessConcept {
     private Map<String, String> visibleRulesMap;
 
     private Map<String, String> foreignKeyMap;
+
+    private Map<String, String> inheritanceForeignKeyMap;
+
+    private List<ReusableType> reuseTypeList;
+
+    private Set<String> parentTypeNameSet;
+
+    private Map<String, ReusableType> subReuseTypeMap;
 
     // TODO: translate it from technique to business logic
     // annotations{label,access rules,foreign keys,workflow,schematron,lookup fields...}
@@ -83,7 +94,23 @@ public class BusinessConcept {
      */
     public void load() {
         beforeLoad();
-        travelXSElement(getE(), "/" + getName());
+        travelXSElement(getE(), "/" + getName()); //$NON-NLS-1$
+        if (subReuseTypeMap.size() > 0) {
+            Set<String> keySet = subReuseTypeMap.keySet();
+            for (String key : keySet) {
+                ReusableType reuseType = subReuseTypeMap.get(key);
+                Map<String, String> fkMap = reuseType.getForeignKeyMap();
+                if (fkMap.size() > 0) {
+                    Set<String> fkKeySet = fkMap.keySet();
+                    for (String str : fkKeySet) {
+                        String fk = fkMap.get(str);
+                        String fkWithoutName = str.replaceFirst("/" + reuseType.getName(), ""); //$NON-NLS-1$//$NON-NLS-2$
+                        String pathWithoutName = key.replaceFirst(reuseType.getName() + ":", ""); //$NON-NLS-1$//$NON-NLS-2$
+                        inheritanceForeignKeyMap.put(pathWithoutName + fkWithoutName, fk);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -95,6 +122,8 @@ public class BusinessConcept {
         defaultValueRulesMap = new HashMap<String, String>();
         visibleRulesMap = new HashMap<String, String>();
         foreignKeyMap = new HashMap<String, String>();
+        inheritanceForeignKeyMap = new HashMap<String, String>();
+        subReuseTypeMap = new HashMap<String, ReusableType>();
     }
 
     public Map<String, String> getDefaultValueRulesMap() {
@@ -109,6 +138,22 @@ public class BusinessConcept {
         return foreignKeyMap;
     }
 
+    private void setSubReuseType(String typeName, String currentXPath) {
+        if (typeName == null)
+            return;
+        if (!parentTypeNameSet.contains(typeName))
+            return;
+
+        for (ReusableType reuseType : reuseTypeList) {
+            if (reuseType.getParentName().equalsIgnoreCase(typeName)) {
+                subReuseTypeMap.put(reuseType.getName() + ":" + currentXPath, reuseType); //$NON-NLS-1$
+                if (parentTypeNameSet.contains(reuseType.getName())) {
+                    setSubReuseType(reuseType.getName(), currentXPath);
+                }
+            }
+        }
+    }
+
     /**
      * DOC HSHU Comment method "travelXSElement". go through XSElement
      * 
@@ -117,10 +162,10 @@ public class BusinessConcept {
      */
     private void travelXSElement(XSElementDecl e, String currentXPath) {
         if (e != null) {
-
             parseAnnotation(currentXPath, e);
 
             if (e.getType().isComplexType()) {
+                setSubReuseType(e.getType().getName(), currentXPath);
                 XSModelGroup group = e.getType().asComplexType().getContentType().asParticle().getTerm().asModelGroup();
                 if (group != null) {
                     XSParticle[] subParticles = group.getChildren();
@@ -144,7 +189,7 @@ public class BusinessConcept {
             }
         } else if (xsParticle.getTerm().asElementDecl() != null) {
             XSElementDecl subElement = xsParticle.getTerm().asElementDecl();
-            travelXSElement(subElement, currentXPath + "/" + subElement.getName());
+            travelXSElement(subElement, currentXPath + "/" + subElement.getName()); //$NON-NLS-1$
         }
     }
 
@@ -153,8 +198,8 @@ public class BusinessConcept {
             Element annotations = (Element) e.getAnnotation().getAnnotation();
             NodeList annotList = annotations.getChildNodes();
             for (int k = 0; k < annotList.getLength(); k++) {
-                if ("appinfo".equals(annotList.item(k).getLocalName())) {
-                    Node source = annotList.item(k).getAttributes().getNamedItem("source");
+                if ("appinfo".equals(annotList.item(k).getLocalName())) { //$NON-NLS-1$
+                    Node source = annotList.item(k).getAttributes().getNamedItem("source"); //$NON-NLS-1$
                     if (source == null)
                         continue;
                     String appinfoSource = source.getNodeValue();
@@ -178,7 +223,29 @@ public class BusinessConcept {
 
     @Override
     public String toString() {
-        return "BusinessConcept [name=" + name + "]";
+        return "BusinessConcept [name=" + name + "]"; //$NON-NLS-1$//$NON-NLS-2$
     }
 
+    public Map<String, String> getInheritanceForeignKeyMap() {
+        return inheritanceForeignKeyMap;
+    }
+
+    public void setInheritanceForeignKeyMap(Map<String, String> inheritanceForeignKeyMap) {
+        this.inheritanceForeignKeyMap = inheritanceForeignKeyMap;
+    }
+
+    public List<ReusableType> getReuseTypeList() {
+        return reuseTypeList;
+    }
+
+    public void setReuseTypeList(List<ReusableType> reuseTypeList) {
+        this.reuseTypeList = reuseTypeList;
+        parentTypeNameSet = new HashSet<String>();
+        if (reuseTypeList != null) {
+            for (ReusableType type : reuseTypeList) {
+                if (!type.getParentName().equalsIgnoreCase("anyType")) //$NON-NLS-1$
+                    parentTypeNameSet.add(type.getParentName());
+            }
+        }
+    }
 }
