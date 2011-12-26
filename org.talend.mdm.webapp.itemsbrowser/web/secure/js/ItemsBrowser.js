@@ -4,7 +4,8 @@ var atuoValidationFlag = 0;
 var validatinHistory = new Ext.util.MixedCollection();
 
 loadResource("/core/secure/yui-2.4.0/build/treeview/treeview.js", "YAHOO.widget.TreeView", function(){
-	loadResource("/core/secure/yui-2.4.0/build/treeview/assets/treeview.css","");
+loadResource("/core/secure/yui-2.4.0/build/treeview/assets/treeview.css","");
+loadResource("/core/secure/ext-2.2/source/locale/ext-lang-fr.js","");
 
 amalto.itemsbrowser.ItemsBrowser = function() {
 
@@ -20,7 +21,17 @@ amalto.itemsbrowser.ItemsBrowser = function() {
     /***************************************************************************
      * Localization
      **************************************************************************/
-
+    
+    var CONCEPT_NOT_EXIST = {
+            'fr' : 'L\'entit\u00e9 n\'existe pas.',
+            'en' : 'The concept does not exist.'
+    		
+    };
+    var WARNING = {
+            'fr' : 'Avertissement',
+            'en' : 'Warning'
+    };
+    
     var MSG_LOADING = {
         'fr' : 'Chargement...',
         'en' : 'Loading...'
@@ -3396,8 +3407,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
             return;
         }       
         ItemsBrowserInterface.saveItem(itemPK, dataObject, newItem[treeIndex],
-                treeIndex, language, {
-                    callback : function(result) {
+                treeIndex, language, 
+                     function(result) {
                         amalto.core.ready(result.description);
                         if (result.status == 2) { // unchanged                        	
                             amalto.core.ready(ALERT_NO_CHANGE[language]);
@@ -3460,7 +3471,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         }
                         amalto.core.ready();
                     }
-                });
+                );
     }
 
     function pickOutISOMessage(message){
@@ -6016,7 +6027,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
             dataObject = dataObject.split("[")[0];
         }
         if (itemPK == "")
-            Ext.Msg.alert("Warning", "The concept does not exist.");
+            Ext.Msg.alert(WARNING[language], CONCEPT_NOT_EXIST[language]);
         else {
             var idsPk = [ids];
             var parentLink = [];
