@@ -4646,6 +4646,21 @@ public class ItemsBrowserDWR {
                 }
             }
         }
+        
+        if(xpath == null){
+            Map<String, String> inheritanceForeignKeyMap = businessConcept.getInheritanceForeignKeyMap();
+            if(inheritanceForeignKeyMap.size() > 0){
+                Set<String> keySet = inheritanceForeignKeyMap.keySet();
+                for (String path : keySet) {
+                    String dataObjectPath = inheritanceForeignKeyMap.get(path);
+                    if (dataObjectPath.indexOf(dataObject) != -1) {
+                        xpath = path.substring(1);
+                        break;
+                    }
+                }
+            }
+        }
+        
         StringBuilder sb = new StringBuilder();
         sb.append(keys);
         sb.append("$");//$NON-NLS-1$
