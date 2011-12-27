@@ -19,8 +19,6 @@ import org.talend.mdm.webapp.browserecords.server.defaultrule.DefVRule;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
-import com.amalto.webapp.core.util.XmlUtil;
-
 @SuppressWarnings("nls")
 public class XSLTUtilTest extends TestCase {
 
@@ -52,7 +50,6 @@ public class XSLTUtilTest extends TestCase {
         ViewBean viewBean = new ViewBean();
         viewBean.setBindingEntityModel(entityModel);
         String language = "en";
-        org.w3c.dom.Document doc = defVRule.getDefaultXML(viewBean, language);
-        return XmlUtil.parseDocument(doc);
+        return null;
     }
 }

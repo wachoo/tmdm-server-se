@@ -77,7 +77,6 @@ import org.talend.mdm.webapp.browserecords.server.bizhelpers.ItemHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.RoleHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
 import org.talend.mdm.webapp.browserecords.server.defaultrule.DefVRule;
-import org.talend.mdm.webapp.browserecords.server.defaultrule.XSLTUtil;
 import org.talend.mdm.webapp.browserecords.server.displayrule.DisplayRule;
 import org.talend.mdm.webapp.browserecords.server.displayrule.DisplayRulesUtil;
 import org.talend.mdm.webapp.browserecords.server.provider.DefaultSmartViewProvider;
@@ -1072,9 +1071,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    /**
-     * ****************************************************************** Bookmark management
-     *********************************************************************/
     public boolean isExistCriteria(String dataObjectLabel, String id) throws ServiceException {
         try {
             WSItemPK wsItemPK = new WSItemPK();
@@ -1187,23 +1183,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return idList.toArray(new String[idList.size()]);
     }
 
-    private static List<String> extractIdToList(String ids) {
-        List<String> idList = new ArrayList<String>();
-        Matcher matcher = extractIdPattern.matcher(ids);
-        boolean hasMatchedOnce = false;
-        while (matcher.find()) {
-            String id = matcher.group();
-            idList.add(id);
-            hasMatchedOnce = true;
-        }
-
-        if (!hasMatchedOnce) {
-            throw new IllegalArgumentException(MESSAGES.getMessage("label_exception_id_malform", ids)); //$NON-NLS-1$
-        }
-
-        return idList;
-    }
-
     /**
      * @param ids Expect a id like "value0.value1.value2"
      * @return Returns an array with ["value0", "value1", "value2"]
@@ -1299,13 +1278,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     private static String persistentUpdateReport(String xml2, boolean routeAfterSaving) throws Exception {
         if (xml2 == null)
             return "OK";//$NON-NLS-1$
-
         WSItemPK itemPK = CommonUtil.getPort().putItem(
                 new WSPutItem(new WSDataClusterPK("UpdateReport"), xml2, new WSDataModelPK("UpdateReport"), false)); //$NON-NLS-1$ //$NON-NLS-2$
-
         if (routeAfterSaving)
             CommonUtil.getPort().routeItemV2(new WSRouteItemV2(itemPK));
-
         return "OK";//$NON-NLS-1$
     }
 
@@ -1361,26 +1337,25 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
         EntityModel entity = viewBean.getBindingEntityModel();
         Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
-        ItemNodeModel itemModel;
+        ItemNodeModel itemModel = null;
         try {
-
             DefVRule dfRule = new DefVRule(metaDataTypes);
             TypeModel typeModel = metaDataTypes.get(concept);
             Document doc = dfRule.getSubXML(typeModel, null, language);
             org.dom4j.Document doc4j = XmlUtil.parseDocument(doc);
-            XSLTUtil util = new XSLTUtil(metaDataTypes);
-            List<TypeModel> hasBeenProcessed = util.orderProcess(doc4j);
-
+            List<TypeModel> hasBeenProcessed = dfRule.orderProcess(doc4j);
             for (TypeModel tm : hasBeenProcessed) {
-                util.setDefaultValue(tm.getXpath(), concept, doc4j, tm.getDefaultValueExpression());
+                dfRule.setDefaultValue(tm.getXpath(), concept, doc4j, tm.getDefaultValueExpression());
             }
-
             Document resultDoc = dfRule.parseDocument(doc4j);
             Map<String, Integer> multiNodeIndex = new HashMap<String, Integer>();
             StringBuffer foreignKeyDeleteMessage = new StringBuffer();
             Element root = resultDoc.getDocumentElement();
             itemModel = builderNode(multiNodeIndex, root, entity, "", "", false, foreignKeyDeleteMessage, language); //$NON-NLS-1$ //$NON-NLS-2$
             DynamicLabelUtil.getDynamicLabel(doc4j, "", itemModel, metaDataTypes, language); //$NON-NLS-1$
+        } catch (ServiceException e) {
+            LOG.error(e.getMessage(), e);
+            throw e;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getMessage());
@@ -1388,13 +1363,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return itemModel;
     }
 
-
     public ItemNodeModel createSubItemNodeModel(ViewBean viewBean, String xml, String typePath, String contextPath,
             String realType, String language) throws ServiceException {
         EntityModel entity = viewBean.getBindingEntityModel();
         String concept = entity.getConceptName();
         Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
-        ItemNodeModel itemModel;
+        ItemNodeModel itemModel = null;
         try {
             DefVRule dfRule = new DefVRule(metaDataTypes);
             TypeModel typeModel = metaDataTypes.get(typePath);
@@ -1402,13 +1376,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             org.dom4j.Document subDoc = XmlUtil.parseDocument(dfRule.getSubXML(typeModel, realType, language));
             org.dom4j.Document doc4j = dfRule.mergeDoc(mainDoc, subDoc, contextPath);
 
-            XSLTUtil util = new XSLTUtil(metaDataTypes);
-            List<TypeModel> hasBeenProcessed = util.orderProcess(doc4j);
-
+            List<TypeModel> hasBeenProcessed = dfRule.orderProcess(doc4j);
             for (TypeModel tm : hasBeenProcessed) {
-                util.setDefaultValue(tm.getXpath(), concept, doc4j, tm.getDefaultValueExpression());
+                dfRule.setDefaultValue(tm.getXpath(), concept, doc4j, tm.getDefaultValueExpression());
             }
-
             Document resultDoc = dfRule.getSubDoc(doc4j, contextPath);
             Map<String, Integer> multiNodeIndex = new HashMap<String, Integer>();
             StringBuffer foreignKeyDeleteMessage = new StringBuffer();
@@ -1416,6 +1387,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             String baseXpath = contextPath.substring(0, contextPath.lastIndexOf('/'));
             itemModel = builderNode(multiNodeIndex, root, entity, baseXpath, "", true, foreignKeyDeleteMessage, language); //$NON-NLS-1$
             DynamicLabelUtil.getDynamicLabel(doc4j, baseXpath, itemModel, metaDataTypes, language);
+        } catch (ServiceException e) {
+            LOG.error(e.getMessage(), e);
+            throw e;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getMessage());
@@ -1676,24 +1650,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.talend.mdm.webapp.browserecords.client.BrowseRecordsService#saveItem(org.talend.mdm.webapp.browserecords.
-     * shared.ViewBean, java.lang.String, java.lang.String, boolean, java.lang.String)
-     */
     public ItemResult saveItem(ViewBean viewBean, String ids, String xml, boolean isCreate, String language)
             throws ServiceException {
         EntityModel entityModel = viewBean.getBindingEntityModel();
         String concept = entityModel.getConceptName();
-        // try {
-        // DefVRule dfRule = new DefVRule(entityModel.getMetaDataTypes());
-        // xml = dfRule.setDefaultValue(xml, language);
-        // } catch (Exception e) {
-        // LOG.error(e.getMessage(), e);
-        // throw new ServiceException(e.getLocalizedMessage());
-        // }
         return saveItem(concept, ids, xml, isCreate, language);
     }
     
@@ -1752,9 +1712,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    /**
-     * get ForeignKey Model by concept and ids
-     */
     public ForeignKeyModel getForeignKeyModel(String concept, String ids, String language) throws ServiceException {
         try {
             String viewPk = "Browse_items_" + concept; //$NON-NLS-1$
@@ -1766,9 +1723,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 itemBean.setSmartViewMode(ItemBean.SMARTMODE);
             else if (checkSmartViewExistsByOpt(concept, language))
                 itemBean.setSmartViewMode(ItemBean.PERSOMODE);
-
             ItemNodeModel nodeModel = getItemNodeModel(itemBean, viewBean.getBindingEntityModel(), language);
-
             return new ForeignKeyModel(viewBean, itemBean, nodeModel);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -1780,12 +1735,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         List<ItemBaseModel> processList = new ArrayList<ItemBaseModel>();
         if (businessConcept == null || language == null)
             return processList;
-
         try {
             String model = this.getCurrentDataModel();
             String[] businessConcepts = Util.getPort().getBusinessConcepts(new WSGetBusinessConcepts(new WSDataModelPK(model)))
                     .getStrings();
-
             WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();//$NON-NLS-1$
             for (int i = 0; i < wst.length; i++) {
                 if (isMyRunableProcess(wst[i].getPk(), businessConcept, businessConcepts)) {
@@ -1801,14 +1754,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                             name = description;
                         }
                     }
-
                     ItemBaseModel itemBaseModel = new ItemBaseModel();
                     itemBaseModel.set("key", wst[i].getPk()); //$NON-NLS-1$
                     itemBaseModel.set("value", name); //$NON-NLS-1$
                     processList.add(itemBaseModel);
                 }
             }
-
             return processList;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -2010,8 +1961,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    /**************************************************************************************/
-
     /**
      ********************************* Registry style****************************************
      * 
@@ -2046,7 +1995,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         if ((null != view.getTransformerPK() && view.getTransformerPK().length() != 0) && view.getIsTransformerActive().is_true()) {
             String transformerPK = view.getTransformerPK();
             // FIXME: consider about revision
-            // String itemPK = dataClusterPK + "." + concept + "." + Util.joinStrings(ids, ".");
             String passToProcessContent = wsItem.getContent();
 
             WSTypedContent typedContent = new WSTypedContent(null, new WSByteArray(passToProcessContent.getBytes("UTF-8")), //$NON-NLS-1$
@@ -2149,8 +2097,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
         }
     }
-
-    /**************************************************************************************/
 
     public ItemBean getItemBeanById(String concept, String[] ids, String language) throws ServiceException {
         try {
