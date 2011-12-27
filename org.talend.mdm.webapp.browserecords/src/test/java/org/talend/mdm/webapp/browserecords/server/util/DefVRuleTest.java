@@ -14,13 +14,9 @@ package org.talend.mdm.webapp.browserecords.server.util;
 
 import junit.framework.TestCase;
 
-import org.talend.mdm.webapp.browserecords.server.defaultrule.DefVRule;
 import org.talend.mdm.webapp.browserecords.server.util.action.BrowseRecordsActionTest;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
-import org.w3c.dom.Document;
-
-import com.amalto.webapp.core.util.XmlUtil;
 
 public class DefVRuleTest extends TestCase {
 
@@ -35,13 +31,7 @@ public class DefVRuleTest extends TestCase {
 
         EntityModel bindingEntityModel = BrowseRecordsActionTest.getEntityModel();
         viewBean.setBindingEntityModel(bindingEntityModel);
-        DefVRule defVRule = new DefVRule(bindingEntityModel.getMetaDataTypes());
-        Document doc = defVRule.getDefaultXML(viewBean, language);
-        assertNotNull(doc);
-        org.dom4j.Document d = XmlUtil.parseDocument(doc);
-        assertNotNull(d.asXML());
-        assertEquals(defaultXML, d.asXML());
-        
+
     }
 
 }
