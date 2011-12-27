@@ -83,19 +83,11 @@ function renderTimeline(jsonData, initDate){
     var timeLine = Timeline.create(tl_el, bandInfos, Timeline.HORIZONTAL);    
     eventSource1.loadJSON(jsonData, document.location.href);
     
-    timeLine.getBand(0).addOnScrollListener(function(band) {  
-    	 
-    });
-    
     timeLine.getBand(1).addOnScrollListener(function(band) {    	
 		startTime = band.getMinVisibleDate();
 		endTime = band.getMaxVisibleDate();
 	    tempTime = band.getCenterVisibleDate();
 	    setTimeout('loadDate()',200)  
-    });
-    
-    timeLine.getBand(2).addOnScrollListener(function(band) {    	
-       
     });
 }
 
