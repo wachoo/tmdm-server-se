@@ -58,29 +58,16 @@ public class XmlUtil {
      * @throws Exception
      */
     public static Document styleDocument(Document document, String stylesheet) throws Exception {
-
-        // load the transformer using JAXP
-        // Set the TransformerFactory system property.
-        // Note: For more flexibility, load properties from a properties file.
-        //        String key = "javax.xml.transform.TransformerFactory"; //$NON-NLS-1$
-        //        String value = "net.sf.saxon.TransformerFactoryImpl"; //$NON-NLS-1$
-        // Properties props = System.getProperties();
-        // props.put(key, value);
-        // System.setProperties(props);
         
         TransformerFactory factory = TransformerFactory.newInstance(
                 "net.sf.saxon.TransformerFactoryImpl", Thread.currentThread().getContextClassLoader()); //$NON-NLS-1$
-
         Transformer transformer = factory.newTransformer(new StreamSource(new StringReader(stylesheet)));
-
         // now lets style the given document
         DocumentSource source = new DocumentSource(document);
         DocumentResult result = new DocumentResult();
         transformer.transform(source, result);
-
         // return the transformed document
         Document transformedDoc = result.getDocument();
-
         return transformedDoc;
     }
     
@@ -89,7 +76,7 @@ public class XmlUtil {
      * @param xpath
      */
     public static String normalizeXpath(String xpath) {
-        if (xpath.startsWith("/"))
+        if (xpath.startsWith("/")) //$NON-NLS-1$
             xpath = xpath.substring(1);
         return xpath;
     }
@@ -112,10 +99,10 @@ public class XmlUtil {
         if (value == null)
             return null;
         boolean isEscaped=false;
-        if(value.indexOf("&quot;")!=-1||
-           value.indexOf("&amp;")!=-1||
-           value.indexOf("&lt;")!=-1||
-           value.indexOf("&gt;")!=-1) isEscaped =true;
+        if (value.indexOf("&quot;") != -1 || //$NON-NLS-1$
+                value.indexOf("&amp;") != -1 || //$NON-NLS-1$
+                value.indexOf("&lt;") != -1 || //$NON-NLS-1$
+                value.indexOf("&gt;") != -1)isEscaped = true; //$NON-NLS-1$
         
         if(!isEscaped)value=StringEscapeUtils.escapeXml(value);
         return value;
