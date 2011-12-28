@@ -182,10 +182,13 @@ public class TreeDetailGridFieldCreator {
 
         if (node.isKey() && hasValue && ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {
             field.setEnabled(true);
+            field.setReadOnly(false);
         } else if (node.isKey() && hasValue && ItemDetailToolBar.CREATE_OPERATION.equals(operation)) {
             field.setEnabled(true);
+            field.setReadOnly(false);
         } else if (node.isKey() && hasValue) {
             field.setEnabled(false);
+            field.setReadOnly(true);
         }
 
         // facet set

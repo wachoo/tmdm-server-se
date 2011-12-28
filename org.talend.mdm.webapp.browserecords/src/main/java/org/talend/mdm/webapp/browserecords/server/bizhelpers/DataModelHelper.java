@@ -313,12 +313,12 @@ public class DataModelHelper {
     }
 
     private static void parseAnnotation(String currentXPath, XSElementDecl e, TypeModel typeModel, List<String> roles) {
+        boolean writable = false;
+        ArrayList<String> pkInfoList = new ArrayList<String>();
+        ArrayList<String> fkInfoList = new ArrayList<String>();
         if (e.getAnnotation() != null && e.getAnnotation().getAnnotation() != null) {
             Element annotations = (Element) e.getAnnotation().getAnnotation();
             NodeList annotList = annotations.getChildNodes();
-            ArrayList<String> pkInfoList = new ArrayList<String>();
-            ArrayList<String> fkInfoList = new ArrayList<String>();
-            boolean writable = false;
             for (int k = 0; k < annotList.getLength(); k++) {
                 if ("appinfo".equals(annotList.item(k).getLocalName())) {//$NON-NLS-1$
                     Node source = annotList.item(k).getAttributes().getNamedItem("source");//$NON-NLS-1$
@@ -382,14 +382,13 @@ public class DataModelHelper {
                     }
                 }
             }// end for
-            if (!Util.isEnterprise())
-                typeModel.setReadOnly(false);
-            else
-                typeModel.setReadOnly(!writable);
-
-            typeModel.setForeignKeyInfo(fkInfoList);
-            typeModel.setPrimaryKeyInfo(pkInfoList);
         }
+        if (!Util.isEnterprise())
+            typeModel.setReadOnly(false);
+        else
+            typeModel.setReadOnly(!writable);
+        typeModel.setForeignKeyInfo(fkInfoList);
+        typeModel.setPrimaryKeyInfo(pkInfoList);
     }
 
     /**

@@ -122,21 +122,30 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         tr.appendChild(relationTD);
 
         wrap.appendChild(foreignDiv);
-
         setElement(wrap.dom, target, index);
-        if (this.readOnly) {
-            relationTD.appendChild(relationFKBtn.getElement());
-        } else {
-            selectTD.appendChild(selectFKBtn.getElement());
-            addTD.appendChild(addFKBtn.getElement());
-            cleanTD.appendChild(cleanFKBtn.getElement());
-            relationTD.appendChild(relationFKBtn.getElement());
-        }
+
+        selectTD.appendChild(selectFKBtn.getElement());
+        addTD.appendChild(addFKBtn.getElement());
+        cleanTD.appendChild(cleanFKBtn.getElement());
+        relationTD.appendChild(relationFKBtn.getElement());
+
+        updateCtrlButton();
 
         addListener();
-
         this.setAutoWidth(true);
         super.onRender(target, index);
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        super.setReadOnly(readOnly);
+        updateCtrlButton();
+    }
+
+    private void updateCtrlButton() {
+        selectFKBtn.setVisible(!readOnly);
+        addFKBtn.setVisible(!readOnly);
+        cleanFKBtn.setVisible(!readOnly);
+        relationFKBtn.setVisible(true);
     }
 
     private void addListener() {
