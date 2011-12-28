@@ -206,12 +206,29 @@ public class ForeignKeyHelper {
                 }
                 String fkWhere = initxpathForeignKey + "/../* CONTAINS " + value; //$NON-NLS-1$
                 if (xpathInfoForeignKey.trim().length() > 0) {
+                    StringBuffer ids = new StringBuffer();
+                    String realXpathForeignKey = null; // In studio, ForeignKey = ConceptName, but not ConceptName/Id
+                    if (xpathForeignKey.indexOf("/") == -1) { //$NON-NLS-1$
+                        String[] fks = Util.getBusinessConceptKeys(conceptName);
+                        if (fks != null && fks.length > 0) {
+                            realXpathForeignKey = fks[0];
+                            for (int i = 0; i < fks.length; i++) {
+                                String fk = fks[i];
+                                ids.append(fk + " CONTAINS " + value); //$NON-NLS-1$
+                                if (i != fks.length - 1)
+                                    ids.append(" OR "); //$NON-NLS-1$
+                            }
+                        }
+                    }
                     StringBuffer sb = new StringBuffer();
                     for (String fkInfo : xpathInfos) {
-                        sb.append(fkInfo.startsWith(".") ? XpathUtil.convertAbsolutePath(xpathForeignKey, fkInfo) : fkInfo + " CONTAINS " + value); //$NON-NLS-1$ //$NON-NLS-2$
+                        sb.append(fkInfo.startsWith(".") ? XpathUtil.convertAbsolutePath((realXpathForeignKey != null && realXpathForeignKey.trim().length() > 0) ? realXpathForeignKey : xpathForeignKey, fkInfo) : fkInfo + " CONTAINS " + value); //$NON-NLS-1$ //$NON-NLS-2$
                         sb.append(" OR "); //$NON-NLS-1$
                     }
-                    sb.append(xpathForeignKey + " CONTAINS " + value); //$NON-NLS-1$
+                    if (realXpathForeignKey != null)
+                        sb.append(ids.toString());
+                    else
+                        sb.append(xpathForeignKey + " CONTAINS " + value); //$NON-NLS-1$
                     fkWhere = sb.toString();
                 }
 

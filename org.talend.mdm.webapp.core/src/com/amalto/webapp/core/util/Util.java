@@ -62,6 +62,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.jxpath.AbstractFactory;
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.jxpath.Pointer;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.exolab.castor.types.Date;
@@ -90,11 +91,13 @@ import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.json.JSONArray;
 import com.amalto.webapp.core.json.JSONObject;
 import com.amalto.webapp.util.webservices.WSBase64KeyValue;
+import com.amalto.webapp.util.webservices.WSConceptKey;
 import com.amalto.webapp.util.webservices.WSConnectorResponseCode;
 import com.amalto.webapp.util.webservices.WSCount;
 import com.amalto.webapp.util.webservices.WSCountItemsByCustomFKFilters;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
+import com.amalto.webapp.util.webservices.WSGetBusinessConceptKey;
 import com.amalto.webapp.util.webservices.WSGetItem;
 import com.amalto.webapp.util.webservices.WSGetItemsByCustomFKFilters;
 import com.amalto.webapp.util.webservices.WSGetUniverse;
@@ -1351,12 +1354,29 @@ public class Util {
                     condition.add(whereItem);
                 String fkWhere = initXpathForeignKey + "/../* CONTAINS " + value; //$NON-NLS-1$
                 if (xpathInfoForeignKey.trim().length() > 0) {
+                	StringBuffer ids = new StringBuffer();
+                    String realXpathForeignKey = null; // In studio, ForeignKey = ConceptName, but not ConceptName/Id
+                    if (xpathForeignKey.indexOf("/") == -1) { //$NON-NLS-1$
+                        String[] fks = getBusinessConceptKeys(initXpathForeignKey);
+                        if (fks != null && fks.length > 0) {
+                            realXpathForeignKey = fks[0];
+                            for (int i = 0; i < fks.length; i++) {
+                                String fk = fks[i];
+                                ids.append(fk + " CONTAINS " + value); //$NON-NLS-1$
+                                if (i != fks.length - 1)
+                                    ids.append(" OR "); //$NON-NLS-1$
+                            }
+                        }
+                    }
                     StringBuffer sb = new StringBuffer();
                     for (String fkInfo : xpathInfos) {
-                        sb.append(fkInfo.startsWith(".") ? convertAbsolutePath(xpathForeignKey, fkInfo) : fkInfo + " CONTAINS " + value); //$NON-NLS-1$ //$NON-NLS-2$
+                        sb.append(fkInfo.startsWith(".") ? convertAbsolutePath((realXpathForeignKey != null && realXpathForeignKey.trim().length() > 0) ? realXpathForeignKey : xpathForeignKey, fkInfo) : fkInfo + " CONTAINS " + value); //$NON-NLS-1$ //$NON-NLS-2$
                         sb.append(" OR "); //$NON-NLS-1$
                     }
-                    sb.append(xpathForeignKey + " CONTAINS " + value); //$NON-NLS-1$
+                    if (realXpathForeignKey != null)
+                        sb.append(ids.toString());
+                    else
+                        sb.append(xpathForeignKey + " CONTAINS " + value); //$NON-NLS-1$
                     fkWhere = sb.toString();
                 }
                 WSWhereItem wc = buildWhereItems(fkWhere);
@@ -1858,5 +1878,23 @@ public class Util {
         sb.append(ops[ops.length - 1]);
 
         return sb.toString();
+    }
+    public static String[] getBusinessConceptKeys(String concept) throws Exception {
+        Configuration config = Configuration.getConfiguration();
+        String model = config.getModel();
+
+        WSConceptKey key = getPort().getBusinessConceptKey(new WSGetBusinessConceptKey(new WSDataModelPK(model), concept));
+        WSConceptKey copyKey = new WSConceptKey();
+        copyKey.setFields((String[]) ArrayUtils.clone(key.getFields()));
+        copyKey.setSelector(new String(key.getSelector()));
+
+        String[] keys = copyKey.getFields();
+        for (int i = 0; i < keys.length; i++) {
+            if (".".equals(key.getSelector())) //$NON-NLS-1$
+                keys[i] = concept + "/" + keys[i]; //$NON-NLS-1$ 
+            else
+                keys[i] = key.getSelector() + keys[i];
+        }
+        return keys;
     }
 }
