@@ -118,6 +118,29 @@ public class ItemsBrowserDWRTest extends TestCase {
         assertEquals(WSWhereOperator._CONTAINS, condition1.getOperator().getValue());
         assertEquals("Hats", condition1.getRightValueOrPath());
 
+        // 4. foreignKey = ProductFamily, foreignKeyInfo = ProductFamily/Name
+        xpathForeignKey = "ProductFamily"; // realForeignKey = ProductFamily/Id
+        xpathInfoForeignKey = "ProductFamily/Name";
+        whereItem = Mock_UtilForeignKeyWhereCondition(xpathForeignKey, xpathInfoForeignKey, value);
+        assertNotNull(whereItem);
+        assertNotNull(whereItem.getWhereOr());
+        assertNotNull(whereItem.getWhereOr().getWhereItems());
+        assertEquals(2, whereItem.getWhereOr().getWhereItems().length);
+
+        whereItem1 = whereItem.getWhereOr().getWhereItems()[0];
+        condition1 = whereItem1.getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0]
+                .getWhereCondition();
+        assertEquals("ProductFamily/Name", condition1.getLeftPath());
+        assertEquals(WSWhereOperator._CONTAINS, condition1.getOperator().getValue());
+        assertEquals("Hats", condition1.getRightValueOrPath());
+
+        whereItem2 = whereItem.getWhereOr().getWhereItems()[1];
+        condition2 = whereItem2.getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0]
+                .getWhereCondition();
+        assertEquals("ProductFamily/Id", condition2.getLeftPath());
+        assertEquals(WSWhereOperator._CONTAINS, condition2.getOperator().getValue());
+        assertEquals("Hats", condition2.getRightValueOrPath());
+
     }
 
     /**
@@ -135,14 +158,32 @@ public class ItemsBrowserDWRTest extends TestCase {
         fkInfos = xpathInfoForeignKey.split(",");
         String fkWhere = initXpathForeignKey + "/../* CONTAINS " + value; //$NON-NLS-1$
         if (xpathInfoForeignKey.trim().length() > 0) {
+            StringBuffer ids = new StringBuffer();
+            String realForeignKey = null;
+            if (xpathForeignKey.indexOf("/") == -1) { //$NON-NLS-1$
+                String[] fks = new String[] { "ProductFamily/Id" };
+                if (fks != null && fks.length > 0) {
+                    realForeignKey = fks[0];
+                    for (int i = 0; i < fks.length; i++) {
+                        String fk = fks[i];
+                        ids.append(fk + " CONTAINS " + value); //$NON-NLS-1$
+                        if (i != fks.length - 1)
+                            ids.append(" OR "); //$NON-NLS-1$
+                    }
+                }
+            }
             StringBuffer sb = new StringBuffer();
             for (String fkInfo : fkInfos) {
                 sb.append(fkInfo.startsWith(".") ? Util.convertAbsolutePath(xpathForeignKey, fkInfo) : fkInfo + " CONTAINS " + value); //$NON-NLS-1$ //$NON-NLS-2$
                 sb.append(" OR "); //$NON-NLS-1$
             }
-            sb.append(xpathForeignKey + " CONTAINS " + value); //$NON-NLS-1$
+            if (realForeignKey != null)
+                sb.append(ids.toString());
+            else
+                sb.append(xpathForeignKey + " CONTAINS " + value); //$NON-NLS-1$
             fkWhere = sb.toString();
         }
+
         return Util.buildWhereItems(fkWhere);
     }
 }
