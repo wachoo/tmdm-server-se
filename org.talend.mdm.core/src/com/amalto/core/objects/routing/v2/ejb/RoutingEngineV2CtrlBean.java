@@ -615,7 +615,7 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject {
 		
 		
 		//garbage collect considered dead routing orders
-		if (startTime-routingEngine.getLastDeadRoutingOrdersSweep()>routingEngine.getMaxExecutionTimeMillis()/2) {
+        if (startTime - routingEngine.getLastDeadRoutingOrdersSweep() > routingEngine.getMaxExecutionTimeMillis() / 2) {
 			//update the last run time
 			routingEngine.setLastDeadRoutingOrdersSweep(startTime);
 			//catch the max execution time
@@ -633,7 +633,8 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject {
 			//move the caught ones to error
 			if (routingOrders!=null) {
 				for (int i = 0; i < routingOrders.length; i++) {
-					String message = "Routing Order "+routingOrders[i].getAbstractRoutingOrderPOJOPK().getUniqueId()+" has exceeded the max execution time of "+maxExecutionTime+" seconds.";
+                    String message = "Routing Order " + routingOrders[i].getAbstractRoutingOrderPOJOPK().getUniqueId()
+                            + " has exceeded the max execution time of " + maxExecutionTime + " milliseconds.";
 			    	//Log
 					org.apache.log4j.Logger.getLogger(this.getClass()).error(message);
 					//move to FAILED
