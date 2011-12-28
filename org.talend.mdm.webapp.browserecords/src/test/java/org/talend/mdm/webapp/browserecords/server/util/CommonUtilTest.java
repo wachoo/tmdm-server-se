@@ -27,12 +27,11 @@ import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 
-@SuppressWarnings("nls")
 public class CommonUtilTest extends TestCase {
 
     public void testGetDefaultTreeModel() {
         try {
-            CommonUtil.getDefaultTreeModel(new SimpleTypeModel(), "en");
+            CommonUtil.getDefaultTreeModel(new SimpleTypeModel(), "en"); //$NON-NLS-1$
             fail();
         } catch (NullPointerException e) {
 
@@ -62,18 +61,18 @@ public class CommonUtilTest extends TestCase {
                 sb.append("/"); //$NON-NLS-1$
             sb.append(stack.pop());
         }
-        Assert.assertEquals("hello/peili/liang", sb.toString());
+        Assert.assertEquals("hello/peili/liang", sb.toString()); //$NON-NLS-1$
     }
 
 
     public void testGetRealPath() throws Exception {
         ItemNodeModel nodeModel = TestData.getModel();
         // 1. getPathWithIndex
-        List<String> xpathes = TestData.getXpathes("xpathes.properties");
+        List<String> xpathes = TestData.getXpathes("xpathes.properties"); //$NON-NLS-1$
         Iterator<String> iter = xpathes.iterator();
         assertPathWithIndex(nodeModel, iter);
         // 2. getRealTypePath
-        xpathes = TestData.getXpathes("realTypePathes.properties");
+        xpathes = TestData.getXpathes("realTypePathes.properties"); //$NON-NLS-1$
         iter = xpathes.iterator();
         assertRealTypePath(nodeModel, iter);
     }
@@ -105,9 +104,9 @@ public class CommonUtilTest extends TestCase {
     }
     
     public void test_polymorphismTypeXpathRegex() {
-        String xpath = "Person:Student/Name";
-        xpath = xpath.replaceAll(":\\w+", "");
-        assertEquals("Person/Name", xpath);
+        String xpath = "Person:Student/Name"; //$NON-NLS-1$
+        xpath = xpath.replaceAll(":\\w+", ""); //$NON-NLS-1$//$NON-NLS-2$
+        assertEquals("Person/Name", xpath); //$NON-NLS-1$
     }
 
 }
