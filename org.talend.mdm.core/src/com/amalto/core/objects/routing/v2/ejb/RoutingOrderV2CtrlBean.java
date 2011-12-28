@@ -169,7 +169,8 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
     	
     	//update timing flags
    		routingOrderPOJO.setTimeLastRunStarted(System.currentTimeMillis());
-   		putRoutingOrder(routingOrderPOJO); 
+        // here don't need store the routingorder ag!
+        // putRoutingOrder(routingOrderPOJO);
    		
    		//Now anything goes right or wrong, we clean up the routing order from the active queue
 		cleanUpRoutingOrder = true;
