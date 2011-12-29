@@ -1337,7 +1337,7 @@ public class Util {
         if (initXpathForeignKey.split("/").length == 1) { //$NON-NLS-1$
             // determine if we have xPath Infos: e.g. labels to display
             String[] xpathInfos = new String[1];
-            if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) { //$NON-NLS-1$
+            if (xpathInfoForeignKey.trim().length() != 0) {
                 xpathInfos = xpathInfoForeignKey.split(","); //$NON-NLS-1$
             } else {
                 xpathInfos[0] = initXpathForeignKey;
@@ -1361,8 +1361,7 @@ public class Util {
                         if (fks != null && fks.length > 0) {
                             realXpathForeignKey = fks[0];
                             for (int i = 0; i < fks.length; i++) {
-                                String fk = fks[i];
-                                ids.append(fk + " CONTAINS " + value); //$NON-NLS-1$
+                                ids.append(fks[i] + " CONTAINS " + value); //$NON-NLS-1$
                                 if (i != fks.length - 1)
                                     ids.append(" OR "); //$NON-NLS-1$
                             }
@@ -1370,7 +1369,10 @@ public class Util {
                     }
                     StringBuffer sb = new StringBuffer();
                     for (String fkInfo : xpathInfos) {
-                        sb.append(fkInfo.startsWith(".") ? convertAbsolutePath((realXpathForeignKey != null && realXpathForeignKey.trim().length() > 0) ? realXpathForeignKey : xpathForeignKey, fkInfo) : fkInfo + " CONTAINS " + value); //$NON-NLS-1$ //$NON-NLS-2$
+                        sb.append((fkInfo.startsWith(".") ? convertAbsolutePath( //$NON-NLS-1$
+                                (realXpathForeignKey != null && realXpathForeignKey.trim().length() > 0) ? realXpathForeignKey
+                                        : xpathForeignKey, fkInfo) : fkInfo)
+                                + " CONTAINS " + value); //$NON-NLS-1$
                         sb.append(" OR "); //$NON-NLS-1$
                     }
                     if (realXpathForeignKey != null)
