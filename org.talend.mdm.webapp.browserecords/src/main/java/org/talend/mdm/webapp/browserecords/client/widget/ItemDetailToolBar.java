@@ -184,7 +184,7 @@ public class ItemDetailToolBar extends ToolBar {
 
     private void initToolBar() {
         this.setHeight(TOOLBAR_HEIGHT + "px"); //$NON-NLS-1$
-        this.addStyleName("ItemDetailToolBar"); //$NON-NLS-1$    	
+        this.addStyleName("ItemDetailToolBar"); //$NON-NLS-1$       
 
         if (operation.equalsIgnoreCase(ItemDetailToolBar.VIEW_OPERATION)
                 || operation.equalsIgnoreCase(ItemDetailToolBar.PERSONALEVIEW_OPERATION)) {
@@ -199,13 +199,8 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private void initViewToolBar() {
-        if (this.readOnly) {
-            if (!operation.equalsIgnoreCase(ItemDetailToolBar.VIEW_OPERATION)) {
-                addPersonalViewButton();
-                this.add(new FillToolItem());
-            }
+        if (this.readOnly)
             this.addRelationButton();
-        }
         else {
             if (!operation.equalsIgnoreCase(ItemDetailToolBar.VIEW_OPERATION)) {
                 addPersonalViewButton();
@@ -680,12 +675,8 @@ public class ItemDetailToolBar extends ToolBar {
     }-*/;
 
     public void initSmartViewToolBar() {
-        if (this.readOnly) {
-            addGeneratedViewButton();
-            addSmartViewCombo();
-            this.add(new FillToolItem());
+        if (this.readOnly)
             this.addWorkFlosCombo();
-        }
         else {
             addGeneratedViewButton();
             addSeparator();
@@ -774,6 +765,7 @@ public class ItemDetailToolBar extends ToolBar {
 
         String regex = itemBean.getConcept() + "&" + Locale.getLanguage(); //$NON-NLS-1$
         service.getSmartViewList(regex, new SessionAwareAsyncCallback<List<ItemBaseModel>>() {
+
             public void onSuccess(List<ItemBaseModel> list) {
                 smartViewList.add(list);
                 String smartView = "Smart_view_"; //$NON-NLS-1$
@@ -785,6 +777,7 @@ public class ItemDetailToolBar extends ToolBar {
                     }
                 }
             }
+
         });
         add(smartViewCombo);
     }
@@ -820,7 +813,7 @@ public class ItemDetailToolBar extends ToolBar {
 
     private native boolean initJournal(String ids, String concept)/*-{
         $wnd.amalto.updatereport.UpdateReport
-        		.browseUpdateReportWithSearchCriteria(concept, ids, true);
+        .browseUpdateReportWithSearchCriteria(concept, ids, true);
         return true;
     }-*/;
 
@@ -829,7 +822,7 @@ public class ItemDetailToolBar extends ToolBar {
     private native boolean initSearchEntityPanel(String arrStr, String ids, String dataObject)/*-{
         var lineageEntities = arrStr.split(",");
         $wnd.amalto.itemsbrowser.ItemsBrowser.lineageItem(lineageEntities, ids,
-        		dataObject);
+        dataObject);
         return true;
     }-*/;
 
