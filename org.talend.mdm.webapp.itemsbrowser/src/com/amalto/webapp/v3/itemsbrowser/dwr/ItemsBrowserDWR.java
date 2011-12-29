@@ -1794,7 +1794,6 @@ public class ItemsBrowserDWR {
 
             int siblingIndex = getXpathIndex(idToXpath.get(siblingId));
 
-            // idToXpath.put(newId,siblingXpath+"["+id+"]");
             HashMap<String, UpdateReportItem> updatedPath;
             if (ctx.getSession().getAttribute("updatedPath" + docIndex) != null) { //$NON-NLS-1$
                 updatedPath = (HashMap<String, UpdateReportItem>) ctx.getSession().getAttribute("updatedPath" + docIndex); //$NON-NLS-1$
@@ -2108,10 +2107,10 @@ public class ItemsBrowserDWR {
                         updatedPath.remove(xpath1);
                         updatedPath.put(xpath, uri);
                     }
-                }// if(nodeIndex
+                }
 
-            }// if(xpath
-        }// while(keys.
+            }
+        }
     }
 
     /**
@@ -2160,11 +2159,11 @@ public class ItemsBrowserDWR {
                         }
 
                     }
-                }// if(nodeIndex
+                }
 
-            }// if(xpath
+            }
 
-        }// while(keys.
+        }
     }
 
     /**
@@ -2364,8 +2363,6 @@ public class ItemsBrowserDWR {
             Document bk = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex + "_backup"); //$NON-NLS-1$ //$NON-NLS-2$
 
             reFillXsdByXML(d, dataModelPK, concept, docIndex);
-            // added by lzhang, make sure there is no empty node which has DSP value
-            // d = filledByDspValue(dataModelPK, concept, d, docIndex);
 
             // filter item xml
             HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession().getAttribute(
@@ -2543,7 +2540,6 @@ public class ItemsBrowserDWR {
             List polymList = new ArrayList();
             for (Iterator<String> iterator = xpathToPolymType.keySet().iterator(); iterator.hasNext();) {
                 String subType = xpathToPolymType.get(iterator.next());
-                // if (!polymList.contains(subType))
                 polymList.add(subType);
             }
             HashMap<List, DisplayRulesUtil> polymToDisplayRulesUtil = (HashMap<List, DisplayRulesUtil>) ctx.getSession()
@@ -2746,11 +2742,9 @@ public class ItemsBrowserDWR {
 
         String[] cloneXpath = (String[]) ctx.getSession().getAttribute("cloneXpath" + docIndex); //$NON-NLS-1$ 
         String xPath = xpathParent + '/' + xsp.getTerm().asElementDecl().getName(); //$NON-NLS-1$ 
-        //boolean isEdit = ((String) ctx.getSession().getAttribute("itemDocument" + docIndex + "_status")).equals(DOC_STATUS_EDIT); //$NON-NLS-1$ //$NON-NLS-2$
         Node parentNode = Util.getNodeList(d, xpathParent).item(0);
         if (doc != null) {
             NodeList nodes = Util.getNodeList(doc, xPath);
-            // String textContent = Util.getFirstTextNode(doc, xPath);
             if (nodes != null && nodes.getLength() > 0) {
                 for (int i = 0; i < nodes.getLength(); i++) {
                     Element el = d.createElement(xsp.getTerm().asElementDecl().getName());
@@ -3115,12 +3109,6 @@ public class ItemsBrowserDWR {
         }
 
         Collections.sort(derivedTypes);
-
-        /*
-         * WebContext ctx = WebContextFactory.get(); HashMap<Integer, String> idToXpath = (HashMap<Integer, String>)
-         * ctx.getSession().getAttribute("idToXpath");//FIXME idToXpath should be separated by doc String xpath =
-         * idToXpath.get(nodeId);
-         */
 
         JSONObject json = new JSONObject();
         int counter = 0;
@@ -3763,12 +3751,6 @@ public class ItemsBrowserDWR {
             WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();//$NON-NLS-1$
             for (int i = 0; i < wst.length; i++) {
                 if (isMyRunableProcess(wst[i].getPk(), businessConcept, businessConcepts)) {
-                    /*
-                     * String pk=wst[i].getPk(); String text=pk; if(pk.lastIndexOf("#")==-1) {
-                     * if(language.equalsIgnoreCase ("fr"))text="Action par d茅faut"; else text="Default Action"; }else {
-                     * text=pk.substring(pk.lastIndexOf("#")+1); }
-                     */
-
                     // edit by ymli;fix the bug:0012025
                     // Use the Process description instead of the '#' suffix in the run process drop-down list.
                     // and if the description is null, use the default value.
@@ -4086,9 +4068,6 @@ public class ItemsBrowserDWR {
                 break;
             }
 
-            // boolean ancestor = true;//@TODO... check ancestor
-            // boolean ancestor = checkAncestorMinOCcurs(node);
-
             if (node.getMinOccurs() >= 1 || (node.getMinOccurs() == 0 && value.trim().length() != 0)) {
                 if (re.getName().equals("pattern")) {//$NON-NLS-1$
                     if (!AUTO_INCREMENT.equals(value) && !Pattern.compile(re.getValue()).matcher(value).matches()) {
@@ -4265,7 +4244,6 @@ public class ItemsBrowserDWR {
      * @return
      */
     public String getWhereItemsByCriteria(String viewName) {
-        // String whereItem = "(Agent/Id CONTAINS * AND Agent/Name CONTAINS *) OR Agent/Com CONTAINS *";
 
         String whereItem = "";// "Country/isoCode#EQUALS#33# ###Country/label#CONTAINS#a#OR###Country/Continent#CONTAINS#6#AND";//$NON-NLS-1$
 
@@ -4275,8 +4253,7 @@ public class ItemsBrowserDWR {
                     .getItem(
                             new WSGetItem(new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()),
                                     "BrowseItem", new String[] { viewName }))).getContent().trim();//$NON-NLS-1$
-            if (result != null) {
-                // BrowseItem report = BrowseItem.unmarshal2POJO(result);
+            if (result != null) {                
                 String criterias = result.substring(result.indexOf("<WhereCriteria>") + 15, result.indexOf("</WhereCriteria>"));//$NON-NLS-1$//$NON-NLS-2$
                 String[] criteria = criterias.split("</Criteria>");//$NON-NLS-1$
                 String Field = "";//$NON-NLS-1$
@@ -4286,7 +4263,6 @@ public class ItemsBrowserDWR {
                 int criteriaLenth = criteria[criteria.length - 1].trim().isEmpty() ? criteria.length - 1 : criteria.length;
                 // String item="";
                 for (int i = 0; i < criteriaLenth; i++) {
-                    // Matcher m = Field.matcher(criteria[i]);
                     Field = criteria[i].substring(criteria[i].indexOf("<Field>") + 7, criteria[i].indexOf("</Field>"));//$NON-NLS-1$//$NON-NLS-2$
                     Operator = criteria[i].substring(criteria[i].indexOf("<Operator>") + 10, criteria[i].indexOf("</Operator>"));//$NON-NLS-1$//$NON-NLS-2$
                     Value = criteria[i].substring(criteria[i].indexOf("<Value>") + 7, criteria[i].indexOf("</Value>"));//$NON-NLS-1$//$NON-NLS-2$
@@ -4373,7 +4349,7 @@ public class ItemsBrowserDWR {
                 if (criteriaString[j] != null && criteriaString[j].trim().length() > 0
                         && (criteriaString[j].trim().equals("AND") || criteriaString[j].trim().equals("OR")))//$NON-NLS-1$//$NON-NLS-2$
                     criteria.setJoin(criteriaString[j].trim());
-                // whereItem+=criteria[j].trim()+"#";
+                
             }
 
             criterias[i] = criteria;
@@ -4415,13 +4391,9 @@ public class ItemsBrowserDWR {
             }
             WSWhereItem wi = new WSWhereItem();
 
-            // Configuration config = Configuration.getInstance();
             WSWhereCondition wc1 = new WSWhereCondition("BrowseItem/ViewPK", WSWhereOperator.EQUALS, view,//$NON-NLS-1$
                     WSStringPredicate.NONE, false);
-            /*
-             * WSWhereCondition wc2 = new WSWhereCondition( "hierarchical-report/data-model", WSWhereOperator.EQUALS,
-             * config.getModel(), WSStringPredicate.NONE, false);
-             */
+
             WSWhereCondition wc3 = new WSWhereCondition("BrowseItem/Owner", WSWhereOperator.EQUALS, Util.getAjaxSubject()//$NON-NLS-1$
                     .getUsername(), WSStringPredicate.OR, false);
             WSWhereCondition wc4;
@@ -4489,20 +4461,14 @@ public class ItemsBrowserDWR {
 
         WSWhereItem wi = new WSWhereItem();
 
-        // Configuration config = Configuration.getInstance();
         WSWhereCondition wc1 = new WSWhereCondition("BrowseItem/ViewPK", WSWhereOperator.EQUALS, view, WSStringPredicate.NONE,//$NON-NLS-1$
                 false);
-        /*
-         * WSWhereCondition wc2 = new WSWhereCondition( "hierarchical-report/data-model", WSWhereOperator.EQUALS,
-         * config.getModel(), WSStringPredicate.NONE, false);
-         */
         WSWhereCondition wc3 = new WSWhereCondition("BrowseItem/Owner", WSWhereOperator.EQUALS, Util.getAjaxSubject()//$NON-NLS-1$
                 .getUsername(), WSStringPredicate.NONE, false);
 
         WSWhereOr or = new WSWhereOr(new WSWhereItem[] { new WSWhereItem(wc3, null, null) });
 
         WSWhereAnd and = new WSWhereAnd(new WSWhereItem[] { new WSWhereItem(wc1, null, null),
-        /* new WSWhereItem(wc2, null, null), */
         new WSWhereItem(null, null, or) });
 
         wi = new WSWhereItem(null, and, null);
@@ -4651,8 +4617,9 @@ public class ItemsBrowserDWR {
             Map<String, String> inheritanceForeignKeyMap = businessConcept.getInheritanceForeignKeyMap();
             if(inheritanceForeignKeyMap.size() > 0){
                 Set<String> keySet = inheritanceForeignKeyMap.keySet();
+                String dataObjectPath  = null;
                 for (String path : keySet) {
-                    String dataObjectPath = inheritanceForeignKeyMap.get(path);
+                    dataObjectPath = inheritanceForeignKeyMap.get(path);
                     if (dataObjectPath.indexOf(dataObject) != -1) {
                         xpath = path.substring(1);
                         break;
