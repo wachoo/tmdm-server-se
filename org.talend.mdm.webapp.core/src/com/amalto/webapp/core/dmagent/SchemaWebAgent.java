@@ -498,7 +498,6 @@ public class SchemaWebAgent extends SchemaManager {
         Map<String, XSElementDecl> conceptMap = CommonDWR.getConceptMap(config.getModel());
         XSElementDecl decl = conceptMap.get(concept);
         if (decl == null) {
-            // String err = "Concept '" + concept + "' is not found in model '" + config.getModel() + "'";
             return false;
         }
         XSAnnotation xsa = decl.getAnnotation();
@@ -536,7 +535,6 @@ public class SchemaWebAgent extends SchemaManager {
         Map<String, XSElementDecl> conceptMap = CommonDWR.getConceptMap(config.getModel());
         XSElementDecl decl = conceptMap.get(concept);
         if (decl == null) {
-            // String err = "Concept '" + concept + "' is not found in model '" + config.getModel() + "'";
             return false;
         }
         XSAnnotation xsa = decl.getAnnotation();
