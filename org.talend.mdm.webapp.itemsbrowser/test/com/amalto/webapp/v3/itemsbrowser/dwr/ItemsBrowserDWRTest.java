@@ -119,7 +119,7 @@ public class ItemsBrowserDWRTest extends TestCase {
         assertEquals("Hats", condition1.getRightValueOrPath());
 
         // 4. foreignKey = ProductFamily, foreignKeyInfo = ProductFamily/Name
-        xpathForeignKey = "ProductFamily"; // realForeignKey = ProductFamily/Id
+        xpathForeignKey = "ProductFamily";
         xpathInfoForeignKey = "ProductFamily/Name";
         whereItem = Mock_UtilForeignKeyWhereCondition(xpathForeignKey, xpathInfoForeignKey, value);
         assertNotNull(whereItem);
@@ -153,34 +153,34 @@ public class ItemsBrowserDWRTest extends TestCase {
     private WSWhereItem Mock_UtilForeignKeyWhereCondition(String xpathForeignKey, String xpathInfoForeignKey, String value)
             throws Exception {
         String initXpathForeignKey = Util.getForeignPathFromPath(xpathForeignKey);
-        initXpathForeignKey = initXpathForeignKey.split("/")[0]; //$NON-NLS-1$
-        String[] fkInfos = new String[1];
-        fkInfos = xpathInfoForeignKey.split(",");
-        String fkWhere = initXpathForeignKey + "/../* CONTAINS " + value; //$NON-NLS-1$
+        initXpathForeignKey = initXpathForeignKey.split("/")[0];
+        String[] fkInfos = xpathInfoForeignKey.split(",");
+        String fkWhere = initXpathForeignKey + "/../* CONTAINS " + value;
         if (xpathInfoForeignKey.trim().length() > 0) {
             StringBuffer ids = new StringBuffer();
             String realForeignKey = null;
-            if (xpathForeignKey.indexOf("/") == -1) { //$NON-NLS-1$
+            if (xpathForeignKey.indexOf("/") == -1) {
                 String[] fks = new String[] { "ProductFamily/Id" };
                 if (fks != null && fks.length > 0) {
                     realForeignKey = fks[0];
                     for (int i = 0; i < fks.length; i++) {
-                        String fk = fks[i];
-                        ids.append(fk + " CONTAINS " + value); //$NON-NLS-1$
+                        ids.append(fks[i] + " CONTAINS " + value);
                         if (i != fks.length - 1)
-                            ids.append(" OR "); //$NON-NLS-1$
+                            ids.append(" OR ");
                     }
                 }
             }
             StringBuffer sb = new StringBuffer();
             for (String fkInfo : fkInfos) {
-                sb.append(fkInfo.startsWith(".") ? Util.convertAbsolutePath(xpathForeignKey, fkInfo) : fkInfo + " CONTAINS " + value); //$NON-NLS-1$ //$NON-NLS-2$
-                sb.append(" OR "); //$NON-NLS-1$
+                sb.append((fkInfo.startsWith(".") ? Util.convertAbsolutePath((realForeignKey != null && realForeignKey.trim()
+                        .length() > 0) ? realForeignKey : xpathForeignKey, fkInfo) : fkInfo)
+                        + " CONTAINS " + value);
+                sb.append(" OR ");
             }
             if (realForeignKey != null)
                 sb.append(ids.toString());
             else
-                sb.append(xpathForeignKey + " CONTAINS " + value); //$NON-NLS-1$
+                sb.append(xpathForeignKey + " CONTAINS " + value);
             fkWhere = sb.toString();
         }
 

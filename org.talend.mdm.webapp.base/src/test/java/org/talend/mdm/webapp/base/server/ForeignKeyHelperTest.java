@@ -100,7 +100,7 @@ public class ForeignKeyHelperTest extends TestCase {
         assertEquals("Hats", condition1.getRightValueOrPath()); //$NON-NLS-1$
 
         // 4. foreignKey = ProductFamily, foreignKeyInfo = ProductFamily/Name
-        String xpathForeignKey = "ProductFamily"; // realForeignKey = ProductFamily/Id //$NON-NLS-1$
+        String xpathForeignKey = "ProductFamily"; //$NON-NLS-1$
         String xpathInfoForeignKey = "ProductFamily/Name"; //$NON-NLS-1$
         String realXpathForeignKey = "ProductFamily/Id"; //$NON-NLS-1$
         whereItem = mock_SpecialForeignKeyWhereCondition(xpathForeignKey, xpathInfoForeignKey, realXpathForeignKey, value);
@@ -136,8 +136,7 @@ public class ForeignKeyHelperTest extends TestCase {
             throws Exception {
         String initXpathForeignKey = Util.getForeignPathFromPath(xpathForeignKey);
         initXpathForeignKey = initXpathForeignKey.split("/")[0]; //$NON-NLS-1$
-        String[] fkInfos = new String[1];
-        fkInfos = xpathInfoForeignKey.split(","); //$NON-NLS-1$
+        String[] fkInfos = xpathInfoForeignKey.split(","); //$NON-NLS-1$
         String fkWhere = initXpathForeignKey + "/../* CONTAINS " + value; //$NON-NLS-1$
         if (xpathInfoForeignKey.trim().length() > 0) {
             StringBuffer ids = new StringBuffer();
@@ -147,8 +146,7 @@ public class ForeignKeyHelperTest extends TestCase {
                 if (fks != null && fks.length > 0) {
                     realForeignKey = fks[0];
                     for (int i = 0; i < fks.length; i++) {
-                        String fk = fks[i];
-                        ids.append(fk + " CONTAINS " + value); //$NON-NLS-1$
+                        ids.append(fks[i] + " CONTAINS " + value); //$NON-NLS-1$
                         if (i != fks.length - 1)
                             ids.append(" OR "); //$NON-NLS-1$
                     }
@@ -156,7 +154,8 @@ public class ForeignKeyHelperTest extends TestCase {
             }
             StringBuffer sb = new StringBuffer();
             for (String fkInfo : fkInfos) {
-                sb.append(fkInfo.startsWith(".") ? Util.convertAbsolutePath(xpathForeignKey, fkInfo) : fkInfo + " CONTAINS " + value); //$NON-NLS-1$ //$NON-NLS-2$
+                sb.append((fkInfo.startsWith(".") ? Util.convertAbsolutePath((realForeignKey != null && realForeignKey.trim() //$NON-NLS-1$
+                        .length() > 0) ? realForeignKey : xpathForeignKey, fkInfo) : fkInfo) + " CONTAINS " + value); //$NON-NLS-1$
                 sb.append(" OR "); //$NON-NLS-1$
             }
             if (realForeignKey != null)
