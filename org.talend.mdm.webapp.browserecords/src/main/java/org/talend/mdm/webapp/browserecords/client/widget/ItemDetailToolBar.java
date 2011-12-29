@@ -199,8 +199,13 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private void initViewToolBar() {
-        if (this.readOnly)
+        if (this.readOnly) {
+            if (!operation.equalsIgnoreCase(ItemDetailToolBar.VIEW_OPERATION)) {
+                addPersonalViewButton();
+                this.add(new FillToolItem());
+            }
             this.addRelationButton();
+        }
         else {
             if (!operation.equalsIgnoreCase(ItemDetailToolBar.VIEW_OPERATION)) {
                 addPersonalViewButton();
@@ -675,8 +680,12 @@ public class ItemDetailToolBar extends ToolBar {
     }-*/;
 
     public void initSmartViewToolBar() {
-        if (this.readOnly)
+        if (this.readOnly) {
+            addGeneratedViewButton();
+            addSmartViewCombo();
+            this.add(new FillToolItem());
             this.addWorkFlosCombo();
+        }
         else {
             addGeneratedViewButton();
             addSeparator();
@@ -765,7 +774,6 @@ public class ItemDetailToolBar extends ToolBar {
 
         String regex = itemBean.getConcept() + "&" + Locale.getLanguage(); //$NON-NLS-1$
         service.getSmartViewList(regex, new SessionAwareAsyncCallback<List<ItemBaseModel>>() {
-
             public void onSuccess(List<ItemBaseModel> list) {
                 smartViewList.add(list);
                 String smartView = "Smart_view_"; //$NON-NLS-1$
@@ -777,7 +785,6 @@ public class ItemDetailToolBar extends ToolBar {
                     }
                 }
             }
-
         });
         add(smartViewCombo);
     }
