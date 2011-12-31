@@ -339,7 +339,7 @@ public class BrowseRecordsView extends View {
                     cc.setRenderer(renderer);
                 }
             }
-
+            if (typeModel == null || typeModel.isVisible())
             ccList.add(cc);
         }
 
