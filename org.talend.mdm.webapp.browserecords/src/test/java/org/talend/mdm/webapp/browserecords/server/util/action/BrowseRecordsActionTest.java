@@ -23,15 +23,14 @@ import org.talend.mdm.webapp.browserecords.server.util.TestData;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 
-@SuppressWarnings("nls")
 public class BrowseRecordsActionTest extends TestCase {
 
     private BrowseRecordsAction action = new BrowseRecordsAction();
 
-    private String xml = "<Agency><Name>Newark</Name><Name>Newark1</Name><City>Newark</City><State>NJ</State><Zip>07107</Zip><Region>EAST</Region><MoreInfo>Map@@http://maps.google.com/maps?q=40.760667,-74.1879&amp;ll=40.760667,-74.1879&amp;z=9</MoreInfo><Id>NJ01</Id></Agency>";
+    private String xml = "<Agency><Name>Newark</Name><Name>Newark1</Name><City>Newark</City><State>NJ</State><Zip>07107</Zip><Region>EAST</Region><MoreInfo>Map@@http://maps.google.com/maps?q=40.760667,-74.1879&amp;ll=40.760667,-74.1879&amp;z=9</MoreInfo><Id>NJ01</Id></Agency>"; //$NON-NLS-1$
 
     public void testMultiOccurenceNode() throws Exception {
-        String language = "en";
+        String language = "en"; //$NON-NLS-1$
         ItemNodeModel model = action.getItemNodeModel(getItemBean(), TestData.getEntityModel(), language);
         List<ModelData> child = model.getChildren();
 
@@ -39,35 +38,35 @@ public class BrowseRecordsActionTest extends TestCase {
             String value = ((ItemNodeModel) child.get(i)).getObjectValue().toString();
             switch (i) {
             case 0: {
-                assertEquals("NJ01", value);
+                assertEquals("NJ01", value); //$NON-NLS-1$
                 break;
             }
             case 1: {
-                assertEquals("Newark", value);
+                assertEquals("Newark", value); //$NON-NLS-1$
                 break;
             }
             case 2: {
-                assertEquals("Newark1", value);
+                assertEquals("Newark1", value); //$NON-NLS-1$
                 break;
             }
             case 3: {
-                assertEquals("Newark", value);
+                assertEquals("Newark", value); //$NON-NLS-1$
                 break;
             }
             case 4: {
-                assertEquals("NJ", value);
+                assertEquals("NJ", value); //$NON-NLS-1$
                 break;
             }
             case 5: {
-                assertEquals("07107", value);
+                assertEquals("07107", value); //$NON-NLS-1$
                 break;
             }
             case 6: {
-                assertEquals("EAST", value);
+                assertEquals("EAST", value); //$NON-NLS-1$
                 break;
             }
             case 7: {
-                assertEquals("Map@@http://maps.google.com/maps?q=40.760667,-74.1879&ll=40.760667,-74.1879&z=9", value);
+                assertEquals("Map@@http://maps.google.com/maps?q=40.760667,-74.1879&ll=40.760667,-74.1879&z=9", value); //$NON-NLS-1$
                 break;
             }
             default: {
@@ -78,7 +77,8 @@ public class BrowseRecordsActionTest extends TestCase {
     }
 
     private ItemBean getItemBean() {
-        ItemBean item = new ItemBean("Agency", "NJ01", xml);
+        ItemBean item = new ItemBean("Agency", "NJ01", xml); //$NON-NLS-1$//$NON-NLS-2$
         return item;
     }
+
 }
