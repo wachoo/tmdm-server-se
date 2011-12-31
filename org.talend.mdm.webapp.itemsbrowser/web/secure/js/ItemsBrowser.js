@@ -6216,7 +6216,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
      */
     function updateValue(nodeId, treeIndex) {
 
-        var returnRe = true;
+        var returnRe = false;
         var itemTree = itemTreeList[treeIndex];
         // var data = itemTree.getNodeByIndex(id).data;
         var node = itemTree.getNodeByIndex(nodeId);
