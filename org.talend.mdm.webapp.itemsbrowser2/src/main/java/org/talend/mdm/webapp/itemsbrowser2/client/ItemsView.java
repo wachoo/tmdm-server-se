@@ -158,7 +158,7 @@ public class ItemsView extends View {
                     cc.setRenderer(renderer);
                 }
             }
-
+            if (typeModel == null || typeModel.isVisible())
             ccList.add(cc);
         }
 
@@ -242,9 +242,9 @@ public class ItemsView extends View {
     }
 
     private native void renderFormResize(Element el)/*-{
-        if (el.renderFormResize){
-        el.renderFormResize();
-        }
+		if (el.renderFormResize) {
+			el.renderFormResize();
+		}
     }-*/;
 
     protected void onInitFrame(AppEvent ae) {
@@ -299,10 +299,10 @@ public class ItemsView extends View {
 
     // FIXME can we refact this method to PubService
     private native void regResizeViewPort()/*-{
-        var instance = this;
-        $wnd.org_talend_mdm_webapp_itemsbrowser2_client_ItemsView_onResizeViewPort = function(){
-        instance.@org.talend.mdm.webapp.itemsbrowser2.client.ItemsView::onResizeViewPort()();
-        };
+		var instance = this;
+		$wnd.org_talend_mdm_webapp_itemsbrowser2_client_ItemsView_onResizeViewPort = function() {
+			instance.@org.talend.mdm.webapp.itemsbrowser2.client.ItemsView::onResizeViewPort()();
+		};
     }-*/;
 
     private void onResizeViewPort() {
