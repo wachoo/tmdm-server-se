@@ -392,8 +392,8 @@ public abstract class QueryBuilder {
                 return wc.getLeftPath() + " " + wc.getOperator() + " " + wc.getRightValueOrPath(); //$NON-NLS-1$ //$NON-NLS-2$ 
             factorFirstPivotInMap(pivots, wc.getLeftPath());
             String factorPivots = XPathUtils.factor(wc.getLeftPath(), pivots).toString();
-            // see 0015004, if rightPath contains '/', we consider it as xpathFunction
-            if (wc.getRightValueOrPath() != null && wc.isRightValueXPath() && wc.getRightValueOrPath().contains("/")) { //$NON-NLS-1$
+            // Moved 'fix' for 0015004 to isRightValueXPath() method.
+            if (wc.getRightValueOrPath() != null && wc.isRightValueXPath()) { //$NON-NLS-1$
                 encoded = XPathUtils.factor(wc.getRightValueOrPath(), pivots).toString();
                 isXpathFunction = true;
             }
