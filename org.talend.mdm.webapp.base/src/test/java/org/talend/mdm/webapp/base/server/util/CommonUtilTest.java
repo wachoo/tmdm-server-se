@@ -234,6 +234,27 @@ public class CommonUtilTest extends TestCase {
         }
     }
 
+    public void testSlashes() throws Exception {
+        String criteria = "(MyEntity/id CONTAINS H/F Sundbyvester)";
+        WSWhereItem wsWhereItem = CommonUtil.buildWhereItems(criteria);
+
+        assertNotNull(wsWhereItem);
+        WSWhereAnd whereAnd = wsWhereItem.getWhereAnd();
+        assertNotNull(whereAnd);
+        assertEquals(1, whereAnd.getWhereItems().length);
+        {
+            WSWhereItem whereItem = whereAnd.getWhereItems()[0];
+            assertNotNull(whereItem);
+            WSWhereCondition condition = whereItem.getWhereCondition();
+            assertNotNull(condition);
+
+            assertEquals("MyEntity/id", condition.getLeftPath());
+            assertEquals("CONTAINS", condition.getOperator().getValue());
+            assertEquals("H/F Sundbyvester", condition.getRightValueOrPath());
+            assertEquals("NONE", condition.getStringPredicate().getValue());
+        }
+    }
+
     public void testError() {
         String criteria = "(MyEntity/id CONTAINS test";
         try {
