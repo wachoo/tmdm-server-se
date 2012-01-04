@@ -5,7 +5,6 @@ var validatinHistory = new Ext.util.MixedCollection();
 
 loadResource("/core/secure/yui-2.4.0/build/treeview/treeview.js", "YAHOO.widget.TreeView", function(){
 loadResource("/core/secure/yui-2.4.0/build/treeview/assets/treeview.css","");
-loadResource("/core/secure/ext-2.2/source/locale/ext-lang-fr.js","");
 
 amalto.itemsbrowser.ItemsBrowser = function() {
 
