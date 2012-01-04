@@ -161,8 +161,7 @@ public class JoboxTest extends TestCase {
         String[][] result = invoker.call(parameters);
         assertEquals(1, result.length);
         assertEquals(1, result[0].length);
-        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<exchange><report/><item><key>0</key></item></exchange>", result[0][0]);
+        assertEquals("<exchange><report/><item><key>0</key></item></exchange>", result[0][0]);
 
         result = invoker.call();
         assertEquals(1, result.length);
