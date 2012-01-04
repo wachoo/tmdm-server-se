@@ -49,8 +49,6 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
     private ForeignKeyFieldList fkFieldList;
 
     private ItemsDetailPanel itemsDetailPanel;
-    
-    private boolean readOnly;
 
     public ForeignKeyField(String foreignKey, List<String> foreignKeyInfo, ItemsDetailPanel itemsDetailPanel) {
         this.itemsDetailPanel = itemsDetailPanel;
@@ -235,10 +233,10 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         ContentPanel cp = itemsDetailPanel.getTreeDetail();
         if (cp instanceof TreeDetail) {
             TreeDetail treeDetail = (TreeDetail) cp;
-            readOnly = treeDetail.getToolBar().isReadOnly();
+            this.setReadOnly(treeDetail.getToolBar().isReadOnly());
         } else {
             ForeignKeyTreeDetail fkTreeDetail = (ForeignKeyTreeDetail) cp;
-            readOnly = fkTreeDetail.getToolBar().isReadOnly();
+            this.setReadOnly(fkTreeDetail.getToolBar().isReadOnly());
         }
     }
 }
