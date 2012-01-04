@@ -20,8 +20,11 @@ import java.util.Set;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
+import org.talend.mdm.webapp.browserecords.client.util.UserSession;
+import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -95,17 +98,16 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
     }
 
     private String getHeaderStr(ViewBean viewBean){
-        List<String> viewableXpaths = viewBean.getViewableXpaths();
         EntityModel entityModel = viewBean.getBindingEntityModel();         
         Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
         StringBuilder sb = new StringBuilder();
         int i = 0;
-        int size = viewableXpaths.size();
-        
-        for (String xpath : viewableXpaths) {
+        ComplexTypeModel rootModel = (ComplexTypeModel) dataTypes.get(entityModel.getConceptName());
+        List<TypeModel> typeModels = rootModel.getSubTypes();
+        int size = typeModels.size();
+        for (TypeModel typeModel : typeModels) {
             i++;
-            TypeModel typeModel = dataTypes.get(xpath);
-            sb.append(typeModel.getName());
+            sb.append(typeModel.getName() + ":" + typeModel.isVisible()); //$NON-NLS-1$
             if(i < size)
                 sb.append("@");  //$NON-NLS-1$
         }
@@ -131,6 +133,9 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
     }
     
     private void renderForm() {
+
+        ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
+        Map<String, TypeModel> typeModels = viewBean.getBindingEntityModel().getMetaDataTypes();
 
         nameField = new HiddenField<String>();
         nameField.setName("concept");//$NON-NLS-1$
