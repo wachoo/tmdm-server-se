@@ -40,6 +40,18 @@ You'll also need XDoclet (version 1.2.3.patched). This isn't on SVN so you'll ne
 5. you NEED apply the modification to TDI/components/TOP team
 (1). give the org.talend.mdm.core.enterprise/src/META-INF/wsdl files to them. they generate the webservice classes files themselves.
 
+6. Updating workflow web service stubs. For Bonita workflow to correctly operate, you also need to generate new web service
+ stubs. The ANT script in module org.talend.mdm.workflow takes care of this. Run the cxfWSDLToJava target in the wsdl2java.xml
+ ANT build file.
+ Note (1): this build file uses Apache CXF to generate stubs, which needs to be separately downloaded.
+ Note (2): Please note that MDM uses JAXB 2.1 stubs (2.2 is the default in latest Apache CXF versions), to enforce the
+ version of JAXB uses, you can specify the "-frontend jaxws21" option. Command line might look like this:
+
+ ./wsdl2java -frontend jaxws21 -client file:/home/fhuaulme/dev/svn/trunk/tem/org.talend.mdm.core.enterprise/src/META-INF/wsdl/webservices.wsdl
+
+ The updated classes are all located in org.talend.mdm.workflow/src/urn_com_amalto_xtentis_webservice. You may commit only
+ this directory.
+
 
 ###############################################################################
 *******the following explain the steps to add ejb method ***********
