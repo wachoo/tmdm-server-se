@@ -38,15 +38,18 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Panel;
 
@@ -59,7 +62,6 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
 
     private ComboBoxField<BaseModel> operatorComboBox;
 
-    @SuppressWarnings("rawtypes")
     private Field field;
 
     private Button searchBut;
@@ -85,15 +87,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         keyComboBox.setStore(list);
         keyComboBox.setTriggerAction(TriggerAction.ALL);
         keyComboBox.setId("SimpleKeyComboBox"); //$NON-NLS-1$
-
-        keyComboBox.addSelectionChangedListener(new SelectionChangedListener<BaseModel>() {
-
-            public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
-                adaptOperatorAndValue();
-            }
-
-        });
-
+        addKeyComboBoxListener(null);
         add(keyComboBox);
 
         operatorComboBox = new ComboBoxField<BaseModel>();
@@ -125,6 +119,34 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
 
     }
 
+    public SimpleCriterionPanel(Button searchBut) {
+        super();
+        this.searchBut = searchBut;
+        Grid sizeGrid = new Grid(3, 1);
+
+        keyComboBox = new ComboBoxField<BaseModel>();
+        keyComboBox.setDisplayField("name"); //$NON-NLS-1$
+        keyComboBox.setValueField("value"); //$NON-NLS-1$
+        keyComboBox.setStore(list);
+        keyComboBox.setTriggerAction(TriggerAction.ALL);
+        keyComboBox.setId("SimpleKeyComboBox"); //$NON-NLS-1$
+
+        sizeGrid.setWidget(0, 0, keyComboBox);
+
+        operatorComboBox = new ComboBoxField<BaseModel>();
+        operatorComboBox.setDisplayField("name"); //$NON-NLS-1$
+        operatorComboBox.setValueField("value"); //$NON-NLS-1$
+        operatorComboBox.setStore(operatorlist);
+        operatorComboBox.setTriggerAction(TriggerAction.ALL);
+        operatorComboBox.setId("SimpleOperatorComboBox"); //$NON-NLS-1$
+        sizeGrid.setWidget(1, 0, operatorComboBox);
+
+        sizeGrid.setWidget(2, 0, content);
+
+        sizeGrid.getElement().getStyle().setMarginLeft(24D, Unit.PX);
+        add(sizeGrid);
+
+    }
     public void updateFields(ViewBean view) {
         this.view = view;
         // field combobox
@@ -205,7 +227,6 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         return operatorComboBox.getValue().get("value"); //$NON-NLS-1$
     }
 
-    @SuppressWarnings("rawtypes")
     private String getValue() {
 
         if (field != null) {
@@ -242,52 +263,56 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         }
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public void setCriterion(SimpleCriterion criterion) {
         try {
             keyComboBox.setValue(list.findModel("value", criterion.getKey())); //$NON-NLS-1$
             TypeModel typeModel = adaptOperatorAndValue();
             operatorComboBox.setValue(operatorlist.findModel("value", criterion.getOperator())); //$NON-NLS-1$
-            if (field != null) {
-                if (field instanceof DateField) {
-                    ((DateField) field)
-                            .setValue(((DateField) field).getPropertyEditor().convertStringValue(criterion.getValue()));
-                } else if (field instanceof SimpleComboBox) {
-                    ((SimpleComboBox) field).setValue(((SimpleComboBox) field).findModel(criterion.getValue()));
-                } else if (field instanceof RadioGroup) {
-                    for (Field f : ((RadioGroup) field).getAll()) {
-                        if (((Radio) f).getValueAttribute().equals(criterion.getValue())) {
-                            ((Radio) f).setValue(true);
-                            return;
-                        }
-                    }
-                } else if (field instanceof FKField) {
-                    ForeignKeyBean fk = new ForeignKeyBean();
-                    fk.setId(criterion.getValue());
-                    fk.setDisplayInfo(criterion.getInfo());
-                    ((FKField) field).setValue(fk);
-                } else if (field instanceof SpinnerField) {
-                    String dataType = typeModel.getType().getBaseTypeName();
-                    String value = criterion.getValue();
-                    if (dataType.equals(DataTypeConstants.INT.getBaseTypeName())
-                            || dataType.equals(DataTypeConstants.INTEGER.getBaseTypeName())) {
-                        field.setValue(value != null ? Integer.parseInt(value.toString()) : null);
-                    } else if (dataType.equals(DataTypeConstants.SHORT.getBaseTypeName())) {
-                        field.setValue(value != null ? Short.parseShort(value.toString()) : null);
-                    } else if (dataType.equals(DataTypeConstants.LONG.getBaseTypeName())) {
-                        field.setValue(value != null ? Long.parseLong(value.toString()) : null);
-                    } else if (dataType.equals(DataTypeConstants.DOUBLE.getBaseTypeName())
-                            || dataType.equals(DataTypeConstants.DECIMAL.getBaseTypeName())) {
-                        field.setValue(value != null ? Double.parseDouble(value.toString()) : null);
-                    } else if (dataType.equals(DataTypeConstants.FLOAT.getBaseTypeName())) {
-                        field.setValue(value != null ? Float.parseFloat(value.toString()) : null);
-                    }
-                } else {
-                    field.setValue(criterion.getValue());
-                }
-            }
+            setField(criterion, typeModel);
         } catch (Exception e) {
             Log.error(e.getMessage(), e);
+        }
+    }
+
+    private void setField(SimpleCriterion criterion, TypeModel typeModel) {
+        if (field != null) {
+            if (field instanceof DateField) {
+                ((DateField) field).setValue(((DateField) field).getPropertyEditor().convertStringValue(criterion.getValue()));
+            } else if (field instanceof SimpleComboBox) {
+                ((SimpleComboBox) field).setValue(((SimpleComboBox) field).findModel(criterion.getValue()));
+            } else if (field instanceof RadioGroup) {
+                for (Field f : ((RadioGroup) field).getAll()) {
+                    if (((Radio) f).getValueAttribute().equals(criterion.getValue())) {
+                        ((Radio) f).setValue(true);
+                        return;
+                    }
+                }
+            } else if (field instanceof FKField) {
+                ForeignKeyBean fk = new ForeignKeyBean();
+                fk.setId(criterion.getValue());
+                fk.setDisplayInfo(criterion.getInfo());
+                ((FKField) field).setValue(fk);
+            } else if (field instanceof SpinnerField) {
+                String dataType = typeModel.getType().getBaseTypeName();
+                String value = criterion.getValue();
+                if (dataType.equals(DataTypeConstants.INT.getBaseTypeName())
+                        || dataType.equals(DataTypeConstants.INTEGER.getBaseTypeName())) {
+                    field.setValue(value != null ? Integer.parseInt(value.toString()) : null);
+                } else if (dataType.equals(DataTypeConstants.SHORT.getBaseTypeName())) {
+                    field.setValue(value != null ? Short.parseShort(value.toString()) : null);
+                } else if (dataType.equals(DataTypeConstants.LONG.getBaseTypeName())) {
+                    field.setValue(value != null ? Long.parseLong(value.toString()) : null);
+                } else if (dataType.equals(DataTypeConstants.DOUBLE.getBaseTypeName())
+                        || dataType.equals(DataTypeConstants.DECIMAL.getBaseTypeName())) {
+                    field.setValue(value != null ? Double.parseDouble(value.toString()) : null);
+                } else if (dataType.equals(DataTypeConstants.FLOAT.getBaseTypeName())) {
+                    field.setValue(value != null ? Float.parseFloat(value.toString()) : null);
+                }
+            } else if (field instanceof CheckBox) {
+                field.setValue(Boolean.valueOf(criterion.getValue()));
+            } else {
+                field.setValue(criterion.getValue());
+            }
         }
     }
 
@@ -305,6 +330,66 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
 
     public void setView(ViewBean view) {
         this.view = view;
+    }
+
+    public void addKeyComboBoxListener(final SimpleCriterionPanel<T> simpleCriterionPanel) {
+        keyComboBox.addSelectionChangedListener(new SelectionChangedListener<BaseModel>() {
+
+            public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
+                adaptOperatorAndValue();
+
+                if (simpleCriterionPanel != null) {
+                    addOperatorAndFieldListener(simpleCriterionPanel, false);
+                    simpleCriterionPanel.setKey(getKey());
+                }
+            }
+
+        });
+    }
+
+    private void setKey(String value) {
+        keyComboBox.setValue(list.findModel("value", value)); //$NON-NLS-1$
+    }
+    
+    private void setOperator(String value) {
+        operatorComboBox.setValue(operatorlist.findModel("value", value)); //$NON-NLS-1$
+    }
+
+    private void addOperatorAndFieldListener(final SimpleCriterionPanel<T> simpleCriterionPanel, boolean isAddOperatorListener) {
+        if (isAddOperatorListener)
+            operatorComboBox.addSelectionChangedListener(new SelectionChangedListener<BaseModel>() {
+
+                public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
+                    if (simpleCriterionPanel != null)
+                        simpleCriterionPanel.setOperator(getOperator());
+                }
+
+            });
+        if (field != null)
+            field.addListener(Events.Change, new Listener<FieldEvent>() {
+
+                public void handleEvent(FieldEvent be) {
+                    if (simpleCriterionPanel != null) {
+                        TypeModel typeModel = itemsPredicates.get(getKey());
+                        simpleCriterionPanel.setField(getCriteria(), typeModel);
+                    }
+
+                };
+            });
+    }
+
+    public SimpleCriterionPanel<?> clonePanel() {
+        SimpleCriterionPanel<T> simpleCriterionPanel = new SimpleCriterionPanel<T>(searchBut);
+        if (view != null) {
+            simpleCriterionPanel.updateFields(view);
+            simpleCriterionPanel.adaptOperatorAndValue();
+        }
+
+        simpleCriterionPanel.addKeyComboBoxListener(this);
+        simpleCriterionPanel.setCriterion(this.getCriteria());
+        simpleCriterionPanel.addOperatorAndFieldListener(this, true);
+
+        return simpleCriterionPanel;
     }
 
 }
