@@ -745,7 +745,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             idsArray.clear();
             for (String key : entityModel.getKeys()) {
-                String id = Util.getFirstTextNode(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")); //$NON-NLS-1$ //$NON-NLS-2$
+                String id = Util.getFirstTextNode(doc.getDocumentElement(), "." + key.substring(key.lastIndexOf('/'))); //$NON-NLS-1$
                 if (id != null)
                     idsArray.add(id);
             }
