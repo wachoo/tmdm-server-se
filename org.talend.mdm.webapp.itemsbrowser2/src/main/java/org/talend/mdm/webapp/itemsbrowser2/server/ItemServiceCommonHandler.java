@@ -160,7 +160,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
                 idsArray.clear();
                 for (String key : entityModel.getKeys()) {
-                    Node idNode = XmlUtil.queryNode(doc, key.replaceFirst(concept + "/", "result/")); //$NON-NLS-1$ //$NON-NLS-2$ 
+
+                    Node idNode = XmlUtil.queryNode(doc, "result" + key.substring(key.lastIndexOf('/'))); //$NON-NLS-1$ //$NON-NLS-2$ 
                     if (idNode == null)
                         continue;
                     String id = idNode.getText();
