@@ -25,7 +25,7 @@ public class RoutingConditionTestCase extends TestCase {
         String compiled = condition;
         compiled = compiled.replaceAll("(\\s+)([aA][nN][dD])(\\s+|\\(+)", "$1&&$3"); //$NON-NLS-1$ //$NON-NLS-2$
         compiled = compiled.replaceAll("(\\s+)([oO][rR])(\\s+|\\(+)", "$1||$3"); //$NON-NLS-1$//$NON-NLS-2$
-        compiled = compiled.replaceAll("(\\s+)([nN][oO][tT])(\\s+|\\(+)", "$1!$3"); //$NON-NLS-1$ //$NON-NLS-2$
+        compiled = compiled.replaceAll("(\\s*)([nN][oO][tT])(\\s+|\\(+)", "$1!$3"); //$NON-NLS-1$ //$NON-NLS-2$
 
         return compiled;
     }
@@ -34,6 +34,14 @@ public class RoutingConditionTestCase extends TestCase {
         String condition = "C1 And Not(C2)";
         condition = compileCondition(condition);
         assertEquals("C1 && !(C2)", condition);
+
+        condition = "Not(C1) And C2";
+        condition = compileCondition(condition);
+        assertEquals("!(C1) && C2", condition);
+
+        condition = "Not(C1) And Not(C2)";
+        condition = compileCondition(condition);
+        assertEquals("!(C1) && !(C2)", condition);
 
         condition = "C1 and C2 And C3";
         condition = compileCondition(condition);
