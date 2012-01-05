@@ -8,6 +8,23 @@
    <enterprise-beans>
 
       <!-- Session Beans -->
+      <!-- XmlServerSLWrapper Bean must be listed first as other beans depend on -->
+      <session >
+         <description><![CDATA[Description for XML:DB Stateless Wrapper]]></description>
+         <display-name>XML:DB Stateless Wrapper</display-name>
+
+         <ejb-name>XmlServerSLWrapper</ejb-name>
+
+         <home>com.amalto.core.ejb.remote.XmlServerSLWrapperHome</home>
+         <remote>com.amalto.core.ejb.remote.XmlServerSLWrapper</remote>
+         <local-home>com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome</local-home>
+         <local>com.amalto.core.ejb.local.XmlServerSLWrapperLocal</local>
+         <ejb-class>com.amalto.core.ejb.local.XmlServerSLWrapperSession</ejb-class>
+         <session-type>Stateless</session-type>
+         <transaction-type>Container</transaction-type>
+
+      </session>
+
       <session >
          <description><![CDATA[CustomFormCtrl]]></description>
          <display-name>CustomFormCtrl</display-name>
@@ -227,22 +244,6 @@
          <local-home>com.amalto.core.objects.menu.ejb.local.MenuCtrlLocalHome</local-home>
          <local>com.amalto.core.objects.menu.ejb.local.MenuCtrlLocal</local>
          <ejb-class>com.amalto.core.objects.menu.ejb.local.MenuCtrlSession</ejb-class>
-         <session-type>Stateless</session-type>
-         <transaction-type>Container</transaction-type>
-
-      </session>
-
-      <session >
-         <description><![CDATA[Description for XML:DB Stateless Wrapper]]></description>
-         <display-name>XML:DB Stateless Wrapper</display-name>
-
-         <ejb-name>XmlServerSLWrapper</ejb-name>
-
-         <home>com.amalto.core.ejb.remote.XmlServerSLWrapperHome</home>
-         <remote>com.amalto.core.ejb.remote.XmlServerSLWrapper</remote>
-         <local-home>com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome</local-home>
-         <local>com.amalto.core.ejb.local.XmlServerSLWrapperLocal</local>
-         <ejb-class>com.amalto.core.ejb.local.XmlServerSLWrapperSession</ejb-class>
          <session-type>Stateless</session-type>
          <transaction-type>Container</transaction-type>
 
