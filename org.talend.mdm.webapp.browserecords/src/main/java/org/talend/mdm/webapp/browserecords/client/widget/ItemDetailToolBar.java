@@ -826,7 +826,30 @@ public class ItemDetailToolBar extends ToolBar {
         return true;
     }-*/;
 
-    public void saveItemAndClose(boolean isClose) {
+    public void saveItemAndClose(final boolean isClose) {
+        service.isItemModifiedByOthers(itemBean, new SessionAwareAsyncCallback<Boolean>() {
+
+            public void onSuccess(Boolean result) {
+                if (result) {
+                    MessageBox
+                            .confirm(MessagesFactory.getMessages().confirm_title(),
+                                    MessagesFactory.getMessages().save_concurrent_fail(),
+                                    new Listener<MessageBoxEvent>() {
+
+                                        public void handleEvent(MessageBoxEvent be) {
+                                            if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+                                                saveItem(isClose);
+                                            }
+                                        }
+                                    }).getDialog().setWidth(600);
+                } else {
+                    saveItem(isClose);
+                }
+            }
+        });
+    }
+    
+    private void saveItem(boolean isClose){
         boolean validate = false;
         Widget widget = itemsDetailPanel.getFirstTabWidget();
         Dispatcher dispatch = Dispatcher.get();

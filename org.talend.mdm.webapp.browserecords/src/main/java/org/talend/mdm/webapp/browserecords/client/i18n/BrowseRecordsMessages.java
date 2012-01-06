@@ -356,4 +356,6 @@ public interface BrowseRecordsMessages extends Messages {
     String upload_pic_ok();
 
     String upload_pic_fail();
+    
+    String save_concurrent_fail();
 }
