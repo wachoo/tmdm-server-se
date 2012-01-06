@@ -3165,10 +3165,28 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         tbDetail.saveItemHandler = function() {
                         	tbDetail.items.get('saveBTN').disable();
                         	amalto.core.working();
-                            // @temp yguo,
-                            saveForGXT(ids, dataObject, treeIndex, tbDetail, function() {                            			
+                        	ItemsBrowserInterface.isItemModifiedByOther(newItem[treeIndex],
+                                    treeIndex, function(result) {
+                                if (result) {
+                                    Ext.Msg.confirm(MSG_CONFIRM_TITLE[language],
+                                            MSG_CONFIRM_OVERRIDE_ITEM[language], function(
+                                                    en) {
+                                                if (en == "no") {
+                                                	tbDetail.items.get('saveBTN').enable();
+                                                	amalto.core.ready();
+                                                	return;
+                                                } else {
+                                                	saveForGXT(ids, dataObject, treeIndex, tbDetail, function() {                            			
+                                                        tbDetail.refreshItemHandler(ids, true);
+                                                    });
+                                                }
+                                            });
+                                } else {
+                                	saveForGXT(ids, dataObject, treeIndex, tbDetail, function() {                            			
                                         tbDetail.refreshItemHandler(ids, true);
                                     });
+                                }
+                            });                            
                         };
                         tbDetail.refreshItemHandler = function(newIds, noConfirming) {
                         	
@@ -3229,13 +3247,30 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         tbDetail.saveItemAndQuitHandler = function() {
                         	tbDetail.items.get('saveBTN').disable();
                         	amalto.core.working();
-                            saveForGXT(ids, dataObject, treeIndex, tbDetail, function() {
-                                        // @TEMP YGUO, CLOSE THE WINDOW
+                        	ItemsBrowserInterface.isItemModifiedByOther(newItem[treeIndex],
+                                    treeIndex, function(result) {
+                                if (result) {
+                                    Ext.Msg.confirm(MSG_CONFIRM_TITLE[language],
+                                            MSG_CONFIRM_OVERRIDE_ITEM[language], function(
+                                                    en) {
+                                                if (en == "no") {
+                                                	tbDetail.items.get('saveBTN').enable();
+                                                	amalto.core.ready();
+                                                	return;
+                                                } else {
+                                                	saveForGXT(ids, dataObject, treeIndex, tbDetail, function() {                                        
+                                                        handleCallback.refreshRecord();
+                                                        window.callGxt();
+                                                    });
+                                                }
+                                            });
+                                } else {
+                                	saveForGXT(ids, dataObject, treeIndex, tbDetail, function() {                                        
                                         handleCallback.refreshRecord();
                                         window.callGxt();
-
                                     });
-
+                                }
+                            });
                         };
 
                         // case edit and no editable
