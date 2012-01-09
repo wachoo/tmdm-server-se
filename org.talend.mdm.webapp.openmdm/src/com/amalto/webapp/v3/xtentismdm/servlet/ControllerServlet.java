@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package com.amalto.webapp.v3.xtentismdm.servlet;
 
 import java.io.IOException;
@@ -83,6 +95,10 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
                 }
 
             }
+            // restore the session timeout
+            if (req.getSession().getAttribute("sessionTimeOut") != null) //$NON-NLS-1$
+                req.getSession().setMaxInactiveInterval((Integer) req.getSession().getAttribute("sessionTimeOut")); //$NON-NLS-1$
+
             // Dispatch call
             String jsp = req.getParameter("action"); //$NON-NLS-1$	
             if ("logout".equals(jsp)) { //$NON-NLS-1$
@@ -138,69 +154,68 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
     }
 
     @Override
-    @SuppressWarnings("nls")
     protected String getBody(String language, HttpServletRequest request) {
         LinkedHashMap<String, String> map = this.getLanguageMap();
         Set<String> set = map.keySet();
-        String html = "";
+        String html = ""; //$NON-NLS-1$
         for (Iterator<String> iterator = set.iterator(); iterator.hasNext();) {
             String key = iterator.next();
             String value = map.get(key);
             if (key.equals(language)) {
-                html += "		<option value=\"" + key + "\" selected>" + value + "</option>\n";
+                html += "		<option value=\"" + key + "\" selected>" + value + "</option>\n"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
             } else {
-                html += "		<option value=\"" + key + "\">" + value + "</option>\n";
+                html += "		<option value=\"" + key + "\">" + value + "</option>\n"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
             }
 
         }
-        String enterprise = Util.isEnterprise() ? "color:#EE0000;\"> Enterprise<br/>Edition"
-                : "color:#B4DC10;\">Community <br/> Edition";
+        String enterprise = Util.isEnterprise() ? "color:#EE0000;\"> Enterprise<br/>Edition" //$NON-NLS-1$
+                : "color:#B4DC10;\">Community <br/> Edition"; //$NON-NLS-1$
         return
 
-        "<body id=\"genericUI\" style=\"font:13px tahoma,verdana,helvetica\">\n"
-                + "<div id=\"header\" class=\"generic-header-background\">\n" +
+        "<body id=\"genericUI\" style=\"font:13px tahoma,verdana,helvetica\">\n" //$NON-NLS-1$
+                + "<div id=\"header\" class=\"generic-header-background\">\n" + //$NON-NLS-1$
 
-                "<img src=\""
+                "<img src=\"" //$NON-NLS-1$
                 + request.getContextPath()
-                + "/secure/img/header-back-title.png\"/>\n"
-                + "<div id=\"username-div\"  class=\"username\"></div>\n"
-                + "<div><table style=\"position: absolute;top: -2px;right:1px;\">"
-                + "<td><div><img src=\""
+                + "/secure/img/header-back-title.png\"/>\n" //$NON-NLS-1$
+                + "<div id=\"username-div\"  class=\"username\"></div>\n" //$NON-NLS-1$
+                + "<div><table style=\"position: absolute;top: -2px;right:1px;\">" //$NON-NLS-1$
+                + "<td><div><img src=\"" //$NON-NLS-1$
                 + request.getContextPath()
-                + "/secure/img/logo-mdm.png\"/></div></td>\n"
-                + "<td><div style=\"font: bold 13px tahoma,verdana,helvetica;"
+                + "/secure/img/logo-mdm.png\"/></div></td>\n" //$NON-NLS-1$
+                + "<td><div style=\"font: bold 13px tahoma,verdana,helvetica;" //$NON-NLS-1$
                 + enterprise
-                + "</div></td>\n"
-                + "<td><div>"
-                + "&nbsp;&nbsp;"
-                + "</div></td>\n"
-                + "<td><div><select style=\" font: normal  11px tahoma,verdana,helvetica; right: 5px\" id=\"languageSelect\" onchange=\"amalto.core.switchLanguage();\">\n"
+                + "</div></td>\n" //$NON-NLS-1$
+                + "<td><div>" //$NON-NLS-1$
+                + "&nbsp;&nbsp;" //$NON-NLS-1$
+                + "</div></td>\n" //$NON-NLS-1$
+                + "<td><div><select style=\" font: normal  11px tahoma,verdana,helvetica; right: 5px\" id=\"languageSelect\" onchange=\"amalto.core.switchLanguage();\">\n" //$NON-NLS-1$
                 + html
-                + "	</select></div></td>"
-                + "<td><div id=\"logout-btn\" ></div></td>\n"
+                + "	</select></div></td>" //$NON-NLS-1$
+                + "<td><div id=\"logout-btn\" ></div></td>\n" //$NON-NLS-1$
                 +
 
-                "<td><div style=\"float position:relative;top: 1px;\" ><a href='"
+                "<td><div style=\"float position:relative;top: 1px;\" ><a href='" //$NON-NLS-1$
                 + request.getContextPath()
-                + "/secure/?action=logout' id='logout-btn' class='logout-btn'></a></div></td>\n"
+                + "/secure/?action=logout' id='logout-btn' class='logout-btn'></a></div></td>\n" //$NON-NLS-1$
                 +
 
-                "</tr>\n"
-                + "</table></div>"
+                "</tr>\n" //$NON-NLS-1$
+                + "</table></div>" //$NON-NLS-1$
                 +
 
-                "</div>\n"
+                "</div>\n" //$NON-NLS-1$
                 +
 
-                "<div id=\"menus\" class=\"menus-list\"></div>\n"
-                + "<div id=\"centerdiv\"></div>\n"
-                + "<div id=\"statusdiv\"></div>\n"
-                + "<input type=\"hidden\" id=\"contextPath\" value="
+                "<div id=\"menus\" class=\"menus-list\"></div>\n" //$NON-NLS-1$
+                + "<div id=\"centerdiv\"></div>\n" //$NON-NLS-1$
+                + "<div id=\"statusdiv\"></div>\n" //$NON-NLS-1$
+                + "<input type=\"hidden\" id=\"contextPath\" value=" //$NON-NLS-1$
                 + request.getContextPath()
-                + "/>\n"
-                + "<input type=\"hidden\" id=\"serverPath\" value="
+                + "/>\n" //$NON-NLS-1$
+                + "<input type=\"hidden\" id=\"serverPath\" value=" //$NON-NLS-1$
                 + request.getScheme()
-                + "://" + request.getLocalAddr() + ":" + request.getLocalPort() + "/>\n" + "</body>";
+                + "://" + request.getLocalAddr() + ":" + request.getLocalPort() + "/>\n" + "</body>";   //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
     }
 
     private LinkedHashMap<String, String> getLanguageMap() {
