@@ -338,6 +338,8 @@ public abstract class QueryBuilder {
             // numeric detection
             boolean isLeftPathNum = false;
             boolean isRightValueNum = false;
+            boolean isRightValueDate = false;
+            boolean isRightValueDateTime = false;
             boolean isXpathFunction = false;
             boolean isNum = false;
             if (wc.getRightValueOrPath() != null) {
@@ -366,6 +368,10 @@ public abstract class QueryBuilder {
                                 || type.contains("xsd:unsignedInt") || type.contains("xsd:unsignedShort") //$NON-NLS-1$ //$NON-NLS-2$
                                 || type.contains("xsd:unsignedByte")) { //$NON-NLS-1$
                             isLeftPathNum = true;
+                        } else if (type.contains("xsd:date")) {
+                            isRightValueDate = true;
+                        } else if (type.contains("xsd:dateTime")) {
+                            isRightValueDateTime = true;
                         }
                     }
                 }                
@@ -489,6 +495,10 @@ public abstract class QueryBuilder {
                     }
                 } else if (isXpathFunction) {
                     where.append(factorPivots).append("= ").append(encoded); //$NON-NLS-1$
+                } else if (isRightValueDateTime) {
+                    where.append("xs:dateTime(").append(factorPivots).append(") = xs:dateTime(\"").append(encoded).append("\")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                } else if (isRightValueDate) {
+                    where.append("xs:date(").append(factorPivots).append(") = xs:date(\"").append(encoded).append("\")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 } else {
                     where.append("string(").append(factorPivots).append(") eq \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
@@ -513,6 +523,10 @@ public abstract class QueryBuilder {
                     }
                 } else if (isXpathFunction) {
                     where.append(factorPivots).append("> ").append(encoded); //$NON-NLS-1$
+                } else if (isRightValueDateTime) {
+                    where.append("xs:dateTime(").append(factorPivots).append(") > xs:dateTime(\"").append(encoded).append("\")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                } else if (isRightValueDate) {
+                    where.append("xs:date(").append(factorPivots).append(") > xs:date(\"").append(encoded).append("\")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 } else {
                     where.append("string(").append(factorPivots).append(") gt \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
@@ -525,6 +539,10 @@ public abstract class QueryBuilder {
                     }
                 } else if (isXpathFunction) {
                     where.append(factorPivots).append(" >= ").append(encoded); //$NON-NLS-1$
+                } else if (isRightValueDateTime) {
+                    where.append("xs:dateTime(").append(factorPivots).append(") >= xs:dateTime(\"").append(encoded).append("\")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                } else if (isRightValueDate) {
+                    where.append("xs:date(").append(factorPivots).append(") >= xs:date(\"").append(encoded).append("\")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 } else {
                     where.append("string(").append(factorPivots).append(") ge \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
@@ -537,6 +555,10 @@ public abstract class QueryBuilder {
                     }
                 } else if (isXpathFunction) {
                     where.append(factorPivots).append(" < ").append(encoded); //$NON-NLS-1$
+                } else if (isRightValueDateTime) {
+                    where.append("xs:dateTime(").append(factorPivots).append(") < xs:dateTime(\"").append(encoded).append("\")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                } else if (isRightValueDate) {
+                    where.append("xs:date(").append(factorPivots).append(") < xs:date(\"").append(encoded).append("\")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 } else {
                     where.append("string(").append(factorPivots).append(") lt \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
@@ -549,6 +571,10 @@ public abstract class QueryBuilder {
                     }
                 } else if (isXpathFunction) {
                     where.append(factorPivots).append(" <= ").append(encoded); //$NON-NLS-1$
+                } else if (isRightValueDate) {
+                    where.append("xs:dateTime(").append(factorPivots).append(") <= xs:dateTime(\"").append(encoded).append("\")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                } else if (isRightValueDate) {
+                    where.append("xs:date(").append(factorPivots).append(") <= xs:date(\"").append(encoded).append("\")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 } else {
                     where.append("string(").append(factorPivots).append(") le \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
