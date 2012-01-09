@@ -983,6 +983,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
      */
     public WSStringArray xPathsSearch(WSXPathsSearch wsXPathsSearch) throws RemoteException {
         try {
+            if (wsXPathsSearch.getReturnCount() == null) {
+                wsXPathsSearch.setReturnCount(Boolean.FALSE);
+            }
             Collection res = Util.getItemCtrl2Local().xPathsSearch(
                     new DataClusterPOJOPK(wsXPathsSearch.getWsDataClusterPK().getPk()), wsXPathsSearch.getPivotPath(),
                     new ArrayList<String>(Arrays.asList(wsXPathsSearch.getViewablePaths().getStrings())),
