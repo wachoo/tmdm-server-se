@@ -71,20 +71,11 @@ function f_submit(){
     var universe='';
     if(document.loginform.j_universe!=undefined && document.loginform.j_universe!=null)universe=document.loginform.j_universe.value;
     if(universe!=''&&universe=='HEAD')universe='';
+    if(universe){
+        document.loginform.j_username.value=universe+"/"+username ;
+    }
+    document.loginform.submit();
     
-    LoginInterface.isTimeOut(function(result) {
-        if(result) {
-            alert("Session time out!");
-            window.location.reload();           
-        }
-        else {
-            if(universe){
-                document.loginform.j_username.value=universe+"/"+username ;
-            }   
-            
-            document.loginform.submit();
-        }
-    });    
 }
 
 function getUniverseList()
