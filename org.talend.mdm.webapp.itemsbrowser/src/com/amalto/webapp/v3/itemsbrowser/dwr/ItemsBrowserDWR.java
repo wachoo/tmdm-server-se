@@ -2510,19 +2510,19 @@ public class ItemsBrowserDWR {
             ItemResult result;
             // TODO Ugly isn't it ?
             if (e.getLocalizedMessage().indexOf("routing failed:") == 0) { //$NON-NLS-1$
-                String saveSUCCE = MESSAGES.getMessage(locale, "save.success.but.exist.exception",
-                        concept + "." + Util.joinStrings(ids, "."), e.getLocalizedMessage());
+                String saveSUCCE = MESSAGES.getMessage(locale, "save.success.but.exist.exception", //$NON-NLS-1$
+                        concept + "." + Util.joinStrings(ids, "."), e.getLocalizedMessage()); //$NON-NLS-1$//$NON-NLS-2$
                 result = new ItemResult(ItemResult.FAILURE, saveSUCCE);
             } else {
-                String err = MESSAGES.getMessage(locale, "save.fail", concept + "." + Util.joinStrings(ids, "."),
+                String err = MESSAGES.getMessage(locale, "save.fail", concept + "." + Util.joinStrings(ids, "."), //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
                         e.getLocalizedMessage());
                 // fix bug 0014896
                 if (e.getLocalizedMessage().indexOf("ERROR_3:") == 0) {//$NON-NLS-1$
                     err = e.getLocalizedMessage();
                 }
-                // add feature TMDM-2327 SAXException:cvc-complex-type.2.4.b message transform
-                if (e.getLocalizedMessage().indexOf("cvc-complex-type.2.4.b") != -1) { //$NON-NLS-1$
-                    err = MESSAGES.getMessage(locale, "save.failEx", concept); //$NON-NLS-1$
+                // add feature TMDM-2327 SAXException:cvc-type message transform
+                if (e.getLocalizedMessage().indexOf("cvc-") != -1) { //$NON-NLS-1$
+                    err = MESSAGES.getMessage(locale, "save.fail.cvc.exception", concept); //$NON-NLS-1$
                 }
                 result = new ItemResult(ItemResult.FAILURE, err);
             }
