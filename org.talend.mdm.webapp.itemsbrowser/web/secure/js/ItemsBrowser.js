@@ -3508,20 +3508,99 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                 );
     }
 
-    function pickOutISOMessage(message){
-        var result = message.replaceAll("\\[", "{");
-        result = result.replaceAll("\\]", "}");
-        
-        var pattern = "([{]" + language
-                        .toUpperCase() + ":" + "(([^{]|[{][^{}]*[}])*)})";
-        var resultArray = result
-                .match(pattern);
-        if (resultArray != null) {
-            result = resultArray[2];
-            result = result.replaceAll("{", "[");
-            result = result.replaceAll("}", "]");
-        }
-        return result;
+    function pickOutISOMessage(errorString){
+    	// Parse states
+    	var PARSE_ERROR = 0;
+    	var LOOKING_FOR_OPENING_BRACKET = 1;
+    	var LOOKING_FOR_COUNTRY_CODE_FIRST_CHAR = 2;
+    	var LOOKING_FOR_COUNTRY_CODE_SECOND_CHAR = 3;
+    	var LOOKING_FOR_COLON = 4;
+    	var LOOKING_FOR_CLOSING_BRACKET = 5;
+    	var ENCOUNTERED_FIRST_BACKSLASH = 6;
+
+    	var parseState = LOOKING_FOR_OPENING_BRACKET;        
+    	var countryCodeBuffer = [];     // string buffer for constructing current country code
+    	var errorMessageBuffer = [];    // string buffer for constructing current error message
+    	var errorMessageHash = [];      // map between country code and message
+
+    	var i = 0;
+    	var errorStringLen = errorString.length;
+    	for (i = 0; i < errorStringLen && parseState != PARSE_ERROR; ++i) {
+    		var c = errorString.charAt(i);
+
+    		switch(parseState) {
+    		case LOOKING_FOR_OPENING_BRACKET: 
+    			if (c == '[') {
+    				parseState = LOOKING_FOR_COUNTRY_CODE_FIRST_CHAR;
+    			}
+    			break;
+    		case LOOKING_FOR_COUNTRY_CODE_FIRST_CHAR: 
+    			if (c.match(/[a-zA-Z]/) != null) {
+    				countryCodeBuffer.push(c);
+    				parseState = LOOKING_FOR_COUNTRY_CODE_SECOND_CHAR;
+    			}
+    			else {
+    				parseState = LOOKING_FOR_OPENING_BRACKET;
+    			}
+    			break;
+    		case LOOKING_FOR_COUNTRY_CODE_SECOND_CHAR: 
+    			if (c.match(/[a-zA-Z]/) != null) {
+    				countryCodeBuffer.push(c);
+    				parseState = LOOKING_FOR_COLON;
+    			}
+    			else {
+    				parseState = LOOKING_FOR_OPENING_BRACKET;
+    			}
+    			break;
+    		case LOOKING_FOR_COLON: 
+    			if (c == ':') {
+    				parseState = LOOKING_FOR_CLOSING_BRACKET;
+    			}
+    			else {
+    				parseState = LOOKING_FOR_OPENING_BRACKET;
+    			}
+    			break;
+    		case LOOKING_FOR_CLOSING_BRACKET: 
+    			if (c == ']') {
+    				errorMessageHash[countryCodeBuffer.join("").toLowerCase()] = errorMessageBuffer.join("");
+    				countryCodeBuffer = [];
+    				errorMessageBuffer = [];
+    				parseState = LOOKING_FOR_OPENING_BRACKET;
+    			}
+    			else if (c == '\\') {
+    				parseState = ENCOUNTERED_FIRST_BACKSLASH;
+    			}
+    			else {
+    				errorMessageBuffer.push(c);
+    			}                
+    			break;
+    		case ENCOUNTERED_FIRST_BACKSLASH:
+    			if (c == '\\' || c == ']') {
+    				errorMessageBuffer.push(c);
+    			}
+    			parseState = LOOKING_FOR_CLOSING_BRACKET;
+    			break;
+    		default:                
+    			parseState = PARSE_ERROR;
+    		}                        
+    	}
+
+    	var resultingErrorMessage = "";
+
+    	var langCode = language.toLowerCase();
+    	if (langCode in errorMessageHash) {
+    		resultingErrorMessage = errorMessageHash[langCode];
+    	}
+    	else {
+    		if ("en" in errorMessageHash) {
+    			resultingErrorMessage = errorMessageHash["en"];
+    		}   
+    		else {
+    			resultingErrorMessage = errorString;
+    		}
+    	}
+
+    	return resultingErrorMessage;
     }
     
     function displayItemDetails4Reference(itemPK2, dataObject, refreshCB) {
