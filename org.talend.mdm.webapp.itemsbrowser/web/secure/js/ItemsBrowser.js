@@ -3549,6 +3549,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
     				parseState = LOOKING_FOR_COLON;
     			}
     			else {
+    				countryCodeBuffer = [];
     				parseState = LOOKING_FOR_OPENING_BRACKET;
     			}
     			break;
@@ -3557,6 +3558,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
     				parseState = LOOKING_FOR_CLOSING_BRACKET;
     			}
     			else {
+    				countryCodeBuffer = [];
     				parseState = LOOKING_FOR_OPENING_BRACKET;
     			}
     			break;
