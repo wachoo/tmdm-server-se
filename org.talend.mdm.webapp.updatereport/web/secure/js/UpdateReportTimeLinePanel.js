@@ -6,10 +6,19 @@ var currentTime;
 var startTime;
 var endTime;
 var tempTime;
+var oldTempTime;
 var eventSource1;
+
+var timeOutId = null;
+var startIndex;
+var eventCache;
 
 function callback(msg){
 
+	startIndex = searchStart;
+	eventCache = [];
+	eventCache[startIndex] = true;
+	
 	var obj = msg.split("@||@");
 	
 	
@@ -42,7 +51,6 @@ function renderTimeline(jsonData, initDate){
     var theme2 = Timeline.ClassicTheme.create();
     theme2.event.tape.height = 6; 
     theme2.event.track.height = theme2.event.tape.height + 10;
-
     var d = Timeline.DateTime.parseGregorianDateTime(initDate)
     var bandInfos = [
         Timeline.createBandInfo({
@@ -87,20 +95,40 @@ function renderTimeline(jsonData, initDate){
 		startTime = band.getMinVisibleDate();
 		endTime = band.getMaxVisibleDate();
 	    tempTime = band.getCenterVisibleDate();
-	    setTimeout('loadDate()',200)  
+	    if (tempTime && oldTempTime){
+	    	var tabPanel = amalto.core.getTabPanel();
+	    	var updateReportPanel = tabPanel.getItem('UpdateReportPanel');
+	    	var pageSize = updateReportPanel.getCookie('updateReportPaging_pageSize')
+	    	var start = null;
+	    	if (tempTime.getTime() - oldTempTime.getTime() > 0){
+	    		start = parseInt(startIndex) + parseInt(pageSize);
+	    	} else if (tempTime.getTime() - oldTempTime.getTime() < 0){
+	    		start = parseInt(startIndex) - parseInt(pageSize);
+	    	}
+	    	if (start != null && start >= 0){
+	    		if (timeOutId != null){
+					window.clearTimeout(timeOutId);
+	    		}
+	    		timeOutId = setTimeout('loadDate(' + start + ',' + pageSize + ')',200)
+	    	}
+	    }
+	    oldTempTime = tempTime;
+	    
     });
 }
 
-function loadDate()
-{	
-	if (tempTime == currentTime && currentTime != lastLoadTime){		
-		var tabPanel = amalto.core.getTabPanel();		
-		var result = UpdateReportInterface.getReportString(
-				0, 10000,
-				tabPanel.getItem('UpdateReportPanel').getRequestParam(startTime.pattern("yyyy-MM-dd hh:mm:ss"),endTime.pattern("yyyy-MM-dd hh:mm:ss")), language,loadDateCallback);		
-		lastLoadTime = currentTime;
+function loadDate(start, limit)
+{	startIndex = start;
+	var tabPanel = amalto.core.getTabPanel();
+
+	if (eventCache){
+		if (eventCache[startIndex]){
+			return;
+		}
 	}
-	currentTime = tempTime;
+	UpdateReportInterface.getReportString(
+			start, limit,
+			tabPanel.getItem('UpdateReportPanel').getRequestParam(startTime.pattern("yyyy-MM-dd hh:mm:ss"),endTime.pattern("yyyy-MM-dd hh:mm:ss")), language,loadDateCallback);		
 }
 
 function loadDateCallback(result)
@@ -112,8 +140,10 @@ function loadDateCallback(result)
 	}else{
 		result = false;
 	}
-	eventSource1.clear();
-	eventSource1.loadJSON(result, document.location.href);
+	if (!eventCache[startIndex]){
+		eventSource1.loadJSON(result, document.location.href);
+		eventCache[startIndex] = true;
+	}
 }
 
 function showDialog(ids, key, epochTime, concept, dataCluster, dataModel){
