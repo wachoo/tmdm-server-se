@@ -41,7 +41,6 @@ import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
-import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSPutItem;
 import com.amalto.webapp.util.webservices.WSPutItemWithReport;
 
@@ -89,7 +88,7 @@ public class UploadData extends HttpServlet {
         String language = "en"; // default//$NON-NLS-1$
         String encoding = "utf-8";//$NON-NLS-1$
         String header = ""; //$NON-NLS-1$
-        String mandatoryField = "";
+        String mandatoryField = ""; //$NON-NLS-1$
         boolean cusExceptionFlag = false;
 
         boolean headersOnFirstLine = false;
@@ -257,8 +256,7 @@ public class UploadData extends HttpServlet {
 
             } else if ("csv".equals(fileType.toLowerCase())) { //$NON-NLS-1$
                 String line;
-                CSVBufferedReader br = new CSVBufferedReader(
-                        new InputStreamReader(new FileInputStream(file), "utf-8"), textDelimiter.charAt(0));//$NON-NLS-1$
+                CSVBufferedReader br = new CSVBufferedReader(new InputStreamReader(new FileInputStream(file), encoding), textDelimiter.charAt(0));
                 Map<String, Integer> headerIndex = null;
                 char separator = ',';
                 if ("semicolon".equals(sep))//$NON-NLS-1$
@@ -366,13 +364,9 @@ public class UploadData extends HttpServlet {
     
     private void putDocument(String xml, String language) throws ServletException {
         try {
-            // Util.getPort().putItem(
-            // new WSPutItem(new WSDataClusterPK(this.getCurrentDataCluster()), xml.toString(), new WSDataModelPK(this
-            // .getCurrentDataModel()), false));
-
             WSPutItemWithReport wsPutItemWithReport = new WSPutItemWithReport(new WSPutItem(new WSDataClusterPK(
                     getCurrentDataCluster()), xml, new WSDataModelPK(getCurrentDataModel()), false), "genericUI", true); //$NON-NLS-1$
-            WSItemPK wsi = CommonUtil.getPort().putItemWithReport(wsPutItemWithReport);
+            CommonUtil.getPort().putItemWithReport(wsPutItemWithReport);
 
         } catch (RemoteException e) {
             String err = MESSAGES.getMessage("save_fail", ""); //$NON-NLS-1$ //$NON-NLS-2$ 
