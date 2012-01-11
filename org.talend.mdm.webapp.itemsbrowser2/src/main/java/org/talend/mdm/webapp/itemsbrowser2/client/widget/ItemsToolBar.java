@@ -315,9 +315,8 @@ public class ItemsToolBar extends ToolBar {
                                                         int failureNum = getFailureItemsNumber(results);
 
                                                         if (successNum == 1 && failureNum == 0) {
-                                                            String msg = results.iterator().next().getDescription();
                                                             MessageBox.info(MessagesFactory.getMessages().info_title(),
-                                                                    pickOutISOMessage(msg.toString()), null);
+                                                                    MessagesFactory.getMessages().delete_record_success(), null);
                                                         } else if (successNum > 1 && failureNum == 0) {
                                                             msgs.append(MessagesFactory.getMessages().delete_item_record_success(
                                                                     successNum));
