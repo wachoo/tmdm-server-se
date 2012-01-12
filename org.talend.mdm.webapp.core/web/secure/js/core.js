@@ -105,10 +105,17 @@ String.prototype.startWith=function(str){
 
 var g_oHtmlEncodeElement;
 
-function htmlEscape(text)
+function jsStringEscape(text){
+	return text.replaceAll("\"","\\\"").replaceAll("\'","\\\'");
+}
+
+function htmlEscape(text, isAttrValue)
 {
     g_oHtmlEncodeElement = g_oHtmlEncodeElement || document.createElement("div");
     g_oHtmlEncodeElement.innerText = g_oHtmlEncodeElement.textContent = text;
+    if (isAttrValue){
+    	return g_oHtmlEncodeElement.innerHTML.replaceAll("\"","&quot;").replaceAll("\'","&#039;");
+    }
     return g_oHtmlEncodeElement.innerHTML;
 }
 
@@ -215,18 +222,19 @@ function loadResource(pathFromRootContext,verifiedObjectName) {
 	}
 	
 	function load() {
+		var timestamp = new Date().getTime();
 		if ( (type=='js') && isDefined('window',verifiedObjectName)) return;
 		//Begin by creating a new Loader instance:
 		var loader = new YAHOO.util.YUILoader();
 		//Add the module to YUILoader
 	    loader.addModule({
-	        name: pathFromRootContext, //module name; must be unique
+	        name: pathFromRootContext + "?timestamp=" + timestamp, //module name; must be unique
 	        type: type,
-	        fullpath: "../../../../"+pathFromRootContext, //can use a fullpath instead
+	        fullpath: "../../../../"+pathFromRootContext + "?timestamp=" + timestamp, //can use a fullpath instead
 	        varName: verifiedObjectName //replaces the verifier function in 2.4.0 - ignored if css
 	    });
 		//include the new script
-	    loader.require(pathFromRootContext); 
+	    loader.require(pathFromRootContext + "?timestamp=" + timestamp); 
 	    //new for 2.4.0 - specify call back function
 	    loader.onSuccess = loaderCallback;
 		//Insert Script on the page, passing in our callback:
