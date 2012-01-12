@@ -1398,8 +1398,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     private ItemNodeModel builderNode(Map<String, Integer> multiNodeIndex, Element el, EntityModel entity, String baseXpath,
-            String xpath, boolean isPolyType,
-            StringBuffer foreignKeyDeleteMessage, String language) throws Exception {
+            String xpath, boolean isPolyType, StringBuffer foreignKeyDeleteMessage, String language) throws Exception {
         Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
         String realType = el.getAttribute("xsi:type"); //$NON-NLS-1$
         if (isPolyType) {
@@ -1491,8 +1490,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
                         if (typeModel.getTypePath().equals(tem_typePath)) {
                             ItemNodeModel childNode = builderNode(multiNodeIndex, (Element) child, entity, baseXpath, xpath,
-                                    isPolyType,
-                                    foreignKeyDeleteMessage, language);
+                                    isPolyType, foreignKeyDeleteMessage, language);
                             childNode.setHasVisiblueRule(typeModel.isHasVisibleRule());
                             nodeModel.add(childNode);
                             existNodeFlag = true;
@@ -1628,12 +1626,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     err = MESSAGES.getMessage(locale, "save_validationrule_fail", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
                             + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), "."), ""); //$NON-NLS-1$ //$NON-NLS-2$ 
                 else if (e.getMessage().indexOf("<msg>") > -1) {//$NON-NLS-1$) 
+
                     if (e.getMessage().indexOf(language.toUpperCase() + ":") == -1) //$NON-NLS-1$
                         err = MESSAGES.getMessage(locale, "save_validationrule_fail", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
-                                + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), "."), //$NON-NLS-1$
-                                e.getMessage().replace("<msg>", "[" + language.toUpperCase() + ":").replace("</msg>", "]")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                                + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), "."), e.getMessage()); //$NON-NLS-1$
                     else
                         err = e.getMessage();
+
                 }
                 // add feature TMDM-2327 SAXException:cvc-complex-type.2.4.b message transform
                 if (e.getMessage().indexOf("cvc-complex-type.2.4.b") != -1) { //$NON-NLS-1$
@@ -1656,7 +1655,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         String concept = entityModel.getConceptName();
         return saveItem(concept, ids, xml, isCreate, language);
     }
-    
+
     public String updateItem(String concept, String ids, Map<String, String> changedNodes, String language)
             throws ServiceException {
         String dataCluster = getCurrentDataCluster();
@@ -1827,7 +1826,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         byte[] bytes = item.getWsTypedContent().getWsBytes().getBytes();
                         String content = new String(bytes);
                         if (LOG.isDebugEnabled())
-                            LOG.debug("Received output_url "+ content); //$NON-NLS-1$
+                            LOG.debug("Received output_url " + content); //$NON-NLS-1$
                         try {
                             Document resultDoc = Util.parse(content);
 
