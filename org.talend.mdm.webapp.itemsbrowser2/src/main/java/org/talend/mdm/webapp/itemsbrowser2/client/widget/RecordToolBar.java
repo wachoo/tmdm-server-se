@@ -69,7 +69,7 @@ public class RecordToolBar extends ToolBar {
                         public void handleEvent(MessageBoxEvent be) {
                             if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
                                 final ItemsFormPanel parent = (ItemsFormPanel) instance.getParent().getParent();
-                                service.deleteItemBean(parent.getItemBean(), new SessionAwareAsyncCallback<ItemResult>() {
+                                service.deleteItemBean(parent.getItemBean(), GetService.getLanguage(), new SessionAwareAsyncCallback<ItemResult>() {
 
                                     @Override
                                     protected void doOnFailure(Throwable arg0) {

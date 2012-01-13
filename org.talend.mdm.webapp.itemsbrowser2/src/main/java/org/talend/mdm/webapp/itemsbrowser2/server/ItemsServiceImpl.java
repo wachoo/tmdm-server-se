@@ -169,12 +169,12 @@ public class ItemsServiceImpl extends AbstractService implements ItemsService {
      * org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#deleteItemBean(org.talend.mdm.webapp.itemsbrowser2.client
      * .model.ItemBean)
      */
-    public ItemResult deleteItemBean(ItemBean item) {
-        return itemsServiceHandler.deleteItemBean(item);
+    public ItemResult deleteItemBean(ItemBean item, String language) {
+        return itemsServiceHandler.deleteItemBean(item, language);
     }
 
-    public List<ItemResult> deleteItemBeans(List<ItemBean> items) {
-        return itemsServiceHandler.deleteItemBeans(items);
+    public List<ItemResult> deleteItemBeans(List<ItemBean> items, String language) {
+        return itemsServiceHandler.deleteItemBeans(items, language);
     }
 
     /**
