@@ -9,6 +9,10 @@ amalto.hierarchical.HierarchicalViewDisplay = function(config) {
 	amalto.hierarchical.HierarchicalViewDisplay.superclass.constructor
 			.call(this);
 };
+var HIERARCHY = {
+    'fr' : 'Hiérarchie->',
+    'en' : 'Hierarchy->'
+};
 Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 	initUIComponents : function() {
 	   
@@ -606,7 +610,7 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 				DWREngine.setAsync(true);
 				var idArray = new Array(1); 
 				idArray[0]=node.id;
-				amalto.itemsbrowser.ItemsBrowser.editItemDetails(idArray,dataObjectName,function(){
+				amalto.itemsbrowser.ItemsBrowser.editItemDetails(HIERARCHY[language], idArray, dataObjectName, function(){
 					this.doRefreshAfterEdit()
 				}.createDelegate(this));
 		}

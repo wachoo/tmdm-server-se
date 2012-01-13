@@ -9,6 +9,12 @@ amalto.updatereport.HistoryViewer = function(config) {
 
 var panelId = "datachangesviewer";
 
+var JOURNAL_NAME = {
+	'fr' : 'Journal->',
+	'en' : 'Journal->'
+			
+};
+
 Ext.extend(amalto.updatereport.HistoryViewer, Ext.Panel, {
 	initUIComponents : function() {
 	    Ext.apply(this, {
@@ -88,7 +94,7 @@ Ext.extend(amalto.updatereport.HistoryViewer, Ext.Panel, {
 		        	});
 
 		        	if(result) {
-		        		amalto.itemsbrowser.ItemsBrowser.editItemDetails(this.key.split('\.'), this.concept, function(){});
+		        		amalto.itemsbrowser.ItemsBrowser.editItemDetails(JOURNAL_NAME[language], this.key.split('\.'), this.concept, function(){});
 		        	}
 		        	else {
 		        		Ext.MessageBox.alert("Error", "Please select the corresponding Data Container and Data Model.");

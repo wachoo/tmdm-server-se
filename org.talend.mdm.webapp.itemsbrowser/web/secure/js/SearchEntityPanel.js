@@ -37,6 +37,11 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
 	    'en' : 'Number of lines per page'
 	};
 	
+	var BROWSE_RECORDS = {
+	    'fr' : 'Accès aux données->',
+	    'en' : 'BrowseRecords->'
+	};
+	
     Ext.apply(Ext.form.VTypes, {  
          dateRange: function(val, field){  
              if(field.dateRange){  
@@ -121,7 +126,7 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
 				var ids = record.data.key;
 				var entity = record.data.entity;
 				//@yguo, should be open the record
-				amalto.itemsbrowser.ItemsBrowser.editItemDetails(ids, entity,
+				amalto.itemsbrowser.ItemsBrowser.editItemDetails(BROWSE_RECORDS[language], ids, entity,
 					function() {});
 				amalto.core.doLayout();
 				
