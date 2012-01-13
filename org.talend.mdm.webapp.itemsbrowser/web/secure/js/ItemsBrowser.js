@@ -583,6 +583,11 @@ amalto.itemsbrowser.ItemsBrowser = function() {
     	'en' : 'Cancel'
     };
     
+    var BROWSE_RECORDS = {
+    	'fr' : 'Accès aux données->',
+    	'en' : 'BrowseRecords->'
+    };
+    
     /***************************************************************************
      * EXT 2.0
      **************************************************************************/
@@ -2544,7 +2549,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
     var itemTreeFK;
 
     function displayItemDetails(itemPK2, dataObject, isBreadCrumb, parentLink) {
-        displayItemDetails2(itemPK2, dataObject, false, displayItems,
+        displayItemDetails2(BROWSE_RECORDS[language], itemPK2, dataObject, false, displayItems,
                 isBreadCrumb, parentLink);
     }
 
@@ -2556,8 +2561,11 @@ amalto.itemsbrowser.ItemsBrowser = function() {
     			window.top.org_talend_mdm_webapp_itemsbrowser2_InBoundService_refreshGrid();
     		}
     	};
-    	
-        displayItemDetails2(itemPK2, dataObject, true, refreshCB);
+    	var itempanel = amalto.core.getTabPanel().activeTab;
+		if(itempanel.fromWhichApp == undefined)
+			itempanel.fromWhichApp = BROWSE_RECORDS[language];
+			
+        displayItemDetails2(itempanel.formWhichApp, itemPK2, dataObject, true, refreshCB);
 
     }
 
@@ -3375,7 +3383,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                     
                     
                     // record the item id
-                    contentPanel.itemid = itemPK2 + "." + dataObject;
+                    contentPanel.itemid = BROWSE_RECORDS[language] + "." + itemPK2 + "." + dataObject;
+                    contentPanel.fromWhichApp = BROWSE_RECORDS[language];
 
                     amalto.core.doLayout();                    
                 });
@@ -3605,7 +3614,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
     	return resultingErrorMessage;
     }
     
-    function displayItemDetails4Reference(itemPK2, dataObject, refreshCB) {
+    function displayItemDetails4Reference(fromWhichApp, itemPK2, dataObject, refreshCB) {
 
         DWREngine.setAsync(false);
         ItemsBrowserInterface.getRootNode(dataObject, language, function(
@@ -3617,11 +3626,11 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                 });
         DWREngine.setAsync(true);
 
-        displayItemDetails2(itemPK2, dataObject, false, refreshCB);
+        displayItemDetails2(fromWhichApp, itemPK2, dataObject, false, refreshCB);
 
     }
 
-    function displayItemDetails2(itemPK2, dataObject, isDuplicate, refreshCB,
+    function displayItemDetails2(fromWhichApp, itemPK2, dataObject, isDuplicate, refreshCB,
             isBreadCrumb, parentLink) {
 
         // alert("display items "+DWRUtil.toDescriptiveString(itemPK2,2)+" "+
@@ -3635,8 +3644,11 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         var parentLink = parentLink;
         // see 0013478 prevent 2 tabs from being opened on the same record.
         var itemContentPanel;
+        if (fromWhichApp == undefined)
+        	fromWhichApp = BROWSE_RECORDS[language];
         tabPanel.items.each(function(item) {
-                    if (item.itemid == itemPK2 + "." + dataObject) {
+        			// fix bug TMDM-1962
+                    if (item.itemid == fromWhichApp + "." + itemPK2 + "." + dataObject) {
                         itemContentPanel = item;                         
                     }
                 });
@@ -3704,8 +3716,10 @@ amalto.itemsbrowser.ItemsBrowser = function() {
   		                 }
   		             }
 		             
+                     myTitle = fromWhichApp + myTitle;
+                     
 		        	 if (itemContentPanel && isDuplicate == false) {
-		                if (itemContentPanel.itemid == itemPK2 + "." + dataObject
+		                if (itemContentPanel.itemid == fromWhichApp + "." + itemPK2 + "." + dataObject
 		                        && !(parentLink != undefined && parentLink["isWindow"] == "true")) {
 		                	itemContentPanel.setTitle(myTitle);
 		                    itemContentPanel.show();
@@ -4350,8 +4364,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
                         tabPanel.add(contentPanel);
                         // record the item id
-                        contentPanel.itemid = itemPK2 + "." + dataObject;
-
+                        contentPanel.itemid = fromWhichApp + "." + itemPK2 + "." + dataObject;
+						contentPanel.fromWhichApp = fromWhichApp;
                         contentPanel.show();
                         contentPanel.doLayout();
                         
@@ -5162,8 +5176,12 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                      for (var i = 0; i < itemPK.length; i++) {
                          myTitle += " " + itemPK[i];
                      }
-                    
-                	itempanel.itemid = itemPK + "." + dataObject;   
+                    if (itempanel.fromWhichApp == undefined) {
+                    	itempanel.itemid = itemPK + "." + dataObject;	
+                    } else {
+                		myTitle = itempanel.fromWhichApp + myTitle;
+                    	itempanel.itemid = itempanel.fromWhichApp + "." + itemPK + "." + dataObject;
+                    }
                 	itempanel.title = myTitle;
                 	if (itempanel.getUpdater())
                 		itempanel.getUpdater().refresh();                	
@@ -6520,8 +6538,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         displayItemDetails : function(itemPK2, dataObject) {
             displayItemDetails(itemPK2, dataObject);
         },
-        editItemDetails : function(itemPK, dataObject, refreshCB) {
-            displayItemDetails4Reference(itemPK, dataObject, refreshCB);
+        editItemDetails : function(fromWhichApp, itemPK, dataObject, refreshCB) {
+            displayItemDetails4Reference(fromWhichApp, itemPK, dataObject, refreshCB);
         },
         getSiblingsLength : function(node) {
             getSiblingsLength(node);

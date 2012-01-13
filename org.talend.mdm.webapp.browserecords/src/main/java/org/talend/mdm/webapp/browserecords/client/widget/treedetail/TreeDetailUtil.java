@@ -162,7 +162,7 @@ public class TreeDetailUtil {
         return hp;
     }
     
-    public static void initItemsDetailPanelById(String ids, final String concept) {
+    public static void initItemsDetailPanelById(final String fromWhichApp, String ids, final String concept) {
         String[] idArr = ids.split(","); //$NON-NLS-1$
         final ItemsDetailPanel panel = new ItemsDetailPanel();
         final BrowseRecordsServiceAsync brService = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
@@ -188,7 +188,8 @@ public class TreeDetailUtil {
 
                                 TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(item.getConcept());
 
-                                String tabItemId = typeModel.getLabel(Locale.getLanguage()) + " " + panel.getItemId(); //$NON-NLS-1$
+                                String tabItemId = fromWhichApp + typeModel.getLabel(Locale.getLanguage())
+                                        + " " + panel.getItemId(); //$NON-NLS-1$
                                 panel.setHeading(tabItemId);
                                 panel.setItemId(tabItemId);
                                 renderTreeDetailPanel(tabItemId, panel);

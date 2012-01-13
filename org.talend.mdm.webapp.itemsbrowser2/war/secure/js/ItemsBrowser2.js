@@ -12,6 +12,10 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
         'en' : 'Rendering error occured!'
 	};
 	
+	var BROWSE_RECORDS = {
+	    'fr' : 'Accès aux données->',
+	    'en' : 'BrowseRecords->'
+	};
 
 	var resizeViewPort = function(component , adjWidth, adjHeight, rawWidth, rawHeight){
 		if (window.org_talend_mdm_webapp_itemsbrowser2_client_ItemsView_onResizeViewPort != undefined){
@@ -69,7 +73,7 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
 		var isdArray;
 		if (ids != null && ids != "")			
 			isdArray = ids.split(".");
-		amalto.itemsbrowser.ItemsBrowser.editItemDetails(isdArray, conceptName,	refreshCB);
+		amalto.itemsbrowser.ItemsBrowser.editItemDetails(BROWSE_RECORDS[language], isdArray, conceptName,	refreshCB);
 	};
 
 	function renderFormWindow(itemPK2, dataObject, isDuplicate, handleCallback, formWindow, isDetail, enableQuit) {
