@@ -25,6 +25,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.ItemsEvents;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
+import org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService;
 import org.talend.mdm.webapp.itemsbrowser2.client.creator.ItemCreator;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
@@ -300,7 +301,7 @@ public class ItemsToolBar extends ToolBar {
                             public void handleEvent(MessageBoxEvent be) {
                                 if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
                                     if (list.getGrid() != null) {
-                                        service.deleteItemBeans(list.getGrid().getSelectionModel().getSelectedItems(),
+                                        service.deleteItemBeans(list.getGrid().getSelectionModel().getSelectedItems(), GetService.getLanguage(),
                                                 new SessionAwareAsyncCallback<List<ItemResult>>() {
 
                                                     @Override
@@ -315,8 +316,9 @@ public class ItemsToolBar extends ToolBar {
                                                         int failureNum = getFailureItemsNumber(results);
 
                                                         if (successNum == 1 && failureNum == 0) {
+                                                            String msg = results.iterator().next().getDescription();
                                                             MessageBox.info(MessagesFactory.getMessages().info_title(),
-                                                                    MessagesFactory.getMessages().delete_record_success(), null);
+                                                                    pickOutISOMessage(msg.toString()), null);
                                                         } else if (successNum > 1 && failureNum == 0) {
                                                             msgs.append(MessagesFactory.getMessages().delete_item_record_success(
                                                                     successNum));

@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -71,6 +72,7 @@ import org.w3c.dom.NodeList;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.util.Messages;
 import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.XtentisWebappException;
@@ -119,6 +121,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     private static final Logger LOG = Logger.getLogger(ItemServiceCommonHandler.class);
 
     private static final Pattern extractIdPattern = Pattern.compile("\\[.*?\\]"); //$NON-NLS-1$
+
+    private static final Messages MESSAGES = com.amalto.core.util.MessagesFactory.getMessages(
+            "org.talend.mdm.webapp.itemsbrowser2.client.i18n.ItemsbrowserMessages", ItemServiceCommonHandler.class.getClassLoader()); //$NON-NLS-1$
 
     private Object[] getItemBeans(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String criteria, int skip,
             int max, String sortDir, String sortCol, String language) {
@@ -442,8 +447,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     }
 
     @Override
-    public ItemResult deleteItemBean(ItemBean item) {
+    public ItemResult deleteItemBean(ItemBean item, String language) {
         try {
+            Locale locale = new Locale(language);
             String dataClusterPK = getCurrentDataCluster();
             String concept = item.getConcept();
             String[] ids = extractIdWithDots(item.getIds());
@@ -471,16 +477,16 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                     status = ItemResult.SUCCESS;
                     pushUpdateReport(ids, concept, "PHYSICAL_DELETE", true); //$NON-NLS-1$
                     if (message == null || message.length() == 0)
-                        message = MessagesFactory.getMessages().delete_record_success();
+                        message = MESSAGES.getMessage(locale, "delete_record_success"); //$NON-NLS-1$
                 } else {
                     status = ItemResult.FAILURE;
-                    message = MessagesFactory.getMessages().delete_record_failure();
+                    message = MESSAGES.getMessage(locale, "delete_record_failure"); //$NON-NLS-1$
                 }
             } else {
                 // Anything but 0 is unsuccessful
                 status = ItemResult.FAILURE;
                 if (message == null || message.length() == 0)
-                    message = MessagesFactory.getMessages().delete_process_validation_failure();
+                    message = MESSAGES.getMessage(locale, "delete_process_validation_failure"); //$NON-NLS-1$
             }
 
             return new ItemResult(status, message);
@@ -492,10 +498,10 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     }
 
     @Override
-    public List<ItemResult> deleteItemBeans(List<ItemBean> items) {
+    public List<ItemResult> deleteItemBeans(List<ItemBean> items, String language) {
         List<ItemResult> itemResults = new ArrayList<ItemResult>();
         for (ItemBean item : items) {
-            ItemResult itemResult = deleteItemBean(item);
+            ItemResult itemResult = deleteItemBean(item, language);
             itemResults.add(itemResult);
         }
         return itemResults;
