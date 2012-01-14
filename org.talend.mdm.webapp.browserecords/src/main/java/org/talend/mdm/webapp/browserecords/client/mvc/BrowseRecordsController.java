@@ -141,7 +141,7 @@ public class BrowseRecordsController extends Controller {
                     public void onSuccess(ItemResult result) {
                         MessageBox msgBox = null;
                         if (result.getDescription() != "")//$NON-NLS-1$
-                            msgBox = MessageBox.info(MessagesFactory.getMessages().info_title(), result.getDescription(), null);
+                            msgBox = MessageBox.info(MessagesFactory.getMessages().info_title(), CommonUtil.pickOutISOMessage(result.getDescription()), null);
                         else
                             msgBox = MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
                                     .save_success(), null);
