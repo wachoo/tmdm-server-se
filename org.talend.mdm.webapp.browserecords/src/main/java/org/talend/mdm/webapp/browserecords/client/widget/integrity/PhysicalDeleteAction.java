@@ -23,7 +23,7 @@ public class PhysicalDeleteAction implements DeleteAction {
 
             public void onSuccess(String msg) {
                 if (msg != null && !msg.equals("")) { //$NON-NLS-1$
-                    MessageBox.info(MessagesFactory.getMessages().info_title(), msg, null);
+                    MessageBox.info(MessagesFactory.getMessages().info_title(), CommonUtil.pickOutISOMessage(msg), null);
                 }
                 postDeleteAction.doAction();
             }
