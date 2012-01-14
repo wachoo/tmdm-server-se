@@ -1,11 +1,15 @@
 package org.talend.mdm.webapp.browserecords.client.widget.integrity;
 
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
+import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
+
+import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 
 /**
  * Wraps a physical delete operation.
@@ -22,6 +26,18 @@ public class PhysicalDeleteAction implements DeleteAction {
                     MessageBox.info(MessagesFactory.getMessages().info_title(), msg, null);
                 }
                 postDeleteAction.doAction();
+            }
+
+            @Override
+            protected void doOnFailure(Throwable caught) {
+                String errorMsg = caught.getLocalizedMessage();
+                if (errorMsg == null) {
+                    if (Log.isDebugEnabled())
+                        errorMsg = caught.toString(); // for debugging purpose
+                    else
+                        errorMsg = BaseMessagesFactory.getMessages().unknown_error();
+                }
+                MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), CommonUtil.pickOutISOMessage(errorMsg), null);
             }
         });
     }
