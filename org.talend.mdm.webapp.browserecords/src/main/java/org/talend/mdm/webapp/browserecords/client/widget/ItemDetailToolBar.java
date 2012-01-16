@@ -827,6 +827,11 @@ public class ItemDetailToolBar extends ToolBar {
     }-*/;
 
     public void saveItemAndClose(final boolean isClose) {
+        if (itemBean.getIds().trim().equals("")) { //$NON-NLS-1$
+            saveItem(isClose);
+            return;
+        }
+
         service.isItemModifiedByOthers(itemBean, new SessionAwareAsyncCallback<Boolean>() {
 
             public void onSuccess(Boolean result) {
