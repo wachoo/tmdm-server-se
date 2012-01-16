@@ -19,21 +19,22 @@ import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
+import org.talend.mdm.webapp.base.shared.FileUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
+import org.talend.mdm.webapp.browserecords.shared.Constants;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FormEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -41,10 +42,10 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.HiddenField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 
 
 /**
@@ -53,8 +54,6 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent> {
 
     private String tableName;
-
-    private ComboBox<ItemBaseModel> fileTypecombo;
     
     private ComboBox<ItemBaseModel> separatorCombo;
     
@@ -162,6 +161,32 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         file.setName("file"); //$NON-NLS-1$
         file.setId("fileUpload");//$NON-NLS-1$   
         file.setFieldLabel(MessagesFactory.getMessages().label_field_file());
+        file.addListener(Events.Change, new Listener<BaseEvent>() {
+
+            public void handleEvent(BaseEvent be) {                
+                type =  FileUtil.getFileType(file.getValue());
+                if (type.equalsIgnoreCase("CSV")) { //$NON-NLS-1$
+                    separatorCombo.enable();
+                    textDelimiterCombo.enable();
+                    encodingCombo.enable();
+                    
+                    separatorCombo.setAllowBlank(false);
+                    textDelimiterCombo.setAllowBlank(false);
+                    encodingCombo.setAllowBlank(false);
+                } else {
+                    separatorCombo.disable();
+                    textDelimiterCombo.disable();
+                    encodingCombo.disable();
+                    
+                    separatorCombo.setAllowBlank(true);
+                    separatorCombo.validate();
+                    textDelimiterCombo.setAllowBlank(true);
+                    textDelimiterCombo.validate();
+                    encodingCombo.setAllowBlank(true);
+                    encodingCombo.validate();
+                } 
+            }
+        });
         this.add(file);
 
         List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
@@ -176,20 +201,6 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         list.add(csv);
         ListStore<ItemBaseModel> typeList = new ListStore<ItemBaseModel>();
         typeList.add(list);
-
-        fileTypecombo = new ComboBox<ItemBaseModel>();
-        fileTypecombo.setId("typeCom"); //$NON-NLS-1$
-        fileTypecombo.setName("fileType"); //$NON-NLS-1$
-        fileTypecombo.setEmptyText(MessagesFactory.getMessages().label_combo_filetype_select());
-        fileTypecombo.setFieldLabel(MessagesFactory.getMessages().label_field_filetype());
-        fileTypecombo.setEditable(false);
-        fileTypecombo.setTriggerAction(TriggerAction.ALL);
-        fileTypecombo.setDisplayField("label"); //$NON-NLS-1$
-        fileTypecombo.setValueField("key"); //$NON-NLS-1$
-        fileTypecombo.setStore(typeList);
-        fileTypecombo.setAllowBlank(false);
-        this.add(fileTypecombo);
-
 
         headerLine = new CheckBox();
         headerLine.setId("headersOnFirstLine");//$NON-NLS-1$
@@ -283,33 +294,6 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         encodingCombo.setTriggerAction(TriggerAction.ALL);
         this.add(encodingCombo);
 
-        fileTypecombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
-
-            @Override
-            public void selectionChanged(SelectionChangedEvent<ItemBaseModel> event) {
-                if (event.getSelectedItem() == null)
-                    return;
-                type = (String) event.getSelectedItem().get("key"); //$NON-NLS-1$
-                if (type.equalsIgnoreCase("CSV")) { //$NON-NLS-1$
-                    separatorCombo.enable();
-                    textDelimiterCombo.enable();
-                    encodingCombo.enable();
-                    
-                    separatorCombo.setAllowBlank(false);
-                    textDelimiterCombo.setAllowBlank(false);
-                    encodingCombo.setAllowBlank(false);
-                } else {
-                    separatorCombo.disable();
-                    textDelimiterCombo.disable();
-                    encodingCombo.disable();
-                    
-                    separatorCombo.setAllowBlank(true);
-                    textDelimiterCombo.setAllowBlank(true);
-                    encodingCombo.setAllowBlank(true);
-                }
-            }
-        });
-
         Button submit = new Button(MessagesFactory.getMessages().label_button_submit());
         submit.setId("btnSubmit");//$NON-NLS-1$
         submit.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -317,14 +301,9 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
             @Override
             public void componentSelected(ButtonEvent ce) {
                 if (!UploadFileFormPanel.this.isValid())
-                    return;
-                
-                String fileName = file.getValue();
-                String str = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length()); //$NON-NLS-1$
-                if(str.equalsIgnoreCase("xls")){ //$NON-NLS-1$
-                    str = "excel"; //$NON-NLS-1$
-                }
-                if(!str.equalsIgnoreCase(type)){
+                    return;    
+
+                if(!Constants.FileType_Imported.contains(type.toLowerCase())){
                     MessageBox.alert(MessagesFactory.getMessages().error_title(), 
                             MessagesFactory.getMessages().error_incompatible_file_type(), null);
                     return;

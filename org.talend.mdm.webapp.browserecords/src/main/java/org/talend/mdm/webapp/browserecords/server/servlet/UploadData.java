@@ -26,15 +26,17 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
+import org.talend.mdm.webapp.base.shared.FileUtil;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
 import org.talend.mdm.webapp.browserecords.server.util.CSVBufferedReader;
-import org.talend.mdm.webapp.browserecords.server.util.ReadCSVToken;
 
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
@@ -133,8 +135,6 @@ public class UploadData extends HttpServlet {
                     LOG.debug("doPost() Field: '" + name + "' - value:'" + item.getString() + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     if (name.equals("concept"))//$NON-NLS-1$
                         viewPK = item.getString();
-                    if (name.equals("fileType"))//$NON-NLS-1$
-                        fileType = item.getString();
                     if (name.equals("sep"))//$NON-NLS-1$
                         sep = item.getString();
                     if (name.equals("delimiter"))//$NON-NLS-1$
@@ -150,7 +150,7 @@ public class UploadData extends HttpServlet {
                     if (name.equals("headersOnFirstLine"))//$NON-NLS-1$
                         headersOnFirstLine = "on".equals(item.getString());//$NON-NLS-1$
                 } else {
-
+                    fileType = FileUtil.getFileType(item.getName());
                     file = File.createTempFile("upload", "tmp");//$NON-NLS-1$//$NON-NLS-2$
                     LOG.debug("doPost() data uploaded in " + file.getAbsolutePath()); //$NON-NLS-1$
                     file.deleteOnExit();
@@ -168,30 +168,41 @@ public class UploadData extends HttpServlet {
                 throw new ServletException(MESSAGES.getMessage(locale, "error_missing_mandatory_field")); //$NON-NLS-1$
             }
 
-            if ("excel".equals(fileType.toLowerCase())) {//$NON-NLS-1$
-                POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(file));
-                HSSFWorkbook wb = new HSSFWorkbook(fs);
-                HSSFSheet sh = wb.getSheetAt(0);
+            if ("xls".equals(fileType.toLowerCase()) || "xlsx".equals(fileType.toLowerCase())) {//$NON-NLS-1$ //$NON-NLS-2$
+                Workbook wb;
+                if ("xls".equals(fileType.toLowerCase())){ //$NON-NLS-1$
+                    POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(file));
+                    wb = new HSSFWorkbook(fs);
+                }else{
+                    wb = new XSSFWorkbook(new FileInputStream(file));
+                }
+                Sheet sh = wb.getSheetAt(0);
                 Iterator it = sh.rowIterator();
 
                 Map<String, Integer> headerIndex = null;
                 while (it.hasNext()) {
-                    HSSFRow row = (HSSFRow) it.next();
+                    Row row = (Row) it.next();
                     int count = row.getPhysicalNumberOfCells();
-                    if (fields.length != count) {
-                        cusExceptionFlag = true;
-                        throw new ServletException(MESSAGES.getMessage(locale, "error_column_width")); //$NON-NLS-1$
-                    }
-                    ++lineNum;
-                    if (lineNum == 1 && headersOnFirstLine) {
-                        headerIndex = genHeaderIndex(row);
+                    
+                    if (++lineNum == 1 && headersOnFirstLine) {
+                        headerIndex = getHeaderIndex(row,header);
+                        if (headerIndex.size() != fields.length){
+                            cusExceptionFlag = true;
+                            throw new ServletException(MESSAGES.getMessage(locale, "error_column_header",fields.length,headerIndex.size())); //$NON-NLS-1$
+                        }                            
                         continue;
                     }
+                    
+                    if (fields.length != count) {
+                        cusExceptionFlag = true;                        
+                        throw new ServletException(MESSAGES.getMessage(locale, "error_column_width",fields.length,count,lineNum)); //$NON-NLS-1$
+                    }
+
                     StringBuffer xml = new StringBuffer();
                     boolean allCellsEmpty = true;
                     xml.append("<" + concept + ">");//$NON-NLS-1$//$NON-NLS-2$
                     for (int i = 0; i < fields.length; i++) {
-                        HSSFCell tmpCell = null;
+                        Cell tmpCell = null;
                         if (headersOnFirstLine){
                             String fieldName = fields[i].split(":")[0]; //$NON-NLS-1$
                             tmpCell = row.getCell((short) headerIndex.get(fieldName).intValue());
@@ -207,16 +218,16 @@ public class UploadData extends HttpServlet {
                             int cellType = tmpCell.getCellType();
                             String cellValue = "";//$NON-NLS-1$
                             switch (cellType) {
-                                case HSSFCell.CELL_TYPE_NUMERIC: {
+                                case Cell.CELL_TYPE_NUMERIC: {
                                     double tmp = tmpCell.getNumericCellValue();
                                     cellValue = getStringRepresentation(tmp);
                                     break;
                                 }
-                                case HSSFCell.CELL_TYPE_STRING: {
+                                case Cell.CELL_TYPE_STRING: {
                                     cellValue = tmpCell.getRichStringCellValue().getString();
                                     break;
                                 }
-                                case HSSFCell.CELL_TYPE_BOOLEAN: {
+                                case Cell.CELL_TYPE_BOOLEAN: {
                                     boolean tmp = tmpCell.getBooleanCellValue();
                                     if (tmp)
                                         cellValue = "true";//$NON-NLS-1$
@@ -224,14 +235,14 @@ public class UploadData extends HttpServlet {
                                         cellValue = "false";//$NON-NLS-1$
                                     break;
                                 }
-                                case HSSFCell.CELL_TYPE_FORMULA: {
+                                case Cell.CELL_TYPE_FORMULA: {
                                     cellValue = tmpCell.getCellFormula();
                                     break;
                                 }
-                                case HSSFCell.CELL_TYPE_ERROR: {
+                                case Cell.CELL_TYPE_ERROR: {
                                     break;
                                 }
-                                case HSSFCell.CELL_TYPE_BLANK: {
+                                case Cell.CELL_TYPE_BLANK: {
                                 }
                                 default: {
                                 }
@@ -256,28 +267,37 @@ public class UploadData extends HttpServlet {
 
             } else if ("csv".equals(fileType.toLowerCase())) { //$NON-NLS-1$
                 String line;
+                List<String> values;
                 CSVBufferedReader br = new CSVBufferedReader(new InputStreamReader(new FileInputStream(file), encoding), textDelimiter.charAt(0));
                 Map<String, Integer> headerIndex = null;
-                char separator = ',';
+                String separator = ","; //$NON-NLS-1$
                 if ("semicolon".equals(sep))//$NON-NLS-1$
-                    separator = ';';
+                    separator = ";"; //$NON-NLS-1$
 
                 while ((line = br.readLine()) != null) {
-
-                    if (++lineNum == 1 && headersOnFirstLine) {
-                        headerIndex = genHeaderIndex(line, separator);
+                    
+                    values = CommonUtil.splitContent(line, separator, textDelimiter);
+                    
+                    if (++lineNum == 1 && headersOnFirstLine) {                                              
+                        headerIndex = getHeaderIndex(values, separator,header);
+                        if (headerIndex.size() != fields.length){
+                            cusExceptionFlag = true;
+                            throw new ServletException(MESSAGES.getMessage(locale, "error_column_header",fields.length,headerIndex.size())); //$NON-NLS-1$                            
+                        } 
                         continue;
                     }
+                    
+                    if (fields.length != values.size()) {
+                        cusExceptionFlag = true;
+                        throw new ServletException(MESSAGES.getMessage(locale, "error_column_width",fields.length,values.size(),lineNum)); //$NON-NLS-1$
+                    }                  
+ 
                     StringBuffer xml = new StringBuffer();
                     xml.append("<" + concept + ">");//$NON-NLS-1$//$NON-NLS-2$
 
-                    List<String> values = ReadCSVToken.readToken(line, separator, textDelimiter.charAt(0));
-                    if (fields.length != values.size()) {
-                        cusExceptionFlag = true;
-                        throw new ServletException(MESSAGES.getMessage(locale, "error_column_width")); //$NON-NLS-1$
-                    }
-                    // rebuild the values by checking delimiters
 
+                    // rebuild the values by checking delimiters
+                    
                     // build xml
                     if (values.size() > 0) {
                         for (int j = 0; j < fields.length; j++) {
@@ -321,27 +341,30 @@ public class UploadData extends HttpServlet {
 
     }
 
-    private Map<String, Integer> genHeaderIndex(String header, char separator) {
-        Map<String, Integer> fieldIndex = new HashMap<String, Integer>();
-        int i = 0;
-        String[] fields = header.split(String.valueOf(separator));
-        for (String field : fields) {
-            String fieldName = field.split(":")[0]; //$NON-NLS-1$
-            fieldIndex.put(fieldName, i);
-            i++;
+    private Map<String, Integer> getHeaderIndex( List<String> headerString,String separator,String header) {
+        Map<String, Integer> fieldIndex = new HashMap<String, Integer>();        
+        for (int i=0;i<headerString.size();i++) {
+            String fieldName = headerString.get(i);
+            if (header.contains(fieldName)){
+                fieldIndex.put(fieldName, i);           
+            }
         }
         return fieldIndex;
     }
 
-    private Map<String, Integer> genHeaderIndex(HSSFRow header) {
+    private Map<String, Integer> getHeaderIndex(Row headerRow,String header) {
         Map<String, Integer> fieldIndex = new HashMap<String, Integer>();
-        Iterator iter = header.cellIterator();
+        Iterator iter = headerRow.cellIterator();
         int i = 0;
         while (iter.hasNext()) {
-            HSSFCell cell = (HSSFCell) iter.next();
-            String fieldName = cell.getRichStringCellValue().getString();
-            fieldIndex.put(fieldName, i);
-            i++;
+            Cell cell = (Cell) iter.next();
+            if (cell.getCellType() == Cell.CELL_TYPE_STRING){
+                String fieldName = cell.getRichStringCellValue().getString();
+                if (header.contains(fieldName)){
+                    fieldIndex.put(fieldName, i);
+                    i++;
+                }
+            }
         }
         return fieldIndex;
     }
