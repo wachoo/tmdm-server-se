@@ -443,7 +443,7 @@ Ext
 											items : [
 													{
 														frame : false,
-														height : 160,
+														height : 180,
 														layout : "fit",
 														split : false,
 														collapsible : true,
