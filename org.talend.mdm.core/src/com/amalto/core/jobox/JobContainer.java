@@ -13,20 +13,34 @@
 
 package com.amalto.core.jobox;
 
-import com.amalto.core.jobox.component.*;
-import com.amalto.core.jobox.properties.StandardPropertiesStrategyFactory;
-import com.amalto.core.jobox.util.*;
-import com.amalto.core.jobox.watch.DirMonitor;
-import com.amalto.core.jobox.watch.JoboxListener;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-
 import java.io.File;
 import java.net.URL;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+
+import com.amalto.core.jobox.component.JobAware;
+import com.amalto.core.jobox.component.JobDeploy;
+import com.amalto.core.jobox.component.JobInvoke;
+import com.amalto.core.jobox.component.JobInvoker;
+import com.amalto.core.jobox.component.MDMJobInvoker;
+import com.amalto.core.jobox.properties.StandardPropertiesStrategyFactory;
+import com.amalto.core.jobox.util.JobClassLoader;
+import com.amalto.core.jobox.util.JobNotFoundException;
+import com.amalto.core.jobox.util.JoboxConfig;
+import com.amalto.core.jobox.util.JoboxException;
+import com.amalto.core.jobox.util.JoboxUtil;
+import com.amalto.core.jobox.watch.DirMonitor;
+import com.amalto.core.jobox.watch.JoboxListener;
 
 public class JobContainer {
 
@@ -293,7 +307,15 @@ public class JobContainer {
         int idxSeparator = entryPath.lastIndexOf(File.separatorChar);
         if (idxSeparator != -1) {
             String entryName = entryPath.substring(idxSeparator + 1);
+            // undeploy
+            JobContainer.getUniqueInstance().getJobDeployer().undeploy(entryName);
+            // remove classpath
+            JobContainer.getUniqueInstance().removeFromJobLoadersPool(entryName);
             jobDeploy.deploy(entryName);
+
+            // add to classpath
+            JobInfo jobInfo = JobContainer.getUniqueInstance().getJobAware().loadJobInfo(JoboxUtil.trimExtension(entryName));
+            JobContainer.getUniqueInstance().updateJobLoadersPool(jobInfo);
         }
 
     }
