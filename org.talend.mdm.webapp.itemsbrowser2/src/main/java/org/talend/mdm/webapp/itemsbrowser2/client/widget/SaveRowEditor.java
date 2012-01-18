@@ -109,7 +109,7 @@ public class SaveRowEditor extends RowEditor<ItemBean> {
                         }
                         String str = arg0.getDescription().replaceAll("\\[", "{").replaceAll("\\]", "}"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                         MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                Locale.getExceptionString(GetService.getLanguage(), str), null);
+                                Locale.getExceptionMessageByLanguage(GetService.getLanguage(), str), null);
                     }
                 }
             });
@@ -121,8 +121,8 @@ public class SaveRowEditor extends RowEditor<ItemBean> {
             ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
             itemsSearchContainer.getItemsFormPanel().getElement().getStyle().setOverflow(Overflow.AUTO);
             itemsSearchContainer.getItemsFormPanel().reSize();
-            GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, itemsSearchContainer
-                    .getItemsFormPanel().getElement(), true, false, false);
+            GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, itemsSearchContainer.getItemsFormPanel()
+                    .getElement(), true, false, false);
         }
     }
 
