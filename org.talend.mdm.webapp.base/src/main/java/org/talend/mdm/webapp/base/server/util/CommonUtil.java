@@ -14,6 +14,8 @@ package org.talend.mdm.webapp.base.server.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.talend.mdm.webapp.base.client.model.Criteria;
 import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
@@ -178,5 +180,33 @@ public class CommonUtil {
 
         return wi;
 
+    }
+    
+    public static List<String> splitContent(String content,String separator,String textDelimiter){
+        List<String> result = new ArrayList<String>();        
+        String value = "";         //$NON-NLS-1$
+        String patternString = "(" + separator + "?" + textDelimiter + ".+" + textDelimiter + separator + "?)|(" + separator + "?.+?" + separator + ")|(" + separator + "?.+" + separator + "?)"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
+        Pattern pattern = Pattern.compile(patternString);
+        Matcher matcher = pattern.matcher(content);
+        while (matcher.find()){
+            if (!result.contains(matcher.group())){
+                value = matcher.group();
+                if (value.startsWith(separator)){
+                    result.add(""); //$NON-NLS-1$
+                    value = value.substring(1);
+                }
+                if (value.contains(textDelimiter)){
+                    value = value.replaceAll(textDelimiter, ""); //$NON-NLS-1$
+                }
+                if (value.endsWith(separator)){
+                    value = value.substring(0, value.lastIndexOf(separator));
+                }
+                result.add(value);
+            }            
+        }
+        if (content.endsWith(separator)){
+            result.add(""); //$NON-NLS-1$
+        }
+        return result;
     }
 }
