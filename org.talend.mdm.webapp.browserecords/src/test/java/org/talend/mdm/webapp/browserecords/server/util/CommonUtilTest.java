@@ -109,4 +109,42 @@ public class CommonUtilTest extends TestCase {
         assertEquals("Person/Name", xpath);
     }
 
+    public void testPickOutISOMessage() {
+        // Sanity check
+        String s = "[fr:f][en:e][zh:c]";
+        assertTrue(CommonUtil.pickOutISOMessage(s, "en").equals("e"));
+        assertTrue(CommonUtil.pickOutISOMessage(s, "fr").equals("f"));
+        assertTrue(CommonUtil.pickOutISOMessage(s, "zh").equals("c"));
+        
+        // Test backslash escaped ] and \ characters
+        s = "[fr:f\\]f][en:e\\\\e][zh:c\\]c\\]]";
+        assertTrue(CommonUtil.pickOutISOMessage(s, "en").equals("e\\e"));
+        assertTrue(CommonUtil.pickOutISOMessage(s, "fr").equals("f]f"));
+        assertTrue(CommonUtil.pickOutISOMessage(s, "zh").equals("c]c]"));
+        
+        // Test default to English if language code not present and english is
+        assertTrue(CommonUtil.pickOutISOMessage(s, "sp").equals("e\\e"));
+        
+        // Test default to whole string when no English
+        s = "[fr:f\\]f][zh:c\\]c\\]]";
+        assertTrue(CommonUtil.pickOutISOMessage(s, "sp").equals("[fr:f\\]f][zh:c\\]c\\]]"));
+        
+        // Testing being able to pick out language strings 
+        s = "dddd[fr:f\\]f]dddd[en:e\\\\e]ddd[zh:c\\]c\\]]dddd";
+        assertTrue(CommonUtil.pickOutISOMessage(s, "en").equals("e\\e"));
+        assertTrue(CommonUtil.pickOutISOMessage(s, "fr").equals("f]f"));
+        assertTrue(CommonUtil.pickOutISOMessage(s, "zh").equals("c]c]"));
+        
+        // Testing being able to skip malformed country codes
+        s = "dddd[french:f\\]f]dddd[en:e\\\\e]ddd[zh:c\\]c\\]]dddd";
+        assertTrue(CommonUtil.pickOutISOMessage(s, "en").equals("e\\e"));
+        assertTrue(CommonUtil.pickOutISOMessage(s, "fr").equals("e\\e"));
+        assertTrue(CommonUtil.pickOutISOMessage(s, "zh").equals("c]c]"));
+        
+        // Testing special characters outside of language specific messages
+        s = "dd\\\\dd[fr:f\\]f]dd\\[ddd[en:e\\\\e]dd[[d[zh:c\\]c\\]]dddd";
+        assertTrue(CommonUtil.pickOutISOMessage(s, "en").equals("e\\e"));
+        assertTrue(CommonUtil.pickOutISOMessage(s, "fr").equals("f]f"));
+        assertTrue(CommonUtil.pickOutISOMessage(s, "zh").equals("c]c]"));        
+    }
 }

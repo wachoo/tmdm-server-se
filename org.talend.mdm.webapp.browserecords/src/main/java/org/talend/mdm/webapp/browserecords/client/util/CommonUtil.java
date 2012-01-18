@@ -252,6 +252,11 @@ public class CommonUtil {
         return result;
     }
 
+    public static String pickOutISOMessage(String errorString) {
+
+        return pickOutISOMessage(errorString, Locale.getLanguage());
+    }
+    
     /**
      * Parse a multiple language string and return the message corresponding to the current language.
      * 
@@ -274,11 +279,12 @@ public class CommonUtil {
      * If neither of the above are true, then no parsing takes place, and the original errorString is returned.
      * 
      * @param errorString Multiple language message string to be parsed
+     * @param lang Language code of the desired message
      * @return Message corresponding to the current language
      */
-    public static String pickOutISOMessage(String errorString) {
+    public static String pickOutISOMessage(String errorString, String lang) {
 
-        if (errorString != null) {
+        if (errorString != null && lang != null) {
             // Parse states
             final byte PARSE_ERROR = 0;
             final byte LOOKING_FOR_OPENING_BRACKET = 1;
@@ -356,12 +362,6 @@ public class CommonUtil {
             }
 
             String resultingErrorMessage = errorString;
-
-            String lang = Locale.getLanguage();
-            if (lang == null) {
-                lang = "en"; //$NON-NLS-1$
-            }
-
             String langCode = lang.toLowerCase();
             if (errorMessageHash.containsKey(langCode)) {
                 resultingErrorMessage = errorMessageHash.get(langCode);
