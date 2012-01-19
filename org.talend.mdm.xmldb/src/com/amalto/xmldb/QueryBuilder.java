@@ -1404,8 +1404,6 @@ public abstract class QueryBuilder {
                         query.append(" or ./p//" + fkp + " eq '").append(fkvalue).append("'");  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
                     }
                     query.append("]"); //$NON-NLS-1$
-
-//                    query.append("[").append("./p//" + fkxpath + " eq '").append(fkvalue).append("']"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                 }
             }
         }
