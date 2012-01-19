@@ -36,6 +36,8 @@ abstract class AbstractDocumentHistoryServlet extends HttpServlet {
     protected static final String ACTION_PARAMETER = "action"; //$NON-NLS-1$
 
     protected static final String KEY_PARAMETER = "key"; //$NON-NLS-1$
+    
+    protected static final String IDS_PARAMETER = "ids"; //$NON-NLS-1$
 
     protected static final String CURRENT_ACTION = "current"; //$NON-NLS-1$
 
@@ -56,8 +58,9 @@ abstract class AbstractDocumentHistoryServlet extends HttpServlet {
         String action = getParameterString(parameters, ACTION_PARAMETER, true);
         // Web UI sends key values separated by '.' character
         String[] id = getParameterString(parameters, KEY_PARAMETER, true).split("\\.");
-
-        return new Parameters(date, dataClusterName, dataModelName, conceptName, id, revisionId, action);
+        String ids = getParameterString(parameters, IDS_PARAMETER, false);
+        
+        return new Parameters(date, dataClusterName, dataModelName, conceptName, id, revisionId, action, ids);
     }
 
     protected String getParameterString(Map parameters, String parameter, boolean isRequired) {

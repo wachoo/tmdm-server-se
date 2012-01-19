@@ -53,7 +53,7 @@ Ext.extend(amalto.updatereport.DocumentHistoryPanel, Ext.Panel, {
                     xtype : "treepanel",
                     cls: 'document-history-panel-tree',
                     loader : new Ext.ux.XmlTreeLoader({
-                        dataUrl : "/updatereport/secure/documentHistory?date="+this.date+"&dataCluster="+this.dataCluster+"&dataModel="+this.dataModel+"&concept="+this.concept+"&revision=&action="+this.action+"&key="+this.key,
+                        dataUrl : "/updatereport/secure/documentHistory?date="+this.date+"&dataCluster="+this.dataCluster+"&dataModel="+this.dataModel+"&concept="+this.concept+"&revision=&action="+this.action+"&key="+this.key+"&ids="+this.ids,
                         preloadChildren: true
                     }),
                     root : new Ext.tree.AsyncTreeNode({
