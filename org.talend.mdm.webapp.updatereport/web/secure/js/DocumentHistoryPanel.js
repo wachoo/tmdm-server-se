@@ -49,8 +49,10 @@ Ext.extend(amalto.updatereport.DocumentHistoryPanel, Ext.Panel, {
                         }
                     }
 			    },{
+			    	id: "treepanel" + this.id,
 			        anchor: '100%, 80%',
                     xtype : "treepanel",
+                    animate: false,
                     cls: 'document-history-panel-tree',
                     loader : new Ext.ux.XmlTreeLoader({
                         dataUrl : "/updatereport/secure/documentHistory?date="+this.date+"&dataCluster="+this.dataCluster+"&dataModel="+this.dataModel+"&concept="+this.concept+"&revision=&action="+this.action+"&key="+this.key+"&ids="+this.ids,
@@ -61,7 +63,30 @@ Ext.extend(amalto.updatereport.DocumentHistoryPanel, Ext.Panel, {
                         expanded : true,
                         text: 'Document',
                         draggable : false,
-                        id : this.id
+                        id : this.id,
+                        listeners:{
+                        	'collapse':function(node){
+                        		var treeType = node.id;
+                        		if(treeType == 1)
+                            		treeType = 2;
+                            	else
+                            		treeType = 1;
+                        		
+                        		var treePanel = Ext.getCmp("treepanel" + treeType);
+                            	treePanel.getNodeById(treeType).collapse();
+                        		
+                        	},
+                        	'expand':function(node){
+                        		var treeType = node.id;
+                        		if(treeType == 1)
+                            		treeType = 2;
+                            	else
+                            		treeType = 1;
+
+                        		var treePanel = Ext.getCmp("treepanel" + treeType);
+                            	treePanel.getNodeById(treeType).expand();
+                        	}
+                        }
                     }),
                     autoScroll : "true",
                     containerScroll : "false"
