@@ -36,6 +36,8 @@ Ext.ux.XmlTreeLoader = Ext.extend(Ext.tree.TreeLoader, {
     XML_NODE_TEXT : 3,
 
     isRendered : false,
+    
+    counter : 1,
 
     // private override
     processResponse : function(response, node, callback){
@@ -104,23 +106,53 @@ Ext.ux.XmlTreeLoader = Ext.extend(Ext.tree.TreeLoader, {
     	var attr;
     	if(diffFlag){
 			attr = {
+					id:node.tagName + this.counter,
 		            text: nodeText,
 		            cls: "tree-node-different",
 		            leaf: node.childNodes.length == 0
 		        };
     	}else{
     		attr = {
+    				id:node.tagName + this.counter,
 		            text: nodeText,
 		            leaf: node.childNodes.length == 0
 		        };
     	}
-        
+    	
+    	this.counter++;
         Ext.each(node.attributes, function(a){
             attr[a.nodeName] = a.nodeValue;
         });
         
         this.processAttributes(attr);
-        return new Ext.tree.TreeNode(attr);
+        var treeNode = new Ext.tree.TreeNode(attr);
+        
+        treeNode.addListener("collapse", function(node){
+        	var path = node.getPath();
+        	var treeType = path.charAt(1);
+        	
+        	if(treeType == 1)
+        		treeType = 2;
+        	else
+        		treeType = 1;
+        	
+        	var treePanel = Ext.getCmp("treepanel" + treeType);
+        	treePanel.getNodeById(node.id).collapse();
+        });
+        
+        treeNode.addListener("expand", function(node){
+        	var path = node.getPath();
+        	var treeType = path.charAt(1);
+        	
+        	if(treeType == 1)
+        		treeType = 2;
+        	else
+        		treeType = 1;
+        	
+        	var treePanel = Ext.getCmp("treepanel" + treeType);
+        	treePanel.getNodeById(node.id).expand();
+        });
+        return treeNode;
     },
     
     /*
