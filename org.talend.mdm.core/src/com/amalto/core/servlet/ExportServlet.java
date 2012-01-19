@@ -96,7 +96,7 @@ public class ExportServlet extends HttpServlet {
         if (value == null && isMandatory) {
             throw new IllegalArgumentException("Parameter '" + parameter + "' is mandatory and not set.");
         }
-        return defaultValue;
+        return value == null ? defaultValue : value;
     }
 }
 
