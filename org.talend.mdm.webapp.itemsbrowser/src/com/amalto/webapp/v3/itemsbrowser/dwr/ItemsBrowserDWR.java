@@ -30,9 +30,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -4586,17 +4586,16 @@ public class ItemsBrowserDWR {
         BusinessConcept businessConcept = SchemaWebAgent.getInstance().getBusinessConcept(entity);
         Map<String, String> foreignKeyMap = businessConcept.getForeignKeyMap();
         Set<String> foreignKeyXpath = foreignKeyMap.keySet();
-        String xpath = null;
+        List<String> xpathes = new ArrayList<String>();
 
         for (String path : foreignKeyXpath) {
             String dataObjectPath = foreignKeyMap.get(path);
             if (dataObjectPath.indexOf(dataObject) != -1) {
-                xpath = path.substring(1);
-                break;
+                xpathes.add(path.substring(1));
             }
         }
 
-        if (xpath == null) {
+        if (xpathes.size() == 0) {
             List<String> types = SchemaWebAgent.getInstance().getBindingType(businessConcept.getE());
             for (String type : types) {
                 List<ReusableType> subTypes = SchemaWebAgent.getInstance().getMySubtypes(type);
@@ -4605,15 +4604,14 @@ public class ItemsBrowserDWR {
                     Collection<String> fkPaths = fks != null ? fks.keySet() : null;
                     for (String fkpath : fkPaths) {
                         if (fks.get(fkpath).indexOf(dataObject) != -1) {
-                            xpath = fkpath;
-                            break;
+                            xpathes.add(fkpath);
                         }
                     }
                 }
             }
         }
         
-        if(xpath == null){
+        if (xpathes.size() == 0) {
             Map<String, String> inheritanceForeignKeyMap = businessConcept.getInheritanceForeignKeyMap();
             if(inheritanceForeignKeyMap.size() > 0){
                 Set<String> keySet = inheritanceForeignKeyMap.keySet();
@@ -4621,8 +4619,7 @@ public class ItemsBrowserDWR {
                 for (String path : keySet) {
                     dataObjectPath = inheritanceForeignKeyMap.get(path);
                     if (dataObjectPath.indexOf(dataObject) != -1) {
-                        xpath = path.substring(1);
-                        break;
+                        xpathes.add(path.substring(1));
                     }
                 }
             }
@@ -4631,7 +4628,7 @@ public class ItemsBrowserDWR {
         StringBuilder sb = new StringBuilder();
         sb.append(keys);
         sb.append("$");//$NON-NLS-1$
-        sb.append(xpath);
+        sb.append(joinList(xpathes, ","));//$NON-NLS-1$
         sb.append("$");//$NON-NLS-1$
         sb.append(fkvalue);
 
@@ -4659,6 +4656,22 @@ public class ItemsBrowserDWR {
         listRange.setData(data);
 
         return listRange;
+    }
+
+    private String joinList(List<String> list, String decollator) {
+        if (list == null)
+            return "";
+        StringBuffer sb = new StringBuffer();
+        boolean isFirst = true;
+        for (String str : list) {
+            if (isFirst) {
+                sb.append(str);
+                isFirst = false;
+                continue;
+            }
+            sb.append(decollator + str);
+        }
+        return sb.toString();
     }
 
     public boolean isEntityCreatable(String conceptName) throws Exception {
