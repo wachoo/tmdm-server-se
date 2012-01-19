@@ -9,6 +9,19 @@
 ######################################################
 # System Setting
 ######################################################
+
+#################################################################################################
+###if you setup admin.password here, you must setup admin.password MD5 encode as the 
+###value of 3 elements <adminPassword> in {jboss.home}/server/default/conf/login-config.xml
+###e.g admin.password=talend  value of <adminPassword> should be 1a254116eb5e70714b0680dfd4d8f7d4                     
+#################################################################################################
+admin.user=admin
+admin.password=talend
+#default mdm admin user
+#admin.user=admin
+#default mdm user password for admin.user
+#admin.password=talend
+
 http.server.port=8080
 
 system.data.auto.init=true
