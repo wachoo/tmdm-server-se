@@ -5,7 +5,9 @@ import java.io.OutputStream;
 import java.rmi.RemoteException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -123,20 +125,19 @@ public class ExportingServlet extends HttpServlet {
             BusinessConcept businessConcept = SchemaWebAgent.getInstance().getBusinessConcept(entity);
             Map<String, String> foreignKeyMap = businessConcept.getForeignKeyMap();
             Set<String> foreignKeyXpath = foreignKeyMap.keySet();
-            String xpath = null;
+            List<String> xpathes = new ArrayList<String>();
 
             for (String path : foreignKeyXpath) {
                 String dataObjectPath = foreignKeyMap.get(path);
                 if (dataObjectPath.indexOf(dataObject) != -1) {
-                    xpath = path.substring(1);
-                    break;
+                    xpathes.add(path.substring(1));
                 }
             }
 
             StringBuilder keysb = new StringBuilder();
             keysb.append(keys);
             keysb.append("$");
-            keysb.append(xpath);
+            keysb.append(joinList(xpathes, ","));
             keysb.append("$");
             keysb.append(fkvalue);
 
@@ -194,6 +195,22 @@ public class ExportingServlet extends HttpServlet {
         OutputStream out = response.getOutputStream();
         wb.write(out);
         out.close();
+    }
+
+    private String joinList(List<String> list, String decollator) {
+        if (list == null)
+            return "";
+        StringBuffer sb = new StringBuffer();
+        boolean isFirst = true;
+        for (String str : list) {
+            if (isFirst) {
+                sb.append(str);
+                isFirst = false;
+                continue;
+            }
+            sb.append(decollator + str);
+        }
+        return sb.toString();
     }
 
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
