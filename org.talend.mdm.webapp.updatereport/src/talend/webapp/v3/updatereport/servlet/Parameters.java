@@ -24,8 +24,9 @@ class Parameters {
     private String[] id;
     private String revisionId;
     private String action;
-
-    Parameters(long date, String dataClusterName, String dataModelName, String conceptName, String[] id, String revisionId, String action) {
+    private String ids;
+    
+    Parameters(long date, String dataClusterName, String dataModelName, String conceptName, String[] id, String revisionId, String action, String ids) {
         this.date = date;
         this.dataClusterName = dataClusterName;
         this.dataModelName = dataModelName;
@@ -33,6 +34,7 @@ class Parameters {
         this.id = id;
         this.revisionId = revisionId;
         this.action = action;
+        this.ids = ids;
     }
 
     public long getDate() {
@@ -62,6 +64,10 @@ class Parameters {
     public String getAction() {
         return action;
     }
+    
+    public String getIds() {
+        return ids;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -88,4 +94,5 @@ class Parameters {
         result = 31 * result + (revisionId != null ? revisionId.hashCode() : 0);
         return result;
     }
+    
 }

@@ -88,22 +88,38 @@ Ext.ux.XmlTreeLoader = Ext.extend(Ext.tree.TreeLoader, {
     // private override
     createNode : function(node){
     	var nodeText = "";
-    	if (node.textContent == undefined)
-    		nodeText = node.tagName + (node.childNodes.length == 1 && node.text != null ? ":" + node.text : "");
-    	else
-    		nodeText = node.tagName + (node.childNodes.length == 1 && node.textContent != null ? ":" + node.textContent : "");
+    	var diffFlag = false;
+    	if (node.textContent == undefined){
+    		nodeText = node.tagName + (node.childNodes.length == 1 && node.text != null ? ":" + node.text : "");    		
+    	} else {
+    		if(node.textContent.indexOf("[#Diff#]") != -1){
+    			if(node.childNodes.length == 1 && node.textContent != null)
+    				diffFlag = true;
+    			nodeText = node.tagName + (node.childNodes.length == 1 && node.textContent != null ? ":" + node.textContent.substring(0, node.textContent.length - 8) : "");    		
+    		}else{
+        		nodeText = node.tagName + (node.childNodes.length == 1 && node.textContent != null ? ":" + node.textContent : "");    		
+    		}    			
+    	}
     	
-        var attr = {
-            text: nodeText,
-            leaf: node.childNodes.length == 0
-        };
+    	var attr;
+    	if(diffFlag){
+			attr = {
+		            text: nodeText,
+		            cls: "tree-node-different",
+		            leaf: node.childNodes.length == 0
+		        };
+    	}else{
+    		attr = {
+		            text: nodeText,
+		            leaf: node.childNodes.length == 0
+		        };
+    	}
         
         Ext.each(node.attributes, function(a){
             attr[a.nodeName] = a.nodeValue;
         });
         
         this.processAttributes(attr);
-        
         return new Ext.tree.TreeNode(attr);
     },
     
