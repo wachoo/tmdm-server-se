@@ -1900,4 +1900,19 @@ public class Util {
         }
         return keys;
     }
+    
+    public static String convertDocument2String(Document doc, boolean isContainHead) throws Exception{
+        DOMSource domSource = new DOMSource(doc);
+        StringWriter writer = new StringWriter();
+        StreamResult result = new StreamResult(writer);
+        TransformerFactory tf = TransformerFactory.newInstance();
+        Transformer transformer = tf.newTransformer();
+        transformer.transform(domSource, result);
+        if (isContainHead) {
+            return writer.toString();
+        } else {
+            String xmlString = writer.toString();
+            return xmlString.replaceAll("<\\?.*\\?>", ""); //$NON-NLS-1$ //$NON-NLS-2$
+        }         
+    }
 }
