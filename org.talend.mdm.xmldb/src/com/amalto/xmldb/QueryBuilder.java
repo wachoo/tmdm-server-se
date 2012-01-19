@@ -21,8 +21,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -1391,7 +1391,21 @@ public abstract class QueryBuilder {
                 if (fkxpath != null && fkxpath.length() != 0 && fkvalue != null && fkvalue.length() != 0) {
                     //fkvalue can be composite
                     fkvalue = StringUtils.replace(fkvalue, "@", "]["); //$NON-NLS-1$ //$NON-NLS-2$
-                    query.append("[").append("./p//" + fkxpath + " eq '").append(fkvalue).append("']"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    String[] fkPathes = fkxpath.split(","); //$NON-NLS-1$
+                    
+                    query.append("["); //$NON-NLS-1$
+                    boolean isFirst = true;
+                    for (String fkp : fkPathes){
+                        if (isFirst){
+                            query.append("./p//" + fkp + " eq '").append(fkvalue).append("'");   //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                            isFirst = false;
+                            continue;
+                        }
+                        query.append(" or ./p//" + fkp + " eq '").append(fkvalue).append("'");  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+                    }
+                    query.append("]"); //$NON-NLS-1$
+
+//                    query.append("[").append("./p//" + fkxpath + " eq '").append(fkvalue).append("']"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                 }
             }
         }
@@ -1421,6 +1435,7 @@ public abstract class QueryBuilder {
 
         if (LOG.isDebugEnabled())
             LOG.debug(query);
+        System.out.println(query);
         return query.toString();
     }
 
