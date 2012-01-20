@@ -92,7 +92,13 @@ Ext.ux.XmlTreeLoader = Ext.extend(Ext.tree.TreeLoader, {
     	var nodeText = "";
     	var diffFlag = false;
     	if (node.textContent == undefined){
-    		nodeText = node.tagName + (node.childNodes.length == 1 && node.text != null ? ":" + node.text : "");    		
+    		if(node.text.indexOf("[#Diff#]") != -1){
+    			if(node.childNodes.length == 1 && node.text != null)
+    				diffFlag = true;
+    			nodeText = node.tagName + (node.childNodes.length == 1 && node.text != null ? ":" + node.text.substring(0, node.text.length - 8) : "");    		
+    		}else{
+    			nodeText = node.tagName + (node.childNodes.length == 1 && node.text != null ? ":" + node.text : ""); 
+    		}   		   		
     	} else {
     		if(node.textContent.indexOf("[#Diff#]") != -1){
     			if(node.childNodes.length == 1 && node.textContent != null)
