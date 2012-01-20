@@ -338,6 +338,27 @@ public class QueryBuilderTest extends TestCase {
         expected += "return (<totalCount>{count($allres)}</totalCount>, $res)";
         actual = queryBuilder.buildPKsByCriteriaQuery(criteria);
         assertEquals(expected, actual);
+
+        // compound keywords on composite FK, has two xpath
+        criteria = new ItemPKCriteria();
+        criteria.setRevisionId(null);
+        criteria.setClusterName("DStar");
+        criteria.setConceptName("Agent");
+        criteria.setContentKeywords("");
+        criteria.setKeysKeywords("$Agent/AgencyFK,Agent/AgencyFK_A$[Id1@Id2@Id3]");
+        criteria.setCompoundKeyKeywords(true);
+        criteria.setFromDate(-1L);
+        criteria.setToDate(-1L);
+        criteria.setMaxItems(20);
+        criteria.setSkip(0);
+        criteria.setUseFTSearch(false);
+
+        expected = "let $allres := collection(\"/DStar\")/ii[./p//Agent/AgencyFK eq '[Id1][Id2][Id3]' or ./p//Agent/AgencyFK_A eq '[Id1][Id2][Id3]'][./n eq 'Agent']\n";
+        expected += "let $res := for $ii in subsequence($allres, 1,20)\n";
+        expected += "return <r>{$ii/t}{$ii/taskId}{$ii/n}<ids>{$ii/i}</ids></r>\n";
+        expected += "return (<totalCount>{count($allres)}</totalCount>, $res)";
+        actual = queryBuilder.buildPKsByCriteriaQuery(criteria);
+        assertEquals(expected, actual);
     }
 
     private static class TestQueryBuilder extends QueryBuilder {

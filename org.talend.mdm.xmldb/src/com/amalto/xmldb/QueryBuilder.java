@@ -1433,7 +1433,6 @@ public abstract class QueryBuilder {
 
         if (LOG.isDebugEnabled())
             LOG.debug(query);
-        System.out.println(query);
         return query.toString();
     }
 
