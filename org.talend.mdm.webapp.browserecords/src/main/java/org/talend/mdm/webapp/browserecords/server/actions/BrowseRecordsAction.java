@@ -477,23 +477,25 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 String[] value = formatMap.get(key);
                 org.dom4j.Document doc = org.talend.mdm.webapp.base.server.util.XmlUtil.parseText(itemBean.getItemXml());
                 org.dom4j.Node node = doc.selectSingleNode(key);
-                String dateText = node.getText();
+                if(node != null){
+                    String dateText = node.getText();
 
-                if (dateText != null) {
-                    if (dateText.trim().length() != 0) {
-                        if (value[1].equalsIgnoreCase("DATE")) { //$NON-NLS-1$
-                            sdf = new SimpleDateFormat(dateFormat, java.util.Locale.ENGLISH);
-                        } else if (value[1].equalsIgnoreCase("DATETIME")) { //$NON-NLS-1$
-                            sdf = new SimpleDateFormat(dateTimeFormat, java.util.Locale.ENGLISH);
+                    if (dateText != null) {
+                        if (dateText.trim().length() != 0) {
+                            if (value[1].equalsIgnoreCase("DATE")) { //$NON-NLS-1$
+                                sdf = new SimpleDateFormat(dateFormat, java.util.Locale.ENGLISH);
+                            } else if (value[1].equalsIgnoreCase("DATETIME")) { //$NON-NLS-1$
+                                sdf = new SimpleDateFormat(dateTimeFormat, java.util.Locale.ENGLISH);
+                            }
+                            Date date = sdf.parse(dateText.trim());
+                            itemBean.getOriginalMap().put(key, date);
+                            Calendar calendar = Calendar.getInstance();
+                            calendar.setTime(date);
+                            String formatValue = com.amalto.webapp.core.util.Util.formatDate(value[0], calendar);
+                            itemBean.getFormateMap().put(key, formatValue);
                         }
-                        Date date = sdf.parse(dateText.trim());
-                        itemBean.getOriginalMap().put(key, date);
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.setTime(date);
-                        String formatValue = com.amalto.webapp.core.util.Util.formatDate(value[0], calendar);
-                        itemBean.getFormateMap().put(key, formatValue);
                     }
-                }
+                }            
             }
 
             // dynamic Assemble
