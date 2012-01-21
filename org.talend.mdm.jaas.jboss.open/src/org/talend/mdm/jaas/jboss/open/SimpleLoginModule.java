@@ -307,7 +307,7 @@ public class SimpleLoginModule extends AbstractServerLoginModule {
 		}
 
 		//super admin
-		if (getUsername().equals("admin")) {
+        if (getUsername().equals(MDMConfiguration.getAdminUser())) {
 			rolesGroup.addMember(new SimplePrincipal(adminPermission));
 			return new Group[]{usernameGroup,passwordGroup, universeGroup, rolesGroup};
 		}
@@ -332,7 +332,7 @@ public class SimpleLoginModule extends AbstractServerLoginModule {
 
 		try {
 
-			if (username.equals("admin")) {
+            if (username.equals(MDMConfiguration.getAdminUser())) {
 				throw new LoginException("Administrator information should not be fetched");
 			}
 

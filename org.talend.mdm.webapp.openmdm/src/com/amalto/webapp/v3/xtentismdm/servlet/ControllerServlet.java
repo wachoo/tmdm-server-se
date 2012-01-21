@@ -29,6 +29,7 @@ import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.util.Messages;
@@ -83,7 +84,7 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
         try {
             // see 0013864
             username = com.amalto.webapp.core.util.Util.getAjaxSubject().getUsername();
-            if ("admin".equals(username)) {//$NON-NLS-1$		    
+            if (MDMConfiguration.getAdminUser().equals(username)) {//$NON-NLS-1$		    
                 throw new WebappForbiddenLoginException(MESSAGES.getMessage(locale, "login.exception.forbidden", username)); //$NON-NLS-1$);
             }
             LinkedHashMap<String, String> onlineUsers = ILocalUser.getOnlineUsers();

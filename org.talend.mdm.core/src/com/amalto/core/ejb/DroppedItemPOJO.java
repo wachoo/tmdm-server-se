@@ -532,7 +532,8 @@ public class DroppedItemPOJO implements Serializable{
     	
     	if(authorizeMode.equals("w")){
     		
-    		if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
+            if (MDMConfiguration.getAdminUser().equals(user.getUsername())
+                    || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
         		authorized = true;
         	} else if (XSystemObjects.isExist(XObjectType.DATA_CLUSTER, refItemPOJOPK.getDataClusterPOJOPK().getUniqueId()) || user.userItemCanWrite(ItemPOJO.adminLoad(refItemPOJOPK),refItemPOJOPK.getDataClusterPOJOPK().getUniqueId(),refItemPOJOPK.getConceptName())) {
         		authorized = true;
@@ -540,7 +541,8 @@ public class DroppedItemPOJO implements Serializable{
     		
     	}else if(authorizeMode.equals("r")){
     		
-    		if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
+            if (MDMConfiguration.getAdminUser().equals(user.getUsername())
+                    || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
         		authorized = true;
         	} else if (user.userItemCanRead(ItemPOJO.adminLoad(refItemPOJOPK))) {
         		authorized = true;

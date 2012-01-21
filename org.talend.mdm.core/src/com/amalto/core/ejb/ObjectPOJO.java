@@ -368,7 +368,8 @@ public abstract class ObjectPOJO implements Serializable{
 	    	boolean authorized = false;
 	    	ILocalUser user = LocalUser.getLocalUser();
 	    	if(user.getUsername()==null) return null;
-	    	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { //$NON-NLS-1$ 
+            if (MDMConfiguration.getAdminUser().equals(user.getUsername())
+                    || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { //$NON-NLS-1$ 
 	    		authorized = true;
 	    	} else if (user.isAdmin(objectClass)) {
 	    		authorized = true;
@@ -455,7 +456,8 @@ public abstract class ObjectPOJO implements Serializable{
 	    	boolean authorized = false;
 	    	ILocalUser user = LocalUser.getLocalUser();
 	    	if(user.getUsername()==null) return null;
-	    	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
+            if (MDMConfiguration.getAdminUser().equals(user.getUsername())
+                    || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
 	    		authorized = true;
 	    	} else if (user.userCanWrite(this.getClass(), this.getPK().getUniqueId())) {
 	    		authorized = true;
@@ -836,7 +838,8 @@ public abstract class ObjectPOJO implements Serializable{
 	    	//check if we are admin 
 	    	boolean isAdmin = false;
 	    	ILocalUser user = LocalUser.getLocalUser();
-	    	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { //$NON-NLS-1$ 
+            if (MDMConfiguration.getAdminUser().equals(user.getUsername())
+                    || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { //$NON-NLS-1$ 
 	    		isAdmin = true;
 	    	} else if (user.isAdmin(objectClass)) {
 	    		isAdmin = true;
