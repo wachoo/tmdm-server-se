@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.talend.mdm.commmon.util.core.CommonUtil;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import com.amalto.webapp.util.webservices.WSBoolean;
 import com.amalto.webapp.util.webservices.WSExistsMenu;
@@ -162,7 +163,7 @@ public class Menu {
 			AjaxSubject as = Util.getAjaxSubject();
 			org.apache.log4j.Logger.getLogger(Menu.class).debug("getMenus() "+as.getUsername());
 			
-			if ("admin".equals(as.getUsername())) {
+            if (MDMConfiguration.getAdminUser().equals(as.getUsername())) {
 				//TODO: should we do anything here?
 				return menuIndex;
 			}

@@ -21,7 +21,15 @@ import java.io.ObjectOutputStream;
 import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.naming.InitialContext;
@@ -563,7 +571,8 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             // Check if user is allowed to read the cluster
             ILocalUser user = LocalUser.getLocalUser();
             boolean authorized = false;
-            if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { //$NON-NLS-1$
+            if (MDMConfiguration.getAdminUser().equals(user.getUsername())
+                    || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { //$NON-NLS-1$
                 authorized = true;
             } else if (user.userCanRead(DataClusterPOJO.class, dataClusterName)) {
                 authorized = true;
@@ -2450,7 +2459,8 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             // Check if user is allowed to read the cluster
             ILocalUser user = LocalUser.getLocalUser();
             boolean authorized = false;
-            if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { //$NON-NLS-1$
+            if (MDMConfiguration.getAdminUser().equals(user.getUsername())
+                    || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { //$NON-NLS-1$
                 authorized = true;
             } else if (user.userCanRead(DataClusterPOJO.class, dataClusterName)) {
                 authorized = true;

@@ -9,6 +9,8 @@ import javax.security.jacc.PolicyContext;
 import javax.security.jacc.PolicyContextException;
 import javax.servlet.http.HttpServletRequest;
 
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
@@ -70,7 +72,7 @@ public abstract class ILocalUser implements IBeanDelegator{
 			e.printStackTrace();
 		}
 		
-		return username==null?"admin":username;
+        return username == null ? MDMConfiguration.getAdminUser() : username;
 	}
 
 	public String getPassword(){

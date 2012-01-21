@@ -30,10 +30,10 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import javax.ejb.EJBException;
@@ -233,8 +233,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         try {
             mdmConfig.setServerName(property.getProperty("xmldb.server.name")); //$NON-NLS-1$
             mdmConfig.setServerPort(property.getProperty("xmldb.server.port")); //$NON-NLS-1$
-            mdmConfig.setUserName(property.getProperty("xmldb.administrator.username")); //$NON-NLS-1$
-            mdmConfig.setPassword(property.getProperty("xmldb.administrator.password")); //$NON-NLS-1$
+            mdmConfig.setUserName(property.getProperty("admin.user")); //$NON-NLS-1$
+            mdmConfig.setPassword(property.getProperty("admin.password")); //$NON-NLS-1$
             mdmConfig.setXdbDriver(property.getProperty("xmldb.driver")); //$NON-NLS-1$
             mdmConfig.setXdbID(property.getProperty("xmldb.dbid")); //$NON-NLS-1$
             mdmConfig.setXdbUrl(property.getProperty("xmldb.dburl")); //$NON-NLS-1$
@@ -1129,7 +1129,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             // Check if user is allowed to read the cluster
             ILocalUser user = LocalUser.getLocalUser();
             boolean authorized = false;
-            if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { //$NON-NLS-1$
+            if (MDMConfiguration.getAdminUser().equals(user.getUsername())
+                    || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { //$NON-NLS-1$
                 authorized = true;
             } else if (user.userCanRead(DataClusterPOJO.class, dataClusterName)) {
                 authorized = true;

@@ -495,7 +495,8 @@ public class ItemCtrl2Bean implements SessionBean {
             // Check if user is allowed to read the cluster
             ILocalUser user = LocalUser.getLocalUser();
             boolean authorized = false;
-            if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
+            if (MDMConfiguration.getAdminUser().equals(user.getUsername())
+                    || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
                 authorized = true;
             } else if (user.userCanRead(DataClusterPOJO.class, dataClusterPOJOPK.getUniqueId())) {
                 authorized = true;
@@ -980,7 +981,8 @@ public class ItemCtrl2Bean implements SessionBean {
         try {
             ILocalUser user = LocalUser.getLocalUser();
             boolean authorized = false;
-            if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
+            if (MDMConfiguration.getAdminUser().equals(user.getUsername())
+                    || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
                 authorized = true;
             } else if (user.userCanRead(DataClusterPOJO.class, dataClusterPOJOPK.getUniqueId())) {
                 authorized = true;
