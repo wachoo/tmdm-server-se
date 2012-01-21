@@ -55,6 +55,7 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -62,7 +63,6 @@ import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.ui.Widget;
 
 public class TreeDetailGridFieldCreator {
@@ -170,7 +170,7 @@ public class TreeDetailGridFieldCreator {
 
             field = comboxField;
         } else {
-            field = createCustomField(value, dataType, language);
+            field = createCustomField(node, dataType, language);
         }
 
         field.setFieldLabel(dataType.getLabel(language));
@@ -217,7 +217,8 @@ public class TreeDetailGridFieldCreator {
         return createField(node, dataType, language, fieldMap, null, itemsDetailPanel);
     }
 
-    public static Field<?> createCustomField(Serializable value, TypeModel dataType, String language) {
+    public static Field<?> createCustomField(ItemNodeModel node, TypeModel dataType, String language) {
+        Serializable value = node.getObjectValue();
         String pattern = dataType.getDisplayFomats().get("format_" + Locale.getLanguage()); //$NON-NLS-1$
         Field<?> field;
         boolean hasValue = value != null && !"".equals(value); //$NON-NLS-1$
@@ -266,7 +267,7 @@ public class TreeDetailGridFieldCreator {
             checkBox.setValue(hasValue ? ((value.toString().equals("true") || value.equals(true)) ? true : false) : null); //$NON-NLS-1$
             field = checkBox;
         } else if (DataTypeConstants.DATE.getTypeName().equals(baseType)) {
-            FormatDateField dateField = new FormatDateField();
+            FormatDateField dateField = new FormatDateField(node);
             if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$                
                 dateField.setFormatPattern(pattern);
                 dateField.setShowFormateValue(true);
@@ -279,7 +280,7 @@ public class TreeDetailGridFieldCreator {
 
             field = dateField;
         } else if (DataTypeConstants.DATETIME.getTypeName().equals(baseType)) {
-            FormatDateField dateTimeField = new FormatDateField();
+            FormatDateField dateTimeField = new FormatDateField(node);
             if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$
                 dateTimeField.setFormatPattern(pattern);
             }

@@ -6,6 +6,8 @@ import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.model.FormatModel;
+import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.util.DateUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 
 import com.extjs.gxt.ui.client.GXT;
@@ -27,7 +29,19 @@ public class FormatDateField extends DateField {
     private boolean showFormateValue;
 
     private boolean isDateTime = false;
+    
+    private ItemNodeModel node;
+    
+    private boolean initFlag = true;
+    
+    public FormatDateField() {
 
+    }
+    
+    public FormatDateField(ItemNodeModel node){
+        this.node = node;
+    }
+    
     public boolean isDateTime() {
         return isDateTime;
     }
@@ -48,8 +62,52 @@ public class FormatDateField extends DateField {
         return ojbectValue;
     }
 
+    private boolean isDiffValue(String scrOjbectValue, String desOjbectValue){
+        if(scrOjbectValue == null && desOjbectValue == null)
+            return false;
+        if(scrOjbectValue != null && desOjbectValue == null) 
+            return true;
+        if(scrOjbectValue == null && desOjbectValue != null) 
+            return true;
+        if(scrOjbectValue.equalsIgnoreCase(desOjbectValue))
+            return false;
+        else
+            return true;
+    }
+    
+    private boolean compareDateAndString(Date date, String ojbectValue){
+        if(date == null && ojbectValue == null)
+            return false;
+        if(date != null && ojbectValue == null)
+            return true;
+        if(date == null && ojbectValue != null)
+            return true;
+        String str = DateUtil.convertDate(date);
+        if(str.equalsIgnoreCase(ojbectValue))
+            return false;
+        else
+            return true;
+    }
+    
     public void setOjbectValue(String ojbectValue) {
-        this.ojbectValue = ojbectValue;
+        if(this.node != null){
+            if(this.getValue() == null && this.ojbectValue == null && ojbectValue == null){
+                this.initFlag = false;
+                return;
+            }                
+            if(this.ojbectValue != null){
+                if(this.isDiffValue(this.ojbectValue, ojbectValue)){
+                    this.node.setChangeValue(true);
+                }               
+            }else{
+                if(!initFlag && ojbectValue != null)
+                    this.node.setChangeValue(true);
+                if(this.compareDateAndString(this.getValue(), ojbectValue)){
+                    this.node.setChangeValue(true);
+                } 
+            }
+        }
+        this.ojbectValue = ojbectValue;                     
     }
 
     public String getDiplayValue() {
