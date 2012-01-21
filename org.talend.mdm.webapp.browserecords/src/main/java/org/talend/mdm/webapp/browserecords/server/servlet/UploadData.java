@@ -37,6 +37,7 @@ import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.base.shared.FileUtil;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
 import org.talend.mdm.webapp.browserecords.server.util.CSVBufferedReader;
+import org.talend.mdm.webapp.browserecords.server.util.ReadCSVToken;
 
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
@@ -268,36 +269,34 @@ public class UploadData extends HttpServlet {
             } else if ("csv".equals(fileType.toLowerCase())) { //$NON-NLS-1$
                 String line;
                 List<String> values;
-                CSVBufferedReader br = new CSVBufferedReader(new InputStreamReader(new FileInputStream(file), encoding), textDelimiter.charAt(0));
+                CSVBufferedReader br = new CSVBufferedReader(new InputStreamReader(new FileInputStream(file), encoding),
+                        textDelimiter.charAt(0));
                 Map<String, Integer> headerIndex = null;
-                String separator = ","; //$NON-NLS-1$
+                char separator = ',';
                 if ("semicolon".equals(sep))//$NON-NLS-1$
-                    separator = ";"; //$NON-NLS-1$
+                    separator = ';';
 
                 while ((line = br.readLine()) != null) {
-                    
-                    values = CommonUtil.splitContent(line, separator, textDelimiter);
-                    
-                    if (++lineNum == 1 && headersOnFirstLine) {                                              
-                        headerIndex = getHeaderIndex(values, separator,header);
-                        if (headerIndex.size() != fields.length){
-                            cusExceptionFlag = true;
-                            throw new ServletException(MESSAGES.getMessage(locale, "error_column_header",fields.length,headerIndex.size())); //$NON-NLS-1$                            
-                        } 
+
+                    values = ReadCSVToken.readToken(line, separator, textDelimiter.charAt(0));
+
+                    if (++lineNum == 1 && headersOnFirstLine) {
+                        headerIndex = getHeaderIndex(values, separator, header);
+                        if (headerIndex.size() != fields.length) {
+                            throw new ServletException(MESSAGES.getMessage(locale,
+                                    "error_column_header", fields.length, headerIndex.size())); //$NON-NLS-1$ 
+                        }
                         continue;
                     }
-                    
+
                     if (fields.length != values.size()) {
                         cusExceptionFlag = true;
-                        throw new ServletException(MESSAGES.getMessage(locale, "error_column_width",fields.length,values.size(),lineNum)); //$NON-NLS-1$
-                    }                  
- 
+                        throw new ServletException(MESSAGES.getMessage(locale,
+                                "error_column_width", fields.length, values.size(), lineNum)); //$NON-NLS-1$
+                    }
                     StringBuffer xml = new StringBuffer();
-                    xml.append("<" + concept + ">");//$NON-NLS-1$//$NON-NLS-2$
+                    xml.append("<" + concept + ">");//$NON-NLS-1$//$NON-NLS-2$            
 
-
-                    // rebuild the values by checking delimiters
-                    
                     // build xml
                     if (values.size() > 0) {
                         for (int j = 0; j < fields.length; j++) {
@@ -338,10 +337,9 @@ public class UploadData extends HttpServlet {
         } finally {
             writer.close();
         }
-
     }
 
-    private Map<String, Integer> getHeaderIndex( List<String> headerString,String separator,String header) {
+    private Map<String, Integer> getHeaderIndex(List<String> headerString,char separator,String header) {
         Map<String, Integer> fieldIndex = new HashMap<String, Integer>();        
         for (int i=0;i<headerString.size();i++) {
             String fieldName = headerString.get(i);
