@@ -36,8 +36,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.base.shared.FileUtil;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
-import org.talend.mdm.webapp.browserecords.server.util.CSVBufferedReader;
-import org.talend.mdm.webapp.browserecords.server.util.ReadCSVToken;
+import org.talend.mdm.webapp.browserecords.server.util.CSVReader;
 
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
@@ -267,21 +266,18 @@ public class UploadData extends HttpServlet {
                 }
 
             } else if ("csv".equals(fileType.toLowerCase())) { //$NON-NLS-1$
-                String line;
-                List<String> values;
-                CSVBufferedReader br = new CSVBufferedReader(new InputStreamReader(new FileInputStream(file), encoding),
-                        textDelimiter.charAt(0));
                 Map<String, Integer> headerIndex = null;
                 char separator = ',';
                 if ("semicolon".equals(sep))//$NON-NLS-1$
                     separator = ';';
-
-                while ((line = br.readLine()) != null) {
-
-                    values = ReadCSVToken.readToken(line, separator, textDelimiter.charAt(0));
+                CSVReader csvReader = new CSVReader(new InputStreamReader(new FileInputStream(file), encoding), separator,
+                        textDelimiter.charAt(0));
+                List<String[]> records = csvReader.readAll();
+                for (int i = 0; i < records.size(); i++) {
+                    String[] record = records.get(i);
 
                     if (++lineNum == 1 && headersOnFirstLine) {
-                        headerIndex = getHeaderIndex(values, separator, header);
+                        headerIndex = getHeaderIndex(record, separator, header);
                         if (headerIndex.size() != fields.length) {
                             throw new ServletException(MESSAGES.getMessage(locale,
                                     "error_column_header", fields.length, headerIndex.size())); //$NON-NLS-1$ 
@@ -289,26 +285,27 @@ public class UploadData extends HttpServlet {
                         continue;
                     }
 
-                    if (fields.length != values.size()) {
+                    if (fields.length != record.length) {
                         cusExceptionFlag = true;
                         throw new ServletException(MESSAGES.getMessage(locale,
-                                "error_column_width", fields.length, values.size(), lineNum)); //$NON-NLS-1$
+                                "error_column_width", fields.length, record.length, lineNum)); //$NON-NLS-1$
                     }
+
                     StringBuffer xml = new StringBuffer();
                     xml.append("<" + concept + ">");//$NON-NLS-1$//$NON-NLS-2$            
 
                     // build xml
-                    if (values.size() > 0) {
+                    if (record.length > 0) {
                         for (int j = 0; j < fields.length; j++) {
                             String fieldName = fields[j].split(":")[0]; //$NON-NLS-1$
                             boolean visible = Boolean.valueOf(fields[j].split(":")[1]); //$NON-NLS-1$
                             xml.append("<" + fieldName + ">");//$NON-NLS-1$//$NON-NLS-2$
                             if (visible) {
                                 if (headersOnFirstLine) {
-                                    xml.append(StringEscapeUtils.escapeXml(values.get(headerIndex.get(fieldName))));
+                                    xml.append(StringEscapeUtils.escapeXml(record[headerIndex.get(fieldName)]));
                                 } else {
-                                    if (j < values.size())
-                                        xml.append(StringEscapeUtils.escapeXml(values.get(j)));
+                                    if (j < record.length)
+                                        xml.append(StringEscapeUtils.escapeXml(record[j]));
                                 }
                             }
                             xml.append("</" + fieldName + ">");//$NON-NLS-1$//$NON-NLS-2$
@@ -333,16 +330,15 @@ public class UploadData extends HttpServlet {
                 throw new ServletException(MESSAGES.getMessage("error_import", lineNum, e.getClass().getName(), e//$NON-NLS-1$
                         .getLocalizedMessage()));
             }
-
         } finally {
             writer.close();
         }
     }
 
-    private Map<String, Integer> getHeaderIndex(List<String> headerString,char separator,String header) {
+    private Map<String, Integer> getHeaderIndex(String[] headerString,char separator,String header) {
         Map<String, Integer> fieldIndex = new HashMap<String, Integer>();        
-        for (int i=0;i<headerString.size();i++) {
-            String fieldName = headerString.get(i);
+        for (int i=0;i<headerString.length;i++) {
+            String fieldName = headerString[i];
             if (header.contains(fieldName)){
                 fieldIndex.put(fieldName, i);           
             }
