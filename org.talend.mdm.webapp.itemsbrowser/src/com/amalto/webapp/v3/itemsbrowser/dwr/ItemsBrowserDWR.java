@@ -66,6 +66,7 @@ import org.w3c.dom.Text;
 
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.util.CVCException;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
@@ -77,6 +78,7 @@ import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.dwr.CommonDWR;
 import com.amalto.webapp.core.json.JSONArray;
 import com.amalto.webapp.core.json.JSONObject;
+import com.amalto.webapp.core.util.RoutingException;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XmlUtil;
 import com.amalto.webapp.core.util.XtentisWebappException;
@@ -2351,6 +2353,7 @@ public class ItemsBrowserDWR {
             throws Exception {
         WebContext ctx = WebContextFactory.get();
         Locale locale = new Locale(language);
+        WSItemPK wsi = null;
         try {
             Configuration config = Configuration.getInstance();
             String dataModelPK = config.getModel();
@@ -2458,7 +2461,7 @@ public class ItemsBrowserDWR {
             if (newItem == true)
                 isUpdateThisItem = false;
             // if update, check the item is modified by others?
-            WSItemPK wsi = null;
+
             WSPutItemWithReport wsPutItemWithReport = new WSPutItemWithReport(new WSPutItem(new WSDataClusterPK(dataClusterPK),
                     xml, new WSDataModelPK(dataModelPK), isUpdateThisItem), "genericUI", true); //$NON-NLS-1$
             wsi = Util.getPort().putItemWithReport(wsPutItemWithReport);
@@ -2508,22 +2511,15 @@ public class ItemsBrowserDWR {
 
         } catch (Exception e) {
             ItemResult result;
-            // TODO Ugly isn't it ?
-            if (e.getLocalizedMessage().indexOf("routing failed:") == 0) { //$NON-NLS-1$
+            if (Util.causeIs(e, RoutingException.class)) {
                 String saveSUCCE = MESSAGES.getMessage(locale, "save.success.but.exist.exception", //$NON-NLS-1$
                         concept + "." + Util.joinStrings(ids, "."), e.getLocalizedMessage()); //$NON-NLS-1$//$NON-NLS-2$
                 result = new ItemResult(ItemResult.FAILURE, saveSUCCE);
+            } else if (Util.causeIs(e, CVCException.class)) {
+                String err = MESSAGES.getMessage(locale, "save.fail.cvc.exception", concept); //$NON-NLS-1$
+                result = new ItemResult(ItemResult.FAILURE, err);
             } else {
-                String err = MESSAGES.getMessage(locale, "save.fail", concept + "." + Util.joinStrings(ids, "."), //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
-                        e.getLocalizedMessage());
-                // fix bug 0014896
-                if (e.getLocalizedMessage().indexOf("ERROR_3:") == 0) {//$NON-NLS-1$
-                    err = e.getLocalizedMessage();
-                }
-                // add feature TMDM-2327 SAXException:cvc-type message transform
-                if (e.getLocalizedMessage().indexOf("cvc-") != -1) { //$NON-NLS-1$
-                    err = MESSAGES.getMessage(locale, "save.fail.cvc.exception", concept); //$NON-NLS-1$
-                }
+                String err = MESSAGES.getMessage(locale, "save.fail", concept + "." + Util.joinStrings(ids, ".")); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
                 result = new ItemResult(ItemResult.FAILURE, err);
             }
             return result;
