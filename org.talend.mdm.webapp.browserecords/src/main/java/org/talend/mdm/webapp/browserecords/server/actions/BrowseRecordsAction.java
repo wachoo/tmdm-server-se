@@ -102,12 +102,14 @@ import com.amalto.core.integrity.FKIntegrityCheckResult;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.util.CVCException;
 import com.amalto.core.util.EntityNotFoundException;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
+import com.amalto.webapp.core.util.RoutingException;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XmlUtil;
 import com.amalto.webapp.core.util.XtentisWebappException;
@@ -1555,12 +1557,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     public ItemResult saveItem(String concept, String ids, String xml, boolean isCreate, String language) throws ServiceException {
         Locale locale = new Locale(language);
+        WSItemPK wsi = null;
         try {
             // if update, check the item is modified by others?
             WSPutItemWithReport wsPutItemWithReport = new WSPutItemWithReport(new WSPutItem(new WSDataClusterPK(
                     getCurrentDataCluster()), xml, new WSDataModelPK(getCurrentDataModel()), isCreate ? false : true),
                     "genericUI", true); //$NON-NLS-1$
-            WSItemPK wsi = CommonUtil.getPort().putItemWithReport(wsPutItemWithReport);
+            wsi = CommonUtil.getPort().putItemWithReport(wsPutItemWithReport);
             String message = null;
             int status;
             if (com.amalto.webapp.core.util.Util.isTransformerExist("beforeSaving_" + concept)) { //$NON-NLS-1$
@@ -1611,43 +1614,19 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             LOG.error(e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            // TODO UGLY!!!! to be refactored
-            ServiceException serviceException;
-            if (e.getMessage().indexOf("routing failed:") == 0) { //$NON-NLS-1$
-                serviceException = new ServiceException(MESSAGES.getMessage(locale,
-                        "save_success_but_exist_exception", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
-                                + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), "."), e.getMessage())); //$NON-NLS-1$
+            ItemResult result;
+            if (Util.causeIs(e, RoutingException.class)) {
+                String saveSUCCE = MESSAGES.getMessage(locale, "save.success.but.exist.exception", //$NON-NLS-1$
+                        concept + "." + ids, e.getLocalizedMessage()); //$NON-NLS-1$
+                result = new ItemResult(ItemResult.FAILURE, saveSUCCE);
+            } else if (Util.causeIs(e, CVCException.class)) {
+                String err = MESSAGES.getMessage(locale, "save.fail.cvc.exception", concept); //$NON-NLS-1$
+                result = new ItemResult(ItemResult.FAILURE, err);
             } else {
-                String err = MESSAGES.getMessage(locale, "save_fail", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
-                        + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), ".")); //$NON-NLS-1$ 
-                if (e.getMessage().indexOf("ERROR_3:") == 0) { //$NON-NLS-1$
-                    err = e.getMessage();
-                }
-
-                if (e.getMessage().indexOf("<msg/>") > -1) //$NON-NLS-1$
-                    err = MESSAGES.getMessage(locale, "save_validationrule_fail", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
-                            + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), "."), ""); //$NON-NLS-1$ //$NON-NLS-2$ 
-                else if (e.getMessage().indexOf("<msg>") > -1) {//$NON-NLS-1$) 
-
-                    if (e.getMessage().indexOf(language.toUpperCase() + ":") == -1) //$NON-NLS-1$
-                        err = MESSAGES.getMessage(locale, "save_validationrule_fail", concept + "." //$NON-NLS-1$ //$NON-NLS-2$
-                                + com.amalto.webapp.core.util.Util.joinStrings(convertIds(ids), "."), e.getMessage()); //$NON-NLS-1$
-                    else
-                        err = e.getMessage();
-
-                }
-                // add feature TMDM-2327 SAXException:cvc-complex-type.2.4.b message transform
-                if (e.getMessage().indexOf("cvc-complex-type.2.4.b") != -1) { //$NON-NLS-1$
-                    err = MESSAGES.getMessage(locale, "save_failEx", concept); //$NON-NLS-1$
-                }
-
-                if (e.getMessage().indexOf("cvc-pattern-valid") != -1) { //$NON-NLS-1$
-                    err = MESSAGES.getMessage(locale, "save_pattern_fail", concept); //$NON-NLS-1$
-                }
-
-                serviceException = new ServiceException(err);
+                String err = MESSAGES.getMessage(locale, "save.fail", concept + "." + ids); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+                result = new ItemResult(ItemResult.FAILURE, err);
             }
-            throw serviceException;
+            return result;
         }
     }
 
