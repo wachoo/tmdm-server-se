@@ -1915,4 +1915,15 @@ public class Util {
             return xmlString.replaceAll("<\\?.*\\?>", ""); //$NON-NLS-1$ //$NON-NLS-2$
         }         
     }
+
+    public static boolean causeIs(Throwable throwable, Class<?> cls) {
+        Throwable currentCause = throwable;
+        while (currentCause != null) {
+            if (cls.isInstance(currentCause)) {
+                return true;
+            }
+            currentCause = currentCause.getCause();
+        }
+        return false;
+    }
 }
