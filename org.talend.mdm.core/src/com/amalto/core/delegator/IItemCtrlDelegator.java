@@ -18,6 +18,7 @@ import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
+import com.amalto.core.util.CVCException;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XSDKey;
@@ -336,6 +337,8 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator{
             return pk;
 	    } catch (XtentisException e) {
 	    	throw(e);
+        } catch (CVCException e) {
+            throw new XtentisException(e.getLocalizedMessage(), e);
 	    } catch (Exception e) {
 	    	String prefix = "Unable to create/update the item "+item.getDataClusterPOJOPK().getUniqueId()+"."+Util.joinStrings(item.getItemIds(), ".")
     	    		+": ";

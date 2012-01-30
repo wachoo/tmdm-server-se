@@ -45,12 +45,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -361,6 +361,9 @@ public class Util {
         if (schema != null) {
             // ignore cvc-complex-type.2.3 error
             String errors = seh.getErrors();
+            if (errors.indexOf("cvc-") != -1) { //$NON-NLS-1$
+                throw new CVCException(errors);
+            }
             boolean isComplex23 = errors.indexOf("cvc-complex-type.2.3") != -1 && errors.endsWith("is element-only."); //$NON-NLS-1$ //$NON-NLS-2$
             if (!errors.equals("") && !isComplex23) { //$NON-NLS-1$  
                 String xmlString = Util.nodeToString(element);
