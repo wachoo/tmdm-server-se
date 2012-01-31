@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -167,6 +168,8 @@ public class UploadData extends HttpServlet {
                 cusExceptionFlag = true;
                 throw new ServletException(MESSAGES.getMessage(locale, "error_missing_mandatory_field")); //$NON-NLS-1$
             }
+            
+            List<String> xmlRecords = new ArrayList<String>();
 
             if ("xls".equals(fileType.toLowerCase()) || "xlsx".equals(fileType.toLowerCase())) {//$NON-NLS-1$ //$NON-NLS-2$
                 Workbook wb;
@@ -262,9 +265,8 @@ public class UploadData extends HttpServlet {
                     xml.append("</" + concept + ">");//$NON-NLS-1$//$NON-NLS-2$
                     // put document (except empty lines)
                     if (!allCellsEmpty)
-                        putDocument(xml.toString(), language);
+                        xmlRecords.add(xml.toString());
                 }
-
             } else if ("csv".equals(fileType.toLowerCase())) { //$NON-NLS-1$
                 Map<String, Integer> headerIndex = null;
                 char separator = ',';
@@ -312,11 +314,14 @@ public class UploadData extends HttpServlet {
                         }
                     }
                     xml.append("</" + concept + ">");//$NON-NLS-1$//$NON-NLS-2$
+                    xmlRecords.add(xml.toString());
                     LOG.debug("Added line " + lineNum);//$NON-NLS-1$
                     LOG.trace("--val:\n" + xml);//$NON-NLS-1$
-                    // put document
-                    putDocument(xml.toString(), language);
-                }
+                }                
+            }
+            for (int i = 0; i < xmlRecords.size(); i++) {
+                String xml = xmlRecords.get(i);
+                putDocument(xml, language);
             }
             writer.print("true");//$NON-NLS-1$
         } catch (Exception e) {
