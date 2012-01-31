@@ -36,8 +36,6 @@ Ext.ux.XmlTreeLoader = Ext.extend(Ext.tree.TreeLoader, {
     XML_NODE_TEXT : 3,
 
     isRendered : false,
-    
-    counter : 1,
 
     // private override
     processResponse : function(response, node, callback){
@@ -89,43 +87,23 @@ Ext.ux.XmlTreeLoader = Ext.extend(Ext.tree.TreeLoader, {
     
     // private override
     createNode : function(node){
-    	var nodeText = "";
-    	var diffFlag = false;
+    	var nodeText = node.tagName;
+
     	if (node.textContent == undefined){
-    		if(node.text.indexOf("[#Diff#]") != -1){
-    			if(node.childNodes.length == 1 && node.text != null)
-    				diffFlag = true;
-    			nodeText = node.tagName + (node.childNodes.length == 1 && node.text != null ? ":" + node.text.substring(0, node.text.length - 8) : "");    		
-    		}else{
-    			nodeText = node.tagName + (node.childNodes.length == 1 && node.text != null ? ":" + node.text : ""); 
-    		}   		   		
+    		if(node.childNodes.length == 1 && node.text != null)
+    			if(node.childNodes[0].nodeType == this.XML_NODE_TEXT)
+    				nodeText = nodeText + ":" + node.text;   
     	} else {
-    		if(node.textContent.indexOf("[#Diff#]") != -1){
-    			if(node.childNodes.length == 1 && node.textContent != null)
-    				diffFlag = true;
-    			nodeText = node.tagName + (node.childNodes.length == 1 && node.textContent != null ? ":" + node.textContent.substring(0, node.textContent.length - 8) : "");    		
-    		}else{
-        		nodeText = node.tagName + (node.childNodes.length == 1 && node.textContent != null ? ":" + node.textContent : "");    		
-    		}    			
+    		if(node.childNodes.length == 1 && node.textContent != null)
+    			if(node.childNodes[0].nodeType == this.XML_NODE_TEXT)
+    				nodeText = nodeText + ":" + node.textContent;    					
     	}
     	
-    	var attr;
-    	if(diffFlag){
-			attr = {
-					id:node.tagName + this.counter,
-		            text: nodeText,
-		            cls: "tree-node-different",
-		            leaf: node.childNodes.length == 0
-		        };
-    	}else{
-    		attr = {
-    				id:node.tagName + this.counter,
+    	var attr = {
 		            text: nodeText,
 		            leaf: node.childNodes.length == 0
-		        };
-    	}
+		        	};
     	
-    	this.counter++;
         Ext.each(node.attributes, function(a){
             attr[a.nodeName] = a.nodeValue;
         });
