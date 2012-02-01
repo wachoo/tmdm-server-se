@@ -15,7 +15,6 @@ package com.amalto.core.objects.customform.ejb;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -25,7 +24,6 @@ import javax.ejb.SessionContext;
 
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
-import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.XtentisException;
 
 /**
@@ -154,12 +152,10 @@ public class CustomFormCtrlBean implements SessionBean {
 
         try {
             Collection<ObjectPOJOPK> c = ObjectPOJO.findAllPKs(CustomFormPOJO.class, ""); //$NON-NLS-1$
-            // if 2 roles are eligible for a user, pick the first one arbitrarily
             List<CustomFormPOJO> list = new ArrayList<CustomFormPOJO>();
             for (ObjectPOJOPK pk : c) {
                 CustomFormPOJO pojo = ObjectPOJO.load(CustomFormPOJO.class, pk);
-                HashSet<String> roles = LocalUser.getLocalUser().getRoles();
-                if (roles.contains(pojo.getRole()) && pojo.getDatamodel().equals(cpk.getDatamodel())
+                if (pojo.getDatamodel().equals(cpk.getDatamodel())
                         && pojo.getEntity().equals(cpk.getEntity())) {
                     list.add(pojo);
                 }

@@ -34,6 +34,7 @@ import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
 import com.amalto.core.objects.configurationinfo.ejb.ConfigurationInfoPOJO;
+import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.menu.ejb.MenuPOJO;
@@ -112,6 +113,7 @@ public abstract class ObjectPOJO implements Serializable{
 				{"Universe", UniversePOJO.class},
 				{"Synchronization Plan", SynchronizationPlanPOJO.class},
 				{"Synchronization Conflict", SynchronizationItemPOJO.class},
+ { "Custom Layout", CustomFormPOJO.class },
 				{"Item",ItemPOJO.class}
 		};
 	
