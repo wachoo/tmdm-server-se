@@ -47,6 +47,10 @@
       <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.xsom.jar" />
       <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.commons-jxpath-1.3.jar" />
       <pathelement path="${tom.location}/talend.mdm.libraries/lib/xercesImpl-2.9.1.jar" />
+  	  <pathelement path="${tom.location}/talend.mdm.libraries/lib/dom4j.jar" />
+  	  <pathelement path="${tom.location}/talend.mdm.libraries/lib/jaxen-1.1.1.jar" />
+  	  <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.xsom.jar" />
+  	  <pathelement path="${tom.location}/talend.mdm.libraries/deploy/lib/z.relaxngDatatype.jar" />
     </path>
 
     <path id="compile.classpath">

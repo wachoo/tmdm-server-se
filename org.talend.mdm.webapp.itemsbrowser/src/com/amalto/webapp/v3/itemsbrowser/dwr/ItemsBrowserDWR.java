@@ -648,7 +648,7 @@ public class ItemsBrowserDWR {
             }
 
             try {
-                rulesStyle = displayRulesUtil.genDefaultValueStyle();
+                rulesStyle = displayRulesUtil.genDefaultValueStyle(XmlUtil.parseDocument(doc));
                 org.dom4j.Document transformedDocumentValue = XmlUtil.styleDocument(tmpDocument, rulesStyle);
                 for (Iterator<String> iterator = defaultValueRules.keySet().iterator(); iterator.hasNext();) {
                     String xpath = (String) iterator.next();
@@ -666,9 +666,9 @@ public class ItemsBrowserDWR {
 
         if (visibleRules.size() > 0) {
             if (rulesStyle == null)
-                rulesStyle = displayRulesUtil.genDefaultValueStyle();
+                rulesStyle = displayRulesUtil.genDefaultValueStyle(XmlUtil.parseDocument(doc));
             org.dom4j.Document transformedDocumentVisible = XmlUtil.styleDocument(doc, rulesStyle);
-            rulesStyle = displayRulesUtil.genVisibleStyle();
+            rulesStyle = displayRulesUtil.genVisibleStyle(transformedDocumentVisible);
             transformedDocumentVisible = XmlUtil.styleDocument(transformedDocumentVisible, rulesStyle);
             for (Iterator<String> iterator = visibleRules.keySet().iterator(); iterator.hasNext();) {
                 String xpath = (String) iterator.next();
@@ -2543,12 +2543,12 @@ public class ItemsBrowserDWR {
 
             DisplayRulesUtil displayRulesUtil = polymToDisplayRulesUtil.get(polymList);
             if (displayRulesUtil != null)
-                realSchemaStyle = displayRulesUtil.genDefaultValueStyle();
+                realSchemaStyle = displayRulesUtil.genDefaultValueStyle(XmlUtil.parseDocument(d));
         }
         if (realSchemaStyle == null) {
             DisplayRulesUtil displayRulesUtil = (DisplayRulesUtil) ctx.getSession().getAttribute(
                     "itemDocument_displayRulesUtil" + docIndex); //$NON-NLS-1$
-            realSchemaStyle = displayRulesUtil.genDefaultValueStyle();
+            realSchemaStyle = displayRulesUtil.genDefaultValueStyle(XmlUtil.parseDocument(d));
         }
 
         // added by lzhang, make sure there is no empty node which has DSP value

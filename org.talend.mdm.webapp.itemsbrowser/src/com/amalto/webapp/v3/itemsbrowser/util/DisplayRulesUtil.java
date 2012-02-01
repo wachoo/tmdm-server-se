@@ -56,10 +56,10 @@ public class DisplayRulesUtil {
     /**
      * DOC HSHU Comment method "genStyle".
      */
-    public String genVisibleStyle() {
+    public String genVisibleStyle(Document doc) {
 
         // translate schema
-        String style = translateVisibleSchema();
+        String style = translateVisibleSchema(doc);
 
         StringBuffer sb = new StringBuffer();
         sb
@@ -71,10 +71,9 @@ public class DisplayRulesUtil {
         return sb.toString();
     }
 
-    public String genDefaultValueStyle() {
+    public String genDefaultValueStyle(Document doc) {
         // remove visible style before save it, it is just used to show
-        String style = translateDefaultValueSchema();
-
+        String style = translateDefaultValueSchema(doc);
         StringBuffer sb = new StringBuffer();
         sb
 .append("<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:fn=\"http://www.w3.org/2005/xpath-functions\" xmlns:t=\"http://www.talend.com/2010/MDM\" version=\"2.0\">"); //$NON-NLS-1$
@@ -85,63 +84,28 @@ public class DisplayRulesUtil {
         return sb.toString();
     }
 
-    private String getStyleElemName(String elemName, HashMap<String, Integer> indexMap) {
-        String styleName = null;
+    private String getTemplateAndElemName(String elemName) {
         Pattern p = Pattern.compile("(.*?)(\\[\\d+\\])$"); //$NON-NLS-1$
         Matcher m = p.matcher(elemName);
         String name = elemName;
         if (m.matches()) {
             name = m.group(1);
         }
-
-        if (indexMap.containsKey(name)) {
-            int index = indexMap.get(name);
-            styleName = name + "[" + (index + 1) + "]"; //$NON-NLS-1$ //$NON-NLS-2$
-            indexMap.put(name, index + 1);
-        } else {
-            if (countMap.get(name) > 1) {
-                styleName = name + "[1]"; //$NON-NLS-1$
-                indexMap.put(name, 1);
-            } else {
-                styleName = name;
-                indexMap.put(name, 1);
-            }
-        }
-        return styleName;
+        return name;
     }
 
-    private String getTemplateName(String elemName, HashMap<String, Integer> indexMap) {
-        String styleName = null;
-        Pattern p = Pattern.compile("(.*?)(\\[\\d+\\])$"); //$NON-NLS-1$
-        Matcher m = p.matcher(elemName);
-        String name = elemName;
-        if (m.matches()) {
-            name = m.group(1);
-        }
-        if (indexMap.containsKey(name) && countMap.get(name) > 1) {
-            int index = indexMap.get(name);
-            styleName = name + "[" + (countMap.get(name) - index + 1) + "]"; //$NON-NLS-1$ //$NON-NLS-2$
-            indexMap.put(name, index - 1);
-        } else {
-            styleName = name;
-            indexMap.put(name, 1);
-        }
-        return styleName;
-    }
-
-    private String translateDefaultValueSchema() {
+    private String translateDefaultValueSchema(Document doc) {
         StringBuffer style = new StringBuffer();
         if (tmpls.isEmpty())
-            travelXSElement(root, "/" + root.getName()); //$NON-NLS-1$ 
+            travelXSElement(root, "/" + root.getName(), doc); //$NON-NLS-1$ //$NON-NLS-2
 
-        HashMap<String, Integer> indexMap = new HashMap<String, Integer>();
         for (TemplateBean tmp : tmpls) {
             XSElementDecl self = tmp.getSelfElement();
             List<DisplayRule> dspRules = getRules(self, BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE);
             if (self.getType().isComplexType() || dspRules.size() > 0) {
                 Map<XSElementDecl, String> children = tmp.getChildrenElements();
 
-                style.append("<xsl:template match=\"" + getTemplateName(tmp.getXPath(), indexMap) + "\">") //$NON-NLS-1$ //$NON-NLS-2$
+                style.append("<xsl:template match=\"" + getTemplateAndElemName(tmp.getXPath()) + "\">") //$NON-NLS-1$ //$NON-NLS-2$
                         .append("<xsl:copy>"); //$NON-NLS-1$ 
 
                 if (dspRules.size() > 0)
@@ -164,7 +128,7 @@ public class DisplayRulesUtil {
                     for (XSElementDecl child : children.keySet()) {
                         if (child.getType().isComplexType() || hasRules(child, BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE))
                             style
-                                    .append("<xsl:apply-templates select=\"" + getStyleElemName(children.get(child), indexMap) + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
+.append("<xsl:apply-templates select=\"" + getTemplateAndElemName(children.get(child)) + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
                         else
                             style.append("<xsl:copy-of select=\"" + child.getName() + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
                     }
@@ -178,19 +142,18 @@ public class DisplayRulesUtil {
         return style.toString();
     }
 
-    private String translateVisibleSchema() {
+    private String translateVisibleSchema(Document doc) {
         StringBuffer style = new StringBuffer();
         if (tmpls.isEmpty())
-            travelXSElement(root, "/" + root.getName()); //$NON-NLS-1$
+            travelXSElement(root, "/" + root.getName(), doc); //$NON-NLS-1$
 
-        HashMap<String, Integer> indexMap = new HashMap<String, Integer>();
         for (TemplateBean tmp : tmpls) {
             XSElementDecl self = tmp.getSelfElement();
             List<DisplayRule> dspRules = getRules(self, BusinessConcept.APPINFO_X_VISIBLE_RULE);
             if (self.getType().isComplexType() || dspRules.size() > 0) {
                 Map<XSElementDecl, String> children = tmp.getChildrenElements();
 
-                style.append("<xsl:template match=\"" + getTemplateName(tmp.getXPath(), indexMap) + "\">") //$NON-NLS-1$ //$NON-NLS-2$
+                style.append("<xsl:template match=\"" + getTemplateAndElemName(tmp.getXPath()) + "\">") //$NON-NLS-1$ //$NON-NLS-2$
                         .append("<xsl:copy>"); //$NON-NLS-1$ 
 
                 if (dspRules.size() > 0)
@@ -204,7 +167,7 @@ public class DisplayRulesUtil {
                     for (XSElementDecl child : children.keySet()) {
                         if (child.getType().isComplexType() || hasRules(child, BusinessConcept.APPINFO_X_VISIBLE_RULE))
                             style
-                                    .append("<xsl:apply-templates select=\"" + getStyleElemName(children.get(child), indexMap) + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
+.append("<xsl:apply-templates select=\"" + getTemplateAndElemName(children.get(child)) + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
                         else
                             style.append("<xsl:copy-of select=\"" + child.getName() + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
                     }
@@ -236,7 +199,7 @@ public class DisplayRulesUtil {
         return false;
     }
 
-    private String travelXSElement(XSElementDecl e, String currentXPath) {
+    private String travelXSElement(XSElementDecl e, String currentXPath, Document doc) {
         if (e != null) {
             Pattern p = Pattern.compile("(.*?)(00000\\d+00000)$"); //$NON-NLS-1$ //add separator in left and right sides to avoid same named in xsd, correspond to getDspXpathName function in ItemBrowserDWR
             Matcher m = p.matcher(e.getName());
@@ -245,7 +208,6 @@ public class DisplayRulesUtil {
                 name = m.group(1);
             }
             String currentName = currentXPath.substring(0, currentXPath.lastIndexOf("/") + 1) + name; //$NON-NLS-1$
-
             if (e.getType().isSimpleType()) {
                 if (hasRules(e, null)) {
 
@@ -266,12 +228,15 @@ public class DisplayRulesUtil {
                 TemplateBean templateBean = new TemplateBean(e, currentXPath);
                 tmpls.add(templateBean);
 
+                // XmlUtil
                 XSParticle[] subParticles = e.getType().asComplexType().getContentType().asParticle().getTerm().asModelGroup()
                         .getChildren();
+
                 if (subParticles != null) {
                     for (int i = 0; i < subParticles.length; i++) {
+
                         XSParticle xsParticle = subParticles[i];
-                        travelParticle(xsParticle, templateBean, currentXPath);
+                        travelParticle(xsParticle, templateBean, currentXPath, doc);
                     }
                 }
 
@@ -282,16 +247,20 @@ public class DisplayRulesUtil {
         return null;
     }
 
-    private void travelParticle(XSParticle xsParticle, TemplateBean templateBean, String currentXPath) {
+    private void travelParticle(XSParticle xsParticle, TemplateBean templateBean, String currentXPath, Document doc) {
         if (xsParticle.getTerm().asModelGroup() != null) {
             XSParticle[] xsps = xsParticle.getTerm().asModelGroup().getChildren();
             for (int j = 0; j < xsps.length; j++) {
-                travelParticle(xsps[j], templateBean, currentXPath);
+                travelParticle(xsps[j], templateBean, currentXPath, doc);
             }
         } else if (xsParticle.getTerm().asElementDecl() != null) {
             XSElementDecl subElement = xsParticle.getTerm().asElementDecl();
-            String refXPath = travelXSElement(subElement, currentXPath + "/" + subElement.getName()); //$NON-NLS-1$ 
-            templateBean.addChildElement(subElement, refXPath);
+            String countName = currentXPath + "/" + subElement.getName();
+            int count = doc.numberValueOf("count(" + countName + ")").intValue();
+            for (int k = 1; k <= count; k++) {
+                String refXPath = travelXSElement(subElement, currentXPath + "/" + subElement.getName(), doc); //$NON-NLS-1$ 
+                templateBean.addChildElement(subElement, refXPath);
+            }
         }
     }
 
