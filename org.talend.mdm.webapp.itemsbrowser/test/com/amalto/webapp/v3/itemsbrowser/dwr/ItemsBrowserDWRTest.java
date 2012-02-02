@@ -186,4 +186,21 @@ public class ItemsBrowserDWRTest extends TestCase {
 
         return Util.buildWhereItems(fkWhere);
     }
+
+    public void test_Util_getExceptionMessage() {
+        String message = "<msg>[EN:validate error][FR:validate error]</msg>";
+        String language = "en";
+        // 1
+        String actualMsg = Util.getExceptionMessage(message, language);
+        assertEquals("validate error", actualMsg);
+        // 2
+        message = "<msg/>";
+        actualMsg = Util.getExceptionMessage(message, language);
+        assertEquals("", actualMsg);
+        // 3
+        message = "<msg>[EN:validate error]</msg>";
+        language = "fr";
+        actualMsg = Util.getExceptionMessage(message, language);
+        assertEquals(message, actualMsg);
+    }
 }

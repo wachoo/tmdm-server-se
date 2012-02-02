@@ -28,9 +28,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import javax.naming.InitialContext;
 import javax.naming.NameClassPair;
@@ -106,6 +106,7 @@ import com.amalto.core.objects.view.ejb.ViewPOJOPK;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.UpdateReportItem;
 import com.amalto.core.util.Util;
+import com.amalto.core.util.ValidateException;
 import com.amalto.core.util.Version;
 import com.amalto.core.util.WhereConditionForcePivotFilter;
 import com.amalto.core.util.XSDKey;
@@ -786,6 +787,8 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                     itemPOJOPK.getConceptName(), itemPOJOPK.getIds());
         } catch (com.amalto.core.util.XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
+        } catch (ValidateException e) {
+            throw new RemoteException(e.getLocalizedMessage(), e);
         } catch (Exception e) {
             String prefix = "Unable to create/update the item : ";
             String err = e.getMessage();

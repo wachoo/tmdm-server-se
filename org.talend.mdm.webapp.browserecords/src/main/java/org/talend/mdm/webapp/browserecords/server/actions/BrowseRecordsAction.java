@@ -106,6 +106,7 @@ import com.amalto.core.util.CVCException;
 import com.amalto.core.util.EntityNotFoundException;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
+import com.amalto.core.util.ValidateException;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
@@ -1614,19 +1615,19 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             LOG.error(e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            ItemResult result;
+            String err = ""; //$NON-NLS-1$
             if (Util.causeIs(e, RoutingException.class)) {
-                String saveSUCCE = MESSAGES.getMessage(locale, "save.success.but.exist.exception", //$NON-NLS-1$
+                err = MESSAGES.getMessage(locale, "save_success_but_exist_exception", //$NON-NLS-1$
                         concept + "." + ids, e.getLocalizedMessage()); //$NON-NLS-1$
-                result = new ItemResult(ItemResult.FAILURE, saveSUCCE);
             } else if (Util.causeIs(e, CVCException.class)) {
-                String err = MESSAGES.getMessage(locale, "save.fail.cvc.exception", concept); //$NON-NLS-1$
-                result = new ItemResult(ItemResult.FAILURE, err);
+                err = MESSAGES.getMessage(locale, "save_fail_cvc_exception", concept); //$NON-NLS-1$
+            } else if (Util.causeIs(e, ValidateException.class)) {
+                err = MESSAGES.getMessage(locale, "save_validationrule_fail", concept + "." + ids, //$NON-NLS-1$//$NON-NLS-2$
+                        Util.getExceptionMessage(e.getLocalizedMessage(), language));
             } else {
-                String err = MESSAGES.getMessage(locale, "save.fail", concept + "." + ids); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
-                result = new ItemResult(ItemResult.FAILURE, err);
+                err = MESSAGES.getMessage(locale, "save_fail", concept + "." + ids); //$NON-NLS-1$ //$NON-NLS-2$
             }
-            return result;
+            return new ItemResult(ItemResult.FAILURE, err);
         }
     }
 
