@@ -72,9 +72,11 @@ import org.w3c.dom.NodeList;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.util.CVCException;
 import com.amalto.core.util.Messages;
 import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
+import com.amalto.webapp.core.util.RoutingException;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSBoolean;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
@@ -361,7 +363,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     }
 
     @Override
-    public ItemResult saveItemBean(ItemBean item) {
+    public ItemResult saveItemBean(ItemBean item, String language) {
+        WSItemPK itemPk = null;
+        Locale locale = new Locale(language);
         try {
             String message = null;
             int status = ItemResult.FAILURE;
@@ -370,7 +374,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             WSPutItemWithReport wsPutItemWithReport = new WSPutItemWithReport(new WSPutItem(new WSDataClusterPK(
                     getCurrentDataCluster()), item.getItemXml(), new WSDataModelPK(getCurrentDataModel()), true),
                     "genericUI", true); //$NON-NLS-1$
-            CommonUtil.getPort().putItemWithReport(wsPutItemWithReport);
+            itemPk = CommonUtil.getPort().putItemWithReport(wsPutItemWithReport);
 
             if (com.amalto.webapp.core.util.Util.isTransformerExist("beforeSaving_" + item.getConcept())) { //$NON-NLS-1$
                 String outputErrorMessage = wsPutItemWithReport.getSource();
@@ -409,25 +413,17 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             }
             return new ItemResult(status, message);
         } catch (Exception e) {
+
             ItemResult result;
-            // TODO UGLY!!!! to be refactored
-            if (e.getLocalizedMessage().indexOf("routing failed:") == 0) {//$NON-NLS-1$ 
-                String saveSUCCE = "Save item '" + item.getConcept() + "."
-                        + com.amalto.webapp.core.util.Util.joinStrings(convertIds(item.getIds()), ".")
-                        + "' successfully, But " + e.getLocalizedMessage();//$NON-NLS-1$ 
+            if (com.amalto.webapp.core.util.Util.causeIs(e, RoutingException.class)) {
+                String saveSUCCE = MESSAGES.getMessage(locale, "save.success.but.exist.exception", //$NON-NLS-1$
+                        item.getConcept() + "." + com.amalto.webapp.core.util.Util.joinStrings(itemPk.getIds(), "."), e.getLocalizedMessage()); //$NON-NLS-1$//$NON-NLS-2$
                 result = new ItemResult(ItemResult.FAILURE, saveSUCCE);
+            } else if (com.amalto.webapp.core.util.Util.causeIs(e, CVCException.class)) {
+                String err = MESSAGES.getMessage(locale, "save.fail.cvc.exception", item.getConcept()); //$NON-NLS-1$
+                result = new ItemResult(ItemResult.FAILURE, err);
             } else {
-                String err = "Unable to save item '" + item.getConcept() + "."
-                        + com.amalto.webapp.core.util.Util.joinStrings(convertIds(item.getIds()), ".") + "'"//$NON-NLS-1$ //$NON-NLS-2$
-                        + e.getLocalizedMessage();
-                if (e.getLocalizedMessage().indexOf("ERROR_3:") == 0) {//$NON-NLS-1$
-                    err = e.getLocalizedMessage();
-                }
-                // add feature TMDM-2327 SAXException:cvc-complex-type.2.4.b message transform
-                if (e.getLocalizedMessage().indexOf("cvc-complex-type.2.4.b") != -1) { //$NON-NLS-1$
-                    err = "Unable to save item,before saving the '" + item.getConcept()
-                            + "' item,please fill the required field's contents";
-                }
+                String err = MESSAGES.getMessage(locale, "save.fail", item.getConcept() + "." + com.amalto.webapp.core.util.Util.joinStrings(itemPk.getIds(), ".")); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
                 result = new ItemResult(ItemResult.FAILURE, err);
             }
             return result;

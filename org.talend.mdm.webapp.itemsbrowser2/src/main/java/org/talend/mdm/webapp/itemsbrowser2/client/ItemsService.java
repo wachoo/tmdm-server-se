@@ -57,7 +57,7 @@ public interface ItemsService extends RemoteService {
 
     String getCurrentDataCluster() throws Exception;
 
-    ItemResult saveItemBean(ItemBean item);
+    ItemResult saveItemBean(ItemBean item, String language);
 
     ItemResult deleteItemBean(ItemBean item, String language);
 

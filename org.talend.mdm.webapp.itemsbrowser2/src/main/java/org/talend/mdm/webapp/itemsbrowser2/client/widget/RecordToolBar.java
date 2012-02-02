@@ -281,7 +281,8 @@ public class RecordToolBar extends ToolBar {
 
     private void saveItemBean(final ItemsFormPanel parent) {
         ItemBean itemBean = parent.getNewItemBean();
-        service.saveItemBean(itemBean, new SessionAwareAsyncCallback<ItemResult>() {
+        service.saveItemBean(itemBean, Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()),
+                new SessionAwareAsyncCallback<ItemResult>() {
 
             @Override
             protected void doOnFailure(Throwable arg0) {
