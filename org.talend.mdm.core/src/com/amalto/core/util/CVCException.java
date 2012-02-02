@@ -15,36 +15,19 @@ package com.amalto.core.util;
 
 public class CVCException extends Exception {
 
-    /**
-     * 
-     */
     public CVCException() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
-    /**
-     * @param message
-     */
     public CVCException(String message) {
         super(message);
-        // TODO Auto-generated constructor stub
     }
 
-    /**
-     * @param message
-     * @param cause
-     */
     public CVCException(String message, Throwable cause) {
         super(message, cause);
-        // TODO Auto-generated constructor stub
     }
 
-    /**
-     * @param cause
-     */
     public CVCException(Throwable cause) {
         super(cause);
-        // TODO Auto-generated constructor stub
     }
 }

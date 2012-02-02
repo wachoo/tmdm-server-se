@@ -361,15 +361,14 @@ public class Util {
         if (schema != null) {
             // ignore cvc-complex-type.2.3 error
             String errors = seh.getErrors();
-            if (errors.indexOf("cvc-") != -1) { //$NON-NLS-1$
-                throw new CVCException(errors);
-            }
+
             boolean isComplex23 = errors.indexOf("cvc-complex-type.2.3") != -1 && errors.endsWith("is element-only."); //$NON-NLS-1$ //$NON-NLS-2$
             if (!errors.equals("") && !isComplex23) { //$NON-NLS-1$  
                 String xmlString = Util.nodeToString(element);
                 String err = "The item " + element.getLocalName() + " did not validate against the model: \n" + errors + "\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         + xmlString; // .substring(0, Math.min(100, xmlString.length()));
-                throw new SAXException(err);
+                LOG.debug(err);
+                throw new CVCException(err);
             }
         }
 
