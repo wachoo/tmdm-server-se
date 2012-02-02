@@ -30,9 +30,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -70,6 +70,7 @@ import com.amalto.core.util.CVCException;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
+import com.amalto.core.util.ValidateException;
 import com.amalto.webapp.core.bean.ComboItemBean;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.ListRange;
@@ -2510,19 +2511,20 @@ public class ItemsBrowserDWR {
             return new ItemResult(status, message, Util.joinStrings(wsi == null ? ids : wsi.getIds(), ".")); //$NON-NLS-1$
 
         } catch (Exception e) {
-            ItemResult result;
+            String err = ""; //$NON-NLS-1$
             if (Util.causeIs(e, RoutingException.class)) {
-                String saveSUCCE = MESSAGES.getMessage(locale, "save.success.but.exist.exception", //$NON-NLS-1$
+                err = MESSAGES.getMessage(locale, "save.success.but.exist.exception", //$NON-NLS-1$
                         concept + "." + Util.joinStrings(ids, "."), e.getLocalizedMessage()); //$NON-NLS-1$//$NON-NLS-2$
-                result = new ItemResult(ItemResult.FAILURE, saveSUCCE);
             } else if (Util.causeIs(e, CVCException.class)) {
-                String err = MESSAGES.getMessage(locale, "save.fail.cvc.exception", concept); //$NON-NLS-1$
-                result = new ItemResult(ItemResult.FAILURE, err);
+                err = MESSAGES.getMessage(locale, "save.fail.cvc.exception", concept); //$NON-NLS-1$
+            } else if (Util.causeIs(e, ValidateException.class)) {
+                err = MESSAGES.getMessage(locale, "save.validationrule.fail", concept + "." + ids, //$NON-NLS-1$//$NON-NLS-2$
+                        Util.getExceptionMessage(e.getLocalizedMessage(), language));
             } else {
-                String err = MESSAGES.getMessage(locale, "save.fail", concept + "." + Util.joinStrings(ids, ".")); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
-                result = new ItemResult(ItemResult.FAILURE, err);
+                err = MESSAGES.getMessage(locale,
+                        "save.fail", concept + "." + Util.joinStrings(ids, "."), e.getLocalizedMessage()); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
             }
-            return result;
+            return new ItemResult(ItemResult.FAILURE, err);
         }
     }
 

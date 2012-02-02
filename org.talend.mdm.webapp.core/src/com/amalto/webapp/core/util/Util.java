@@ -1926,4 +1926,16 @@ public class Util {
         }
         return false;
     }
+
+    public static String getExceptionMessage(String message, String language) {
+        if (message == null || message.indexOf("<msg/>") != -1) //$NON-NLS-1$
+            return ""; //$NON-NLS-1$
+        // Message tip : "<msg>[EN:validate error][FR:validate error]</msg>"
+        if (message.indexOf("<msg>") != -1) { //$NON-NLS-1$
+            int index = message.indexOf(language.toUpperCase() + ":"); //$NON-NLS-1$
+            if (index != -1)
+                return message.substring(index + 3, message.indexOf("]")); //$NON-NLS-1$
+        }
+        return message;
+    }
 }
