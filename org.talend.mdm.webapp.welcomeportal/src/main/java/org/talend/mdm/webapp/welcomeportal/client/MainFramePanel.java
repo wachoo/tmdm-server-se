@@ -459,7 +459,7 @@ public class MainFramePanel extends Portal {
     }-*/;
 
     private native void initUI(String context, String application)/*-{
-        var initFunction = $wnd.amalto[context][application].init();
+        var initFunction = $wnd.amalto[context][application].init;
         setTimeout(initFunction, '50');
     }-*/;
 }
