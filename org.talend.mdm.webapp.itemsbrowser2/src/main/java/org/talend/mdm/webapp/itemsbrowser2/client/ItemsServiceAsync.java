@@ -45,7 +45,7 @@ public interface ItemsServiceAsync {
 
     void getCurrentDataModel(AsyncCallback<String> callback);
 
-    void saveItemBean(ItemBean item, AsyncCallback<ItemResult> callback);
+    void saveItemBean(ItemBean item, String language, AsyncCallback<ItemResult> callback);
 
     void getCurrentDataCluster(AsyncCallback<String> callback);
 

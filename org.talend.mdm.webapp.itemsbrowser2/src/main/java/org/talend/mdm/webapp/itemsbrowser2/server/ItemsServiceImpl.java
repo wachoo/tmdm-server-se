@@ -143,8 +143,8 @@ public class ItemsServiceImpl extends AbstractService implements ItemsService {
      * org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#saveItemBean(org.talend.mdm.webapp.itemsbrowser2.client
      * .model.ItemBean)
      */
-    public ItemResult saveItemBean(ItemBean item) {
-        return itemsServiceHandler.saveItemBean(item);
+    public ItemResult saveItemBean(ItemBean item, String language) {
+        return itemsServiceHandler.saveItemBean(item, language);
     }
 
     /*

@@ -83,7 +83,8 @@ public class SaveRowEditor extends RowEditor<ItemBean> {
             doc.appendChild(el);
             itemBean.setItemXml(doc.toString());
             // Window.alert(itemBean.getItemXml());
-            service.saveItemBean(itemBean, new SessionAwareAsyncCallback<ItemResult>() {
+            service.saveItemBean(itemBean, Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()),
+                    new SessionAwareAsyncCallback<ItemResult>() {
 
                 @Override
                 protected void doOnFailure(Throwable arg0) {
