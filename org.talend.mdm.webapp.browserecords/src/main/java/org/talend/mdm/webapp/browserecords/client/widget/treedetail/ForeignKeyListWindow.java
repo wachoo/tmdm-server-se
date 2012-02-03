@@ -228,6 +228,7 @@ public class ForeignKeyListWindow extends Window {
         BaseListLoader<ListLoadResult<Restriction>> loader1 = new BaseListLoader<ListLoadResult<Restriction>>(proxy1);
         typeList = new ListStore<BaseModel>(loader1);
         loader = new BasePagingLoader<PagingLoadResult<ModelData>>(proxy);
+        loader.setRemoteSort(true);
         final ListStore<ForeignKeyBean> store = new ListStore<ForeignKeyBean>(loader);
 
         FormPanel panel = new FormPanel();
@@ -331,6 +332,7 @@ public class ForeignKeyListWindow extends Window {
         // build columns by specify store
         final PagingToolBar pageToolBar = new PagingToolBar(pageSize);
         pageToolBar.bind(loader);
+        pageToolBar.setEnabled(true);
 
         // change label display
         boolean retrieveFKinfos = typeModel.isRetrieveFKinfos();
@@ -373,6 +375,8 @@ public class ForeignKeyListWindow extends Window {
         relatedRecordGrid.getView().setForceFit(true);
         relatedRecordGrid.setLoadMask(true);
         relatedRecordGrid.setBorders(false);
+        relatedRecordGrid.setStateful(true);
+        relatedRecordGrid.setStateId("relatedRecordGrid"); //$NON-NLS-1$
         relatedRecordGrid.addListener(Events.Attach, new Listener<GridEvent<ForeignKeyBean>>() {
 
             public void handleEvent(GridEvent<ForeignKeyBean> be) {
