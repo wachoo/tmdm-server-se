@@ -24,6 +24,7 @@ import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
+import org.talend.mdm.webapp.base.shared.Constatns;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.base.shared.XpathUtil;
 import org.w3c.dom.Element;
@@ -38,6 +39,7 @@ import com.amalto.webapp.util.webservices.WSWhereAnd;
 import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.WSWhereItem;
 import com.amalto.webapp.util.webservices.WSXPathsSearch;
+import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 
 public class ForeignKeyHelper {
@@ -54,9 +56,21 @@ public class ForeignKeyHelper {
         if (holder != null) {
             String conceptName = holder.conceptName;
             List<String> xPaths = holder.xpaths;
-            String orderByPath = holder.orderbyPath;
             WSWhereItem whereItem = holder.whereItem;
             String fkFilter = holder.fkFilter;
+            
+            String sortDir = null;
+            String xpath = null;
+            if (SortDir.ASC.equals(config.getSortDir())) {
+                sortDir = Constatns.SEARCH_DIRECTION_ASC;
+            }
+            if (SortDir.DESC.equals(config.getSortDir())) {
+                sortDir = Constatns.SEARCH_DIRECTION_DESC;
+            }
+
+            if (sortDir != null) {
+                xpath = model.getXpath() + "/" + config.getSortField(); //$NON-NLS-1$
+            }
 
             // Run the query
             if (!Util.isCustomFilter(fkFilter)) {
@@ -65,7 +79,7 @@ public class ForeignKeyHelper {
                         .xPathsSearch(
                                 new WSXPathsSearch(new WSDataClusterPK(dataClusterPK), null, new WSStringArray(xPaths
                                         .toArray(new String[xPaths.size()])), whereItem, -1, config.getOffset(), config
-                                        .getLimit(), orderByPath, null, true)).getStrings();
+                                        .getLimit(), xpath, sortDir, true)).getStrings();
             } else {
                 String injectedXpath = Util.getInjectedXpath(fkFilter);
                 results = CommonUtil
@@ -73,7 +87,7 @@ public class ForeignKeyHelper {
                         .getItemsByCustomFKFilters(
                                 new WSGetItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName,
                                         new WSStringArray(xPaths.toArray(new String[xPaths.size()])), injectedXpath, config
-                                                .getOffset(), config.getLimit(), orderByPath, null, true, whereItem))
+                                                .getOffset(), config.getLimit(), xpath, sortDir, true, whereItem))
                         .getStrings();
             }
         }
