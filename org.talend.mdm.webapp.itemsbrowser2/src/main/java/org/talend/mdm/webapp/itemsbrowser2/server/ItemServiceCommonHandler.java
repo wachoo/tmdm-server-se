@@ -74,6 +74,7 @@ import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.util.CVCException;
 import com.amalto.core.util.Messages;
+import com.amalto.core.util.ValidateException;
 import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.RoutingException;
@@ -414,19 +415,26 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             return new ItemResult(status, message);
         } catch (Exception e) {
 
-            ItemResult result;
+            String err = ""; //$NON-NLS-1$
             if (com.amalto.webapp.core.util.Util.causeIs(e, RoutingException.class)) {
-                String saveSUCCE = MESSAGES.getMessage(locale, "save.success.but.exist.exception", //$NON-NLS-1$
-                        item.getConcept() + "." + com.amalto.webapp.core.util.Util.joinStrings(itemPk.getIds(), "."), e.getLocalizedMessage()); //$NON-NLS-1$//$NON-NLS-2$
-                result = new ItemResult(ItemResult.FAILURE, saveSUCCE);
+                err = MESSAGES
+                        .getMessage(
+                                locale,
+                                "save.success.but.exist.exception", //$NON-NLS-1$
+                                item.getConcept() + "." + com.amalto.webapp.core.util.Util.joinStrings(itemPk.getIds(), "."), e.getLocalizedMessage()); //$NON-NLS-1$//$NON-NLS-2$
             } else if (com.amalto.webapp.core.util.Util.causeIs(e, CVCException.class)) {
-                String err = MESSAGES.getMessage(locale, "save.fail.cvc.exception", item.getConcept()); //$NON-NLS-1$
-                result = new ItemResult(ItemResult.FAILURE, err);
+                err = MESSAGES.getMessage(locale, "save.fail.cvc.exception", item.getConcept()); //$NON-NLS-1$
+            } else if (com.amalto.webapp.core.util.Util.causeIs(e, ValidateException.class)) {
+                err = MESSAGES.getMessage(locale, "save.validationrule.fail", //$NON-NLS-1$
+                        item.getConcept() + "." + com.amalto.webapp.core.util.Util.joinStrings(itemPk.getIds(), "."), //$NON-NLS-1$//$NON-NLS-2$
+                        com.amalto.webapp.core.util.Util.getExceptionMessage(e.getLocalizedMessage(), language));
             } else {
-                String err = MESSAGES.getMessage(locale, "save.fail", item.getConcept() + "." + com.amalto.webapp.core.util.Util.joinStrings(itemPk.getIds(), ".")); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
-                result = new ItemResult(ItemResult.FAILURE, err);
+                err = MESSAGES
+                        .getMessage(
+                                locale,
+                                "save.fail", item.getConcept() + "." + com.amalto.webapp.core.util.Util.joinStrings(itemPk.getIds(), "."), e.getLocalizedMessage()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             }
-            return result;
+            return new ItemResult(ItemResult.FAILURE, err);
         }
     }
 
