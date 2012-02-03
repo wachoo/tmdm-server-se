@@ -511,6 +511,7 @@ Ext
 																					xtype : "datefield",
 																					format : "Y-m-d H:i:s",
 																					width : 150,
+																					invalidText: amalto.workflowtasks.WorkflowTasksLocal.get("Error_Date_Field"),
 																					readOnly : false,
 																					listeners : {
 																						'specialkey' : function(
@@ -588,6 +589,7 @@ Ext
 																					xtype : "datefield",
 																					format : "Y-m-d H:i:s",
 																					width : 150,
+																					invalidText: amalto.workflowtasks.WorkflowTasksLocal.get("Error_Date_Field"),
 																					readOnly : false,
 																					listeners : {
 																						'specialkey' : function(
