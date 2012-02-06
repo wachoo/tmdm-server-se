@@ -24,6 +24,7 @@ import junit.framework.TestCase;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
+import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 
@@ -107,5 +108,20 @@ public class CommonUtilTest extends TestCase {
         String xpath = "Person:Student/Name";
         xpath = xpath.replaceAll(":\\w+", "");
         assertEquals("Person/Name", xpath);
+    }
+
+    public void test_getFKTabLabel() {
+        // 1
+        String label = "Agency{position()}";
+        assertEquals("Agency", LabelUtil.getFKTabLabel(label));
+        // 2
+        label = "Agency:{position()}";
+        assertEquals("Agency", LabelUtil.getFKTabLabel(label));
+        // 3
+        label = "Agent:Agency{position()}";
+        assertEquals("Agent:Agency", LabelUtil.getFKTabLabel(label));
+        // 4
+        label = "Agency: {position()}";
+        assertEquals("Agency", LabelUtil.getFKTabLabel(label));
     }
 }
