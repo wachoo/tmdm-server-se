@@ -140,6 +140,11 @@ public class BrowseRecordsController extends Controller {
 
                     public void onSuccess(ItemResult result) {
                         MessageBox msgBox = null;
+                        if (result.getStatus() == ItemResult.FAILURE) {
+                            MessageBox.alert(MessagesFactory.getMessages().error_title(),
+                                    CommonUtil.pickOutISOMessage(result.getDescription()), null);
+                            return;
+                        }
                         if (result.getDescription() != "")//$NON-NLS-1$
                             msgBox = MessageBox.info(MessagesFactory.getMessages().info_title(), CommonUtil.pickOutISOMessage(result.getDescription()), null);
                         else
