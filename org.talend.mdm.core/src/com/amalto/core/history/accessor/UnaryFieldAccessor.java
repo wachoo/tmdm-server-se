@@ -12,10 +12,7 @@
 package com.amalto.core.history.accessor;
 
 import com.amalto.core.history.MutableDocument;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 
 /**
  *
@@ -85,8 +82,21 @@ class UnaryFieldAccessor implements DOMAccessor {
         return getElement() != null;
     }
 
-    @Override
-    public String toString() {
-        return "UnaryFieldAccessor{" + "fieldName='" + fieldName + '\'' + '}'; //$NON-NLS-1$ //$NON-NLS-2$
+    public void markModified() {
+        Document domDocument = document.asDOM();
+        Element element = getElement();
+        if (element != null) {
+            Attr newAttribute = domDocument.createAttribute(MODIFIED_MARKER_ATTRIBUTE);
+            newAttribute.setValue(MODIFIED_MARKER_VALUE);
+            element.getAttributes().setNamedItem(newAttribute);
+        }
+    }
+
+    public void markUnmodified() {
+        Node parentNode = getElement();
+        NamedNodeMap attributes = parentNode.getAttributes();
+        if (attributes.getNamedItem(MODIFIED_MARKER_ATTRIBUTE) != null) {
+            attributes.removeNamedItem(MODIFIED_MARKER_ATTRIBUTE);
+        }
     }
 }

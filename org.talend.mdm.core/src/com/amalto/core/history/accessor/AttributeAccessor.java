@@ -98,4 +98,22 @@ class AttributeAccessor implements DOMAccessor {
     public boolean exist() {
         return getAttribute() != null;
     }
+
+    public void markModified() {
+        Document domDocument = document.asDOM();
+        Node parentNode = parent.getNode();
+        if (parentNode != null) {
+            Attr newAttribute = domDocument.createAttribute(MODIFIED_MARKER_ATTRIBUTE);
+            newAttribute.setValue(MODIFIED_MARKER_VALUE);
+            parentNode.getAttributes().setNamedItem(newAttribute);
+        }
+    }
+
+    public void markUnmodified() {
+        Node parentNode = parent.getNode();
+        NamedNodeMap attributes = parentNode.getAttributes();
+        if (attributes.getNamedItem(MODIFIED_MARKER_ATTRIBUTE) != null) {
+            attributes.removeNamedItem(MODIFIED_MARKER_ATTRIBUTE);
+        }
+    }
 }

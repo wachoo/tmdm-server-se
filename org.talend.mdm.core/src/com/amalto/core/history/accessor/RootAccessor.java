@@ -48,4 +48,12 @@ class RootAccessor implements DOMAccessor {
     public boolean exist() {
         return getNode() != null;
     }
+
+    public void markModified() {
+        throw new IllegalStateException("Cannot mark this as modified. No value to be set in this accessor");
+    }
+
+    public void markUnmodified() {
+        throw new IllegalStateException("Cannot mark this as unmodified. No value to be set in this accessor");
+    }
 }

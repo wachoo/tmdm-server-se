@@ -11,38 +11,23 @@
 
 package talend.webapp.v3.updatereport.servlet;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-import org.w3c.dom.Attr;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import com.amalto.core.history.Document;
-import com.amalto.core.history.DocumentHistoryNavigator;
-import com.amalto.core.history.DocumentTransformer;
-import com.amalto.core.history.EmptyDocument;
+import com.amalto.core.history.*;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.metadata.TypeMetadata;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.util.Util;
-import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSGetItem;
-import com.amalto.webapp.util.webservices.WSItem;
-import com.amalto.webapp.util.webservices.WSItemPK;
+import org.apache.log4j.Logger;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -73,8 +58,7 @@ public class DocumentHistoryServlet extends AbstractDocumentHistoryServlet {
                 typeName,
                 parameters.getId(),
                 parameters.getRevisionId());
-        
-        Set<String> differList = this.getDifferList(parameters);
+
         TypeMetadata documentTypeMetadata;
         synchronized (metadataRepository) {
             documentTypeMetadata = metadataRepository.getType(typeName);
@@ -107,7 +91,9 @@ public class DocumentHistoryServlet extends AbstractDocumentHistoryServlet {
         {
             // Go to date history
             navigator.goTo(historyDate);
-
+            // keep this action to mark fields that has been modified.
+            Action modificationMarkersAction = navigator.currentAction();
+            
             // Get the one before the action and the one right after
             Document document = new EmptyDocument();
             if (CURRENT_ACTION.equalsIgnoreCase(parameters.getAction())) {
@@ -128,129 +114,20 @@ public class DocumentHistoryServlet extends AbstractDocumentHistoryServlet {
                 throw new ServletException(new IllegalArgumentException("Action '" + parameters.getAction() + " is not supported."));
             }
 
-            // Resolve foreign key info (if any)
-            DocumentTransformer transformer = new ForeignKeyInfoTransformer(documentTypeMetadata, dataClusterName);
-            Document transformedDocument = document.transform(transformer);
+            // Resolve foreign key info (if any) / create unique id for the web ui / add modification markers
+            List<DocumentTransformer> transformers = Arrays.asList(new ForeignKeyInfoTransformer(documentTypeMetadata, dataClusterName),
+                    new UniqueIdTransformer(),
+                    new ModificationMarker(modificationMarkersAction));
+            Document transformedDocument = document;
+            for (DocumentTransformer transformer : transformers) {
+                transformedDocument = document.transform(transformer);
+            }
 
             // Write directly the document content w/o using the xml writer (it's already XML).
-            outputStream.print(this.geneDifferStr(transformedDocument.exportToString(), parameters.getConceptName(), differList));
+            outputStream.print(transformedDocument.exportToString());
         }
         outputStream.println("</history>"); //$NON-NLS-1$
         outputStream.flush();
     }
 
-    private String geneDifferStr(String xmlStr, String conceptName, Set<String> differSet) {
-        if (xmlStr == null || xmlStr.trim().equals("") || differSet.size() == 0) //$NON-NLS-1$
-            return xmlStr;
-
-        try {
-            org.w3c.dom.Document doc = com.amalto.webapp.core.util.Util.parse(xmlStr);
-            Set<String> pathSet = new HashSet<String>();
-            Map<String, Integer> duplicatedMap = new HashMap<String, Integer>();
-
-            if (doc.hasChildNodes()) {
-                findDuplicateNode(doc, doc.getChildNodes(), null, pathSet, duplicatedMap);
-                geneId(doc, doc.getChildNodes(), null, differSet, duplicatedMap);
-            }
-
-            return com.amalto.webapp.core.util.Util.convertDocument2String(doc, false);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-        }
-        return xmlStr;
-    }
- 
-    private void findDuplicateNode(org.w3c.dom.Document doc, NodeList nodeList, String path, Set<String> pathSet,
-            Map<String, Integer> duplicatedMap) {
-        int length = nodeList.getLength();
-        for (int i = 0; i < length; i++) {
-            Node node = nodeList.item(i);
-            if (node.getNodeType() != Node.ELEMENT_NODE)
-                continue;
-            String idStr = null;
-            if (path == null)
-                idStr = node.getNodeName();
-            else
-                idStr = path + "@" + node.getNodeName(); //$NON-NLS-1$
-
-            if (!pathSet.contains(idStr))
-                pathSet.add(idStr);
-            else
-                duplicatedMap.put(idStr, new Integer(1));
-
-            if (node.hasChildNodes())
-                findDuplicateNode(doc, node.getChildNodes(), idStr, pathSet, duplicatedMap);
-        }
-    }
-    
-    private void geneId(org.w3c.dom.Document doc, NodeList nodeList, String path, Set<String> differSet,
-            Map<String, Integer> duplicatedMap) throws Exception {
-        int length = nodeList.getLength();
-        for (int i = 0; i < length; i++) {
-            Node node = nodeList.item(i);
-            if (node.getNodeType() != Node.ELEMENT_NODE)
-                continue;
-            String idStr = null;
-            if (path == null) {
-                idStr = node.getNodeName();
-            } else {
-                idStr = path + "@" + node.getNodeName(); //$NON-NLS-1$
-                if (duplicatedMap.containsKey(idStr)) {
-                    String tmpStr = idStr;
-                    int index = duplicatedMap.get(idStr);
-                    idStr = idStr + "[" + index + "]"; //$NON-NLS-1$ //$NON-NLS-2$
-                    duplicatedMap.put(tmpStr, ++index);
-                }
-            }
-            Attr attr = doc.createAttribute("id"); //$NON-NLS-1$
-            attr.setNodeValue(idStr);
-            node.getAttributes().setNamedItem(attr);
-
-            if (isContains(differSet, idStr)) {
-                Attr attrCls = doc.createAttribute("cls"); //$NON-NLS-1$
-                attrCls.setNodeValue("tree-node-different"); //$NON-NLS-1$
-                node.getAttributes().setNamedItem(attrCls);
-            }
-
-            if (node.hasChildNodes())
-                geneId(doc, node.getChildNodes(), idStr, differSet, duplicatedMap);
-        }
-    }
-    
-    private boolean isContains(Set<String> differSet, String idStr) {
-        if (differSet.contains(idStr))
-            return true;
-
-        if (differSet.contains(idStr + "[1]")) //$NON-NLS-1$
-            return true;
-
-        return false;
-    }
-    
-    private Set<String> getDifferList(Parameters parameters) {
-        Set<String> differList = new HashSet<String>();
-        WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(XSystemObjects.DC_UPDATE_PREPORT.getName());
-        String conceptName = "Update"; //$NON-NLS-1$
-        String[] idss = parameters.getIds().split("\\."); //$NON-NLS-1$
-        WSGetItem wsGetItem = new WSGetItem(new WSItemPK(wsDataClusterPK, conceptName, idss));
-        WSItem wsItem;
-        try {
-            wsItem = com.amalto.webapp.core.util.Util.getPort().getItem(wsGetItem);
-            String content = wsItem.getContent();
-            if (content != null && content.length() > 0) {
-                org.w3c.dom.Document doc = com.amalto.webapp.core.util.Util.parse(content);
-                NodeList ls = com.amalto.webapp.core.util.Util.getNodeList(doc, "/Update/Item"); //$NON-NLS-1$
-                if (ls.getLength() > 0) {
-                    for (int i = 0; i < ls.getLength(); i++) {
-                        String path = Util.getFirstTextNode(doc, "/Update/Item[" + (i + 1) + "]/path"); //$NON-NLS-1$//$NON-NLS-2$                       
-                        differList.add(parameters.getConceptName() + "@" + path.replaceAll("/", "@"));  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-                    }
-                }
-            }
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-        }
-        
-        return differList;
-    }
 }

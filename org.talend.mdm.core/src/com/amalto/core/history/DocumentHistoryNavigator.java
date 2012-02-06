@@ -63,7 +63,8 @@ public interface DocumentHistoryNavigator {
     Document goTo(Date date);
 
     /**
-     * @return The document at its oldest known state.
+     * @return The document at its oldest known state. This is <b>usually</b> (but not always) the state of the document
+     * when it has just been created (if first recorded event on the document is a creation).
      */
     Document last();
 
