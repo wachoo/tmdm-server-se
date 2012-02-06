@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
 import java.util.HashMap;
@@ -10,6 +22,7 @@ import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
@@ -57,7 +70,12 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
             ItemPanel itemPanel = new ItemPanel(pkViewBean, toolBar.getItemBean(), toolBar.getOperation(), fkPanel, root,
                     detailPanel);
             itemPanel.getToolBar().setOutMost(toolBar.isOutMost());
-            String xpathLabel = ForeignKeyUtil.transferXpathToLabel(parentModel) + fkTypeModel.getLabel(UrlUtil.getLanguage());
+            // TMDM-3380. FK Tab Title should not support the dynamic label. If FK exist dynamic label, it should remove
+            // '{***}' section to display title. for instance: 'Agency:{position()}' is an English dynamic label, Agency
+            // FK Tab Title should be 'Agency', but not 'Agency:{position()}'. Only when Agency as an item to be
+            // displayed in tree detail UI, its dynamic label can work.
+            String xpathLabel = ForeignKeyUtil.transferXpathToLabel(parentModel)
+                    + LabelUtil.getFKTabLabel(fkTypeModel.getLabel(UrlUtil.getLanguage()));
             xpathLabel = xpathLabel.substring(xpathLabel.indexOf('/') + 1);
             if(cp != detailPanel.getTreeDetail())
                 return;

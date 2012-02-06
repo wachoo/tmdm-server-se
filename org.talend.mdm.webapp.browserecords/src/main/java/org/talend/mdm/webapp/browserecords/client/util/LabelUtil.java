@@ -20,8 +20,6 @@ public class LabelUtil {
 
     private static final String RESERVED_WORD_START_FLAG = "{";//$NON-NLS-1$
 
-    private static final String RESERVED_WORD_END_FLAG = "}";//$NON-NLS-1$
-
     /**
      * DOC HSHU Comment method "isDynamicLabel".
      */
@@ -45,5 +43,12 @@ public class LabelUtil {
         label = label.replaceAll("'", "&#39;"); //$NON-NLS-1$ //$NON-NLS-2$
         label = label.replaceAll("\"", "&quot;"); //$NON-NLS-1$//$NON-NLS-2$
         return label;
+    }
+
+    public static String getFKTabLabel(String label) {
+        String fkTabLabel = getNormalLabel(label);
+        if (fkTabLabel.trim().endsWith(":")) //$NON-NLS-1$
+            return fkTabLabel.substring(0, fkTabLabel.lastIndexOf(":")); //$NON-NLS-1$
+        return fkTabLabel;
     }
 }
