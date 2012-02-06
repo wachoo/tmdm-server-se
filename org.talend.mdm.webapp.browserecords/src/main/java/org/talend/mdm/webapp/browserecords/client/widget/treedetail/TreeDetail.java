@@ -69,6 +69,8 @@ public class TreeDetail extends ContentPanel {
 
     private TreeItem root;
 
+    private List<Tree> columnTrees = new ArrayList<Tree>();
+
     private Map<String, Field<?>> fieldMap = new HashMap<String, Field<?>>();
 
     private HashMap<CountMapItem, Integer> occurMap = new HashMap<CountMapItem, Integer>();
@@ -181,7 +183,13 @@ public class TreeDetail extends ContentPanel {
 
                                             public void onSuccess(List<VisibleRuleResult> arg0) {
                                                 for (VisibleRuleResult visibleRuleResult : arg0) {
-                                                    recrusiveSetItems(visibleRuleResult, (DynamicTreeItem) root);
+                                                    if (columnTrees.size() > 0){
+                                                        for (Tree columnTree : columnTrees) {
+                                                            recrusiveSetItems(visibleRuleResult, (DynamicTreeItem) columnTree.getItem(0));
+                                                        }
+                                                    } else {
+                                                        recrusiveSetItems(visibleRuleResult, (DynamicTreeItem) root);                                                        
+                                                    }
                                                 }
                                             }
                                         });
@@ -204,7 +212,13 @@ public class TreeDetail extends ContentPanel {
 
                                 public void onSuccess(List<VisibleRuleResult> arg0) {
                                     for (VisibleRuleResult visibleRuleResult : arg0) {
-                                        recrusiveSetItems(visibleRuleResult, (DynamicTreeItem) root);
+                                        if (columnTrees.size() > 0){
+                                            for (Tree columnTree : columnTrees){
+                                                recrusiveSetItems(visibleRuleResult, (DynamicTreeItem) columnTree.getItem(0));
+                                            }
+                                        } else {
+                                            recrusiveSetItems(visibleRuleResult, (DynamicTreeItem) root);
+                                        }
                                     }
                                 }
                             });
@@ -364,7 +378,13 @@ public class TreeDetail extends ContentPanel {
     public void onExecuteVisibleRule(List<VisibleRuleResult> visibleResults) {
         DynamicTreeItem rootItem = (DynamicTreeItem) tree.getItem(0);
         for (VisibleRuleResult visibleResult : visibleResults) {
-            recrusiveSetItems(visibleResult, rootItem);
+            if (columnTrees.size() > 0) {
+                for (Tree columnTree : columnTrees) {
+                    recrusiveSetItems(visibleResult, (DynamicTreeItem) columnTree.getItem(0));
+                }
+            } else {
+                recrusiveSetItems(visibleResult, rootItem);
+            }
         }
     }
 
@@ -424,10 +444,12 @@ public class TreeDetail extends ContentPanel {
                                         // layout template
             HorizontalPanel hp = new HorizontalPanel();
 
+            columnTrees.clear();
             for (ColumnTreeModel ctm : columnLayoutModel.getColumnTreeModels()) {
-                Tree tree = displayGWTTree(ctm);
-                hp.add(tree);
-                addTreeListener(tree);
+                Tree columnTree = displayGWTTree(ctm);
+                columnTrees.add(columnTree);
+                hp.add(columnTree);
+                addTreeListener(columnTree);
             }
             //            hp.setHeight("570px"); //$NON-NLS-1$
             // HorizontalPanel spacehp = new HorizontalPanel();
@@ -490,8 +512,10 @@ public class TreeDetail extends ContentPanel {
     }
 
     private void recrusiveSetItems(VisibleRuleResult visibleResult, DynamicTreeItem rootItem) {
-        if (rootItem.getItemNodeModel().getBindingPath().equals(visibleResult.getXpath())) {
-            rootItem.setVisible(visibleResult.isVisible());
+        if (rootItem.getItemNodeModel() != null) {
+            if (rootItem.getItemNodeModel().getBindingPath().equals(visibleResult.getXpath())) {
+                rootItem.setVisible(visibleResult.isVisible());
+            }
         }
 
         if (rootItem.getChildCount() == 0) {
