@@ -24,7 +24,7 @@ import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
-import org.talend.mdm.webapp.base.shared.Constatns;
+import org.talend.mdm.webapp.base.server.util.Constants;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.base.shared.XpathUtil;
 import org.w3c.dom.Element;
@@ -59,17 +59,21 @@ public class ForeignKeyHelper {
             WSWhereItem whereItem = holder.whereItem;
             String fkFilter = holder.fkFilter;
             
-            String sortDir = null;
-            String xpath = null;
-            if (SortDir.ASC.equals(config.getSortDir())) {
-                sortDir = Constatns.SEARCH_DIRECTION_ASC;
-            }
-            if (SortDir.DESC.equals(config.getSortDir())) {
-                sortDir = Constatns.SEARCH_DIRECTION_DESC;
-            }
+            String sortDir;
+            String xpath;
 
+            if (SortDir.ASC.equals(config.getSortDir())) {
+                sortDir = Constants.SEARCH_DIRECTION_ASC;
+            } else if (SortDir.DESC.equals(config.getSortDir())) {
+                sortDir = Constants.SEARCH_DIRECTION_DESC;
+            } else {
+                sortDir = null;
+            }
+            
             if (sortDir != null) {
                 xpath = model.getXpath() + "/" + config.getSortField(); //$NON-NLS-1$
+            } else {
+                xpath = null;
             }
 
             // Run the query
