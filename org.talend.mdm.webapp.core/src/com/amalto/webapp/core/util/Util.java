@@ -1935,6 +1935,8 @@ public class Util {
             int index = message.indexOf(language.toUpperCase() + ":"); //$NON-NLS-1$
             if (index != -1)
                 return message.substring(index + 3, message.indexOf("]")); //$NON-NLS-1$
+            else
+                return message.substring(message.indexOf("<msg>"), message.indexOf("</msg>") + 6); //$NON-NLS-1$//$NON-NLS-2$
         }
         return message;
     }
