@@ -83,6 +83,9 @@ public class UploadData extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        FileInputStream fileInputStream = null;
+        POIFSFileSystem poiFSFile = null;
+        CSVReader csvReader = null;        
         String concept = "";//$NON-NLS-1$
         String viewPK = ""; //$NON-NLS-1$
         String fileType = "";//$NON-NLS-1$
@@ -169,13 +172,14 @@ public class UploadData extends HttpServlet {
                 throw new ServletException(MESSAGES.getMessage(locale, "error_missing_mandatory_field")); //$NON-NLS-1$
             }
             
+            fileInputStream = new FileInputStream(file);           
             List<String> xmlRecords = new ArrayList<String>();
-
+            
             if ("xls".equals(fileType.toLowerCase()) || "xlsx".equals(fileType.toLowerCase())) {//$NON-NLS-1$ //$NON-NLS-2$
                 Workbook wb;
                 if ("xls".equals(fileType.toLowerCase())){ //$NON-NLS-1$
-                    POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(file));
-                    wb = new HSSFWorkbook(fs);
+                    poiFSFile = new POIFSFileSystem(fileInputStream);
+                    wb = new HSSFWorkbook(poiFSFile);
                 }else{
                     wb = new XSSFWorkbook(new FileInputStream(file));
                 }
@@ -272,7 +276,7 @@ public class UploadData extends HttpServlet {
                 char separator = ',';
                 if ("semicolon".equals(sep))//$NON-NLS-1$
                     separator = ';';
-                CSVReader csvReader = new CSVReader(new InputStreamReader(new FileInputStream(file), encoding), separator,
+                csvReader = new CSVReader(new InputStreamReader(fileInputStream, encoding), separator,
                         textDelimiter.charAt(0));
                 List<String[]> records = csvReader.readAll();
                 for (int i = 0; i < records.size(); i++) {
@@ -336,6 +340,12 @@ public class UploadData extends HttpServlet {
                         .getLocalizedMessage()));
             }
         } finally {
+            if (csvReader != null){
+                csvReader.close();
+            }
+            if (fileInputStream != null){
+                fileInputStream.close();
+            }  
             writer.close();
         }
     }
