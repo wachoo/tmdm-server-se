@@ -55,4 +55,34 @@ public interface Accessor {
      *         {@link #create()} should be able to create everything needed.
      */
     boolean exist();
+
+    /**
+     * <p>
+     * Mark the underlying element as 'modified'. Modification marker may depends on the underlying element and the
+     * implementation of {@link Accessor}.
+     * </p>
+     * <p>
+     * Calling successively this method and then {@link #markUnmodified()} must be equivalent to a no op on the underlying
+     * element.
+     * </p>
+     * <p>
+     * This method is also a <i>no op</i> if {@link #exist()} returns <code>false</code>.
+     * </p>
+     *
+     * @see #markUnmodified()
+     */
+    void markModified();
+
+    /**
+     * <p>
+     * Mark the underlying element as 'not modified'. Modification marker may depends on the underlying element and the
+     * implementation of {@link Accessor}.
+     * </p>
+     * <p>
+     * This method is also a <i>no op</i> if {@link #exist()} returns <code>false</code>.
+     * </p>
+     *
+     * @see #markModified()
+     */
+    void markUnmodified();
 }

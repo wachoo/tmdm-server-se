@@ -48,6 +48,22 @@ public interface Action {
     MutableDocument undo(MutableDocument document);
 
     /**
+     * Add modification marks on all elements this action modifies. See {@link com.amalto.core.history.accessor.Accessor#markModified()}.
+     *
+     * @param document The {@link Document} to add modifications marks to.
+     * @return A modified document.
+     */
+    MutableDocument addModificationMark(MutableDocument document);
+
+    /**
+     * Removes modification marks on all elements this action modifies. See {@link com.amalto.core.history.accessor.Accessor#markUnmodified()}.
+     *
+     * @param document The {@link Document} to add modifications marks from.
+     * @return A modified document.
+     */
+    MutableDocument removeModificationMark(MutableDocument document);
+
+    /**
      * @return Returns the date when this action was performed.
      */
     Date getDate();

@@ -12,9 +12,7 @@
 package com.amalto.core.history.accessor;
 
 import com.amalto.core.history.MutableDocument;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 
 /**
  *
@@ -106,5 +104,23 @@ class ManyFieldAccessor implements DOMAccessor {
 
     public boolean exist() {
         return getCollectionItemNode() != null;
+    }
+
+    public void markModified() {
+        Document domDocument = document.asDOM();
+        Node collectionItemNode = getCollectionItemNode();
+        if (collectionItemNode != null) {
+            Attr newAttribute = domDocument.createAttribute(MODIFIED_MARKER_ATTRIBUTE);
+            newAttribute.setValue(MODIFIED_MARKER_VALUE);
+            collectionItemNode.getAttributes().setNamedItem(newAttribute);
+        }
+    }
+
+    public void markUnmodified() {
+        Node parentNode = parent.getNode();
+        NamedNodeMap attributes = parentNode.getAttributes();
+        if (attributes.getNamedItem(MODIFIED_MARKER_ATTRIBUTE) != null) {
+            attributes.removeNamedItem(MODIFIED_MARKER_ATTRIBUTE);
+        }
     }
 }
