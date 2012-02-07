@@ -12,26 +12,6 @@
 // ============================================================================
 package com.amalto.xmldb;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.core.CommonUtil;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-
 import com.amalto.commons.core.utils.XPathUtils;
 import com.amalto.commons.core.utils.xpath.ri.Compiler;
 import com.amalto.commons.core.utils.xpath.ri.compiler.Expression;
@@ -40,12 +20,19 @@ import com.amalto.commons.core.utils.xpath.ri.compiler.Path;
 import com.amalto.commons.core.utils.xpath.ri.compiler.Step;
 import com.amalto.xmldb.util.PartialXQLPackage;
 import com.amalto.xmldb.util.QueryBuilderContext;
-import com.amalto.xmlserver.interfaces.CustomWhereCondition;
-import com.amalto.xmlserver.interfaces.IWhereItem;
-import com.amalto.xmlserver.interfaces.ItemPKCriteria;
-import com.amalto.xmlserver.interfaces.WhereCondition;
-import com.amalto.xmlserver.interfaces.WhereLogicOperator;
-import com.amalto.xmlserver.interfaces.XmlServerException;
+import com.amalto.xmlserver.interfaces.*;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.CommonUtil;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * An XML DB Implementation of the wrapper that works with eXist Open
@@ -1436,7 +1423,7 @@ public abstract class QueryBuilder {
         return query.toString();
     }
 
-    public String getGlobalSearchQuery(String dataCluster, String keyword, int start, int end) {
+    public String getGlobalSearchQuery(String dataCluster, String keyword, int start, int pageSize) {
         throw new UnsupportedOperationException();
     }
 }
