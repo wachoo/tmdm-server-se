@@ -13,7 +13,9 @@
 package org.talend.mdm.commmon.util.datamodel.management;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * DOC HSHU class global comment. Detailled comment
@@ -48,6 +50,17 @@ public class DataModelBean {
         this.reusableTypes.add(dataType);
     }
 
+    public Map<String, ReusableType> getReusableTypeMap() {
+        Map<String, ReusableType> reusableTypeMap = new HashMap<String, ReusableType>();
+        if (reusableTypes == null)
+            return reusableTypeMap;
+
+        for (ReusableType reuseableType : reusableTypes) {
+            reusableTypeMap.put(reuseableType.getName(), reuseableType);
+        }
+        return reusableTypeMap;
+    }
+    
     /**
      * DOC HSHU Comment method "dump".
      */

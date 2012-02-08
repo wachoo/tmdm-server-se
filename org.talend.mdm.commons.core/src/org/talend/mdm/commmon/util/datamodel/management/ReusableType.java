@@ -47,6 +47,10 @@ public class ReusableType {
 
     private Map<String, String> foreignKeyMap;
 
+    private Map<String, ReusableType> reusableTypeMap;
+    
+    private Map<String, ReusableType> xPathReusableTypeMap;
+    
     // TODO: translate it from technique to business logic
     // mainly maintain the relationships among different business concepts
 
@@ -70,10 +74,16 @@ public class ReusableType {
         if (this.xsType.isComplexType())
             traverseXSType(this.xsType.asComplexType().getContentType().asParticle(), "/" + this.xsType.getName()); //$NON-NLS-1$
     }
+    
+    public void load(Map<String, ReusableType> reusableTypeMap){
+        this.reusableTypeMap = reusableTypeMap;
+        this.load();
+    }
 
     private void beforeLoad() {
         labelMap = new HashMap<String, String>();
         foreignKeyMap = new HashMap<String, String>();
+        xPathReusableTypeMap = new HashMap<String, ReusableType>();
         orderValue = null;
     }
 
@@ -83,7 +93,11 @@ public class ReusableType {
             XSTerm pterm = p.getTerm();
             if (pterm.isElementDecl()) {
                 XSElementDecl el = pterm.asElementDecl();
-                parseAnnotation(el, currentXPath + "/" + el.getName()); //$NON-NLS-1$
+                String xpath = currentXPath + "/" + el.getName(); //$NON-NLS-1$
+                if (el.getType().isComplexType()) {
+                    xPathReusableTypeMap.put(xpath, reusableTypeMap.get(el.getType().getName()));
+                }
+                parseAnnotation(el, xpath);
             } else {
                 traverseXSType(p, currentXPath);
             }
@@ -243,4 +257,7 @@ public class ReusableType {
         this.foreignKeyMap = foreignKeyMap;
     }
 
+    public Map<String, ReusableType> getxPathReusableTypeMap() {
+        return xPathReusableTypeMap;
+    }
 }

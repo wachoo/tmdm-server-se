@@ -89,9 +89,33 @@ public class BusinessConcept {
         return correspondTypeName;
     }
 
-    /**
-     * DOC HSHU Comment method "load".
-     */
+    private void findFkByReuseType(String xPath, ReusableType reuseType, Set<String> nameSet){
+        Map<String, ReusableType> map = reuseType.getxPathReusableTypeMap();
+        if(map.size() == 0)
+            return;
+        
+        Set<String> keySet = map.keySet();
+        for(String key : keySet){
+            ReusableType type = map.get(key);
+            String pathWithoutName = key.replaceFirst("/" + reuseType.getName(), ""); //$NON-NLS-1$//$NON-NLS-2$
+            
+            Map<String, String> fkMap = type.getForeignKeyMap();
+            if(fkMap.size() > 0){
+                Set<String> fkKeySet = fkMap.keySet();
+                for (String str : fkKeySet) {
+                    String fk = fkMap.get(str);
+                    String fkWithoutName = str.replaceFirst("/" + type.getName(), ""); //$NON-NLS-1$//$NON-NLS-2$                        
+                    inheritanceForeignKeyMap.put(xPath + pathWithoutName + fkWithoutName, fk);
+                }
+            }
+            
+            if(!nameSet.contains(type.getName())){
+                nameSet.add(type.getName());
+                this.findFkByReuseType(xPath + pathWithoutName, type, nameSet);
+            }            
+        }
+    }
+    
     public void load() {
         beforeLoad();
         travelXSElement(getE(), "/" + getName()); //$NON-NLS-1$
@@ -99,20 +123,26 @@ public class BusinessConcept {
             Set<String> keySet = subReuseTypeMap.keySet();
             for (String key : keySet) {
                 ReusableType reuseType = subReuseTypeMap.get(key);
+                String pathWithoutName = key.replaceFirst(reuseType.getName() + ":", ""); //$NON-NLS-1$//$NON-NLS-2$
+                Set<String> nameSet = new HashSet<String>();
                 Map<String, String> fkMap = reuseType.getForeignKeyMap();
                 if (fkMap.size() > 0) {
                     Set<String> fkKeySet = fkMap.keySet();
                     for (String str : fkKeySet) {
                         String fk = fkMap.get(str);
-                        String fkWithoutName = str.replaceFirst("/" + reuseType.getName(), ""); //$NON-NLS-1$//$NON-NLS-2$
-                        String pathWithoutName = key.replaceFirst(reuseType.getName() + ":", ""); //$NON-NLS-1$//$NON-NLS-2$
+                        String fkWithoutName = str.replaceFirst("/" + reuseType.getName(), ""); //$NON-NLS-1$//$NON-NLS-2$                        
                         inheritanceForeignKeyMap.put(pathWithoutName + fkWithoutName, fk);
                     }
                 }
+                
+                nameSet.add(reuseType.getName());
+                this.findFkByReuseType(pathWithoutName, reuseType, nameSet);
+                
             }
         }
     }
 
+    
     /**
      * DOC HSHU Comment method "beforeLoad".
      * 
