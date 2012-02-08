@@ -106,7 +106,10 @@ String.prototype.startWith=function(str){
 var g_oHtmlEncodeElement;
 
 function jsStringEscape(text){
-	return text.replaceAll("\"","\\\"").replaceAll("\'","\\\'");
+	if (!!text){
+		return text.replaceAll("\"","\\\"").replaceAll("\'","\\\'");
+	}
+	return "";
 }
 
 function htmlEscape(text, isAttrValue)
