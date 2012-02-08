@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.browserecords.client.mvc;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.util.WaitBox;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
@@ -121,6 +122,9 @@ public class BrowseRecordsController extends Controller {
         final Boolean isCreate = event.getData("isCreate"); //$NON-NLS-1$
         final Boolean isClose = event.getData("isClose"); //$NON-NLS-1$
         final ItemDetailToolBar detailToolBar = event.getData("itemDetailToolBar"); //$NON-NLS-1$
+        WaitBox.show(MessagesFactory.getMessages().save_progress_bar_title(), MessagesFactory.getMessages()
+                .save_progress_bar_message(), MessagesFactory.getMessages().please_wait());
+
         service.saveItem(viewBean, itemBean.getIds(), CommonUtil.toXML(model, viewBean), isCreate,
                 Locale.getLanguage(), new SessionAwareAsyncCallback<ItemResult>() {
 
@@ -139,6 +143,7 @@ public class BrowseRecordsController extends Controller {
                     }
 
                     public void onSuccess(ItemResult result) {
+                        WaitBox.hide();
                         MessageBox msgBox = null;
                         if (result.getStatus() == ItemResult.FAILURE) {
                             MessageBox.alert(MessagesFactory.getMessages().error_title(),

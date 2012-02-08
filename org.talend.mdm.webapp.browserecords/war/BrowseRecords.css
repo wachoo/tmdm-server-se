@@ -313,20 +313,6 @@ a{
 }
 
 
-.ItemDetailToolBar .x-btn-tl, 
-.ItemDetailToolBar .x-btn-tr, 
-.ItemDetailToolBar .x-btn-tc, 
-.ItemDetailToolBar .x-btn-ml, 
-.ItemDetailToolBar .x-btn-mr, 
-.ItemDetailToolBar .x-btn-mc, 
-.ItemDetailToolBar .x-btn-bl, 
-.ItemDetailToolBar .x-btn-br, 
-.ItemDetailToolBar .x-btn-bc 
-{
-    background-image: none;
-}
-
-
 .ItemDetailToolBar .x-trigger-wrap-focus .x-form-trigger-over
 {
     background-position: 0px 0;
