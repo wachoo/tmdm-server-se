@@ -390,8 +390,9 @@ public class SchemaWebAgent extends SchemaManager {
         DataModelBean dataModelBean = getFromPool(dataModelID);
         List<BusinessConcept> businessConcepts = dataModelBean.getBusinessConcepts();
         List<ReusableType> reuseTypeList = dataModelBean.getReusableTypes();
+        Map<String, ReusableType> reusableTypeMap = dataModelBean.getReusableTypeMap();
         for (ReusableType type : reuseTypeList) {
-            type.load();
+            type.load(reusableTypeMap);
         }
         List<String> extendType = new ArrayList<String>();
         extendType.add(entityName);
