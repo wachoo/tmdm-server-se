@@ -316,8 +316,14 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
 	},
 	
 	exporting:function(myParams){
-		var cluster = DWRUtil.getValue('datacluster-select');
-		window.location.href="/itemsbrowser/secure/ExportingServlet?cluster=" + cluster + "&params=" + myParams;	
+	//FIXME: It seem don't define datacluster-select in this project
+		var cluster;
+		if (document.getElementById('datacluster-select') != null){
+			cluster = DWRUtil.getValue('datacluster-select');
+		}else{
+			cluster = '';
+		}
+		window.location.href="/itemsbrowser/secure/ExportingServlet?cluster=''" + cluster + "&params=" + myParams;	
 	},
     
 	initListData : function(itemsBroswer){
