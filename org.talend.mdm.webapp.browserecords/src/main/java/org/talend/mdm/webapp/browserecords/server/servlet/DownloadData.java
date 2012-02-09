@@ -118,8 +118,6 @@ public class DownloadData extends HttpServlet {
 
         String sortField = request.getParameter("sortField"); //$NON-NLS-1$
         String sortDir = request.getParameter("sortDir"); //$NON-NLS-1$
-        //        int offset = Integer.parseInt(request.getParameter("offset")); //$NON-NLS-1$
-        //        int limit = Integer.parseInt(request.getParameter("limit")); //$NON-NLS-1$
 
         Properties mdmConfig = MDMConfiguration.getConfiguration();
         
@@ -137,8 +135,7 @@ public class DownloadData extends HttpServlet {
             HSSFRow row = sheet.createRow((short) i);
             int colCount = 0;
             for (String xpath : xpathArr) {
-                Node dateNode = XmlUtil.queryNode2(doc, xpath.replaceFirst(concept + "/", "result/")); //$NON-NLS-1$ //$NON-NLS-2$
-                String tmp = dateNode.getText();
+                String tmp = XmlUtil.queryNodeText(doc, xpath.replaceFirst(concept + "/", "result/")); //$NON-NLS-1$ //$NON-NLS-2$
                 if (tmp != null) {
                     tmp = tmp.trim();
                     tmp = tmp.replaceAll("__h", ""); //$NON-NLS-1$ //$NON-NLS-2$
