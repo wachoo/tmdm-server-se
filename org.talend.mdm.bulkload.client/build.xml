@@ -21,7 +21,7 @@
         <jar destfile="./bulkloadclient.jar"
              basedir="bin"
              includes="**/*.class"
-             excludes="**/*Test.class"
+             excludes="**/*Test*.class"
              manifest="MANIFEST.MF"
                 />
     </target>
@@ -41,6 +41,8 @@
             <pathelement path="${tom.location}/org.talend.mdm.bulkload.client/bin"/>
             <pathelement path="${tom.location}/talend.mdm.libraries/lib/junit-3.8.1.jar"/>
             <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.commons-lang-2.1.jar"/>
+            <pathelement path="${tom.location}/talend.mdm.libraries/lib/commons-httpclient.jar"/>
+            <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.commons-logging-1.1.1.jar"/>
             <path refid="base.classpath"/>
         </path>
 
