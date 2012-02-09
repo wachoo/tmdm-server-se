@@ -1625,7 +1625,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 err = MESSAGES.getMessage(locale, "save_validationrule_fail", concept + "." + ids, //$NON-NLS-1$//$NON-NLS-2$
                         Util.getExceptionMessage(e.getLocalizedMessage(), language));
             } else {
-                err = MESSAGES.getMessage(locale, "save_fail", concept + "." + ids); //$NON-NLS-1$ //$NON-NLS-2$
+                err = MESSAGES.getMessage(locale, "save_fail", concept + "." + ids, e.getLocalizedMessage()); //$NON-NLS-1$ //$NON-NLS-2$
             }
             return new ItemResult(ItemResult.FAILURE, err);
         }

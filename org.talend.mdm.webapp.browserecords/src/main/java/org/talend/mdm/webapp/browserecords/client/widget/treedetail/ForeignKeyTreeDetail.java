@@ -264,16 +264,18 @@ public class ForeignKeyTreeDetail extends ContentPanel {
     
     private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, boolean withDefaultValue) {
         Map<TypeModel, List<ItemNodeModel>> foreighKeyMap = new LinkedHashMap<TypeModel, List<ItemNodeModel>>();
-        DynamicTreeItem reuslt = buildGWTTree(itemNode, withDefaultValue,foreighKeyMap);
+        Map<TypeModel, ItemNodeModel> foreignKeyParentMap = new LinkedHashMap<TypeModel, ItemNodeModel>();
+        DynamicTreeItem reuslt = buildGWTTree(itemNode, withDefaultValue, foreighKeyMap, foreignKeyParentMap);
         if (foreighKeyMap.size() > 0) {
             for (TypeModel model : foreighKeyMap.keySet()) {
-                fkRender.RenderForeignKey(itemNode, foreighKeyMap.get(model), model, toolBar, viewBean, this, itemsDetailPanel);
+                fkRender.RenderForeignKey(foreignKeyParentMap.get(model), foreighKeyMap.get(model), model, toolBar, viewBean, this, itemsDetailPanel);
             }
         }
         return reuslt;        
     }
 
-    private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, boolean withDefaultValue,Map<TypeModel, List<ItemNodeModel>> foreighKeyMap) {
+    private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, boolean withDefaultValue,
+    		Map<TypeModel, List<ItemNodeModel>> foreighKeyMap, Map<TypeModel, ItemNodeModel> foreignKeyParentMap) {
         DynamicTreeItem item = new DynamicTreeItem();
         item.setItemNodeModel(itemNode);
         item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, fieldMap, handler, itemsDetailPanel));
@@ -295,11 +297,13 @@ public class ForeignKeyTreeDetail extends ContentPanel {
                         && TreeDetail.isFKDisplayedIntoTab(node, typeModel, metaDataTypes);
 
                 if (isFKDisplayedIntoTab) {
-                    if (!foreighKeyMap.containsKey(typeModel))
+                    if (!foreighKeyMap.containsKey(typeModel)) {
                     	foreighKeyMap.put(typeModel, new ArrayList<ItemNodeModel>());
+                    	foreignKeyParentMap.put(typeModel, itemNode);
+                    }
                     foreighKeyMap.get(typeModel).add(node);
                 } else {
-                    TreeItem childItem = buildGWTTree(node, withDefaultValue);
+                    TreeItem childItem = buildGWTTree(node, withDefaultValue, foreighKeyMap, foreignKeyParentMap);
                     if (childItem != null) {
                         item.addItem(childItem);
                         int count = 0;
