@@ -202,5 +202,10 @@ public class ItemsBrowserDWRTest extends TestCase {
         language = "fr";
         actualMsg = Util.getExceptionMessage(message, language);
         assertEquals(message, actualMsg);
+        // 4
+        message = "<msg>[CHINESE:validate error]</msg>";
+        language = "chinese";
+        actualMsg = Util.getExceptionMessage(message, language);
+        assertEquals("validate error", actualMsg);
     }
 }
