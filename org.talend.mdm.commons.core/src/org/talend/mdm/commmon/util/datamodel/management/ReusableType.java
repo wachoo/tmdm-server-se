@@ -46,8 +46,6 @@ public class ReusableType {
     private Map<String, String> labelMap;
 
     private Map<String, String> foreignKeyMap;
-
-    private Map<String, ReusableType> reusableTypeMap;
     
     private Map<String, ReusableType> xPathReusableTypeMap;
     
@@ -69,15 +67,14 @@ public class ReusableType {
     }
 
     public void load() {
-        beforeLoad();
-        parseRootAnnotation(this.xsType);
-        if (this.xsType.isComplexType())
-            traverseXSType(this.xsType.asComplexType().getContentType().asParticle(), "/" + this.xsType.getName()); //$NON-NLS-1$
+        load(new HashMap<String, ReusableType>());  
     }
     
     public void load(Map<String, ReusableType> reusableTypeMap){
-        this.reusableTypeMap = reusableTypeMap;
-        this.load();
+        beforeLoad();
+        parseRootAnnotation(this.xsType);  
+        if (this.xsType.isComplexType())
+            traverseXSType(this.xsType.asComplexType().getContentType().asParticle(), "/" + this.xsType.getName(), reusableTypeMap); //$NON-NLS-1$
     }
 
     private void beforeLoad() {
@@ -87,7 +84,7 @@ public class ReusableType {
         orderValue = null;
     }
 
-    private void traverseXSType(XSParticle e, String currentXPath) {
+    private void traverseXSType(XSParticle e, String currentXPath, Map<String, ReusableType> reusableTypeMap) {
         XSParticle[] particles = e.getTerm().asModelGroup().getChildren();
         for (XSParticle p : particles) {
             XSTerm pterm = p.getTerm();
@@ -99,7 +96,7 @@ public class ReusableType {
                 }
                 parseAnnotation(el, xpath);
             } else {
-                traverseXSType(p, currentXPath);
+                traverseXSType(p, currentXPath, reusableTypeMap);
             }
         }
     }
