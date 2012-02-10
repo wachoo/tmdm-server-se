@@ -30,10 +30,10 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import javax.ejb.EJBException;
@@ -1464,7 +1464,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             // invoke beforeSaving
             if (wsPutItemWithReport != null) {
                 if (!beforeSaving(wsPutItemWithReport, concept, itemPojo.getProjectionAsString(), resultUpdateReport))
-                    return null;
+                    throw new RemoteException("BeforeSaving Validation Error --> " + wsPutItemWithReport.getSource());
             }
 
             ItemPOJOPK itemPOJOPK = Util.getItemCtrl2Local().putItem(itemPojo
@@ -1793,6 +1793,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         if (wsPutItemWithReport.getInvokeBeforeSaving()) {
             // invoke BeforeSaving process if it exists
             String outputErrorMessage = Util.beforeSaving(concept, xml, resultUpdateReport);
+            String message = outputErrorMessage;
             if (outputErrorMessage != null) { //when a process was found 
                 Document doc = Util.parse(outputErrorMessage);
                 // TODO what if multiple error nodes ?
@@ -1802,8 +1803,13 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 if (errorNode instanceof Element) {
                     Element errorElement = (Element) errorNode;
                     errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
-                }                                   
-                wsPutItemWithReport.setSource(outputErrorMessage);
+                    org.w3c.dom.Node child = errorElement.getFirstChild();
+                    if (child instanceof org.w3c.dom.Text) {
+                        message = child.getTextContent();
+                    }
+                }
+
+                wsPutItemWithReport.setSource(message);
                 return "info".equals(errorCode); //$NON-NLS-1$
             } else { //when no process was found 
                 return true;
