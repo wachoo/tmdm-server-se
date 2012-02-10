@@ -5,8 +5,9 @@ import java.io.OutputStream;
 import java.rmi.RemoteException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,7 +24,9 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
+import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 
+import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.json.JSONObject;
 import com.amalto.webapp.core.util.Util;
@@ -98,7 +101,8 @@ public class ExportingServlet extends HttpServlet {
             if (parametersValues != null && parametersValues.length() > 0) {
                 JSONObject criteria = new JSONObject(parametersValues);
 
-                wsDataClusterPK.setPk(cluster);
+                Configuration configuration = Configuration.getInstance();
+                wsDataClusterPK.setPk(configuration.getCluster());
                 entity = !criteria.isNull("entity") ? (String) criteria.get("entity") : "";
                 keys = !criteria.isNull("key") && !"*".equals(criteria.get("key")) ? (String) criteria.get("key") : "";
                 fkvalue = !criteria.isNull("fkvalue") && !"*".equals(criteria.get("fkvalue")) ? (String) criteria.get("fkvalue")
@@ -125,7 +129,7 @@ public class ExportingServlet extends HttpServlet {
             BusinessConcept businessConcept = SchemaWebAgent.getInstance().getBusinessConcept(entity);
             Map<String, String> foreignKeyMap = businessConcept.getForeignKeyMap();
             Set<String> foreignKeyXpath = foreignKeyMap.keySet();
-            List<String> xpathes = new ArrayList<String>();
+            Set<String> xpathes = new HashSet<String>();
 
             for (String path : foreignKeyXpath) {
                 String dataObjectPath = foreignKeyMap.get(path);
@@ -133,12 +137,38 @@ public class ExportingServlet extends HttpServlet {
                     xpathes.add(path.substring(1));
                 }
             }
+            
+            List<String> types = SchemaWebAgent.getInstance().getBindingType(businessConcept.getE());
+            for (String type : types) {
+                List<ReusableType> subTypes = SchemaWebAgent.getInstance().getMySubtypes(type);
+                for (ReusableType reusableType : subTypes) {
+                    Map<String, String> fks = SchemaWebAgent.getInstance().getReferenceEntities(reusableType, dataObject);
+                    Collection<String> fkPaths = fks != null ? fks.keySet() : null;
+                    for (String fkpath : fkPaths) {
+                        if (fks.get(fkpath).indexOf(dataObject) != -1) {
+                            xpathes.add(fkpath);
+                        }
+                    }
+                }
+            }        
+     
+            Map<String, String> inheritanceForeignKeyMap = businessConcept.getInheritanceForeignKeyMap();
+            if (inheritanceForeignKeyMap.size() > 0) {
+                Set<String> keySet = inheritanceForeignKeyMap.keySet();
+                String dataObjectPath = null;
+                for (String path : keySet) {
+                    dataObjectPath = inheritanceForeignKeyMap.get(path);
+                    if (dataObjectPath.indexOf(dataObject) != -1) {
+                        xpathes.add(path.substring(1));
+                    }
+                }
+            } 
 
             StringBuilder keysb = new StringBuilder();
             keysb.append(keys);
-            keysb.append("$");
-            keysb.append(joinList(xpathes, ","));
-            keysb.append("$");
+            keysb.append("$"); //$NON-NLS-1$
+            keysb.append(joinSet(xpathes, ",")); //$NON-NLS-1$
+            keysb.append("$"); //$NON-NLS-1$
             keysb.append(fkvalue);
 
             WSItemPKsByCriteriaResponse results = Util.getPort().getItemPKsByFullCriteria(
@@ -197,12 +227,12 @@ public class ExportingServlet extends HttpServlet {
         out.close();
     }
 
-    private String joinList(List<String> list, String decollator) {
-        if (list == null)
-            return "";
+    private String joinSet(Set<String> set, String decollator) {
+        if (set == null)
+            return "";  //$NON-NLS-1$
         StringBuffer sb = new StringBuffer();
         boolean isFirst = true;
-        for (String str : list) {
+        for (String str : set) {
             if (isFirst) {
                 sb.append(str);
                 isFirst = false;

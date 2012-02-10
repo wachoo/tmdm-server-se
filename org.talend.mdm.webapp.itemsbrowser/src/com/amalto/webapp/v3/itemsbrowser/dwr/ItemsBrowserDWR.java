@@ -25,6 +25,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -4588,7 +4589,7 @@ public class ItemsBrowserDWR {
         BusinessConcept businessConcept = SchemaWebAgent.getInstance().getBusinessConcept(entity);
         Map<String, String> foreignKeyMap = businessConcept.getForeignKeyMap();
         Set<String> foreignKeyXpath = foreignKeyMap.keySet();
-        List<String> xpathes = new ArrayList<String>();
+        Set<String> xpathes = new HashSet<String>();
 
         for (String path : foreignKeyXpath) {
             String dataObjectPath = foreignKeyMap.get(path);
@@ -4597,32 +4598,28 @@ public class ItemsBrowserDWR {
             }
         }
 
-        if (xpathes.size() == 0) {
-            List<String> types = SchemaWebAgent.getInstance().getBindingType(businessConcept.getE());
-            for (String type : types) {
-                List<ReusableType> subTypes = SchemaWebAgent.getInstance().getMySubtypes(type);
-                for (ReusableType reusableType : subTypes) {
-                    Map<String, String> fks = SchemaWebAgent.getInstance().getReferenceEntities(reusableType, dataObject);
-                    Collection<String> fkPaths = fks != null ? fks.keySet() : null;
-                    for (String fkpath : fkPaths) {
-                        if (fks.get(fkpath).indexOf(dataObject) != -1) {
-                            xpathes.add(fkpath);
-                        }
+        List<String> types = SchemaWebAgent.getInstance().getBindingType(businessConcept.getE());
+        for (String type : types) {
+            List<ReusableType> subTypes = SchemaWebAgent.getInstance().getMySubtypes(type);
+            for (ReusableType reusableType : subTypes) {
+                Map<String, String> fks = SchemaWebAgent.getInstance().getReferenceEntities(reusableType, dataObject);
+                Collection<String> fkPaths = fks != null ? fks.keySet() : null;
+                for (String fkpath : fkPaths) {
+                    if (fks.get(fkpath).indexOf(dataObject) != -1) {
+                        xpathes.add(fkpath);
                     }
                 }
             }
         }
-        
-        if (xpathes.size() == 0) {
-            Map<String, String> inheritanceForeignKeyMap = businessConcept.getInheritanceForeignKeyMap();
-            if(inheritanceForeignKeyMap.size() > 0){
-                Set<String> keySet = inheritanceForeignKeyMap.keySet();
-                String dataObjectPath  = null;
-                for (String path : keySet) {
-                    dataObjectPath = inheritanceForeignKeyMap.get(path);
-                    if (dataObjectPath.indexOf(dataObject) != -1) {
-                        xpathes.add(path.substring(1));
-                    }
+
+        Map<String, String> inheritanceForeignKeyMap = businessConcept.getInheritanceForeignKeyMap();
+        if (inheritanceForeignKeyMap.size() > 0) {
+            Set<String> keySet = inheritanceForeignKeyMap.keySet();
+            String dataObjectPath = null;
+            for (String path : keySet) {
+                dataObjectPath = inheritanceForeignKeyMap.get(path);
+                if (dataObjectPath.indexOf(dataObject) != -1) {
+                    xpathes.add(path.substring(1));
                 }
             }
         }
@@ -4630,7 +4627,7 @@ public class ItemsBrowserDWR {
         StringBuilder sb = new StringBuilder();
         sb.append(keys);
         sb.append("$");//$NON-NLS-1$
-        sb.append(joinList(xpathes, ","));//$NON-NLS-1$
+        sb.append(joinSet(xpathes, ","));//$NON-NLS-1$
         sb.append("$");//$NON-NLS-1$
         sb.append(fkvalue);
 
@@ -4660,12 +4657,12 @@ public class ItemsBrowserDWR {
         return listRange;
     }
 
-    private String joinList(List<String> list, String decollator) {
-        if (list == null)
-            return "";
+    private String joinSet(Set<String> set, String decollator) {
+        if (set == null)
+            return "";  //$NON-NLS-1$
         StringBuffer sb = new StringBuffer();
         boolean isFirst = true;
-        for (String str : list) {
+        for (String str : set) {
             if (isFirst) {
                 sb.append(str);
                 isFirst = false;
