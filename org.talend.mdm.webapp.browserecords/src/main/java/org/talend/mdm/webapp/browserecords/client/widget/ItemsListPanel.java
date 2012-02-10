@@ -354,10 +354,13 @@ public class ItemsListPanel extends ContentPanel {
                 while (iterator.hasNext()) {
                     String path = iterator.next();
                     TypeModel tm = entityModel.getMetaDataTypes().get(path);
+                    if (changes.get(path) == null)
+                        continue;
                     String value = changes.get(path).toString();
                     if (tm.getForeignkey() != null) {
                         ForeignKeyBean fkBean = itemBean.getForeignkeyDesc(value);
-                        changedField.put(path, fkBean.getId());
+                        if (fkBean != null)
+                            changedField.put(path, fkBean.getId());
                     } else {
                         if (originalMap.containsKey(path)) {
                             Date date = originalMap.get(path);
