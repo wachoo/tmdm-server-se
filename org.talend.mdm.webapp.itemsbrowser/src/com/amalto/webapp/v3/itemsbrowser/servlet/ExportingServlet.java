@@ -101,7 +101,7 @@ public class ExportingServlet extends HttpServlet {
             if (parametersValues != null && parametersValues.length() > 0) {
                 JSONObject criteria = new JSONObject(parametersValues);
 
-                Configuration configuration = Configuration.getInstance();
+                Configuration configuration = Configuration.getInstance(true);
                 wsDataClusterPK.setPk(configuration.getCluster());
                 entity = !criteria.isNull("entity") ? (String) criteria.get("entity") : "";
                 keys = !criteria.isNull("key") && !"*".equals(criteria.get("key")) ? (String) criteria.get("key") : "";
