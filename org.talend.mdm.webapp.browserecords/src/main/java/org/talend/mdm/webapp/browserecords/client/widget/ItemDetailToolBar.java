@@ -136,6 +136,8 @@ public class ItemDetailToolBar extends ToolBar {
 
     private boolean readOnly;
 
+    private boolean isHierarchyCall;
+
     public ItemDetailToolBar(ItemsDetailPanel itemsDetailPanel) {
         this.itemsDetailPanel = itemsDetailPanel;
         this.setBorders(false);
@@ -307,8 +309,8 @@ public class ItemDetailToolBar extends ToolBar {
 
                         public void handleEvent(MessageBoxEvent be) {
                             if (be.getButtonClicked().getItemId().equals(Dialog.OK)) {
-                                PostDeleteAction postDeleteAction = new ListRefresh(new ContainerUpdate(
-                                        NoOpPostDeleteAction.INSTANCE));
+                                PostDeleteAction postDeleteAction = new ListRefresh(ItemDetailToolBar.this, new ContainerUpdate(
+                                        ItemDetailToolBar.this, NoOpPostDeleteAction.INSTANCE));
                                 DeleteAction deleteAction = new LogicalDeleteAction(be.getValue());
                                 // Collections.singletonList(itemBean) --- it could not be sent to backend correctly
                                 List<ItemBean> list = new ArrayList<ItemBean>();
@@ -333,8 +335,9 @@ public class ItemDetailToolBar extends ToolBar {
 
                         public void handleEvent(MessageBoxEvent be) {
                             if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                                PostDeleteAction postDeleteAction = new ListRefresh(new ContainerUpdate(
-                                        new CloseTabPostDeleteAction(ItemDetailToolBar.this, NoOpPostDeleteAction.INSTANCE)));
+                                PostDeleteAction postDeleteAction = new ListRefresh(ItemDetailToolBar.this, new ContainerUpdate(
+                                        ItemDetailToolBar.this, new CloseTabPostDeleteAction(ItemDetailToolBar.this,
+                                                NoOpPostDeleteAction.INSTANCE)));
                                 List<ItemBean> list = new ArrayList<ItemBean>();
                                 list.add(itemBean);
                                 service.checkFKIntegrity(list, new DeleteCallback(DeleteAction.PHYSICAL, postDeleteAction,
@@ -913,6 +916,14 @@ public class ItemDetailToolBar extends ToolBar {
 
     public boolean isOutMost() {
         return isOutMost;
+    }
+
+    public boolean isHierarchyCall() {
+        return isHierarchyCall;
+    }
+
+    public void setHierarchyCall(boolean isHierarchyCall) {
+        this.isHierarchyCall = isHierarchyCall;
     }
 
     public native void closeOutTabPanel()/*-{
