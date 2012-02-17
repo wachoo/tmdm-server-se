@@ -276,6 +276,7 @@ public class ItemsToolBar extends ToolBar {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
+                ItemsMainTabPanel.getInstance().removeAll();
                 ItemsListPanel.getInstance().setCreate(true);
                 String concept = ViewUtil.getConceptFromBrowseItemView(entityCombo.getValue().get("value").toString());//$NON-NLS-1$
 
@@ -465,11 +466,9 @@ public class ItemsToolBar extends ToolBar {
             @Override
             public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
                 String viewPk = se.getSelectedItem().get("value").toString();//$NON-NLS-1$
-                Dispatcher.forwardEvent(BrowseRecordsEvents.GetView, viewPk);
+                Dispatcher.forwardEvent(BrowseRecordsEvents.GetView, viewPk);              
             }
-
-        });
-        // entityPanel.add(entityCombo);
+        });        
         add(entityCombo);
         simplePanel = new SimpleCriterionPanel(null, null, searchBut);
         add(simplePanel);
