@@ -33,6 +33,7 @@ public class WaitBox {
     }
     
     public static void hide() {
-        waitBox.close();
+        if (waitBox.getDialog() != null)
+            waitBox.close();
     }
 }
