@@ -23,6 +23,7 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.creator.CellEditorCreator;
 import org.talend.mdm.webapp.browserecords.client.creator.CellRendererCreator;
+import org.talend.mdm.webapp.browserecords.client.creator.ItemCreator;
 import org.talend.mdm.webapp.browserecords.client.model.BreadCrumbModel;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
@@ -275,14 +276,24 @@ public class BrowseRecordsView extends View {
 
     private void onCreateForeignKeyView(AppEvent event) {
         ViewBean viewBean = event.getData();
-        ItemsDetailPanel detailPanel = event.getData(BrowseRecordsView.ITEMS_DETAIL_PANEL);
-        // ForeignKeyTreeDetail tree = new ForeignKeyTreeDetail(viewBean, true, detailPanel);
-        detailPanel.clearContent();
-        ItemPanel itemPanel = new ItemPanel(viewBean, new ItemBean(viewBean.getBindingEntityModel().getConceptName(), "", ""), //$NON-NLS-1$//$NON-NLS-2$
-                ItemDetailToolBar.CREATE_OPERATION, detailPanel);
-        detailPanel.addTabItem(viewBean.getBindingEntityModel().getConceptLabel(), itemPanel, ItemsDetailPanel.MULTIPLE,
-                viewBean.getDescription());
+        String concept = viewBean.getBindingEntityModel().getConceptName();
+        EntityModel entityModel = (EntityModel) BrowseRecords.getSession().getCurrentEntityModel();
+        ItemBean itemBean = ItemCreator.createDefaultItemBean(concept, entityModel);
 
+        ItemsDetailPanel panel = new ItemsDetailPanel();
+        List<String> pkInfoList = new ArrayList<String>();
+        pkInfoList.add(itemBean.getLabel());
+        panel.initBanner(pkInfoList, itemBean.getDescription());
+        List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
+        if (itemBean != null) {
+            breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, null, false)); //$NON-NLS-1$
+            breads.add(new BreadCrumbModel("", itemBean.getLabel(), null, null, false)); //$NON-NLS-1$
+        }
+        panel.initBreadCrumb(new BreadCrumb(breads, panel));
+        ItemPanel itemPanel = new ItemPanel(panel);
+        panel.addTabItem(itemBean.getLabel(), itemPanel, ItemsDetailPanel.SINGLETON, itemBean.getConcept());
+        itemPanel.initTreeDetail(viewBean, itemBean, ItemDetailToolBar.CREATE_OPERATION);
+        ItemsMainTabPanel.getInstance().addMainTabItem(itemBean.getLabel(), panel, itemBean.getConcept());
     }
 
     private void onInitFrame(AppEvent event) {
