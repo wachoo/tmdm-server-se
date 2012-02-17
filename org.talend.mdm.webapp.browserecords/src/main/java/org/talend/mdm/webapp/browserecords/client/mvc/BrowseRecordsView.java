@@ -49,6 +49,8 @@ import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
@@ -315,7 +317,8 @@ public class BrowseRecordsView extends View {
     protected void onGetView(final AppEvent event) {
         ViewBean viewBean = event.getData();
         ItemsToolBar.getInstance().updateToolBar(viewBean);
-        // itemsSearchContainer.getItemsListPanel().resetShowItemTimes();
+        ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchBut);
+        ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, be);
     }
 
     protected void onSearchView(final AppEvent event) {
