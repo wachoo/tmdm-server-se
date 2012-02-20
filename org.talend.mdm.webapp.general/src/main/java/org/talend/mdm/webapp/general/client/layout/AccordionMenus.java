@@ -82,14 +82,18 @@ public class AccordionMenus extends ContentPanel {
             if ((null == gi.getMenuItems()) || (gi.getMenuItems().size() == 0))
                 continue;
             ContentPanel menuPanel = new ContentPanel();
+            boolean hasMenuItem = false;
             for (String gi2 : gi.getMenuItems()) {
                 MenuBean mb = getMenuBean(gi2, menus);
                 if (null != mb) {
                     buildMenuGroup(menuPanel, mb);
+                    hasMenuItem = true;
                 }
             }
-            menuPanel.setHeading(gi.getGroupHeader());
-            setCollapsable(menuPanel);
+            if (hasMenuItem) {
+                menuPanel.setHeading(gi.getGroupHeader());
+                setCollapsable(menuPanel);
+            }
         }
 
         ContentPanel otherPanel = new ContentPanel();
