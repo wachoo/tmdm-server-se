@@ -48,6 +48,8 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentHelper;
+import org.dom4j.Namespace;
+import org.dom4j.QName;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -480,7 +482,24 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             for (String key : keySet) {
                 String[] value = formatMap.get(key);
                 org.dom4j.Document doc = org.talend.mdm.webapp.base.server.util.XmlUtil.parseText(itemBean.getItemXml());
-                org.dom4j.Node node = doc.selectSingleNode(key);
+                String xpath = entityModel.getMetaDataTypes().get(key).getXpath();
+                org.dom4j.Node node = null;
+                if (!key.equals(xpath)) {
+                    Namespace namespace = new Namespace("xsi", "http://www.w3.org/2001/XMLSchema-instance"); //$NON-NLS-1$//$NON-NLS-2$
+                    List<?> nodeList = doc.selectNodes(xpath);
+                    if (nodeList != null && nodeList.size() > 0) {
+                        for (int i = 0; i < nodeList.size(); i++) {
+                            org.dom4j.Element current = (org.dom4j.Element) nodeList.get(i);
+                            String realType = current.getParent().attributeValue(new QName("type", namespace, "xsi:type")); //$NON-NLS-1$ //$NON-NLS-2$
+                            if (key.replaceAll(":" + realType, "").equals(xpath)) { //$NON-NLS-1$//$NON-NLS-2$
+                                node = current;
+                                break;
+                            }
+                        }
+                    }
+                } else
+                    node = doc.selectSingleNode(key);
+
                 if(node != null){
                     String dateText = node.getText();
 
@@ -763,7 +782,21 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             for (String key : keySet) {
                 String[] value = formatMap.get(key);
-                String dateText = Util.getFirstTextNode(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")); //$NON-NLS-1$ //$NON-NLS-2$
+                String xpath = entityModel.getMetaDataTypes().get(key).getXpath();
+                String dateText = null;
+                if (!key.equals(xpath)) {
+                    NodeList list = Util.getNodeList(doc.getDocumentElement(), xpath.replaceFirst(concept + "/", "./")); //$NON-NLS-1$//$NON-NLS-2$
+                    if (list != null)
+                        for (int k = 0; k < list.getLength(); i++) {
+                            Node node = list.item(k);
+                            String realType = ((Element) node.getParentNode()).getAttribute("xsi:type"); //$NON-NLS-1$
+                            if (key.replaceAll(":" + realType, "").equals(xpath)) { //$NON-NLS-1$//$NON-NLS-2$
+                                dateText = node.getTextContent();
+                                break;
+                            }
+                        }
+                } else
+                    dateText = Util.getFirstTextNode(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")); //$NON-NLS-1$ //$NON-NLS-2$
 
                 if (dateText != null) {
                     if (dateText.trim().length() != 0) {
