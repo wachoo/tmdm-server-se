@@ -4528,7 +4528,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
             DWREngine.setAsync(true); 
         }
         
-        if ((node!=null)&&(node.itemData.valueInfo != null)) {
+        if ((node!=null)&&(node.itemData.valueInfo != null && node.itemData.valueInfo != "")) {
             value = node.itemData.value;
         }
 
@@ -6351,13 +6351,30 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
         var returnRe = false;
         var itemTree = itemTreeList[treeIndex];
-        // var data = itemTree.getNodeByIndex(id).data;
         var node = itemTree.getNodeByIndex(nodeId);
         if (node == undefined)
             return true;
-        if (node.itemData.type == "complex" && node.itemData.minOccurs == 0)
+        if (node.itemData.type == "complex" && (node.itemData.minOccurs == 0 || node.itemData.abstract == false))
             return true;
-        
+        // check siblingNodes mandatory
+        if (node.itemData.minOccurs > 0 && node.itemData.type == "simple" && node.parent.itemData != undefined && node.parent.itemData.minOccurs == 0 && !node.parent.parent.isRoot()) {
+        	var mandatory = false;
+        	var siblingNodes = node.parent.children;
+        	if (siblingNodes)
+	        	for (var i = 0; i < siblingNodes.length; i++) {
+	                if (siblingNodes[i] instanceof amalto.itemsbrowser.ItemNode) {
+	                     if (siblingNodes[i].itemData.value != null && siblingNodes[i].itemData.value != "") {
+	                     	mandatory = true;
+	                     	break;
+	                	 }
+	                }
+	            }
+            if (mandatory == false && (node.itemData.value == null || node.itemData.value == "")) {
+            	node.resetErrorMessage(nodeId);
+            	return true;
+            }
+        }
+            
         if ($(nodeId + 'Value')) {
             var value = DWRUtil.getValue(nodeId + 'Value');
             node.resetErrorMessage(nodeId);

@@ -66,6 +66,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.jobox.util.JobNotFoundException;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.util.CVCException;
 import com.amalto.core.util.LocalUser;
@@ -2521,6 +2522,9 @@ public class ItemsBrowserDWR {
             } else if (Util.causeIs(e, ValidateException.class)) {
                 err = MESSAGES.getMessage(locale, "save.validationrule.fail", concept + "." + ids, //$NON-NLS-1$//$NON-NLS-2$
                         Util.getExceptionMessage(e.getLocalizedMessage(), language));
+            } else if (Util.causeIs(e, JobNotFoundException.class)) {
+                err = MESSAGES.getMessage(locale, "save.fail", concept, //$NON-NLS-1$
+                        e.getLocalizedMessage().substring(0, e.getLocalizedMessage().indexOf(";"))); //$NON-NLS-1$
             } else {
                 err = MESSAGES.getMessage(locale,
                         "save.fail", concept + "." + Util.joinStrings(ids, "."), e.getLocalizedMessage()); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
