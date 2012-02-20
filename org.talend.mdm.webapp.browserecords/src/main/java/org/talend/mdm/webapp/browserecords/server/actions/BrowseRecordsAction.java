@@ -101,6 +101,7 @@ import org.xml.sax.InputSource;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.integrity.FKIntegrityCheckResult;
+import com.amalto.core.jobox.util.JobNotFoundException;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
@@ -1657,6 +1658,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             } else if (Util.causeIs(e, ValidateException.class)) {
                 err = MESSAGES.getMessage(locale, "save_validationrule_fail", concept + "." + ids, //$NON-NLS-1$//$NON-NLS-2$
                         Util.getExceptionMessage(e.getLocalizedMessage(), language));
+            } else if (Util.causeIs(e, JobNotFoundException.class)) {
+                err = MESSAGES.getMessage(locale, "save_fail", concept, //$NON-NLS-1$
+                        e.getLocalizedMessage().substring(0, e.getLocalizedMessage().indexOf(";"))); //$NON-NLS-1$
             } else {
                 err = MESSAGES.getMessage(locale, "save_fail", concept + "." + ids, e.getLocalizedMessage()); //$NON-NLS-1$ //$NON-NLS-2$
             }
