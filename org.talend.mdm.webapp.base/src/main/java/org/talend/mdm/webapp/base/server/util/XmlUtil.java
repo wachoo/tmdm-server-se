@@ -176,6 +176,36 @@ public final class XmlUtil {
         }
         return current;
     }
+    
+    public static String queryNodeText(Document document, String xPath) {
+        StringBuffer value = new StringBuffer();
+        String[] pathSlices = xPath.split("/"); //$NON-NLS-1$
+        if (pathSlices.length > 1){
+            Element current = document.getRootElement();               
+            Iterator<?> children = current.elementIterator(pathSlices[pathSlices.length-1]);
+            if (children.hasNext()) {
+                Node node = (Node)children.next();
+                value.append(node.getText());
+                recursionNode(node,value);
+            }  
+        }
+        return value.toString();
+    }
+    
+    public static void recursionNode(Node node,StringBuffer value){
+        Element element = (Element)node;
+        int size = element.nodeCount();
+        for (int i = 0; i < size; i++) {
+            Node chilidNode = element.node(i);
+            if (chilidNode instanceof Element) {
+                if (!"".equals(value.toString())){ //$NON-NLS-1$
+                    value.append(" "); //$NON-NLS-1$                     
+                }
+                value.append(chilidNode.getText()); 
+                recursionNode(chilidNode,value);
+            }
+        }
+    }
 
     @SuppressWarnings("unchecked")
     public static List<Node> queryList(Document document, String xPath) {
