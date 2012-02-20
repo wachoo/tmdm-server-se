@@ -119,6 +119,7 @@ public class BrowseRecords implements EntryPoint {
 
                                     public void onSuccess(ViewBean viewBean) {
                                         ItemPanel itemPanel = new ItemPanel(viewBean, item, ItemDetailToolBar.VIEW_OPERATION, panel);
+                                        itemPanel.getToolBar().setHierarchyCall(true);
                                         itemPanel.setItemId(concept + "_" + ids); //$NON-NLS-1$
                                         renderPubTreeDetailPanel(itemPanel.getItemId(), itemPanel);
                                     }

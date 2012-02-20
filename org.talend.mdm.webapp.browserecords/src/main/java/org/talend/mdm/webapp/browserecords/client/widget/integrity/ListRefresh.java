@@ -1,5 +1,18 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.integrity;
 
+import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 
 /**
@@ -10,6 +23,8 @@ public class ListRefresh implements PostDeleteAction {
 
     private final PostDeleteAction next;
 
+    private ItemDetailToolBar bar;
+
     /**
      * If you don't know what to pass as <code>next</code> argument, check the constant {@link NoOpPostDeleteAction#INSTANCE}.
      * @param next The next action to be called once this action has just been performed.
@@ -18,9 +33,17 @@ public class ListRefresh implements PostDeleteAction {
         this.next = next;
     }
 
+    public ListRefresh(ItemDetailToolBar bar, PostDeleteAction next) {
+        this.bar = bar;
+        this.next = next;
+    }
+
     public void doAction() {
-        // Reload
-        ItemsListPanel.getInstance().getStore().getLoader().load();
+        // TMDM-3361, Hierarchy didn't need to reload
+        if (bar == null || !bar.isHierarchyCall()) {
+            // Reload
+            ItemsListPanel.getInstance().getStore().getLoader().load();
+        }
         next.doAction();
     }
 }
