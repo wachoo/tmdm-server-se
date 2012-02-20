@@ -122,8 +122,9 @@ public class BrowseRecordsController extends Controller {
         final Boolean isCreate = event.getData("isCreate"); //$NON-NLS-1$
         final Boolean isClose = event.getData("isClose"); //$NON-NLS-1$
         final ItemDetailToolBar detailToolBar = event.getData("itemDetailToolBar"); //$NON-NLS-1$
-        WaitBox.show(MessagesFactory.getMessages().save_progress_bar_title(), MessagesFactory.getMessages()
-                .save_progress_bar_message(), MessagesFactory.getMessages().please_wait());
+        WaitBox.show(MessagesFactory.getMessages().save_progress_bar_title(),
+                MessagesFactory.getMessages().save_progress_bar_message(),
+                MessagesFactory.getMessages().please_wait());
 
         service.saveItem(viewBean, itemBean.getIds(), CommonUtil.toXML(model, viewBean), isCreate,
                 Locale.getLanguage(), new SessionAwareAsyncCallback<ItemResult>() {
