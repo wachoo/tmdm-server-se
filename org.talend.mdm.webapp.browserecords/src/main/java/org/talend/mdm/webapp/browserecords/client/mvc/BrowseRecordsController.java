@@ -164,8 +164,6 @@ public class BrowseRecordsController extends Controller {
                         if (isClose) {
                             if (detailToolBar.isOutMost())
                                 detailToolBar.closeOutTabPanel();
-                            // else
-                            // ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
                         } else {
                             if (detailToolBar.isOutMost()) {
                                 TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes()
@@ -180,9 +178,10 @@ public class BrowseRecordsController extends Controller {
                                     mainPanel.refreshTree();
                                 }
                             }
-//                            detailToolBar.refreshTreeDetailByIds(result.getReturnValue());
                         }
-                        ItemsListPanel.getInstance().refreshGrid();
+                        if (ItemsMainTabPanel.getInstance().getItem(0) == null) {
+                            ItemsListPanel.getInstance().refreshGrid();
+                        }
                     }
                 });
     }
