@@ -502,13 +502,14 @@ public class ItemsListPanel extends ContentPanel {
                 if (grid.getSelectionModel().getSelectedItem() != null) {
                     String ids = grid.getSelectionModel().getSelectedItem().getIds();
                     refresh(ids, true);
-                } else
+                } else {
                     pagingBar.last();
-            } else {
-                ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchBut);
-                ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, be);
+                }
+                return;
             }
         }
+        ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchBut);
+        ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, be);
     }
 
     public void lastPage() {
