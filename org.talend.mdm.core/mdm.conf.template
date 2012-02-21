@@ -11,7 +11,7 @@
 ######################################################
 
 #################################################################################################
-###if you setup admin.password here, you must setup admin.password MD5 encode as the 
+###if you setup admin.password here, you must setup admin.password MD5 encrypted text as the 
 ###value of 3 elements <adminPassword> in {jboss.home}/server/default/conf/login-config.xml
 ###e.g admin.password=talend  value of <adminPassword> should be 1a254116eb5e70714b0680dfd4d8f7d4                     
 #################################################################################################
@@ -29,6 +29,14 @@ system.data.auto.upgrade=true
 #Means even though new Version Number is equal or less than your current system Version Number,
 #migration tasks will still be executed 
 system.data.force.upgrade=false
+
+#Browse Record web ui max export records count
+max.export.browserecord=1000
+
+#max cache size of objects
+max_cache_size=5000
+#init db override the cluster if exists
+cluster_override=false
 
 ######################################################
 # eXist DB Setting
@@ -71,10 +79,3 @@ routing.engine.max.execution.time.millis=300000
 #   2- Reclaiming tokens of Routing Orders that timed out (see setting above)
 #   3- Allocating tokens to Routing Orders waiting for execution and scheduling their execution
 routing.engine.run.period.millis=2500
-
-#max cache size of objects
-max_cache_size=5000
-cluster_override=false
-
-#job redeploy max times
-job.redeploy.max.times=3
