@@ -1408,7 +1408,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 }
                 String revisionID = universe.getConceptRevisionID(concept);
                 if (!Util.getXmlServerCtrlLocal().existCluster(revisionID, dcpk.getUniqueId())) {
-                    throw new XtentisException("DataCluster R-" + revisionID + "/" + dcpk.getUniqueId() + " don't exists!");
+                    throw new XtentisException("DataContainer R-" + revisionID + "/" + dcpk.getUniqueId() + " doesn't exists!");
                 }
             }
             //taskId
