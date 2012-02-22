@@ -158,8 +158,10 @@ public class BrowseRecordsController extends Controller {
                                     .save_success(), null);
                         setTimeout(msgBox, 1000);
 
-                        if (!detailToolBar.isOutMost() && (isClose || isCreate))
-                            ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
+                        if (!detailToolBar.isOutMost() && (isClose || isCreate)) {
+                            if (!ItemsListPanel.getInstance().isSaveCurrentChangeBeforeSwitching())
+                                ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
+                        }
 
                         if (isClose) {
                             if (detailToolBar.isOutMost())
@@ -179,7 +181,14 @@ public class BrowseRecordsController extends Controller {
                                 }
                             }
                         }
-                        if (ItemsMainTabPanel.getInstance().getItem(0) == null) {
+                        // TMDM-3349 button 'save and close' function
+                        if (!detailToolBar.isOutMost() && !detailToolBar.isHierarchyCall())
+                            ItemsListPanel.getInstance().setDefaultSelectionModel(!isClose);
+                        // why ItemsMainTabPanel.getInstance().getItem(0) == null to refresh grid
+                        if (ItemsMainTabPanel.getInstance().getItem(0) == null
+                                || (isClose && ItemsListPanel.getInstance().isSaveCurrentChangeBeforeSwitching())
+                                || (isClose && detailToolBar.getOperation().equalsIgnoreCase(
+                                        ItemDetailToolBar.DUPLICATE_OPERATION))) {
                             ItemsListPanel.getInstance().refreshGrid();
                         }
                     }
