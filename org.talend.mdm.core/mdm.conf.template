@@ -15,13 +15,12 @@
 ###value of 3 elements <adminPassword> in {jboss.home}/server/default/conf/login-config.xml
 ###e.g admin.password=talend  value of <adminPassword> should be 1a254116eb5e70714b0680dfd4d8f7d4                     
 #################################################################################################
+#mdm admin username
 admin.user=admin
+#mdm admin password
 admin.password=talend
-#default mdm admin user
-#admin.user=admin
-#default mdm user password for admin.user
-#admin.password=talend
 
+# http server port
 http.server.port=8080
 
 system.data.auto.init=true
@@ -37,6 +36,18 @@ max.export.browserecord=1000
 max_cache_size=5000
 #init db override the cluster if exists
 cluster_override=false
+
+#BAMLogger logging 
+#bam.logging=false
+
+#XMLConfiguration for web ui
+# data container in web ui configuration
+#configuration.datacluster=Product
+# data model in web ui configuration
+#configuration.datamodel=Product
+# configration reload frequency
+#configuration.reloadfrequency=60
+
 
 ######################################################
 # eXist DB Setting
