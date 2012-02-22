@@ -18,11 +18,13 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
+import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
 import org.talend.mdm.webapp.recyclebin.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.recyclebin.client.resources.icon.Icons;
 import org.talend.mdm.webapp.recyclebin.shared.ItemsTrashItem;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
@@ -335,6 +337,7 @@ public class MainFramePanel extends ContentPanel {
     }
 
     private void deleteItem(final BaseModelData model) {
+
         service.removeDroppedItem(model.get("itemPK").toString(), model.get("partPath").toString(),//$NON-NLS-1$//$NON-NLS-2$
                 model.get("revisionId") == null ? null : model.get("revisionId").toString(), model //$NON-NLS-1$//$NON-NLS-2$
                         .get("conceptName").toString(), model.get("ids").toString(),//$NON-NLS-1$//$NON-NLS-2$
@@ -345,6 +348,18 @@ public class MainFramePanel extends ContentPanel {
                         grid.getStore().remove((ItemsTrashItem) model);
                     }
 
+                    @Override
+                    protected void doOnFailure(Throwable caught) {
+                        String errorMsg = caught.getLocalizedMessage();
+                        if (errorMsg == null) {
+                            if (Log.isDebugEnabled())
+                                errorMsg = caught.toString(); // for debugging purpose
+                            else
+                                errorMsg = BaseMessagesFactory.getMessages().unknown_error();
+                        }
+                        MessageBox.alert(BaseMessagesFactory.getMessages().error_title(),
+                                MultilanguageMessageParser.pickOutISOMessage(errorMsg), null);
+                    }
                 });
     }
 

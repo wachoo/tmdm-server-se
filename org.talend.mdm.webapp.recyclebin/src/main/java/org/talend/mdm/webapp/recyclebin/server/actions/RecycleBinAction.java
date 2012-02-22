@@ -23,6 +23,9 @@ import org.apache.log4j.Logger;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.recyclebin.client.RecycleBinService;
 import org.talend.mdm.webapp.recyclebin.shared.ItemsTrashItem;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.UpdateReportItem;
@@ -106,14 +109,35 @@ public class RecycleBinAction implements RecycleBinService {
         try {
             // WSDroppedItemPK
             String[] ids1 = ids.split("\\.");//$NON-NLS-1$
-            WSDataClusterPK wddcpk = new WSDataClusterPK(itemPk);
-            WSItemPK wdipk = new WSItemPK(wddcpk, conceptName, ids1);
-            WSDroppedItemPK wddipk = new WSDroppedItemPK(wdipk, partPath, revisionId);
-            WSRemoveDroppedItem wsrdi = new WSRemoveDroppedItem(wddipk);
-            Util.getPort().removeDroppedItem(wsrdi);
+            String outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(itemPk, conceptName, ids1);
 
-            String xml = createUpdateReport(ids1, conceptName, "PHYSICAL_DELETE", null); //$NON-NLS-1$
-            Util.persistentUpdateReport(xml, true);
+            String message = null;
+            String errorCode = null;
+            if (outputErrorMessage != null) {
+                Document doc = Util.parse(outputErrorMessage);
+                String xpath = "//report/message"; //$NON-NLS-1$
+                Node errorNode = Util.getNodeList(doc, xpath).item(0);
+                if (errorNode instanceof Element) {
+                    Element errorElement = (Element) errorNode;
+                    errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$                    
+                    message = errorElement.getTextContent();
+                }
+            }
+
+            if (outputErrorMessage != null && "error".equals(errorCode)) { //$NON-NLS-1$                
+                if (message == null)
+                    message = ""; //$NON-NLS-1$
+                throw new ServiceException(message);
+            } else {
+                WSDataClusterPK wddcpk = new WSDataClusterPK(itemPk);
+                WSItemPK wdipk = new WSItemPK(wddcpk, conceptName, ids1);
+                WSDroppedItemPK wddipk = new WSDroppedItemPK(wdipk, partPath, revisionId);
+                WSRemoveDroppedItem wsrdi = new WSRemoveDroppedItem(wddipk);
+                Util.getPort().removeDroppedItem(wsrdi);
+
+                String xml = createUpdateReport(ids1, conceptName, "PHYSICAL_DELETE", null); //$NON-NLS-1$
+                Util.persistentUpdateReport(xml, true);
+            }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
