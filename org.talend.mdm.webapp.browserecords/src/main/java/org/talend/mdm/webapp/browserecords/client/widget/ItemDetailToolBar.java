@@ -890,6 +890,9 @@ public class ItemDetailToolBar extends ToolBar {
         if (validate) {
             dispatch.dispatch(app);
         } else {
+            // TMDM-3349 button 'save and close' function
+            if (isClose && !isOutMost && !isHierarchyCall)
+                ItemsListPanel.getInstance().initSpecialVariable();
             MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().save_error(), null);
         }
     }

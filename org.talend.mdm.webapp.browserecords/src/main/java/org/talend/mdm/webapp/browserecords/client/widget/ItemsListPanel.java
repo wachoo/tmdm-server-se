@@ -189,6 +189,12 @@ public class ItemsListPanel extends ContentPanel {
 
     private ItemNodeModel root;
 
+    private boolean defaultSelectionModel = true;
+
+    private boolean saveCurrentChangeBeforeSwitching;
+
+    private String changedRecordId;
+
     private static ItemsListPanel instance;
 
     public static ItemsListPanel getInstance() {
@@ -301,6 +307,8 @@ public class ItemsListPanel extends ContentPanel {
 
                                         public void handleEvent(MessageBoxEvent be) {
                                             if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+                                                saveCurrentChangeBeforeSwitching = true;
+                                                changedRecordId = toolBar.getItemBean().getIds();
                                                 toolBar.saveItemAndClose(true);
                                             }
                                             selectRow(se);
@@ -500,8 +508,13 @@ public class ItemsListPanel extends ContentPanel {
         if (gridContainer != null) {// refresh when grid is not empty
             if (pagingBar != null && pagingBar.getItemCount() > 0) {
                 if (grid.getSelectionModel().getSelectedItem() != null) {
-                    String ids = grid.getSelectionModel().getSelectedItem().getIds();
-                    refresh(ids, true);
+                    if (saveCurrentChangeBeforeSwitching) {
+                        refresh(changedRecordId, false);
+                    } else {
+                        String ids = grid.getSelectionModel().getSelectedItem().getIds();
+                        refresh(ids, true);
+                    }
+
                 } else {
                     pagingBar.last();
                 }
@@ -549,6 +562,17 @@ public class ItemsListPanel extends ContentPanel {
                                 }
                                 record.commit(false);
 
+                                // TMDM-3349 button 'save and close' function
+                                if (!defaultSelectionModel) {
+                                    if (saveCurrentChangeBeforeSwitching) {
+                                        saveCurrentChangeBeforeSwitching = false;
+                                        defaultSelectionModel = true;
+                                        changedRecordId = null;
+                                    } else
+                                        grid.getSelectionModel().select(itemBean, false);
+                                    return;
+                                }
+
                                 if (refreshItemForm) {
                                     Dispatcher.forwardEvent(BrowseRecordsEvents.ViewItem, itemBean);
                                 }
@@ -587,6 +611,24 @@ public class ItemsListPanel extends ContentPanel {
 
     private void selectRow(SelectionChangedEvent<ItemBean> se) {
         ItemBean item = se.getSelectedItem();
+
+        // TMDM-3349 button 'save and close' function
+        if (!defaultSelectionModel) {
+            defaultSelectionModel = true;
+            if (ItemsMainTabPanel.getInstance().getSelectedItem() != null) {
+                String ids = ItemsMainTabPanel.getInstance().getDefaultViewTabItem().getCurrentItemPanel().getItem().getIds();
+                ItemBean selectedItem = grid.getStore().findModel(ids);
+                if (item != null && item != selectedItem) {
+                    grid.getSelectionModel().deselect(se.getSelectedItem());
+                    grid.getSelectionModel().select(selectedItem, true);
+                    return;
+                }
+            } else {
+                grid.getSelectionModel().select(-1, false);
+                return;
+            }
+        }
+
         if (item != null) {
             if (gridUpdateLock) {
                 return;
@@ -596,4 +638,28 @@ public class ItemsListPanel extends ContentPanel {
             gridUpdateLock = false;
         }
     }
+
+    public boolean isDefaultSelectionModel() {
+        return defaultSelectionModel;
+    }
+
+    public void setDefaultSelectionModel(boolean defaultSelectionModel) {
+        this.defaultSelectionModel = defaultSelectionModel;
+    }
+
+    public boolean isSaveCurrentChangeBeforeSwitching() {
+        return saveCurrentChangeBeforeSwitching;
+    }
+
+    public void setSaveCurrentChangeBeforeSwitching(boolean saveCurrentChangeBeforeSwitching) {
+        this.saveCurrentChangeBeforeSwitching = saveCurrentChangeBeforeSwitching;
+    }
+
+    public void initSpecialVariable() {
+        if (saveCurrentChangeBeforeSwitching) {
+            saveCurrentChangeBeforeSwitching = false;
+            changedRecordId = null;
+        }
+    }
+
 }
