@@ -45,12 +45,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -2549,18 +2549,18 @@ public class Util {
                     Thread.sleep(100);
                 }
                 // TODO process no plug-in issue
-                String outputErrorMessage = null;
+                String outputreport = null;
                 // Scan the entries - in priority, taka the content of the 'output_error_message' entry,
                 for (Entry<String, TypedContent> entry : context.getPipelineClone().entrySet()) {
 
                     if (ITransformerConstants.VARIABLE_OUTPUT_OF_BEFORESAVINGTRANFORMER.equals(entry.getKey())) {
-                        outputErrorMessage = new String(entry.getValue().getContentBytes(), "UTF-8"); //$NON-NLS-1$
+                        outputreport = new String(entry.getValue().getContentBytes(), "UTF-8"); //$NON-NLS-1$
                         break;
                     }
                 }
                 // handle error message
-                if (outputErrorMessage != null && outputErrorMessage.length() > 0) {
-                    return outputErrorMessage;
+                if (outputreport != null && outputreport.length() > 0) {
+                    return outputreport;
                 } else {
                     return "<report><message type=\"error\"/></report> "; //$NON-NLS-1$
                 }

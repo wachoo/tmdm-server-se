@@ -774,6 +774,14 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             if (wsPutItemWithReport != null) {
                 if (!beforeSaving(wsPutItemWithReport, concept, itemPojo.getProjectionAsString(), resultUpdateReport))
                     return null;
+                else {
+                    if (wsPutItemWithReport.getWsPutItem().getXmlString() != null) {
+                        // get back the item modified by the process
+                        LOG.info("Record modified by the process beforeSaving_" + concept + " -->"
+                                + wsPutItemWithReport.getWsPutItem().getXmlString());
+                        itemPojo.setProjectionAsString(wsPutItemWithReport.getWsPutItem().getXmlString());
+                    }
+                }
             }
 
             ItemPOJOPK itemPOJOPK = com.amalto.core.util.Util.getItemCtrl2Local().putItem(itemPojo, dataModel);
@@ -2203,18 +2211,42 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         //Do we call Triggers&Before processes?
         if (wsPutItemWithReport.getInvokeBeforeSaving()) {
             // invoke BeforeSaving process if it exists
-            String outputErrorMessage = Util.beforeSaving(concept, xml, resultUpdateReport);
-            if (outputErrorMessage != null) { //when a process was found 
-                Document doc = Util.parse(outputErrorMessage);
-                // TODO what if multiple error nodes ?
+            String outputreport = Util.beforeSaving(concept, xml, resultUpdateReport);
+            String message = outputreport;
+            if (outputreport != null) { // when a process was found
+                Document doc = Util.parse(outputreport);
+                // handle message
                 String xpath = "//report/message"; //$NON-NLS-1$
                 Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
                 String errorCode = null;
                 if (errorNode instanceof Element) {
                     Element errorElement = (Element) errorNode;
                     errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
-                }                                   
-                wsPutItemWithReport.setSource(outputErrorMessage);
+                    org.w3c.dom.Node child = errorElement.getFirstChild();
+                    if (child instanceof org.w3c.dom.Text) {
+                        message = child.getTextContent();
+                    }
+                }
+                // handle item
+                xpath = "//report/item"; //$NON-NLS-1$
+                Node item = XPathAPI.selectSingleNode(doc, xpath);
+                if (item != null && item instanceof Element) {
+                    NodeList list = item.getChildNodes();
+                    Node node = null;
+                    for (int i = 0; i < list.getLength(); i++) {
+                        if (list.item(i) instanceof Element) {
+                            node = list.item(i);
+                            break;
+                        }
+                    }
+                    String xmlString = Util.nodeToString(node);
+                    // set back the modified item by the process
+                    wsPutItemWithReport.getWsPutItem().setXmlString(xmlString);
+                } else {
+                    // xml string to null to ensure nothing is modified by process
+                    wsPutItemWithReport.getWsPutItem().setXmlString(null);
+                }
+                wsPutItemWithReport.setSource(outputreport);
                 return "info".equals(errorCode); //$NON-NLS-1$
             } else { //when no process was found 
                 return true;
