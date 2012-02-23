@@ -1095,16 +1095,4 @@ public class ItemDetailToolBar extends ToolBar {
         window.open(url);
     }-*/;
 
-    private SavedCallback savedCallback;
-
-    public void setSavedCallback(SavedCallback savedCallback) {
-        this.savedCallback = savedCallback;
-    }
-
-    public void savedCallback(String ids) {
-        if (savedCallback != null) {
-            savedCallback.savedCallback(ids);
-        }
-    }
-
 }

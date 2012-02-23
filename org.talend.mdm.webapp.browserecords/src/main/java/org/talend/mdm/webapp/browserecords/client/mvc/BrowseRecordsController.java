@@ -191,7 +191,7 @@ public class BrowseRecordsController extends Controller {
                                         ItemDetailToolBar.DUPLICATE_OPERATION))) {
                             ItemsListPanel.getInstance().refreshGrid();
                         }
-                        detailToolBar.savedCallback(result.getReturnValue());
+                        ItemsMainTabPanel.getInstance().getCurrentViewTabItem().savedCallback(result.getReturnValue());
                     }
                 });
     }
