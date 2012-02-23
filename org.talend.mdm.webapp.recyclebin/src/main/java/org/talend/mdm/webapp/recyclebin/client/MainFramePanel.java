@@ -231,8 +231,8 @@ public class MainFramePanel extends ContentPanel {
                                                 public void onSuccess(Void arg0) {
                                                     pagetoolBar.refresh();
                                                     grid.getStore().remove(model);
+                                                    refreshBrowseRecordsGrid();                                                    
                                                 }
-
                                             });
                                 }
                             }
@@ -368,4 +368,8 @@ public class MainFramePanel extends ContentPanel {
             instance = new MainFramePanel();
         return instance;
     }
+    
+    private native void refreshBrowseRecordsGrid()/*-{
+        $wnd.amalto.browserecords.BrowseRecords.refreshGrid();
+    }-*/;   
 }

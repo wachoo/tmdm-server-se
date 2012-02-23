@@ -22,11 +22,14 @@ import org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsToolBar;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.core.client.EntryPoint;
@@ -106,6 +109,11 @@ public class BrowseRecords implements EntryPoint {
         return service;
 
     }
+    
+    public void refreshGrid(){        
+        ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchBut);
+        ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, be);        
+    }
 
     public void showTreeDetailPanel(final String concept, final String ids) {
 
@@ -183,12 +191,22 @@ public class BrowseRecords implements EntryPoint {
         }
 
         function showTreeDetailPanel(concept, ids){
-        instance.@org.talend.mdm.webapp.browserecords.client.BrowseRecords::showTreeDetailPanel(Ljava/lang/String;Ljava/lang/String;)(concept, ids);
+            instance.@org.talend.mdm.webapp.browserecords.client.BrowseRecords::showTreeDetailPanel(Ljava/lang/String;Ljava/lang/String;)(concept, ids);
         }
+        
+        function refreshGrid(){
+            var tabPanel = $wnd.amalto.core.getTabPanel();
+            var panel = tabPanel.getItem("Browse Records");         
+            if (panel != undefined){
+                tabPanel.setSelection(panel.getItemId());
+            }
+            instance.@org.talend.mdm.webapp.browserecords.client.BrowseRecords::refreshGrid()();
+        } 
 
         return {
         init : function(){initUI();},
-        showTreeDetailPanel : function(concept, ids){showTreeDetailPanel(concept, ids);}
+        showTreeDetailPanel : function(concept, ids){showTreeDetailPanel(concept, ids);},
+        refreshGrid : function(){refreshGrid();}
         }
         }();
     }-*/;
