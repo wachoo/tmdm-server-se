@@ -2040,10 +2040,11 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
-    private void pushToUpdateReport(WSDeleteItemWithReport wsDeleteItem,String dataClusterPK,String concept, String[] ids, boolean trigger)throws Exception{
+
+    private void pushToUpdateReport(String resultUpdateReport, WSDeleteItemWithReport wsDeleteItem, String dataClusterPK,
+            String concept, String[] ids, boolean trigger) throws Exception {
         // create resultUpdateReport
-        String resultUpdateReport = Util.createUpdateReport(ids, concept, wsDeleteItem.getOperateType(), null,
-                "", wsDeleteItem.getWsItemPK().getWsDataClusterPK().getPk()); //$NON-NLS-1$
+
         if (resultUpdateReport != null) { // see0012280: In jobs, Update Reports are no longer created for the
             ILocalUser user = LocalUser.getLocalUser();
             String source = wsDeleteItem.getSource();
@@ -2083,10 +2084,13 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         String dataClusterPK = wsDeleteItem.getWsItemPK().getWsDataClusterPK().getPk();
         String concept=wsDeleteItem.getWsItemPK().getConceptName();
         String[] ids=wsDeleteItem.getWsItemPK().getIds();
+            String resultUpdateReport = Util.createUpdateReport(ids, concept, wsDeleteItem.getOperateType(), null,
+                    "", wsDeleteItem.getWsItemPK().getWsDataClusterPK().getPk()); //$NON-NLS-1$
         if("LOGIC_DELETE".equals(wsDeleteItem.getOperateType())){//$NON-NLS-1$
                 dropItem(new WSDropItem(wsDeleteItem.getWsItemPK(), wsDeleteItem.getUpdatePath(), wsDeleteItem.getOverride()));
         	if(wsDeleteItem.getPushToUpdateReport()){
-        		pushToUpdateReport(wsDeleteItem, dataClusterPK, concept, ids, wsDeleteItem.getInvokeBeforeSaving());
+                    pushToUpdateReport(resultUpdateReport, wsDeleteItem, dataClusterPK, concept, ids,
+                            wsDeleteItem.getInvokeBeforeSaving());
         	}
         	return new WSString("logical delete item sucessfully!");
         }
@@ -2112,12 +2116,12 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
             if (outputErrorMessage == null || "info".equals(errorCode)) { //$NON-NLS-1$
             if (ids != null ) {
-                WSItemPK wsItem =deleteItem(
-new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids),
+                    WSItemPK wsItem = deleteItem(new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids),
                             wsDeleteItem.getOverride()));
                     if (wsItem != null && !"UpdateReport".equals(dataClusterPK)) { //$NON-NLS-1$
                 	if(wsDeleteItem.getPushToUpdateReport()){
-                		pushToUpdateReport(wsDeleteItem, dataClusterPK, concept, ids,wsDeleteItem.getInvokeBeforeSaving());    
+                            pushToUpdateReport(resultUpdateReport, wsDeleteItem, dataClusterPK, concept, ids,
+                                    wsDeleteItem.getInvokeBeforeSaving());
                 	}
                 }                   
                 else

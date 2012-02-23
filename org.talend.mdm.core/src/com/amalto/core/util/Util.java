@@ -2599,12 +2599,17 @@ public class Util {
         if (isBeforeDeletingTransformerExist) {
             try {
                 // call before deleting transformer
-
+                // load the item
+                ItemPOJOPK itempk = new ItemPOJOPK(new DataClusterPOJOPK(clusterName), concept, ids);
+                String xml = ItemPOJO.load(itempk).getProjectionAsString();
+                String resultUpdateReport = Util.createUpdateReport(ids, concept, "PHYSICAL_DELETE", null, //$NON-NLS-1$
+                        "", clusterName); //$NON-NLS-1$
+                String exchangeData = mergeExchangeData(xml, resultUpdateReport);
                 final String RUNNING = "XtentisWSBean.executeTransformerV2.beforeDeleting.running";
                 TransformerContext context = new TransformerContext(new TransformerV2POJOPK("beforeDeleting_" + concept));
                 context.put(RUNNING, Boolean.TRUE);
                 TransformerV2CtrlLocal ctrl = getTransformerV2CtrlLocal();
-                TypedContent wsTypedContent = new TypedContent(buildItemPKString(clusterName, concept, ids).getBytes("UTF-8"),
+                TypedContent wsTypedContent = new TypedContent(exchangeData.getBytes("UTF-8"),
                         "text/xml; charset=utf-8");
 
                 ctrl.execute(context, wsTypedContent, new TransformerCallBack() {
