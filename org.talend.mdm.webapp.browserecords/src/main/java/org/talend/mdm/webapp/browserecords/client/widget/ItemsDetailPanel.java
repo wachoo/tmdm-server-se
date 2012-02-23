@@ -783,4 +783,16 @@ public class ItemsDetailPanel extends ContentPanel {
     public void setTreeDetail(ContentPanel treeDetail) {
         this.treeDetail = treeDetail;
     }
+
+    private SavedCallback savedCallback;
+
+    public void setSavedCallback(SavedCallback savedCallback) {
+        this.savedCallback = savedCallback;
+    }
+
+    public void savedCallback(String ids) {
+        if (savedCallback != null) {
+            savedCallback.savedCallback(ids);
+        }
+    }
 }
