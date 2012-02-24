@@ -296,8 +296,7 @@ Ext
 												xtype : "paging",
 												emptyMsg : amalto.updatereport.UpdateReportLocal
 														.get("emptyMsg"),
-												pageSize : this
-														.getCookie('updateReportPaging_pageSize'),
+												pageSize : parseInt(this.getCookie('updateReportPaging_pageSize')),
 												items : [
 														new Ext.Toolbar.Separator(),
 														new Ext.Toolbar.TextItem(
@@ -307,8 +306,7 @@ Ext
 														new Ext.form.NumberField(
 																{
 																	id : 'updateRLineMaxItems',
-																	value : this
-																			.getCookie('updateReportPaging_pageSize'),
+																	value : parseInt(this.getCookie('updateReportPaging_pageSize')),
 																	width : 30,
 																	validator : function(v){
 																		var vi = parseInt(v);
