@@ -364,4 +364,10 @@ public interface BrowseRecordsMessages extends Messages {
     String save_progress_bar_title();
 
     String save_progress_bar_message();
+
+    String browse_title();
+
+    String hierarchy_title();
+
+    String search_result();
 }
