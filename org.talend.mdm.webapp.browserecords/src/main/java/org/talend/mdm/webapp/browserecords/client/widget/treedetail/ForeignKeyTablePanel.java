@@ -36,6 +36,7 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -52,6 +53,8 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.dom.client.Style.Cursor;
@@ -248,6 +251,19 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                 loader.load(config);
             }
         });
+
+        // TMDM-3202 open FK in new tab
+        grid.addListener(Events.OnDoubleClick, new Listener<GridEvent<ItemNodeModel>>() {
+
+            public void handleEvent(GridEvent<ItemNodeModel> be) {
+                int rowIndex = be.getRowIndex();
+                if (rowIndex != -1) {
+                    ItemNodeModel model = grid.getStore().getAt(rowIndex);
+                    openForeignKey(model);
+                }
+            }
+        });
+
         if (parent.getParent() != null && !parent.isMandatory()) {
             grid.getView().addListener(Events.Refresh, new Listener<BaseEvent>() {
                 public void handleEvent(BaseEvent be) {
@@ -258,7 +274,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         final ForeignKeyRowEditor re = new ForeignKeyRowEditor(fkTypeModel);
         grid.setSelectionModel(sm);
         grid.addPlugin(sm);
-        
+        hookContextMenu(re);
         if(entityModel.getMetaDataTypes() != null){
             TypeModel fkType = entityModel.getMetaDataTypes().get(entityModel.getConceptName());
             if(fkType != null){
@@ -415,12 +431,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             linkFKBtn.addClickHandler(new ClickHandler() {
 
                 public void onClick(ClickEvent event) {
-                    ForeignKeyBean fkBean = (ForeignKeyBean) model.getObjectValue();
-                    if (fkBean == null || fkBean.getId() == null || "".equals(fkBean.getId())) //$NON-NLS-1$
-                        return;
-                    String ids = fkBean.getId().replace("[", "").replace("]", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-                    ForeignKeyUtil.checkChange(false, fkBean.getConceptName() != null ? fkBean.getConceptName() : fkTypeModel
-                            .getForeignkey().split("/")[0], ids, itemsDetailPanel); //$NON-NLS-1$
+                    openForeignKey(model);
                 }
             });
 
@@ -433,11 +444,47 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         }
     };
 
+    private void openForeignKey(ItemNodeModel model) {
+        if (model == null)
+            return;
+        ForeignKeyBean fkBean = (ForeignKeyBean) model.getObjectValue();
+        if (fkBean == null || fkBean.getId() == null || "".equals(fkBean.getId())) //$NON-NLS-1$
+            return;
+        String ids = fkBean.getId().replace("[", "").replace("]", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+        ForeignKeyUtil.checkChange(false, fkBean.getConceptName() != null ? fkBean.getConceptName() : fkTypeModel.getForeignkey()
+                .split("/")[0], ids, itemsDetailPanel); //$NON-NLS-1$
+    }
+
     public void setCriteriaFK(ForeignKeyBean fk) {
         // TODO check fk exist
         currentNodeModel.setObjectValue(fk);
         currentNodeModel.setTypeName(fk.getTypeName());
         currentNodeModel.setChangeValue(true);
         grid.getView().refresh(false);
+    }
+
+    private void hookContextMenu(final ForeignKeyRowEditor re) {
+        Menu contextMenu = new Menu();
+        MenuItem editRow = new MenuItem();
+        editRow.setText(MessagesFactory.getMessages().edititem());
+        editRow.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Edit()));
+        editRow.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+            @Override
+            public void componentSelected(MenuEvent ce) {
+                ItemNodeModel m = grid.getSelectionModel().getSelectedItem();
+                if (m == null) {
+                    MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                            .grid_record_select(), null);
+                    return;
+                }
+                int rowIndex = grid.getStore().indexOf(m);
+                re.startEditing(rowIndex, true);
+            }
+        });
+
+        contextMenu.add(editRow);
+        grid.setContextMenu(contextMenu);
+
     }
 }

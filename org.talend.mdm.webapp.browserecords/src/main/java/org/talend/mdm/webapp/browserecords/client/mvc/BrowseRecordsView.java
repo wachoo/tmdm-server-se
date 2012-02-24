@@ -140,12 +140,20 @@ public class BrowseRecordsView extends View {
         ItemsDetailPanel detailPanel = event.getData(BrowseRecordsView.ITEMS_DETAIL_PANEL);
         ItemBean fkItemBean = model.getItemBean();
         ViewBean fkViewBean = model.getViewBean();
+        ItemPanel panel = detailPanel.getCurrentItemPanel();
+        boolean openTab = false;
+        boolean isHierarchyCall = false;
+        if (panel != null) {
+            openTab = !panel.getToolBar().isOutMost();
+            isHierarchyCall = panel.getToolBar().isHierarchyCall();
+        }
         detailPanel.clearContent();
         detailPanel.clearBanner();
         String pkInfo = fkItemBean.getDisplayPKInfo().equals(fkItemBean.getLabel()) ? null : fkItemBean.getDisplayPKInfo();
         detailPanel.appendBreadCrumb(fkItemBean.getConcept(), fkItemBean.getLabel(), fkItemBean.getIds(), pkInfo);
-        ItemPanel itemPanel = new ItemPanel(fkViewBean, fkItemBean, ItemDetailToolBar.VIEW_OPERATION, detailPanel);
-        // detailPanel.setId(fkItemBean.getIds());
+        ItemPanel itemPanel = new ItemPanel(fkViewBean, fkItemBean, ItemDetailToolBar.VIEW_OPERATION, detailPanel, openTab);
+        itemPanel.getToolBar().setOutMost(!openTab);
+        itemPanel.getToolBar().setHierarchyCall(isHierarchyCall);
         detailPanel.initBanner(fkItemBean.getPkInfoList(), fkItemBean.getDescription());
         detailPanel.addTabItem(fkItemBean.getLabel(), itemPanel, ItemsDetailPanel.SINGLETON, fkItemBean.getIds());
     }
@@ -224,7 +232,7 @@ public class BrowseRecordsView extends View {
                     itemsDetailPanel.clearAll();
                     itemsDetailPanel.initBanner(itemPkInfoList, itemDescription);
 
-                    ItemPanel itemPanel = new ItemPanel(viewBean, item, operation, itemsDetailPanel);
+                    ItemPanel itemPanel = new ItemPanel(viewBean, item, operation, itemsDetailPanel, true);
                     itemsDetailPanel.addTabItem(itemLabel != null ? itemLabel : itemConcept, itemPanel,
                             ItemsDetailPanel.SINGLETON, DEFAULT_ITEMVIEW);
 
@@ -257,7 +265,7 @@ public class BrowseRecordsView extends View {
     private ItemsDetailPanel buildNewItemsDetailPanel(ViewBean viewBean, ItemBean item, String operation, String itemIds,
             List<String> itemPkInfoList, String itemDescription, String itemLabel, List<BreadCrumbModel> breads) {
         ItemsDetailPanel itemsDetailPanel = new ItemsDetailPanel();
-        ItemPanel itemPanel = new ItemPanel(viewBean, item, operation, itemsDetailPanel);
+        ItemPanel itemPanel = new ItemPanel(viewBean, item, operation, itemsDetailPanel, true);
 
         itemsDetailPanel.setId(itemIds);
 

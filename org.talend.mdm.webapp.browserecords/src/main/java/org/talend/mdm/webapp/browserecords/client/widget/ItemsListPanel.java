@@ -67,7 +67,6 @@ import com.extjs.gxt.ui.client.event.RowEditorEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.state.StateManager;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -472,9 +471,8 @@ public class ItemsListPanel extends ContentPanel {
                             .grid_record_select(), null);
                     return;
                 }
-                AppEvent evt = new AppEvent(BrowseRecordsEvents.ViewItem, m);
-                evt.setData(BrowseRecordsView.ITEMS_FORM_TARGET, BrowseRecordsView.TARGET_IN_NEW_TAB);
-                Dispatcher.forwardEvent(evt);
+                // TMDM-3202 open in a top-level tab
+                TreeDetailUtil.initItemsDetailPanelById(MessagesFactory.getMessages().browse_title(), m.getIds(), m.getConcept());
             }
         });
         contextMenu.add(openInTab);

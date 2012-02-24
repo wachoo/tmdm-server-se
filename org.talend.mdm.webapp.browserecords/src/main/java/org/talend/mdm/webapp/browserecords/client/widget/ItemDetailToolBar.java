@@ -104,6 +104,8 @@ public class ItemDetailToolBar extends ToolBar {
 
     private Button refreshButton;
 
+    private Button openTabButton;
+
     private Button launchProcessButton;
 
     private ComboBox<ItemBaseModel> smartViewCombo;
@@ -138,6 +140,8 @@ public class ItemDetailToolBar extends ToolBar {
 
     private boolean isHierarchyCall;
 
+    private boolean openTab;
+
     public ItemDetailToolBar(ItemsDetailPanel itemsDetailPanel) {
         this.itemsDetailPanel = itemsDetailPanel;
         this.setBorders(false);
@@ -149,6 +153,17 @@ public class ItemDetailToolBar extends ToolBar {
         this.itemBean = itemBean;
         this.operation = operation;
         this.viewBean = viewBean;
+        this.readOnly = viewBean.getBindingEntityModel().isReadOnly();
+        initToolBar();
+    }
+
+    public ItemDetailToolBar(ItemBean itemBean, String operation, ViewBean viewBean, ItemsDetailPanel itemsDetailPanel,
+            boolean openTab) {
+        this(itemsDetailPanel);
+        this.itemBean = itemBean;
+        this.operation = operation;
+        this.viewBean = viewBean;
+        this.openTab = openTab;
         this.readOnly = viewBean.getBindingEntityModel().isReadOnly();
         initToolBar();
     }
@@ -219,6 +234,10 @@ public class ItemDetailToolBar extends ToolBar {
             this.addJournalButton();
             this.addSeparator();
             this.addFreshButton();
+            if (this.openTab) {
+                this.addSeparator();
+                this.addOpenTabButton();
+            }
             this.addRelationButton();
             this.addOpenTaskButton();
             checkEntitlement(viewBean);
@@ -536,6 +555,26 @@ public class ItemDetailToolBar extends ToolBar {
             }
 
         });
+    }
+
+    private void addOpenTabButton() {
+        if (openTabButton == null) {
+            openTabButton = new Button();
+            openTabButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTab()));
+            openTabButton.setToolTip(MessagesFactory.getMessages().openitem_tab());
+            openTabButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+                @Override
+                public void componentSelected(ButtonEvent ce) {
+                    // TMDM-3202 open in a top-level tab
+                    String fromWhichApp = isHierarchyCall ? MessagesFactory.getMessages().hierarchy_title() : MessagesFactory
+                            .getMessages().browse_title();
+                    TreeDetailUtil.initItemsDetailPanelById(fromWhichApp, itemBean.getIds(),
+                            itemBean.getConcept());
+                }
+            });
+        }
+        add(openTabButton);
     }
 
     private void addWorkFlosCombo() {
@@ -927,6 +966,14 @@ public class ItemDetailToolBar extends ToolBar {
 
     public void setHierarchyCall(boolean isHierarchyCall) {
         this.isHierarchyCall = isHierarchyCall;
+    }
+
+    public boolean isOpenTab() {
+        return openTab;
+    }
+
+    public void setOpenTab(boolean openTab) {
+        this.openTab = openTab;
     }
 
     public native void closeOutTabPanel()/*-{

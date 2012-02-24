@@ -10,11 +10,11 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.grid.RowEditor;
-import com.extjs.gxt.ui.client.widget.grid.EditorGrid.ClicksToEdit;
 
 
 public class ForeignKeyRowEditor extends RowEditor<ItemNodeModel> {
@@ -25,7 +25,10 @@ public class ForeignKeyRowEditor extends RowEditor<ItemNodeModel> {
 
     public ForeignKeyRowEditor(TypeModel fkTypeModel) {
         this.fkTypeModel = fkTypeModel;
-        this.setClicksToEdit(ClicksToEdit.TWO);
+    }
+
+    // cancel click Editor
+    protected void onRowClick(GridEvent<ItemNodeModel> e) {
     }
 
     @Override

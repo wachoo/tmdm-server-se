@@ -61,11 +61,32 @@ public class ItemPanel extends ContentPanel {
         this.initUI(null);
     }
 
+    public ItemPanel(ViewBean viewBean, ItemBean item, String operation, ItemsDetailPanel itemsDetailPanel, boolean openTab) {
+        this(itemsDetailPanel);
+        this.viewBean = viewBean;
+        this.item = item;
+        this.toolBar = new ItemDetailToolBar(item, operation, viewBean, itemsDetailPanel, openTab);
+        this.operation = operation;
+        this.initUI(null);
+    }
+
     public ItemPanel(ViewBean viewBean, ItemBean item, String operation, ContentPanel contenPanel, TreeItem root, ItemsDetailPanel itemsDetailPanel) {
         tree = new TreeDetail(itemsDetailPanel);
         this.viewBean = viewBean;
         this.item = item;
         this.toolBar = new ItemDetailToolBar(item, operation, viewBean, itemsDetailPanel);
+        this.operation = operation;
+        this.isForeignKeyPanel = true;
+        this.contenPanel = contenPanel;
+        this.initUI(root);
+    }
+    
+    public ItemPanel(ViewBean viewBean, ItemBean item, String operation, ContentPanel contenPanel, TreeItem root,
+            ItemsDetailPanel itemsDetailPanel, boolean openTab) {
+        tree = new TreeDetail(itemsDetailPanel);
+        this.viewBean = viewBean;
+        this.item = item;
+        this.toolBar = new ItemDetailToolBar(item, operation, viewBean, itemsDetailPanel, openTab);
         this.operation = operation;
         this.isForeignKeyPanel = true;
         this.contenPanel = contenPanel;
