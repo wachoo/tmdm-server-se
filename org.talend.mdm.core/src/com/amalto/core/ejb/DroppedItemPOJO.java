@@ -12,6 +12,7 @@ import org.exolab.castor.xml.MarshalException;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
 import org.exolab.castor.xml.ValidationException;
+import org.talend.mdm.commmon.util.bean.ItemCacheKey;
 import org.talend.mdm.commmon.util.core.CommonUtil;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
@@ -32,6 +33,7 @@ import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.util.LRUCache;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
@@ -301,9 +303,13 @@ public class DroppedItemPOJO implements Serializable{
         	//delete dropped item
         	long res = server.deleteDocument(
             		null,
-            		"MDMItemsTrash",
+            		"MDMItemsTrash", //$NON-NLS-1$
             		droppedItemPOJOPK.getUniquePK()
             );
+        	
+        	LRUCache<ItemCacheKey, String> itemCache = ItemPOJO.getCache();
+        	itemCache.remove(new ItemCacheKey(sourceItemRevision,refItemPOJOPK.getUniqueID(), refItemPOJOPK.getDataClusterPOJOPK().getUniqueId()));
+        	
         	if(res==-1){
         		//roll back
         		if(partPath.equals("/")){
