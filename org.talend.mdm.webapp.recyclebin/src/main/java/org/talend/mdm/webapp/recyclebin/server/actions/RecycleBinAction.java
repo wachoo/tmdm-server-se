@@ -35,6 +35,7 @@ import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDroppedItem;
 import com.amalto.webapp.util.webservices.WSDroppedItemPK;
 import com.amalto.webapp.util.webservices.WSDroppedItemPKArray;
+import com.amalto.webapp.util.webservices.WSExistsItem;
 import com.amalto.webapp.util.webservices.WSFindAllDroppedItemsPKs;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSLoadDroppedItem;
@@ -143,6 +144,17 @@ public class RecycleBinAction implements RecycleBinService {
             throw new ServiceException(e.getLocalizedMessage());
         }
 
+    }
+    
+    public boolean checkConflict(String itemPk,String conceptName, String id) throws ServiceException{
+        try {
+            String ids[] = {id};
+            WSDataClusterPK wddcpk = new WSDataClusterPK(itemPk);
+            return Util.getPort().existsItem(new WSExistsItem(new WSItemPK(wddcpk, conceptName, ids))).is_true();              
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());           
+        }        
     }
 
     public void recoverDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids)

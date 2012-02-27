@@ -679,6 +679,9 @@ public class ItemPOJO implements Serializable {
                 return null;
             }
 
+            //It need to remove it from cache, because it still be load on cache after it has be drop
+            cachedPojo.remove(new ItemCacheKey(revisionID,itemPOJOPK.getUniqueID(), itemPOJOPK.getDataClusterPOJOPK().getUniqueId()));
+            
             return droppedItemPOJO.obtainDroppedItemPK();
 
         } catch (SAXException e) {

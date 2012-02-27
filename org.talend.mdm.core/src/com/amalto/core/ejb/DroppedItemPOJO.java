@@ -307,9 +307,6 @@ public class DroppedItemPOJO implements Serializable{
             		droppedItemPOJOPK.getUniquePK()
             );
         	
-        	LRUCache<ItemCacheKey, String> itemCache = ItemPOJO.getCache();
-        	itemCache.remove(new ItemCacheKey(sourceItemRevision,refItemPOJOPK.getUniqueID(), refItemPOJOPK.getDataClusterPOJOPK().getUniqueId()));
-        	
         	if(res==-1){
         		//roll back
         		if(partPath.equals("/")){
