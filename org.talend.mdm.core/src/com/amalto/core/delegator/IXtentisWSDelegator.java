@@ -1798,6 +1798,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     private boolean beforeSaving(com.amalto.core.webservice.WSPutItemWithReport wsPutItemWithReport, String concept, String xml,
             String resultUpdateReport) throws Exception {
         //Do we call Triggers&Before processes?
+        // by default xml string to null to ensure nothing is modified by process
+        wsPutItemWithReport.getWsPutItem().setXmlString(null);
         if (wsPutItemWithReport.getInvokeBeforeSaving()) {
             // invoke BeforeSaving process if it exists
             String outputreport = Util.beforeSaving(concept, xml, resultUpdateReport);
@@ -1828,12 +1830,11 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                             break;
                         }
                     }
-                    String xmlString = Util.nodeToString(node);
-                    // set back the modified item by the process
-                    wsPutItemWithReport.getWsPutItem().setXmlString(xmlString);
-                } else {
-                    // xml string to null to ensure nothing is modified by process
-                    wsPutItemWithReport.getWsPutItem().setXmlString(null);
+                    if (node != null) {
+                        String xmlString = Util.nodeToString(node);
+                        // set back the modified item by the process
+                        wsPutItemWithReport.getWsPutItem().setXmlString(xmlString);
+                    }
                 }
                 // Be Careful, this is not the same as IXtentisRMIPort
                 wsPutItemWithReport.setSource(message);
@@ -1843,6 +1844,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             }
         } else {
             // TMDM-2932 when getInvokeBeforeSaving() returns false, this method must return true.
+            // xml string to null to ensure nothing is modified by process
+            wsPutItemWithReport.getWsPutItem().setXmlString(null);
             return true;
         }
     }
