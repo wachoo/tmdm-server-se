@@ -46,4 +46,6 @@ public interface RecycleBinMessages extends Messages {
     String delete_confirm();
 
     String restore_confirm();
+
+    String overwrite_confirm();
 }

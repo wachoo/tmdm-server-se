@@ -223,15 +223,25 @@ public class MainFramePanel extends ContentPanel {
 
                             public void handleEvent(MessageBoxEvent be) {
                                 if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                                    service.recoverDroppedItem(model.get("itemPK").toString(), model.get("partPath").toString(),//$NON-NLS-1$//$NON-NLS-2$
-                                            model.get("revisionId") == null ? null : model.get("revisionId").toString(), model //$NON-NLS-1$//$NON-NLS-2$
-                                                    .get("conceptName").toString(), model.get("ids").toString(),//$NON-NLS-1$//$NON-NLS-2$
-                                            new SessionAwareAsyncCallback<Void>() {
+                                    service.checkConflict(model.get("itemPK").toString(), model //$NON-NLS-1$//$NON-NLS-2$
+                                            .get("conceptName").toString(), model.get("ids").toString(), //$NON-NLS-1$ //$NON-NLS-2$
+                                            new SessionAwareAsyncCallback<Boolean>() {
 
-                                                public void onSuccess(Void arg0) {
-                                                    pagetoolBar.refresh();
-                                                    grid.getStore().remove(model);
-                                                    refreshBrowseRecordsGrid();                                                    
+                                                public void onSuccess(Boolean result) {
+                                                    if (result) {
+                                                        MessageBox.confirm(BaseMessagesFactory.getMessages().confirm_title(),
+                                                                MessagesFactory.getMessages().overwrite_confirm(),
+                                                                new Listener<MessageBoxEvent>() {
+
+                                                                    public void handleEvent(MessageBoxEvent be) {
+                                                                        if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                                                            recoverDroppedItem(model, grid);
+                                                                        }
+                                                                    }
+                                                                });
+                                                    } else {
+                                                        recoverDroppedItem(model, grid);
+                                                    }
                                                 }
                                             });
                                 }
@@ -369,6 +379,20 @@ public class MainFramePanel extends ContentPanel {
         return instance;
     }
     
+    public void recoverDroppedItem(final BaseModelData model, final Grid<BaseModelData> grid) {
+        service.recoverDroppedItem(model.get("itemPK").toString(), model.get("partPath").toString(),//$NON-NLS-1$//$NON-NLS-2$
+                model.get("revisionId") == null ? null : model.get("revisionId").toString(), model //$NON-NLS-1$//$NON-NLS-2$
+                        .get("conceptName").toString(), model.get("ids").toString(),//$NON-NLS-1$//$NON-NLS-2$
+                new SessionAwareAsyncCallback<Void>() {
+
+                    public void onSuccess(Void arg0) {
+                        pagetoolBar.refresh();
+                        grid.getStore().remove(model);
+                        refreshBrowseRecordsGrid();
+                    }
+                });
+    }
+
     private native void refreshBrowseRecordsGrid()/*-{
         $wnd.amalto.browserecords.BrowseRecords.refreshGrid();
     }-*/;   
