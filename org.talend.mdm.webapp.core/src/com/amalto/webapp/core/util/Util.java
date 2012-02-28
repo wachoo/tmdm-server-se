@@ -38,6 +38,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -119,6 +120,8 @@ import com.amalto.webapp.util.webservices.XtentisPort;
 import com.amalto.webapp.util.webservices.XtentisService_Impl;
 import com.sun.org.apache.xpath.internal.XPathAPI;
 import com.sun.org.apache.xpath.internal.objects.XObject;
+import com.sun.xml.xsom.XSAnnotation;
+import com.sun.xml.xsom.XSElementDecl;
 
 /**
  * @author bgrieder
@@ -1939,5 +1942,36 @@ public class Util {
                 return message.substring(message.indexOf("<msg>"), message.indexOf("</msg>") + 6); //$NON-NLS-1$//$NON-NLS-2$
         }
         return message;
+    }
+    
+    public static Set<String> getNoAccessRoleSet(XSElementDecl decl) {
+        Set<String> roleSet = new HashSet<String>();
+        XSAnnotation xsa = decl.getAnnotation();
+        if (xsa == null)
+            return roleSet;
+        Element el = (Element) xsa.getAnnotation();
+        NodeList annotList = el.getChildNodes();
+        for (int k = 0; k < annotList.getLength(); k++) {
+            if ("appinfo".equals(annotList.item(k).getLocalName())) { //$NON-NLS-1$
+                Node source1 = annotList.item(k).getAttributes().getNamedItem("source"); //$NON-NLS-1$         
+                if (source1 == null)
+                    continue;
+                String appinfoSource = annotList.item(k).getAttributes().getNamedItem("source").getNodeValue(); //$NON-NLS-1$
+
+                if ("X_Hide".equals(appinfoSource)) { //$NON-NLS-1$
+                    roleSet.add(annotList.item(k).getFirstChild().getNodeValue());
+                }
+            }
+        }
+        return roleSet;
+    }
+
+    public static boolean isAuth(Set<String> roleSet) throws Exception {
+        String roles = getPrincipalMember("Roles"); //$NON-NLS-1$
+        String[] roleArr = roles.split(","); //$NON-NLS-1$
+        for (String role : roleArr)
+            if (roleSet.contains(role))
+                return false;
+        return true;
     }
 }
