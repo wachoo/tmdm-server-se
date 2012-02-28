@@ -567,13 +567,13 @@ public class ItemDetailToolBar extends ToolBar {
                 @Override
                 public void componentSelected(ButtonEvent ce) {
                     // TMDM-3202 open in a top-level tab
-                    String fromWhichApp = isHierarchyCall ? MessagesFactory.getMessages().hierarchy_title() : MessagesFactory
-                            .getMessages().browse_title();
+                    String fromWhichApp = isHierarchyCall ? MessagesFactory.getMessages().hierarchy_title() : ""; //$NON-NLS-1$
                     TreeDetailUtil.initItemsDetailPanelById(fromWhichApp, itemBean.getIds(),
                             itemBean.getConcept());
                 }
             });
         }
+        openTabButton.setWidth(30);
         add(openTabButton);
     }
 
