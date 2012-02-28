@@ -565,7 +565,7 @@ public class ItemsBrowserDWR {
         String rulesStyle = null;
 
         if (xpathToPolymType != null && xpathToPolymType.size() > 0) {
-            List polymList = new ArrayList();
+            List<String> polymList = new ArrayList<String>();
             for (Iterator<String> iterator = xpathToPolymType.keySet().iterator(); iterator.hasNext();) {
                 String subType = xpathToPolymType.get(iterator.next());
                 // if (!polymList.contains(subType))
@@ -2513,14 +2513,14 @@ public class ItemsBrowserDWR {
             return new ItemResult(status, message, Util.joinStrings(wsi == null ? ids : wsi.getIds(), ".")); //$NON-NLS-1$
 
         } catch (Exception e) {
-            String err = ""; //$NON-NLS-1$
+            String err;
             if (Util.causeIs(e, RoutingException.class)) {
                 err = MESSAGES.getMessage(locale, "save.success.but.exist.exception", //$NON-NLS-1$
                         concept + "." + Util.joinStrings(ids, "."), e.getLocalizedMessage()); //$NON-NLS-1$//$NON-NLS-2$
             } else if (Util.causeIs(e, CVCException.class)) {
                 err = MESSAGES.getMessage(locale, "save.fail.cvc.exception", concept); //$NON-NLS-1$
             } else if (Util.causeIs(e, ValidateException.class)) {
-                err = MESSAGES.getMessage(locale, "save.validationrule.fail", concept + "." + ids, //$NON-NLS-1$//$NON-NLS-2$
+                err = MESSAGES.getMessage(locale, "save.validationrule.fail", concept + "." + Util.joinStrings(ids, "."), //$NON-NLS-1$//$NON-NLS-2$
                         Util.getExceptionMessage(e.getLocalizedMessage(), language));
             } else if (Util.causeIs(e, JobNotFoundException.class)) {
                 err = MESSAGES.getMessage(locale, "save.fail", concept, //$NON-NLS-1$
