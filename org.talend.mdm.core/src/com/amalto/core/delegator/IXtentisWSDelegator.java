@@ -118,6 +118,7 @@ import com.amalto.core.objects.view.ejb.ViewPOJOPK;
 import com.amalto.core.util.ArrayListHolder;
 import com.amalto.core.util.AutoIncrementGenerator;
 import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.TransformerPluginContext;
 import com.amalto.core.util.TransformerPluginSpec;
 import com.amalto.core.util.UpdateReportItem;
@@ -1467,10 +1468,11 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     throw new RemoteException("BeforeSaving Validation Error --> " + wsPutItemWithReport.getSource());
                 else {
                     if (wsPutItemWithReport.getWsPutItem().getXmlString() != null) {
-                    // get back the item modified by the process
-                    LOG.info("Record modified by the process beforeSaving_" + concept + " -->"
-                            + wsPutItemWithReport.getWsPutItem().getXmlString());
-                    itemPojo.setProjectionAsString(wsPutItemWithReport.getWsPutItem().getXmlString());
+                        // get back the item modified by the process
+                        LOG.info("Record modified by the process beforeSaving_" + concept + " -->"
+                                + wsPutItemWithReport.getWsPutItem().getXmlString());
+                        itemPojo.setProjectionAsString(wsPutItemWithReport.getWsPutItem().getXmlString());
+                        LOG.info("beforeSaving_" + concept + " output_report message --> " + wsPutItemWithReport.getSource());
                     }
                 }
             }
@@ -1795,18 +1797,18 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     }
 
-    private boolean beforeSaving(com.amalto.core.webservice.WSPutItemWithReport wsPutItemWithReport, String concept, String xml,
+    public boolean beforeSaving(com.amalto.core.webservice.WSPutItemWithReport wsPutItemWithReport, String concept, String xml,
             String resultUpdateReport) throws Exception {
         //Do we call Triggers&Before processes?
         // by default xml string to null to ensure nothing is modified by process
         wsPutItemWithReport.getWsPutItem().setXmlString(null);
         if (wsPutItemWithReport.getInvokeBeforeSaving()) {
             // invoke BeforeSaving process if it exists
-            String outputreport = Util.beforeSaving(concept, xml, resultUpdateReport);
-            String message = outputreport;
+            OutputReport outputreport = Util.beforeSaving(concept, xml, resultUpdateReport);
+            String message = outputreport.getMessage();
             if (outputreport != null) { // when a process was found
-                Document doc = Util.parse(outputreport);
-                // handle message
+                Document doc = Util.parse(message);
+                // handle output_report
                 String xpath = "//report/message"; //$NON-NLS-1$
                 Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
                 String errorCode = null;
@@ -1818,8 +1820,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                         message = child.getTextContent();
                     }
                 }
-                // handle item
-                xpath = "//report/item"; //$NON-NLS-1$
+                // handle output_item
+                xpath = "//exchange/item"; //$NON-NLS-1$
+                doc = Util.parse(outputreport.getItem());
                 Node item = XPathAPI.selectSingleNode(doc, xpath);
                 if (item != null && item instanceof Element) {
                     NodeList list = item.getChildNodes();

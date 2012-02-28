@@ -14,7 +14,7 @@
 
 	<property name="version.props" value="product_version.properties"/>
 		
-	<property name="jboss.dir" value="/home/pascal/dev/jboss/jboss-4.2.2.GA-mdm"/>
+	<property name="jboss.dir" value="/media/mdm/opt/trunk/jboss-4.2.2.GA"/>
 	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
 	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
 	<property name="jboss.lib.dir" value="${jboss.instance.dir}/lib"/>
@@ -54,6 +54,7 @@
         <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.commons-lang-2.1.jar"/>
         <pathelement path="${tom.location}/talend.mdm.libraries/lib/log4j.jar" />
         <pathelement path="${tom.location}/talend.mdm.libraries/lib/servlet-api.jar" />
+      	<pathelement path="${tom.location}/talend.mdm.libraries/lib/commons-io.jar" />
         <pathelement path="${tom.location}/org.talend.mdm.commmon/bin" />
         <pathelement path="${tom.location}/org.talend.mdm.xmldb/bin" />
         <pathelement path="${tom.location}/org.talend.mdm.xmlserver.interfaces/bin" />
@@ -94,6 +95,7 @@
         <batchtest fork="yes" todir="target/test-reports">
           <fileset dir="target/test-classes">
             <include name="**/*Test.class" />
+        	<exclude name="**/IXtentisWSDelegatorTestCase.class" />
           </fileset>
         </batchtest>
 
@@ -115,7 +117,7 @@
        	</propertyfile>   	
      </target>
 
-   	<target name="package" depends="version, junit">
+   	<target name="package" depends="version, junit" >
    		
 		<jar destfile="${ejbs}" manifest="src/META-INF/MANIFEST.MF">
 

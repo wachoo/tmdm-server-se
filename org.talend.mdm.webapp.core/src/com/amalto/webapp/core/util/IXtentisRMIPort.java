@@ -104,6 +104,7 @@ import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDes
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
 import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.UpdateReportItem;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.ValidateException;
@@ -2213,11 +2214,11 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         wsPutItemWithReport.getWsPutItem().setXmlString(null);
         if (wsPutItemWithReport.getInvokeBeforeSaving()) {
             // invoke BeforeSaving process if it exists
-            String outputreport = Util.beforeSaving(concept, xml, resultUpdateReport);
-            String message = outputreport;
+            OutputReport outputreport = Util.beforeSaving(concept, xml, resultUpdateReport);
+            String message = outputreport.getMessage();
             if (outputreport != null) { // when a process was found
-                Document doc = Util.parse(outputreport);
-                // handle message
+                Document doc = Util.parse(message);
+                // handle output_report
                 String xpath = "//report/message"; //$NON-NLS-1$
                 Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
                 String errorCode = null;
@@ -2229,8 +2230,9 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                         message = child.getTextContent();
                     }
                 }
-                // handle item
-                xpath = "//report/item"; //$NON-NLS-1$
+                // handle output_item
+                xpath = "//exchange/item"; //$NON-NLS-1$
+                doc = Util.parse(outputreport.getItem());
                 Node item = XPathAPI.selectSingleNode(doc, xpath);
                 if (item != null && item instanceof Element) {
                     NodeList list = item.getChildNodes();
@@ -2247,7 +2249,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                         wsPutItemWithReport.getWsPutItem().setXmlString(xmlString);
                     }
                 }
-                wsPutItemWithReport.setSource(outputreport);
+                wsPutItemWithReport.setSource(outputreport.getMessage());
                 return "info".equals(errorCode); //$NON-NLS-1$
             } else { //when no process was found 
                 return true;

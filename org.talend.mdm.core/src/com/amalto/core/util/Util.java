@@ -2513,7 +2513,7 @@ public class Util {
      * @throws Exception If something went wrong
      */
     @SuppressWarnings("unchecked")
-    public static String beforeSaving(String concept, String xml, String resultUpdateReport) throws Exception {
+    public static OutputReport beforeSaving(String concept, String xml, String resultUpdateReport) throws Exception {
         // check before saving transformer
         boolean isBeforeSavingTransformerExist = false;
         Collection<TransformerV2POJOPK> wst = getTransformerV2CtrlLocal().getTransformerPKs("*");
@@ -2549,21 +2549,19 @@ public class Util {
                     Thread.sleep(100);
                 }
                 // TODO process no plug-in issue
-                String outputreport = null;
+                String message = "<report><message type=\"error\"/></report> "; //$NON-NLS-1$;
+                String item = null;
                 // Scan the entries - in priority, taka the content of the 'output_error_message' entry,
                 for (Entry<String, TypedContent> entry : context.getPipelineClone().entrySet()) {
 
                     if (ITransformerConstants.VARIABLE_OUTPUT_OF_BEFORESAVINGTRANFORMER.equals(entry.getKey())) {
-                        outputreport = new String(entry.getValue().getContentBytes(), "UTF-8"); //$NON-NLS-1$
-                        break;
+                        message = new String(entry.getValue().getContentBytes(), "UTF-8"); //$NON-NLS-1$                        
+                    }
+                    if (ITransformerConstants.VARIABLE_OUTPUTITEM_OF_BEFORESAVINGTRANFORMER.equals(entry.getKey())) {
+                        item = new String(entry.getValue().getContentBytes(), "UTF-8"); //$NON-NLS-1$                        
                     }
                 }
-                // handle error message
-                if (outputreport != null && outputreport.length() > 0) {
-                    return outputreport;
-                } else {
-                    return "<report><message type=\"error\"/></report> "; //$NON-NLS-1$
-                }
+                return new OutputReport(message, item);
             } catch (Exception e) {
                 Logger.getLogger(Util.class).error(e);
                 throw e;
