@@ -83,11 +83,11 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -228,10 +228,14 @@ public class ItemsToolBar extends ToolBar {
         bookmarkBtn.setEnabled(true);
 
         createBtn.setEnabled(false);
+        uploadBtn.setEnabled(true);
+        uploadBtn.getMenu().getItemByItemId("importRecords").setEnabled(false); //$NON-NLS-1$
         deleteMenu.setEnabled(false);
         String concept = ViewUtil.getConceptFromBrowseItemView(entityCombo.getValue().get("value").toString());//$NON-NLS-1$
-        if (!viewBean.getBindingEntityModel().getMetaDataTypes().get(concept).isDenyCreatable())
+        if (!viewBean.getBindingEntityModel().getMetaDataTypes().get(concept).isDenyCreatable()) {
             createBtn.setEnabled(true);
+            uploadBtn.getMenu().getItemByItemId("importRecords").setEnabled(true); //$NON-NLS-1$
+        }
         boolean denyLogicalDelete = viewBean.getBindingEntityModel().getMetaDataTypes().get(concept).isDenyLogicalDeletable();
         boolean denyPhysicalDelete = viewBean.getBindingEntityModel().getMetaDataTypes().get(concept).isDenyPhysicalDeleteable();
 
@@ -247,15 +251,6 @@ public class ItemsToolBar extends ToolBar {
                 deleteMenu.getMenu().getItemByItemId("logicalDelMenuInGrid").setEnabled(false); //$NON-NLS-1$
             else
                 deleteMenu.getMenu().getItemByItemId("logicalDelMenuInGrid").setEnabled(true); //$NON-NLS-1$
-        }
-
-        uploadBtn.setEnabled(false);
-        boolean denyUploadFile = viewBean.getBindingEntityModel().getMetaDataTypes().get(concept).isDenyLogicalDeletable();
-
-        if (denyUploadFile)
-            uploadBtn.setEnabled(false);
-        else {
-            uploadBtn.setEnabled(true);
         }
 
         updateUserCriteriasList();
@@ -369,6 +364,7 @@ public class ItemsToolBar extends ToolBar {
         uploadBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
         Menu uploadMenu = new Menu();
         MenuItem importMenu = new MenuItem(MessagesFactory.getMessages().import_btn());
+        importMenu.setId("importRecords"); //$NON-NLS-1$
         importMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
         uploadMenu.add(importMenu);
 
