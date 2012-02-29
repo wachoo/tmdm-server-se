@@ -59,7 +59,7 @@ public class DroppedItemPOJOPK implements Serializable {
 	public static DroppedItemPOJOPK buildUid2POJOPK(String input) {
 		//TODO need regular expression to validate input
 		
-		int pos=input.indexOf("-");
+		int pos=input.lastIndexOf("-"); // input = "head.Product.Product.1-" or "head.RTE-RAP.Contrat.1-"
 		String part1=input.substring(0, pos);
 		String part2=input.substring(pos);
 		
