@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -82,7 +83,7 @@ public class UpdateReportDetailsServelt extends HttpServlet {
                     String dataModel = Util.getFirstTextNode(doc, "/Update/DataModel"); //$NON-NLS-1$
                     String concept = Util.getFirstTextNode(doc, "/Update/Concept"); //$NON-NLS-1$
                     String key = Util.getFirstTextNode(doc, "/Update/Key"); //$NON-NLS-1$
-
+                    
                     ArrayList<JSONObject> rootGroup = new ArrayList<JSONObject>();
                     JSONObject userNameNode = new JSONObject();
                     userNameNode.put("id", "userName"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -138,56 +139,57 @@ public class UpdateReportDetailsServelt extends HttpServlet {
                     keyNode.put("leaf", true); //$NON-NLS-1$
                     rootGroup.add(keyNode);
 
-                    NodeList ls = Util.getNodeList(doc, "/Update/Item"); //$NON-NLS-1$
+                    XSElementDecl decl = this.getXSElementDecl(dataModel, concept);
+                    Set<String> roleSet = Util.getNoAccessRoleSet(decl);
+                    if (Util.isAuth(roleSet)) {
+                        NodeList ls = Util.getNodeList(doc, "/Update/Item"); //$NON-NLS-1$
+                        if (ls.getLength() > 0) {
+                            for (int i = 0; i < ls.getLength(); i++) {
+                                String path = Util.getFirstTextNode(doc, "/Update/Item[" + (i + 1) + "]/path"); //$NON-NLS-1$//$NON-NLS-2$
+                                String elementPath = path.replaceAll("\\[\\d+\\]$", ""); //$NON-NLS-1$//$NON-NLS-2$
+                                FKInstance fkInstance = getRetrieveConf(decl, elementPath);
 
-                    if (ls.getLength() > 0) {
+                                String oldValue = Util.getFirstTextNode(doc, "/Update/Item[" + (i + 1) + "]/oldValue"); //$NON-NLS-1$//$NON-NLS-2$
 
-                        for (int i = 0; i < ls.getLength(); i++) {
-                            String path = Util.getFirstTextNode(doc, "/Update/Item[" + (i + 1) + "]/path"); //$NON-NLS-1$//$NON-NLS-2$
-                            String elementPath = path.replaceAll("\\[\\d+\\]$", ""); //$NON-NLS-1$//$NON-NLS-2$
-                            FKInstance fkInstance = getRetrieveConf(dataModel, concept, elementPath);
+                                if (oldValue == null || oldValue.equals("null")) //$NON-NLS-1$
+                                    oldValue = ""; //$NON-NLS-1$
+                                String newValue = Util.getFirstTextNode(doc, "/Update/Item[" + (i + 1) + "]/newValue"); //$NON-NLS-1$ //$NON-NLS-2$
 
-                            String oldValue = Util.getFirstTextNode(doc, "/Update/Item[" + (i + 1) + "]/oldValue"); //$NON-NLS-1$//$NON-NLS-2$
+                                if (newValue == null || newValue.equals("null")) //$NON-NLS-1$
+                                    newValue = ""; //$NON-NLS-1$
 
-                            if (oldValue == null || oldValue.equals("null")) //$NON-NLS-1$
-                                oldValue = ""; //$NON-NLS-1$
-                            String newValue = Util.getFirstTextNode(doc, "/Update/Item[" + (i + 1) + "]/newValue"); //$NON-NLS-1$ //$NON-NLS-2$
+                                if (fkInstance.retireveFKInfo && !"".equals(oldValue) && fkInstance.getFkInfo() != null) { //$NON-NLS-1$
+                                    oldValue = getFKInfoByRetrieveConf(dataCluster, fkInstance.getFkInfo(), oldValue);
+                                }
 
-                            if (newValue == null || newValue.equals("null")) //$NON-NLS-1$
-                                newValue = ""; //$NON-NLS-1$
+                                if (fkInstance.retireveFKInfo && !"".equals(newValue) && fkInstance.getFkInfo() != null) { //$NON-NLS-1$
+                                    newValue = getFKInfoByRetrieveConf(dataCluster, fkInstance.getFkInfo(), newValue);
+                                }
 
-                            if (fkInstance.retireveFKInfo && !"".equals(oldValue) && fkInstance.getFkInfo() != null) { //$NON-NLS-1$
-                                oldValue = getFKInfoByRetrieveConf(dataCluster, fkInstance.getFkInfo(), oldValue);
+                                JSONArray array = new JSONArray();
+                                JSONObject pathNode = new JSONObject();
+                                pathNode.put("id", "item" + i + "-path"); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+                                pathNode.put("text", "path:" + path); //$NON-NLS-1$//$NON-NLS-2$
+                                pathNode.put("leaf", true); //$NON-NLS-1$
+                                array.put(pathNode);
+                                JSONObject oldValueNode = new JSONObject();
+                                oldValueNode.put("id", "item" + i + "-oldValue"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                oldValueNode.put("text", "oldValue:" + oldValue); //$NON-NLS-1$ //$NON-NLS-2$
+                                oldValueNode.put("leaf", true); //$NON-NLS-1$
+                                array.put(oldValueNode);
+                                JSONObject newValueNode = new JSONObject();
+                                newValueNode.put("id", "item" + i + "-newValue"); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+                                newValueNode.put("text", "newValue:" + newValue); //$NON-NLS-1$//$NON-NLS-2$
+                                newValueNode.put("leaf", true); //$NON-NLS-1$
+                                array.put(newValueNode);
+
+                                JSONObject itemNode = new JSONObject();
+                                itemNode.put("id", "item" + i); //$NON-NLS-1$ //$NON-NLS-2$
+                                itemNode.put("text", "Item"); //$NON-NLS-1$//$NON-NLS-2$
+                                itemNode.put("leaf", false); //$NON-NLS-1$
+                                itemNode.put("children", array); //$NON-NLS-1$
+                                rootGroup.add(itemNode);
                             }
-
-                            if (fkInstance.retireveFKInfo && !"".equals(newValue) && fkInstance.getFkInfo() != null) { //$NON-NLS-1$
-                                newValue = getFKInfoByRetrieveConf(dataCluster, fkInstance.getFkInfo(), newValue);
-                            }
-
-                            JSONArray array = new JSONArray();
-                            JSONObject pathNode = new JSONObject();
-                            pathNode.put("id", "item" + i + "-path"); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
-                            pathNode.put("text", "path:" + path); //$NON-NLS-1$//$NON-NLS-2$
-                            pathNode.put("leaf", true); //$NON-NLS-1$
-                            array.put(pathNode);
-                            JSONObject oldValueNode = new JSONObject();
-                            oldValueNode.put("id", "item" + i + "-oldValue"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                            oldValueNode.put("text", "oldValue:" + oldValue); //$NON-NLS-1$ //$NON-NLS-2$
-                            oldValueNode.put("leaf", true); //$NON-NLS-1$
-                            array.put(oldValueNode);
-                            JSONObject newValueNode = new JSONObject();
-                            newValueNode.put("id", "item" + i + "-newValue"); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
-                            newValueNode.put("text", "newValue:" + newValue); //$NON-NLS-1$//$NON-NLS-2$
-                            newValueNode.put("leaf", true); //$NON-NLS-1$
-                            array.put(newValueNode);
-
-                            JSONObject itemNode = new JSONObject();
-                            itemNode.put("id", "item" + i); //$NON-NLS-1$ //$NON-NLS-2$
-                            itemNode.put("text", "Item"); //$NON-NLS-1$//$NON-NLS-2$
-                            itemNode.put("leaf", false); //$NON-NLS-1$
-                            itemNode.put("children", array); //$NON-NLS-1$
-                            rootGroup.add(itemNode);
-
                         }
                     }
 
@@ -273,7 +275,7 @@ public class UpdateReportDetailsServelt extends HttpServlet {
             out.close();
         }
     }
-
+    
     private String cleanOutput(String output) {
 
         if (output == null || output.equals("null")) //$NON-NLS-1$
@@ -321,6 +323,11 @@ public class UpdateReportDetailsServelt extends HttpServlet {
         return fkInfoValue;
     }
 
+    private XSElementDecl getXSElementDecl(String dataModel, String concept) throws Exception {
+        Map<String, XSElementDecl> map = CommonDWR.getConceptMap(dataModel);
+        return map.get(concept);
+    }
+           
     /**
      * get specify element fkinfo properties by specify datacluster concept and xpath. DOC Administrator Comment method
      * "getRetrieveConf".
@@ -331,10 +338,8 @@ public class UpdateReportDetailsServelt extends HttpServlet {
      * @return
      * @throws Exception
      */
-    private FKInstance getRetrieveConf(String dataModel, String concept, String path) throws Exception {
+    private FKInstance getRetrieveConf(XSElementDecl decl, String path) throws Exception {
         FKInstance fkInstance = new FKInstance();
-        Map<String, XSElementDecl> map = CommonDWR.getConceptMap(dataModel);
-        XSElementDecl decl = map.get(concept);
         XSType type = decl.getType();
 
         if (type instanceof XSComplexType) {

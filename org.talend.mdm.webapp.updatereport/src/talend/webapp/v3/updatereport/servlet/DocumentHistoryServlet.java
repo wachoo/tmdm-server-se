@@ -17,6 +17,9 @@ import com.amalto.core.metadata.TypeMetadata;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.util.Util;
+import com.amalto.webapp.core.dwr.CommonDWR;
+import com.sun.xml.xsom.XSElementDecl;
+
 import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
@@ -28,6 +31,8 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -58,7 +63,17 @@ public class DocumentHistoryServlet extends AbstractDocumentHistoryServlet {
                 typeName,
                 parameters.getId(),
                 parameters.getRevisionId());
-
+        
+        boolean isAuth = true;
+        try {
+            Map<String, XSElementDecl> map = CommonDWR.getConceptMap(dataModelName);
+            XSElementDecl decl = map.get(typeName);
+            Set<String> roleSet = com.amalto.webapp.core.util.Util.getNoAccessRoleSet(decl);
+            isAuth = com.amalto.webapp.core.util.Util.isAuth(roleSet);
+        } catch (Exception e1) {
+            logger.error(e1.getMessage());
+        }
+        
         TypeMetadata documentTypeMetadata;
         synchronized (metadataRepository) {
             documentTypeMetadata = metadataRepository.getType(typeName);
@@ -88,7 +103,7 @@ public class DocumentHistoryServlet extends AbstractDocumentHistoryServlet {
         // Now does the actual writing to client
         resp.setContentType("text/xml;charset=UTF-8"); //$NON-NLS-1$
         outputStream.println("<history>"); //$NON-NLS-1$
-        {
+        if(isAuth){
             // Go to date history
             navigator.goTo(historyDate);
             // keep this action to mark fields that has been modified.
