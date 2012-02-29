@@ -1805,8 +1805,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         if (wsPutItemWithReport.getInvokeBeforeSaving()) {
             // invoke BeforeSaving process if it exists
             OutputReport outputreport = Util.beforeSaving(concept, xml, resultUpdateReport);
-            String message = outputreport.getMessage();
             if (outputreport != null) { // when a process was found
+                String message = outputreport.getMessage();
                 Document doc = Util.parse(message);
                 // handle output_report
                 String xpath = "//report/message"; //$NON-NLS-1$
