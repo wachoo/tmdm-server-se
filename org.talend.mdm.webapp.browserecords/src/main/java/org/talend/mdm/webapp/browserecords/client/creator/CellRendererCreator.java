@@ -22,6 +22,11 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
+import com.google.gwt.xml.client.XMLParser;
 
 public class CellRendererCreator {
 
@@ -41,6 +46,34 @@ public class CellRendererCreator {
             };
             return renderer;
         }
+        if (dataType.isSimpleType() && dataType.isMultiOccurrence()) {
+            GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
+
+                public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
+                        ListStore<ModelData> store, Grid<ModelData> grid) {
+                    String rootNode = property.substring(0,property.indexOf('/'));
+                    String targetNode = property.substring(property.lastIndexOf('/')+1);
+                    StringBuffer result = new StringBuffer();
+                    ItemBean itemBean = (ItemBean) model;
+                    Document doc = XMLParser.parse(itemBean.getItemXml());
+                    NodeList nodeList = doc.getElementsByTagName(targetNode) ;
+                    for (int i=0;i<nodeList.getLength();i++){
+                        Node node = nodeList.item(i);
+                        if (node instanceof Element) {
+                            if (rootNode.equals(doc.getFirstChild().getNodeName())){
+                                appendContent(result,node.toString(),","); //$NON-NLS-1$                            
+                            }else{
+                                if("result".equals(node.getParentNode().getNodeName())){ //$NON-NLS-1$
+                                    appendContent(result,node.toString(),","); //$NON-NLS-1$         
+                                }   
+                            } 
+                        }
+                    }                    
+                    return result;
+                }
+            };
+            return renderer;
+        }   
         if (dataType.getForeignkey() != null) {
             GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
 
@@ -56,7 +89,15 @@ public class CellRendererCreator {
                 }
             };
             return renderer;
-        }
+        }        
         return null;
+    }
+    
+    private static StringBuffer appendContent(StringBuffer resource,String content,String separater){
+        if (!"".equals(resource.toString())){ //$NON-NLS-1$
+            resource.append(separater);
+        }
+        resource.append(content);
+        return resource;         
     }
 }

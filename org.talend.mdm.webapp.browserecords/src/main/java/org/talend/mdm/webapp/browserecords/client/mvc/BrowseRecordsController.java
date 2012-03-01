@@ -192,6 +192,7 @@ public class BrowseRecordsController extends Controller {
                             ItemsListPanel.getInstance().refreshGrid();
                         }
                         ItemsMainTabPanel.getInstance().getCurrentViewTabItem().savedCallback(result.getReturnValue());
+                        ItemsListPanel.getInstance().refreshGrid();
                     }
                 });
     }
