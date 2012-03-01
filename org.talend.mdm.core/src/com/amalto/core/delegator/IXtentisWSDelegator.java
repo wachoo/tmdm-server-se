@@ -1821,23 +1821,25 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     }
                 }
                 // handle output_item
-                xpath = "//exchange/item"; //$NON-NLS-1$
-                doc = Util.parse(outputreport.getItem());
-                Node item = XPathAPI.selectSingleNode(doc, xpath);
-                if (item != null && item instanceof Element) {
-                    NodeList list = item.getChildNodes();
-                    Node node = null;
-                    for (int i = 0; i < list.getLength(); i++) {
-                        if (list.item(i) instanceof Element) {
-                            node = list.item(i);
-                            break;
-                        }
-                    }
-                    if (node != null) {
-                        String xmlString = Util.nodeToString(node);
-                        // set back the modified item by the process
-                        wsPutItemWithReport.getWsPutItem().setXmlString(xmlString);
-                    }
+                if(outputreport.getItem()!=null){
+	                xpath = "//exchange/item"; //$NON-NLS-1$
+	                doc = Util.parse(outputreport.getItem());
+	                Node item = XPathAPI.selectSingleNode(doc, xpath);
+	                if (item != null && item instanceof Element) {
+	                    NodeList list = item.getChildNodes();
+	                    Node node = null;
+	                    for (int i = 0; i < list.getLength(); i++) {
+	                        if (list.item(i) instanceof Element) {
+	                            node = list.item(i);
+	                            break;
+	                        }
+	                    }
+	                    if (node != null) {
+	                        String xmlString = Util.nodeToString(node);
+	                        // set back the modified item by the process
+	                        wsPutItemWithReport.getWsPutItem().setXmlString(xmlString);
+	                    }
+	                }
                 }
                 // Be Careful, this is not the same as IXtentisRMIPort
                 wsPutItemWithReport.setSource(message);
