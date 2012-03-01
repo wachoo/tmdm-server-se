@@ -346,7 +346,7 @@ public class BrowseRecordsView extends View {
 
             ColumnConfig cc = new ColumnConfig(xpath, typeModel == null ? xpath : ViewUtil.getViewableLabel(Locale.getLanguage(),
                     typeModel), 200);
-            if (typeModel instanceof SimpleTypeModel && !keys.contains(xpath)) {
+            if (typeModel instanceof SimpleTypeModel && !keys.contains(xpath) && !typeModel.isMultiOccurrence()) {
                 Field<?> field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false, Locale.getLanguage());
 
                 CellEditor cellEditor = CellEditorCreator.createCellEditor(field);
