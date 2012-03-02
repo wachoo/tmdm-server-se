@@ -66,4 +66,39 @@ public class DateUtil {
         }
         return "";//$NON-NLS-1$
     }
+
+    /**
+     * convert string to date according to the format
+     * <ul>
+     * <li>for instance: value = "13/2/2012" and format = "dd/MM/yyyy";
+     * </ul>
+     * 
+     * @param value
+     * @param _format
+     * @return
+     */
+    public static Date convertStringToDateByFormat(String value, String _format) {
+        String format;
+        if (_format.contains("/")) { //$NON-NLS-1$
+            format = getDateFormat(_format, "/"); //$NON-NLS-1$
+        } else if (_format.contains("_")) { //$NON-NLS-1$
+            format = getDateFormat(_format, "_"); //$NON-NLS-1$
+        } else {
+            format = getDateFormat(_format, "-"); //$NON-NLS-1$
+        }
+        DateTimeFormat dtf = DateTimeFormat.getFormat(format);
+        return dtf.parse(value);
+    }
+
+    private static String getDateFormat(String _format, String dateIntervalSymbol) {
+        String format;
+        if (_format.startsWith("%1$tm")) { //$NON-NLS-1$
+            format = "MM" + dateIntervalSymbol + "dd" + dateIntervalSymbol + "yyyy"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        } else if (_format.startsWith("%1$tY")) {//$NON-NLS-1$
+            format = "yyyy" + dateIntervalSymbol + "MM" + dateIntervalSymbol + "dd"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        } else {
+            format = "dd" + dateIntervalSymbol + "MM" + dateIntervalSymbol + "yyyy"; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+        }
+        return format;
+    }
 }

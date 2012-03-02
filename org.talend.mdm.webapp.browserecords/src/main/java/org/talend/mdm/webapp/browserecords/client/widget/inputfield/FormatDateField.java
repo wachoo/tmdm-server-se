@@ -129,6 +129,20 @@ public class FormatDateField extends DateField {
 
     @Override
     protected boolean validateValue(String value) {
+        // TMDM-3487 inputing the date manually
+        if (formatPattern != null && formatPattern.trim().length() > 0 && value != null && value.trim().length() > 0) {
+            boolean defaultDateFormat = value.contains("-") && value.indexOf("-") == 4; //$NON-NLS-1$ //$NON-NLS-2$
+            if (!defaultDateFormat)
+                try {
+                    Date date = DateUtil.convertStringToDateByFormat(value, formatPattern);
+                    value = getPropertyEditor().getStringValue(date);
+                } catch (Exception e) {
+                    String error = GXT.MESSAGES.dateField_invalidText(value, getPropertyEditor().getFormat().getPattern()
+                            .toUpperCase());
+                    markInvalid(error);
+                    return false;
+                }
+        }
         if (value.equals(this.getDiplayValue())) {
             return true;
         } else {
