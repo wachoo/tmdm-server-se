@@ -64,7 +64,7 @@
                                 </xsd:annotation>
                                 <xsd:complexType>
                                     <xsd:sequence>
-                                        <xsd:element maxOccurs="unbounded" name="Size" type="Size">
+                                        <xsd:element maxOccurs="unbounded" name="Size" type="xsd:string">
                                             <xsd:annotation>
                                                 <xsd:appinfo source="X_Label_FR">Taille</xsd:appinfo>
                                                 <xsd:appinfo source="X_Write">Demo_User</xsd:appinfo>
@@ -90,7 +90,7 @@
                                 </xsd:annotation>
                                 <xsd:complexType>
                                     <xsd:sequence>
-                                        <xsd:element maxOccurs="unbounded" name="Color" type="Color">
+                                        <xsd:element maxOccurs="unbounded" name="Color" type="xsd:string">
                                             <xsd:annotation>
                                                 <xsd:appinfo source="X_Label_FR">Couleur</xsd:appinfo>
                                                 <xsd:appinfo source="X_Write">Demo_User</xsd:appinfo>
@@ -156,7 +156,7 @@
                         <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
                     </xsd:annotation>
                 </xsd:element>
-                <xsd:element maxOccurs="1" minOccurs="1" name="Status" type="ProductStatus">
+                <xsd:element maxOccurs="1" minOccurs="1" name="Status" type="xsd:string">
                     <xsd:annotation>
                         <xsd:appinfo source="X_Write">Demo_User</xsd:appinfo>
                         <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
@@ -169,4 +169,71 @@
             <xsd:field xpath="Id"/>
         </xsd:unique>
     </xsd:element>
+    <xsd:element name="Supplier">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Label_FR">Supplier</xsd:appinfo>
+            <xsd:appinfo source="X_Write">Demo_User</xsd:appinfo>
+            <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
+            <xsd:appinfo source="X_Label_EN">Supplier</xsd:appinfo>
+            <xsd:appinfo source="X_Lookup_Field">Supplier/Id</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:all maxOccurs="1" minOccurs="1">
+                <xsd:element maxOccurs="1" minOccurs="1" name="Id" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Label_FR">Id unique</xsd:appinfo>
+                        <xsd:appinfo source="X_Write">Demo_User</xsd:appinfo>
+                        <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
+                        <xsd:appinfo source="X_Label_EN">Unique Id</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="Name" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Label_FR">Id unique</xsd:appinfo>
+                        <xsd:appinfo source="X_Write">Demo_User</xsd:appinfo>
+                        <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
+                        <xsd:appinfo source="X_Label_EN">Unique Id</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:all>
+        </xsd:complexType>
+        <xsd:unique name="Supplier">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="Id"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:element name="ProductFamily">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Label_FR">ProductFamily</xsd:appinfo>
+            <xsd:appinfo source="X_Write">Demo_User</xsd:appinfo>
+            <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
+            <xsd:appinfo source="X_Label_EN">ProductFamily</xsd:appinfo>
+            <xsd:appinfo source="X_Lookup_Field">ProductFamily/Id</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:all maxOccurs="1" minOccurs="1">
+                <xsd:element maxOccurs="1" minOccurs="1" name="Id" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Label_FR">Id unique</xsd:appinfo>
+                        <xsd:appinfo source="X_Write">Demo_User</xsd:appinfo>
+                        <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
+                        <xsd:appinfo source="X_Label_EN">Unique Id</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="Name" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Label_FR">Id unique</xsd:appinfo>
+                        <xsd:appinfo source="X_Write">Demo_User</xsd:appinfo>
+                        <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
+                        <xsd:appinfo source="X_Label_EN">Unique Id</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:all>
+        </xsd:complexType>
+        <xsd:unique name="ProductFamily">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="Id"/>
+        </xsd:unique>
+    </xsd:element>
+
 </xsd:schema>

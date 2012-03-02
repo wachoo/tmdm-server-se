@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2011 Talend Inc. - www.talend.com
  *
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -11,31 +11,63 @@
 
 package com.amalto.core.metadata;
 
+import java.util.List;
+
 /**
  *
  */
 public class SoftIdFieldRef implements FieldMetadata {
+
     private final MetadataRepository repository;
+
     private final String typeName;
 
+    private final String fieldName;
+
     public SoftIdFieldRef(MetadataRepository metadataRepository, String typeName) {
-        repository = metadataRepository;
-        this.typeName = typeName;
+        this(metadataRepository, typeName, null);
     }
 
-    private FieldMetadata getField() {
-        return repository.getComplexType(typeName).getKeyFields().get(0);
+    public SoftIdFieldRef(MetadataRepository metadataRepository, String typeName, String fieldName) {
+        repository = metadataRepository;
+        this.typeName = typeName;
+        this.fieldName = fieldName;
+    }
+
+    public FieldMetadata getField() {
+        ComplexTypeMetadata type = (ComplexTypeMetadata) repository.getType(typeName);
+        if (type == null) {
+            throw new IllegalArgumentException("Type '" + typeName + "' does not exist.");
+        }
+        List<FieldMetadata> keyFields = type.getKeyFields();
+        if (keyFields.isEmpty()) {
+            throw new IllegalArgumentException("Type '" + typeName + "' does not own a key and no FK field was defined.");
+        }
+
+        if (fieldName == null) {
+            if (keyFields.size() == 1) {
+                return keyFields.get(0);
+            } else {
+                return new CompoundFieldMetadata(keyFields.toArray(new FieldMetadata[keyFields.size()]));
+            }
+        } else {
+            return type.getField(fieldName);
+        }
     }
 
     public String getName() {
-        return getField().getName();
+        if (fieldName != null) {
+            return fieldName;
+        } else {
+            return getField().getName();
+        }
     }
 
     public boolean isKey() {
-        return getField().isKey();
+        return true; // No need to look for the field, this is an id
     }
 
-    public String getType() {
+    public TypeMetadata getType() {
         return getField().getType();
     }
 
@@ -43,15 +75,15 @@ public class SoftIdFieldRef implements FieldMetadata {
         return getField().hasForeignKeyInfo();
     }
 
-    public String getForeignKeyInfoField() {
+    public FieldMetadata getForeignKeyInfoField() {
         return getField().getForeignKeyInfoField();
     }
 
-    public TypeMetadata getContainingType() {
+    public ComplexTypeMetadata getContainingType() {
         return getField().getContainingType();
     }
 
-    public void setContainingType(TypeMetadata typeMetadata) {
+    public void setContainingType(ComplexTypeMetadata typeMetadata) {
         getField().setContainingType(typeMetadata);
     }
 
@@ -67,12 +99,32 @@ public class SoftIdFieldRef implements FieldMetadata {
         return getField().hasForeignKeyInfo();
     }
 
-    public void adopt(ComplexTypeMetadata metadata) {
-        getField().adopt(metadata);
+    public void adopt(ComplexTypeMetadata metadata, MetadataRepository repository) {
+        getField().adopt(metadata, repository);
     }
 
-    public FieldMetadata copy() {
-        return new SoftIdFieldRef(repository, typeName);
+    public FieldMetadata copy(MetadataRepository repository) {
+        return new SoftIdFieldRef(this.repository, typeName);
+    }
+
+    public List<String> getHideUsers() {
+        return getField().getHideUsers();
+    }
+
+    public List<String> getWriteUsers() {
+        return getField().getHideUsers();
+    }
+
+    public boolean isMany() {
+        return getField().isMany();
+    }
+
+    public boolean isMandatory() {
+        return getField().isMandatory();
+    }
+
+    public void setName(String fieldName) {
+        getField().setName(fieldName);
     }
 
     public <T> T accept(MetadataVisitor<T> visitor) {
@@ -82,5 +134,10 @@ public class SoftIdFieldRef implements FieldMetadata {
     @Override
     public String toString() {
         return getField().toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o || o instanceof FieldMetadata && getField().equals(o);
     }
 }

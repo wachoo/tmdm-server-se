@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
  *
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -16,41 +16,35 @@ import java.util.List;
 /**
  *
  */
-public class SimpleTypeFieldMetadata implements FieldMetadata {
+public class ContainedTypeFieldMetadata implements FieldMetadata {
 
     private final boolean isMany;
 
     private String name;
 
-    private final TypeMetadata fieldType;
-
     private final List<String> allowWriteUsers;
 
     private final List<String> hideUsers;
 
-    private final boolean isKey;
-
     private final TypeMetadata declaringType;
 
-    private final boolean isMandatory;
-    
     private ComplexTypeMetadata containingType;
 
-    public SimpleTypeFieldMetadata(ComplexTypeMetadata containingType, boolean isKey, boolean isMany, boolean isMandatory, String name, TypeMetadata fieldType, List<String> allowWriteUsers, List<String> hideUsers) {
+    private final TypeMetadata fieldType;
+
+    private final boolean isMandatory;
+
+    public ContainedTypeFieldMetadata(ComplexTypeMetadata containingType, boolean isMany, boolean isMandatory, String name, TypeMetadata fieldType, List<String> allowWriteUsers, List<String> hideUsers) {
         if (fieldType == null) {
-            throw new IllegalArgumentException("Type name cannot be null.");
+            throw new IllegalArgumentException("Contained type cannot be null.");
         }
-        if (isKey && !isMandatory) {
-            throw new IllegalArgumentException("Key field must be mandatory (field '" + name + "' or type '" + containingType.getName() + "' is optional)");
-        }
-        
+
         this.isMandatory = isMandatory;
+        this.fieldType = fieldType;
         this.containingType = containingType;
         this.declaringType = containingType;
-        this.isKey = isKey;
         this.isMany = isMany;
         this.name = name;
-        this.fieldType = fieldType;
         this.allowWriteUsers = allowWriteUsers;
         this.hideUsers = hideUsers;
     }
@@ -60,7 +54,7 @@ public class SimpleTypeFieldMetadata implements FieldMetadata {
     }
 
     public boolean isKey() {
-        return isKey;
+        return false;
     }
 
     public TypeMetadata getType() {
@@ -102,7 +96,7 @@ public class SimpleTypeFieldMetadata implements FieldMetadata {
     }
 
     public FieldMetadata copy(MetadataRepository repository) {
-        return new SimpleTypeFieldMetadata(containingType, isKey, isMany, isMandatory, name, fieldType, allowWriteUsers, hideUsers);
+        return new ContainedTypeFieldMetadata(containingType, isMany, isMandatory, name, fieldType, allowWriteUsers, hideUsers);
     }
 
     public List<String> getHideUsers() {
@@ -131,14 +125,18 @@ public class SimpleTypeFieldMetadata implements FieldMetadata {
 
     @Override
     public String toString() {
-        return "Simple {" +
+        return "Contained {" +
                 "declaringType=" + declaringType +
                 ", containingType=" + containingType +
                 ", name='" + name + '\'' +
-                ", isKey=" + isKey +
                 ", isMany=" + isMany +
                 ", fieldTypeName='" + fieldType.getName() + '\'' +
                 '}';
+    }
+
+    public ContainedComplexTypeMetadata getContainedType() {
+        // TODO Ugly cast to remove
+        return (ContainedComplexTypeMetadata) fieldType;
     }
 
     @Override
@@ -146,13 +144,12 @@ public class SimpleTypeFieldMetadata implements FieldMetadata {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof SimpleTypeFieldMetadata)) {
+        if (!(o instanceof ContainedTypeFieldMetadata)) {
             return false;
         }
 
-        SimpleTypeFieldMetadata that = (SimpleTypeFieldMetadata) o;
+        ContainedTypeFieldMetadata that = (ContainedTypeFieldMetadata) o;
 
-        if (isKey != that.isKey) return false;
         if (isMandatory != that.isMandatory) return false;
         if (isMany != that.isMany) return false;
         if (allowWriteUsers != null ? !allowWriteUsers.equals(that.allowWriteUsers) : that.allowWriteUsers != null)
@@ -172,13 +169,12 @@ public class SimpleTypeFieldMetadata implements FieldMetadata {
     public int hashCode() {
         int result = (isMany ? 1 : 0);
         result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (fieldType != null ? fieldType.hashCode() : 0);
         result = 31 * result + (allowWriteUsers != null ? allowWriteUsers.hashCode() : 0);
         result = 31 * result + (hideUsers != null ? hideUsers.hashCode() : 0);
-        result = 31 * result + (isKey ? 1 : 0);
         result = 31 * result + (declaringType != null ? declaringType.hashCode() : 0);
-        result = 31 * result + (isMandatory ? 1 : 0);
         result = 31 * result + (containingType != null ? containingType.hashCode() : 0);
+        result = 31 * result + (fieldType != null ? fieldType.hashCode() : 0);
+        result = 31 * result + (isMandatory ? 1 : 0);
         return result;
     }
 }

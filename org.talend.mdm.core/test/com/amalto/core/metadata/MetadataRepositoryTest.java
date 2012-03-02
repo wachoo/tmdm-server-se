@@ -20,12 +20,14 @@ import java.io.InputStream;
  */
 public class MetadataRepositoryTest extends TestCase {
 
+    ConsoleDumpMetadataVisitor visitor = new ConsoleDumpMetadataVisitor();
+
     public void test1() {
         MetadataRepository repository = new MetadataRepository();
 
         InputStream stream = getClass().getResourceAsStream("schema.xsd");
         repository.load(stream);
-        // repository.accept(new ConsoleDumpMetadataVisitor());
+        // repository.accept(visitor);
     }
 
     public void test2() {
@@ -33,7 +35,7 @@ public class MetadataRepositoryTest extends TestCase {
 
         InputStream stream = getClass().getResourceAsStream("schema2.xsd");
         repository.load(stream);
-        // repository.accept(new ConsoleDumpMetadataVisitor());
+        // repository.accept(visitor);
     }
 
     public void test3() {
@@ -41,7 +43,7 @@ public class MetadataRepositoryTest extends TestCase {
 
         InputStream stream = getClass().getResourceAsStream("schema3.xsd");
         repository.load(stream);
-        // repository.accept(new ConsoleDumpMetadataVisitor());
+        // repository.accept(visitor);
     }
 
     public void test4() {
@@ -49,7 +51,7 @@ public class MetadataRepositoryTest extends TestCase {
 
         InputStream stream = getClass().getResourceAsStream("schema4.xsd");
         repository.load(stream);
-        // repository.accept(new ConsoleDumpMetadataVisitor());
+        // repository.accept(visitor);
     }
 
     public void test5() {
@@ -57,7 +59,7 @@ public class MetadataRepositoryTest extends TestCase {
 
         InputStream stream = getClass().getResourceAsStream("schema5.xsd");
         repository.load(stream);
-        // repository.accept(new ConsoleDumpMetadataVisitor());
+        // repository.accept(visitor);
     }
 
     public void test6() {
@@ -65,9 +67,24 @@ public class MetadataRepositoryTest extends TestCase {
 
         InputStream stream = getClass().getResourceAsStream("schema6.xsd");
         repository.load(stream);
-
-        // repository.accept(new ConsoleDumpMetadataVisitor());
+        // repository.accept(visitor);
     }
 
+
+    public void test7() {
+        MetadataRepository repository = new MetadataRepository();
+
+        InputStream stream = getClass().getResourceAsStream("schema7.xsd");
+        repository.load(stream);
+        // repository.accept(visitor);
+    }
+
+    public void test8() {
+        MetadataRepository repository = new MetadataRepository();
+
+        InputStream stream = getClass().getResourceAsStream("schema8.xsd");
+        repository.load(stream);
+        // repository.accept(visitor);
+    }
 
 }

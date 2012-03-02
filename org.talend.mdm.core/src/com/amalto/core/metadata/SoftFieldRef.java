@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2011 Talend Inc. - www.talend.com
  *
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -11,51 +11,76 @@
 
 package com.amalto.core.metadata;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import java.util.List;
 
 /**
  *
  */
 public class SoftFieldRef implements FieldMetadata {
+
     private final MetadataRepository repository;
-    private final String fieldTypeName;
+
+    private final SoftFieldRef containingField;
+
+    private final TypeMetadata containingType;
+
     private final String fieldName;
 
-    public SoftFieldRef(MetadataRepository metadataRepository, String fieldTypeName, String fieldName) {
+    public SoftFieldRef(MetadataRepository metadataRepository, String fieldName, TypeMetadata containingType) {
         this.repository = metadataRepository;
-        this.fieldTypeName = fieldTypeName;
+        this.containingType = containingType;
+        this.fieldName = fieldName;
+        this.containingField = null;
+    }
+
+    public SoftFieldRef(MetadataRepository metadataRepository, String fieldName, SoftFieldRef containingField) {
+        this.repository = metadataRepository;
+        this.containingField = containingField;
+        this.containingType = null;
         this.fieldName = fieldName;
     }
 
     private FieldMetadata getField() {
-        return repository.getType(fieldTypeName).getField(fieldName);
+        if (containingType != null) {
+            TypeMetadata type = repository.getType(containingType.getName());
+            if (type == null) {
+                throw new IllegalArgumentException("Type '" + containingType + "' does not exist.");
+            }
+            FieldMetadata field = type.getField(fieldName);
+            if (field == null) {
+                throw new IllegalArgumentException("Type '" + containingType + "' does not own field '" + fieldName + "'.");
+            }
+            return field;
+        } else {
+            return containingField;
+        }
     }
 
     public String getName() {
-        return getField().getName();
+        return fieldName;
     }
 
     public boolean isKey() {
         return getField().isKey();
     }
 
-    public String getType() {
-        return getField().getDeclaringType().getName();
+    public TypeMetadata getType() {
+        return getField().getType();
     }
 
     public boolean hasForeignKeyInfo() {
         return getField().hasForeignKeyInfo();
     }
 
-    public String getForeignKeyInfoField() {
+    public FieldMetadata getForeignKeyInfoField() {
         return getField().getForeignKeyInfoField();
     }
 
-    public TypeMetadata getContainingType() {
+    public ComplexTypeMetadata getContainingType() {
         return getField().getContainingType();
     }
 
-    public void setContainingType(TypeMetadata typeMetadata) {
+    public void setContainingType(ComplexTypeMetadata typeMetadata) {
         getField().setContainingType(typeMetadata);
     }
 
@@ -71,14 +96,34 @@ public class SoftFieldRef implements FieldMetadata {
         return getField().allowFKIntegrityOverride();
     }
 
-    public void adopt(ComplexTypeMetadata metadata) {
-        FieldMetadata copy = getField().copy();
+    public void adopt(ComplexTypeMetadata metadata, MetadataRepository repository) {
+        FieldMetadata copy = getField().copy(this.repository);
         copy.setContainingType(metadata);
         metadata.addField(copy);
     }
 
-    public FieldMetadata copy() {
-        throw new NotImplementedException();
+    public FieldMetadata copy(MetadataRepository repository) {
+        return new SoftFieldRef(repository, fieldName, containingType.copy(repository));
+    }
+
+    public List<String> getHideUsers() {
+        return getField().getHideUsers();
+    }
+
+    public List<String> getWriteUsers() {
+        return getField().getWriteUsers();
+    }
+
+    public boolean isMany() {
+        return getField().isMany();
+    }
+
+    public boolean isMandatory() {
+        return getField().isMandatory();
+    }
+
+    public void setName(String fieldName) {
+        getField().setName(fieldName);
     }
 
     public <T> T accept(MetadataVisitor<T> visitor) {
@@ -87,6 +132,15 @@ public class SoftFieldRef implements FieldMetadata {
 
     @Override
     public String toString() {
-        return getField().toString();
+        if (containingType != null) {
+            return containingType.toString() + "/" + fieldName;
+        } else {
+            return containingField.toString();
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o || o instanceof FieldMetadata && getField().equals(o);
     }
 }

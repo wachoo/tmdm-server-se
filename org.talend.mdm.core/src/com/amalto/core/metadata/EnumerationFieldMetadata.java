@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2011 Talend Inc. - www.talend.com
  *
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -11,54 +11,77 @@
 
 package com.amalto.core.metadata;
 
+import java.util.List;
+
 /**
  *
  */
 public class EnumerationFieldMetadata implements FieldMetadata {
 
-    private final boolean key;
+    private final boolean isKey;
 
-    private final String elementName;
+    private final TypeMetadata fieldType;
 
-    private final String fieldTypeName;
+    private final List<String> allowWriteUsers;
+
+    private final List<String> hideUsers;
 
     private final TypeMetadata declaringType;
 
-    private TypeMetadata containingType;
+    private final boolean isMany;
 
-    public EnumerationFieldMetadata(TypeMetadata containingType, boolean isKey, String elementName, String fieldTypeName) {
+    private final boolean isMandatory;
+
+    private ComplexTypeMetadata containingType;
+
+    private String name;
+
+    public EnumerationFieldMetadata(ComplexTypeMetadata containingType,
+                                    boolean isKey,
+                                    boolean isMany, boolean isMandatory, String name,
+                                    TypeMetadata fieldType,
+                                    List<String> allowWriteUsers,
+                                    List<String> hideUsers) {
+        if (isKey && !isMandatory) {
+            throw new IllegalArgumentException("Key fields must be mandatory");
+        }
+
         this.containingType = containingType;
         this.declaringType = containingType;
-        key = isKey;
-        this.elementName = elementName;
-        this.fieldTypeName = fieldTypeName;
+        this.isKey = isKey;
+        this.isMany = isMany;
+        this.isMandatory = isMandatory;
+        this.name = name;
+        this.fieldType = fieldType;
+        this.allowWriteUsers = allowWriteUsers;
+        this.hideUsers = hideUsers;
     }
 
     public String getName() {
-        return elementName;
+        return name;
     }
 
     public boolean isKey() {
-        return key;
+        return isKey;
     }
 
-    public String getType() {
-        return fieldTypeName;
+    public TypeMetadata getType() {
+        return fieldType;
     }
 
     public boolean hasForeignKeyInfo() {
         return false;
     }
 
-    public String getForeignKeyInfoField() {
+    public FieldMetadata getForeignKeyInfoField() {
         throw new IllegalStateException("This type of field can't be a foreign key");
     }
 
-    public TypeMetadata getContainingType() {
+    public ComplexTypeMetadata getContainingType() {
         return containingType;
     }
 
-    public void setContainingType(TypeMetadata typeMetadata) {
+    public void setContainingType(ComplexTypeMetadata typeMetadata) {
         this.containingType = typeMetadata;
     }
 
@@ -74,14 +97,34 @@ public class EnumerationFieldMetadata implements FieldMetadata {
         return false;
     }
 
-    public void adopt(ComplexTypeMetadata metadata) {
-        FieldMetadata copy = copy();
+    public void adopt(ComplexTypeMetadata metadata, MetadataRepository repository) {
+        FieldMetadata copy = copy(repository);
         copy.setContainingType(metadata);
         metadata.addField(copy);
     }
 
-    public FieldMetadata copy() {
-        return new EnumerationFieldMetadata(containingType, isKey(), elementName, fieldTypeName);
+    public FieldMetadata copy(MetadataRepository repository) {
+        return new EnumerationFieldMetadata(containingType, isKey(), isMany, isMandatory, name, fieldType, allowWriteUsers, hideUsers);
+    }
+
+    public List<String> getHideUsers() {
+        return hideUsers;
+    }
+
+    public List<String> getWriteUsers() {
+        return allowWriteUsers;
+    }
+
+    public boolean isMany() {
+        return isMany;
+    }
+
+    public boolean isMandatory() {
+        return isMandatory;
+    }
+
+    public void setName(String fieldName) {
+        this.name = fieldName;
     }
 
     public <T> T accept(MetadataVisitor<T> visitor) {
@@ -93,9 +136,50 @@ public class EnumerationFieldMetadata implements FieldMetadata {
         return "EnumerationFieldMetadata{" +
                 "declaringType=" + declaringType +
                 ", containingType=" + containingType +
-                ", is key=" + key +
-                ", name ='" + elementName + '\'' +
-                ", type name ='" + fieldTypeName + '\'' +
+                ", is key=" + isKey +
+                ", name ='" + name + '\'' +
+                ", type name ='" + fieldType.getName() + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EnumerationFieldMetadata)) {
+            return false;
+        }
+
+        EnumerationFieldMetadata that = (EnumerationFieldMetadata) o;
+
+        if (isKey != that.isKey) return false;
+        if (isMandatory != that.isMandatory) return false;
+        if (isMany != that.isMany) return false;
+        if (allowWriteUsers != null ? !allowWriteUsers.equals(that.allowWriteUsers) : that.allowWriteUsers != null)
+            return false;
+        if (containingType != null ? !containingType.equals(that.containingType) : that.containingType != null)
+            return false;
+        if (declaringType != null ? !declaringType.equals(that.declaringType) : that.declaringType != null)
+            return false;
+        if (fieldType != null ? !fieldType.equals(that.fieldType) : that.fieldType != null) return false;
+        if (hideUsers != null ? !hideUsers.equals(that.hideUsers) : that.hideUsers != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (isKey ? 1 : 0);
+        result = 31 * result + (fieldType != null ? fieldType.hashCode() : 0);
+        result = 31 * result + (allowWriteUsers != null ? allowWriteUsers.hashCode() : 0);
+        result = 31 * result + (hideUsers != null ? hideUsers.hashCode() : 0);
+        result = 31 * result + (declaringType != null ? declaringType.hashCode() : 0);
+        result = 31 * result + (isMany ? 1 : 0);
+        result = 31 * result + (isMandatory ? 1 : 0);
+        result = 31 * result + (containingType != null ? containingType.hashCode() : 0);
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        return result;
     }
 }

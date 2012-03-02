@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2011 Talend Inc. - www.talend.com
  *
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -20,7 +20,7 @@ import java.util.List;
 public interface TypeMetadata extends MetadataVisitable {
 
     /**
-     * Returns a <b>READ ONLY</b> collection of super types. For adding super type see {@link #addSuperType(TypeMetadata)}
+     * Returns a <b>READ ONLY</b> collection of super types. For adding super type see {@link #addSuperType(TypeMetadata, MetadataRepository)}
      * @return A collection of super types.
      */
     Collection<TypeMetadata> getSuperTypes();
@@ -30,8 +30,9 @@ public interface TypeMetadata extends MetadataVisitable {
      * Adds a super type for this type. This causes all fields in super type to be added to this type.
      * </p>
      * @param superType A type.
+     * @param repository Repository needed to copy type/fields references if any.
      */
-    void addSuperType(TypeMetadata superType);
+    void addSuperType(TypeMetadata superType, MetadataRepository repository);
 
     String getName();
 
@@ -55,5 +56,8 @@ public interface TypeMetadata extends MetadataVisitable {
      */
     boolean isAssignableFrom(TypeMetadata type);
 
+    TypeMetadata copy(MetadataRepository repository);
+
+    TypeMetadata copyShallow();
 
 }

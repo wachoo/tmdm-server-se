@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2011 Talend Inc. - www.talend.com
  *
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -11,29 +11,66 @@
 
 package com.amalto.core.metadata;
 
+import org.apache.commons.lang.NotImplementedException;
+
 import java.util.Collection;
 import java.util.List;
 
 /**
-*
-*/
-class SoftTypeRef implements TypeMetadata {
+ *
+ */
+public class SoftTypeRef implements ComplexTypeMetadata {
 
     private final MetadataRepository repository;
 
-    private final String fieldTypeName;
+    private final String typeName;
 
-    private TypeMetadata getType() {
-        TypeMetadata type = repository.getType(fieldTypeName);
-        if (type == null) {
-            throw new IllegalArgumentException("Type '" + fieldTypeName + "' is not present in type repository.");
+    private final FieldMetadata fieldRef;
+
+    private final String namespace;
+
+    public SoftTypeRef(MetadataRepository repository, String namespace, String typeName) {
+        if (typeName == null) {
+            throw new IllegalArgumentException("Type name cannot be null.");
         }
-        return type;
+
+        this.repository = repository;
+        this.typeName = typeName;
+        this.namespace = namespace;
+        this.fieldRef = null;
     }
 
-    public SoftTypeRef(MetadataRepository repository, String fieldTypeName) {
+    private SoftTypeRef(MetadataRepository repository, FieldMetadata fieldRef) {
+        if (fieldRef == null) {
+            throw new IllegalArgumentException("Field reference cannot be null.");
+        }
         this.repository = repository;
-        this.fieldTypeName = fieldTypeName;
+        this.typeName = null;
+        this.namespace = null;
+        this.fieldRef = fieldRef;
+    }
+
+    private TypeMetadata getType() {
+        if (typeName != null) {
+            TypeMetadata type = repository.getType(namespace, typeName);
+            if (type == null) {
+                type = repository.getNonInstantiableType(typeName);
+            }
+            if (type == null) {
+                throw new IllegalArgumentException("Type '" + typeName + "' (namespace: '" + namespace + "') is not present in type repository.");
+            }
+            return type;
+        } else {
+            return fieldRef.getContainingType();
+        }
+    }
+
+    private ComplexTypeMetadata getTypeAsComplex() {
+        TypeMetadata type = getType();
+        if (!(type instanceof ComplexTypeMetadata)) {
+            throw new IllegalArgumentException("Type '" + typeName + "' was expected to be a complex type (but was " + type.getClass().getName() + ").");
+        }
+        return (ComplexTypeMetadata) type;
     }
 
     public Collection<TypeMetadata> getSuperTypes() {
@@ -41,11 +78,11 @@ class SoftTypeRef implements TypeMetadata {
     }
 
     public String getName() {
-        return fieldTypeName;
+        return typeName;
     }
 
     public String getNamespace() {
-        return "";
+        return namespace;
     }
 
     public boolean isAbstract() {
@@ -64,8 +101,20 @@ class SoftTypeRef implements TypeMetadata {
         return getType().isAssignableFrom(type);
     }
 
-    public void addSuperType(TypeMetadata superType) {
-        getType().addSuperType(superType);
+    public TypeMetadata copy(MetadataRepository repository) {
+        if (typeName != null) {
+            return new SoftTypeRef(repository, namespace, typeName);
+        } else {
+            return new SoftTypeRef(repository, fieldRef.copy(repository));
+        }
+    }
+
+    public TypeMetadata copyShallow() {
+        throw new NotImplementedException(); // Not supported
+    }
+
+    public void addSuperType(TypeMetadata superType, MetadataRepository repository) {
+        getType().addSuperType(superType, repository);
     }
 
     public <T> T accept(MetadataVisitor<T> visitor) {
@@ -74,6 +123,28 @@ class SoftTypeRef implements TypeMetadata {
 
     @Override
     public String toString() {
-        return getType().toString();
+        if (typeName != null) {
+            return typeName;
+        } else if (fieldRef != null) {
+            return fieldRef.toString();
+        }
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof TypeMetadata && getType().equals(obj);
+    }
+
+    public List<FieldMetadata> getKeyFields() {
+        return getTypeAsComplex().getKeyFields();
+    }
+
+    public void addField(FieldMetadata fieldMetadata) {
+        getTypeAsComplex().addField(fieldMetadata);
+    }
+
+    public void registerKey(FieldMetadata keyField) {
+        getTypeAsComplex().registerKey(keyField);
     }
 }
