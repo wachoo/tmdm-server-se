@@ -5,6 +5,7 @@
 
     <inherits name='com.extjs.gxt.ui.GXT' />
     <inherits name="com.google.gwt.i18n.I18N" />
+    <inherits name="com.google.gwt.junit.JUnit"/>
 
     <!-- GWT locale -->
     <extend-property name="locale" values="fr" />
@@ -12,10 +13,10 @@
     <!-- GWT log -->
     <inherits name="com.allen_sauer.gwt.log.gwt-log" />
 
-    <!-- User Agent 
-    <set-property name="user.agent" value="gecko1_8" />
-    <set-property name="user.agent" value="ie6" /> -->
+    <!-- User Agent -->
+    <set-property name="user.agent" value="gecko1_8" /> 
     
     <source path='client' excludes="**/*Test.java" />
     <source path='shared' />
+
 </module>
