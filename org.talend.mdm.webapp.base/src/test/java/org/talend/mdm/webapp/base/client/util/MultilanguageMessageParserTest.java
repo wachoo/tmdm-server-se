@@ -12,9 +12,9 @@
 // ============================================================================
 package org.talend.mdm.webapp.base.client.util;
 
-import com.google.gwt.junit.client.GWTTestCase;
+import junit.framework.TestCase;
 
-public class MultilanguageMessageParserTest extends GWTTestCase {
+public class MultilanguageMessageParserTest extends TestCase {
 
     public void testPickOutISOMessage() {
         // Sanity check
@@ -55,7 +55,4 @@ public class MultilanguageMessageParserTest extends GWTTestCase {
         assertTrue(MultilanguageMessageParser.pickOutISOMessage(s, "zh").equals("c]c]")); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
-    public String getModuleName() {
-        return "org.talend.mdm.webapp.base.BASE";
-    }
 }
