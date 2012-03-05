@@ -27,12 +27,12 @@ public class DefaultMetadataVisitor<T> implements MetadataVisitor<T> {
         return null;
     }
 
-    public T visit(SimpleTypeMetadata typeMetadata) {
+    public T visit(SimpleTypeMetadata simpleType) {
         return null;
     }
 
-    public T visit(ComplexTypeMetadata metadata) {
-        Collection<FieldMetadata> fields = metadata.getFields();
+    public T visit(ComplexTypeMetadata complexType) {
+        Collection<FieldMetadata> fields = complexType.getFields();
         for (FieldMetadata field : fields) {
             field.accept(this);
         }
@@ -40,23 +40,32 @@ public class DefaultMetadataVisitor<T> implements MetadataVisitor<T> {
         return null;
     }
 
-    public T visit(ReferenceFieldMetadata metadata) {
+    public T visit(ContainedComplexTypeMetadata containedType) {
+        Collection<FieldMetadata> fields = containedType.getFields();
+        for (FieldMetadata field : fields) {
+            field.accept(this);
+        }
+
         return null;
     }
 
-    public T visit(FieldMetadata metadata) {
+    public T visit(ReferenceFieldMetadata referenceField) {
         return null;
     }
 
-    public T visit(SimpleTypeFieldMetadata metadata) {
+    public T visit(ContainedTypeFieldMetadata containedField) {
+        return containedField.getContainedType().accept(this);
+    }
+
+    public T visit(FieldMetadata field) {
         return null;
     }
 
-    public T visit(EnumerationFieldMetadata metadata) {
+    public T visit(SimpleTypeFieldMetadata simpleField) {
         return null;
     }
 
-    public T visit(TypeMetadata typeMetadata) {
+    public T visit(EnumerationFieldMetadata enumField) {
         return null;
     }
 

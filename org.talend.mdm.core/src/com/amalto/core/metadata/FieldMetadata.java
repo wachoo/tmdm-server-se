@@ -11,6 +11,8 @@
 
 package com.amalto.core.metadata;
 
+import java.util.List;
+
 /**
  *
  */
@@ -20,15 +22,15 @@ public interface FieldMetadata extends MetadataVisitable {
 
     public boolean isKey();
 
-    String getType();
+    TypeMetadata getType();
 
     boolean hasForeignKeyInfo();
 
-    String getForeignKeyInfoField();
+    FieldMetadata getForeignKeyInfoField();
 
-    TypeMetadata getContainingType();
+    ComplexTypeMetadata getContainingType();
 
-    void setContainingType(TypeMetadata typeMetadata);
+    void setContainingType(ComplexTypeMetadata typeMetadata);
 
     TypeMetadata getDeclaringType();
 
@@ -36,8 +38,17 @@ public interface FieldMetadata extends MetadataVisitable {
 
     boolean allowFKIntegrityOverride();
 
-    void adopt(ComplexTypeMetadata metadata);
+    void adopt(ComplexTypeMetadata metadata, MetadataRepository repository);
 
-    FieldMetadata copy();
+    FieldMetadata copy(MetadataRepository repository);
 
+    List<String> getHideUsers();
+
+    List<String> getWriteUsers();
+
+    boolean isMany();
+
+    boolean isMandatory();
+
+    void setName(String fieldName);
 }

@@ -414,4 +414,21 @@ public class ForeignKeyIntegrityTest extends TestCase {
         Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "Product");
         assertEquals(1, references.size());
     }
+
+    public void testModel16() throws Exception {
+        MetadataRepository repository = getMetadataRepository("model16.xsd");
+
+        // Check FK integrity checks following TMDM-3515
+        Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "BusinessFunction");
+        assertEquals(2, references.size());
+
+        IntegrityCheckDataSourceMock dataSource = new IntegrityCheckDataSourceMock(repository);
+        FKIntegrityChecker integrityChecker = FKIntegrityChecker.getInstance();
+        String dataCluster = "DataCluster";
+        String typeName = "BusinessFunction";
+        String[] ids = {"1"};
+        assertFalse(integrityChecker.allowDelete(dataCluster, typeName, ids, false, dataSource));
+        FKIntegrityCheckResult policy = integrityChecker.getFKIntegrityPolicy(dataCluster, typeName, ids, dataSource);
+        assertEquals(FKIntegrityCheckResult.FORBIDDEN, policy);
+    }
 }

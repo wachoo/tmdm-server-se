@@ -25,6 +25,10 @@ public class SimpleTypeMetadata implements TypeMetadata {
     private final String nameSpace;
 
     public SimpleTypeMetadata(String nameSpace, String name) {
+        if (name == null) {
+            throw new IllegalArgumentException("Name cannot be null.");
+        }
+
         this.name = name;
         this.nameSpace = nameSpace;
     }
@@ -58,7 +62,15 @@ public class SimpleTypeMetadata implements TypeMetadata {
         return false;
     }
 
-    public void addSuperType(TypeMetadata superType) {
+    public TypeMetadata copy(MetadataRepository repository) {
+        return new SimpleTypeMetadata(nameSpace, name);
+    }
+
+    public TypeMetadata copyShallow() {
+        return new SimpleTypeMetadata(nameSpace, name);
+    }
+
+    public void addSuperType(TypeMetadata superType, MetadataRepository repository) {
         throw new IllegalStateException("Cannot add a super type to a simple type");
     }
 

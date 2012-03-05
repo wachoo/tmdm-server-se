@@ -70,7 +70,7 @@ class ForeignKeyInfoTransformer implements DocumentTransformer {
         ItemPOJO item;
         try {
             ItemPOJOPK pk = new ItemPOJOPK();
-            pk.setConceptName(foreignKeyField.getType());
+            pk.setConceptName(foreignKeyField.getType().getName());
             pk.setDataClusterPOJOPK(new DataClusterPOJOPK(dataClusterName));
             // For composite keys, format is "[id0][id1]...[idN]"
             String[] allKeys = foreignKeyValue.split("]");

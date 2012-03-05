@@ -1774,7 +1774,7 @@
     </xsd:element>
     <xsd:complexType name="BankDetailType">
         <xsd:all maxOccurs="1" minOccurs="1">
-            <xsd:element maxOccurs="1" minOccurs="0" name="bankID" type="xsd:string">
+            <xsd:element maxOccurs="1" minOccurs="1" name="bankID" type="xsd:string">
                 <xsd:annotation>
                     <xsd:appinfo source="X_Label_EN">ID</xsd:appinfo>
                     <xsd:appinfo source="X_Description_EN">Bank ID. Key identifying a business partner's bank details
@@ -1941,7 +1941,7 @@
                     <xsd:appinfo source="X_Write">Power_User</xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
-            <xsd:element maxOccurs="1" minOccurs="0" name="customerNumber" type="xsd:string">
+            <xsd:element maxOccurs="1" minOccurs="1" name="customerNumber" type="xsd:string">
                 <xsd:annotation>
                     <xsd:appinfo source="X_Label_EN">Customer Number</xsd:appinfo>
                     <xsd:appinfo source="X_Description_EN">The number that uniquely identifies the contact person at the

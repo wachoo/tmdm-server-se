@@ -18,17 +18,17 @@ public interface MetadataVisitor<T> {
 
     T visit(MetadataRepository repository);
 
-    T visit(SimpleTypeMetadata typeMetadata);
+    T visit(SimpleTypeMetadata simpleType);
 
-    T visit(ComplexTypeMetadata metadata);
+    T visit(ComplexTypeMetadata complexType);
 
-    T visit(FieldMetadata metadata);
+    T visit(ContainedComplexTypeMetadata containedType);
 
-    T visit(SimpleTypeFieldMetadata metadata);
+    T visit(SimpleTypeFieldMetadata simpleField);
 
-    T visit(EnumerationFieldMetadata metadata);
+    T visit(EnumerationFieldMetadata enumField);
 
-    T visit(TypeMetadata typeMetadata);
+    T visit(ReferenceFieldMetadata referenceField);
 
-    T visit(ReferenceFieldMetadata metadata);
+    T visit(ContainedTypeFieldMetadata containedField);
 }

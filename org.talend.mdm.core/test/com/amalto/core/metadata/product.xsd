@@ -26,7 +26,7 @@
         </xsd:annotation>
         <xsd:complexType>
             <xsd:all maxOccurs="1" minOccurs="1">
-                <xsd:element maxOccurs="1" minOccurs="1" name="Id" type="xsd:string">
+                <xsd:element maxOccurs="1" minOccurs="1" name="key" type="xsd:string">
                     <xsd:annotation>
                         <xsd:appinfo source="X_Label_FR">Id unique</xsd:appinfo>
 
@@ -92,7 +92,7 @@
                                 </xsd:annotation>
                                 <xsd:complexType>
                                     <xsd:sequence>
-                                        <xsd:element maxOccurs="unbounded" name="Size" type="Size">
+                                        <xsd:element maxOccurs="unbounded" name="Size" type="xsd:string">
                                             <xsd:annotation>
                                                 <xsd:appinfo source="X_Label_FR">Taille</xsd:appinfo>
 
@@ -122,7 +122,7 @@
                                 </xsd:annotation>
                                 <xsd:complexType>
                                     <xsd:sequence>
-                                        <xsd:element maxOccurs="unbounded" name="Color" type="Color">
+                                        <xsd:element maxOccurs="unbounded" name="Color" type="xsd:string">
                                             <xsd:annotation>
                                                 <xsd:appinfo source="X_Label_FR">Couleur</xsd:appinfo>
 
@@ -202,8 +202,6 @@
                 </xsd:element>
                 <xsd:element maxOccurs="1" minOccurs="1" name="Status" type="ProductStatus">
                     <xsd:annotation>
-
-
                         <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
                         <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
                     </xsd:annotation>
@@ -212,7 +210,7 @@
         </xsd:complexType>
         <xsd:unique name="Product">
             <xsd:selector xpath="."/>
-            <xsd:field xpath="Id"/>
+            <xsd:field xpath="key"/>
         </xsd:unique>
     </xsd:element>
     <xsd:simpleType name="URL">
