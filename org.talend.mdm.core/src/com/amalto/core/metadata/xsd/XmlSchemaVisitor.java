@@ -10,12 +10,12 @@ import org.apache.ws.commons.schema.XmlSchemaSimpleType;
  */
 public interface XmlSchemaVisitor<T> {
 
-    T visit(XmlSchema xmlSchema);
+    T visitSchema(XmlSchema xmlSchema);
 
-    T visit(XmlSchemaSimpleType type);
+    T visitSimpleType(XmlSchemaSimpleType type);
 
-    T visit(XmlSchemaComplexType type);
+    T visitComplexType(XmlSchemaComplexType type);
 
-    T visit(XmlSchemaElement element);
+    T visitElement(XmlSchemaElement element);
 
 }

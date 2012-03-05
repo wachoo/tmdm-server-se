@@ -1,15 +1,8 @@
 package com.amalto.core.metadata.xsd;
 
-import java.util.Iterator;
+import org.apache.ws.commons.schema.*;
 
-import org.apache.ws.commons.schema.XmlSchema;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
-import org.apache.ws.commons.schema.XmlSchemaComplexType;
-import org.apache.ws.commons.schema.XmlSchemaElement;
-import org.apache.ws.commons.schema.XmlSchemaObject;
-import org.apache.ws.commons.schema.XmlSchemaObjectTable;
-import org.apache.ws.commons.schema.XmlSchemaSimpleType;
-import org.apache.ws.commons.schema.XmlSchemaType;
+import java.util.Iterator;
 
 /**
  *
@@ -20,30 +13,31 @@ public class XmlSchemaWalker {
         T result = null;
         XmlSchema[] xmlSchemas = collection.getXmlSchemas();
         for (XmlSchema xmlSchema : xmlSchemas) {
-            result = visitor.visit(xmlSchema);
+            result = visitor.visitSchema(xmlSchema);
         }
         return result;
     }
 
     public static <T> T walk(XmlSchema xmlSchema, XmlSchemaVisitor<T> visitor) {
-        XmlSchemaObjectTable items = xmlSchema.getSchemaTypes();
-        Iterator types = items.getValues();
-        while (types.hasNext()) {
-            walk((XmlSchemaType) types.next(), visitor);
-        }
-
+        // Visit element first (create MDM entity types)
         XmlSchemaObjectTable elements = xmlSchema.getElements();
         Iterator allElements = elements.getValues();
         while (allElements.hasNext()) {
             XmlSchemaElement element = (XmlSchemaElement) allElements.next();
             walk(element, visitor);
         }
+        // Visit remaining types (sometimes used in case of inheritance by entity types).
+        XmlSchemaObjectTable items = xmlSchema.getSchemaTypes();
+        Iterator types = items.getValues();
+        while (types.hasNext()) {
+            walk((XmlSchemaType) types.next(), visitor);
+        }
 
         return null;
     }
 
     public static <T> T walk(XmlSchemaElement element, XmlSchemaVisitor<T> visitor) {
-        visitor.visit(element);
+        visitor.visitElement(element);
         return null;
     }
 
@@ -57,12 +51,12 @@ public class XmlSchemaWalker {
         }
     }
 
-    public static <T> T walk(XmlSchemaSimpleType xmlSchemaType, XmlSchemaVisitor<T> visitor) {
-        return visitor.visit(xmlSchemaType);
+    private static <T> T walk(XmlSchemaSimpleType xmlSchemaType, XmlSchemaVisitor<T> visitor) {
+        return visitor.visitSimpleType(xmlSchemaType);
     }
 
-    public static <T> T walk(XmlSchemaComplexType xmlSchemaType, XmlSchemaVisitor<T> visitor) {
-        return visitor.visit(xmlSchemaType);
+    private static <T> T walk(XmlSchemaComplexType xmlSchemaType, XmlSchemaVisitor<T> visitor) {
+        return visitor.visitComplexType(xmlSchemaType);
     }
 
     public static <T> T walk(XmlSchemaObject schemaObject, XmlSchemaVisitor<T> visitor) {
