@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
  *
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -135,17 +135,17 @@ public class ReferenceFieldMetadata implements FieldMetadata {
 
     @Override
     public String toString() {
-        return "Reference {" +
-                "containing type= " + containingType +
-                ", declaring type=" + declaringType +
-                ", name='" + name + '\'' +
-                ", isKey=" + isKey +
-                ", is many=" + isMany +
-                ", referenced type= " + referencedType +
-                ", referenced field= " + referencedField +
-                ", foreign key info='" + foreignKeyInfo + '\'' +
-                ", allow FK integrity override= " + allowFKIntegrityOverride +
-                ", check FK integrity= " + isFKIntegrity +
+        return "Reference {" + //$NON-NLS-1$
+                "containing type= " + containingType + //$NON-NLS-1$
+                ", declaring type=" + declaringType + //$NON-NLS-1$
+                ", name='" + name + '\'' + //$NON-NLS-1$
+                ", isKey=" + isKey + //$NON-NLS-1$
+                ", is many=" + isMany + //$NON-NLS-1$
+                ", referenced type= " + referencedType + //$NON-NLS-1$
+                ", referenced field= " + referencedField + //$NON-NLS-1$
+                ", foreign key info='" + foreignKeyInfo + '\'' + //$NON-NLS-1$
+                ", allow FK integrity override= " + allowFKIntegrityOverride + //$NON-NLS-1$
+                ", check FK integrity= " + isFKIntegrity + //$NON-NLS-1$
                 '}';
     }
 

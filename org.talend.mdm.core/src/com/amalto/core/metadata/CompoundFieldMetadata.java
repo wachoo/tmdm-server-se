@@ -43,7 +43,7 @@ public class CompoundFieldMetadata implements FieldMetadata {
          * Compound / Composite keys are always represented as strings the [id0][id1] format.
          * So this method can return "string" as type even if fields are not all string.
          */
-        return new SimpleTypeMetadata(MetadataRepository.XSD_NAMESPACE, "string"); // TODO Constant
+        return new SimpleTypeMetadata(MetadataRepository.XSD_NAMESPACE, "string"); //$NON-NLS-1$ // TODO Constant
     }
 
     public boolean hasForeignKeyInfo() {
@@ -84,7 +84,7 @@ public class CompoundFieldMetadata implements FieldMetadata {
 
     @Override
     public String toString() {
-        return "Compound {" + "# of fields=" + fields.length + '}';
+        return "Compound {" + "# of fields=" + fields.length + '}'; //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     public List<String> getHideUsers() {

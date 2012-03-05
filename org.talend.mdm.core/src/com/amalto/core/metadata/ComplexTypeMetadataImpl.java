@@ -57,7 +57,7 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
     }
 
     public FieldMetadata getField(String fieldName) {
-        StringTokenizer tokenizer = new StringTokenizer(fieldName, "/");
+        StringTokenizer tokenizer = new StringTokenizer(fieldName, "/"); //$NON-NLS-1$
         String firstFieldName = tokenizer.nextToken();
         FieldMetadata currentField = fieldMetadata.get(firstFieldName);
         if (currentField == null) { // Look in super types if it wasn't found in current type.

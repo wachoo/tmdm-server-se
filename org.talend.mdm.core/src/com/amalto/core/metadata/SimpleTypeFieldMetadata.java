@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
  *
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -131,13 +131,13 @@ public class SimpleTypeFieldMetadata implements FieldMetadata {
 
     @Override
     public String toString() {
-        return "Simple {" +
-                "declaringType=" + declaringType +
-                ", containingType=" + containingType +
-                ", name='" + name + '\'' +
-                ", isKey=" + isKey +
-                ", isMany=" + isMany +
-                ", fieldTypeName='" + fieldType.getName() + '\'' +
+        return "Simple {" + //$NON-NLS-1$
+                "declaringType=" + declaringType + //$NON-NLS-1$
+                ", containingType=" + containingType + //$NON-NLS-1$
+                ", name='" + name + '\'' + //$NON-NLS-1$
+                ", isKey=" + isKey + //$NON-NLS-1$
+                ", isMany=" + isMany + //$NON-NLS-1$
+                ", fieldTypeName='" + fieldType.getName() + '\'' + //$NON-NLS-1$
                 '}';
     }
 
