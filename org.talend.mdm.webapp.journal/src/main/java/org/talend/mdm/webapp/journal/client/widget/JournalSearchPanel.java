@@ -12,12 +12,18 @@
 // ============================================================================
 package org.talend.mdm.webapp.journal.client.widget;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.journal.client.Journal;
 import org.talend.mdm.webapp.journal.client.JournalServiceAsync;
 import org.talend.mdm.webapp.journal.client.i18n.MessagesFactory;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
@@ -33,8 +39,19 @@ import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 public class JournalSearchPanel extends FormPanel {
 
     private static JournalSearchPanel formPanel;
-
+    
     private JournalServiceAsync service = Registry.get(Journal.JOURNAL_SERVICE);
+    
+    private TextField<String> entityField;
+    
+    private TextField<String> keyField;
+    
+    private Button resetButton;
+    
+    private Button searchButton;
+    
+    private Button exportButton;
+    
     
     public static JournalSearchPanel getInstance() {
         if (formPanel == null)
@@ -43,7 +60,7 @@ public class JournalSearchPanel extends FormPanel {
     }
     
     private JournalSearchPanel() {
-        FormData formData = new FormData("100%"); //$NON-NLS-1$
+        FormData formData = new FormData("50%"); //$NON-NLS-1$
         this.setFrame(true);
         this.setHeading(MessagesFactory.getMessages().search_panel_title());
         this.setButtonAlign(HorizontalAlignment.RIGHT);
@@ -57,10 +74,10 @@ public class JournalSearchPanel extends FormPanel {
         layout.setLabelAlign(LabelAlign.LEFT);  
         left.setLayout(layout);
         
-        TextField<String> entityField = new TextField<String>();  
+        entityField = new TextField<String>();  
         entityField.setFieldLabel(MessagesFactory.getMessages().entity_label());  
         left.add(entityField, formData);
-        
+
         TextField<String> sourceField = new TextField<String>();  
         sourceField.setFieldLabel(MessagesFactory.getMessages().source_label());  
         left.add(sourceField, formData);
@@ -75,7 +92,7 @@ public class JournalSearchPanel extends FormPanel {
         layout.setLabelAlign(LabelAlign.LEFT);  
         right.setLayout(layout);
         
-        TextField<String> keyField = new TextField<String>();  
+        keyField = new TextField<String>();  
         keyField.setFieldLabel(MessagesFactory.getMessages().key_label());  
         right.add(keyField, formData);
         
@@ -91,8 +108,34 @@ public class JournalSearchPanel extends FormPanel {
         main.add(right, new ColumnData(.5)); 
         this.add(main, new FormData("100%")); //$NON-NLS-1$
         
-        this.addButton(new Button(MessagesFactory.getMessages().reset_button()));
-        this.addButton(new Button(MessagesFactory.getMessages().search_button()));
-        this.addButton(new Button(MessagesFactory.getMessages().exprot_excel_button()));
+        resetButton = new Button(MessagesFactory.getMessages().reset_button());
+        resetButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+            
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                
+            }
+        });
+        this.addButton(resetButton);
+        
+        searchButton = new Button(MessagesFactory.getMessages().search_button());
+        searchButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+            
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                
+            }
+        });
+        this.addButton(searchButton);
+        
+        exportButton = new Button(MessagesFactory.getMessages().exprot_excel_button());
+        exportButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+            
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                
+            }
+        });
+        this.addButton(exportButton);
     }
 }

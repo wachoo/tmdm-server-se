@@ -12,13 +12,9 @@
 // ============================================================================
 package org.talend.mdm.webapp.journal.shared;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 public class DataChangeLog {
-	
-	
-	
+		
 	private String source;
 	
 	private String timeInMillis;
