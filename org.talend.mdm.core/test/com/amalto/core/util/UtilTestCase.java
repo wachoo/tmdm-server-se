@@ -19,8 +19,19 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import junit.framework.TestCase;
 
+import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import com.amalto.core.ejb.DroppedItemPOJO;
+import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
+import com.amalto.core.objects.transformers.v2.util.TransformerContext;
+import com.sun.org.apache.xpath.internal.XPathAPI;
 
 /**
  * DOC achen  class global comment. Detailled comment
@@ -84,4 +95,117 @@ public class UtilTestCase extends TestCase {
         in.read(buf);
         return new String(buf);
     }
+    
+    
+    
+    String[] ids=new String[]{"1"};
+    String concept="Product";
+    String projection="<Product xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id>1</Id><Name>name1</Name><Description>desc1</Description><Price>1</Price></Product>";
+    DataClusterPOJOPK dcpk=new DataClusterPOJOPK("Product");
+
+    /**
+     * Simulate test beforeDeleting
+     * DOC Administrator Comment method "testBeforeDeleting".
+     * @throws Exception
+     */
+    public void testBeforeDeleting()throws Exception{
+    	//delete item in recyclebin
+    	ItemPOJO pojo=null;
+    	String ret=beforeDeleting(pojo);
+    	assertTrue(ret!=null && ret.contains("[EN:ok]"));
+    	
+    	//delete item in data container
+    	pojo=new ItemPOJO();
+    	pojo.setDataClusterPK(dcpk);
+    	pojo.setItemIds(ids);
+    	pojo.setConceptName(concept);
+    	pojo.setProjectionAsString(projection);
+    	
+    	ret=beforeDeleting(pojo);
+    	
+    	assertTrue(ret!=null && ret.contains("[EN:ok]"));
+    }
+    
+    /**
+     * the simulate droppedItem
+     * DOC Administrator Comment method "getDroppedItem".
+     * @return
+     */
+    private DroppedItemPOJO getDroppedItem(){
+    	DroppedItemPOJO pojo=new DroppedItemPOJO();
+    	pojo.setProjection("<ii><c>Product</c><n>Product</n><dmn>Product</dmn><i>1</i><t>1330671403828</t><p>"+
+    			projection +
+    			"</p></ii>");
+    	
+    	return pojo;
+    }
+    
+    /**
+     * the simulate beforeDeleting() according to the Util.beforeDeleting()    
+     * DOC Administrator Comment method "beforeDeleting".
+     * @param pj
+     * @return
+     * @throws Exception
+     */
+    private  String beforeDeleting(ItemPOJO pj) throws Exception {
+        // check before deleting transformer
+        boolean isBeforeDeletingTransformerExist = true;
+        
+
+        if (isBeforeDeletingTransformerExist) {
+            try {
+                // call before deleting transformer
+                // load the item
+                //ItemPOJOPK itempk = new ItemPOJOPK(new DataClusterPOJOPK(clusterName), concept, ids);
+                ItemPOJO pojo= pj;//ItemPOJO.load(itempk);
+                String xml=null;
+                if(pojo==null){//load from recyclebin
+                	//DroppedItemPOJOPK dpitempk=new DroppedItemPOJOPK(null,itempk,"/");//$NON-NLS-1$ 
+                	DroppedItemPOJO dpPojo=getDroppedItem(); //Util.getDroppedItemCtrlLocal().loadDroppedItem(dpitempk);
+                	if(dpPojo!=null){
+                		xml=dpPojo.getProjection();             		
+                		Document doc = Util.parse(xml);
+    	                Node item = XPathAPI.selectSingleNode(doc, "//ii/p"); //$NON-NLS-1$ 
+    	                if (item != null && item instanceof Element) {
+    	                    NodeList list = item.getChildNodes();
+    	                    Node node = null;
+    	                    for (int i = 0; i < list.getLength(); i++) {
+    	                        if (list.item(i) instanceof Element) {
+    	                            node = list.item(i);
+    	                            break;
+    	                        }
+    	                    }
+    	                    if (node != null) {
+    	                        xml = Util.nodeToString(node);
+    	                    }
+    	                }
+                	}
+                }else{
+                	xml=pojo.getProjectionAsString();
+                }
+                String resultUpdateReport = null;//Util.createUpdateReport(ids, concept, "PHYSICAL_DELETE", null,                         "", dcpk.getUniqueId()); //$NON-NLS-1$
+                String exchangeData = Util.mergeExchangeData(xml, resultUpdateReport);
+                final String RUNNING = "XtentisWSBean.executeTransformerV2.beforeDeleting.running";
+                TransformerContext context = new TransformerContext(new TransformerV2POJOPK("beforeDeleting_Product"));
+                context.put(RUNNING, Boolean.TRUE);
+                String outputErrorMessage="<message type=\"info\">[EN:ok]</message>";
+                if(xml==null){
+                	outputErrorMessage=null;
+                }
+                // handle error message
+                if (outputErrorMessage != null && outputErrorMessage.length() > 0) {
+                    return outputErrorMessage;
+                } else {
+                    return "<report><message type=\"error\"/></report> "; //$NON-NLS-1$
+                }
+            } catch (Exception e) {
+                Logger.getLogger(Util.class).error(e);
+                throw e;
+            }
+        }
+        // TODO Scan the entries - in priority, taka the content of the specific
+        // entry
+        return null;
+    }
+
 }

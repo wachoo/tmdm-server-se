@@ -100,6 +100,8 @@ import sun.misc.BASE64Encoder;
 
 import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.delegator.IXtentisWSDelegator;
+import com.amalto.core.ejb.DroppedItemPOJO;
+import com.amalto.core.ejb.DroppedItemPOJOPK;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ObjectPOJO;
@@ -2599,7 +2601,32 @@ public class Util {
                 // call before deleting transformer
                 // load the item
                 ItemPOJOPK itempk = new ItemPOJOPK(new DataClusterPOJOPK(clusterName), concept, ids);
-                String xml = ItemPOJO.load(itempk).getProjectionAsString();
+                ItemPOJO pojo= ItemPOJO.load(itempk);
+                String xml=null;
+                if(pojo==null){//load from recyclebin
+                	DroppedItemPOJOPK dpitempk=new DroppedItemPOJOPK(null,itempk,"/");//$NON-NLS-1$ 
+                	DroppedItemPOJO dpPojo=Util.getDroppedItemCtrlLocal().loadDroppedItem(dpitempk);
+                	if(dpPojo!=null){
+                		xml=dpPojo.getProjection();             		
+                		Document doc = Util.parse(xml);
+    	                Node item = XPathAPI.selectSingleNode(doc, "//ii/p"); //$NON-NLS-1$ 
+    	                if (item != null && item instanceof Element) {
+    	                    NodeList list = item.getChildNodes();
+    	                    Node node = null;
+    	                    for (int i = 0; i < list.getLength(); i++) {
+    	                        if (list.item(i) instanceof Element) {
+    	                            node = list.item(i);
+    	                            break;
+    	                        }
+    	                    }
+    	                    if (node != null) {
+    	                        xml = Util.nodeToString(node);
+    	                    }
+    	                }
+                	}
+                }else{
+                	xml=pojo.getProjectionAsString();
+                }
                 String resultUpdateReport = Util.createUpdateReport(ids, concept, "PHYSICAL_DELETE", null, //$NON-NLS-1$
                         "", clusterName); //$NON-NLS-1$
                 String exchangeData = mergeExchangeData(xml, resultUpdateReport);
