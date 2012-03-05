@@ -13,8 +13,9 @@
     <!-- GWT log -->
     <inherits name="com.allen_sauer.gwt.log.gwt-log" />
 
-    <!-- User Agent -->
-    <set-property name="user.agent" value="gecko1_8" /> 
+    <!-- User Agent
+    <set-property name="user.agent" value="gecko1_8" />
+    <set-property name="user.agent" value="ie6" /> -->
     
     <source path='client' excludes="**/*Test.java" />
     <source path='shared' />
