@@ -125,12 +125,12 @@ public class ContainedTypeFieldMetadata implements FieldMetadata {
 
     @Override
     public String toString() {
-        return "Contained {" +
-                "declaringType=" + declaringType +
-                ", containingType=" + containingType +
-                ", name='" + name + '\'' +
-                ", isMany=" + isMany +
-                ", fieldTypeName='" + fieldType.getName() + '\'' +
+        return "Contained {" + //$NON-NLS-1$
+                "declaringType=" + declaringType + //$NON-NLS-1$
+                ", containingType=" + containingType + //$NON-NLS-1$
+                ", name='" + name + '\'' + //$NON-NLS-1$
+                ", isMany=" + isMany + //$NON-NLS-1$
+                ", fieldTypeName='" + fieldType.getName() + '\'' + //$NON-NLS-1$
                 '}';
     }
 

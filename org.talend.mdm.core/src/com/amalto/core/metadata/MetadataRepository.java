@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
  *
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -27,7 +27,7 @@ import java.util.*;
  */
 public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<Void> {
 
-    public static final String XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema";
+    public static final String XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema"; //$NON-NLS-1$
 
     private final static List<XmlSchemaAnnotationProcessor> XML_ANNOTATIONS_PROCESSORS = Arrays.asList(new ForeignKeyProcessor(), new UserAccessProcessor());
 

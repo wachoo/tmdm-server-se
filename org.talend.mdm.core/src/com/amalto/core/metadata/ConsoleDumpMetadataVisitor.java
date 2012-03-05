@@ -49,21 +49,21 @@ public class ConsoleDumpMetadataVisitor extends DefaultMetadataVisitor<Void> {
     }
 
     public Void visit(ComplexTypeMetadata complexType) {
-        log("[Type] " + complexType.getName());
-        String keyFields = "";
+        log("[Type] " + complexType.getName()); //$NON-NLS-1$
+        String keyFields = ""; //$NON-NLS-1$
         for (FieldMetadata keyFieldMetadata : complexType.getKeyFields()) {
-            keyFields += keyFieldMetadata.getName() + " ";
+            keyFields += keyFieldMetadata.getName() + " ";  //$NON-NLS-1$
         }
         if (!keyFields.isEmpty()) {
-            log("\t[Key fields] " + keyFields);
+            log("\t[Key fields] " + keyFields); //$NON-NLS-1$
         }
 
-        String superTypes = "";
+        String superTypes = ""; //$NON-NLS-1$
         for (TypeMetadata superType : complexType.getSuperTypes()) {
-            superTypes += superType.getName() + " ";
+            superTypes += superType.getName() + " "; //$NON-NLS-1$
         }
         if (!superTypes.isEmpty()) {
-            log("[Super types] " + superTypes);
+            log("[Super types] " + superTypes); //$NON-NLS-1$
         }
 
         indent++;
@@ -78,7 +78,7 @@ public class ConsoleDumpMetadataVisitor extends DefaultMetadataVisitor<Void> {
     @Override
     public Void visit(ReferenceFieldMetadata referenceField) {
         if (referenceField.isKey()) {
-            log("[Field (FK) (Key)] " + referenceField.getName());
+            log("[Field (FK) (Key)] " + referenceField.getName()); //$NON-NLS-1$
         } else {
             TypeMetadata referencedType = referenceField.getReferencedType();
             if (referencedType == null) {
@@ -86,20 +86,20 @@ public class ConsoleDumpMetadataVisitor extends DefaultMetadataVisitor<Void> {
             }
 
             try {
-                log("[Field (FK -> " + referenceField.getDeclaringType().getName() + " to " + referenceField.getReferencedType().getName() + ")] " + referenceField.getName() + (referenceField.isMany() ? "*" : ""));
+                log("[Field (FK -> " + referenceField.getDeclaringType().getName() + " to " + referenceField.getReferencedType().getName() + ")] " + referenceField.getName() + (referenceField.isMany() ? "*" : "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
             } catch (Exception e) {
                 throw new RuntimeException("Exception during display of field '" + referenceField.getName() + "' of type '" + referenceField.getContainingType().getName() + "'.", e);
             }
         }
 
-        log("\t[Referenced field(s)]");
+        log("\t[Referenced field(s)]"); //$NON-NLS-1$
         indent += 2;
         referenceField.getReferencedField().accept(this);
         indent -= 2;
 
-        log("\t[FKIntegrity=" + referenceField.isFKIntegrity() + " / FKIntegrityOverride=" + referenceField.allowFKIntegrityOverride() + "]");
+        log("\t[FKIntegrity=" + referenceField.isFKIntegrity() + " / FKIntegrityOverride=" + referenceField.allowFKIntegrityOverride() + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         if (referenceField.hasForeignKeyInfo()) {
-            log("\t[FKInfo=" + referenceField.getForeignKeyInfoField().getName() + " (" + referenceField.getForeignKeyInfoField() + ")]");
+            log("\t[FKInfo=" + referenceField.getForeignKeyInfoField().getName() + " (" + referenceField.getForeignKeyInfoField() + ")]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         }
         logUsers(referenceField);
 
@@ -108,9 +108,9 @@ public class ConsoleDumpMetadataVisitor extends DefaultMetadataVisitor<Void> {
 
     public Void visit(SimpleTypeFieldMetadata simpleField) {
         if (simpleField.isKey()) {
-            log("[Field (Simple) (Key)] " + simpleField.getName());
+            log("[Field (Simple) (Key)] " + simpleField.getName()); //$NON-NLS-1$
         } else {
-            log("[Field (Simple)] " + simpleField.getName() + (simpleField.isMany() ? "*" : ""));
+            log("[Field (Simple)] " + simpleField.getName() + (simpleField.isMany() ? "*" : "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         }
 
         logUsers(simpleField);
@@ -118,7 +118,7 @@ public class ConsoleDumpMetadataVisitor extends DefaultMetadataVisitor<Void> {
     }
 
     public Void visit(EnumerationFieldMetadata enumField) {
-        log("[Field (Enumeration)] " + enumField.getName());
+        log("[Field (Enumeration)] " + enumField.getName()); //$NON-NLS-1$
         logUsers(enumField);
 
         return super.visit(enumField);
@@ -139,7 +139,7 @@ public class ConsoleDumpMetadataVisitor extends DefaultMetadataVisitor<Void> {
 
     @Override
     public Void visit(ContainedTypeFieldMetadata containedField) {
-        log("[Field (Contained type) -> " + containedField.getContainedType().getName() + ")] " + containedField.getName() + (containedField.isMany() ? "*" : ""));
+        log("[Field (Contained type) -> " + containedField.getContainedType().getName() + ")] " + containedField.getName() + (containedField.isMany() ? "*" : "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
         logUsers(containedField);
 
         indent++;
@@ -153,10 +153,10 @@ public class ConsoleDumpMetadataVisitor extends DefaultMetadataVisitor<Void> {
 
     private void logUsers(FieldMetadata metadata) {
         if (!metadata.getHideUsers().isEmpty()) {
-            log("\t[Hide users: " + metadata.getHideUsers() + "]");
+            log("\t[Hide users: " + metadata.getHideUsers() + "]"); //$NON-NLS-1$ //$NON-NLS-2$
         }
         if (!metadata.getWriteUsers().isEmpty()) {
-            log("\t[Allow write users: " + metadata.getWriteUsers() + "]");
+            log("\t[Allow write users: " + metadata.getWriteUsers() + "]"); //$NON-NLS-1$ //$NON-NLS-2$
         }
     }
 }

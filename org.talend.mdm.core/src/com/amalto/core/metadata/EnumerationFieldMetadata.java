@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
  *
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -133,12 +133,12 @@ public class EnumerationFieldMetadata implements FieldMetadata {
 
     @Override
     public String toString() {
-        return "EnumerationFieldMetadata{" +
-                "declaringType=" + declaringType +
-                ", containingType=" + containingType +
-                ", is key=" + isKey +
-                ", name ='" + name + '\'' +
-                ", type name ='" + fieldType.getName() + '\'' +
+        return "EnumerationFieldMetadata{" + //$NON-NLS-1$
+                "declaringType=" + declaringType + //$NON-NLS-1$
+                ", containingType=" + containingType + //$NON-NLS-1$
+                ", is key=" + isKey + //$NON-NLS-1$
+                ", name ='" + name + '\'' + //$NON-NLS-1$
+                ", type name ='" + fieldType.getName() + '\'' + //$NON-NLS-1$
                 '}';
     }
 
