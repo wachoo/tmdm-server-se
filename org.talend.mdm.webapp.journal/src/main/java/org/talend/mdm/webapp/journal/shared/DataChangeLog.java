@@ -42,7 +42,7 @@ public class DataChangeLog {
     
     private String dataModel;
 	
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
+//	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
 
     private String epochTime;
 
@@ -54,15 +54,15 @@ public class DataChangeLog {
 		this.source = source;
 	}
 
-	public String getTimeInMillis() {
-		String showTime="";
-		if(timeInMillis!=null&&timeInMillis.length()>0&&!timeInMillis.equals("null")){
-			Calendar c= Calendar.getInstance();
-			c.setTimeInMillis(Long.parseLong(timeInMillis));
-			showTime=sdf.format(c.getTime());
-		}
-		return showTime;
-	}
+//	public String getTimeInMillis() {
+//		String showTime="";
+//		if(timeInMillis!=null&&timeInMillis.length()>0&&!timeInMillis.equals("null")){
+//			Calendar c= Calendar.getInstance();
+//			c.setTimeInMillis(Long.parseLong(timeInMillis));
+//			showTime=sdf.format(c.getTime());
+//		}
+//		return showTime;
+//	}
 
 	public void setTimeInMillis(String timeInMillis) {
 		this.timeInMillis = timeInMillis;

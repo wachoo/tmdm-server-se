@@ -19,4 +19,39 @@ import com.google.gwt.i18n.client.Messages;
  */
 public interface JournalMessages extends Messages {
 
+    public String journal_title();
+    
+    public String search_panel_title();
+    
+    public String entity_label();
+    
+    public String key_label();
+    
+    public String source_label();
+    
+    public String operation_type_label();
+    
+    public String start_date_label();
+    
+    public String end_date_label();
+    
+    public String reset_button();
+    
+    public String search_button();
+    
+    public String exprot_excel_button();
+    
+    public String results_tab();
+    
+    public String timeline_tab();
+    
+    public String data_container_label();
+    
+    public String data_model_label();
+    
+    public String revision_id_label();
+    
+    public String operation_time_label();
+    
+    public String user_name_label();
 }

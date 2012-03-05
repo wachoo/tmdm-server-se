@@ -12,29 +12,50 @@
 // ============================================================================package
 package org.talend.mdm.webapp.journal.client;
 
+import org.talend.mdm.webapp.journal.client.mvc.JournalController;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.core.XDOM;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.RootPanel;
 
 /**
- * Entry point classes define <code>onModuleLoad()</code>.
+ * DOC Administrator  class global comment. Detailled comment
  */
 public class Journal implements EntryPoint {
 
-    /**
-     * Create a remote service proxy to talk to the server-side Journal service.
-     */
-    public static final String Journal_SERVICE = "JournalService";
+    public static final String JOURNAL_SERVICE = "JournalService"; //$NON-NLS-1$
 
-    /**
-     * This is the entry point method.
-     */
+    public static final String JOURNAL_ID = "Journal"; //$NON-NLS-1$
+
     public void onModuleLoad() {
-        // log setting
-        Log.setUncaughtExceptionHandler();
+        if (GWT.isScript()) {
+            XDOM.setAutoIdPrefix(GWT.getModuleName() + "-" + XDOM.getAutoIdPrefix()); //$NON-NLS-1$
+            Log.setUncaughtExceptionHandler();
+            Registry.register(JOURNAL_SERVICE, GWT.create(JournalService.class));
 
-        Registry.register(Journal_SERVICE, GWT.create(JournalService.class));
+            Dispatcher dispatcher = Dispatcher.get();
+            dispatcher.addController(new JournalController());
+        } else {
+            Log.setUncaughtExceptionHandler();
+            Registry.register(JOURNAL_SERVICE, GWT.create(JournalService.class));
 
+            Dispatcher dispatcher = Dispatcher.get();
+            dispatcher.addController(new JournalController());
+            
+            GenerateContainer.generateContentPanel();
+            onModuleRender();
+            GenerateContainer.getContentPanel().setSize(Window.getClientWidth(), Window.getClientHeight());
+            RootPanel.get().add(GenerateContainer.getContentPanel());
+        }
+    }
+
+    private void onModuleRender() {
+        Dispatcher dispatcher = Dispatcher.get();
+        dispatcher.dispatch(JournalEvents.InitFrame);
     }
 }

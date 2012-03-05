@@ -10,17 +10,16 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.journal.server;
+package org.talend.mdm.webapp.journal.client.resources;
 
-import org.talend.mdm.webapp.journal.client.JournalService;
+import org.talend.mdm.webapp.journal.client.resources.icon.Icons;
 
-import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import com.google.gwt.core.client.GWT;
 
 /**
- * The server side implementation of the RPC service.
+ * DOC Administrator class global comment. Detailled comment
  */
-@SuppressWarnings("serial")
-public class JournalServiceImpl extends RemoteServiceServlet implements JournalService {
-
-
+public class Resources {
+    
+    public static final Icons ICONS = GWT.create(Icons.class);
 }

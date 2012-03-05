@@ -12,9 +12,20 @@
 // ============================================================================
 package org.talend.mdm.webapp.journal.client.mvc;
 
+import org.talend.mdm.webapp.journal.client.GenerateContainer;
+import org.talend.mdm.webapp.journal.client.JournalEvents;
+import org.talend.mdm.webapp.journal.client.widget.JournalSearchPanel;
+import org.talend.mdm.webapp.journal.client.widget.JournalTabPanel;
+
+import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.extjs.gxt.ui.client.util.Margins;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 
 /**
  * DOC Administrator  class global comment. Detailled comment
@@ -26,8 +37,28 @@ public class JournalView extends View {
     }
 
     protected void handleEvent(AppEvent event) {
-        // TODO Auto-generated method stub
-
+        if (event.getType() == JournalEvents.InitFrame)
+            onInitFrame(event);
     }
+    
+    private void onInitFrame(AppEvent event) {
+        if (Log.isInfoEnabled())
+            Log.info("Init frame... ");//$NON-NLS-1$
 
+        ContentPanel container = GenerateContainer.getContentPanel();
+        container.setHeaderVisible(false);
+        BorderLayout layout = new BorderLayout();
+        container.setLayout(layout);
+        container.setStyleAttribute("height", "100%");//$NON-NLS-1$ //$NON-NLS-2$  
+        BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, 300);
+        northData.setCollapsible(true);
+        northData.setSplit(true);
+        northData.setMargins(new Margins(0, 0, 5, 0));
+        JournalSearchPanel northPanel = JournalSearchPanel.getInstance();
+        container.add(northPanel, northData);
+        BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
+        centerData.setMargins(new Margins(0));
+        JournalTabPanel southPanel = JournalTabPanel.getInstance();
+        container.add(southPanel, centerData);
+    }
 }

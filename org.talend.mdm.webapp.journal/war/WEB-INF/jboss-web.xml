@@ -3,7 +3,7 @@
 
 <jboss-web>
   <security-domain  flushOnSessionInvalidation="true">java:/jaas/xtentisSecurity</security-domain>
-   <context-root>/crossreference</context-root>
+   <context-root>/journal</context-root>
 
    <!-- Resource Environment References -->
    <!--
