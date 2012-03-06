@@ -24,10 +24,14 @@ import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.ColumnData;
 import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
@@ -46,6 +50,14 @@ public class JournalSearchPanel extends FormPanel {
     
     private TextField<String> keyField;
     
+    private ComboBox<ItemBaseModel> sourceCombo;
+    
+    private ComboBox<ItemBaseModel> operationTypeCombo;
+    
+    private DateField startDateField;
+    
+    private DateField endDateField;
+        
     private Button resetButton;
     
     private Button searchButton;
@@ -77,12 +89,24 @@ public class JournalSearchPanel extends FormPanel {
         entityField = new TextField<String>();  
         entityField.setFieldLabel(MessagesFactory.getMessages().entity_label());  
         left.add(entityField, formData);
-
-        TextField<String> sourceField = new TextField<String>();  
-        sourceField.setFieldLabel(MessagesFactory.getMessages().source_label());  
-        left.add(sourceField, formData);
         
-        TextField<String> startDateField = new TextField<String>();  
+        List<String> list = new ArrayList<String>();
+        list.add("genericUI"); //$NON-NLS-1$
+        list.add("adminWorkbench"); //$NON-NLS-1$
+        list.add("dataSynchronization"); //$NON-NLS-1$
+        list.add("workflow"); //$NON-NLS-1$
+        
+        sourceCombo = new ComboBox<ItemBaseModel>();
+        sourceCombo.setId("source");//$NON-NLS-1$
+        sourceCombo.setName("source");//$NON-NLS-1$
+        sourceCombo.setFieldLabel(MessagesFactory.getMessages().source_label());
+        sourceCombo.setDisplayField("label"); //$NON-NLS-1$
+        sourceCombo.setValueField("key"); //$NON-NLS-1$
+        sourceCombo.setStore(this.getListStore(list));
+        sourceCombo.setTriggerAction(TriggerAction.ALL);
+        left.add(sourceCombo, formData);
+        
+        startDateField = new DateField();  
         startDateField.setFieldLabel(MessagesFactory.getMessages().start_date_label());  
         left.add(startDateField, formData);
         
@@ -96,11 +120,25 @@ public class JournalSearchPanel extends FormPanel {
         keyField.setFieldLabel(MessagesFactory.getMessages().key_label());  
         right.add(keyField, formData);
         
-        TextField<String> operationTypeField = new TextField<String>();  
-        operationTypeField.setFieldLabel(MessagesFactory.getMessages().operation_type_label());  
-        right.add(operationTypeField, formData);
+        list.clear();
+        list.add("CREATE"); //$NON-NLS-1$
+        list.add("UPDATE"); //$NON-NLS-1$
+        list.add("PHYSICAL_DELETE"); //$NON-NLS-1$
+        list.add("LOGIC_DELETE"); //$NON-NLS-1$
+        list.add("RESTORED"); //$NON-NLS-1$
+        list.add("ACTION"); //$NON-NLS-1$
         
-        TextField<String> endDateField = new TextField<String>();  
+        operationTypeCombo = new ComboBox<ItemBaseModel>();
+        operationTypeCombo.setId("operationType");//$NON-NLS-1$
+        operationTypeCombo.setName("operationType");//$NON-NLS-1$
+        operationTypeCombo.setFieldLabel(MessagesFactory.getMessages().operation_type_label());  
+        operationTypeCombo.setDisplayField("label"); //$NON-NLS-1$
+        operationTypeCombo.setValueField("key"); //$NON-NLS-1$
+        operationTypeCombo.setStore(this.getListStore(list));
+        operationTypeCombo.setTriggerAction(TriggerAction.ALL);
+        right.add(operationTypeCombo, formData);
+        
+        endDateField = new DateField();  
         endDateField.setFieldLabel(MessagesFactory.getMessages().end_date_label());  
         right.add(endDateField, formData);
         
@@ -113,7 +151,12 @@ public class JournalSearchPanel extends FormPanel {
             
             @Override
             public void componentSelected(ButtonEvent ce) {
-                
+                entityField.clear();
+                keyField.clear();
+                sourceCombo.clear();
+                operationTypeCombo.clear();
+                startDateField.clear();
+                endDateField.clear();
             }
         });
         this.addButton(resetButton);
@@ -137,5 +180,18 @@ public class JournalSearchPanel extends FormPanel {
             }
         });
         this.addButton(exportButton);
+    }
+    
+    private ListStore<ItemBaseModel> getListStore(List<String> list) {
+        List<ItemBaseModel> modelList = new ArrayList<ItemBaseModel>();
+        for (String str : list) {
+            ItemBaseModel model = new ItemBaseModel();
+            model.set("label", str); //$NON-NLS-1$
+            model.set("key", str); //$NON-NLS-1$
+            modelList.add(model);
+        }
+        ListStore<ItemBaseModel> store = new ListStore<ItemBaseModel>();
+        store.add(modelList);
+        return store;
     }
 }

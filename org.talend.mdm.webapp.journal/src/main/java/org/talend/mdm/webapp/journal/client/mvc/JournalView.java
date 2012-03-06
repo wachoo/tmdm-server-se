@@ -53,6 +53,7 @@ public class JournalView extends View {
         BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, 170);
         northData.setCollapsible(true);
         northData.setSplit(true);
+        northData.setFloatable(false);
         northData.setMargins(new Margins(0, 0, 5, 0));
         JournalSearchPanel northPanel = JournalSearchPanel.getInstance();
         container.add(northPanel, northData);

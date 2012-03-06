@@ -12,11 +12,19 @@
 // ============================================================================
 package org.talend.mdm.webapp.journal.client;
 
+import org.talend.mdm.webapp.journal.shared.JournalGridModel;
+import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
+
+import com.extjs.gxt.ui.client.data.PagingLoadConfig;
+import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * The async counterpart of <code>GreetingService</code>.
  */
 public interface JournalServiceAsync {
 
+    void getJournalList(JournalSearchCriteria criteria, PagingLoadConfig load,
+            AsyncCallback<PagingLoadResult<JournalGridModel>> callback);
 
 }

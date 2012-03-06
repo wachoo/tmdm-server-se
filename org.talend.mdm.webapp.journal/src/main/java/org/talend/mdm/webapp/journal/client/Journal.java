@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.journal.client;
 
 import org.talend.mdm.webapp.journal.client.mvc.JournalController;
+import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
@@ -31,18 +32,22 @@ public class Journal implements EntryPoint {
     public static final String JOURNAL_SERVICE = "JournalService"; //$NON-NLS-1$
 
     public static final String JOURNAL_ID = "Journal"; //$NON-NLS-1$
+    
+    public static final String SEARCH_CRITERIA = "SearchCriteria"; //$NON-NLS-1$
 
     public void onModuleLoad() {
         if (GWT.isScript()) {
             XDOM.setAutoIdPrefix(GWT.getModuleName() + "-" + XDOM.getAutoIdPrefix()); //$NON-NLS-1$
             Log.setUncaughtExceptionHandler();
             Registry.register(JOURNAL_SERVICE, GWT.create(JournalService.class));
+            Registry.register(SEARCH_CRITERIA, new JournalSearchCriteria());
 
             Dispatcher dispatcher = Dispatcher.get();
             dispatcher.addController(new JournalController());
         } else {
             Log.setUncaughtExceptionHandler();
             Registry.register(JOURNAL_SERVICE, GWT.create(JournalService.class));
+            Registry.register(SEARCH_CRITERIA, new JournalSearchCriteria());
 
             Dispatcher dispatcher = Dispatcher.get();
             dispatcher.addController(new JournalController());

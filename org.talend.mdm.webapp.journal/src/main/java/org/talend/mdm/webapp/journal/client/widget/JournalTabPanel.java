@@ -30,6 +30,8 @@ public class JournalTabPanel extends TabPanel {
     private TabItem resultTabItem;
     
     private TabItem timeLineTabItem;
+    
+    private JournalGridPanel gridPanel;
 
     public static JournalTabPanel getInstance() {
         if (tabPanel == null)
@@ -46,6 +48,8 @@ public class JournalTabPanel extends TabPanel {
         resultTabItem.setId("resultTabItem"); //$NON-NLS-1$
         resultTabItem.setLayout(new FitLayout());
         resultTabItem.setClosable(false);
+        gridPanel = new JournalGridPanel();
+        resultTabItem.add(gridPanel);
         this.add(resultTabItem);
                 
         timeLineTabItem = new TabItem(MessagesFactory.getMessages().timeline_tab());

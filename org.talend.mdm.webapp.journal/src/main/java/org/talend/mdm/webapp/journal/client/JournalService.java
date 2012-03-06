@@ -12,6 +12,12 @@
 // ============================================================================
 package org.talend.mdm.webapp.journal.client;
 
+import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.journal.shared.JournalGridModel;
+import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
+
+import com.extjs.gxt.ui.client.data.PagingLoadConfig;
+import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
@@ -21,4 +27,5 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("JournalService")
 public interface JournalService extends RemoteService {
 
+    PagingLoadResult<JournalGridModel> getJournalList(JournalSearchCriteria criteria, PagingLoadConfig load) throws ServiceException;
 }
