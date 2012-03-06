@@ -14,7 +14,7 @@
 
 	<property name="version.props" value="product_version.properties"/>
 		
-	<property name="jboss.dir" value="e:/opt/trunk/jboss-4.2.2.GA"/>
+	<property name="jboss.dir" value="/home/pascal/dev/jboss/jboss-4.2.2.GA-mdm"/>
 	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
 	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
 	<property name="jboss.lib.dir" value="${jboss.instance.dir}/lib"/>
@@ -130,7 +130,7 @@
 				<include name="${version.props}" />
 			</zipfileset>
 			<zipfileset dir="bin" includes="**/*.class" />
-			<zipfileset dir="src" excludes="**/*.java"/>
+			<zipfileset dir="src" excludes="**/*.java,WEB-INF/**"/>
 		</jar>
    		
    		<!-- used by transformer plugins -->
