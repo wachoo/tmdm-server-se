@@ -10,12 +10,6 @@
     <servlet-name>browserecordsServlet</servlet-name>
     <servlet-class>org.talend.mdm.webapp.general.gwt.ProxyGWTServiceImpl</servlet-class>
   </servlet>
-
- 
-  <servlet-mapping>
-    <servlet-name>browserecordsServlet</servlet-name>
-    <url-pattern>/browserecords/BrowseRecordsService</url-pattern>
-  </servlet-mapping>   
   
   <servlet>
     <servlet-name>exportExcelFile</servlet-name>
@@ -30,6 +24,11 @@
 	</servlet>
 
     <servlet-mapping>
+        <servlet-name>browserecordsServlet</servlet-name>
+        <url-pattern>/browserecords/BrowseRecordsService</url-pattern>
+    </servlet-mapping>   
+  
+    <servlet-mapping>
         <servlet-name>readExcelFile</servlet-name>
         <url-pattern>/upload</url-pattern>
     </servlet-mapping>
@@ -38,6 +37,11 @@
         <servlet-name>exportExcelFile</servlet-name>
         <url-pattern>/download</url-pattern>
     </servlet-mapping>
+    
+    <!-- Default page to serve -->
+    <welcome-file-list>
+        <welcome-file>BrowseRecords.html</welcome-file>
+    </welcome-file-list>
   
     <!-- Security -->
     @{dev.mode.excluded.start}
@@ -76,11 +80,5 @@
         <role-name>authenticated</role-name>
     </security-role>
     @{dev.mode.excluded.end}
- 
-  
-  <!-- Default page to serve -->
-  <welcome-file-list>
-    <welcome-file>BrowseRecords.html</welcome-file>
-  </welcome-file-list>
 
 </web-app>
