@@ -1797,6 +1797,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     }
 
+    protected OutputReport getBeforeSavingOutputReport(String concept, String xml,
+            String resultUpdateReport)throws Exception{
+    	return Util.beforeSaving(concept, xml, resultUpdateReport);
+    }
     public boolean beforeSaving(com.amalto.core.webservice.WSPutItemWithReport wsPutItemWithReport, String concept, String xml,
             String resultUpdateReport) throws Exception {
         //Do we call Triggers&Before processes?
@@ -1804,7 +1808,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         wsPutItemWithReport.getWsPutItem().setXmlString(null);
         if (wsPutItemWithReport.getInvokeBeforeSaving()) {
             // invoke BeforeSaving process if it exists
-            OutputReport outputreport = Util.beforeSaving(concept, xml, resultUpdateReport);
+            OutputReport outputreport = getBeforeSavingOutputReport(concept, xml, resultUpdateReport);
             if (outputreport != null) { // when a process was found
                 String message = outputreport.getMessage();
                 Document doc = Util.parse(message);
