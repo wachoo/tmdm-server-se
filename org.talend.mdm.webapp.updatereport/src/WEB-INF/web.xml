@@ -20,25 +20,25 @@
         <servlet-class>talend.webapp.v3.updatereport.servlet.UpdateReportDetailsServelt</servlet-class>
     </servlet>
     
-    <servlet-mapping>
-        <servlet-name>UpdateReportDetailsServelt</servlet-name>
-        <url-pattern>/secure/updateReportDetails</url-pattern>
-    </servlet-mapping>
-
     <servlet>
         <servlet-name>DocumentHistoryServlet</servlet-name>
         <servlet-class>talend.webapp.v3.updatereport.servlet.DocumentHistoryServlet</servlet-class>
     </servlet>
 
-    <servlet-mapping>
-        <servlet-name>DocumentHistoryServlet</servlet-name>
-        <url-pattern>/secure/documentHistory</url-pattern>
-    </servlet-mapping>
-
     <servlet>
         <servlet-name>DocumentRestoreServlet</servlet-name>
         <servlet-class>talend.webapp.v3.updatereport.servlet.DocumentRestoreServlet</servlet-class>
     </servlet>
+
+    <servlet-mapping>
+        <servlet-name>UpdateReportDetailsServelt</servlet-name>
+        <url-pattern>/secure/updateReportDetails</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>DocumentHistoryServlet</servlet-name>
+        <url-pattern>/secure/documentHistory</url-pattern>
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>DocumentRestoreServlet</servlet-name>
