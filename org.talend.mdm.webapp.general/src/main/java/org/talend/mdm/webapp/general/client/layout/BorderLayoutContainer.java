@@ -14,19 +14,30 @@ package org.talend.mdm.webapp.general.client.layout;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Element;
 
 public class BorderLayoutContainer extends Viewport {
 
     Html messageHtml = new Html();
+
+    private static final int DEFAULT_WEST_SIZE = 250;
+
+    private static final int DEFAULT_EAST_SIZE = 250;
+
+    private static final String WEST_WIDTH = "WEST_WIDTH"; //$NON-NLS-1$
+
+    private static final String EAST_WIDTH = "EAST_WIDTH"; //$NON-NLS-1$
 
     @Override
     protected void onRender(Element target, int index) {
@@ -36,13 +47,25 @@ public class BorderLayoutContainer extends Viewport {
         this.setBorders(false);
 
         ContentPanel north = BrandingBar.getInstance();
-        LayoutContainer west = AccordionMenus.getInstance();
+        AccordionMenus west = AccordionMenus.getInstance();
+        west.addListener(Events.Resize, new Listener<BaseEvent>() {
+
+            public void handleEvent(BaseEvent be) {
+                Cookies.setCookie(WEST_WIDTH, AccordionMenus.getInstance().getWidth() + ""); //$NON-NLS-1$
+            }
+        });
         WorkSpace center = WorkSpace.getInstance();
         center.setId("MDMCenterWorkspace"); //$NON-NLS-1$
         center.setBorders(false);
         center.setScrollMode(Scroll.AUTOX);
 
         ActionsPanel east = ActionsPanel.getInstance();
+        east.addListener(Events.Resize, new Listener<BaseEvent>() {
+
+            public void handleEvent(BaseEvent be) {
+                Cookies.setCookie(EAST_WIDTH, ActionsPanel.getInstance().getWidth() + ""); //$NON-NLS-1$
+            }
+        });
         east.setBorders(false);
         ContentPanel south = new ContentPanel();
         south.setId("status"); //$NON-NLS-1$
@@ -56,7 +79,14 @@ public class BorderLayoutContainer extends Viewport {
         northData.setFloatable(false);
         northData.setHideCollapseTool(true);
 
-        BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 250);
+        BorderLayoutData westData;
+        String westWidth = Cookies.getCookie(WEST_WIDTH);
+        if (westWidth != null && westWidth.trim().length() > 0) {
+            westData = new BorderLayoutData(LayoutRegion.WEST, Integer.parseInt(westWidth));
+        } else {
+            westData = new BorderLayoutData(LayoutRegion.WEST, DEFAULT_WEST_SIZE);
+        }
+
         westData.setMaxSize(300);
         westData.setSplit(true);
         westData.setCollapsible(true);
@@ -65,7 +95,14 @@ public class BorderLayoutContainer extends Viewport {
         BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
         centerData.setMargins(new Margins(0));
 
-        BorderLayoutData eastData = new BorderLayoutData(LayoutRegion.EAST, 240);
+        BorderLayoutData eastData;
+        String eastWidth = Cookies.getCookie(EAST_WIDTH);
+        if (eastWidth != null && eastWidth.trim().length() > 0) {
+            eastData = new BorderLayoutData(LayoutRegion.EAST, Integer.parseInt(eastWidth));
+        } else {
+            eastData = new BorderLayoutData(LayoutRegion.EAST, DEFAULT_EAST_SIZE);
+        }
+
         eastData.setMaxSize(300);
         eastData.setSplit(true);
         eastData.setCollapsible(true);
@@ -91,9 +128,9 @@ public class BorderLayoutContainer extends Viewport {
     }
 
     private static native void registerWorkingMessage()/*-{
-                                                       var instance = this;
-                                                       $wnd.working = function(message){
-                                                       instance.@org.talend.mdm.webapp.general.client.layout.BorderLayoutContainer::setMessage(Ljava/lang/String;)(message);
-                                                       };
-                                                       }-*/;
+        var instance = this;
+        $wnd.working = function(message){
+        instance.@org.talend.mdm.webapp.general.client.layout.BorderLayoutContainer::setMessage(Ljava/lang/String;)(message);
+        };
+    }-*/;
 }
