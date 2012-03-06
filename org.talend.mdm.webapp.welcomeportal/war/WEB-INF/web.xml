@@ -15,7 +15,12 @@
     <servlet-name>welcomeportalServlet</servlet-name>
     <url-pattern>/welcomeportal/WelcomePortalService</url-pattern>
   </servlet-mapping>
-  
+
+  <!-- Default page to serve -->
+  <welcome-file-list>
+    <welcome-file>WelcomePortal.html</welcome-file>
+  </welcome-file-list>
+    
    <!-- Security -->
     @{dev.mode.excluded.start}
     <security-constraint>
@@ -53,10 +58,5 @@
         <role-name>authenticated</role-name>
     </security-role>
     @{dev.mode.excluded.end}
-  
-  <!-- Default page to serve -->
-  <welcome-file-list>
-    <welcome-file>WelcomePortal.html</welcome-file>
-  </welcome-file-list>
 
 </web-app>
