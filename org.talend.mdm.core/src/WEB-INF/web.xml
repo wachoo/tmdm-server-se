@@ -8,10 +8,20 @@
        Non clustered version 
        <distributable/> 
    --> 
-
+   <filter>
+       <filter-name>errorFilter</filter-name>
+       <filter-class>com.amalto.core.servlet.ErrorFilter</filter-class>
+   </filter>
+   
+   <!-- Enable bulk load servlet to print out full exception stack trace in case of error/exception -->
+   <filter-mapping>
+      <filter-name>errorFilter</filter-name>
+      <url-pattern>/loadServlet</url-pattern>
+   </filter-mapping>
+   
    <listener>
       <listener-class>com.amalto.core.servlet.ContextListener</listener-class>
-  </listener>
+   </listener>
 
    <servlet>
       <servlet-name>runServlet</servlet-name>
@@ -55,12 +65,6 @@
       <servlet-class>com.amalto.core.servlet.ExportServlet</servlet-class>
    </servlet>
 
-   <filter>
-       <filter-name>errorFilter</filter-name>
-       <filter-class>com.amalto.core.servlet.ErrorFilter</filter-class>
-   </filter>
-  
-  
    <servlet-mapping>
       <servlet-name>runServlet</servlet-name>
       <url-pattern>/</url-pattern>
@@ -77,13 +81,6 @@
       <servlet-name>exportServlet</servlet-name>
       <url-pattern>/exportServlet</url-pattern>
    </servlet-mapping>
-
-   <!-- Enable bulk load servlet to print out full exception stack trace in case of error/exception -->
-   <filter-mapping>
-      <filter-name>errorFilter</filter-name>
-      <url-pattern>/loadServlet</url-pattern>
-   </filter-mapping>
-
 
    <taglib>
       <taglib-uri>http://java.sun.com/jstl/ea/core</taglib-uri>
