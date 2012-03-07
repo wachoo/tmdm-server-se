@@ -38,6 +38,7 @@ public class ImageUploadServlet extends HttpServlet {
 	private List okFileTypes = null;
 	private String defaultFilefieldName="";
 	private String defaultCatalogfieldName="";
+    private String defaultFileNamefieldName = "";
 	private String outputFormat="xml";
 	private String bakInDB="false";
 	private String dbDelegateClass="";
@@ -51,6 +52,7 @@ public class ImageUploadServlet extends HttpServlet {
 	private String targetUri = "upload";
 	private String targetCatalogName = "";
 	private String targetFileName = "";
+    private String targetFileShortName = "";
 
     private boolean changeFileName = true;
 	public void init(ServletConfig config) throws ServletException {
@@ -60,7 +62,8 @@ public class ImageUploadServlet extends HttpServlet {
 		String[] typeArray = types.split("\\|");
 		okFileTypes = Arrays.asList(typeArray);
 		defaultFilefieldName = config.getInitParameter("default-file-field-name");
-		defaultCatalogfieldName =  config.getInitParameter("default-catalog-field-name");
+        defaultFileNamefieldName = config.getInitParameter("default-filename-field-name");
+        defaultCatalogfieldName = config.getInitParameter("default-catalog-field-name");
 		outputFormat = config.getInitParameter("output-format");
 		bakInDB = config.getInitParameter("bak-in-db");
 		dbDelegateClass = config.getInitParameter("db-delegate-class");
@@ -150,6 +153,10 @@ public class ImageUploadServlet extends HttpServlet {
 						if (catalogNameObj != null)
 							targetCatalogName = (String) catalogNameObj;
 
+                        Object fileNameObj = getFileItem(fileItems, defaultFileNamefieldName);
+                        if (fileNameObj != null)
+                            targetFileShortName = (String) fileNameObj;
+
 						int rtnStatus=processUploadedFile(uploadFileItem,true,Boolean.parseBoolean(bakInDB),Boolean.parseBoolean(bakUseTransaction));
 						
 						if ( rtnStatus == 1) {
@@ -206,10 +213,15 @@ public class ImageUploadServlet extends HttpServlet {
 
 			String uid = Uuid.get32Code().toString();
 
-            sourceFileName = parseFileFullName(fileName)[0];
-            sourceFileType = parseFileFullName(fileName)[1];
-            if (!changeFileName) {
-                uid = sourceFileName;
+            String[] fileParsedResult = parseFileFullName(fileName);
+            sourceFileName = fileParsedResult[0];
+            sourceFileType = fileParsedResult[1];
+            if (targetFileShortName != null && targetFileShortName.trim().length() > 0) {
+                // do nothing
+            } else if (!changeFileName) {
+                targetFileShortName = sourceFileName;
+            } else {
+                targetFileShortName = uid;
             }
 			if (!okFileTypes.contains(this.sourceFileType.toLowerCase())) {
 				return -1;
@@ -223,11 +235,11 @@ public class ImageUploadServlet extends HttpServlet {
 				upath.append(uploadPath);
 				if(!targetCatalogName.equals("/"))upath.append(File.separator).append(targetCatalogName);
 				locateCatalog(upath);
-				targetFileName=(uid+"."+sourceFileType);
+                targetFileName = (targetFileShortName + "." + sourceFileType);
 				upath.append(File.separator).append(targetFileName);
 
 				if(!targetCatalogName.equals("/"))targetUri += ("/"+targetCatalogName);
-				targetUri += ("/" + uid + "." + sourceFileType);
+                targetUri += ("/" + targetFileShortName + "." + sourceFileType);
 
 				File uploadedFile = new File(upath.toString());
 				item.write(uploadedFile);

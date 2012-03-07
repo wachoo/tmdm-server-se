@@ -24,6 +24,7 @@ function _submit(){
 <form name="uploadform" method="POST" enctype="multipart/form-data">
 
 File:<input type="file" name="imageFile" /><br />
+FileName:<input type="text" name="fileName" /><br />
 Catalog:<input type="text" name="catalogName" /><br />
 <input type="button" name="upload" value="upload" onclick="_submit()"><br />
 You can request the uploaded image in this way: "http://{domain}[:port]/{web_context}/{feedback_uri}?width=300&height=300&preserveAspectRatio=true"<br />

@@ -20,6 +20,10 @@
 			<param-value>catalogName</param-value>
 		</init-param>
 		<init-param>
+			<param-name>default-filename-field-name</param-name>
+			<param-value>fileName</param-value>
+		</init-param>
+		<init-param>
 			<param-name>output-format</param-name>
 			<param-value>json</param-value>
 		</init-param>
