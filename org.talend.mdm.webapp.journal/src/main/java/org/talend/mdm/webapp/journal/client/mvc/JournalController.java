@@ -28,6 +28,7 @@ public class JournalController extends Controller {
     public JournalController() {
         registerEventTypes(JournalEvents.InitFrame);
         registerEventTypes(JournalEvents.Error);
+        registerEventTypes(JournalEvents.DoSearch);
     }
 
     public void initialize() {
@@ -39,6 +40,8 @@ public class JournalController extends Controller {
         if (type == JournalEvents.InitFrame) {
             forwardToView(view, event);
         } else if (type == JournalEvents.Error) {
+            forwardToView(view, event);
+        } else if (type == JournalEvents.DoSearch) {
             forwardToView(view, event);
         }
     }

@@ -13,17 +13,22 @@
 package org.talend.mdm.webapp.journal.client.widget;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
+import org.talend.mdm.webapp.base.client.util.PostDataUtil;
 import org.talend.mdm.webapp.journal.client.Journal;
-import org.talend.mdm.webapp.journal.client.JournalServiceAsync;
+import org.talend.mdm.webapp.journal.client.JournalEvents;
 import org.talend.mdm.webapp.journal.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -43,9 +48,7 @@ import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 public class JournalSearchPanel extends FormPanel {
 
     private static JournalSearchPanel formPanel;
-    
-    private JournalServiceAsync service = Registry.get(Journal.JOURNAL_SERVICE);
-    
+        
     private TextField<String> entityField;
     
     private TextField<String> keyField;
@@ -166,7 +169,9 @@ public class JournalSearchPanel extends FormPanel {
             
             @Override
             public void componentSelected(ButtonEvent ce) {
-                
+                bundleCriteria();
+                Dispatcher dispatcher = Dispatcher.get();
+                dispatcher.dispatch(JournalEvents.DoSearch);
             }
         });
         this.addButton(searchButton);
@@ -176,7 +181,7 @@ public class JournalSearchPanel extends FormPanel {
             
             @Override
             public void componentSelected(ButtonEvent ce) {
-                
+                PostDataUtil.postData("/journal/journalExport", getCriteriaMap()); //$NON-NLS-1$
             }
         });
         this.addButton(exportButton);
@@ -193,5 +198,36 @@ public class JournalSearchPanel extends FormPanel {
         ListStore<ItemBaseModel> store = new ListStore<ItemBaseModel>();
         store.add(modelList);
         return store;
+    }
+    
+    private void bundleCriteria(){
+        JournalSearchCriteria criteria = Registry.get(Journal.SEARCH_CRITERIA);
+        criteria.setEntity(entityField.getValue());
+        criteria.setKey(keyField.getValue());
+        if(sourceCombo.getValue() != null)
+            criteria.setSource(sourceCombo.getValue().get("key").toString()); //$NON-NLS-1$
+        if(operationTypeCombo.getValue() != null)
+            criteria.setOperationType(operationTypeCombo.getValue().get("key").toString()); //$NON-NLS-1$
+        criteria.setStartDate(startDateField.getValue());
+        criteria.setEndDate(endDateField.getValue());
+    }
+    
+    private Map<String, String> getCriteriaMap(){
+        Map<String, String> map = new HashMap<String, String>();
+        if(entityField.getValue() != null)
+            map.put("entity", entityField.getValue()); //$NON-NLS-1$
+        if(keyField.getValue() != null)
+            map.put("key", keyField.getValue()); //$NON-NLS-1$
+        if(sourceCombo.getValue() != null)
+            map.put("source", sourceCombo.getValue().get("key").toString()); //$NON-NLS-1$ //$NON-NLS-2$
+        if(operationTypeCombo.getValue() != null)
+            map.put("operationType", operationTypeCombo.getValue().get("key").toString()); //$NON-NLS-1$ //$NON-NLS-2$
+        if(startDateField.getValue() != null)
+            map.put("startDate", String.valueOf(startDateField.getValue().getTime())); //$NON-NLS-1$
+        if(endDateField.getValue() != null)
+            map.put("endDate", String.valueOf(endDateField.getValue().getTime())); //$NON-NLS-1$
+        map.put("language", "en"); //$NON-NLS-1$ //$NON-NLS-2$
+
+        return map;
     }
 }

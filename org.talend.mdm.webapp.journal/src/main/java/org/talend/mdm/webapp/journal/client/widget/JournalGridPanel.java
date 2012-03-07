@@ -122,11 +122,12 @@ public class JournalGridPanel extends ContentPanel {
         ccUserName.setWidth(120);
         ccList.add(ccUserName);
         
+        final JournalSearchCriteria criteria = Registry.get(Journal.SEARCH_CRITERIA);
         RpcProxy<PagingLoadResult<JournalGridModel>> proxy = new RpcProxy<PagingLoadResult<JournalGridModel>>() {
 
             @Override
             protected void load(Object loadConfig, final AsyncCallback<PagingLoadResult<JournalGridModel>> callback) {
-                service.getJournalList(new JournalSearchCriteria(), (PagingLoadConfig) loadConfig,
+                service.getJournalList(criteria, (PagingLoadConfig) loadConfig,
                         new SessionAwareAsyncCallback<PagingLoadResult<JournalGridModel>>() {
 
                             public void onSuccess(PagingLoadResult<JournalGridModel> result) {
@@ -175,5 +176,9 @@ public class JournalGridPanel extends ContentPanel {
         
         this.add(grid);
         this.setBottomComponent(pagetoolBar);
+    }
+    
+    public void refreshGrid() {
+        pagetoolBar.refresh();
     }
 }

@@ -14,7 +14,17 @@
 	<servlet-mapping>
 		<servlet-name>journalServlet</servlet-name>
 		<url-pattern>/journal/JournalService</url-pattern>
-	</servlet-mapping>  
+	</servlet-mapping>
+	
+	<servlet>
+        <servlet-name>journalExportServlet</servlet-name>
+        <servlet-class>org.talend.mdm.webapp.journal.server.servlet.JournalExportServlet</servlet-class>
+    </servlet>
+
+	<servlet-mapping>
+		<servlet-name>journalExportServlet</servlet-name>
+		<url-pattern>/journalExport</url-pattern>
+	</servlet-mapping>   
   
     <!-- Default page to serve -->
     <welcome-file-list>

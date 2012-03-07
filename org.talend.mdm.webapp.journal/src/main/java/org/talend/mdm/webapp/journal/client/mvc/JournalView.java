@@ -39,6 +39,8 @@ public class JournalView extends View {
     protected void handleEvent(AppEvent event) {
         if (event.getType() == JournalEvents.InitFrame)
             onInitFrame(event);
+        else if (event.getType() == JournalEvents.DoSearch)
+            onDoSearch(event);
     }
     
     private void onInitFrame(AppEvent event) {
@@ -61,5 +63,9 @@ public class JournalView extends View {
         centerData.setMargins(new Margins(0));
         JournalTabPanel southPanel = JournalTabPanel.getInstance();
         container.add(southPanel, centerData);
+    }
+    
+    private void onDoSearch(AppEvent event) {
+        JournalTabPanel.getInstance().getJournalGridPanel().refreshGrid();
     }
 }
