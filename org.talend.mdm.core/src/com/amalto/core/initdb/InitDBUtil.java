@@ -1,6 +1,8 @@
 package com.amalto.core.initdb;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -14,6 +16,8 @@ import java.util.Map.Entry;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Document;
@@ -33,6 +37,8 @@ import com.amalto.core.util.XtentisException;
  *
  */
 public class InitDBUtil {
+	static Logger logger=Logger.getLogger(InitDBUtil.class);
+	
 	static HashMap<String, List<String>> initDB=new HashMap<String, List<String>>();
 	static HashMap<String, List<String>> initExtensionDB=new HashMap<String, List<String>>();
 	static boolean useExtension=false;
@@ -102,8 +108,14 @@ public class InitDBUtil {
 		if(useExtension)updateDB("/com/amalto/core/initdb/extensiondata", initExtensionDB);
 		updateUsersWithNewRoleScheme();
 		deleteScrapDB();
+		
+		//init db extension job		
+		initDBExtJob();
 	}
 	
+	private static void initDBExtJob(){
+		InitDbExtJobRepository.getInstance().execute();
+	}
 	private static void updateDB(String resourcePath,
 			HashMap<String, List<String>> initdb)  {
 		for(Entry<String, List<String>> entry: initdb.entrySet()){
