@@ -146,7 +146,8 @@ public class JournalGridPanel extends ContentPanel {
         };
         
         final PagingLoader<PagingLoadResult<JournalGridModel>> loader = new BasePagingLoader<PagingLoadResult<JournalGridModel>>(proxy);
-
+        loader.setRemoteSort(true);
+        
         store = new ListStore<JournalGridModel>(loader);
         grid = new Grid<JournalGridModel>(store, new ColumnModel(ccList));
         grid.getView().setAutoFill(true);
