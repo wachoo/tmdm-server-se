@@ -103,6 +103,7 @@ import com.amalto.core.objects.transformers.v2.util.TransformerContext;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
+import com.amalto.core.util.AutoIncrementGenerator;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.UpdateReportItem;
@@ -740,6 +741,8 @@ public abstract class IXtentisRMIPort implements XtentisPort {
     @SuppressWarnings("nls")
     protected WSItemPK putItem(WSPutItem wsPutItem, WSPutItemWithReport wsPutItemWithReport, String resultUpdateReport)
             throws RemoteException {
+        boolean saveFailure = true;
+        int rootNodeHashCode = 0;
         try {
             String projection = wsPutItem.getXmlString();
             Element root = Util.parse(projection, null).getDocumentElement();
@@ -768,6 +771,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                 }
             }
             ItemPOJO itemPojo = new ItemPOJO(dcpk, concept, itemKeyValues, System.currentTimeMillis(), projection);
+            rootNodeHashCode = itemPojo.getProjection().hashCode();
             // see TMDM-1767
             // invoke validate
             processUUIDAndValidate(itemPojo, dataModel.getSchema());
@@ -786,11 +790,13 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             }
 
             ItemPOJOPK itemPOJOPK = com.amalto.core.util.Util.getItemCtrl2Local().putItem(itemPojo, dataModel);
+            // invoke AutoIncrementGenerator
+            if (!wsPutItem.getIsUpdate()) {
+                AutoIncrementGenerator.check(rootNodeHashCode);
+                saveFailure = false;
+            }
             if (itemPOJOPK == null)
                 return null;
-
-            // update vocabulary
-            // com.amalto.core.util.Util.getDataClusterCtrlLocal().addToVocabulary(dcpk, projection);
 
             return new WSItemPK(new WSDataClusterPK(itemPOJOPK.getDataClusterPOJOPK().getUniqueId()),
                     itemPOJOPK.getConceptName(), itemPOJOPK.getIds());
@@ -808,8 +814,11 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                 }
             }
             throw new RemoteException(prefix + err);
+        } finally {
+            // exist auto_increment, it need save the unused auto_increment id
+            if(saveFailure && !wsPutItem.getIsUpdate())
+                AutoIncrementGenerator.saveUnUsedIdsToDB(true, rootNodeHashCode);
         }
-
     }
 
     public WSItemPK putItem(WSPutItem wsPutItem) throws RemoteException {
@@ -2269,7 +2278,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             if (Util.getUUIDNodes(schema, concept).size() > 0) { // check uuid key exists
 
                 Document schema1 = Util.parse(schema);
-                Node n = Util.processUUID(item.getProjection(), schema, dataCluster, concept);
+                Node n = Util.processUUID(true, item.getProjection(), schema, dataCluster, concept);
                 XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(schema1, concept);
                 // get key values
                 String[] itemKeyValues = com.amalto.core.util.Util.getKeyValuesFromItem((Element) n, conceptKey);

@@ -1165,13 +1165,18 @@ public class Util {
     }
 
     public static Node processUUID(Element root, String schema, String dataCluster, String concept) throws Exception {
-        return Util.generateUUIDForElement(schema, dataCluster, concept, root, false);
+        return Util.generateUUIDForElement(schema, dataCluster, concept, root, false, false);
+    }
+
+    public static Node processUUID(boolean saveUnUsedAutoIncrement, Element root, String schema, String dataCluster,
+            String concept) throws Exception {
+        return Util.generateUUIDForElement(schema, dataCluster, concept, root, false, saveUnUsedAutoIncrement);
     }
 
     public static Node processUUID(Element root, String schema, String dataCluster, String concept, boolean pseudoAutoIncrement)
             throws Exception {
 
-        return Util.generateUUIDForElement(schema, dataCluster, concept, root, pseudoAutoIncrement);
+        return Util.generateUUIDForElement(schema, dataCluster, concept, root, pseudoAutoIncrement, false);
 
     }
 
@@ -1521,7 +1526,7 @@ public class Util {
      * @throws Exception
      */
     private static Node generateUUIDForElement(String schema, String dataCluster, String concept, Element conceptRoot,
-            boolean pseudoAutoIncrement) throws Exception {
+            boolean pseudoAutoIncrement, boolean saveUnUsedAutoIncrement) throws Exception {
         List<UUIDPath> uuidLists = getUUIDNodes(schema, concept);
         JXPathContext jxpContext = JXPathContext.newContext(conceptRoot);
         jxpContext.setLenient(true);
@@ -1542,9 +1547,15 @@ public class Util {
                     String universe = LocalUser.getLocalUser().getUniverse().getName();
                     Object o = jxpContext.getValue(xpath);
                     if (o == null || o.toString().trim().length() == 0) {
-                        long id = AutoIncrementGenerator.generateNum(universe, dataCluster,
+                        long id;
+                        if (saveUnUsedAutoIncrement)
+                            id = AutoIncrementGenerator.generateNum(conceptRoot.hashCode(), universe, dataCluster,
                                 concept + "." + xpath.replaceAll("/", "."));
-                        AutoIncrementGenerator.saveToDB();
+                        else {
+                            id = AutoIncrementGenerator.generateNum(universe, dataCluster,
+                                    concept + "." + xpath.replaceAll("/", "."));
+                            AutoIncrementGenerator.saveToDB();
+                        }
                         value = String.valueOf(id);
                     } else
                         value = o.toString();
