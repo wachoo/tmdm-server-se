@@ -48,7 +48,7 @@ public abstract class SessionAwareAsyncCallback<T> implements AsyncCallback<T> {
 
     protected void doOnFailure(Throwable caught) {
         String errorMsg = caught.getLocalizedMessage();
-        if (errorMsg == null) {
+        if (errorMsg == null || "".equals(errorMsg)) { //$NON-NLS-1$
             if (Log.isDebugEnabled())
                 errorMsg = caught.toString(); // for debugging purpose
             else
