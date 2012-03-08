@@ -125,8 +125,13 @@ public class ItemsListPanel extends ContentPanel {
 
             // validate criteria on client-side first
             try {
-                if (qm.getCriteria() == null)
+                if (qm.getCriteria() == null){
                     return;
+                }else if (qm.getErrorValue() != null && !"".equals(qm.getErrorValue())){ //$NON-NLS-1$
+                    MessageBox.alert(MessagesFactory.getMessages().search_field_error_title(), MessagesFactory.getMessages().search_field_error_info(qm.getErrorValue()), null); 
+                    callback.onSuccess(new BasePagingLoadResult<ItemBean>(new ArrayList<ItemBean>(), 0, 0));
+                    return;
+                }                    
                 Parser.parse(qm.getCriteria());
             } catch (ParserException e) {
                 MessageBox.alert(MessagesFactory.getMessages().error_title(), e.getMessage(), null);
