@@ -370,4 +370,8 @@ public interface BrowseRecordsMessages extends Messages {
     String hierarchy_title();
 
     String search_result();
+    
+    String search_field_error_title();
+    
+    String search_field_error_info(String value);
 }

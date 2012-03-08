@@ -23,6 +23,7 @@ import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
+import org.talend.mdm.webapp.base.client.util.CriteriaUtil;
 import org.talend.mdm.webapp.base.client.util.PostDataUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
@@ -187,6 +188,8 @@ public class ItemsToolBar extends ToolBar {
         qm.setDataClusterPK(userCluster);
         qm.setView(BrowseRecords.getSession().getCurrentView());
         qm.setModel(BrowseRecords.getSession().getCurrentEntityModel());
+        UserSession userSession = BrowseRecords.getSession();
+        EntityModel entityModel = (EntityModel) userSession.get(UserSession.CURRENT_ENTITY_MODEL);
         if (isSimple || advancedPanel == null) {
             SimpleCriterion simpCriterion = simplePanel.getCriteria();
             MultipleCriteria criteriaStore = (MultipleCriteria) BrowseRecords.getSession().get(
@@ -200,6 +203,9 @@ public class ItemsToolBar extends ToolBar {
             criteriaStore.add(simpCriterion);
             BrowseRecords.getSession().put(UserSession.CUSTOMIZE_CRITERION_STORE, criteriaStore);
             qm.setCriteria(simplePanel.getCriteria().toString());
+            if (!CommonUtil.validateSearchValue(entityModel.getMetaDataTypes(),simpCriterion.getValue())){
+                qm.setErrorValue(simpCriterion.getValue());
+            }
         } else {
             if (!advancedPanel.isVisible()) {
                 advancedPanel.setVisible(true);
@@ -208,6 +214,14 @@ public class ItemsToolBar extends ToolBar {
                 ItemsSearchContainer.getInstance().resizeTop(30 + advancedPanel.getOffsetHeight());
             }
             qm.setCriteria(advancedPanel.getCriteria());
+            MultipleCriteria multipleCriteria = (MultipleCriteria) BrowseRecords.getSession().get(UserSession.CUSTOMIZE_CRITERION_STORE);
+            List<SimpleCriterion> simpleCriterions = CriteriaUtil.getSimpleCriterions(multipleCriteria);
+            for (SimpleCriterion criteria : simpleCriterions){
+                if (!CommonUtil.validateSearchValue(entityModel.getMetaDataTypes(),criteria.getValue())){
+                    qm.setErrorValue(criteria.getValue());
+                    break;
+                }             
+            }            
         }
     }
 

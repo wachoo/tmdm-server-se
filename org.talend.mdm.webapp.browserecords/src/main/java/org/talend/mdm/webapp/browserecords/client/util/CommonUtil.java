@@ -384,4 +384,39 @@ public class CommonUtil {
 
         return false;
     }
+    
+    public static boolean validateSearchValue(Map<String, TypeModel> metaDataTypeMap,String value) {
+        if (!value.contains("/")) //$NON-NLS-1$
+        {
+            return true;
+        }else if (isString(value)){
+            return true;
+        }else if (isPath(metaDataTypeMap,value)){
+            return true;
+        }else{
+            return false;
+        }       
+    }
+    
+    private static boolean isString(String value){
+        if (((value.startsWith("'") && value.endsWith("'")) || (value.startsWith("\"") && value.endsWith("\"")))){ //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            return true;
+        }else{
+            return false;
+        }        
+    }
+    
+    private static boolean isPath(Map<String, TypeModel> metaDataTypeMap,String value){
+        if (!value.endsWith("/")) //$NON-NLS-1$
+        {
+            value = (value.startsWith("/") ? value.substring(1) : value); //$NON-NLS-1$
+            if (metaDataTypeMap.get(value) != null){
+                return true;
+            }else{
+                return false;
+            }
+        }else{
+            return false;
+        }        
+    }   
 }

@@ -34,6 +34,8 @@ public class QueryModel extends ItemBaseModel {
 
     String language;
     
+    String errorValue;
+
     public QueryModel() {
 
     }
@@ -85,4 +87,12 @@ public class QueryModel extends ItemBaseModel {
 	public void setLanguage(String language) {
 		this.language = language;
 	}
+    
+    public String getErrorValue() {
+        return errorValue;
+    }
+    
+    public void setErrorValue(String errorValue) {
+        this.errorValue = errorValue;
+    }
 }

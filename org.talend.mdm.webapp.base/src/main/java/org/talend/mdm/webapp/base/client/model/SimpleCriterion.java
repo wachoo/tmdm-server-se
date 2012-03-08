@@ -42,7 +42,7 @@ public class SimpleCriterion implements Criteria {
 
     @Override
     public String toString() {
-        return (key == null ? "" : key) + " " + (operator == null ? "" : operator) + " " + (value == null ? "" : filterSign(value)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+        return (key == null ? "" : key) + " " + (operator == null ? "" : operator) + " " + (value == null ? "" : value); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
     }
 
     public String toAppearanceString() {
@@ -79,16 +79,6 @@ public class SimpleCriterion implements Criteria {
 
     public void setInfo(String info) {
         this.info = info;
-    }
-    
-    private String filterSign(String target){
-        String[] signArray = {"/"}; //$NON-NLS-1$
-        for (int i=0;i<signArray.length;i++){
-            if (target.contains(signArray[i])){
-                return "'" + target + "'";  //$NON-NLS-1$//$NON-NLS-2$
-            }
-        }
-        return target;
     }
 
     public boolean equal(SimpleCriterion criteria) {
