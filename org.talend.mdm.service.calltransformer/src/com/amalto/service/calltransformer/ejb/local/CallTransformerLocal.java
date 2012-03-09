@@ -38,4 +38,7 @@ public interface CallTransformerLocal
 
    public java.io.Serializable fetchFromOutbound( java.lang.String command,java.lang.String parameters,java.lang.String schedulePlanID ) throws com.amalto.core.util.XtentisException;
 
+    public void setRoutingOrderPOJO(com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO routingOrderPOJO)
+            throws com.amalto.core.util.XtentisException;
+
 }

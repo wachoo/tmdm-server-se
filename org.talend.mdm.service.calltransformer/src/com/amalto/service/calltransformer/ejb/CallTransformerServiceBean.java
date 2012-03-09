@@ -78,6 +78,8 @@ public class CallTransformerServiceBean extends ServiceCtrlBean  implements Sess
 	private static final long serialVersionUID = 1L;
 	private static final String Param_Transformer_Name = "process";
 
+    private AbstractRoutingOrderV2POJO routingOrderPOJO = null;
+
 //	private boolean configurationLoaded = false;
 
 	//datamodels cach
@@ -241,7 +243,8 @@ public class CallTransformerServiceBean extends ServiceCtrlBean  implements Sess
 					TransformerContext context = new TransformerContext(new TransformerV2POJOPK(transformer));
 					context.putInPipeline(TransformerV2CtrlBean.DEFAULT_VARIABLE, new TypedContent(pojo.getProjectionAsString().getBytes(),"text/xml"));
 					
-					AbstractRoutingOrderV2POJO routingOrder=Util.getRoutingOrderV2CtrlLocal().getRoutingOrder(new ActiveRoutingOrderV2POJOPK(routingOrderID));
+                    AbstractRoutingOrderV2POJO routingOrder = (getRoutingOrderPOJO() == null ? Util.getRoutingOrderV2CtrlLocal()
+                            .getRoutingOrder(new ActiveRoutingOrderV2POJOPK(routingOrderID)) : getRoutingOrderPOJO());
 					String userToken=null;
 					if(routingOrder!=null){
 						try {
@@ -383,6 +386,27 @@ public class CallTransformerServiceBean extends ServiceCtrlBean  implements Sess
 	    }
 
 	}
+
+    /**
+     * Tie a routing order to a service controller
+     * 
+     * @throws EJBException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method
+     */
+    public void setRoutingOrderPOJO(AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException {
+        this.routingOrderPOJO = routingOrderPOJO;
+    }
+
+    /**
+     * DOC Starkey Comment method "getRoutingOrderPOJO".
+     * 
+     * @return
+     */
+    public AbstractRoutingOrderV2POJO getRoutingOrderPOJO() {
+        return routingOrderPOJO;
+    }
 
 
 }
