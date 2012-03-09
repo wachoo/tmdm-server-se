@@ -188,6 +188,8 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
 		}
 		String result = null;
 		try {
+            if (Util.getMethod(service, "setRoutingOrderPOJO") != null)
+                Util.getMethod(service, "setRoutingOrderPOJO").invoke(service, routingOrderPOJO);
 			result = (String)Util.getMethod(service, "receiveFromInbound").invoke(
 					service,
 					new Object[] {
