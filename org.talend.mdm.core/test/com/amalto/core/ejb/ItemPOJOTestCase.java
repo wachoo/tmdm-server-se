@@ -65,8 +65,9 @@ public class ItemPOJOTestCase extends TestCase {
             + "<Id>IL03</Id>" + "</Agency></p></ii>";
         try {
             itempojo = ItemPOJO.parse(xml1);
+            fail("No exception throw out! ");
         } catch (XtentisException e) {
-            // Expected
+            assertTrue(true);
         }
 
     }
