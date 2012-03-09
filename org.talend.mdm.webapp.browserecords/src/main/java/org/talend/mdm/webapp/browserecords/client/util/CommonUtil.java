@@ -419,4 +419,37 @@ public class CommonUtil {
             return false;
         }        
     }   
+
+    /**
+     * Parsed a file name to a String array, the first object is the short file name, the second one is extension name
+     * Return null if argument illegal
+     * 
+     * @param longFilePath
+     * @return
+     */
+    public static String[] parseFileName(String longFilePath) {
+
+        if (longFilePath == null || longFilePath.trim().length() == 0)
+            return null;
+
+        String shortFileName = "";
+        String fileExtensioName = "";
+        String shortpath = "";
+
+        String[] tokenizer = longFilePath.split("[\\|/]");
+
+        if (tokenizer != null && tokenizer.length > 0)
+            shortpath = tokenizer[tokenizer.length - 1];
+
+        if (shortpath.indexOf(".") != -1) {
+            int pos = shortpath.lastIndexOf(".");
+            shortFileName = shortpath.substring(0, pos);
+            fileExtensioName = shortpath.substring(pos + 1);
+        } else {
+            shortFileName = shortpath;
+        }
+
+        String[] parsedResult = { shortFileName, fileExtensioName };
+        return parsedResult;
+    }
 }

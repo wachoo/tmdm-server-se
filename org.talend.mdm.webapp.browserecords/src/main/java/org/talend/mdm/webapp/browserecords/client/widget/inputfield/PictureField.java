@@ -14,12 +14,14 @@ package org.talend.mdm.webapp.browserecords.client.widget.inputfield;
 
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
+import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.FormEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -29,6 +31,8 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
+import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.PropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
@@ -159,10 +163,10 @@ public class PictureField extends TextField<String> {
     }
 
     private native void regJs(Element el)/*-{
-		var instance = this;
-		el.onclick = function() {
-			instance.@org.talend.mdm.webapp.browserecords.client.widget.inputfield.PictureField::handlerClick(Lcom/google/gwt/user/client/Element;)(this);
-		};
+        var instance = this;
+        el.onclick = function() {
+        	instance.@org.talend.mdm.webapp.browserecords.client.widget.inputfield.PictureField::handlerClick(Lcom/google/gwt/user/client/Element;)(this);
+        };
     }-*/;
 
     @Override
@@ -236,7 +240,7 @@ public class PictureField extends TextField<String> {
             super();
             this.setLayout(new FitLayout());
             this.setHeading(MessagesFactory.getMessages().picture_field_title());
-            this.setSize(380, 150);
+            this.setSize(380, 180);
             this.setModal(true);
             this.setBlinkModal(true);
             FormData formData = new FormData();
@@ -245,12 +249,43 @@ public class PictureField extends TextField<String> {
             editForm.setAction("/imageserver/secure/ImageUploadServlet"); //$NON-NLS-1$
             editForm.setHeaderVisible(false);
             editForm.setBodyBorder(false);
+            editForm.setLabelWidth(110);
+
+            final TextField<String> catalog = new TextField<String>();
+            catalog.setFieldLabel(MessagesFactory.getMessages().picture_field_imgcatalog());
+            catalog.setName("catalogName"); //$NON-NLS-1$
+
+            MultiField imgIdRow = new MultiField();
+            imgIdRow.setFieldLabel(MessagesFactory.getMessages().picture_field_imgid());
+
+            final TextField<String> name = new TextField<String>();
+            name.setFieldLabel(""); //$NON-NLS-1$
+            name.setName("fileName"); //$NON-NLS-1$
+            
+            imgIdRow.add(name);
+            final LabelField extFileNameLabel = new LabelField();
+            imgIdRow.add(extFileNameLabel);
 
             file.setAllowBlank(false);
             file.setName("imageFile");//$NON-NLS-1$
             file.setFieldLabel(MessagesFactory.getMessages().picture_field_label());
+            file.setFireChangeEventOnSetValue(true);
+            file.addListener(Events.Change, new Listener<FieldEvent>() {
+
+                public void handleEvent(FieldEvent be) {
+                    if (name.getValue() == null || name.getValue().isEmpty()) {
+                        String[] parsedFileName = CommonUtil.parseFileName(file.getValue());
+                        name.setValue(parsedFileName[0]);
+                        extFileNameLabel.setText(parsedFileName[1].length() ==0 ? "" : "." + parsedFileName[1]);
+                        // name.focus();
+                    }
+                }
+
+            });
 
             editForm.add(file, formData);
+            editForm.add(catalog, formData);
+            editForm.add(imgIdRow, formData);
             editForm.addListener(Events.Submit, new Listener<FormEvent>() {
 
                 public void handleEvent(FormEvent be) {

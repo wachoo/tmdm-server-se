@@ -229,6 +229,10 @@ public interface BrowseRecordsMessages extends Messages {
 
     String picture_field_label();
 
+    String picture_field_imgcatalog();
+
+    String picture_field_imgid();
+
     String url_field_title();
 
     String message_success();
