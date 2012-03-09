@@ -303,6 +303,7 @@ public class BrowseRecordsView extends View {
         ItemPanel itemPanel = new ItemPanel(panel);
         panel.addTabItem(itemBean.getLabel(), itemPanel, ItemsDetailPanel.SINGLETON, itemBean.getConcept());
         itemPanel.initTreeDetail(viewBean, itemBean, ItemDetailToolBar.CREATE_OPERATION);
+        itemPanel.getToolBar().setFkToolBar(true);
         ItemsMainTabPanel.getInstance().addMainTabItem(itemBean.getLabel(), panel, itemBean.getConcept());
     }
 

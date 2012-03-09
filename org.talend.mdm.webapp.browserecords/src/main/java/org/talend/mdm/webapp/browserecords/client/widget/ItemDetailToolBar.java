@@ -1142,4 +1142,11 @@ public class ItemDetailToolBar extends ToolBar {
         window.open(url);
     }-*/;
 
+    public boolean isFkToolBar() {
+        return isFkToolBar;
+    }
+
+    public void setFkToolBar(boolean isFkToolBar) {
+        this.isFkToolBar = isFkToolBar;
+    }
 }
