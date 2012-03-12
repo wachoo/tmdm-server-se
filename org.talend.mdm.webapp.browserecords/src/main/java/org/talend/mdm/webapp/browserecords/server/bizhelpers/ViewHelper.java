@@ -145,6 +145,7 @@ public class ViewHelper {
 
     private static ColumnTreeModel builderColumnTreeModel(Element el) {
         ColumnTreeModel columnTreeModel = new ColumnTreeModel();
+        columnTreeModel.setStyle(el.getAttribute("style")); //$NON-NLS-1$
         NodeList children = el.getChildNodes();
         if (children != null && children.getLength() > 0) {
             List<ColumnElement> childrenEls = new ArrayList<ColumnElement>();
@@ -165,6 +166,10 @@ public class ViewHelper {
         columnEl.setLabel(el.getAttribute("label")); //$NON-NLS-1$
         columnEl.setxPath(el.getAttribute("xpath")); //$NON-NLS-1$
         columnEl.setParent(el.getAttribute("parent")); //$NON-NLS-1$
+        columnEl.setStyle(el.getAttribute("style")); //$NON-NLS-1$
+        columnEl.setLabelStyle(el.getAttribute("labelStyle")); //$NON-NLS-1$
+        columnEl.setValueStyle(el.getAttribute("valueStyle")); //$NON-NLS-1$
+        columnEl.setHtmlSnippet(el.getAttribute("htmlSnippet")); //$NON-NLS-1$
         NodeList children = el.getChildNodes();
         if (children != null && children.getLength() > 0) {
             List<ColumnElement> childrenEls = new ArrayList<ColumnElement>();

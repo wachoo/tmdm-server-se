@@ -15,7 +15,6 @@ package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +26,6 @@ import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.browserecords.client.model.ColumnElement;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyValidateModel;
@@ -36,6 +34,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
+import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
@@ -57,7 +56,9 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
 
@@ -82,11 +83,6 @@ public class TreeDetail extends ContentPanel {
     private DynamicTreeItem selectedItem;
 
     private ItemsDetailPanel itemsDetailPanel;
-
-    // In case of custom layout, which displays some elements and not others,
-    // we store the DynamicTreeItem corresponding to the displayed elements in
-    // this set.
-    private HashSet<TreeItem> customLayoutDisplayedElements = new HashSet<TreeItem>();
 
     private ClickHandler handler = new ClickHandler() {
 
@@ -116,7 +112,9 @@ public class TreeDetail extends ContentPanel {
                     // if it has default value
                     if (viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath).getDefaultValue() != null)
                         model.setObjectValue(viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath).getDefaultValue());
-                    parentItem.insertItem(buildGWTTree(model, null, true, null), parentItem.getChildIndex(selectedItem) + 1);
+                    DynamicTreeItem treeItem = buildGWTTree(model, null, true, null);
+                    ViewUtil.copyStyleToTreeItem(selectedItem, treeItem);
+                    parentItem.insertItem(treeItem, parentItem.getChildIndex(selectedItem) + 1);
                     occurMap.put(countMapItem, count + 1);
                 } else
                     MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
@@ -156,7 +154,7 @@ public class TreeDetail extends ContentPanel {
         this.setHeaderVisible(false);
         // this.setAutoWidth(true);
         this.setLayout(new FitLayout());
-        this.setScrollMode(Scroll.NONE);
+        this.setScrollMode(Scroll.AUTOY);
         this.setBorders(false);
         this.setBodyBorder(false);
         this.itemsDetailPanel = itemsDetailPanel;
@@ -391,41 +389,6 @@ public class TreeDetail extends ContentPanel {
         }
     }
 
-    private Tree displayGWTTree(ColumnTreeModel columnLayoutModel) {
-        Tree tree = new TreeEx();
-        
-        DynamicTreeItem treeRootNode = new DynamicTreeItem();
-        tree.addItem(treeRootNode);
-
-        if (root != null && root.getChildCount() > 0) {
-            for (ColumnElement ce : columnLayoutModel.getColumnElements()) {
-                for (int i = 0; i < root.getChildCount(); i++) {
-                    TreeItem child = root.getChild(i);
-                    ItemNodeModel node = (ItemNodeModel) child.getUserObject();
-                    String xpath = node.getBindingPath();
-                    String typePath = node.getTypePath();
-                    if (("/" + xpath).equals(ce.getxPath())) { //$NON-NLS-1$
-                        treeRootNode.addItem(child);
-
-                        // Record the fact that we are displaying this element in the custom layout.
-                        customLayoutDisplayedElements.add(child);
-
-                        TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath);
-                        if (typeModel.getForeignkey() == null && (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1)) {
-                            i--;
-                            continue;
-                        } else
-                            break;
-                    }
-                }
-            }
-        }
-        if (treeRootNode.getElement().getFirstChildElement() != null)
-            treeRootNode.getElement().getFirstChildElement().setClassName("rootNode"); //$NON-NLS-1$
-        treeRootNode.setState(true);
-        return tree;
-    }
-
     private void renderTree(ItemNodeModel rootModel) {
         renderTree(rootModel, null);
     }
@@ -445,37 +408,26 @@ public class TreeDetail extends ContentPanel {
         ColumnTreeLayoutModel columnLayoutModel = viewBean.getColumnLayoutModel();
         if (columnLayoutModel != null) {// TODO if create a new PrimaryKey, tree UI should not render according to the
                                         // layout template
-            HorizontalPanel hp = new HorizontalPanel();
-
+            FlexTable htable = new FlexTable();
+            htable.setHeight("100%"); //$NON-NLS-1$
             columnTrees.clear();
+            int columnNum = 0;
             for (ColumnTreeModel ctm : columnLayoutModel.getColumnTreeModels()) {
-                Tree columnTree = displayGWTTree(ctm);
+                // Tree columnTree = displayGWTTree(ctm);
+                Tree columnTree = ViewUtil.transformToCustomLayout(root, ctm, viewBean);
                 columnTrees.add(columnTree);
-                hp.add(columnTree);
+                htable.setWidget(0, columnNum, columnTree);
+                htable.getCellFormatter().getElement(0, columnNum).setAttribute("style", ctm.getStyle()); //$NON-NLS-1$
+                htable.getCellFormatter().getElement(0, columnNum).setAttribute("valign", "top"); //$NON-NLS-1$//$NON-NLS-2$
+                columnNum++;
                 addTreeListener(columnTree);
             }
             //            hp.setHeight("570px"); //$NON-NLS-1$
             // HorizontalPanel spacehp = new HorizontalPanel();
             //            spacehp.setHeight("10px"); //$NON-NLS-1$
             // add(spacehp);
-            add(hp);
+            add(htable);
 
-            // For those TreeItems that are not attached because of the custom layout
-            // we need to set the valid flags of their ItemNodeModel's to true. This
-            // is normally set by the attach listeners of the corresponding fields,
-            // which are never called since these fields are not attached due to
-            // custom layout. So we set the valid flags manually here. We set it to
-            // true without checking since we assume whatever we got from the server
-            // is valid.
-            int childCount = root.getChildCount();
-            for (int i = 0; i < childCount; ++i) {
-                TreeItem child = root.getChild(i);
-                if (!customLayoutDisplayedElements.contains(child)) {
-                    if (child instanceof DynamicTreeItem) {
-                        TreeDetail.setValidFlags((DynamicTreeItem) child);
-                    }
-                }
-            }
         } else {
             add(tree);
             addTreeListener(tree);
@@ -485,23 +437,6 @@ public class TreeDetail extends ContentPanel {
         if (foreignKeyDeleteMessage != null && foreignKeyDeleteMessage.trim().length() > 0)
             MessageBox.alert(MessagesFactory.getMessages().warning_title(), foreignKeyDeleteMessage, null).getDialog()
                     .setWidth(600);
-    }
-
-    /**
-     * Recursively set the valid flags of the ItemNodeModel's corresponding to the dynamicTreeItem and all its children
-     * dynamicTreeItem's to true. Used to set the valid flag for all those items excluded from the display because of a
-     * custom layout. Because they are not displayed, their valid flags are not set by their attach handlers, which is
-     * where the valid flag is normally set for fields that are displayed.
-     */
-    private static void setValidFlags(DynamicTreeItem dynamicTreeItem) {
-        dynamicTreeItem.getItemNodeModel().setValid(true);
-        int childCount = dynamicTreeItem.getChildCount();
-        for (int i = 0; i < childCount; ++i) {
-            TreeItem child = dynamicTreeItem.getChild(i);
-            if (child instanceof DynamicTreeItem) {
-                TreeDetail.setValidFlags((DynamicTreeItem) child);
-            }
-        }
     }
 
     // get selected item in tree
@@ -526,8 +461,10 @@ public class TreeDetail extends ContentPanel {
         }
 
         for (int i = 0; i < rootItem.getChildCount(); i++) {
-            DynamicTreeItem item = (DynamicTreeItem) rootItem.getChild(i);
-            recrusiveSetItems(visibleResult, item);
+            if (rootItem.getChild(i) instanceof DynamicTreeItem) {
+                DynamicTreeItem item = (DynamicTreeItem) rootItem.getChild(i);
+                recrusiveSetItems(visibleResult, item);
+            }
         }
     }
 
@@ -539,23 +476,56 @@ public class TreeDetail extends ContentPanel {
             super();
         }
 
-        private List<TreeItem> items = new ArrayList<TreeItem>();
-
         public void insertItem(DynamicTreeItem item, int beforeIndex) {
-            int count = this.getChildCount();
-
-            for (int i = 0; i < count; i++) {
-                items.add(this.getChild(i));
+            // Detach item from existing parent.
+            if ((item.getParentItem() != null) || (item.getTree() != null)) {
+                item.remove();
             }
 
-            items.add(beforeIndex, item);
-            this.removeItems();
-
-            for (int j = 0; j < items.size(); j++) {
-                this.addItem(items.get(j));
+            if (_getChildren() == null) {
+                _initChildren();
             }
-            items.clear();
+
+            // Logical attach.
+            item._setParentItem(this);
+
+            _getChildren().add(beforeIndex, item);
+
+            DOM.appendChild(_getChildSpanElem(), item.getElement());
+            Element beforeEl = DOM.getChild(_getChildSpanElem(), beforeIndex);
+            DOM.insertBefore(_getChildSpanElem(), item.getElement(), beforeEl);
+            // Adopt.
+            item._setTree(this.getTree());
+
+            if (_getChildren().size() == 1) {
+                _updateState(false, false);
+
+            }
         }
+
+        private native ArrayList<TreeItem> _getChildren()/*-{
+            return this.@com.google.gwt.user.client.ui.TreeItem::children;
+        }-*/;
+
+        private native void _initChildren() /*-{
+            this.@com.google.gwt.user.client.ui.TreeItem::initChildren()
+        }-*/;
+
+        private native void _setParentItem(TreeItem parent)/*-{
+            this.@com.google.gwt.user.client.ui.TreeItem::setParentItem(Lcom/google/gwt/user/client/ui/TreeItem;)(parent);
+        }-*/;
+
+        private native void _updateState(boolean animate, boolean updateTreeSelection)/*-{
+            this.@com.google.gwt.user.client.ui.TreeItem::updateState(ZZ)(animate, updateTreeSelection);
+        }-*/;
+
+        private native void _setTree(Tree tree)/*-{
+            this.@com.google.gwt.user.client.ui.TreeItem::setTree(Lcom/google/gwt/user/client/ui/Tree;)(tree);
+        }-*/;
+
+        private native Element _getChildSpanElem()/*-{
+            return this.@com.google.gwt.user.client.ui.TreeItem::childSpanElem;
+        }-*/;
 
         public void removeItem(DynamicTreeItem item) {
             super.removeItem(item);

@@ -15,11 +15,21 @@ package org.talend.mdm.webapp.browserecords.client.model;
 import java.io.Serializable;
 import java.util.List;
 
-public class ColumnElement implements Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+public class ColumnElement implements Serializable, IsSerializable {
 
     private String label;
 
     private String xPath;
+
+    private String style;
+
+    private String labelStyle;
+
+    private String valueStyle;
+
+    private String htmlSnippet;
 
     private String parent;
 
@@ -43,6 +53,38 @@ public class ColumnElement implements Serializable {
 
     public void setxPath(String xPath) {
         this.xPath = xPath;
+    }
+
+    public String getStyle() {
+        return style;
+    }
+
+    public void setStyle(String style) {
+        this.style = style;
+    }
+
+    public String getLabelStyle() {
+        return labelStyle;
+    }
+
+    public void setLabelStyle(String labelStyle) {
+        this.labelStyle = labelStyle;
+    }
+
+    public String getValueStyle() {
+        return valueStyle;
+    }
+
+    public void setValueStyle(String valueStyle) {
+        this.valueStyle = valueStyle;
+    }
+
+    public String getHtmlSnippet() {
+        return htmlSnippet;
+    }
+
+    public void setHtmlSnippet(String htmlSnippet) {
+        this.htmlSnippet = htmlSnippet;
     }
 
     public String getParent() {

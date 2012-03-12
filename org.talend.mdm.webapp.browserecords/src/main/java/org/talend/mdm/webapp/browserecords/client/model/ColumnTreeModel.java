@@ -15,12 +15,24 @@ package org.talend.mdm.webapp.browserecords.client.model;
 import java.io.Serializable;
 import java.util.List;
 
-public class ColumnTreeModel implements Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+public class ColumnTreeModel implements Serializable, IsSerializable {
+
+    private String style;
 
     private List<ColumnElement> columnElements;
 
     public ColumnTreeModel() {
 
+    }
+
+    public String getStyle() {
+        return style;
+    }
+
+    public void setStyle(String style) {
+        this.style = style;
     }
 
     public List<ColumnElement> getColumnElements() {

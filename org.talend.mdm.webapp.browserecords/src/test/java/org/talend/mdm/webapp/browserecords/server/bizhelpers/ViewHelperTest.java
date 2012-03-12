@@ -22,7 +22,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import junit.framework.TestCase;
 
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
-import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -32,6 +31,16 @@ public class ViewHelperTest extends TestCase {
 
     public void testbuilderLayoutNotNull() throws ParserConfigurationException, SAXException, IOException {
         InputStream is = getClass().getClassLoader().getResourceAsStream("temp_ColumnTreeLayout.xml");
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(is);
+        Element root = doc.getDocumentElement();
+        ColumnTreeLayoutModel result = ViewHelper.builderLayout(root);
+        assertNotNull("Test Failed: Could not parse the xml file", result);
+    }
+
+    public void testproductformNotNull() throws ParserConfigurationException, SAXException, IOException {
+        InputStream is = getClass().getClassLoader().getResourceAsStream("productform.xml");
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.parse(is);
