@@ -306,9 +306,10 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject {
 					//compile
 			          ntp.eval("truth = "+ compileCondition+";");
 			          boolean truth = ((Boolean)ntp.get("truth")).booleanValue();
-                    org.apache.log4j.Logger.getLogger(this.getClass()).info(
-                            "<Rule triggered: " + (routingRule.getName() == null ? "" : routingRule.getName()) + "> " + condition
-                                    + " : " + truth);
+                    org.apache.log4j.Logger.getLogger(this.getClass()).debug(condition + " : " + truth);
+                    if (truth)
+                        org.apache.log4j.Logger.getLogger(this.getClass()).info(
+                                "Rule \"" + (routingRule.getName() == null ? "" : routingRule.getName()) + "\" triggered! ");
 			          if(!truth) continue;
 				} catch (EvalError e) {
 					String err = "Condition compile error :"+e.getMessage();
