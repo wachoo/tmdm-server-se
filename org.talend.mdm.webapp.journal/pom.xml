@@ -48,7 +48,19 @@
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId> 
         </dependency>
-
+        <dependency>
+            <groupId>xsom</groupId>
+            <artifactId>xsom</artifactId>
+        </dependency>
+		<dependency>
+            <groupId>jboss</groupId>
+            <artifactId>jbossall-client</artifactId>
+        </dependency>
+		<dependency>
+            <groupId>dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <!-- MDM dependencies -->
 		<dependency>
             <groupId>org.talend.mdm</groupId>

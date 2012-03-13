@@ -54,4 +54,14 @@ public interface JournalMessages extends Messages {
     public String operation_time_label();
     
     public String user_name_label();
+    
+    public String update_report_detail_label();
+    
+    public String open_record_button();
+    
+    public String before_label();
+    
+    public String after_label();
+    
+    public String restore_button();
 }

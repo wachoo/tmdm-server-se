@@ -13,7 +13,9 @@
 package org.talend.mdm.webapp.journal.client;
 
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
+import org.talend.mdm.webapp.journal.shared.JournalParameters;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
+import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
@@ -27,4 +29,7 @@ public interface JournalServiceAsync {
     void getJournalList(JournalSearchCriteria criteria, PagingLoadConfig load,
             AsyncCallback<PagingLoadResult<JournalGridModel>> callback);
 
+    void getDetailTreeModel(String ids, AsyncCallback<JournalTreeModel> callback);
+
+    void getComparisionTree(JournalParameters parameter, AsyncCallback<JournalTreeModel> callback);
 }

@@ -19,7 +19,9 @@ import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.journal.client.JournalService;
 import org.talend.mdm.webapp.journal.server.service.JournalDBService;
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
+import org.talend.mdm.webapp.journal.shared.JournalParameters;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
+import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
@@ -57,6 +59,26 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
         
         return new BasePagingLoadResult<JournalGridModel>(resultList, load.getOffset(), totalSize);
     }
-    
 
+    public JournalTreeModel getDetailTreeModel(String ids) throws ServiceException {
+        String[] idsArr = ids.split("\\."); //$NON-NLS-1$
+        JournalTreeModel root = null;
+        try {
+            root = service.getDetailTreeModel(idsArr);
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
+        }
+        return root;
+    }
+
+    public JournalTreeModel getComparisionTree(JournalParameters parameter) throws ServiceException {
+        JournalTreeModel root = null;
+        try {
+            String xmlStr = service.getComparisionTreeString(parameter);
+            root = service.getComparisionTreeModel(xmlStr);
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
+        }
+        return root;
+    }
 }

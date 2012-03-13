@@ -28,4 +28,10 @@ public interface Icons extends ClientBundle {
     
     @Source("time.png")
     ImageResource time();
+    
+    @Source("browse.png")
+    ImageResource browse();
+    
+    @Source("leaf.gif")
+    ImageResource leaf();
 }

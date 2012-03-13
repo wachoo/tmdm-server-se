@@ -23,6 +23,7 @@ import org.talend.mdm.webapp.journal.client.JournalServiceAsync;
 import org.talend.mdm.webapp.journal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
+import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
@@ -39,6 +40,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.state.StateManager;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -174,6 +176,27 @@ public class JournalGridPanel extends ContentPanel {
         GridSelectionModel<JournalGridModel> sm = new GridSelectionModel<JournalGridModel>();
         sm.setSelectionMode(SelectionMode.SINGLE);
         grid.setSelectionModel(sm);
+        
+        grid.addListener(Events.RowDoubleClick, new Listener<GridEvent<JournalGridModel>>() {
+
+            public void handleEvent(GridEvent<JournalGridModel> be) {
+                final JournalGridModel gridModel = be.getModel();
+                service.getDetailTreeModel(gridModel.getIds(), new SessionAwareAsyncCallback<JournalTreeModel>() {
+
+                    public void onSuccess(JournalTreeModel root) {
+                        JournalHistoryPanel journalHistoryPanel = new JournalHistoryPanel(root, gridModel);
+                        Window window = new Window();
+                        window.setLayout(new FitLayout());
+                        window.add(journalHistoryPanel);
+                        window.setSize(1100, 700);
+                        window.setMaximizable(true);
+                        window.setModal(false);
+                        window.show();
+                        journalHistoryPanel.getTree().setExpanded(root, true);
+                    }
+                });
+            }
+        });
         
         this.add(grid);
         this.setBottomComponent(pagetoolBar);
