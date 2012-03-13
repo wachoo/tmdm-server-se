@@ -282,6 +282,7 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
         clonedModel.setDynamicLabel(dynamicLabel);
         clonedModel.setCloned(true);
         clonedModel.setTypeName(typeName);
+        clonedModel.setMandatory(mandatory);
         if (this.getRealType() != null)
             clonedModel.setRealType(this.getRealType());
         if (withValue)

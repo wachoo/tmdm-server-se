@@ -136,7 +136,7 @@ public class TreeDetail extends ContentPanel {
                                         occurMap.put(countMapItem, count - 1);
                                         if (parentModel.getChildCount() > 0) {
                                             ItemNodeModel child = (ItemNodeModel) parentModel.getChild(0);
-                                            Field<?> field = fieldMap.get(child.getBindingPath() + child.getId().toString());
+                                            Field<?> field = fieldMap.get(child.getId().toString());
                                             if (field != null)
                                                 TreeDetailGridFieldCreator.updateMandatory(field, child, fieldMap);
                                         }
