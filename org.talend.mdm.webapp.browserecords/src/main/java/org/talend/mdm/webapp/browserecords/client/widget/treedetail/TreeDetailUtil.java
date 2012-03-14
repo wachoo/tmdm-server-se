@@ -227,7 +227,7 @@ public class TreeDetailUtil {
 
     }
 
-    private native static void renderTreeDetailPanel(String itemId, ItemsDetailPanel detailPanel)/*-{
+    public native static void renderTreeDetailPanel(String itemId, ItemsDetailPanel detailPanel)/*-{
         var tabPanel = $wnd.amalto.core.getTabPanel();  
         var panel = @org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil::transferTreeDetailPanel(Lorg/talend/mdm/webapp/browserecords/client/widget/ItemsDetailPanel;)(detailPanel);
         tabPanel.add(panel);

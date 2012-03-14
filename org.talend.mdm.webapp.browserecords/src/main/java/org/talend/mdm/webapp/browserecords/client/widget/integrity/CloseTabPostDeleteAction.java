@@ -40,6 +40,8 @@ public class CloseTabPostDeleteAction implements PostDeleteAction {
     public void doAction() {
         if (bar.isOutMost()) {
             bar.closeOutTabPanel();
+        } else if (bar.isFkToolBar()) {
+            bar.closeCurrentTabPanel();// TMDM-3556, it need to close current tab when delete FK
         }
         next.doAction();
     }

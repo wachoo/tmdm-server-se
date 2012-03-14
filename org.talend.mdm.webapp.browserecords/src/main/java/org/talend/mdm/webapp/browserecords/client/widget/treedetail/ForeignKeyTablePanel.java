@@ -9,8 +9,10 @@ import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.base.shared.XpathUtil;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
@@ -38,6 +40,8 @@ import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.mvc.AppEvent;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -82,6 +86,9 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
     Button removeFkButton = new Button(MessagesFactory.getMessages().remove_btn(), AbstractImagePrototype.create(Icons.INSTANCE
             .Delete()));
+
+    Button createFkButton = new Button(MessagesFactory.getMessages().create_btn(), AbstractImagePrototype.create(Icons.INSTANCE
+            .Create()));
 
     TypeModel fkTypeModel;
 
@@ -141,6 +148,8 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         toolBar.add(addFkButton);
         toolBar.add(new SeparatorToolItem());
         toolBar.add(removeFkButton);
+        toolBar.add(new SeparatorToolItem());
+        toolBar.add(createFkButton);
         addListener();
         LayoutContainer toolBarPanel = new LayoutContainer();
         toolBarPanel.add(toolBar);
@@ -349,10 +358,21 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
             }
         });
+        createFkButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                Dispatcher dispatch = Dispatcher.get();
+                AppEvent event = new AppEvent(BrowseRecordsEvents.CreateForeignKeyView, entityModel.getConceptName());
+                event.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);
+                dispatch.dispatch(event);
+            }
+        });
         
         if(fkTypeModel.isReadOnly()){
             addFkButton.setEnabled(false);
             removeFkButton.setEnabled(false);
+            createFkButton.setEnabled(false);
         }
     }
 
@@ -483,6 +503,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             }
         });
 
+        editRow.setEnabled(!fkTypeModel.isReadOnly());
         contextMenu.add(editRow);
         grid.setContextMenu(contextMenu);
 

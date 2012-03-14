@@ -159,7 +159,8 @@ public class BrowseRecordsController extends Controller {
                         setTimeout(msgBox, 1000);
 
                         if (!detailToolBar.isOutMost() && (isClose || isCreate)) {
-                            if (!ItemsListPanel.getInstance().isSaveCurrentChangeBeforeSwitching())
+                            if (!ItemsListPanel.getInstance().isSaveCurrentChangeBeforeSwitching()
+                                    && (isClose || !detailToolBar.isFkToolBar()))
                                 ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
                         }
 
@@ -182,12 +183,14 @@ public class BrowseRecordsController extends Controller {
                             }
                         }
                         // TMDM-3349 button 'save and close' function
-                        if (!detailToolBar.isOutMost() && !detailToolBar.isHierarchyCall())
+                        if (!detailToolBar.isOutMost() && !detailToolBar.isHierarchyCall() && !detailToolBar.isFkToolBar())
                             ItemsListPanel.getInstance().setDefaultSelectionModel(!isClose);
 
                         // only fkToolBar = true, ItemsListPanel dose not need to refresh
                         if (!detailToolBar.isFkToolBar())
                             ItemsListPanel.getInstance().refreshGrid();
+                        else if (!isClose)
+                            detailToolBar.refresh(result.getReturnValue());
                         ItemsMainTabPanel.getInstance().getCurrentViewTabItem().savedCallback(result.getReturnValue());
                     }
                 });

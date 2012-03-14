@@ -138,6 +138,10 @@ public class ItemPanel extends ContentPanel {
         return item;
     }
 
+    public void setItem(ItemBean item) {
+        this.item = item;
+    }
+
     public TreeDetail getTree() {
         return tree;
     }
