@@ -219,7 +219,10 @@ public class JournalDBService {
 
         XSElementDecl decl = this.getXSElementDecl(dataModel, concept);
         Set<String> roleSet = Util.getNoAccessRoleSet(decl);
-        if(Util.isAuth(roleSet)) {
+        boolean isAuth = Util.isAuth(roleSet);
+        root.setAuth(isAuth);
+        
+        if(isAuth) {
             NodeList ls = Util.getNodeList(doc, "/Update/Item"); //$NON-NLS-1$
             if (ls.getLength() > 0) {
                 for (int i = 0; i < ls.getLength(); i++) {
@@ -278,10 +281,8 @@ public class JournalDBService {
                 throw new ServletException("Could not initialize type information", e); //$NON-NLS-1$
             }
         }
-
-        XSElementDecl decl = this.getXSElementDecl(parameter.getDataModelName(), parameter.getConceptName());
-        Set<String> roleSet = Util.getNoAccessRoleSet(decl);
-        if (!Util.isAuth(roleSet))
+        
+        if (!parameter.isAuth())
             return null;
 
         navigator.goTo(new Date(parameter.getDate()));
@@ -313,7 +314,7 @@ public class JournalDBService {
     }
     
     public JournalTreeModel getComparisionTreeModel(String xmlStr){
-        JournalTreeModel root = new JournalTreeModel("Document"); //$NON-NLS-1$
+        JournalTreeModel root = new JournalTreeModel("root", "Document"); //$NON-NLS-1$ //$NON-NLS-2$
         if(xmlStr == null)
             return root;
         

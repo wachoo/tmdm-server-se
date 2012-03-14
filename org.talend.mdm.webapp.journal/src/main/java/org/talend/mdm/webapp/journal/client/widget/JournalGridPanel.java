@@ -184,7 +184,7 @@ public class JournalGridPanel extends ContentPanel {
                 service.getDetailTreeModel(gridModel.getIds(), new SessionAwareAsyncCallback<JournalTreeModel>() {
 
                     public void onSuccess(JournalTreeModel root) {
-                        JournalHistoryPanel journalHistoryPanel = new JournalHistoryPanel(root, gridModel);
+                        JournalHistoryPanel journalHistoryPanel = new JournalHistoryPanel(root, gridModel, root.isAuth());
                         Window window = new Window();
                         window.setLayout(new FitLayout());
                         window.add(journalHistoryPanel);

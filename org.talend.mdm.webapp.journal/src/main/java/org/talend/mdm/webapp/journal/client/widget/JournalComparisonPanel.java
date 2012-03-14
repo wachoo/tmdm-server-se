@@ -12,6 +12,10 @@
 // ============================================================================
 package org.talend.mdm.webapp.journal.client.widget;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.journal.client.Journal;
 import org.talend.mdm.webapp.journal.client.JournalServiceAsync;
@@ -22,7 +26,10 @@ import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.event.TreePanelEvent;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -42,6 +49,10 @@ public class JournalComparisonPanel extends ContentPanel {
     private TreePanel<JournalTreeModel> tree;
     
     private JournalTreeModel root;
+    
+    private JournalComparisonPanel otherPanel;
+    
+    private Map<String, JournalTreeModel> modelMap = new HashMap<String, JournalTreeModel>();
     
     public JournalComparisonPanel(String title, JournalParameters parameter) {
         this.setFrame(false);
@@ -68,6 +79,33 @@ public class JournalComparisonPanel extends ContentPanel {
                 tree = new TreePanel<JournalTreeModel>(store);
                 tree.setDisplayProperty("name"); //$NON-NLS-1$
                 tree.getStyle().setLeafIcon(AbstractImagePrototype.create(Icons.INSTANCE.leaf()));
+
+                if (modelMap.size() == 0) {
+                    List<JournalTreeModel> list = store.getAllItems();
+                    for(JournalTreeModel model : list)
+                        modelMap.put(model.getId(), model);
+                }
+
+                tree.addListener(Events.Expand, new Listener<TreePanelEvent<JournalTreeModel>>() {
+
+                    public void handleEvent(TreePanelEvent<JournalTreeModel> be) {
+                        if(otherPanel.getModelMap().size() > 0){
+                            JournalTreeModel model = otherPanel.getModelMap().get(be.getItem().getId());
+                            otherPanel.getTree().setExpanded(model, true);
+                        }                       
+                    }
+                });
+
+                tree.addListener(Events.Collapse, new Listener<TreePanelEvent<JournalTreeModel>>() {
+
+                    public void handleEvent(TreePanelEvent<JournalTreeModel> be) {
+                        if(otherPanel.getModelMap().size() > 0){
+                            JournalTreeModel model = otherPanel.getModelMap().get(be.getItem().getId());
+                            otherPanel.getTree().setExpanded(model, false);
+                        } 
+                    }
+                });
+                
                 JournalComparisonPanel.this.add(tree);
                 JournalComparisonPanel.this.layout(true);
                 JournalComparisonPanel.this.expandRoot();
@@ -85,11 +123,11 @@ public class JournalComparisonPanel extends ContentPanel {
         return tree;
     }
     
-    public void expandElement(TreePanel<JournalTreeModel> treePanel, JournalTreeModel model) {
-        treePanel.setExpanded(model, true);
+    public void setOtherPanel(JournalComparisonPanel otherPanel) {
+        this.otherPanel = otherPanel;
     }
 
-    public void collapseElement(TreePanel<JournalTreeModel> treePanel, JournalTreeModel model) {
-        treePanel.setExpanded(model, false);
+    public Map<String, JournalTreeModel> getModelMap() {
+        return modelMap;
     }
 }

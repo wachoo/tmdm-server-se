@@ -38,21 +38,11 @@ public class JournalParameters implements Serializable, IsSerializable {
     private long date;
 
     private String action;
+    
+    private boolean isAuth;
 
     public JournalParameters() {
 
-    }
-
-    public JournalParameters(String ids, String[] id, String dataClusterName, String dataModelName, String conceptName,
-            String revisionId, long date, String action) {
-        this.ids = ids;
-        this.id = id;
-        this.dataClusterName = dataClusterName;
-        this.dataModelName = dataModelName;
-        this.conceptName = conceptName;
-        this.revisionId = revisionId;
-        this.date = date;
-        this.action = action;
     }
 
     public String getIds() {
@@ -117,5 +107,13 @@ public class JournalParameters implements Serializable, IsSerializable {
 
     public void setAction(String action) {
         this.action = action;
+    }
+
+    public boolean isAuth() {
+        return isAuth;
+    }
+    
+    public void setAuth(boolean isAuth) {
+        this.isAuth = isAuth;
     }
 }

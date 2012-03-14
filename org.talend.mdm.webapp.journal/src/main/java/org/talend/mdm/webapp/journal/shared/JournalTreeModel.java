@@ -24,6 +24,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class JournalTreeModel extends BaseTreeModel implements Serializable, IsSerializable {
 
     private static final long serialVersionUID = 1L;
+    
+    private boolean isAuth = true;
 
     public JournalTreeModel() {
 
@@ -62,5 +64,17 @@ public class JournalTreeModel extends BaseTreeModel implements Serializable, IsS
         for (JournalTreeModel model : list) {
             add(model);
         }
+    }
+ 
+    public boolean isAuth() {
+        return isAuth;
+    }
+    
+    public void setAuth(boolean isAuth) {
+        this.isAuth = isAuth;
+    }
+    
+    public String getId(){
+        return this.get("id"); //$NON-NLS-1$
     }
 }

@@ -47,7 +47,7 @@ public class JournalHistoryPanel extends ContentPanel {
     
     private JournalComparisonPanel afterPanel;
     
-    public JournalHistoryPanel(JournalTreeModel root, JournalGridModel gridModel) {
+    public JournalHistoryPanel(JournalTreeModel root, JournalGridModel gridModel, boolean isAuth) {
         this.setFrame(false);
         this.setHeading(MessagesFactory.getMessages().update_report_detail_label());
         this.setLayout(new BorderLayout());
@@ -84,7 +84,7 @@ public class JournalHistoryPanel extends ContentPanel {
         westData.setMargins(new Margins(5, 5, 0, 0));
         
         beforePanel = new JournalComparisonPanel(MessagesFactory.getMessages().before_label(),
-                this.buildParameter(gridModel, "before")); //$NON-NLS-1$
+                this.buildParameter(gridModel, "before", isAuth)); //$NON-NLS-1$
         this.add(beforePanel, westData);
         
         BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
@@ -93,15 +93,18 @@ public class JournalHistoryPanel extends ContentPanel {
         centerData.setSplit(true);
         
         afterPanel = new JournalComparisonPanel(MessagesFactory.getMessages().after_label(),
-                this.buildParameter(gridModel, "current")); //$NON-NLS-1$
+                this.buildParameter(gridModel, "current", isAuth)); //$NON-NLS-1$
         this.add(afterPanel, centerData);
+        
+        beforePanel.setOtherPanel(afterPanel);
+        afterPanel.setOtherPanel(beforePanel);
     }
 
     public TreePanel<JournalTreeModel> getTree() {
         return tree;
     }
     
-    private JournalParameters buildParameter(JournalGridModel gridModel, String action){
+    private JournalParameters buildParameter(JournalGridModel gridModel, String action, boolean isAuth){
         JournalParameters parameter = new JournalParameters();
         parameter.setDataClusterName(gridModel.getDataContainer());
         parameter.setDataModelName(gridModel.getDataModel());
@@ -112,6 +115,8 @@ public class JournalHistoryPanel extends ContentPanel {
         parameter.setAction(action);
         String[] id = gridModel.getKey().split("\\."); //$NON-NLS-1$
         parameter.setId(id);
+        parameter.setAuth(isAuth);
+        
         return parameter;
     }
  
