@@ -76,8 +76,12 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
     public JournalTreeModel getComparisionTree(JournalParameters parameter) throws ServiceException {
         JournalTreeModel root = null;
         try {
-            String xmlStr = service.getComparisionTreeString(parameter);
-            root = service.getComparisionTreeModel(xmlStr);
+            if (parameter.isAuth()) {
+                String xmlStr = service.getComparisionTreeString(parameter);
+                root = service.getComparisionTreeModel(xmlStr);
+            } else {
+                root = new JournalTreeModel("root", "Document"); //$NON-NLS-1$ //$NON-NLS-2$
+            }
         } catch (Exception e) {
             LOG.error(e.getMessage());
         }

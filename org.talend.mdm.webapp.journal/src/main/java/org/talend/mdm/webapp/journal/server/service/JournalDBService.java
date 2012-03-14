@@ -281,9 +281,6 @@ public class JournalDBService {
                 throw new ServletException("Could not initialize type information", e); //$NON-NLS-1$
             }
         }
-        
-        if (!parameter.isAuth())
-            return null;
 
         navigator.goTo(new Date(parameter.getDate()));
         Action modificationMarkersAction = navigator.currentAction();
