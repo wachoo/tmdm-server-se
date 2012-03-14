@@ -17,10 +17,13 @@ import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.browserecords.client.model.BreadCrumbModel;
+import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
@@ -256,6 +259,48 @@ public class ItemDetailToolBar extends ToolBar {
         }
     }
 
+    /**
+     * call it only when save the created foreignKey in primaryKey view
+     */
+    public void refresh(String ids) {
+        if (this.operation.equals(CREATE_OPERATION) || this.operation.equals(DUPLICATE_OPERATION)) {
+            this.removeAll();
+            this.operation = VIEW_OPERATION;
+            if (!this.isOutMost)
+                this.openTab = true;
+            service.getForeignKeyModel(itemBean.getConcept(), ids, Locale.getLanguage(),
+                    new SessionAwareAsyncCallback<ForeignKeyModel>() {
+
+                        public void onSuccess(ForeignKeyModel model) {
+                            itemBean = model.getItemBean();
+                            // refresh toolBar
+                            initViewToolBar();
+                            // refresh tree
+                            ItemPanel itemPanel = (ItemPanel) itemsDetailPanel.getFirstTabWidget();
+                            itemPanel.setItem(itemBean);
+                            itemPanel.refreshTree();
+                            // refresh itemsDetailPanel(include tab title, banner, breadCrumb)
+                            TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(itemBean.getConcept());
+                            String tabText = typeModel.getLabel(Locale.getLanguage()) + " " + itemBean.getIds(); //$NON-NLS-1$
+                            if (!ItemDetailToolBar.this.isOutMost)
+                                ItemsMainTabPanel.getInstance().getSelectedItem().setText(tabText);
+                            else
+                                updateOutTabPanel(tabText);
+                            itemsDetailPanel.clearBreadCrumb();
+                            itemsDetailPanel.clearBanner();
+                            List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
+                            breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, null, false)); //$NON-NLS-1$
+                            breads.add(new BreadCrumbModel(itemBean.getConcept(), itemBean.getLabel(), itemBean.getIds(),
+                                    itemBean.getDisplayPKInfo().equals(itemBean.getLabel()) ? null : itemBean.getDisplayPKInfo(),
+                                    true));
+                            itemsDetailPanel.initBanner(itemBean.getPkInfoList(), itemBean.getDescription());
+                            itemsDetailPanel.initBreadCrumb(new BreadCrumb(breads, itemsDetailPanel));
+
+                        };
+                    });
+        }
+    }
+
     private void addSaveButton() {
         if (saveButton == null) {
             saveButton = new Button(MessagesFactory.getMessages().save_btn());
@@ -384,27 +429,23 @@ public class ItemDetailToolBar extends ToolBar {
 
                 @Override
                 public void componentSelected(ButtonEvent ce) {
-                    ItemsListPanel.getInstance().setCreate(true);
+                    if (!isFkToolBar)
+                        ItemsListPanel.getInstance().setCreate(true);
                     String title = itemBean.getLabel();
                     ItemsDetailPanel panel = new ItemsDetailPanel();
                     panel.initBanner(itemBean.getPkInfoList(), itemBean.getDescription());
                     panel.clearBreadCrumb();
-                    if (isFkToolBar) {
-                        ForeignKeyTreeDetail fkTree = (ForeignKeyTreeDetail) itemsDetailPanel.getCurrentlySelectedTabWidget();
-                        ForeignKeyTreeDetail duplicateFkTree = new ForeignKeyTreeDetail(fkTree.getFkModel(), true, panel);
-                        panel.addTabItem(title, duplicateFkTree, ItemsDetailPanel.SINGLETON, title);
-                        if (!isOutMost)
-                            ItemsMainTabPanel.getInstance().addMainTabItem(title, panel, title);
-                    } else {
-                        if (!isOutMost) {
-                            ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.DUPLICATE_OPERATION, panel);
-                            panel.addTabItem(title, itemPanel, ItemsDetailPanel.SINGLETON, title);
-                            ItemsMainTabPanel.getInstance().addMainTabItem(title, panel, title);
-                        } else {
-                            TreeDetailUtil.initItemsDetailPanelByItemPanel(viewBean, itemBean);
-                        }
-                    }
+
                     if (!isOutMost) {
+                        ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.DUPLICATE_OPERATION, panel);
+                        itemPanel.getToolBar().setFkToolBar(isFkToolBar);
+                        panel.addTabItem(title, itemPanel, ItemsDetailPanel.SINGLETON, title);
+                        ItemsMainTabPanel.getInstance().addMainTabItem(title, panel, title);
+                    } else {
+                        TreeDetailUtil.initItemsDetailPanelByItemPanel(viewBean, itemBean);
+                    }
+
+                    if (!isOutMost && !isFkToolBar) {
                         if (ItemsListPanel.getInstance().getGrid() != null)
                             ItemsListPanel.getInstance().getGrid().getSelectionModel().deselectAll();
                     }
@@ -485,7 +526,7 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private void refreshTree(final ItemPanel itemPanel, final ForeignKeyTreeDetail fkTree, final ItemNodeModel root) {
-        ItemBean itemBean = isFkToolBar ? fkTree.getFkModel().getItemBean() : itemPanel.getItem();
+        ItemBean itemBean = itemPanel.getItem();
         service.isItemModifiedByOthers(itemBean, new SessionAwareAsyncCallback<Boolean>() {
 
             public void onSuccess(Boolean result) {
@@ -497,18 +538,12 @@ public class ItemDetailToolBar extends ToolBar {
 
                                         public void handleEvent(MessageBoxEvent be) {
                                             if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                                if (isFkToolBar)
-                                                    fkTree.refreshTree();
-                                                else
-                                                    itemPanel.refreshTree();
+                                                itemPanel.refreshTree();
                                             }
                                         }
                                     }).getDialog().setWidth(600);
                 } else {
-                    if (isFkToolBar)
-                        fkTree.refreshTree();
-                    else
-                        itemPanel.refreshTree();
+                    itemPanel.refreshTree();
                 }
             }
 
@@ -974,6 +1009,10 @@ public class ItemDetailToolBar extends ToolBar {
 
     public void setOpenTab(boolean openTab) {
         this.openTab = openTab;
+    }
+
+    public void closeCurrentTabPanel() {
+        ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
     }
 
     public native void closeOutTabPanel()/*-{
