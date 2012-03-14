@@ -98,7 +98,8 @@ public class BusinessConcept {
         for(String key : keySet){
             ReusableType type = map.get(key);
             String pathWithoutName = key.replaceFirst("/" + reuseType.getName(), ""); //$NON-NLS-1$//$NON-NLS-2$
-            
+            if (type == null)
+                continue;
             Map<String, String> fkMap = type.getForeignKeyMap();
             if(fkMap.size() > 0){
                 Set<String> fkKeySet = fkMap.keySet();
