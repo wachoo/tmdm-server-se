@@ -66,4 +66,10 @@ public interface JournalMessages extends Messages {
     public String restore_button();
     
     public String data_change_viewer();
+    
+    public String journal_label();
+    
+    public String error_level();
+    
+    public String select_contain_model_msg();
 }

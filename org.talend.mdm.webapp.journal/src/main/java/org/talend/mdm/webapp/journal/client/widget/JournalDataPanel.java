@@ -25,6 +25,7 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
@@ -61,7 +62,13 @@ public class JournalDataPanel extends ContentPanel {
                 service.checkDCAndDM(gridModel.getDataContainer(), gridModel.getDataModel(), new SessionAwareAsyncCallback<Boolean>() {
                     
                     public void onSuccess(Boolean result) {
-                        
+                        if(result) {
+                            JournalDataPanel.this.openBrowseRecordPanel(MessagesFactory.getMessages().journal_label(),
+                                    gridModel.getKey(), gridModel.getEntity());
+                        } else {
+                            MessageBox.alert(MessagesFactory.getMessages().error_level(), MessagesFactory.getMessages()
+                                    .select_contain_model_msg(), null);
+                        }
                     }
                 });
             }
@@ -87,4 +94,9 @@ public class JournalDataPanel extends ContentPanel {
     public String getHeadingString() {
         return MessagesFactory.getMessages().data_change_viewer();
     }
+    
+    private native void openBrowseRecordPanel(String title, String key, String concept)/*-{
+        var arr = key.split("\.");
+        $wnd.amalto.itemsbrowser.ItemsBrowser.editItemDetails(title, arr, concept, function(){});
+    }-*/;
 }
