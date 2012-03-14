@@ -172,7 +172,7 @@ public class BusinessConcept {
     private void setSubReuseType(String typeName, String currentXPath) {
         if (typeName == null)
             return;
-        if (!parentTypeNameSet.contains(typeName))
+        if (parentTypeNameSet == null || !parentTypeNameSet.contains(typeName))
             return;
 
         for (ReusableType reuseType : reuseTypeList) {
