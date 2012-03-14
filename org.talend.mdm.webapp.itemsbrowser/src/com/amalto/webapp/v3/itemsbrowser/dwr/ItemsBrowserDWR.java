@@ -31,9 +31,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -4587,6 +4587,7 @@ public class ItemsBrowserDWR {
 
         // @temp yguo , xpath and value
         BusinessConcept businessConcept = SchemaWebAgent.getInstance().getBusinessConcept(entity);
+        businessConcept.load();
         Map<String, String> foreignKeyMap = businessConcept.getForeignKeyMap();
         Set<String> foreignKeyXpath = foreignKeyMap.keySet();
         Set<String> xpathes = new HashSet<String>();
