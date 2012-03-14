@@ -394,6 +394,45 @@ public class SchemaWebAgent extends SchemaManager {
         for (ReusableType type : reuseTypeList) {
             type.load(reusableTypeMap);
         }
+
+        BusinessConcept targetBusinessConcept = null;
+        for (BusinessConcept businessConcept : businessConcepts) {
+           if(businessConcept.getName()!=null&&businessConcept.getName().equals(entityName)){
+                targetBusinessConcept = businessConcept;
+                break;
+           }
+        }
+        if (targetBusinessConcept == null)
+            return references;
+        targetBusinessConcept.setReuseTypeList(reuseTypeList);
+        targetBusinessConcept.load();
+
+        Collection<String> fkPaths = null;
+        Map<String, String> foreignKeyMap = targetBusinessConcept.getForeignKeyMap();
+        if (foreignKeyMap != null)
+            fkPaths = foreignKeyMap.values();
+
+        Collection<String> inheritanceFKCollection = targetBusinessConcept.getInheritanceForeignKeyMap() == null ? null
+                : targetBusinessConcept.getInheritanceForeignKeyMap().values();
+
+        if(fkPaths!=null){
+            for (String fkPath : fkPaths) {
+                String myEntityName = getEntityNameFromXPath(fkPath);
+                if (isValidatedEntityName(myEntityName, dataModelBean) && !references.contains(myEntityName)) {
+                    references.add(myEntityName);
+                }
+            }
+        }
+
+        if (inheritanceFKCollection != null) {
+            for (String inheritanceFK : inheritanceFKCollection) {
+                String myEntityName = getEntityNameFromXPath(inheritanceFK);
+                if (isValidatedEntityName(myEntityName, dataModelBean) && !references.contains(myEntityName)) {
+                    references.add(myEntityName);
+                }
+            }
+        }
+        /*
         List<String> extendType = new ArrayList<String>();
         extendType.add(entityName);
 
@@ -444,10 +483,55 @@ public class SchemaWebAgent extends SchemaManager {
                         references.add(bcName);
                 }
             }
-        }
-
+        }*/
         return references;
 
+    }
+
+    /**
+     * DOC Starkey Comment method "isValidatedEntityName".
+     * 
+     * @param entityName
+     * @param dataModelBean
+     * @return
+     */
+    private boolean isValidatedEntityName(String entityName,DataModelBean dataModelBean) {
+        
+        if(entityName==null||entityName.trim().length()==0)
+            return false;
+        
+        if(dataModelBean.getBusinessConceptMap().keySet()!=null&&dataModelBean.getBusinessConceptMap().keySet().contains(entityName))
+            return true;
+
+        return false;
+
+    }
+
+    /**
+     * DOC Starkey Comment method "getEntityNameFromXPath".
+     * 
+     * @param xpath
+     * @return
+     */
+    private String getEntityNameFromXPath(String xpath) {
+
+        if (xpath == null || xpath.trim().length() == 0)
+            return null;
+
+        if (xpath.startsWith("//")) //$NON-NLS-1$
+            xpath = xpath.substring(2);
+        else if (xpath.startsWith("/")) //$NON-NLS-1$
+            xpath = xpath.substring(1);
+
+        String[] xPortions = xpath.split("/"); //$NON-NLS-1$
+
+        String entityName = null;
+
+        if (xPortions != null && xPortions.length > 0) {
+            entityName = xPortions[0];
+        }
+
+        return entityName;
     }
 
     public List<String> getBindingType(XSElementDecl e) throws Exception {

@@ -61,6 +61,17 @@ public class DataModelBean {
         return reusableTypeMap;
     }
     
+    public Map<String, BusinessConcept> getBusinessConceptMap() {
+        Map<String, BusinessConcept> businessConceptMap = new HashMap<String, BusinessConcept>();
+        if (businessConcepts == null)
+            return businessConceptMap;
+
+        for (BusinessConcept businessConcept : businessConcepts) {
+            businessConceptMap.put(businessConcept.getName(), businessConcept);
+        }
+        return businessConceptMap;
+    }
+
     /**
      * DOC HSHU Comment method "dump".
      */

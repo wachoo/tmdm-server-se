@@ -92,7 +92,12 @@ public class ReusableType {
                 XSElementDecl el = pterm.asElementDecl();
                 String xpath = currentXPath + "/" + el.getName(); //$NON-NLS-1$
                 if (el.getType().isComplexType()) {
-                    xPathReusableTypeMap.put(xpath, reusableTypeMap.get(el.getType().getName()));
+                    ReusableType toPutReusableType = reusableTypeMap.get(el.getType().getName());
+                    if (toPutReusableType == null && el.getType() != null) {
+                        toPutReusableType = new ReusableType(el.getType());
+                        toPutReusableType.load();// parse it
+                    }
+                    xPathReusableTypeMap.put(xpath, toPutReusableType);
                 }
                 parseAnnotation(el, xpath);
             } else {
