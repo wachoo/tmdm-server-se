@@ -133,22 +133,25 @@ public class ViewUtil {
         }
     }
 
-    public static void applyStyleTreeItem(final TreeItem item, final String labelStyle, final String valueStyle, final String style) {
+    public static void applyStyleTreeItem(final TreeItem item, final String labelStyle, final String valueStyle, String style) {
+        String marginLeft = item.getElement().getStyle().getMarginLeft();
+        String padding = item.getElement().getStyle().getPadding();
+        item.getElement().setAttribute("style", style); //$NON-NLS-1$
+        item.getElement().getStyle().setProperty("marginLeft", marginLeft); //$NON-NLS-1$
+        item.getElement().getStyle().setProperty("padding", padding); //$NON-NLS-1$
         DeferredCommand.addCommand(new Command() {
 
             public void execute() {
-                String marginLeft = item.getElement().getStyle().getMarginLeft();
-                item.getElement().setAttribute("style", style); //$NON-NLS-1$
-                item.getElement().getStyle().setProperty("marginLeft", marginLeft); //$NON-NLS-1$
                 if (item.getWidget() instanceof HorizontalPanel) {
                     HorizontalPanel hp = (HorizontalPanel) item.getWidget();
                     HTML label = (HTML) hp.getWidget(0);
                     label.getElement().setAttribute("style", labelStyle); //$NON-NLS-1$
                     if (hp.getWidgetCount() >= 2 && hp.getWidget(1) instanceof Field<?>) {
                         final Field<?> field = (Field<?>) hp.getWidget(1);
-
                         El inputEl = getInputEl(field);
+                        String width = inputEl.dom.getStyle().getWidth();
                         inputEl.setElementAttribute("style", valueStyle); //$NON-NLS-1$
+                        inputEl.dom.getStyle().setProperty("width", width); //$NON-NLS-1$
                     }
                 }
             }
