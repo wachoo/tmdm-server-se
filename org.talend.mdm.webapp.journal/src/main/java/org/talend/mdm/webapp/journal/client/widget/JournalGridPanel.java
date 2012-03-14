@@ -183,16 +183,33 @@ public class JournalGridPanel extends ContentPanel {
                 final JournalGridModel gridModel = be.getModel();
                 service.getDetailTreeModel(gridModel.getIds(), new SessionAwareAsyncCallback<JournalTreeModel>() {
 
-                    public void onSuccess(JournalTreeModel root) {
-                        JournalHistoryPanel journalHistoryPanel = new JournalHistoryPanel(root, gridModel, root.isAuth());
-                        Window window = new Window();
-                        window.setLayout(new FitLayout());
-                        window.add(journalHistoryPanel);
-                        window.setSize(1100, 700);
-                        window.setMaximizable(true);
-                        window.setModal(false);
-                        window.show();
-                        journalHistoryPanel.getTree().setExpanded(root, true);
+                    public void onSuccess(final JournalTreeModel root) {
+                        service.isEnterpriseVersion(new SessionAwareAsyncCallback<Boolean>() {
+                            
+                            public void onSuccess(Boolean isEnterprise) {
+                                if (isEnterprise) {
+                                    JournalHistoryPanel journalHistoryPanel = new JournalHistoryPanel(root, gridModel, root.isAuth());
+                                    Window window = new Window();
+                                    window.setLayout(new FitLayout());
+                                    window.add(journalHistoryPanel);
+                                    window.setSize(1100, 700);
+                                    window.setMaximizable(true);
+                                    window.setModal(false);
+                                    window.show();
+                                    journalHistoryPanel.getJournalDataPanel().getTree().setExpanded(root, true);
+                                } else {
+                                    JournalDataPanel journalDataPanel = new JournalDataPanel(root);
+                                    Window window = new Window();
+                                    window.setLayout(new FitLayout());
+                                    window.add(journalDataPanel);
+                                    window.setSize(1100, 700);
+                                    window.setMaximizable(true);
+                                    window.setModal(false);
+                                    window.show();
+                                    journalDataPanel.getTree().setExpanded(root, true);
+                                }
+                            }
+                        });
                     }
                 });
             }

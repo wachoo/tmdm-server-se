@@ -32,4 +32,6 @@ public interface JournalServiceAsync {
     void getDetailTreeModel(String ids, AsyncCallback<JournalTreeModel> callback);
 
     void getComparisionTree(JournalParameters parameter, AsyncCallback<JournalTreeModel> callback);
+
+    void isEnterpriseVersion(AsyncCallback<Boolean> callback);
 }

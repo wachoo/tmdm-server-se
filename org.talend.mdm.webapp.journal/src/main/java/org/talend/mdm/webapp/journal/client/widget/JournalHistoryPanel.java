@@ -13,35 +13,22 @@
 package org.talend.mdm.webapp.journal.client.widget;
 
 import org.talend.mdm.webapp.journal.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.journal.client.resources.icon.Icons;
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
 import org.talend.mdm.webapp.journal.shared.JournalParameters;
 import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
-import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 /**
  * DOC Administrator  class global comment. Detailled comment
  */
 public class JournalHistoryPanel extends ContentPanel {
-        
-    private ToolBar toolBar;
     
-    private Button openRecordButton;
-    
-    private TreePanel<JournalTreeModel> tree;
+    private JournalDataPanel journalDataPanel;
     
     private JournalComparisonPanel beforePanel;
     
@@ -49,34 +36,16 @@ public class JournalHistoryPanel extends ContentPanel {
     
     public JournalHistoryPanel(JournalTreeModel root, JournalGridModel gridModel, boolean isAuth) {
         this.setFrame(false);
-        this.setHeading(MessagesFactory.getMessages().update_report_detail_label());
+        this.setHeaderVisible(false);
         this.setLayout(new BorderLayout());
-                
-        openRecordButton = new Button(MessagesFactory.getMessages().open_record_button());
-        openRecordButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.browse()));
-        openRecordButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-            
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                
-            }
-        });
-        
-        toolBar = new ToolBar();
-        toolBar.add(new FillToolItem());
-        toolBar.add(openRecordButton);
-        this.setTopComponent(toolBar);
         
         BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, 150);
         northData.setCollapsible(false);
         northData.setSplit(true);
         northData.setMargins(new Margins(0, 0, 0, 0));        
-        TreeStore<JournalTreeModel> store = new TreeStore<JournalTreeModel>();  
-        store.add(root, true);
-        tree = new TreePanel<JournalTreeModel>(store);
-        tree.setDisplayProperty("name"); //$NON-NLS-1$
-        tree.getStyle().setLeafIcon(AbstractImagePrototype.create(Icons.INSTANCE.leaf()));
-        this.add(tree, northData);        
+        
+        journalDataPanel = new JournalDataPanel(root);
+        this.add(journalDataPanel, northData);        
         
         BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 400);
         westData.setCollapsible(false);
@@ -98,10 +67,6 @@ public class JournalHistoryPanel extends ContentPanel {
         
         beforePanel.setOtherPanel(afterPanel);
         afterPanel.setOtherPanel(beforePanel);
-    }
-
-    public TreePanel<JournalTreeModel> getTree() {
-        return tree;
     }
     
     private JournalParameters buildParameter(JournalGridModel gridModel, String action, boolean isAuth){
@@ -126,5 +91,9 @@ public class JournalHistoryPanel extends ContentPanel {
   
     public JournalComparisonPanel getAfterPanel() {
         return afterPanel;
+    }
+
+    public JournalDataPanel getJournalDataPanel() {
+        return journalDataPanel;
     }
 }

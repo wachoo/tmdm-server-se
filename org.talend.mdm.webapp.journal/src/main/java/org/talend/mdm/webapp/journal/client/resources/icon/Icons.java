@@ -34,4 +34,7 @@ public interface Icons extends ClientBundle {
     
     @Source("leaf.gif")
     ImageResource leaf();
+    
+    @Source("restore.png")
+    ImageResource restore();
 }

@@ -33,8 +33,11 @@ import com.extjs.gxt.ui.client.event.TreePanelEvent;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.layout.AnchorLayout;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
+import com.extjs.gxt.ui.client.widget.treepanel.TreePanelView.TreeViewRenderMode;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 /**
@@ -43,6 +46,8 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 public class JournalComparisonPanel extends ContentPanel {
 
     private JournalServiceAsync service = Registry.get(Journal.JOURNAL_SERVICE);
+    
+    private ToolBar toolbar;
     
     private Button restoreButton;
     
@@ -57,10 +62,11 @@ public class JournalComparisonPanel extends ContentPanel {
     public JournalComparisonPanel(String title, JournalParameters parameter) {
         this.setFrame(false);
         this.setHeading(title);
-        this.setLayout(new AnchorLayout());
+        this.setLayout(new FitLayout());
         this.setBodyBorder(false);
         
         restoreButton = new Button(MessagesFactory.getMessages().restore_button());
+        restoreButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.restore()));
         restoreButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
             
             @Override
@@ -68,7 +74,12 @@ public class JournalComparisonPanel extends ContentPanel {
                 
             }
         });
-        this.add(restoreButton);
+        restoreButton.setEnabled(parameter.isAuth());
+        
+        toolbar = new ToolBar();
+        toolbar.add(new FillToolItem());
+        toolbar.add(restoreButton);
+        this.setTopComponent(toolbar);
                
         service.getComparisionTree(parameter, new SessionAwareAsyncCallback<JournalTreeModel>() {
             
@@ -76,7 +87,20 @@ public class JournalComparisonPanel extends ContentPanel {
                 JournalComparisonPanel.this.root = root;
                 TreeStore<JournalTreeModel> store = new TreeStore<JournalTreeModel>();
                 store.add(root, true);
-                tree = new TreePanel<JournalTreeModel>(store);
+                tree = new TreePanel<JournalTreeModel>(store){
+
+                    @Override
+                    protected String renderChild(JournalTreeModel parent, JournalTreeModel child, int depth,
+                            TreeViewRenderMode renderMode) {
+                        String nodeStr = super.renderChild(parent, child, depth, renderMode);
+                        if(child.get("cls") != null){ //$NON-NLS-1$
+                            nodeStr = nodeStr.replaceFirst("x-tree3-node", "x-tree3-node " + child.get("cls")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        }
+                        return nodeStr;
+                    }
+                    
+                };
+
                 tree.setDisplayProperty("name"); //$NON-NLS-1$
                 tree.getStyle().setLeafIcon(AbstractImagePrototype.create(Icons.INSTANCE.leaf()));
 

@@ -23,6 +23,7 @@ import org.talend.mdm.webapp.journal.shared.JournalParameters;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 
+import com.amalto.webapp.core.util.Webapp;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
@@ -80,5 +81,9 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
             LOG.error(e.getMessage());
         }
         return root;
+    }
+
+    public boolean isEnterpriseVersion() {
+        return Webapp.INSTANCE.isEnterpriseVersion();
     }
 }

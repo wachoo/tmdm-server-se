@@ -34,4 +34,6 @@ public interface JournalService extends RemoteService {
     JournalTreeModel getDetailTreeModel(String ids) throws ServiceException;
     
     JournalTreeModel getComparisionTree(JournalParameters parameter) throws ServiceException;
+    
+    boolean isEnterpriseVersion();
 }
