@@ -64,4 +64,6 @@ public interface JournalMessages extends Messages {
     public String after_label();
     
     public String restore_button();
+    
+    public String data_change_viewer();
 }

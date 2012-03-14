@@ -34,4 +34,8 @@ public interface JournalServiceAsync {
     void getComparisionTree(JournalParameters parameter, AsyncCallback<JournalTreeModel> callback);
 
     void isEnterpriseVersion(AsyncCallback<Boolean> callback);
+
+    void restoreRecord(JournalParameters parameter, AsyncCallback<Boolean> callback);
+
+    void checkDCAndDM(String dataContainer, String dataModel, AsyncCallback<Boolean> callback);
 }

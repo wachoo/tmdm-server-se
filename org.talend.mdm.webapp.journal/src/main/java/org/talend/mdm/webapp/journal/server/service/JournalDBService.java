@@ -332,6 +332,31 @@ public class JournalDBService {
         return root;
     }
     
+    public boolean restoreRecord(JournalParameters parameter) throws Exception {
+        Date historyDate = new Date(parameter.getDate());
+        DocumentHistoryNavigator navigator = factory.getHistory(parameter.getDataClusterName(), parameter.getDataModelName(),
+                parameter.getConceptName(), parameter.getId(), parameter.getRevisionId());
+        navigator.goTo(historyDate);
+        
+        com.amalto.core.history.Document document = new EmptyDocument();
+        if (CURRENT_ACTION.equalsIgnoreCase(parameter.getAction())) {
+            document = navigator.current();
+        } else if (PREVIOUS_ACTION.equalsIgnoreCase(parameter.getAction())) {
+            if (navigator.hasPrevious()) {
+                document = navigator.previous();
+            }
+        } else if (NEXT_ACTION.equalsIgnoreCase(parameter.getAction())) {
+            if (navigator.hasNext()) {
+                document = navigator.next();
+            }
+        } else {
+            throw new ServletException(new IllegalArgumentException("Action '" + parameter.getAction() + " is not supported.")); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        
+        document.restore();
+        return true;
+    }
+    
     private void retrieveElement(org.dom4j.Element element, JournalTreeModel root) {
         List list = element.elements();
         JournalTreeModel model = this.getModelByElement(element);

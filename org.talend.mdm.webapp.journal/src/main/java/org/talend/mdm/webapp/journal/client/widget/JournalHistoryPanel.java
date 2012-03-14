@@ -36,15 +36,17 @@ public class JournalHistoryPanel extends ContentPanel {
     
     public JournalHistoryPanel(JournalTreeModel root, JournalGridModel gridModel, boolean isAuth) {
         this.setFrame(false);
+        this.setItemId(gridModel.getIds());
         this.setHeaderVisible(false);
+        this.setHeading(MessagesFactory.getMessages().data_change_viewer());
         this.setLayout(new BorderLayout());
         
-        BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, 150);
+        BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, 220);
         northData.setCollapsible(false);
         northData.setSplit(true);
         northData.setMargins(new Margins(0, 0, 0, 0));        
         
-        journalDataPanel = new JournalDataPanel(root);
+        journalDataPanel = new JournalDataPanel(root, gridModel);
         this.add(journalDataPanel, northData);        
         
         BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 400);

@@ -59,7 +59,7 @@ public class JournalComparisonPanel extends ContentPanel {
     
     private Map<String, JournalTreeModel> modelMap = new HashMap<String, JournalTreeModel>();
     
-    public JournalComparisonPanel(String title, JournalParameters parameter) {
+    public JournalComparisonPanel(String title, final JournalParameters parameter) {
         this.setFrame(false);
         this.setHeading(title);
         this.setLayout(new FitLayout());
@@ -71,8 +71,13 @@ public class JournalComparisonPanel extends ContentPanel {
             
             @Override
             public void componentSelected(ButtonEvent ce) {
-                
-            }
+                service.restoreRecord(parameter, new SessionAwareAsyncCallback<Boolean>() {
+                    
+                    public void onSuccess(Boolean success) {
+                            
+                    }
+                });
+            };
         });
         restoreButton.setEnabled(parameter.isAuth());
         

@@ -23,6 +23,7 @@ import org.talend.mdm.webapp.journal.shared.JournalParameters;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 
+import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.Webapp;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
@@ -85,5 +86,19 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
 
     public boolean isEnterpriseVersion() {
         return Webapp.INSTANCE.isEnterpriseVersion();
+    }
+
+    public boolean checkDCAndDM(String dataContainer, String dataModel) {
+        return Util.checkDCAndDM(dataContainer, dataModel);
+    }
+    
+    public boolean restoreRecord(JournalParameters parameter) throws ServiceException {
+        boolean result = false;
+        try {
+            result = service.restoreRecord(parameter);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 }

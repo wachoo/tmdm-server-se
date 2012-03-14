@@ -12,10 +12,15 @@
 // ============================================================================
 package org.talend.mdm.webapp.journal.client.widget;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.journal.client.Journal;
+import org.talend.mdm.webapp.journal.client.JournalServiceAsync;
 import org.talend.mdm.webapp.journal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.journal.client.resources.icon.Icons;
+import org.talend.mdm.webapp.journal.shared.JournalGridModel;
 import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.TreeStore;
@@ -32,14 +37,17 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
  */
 public class JournalDataPanel extends ContentPanel {
 
+    private JournalServiceAsync service = Registry.get(Journal.JOURNAL_SERVICE);
+    
     private ToolBar toolBar;
     
     private Button openRecordButton;
     
     private TreePanel<JournalTreeModel> tree;
     
-    public JournalDataPanel(JournalTreeModel root) {
+    public JournalDataPanel(JournalTreeModel root, final JournalGridModel gridModel) {
         this.setFrame(false);
+        this.setItemId(gridModel.getIds());
         this.setHeading(MessagesFactory.getMessages().update_report_detail_label());
         this.setBodyBorder(false);
         this.setLayout(new FitLayout());
@@ -50,7 +58,12 @@ public class JournalDataPanel extends ContentPanel {
             
             @Override
             public void componentSelected(ButtonEvent ce) {
-                
+                service.checkDCAndDM(gridModel.getDataContainer(), gridModel.getDataModel(), new SessionAwareAsyncCallback<Boolean>() {
+                    
+                    public void onSuccess(Boolean result) {
+                        
+                    }
+                });
             }
         });
         
@@ -69,5 +82,9 @@ public class JournalDataPanel extends ContentPanel {
 
     public TreePanel<JournalTreeModel> getTree() {
         return tree;
+    }
+    
+    public String getHeadingString() {
+        return MessagesFactory.getMessages().data_change_viewer();
     }
 }

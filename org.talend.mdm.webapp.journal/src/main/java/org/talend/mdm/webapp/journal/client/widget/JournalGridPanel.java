@@ -46,6 +46,8 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
@@ -187,26 +189,10 @@ public class JournalGridPanel extends ContentPanel {
                         service.isEnterpriseVersion(new SessionAwareAsyncCallback<Boolean>() {
                             
                             public void onSuccess(Boolean isEnterprise) {
-                                if (isEnterprise) {
-                                    JournalHistoryPanel journalHistoryPanel = new JournalHistoryPanel(root, gridModel, root.isAuth());
-                                    Window window = new Window();
-                                    window.setLayout(new FitLayout());
-                                    window.add(journalHistoryPanel);
-                                    window.setSize(1100, 700);
-                                    window.setMaximizable(true);
-                                    window.setModal(false);
-                                    window.show();
-                                    journalHistoryPanel.getJournalDataPanel().getTree().setExpanded(root, true);
+                                if (GWT.isScript()) {
+                                    JournalGridPanel.this.openGWTPanel(isEnterprise, gridModel, root);
                                 } else {
-                                    JournalDataPanel journalDataPanel = new JournalDataPanel(root);
-                                    Window window = new Window();
-                                    window.setLayout(new FitLayout());
-                                    window.add(journalDataPanel);
-                                    window.setSize(1100, 700);
-                                    window.setMaximizable(true);
-                                    window.setModal(false);
-                                    window.show();
-                                    journalDataPanel.getTree().setExpanded(root, true);
+                                    JournalGridPanel.this.openDebugPanel(isEnterprise, gridModel, root);
                                 }
                             }
                         });
@@ -221,5 +207,123 @@ public class JournalGridPanel extends ContentPanel {
     
     public void refreshGrid() {
         pagetoolBar.refresh();
+    }
+    
+    private native void openHistoryTabPanel(String ids, JournalHistoryPanel source)/*-{
+        var tabPanel = $wnd.amalto.core.getTabPanel();
+        var dataLogViewer = tabPanel.getItem(ids);
+        if(dataLogViewer == undefined){
+            var panel = @org.talend.mdm.webapp.journal.client.widget.JournalGridPanel::convertHistoryPanel(Lorg/talend/mdm/webapp/journal/client/widget/JournalHistoryPanel;)(source);
+            tabPanel.add(panel);   
+        }
+        tabPanel.setSelection(ids);        
+    }-*/;   
+    
+    private native void openDataTabPanel(String ids, JournalDataPanel source)/*-{
+        var tabPanel = $wnd.amalto.core.getTabPanel();
+        var dataLogViewer = tabPanel.getItem(ids);
+        if(dataLogViewer == undefined){
+            var panel = @org.talend.mdm.webapp.journal.client.widget.JournalGridPanel::convertDataPanel(Lorg/talend/mdm/webapp/journal/client/widget/JournalDataPanel;)(source);
+            tabPanel.add(panel);
+        }
+        tabPanel.setSelection(ids);
+    }-*/;
+
+    private native static JavaScriptObject convertHistoryPanel(JournalHistoryPanel journalPanel)/*-{
+        var panel = {
+        // imitate extjs's render method, really call gxt code.
+        render : function(el){
+        var rootPanel = @com.google.gwt.user.client.ui.RootPanel::get(Ljava/lang/String;)(el.id);
+        rootPanel.@com.google.gwt.user.client.ui.RootPanel::add(Lcom/google/gwt/user/client/ui/Widget;)(journalPanel);
+        },
+        // imitate extjs's setSize method, really call gxt code.
+        setSize : function(width, height){
+        journalPanel.@org.talend.mdm.webapp.journal.client.widget.JournalHistoryPanel::setSize(II)(width, height);
+        },
+        // imitate extjs's getItemId, really return itemId of ContentPanel of GXT.
+        getItemId : function(){
+        return journalPanel.@org.talend.mdm.webapp.journal.client.widget.JournalHistoryPanel::getItemId()();
+        },
+        // imitate El object of extjs
+        getEl : function(){
+        var el = journalPanel.@org.talend.mdm.webapp.journal.client.widget.JournalHistoryPanel::getElement()();
+        return {dom : el};
+        },
+        // imitate extjs's doLayout method, really call gxt code.
+        doLayout : function(){
+        return journalPanel.@org.talend.mdm.webapp.journal.client.widget.JournalHistoryPanel::doLayout()();
+        },
+        title : function(){
+        return journalPanel.@org.talend.mdm.webapp.journal.client.widget.JournalHistoryPanel::getHeading()();
+        }
+        };
+        return panel;
+    }-*/;
+
+    private native static JavaScriptObject convertDataPanel(JournalDataPanel journalPanel)/*-{
+        var panel = {
+        // imitate extjs's render method, really call gxt code.
+        render : function(el){
+        var rootPanel = @com.google.gwt.user.client.ui.RootPanel::get(Ljava/lang/String;)(el.id);
+        rootPanel.@com.google.gwt.user.client.ui.RootPanel::add(Lcom/google/gwt/user/client/ui/Widget;)(journalPanel);
+        },
+        // imitate extjs's setSize method, really call gxt code.
+        setSize : function(width, height){
+        journalPanel.@org.talend.mdm.webapp.journal.client.widget.JournalDataPanel::setSize(II)(width, height);
+        },
+        // imitate extjs's getItemId, really return itemId of ContentPanel of GXT.
+        getItemId : function(){
+        return journalPanel.@org.talend.mdm.webapp.journal.client.widget.JournalDataPanel::getItemId()();
+        },
+        // imitate El object of extjs
+        getEl : function(){
+        var el = journalPanel.@org.talend.mdm.webapp.journal.client.widget.JournalDataPanel::getElement()();
+        return {dom : el};
+        },
+        // imitate extjs's doLayout method, really call gxt code.
+        doLayout : function(){
+        return journalPanel.@org.talend.mdm.webapp.journal.client.widget.JournalDataPanel::doLayout()();
+        },
+        title : function(){
+        return journalPanel.@org.talend.mdm.webapp.journal.client.widget.JournalDataPanel::getHeadingString()();
+        }
+        };
+        return panel;
+    }-*/;
+     
+    private void openDebugPanel(Boolean isEnterprise, JournalGridModel gridModel, JournalTreeModel root) {
+        if (isEnterprise) {
+            JournalHistoryPanel journalHistoryPanel = new JournalHistoryPanel(root, gridModel, root.isAuth());
+            Window window = new Window();
+            window.setLayout(new FitLayout());
+            window.add(journalHistoryPanel);
+            window.setSize(1100, 700);
+            window.setMaximizable(true);
+            window.setModal(false);
+            window.show();
+            journalHistoryPanel.getJournalDataPanel().getTree().setExpanded(root, true);
+        } else {
+            JournalDataPanel journalDataPanel = new JournalDataPanel(root, gridModel);
+            Window window = new Window();
+            window.setLayout(new FitLayout());
+            window.add(journalDataPanel);
+            window.setSize(1100, 700);
+            window.setMaximizable(true);
+            window.setModal(false);
+            window.show();
+            journalDataPanel.getTree().setExpanded(root, true);
+        }
+    }
+    
+    private void openGWTPanel(Boolean isEnterprise, JournalGridModel gridModel, JournalTreeModel root) {
+        if (isEnterprise) {
+            JournalHistoryPanel journalHistoryPanel = new JournalHistoryPanel(root, gridModel, root.isAuth());
+            this.openHistoryTabPanel(gridModel.getIds(), journalHistoryPanel);
+            journalHistoryPanel.getJournalDataPanel().getTree().setExpanded(root, true);
+        } else {
+            JournalDataPanel journalDataPanel = new JournalDataPanel(root, gridModel);
+            this.openDataTabPanel(gridModel.getIds(), journalDataPanel);
+            journalDataPanel.getTree().setExpanded(root, true);
+        }
     }
 }
