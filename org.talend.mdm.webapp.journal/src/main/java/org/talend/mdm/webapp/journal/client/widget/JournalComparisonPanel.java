@@ -58,7 +58,7 @@ public class JournalComparisonPanel extends ContentPanel {
     private JournalComparisonPanel otherPanel;
     
     private Map<String, JournalTreeModel> modelMap = new HashMap<String, JournalTreeModel>();
-    
+
     public JournalComparisonPanel(String title, final JournalParameters parameter) {
         this.setFrame(false);
         this.setHeading(title);
@@ -74,7 +74,9 @@ public class JournalComparisonPanel extends ContentPanel {
                 service.restoreRecord(parameter, new SessionAwareAsyncCallback<Boolean>() {
                     
                     public void onSuccess(Boolean success) {
-                            
+                        if(success) {
+                            JournalComparisonPanel.this.closeTabPanel();
+                        }
                     }
                 });
             };
@@ -151,7 +153,7 @@ public class JournalComparisonPanel extends ContentPanel {
     public TreePanel<JournalTreeModel> getTree() {
         return tree;
     }
-    
+
     public void setOtherPanel(JournalComparisonPanel otherPanel) {
         this.otherPanel = otherPanel;
     }
@@ -159,4 +161,9 @@ public class JournalComparisonPanel extends ContentPanel {
     public Map<String, JournalTreeModel> getModelMap() {
         return modelMap;
     }
+
+    private native void closeTabPanel()/*-{
+        var tabPanel = $wnd.amalto.core.getTabPanel();
+        tabPanel.closeCurrentTab();
+    }-*/;
 }
