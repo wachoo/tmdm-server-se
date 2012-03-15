@@ -42,6 +42,8 @@ public class JournalGridModel extends BaseModel implements IsSerializable {
     
     private String userName;
     
+    private String operationDate;
+
     public JournalGridModel() {
 
     }
@@ -114,7 +116,6 @@ public class JournalGridModel extends BaseModel implements IsSerializable {
     }
     
     public void setOperationTime(String operationTime) {
-        set("operationTime",  operationTime); //$NON-NLS-1$
         this.operationTime = operationTime;
     }
     
@@ -134,5 +135,14 @@ public class JournalGridModel extends BaseModel implements IsSerializable {
     public void setUserName(String userName) {
         set("userName",  userName); //$NON-NLS-1$
         this.userName = userName;
+    }
+    
+    public String getOperationDate() {
+        return operationDate;
+    }
+
+    public void setOperationDate(String operationDate) {
+        set("operationTime",  operationDate); //$NON-NLS-1$
+        this.operationDate = operationDate;
     }    
 }

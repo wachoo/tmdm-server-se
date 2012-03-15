@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.journal.server.service;
 
 import java.io.ByteArrayInputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -84,6 +85,8 @@ public class JournalDBService {
 
     private static final String NEXT_ACTION = "next";  //$NON-NLS-1$
     
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HH:mm:ss"); //$NON-NLS-1$
+
     public JournalDBService() {
 
     }
@@ -439,6 +442,7 @@ public class JournalDBService {
         model.setRevisionId(checkNull(Util.getFirstTextNode(doc, "result/Update/RevisionID"))); //$NON-NLS-1$
         model.setOperationType(checkNull(Util.getFirstTextNode(doc, "result/Update/OperationType"))); //$NON-NLS-1$
         model.setOperationTime(timeInMillis);
+        model.setOperationDate(sdf.format(new Date(Long.parseLong(timeInMillis))));
         model.setSource(source);
         model.setUserName(checkNull(Util.getFirstTextNode(doc, "result/Update/UserName"))); //$NON-NLS-1$
         model.setIds(Util.joinStrings(new String[] { source, timeInMillis }, ".")); //$NON-NLS-1$
