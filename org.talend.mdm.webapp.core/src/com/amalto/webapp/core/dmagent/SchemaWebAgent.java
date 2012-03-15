@@ -16,6 +16,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -227,6 +228,38 @@ public class SchemaWebAgent extends SchemaManager {
 
     }
 
+    /**
+     * DOC Starkey Comment method "findCorrespondingEntitiesFromParentType".
+     * 
+     * @param reusableType
+     * @param reusableTypes
+     * @param businessConcepts
+     * @param deltaReferences
+     */
+    private void findCorrespondingEntitiesFromParentType(ReusableType reusableType, List<ReusableType> reusableTypes,
+            List<BusinessConcept> businessConcepts, List<String> deltaReferences) {
+
+        if (reusableType == null)
+            return;
+        
+        if (deltaReferences.size() > 0)
+            return;
+
+        for (BusinessConcept businessConcept : businessConcepts) {
+            if (businessConcept.getCorrespondTypeName() != null
+                    && businessConcept.getCorrespondTypeName().equals(reusableType.getName())) {
+                    deltaReferences.add(businessConcept.getName());
+            }
+        }
+
+        if (reusableType.getParentName() == null)
+            return;
+        
+        ReusableType parentType = findParentType(reusableType.getParentName(), reusableTypes);
+        if (parentType != null)
+            findCorrespondingEntitiesFromParentType(parentType, reusableTypes, businessConcepts, deltaReferences);
+    }
+
     public List<ReusableType> getMyParents(String subTypeName) throws Exception {
         DataModelBean dataModelBean = getFromPool(getMyDataModelTicket());
         List<ReusableType> reusableTypes = dataModelBean.getReusableTypes();
@@ -385,105 +418,100 @@ public class SchemaWebAgent extends SchemaManager {
      * @throws Exception
      */
     public List<String> getReferenceEntities(String entityName) throws Exception {
+
         List<String> references = new ArrayList<String>();
         DataModelID dataModelID = getMyDataModelTicket();
         DataModelBean dataModelBean = getFromPool(dataModelID);
         List<BusinessConcept> businessConcepts = dataModelBean.getBusinessConcepts();
         List<ReusableType> reuseTypeList = dataModelBean.getReusableTypes();
         Map<String, ReusableType> reusableTypeMap = dataModelBean.getReusableTypeMap();
+
+        // Find possible ReusableTypes which has FK to point to the target entity
+        Map<String,ReusableType> possibleReusableTypeMap = new HashMap<String,ReusableType>();
         for (ReusableType type : reuseTypeList) {
-            type.load(reusableTypeMap);
-        }
+            type.load(reusableTypeMap);// load/parse the reusableType
+            Map<String, String> foreignKeyMap = type.getForeignKeyMap();
+            // does this reUsableType point to the target entity
+            if (foreignKeyMap != null && foreignKeyMap.size() > 0) {
+                for (Iterator<String> iterator = foreignKeyMap.keySet().iterator(); iterator.hasNext();) {
+                    String xpathOnEntity = (String) iterator.next();
+                    String fkpath = foreignKeyMap.get(xpathOnEntity);
+                    String myEntityName=getEntityNameFromXPath(fkpath);
+                    if (isValidatedEntityName(myEntityName, dataModelBean) && myEntityName.equals(entityName)) {
+                        // if true, add it to the possible map
+                        possibleReusableTypeMap.put(getEntityNameFromXPath(xpathOnEntity), type);
+                    }
 
-        BusinessConcept targetBusinessConcept = null;
-        for (BusinessConcept businessConcept : businessConcepts) {
-           if(businessConcept.getName()!=null&&businessConcept.getName().equals(entityName)){
-                targetBusinessConcept = businessConcept;
-                break;
-           }
-        }
-        if (targetBusinessConcept == null)
-            return references;
-        targetBusinessConcept.setReuseTypeList(reuseTypeList);
-        targetBusinessConcept.load();
-
-        Collection<String> fkPaths = null;
-        Map<String, String> foreignKeyMap = targetBusinessConcept.getForeignKeyMap();
-        if (foreignKeyMap != null)
-            fkPaths = foreignKeyMap.values();
-
-        Collection<String> inheritanceFKCollection = targetBusinessConcept.getInheritanceForeignKeyMap() == null ? null
-                : targetBusinessConcept.getInheritanceForeignKeyMap().values();
-
-        if(fkPaths!=null){
-            for (String fkPath : fkPaths) {
-                String myEntityName = getEntityNameFromXPath(fkPath);
-                if (isValidatedEntityName(myEntityName, dataModelBean) && !references.contains(myEntityName)) {
-                    references.add(myEntityName);
                 }
             }
         }
 
-        if (inheritanceFKCollection != null) {
-            for (String inheritanceFK : inheritanceFKCollection) {
-                String myEntityName = getEntityNameFromXPath(inheritanceFK);
-                if (isValidatedEntityName(myEntityName, dataModelBean) && !references.contains(myEntityName)) {
-                    references.add(myEntityName);
+        // Imply possible entities based on a possible reusableTypeList
+        List<BusinessConcept> possibleEntityList = new ArrayList<BusinessConcept>();
+        for (Iterator<String> iterator = possibleReusableTypeMap.keySet().iterator(); iterator.hasNext();) {
+            String theTypeName = (String) iterator.next();
+            ReusableType theReusableType = possibleReusableTypeMap.get(theTypeName);
+
+            boolean foundCorrespondingEntity = false;
+            // if we could find the corresponding entities of this reusable type then add it/them to the list
+            for (BusinessConcept businessConcept : businessConcepts) {
+                if (businessConcept.getCorrespondTypeName() != null
+                        && businessConcept.getCorrespondTypeName().equals(theTypeName)) {
+                    foundCorrespondingEntity = true;
+                    if (!references.contains(businessConcept.getName()))
+                        references.add(businessConcept.getName());
                 }
             }
-        }
-        /*
-        List<String> extendType = new ArrayList<String>();
-        extendType.add(entityName);
+            
+            // otherwise looking for its parent types till we find a type with corresponding entity
+            if (!foundCorrespondingEntity) {
+                // delta references
+                List<String> deltaReferences = new ArrayList<String>();
+                findCorrespondingEntitiesFromParentType(theReusableType, dataModelBean.getReusableTypes(), businessConcepts,
+                        deltaReferences);
+                if (deltaReferences.size() > 0) {
+                    for (String ref : deltaReferences) {
+                        if (!references.contains(ref))
+                            references.add(ref);
+                    }
+                }
+            }// end if not found
 
+        }
+
+        // Add possible entities to the result set based on the business concept schema
         for (BusinessConcept businessConcept : businessConcepts) {
             businessConcept.setReuseTypeList(reuseTypeList);
             businessConcept.load();
-            String bcName = businessConcept.getName();
 
-            if (bcName.equals(entityName)) {
-                List<ReusableType> parentTypes = getMyParents(getBusinessConcept(bcName).getCorrespondTypeName());
-                List<String> parentConcept = new ArrayList<String>();
-                for (ReusableType type : parentTypes) {
-                    parentConcept.add(type.getName());
-                }
+            Collection<String> fkPaths = null;
+            Map<String, String> myForeignKeyMap = businessConcept.getForeignKeyMap();
+            if (myForeignKeyMap != null)
+                fkPaths = myForeignKeyMap.values();
 
-                for (BusinessConcept concept : businessConcepts) {
-                    if (parentConcept.contains(concept.getCorrespondTypeName())) {
-                        extendType.add(concept.getName());
+            if (fkPaths != null) {
+                for (String fkPath : fkPaths) {
+                    // if the fkpath is pointing to this entity
+                    if (fkPath != null && getEntityNameFromXPath(fkPath) != null
+                            && getEntityNameFromXPath(fkPath).equals(entityName)) {
+
+                        if (!references.contains(businessConcept.getName()))
+                            references.add(businessConcept.getName());
                     }
+
+                }// end for
+            }// end if
+        }
+
+        // Add possible entities to the result set based on the reusable type schema
+        if (possibleEntityList != null && possibleEntityList.size() > 0) {
+            for (BusinessConcept possibleEntity : possibleEntityList) {
+                if (!references.contains(possibleEntity.getName())) {
+                    references.add(possibleEntity.getName());
                 }
             }
+        }
 
-            Map<String, String> foreignKeyMap = businessConcept.getForeignKeyMap();
-            Collection<String> fkPaths = foreignKeyMap.values();
-            List<String> types = getBindingType(businessConcept.getE());
-            Collection<String> inheritanceFKCollection = businessConcept.getInheritanceForeignKeyMap().values();
-
-            for (String type : types) {
-                List<ReusableType> subTypes = getMySubtypes(type);
-                for (ReusableType reusableType : subTypes) {
-                    Map<String, String> fk = getReferenceEntities(reusableType, entityName);
-                    if (fk != null && fk.size() > 0) {
-                        references.add(bcName);
-                    }
-                }
-            }
-
-            for (String fkPath : fkPaths) {
-                if (isFkPoint2Entity(fkPath, extendType)) {
-                    if (!references.contains(bcName))
-                        references.add(bcName);
-                }
-            }
-
-            for (String inheritanceFK : inheritanceFKCollection) {
-                if (isFkPoint2Entity(inheritanceFK, extendType)) {
-                    if (!references.contains(bcName))
-                        references.add(bcName);
-                }
-            }
-        }*/
         return references;
 
     }
