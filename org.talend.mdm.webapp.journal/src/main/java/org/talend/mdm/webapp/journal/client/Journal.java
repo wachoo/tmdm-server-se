@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.journal.client;
 
 import org.talend.mdm.webapp.journal.client.mvc.JournalController;
+import org.talend.mdm.webapp.journal.client.widget.JournalSearchPanel;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -36,6 +37,22 @@ public class Journal implements EntryPoint {
     
     public static final String SEARCH_CRITERIA = "SearchCriteria"; //$NON-NLS-1$
 
+    private native void registerJournalService()/*-{
+        $wnd.amalto.journal.Journal.browseJournalWithCriteria = function(ids, concept, isItemsBroswer){
+            @org.talend.mdm.webapp.journal.client.Journal::initJournalfromBrowseRecord(Ljava/lang/String;Ljava/lang/String;)(ids, concept);
+            var tabPanel = $wnd.amalto.core.getTabPanel();
+            var panel = tabPanel.getItem("Journal"); 
+            if (panel == undefined){
+                $wnd.amalto.journal.Journal.init();
+                @org.talend.mdm.webapp.journal.client.Journal::setSearchField(Ljava/lang/String;Ljava/lang/String;)(ids, concept);
+            }else{
+                @org.talend.mdm.webapp.journal.client.Journal::onSearchWithCriteria()();
+                @org.talend.mdm.webapp.journal.client.Journal::setSearchField(Ljava/lang/String;Ljava/lang/String;)(ids, concept);
+                tabPanel.setSelection("Journal");
+            }            
+        }
+    }-*/;
+        
     public void onModuleLoad() {
         if (GWT.isScript()) {
             XDOM.setAutoIdPrefix(GWT.getModuleName() + "-" + XDOM.getAutoIdPrefix()); //$NON-NLS-1$
@@ -46,6 +63,7 @@ public class Journal implements EntryPoint {
 
             Dispatcher dispatcher = Dispatcher.get();
             dispatcher.addController(new JournalController());
+            registerJournalService();
         } else {
             Log.setUncaughtExceptionHandler();
             Registry.register(JOURNAL_SERVICE, GWT.create(JournalService.class));
@@ -131,5 +149,22 @@ public class Journal implements EntryPoint {
     private void onModuleRender() {
         Dispatcher dispatcher = Dispatcher.get();
         dispatcher.dispatch(JournalEvents.InitFrame);
+    }
+    
+    public static void initJournalfromBrowseRecord(String ids, String concept) {
+        JournalSearchCriteria criteria = Registry.get(Journal.SEARCH_CRITERIA);
+        criteria.setBrowseRecord(true);
+        criteria.setEntity(concept);
+        criteria.setKey(ids);
+    }
+    
+    public static void setSearchField(String ids, String concept) {
+        JournalSearchPanel.getInstance().setKeyFieldValue(ids);
+        JournalSearchPanel.getInstance().setEntityFieldValue(concept);
+    }
+    
+    public static void onSearchWithCriteria(){
+        Dispatcher dispatcher = Dispatcher.get();
+        dispatcher.dispatch(JournalEvents.DoSearch);
     }
 }

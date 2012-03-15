@@ -47,7 +47,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
         int limit = load.getLimit();
         String sort = load.getSortDir().toString();
         String field = load.getSortField();
-        boolean isBrowseRecord = false;
+        boolean isBrowseRecord = criteria.isBrowseRecord();
         
         Object[] result = null;
         try {

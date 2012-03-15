@@ -32,6 +32,8 @@ public class JournalSearchCriteria implements IsSerializable {
     private Date startDate;
 
     private Date endDate;
+    
+    private boolean isBrowseRecord;
 
     public JournalSearchCriteria() {
 
@@ -83,5 +85,13 @@ public class JournalSearchCriteria implements IsSerializable {
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
+    }
+ 
+    public boolean isBrowseRecord() {
+        return isBrowseRecord;
+    }
+    
+    public void setBrowseRecord(boolean isBrowseRecord) {
+        this.isBrowseRecord = isBrowseRecord;
     }
 }

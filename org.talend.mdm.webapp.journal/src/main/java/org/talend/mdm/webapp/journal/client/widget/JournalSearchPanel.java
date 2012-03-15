@@ -281,6 +281,7 @@ public class JournalSearchPanel extends FormPanel {
 
         criteria.setStartDate(startDateField.getValue());
         criteria.setEndDate(endDateField.getValue());
+        criteria.setBrowseRecord(false);
     }
 
     private Map<String, String> getCriteriaMap() {
@@ -300,5 +301,13 @@ public class JournalSearchPanel extends FormPanel {
         map.put("language", UrlUtil.getLanguage()); //$NON-NLS-1$
 
         return map;
+    }
+    
+    public void setEntityFieldValue(String value) {
+        this.entityField.setValue(value);
+    }
+    
+    public void setKeyFieldValue(String value) {
+        this.keyField.setValue(value);
     }
 }
