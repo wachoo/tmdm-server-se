@@ -293,7 +293,7 @@ public class JournalGridPanel extends ContentPanel {
      
     private void openDebugPanel(Boolean isEnterprise, JournalGridModel gridModel, JournalTreeModel root) {
         if (isEnterprise) {
-            JournalHistoryPanel journalHistoryPanel = new JournalHistoryPanel(root, gridModel, root.isAuth());
+            JournalHistoryPanel journalHistoryPanel = new JournalHistoryPanel(root, gridModel, root.isAuth(), 550);
             Window window = new Window();
             window.setLayout(new FitLayout());
             window.add(journalHistoryPanel);
@@ -317,7 +317,8 @@ public class JournalGridPanel extends ContentPanel {
     
     private void openGWTPanel(Boolean isEnterprise, JournalGridModel gridModel, JournalTreeModel root) {
         if (isEnterprise) {
-            JournalHistoryPanel journalHistoryPanel = new JournalHistoryPanel(root, gridModel, root.isAuth());
+            int width = JournalGridPanel.this.getWidth()/2 - 40;
+            JournalHistoryPanel journalHistoryPanel = new JournalHistoryPanel(root, gridModel, root.isAuth(), width);
             this.openHistoryTabPanel(gridModel.getIds(), journalHistoryPanel);
             journalHistoryPanel.getJournalDataPanel().getTree().setExpanded(root, true);
         } else {

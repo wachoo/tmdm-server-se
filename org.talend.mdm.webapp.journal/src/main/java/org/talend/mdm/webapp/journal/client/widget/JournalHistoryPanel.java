@@ -34,7 +34,7 @@ public class JournalHistoryPanel extends ContentPanel {
     
     private JournalComparisonPanel afterPanel;
     
-    public JournalHistoryPanel(JournalTreeModel root, JournalGridModel gridModel, boolean isAuth) {
+    public JournalHistoryPanel(JournalTreeModel root, JournalGridModel gridModel, boolean isAuth, int width) {
         this.setFrame(false);
         this.setItemId(gridModel.getIds());
         this.setHeaderVisible(false);
@@ -49,7 +49,7 @@ public class JournalHistoryPanel extends ContentPanel {
         journalDataPanel = new JournalDataPanel(root, gridModel);
         this.add(journalDataPanel, northData);        
         
-        BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 400);
+        BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, width);
         westData.setCollapsible(false);
         westData.setSplit(true);
         westData.setMargins(new Margins(5, 5, 0, 0));
