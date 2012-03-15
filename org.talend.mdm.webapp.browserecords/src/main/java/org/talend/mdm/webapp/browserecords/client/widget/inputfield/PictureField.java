@@ -273,10 +273,15 @@ public class PictureField extends TextField<String> {
             file.addListener(Events.Change, new Listener<FieldEvent>() {
 
                 public void handleEvent(FieldEvent be) {
-                    if (name.getValue() == null || name.getValue().isEmpty()) {
+                    // reset imgId
+                    // catalog.setValue(""); //$NON-NLS-1$
+                    name.setValue(""); //$NON-NLS-1$
+                    // auto fill img id
+                    if ((name.getValue() == null || name.getValue().isEmpty())
+                            && (file.getValue() != null && !file.getValue().isEmpty())) {
                         String[] parsedFileName = CommonUtil.parseFileName(file.getValue());
                         name.setValue(parsedFileName[0]);
-                        extFileNameLabel.setText(parsedFileName[1].length() ==0 ? "" : "." + parsedFileName[1]);
+                        extFileNameLabel.setText(parsedFileName[1].length() == 0 ? "" : "." + parsedFileName[1]); //$NON-NLS-1$ //$NON-NLS-2$
                         // name.focus();
                     }
                 }
