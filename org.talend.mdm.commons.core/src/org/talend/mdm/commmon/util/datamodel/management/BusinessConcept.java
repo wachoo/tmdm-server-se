@@ -186,6 +186,15 @@ public class BusinessConcept {
     }
 
     /**
+     * DOC Starkey Comment method "getSubReuseTypeMap".
+     * 
+     * @return
+     */
+    public Map<String, ReusableType> getSubReuseTypeMap() {
+        return subReuseTypeMap;
+    }
+
+    /**
      * DOC HSHU Comment method "travelXSElement". go through XSElement
      * 
      * @param e

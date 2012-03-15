@@ -228,38 +228,6 @@ public class SchemaWebAgent extends SchemaManager {
 
     }
 
-    /**
-     * DOC Starkey Comment method "findCorrespondingEntitiesFromParentType".
-     * 
-     * @param reusableType
-     * @param reusableTypes
-     * @param businessConcepts
-     * @param deltaReferences
-     */
-    private void findCorrespondingEntitiesFromParentType(ReusableType reusableType, List<ReusableType> reusableTypes,
-            List<BusinessConcept> businessConcepts, List<String> deltaReferences) {
-
-        if (reusableType == null)
-            return;
-        
-        if (deltaReferences.size() > 0)
-            return;
-
-        for (BusinessConcept businessConcept : businessConcepts) {
-            if (businessConcept.getCorrespondTypeName() != null
-                    && businessConcept.getCorrespondTypeName().equals(reusableType.getName())) {
-                    deltaReferences.add(businessConcept.getName());
-            }
-        }
-
-        if (reusableType.getParentName() == null)
-            return;
-        
-        ReusableType parentType = findParentType(reusableType.getParentName(), reusableTypes);
-        if (parentType != null)
-            findCorrespondingEntitiesFromParentType(parentType, reusableTypes, businessConcepts, deltaReferences);
-    }
-
     public List<ReusableType> getMyParents(String subTypeName) throws Exception {
         DataModelBean dataModelBean = getFromPool(getMyDataModelTicket());
         List<ReusableType> reusableTypes = dataModelBean.getReusableTypes();
@@ -440,43 +408,17 @@ public class SchemaWebAgent extends SchemaManager {
                     if (isValidatedEntityName(myEntityName, dataModelBean) && myEntityName.equals(entityName)) {
                         // if true, add it to the possible map
                         possibleReusableTypeMap.put(getEntityNameFromXPath(xpathOnEntity), type);
+                        // also find all parent types if have
+                        List<ReusableType> myParentTypes = getMyParents(type.getName());
+                        if (myParentTypes != null && myParentTypes.size() > 0) {
+                            for (ReusableType parentType : myParentTypes) {
+                                possibleReusableTypeMap.put(parentType.getName(), parentType);
+                            }
+                        }
                     }
 
                 }
             }
-        }
-
-        // Imply possible entities based on a possible reusableTypeList
-        List<BusinessConcept> possibleEntityList = new ArrayList<BusinessConcept>();
-        for (Iterator<String> iterator = possibleReusableTypeMap.keySet().iterator(); iterator.hasNext();) {
-            String theTypeName = (String) iterator.next();
-            ReusableType theReusableType = possibleReusableTypeMap.get(theTypeName);
-
-            boolean foundCorrespondingEntity = false;
-            // if we could find the corresponding entities of this reusable type then add it/them to the list
-            for (BusinessConcept businessConcept : businessConcepts) {
-                if (businessConcept.getCorrespondTypeName() != null
-                        && businessConcept.getCorrespondTypeName().equals(theTypeName)) {
-                    foundCorrespondingEntity = true;
-                    if (!references.contains(businessConcept.getName()))
-                        references.add(businessConcept.getName());
-                }
-            }
-            
-            // otherwise looking for its parent types till we find a type with corresponding entity
-            if (!foundCorrespondingEntity) {
-                // delta references
-                List<String> deltaReferences = new ArrayList<String>();
-                findCorrespondingEntitiesFromParentType(theReusableType, dataModelBean.getReusableTypes(), businessConcepts,
-                        deltaReferences);
-                if (deltaReferences.size() > 0) {
-                    for (String ref : deltaReferences) {
-                        if (!references.contains(ref))
-                            references.add(ref);
-                    }
-                }
-            }// end if not found
-
         }
 
         // Add possible entities to the result set based on the business concept schema
@@ -504,11 +446,32 @@ public class SchemaWebAgent extends SchemaManager {
         }
 
         // Add possible entities to the result set based on the reusable type schema
-        if (possibleEntityList != null && possibleEntityList.size() > 0) {
-            for (BusinessConcept possibleEntity : possibleEntityList) {
-                if (!references.contains(possibleEntity.getName())) {
-                    references.add(possibleEntity.getName());
-                }
+        // Imply possible entities based on a possible reusableTypeList
+        for (Iterator<String> iterator = possibleReusableTypeMap.keySet().iterator(); iterator.hasNext();) {
+            String theTypeName = (String) iterator.next();
+            // ReusableType theReusableType = possibleReusableTypeMap.get(theTypeName);
+
+            // if we could find the corresponding entities of this reusable type then add it/them to the list
+            for (BusinessConcept businessConcept : businessConcepts) {
+                // check root type
+                if (businessConcept.getCorrespondTypeName() != null
+                        && businessConcept.getCorrespondTypeName().equals(theTypeName)) {
+                    if (!references.contains(businessConcept.getName()))
+                        references.add(businessConcept.getName());
+                    continue;
+                }// end if
+                
+                // check children node via a flat result map
+                Map<String, ReusableType> subTypesOfTargetEntity = businessConcept.getSubReuseTypeMap();
+                for (Iterator<String> iterator2 = subTypesOfTargetEntity.keySet().iterator(); iterator2.hasNext();) {
+                    String keyPath = (String) iterator2.next();
+                    if (subTypesOfTargetEntity.get(keyPath) != null
+                            && subTypesOfTargetEntity.get(keyPath).getName().equals(theTypeName)) {
+                        if (!references.contains(businessConcept.getName()))
+                            references.add(businessConcept.getName());
+                        break;
+                    }// end if
+                }// end for
             }
         }
 
