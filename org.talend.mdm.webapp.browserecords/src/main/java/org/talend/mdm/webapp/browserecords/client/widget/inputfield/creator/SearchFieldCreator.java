@@ -47,7 +47,7 @@ public class SearchFieldCreator {
             if (typeModel.getForeignkey() != null) {
                 FKField fkField = new FKField();
                 field = fkField;
-                cons = OperatorConstants.fullOperators;
+                cons = OperatorConstants.foreignKeyOperators;
             } else if (typeModel.hasEnumeration()) {
                 SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
                 comboBox.setFireChangeEventOnSetValue(true);
