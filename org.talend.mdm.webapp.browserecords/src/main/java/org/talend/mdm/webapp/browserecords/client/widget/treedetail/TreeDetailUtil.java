@@ -162,7 +162,8 @@ public class TreeDetailUtil {
         return hp;
     }
     
-    public static void initItemsDetailPanelById(final String fromWhichApp, String ids, final String concept) {
+    public static void initItemsDetailPanelById(final String fromWhichApp, String ids, final String concept,
+            final Boolean isFkToolBar, final Boolean isHierarchyCall) {
         String[] idArr = ids.split(","); //$NON-NLS-1$
         final ItemsDetailPanel panel = new ItemsDetailPanel();
         final BrowseRecordsServiceAsync brService = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
@@ -174,6 +175,9 @@ public class TreeDetailUtil {
                             public void onSuccess(ViewBean viewBean) {
                                 ItemPanel itemPanel = new ItemPanel(viewBean, item, ItemDetailToolBar.VIEW_OPERATION, panel);
                                 itemPanel.getToolBar().setOutMost(true);
+                                itemPanel.getToolBar().setFkToolBar(isFkToolBar);
+                                itemPanel.getToolBar().setHierarchyCall(isHierarchyCall);
+
                                 List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
                                 if (item != null) {
                                     breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, null, false)); //$NON-NLS-1$
@@ -200,13 +204,16 @@ public class TreeDetailUtil {
         });
     }
 
-    public static void initItemsDetailPanelByItemPanel(ViewBean viewBean, ItemBean itemBean) {
+    public static void initItemsDetailPanelByItemPanel(ViewBean viewBean, ItemBean itemBean, boolean isFkToolBar,
+            boolean isHierarchyCall) {
 
         final ItemsDetailPanel itemsDetailPanel = new ItemsDetailPanel();
 
         ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.DUPLICATE_OPERATION, itemsDetailPanel);
         itemPanel.getToolBar().setOutMost(true);
-
+        itemPanel.getToolBar().setFkToolBar(isFkToolBar);
+        itemPanel.getToolBar().setHierarchyCall(isHierarchyCall);
+        
         List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
         if (itemBean != null) {
             breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, null, false)); //$NON-NLS-1$

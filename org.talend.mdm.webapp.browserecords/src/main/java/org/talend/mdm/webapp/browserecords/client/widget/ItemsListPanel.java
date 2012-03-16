@@ -477,7 +477,7 @@ public class ItemsListPanel extends ContentPanel {
                     return;
                 }
                 // TMDM-3202 open in a top-level tab
-                TreeDetailUtil.initItemsDetailPanelById("", m.getIds(), m.getConcept()); //$NON-NLS-1$
+                TreeDetailUtil.initItemsDetailPanelById("", m.getIds(), m.getConcept(), false, false); //$NON-NLS-1$
             }
         });
         contextMenu.add(openInTab);

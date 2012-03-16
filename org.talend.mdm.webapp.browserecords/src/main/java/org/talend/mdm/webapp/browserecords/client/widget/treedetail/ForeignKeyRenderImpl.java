@@ -70,6 +70,7 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
             ItemPanel itemPanel = new ItemPanel(pkViewBean, toolBar.getItemBean(), toolBar.getOperation(), fkPanel, root,
                     detailPanel, toolBar.isOpenTab());
             itemPanel.getToolBar().setOutMost(toolBar.isOutMost());
+            itemPanel.getToolBar().setHierarchyCall(toolBar.isHierarchyCall());
             // TMDM-3380. FK Tab Title should not support the dynamic label. If FK exist dynamic label, it should remove
             // '{***}' section to display title. for instance: 'Agency:{position()}' is an English dynamic label, Agency
             // FK Tab Title should be 'Agency', but not 'Agency:{position()}'. Only when Agency as an item to be
