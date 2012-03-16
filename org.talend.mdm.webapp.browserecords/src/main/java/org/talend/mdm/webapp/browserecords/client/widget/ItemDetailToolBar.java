@@ -144,6 +144,10 @@ public class ItemDetailToolBar extends ToolBar {
     private boolean isHierarchyCall;
 
     private boolean openTab;
+    
+    public ItemDetailToolBar() {
+        
+    }
 
     public ItemDetailToolBar(ItemsDetailPanel itemsDetailPanel) {
         this.itemsDetailPanel = itemsDetailPanel;

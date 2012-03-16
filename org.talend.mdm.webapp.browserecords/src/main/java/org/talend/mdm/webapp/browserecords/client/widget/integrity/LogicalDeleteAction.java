@@ -1,6 +1,7 @@
 package org.talend.mdm.webapp.browserecords.client.widget.integrity;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.widget.CallbackAction;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 
@@ -19,6 +20,7 @@ public class LogicalDeleteAction implements DeleteAction {
         service.logicalDeleteItem(item, url, override, new SessionAwareAsyncCallback<Void>() {
             public void onSuccess(Void arg0) {
                 postDeleteAction.doAction();
+                CallbackAction.getInstance().doAction(CallbackAction.HIERARCHY_DELETEITEM_CALLBACK,null);
             }
         });
     }
