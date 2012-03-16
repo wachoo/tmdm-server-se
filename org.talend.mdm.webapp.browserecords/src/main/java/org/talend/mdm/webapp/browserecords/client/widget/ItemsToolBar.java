@@ -1151,6 +1151,14 @@ public class ItemsToolBar extends ToolBar {
     public void setTableView(ViewBean tableView) {
         this.tableView = tableView;
     }
+    
+    public SimpleCriterionPanel<?> getSimplePanel() {
+        return simplePanel;
+    }
+    
+    public void setSimplePanel(SimpleCriterionPanel<?> simplePanel) {
+        this.simplePanel = simplePanel;
+    }
 
     private class DeleteItemsBoxListener implements Listener<MessageBoxEvent> {
 

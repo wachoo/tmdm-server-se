@@ -2,6 +2,7 @@ package org.talend.mdm.webapp.browserecords.client.widget.integrity;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
+import org.talend.mdm.webapp.base.client.widget.CallbackAction;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
@@ -26,6 +27,7 @@ public class PhysicalDeleteAction implements DeleteAction {
                     MessageBox.info(MessagesFactory.getMessages().info_title(), CommonUtil.pickOutISOMessage(msg), null);
                 }
                 postDeleteAction.doAction();
+                CallbackAction.getInstance().doAction(CallbackAction.HIERARCHY_DELETEITEM_CALLBACK,null);
             }
 
             @Override
