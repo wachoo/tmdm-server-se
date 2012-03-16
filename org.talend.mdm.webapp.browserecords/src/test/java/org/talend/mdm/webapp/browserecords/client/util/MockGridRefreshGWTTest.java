@@ -45,9 +45,9 @@ import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
- * Mock Grid refresh() method is called <li>After executing save successfully, when ItemDetailToolBar's
- * isFkToolBar=false, gridRefresh() is called <li>After executing save successfully, when ItemDetailToolBar's
- * isFkToolBar=true, gridRefresh() is not called
+ * Mock Grid refresh() method is called<br>
+ * After executing save successfully, when ItemDetailToolBar's isFkToolBar=false and isOutMost = false and
+ * isHierarchyCall = false, gridRefresh() is called, otherwise gridRefresh() is not called.
  */
 @SuppressWarnings("nls")
 public class MockGridRefreshGWTTest extends GWTTestCase {
@@ -62,18 +62,60 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         ItemDetailToolBar detailToolBar = new ItemDetailToolBar(null);
         event.setData("itemDetailToolBar", detailToolBar);
 
-        // 1. fkToolBar = false
+        // 1. fkToolBar = false, isOutMost = false, isHierarchyCall = false
         detailToolBar.setFkToolBar(false);
+        detailToolBar.setOutMost(false);
+        detailToolBar.setHierarchyCall(false);
         onSaveItem(event);
         assertEquals(true, isGridRefresh);
 
         isGridRefresh = false;
 
-        // 2. fkToolBar = true
+        // 2. fkToolBar = true, isOutMost = false, isHierarchyCall = false
         detailToolBar.setFkToolBar(true);
         onSaveItem(event);
         assertEquals(false, isGridRefresh);
 
+        // 3. fkToolBar = true, isOutMost = true, isHierarchyCall = false
+        detailToolBar.setFkToolBar(true);
+        detailToolBar.setOutMost(true);
+        onSaveItem(event);
+        assertEquals(false, isGridRefresh);
+
+        // 4. fkToolBar = true, isOutMost = true, isHierarchyCall = true
+        detailToolBar.setFkToolBar(true);
+        detailToolBar.setOutMost(true);
+        detailToolBar.setHierarchyCall(true);
+        onSaveItem(event);
+        assertEquals(false, isGridRefresh);
+
+        // 5. fkToolBar = true, isOutMost = false, isHierarchyCall = true
+        detailToolBar.setFkToolBar(true);
+        detailToolBar.setOutMost(false);
+        detailToolBar.setHierarchyCall(true);
+        onSaveItem(event);
+        assertEquals(false, isGridRefresh);
+
+        // 6. fkToolBar = false, isOutMost = false, isHierarchyCall = true
+        detailToolBar.setFkToolBar(false);
+        detailToolBar.setOutMost(false);
+        detailToolBar.setHierarchyCall(true);
+        onSaveItem(event);
+        assertEquals(false, isGridRefresh);
+
+        // 7. fkToolBar = false, isOutMost = true, isHierarchyCall = true
+        detailToolBar.setFkToolBar(false);
+        detailToolBar.setOutMost(true);
+        detailToolBar.setHierarchyCall(true);
+        onSaveItem(event);
+        assertEquals(false, isGridRefresh);
+
+        // 8. fkToolBar = false, isOutMost = true, isHierarchyCall = false
+        detailToolBar.setFkToolBar(false);
+        detailToolBar.setOutMost(true);
+        detailToolBar.setHierarchyCall(false);
+        onSaveItem(event);
+        assertEquals(false, isGridRefresh);
     }
 
     private void onSaveItem(AppEvent event) {
@@ -84,8 +126,8 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
 
             public void onSuccess(ItemResult result) {
                 assertEquals(ItemResult.SUCCESS, result.getStatus());
-                // only fkToolBar = true, Grid dose not need to refresh
-                if (!detailToolBar.isFkToolBar()) {
+                // Grid will call refresh() when only fkToolBar = false, isOutMost = false, isHierarchyCall = false
+                if (!detailToolBar.isFkToolBar() && !detailToolBar.isOutMost() && !detailToolBar.isHierarchyCall()) {
                     gridRefresh();
                 }
             }

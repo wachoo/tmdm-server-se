@@ -155,6 +155,7 @@ public class BrowseRecordsView extends View {
         ItemPanel itemPanel = new ItemPanel(fkViewBean, fkItemBean, ItemDetailToolBar.VIEW_OPERATION, detailPanel, openTab);
         itemPanel.getToolBar().setOutMost(!openTab);
         itemPanel.getToolBar().setHierarchyCall(isHierarchyCall);
+        itemPanel.getToolBar().setFkToolBar(true);
         detailPanel.initBanner(fkItemBean.getPkInfoList(), fkItemBean.getDescription());
         detailPanel.addTabItem(fkItemBean.getLabel(), itemPanel, ItemsDetailPanel.SINGLETON, fkItemBean.getIds());
     }
@@ -314,6 +315,7 @@ public class BrowseRecordsView extends View {
         itemPanel.initTreeDetail(viewBean, itemBean, ItemDetailToolBar.CREATE_OPERATION);
         itemPanel.getToolBar().setFkToolBar(true);
         itemPanel.getToolBar().setOutMost(itemPanelWidget.getToolBar().isOutMost());
+        itemPanel.getToolBar().setHierarchyCall(itemPanelWidget.getToolBar().isHierarchyCall());
         if (itemPanel.getToolBar().isOutMost()) {
             panel.setHeading(itemBean.getLabel());
             panel.setItemId(itemBean.getLabel());

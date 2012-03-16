@@ -439,10 +439,11 @@ public class ItemDetailToolBar extends ToolBar {
                     if (!isOutMost) {
                         ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.DUPLICATE_OPERATION, panel);
                         itemPanel.getToolBar().setFkToolBar(isFkToolBar);
+                        itemPanel.getToolBar().setHierarchyCall(isHierarchyCall);
                         panel.addTabItem(title, itemPanel, ItemsDetailPanel.SINGLETON, title);
                         ItemsMainTabPanel.getInstance().addMainTabItem(title, panel, title);
                     } else {
-                        TreeDetailUtil.initItemsDetailPanelByItemPanel(viewBean, itemBean);
+                        TreeDetailUtil.initItemsDetailPanelByItemPanel(viewBean, itemBean, isFkToolBar, isHierarchyCall);
                     }
 
                     if (!isOutMost && !isFkToolBar) {
@@ -603,8 +604,8 @@ public class ItemDetailToolBar extends ToolBar {
                 public void componentSelected(ButtonEvent ce) {
                     // TMDM-3202 open in a top-level tab
                     String fromWhichApp = isHierarchyCall ? MessagesFactory.getMessages().hierarchy_title() : ""; //$NON-NLS-1$
-                    TreeDetailUtil.initItemsDetailPanelById(fromWhichApp, itemBean.getIds(),
-                            itemBean.getConcept());
+                    TreeDetailUtil.initItemsDetailPanelById(fromWhichApp, itemBean.getIds(), itemBean.getConcept(), isFkToolBar,
+                            isHierarchyCall);
                 }
             });
         }

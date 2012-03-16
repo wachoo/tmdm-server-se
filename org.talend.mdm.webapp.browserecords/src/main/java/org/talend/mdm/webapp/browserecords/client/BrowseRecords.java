@@ -60,7 +60,7 @@ public class BrowseRecords implements EntryPoint {
         if(ids.length == 1){
         idstr = ids[0];
         }
-        @org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil::initItemsDetailPanelById(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(fromWhichApp, idstr, entity);
+        @org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil::initItemsDetailPanelById(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;Ljava/lang/Boolean;)(fromWhichApp, idstr, entity, new Boolean(false), new Boolean(false));
         };
     }-*/;
 
@@ -193,7 +193,7 @@ public class BrowseRecords implements EntryPoint {
         function showTreeDetailPanel(concept, ids){
             instance.@org.talend.mdm.webapp.browserecords.client.BrowseRecords::showTreeDetailPanel(Ljava/lang/String;Ljava/lang/String;)(concept, ids);
         }
-        
+
         function refreshGrid(){
             var tabPanel = $wnd.amalto.core.getTabPanel();
             var panel = tabPanel.getItem("Browse Records");         

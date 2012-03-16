@@ -186,10 +186,11 @@ public class BrowseRecordsController extends Controller {
                         if (!detailToolBar.isOutMost() && !detailToolBar.isHierarchyCall() && !detailToolBar.isFkToolBar())
                             ItemsListPanel.getInstance().setDefaultSelectionModel(!isClose);
 
-                        // only fkToolBar = true, ItemsListPanel dose not need to refresh
-                        if (!detailToolBar.isFkToolBar())
+                        // ItemsListPanel need to refresh when only fkToolBar = false and isOutMost = false and
+                        // isHierarchyCall = false
+                        if (!detailToolBar.isOutMost() && !detailToolBar.isFkToolBar() && !detailToolBar.isHierarchyCall())
                             ItemsListPanel.getInstance().refreshGrid();
-                        else if (!isClose)
+                        if (detailToolBar.isFkToolBar() && !isClose)
                             detailToolBar.refresh(result.getReturnValue());
                         ItemsMainTabPanel.getInstance().getCurrentViewTabItem().savedCallback(result.getReturnValue());
                     }
