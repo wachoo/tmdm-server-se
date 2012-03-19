@@ -193,7 +193,7 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
 
                 // TODO Document this (in case id is not defined it current type but in super type)
                 Set<String> unresolvedIds = typeMetadataKeyStack.peek();
-                if(!unresolvedIds.isEmpty()) {
+                if (!unresolvedIds.isEmpty()) {
                     for (String unresolvedId : unresolvedIds) {
                         type.registerKey(new SoftIdFieldRef(this, type.getName(), unresolvedId));
                     }
@@ -313,10 +313,15 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
         if (schemaType instanceof XmlSchemaSimpleType) {
             XmlSchemaSimpleType simpleSchemaType = (XmlSchemaSimpleType) schemaType;
             XmlSchemaSimpleTypeContent content = simpleSchemaType.getContent();
+            if (schemaType.getQName() != null) { // Null QNames may happen for anonymous types extending other types.
+                fieldType = new SoftTypeRef(this, schemaType.getQName().getNamespaceURI(), schemaType.getQName().getLocalPart());
+            }
             if (content != null) {
                 XmlSchemaSimpleTypeRestriction typeRestriction = (XmlSchemaSimpleTypeRestriction) content;
-                QName baseTypeName = typeRestriction.getBaseTypeName();
-                fieldType = new SoftTypeRef(this, baseTypeName.getNamespaceURI(), baseTypeName.getLocalPart());
+                if (fieldType == null) {
+                    QName baseTypeName = typeRestriction.getBaseTypeName();
+                    fieldType = new SoftTypeRef(this, baseTypeName.getNamespaceURI(), baseTypeName.getLocalPart());
+                }
                 if (typeRestriction.getFacets().getCount() > 0) {
                     boolean isEnumeration = false;
                     for (int i = 0; i < typeRestriction.getFacets().getCount(); i++) {
