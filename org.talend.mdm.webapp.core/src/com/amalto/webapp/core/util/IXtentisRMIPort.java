@@ -2317,7 +2317,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             ItemPOJOPK itemPOJOPK = new ItemPOJOPK(dcpk, concept, ids);
             // get operationType
             ItemPOJO itemPoJo = ItemPOJO.load(itemPOJOPK);
-            HashMap<String, UpdateReportItem> updatedPath = new HashMap<String, UpdateReportItem>();
+            Map<String, UpdateReportItem> updatedPath = new HashMap<String, UpdateReportItem>();
 
             if (itemPoJo == null) {
                 operationType = UpdateReportPOJO.OPERATION_TYPE_CREATE;
@@ -2325,9 +2325,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                 operationType = UpdateReportPOJO.OPERATION_TYPE_UPDATE;
                 // get updated path
                 Element old = itemPoJo.getProjection();
-                Element newNode = root;
-                updatedPath = Util.compareElement("/" + old.getLocalName(), newNode, old);//$NON-NLS-1$
-                WSUpdateReportItemArray wsUpdateReportItemArray = new WSUpdateReportItemArray();
+                updatedPath = Util.compareElement("/" + old.getLocalName(), root, old);//$NON-NLS-1$
                 for (Entry<String, UpdateReportItem> entry : updatedPath.entrySet()) {
                     UpdateReportItemPOJO pojo = new UpdateReportItemPOJO(entry.getValue().getPath(), entry.getValue()
                             .getOldValue(), entry.getValue().getNewValue());

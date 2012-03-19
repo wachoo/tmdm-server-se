@@ -64,8 +64,9 @@ public interface MutableDocument extends Document {
 
     /**
      * @return Returns a document with created status.
+     * @param content Content of the document at its creation time.
      */
-    MutableDocument create();
+    MutableDocument create(MutableDocument content);
 
     /**
      * Deletes the document. MDM supports two different kinds of deletes: LOGICAL and PHYSICAL.

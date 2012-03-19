@@ -787,9 +787,7 @@ public class SmtpServiceBean extends ServiceCtrlBean implements SessionBean {
      */
     public boolean checkConfigure(String conf) throws XtentisException {
         try {
-            // String conf = this.loadConfiguration();
             Document doc = Util.parse(conf);
-            Util.validate(doc.getDocumentElement(), getConfigurationSchema());
             host = Util.getFirstTextNode(doc.getDocumentElement(), "./host");
             String port1 = Util.getFirstTextNode(doc.getDocumentElement(), "./port");
             port = Integer.valueOf(port1);

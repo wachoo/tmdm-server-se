@@ -503,19 +503,19 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
         return false;
     }
 
-    public void start() throws XmlServerException {
+    public void start(String dataClusterName) throws XmlServerException {
         throw new UnsupportedOperationException();
     }
 
-    public void commit() throws XmlServerException {
+    public void commit(String dataClusterName) throws XmlServerException {
         throw new UnsupportedOperationException();
     }
 
-    public void rollback() throws XmlServerException {
+    public void rollback(String dataClusterName) throws XmlServerException {
         throw new UnsupportedOperationException();
     }
 
-    public void end() throws XmlServerException {
+    public void end(String dataClusterName) throws XmlServerException {
         throw new UnsupportedOperationException();
     }
 

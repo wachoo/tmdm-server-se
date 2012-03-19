@@ -113,7 +113,7 @@ public class LoadServlet extends HttpServlet {
         // Start parsing/loading
         try {
             if (server.supportTransaction()) {
-                server.start();
+                server.start(dataClusterName);
             }
 
             loadAction.load(request, keyMetadata, server);
@@ -121,8 +121,8 @@ public class LoadServlet extends HttpServlet {
             // Commit changes
             try {
                 if (server.supportTransaction()) {
-                    server.commit();
-                    server.end();
+                    server.commit(dataClusterName);
+                    server.end(dataClusterName);
                 }
             } catch (Exception commitException) {
                 throw new ServletException("Commit failed with errors", commitException);
@@ -133,7 +133,7 @@ public class LoadServlet extends HttpServlet {
         } catch (Throwable throwable) {
             if (server.supportTransaction()) {
                 try {
-                    server.rollback();
+                    server.rollback(dataClusterName);
                 } catch (Exception rollbackException) {
                     log.error("Ignoring rollback exception", rollbackException);
                 }
@@ -142,7 +142,7 @@ public class LoadServlet extends HttpServlet {
         } finally {
             if (server.supportTransaction()) {
                 try {
-                    server.end();
+                    server.end(dataClusterName);
                 } catch (Exception endException) {
                     log.error("Ignoring end call exception", endException);
                 }

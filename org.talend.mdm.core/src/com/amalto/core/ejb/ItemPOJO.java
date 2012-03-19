@@ -21,6 +21,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.ejb.EJBException;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
@@ -61,6 +64,8 @@ import com.amalto.core.util.XtentisException;
 public class ItemPOJO implements Serializable {
 
     public final static String LOGGING_EVENT = "logging_event"; //$NON-NLS-1$
+
+    private static final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();
 
     private String dataModelName;// used for binding data model
 
@@ -709,8 +714,9 @@ public class ItemPOJO implements Serializable {
     
     public ItemPOJOPK store(boolean putInCache) throws XtentisException {
         ItemPOJOPK itemPK = getItemPOJOPK();
-        if (itemPK == null)
+        if (itemPK == null) {
             return null;
+        }
         ILocalUser user = LocalUser.getLocalUser();
         checkAccess(user, true, "write");
         
@@ -722,8 +728,9 @@ public class ItemPOJO implements Serializable {
         if (this.getDataModelName() != null) {
             String objectName = ObjectPOJO.getObjectsClasses2NamesMap().get(DataModelPOJO.class);
             String dataModelRevisionID = universe.getXtentisObjectsRevisionIDs().get(objectName);
-            if (dataModelRevisionID != null)
+            if (dataModelRevisionID != null) {
                 this.dataModelRevision = dataModelRevisionID;
+            }
         }
         
         return store(revisionID, putInCache);
@@ -744,42 +751,25 @@ public class ItemPOJO implements Serializable {
      * Stores the item in DB.<br/>
      * Users rights will NOT be checked
      * 
+     * @param revisionID Revision id or <code>null</code> for HEAD.
+     * @param putInCache <code>true</code> to store object in cache.
      * @return The {@link ItemPOJOPK} of the stored item
-     * @throws XtentisException
+     * @throws XtentisException In case of internal exception.
      */
     public ItemPOJOPK store(String revisionID, boolean putInCache) throws XtentisException {
         ItemPOJOPK itemPK = getItemPOJOPK();
         try {
-            // don't do it, see 0015776
-            // remove null element
-            // if (projection != null) {
-            // Util.setNullNode(projection);
-            // projectionString = Util.nodeToString(projection);
-            // }
-            // fix NPE when deploy zz.20.mdm.connector.logging-mdb.ejb.jar
-            if (dataModelName != null && dataModelName.trim().length() > 0) {
-        	//should refill hidden element , if some element have been hidden in load method  
-        	AppinfoSourceHolder appinfoSourceHolder = new AppinfoSourceHolder(new AppinfoSourceHolderPK(
-                    this.getDataModelName(), this.getConceptName()));
-        	SchemaCoreAgent.getInstance().analyzeAccessRights(
-                    new DataModelID(this.getDataModelName(), this.getDataModelRevision()),
-                    this.getConceptName(), appinfoSourceHolder);
-            HashSet<String> roles = LocalUser.getLocalUser().getRoles();
-            Document cleanedDocument = SchemaCoreAgent.getInstance().executeHideCheck(getProjectionAsString(), roles,
-                    appinfoSourceHolder, true);
-            setProjectionAsString(Util.nodeToString(cleanedDocument));
-            }
-            
             String xml = serialize();
-            
-            if(LOG.isTraceEnabled())
+            if(LOG.isTraceEnabled()) {
                 LOG.trace("store() " + itemPK.getUniqueID() + "\n" + xml); //$NON-NLS-1$ //$NON-NLS-2$
-            
+            }
+
             String uniqueId = getFilename(itemPK);
             String clusterId = getDataClusterPOJOPK().getUniqueId();
             XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
-            if (-1 == server.putDocumentFromString(xml,uniqueId ,clusterId, revisionID))
+            if (-1 == server.putDocumentFromString(xml,uniqueId ,clusterId, revisionID)) {
                 return null;
+            }
             // update the cache
             if(putInCache) {
                 ItemCacheKey key = new ItemCacheKey(revisionID, uniqueId, clusterId);
@@ -787,10 +777,9 @@ public class ItemPOJO implements Serializable {
             }
             return itemPK;
         } catch (Exception e) {
-            String err = "Unable to store the item " + itemPK.getUniqueID() + ": " + e.getClass().getName() + ": "
-                    + e.getLocalizedMessage();
+            String err = "Unable to store the item " + itemPK.getUniqueID() + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
             LOG.error(err, e);
-            throw new EJBException(err);
+            throw new EJBException(err, e);
         }
     }
 
@@ -849,65 +838,83 @@ public class ItemPOJO implements Serializable {
      * @return the xml string
      * 
      * Note: dmn&dmr tags are used for binding data model
-     * 
+     * @throws com.amalto.core.util.XtentisException In case of serialization exception.
      */
     @SuppressWarnings("nls")
     public String serialize() throws XtentisException {
-        StringBuilder xmlBuilder = new StringBuilder();
-        xmlBuilder.append("<ii><c>");//$NON-NLS-1$
-        xmlBuilder.append(StringEscapeUtils.escapeXml(dataClusterPOJOPK.getUniqueId()));
-        xmlBuilder.append("</c><n>");//$NON-NLS-1$
-        xmlBuilder.append(StringEscapeUtils.escapeXml(conceptName));
-        xmlBuilder.append("</n>");//$NON-NLS-1$
-        if (dataModelName != null) {
-            xmlBuilder.append("<dmn>");//$NON-NLS-1$
-            xmlBuilder.append(StringEscapeUtils.escapeXml(dataModelName));
-            xmlBuilder.append("</dmn>");//$NON-NLS-1$
-        }
-        if (dataModelRevision != null) {
-            xmlBuilder.append("<dmr>");//$NON-NLS-1$
-            xmlBuilder.append(StringEscapeUtils.escapeXml(dataModelRevision));
-            xmlBuilder.append("</dmr>");//$NON-NLS-1$
-        }
-        if (planPK != null) {
-            xmlBuilder.append("<sp>");//$NON-NLS-1$
-            xmlBuilder.append(StringEscapeUtils.escapeXml(planPK.getUniqueId()));
-            xmlBuilder.append("</sp>");//$NON-NLS-1$
-        }
-        String[] ids = getItemIds();
-        for (int i = 0; i < ids.length; i++) {
-            if (ids[i] != null) {
-                xmlBuilder.append("<i>");//$NON-NLS-1$
-                xmlBuilder.append(StringEscapeUtils.escapeXml(ids[i].trim()));
-                xmlBuilder.append("</i>");//$NON-NLS-1$
+        StringWriter stringWriter = new StringWriter();
+        XMLStreamWriter streamWriter = null;
+        try {
+            streamWriter = xmlOutputFactory.createXMLStreamWriter(stringWriter);
+            streamWriter.writeStartElement("ii");
+            {
+                streamWriter.writeStartElement("c");
+                streamWriter.writeCharacters(dataClusterPOJOPK.getUniqueId());
+                streamWriter.writeEndElement();
+
+                streamWriter.writeStartElement("n");
+                streamWriter.writeCharacters(conceptName);
+                streamWriter.writeEndElement();
+
+                if (dataModelName != null) {
+                    streamWriter.writeStartElement("dmn");//$NON-NLS-1$
+                    streamWriter.writeCharacters(dataModelName);
+                    streamWriter.writeEndElement();
+                }
+                if (dataModelRevision != null) {
+                    streamWriter.writeStartElement("dmr");//$NON-NLS-1$
+                    streamWriter.writeCharacters(dataModelRevision);
+                    streamWriter.writeEndElement();
+                }
+                if (planPK != null) {
+                    streamWriter.writeStartElement("sp");//$NON-NLS-1$
+                    streamWriter.writeCharacters(planPK.getUniqueId());
+                    streamWriter.writeEndElement();
+                }
+
+                String[] ids = getItemIds();
+                for (String id : ids) {
+                    if (id != null) {
+                        streamWriter.writeStartElement("i");//$NON-NLS-1$
+                        streamWriter.writeCharacters(id.trim());
+                        streamWriter.writeEndElement();
+                    }
+                }
+
+                streamWriter.writeStartElement("t");//$NON-NLS-1$
+                streamWriter.writeCharacters(String.valueOf(insertionTime));
+                streamWriter.writeEndElement();
+
+                if (taskId != null) {
+                    streamWriter.writeStartElement("taskId"); //$NON-NLS-1$
+                    streamWriter.writeCharacters(taskId);
+                    streamWriter.writeEndElement();
+                }
+
+                streamWriter.writeStartElement("p");//$NON-NLS-1$
+                {
+                    streamWriter.writeCharacters(" ");
+                    streamWriter.flush();
+
+                    String xml = getProjectionAsString();
+                    stringWriter.append(xml);
+                }
+                streamWriter.writeEndElement();
+            }
+            streamWriter.writeEndElement();
+            streamWriter.flush();
+        } catch (XMLStreamException e) {
+            throw new XtentisException(e);
+        } finally {
+            try {
+                if (streamWriter != null) {
+                    streamWriter.close();
+                }
+            } catch (XMLStreamException e) {
+                LOG.error("Error during xml writer close.", e);
             }
         }
-        xmlBuilder.append("<t>");//$NON-NLS-1$
-        xmlBuilder.append(insertionTime);
-        xmlBuilder.append("</t>");//$NON-NLS-1$
-        if (taskId != null) {
-        	xmlBuilder.append("<taskId>"); //$NON-NLS-1$
-        	xmlBuilder.append(taskId);
-        	xmlBuilder.append("</taskId>");//$NON-NLS-1$
-        }
-        xmlBuilder.append("<p>");//$NON-NLS-1$
-      //see 0021743, add the xsi namespace declaration to avoid tMDMInput parsing '@xsi:type' throw exception
-        String xml=getProjectionAsString();
-        
-        try {
-        	if((xml!=null && !xml.contains("http://www.w3.org/2001/XMLSchema-instance")) || xml==null){ //$NON-NLS-1$
-				Element node=getProjection();
-				node.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xsi", //$NON-NLS-1$ //$NON-NLS-2$
-	            "http://www.w3.org/2001/XMLSchema-instance"); //$NON-NLS-1$
-				xml = Util.nodeToString(node);
-        	}
-		} catch (Exception e) {
-			LOG.error(e);
-		}
-        xmlBuilder.append(xml);
-        xmlBuilder.append("</p></ii>");//$NON-NLS-1$
-
-        return xmlBuilder.toString();
+        return stringWriter.toString();
     }
 
     /**

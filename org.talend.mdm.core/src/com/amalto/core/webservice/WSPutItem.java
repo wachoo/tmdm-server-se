@@ -11,7 +11,8 @@ public class WSPutItem {
     protected java.lang.String xmlString;
     protected com.amalto.core.webservice.WSDataModelPK wsDataModelPK;
     protected java.lang.Boolean isUpdate;
-    
+    private String conceptName;
+
     public WSPutItem() {
     }
     
@@ -52,5 +53,9 @@ public class WSPutItem {
     
     public void setIsUpdate(java.lang.Boolean isUpdate) {
         this.isUpdate = isUpdate;
+    }
+
+    public String getConceptName() {
+        return conceptName;
     }
 }

@@ -631,10 +631,10 @@ public interface IXmlServerSLWrapper {
     public void clearCache();
     
     public boolean supportTransaction();
-    public void start() throws XmlServerException;
-    public void commit() throws XmlServerException;
-    public void rollback() throws XmlServerException;
-    public void end() throws XmlServerException;
+    public void start(String dataClusterName) throws XmlServerException;
+    public void commit(String dataClusterName) throws XmlServerException;
+    public void rollback(String dataClusterName) throws XmlServerException;
+    public void end(String dataClusterName) throws XmlServerException;
     public void close() throws XmlServerException;
     public List<String> globalSearch(String dataCluster, String keyword, int start, int end) throws XmlServerException;
     public void exportDocuments(String revisionId, String clusterName, int start, int end, boolean includeMetadata, OutputStream outputStream) throws XmlServerException;

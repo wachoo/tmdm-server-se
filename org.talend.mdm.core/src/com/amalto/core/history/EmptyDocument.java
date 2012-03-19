@@ -13,7 +13,6 @@ package com.amalto.core.history;
 
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.accessor.DOMAccessorFactory;
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -22,7 +21,11 @@ import javax.xml.parsers.ParserConfigurationException;
 /**
 *
 */
+// TODO Make it singleton (no need for new instances of this).
 public class EmptyDocument implements MutableDocument {
+
+    public static final MutableDocument INSTANCE = new EmptyDocument();
+
     public static final org.w3c.dom.Document EMPTY_DOCUMENT;
 
     static {
@@ -31,6 +34,9 @@ public class EmptyDocument implements MutableDocument {
         } catch (ParserConfigurationException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private EmptyDocument() {
     }
 
     public String exportToString() {
@@ -52,14 +58,6 @@ public class EmptyDocument implements MutableDocument {
         return transformer.transform(this);
     }
 
-    public boolean isCreated() {
-        return false;
-    }
-
-    public boolean isDeleted() {
-        return false;
-    }
-
     public void restore() {
     }
 
@@ -75,7 +73,7 @@ public class EmptyDocument implements MutableDocument {
         return this;
     }
 
-    public MutableDocument create() {
+    public MutableDocument create(MutableDocument content) {
         return this;
     }
 

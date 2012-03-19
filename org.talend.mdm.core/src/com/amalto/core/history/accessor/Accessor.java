@@ -45,6 +45,13 @@ public interface Accessor {
     void create();
 
     /**
+     * Equivalent to consecutive calls of {@link #create()} and {@link #set(String)}, but implementation might provide
+     * more efficient way to these two consecutive calls.
+     * @param value The value to be set by the accessor.
+     */
+    void createAndSet(String value);
+    
+    /**
      * Deletes the underlying XML element of this accessor (might be an element or an attribute). This method does not
      * remove all intermediate elements (i.e. path1/path2/path3 will only remove path3 and not path2 nor path1).
      */

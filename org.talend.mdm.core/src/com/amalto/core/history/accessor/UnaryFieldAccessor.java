@@ -73,6 +73,11 @@ class UnaryFieldAccessor implements DOMAccessor {
         }
     }
 
+    public void createAndSet(String value) {
+        create();
+        set(value);
+    }
+
     public void delete() {
         Element element = getElement();
         element.getParentNode().removeChild(element);

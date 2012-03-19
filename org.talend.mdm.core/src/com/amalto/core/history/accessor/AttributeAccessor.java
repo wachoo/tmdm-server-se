@@ -85,6 +85,11 @@ class AttributeAccessor implements DOMAccessor {
         }
     }
 
+    public void createAndSet(String value) {
+        create();
+        set(value);
+    }
+
     public void delete() {
         Node parentNode = parent.getNode();
         Node attribute = getAttribute();

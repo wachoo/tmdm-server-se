@@ -1313,8 +1313,8 @@ public class Util {
             Element oldNode = createItem(concept, xsd);
 
             // see 0011615: Complex type sequences are truncated when saving a record in both web app & studio
-            HashMap<String, UpdateReportItem> updatedPath = compareElement("/" + concept, updateNode, oldNode);
-            return updateElement("/" + concept, oldNode, updatedPath);
+            Map<String, UpdateReportItem> updatedPath = compareElement("/" + concept, updateNode, oldNode);
+            return updateElement(oldNode, updatedPath);
         } catch (Exception e) {
             return updateNode;
         }
@@ -2710,8 +2710,7 @@ public class Util {
         return itemPKXmlString.toString();
     }
 
-    public static HashMap<String, UpdateReportItem> compareElement(String parentPath, Node newElement, Node oldElement)
-            throws Exception {
+    public static Map<String, UpdateReportItem> compareElement(String parentPath, Node newElement, Node oldElement) throws Exception {
         HashMap<String, UpdateReportItem> map = new LinkedHashMap<String, UpdateReportItem>();
         Set<String> complexNodes = new LinkedHashSet<String>();
         Set<String> xpaths = getXpaths(parentPath, newElement, complexNodes);
@@ -2924,13 +2923,12 @@ public class Util {
     /**
      * update the element according to updatedpath
      *
-     * @param parentPath
      * @param old
      * @param updatedpath
      * @return
      * @throws Exception
      */
-    public static Node updateElement(String parentPath, Node old, HashMap<String, UpdateReportItem> updatedpath) throws Exception {
+    public static Node updateElement(Node old, Map<String, UpdateReportItem> updatedpath) throws Exception {
         if (updatedpath.size() == 0)
             return old;
         // use JXPathContext to update the old element
@@ -3003,7 +3001,7 @@ public class Util {
     }
 
     public static String createUpdateReport(String[] ids, String concept, String operationType,
-            HashMap<String, UpdateReportItem> updatedPath, String dataModelPK, String dataClusterPK) throws Exception {
+            Map<String, UpdateReportItem> updatedPath, String dataModelPK, String dataClusterPK) throws Exception {
         String username = "";
         String revisionId = "";
 

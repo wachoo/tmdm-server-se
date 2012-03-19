@@ -110,7 +110,7 @@ public class DocumentHistoryServlet extends AbstractDocumentHistoryServlet {
             Action modificationMarkersAction = navigator.currentAction();
             
             // Get the one before the action and the one right after
-            Document document = new EmptyDocument();
+            Document document = EmptyDocument.INSTANCE;
             if (CURRENT_ACTION.equalsIgnoreCase(parameters.getAction())) {
                 document = navigator.current();
             } else if (PREVIOUS_ACTION.equalsIgnoreCase(parameters.getAction())) {

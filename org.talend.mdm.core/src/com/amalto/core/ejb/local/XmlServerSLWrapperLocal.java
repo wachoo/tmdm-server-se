@@ -400,13 +400,13 @@ public interface XmlServerSLWrapperLocal extends javax.ejb.EJBLocalObject {
 
     public boolean supportTransaction();
 
-    public void start() throws XtentisException;
+    public void start(String dataClusterName) throws XtentisException;
 
-    public void commit() throws XtentisException;
+    public void commit(String dataClusterName) throws XtentisException;
 
-    public void rollback() throws XtentisException;
+    public void rollback(String dataClusterName) throws XtentisException;
 
-    public void end() throws XtentisException;
+    public void end(String dataClusterName) throws XtentisException;
 
     public void close() throws com.amalto.core.util.XtentisException;
 

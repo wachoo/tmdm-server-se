@@ -147,6 +147,12 @@ class ForeignKeyInfoTransformer implements DocumentTransformer {
 
         @Override
         public Map<String, ReferenceFieldMetadata> visit(SimpleTypeFieldMetadata metadata) {
+            currentPosition.push(metadata.getName());
+            {
+                super.visit(metadata);
+            }
+            currentPosition.pop();
+
             return pathToForeignKeyInfo;
         }
     }

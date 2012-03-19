@@ -344,16 +344,16 @@ public interface XmlServerSLWrapper
    public boolean supportTransaction(  )
       throws java.rmi.RemoteException;
 
-   public void start(  )
+   public void start( String dataClusterName )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
-   public void commit(  )
+   public void commit( String dataClusterName )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
-   public void rollback(  )
+   public void rollback( String dataClusterName )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
-   public void end(  )
+   public void end( String dataClusterName )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    public void close(  )

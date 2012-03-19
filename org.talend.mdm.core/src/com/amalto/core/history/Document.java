@@ -20,16 +20,6 @@ public interface Document {
     Document transform(DocumentTransformer transformer);
 
     /**
-     * @return true is the document has just been created, false otherwise.
-     */
-    boolean isCreated();
-
-    /**
-     * @return true is the document has just been deleted, false otherwise.
-     */
-    boolean isDeleted();
-
-    /**
      * <p>
      * "Restore" this document to the MDM database. This means the current state of this document will become the new
      * current document version.

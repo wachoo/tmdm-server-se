@@ -222,81 +222,39 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
 		}
 	}
 
-	public ItemPOJOPK putItem(ItemPOJO item, String schema, String dataModelName)
-			throws XtentisException {
-		logger.trace("putItem() " + item.getItemPOJOPK().getUniqueID());
-		String concept = item.getConceptName();
-		String dataCluster = item.getDataClusterPOJOPK().getIds()[0];
-		try {
-			if (schema != null) {
 
-				if (Util.getUUIDNodes(schema, concept).size() > 0) { // check
-																		// uuid
-																		// key
-																		// exists
+    public ItemPOJOPK putItem(ItemPOJO item, String schema, String dataModelName) throws XtentisException {
+        if (logger.isTraceEnabled()) {
+            logger.trace("putItem() " + item.getItemPOJOPK().getUniqueID());
+        }
 
-					Document schema1 = Util.parse(schema);
-					Node n = Util.processUUID(item.getProjection(), schema,
-							dataCluster, concept);
-					XSDKey conceptKey = com.amalto.core.util.Util
-							.getBusinessConceptKey(schema1, concept);
-					// get key values
-					String[] itemKeyValues = com.amalto.core.util.Util
-							.getKeyValuesFromItem((Element) n, conceptKey);
-					// reset item projection & itemids
-					item.setProjectionAsString(Util.nodeToString(n));
-					item.setItemIds(itemKeyValues);
-				}
+        try {
+            //make sure the plan is reset
+            item.setPlanPK(null);
+            //used for binding data model
+            if (dataModelName != null) {
+                item.setDataModelName(dataModelName);
+            }
+            //Store
+            ItemPOJOPK pk = item.store();
+            if (pk == null) {
+                throw new XtentisException("Could not put item " + Util.joinStrings(item.getItemIds(), ".") + ". Check server logs.");
+            }
 
-				Util.validate(item.getProjection(), schema);
-			}
-
-			// FIXME: update the vocabulary . Universe dependent?
-			/*
-			 * DataClusterLocal dc =
-			 * (DataClusterLocal)dataClusters.get(item.getDataClusterPK
-			 * ().getName()); if (dc == null) { dc =
-			 * DataClusterUtil.getLocalHome
-			 * ().findByPrimaryKey(item.getDataClusterPK());
-			 * dataClusters.put(item.getDataClusterPK().getName(), dc); } if
-			 * (dc.getSpellerRefreshPeriodInSeconds()>-1)
-			 * dc.addToVocabulary(item.getProjection());
-			 */
-
-			// make sure the plan is reset
-			item.setPlanPK(null);
-			// used for binding data model
-			if (dataModelName != null)
-				item.setDataModelName(dataModelName);
-			// Store
-			ItemPOJOPK pk = item.store();
-			if (pk == null)
-				throw new XtentisException("Could not put item "
-						+ Util.joinStrings(item.getItemIds(), ".")
-						+ ".Check the XML Server logs");
-
-			return pk;
-		} catch (XtentisException e) {
-			throw (e);
-		} catch (CVCException e) {
-			throw new XtentisException(e.getLocalizedMessage(), e);
-		} catch (Exception e) {
-			String prefix = "Unable to create/update the item "
-					+ item.getDataClusterPOJOPK().getUniqueId() + "."
-					+ Util.joinStrings(item.getItemIds(), ".") + ": ";
-			String err = prefix + e.getClass().getName() + ": "
-					+ e.getLocalizedMessage();
-			logger.error(err, e);
-			// simplify the error message
-			if (dataModelName.equalsIgnoreCase("Reporting")) {
-				if (err.indexOf("One of '{ListOfFilters}'") != -1) {
-					err = prefix + "At least one filter must be defined";
-				}
-			}
-
-			throw new XtentisException(err);
-		}
-	}
+            return pk;
+        } catch (Exception e) {
+            String prefix = "Unable to create/update the item " + item.getDataClusterPOJOPK().getUniqueId() + "." + Util.joinStrings(item.getItemIds(), ".") + ": ";
+            String err = prefix + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            logger.error(err, e);
+            // simplify the error message
+            if ("Reporting".equalsIgnoreCase(dataModelName)) {
+                if (err.contains("One of '{ListOfFilters}'")) {
+                    err = prefix + "At least one filter must be defined";
+                }
+            }
+            throw new XtentisException(err, e);
+        }
+    }
 
 	public ArrayList<String> xPathsSearch(DataClusterPOJOPK dataClusterPOJOPK,
 			String forceMainPivot, ArrayList<String> viewablePaths,

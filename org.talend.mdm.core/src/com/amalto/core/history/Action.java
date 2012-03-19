@@ -12,6 +12,7 @@
 package com.amalto.core.history;
 
 import java.util.Date;
+import java.util.Set;
 
 /**
  * <p>
@@ -79,4 +80,10 @@ public interface Action {
      * @see com.amalto.core.ejb.UpdateReportPOJO#getUserName()
      */
     String getUserName();
+
+    /**
+     * @param roles A set of user roles.
+     * @return <code>true</code> if current roles allow to execute this action, <code>false</code> otherwise.
+     */
+    boolean isAllowed(Set<String> roles);
 }

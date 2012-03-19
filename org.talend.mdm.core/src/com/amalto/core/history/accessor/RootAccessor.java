@@ -41,6 +41,10 @@ class RootAccessor implements DOMAccessor {
         // Nothing to do (won't recreate the document).
     }
 
+    public void createAndSet(String value) {
+        // Nothing to do (won't recreate the document).
+    }
+
     public void delete() {
         // Nothing to do (won't delete the document).
     }

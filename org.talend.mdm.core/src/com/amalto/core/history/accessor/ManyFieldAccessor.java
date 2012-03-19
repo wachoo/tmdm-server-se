@@ -94,6 +94,11 @@ class ManyFieldAccessor implements DOMAccessor {
         }
     }
 
+    public void createAndSet(String value) {
+        create();
+        set(value);
+    }
+
     public void delete() {
         Node node = getCollectionItemNode();
         if (node == null) {

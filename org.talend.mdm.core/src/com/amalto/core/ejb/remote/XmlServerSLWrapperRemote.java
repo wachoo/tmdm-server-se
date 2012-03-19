@@ -375,31 +375,31 @@ public class XmlServerSLWrapperRemote extends Observable
 
    }
 
-   public void start (  )
+   public void start ( String dataClusterName  )
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {
-      getSession().start(  );
+      getSession().start( dataClusterName );
 
    }
 
-   public void commit (  )
+   public void commit ( String dataClusterName )
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {
-      getSession().commit(  );
+      getSession().commit( dataClusterName );
 
    }
 
-   public void rollback (  )
+   public void rollback ( String dataClusterName )
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {
-      getSession().rollback(  );
+      getSession().rollback( dataClusterName );
 
    }
 
-   public void end (  )
+   public void end ( String dataClusterName )
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {
-      getSession().end(  );
+      getSession().end( dataClusterName  );
 
    }
 

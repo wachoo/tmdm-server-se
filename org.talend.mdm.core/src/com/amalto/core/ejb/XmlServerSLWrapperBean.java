@@ -1208,9 +1208,9 @@ public class XmlServerSLWrapperBean implements SessionBean {
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */     
-    public void start() throws com.amalto.core.util.XtentisException {
+    public void start(String dataClusterName) throws com.amalto.core.util.XtentisException {
         try {
-            server.start();
+            server.start(dataClusterName);
         } catch (XmlServerException e) {
             throw new XtentisException(e);
         }
@@ -1222,9 +1222,9 @@ public class XmlServerSLWrapperBean implements SessionBean {
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */ 
-    public void commit() throws com.amalto.core.util.XtentisException {
+    public void commit(String dataClusterName) throws com.amalto.core.util.XtentisException {
         try {
-            server.commit();
+            server.commit(dataClusterName);
         } catch (XmlServerException e) {
             throw new XtentisException(e);
         }
@@ -1236,9 +1236,9 @@ public class XmlServerSLWrapperBean implements SessionBean {
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */ 
-    public void rollback() throws com.amalto.core.util.XtentisException {
+    public void rollback(String dataClusterName) throws com.amalto.core.util.XtentisException {
         try {
-            server.rollback();
+            server.rollback(dataClusterName);
         } catch (XmlServerException e) {
             throw new XtentisException(e);
         }
@@ -1250,9 +1250,9 @@ public class XmlServerSLWrapperBean implements SessionBean {
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */    
-    public void end() throws com.amalto.core.util.XtentisException {
+    public void end(String dataClusterName) throws com.amalto.core.util.XtentisException {
         try {
-            server.end();
+            server.end(dataClusterName);
         } catch (XmlServerException e) {
             throw new XtentisException(e);
         }

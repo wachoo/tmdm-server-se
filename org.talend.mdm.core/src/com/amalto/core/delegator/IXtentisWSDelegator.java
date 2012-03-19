@@ -12,28 +12,10 @@
 // ============================================================================
 package com.amalto.core.delegator;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.StringReader;
+import java.io.*;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
-import java.util.SortedSet;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import javax.ejb.EJBException;
@@ -48,11 +30,14 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import com.amalto.core.save.context.DocumentSaver;
+import com.amalto.core.save.DocumentSaverContext;
+import com.amalto.core.save.context.SaverContextFactory;
+import com.amalto.core.save.SaverSession;
 import org.apache.log4j.Logger;
 import org.jboss.security.Base64Encoder;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -116,12 +101,9 @@ import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
 import com.amalto.core.util.ArrayListHolder;
-import com.amalto.core.util.AutoIncrementGenerator;
 import com.amalto.core.util.LocalUser;
-import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.TransformerPluginContext;
 import com.amalto.core.util.TransformerPluginSpec;
-import com.amalto.core.util.UpdateReportItem;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.Version;
 import com.amalto.core.util.WhereConditionFilter;
@@ -141,9 +123,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     private static Logger LOG = Logger.getLogger(IXtentisWSDelegator.class);
 
     /***************************************************************************
-     * 
+     *
      * S E R V I C E S
-     * 
+     *
      * **************************************************************************/
 
     /***************************************************************************
@@ -280,7 +262,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     /**
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
-     * 
+     *
      */
     public WSDataModelPKArray getDataModelPKs(WSRegexDataModelPKs regexp) throws RemoteException {
         try {
@@ -318,7 +300,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     /**
      * @ejb.interface-method view-type = "service-endpoint"
-     * 
+     *
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
     public WSDataModelPK putDataModel(WSPutDataModel wsDataModel) throws RemoteException {
@@ -331,7 +313,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     /**
      * @ejb.interface-method view-type = "service-endpoint"
-     * 
+     *
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
     public WSString checkSchema(WSCheckSchema wsSchema) throws RemoteException {
@@ -344,7 +326,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     /**
      * @ejb.interface-method view-type = "service-endpoint"
-     * 
+     *
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
     @SuppressWarnings("nls")
@@ -378,7 +360,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     /**
      * @ejb.interface-method view-type = "service-endpoint"
-     * 
+     *
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
     public WSString putBusinessConceptSchema(WSPutBusinessConceptSchema wsPutBusinessConceptSchema) throws RemoteException {
@@ -897,7 +879,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     protected WhereCondition WS2VO(WSWhereCondition ws, WhereConditionFilter wcf) throws Exception {
         assert ws.getOperator() != null;
-        
+
         String operator = WhereCondition.CONTAINS;
         if (ws.getOperator().equals(WSWhereOperator.CONTAINS)) {
             operator = WhereCondition.CONTAINS;
@@ -930,7 +912,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
 
         assert ws.getStringPredicate() != null;
-        
+
         String predicate = WhereCondition.PRE_AND;
         if (ws.getStringPredicate().equals(WSStringPredicate.NONE)) {
             predicate = WhereCondition.PRE_NONE;
@@ -1146,7 +1128,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             // It would be too demanding to get all the concepts in all revisions (?)
             // The meat of this method should be ported to ItemCtrlBean
             String revisionID = null;
-            String conceptName = wsGetItemPKsByCriteria.getConceptName(); 
+            String conceptName = wsGetItemPKsByCriteria.getConceptName();
             if (conceptName == null) {
                 if (user.getUniverse().getItemsRevisionIDs().size() > 0) {
                     throw new RemoteException("User " + user.getUsername() + " is using items coming from multiple revisions."
@@ -1172,7 +1154,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             criteria.setUseFTSearch(useFTSearch);
             List<String> results = com.amalto.core.util.Util.getItemCtrl2Local().getItemPKsByCriteria(criteria);
 
-            
+
             XPath xpath = XPathFactory.newInstance().newXPath();
             DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 
@@ -1346,9 +1328,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     /**
      * Serializes the object to an xml string
-     * 
+     *
      * @return the xml string
-     * 
+     *
      */
     protected String itemAsString(ItemPOJO iv) throws Exception {
 
@@ -1364,149 +1346,12 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         return item;
     }
 
-    /*
-     * protected String itemAsString(ItemValue iv) throws Exception{
-     * 
-     * DocumentValue dvo = DocumentCtrl2Util.getLocalHome().create().getDocument(iv.getDocument()); InboundAdaptorValue
-     * iavo = dvo.getInboundAdaptor();
-     * 
-     * String item = "<businessconcept>" + "	<cluster>"+iv.getDataCluster().getName()+"</cluster>" +
-     * "	<source>"+iavo.getSource().getName()+"</source>" + "	<document>"+iv.getDocument().getName()+"</document>";
-     * String[] ids = iv.getItemIds(); for (int i = 0; i < ids.length; i++) { item+="	<id>"+ids[i]+"</id>"; } item+=
-     * "	<lastmodifiedtime>"+iv.getInsertionTime()+"</lastmodifiedtime>"; item+=
-     * "	<projection>"+iv.getProjection()+"</projection>" ; item+= "</businessconcept>";
-     * 
-     * return item; }
-     */
-
     /***************************************************************************
      * Put Item
      * **************************************************************************/
-    @SuppressWarnings("nls")
-    protected WSItemPK putItem(WSPutItem wsPutItem, DataModelPOJO dataModel, Document schema, String[] itemKeyValues,
-            XSDKey conceptKey, com.amalto.core.webservice.WSPutItemWithReport wsPutItemWithReport, String resultUpdateReport)
-            throws RemoteException {
-
-        try {
-            String projection = wsPutItem.getXmlString();
-
-            Element root = Util.parse(projection, null).getDocumentElement();
-
-            String concept = root.getLocalName();
-            DataClusterPOJOPK dcpk = new DataClusterPOJOPK(wsPutItem.getWsDataClusterPK().getPk());
-            // update the item using new field values see feature 0008854: Update an item instead of replace it
-            // load the item first if itemkey provided
-            // this only operate non system items
-
-            // check cluster exist or not
-            if (!XSystemObjects.isExist(XObjectType.DATA_CLUSTER, dcpk.getUniqueId())) {
-                // get the universe and revision ID
-                UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
-                if (universe == null) {
-                    String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-                    org.apache.log4j.Logger.getLogger(ItemPOJO.class).error(err);
-                    throw new XtentisException(err);
-                }
-                String revisionID = universe.getConceptRevisionID(concept);
-                if (!Util.getXmlServerCtrlLocal().existCluster(revisionID, dcpk.getUniqueId())) {
-                    throw new XtentisException("DataContainer R-" + revisionID + "/" + dcpk.getUniqueId() + " doesn't exists!");
-                }
-            }
-            //taskId
-            String taskId=null;
-            if (!XSystemObjects.isXSystemObject(XObjectType.DATA_CLUSTER, wsPutItem.getWsDataClusterPK().getPk())) {
-                if (wsPutItem.getIsUpdate()) {
-                    if (itemKeyValues.length > 0) {
-                        // check if only update the key ,do nothing see 0012169
-                        // if(Util.isOnlyUpdateKey(root, concept, conceptKey, itemKeyValues))
-                        // return null;
-                        ItemPOJO pj = new ItemPOJO(dcpk, concept, itemKeyValues, System.currentTimeMillis(), projection);
-                        String revisionId = LocalUser.getLocalUser().getUniverse().getConceptRevisionID(concept);
-                        pj = ItemPOJO.load(revisionId, pj.getItemPOJOPK(), false);
-                        if (pj != null) {
-                            // get updated path
-                        	taskId=pj.getTaskId();
-                            Node old = pj.getProjection();
-                            Node newNode = root;
-                            HashMap<String, UpdateReportItem> updatedPath = Util.compareElement("/" + old.getLocalName(), //$NON-NLS-1$
-                                    newNode, old);
-                            if (updatedPath.size() > 0) {
-                                if ("sequence".equals(Util.getConceptModelType(concept, dataModel.getSchema()))) { // if //$NON-NLS-1$
-                                    // the
-                                    // concept
-                                    // is
-                                    // sequence
-                                    // update the Node according to schema to keep the sequence as the same with the
-                                    // schema
-                                    old = Util.updateNodeBySchema(concept, dataModel.getSchema(), old);
-                                }
-                                old = Util.updateElement("/" + old.getLocalName(), old, updatedPath); //$NON-NLS-1$
-                                projection = Util.getXMLStringFromNode(old);
-                            } else {// if no update, return see 0012116
-                                return null;
-                            }
-                        }
-                    }
-                } else {
-                    if (Util.containsUUIDType(concept, dataModel.getSchema(), root)) {
-                        // update the item according to datamodel if there is UUID/AUTO_INCREMENT field and it's empty
-                        // we need to regenerate an empty field like '<uuid_field/>'
-                        Node newNode = Util.updateNodeBySchema(concept, dataModel.getSchema(), root);
-                        projection = Util.getXMLStringFromNode(newNode);
-                    }
-                }
-            }
-            // end
-            ItemPOJO itemPojo=new ItemPOJO(dcpk, concept, itemKeyValues, System.currentTimeMillis(), projection);
-            itemPojo.setTaskId(taskId);
-            // see TMDM-1767
-            // invoke validate
-            processUUIDAndValidate(itemPojo, dataModel.getSchema());
-            // invoke beforeSaving
-            if (wsPutItemWithReport != null) {
-                if (!beforeSaving(wsPutItemWithReport, concept, itemPojo.getProjectionAsString(), resultUpdateReport))
-                    throw new RemoteException("BeforeSaving Validation Error --> " + wsPutItemWithReport.getSource());
-                else {
-                    if (wsPutItemWithReport.getWsPutItem().getXmlString() != null) {
-                        // get back the item modified by the process
-                        LOG.info("Record modified by the process beforeSaving_" + concept + " -->"
-                                + wsPutItemWithReport.getWsPutItem().getXmlString());
-                        itemPojo.setProjectionAsString(wsPutItemWithReport.getWsPutItem().getXmlString());
-                        LOG.info("beforeSaving_" + concept + " output_report message --> " + wsPutItemWithReport.getSource());
-                    }
-                }
-            }
-
-            ItemPOJOPK itemPOJOPK = Util.getItemCtrl2Local().putItem(itemPojo
-                    , dataModel);
-            if (itemPOJOPK == null)
-                return null;
-            // aiming add if datacluster is 'PROVINIONING' and current user,clear LocalUser cache
-            if (XSystemObjects.DC_PROVISIONING.getName().equals(dataModel.getName())
-                    && LocalUser.getLocalUser().getUsername().equals(itemKeyValues[0])) {
-                LocalUser.resetLocalUsers();
-            }
-
-            // update vocabulary
-            // Util.getDataClusterCtrlLocal().getDataCluster(dcpk).addToVocabulary(projection);
-
-            return new WSItemPK(new WSDataClusterPK(itemPOJOPK.getDataClusterPOJOPK().getUniqueId()),
-                    itemPOJOPK.getConceptName(), itemPOJOPK.getIds());
-        } catch (XtentisException e) {
-            if (LOG.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOG.debug(err, e);
-            }
-            throw (new RemoteException(e.getLocalizedMessage(), e));
-        } catch (Exception e) {
-            throw new RemoteException(e.getLocalizedMessage());
-        }
-
-    }
-
     /**
      * partial put item
-     * 
+     *
      * @param partialPutItem
      * @return
      * @throws RemoteException
@@ -1679,310 +1524,175 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    private static DocumentSaver saveItem(WSPutItem wsPutItem, SaverSession session, String dataClusterName, String dataModelName, boolean updateReport, boolean beforeSaving) throws UnsupportedEncodingException {
+        SaverContextFactory contextFactory = session.getContextFactory();
+        DocumentSaverContext context = contextFactory.create(dataClusterName,
+                dataModelName,
+                null, // TODO Where is the revision Id?
+                new ByteArrayInputStream(wsPutItem.getXmlString().getBytes("UTF-8")),
+                updateReport,
+                beforeSaving);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        return saver;
+    }
+
     /**
+     * @param wsPutItem The record to be added/updated in MDM.
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
+     * @return The PK of the record created/updated.
+     * @throws java.rmi.RemoteException In case of server exception.
      */
     public WSItemPK putItem(WSPutItem wsPutItem) throws RemoteException {
         try {
-            String projection = wsPutItem.getXmlString();
+            WSDataClusterPK dataClusterPK = wsPutItem.getWsDataClusterPK();
+            WSDataModelPK dataModelPK = wsPutItem.getWsDataModelPK();
 
-            Element root = Util.parse(projection).getDocumentElement();
+            SaverSession session = SaverSession.newSession();
+            String dataClusterName = dataClusterPK.getPk();
+            String dataModelName = dataModelPK.getPk();
 
-            String concept = root.getLocalName();
+            DocumentSaver saver = saveItem(wsPutItem,
+                    session,
+                    dataClusterName,
+                    dataModelName,
+                    false,
+                    false);
+            // Cause items being saved to be committed to database.
+            session.end();
 
-            DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(
-                    new DataModelPOJOPK(wsPutItem.getWsDataModelPK().getPk()));
-            Document schema = Util.parseXSD(dataModel.getSchema());
-
-            // get key values
-            String[] itemKeyValues = null;
-            XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(schema, concept);
-            if (("AutoIncrement".equals(concept) && wsPutItem.getWsDataModelPK().getPk().equals(XSystemObjects.DC_CONF.getName()))) { //$NON-NLS-1$
-                itemKeyValues = new String[] { "AutoIncrement" }; //$NON-NLS-1$
-            } else {
-                itemKeyValues = com.amalto.core.util.Util.getKeyValuesFromItem(root, conceptKey);
-            }
-            // update the item using new field values see feature 0008854: Update an item instead of replace it
-            // load the item first if itemkey provided
-            WSItemPK itempk = putItem(wsPutItem, dataModel, schema, itemKeyValues, conceptKey, null, null);
-            // reset the AutoIncrement
-            if (("AutoIncrement".equals(concept) && wsPutItem.getWsDataModelPK().getPk().equals(XSystemObjects.DC_CONF.getName()))) { //$NON-NLS-1$
-                AutoIncrementGenerator.init();
-            }
-            return itempk;
-        } catch (XtentisException e) {
-            if (LOG.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOG.debug(err, e);
-            }
-            throw (new RemoteException(e.getLocalizedMessage(), e));
+            String[] savedId = saver.getSavedId();
+            return new WSItemPK(dataClusterPK, wsPutItem.getConceptName(), savedId);
         } catch (Exception e) {
             if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
-           throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
+            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
 
     /**
+     * @param wsPutItemArray Items to save
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
+     * @return An array of ids saved to database.
+     * @throws java.rmi.RemoteException In case of server error
      */
     public WSItemPKArray putItemArray(WSPutItemArray wsPutItemArray) throws RemoteException {
         WSPutItem[] items = wsPutItemArray.getWsPutItem();
-        List<WSItemPK> pks = new ArrayList<WSItemPK>();
-
         try {
-            if (items.length > 0) {
-                WSPutItem wsPutItem = items[0];
+            List<String[]> savedIds = new LinkedList<String[]>();
 
-                String projection = wsPutItem.getXmlString();
-                Element root = Util.parse(projection).getDocumentElement();
-                String concept = root.getLocalName();
-                DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(
-                        new DataModelPOJOPK(wsPutItem.getWsDataModelPK().getPk()));
-                Document schema = Util.parseXSD(dataModel.getSchema());
-                XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(schema, concept);
+            SaverSession session = SaverSession.newSession();
+            for (WSPutItem item : items) {
+                String dataClusterName = item.getWsDataClusterPK().getPk();
+                String dataModelName = item.getWsDataModelPK().getPk();
 
-                for (WSPutItem item : items) {
-                    projection = item.getXmlString();
-                    root = Util.parse(projection).getDocumentElement();
-                    // get key values
-                    String[] itemKeyValues = com.amalto.core.util.Util.getKeyValuesFromItem(root, conceptKey);
-                    WSItemPK pk = putItem(item, dataModel, schema, itemKeyValues, conceptKey, null, null);
-                    pks.add(pk);
-                }
+                DocumentSaver saver = saveItem(item,
+                        session,
+                        dataClusterName,
+                        dataModelName,
+                        false,
+                        false);
+                savedIds.add(saver.getSavedId());
             }
-        } catch (XtentisException e) {
-            if (LOG.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOG.debug(err, e);
+            // Cause items being saved to be committed to database.
+            session.end();
+
+            List<WSItemPK> pks = new ArrayList<WSItemPK>();
+            for (String[] savedId : savedIds) {
+                pks.add(new WSItemPK(new WSDataClusterPK(), null, savedId));
             }
-            throw (new RemoteException(e.getLocalizedMessage(), e));
+            return new WSItemPKArray(pks.toArray(new WSItemPK[pks.size()]));
         } catch (Exception e) {
             if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
-           throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
+            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
-
-        return new WSItemPKArray(pks.toArray(new WSItemPK[pks.size()]));
     }
 
     /**
+     * @param wsPutItemWithReportArray Records to be added to MDM.
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
+     * @return An array of PKs for the records created/updated.
+     * @throws java.rmi.RemoteException In case of server error.
      */
     public WSItemPKArray putItemWithReportArray(com.amalto.core.webservice.WSPutItemWithReportArray wsPutItemWithReportArray)
             throws RemoteException {
-        WSPutItemWithReport[] items = wsPutItemWithReportArray.getWsPutItem();
-        List<WSItemPK> pks = new ArrayList<WSItemPK>();
-        for (WSPutItemWithReport item : items) {
-            WSItemPK pk = putItemWithReport(item);
-            pks.add(pk);
+        try {
+            WSPutItemWithReport[] items = wsPutItemWithReportArray.getWsPutItem();
+
+            List<String[]> savedIds = new LinkedList<String[]>();
+            SaverSession session = SaverSession.newSession();
+            for (WSPutItemWithReport item : items) {
+                WSPutItem wsPutItem = item.getWsPutItem();
+                String dataClusterName = wsPutItem.getWsDataClusterPK().getPk();
+                String dataModelName = wsPutItem.getWsDataModelPK().getPk();
+
+                DocumentSaver saver = saveItem(wsPutItem,
+                        session,
+                        dataClusterName,
+                        dataModelName,
+                        true,
+                        item.getInvokeBeforeSaving());
+                savedIds.add(saver.getSavedId());
+            }
+            // Cause items being saved to be committed to database.
+            session.end();
+
+            List<WSItemPK> pks = new ArrayList<WSItemPK>();
+            for (String[] savedId : savedIds) {
+                pks.add(new WSItemPK(new WSDataClusterPK(), null, savedId));
+            }
+            return new WSItemPKArray(pks.toArray(new WSItemPK[pks.size()]));
+        } catch (Exception e) {
+            if (LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
+            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
-        return new WSItemPKArray(pks.toArray(new WSItemPK[pks.size()]));
     }
 
     /**
+     * @param wsPutItemWithReport Object that describe the record to be added/updated.
+     * @return The PK of the newly inserted document.
+     * @throws java.rmi.RemoteException In case of server exception.
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
     public WSItemPK putItemWithReport(com.amalto.core.webservice.WSPutItemWithReport wsPutItemWithReport) throws RemoteException {
-
-        return doPutItemWithCustomReport(wsPutItemWithReport, null);
-
-    }
-
-    protected OutputReport getBeforeSavingOutputReport(String concept, String xml,
-            String resultUpdateReport)throws Exception{
-    	return Util.beforeSaving(concept, xml, resultUpdateReport);
-    }
-    public boolean beforeSaving(com.amalto.core.webservice.WSPutItemWithReport wsPutItemWithReport, String concept, String xml,
-            String resultUpdateReport) throws Exception {
-        //Do we call Triggers&Before processes?
-        // by default xml string to null to ensure nothing is modified by process
-        wsPutItemWithReport.getWsPutItem().setXmlString(null);
-        if (wsPutItemWithReport.getInvokeBeforeSaving()) {
-            // invoke BeforeSaving process if it exists
-            OutputReport outputreport = getBeforeSavingOutputReport(concept, xml, resultUpdateReport);
-            if (outputreport != null) { // when a process was found
-                String message = outputreport.getMessage();
-                Document doc = Util.parse(message);
-                // handle output_report
-                String xpath = "//report/message"; //$NON-NLS-1$
-                Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
-                String errorCode = null;
-                if (errorNode instanceof Element) {
-                    Element errorElement = (Element) errorNode;
-                    errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
-                    org.w3c.dom.Node child = errorElement.getFirstChild();
-                    if (child instanceof org.w3c.dom.Text) {
-                        message = child.getTextContent();
-                    }
-                }
-                // handle output_item
-                if(outputreport.getItem()!=null){
-	                xpath = "//exchange/item"; //$NON-NLS-1$
-	                doc = Util.parse(outputreport.getItem());
-	                Node item = XPathAPI.selectSingleNode(doc, xpath);
-	                if (item != null && item instanceof Element) {
-	                    NodeList list = item.getChildNodes();
-	                    Node node = null;
-	                    for (int i = 0; i < list.getLength(); i++) {
-	                        if (list.item(i) instanceof Element) {
-	                            node = list.item(i);
-	                            break;
-	                        }
-	                    }
-	                    if (node != null) {
-	                        String xmlString = Util.nodeToString(node);
-	                        // set back the modified item by the process
-	                        wsPutItemWithReport.getWsPutItem().setXmlString(xmlString);
-	                    }
-	                }
-                }
-                // Be Careful, this is not the same as IXtentisRMIPort
-                wsPutItemWithReport.setSource(message);
-                return "info".equals(errorCode); //$NON-NLS-1$
-            } else { //when no process was found 
-                return true;
-            }
-        } else {
-            // TMDM-2932 when getInvokeBeforeSaving() returns false, this method must return true.
-            // xml string to null to ensure nothing is modified by process
-            wsPutItemWithReport.getWsPutItem().setXmlString(null);
-            return true;
-        }
-    }
-
-    private void processUUIDAndValidate(ItemPOJO item, String schema) throws Exception {
-        if (schema != null) {
-            String dataCluster = item.getDataClusterPOJOPK().getUniqueId();
-            String concept = item.getConceptName();
-            if (Util.getUUIDNodes(schema, concept).size() > 0) { // check uuid key exists
-
-                Document schema1 = Util.parse(schema);
-                Node n = Util.processUUID(item.getProjection(), schema, dataCluster, concept);
-                XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(schema1, concept);
-                // get key values
-                String[] itemKeyValues = com.amalto.core.util.Util.getKeyValuesFromItem((Element) n, conceptKey);
-                // reset item projection & itemids
-                item.setProjectionAsString(Util.nodeToString(n));
-                item.setItemIds(itemKeyValues);
-            }
-
-            Util.validate(item.getProjection(), schema);
-        }
-    }
-    protected WSItemPK doPutItemWithCustomReport(com.amalto.core.webservice.WSPutItemWithReport wsPutItemWithReport,
-            String customUserName) throws RemoteException {
         try {
-
             WSPutItem wsPutItem = wsPutItemWithReport.getWsPutItem();
-            String source = wsPutItemWithReport.getSource();
-            String operationType = ""; //$NON-NLS-1$
-            Map<String, UpdateReportItemPOJO> updateReportItemsMap = new HashMap<String, UpdateReportItemPOJO>();
+            WSDataClusterPK dataClusterPK = wsPutItem.getWsDataClusterPK();
+            WSDataModelPK dataModelPK = wsPutItem.getWsDataModelPK();
 
-            // before saving
-            String projection = wsPutItem.getXmlString();
-            Element root = Util.parse(projection).getDocumentElement();
+            SaverSession session = SaverSession.newSession();
+            String dataClusterName = dataClusterPK.getPk();
+            String dataModelName = dataModelPK.getPk();
 
-            String concept = root.getLocalName();
+            DocumentSaver saver = saveItem(wsPutItem,
+                    session,
+                    dataClusterName,
+                    dataModelName,
+                    true,
+                    wsPutItemWithReport.getInvokeBeforeSaving());
+            // Cause items being saved to be committed to database.
+            session.end();
 
-            DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(
-                    new DataModelPOJOPK(wsPutItem.getWsDataModelPK().getPk()));
-            Document schema = Util.parseXSD(dataModel.getSchema());
-            XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(schema, concept);
-
-            // get key values
-            String[] ids = com.amalto.core.util.Util.getKeyValuesFromItem(root, conceptKey);
-            DataClusterPOJOPK dcpk = new DataClusterPOJOPK(wsPutItem.getWsDataClusterPK().getPk());
-            ItemPOJOPK itemPOJOPK = new ItemPOJOPK(dcpk, concept, ids);
-            ILocalUser user = LocalUser.getLocalUser();
-            String userName = ""; //$NON-NLS-1$
-            if (customUserName != null && customUserName.length() > 0) {
-                userName = customUserName;
-            } else {
-                userName = user.getUsername();
-            }
-            String revisionID = ""; //$NON-NLS-1$
-            UniversePOJO universe = user.getUniverse();
-            if (universe != null) {
-                revisionID = universe.getConceptRevisionID(concept);
-            }
-            // get operationType
-            ItemPOJO itemPoJo = ItemPOJO.load(revisionID, itemPOJOPK);
-
-            HashMap<String, UpdateReportItem> updatedPath = new HashMap<String, UpdateReportItem>();
-
-            if (itemPoJo == null) {
-                operationType = UpdateReportPOJO.OPERATION_TYPE_CREATE;
-            } else {
-                operationType = UpdateReportPOJO.OPERATION_TYPE_UPDATE;
-                // get updated path
-                Element old = itemPoJo.getProjection();
-                Element newNode = root;
-                updatedPath = Util.compareElement("/" + old.getLocalName(), newNode, old); //$NON-NLS-1$
-                for (Entry<String, UpdateReportItem> entry : updatedPath.entrySet()) {
-                    UpdateReportItemPOJO pojo = new UpdateReportItemPOJO(entry.getValue().getPath(), entry.getValue()
-                            .getOldValue(), entry.getValue().getNewValue());
-                    updateReportItemsMap.put(entry.getKey(), pojo);
-                }
-            }
-
-            String dataClusterPK = wsPutItem.getWsDataClusterPK().getPk();
-
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("[putItem-of-putItemWithReport] in dataCluster:" + dataClusterPK);
-            }
-
-            // create resultUpdateReport
-            String resultUpdateReport = Util.createUpdateReport(ids, concept, operationType, updatedPath, wsPutItem
-                    .getWsDataModelPK().getPk(), wsPutItem.getWsDataClusterPK().getPk());
-
-            WSItemPK wsi = null;
-
-            wsi = putItem(wsPutItem, dataModel, schema, ids, conceptKey, wsPutItemWithReport, resultUpdateReport);
-
-            // if don't put the item ,return see 0012169
-            if (wsi == null)
-                return null;
-
-            // reset the AutoIncrement
-            if (("AutoIncrement".equals(concept) && wsPutItem.getWsDataModelPK().getPk().equals(XSystemObjects.DC_CONF.getName()))) { //$NON-NLS-1$
-                AutoIncrementGenerator.init();
-            }
-
-            concept = wsi.getConceptName();
-            ids = wsi.getIds();
-            // additional attributes for data changes log
-
-            String dataModelPK = wsPutItem.getWsDataModelPK().getPk();
-            if (resultUpdateReport != null) { // see0012280: In jobs, Update Reports are no longer created for the
-                // CREATE action
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("[pushUpdateReport-of-putItemWithReport] with concept:" + concept + " operation:" + operationType);
-                }
-                UpdateReportPOJO updateReportPOJO = new UpdateReportPOJO(concept, Util.joinStrings(ids, "."), operationType,
-                        source, System.currentTimeMillis(), dataClusterPK, dataModelPK, userName, revisionID,
-                        updateReportItemsMap);
-
-                WSItemPK itemPK = putItem(new WSPutItem(new WSDataClusterPK("UpdateReport"), updateReportPOJO.serialize(), //$NON-NLS-1$
-                        new WSDataModelPK("UpdateReport"), false)); //$NON-NLS-1$
-                routeItemV2(new WSRouteItemV2(itemPK));
-            }
-
-
-            return wsi;
-
-        } catch (XtentisException e) {
-            throw (new RemoteException(e.getLocalizedMessage(), e));
+            String[] savedId = saver.getSavedId();
+            return new WSItemPK(dataClusterPK, wsPutItem.getConceptName(), savedId);
         } catch (Exception e) {
-           throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
+            if (LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
+            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
 
@@ -1992,9 +1702,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
      */
     public WSItemPK putItemWithCustomReport(com.amalto.core.webservice.WSPutItemWithCustomReport wsPutItemWithCustomReport)
             throws RemoteException {
-
-        return doPutItemWithCustomReport(wsPutItemWithCustomReport.getWsPutItemWithReport(), wsPutItemWithCustomReport.getUser());
-
+        // TODO Is that something to support?
+        throw new UnsupportedOperationException();
     }
 
     /***************************************************************************
@@ -2062,7 +1771,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             String source = wsDeleteItem.getSource();
             String operationType = wsDeleteItem.getOperateType();
             Map<String, UpdateReportItemPOJO> updateReportItemsMap = new HashMap<String, UpdateReportItemPOJO>();
-            
+
             String userName = ""; //$NON-NLS-1$
             if (wsDeleteItem.getUser() != null && wsDeleteItem.getUser().length() > 0) {
                 userName = wsDeleteItem.getUser();
@@ -2086,10 +1795,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     }
 	/**
 	 * @ejb.interface-method view-type = "service-endpoint"
-	 * @ejb.permission 
+	 * @ejb.permission
 	 * 	role-name = "authenticated"
 	 * 	view-type = "service-endpoint"
-	 */ 
+	 */
 	public WSString deleteItemWithReport(WSDeleteItemWithReport wsDeleteItem)
 			throws RemoteException {
 		try{
@@ -2111,7 +1820,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         String message = "";	  //$NON-NLS-1$
         if(wsDeleteItem.getInvokeBeforeSaving()){
         	outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(dataClusterPK, concept, ids);
-	              
+
 	        if (outputErrorMessage != null) {
 	            Document doc = Util.parse(outputErrorMessage);
 	            // TODO what if multiple error nodes ?
@@ -2135,14 +1844,14 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                             pushToUpdateReport(resultUpdateReport, wsDeleteItem, dataClusterPK, concept, ids,
                                     wsDeleteItem.getInvokeBeforeSaving());
                 	}
-                }                   
+                }
                 else
                     message = "ERROR - Unable to delete item";
 
                 if (outputErrorMessage == null)
                     message = message == null ? "" : message; //$NON-NLS-1$
                 else if (message == null || message.length() == 0)
-                    message = "The validation process completed successfully. The record was deleted successfully."; 
+                    message = "The validation process completed successfully. The record was deleted successfully.";
             } else {
                 if (outputErrorMessage == null)
                     message = message == null ? "" : message; //$NON-NLS-1$
@@ -2156,7 +1865,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             	 message = "Could not retrieve the validation process result. An error might have occurred. The record was not deleted.";
         }
         return new WSString(message);
-    
+
 
     } catch (Exception e) {
             throw new RemoteException(e.getLocalizedMessage());
@@ -2963,11 +2672,11 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     }
 
     /***************************************************************************
-     * 
-     * 
+     *
+     *
      * D E P R E C A T E D S T U F F
-     * 
-     * 
+     *
+     *
      * **************************************************************************/
 
     /***************************************************************************
@@ -4544,7 +4253,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     /**
      * get job info from jboss deploy dir
-     * 
+     *
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
@@ -4559,7 +4268,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     /**
      * is Item modified by others
-     * 
+     *
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
@@ -4615,13 +4324,13 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
-    
+
 	/**
 	 * @ejb.interface-method view-type = "service-endpoint"
-	 * @ejb.permission 
+	 * @ejb.permission
 	 * 	role-name = "authenticated"
 	 * 	view-type = "service-endpoint"
-	 */ 
+	 */
 	public WSString refreshCache(WSRefreshCache refreshCache){
 		ItemPOJO.clearCache();
 		ObjectPOJO.clearCache();

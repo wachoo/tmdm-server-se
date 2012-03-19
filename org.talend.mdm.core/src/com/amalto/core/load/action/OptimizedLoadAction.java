@@ -82,8 +82,8 @@ public class OptimizedLoadAction implements LoadAction {
             // Commit changes if any was performed.
             try {
                 if (server.supportTransaction()) {
-                    server.commit();
-                    server.end();
+                    server.commit(dataClusterName);
+                    server.end(dataClusterName);
                 }
             } catch (XtentisException e) {
                 throw new RuntimeException(e);
