@@ -524,10 +524,8 @@ public class ItemsListPanel extends ContentPanel {
                 return;
             }
         }
-        if (ItemsToolBar.getInstance().getSimplePanel() != null && ItemsToolBar.getInstance().getSimplePanel().getCriteria() != null) {
-            ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchBut);      
-            ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, be);
-        }
+        ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchBut);
+        ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, be);
     }
 
     public void lastPage() {

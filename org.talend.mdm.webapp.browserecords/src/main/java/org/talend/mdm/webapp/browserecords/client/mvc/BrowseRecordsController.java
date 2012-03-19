@@ -16,7 +16,6 @@ import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.WaitBox;
-import org.talend.mdm.webapp.base.client.widget.CallbackAction;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
@@ -193,7 +192,7 @@ public class BrowseRecordsController extends Controller {
                             ItemsListPanel.getInstance().refreshGrid();
                         if (detailToolBar.isFkToolBar() && !isClose)
                             detailToolBar.refresh(result.getReturnValue());
-                        CallbackAction.getInstance().doAction(CallbackAction.HIERARCHY_SAVEITEM_CALLBACK,result.getReturnValue());
+                        ItemsMainTabPanel.getInstance().getCurrentViewTabItem().savedCallback(result.getReturnValue());
                     }
                 });
     }
