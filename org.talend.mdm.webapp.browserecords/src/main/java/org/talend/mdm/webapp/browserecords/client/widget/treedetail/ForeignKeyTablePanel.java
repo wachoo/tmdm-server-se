@@ -498,6 +498,12 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                             .grid_record_select(), null);
                     return;
                 }
+                if (m.getObjectValue() == null) {
+                    MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                            .fk_edit_failure(),
+                            null);
+                    return;
+                }
                 int rowIndex = grid.getStore().indexOf(m);
                 re.startEditing(rowIndex, true);
             }
