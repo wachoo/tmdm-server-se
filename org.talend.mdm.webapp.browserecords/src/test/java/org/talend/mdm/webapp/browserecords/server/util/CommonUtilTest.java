@@ -26,6 +26,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 
+import com.amalto.webapp.core.util.Util;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 @SuppressWarnings("nls")
@@ -123,5 +124,46 @@ public class CommonUtilTest extends TestCase {
         // 4
         label = "Agency: {position()}";
         assertEquals("Agency", LabelUtil.getFKTabLabel(label));
+    }
+
+    public void test_Util_getExceptionMessage() {
+        String message = "<msg>[EN:validate error][FR:validate error]</msg>";
+        String language = "en";
+        // 1
+        String actualMsg = Util.getExceptionMessage(message, language);
+        assertEquals("validate error", actualMsg);
+        // 2
+        message = "<msg/>";
+        actualMsg = Util.getExceptionMessage(message, language);
+        assertEquals("", actualMsg);
+        // 3
+        message = "<msg>[EN:validate error]</msg>";
+        language = "fr";
+        actualMsg = Util.getExceptionMessage(message, language);
+        assertEquals(message, actualMsg);
+        // 4
+        message = "<msg>[CHINESE:validate error]</msg>";
+        language = "chinese";
+        actualMsg = Util.getExceptionMessage(message, language);
+        assertEquals("validate error", actualMsg);
+        // 5
+        message = "<msg>[EN:validate error][FR:fr validate error]</msg>";
+        language = "fr";
+        actualMsg = Util.getExceptionMessage(message, language);
+        assertEquals("fr validate error", actualMsg);
+        // 6
+        message = "<msg>[EN:validate error][CHINESE:validate error][FR:fr validate error]</msg>";
+        language = "fr";
+        actualMsg = Util.getExceptionMessage(message, language);
+        assertEquals("fr validate error", actualMsg);
+        // 7
+        message = "[EN:price must > 10][FR:price must > 10]";
+        if (message.length() > 0) {
+            if (message.indexOf("<msg>") == -1)
+                message = "<msg>" + message + "</msg>";
+        }
+        language = "en";
+        actualMsg = Util.getExceptionMessage(message, language);
+        assertEquals("price must > 10", actualMsg);
     }
 }
