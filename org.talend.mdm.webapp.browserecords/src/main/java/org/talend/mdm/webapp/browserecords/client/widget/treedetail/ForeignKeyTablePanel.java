@@ -308,7 +308,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
     private void updateSiblingNodes() {
         if (parent.getChildCount() > 0) {
             ItemNodeModel child = (ItemNodeModel) parent.getChild(0);
-            Field<?> field = fieldMap.get(child.getBindingPath() + child.getId().toString());
+            Field<?> field = fieldMap.get(child.getId().toString());
             if (field != null)
                 TreeDetailGridFieldCreator.updateMandatory(field, child, fieldMap);
         }
