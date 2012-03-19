@@ -49,7 +49,7 @@ public class DocumentSaveTest extends TestCase {
 
         SaverSession session = SaverSession.newSession();
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
-        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", null, recordXml, false, false, source);
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", null, recordXml, true, false, source);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         session.end(new MockCommitter());
@@ -81,7 +81,12 @@ public class DocumentSaveTest extends TestCase {
         recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
         context = session.getContextFactory().create("MDM", "DStar", null, recordXml, true, true, source);
         saver = context.createSaver();
-        saver.save(session, context);
+        try {
+            saver.save(session, context);
+            fail("Expected an exception.");
+        } catch (Exception e) {
+            // Expected
+        }
         session.end(new MockCommitter());
 
         //
@@ -93,7 +98,12 @@ public class DocumentSaveTest extends TestCase {
         recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
         context = session.getContextFactory().create("MDM", "DStar", null, recordXml, true, true, source);
         saver = context.createSaver();
-        saver.save(session, context);
+        try {
+            saver.save(session, context);
+            fail("Expected an exception.");
+        } catch (Exception e) {
+            // Expected
+        }
         session.end(new MockCommitter());
 
         //
@@ -258,6 +268,10 @@ public class DocumentSaveTest extends TestCase {
 
         public Set<String> getCurrentUserRoles() {
             return Collections.emptySet();
+        }
+
+        public String getUserName() {
+            return "User";
         }
     }
 
