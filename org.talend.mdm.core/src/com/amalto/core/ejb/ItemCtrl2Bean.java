@@ -485,60 +485,7 @@ public class ItemCtrl2Bean implements SessionBean {
     public ArrayList<String> xPathsSearch(DataClusterPOJOPK dataClusterPOJOPK, String forceMainPivot,
             ArrayList<String> viewablePaths, IWhereItem whereItem, int spellThreshold, String orderBy, String direction,
             int start, int limit, boolean returnCount) throws XtentisException {
-        try {
-            if (viewablePaths.size() == 0) {
-                String err = "The list of viewable xPaths must contain at least one element";
-                LOGGER.error(err);
-                throw new XtentisException(err);
-            }
-
-            // Check if user is allowed to read the cluster
-            ILocalUser user = LocalUser.getLocalUser();
-            boolean authorized = false;
-            if (MDMConfiguration.getAdminUser().equals(user.getUsername())
-                    || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
-                authorized = true;
-            } else if (user.userCanRead(DataClusterPOJO.class, dataClusterPOJOPK.getUniqueId())) {
-                authorized = true;
-            }
-            if (!authorized) {
-                throw new XtentisException("Unauthorized read access on data cluster '" + dataClusterPOJOPK.getUniqueId() + "' by user '"
-                        + user.getUsername() + "'");
-            }
-
-            // get the universe and revision ID
-            UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
-            if (universe == null) {
-                String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-                LOGGER.error(err);
-                throw new XtentisException(err);
-            }
-
-            // build the patterns to revision ID map
-            LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(
-                    universe.getItemsRevisionIDs());
-            if (universe.getDefaultItemRevisionID() != null) {
-                conceptPatternsToRevisionID.put(".*", universe.getDefaultItemRevisionID());
-            }
-
-            // build the patterns to cluster map - only one cluster at this stage
-            LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
-            conceptPatternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId());
-
-            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
-
-            String query = server.getItemsQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, forceMainPivot,
-                    viewablePaths, whereItem, orderBy, direction, start, limit, spellThreshold, returnCount, Collections.emptyMap());
-
-            return server.runQuery(null, null, query, null);
-
-        } catch (XtentisException e) {
-            throw (e);
-        } catch (Exception e) {
-            String err = "Unable to single search: " + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            LOGGER.error(err, e);
-            throw new XtentisException(err, e);
-        }
+    	return BeanDelegatorContainer.getUniqueInstance().getItemCtrlDelegator().xPathsSearch(dataClusterPOJOPK, forceMainPivot, viewablePaths, whereItem, spellThreshold, orderBy, direction, start, limit, returnCount);
     }
 
     /**
@@ -1169,41 +1116,7 @@ public class ItemCtrl2Bean implements SessionBean {
             int spellThreshold, String orderBy, String direction, int start, int limit, boolean totalCountOnFirstRow)
             throws XtentisException {
 
-        // get the universe and revision ID
-        UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
-        if (universe == null) {
-            String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-            LOGGER.error(err);
-            throw new XtentisException(err);
-        }
-
-        // build the patterns to revision ID map
-        LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(
-                universe.getItemsRevisionIDs());
-        if (universe.getDefaultItemRevisionID() != null && universe.getDefaultItemRevisionID().length() > 0)
-            conceptPatternsToRevisionID.put(".*", universe.getDefaultItemRevisionID());
-
-        // build the patterns to cluster map - only one cluster at this stage
-        LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
-        conceptPatternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId());
-
-        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
-
-        try {
-            ArrayList<String> elements = new ArrayList<String>();
-            elements.add(conceptName);
-
-            String query = server.getItemsQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, null, elements,
-                    whereItem, orderBy, direction, start, limit, spellThreshold, totalCountOnFirstRow, Collections.emptyMap());
-
-            return server.runQuery(null, null, query, null);
-        } catch (XtentisException e) {
-            throw (e);
-        } catch (Exception e) {
-            String err = "Unable to get the items: " + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            LOGGER.error(err, e);
-            throw new XtentisException(err, e);
-        }
+    	return BeanDelegatorContainer.getUniqueInstance().getItemCtrlDelegator().getItems(dataClusterPOJOPK, conceptName, whereItem, spellThreshold, orderBy, direction, start, limit, totalCountOnFirstRow);
     }
 
     public FKIntegrityCheckResult checkFKIntegrity(String dataCluster, String concept, String[] ids) throws XtentisException {

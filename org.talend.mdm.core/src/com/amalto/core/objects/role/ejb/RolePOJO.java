@@ -19,7 +19,7 @@ public class RolePOJO extends ObjectPOJO{
     private String name;
     private String description;
     private HashMap<String,RoleSpecification> specifications;
-    
+    private String[] recordssecurity;
     
     /**
      * 
@@ -33,6 +33,20 @@ public class RolePOJO extends ObjectPOJO{
 	}
 	
 
+	/**
+	 * Getter for recordssecurity.
+	 * @return the recordssecurity
+	 */
+	public String[] getRecordssecurity() {
+		return recordssecurity;
+	}
+	/**
+	 * Sets the recordssecurity.
+	 * @param recordssecurity the recordssecurity to set
+	 */
+	public void setRecordssecurity(String[] recordssecurity) {
+		this.recordssecurity = recordssecurity;
+	}
 	/**
 	 * @return Returns the Name.
 	 */
