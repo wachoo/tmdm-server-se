@@ -11,7 +11,6 @@
 
 package com.amalto.core.save.context;
 
-import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.save.DocumentSaverContext;
@@ -24,21 +23,27 @@ import java.util.Set;
  *
  */
 public interface SaverSource {
-    InputStream get(String[] key);
+    InputStream get(String typeName, String revisionId, String[] key);
 
-    boolean exist(String[] key);
+    boolean exist(String typeName, String revisionId, String[] key);
 
-    MetadataRepository getMetadataRepository();
+    MetadataRepository getMetadataRepository(String dataModelName);
 
     InputStream getSchema(String dataModelName);
 
     String getUniverse();
-
-    void save(ItemPOJO item);
 
     OutputReport invokeBeforeSaving(DocumentSaverContext context, MutableDocument updateReportDocument);
 
     Set<String> getCurrentUserRoles();
 
     String getUserName();
+
+    boolean existCluster(String revisionID, String dataClusterName);
+
+    String getConceptRevisionID(String typeName);
+
+    void resetLocalUsers();
+
+    void initAutoIncrement();
 }

@@ -22,6 +22,9 @@ import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.util.AutoIncrementGenerator;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import java.util.LinkedList;
@@ -49,6 +52,7 @@ class ID implements DocumentSaver {
 
             boolean hasMetAutoIncrement = false;
             MutableDocument userDocument = context.getUserDocument();
+            String typeName = type.getName();
             for (FieldMetadata keyField : keyFields) {
                 String keyFieldTypeName = keyField.getType().getName();
                 Accessor userAccessor = userDocument.createAccessor(keyField.getName());
@@ -67,7 +71,7 @@ class ID implements DocumentSaver {
                     if (userAccessor.exist()) {
                         generatedIdValue = userAccessor.get();
                     } else {
-                        generatedIdValue = String.valueOf(AutoIncrementGenerator.generateNum(universe, dataCluster, type.getName() + "." + keyField.getName().replaceAll("/", ".")));   //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        generatedIdValue = String.valueOf(AutoIncrementGenerator.generateNum(universe, dataCluster, typeName + "." + keyField.getName().replaceAll("/", ".")));   //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         hasMetAutoIncrement = true;
                     }
                     currentIdValue = generatedIdValue;
@@ -87,20 +91,21 @@ class ID implements DocumentSaver {
 
             // now has an id, so load database document
             String[] savedId = getSavedId();
-            if (database.exist(savedId)) {
-                NonCloseableInputStream nonCloseableInputStream = new NonCloseableInputStream(database.get(savedId));
+            String revisionID = context.getRevisionID();
+            if (database.exist(typeName, revisionID, savedId)) {
+                NonCloseableInputStream nonCloseableInputStream = new NonCloseableInputStream(database.get(typeName, revisionID, savedId));
 
                 try {
                     nonCloseableInputStream.mark(-1);
 
                     Document databaseDomDocument = SaverContextFactory.DOM_PARSER_FACTORY.parse(nonCloseableInputStream);
-                    MutableDocument databaseDocument = new DOMDocument(databaseDomDocument);
+                    MutableDocument databaseDocument = new DOMDocument(getUserXmlElement(databaseDomDocument));
 
                     nonCloseableInputStream.reset();
 
                     SkipAttributeDocumentBuilder documentBuilder = new SkipAttributeDocumentBuilder(SaverContextFactory.DOM_PARSER_FACTORY);
                     Document databaseValidationDomDocument = documentBuilder.parse(new InputSource(nonCloseableInputStream));
-                    MutableDocument databaseValidationDocument = new DOMDocument(databaseValidationDomDocument);
+                    MutableDocument databaseValidationDocument = new DOMDocument(getUserXmlElement(databaseValidationDomDocument));
 
                     context.setDatabaseDocument(databaseDocument);
                     context.setDatabaseValidationDocument(databaseValidationDocument);
@@ -125,6 +130,20 @@ class ID implements DocumentSaver {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static Node getUserXmlElement(Document databaseDomDocument) {
+        NodeList userXmlPayloadElement = databaseDomDocument.getElementsByTagName("p"); //$NON-NLS-1$
+        if (userXmlPayloadElement.getLength() > 1) {
+            throw new IllegalStateException("Document has multiple payload elements.");
+        }
+        NodeList children = userXmlPayloadElement.item(0).getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            if (children.item(i) instanceof Element) {
+                return children.item(i);
+            }
+        }
+        throw new IllegalStateException("Element 'p' is expected to have an XML element as child.");
     }
 
     public String[] getSavedId() {

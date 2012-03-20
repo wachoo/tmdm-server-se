@@ -69,7 +69,11 @@ public class UniqueIdTransformer implements DocumentTransformer {
         Stack<Integer> levels = new Stack<Integer>();
         levels.push(0);
         {
-            _addIds(document, document.getDocumentElement(), levels);
+            Element documentElement = document.getDocumentElement();
+            if (documentElement == null) {
+                throw new IllegalStateException("Record history is empty.");
+            }
+            _addIds(document, documentElement, levels);
         }
         levels.pop();
     }

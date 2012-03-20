@@ -416,17 +416,14 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
 
 	/****************** test interfaces ******************************/
 
-	@Override
 	public ViewPOJO getViewPOJO(ViewPOJOPK viewPOJOPK) throws Exception {
 		return Util.getViewCtrlLocalHome().create().getView(viewPOJOPK);
 	}
 
-	@Override
 	public ILocalUser getLocalUser() throws XtentisException {
 		return LocalUser.getLocalUser();
 	}
 
-	@Override
 	public ArrayList<String> runItemsQuery(
 			LinkedHashMap conceptPatternsToRevisionID,
 			LinkedHashMap conceptPatternsToClusterName, String forceMainPivot,
@@ -448,7 +445,6 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
 			return server.runQuery(null, null, query, null);
 	}
 
-	@Override
 	public ArrayList<String> runChildrenItemsQuery(String clusterName,
 			String conceptName, String[] PKXpaths, String FKXpath,
 			String labelXpath, String fatherPK, LinkedHashMap itemsRevisionIDs,
@@ -463,7 +459,6 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
 		return server.runQuery(null, null, query, null);
 	}
 
-	@Override
 	public ArrayList<String> runPivotIndexQuery(String clusterName,
 			String mainPivotName, LinkedHashMap pivotWithKeys,
 			LinkedHashMap itemsRevisionIDs, String defaultRevisionID,

@@ -97,6 +97,10 @@ public class ReportDocumentSaverContext implements DocumentSaverContext {
         delegate.setDatabaseValidationDocument(databaseValidationDocument);
     }
 
+    public void setRevisionId(String revisionID) {
+        delegate.setRevisionId(revisionID);
+    }
+
     public String[] getId() {
         return delegate.getId();
     }

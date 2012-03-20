@@ -82,4 +82,6 @@ public interface DocumentSaverContext {
     void setDatabaseDocument(MutableDocument databaseDocument);
 
     void setDatabaseValidationDocument(MutableDocument databaseValidationDocument);
+
+    void setRevisionId(String revisionID);
 }

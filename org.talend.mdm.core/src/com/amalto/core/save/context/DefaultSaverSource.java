@@ -11,23 +11,21 @@
 
 package com.amalto.core.save.context;
 
-import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocal;
 import com.amalto.core.save.DocumentSaverContext;
-import com.amalto.core.util.LocalUser;
-import com.amalto.core.util.OutputReport;
-import com.amalto.core.util.Util;
-import com.amalto.core.util.XtentisException;
+import com.amalto.core.util.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
-class DefaultDataSource implements SaverSource {
+class DefaultSaverSource implements SaverSource {
 
     private final XmlServerSLWrapperLocal database;
 
@@ -35,18 +33,12 @@ class DefaultDataSource implements SaverSource {
 
     private final String dataClusterName;
 
-    private final String dataModelName;
+    private final Map<String, MetadataRepository> repositories = new HashMap<String, MetadataRepository>();
 
-    private final String revisionId;
+    private final Map<String, String> schemasAsString = new HashMap<String, String>();
 
-    private MetadataRepository repository;
-
-    private String schemaAsString;
-
-    public DefaultDataSource(String dataClusterName, String dataModelName, String revisionId) {
+    public DefaultSaverSource(String dataClusterName) {
         this.dataClusterName = dataClusterName;
-        this.dataModelName = dataModelName;
-        this.revisionId = revisionId;
 
         try {
             database = Util.getXmlServerCtrlLocal();
@@ -61,9 +53,19 @@ class DefaultDataSource implements SaverSource {
         }
     }
 
-    public InputStream get(String[] key) {
+    public InputStream get(String typeName, String revisionId, String[] key) {
         try {
-            String documentAsString = database.getDocumentAsString(revisionId, dataClusterName, Util.joinStrings(key, ".")); //$NON-NLS-1$
+            StringBuilder builder = new StringBuilder();
+            builder.append(dataClusterName).append('.').append(typeName).append('.');
+            for (int i = 0; i < key.length; i++) {
+                builder.append(key[i]);
+                if (i < key.length - 1) {
+                    builder.append('.');
+                }
+            }
+            String uniqueId = builder.toString();
+
+            String documentAsString = database.getDocumentAsString(revisionId, dataClusterName, uniqueId); //$NON-NLS-1$
             if (documentAsString != null) {
                 return new ByteArrayInputStream(documentAsString.getBytes("UTF-8")); //$NON-NLS-1$
             } else {
@@ -74,17 +76,21 @@ class DefaultDataSource implements SaverSource {
         }
     }
 
-    public boolean exist(String[] key) {
-        return get(key) == null;
+    public boolean exist(String typeName, String revisionId, String[] key) {
+        return get(typeName, revisionId, key) != null;
     }
 
-    public MetadataRepository getMetadataRepository() {
+    public MetadataRepository getMetadataRepository(String dataModelName) {
         try {
-            if (repository == null) {
-                repository = new MetadataRepository();
-                repository.load(getSchema(dataModelName));
+            synchronized (repositories) {
+                if (repositories.get(dataModelName) == null) {
+                    MetadataRepository repository = new MetadataRepository();
+                    InputStream schema = getSchema(dataModelName);
+                    repository.load(schema);
+                    repositories.put(dataModelName, repository);
+                }
+                return repositories.get(dataModelName);
             }
-            return repository;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -92,10 +98,13 @@ class DefaultDataSource implements SaverSource {
 
     public InputStream getSchema(String dataModelName) {
         try {
-            if (schemaAsString == null) {
-                schemaAsString = dataModel.getDataModel(new DataModelPOJOPK(this.dataModelName)).getSchema();
+            synchronized (schemasAsString) {
+                if (schemasAsString.get(dataModelName) == null) {
+                    String schemaAsString = dataModel.getDataModel(new DataModelPOJOPK(dataModelName)).getSchema();
+                    schemasAsString.put(dataModelName, schemaAsString);
+                }
             }
-            return new ByteArrayInputStream(schemaAsString.getBytes("UTF-8")); //$NON-NLS-1$
+            return new ByteArrayInputStream(schemasAsString.get(dataModelName).getBytes("UTF-8")); //$NON-NLS-1$
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -104,14 +113,6 @@ class DefaultDataSource implements SaverSource {
     public String getUniverse() {
         try {
             return LocalUser.getLocalUser().getUniverse().getName();
-        } catch (XtentisException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void save(ItemPOJO item) {
-        try {
-            item.store();
         } catch (XtentisException e) {
             throw new RuntimeException(e);
         }
@@ -141,6 +142,34 @@ class DefaultDataSource implements SaverSource {
         } catch (XtentisException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public boolean existCluster(String revisionID, String dataClusterName) {
+        try {
+            return database.existCluster(revisionID, dataClusterName);
+        } catch (XtentisException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getConceptRevisionID(String typeName) {
+        try {
+            return LocalUser.getLocalUser().getUniverse().getConceptRevisionID(typeName);
+        } catch (XtentisException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void resetLocalUsers() {
+        try {
+            LocalUser.resetLocalUsers();
+        } catch (XtentisException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void initAutoIncrement() {
+        AutoIncrementGenerator.init();
     }
 
 }

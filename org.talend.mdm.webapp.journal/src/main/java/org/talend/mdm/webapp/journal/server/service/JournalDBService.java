@@ -287,7 +287,7 @@ public class JournalDBService {
 
         navigator.goTo(new Date(parameter.getDate()));
         Action modificationMarkersAction = navigator.currentAction();
-        com.amalto.core.history.Document document = new EmptyDocument();
+        com.amalto.core.history.Document document = EmptyDocument.INSTANCE;
         if (CURRENT_ACTION.equalsIgnoreCase(parameter.getAction())) {
             document = navigator.current();
         } else if (PREVIOUS_ACTION.equalsIgnoreCase(parameter.getAction())) {
@@ -338,7 +338,7 @@ public class JournalDBService {
                 parameter.getConceptName(), parameter.getId(), parameter.getRevisionId());
         navigator.goTo(historyDate);
         
-        com.amalto.core.history.Document document = new EmptyDocument();
+        com.amalto.core.history.Document document = EmptyDocument.INSTANCE;
         if (CURRENT_ACTION.equalsIgnoreCase(parameter.getAction())) {
             document = navigator.current();
         } else if (PREVIOUS_ACTION.equalsIgnoreCase(parameter.getAction())) {

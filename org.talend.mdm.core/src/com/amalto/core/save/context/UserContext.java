@@ -27,7 +27,7 @@ class UserContext implements DocumentSaverContext {
 
     private final ComplexTypeMetadata type;
 
-    private final String revisionId;
+    private String revisionId = null;
 
     private final String dataCluster;
 
@@ -47,8 +47,7 @@ class UserContext implements DocumentSaverContext {
 
     private MutableDocument dataBaseValidationDocument;
 
-    UserContext(String dataCluster, String dataModel, String revisionId, MutableDocument userDocument, ComplexTypeMetadata type, SaverSource dataSource, boolean updateReport, boolean invokeBeforeSaving) {
-        this.revisionId = revisionId;
+    UserContext(String dataCluster, String dataModel, MutableDocument userDocument, ComplexTypeMetadata type, SaverSource dataSource, boolean updateReport, boolean invokeBeforeSaving) {
         this.userDocument = userDocument;
         this.type = type;
         this.dataCluster = dataCluster;
@@ -74,7 +73,7 @@ class UserContext implements DocumentSaverContext {
             saver = new UpdateReport(saver);
         }
 
-        return new TimeMeasure(new ID(new GenerateActions(new Security(saver))));
+        return new Checks(new ID(new GenerateActions(new Security(saver))));
     }
 
     public MutableDocument getDatabaseDocument() {
@@ -128,6 +127,10 @@ class UserContext implements DocumentSaverContext {
 
     public void setDatabaseValidationDocument(MutableDocument databaseValidationDocument) {
         this.dataBaseValidationDocument = databaseValidationDocument;
+    }
+
+    public void setRevisionId(String revisionID) {
+        this.revisionId = revisionID;
     }
 
     public String[] getId() {

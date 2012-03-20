@@ -779,7 +779,7 @@ public class ItemPOJO implements Serializable {
         } catch (Exception e) {
             String err = "Unable to store the item " + itemPK.getUniqueID() + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
             LOG.error(err, e);
-            throw new EJBException(err, e);
+            throw new XtentisException(err, e);
         }
     }
 

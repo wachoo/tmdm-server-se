@@ -11,20 +11,19 @@
 
 package com.amalto.core.save;
 
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
+import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.save.context.SaverContextFactory;
-import com.amalto.core.save.context.TimeMeasure;
-import com.amalto.core.util.Util;
-import com.amalto.core.util.XtentisException;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class SaverSession {
 
     private final SaverContextFactory contextFactory;
 
-    private final Set<String> startedTransactions = new HashSet<String>();
+    private final Map<String, Set<ItemPOJO>> itemsPerDataCluster = new HashMap<String, Set<ItemPOJO>>();
 
     private SaverSession() {
         contextFactory = new SaverContextFactory();
@@ -43,43 +42,32 @@ public class SaverSession {
     }
 
     public void end(Committer committer) {
-        try {
-            for (String startedTransaction : startedTransactions) {
-                committer.commit(startedTransaction);
+        for (Map.Entry<String, Set<ItemPOJO>> currentTransaction : itemsPerDataCluster.entrySet()) {
+            String dataCluster = currentTransaction.getKey();
+            committer.begin(dataCluster);
+            for (ItemPOJO currentItemToCommit : currentTransaction.getValue()) {
+                committer.save(currentItemToCommit, currentItemToCommit.getDataModelRevision()); // TODO Use data model revision for revision id?
             }
-        } finally {
-            TimeMeasure.reset();
+            committer.commit(dataCluster);
         }
     }
 
-    public void begin(String dataCluster) {
-        startedTransactions.add(dataCluster);
+    public void save(String dataCluster, ItemPOJO itemToSave) {
+        Set<ItemPOJO> itemsToSave = itemsPerDataCluster.get(dataCluster);
+        if (itemsToSave == null) {
+            itemsToSave = new HashSet<ItemPOJO>();
+            itemsPerDataCluster.put(dataCluster, itemsToSave);
+        }
+        itemsToSave.add(itemToSave);
     }
 
     public interface Committer {
+
+        void begin(String dataCluster);
+
         void commit(String dataCluster);
+
+        void save(ItemPOJO item, String revisionId);
     }
 
-    public class DefaultCommitter implements Committer {
-
-        private XmlServerSLWrapperLocal xmlServerCtrlLocal;
-
-        public DefaultCommitter() {
-            try {
-                xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
-            } catch (XtentisException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        public void commit(String dataCluster) {
-            try {
-                if (xmlServerCtrlLocal.supportTransaction()) {
-                    xmlServerCtrlLocal.commit(dataCluster);
-                }
-            } catch (XtentisException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
 }

@@ -19,6 +19,9 @@ class NonCloseableInputStream extends InputStream {
     private final InputStream delegate;
 
     public NonCloseableInputStream(InputStream delegate) {
+        if (delegate == null) {
+            throw new IllegalArgumentException("Input stream can not be null.");
+        }
         if (!delegate.markSupported()) {
             throw new IllegalArgumentException("Document stream must support marks.");
         }

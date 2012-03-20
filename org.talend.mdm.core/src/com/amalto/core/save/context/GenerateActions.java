@@ -33,7 +33,7 @@ class GenerateActions implements DocumentSaver {
         final MutableDocument userDocument = context.getUserDocument();
         MutableDocument databaseDocument = context.getDatabaseDocument();
         Date date = new Date(System.currentTimeMillis());
-        String source = StringUtils.EMPTY; // TODO
+        String source = "genericUI"; // TODO
         String userName = context.getSaverSource().getUserName();
 
         List<Action> actions;

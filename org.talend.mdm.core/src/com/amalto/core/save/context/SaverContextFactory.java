@@ -57,7 +57,6 @@ public class SaverContextFactory {
 
     public DocumentSaverContext create(String dataCluster,
                                        String dataModelName,
-                                       String revisionId,
                                        InputStream documentStream,
                                        boolean updateReport,
                                        boolean invokeBeforeSaving) {
@@ -67,19 +66,18 @@ public class SaverContextFactory {
 
         SaverSource dataSource;
         synchronized (DATA_SOURCE_CACHE) {
-            dataSource = DATA_SOURCE_CACHE.get(dataCluster + dataModelName + revisionId);
+            dataSource = DATA_SOURCE_CACHE.get(dataCluster + dataModelName);
             if (dataSource == null) {
-                dataSource = new DefaultDataSource(dataCluster, dataModelName, revisionId);
+                dataSource = new DefaultSaverSource(dataCluster);
                 DATA_SOURCE_CACHE.put(dataCluster + dataModelName, dataSource);
             }
         }
 
-        return create(dataCluster, dataModelName, revisionId, documentStream, updateReport, invokeBeforeSaving, dataSource);
+        return create(dataCluster, dataModelName, documentStream, updateReport, invokeBeforeSaving, dataSource);
     }
 
     public DocumentSaverContext create(String dataCluster,
                                        String dataModelName,
-                                       String revisionId,
                                        InputStream documentStream,
                                        boolean updateReport,
                                        boolean invokeBeforeSaving,
@@ -95,15 +93,15 @@ public class SaverContextFactory {
 
         // Get type name
         String typeName = userDocument.asDOM().getDocumentElement().getNodeName();
-        ComplexTypeMetadata savedDocumentType = dataSource.getMetadataRepository().getComplexType(typeName);
+        ComplexTypeMetadata savedDocumentType = dataSource.getMetadataRepository(dataModelName).getComplexType(typeName);
 
         // Choose right context implementation
         DocumentSaverContext context;
         if (dataCluster.startsWith("amalto") || XSystemObjects.isXSystemObject(SYSTEM_DATA_CLUSTERS, XObjectType.DATA_CLUSTER, dataCluster)) { //$NON-NLS-1$
             // TODO Handle AutoIncrement specific cases
-            context = new SystemContext(dataCluster, userDocument, revisionId, dataSource);
+            context = new SystemContext(dataCluster, userDocument, dataSource);
         } else {
-            context = new UserContext(dataCluster, dataModelName, revisionId, userDocument, savedDocumentType, dataSource, updateReport, invokeBeforeSaving);
+            context = new UserContext(dataCluster, dataModelName, userDocument, savedDocumentType, dataSource, updateReport, invokeBeforeSaving);
         }
 
         if (updateReport) {

@@ -20,6 +20,8 @@ class UpdateReportDocument extends DOMDocument {
 
     private String currentNewValue = null;
 
+    private boolean isCreated = false;
+
     public UpdateReportDocument(Document updateReportDocument, MutableDocument savedDocument) {
         super(updateReportDocument);
         this.updateReportDocument = updateReportDocument;
@@ -105,6 +107,7 @@ class UpdateReportDocument extends DOMDocument {
 
     @Override
     public MutableDocument create(MutableDocument content) {
+        isCreated = true;
         Element item = updateReportDocument.createElement("OperationType"); //$NON-NLS-1$
         item.appendChild(updateReportDocument.createTextNode("CREATE")); //$NON-NLS-1$
         updateReportDocument.getDocumentElement().appendChild(item);
@@ -115,11 +118,22 @@ class UpdateReportDocument extends DOMDocument {
     @Override
     public MutableDocument delete(DeleteType deleteType) {
         // Nothing to do
+        // TODO Could extend saver to handle deletes?
         return this;
     }
 
-    public void recordFieldChange() {
+    public void enableRecordFieldChange() {
         isRecordingFieldChange = true;
+    }
+
+    public void disableRecordFieldChange() {
+        if (!isCreated) {
+            // TODO Doing so add the OperationType element to the end of the document... not very human readable but works for an XML parser.
+            Element item = updateReportDocument.createElement("OperationType"); //$NON-NLS-1$
+            item.appendChild(updateReportDocument.createTextNode("UPDATE")); //$NON-NLS-1$
+            updateReportDocument.getDocumentElement().appendChild(item);
+        }
+        isRecordingFieldChange = false;
     }
 
     @Override
@@ -129,7 +143,6 @@ class UpdateReportDocument extends DOMDocument {
         } else {
             return new FieldChangeRecorder(path, this);
         }
-
     }
 
     private static class FieldChangeRecorder implements Accessor {

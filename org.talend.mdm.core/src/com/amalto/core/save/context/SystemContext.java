@@ -23,9 +23,9 @@ class SystemContext implements DocumentSaverContext {
 
     private final String dataCluster;
 
-    private final String revisionId;
-
     private final SaverSource dataSource;
+
+    private String revisionId;
 
     private String[] id;
 
@@ -35,15 +35,14 @@ class SystemContext implements DocumentSaverContext {
 
     private MutableDocument databaseValidationDocument;
 
-    public SystemContext(String dataCluster, MutableDocument document, String revisionId, SaverSource dataSource) {
+    public SystemContext(String dataCluster, MutableDocument document, SaverSource dataSource) {
         this.dataCluster = dataCluster;
         this.userDocument = document;
-        this.revisionId = revisionId;
         this.dataSource = dataSource;
     }
 
     public DocumentSaver createSaver() {
-        return new Save();
+        return new Checks(new Save());
     }
 
     public MutableDocument getDatabaseDocument() {
@@ -96,6 +95,10 @@ class SystemContext implements DocumentSaverContext {
 
     public void setDatabaseValidationDocument(MutableDocument databaseValidationDocument) {
         this.databaseValidationDocument = databaseValidationDocument;
+    }
+
+    public void setRevisionId(String revisionID) {
+        this.revisionId = revisionID;
     }
 
     public String[] getId() {

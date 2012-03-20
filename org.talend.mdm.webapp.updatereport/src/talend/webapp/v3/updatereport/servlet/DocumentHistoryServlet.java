@@ -48,7 +48,6 @@ public class DocumentHistoryServlet extends AbstractDocumentHistoryServlet {
         doGet(req, resp);
     }
 
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Parameters parameters = getParameters(req);
@@ -63,7 +62,8 @@ public class DocumentHistoryServlet extends AbstractDocumentHistoryServlet {
                 typeName,
                 parameters.getId(),
                 parameters.getRevisionId());
-        
+
+        // TODO Refactor to use TypeMetadata stuff
         boolean isAuth = true;
         try {
             Map<String, XSElementDecl> map = CommonDWR.getConceptMap(dataModelName);

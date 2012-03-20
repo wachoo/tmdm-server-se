@@ -20,17 +20,15 @@ import org.w3c.dom.Element;
 
 class Save implements DocumentSaver {
     public void save(SaverSession session, DocumentSaverContext context) {
-        // Ensure a transaction is started on container
-        session.begin(context.getDataCluster());
-
         DataClusterPOJOPK dataCluster = new DataClusterPOJOPK(context.getDataCluster());
         String typeName = context.getType().getName();
         String[] ids = context.getId();
 
         Element documentElement = context.getDatabaseDocument().asDOM().getDocumentElement();
         ItemPOJO item = new ItemPOJO(dataCluster, typeName, ids, System.currentTimeMillis(), documentElement);
+        item.setDataModelRevision(context.getRevisionID()); // TODO Is data model revision ok?
 
-        context.getSaverSource().save(item);
+        session.save(context.getDataCluster(), item);
     }
 
     public String[] getSavedId() {

@@ -88,6 +88,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
             currentNewElement = (Element) currentNewElement.getParentNode();
         } else {
             for (int i = 0; i < originalElementList.getLength(); i++) {
+                // Path generation code is a bit duplicated (be careful)... and XPath indexes are 1-based (not 0-based).
                 path.add(containedField.getName() + "[" + (i + 1) + "]");
                 currentOriginalElement = (Element) originalElementList.item(0);
                 currentNewElement = (Element) newElementList.item(0);
@@ -143,11 +144,13 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     private void handleUnaryField(FieldMetadata simpleField, NodeList originalList, NodeList newList) {
         if (originalList.getLength() == newList.getLength()) {
-            String originalTextContent = originalList.item(0).getTextContent();
-            String newTextContent = newList.item(0).getTextContent();
+            if (originalList.getLength() == 1) {
+                String originalTextContent = originalList.item(0).getTextContent();
+                String newTextContent = newList.item(0).getTextContent();
 
-            if (!originalTextContent.equals(newTextContent)) {
-                actions.add(new FieldUpdateAction(date, source, userName, getPath(simpleField.getName()), originalTextContent, newTextContent));
+                if (!originalTextContent.equals(newTextContent)) {
+                    actions.add(new FieldUpdateAction(date, source, userName, getPath(simpleField.getName()), originalTextContent, newTextContent));
+                }
             }
         } else if (originalList.getLength() == 0) {
             String newTextContent = newList.item(0).getTextContent();
