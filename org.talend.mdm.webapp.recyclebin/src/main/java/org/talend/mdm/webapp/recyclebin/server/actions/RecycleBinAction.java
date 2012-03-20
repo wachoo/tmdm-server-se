@@ -88,12 +88,23 @@ public class RecycleBinAction implements RecycleBinService {
 
     }
 
-    private ItemsTrashItem WS2POJO(WSDroppedItem item) {
+    private ItemsTrashItem WS2POJO(WSDroppedItem item) throws Exception {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");//$NON-NLS-1$
-        ItemsTrashItem pojo = new ItemsTrashItem(item.getConceptName(), Util.joinStrings(item.getIds(), "."), df.format(new Date(//$NON-NLS-1$
-                item.getInsertionTime())), item.getInsertionUserName(), item.getWsDataClusterPK().getPk(), item.getPartPath(),
-                item.getProjection(), item.getRevisionID(), item.getUniqueId());
+        String projection = item.getProjection();
+        String[] values = getItemNameByProjection(item.getConceptName(), projection);
+        ItemsTrashItem pojo = new ItemsTrashItem(item.getConceptName(), values[1],
+                Util.joinStrings(item.getIds(), "."), values[0] != null ? values[0] : "", df.format(new Date(//$NON-NLS-1$ //$NON-NLS-2$
+                        item.getInsertionTime())), item.getInsertionUserName(), item.getWsDataClusterPK().getPk(),
+                item.getPartPath(), item.getProjection(), item.getRevisionID(), item.getUniqueId());
         return pojo;
+    }
+
+    private String[] getItemNameByProjection(String conceptName, String projection) throws Exception {
+        String[] values = new String[2];
+        Document doc = Util.parse(projection);
+        values[0] = Util.getFirstTextNode(doc, "ii/p/" + conceptName + "/Name"); //$NON-NLS-1$ //$NON-NLS-2$
+        values[1] = Util.getFirstTextNode(doc, "ii/dmn"); //$NON-NLS-1$
+        return values;
     }
 
     public boolean isEntityPhysicalDeletable(String conceptName) throws ServiceException {

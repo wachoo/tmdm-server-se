@@ -25,7 +25,11 @@ public class ItemsTrashItem extends BaseModelData implements IsSerializable {
 
     private String conceptName;
 
+    private String dataModelName;
+
     private String ids;
+
+    private String itemName;
 
     private String partPath;
 
@@ -41,10 +45,13 @@ public class ItemsTrashItem extends BaseModelData implements IsSerializable {
         super();
     }
 
-    public ItemsTrashItem(String conceptName, String ids, String insertionTime, String insertionUserName, String itemPK,
-            String partPath, String projection, String revisionID, String uniqueId) {
+    public ItemsTrashItem(String conceptName, String dataModelName, String ids, String itemName, String insertionTime,
+            String insertionUserName,
+            String itemPK, String partPath, String projection, String revisionID, String uniqueId) {
         this.conceptName = conceptName;
+        this.dataModelName = dataModelName;
         this.ids = ids;
+        this.itemName = itemName;
         this.insertionTime = insertionTime;
         this.insertionUserName = insertionUserName;
         this.itemPK = itemPK;
@@ -53,7 +60,9 @@ public class ItemsTrashItem extends BaseModelData implements IsSerializable {
         this.revisionID = revisionID;
         this.uniqueId = uniqueId;
         set("conceptName", conceptName); //$NON-NLS-1$
+        set("dataModelName", dataModelName); //$NON-NLS-1$
         set("ids", ids); //$NON-NLS-1$
+        set("itemName", itemName); //$NON-NLS-1$
         set("insertionTime", insertionTime); //$NON-NLS-1$
         set("insertionUserName", insertionUserName); //$NON-NLS-1$
         set("itemPK", itemPK); //$NON-NLS-1$
@@ -134,4 +143,21 @@ public class ItemsTrashItem extends BaseModelData implements IsSerializable {
     public void setProjection(String projection) {
         this.projection = projection;
     }
+
+    public String getItemName() {
+        return itemName;
+    }
+
+    public void setItemName(String itemName) {
+        this.itemName = itemName;
+    }
+
+    public String getDataModelName() {
+        return dataModelName;
+    }
+
+    public void setDataModelName(String dataModelName) {
+        this.dataModelName = dataModelName;
+    }
+
 }

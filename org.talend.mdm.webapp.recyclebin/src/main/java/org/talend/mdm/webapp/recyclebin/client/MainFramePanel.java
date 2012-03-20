@@ -83,6 +83,8 @@ public class MainFramePanel extends ContentPanel {
 
     private Grid<ItemsTrashItem> grid;
 
+    private static final int COLUMN_WIDTH = 100;
+
     private MainFramePanel() {
         setLayout(new FitLayout());
         setBodyBorder(false);
@@ -95,37 +97,47 @@ public class MainFramePanel extends ContentPanel {
         List<ColumnConfig> ccList = new ArrayList<ColumnConfig>();
         ColumnConfig colPK = new ColumnConfig();
         colPK.setId("itemPK");//$NON-NLS-1$
-        colPK.setWidth(120);
+        colPK.setWidth(COLUMN_WIDTH);
         colPK.setHeader(MessagesFactory.getMessages().dataClusterName());
         ccList.add(colPK);
+        ColumnConfig colDataModelName = new ColumnConfig();
+        colDataModelName.setId("dataModelName");//$NON-NLS-1$
+        colDataModelName.setWidth(COLUMN_WIDTH);
+        colDataModelName.setHeader(MessagesFactory.getMessages().dataModelName());
+        ccList.add(colDataModelName);
         ColumnConfig colRevisionID = new ColumnConfig();
         colRevisionID.setId("revisionID");//$NON-NLS-1$
-        colRevisionID.setWidth(120);
+        colRevisionID.setWidth(COLUMN_WIDTH);
         colRevisionID.setHeader(MessagesFactory.getMessages().revisionID());
         ccList.add(colRevisionID);
         ColumnConfig colConceptName = new ColumnConfig();
         colConceptName.setId("conceptName");//$NON-NLS-1$
-        colConceptName.setWidth(150);
+        colConceptName.setWidth(COLUMN_WIDTH);
         colConceptName.setHeader(MessagesFactory.getMessages().conceptName());
         ccList.add(colConceptName);
         ColumnConfig colIds = new ColumnConfig();
         colIds.setId("ids");//$NON-NLS-1$
-        colIds.setWidth(120);
+        colIds.setWidth(COLUMN_WIDTH);
         colIds.setHeader(MessagesFactory.getMessages().Ids());
         ccList.add(colIds);
+        ColumnConfig colItemName = new ColumnConfig();
+        colItemName.setId("itemName");//$NON-NLS-1$
+        colItemName.setWidth(COLUMN_WIDTH);
+        colItemName.setHeader(MessagesFactory.getMessages().name());
+        ccList.add(colItemName);
         ColumnConfig colPartPath = new ColumnConfig();
         colPartPath.setId("partPath");//$NON-NLS-1$
-        colPartPath.setWidth(100);
+        colPartPath.setWidth(COLUMN_WIDTH);
         colPartPath.setHeader(MessagesFactory.getMessages().partPath());
         ccList.add(colPartPath);
         ColumnConfig colUserName = new ColumnConfig();
         colUserName.setId("insertionUserName");//$NON-NLS-1$
-        colUserName.setWidth(120);
+        colUserName.setWidth(COLUMN_WIDTH);
         colUserName.setHeader(MessagesFactory.getMessages().UserName());
         ccList.add(colUserName);
         ColumnConfig colDate = new ColumnConfig();
         colDate.setId("insertionTime");//$NON-NLS-1$
-        colDate.setWidth(120);
+        colDate.setWidth(COLUMN_WIDTH);
         colDate.setHeader(MessagesFactory.getMessages().Date());
         ccList.add(colDate);
         ColumnConfig colProjection = new ColumnConfig("projection", "projection", 0);//$NON-NLS-1$ //$NON-NLS-2$

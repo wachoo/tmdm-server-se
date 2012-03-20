@@ -48,4 +48,8 @@ public interface RecycleBinMessages extends Messages {
     String restore_confirm();
 
     String overwrite_confirm();
+
+    String name();
+
+    String dataModelName();
 }
