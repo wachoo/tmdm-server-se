@@ -144,5 +144,21 @@ public class JournalGridModel extends BaseModel implements IsSerializable {
     public void setOperationDate(String operationDate) {
         set("operationTime",  operationDate); //$NON-NLS-1$
         this.operationDate = operationDate;
-    }    
+    }
+    
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(ids).append(","); //$NON-NLS-1$
+        sb.append(dataContainer).append(","); //$NON-NLS-1$
+        sb.append(dataModel).append(","); //$NON-NLS-1$
+        sb.append(entity).append(","); //$NON-NLS-1$
+        sb.append(key).append(","); //$NON-NLS-1$
+        sb.append(revisionId).append(","); //$NON-NLS-1$
+        sb.append(operationType).append(","); //$NON-NLS-1$
+        sb.append(operationTime).append(","); //$NON-NLS-1$
+        sb.append(source).append(","); //$NON-NLS-1$
+        sb.append(userName);
+
+        return sb.toString();
+    }
 }

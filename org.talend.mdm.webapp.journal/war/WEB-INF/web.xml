@@ -25,7 +25,22 @@
 		<servlet-name>journalExportServlet</servlet-name>
 		<url-pattern>/journalExport</url-pattern>
 	</servlet-mapping>   
-  
+
+    <servlet>
+        <servlet-name>dwr-invoker</servlet-name>
+        <display-name>DWR Servlet</display-name>
+        <servlet-class>uk.ltd.getahead.dwr.DWRServlet</servlet-class>
+        <init-param>
+            <param-name>debug</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </servlet>
+    
+	<servlet-mapping>
+        <servlet-name>dwr-invoker</servlet-name>
+        <url-pattern>/secure/dwr/*</url-pattern>
+    </servlet-mapping>
+      
     <!-- Default page to serve -->
     <welcome-file-list>
         <welcome-file>Journal.html</welcome-file>

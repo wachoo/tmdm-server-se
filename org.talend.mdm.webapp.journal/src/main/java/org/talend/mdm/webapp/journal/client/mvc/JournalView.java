@@ -62,6 +62,7 @@ public class JournalView extends View {
         BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
         centerData.setMargins(new Margins(0));
         JournalTabPanel southPanel = JournalTabPanel.getInstance();
+        southPanel.setSelectionItem();
         container.add(southPanel, centerData);
     }
     

@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
 import org.talend.mdm.webapp.journal.client.Journal;
 import org.talend.mdm.webapp.journal.client.JournalServiceAsync;
@@ -63,6 +64,8 @@ public class JournalGridPanel extends ContentPanel {
     
     private PagingToolBarEx pagetoolBar;
 
+    private PagingLoader<PagingLoadResult<JournalGridModel>> loader;
+    
     private final static int PAGE_SIZE = 20;
 
     public JournalGridPanel() {
@@ -149,7 +152,7 @@ public class JournalGridPanel extends ContentPanel {
             }
         };
         
-        final PagingLoader<PagingLoadResult<JournalGridModel>> loader = new BasePagingLoader<PagingLoadResult<JournalGridModel>>(proxy);
+        loader = new BasePagingLoader<PagingLoadResult<JournalGridModel>>(proxy);
         loader.setRemoteSort(true);
         
         store = new ListStore<JournalGridModel>(loader);
@@ -183,21 +186,7 @@ public class JournalGridPanel extends ContentPanel {
 
             public void handleEvent(GridEvent<JournalGridModel> be) {
                 final JournalGridModel gridModel = be.getModel();
-                service.getDetailTreeModel(gridModel.getIds(), new SessionAwareAsyncCallback<JournalTreeModel>() {
-
-                    public void onSuccess(final JournalTreeModel root) {
-                        service.isEnterpriseVersion(new SessionAwareAsyncCallback<Boolean>() {
-                            
-                            public void onSuccess(Boolean isEnterprise) {
-                                if (GWT.isScript()) {
-                                    JournalGridPanel.this.openGWTPanel(isEnterprise, gridModel, root);
-                                } else {
-                                    JournalGridPanel.this.openDebugPanel(isEnterprise, gridModel, root);
-                                }
-                            }
-                        });
-                    }
-                });
+                JournalGridPanel.this.openTabPanel(gridModel);
             }
         });
         
@@ -207,6 +196,24 @@ public class JournalGridPanel extends ContentPanel {
     
     public void refreshGrid() {
         pagetoolBar.refresh();
+    }
+    
+    public void openTabPanel(final JournalGridModel gridModel){
+        service.getDetailTreeModel(gridModel.getIds(), new SessionAwareAsyncCallback<JournalTreeModel>() {
+
+            public void onSuccess(final JournalTreeModel root) {
+                service.isEnterpriseVersion(new SessionAwareAsyncCallback<Boolean>() {
+                    
+                    public void onSuccess(Boolean isEnterprise) {
+                        if (GWT.isScript()) {
+                            JournalGridPanel.this.openGWTPanel(isEnterprise, gridModel, root);
+                        } else {
+                            JournalGridPanel.this.openDebugPanel(isEnterprise, gridModel, root);
+                        }
+                    }
+                });
+            }
+        });
     }
     
     private native void openHistoryTabPanel(String ids, JournalHistoryPanel source)/*-{
@@ -317,7 +324,7 @@ public class JournalGridPanel extends ContentPanel {
     
     private void openGWTPanel(Boolean isEnterprise, JournalGridModel gridModel, JournalTreeModel root) {
         if (isEnterprise) {
-            int width = JournalGridPanel.this.getWidth()/2 - 40;
+            int width = JournalTabPanel.getInstance().getWidth()/2 - 2;
             JournalHistoryPanel journalHistoryPanel = new JournalHistoryPanel(root, gridModel, root.isAuth(), width);
             this.openHistoryTabPanel(gridModel.getIds(), journalHistoryPanel);
             journalHistoryPanel.getJournalDataPanel().getTree().setExpanded(root, true);
@@ -326,5 +333,23 @@ public class JournalGridPanel extends ContentPanel {
             this.openDataTabPanel(gridModel.getIds(), journalDataPanel);
             journalDataPanel.getTree().setExpanded(root, true);
         }
+    }
+  
+    public String getLoaderConfigStr() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(","); //$NON-NLS-1$
+        sb.append(loader.getLimit()).append(","); //$NON-NLS-1$
+        sb.append(loader.getSortDir().toString()).append(","); //$NON-NLS-1$
+        sb.append(loader.getSortField()).append(","); //$NON-NLS-1$
+        sb.append(UrlUtil.getLanguage());
+        return sb.toString();
+    }
+    
+    public int getOffset() {
+        return loader.getOffset();
+    }
+    
+    public int getLimit() {
+        return loader.getLimit();
     }
 }

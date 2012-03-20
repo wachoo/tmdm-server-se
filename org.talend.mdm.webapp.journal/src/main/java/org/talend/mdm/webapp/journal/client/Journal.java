@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.journal.client;
 
 import org.talend.mdm.webapp.journal.client.mvc.JournalController;
+import org.talend.mdm.webapp.journal.client.util.TimelineUtil;
 import org.talend.mdm.webapp.journal.client.widget.JournalSearchPanel;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 
@@ -57,6 +58,8 @@ public class Journal implements EntryPoint {
         if (GWT.isScript()) {
             XDOM.setAutoIdPrefix(GWT.getModuleName() + "-" + XDOM.getAutoIdPrefix()); //$NON-NLS-1$
             registerPubService();
+            TimelineUtil.regLoadDate();
+            TimelineUtil.regShowDialog();
             Log.setUncaughtExceptionHandler();
             Registry.register(JOURNAL_SERVICE, GWT.create(JournalService.class));
             Registry.register(SEARCH_CRITERIA, new JournalSearchCriteria());
@@ -65,6 +68,8 @@ public class Journal implements EntryPoint {
             dispatcher.addController(new JournalController());
             registerJournalService();
         } else {
+            TimelineUtil.regLoadDate();
+            TimelineUtil.regShowDialog();
             Log.setUncaughtExceptionHandler();
             Registry.register(JOURNAL_SERVICE, GWT.create(JournalService.class));
             Registry.register(SEARCH_CRITERIA, new JournalSearchCriteria());

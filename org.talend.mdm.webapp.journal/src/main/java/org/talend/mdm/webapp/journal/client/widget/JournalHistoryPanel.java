@@ -48,7 +48,7 @@ public class JournalHistoryPanel extends ContentPanel {
         
         journalDataPanel = new JournalDataPanel(root, gridModel);
         this.add(journalDataPanel, northData);        
-        
+
         BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, width);
         westData.setCollapsible(false);
         westData.setSplit(true);
