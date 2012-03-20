@@ -105,7 +105,7 @@ public class RecycleBinAction implements RecycleBinService {
         }
     }
 
-    public void removeDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids)
+    public String removeDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids)
             throws ServiceException {
         try {
             // WSDroppedItemPK
@@ -125,7 +125,7 @@ public class RecycleBinAction implements RecycleBinService {
                 }
             }
 
-            if (outputErrorMessage != null && "error".equals(errorCode)) { //$NON-NLS-1$                
+            if (outputErrorMessage != null && ("error".equals(errorCode) || "warning".equals(errorCode))) { //$NON-NLS-1$ //$NON-NLS-2$                
                 if (message == null)
                     message = ""; //$NON-NLS-1$
                 throw new ServiceException(message);
@@ -138,23 +138,24 @@ public class RecycleBinAction implements RecycleBinService {
 
                 String xml = createUpdateReport(ids1, conceptName, "PHYSICAL_DELETE", null); //$NON-NLS-1$
                 Util.persistentUpdateReport(xml, true);
+
+                return "info".equals(errorCode) ? message : null; //$NON-NLS-1$
             }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
         }
-
     }
-    
-    public boolean checkConflict(String itemPk,String conceptName, String id) throws ServiceException{
+
+    public boolean checkConflict(String itemPk, String conceptName, String id) throws ServiceException {
         try {
-            String ids[] = {id};
+            String ids[] = { id };
             WSDataClusterPK wddcpk = new WSDataClusterPK(itemPk);
-            return Util.getPort().existsItem(new WSExistsItem(new WSItemPK(wddcpk, conceptName, ids))).is_true();              
+            return Util.getPort().existsItem(new WSExistsItem(new WSItemPK(wddcpk, conceptName, ids))).is_true();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            throw new ServiceException(e.getLocalizedMessage());           
-        }        
+            throw new ServiceException(e.getLocalizedMessage());
+        }
     }
 
     public void recoverDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids)
