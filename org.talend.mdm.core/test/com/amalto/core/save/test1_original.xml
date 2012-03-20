@@ -10,11 +10,13 @@
   -->
 
 <Agency>
-    <Id>111333</Id>
+    <Id>5258f292-5670-473b-bc01-8b63434682f3</Id>
     <Name>Portland</Name>
     <City>Portland</City>
     <State>ME</State>
     <Zip>04102</Zip>
     <Region>EAST</Region>
-    <MoreInfo>http://www.site.fr</MoreInfo>
+    <Information>
+        <MoreInfo>http://www.site.fr</MoreInfo>
+    </Information>
 </Agency>

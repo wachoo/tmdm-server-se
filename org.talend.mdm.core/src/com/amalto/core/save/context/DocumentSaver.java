@@ -22,4 +22,6 @@ public interface DocumentSaver {
     void save(SaverSession session, DocumentSaverContext context);
 
     String[] getSavedId();
+
+    String getSavedConceptName();
 }

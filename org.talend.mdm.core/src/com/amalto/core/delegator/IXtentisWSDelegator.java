@@ -1563,7 +1563,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             session.end();
 
             String[] savedId = saver.getSavedId();
-            return new WSItemPK(dataClusterPK, wsPutItem.getConceptName(), savedId);
+            String savedConceptName = saver.getSavedConceptName();
+            return new WSItemPK(dataClusterPK, savedConceptName, savedId);
         } catch (Exception e) {
             if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
@@ -1686,7 +1687,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             session.end();
 
             String[] savedId = saver.getSavedId();
-            return new WSItemPK(dataClusterPK, wsPutItem.getConceptName(), savedId);
+            String conceptName = saver.getSavedConceptName();
+            return new WSItemPK(dataClusterPK, conceptName, savedId);
         } catch (Exception e) {
             if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();

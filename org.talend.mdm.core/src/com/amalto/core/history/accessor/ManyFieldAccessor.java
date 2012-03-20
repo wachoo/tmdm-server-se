@@ -37,6 +37,9 @@ class ManyFieldAccessor implements DOMAccessor {
     private Node getCollectionItemNode() {
         Node collectionItemNode = null;
         Node node = parent.getNode();
+        if (node == null) {
+            throw new IllegalStateException("Could not find parent node in document.");
+        }
         NodeList children = node.getChildNodes();
 
         if (index > children.getLength()) {
@@ -88,7 +91,7 @@ class ManyFieldAccessor implements DOMAccessor {
             }
 
             while (currentCollectionSize <= index) {
-                parentNode.appendChild(domDocument.createElement(fieldName));
+                parentNode.appendChild(domDocument.createElementNS(domDocument.getNamespaceURI(), fieldName));
                 currentCollectionSize++;
             }
         }
@@ -108,7 +111,7 @@ class ManyFieldAccessor implements DOMAccessor {
     }
 
     public boolean exist() {
-        return getCollectionItemNode() != null;
+        return parent.exist() && getCollectionItemNode() != null;
     }
 
     public void markModified() {

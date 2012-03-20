@@ -39,9 +39,12 @@ class AttributeAccessor implements DOMAccessor {
 
     private Node getAttribute() {
         Node parentNode = parent.getNode();
+        if (parentNode == null) {
+            throw new IllegalStateException("Could not find a parent node in document (check if document has a root element).");
+        }
         NamedNodeMap attributes = parentNode.getAttributes();
         if (attributes == null) {
-            throw new IllegalStateException("Could not find a parent node in document (check if document has a root element).");
+            throw new IllegalStateException("Could not find attributes on parent node.");
         }
 
         return attributes.getNamedItem(attributeName);
@@ -80,7 +83,7 @@ class AttributeAccessor implements DOMAccessor {
         Node parentNode = parent.getNode();
         Node attribute = getAttribute();
         if (attribute == null) {
-            Attr newAttribute = domDocument.createAttribute(attributeName);
+            Attr newAttribute = domDocument.createAttributeNS(domDocument.getNamespaceURI(), attributeName);
             parentNode.getAttributes().setNamedItem(newAttribute);
         }
     }
@@ -101,7 +104,7 @@ class AttributeAccessor implements DOMAccessor {
     }
 
     public boolean exist() {
-        return getAttribute() != null;
+        return parent.exist() && getAttribute() != null;
     }
 
     public void markModified() {

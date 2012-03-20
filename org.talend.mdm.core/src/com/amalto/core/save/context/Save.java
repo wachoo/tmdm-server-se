@@ -30,10 +30,14 @@ class Save implements DocumentSaver {
         Element documentElement = context.getDatabaseDocument().asDOM().getDocumentElement();
         ItemPOJO item = new ItemPOJO(dataCluster, typeName, ids, System.currentTimeMillis(), documentElement);
 
-        context.getDatabase().save(item);
+        context.getSaverSource().save(item);
     }
 
     public String[] getSavedId() {
+        throw new NotImplementedException(); // TODO
+    }
+
+    public String getSavedConceptName() {
         throw new NotImplementedException(); // TODO
     }
 }

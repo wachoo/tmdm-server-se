@@ -77,7 +77,7 @@ public interface DocumentSaverContext {
 
     String getRevisionID();
 
-    SaverSource getDatabase();
+    SaverSource getSaverSource();
 
     void setDatabaseDocument(MutableDocument databaseDocument);
 

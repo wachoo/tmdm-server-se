@@ -67,7 +67,7 @@ class UnaryFieldAccessor implements DOMAccessor {
         Document domDocument = document.asDOM();
         Element element = getElement();
         if (element == null) {
-            Element newElement = domDocument.createElement(fieldName);
+            Element newElement = domDocument.createElementNS(domDocument.getNamespaceURI(), fieldName);
             Node parentNode = parent.getNode();
             parentNode.appendChild(newElement);
         }
@@ -84,7 +84,7 @@ class UnaryFieldAccessor implements DOMAccessor {
     }
 
     public boolean exist() {
-        return getElement() != null;
+        return parent.exist() && getElement() != null;
     }
 
     public void markModified() {

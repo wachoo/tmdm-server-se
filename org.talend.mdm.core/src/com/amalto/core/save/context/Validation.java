@@ -29,18 +29,23 @@ class Validation implements DocumentSaver {
         try {
             // TODO Schematron
             Validator validator = new XmlSchemaValidator(context.getDataModelName(),
-                    context.getDatabase().getSchema(context.getDataModelName()),
+                    context.getSaverSource().getSchema(context.getDataModelName()),
                     Validator.NO_OP_VALIDATOR);
             Element element = context.getDatabaseValidationDocument().asDOM().getDocumentElement();
             validator.validate(element);
 
             next.save(session, context);
         } catch (Exception e) {
+            System.out.println("context = " + context.getDatabaseValidationDocument().exportToString());
             throw new RuntimeException("Failed to validate document", e);
         }
     }
 
     public String[] getSavedId() {
         return next.getSavedId();
+    }
+
+    public String getSavedConceptName() {
+        return next.getSavedConceptName();
     }
 }

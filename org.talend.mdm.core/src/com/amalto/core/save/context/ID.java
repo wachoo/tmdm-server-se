@@ -33,6 +33,8 @@ class ID implements DocumentSaver {
 
     private final List<String> ids = new LinkedList<String>();
 
+    private String savedTypeName;
+    
     ID(DocumentSaver next) {
         this.next = next;
     }
@@ -41,7 +43,7 @@ class ID implements DocumentSaver {
         try {
             ComplexTypeMetadata type = context.getType();
             List<FieldMetadata> keyFields = type.getKeyFields();
-            SaverSource database = context.getDatabase();
+            SaverSource database = context.getSaverSource();
             String universe = database.getUniverse();
             String dataCluster = context.getDataCluster();
 
@@ -65,7 +67,7 @@ class ID implements DocumentSaver {
                     if (userAccessor.exist()) {
                         generatedIdValue = userAccessor.get();
                     } else {
-                        generatedIdValue = String.valueOf(AutoIncrementGenerator.generateNum(universe, dataCluster, type.getName() + "." + keyField.getName().replaceAll("/", ".")));
+                        generatedIdValue = String.valueOf(AutoIncrementGenerator.generateNum(universe, dataCluster, type.getName() + "." + keyField.getName().replaceAll("/", ".")));   //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         hasMetAutoIncrement = true;
                     }
                     currentIdValue = generatedIdValue;
@@ -111,6 +113,7 @@ class ID implements DocumentSaver {
             }
 
             // Continue save
+            savedTypeName = context.getType().getName();
             context.setId(savedId);
             next.save(session, context);
 
@@ -126,5 +129,9 @@ class ID implements DocumentSaver {
 
     public String[] getSavedId() {
         return ids.toArray(new String[ids.size()]);
+    }
+
+    public String getSavedConceptName() {
+        return savedTypeName;
     }
 }

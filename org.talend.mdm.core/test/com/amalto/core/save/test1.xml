@@ -15,4 +15,8 @@
     <State>ME</State>
     <Zip>04102</Zip>
     <Region>EAST</Region>
+    <Information>
+        <MoreInfo>http://www.newSite.org</MoreInfo>
+        <MoreInfo>http://www.newSite2.org</MoreInfo>
+    </Information>
 </Agency>

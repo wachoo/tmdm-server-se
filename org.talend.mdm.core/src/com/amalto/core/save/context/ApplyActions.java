@@ -38,4 +38,8 @@ class ApplyActions implements DocumentSaver {
     public String[] getSavedId() {
         return next.getSavedId();
     }
+
+    public String getSavedConceptName() {
+        return next.getSavedConceptName();
+    }
 }

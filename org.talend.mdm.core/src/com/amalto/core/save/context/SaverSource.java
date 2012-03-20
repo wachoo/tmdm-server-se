@@ -39,4 +39,6 @@ public interface SaverSource {
     OutputReport invokeBeforeSaving(DocumentSaverContext context, MutableDocument updateReportDocument);
 
     Set<String> getCurrentUserRoles();
+
+    String getUserName();
 }

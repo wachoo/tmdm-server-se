@@ -85,8 +85,8 @@ public class ReportDocumentSaverContext implements DocumentSaverContext {
         return delegate.getRevisionID();
     }
 
-    public SaverSource getDatabase() {
-        return delegate.getDatabase();
+    public SaverSource getSaverSource() {
+        return delegate.getSaverSource();
     }
 
     public void setDatabaseDocument(MutableDocument databaseDocument) {

@@ -16,12 +16,15 @@ import com.amalto.core.history.Document;
 import com.amalto.core.history.DocumentTransformer;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
+import com.amalto.core.history.accessor.DOMAccessorFactory;
 import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.util.Util;
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import javax.xml.transform.TransformerException;
+import java.util.StringTokenizer;
 
 public class DOMDocument implements MutableDocument {
 
@@ -68,7 +71,7 @@ public class DOMDocument implements MutableDocument {
     }
 
     public Accessor createAccessor(String path) {
-        return new XPathAccessor(domDocument, rootElementName, path);
+        return DOMAccessorFactory.createAccessor(rootElementName + '/' + path, this);
     }
 
     public org.w3c.dom.Document asDOM() {

@@ -14,12 +14,10 @@ package com.amalto.core.save.context;
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.action.CreateAction;
-import com.amalto.core.history.action.FieldUpdateAction;
+import com.amalto.core.metadata.*;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
-import com.amalto.core.util.UpdateReportItem;
-import com.amalto.core.util.Util;
-import org.w3c.dom.Element;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
 
@@ -33,13 +31,12 @@ class GenerateActions implements DocumentSaver {
 
     public void save(SaverSession session, DocumentSaverContext context) {
         final MutableDocument userDocument = context.getUserDocument();
-        Element userDocumentElement = userDocument.asDOM().getDocumentElement();
         MutableDocument databaseDocument = context.getDatabaseDocument();
-        List<Action> result;
         Date date = new Date(System.currentTimeMillis());
-        String source = "";
-        String userName = "";
+        String source = StringUtils.EMPTY; // TODO
+        String userName = context.getSaverSource().getUserName();
 
+        List<Action> actions;
         if (databaseDocument.asDOM().getDocumentElement() == null) {
             Action action = new CreateAction(date, source, userName) {
                 @Override
@@ -48,29 +45,24 @@ class GenerateActions implements DocumentSaver {
                     return document;
                 }
             };
-            result = Collections.singletonList(action);
+            actions = Collections.singletonList(action);
         } else {
-            // get updated path
-            Element databaseElement = databaseDocument.asDOM().getDocumentElement();
-            List<Action> updateActions = new LinkedList<Action>();
-            try {
-                // TODO Not sure the implementation of this is really efficient (to be improved).
-                Map<String, UpdateReportItem> updatedPath = Util.compareElement("/" + databaseElement.getLocalName(), userDocumentElement, databaseElement);//$NON-NLS-1$
-                for (Map.Entry<String, UpdateReportItem> updatedElement : updatedPath.entrySet()) {
-                    UpdateReportItem reportItem = updatedElement.getValue();
-                    updateActions.add(new FieldUpdateAction(date, source, userName, reportItem.getPath(), reportItem.getOldValue(), reportItem.getNewValue()));
-                }
-                result = updateActions;
-            } catch (Exception e) {
-                throw new RuntimeException("Unable to generate update report.", e);
-            }
+            // get updated paths
+            ComplexTypeMetadata type = context.getType();
+            UpdateActionCreator actionCreator = new UpdateActionCreator(databaseDocument.asDOM(), userDocument.asDOM(), source, userName);
+            actions = type.accept(actionCreator);
         }
-        context.setActions(result);
-        
+        context.setActions(actions);
+
         next.save(session, context);
     }
 
     public String[] getSavedId() {
         return next.getSavedId();
     }
+
+    public String getSavedConceptName() {
+        return next.getSavedConceptName();
+    }
+
 }

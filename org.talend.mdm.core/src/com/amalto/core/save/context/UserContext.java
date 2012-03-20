@@ -118,7 +118,7 @@ class UserContext implements DocumentSaverContext {
         return revisionId;
     }
 
-    public SaverSource getDatabase() {
+    public SaverSource getSaverSource() {
         return dataSource;
     }
 

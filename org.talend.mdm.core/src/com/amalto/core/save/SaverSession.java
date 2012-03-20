@@ -43,10 +43,8 @@ public class SaverSession {
     }
 
     public void end(Committer committer) {
-        System.out.println("SaverSession.end");
         try {
             for (String startedTransaction : startedTransactions) {
-                System.out.println("Commit on container: '" + startedTransaction + "'.");
                 committer.commit(startedTransaction);
             }
         } finally {

@@ -63,9 +63,9 @@ class DefaultDataSource implements SaverSource {
 
     public InputStream get(String[] key) {
         try {
-            String documentAsString = database.getDocumentAsString(revisionId, dataClusterName, Util.joinStrings(key, "."));
+            String documentAsString = database.getDocumentAsString(revisionId, dataClusterName, Util.joinStrings(key, ".")); //$NON-NLS-1$
             if (documentAsString != null) {
-                return new ByteArrayInputStream(documentAsString.getBytes("UTF-8"));
+                return new ByteArrayInputStream(documentAsString.getBytes("UTF-8")); //$NON-NLS-1$
             } else {
                 return null;
             }
@@ -95,7 +95,7 @@ class DefaultDataSource implements SaverSource {
             if (schemaAsString == null) {
                 schemaAsString = dataModel.getDataModel(new DataModelPOJOPK(this.dataModelName)).getSchema();
             }
-            return new ByteArrayInputStream(schemaAsString.getBytes("UTF-8"));
+            return new ByteArrayInputStream(schemaAsString.getBytes("UTF-8")); //$NON-NLS-1$
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -130,6 +130,14 @@ class DefaultDataSource implements SaverSource {
     public Set<String> getCurrentUserRoles() {
         try {
             return LocalUser.getLocalUser().getRoles();
+        } catch (XtentisException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getUserName() {
+        try {
+            return LocalUser.getLocalUser().getUsername();
         } catch (XtentisException e) {
             throw new RuntimeException(e);
         }

@@ -28,7 +28,7 @@ class Security implements DocumentSaver {
     public void save(SaverSession session, DocumentSaverContext context) {
         List<Action> actions = context.getActions();
         for (Action action : actions) {
-            if (!action.isAllowed(context.getDatabase().getCurrentUserRoles())) {
+            if (!action.isAllowed(context.getSaverSource().getCurrentUserRoles())) {
                 throw new IllegalArgumentException("User is not allowed to change data."); // TODO Details
             }
         }
@@ -38,5 +38,9 @@ class Security implements DocumentSaver {
 
     public String[] getSavedId() {
         return next.getSavedId();
+    }
+
+    public String getSavedConceptName() {
+        return next.getSavedConceptName();
     }
 }
