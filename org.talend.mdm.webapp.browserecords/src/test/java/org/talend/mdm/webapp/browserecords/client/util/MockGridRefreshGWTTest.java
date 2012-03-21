@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.util;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -116,6 +117,18 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         detailToolBar.setHierarchyCall(false);
         onSaveItem(event);
         assertEquals(false, isGridRefresh);
+        
+        detailToolBar.setFkToolBar(true);
+        detailToolBar.setOutMost(true);
+        detailToolBar.setHierarchyCall(false);
+        onDeleteItem();
+        assertEquals(true, isGridRefresh);
+        
+        detailToolBar.setFkToolBar(true);
+        detailToolBar.setOutMost(true);
+        detailToolBar.setHierarchyCall(false);
+        onDeleteItemBeans();
+        assertEquals(true, isGridRefresh);
     }
 
     private void onSaveItem(AppEvent event) {
@@ -134,7 +147,27 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
             
         });
     }
+    
+    private void onDeleteItem(){
+        service.deleteItemBean(null, false, "", new SessionAwareAsyncCallback<String>(){
 
+            public void onSuccess(String result) {
+                assertEquals("true", result);
+                gridRefresh();
+            }        
+        });
+    }
+    
+    private void onDeleteItemBeans(){
+        service.deleteItemBeans(null, true, "en", new SessionAwareAsyncCallback<List<String>>() {
+            
+            public void onSuccess(List<String> result) {
+                assertNotNull(result);
+                gridRefresh();
+            }
+        });
+    }
+    
     private void gridRefresh() {
         isGridRefresh = true;
     }
@@ -171,15 +204,18 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         }
 
         public void deleteItemBean(ItemBean item, boolean override, String language, AsyncCallback<String> callback) {
+            callback.onSuccess("true");
         }
 
         public void deleteItemBeans(List<ItemBean> items, boolean override, String language, AsyncCallback<List<String>> callback) {
+            callback.onSuccess(new ArrayList<String>());
         }
 
         public void checkFKIntegrity(List<ItemBean> selectedItems, AsyncCallback<Map<ItemBean, FKIntegrityResult>> asyncCallback) {
         }
 
         public void logicalDeleteItem(ItemBean item, String path, boolean override, AsyncCallback<Void> callback) {
+           
         }
 
         public void logicalDeleteItems(List<ItemBean> items, String path, boolean override, AsyncCallback<Void> callback) {
