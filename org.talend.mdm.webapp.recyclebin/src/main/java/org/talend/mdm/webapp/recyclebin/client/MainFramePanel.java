@@ -223,7 +223,7 @@ public class MainFramePanel extends ContentPanel {
 
                             public void handleEvent(MessageBoxEvent be) {
                                 if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                                    service.checkConflict(model.get("itemPK").toString(), model //$NON-NLS-1$//$NON-NLS-2$
+                                    service.checkConflict(model.get("itemPK").toString(), model //$NON-NLS-1$
                                             .get("conceptName").toString(), model.get("ids").toString(), //$NON-NLS-1$ //$NON-NLS-2$
                                             new SessionAwareAsyncCallback<Boolean>() {
 
@@ -351,11 +351,15 @@ public class MainFramePanel extends ContentPanel {
         service.removeDroppedItem(model.get("itemPK").toString(), model.get("partPath").toString(),//$NON-NLS-1$//$NON-NLS-2$
                 model.get("revisionId") == null ? null : model.get("revisionId").toString(), model //$NON-NLS-1$//$NON-NLS-2$
                         .get("conceptName").toString(), model.get("ids").toString(),//$NON-NLS-1$//$NON-NLS-2$
-                new SessionAwareAsyncCallback<Void>() {
+                new SessionAwareAsyncCallback<String>() {
 
-                    public void onSuccess(Void arg0) {
+                    public void onSuccess(String msg) {
                         pagetoolBar.refresh();
                         grid.getStore().remove((ItemsTrashItem) model);
+                        if (msg != null) {
+                            MessageBox.info(BaseMessagesFactory.getMessages().info_title(),
+                                    MultilanguageMessageParser.pickOutISOMessage(msg), null);
+                        }
                     }
 
                     @Override
@@ -378,7 +382,7 @@ public class MainFramePanel extends ContentPanel {
             instance = new MainFramePanel();
         return instance;
     }
-    
+
     public void recoverDroppedItem(final BaseModelData model, final Grid<BaseModelData> grid) {
         service.recoverDroppedItem(model.get("itemPK").toString(), model.get("partPath").toString(),//$NON-NLS-1$//$NON-NLS-2$
                 model.get("revisionId") == null ? null : model.get("revisionId").toString(), model //$NON-NLS-1$//$NON-NLS-2$
@@ -394,6 +398,6 @@ public class MainFramePanel extends ContentPanel {
     }
 
     private native void refreshBrowseRecordsGrid()/*-{
-        $wnd.amalto.browserecords.BrowseRecords.refreshGrid();
-    }-*/;   
+		$wnd.amalto.browserecords.BrowseRecords.refreshGrid();
+    }-*/;
 }

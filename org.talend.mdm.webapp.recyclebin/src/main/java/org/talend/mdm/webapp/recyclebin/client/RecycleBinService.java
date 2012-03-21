@@ -28,7 +28,7 @@ public interface RecycleBinService extends RemoteService {
 
     PagingLoadResult<ItemsTrashItem> getTrashItems(String regex, PagingLoadConfig load) throws ServiceException;
 
-    void removeDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids) throws ServiceException;
+    String removeDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids) throws ServiceException;
 
     void recoverDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids) throws ServiceException;
 
