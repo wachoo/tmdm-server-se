@@ -29,7 +29,7 @@ class Validation implements DocumentSaver {
         try {
             // TODO Schematron
             Validator validator = new XmlSchemaValidator(context.getDataModelName(),
-                    context.getSaverSource().getSchema(context.getDataModelName()),
+                    session.getSaverSource().getSchema(context.getDataModelName()),
                     Validator.NO_OP_VALIDATOR);
             Element element = context.getDatabaseValidationDocument().asDOM().getDocumentElement();
             validator.validate(element);

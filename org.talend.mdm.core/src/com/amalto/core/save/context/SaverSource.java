@@ -23,9 +23,9 @@ import java.util.Set;
  *
  */
 public interface SaverSource {
-    InputStream get(String typeName, String revisionId, String[] key);
+    InputStream get(String dataClusterName, String typeName, String revisionId, String[] key);
 
-    boolean exist(String typeName, String revisionId, String[] key);
+    boolean exist(String dataCluster, String typeName, String revisionId, String[] key);
 
     MetadataRepository getMetadataRepository(String dataModelName);
 

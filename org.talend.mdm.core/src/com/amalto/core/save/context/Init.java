@@ -11,48 +11,44 @@
 
 package com.amalto.core.save.context;
 
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
-import com.amalto.core.util.AutoIncrementGenerator;
-import com.amalto.core.util.LocalUser;
-import com.amalto.core.util.Util;
-import com.amalto.core.util.XtentisException;
-import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
-public class Checks implements DocumentSaver {
+public class Init implements DocumentSaver {
 
-    public static final Logger LOGGER = Logger.getLogger(Checks.class);
+    private static final String AUTO_INCREMENT_TYPE_NAME = "AutoIncrement";  //$NON-NLS-1$
 
     private final DocumentSaver next;
 
-    Checks(DocumentSaver next) {
+    Init(DocumentSaver next) {
         this.next = next;
     }
 
     public void save(SaverSession session, DocumentSaverContext context) {
-        SaverSource saverSource = context.getSaverSource();
+        SaverSource saverSource = session.getSaverSource();
         String dataClusterName = context.getDataCluster();
-        String concept = context.getType().getName();
         String dataModelName = context.getDataModelName();
+
+        // Get type name
+        String typeName = context.getUserDocument().asDOM().getDocumentElement().getNodeName();
+        ComplexTypeMetadata type = saverSource.getMetadataRepository(dataModelName).getComplexType(typeName);
+        context.setType(type);
 
         // check cluster exist or not
         if (!XSystemObjects.isExist(XObjectType.DATA_CLUSTER, dataClusterName)) {
             // get the universe and revision ID
             String universe = saverSource.getUniverse();
             if (universe == null) {
-                String err = "ERROR: no Universe set for user '" + saverSource.getUserName() + "'";
-                LOGGER.error(err);
-                throw new RuntimeException(err);
+                throw new RuntimeException("No universe set for user '" + saverSource.getUserName() + "'");
             }
 
-            String revisionID = saverSource.getConceptRevisionID(concept);
+            String revisionID = saverSource.getConceptRevisionID(typeName);
             context.setRevisionId(revisionID);
             if (!saverSource.existCluster(revisionID, dataClusterName)) {
-                throw new RuntimeException("DataContainer R-" + revisionID + "/" + dataClusterName + " doesn't exists!");
+                throw new RuntimeException("Data container '" + dataClusterName + "' does not exist in revision '" + revisionID + "'.");
             }
         }
 
@@ -64,7 +60,7 @@ public class Checks implements DocumentSaver {
         }
 
         // reset the AutoIncrement
-        if (("AutoIncrement".equals(concept) && XSystemObjects.DC_CONF.getName().equals(dataModelName))) { //$NON-NLS-1$
+        if ((AUTO_INCREMENT_TYPE_NAME.equals(typeName) && XSystemObjects.DC_CONF.getName().equals(dataModelName))) {
             saverSource.initAutoIncrement();
         }
     }

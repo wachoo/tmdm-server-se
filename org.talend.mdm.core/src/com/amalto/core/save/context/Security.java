@@ -16,6 +16,7 @@ import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 
 import java.util.List;
+import java.util.Set;
 
 class Security implements DocumentSaver {
 
@@ -27,8 +28,9 @@ class Security implements DocumentSaver {
 
     public void save(SaverSession session, DocumentSaverContext context) {
         List<Action> actions = context.getActions();
+        Set<String> currentUserRoles = session.getSaverSource().getCurrentUserRoles();
         for (Action action : actions) {
-            if (!action.isAllowed(context.getSaverSource().getCurrentUserRoles())) {
+            if (!action.isAllowed(currentUserRoles)) {
                 throw new IllegalArgumentException("User is not allowed to change data."); // TODO Details
             }
         }

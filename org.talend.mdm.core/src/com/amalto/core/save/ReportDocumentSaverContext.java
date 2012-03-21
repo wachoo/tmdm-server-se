@@ -14,7 +14,6 @@ package com.amalto.core.save;
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.save.context.SaverSource;
 import com.amalto.core.save.context.DocumentSaver;
 
 import java.util.List;
@@ -23,14 +22,17 @@ public class ReportDocumentSaverContext implements DocumentSaverContext {
 
     private final DocumentSaverContext delegate;
 
+    private final String changeSource;
+
     private MutableDocument updateReportDocument;
 
-    private ReportDocumentSaverContext(DocumentSaverContext delegate) {
+    private ReportDocumentSaverContext(DocumentSaverContext delegate, String changeSource) {
         this.delegate = delegate;
+        this.changeSource = changeSource;
     }
 
-    public static ReportDocumentSaverContext decorate(DocumentSaverContext context) {
-        return new ReportDocumentSaverContext(context);
+    public static ReportDocumentSaverContext decorate(DocumentSaverContext context, String changeSource) {
+        return new ReportDocumentSaverContext(context, changeSource);
     }
 
     public MutableDocument getUpdateReportDocument() {
@@ -39,6 +41,10 @@ public class ReportDocumentSaverContext implements DocumentSaverContext {
 
     public void setUpdateReportDocument(MutableDocument updateReportDocument) {
         this.updateReportDocument = updateReportDocument;
+    }
+
+    public String getChangeSource() {
+        return changeSource;
     }
 
     public DocumentSaver createSaver() {
@@ -85,10 +91,6 @@ public class ReportDocumentSaverContext implements DocumentSaverContext {
         return delegate.getRevisionID();
     }
 
-    public SaverSource getSaverSource() {
-        return delegate.getSaverSource();
-    }
-
     public void setDatabaseDocument(MutableDocument databaseDocument) {
         delegate.setDatabaseDocument(databaseDocument);
     }
@@ -99,6 +101,10 @@ public class ReportDocumentSaverContext implements DocumentSaverContext {
 
     public void setRevisionId(String revisionID) {
         delegate.setRevisionId(revisionID);
+    }
+
+    public void setType(ComplexTypeMetadata type) {
+        delegate.setType(type);
     }
 
     public String[] getId() {

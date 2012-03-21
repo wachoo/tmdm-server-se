@@ -1524,12 +1524,31 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
-    private static DocumentSaver saveItem(WSPutItem wsPutItem, SaverSession session, String dataClusterName, String dataModelName, boolean updateReport, boolean beforeSaving) throws UnsupportedEncodingException {
+    private static DocumentSaver saveItem(WSPutItem wsPutItem,
+                                          SaverSession session,
+                                          String dataClusterName,
+                                          String dataModelName) throws UnsupportedEncodingException {
         SaverContextFactory contextFactory = session.getContextFactory();
         DocumentSaverContext context = contextFactory.create(dataClusterName,
                 dataModelName,
-                new ByteArrayInputStream(wsPutItem.getXmlString().getBytes("UTF-8")),
-                updateReport,
+                new ByteArrayInputStream(wsPutItem.getXmlString().getBytes("UTF-8"))); //$NON-NLS-1$
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        return saver;
+    }
+
+    private static DocumentSaver saveItemWithReport(WSPutItem wsPutItem,
+                                                    SaverSession session,
+                                                    String dataClusterName,
+                                                    String dataModelName,
+                                                    String changeSource,
+                                                    boolean beforeSaving) throws UnsupportedEncodingException {
+        SaverContextFactory contextFactory = session.getContextFactory();
+        DocumentSaverContext context = contextFactory.create(dataClusterName,
+                dataModelName,
+                changeSource,
+                new ByteArrayInputStream(wsPutItem.getXmlString().getBytes("UTF-8")), //$NON-NLS-1$
+                true, // Always generate an update report
                 beforeSaving);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
@@ -1548,16 +1567,14 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             WSDataClusterPK dataClusterPK = wsPutItem.getWsDataClusterPK();
             WSDataModelPK dataModelPK = wsPutItem.getWsDataModelPK();
 
-            SaverSession session = SaverSession.newSession();
             String dataClusterName = dataClusterPK.getPk();
             String dataModelName = dataModelPK.getPk();
 
+            SaverSession session = SaverSession.newSession();
             DocumentSaver saver = saveItem(wsPutItem,
                     session,
                     dataClusterName,
-                    dataModelName,
-                    false,
-                    false);
+                    dataModelName);
             // Cause items being saved to be committed to database.
             session.end();
 
@@ -1583,8 +1600,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     public WSItemPKArray putItemArray(WSPutItemArray wsPutItemArray) throws RemoteException {
         WSPutItem[] items = wsPutItemArray.getWsPutItem();
         try {
-            List<String[]> savedIds = new LinkedList<String[]>();
-
+            List<WSItemPK> pks = new LinkedList<WSItemPK>();
             SaverSession session = SaverSession.newSession();
             for (WSPutItem item : items) {
                 String dataClusterName = item.getWsDataClusterPK().getPk();
@@ -1593,18 +1609,12 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 DocumentSaver saver = saveItem(item,
                         session,
                         dataClusterName,
-                        dataModelName,
-                        false,
-                        false);
-                savedIds.add(saver.getSavedId());
+                        dataModelName);
+                pks.add(new WSItemPK(new WSDataClusterPK(), saver.getSavedConceptName(), saver.getSavedId()));
             }
             // Cause items being saved to be committed to database.
             session.end();
 
-            List<WSItemPK> pks = new ArrayList<WSItemPK>();
-            for (String[] savedId : savedIds) {
-                pks.add(new WSItemPK(new WSDataClusterPK(), null, savedId));
-            }
             return new WSItemPKArray(pks.toArray(new WSItemPK[pks.size()]));
         } catch (Exception e) {
             if (LOG.isDebugEnabled()) {
@@ -1627,29 +1637,25 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         try {
             WSPutItemWithReport[] items = wsPutItemWithReportArray.getWsPutItem();
 
-            List<String[]> savedIds = new LinkedList<String[]>();
+            List<WSItemPK> pks = new LinkedList<WSItemPK>();
             SaverSession session = SaverSession.newSession();
             for (WSPutItemWithReport item : items) {
                 WSPutItem wsPutItem = item.getWsPutItem();
+                String source = item.getSource();
                 String dataClusterName = wsPutItem.getWsDataClusterPK().getPk();
                 String dataModelName = wsPutItem.getWsDataModelPK().getPk();
 
-                // TODO Source
-                DocumentSaver saver = saveItem(wsPutItem,
+                DocumentSaver saver = saveItemWithReport(wsPutItem,
                         session,
                         dataClusterName,
                         dataModelName,
-                        true,
+                        source,
                         item.getInvokeBeforeSaving());
-                savedIds.add(saver.getSavedId());
+                pks.add(new WSItemPK(new WSDataClusterPK(), saver.getSavedConceptName(), saver.getSavedId()));
             }
             // Cause items being saved to be committed to database.
             session.end();
 
-            List<WSItemPK> pks = new ArrayList<WSItemPK>();
-            for (String[] savedId : savedIds) {
-                pks.add(new WSItemPK(new WSDataClusterPK(), null, savedId));
-            }
             return new WSItemPKArray(pks.toArray(new WSItemPK[pks.size()]));
         } catch (Exception e) {
             if (LOG.isDebugEnabled()) {
@@ -1673,15 +1679,15 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             WSDataClusterPK dataClusterPK = wsPutItem.getWsDataClusterPK();
             WSDataModelPK dataModelPK = wsPutItem.getWsDataModelPK();
 
-            SaverSession session = SaverSession.newSession();
             String dataClusterName = dataClusterPK.getPk();
             String dataModelName = dataModelPK.getPk();
 
-            DocumentSaver saver = saveItem(wsPutItem,
+            SaverSession session = SaverSession.newSession();
+            DocumentSaver saver = saveItemWithReport(wsPutItem,
                     session,
                     dataClusterName,
                     dataModelName,
-                    true,
+                    wsPutItemWithReport.getSource(),
                     wsPutItemWithReport.getInvokeBeforeSaving());
             // Cause items being saved to be committed to database.
             session.end();
@@ -1699,13 +1705,43 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     }
 
     /**
+     * @param wsPutItemWithCustomReport Information about a put item with report that includes a special user name.
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
+     * @return The PK of the newly created record.
+     * @throws java.rmi.RemoteException In case of server exception.
      */
     public WSItemPK putItemWithCustomReport(com.amalto.core.webservice.WSPutItemWithCustomReport wsPutItemWithCustomReport)
             throws RemoteException {
-        // TODO Is that something to support?
-        throw new UnsupportedOperationException();
+        try {
+            WSPutItemWithReport wsPutItemWithReport = wsPutItemWithCustomReport.getWsPutItemWithReport();
+            WSPutItem wsPutItem = wsPutItemWithReport.getWsPutItem();
+            WSDataClusterPK dataClusterPK = wsPutItem.getWsDataClusterPK();
+            WSDataModelPK dataModelPK = wsPutItem.getWsDataModelPK();
+
+            String dataClusterName = dataClusterPK.getPk();
+            String dataModelName = dataModelPK.getPk();
+
+            SaverSession session = SaverSession.newUserSession(wsPutItemWithCustomReport.getUser()); // This method uses a special user
+            DocumentSaver saver = saveItemWithReport(wsPutItem,
+                    session,
+                    dataClusterName,
+                    dataModelName,
+                    wsPutItemWithReport.getSource(),
+                    wsPutItemWithReport.getInvokeBeforeSaving());
+            // Cause items being saved to be committed to database.
+            session.end();
+
+            String[] savedId = saver.getSavedId();
+            String conceptName = saver.getSavedConceptName();
+            return new WSItemPK(dataClusterPK, conceptName, savedId);
+        } catch (Exception e) {
+            if (LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
+            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
+        }
     }
 
     /***************************************************************************

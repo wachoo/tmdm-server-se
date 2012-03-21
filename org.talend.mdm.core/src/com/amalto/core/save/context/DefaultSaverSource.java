@@ -25,21 +25,23 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-class DefaultSaverSource implements SaverSource {
+public class DefaultSaverSource implements SaverSource {
 
     private final XmlServerSLWrapperLocal database;
 
     private final DataModelCtrlLocal dataModel;
 
-    private final String dataClusterName;
-
     private final Map<String, MetadataRepository> repositories = new HashMap<String, MetadataRepository>();
 
     private final Map<String, String> schemasAsString = new HashMap<String, String>();
 
-    public DefaultSaverSource(String dataClusterName) {
-        this.dataClusterName = dataClusterName;
+    private final String userName;
 
+    public DefaultSaverSource() {
+        this(null);
+    }
+
+    public DefaultSaverSource(String userName) {
         try {
             database = Util.getXmlServerCtrlLocal();
         } catch (XtentisException e) {
@@ -51,9 +53,10 @@ class DefaultSaverSource implements SaverSource {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        this.userName = userName;
     }
 
-    public InputStream get(String typeName, String revisionId, String[] key) {
+    public InputStream get(String dataClusterName, String typeName, String revisionId, String[] key) {
         try {
             StringBuilder builder = new StringBuilder();
             builder.append(dataClusterName).append('.').append(typeName).append('.');
@@ -76,8 +79,8 @@ class DefaultSaverSource implements SaverSource {
         }
     }
 
-    public boolean exist(String typeName, String revisionId, String[] key) {
-        return get(typeName, revisionId, key) != null;
+    public boolean exist(String dataCluster, String typeName, String revisionId, String[] key) {
+        return get(dataCluster, typeName, revisionId, key) != null;
     }
 
     public MetadataRepository getMetadataRepository(String dataModelName) {
@@ -137,6 +140,10 @@ class DefaultSaverSource implements SaverSource {
     }
 
     public String getUserName() {
+        // Allow saver caller to override user name.
+        if (userName != null) {
+            return userName;
+        }
         try {
             return LocalUser.getLocalUser().getUsername();
         } catch (XtentisException e) {

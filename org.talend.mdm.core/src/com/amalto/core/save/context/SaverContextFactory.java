@@ -12,7 +12,6 @@
 package com.amalto.core.save.context;
 
 import com.amalto.core.history.MutableDocument;
-import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.save.DOMDocument;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.ReportDocumentSaverContext;
@@ -26,7 +25,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 
 public class SaverContextFactory {
@@ -36,8 +34,6 @@ public class SaverContextFactory {
     private static final Map<String, XSystemObjects> SYSTEM_DATA_CLUSTERS = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
 
     private static final SAXParserFactory SAX_PARSER_FACTORY = SAXParserFactory.newInstance();
-
-    private static final Map<String, SaverSource> DATA_SOURCE_CACHE = new HashMap<String, SaverSource>();
 
     static {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -57,31 +53,7 @@ public class SaverContextFactory {
 
     public DocumentSaverContext create(String dataCluster,
                                        String dataModelName,
-                                       InputStream documentStream,
-                                       boolean updateReport,
-                                       boolean invokeBeforeSaving) {
-        if (invokeBeforeSaving && !updateReport) {
-            throw new IllegalArgumentException("Must generate update report to invoke before saving.");
-        }
-
-        SaverSource dataSource;
-        synchronized (DATA_SOURCE_CACHE) {
-            dataSource = DATA_SOURCE_CACHE.get(dataCluster + dataModelName);
-            if (dataSource == null) {
-                dataSource = new DefaultSaverSource(dataCluster);
-                DATA_SOURCE_CACHE.put(dataCluster + dataModelName, dataSource);
-            }
-        }
-
-        return create(dataCluster, dataModelName, documentStream, updateReport, invokeBeforeSaving, dataSource);
-    }
-
-    public DocumentSaverContext create(String dataCluster,
-                                       String dataModelName,
-                                       InputStream documentStream,
-                                       boolean updateReport,
-                                       boolean invokeBeforeSaving,
-                                       SaverSource dataSource) {
+                                       InputStream documentStream) {
         // Parsing
         MutableDocument userDocument;
         try {
@@ -91,24 +63,44 @@ public class SaverContextFactory {
             throw new RuntimeException("Unable to parse document to save.", e);
         }
 
-        // Get type name
-        String typeName = userDocument.asDOM().getDocumentElement().getNodeName();
-        ComplexTypeMetadata savedDocumentType = dataSource.getMetadataRepository(dataModelName).getComplexType(typeName);
-
         // Choose right context implementation
         DocumentSaverContext context;
         if (dataCluster.startsWith("amalto") || XSystemObjects.isXSystemObject(SYSTEM_DATA_CLUSTERS, XObjectType.DATA_CLUSTER, dataCluster)) { //$NON-NLS-1$
-            // TODO Handle AutoIncrement specific cases
-            context = new SystemContext(dataCluster, userDocument, dataSource);
+            context = new SystemContext(dataCluster, userDocument);
         } else {
-            context = new UserContext(dataCluster, dataModelName, userDocument, savedDocumentType, dataSource, updateReport, invokeBeforeSaving);
-        }
-
-        if (updateReport) {
-            context = ReportDocumentSaverContext.decorate(context);
+            context = new UserContext(dataCluster, dataModelName, userDocument, false, false);
         }
 
         return context;
     }
 
+    public DocumentSaverContext create(String dataCluster,
+                                       String dataModelName,
+                                       String changeSource,
+                                       InputStream documentStream,
+                                       boolean updateReport,
+                                       boolean invokeBeforeSaving) {
+        if (invokeBeforeSaving && !updateReport) {
+            throw new IllegalArgumentException("Must generate update report to invoke before saving.");
+        }
+
+        // Parsing
+        MutableDocument userDocument;
+        try {
+            Document userDomDocument = DOM_PARSER_FACTORY.parse(new InputSource(documentStream));
+            userDocument = new DOMDocument(userDomDocument);
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to parse document to save.", e);
+        }
+
+        // Choose right context implementation
+        DocumentSaverContext context;
+        if (dataCluster.startsWith("amalto") || XSystemObjects.isXSystemObject(SYSTEM_DATA_CLUSTERS, XObjectType.DATA_CLUSTER, dataCluster)) { //$NON-NLS-1$
+            context = new SystemContext(dataCluster, userDocument);
+        } else {
+            context = new UserContext(dataCluster, dataModelName, userDocument, updateReport, invokeBeforeSaving);
+        }
+
+        return ReportDocumentSaverContext.decorate(context, changeSource);
+    }
 }

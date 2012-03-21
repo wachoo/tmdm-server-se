@@ -16,6 +16,7 @@ import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.action.CreateAction;
 import com.amalto.core.metadata.*;
 import com.amalto.core.save.DocumentSaverContext;
+import com.amalto.core.save.ReportDocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import org.apache.commons.lang.StringUtils;
 
@@ -32,9 +33,15 @@ class GenerateActions implements DocumentSaver {
     public void save(SaverSession session, DocumentSaverContext context) {
         final MutableDocument userDocument = context.getUserDocument();
         MutableDocument databaseDocument = context.getDatabaseDocument();
+        // Get source of modification (only if we're in the context of an update report).
+        String source;
+        if (context instanceof ReportDocumentSaverContext) {
+            source = ((ReportDocumentSaverContext) context).getChangeSource();
+        } else {
+            source = StringUtils.EMPTY;
+        }
         Date date = new Date(System.currentTimeMillis());
-        String source = "genericUI"; // TODO
-        String userName = context.getSaverSource().getUserName();
+        String userName = session.getSaverSource().getUserName();
 
         List<Action> actions;
         if (databaseDocument.asDOM().getDocumentElement() == null) {

@@ -32,9 +32,9 @@ public class DocumentSaveTest extends TestCase {
 
         SaverSource source = new TestSaverSource(repository, false);
 
-        SaverSession session = SaverSession.newSession();
+        SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
-        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", recordXml, true, true, source);
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, true);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         session.end(new MockCommitter());
@@ -47,9 +47,9 @@ public class DocumentSaveTest extends TestCase {
 
         SaverSource source = new TestSaverSource(repository, true);
 
-        SaverSession session = SaverSession.newSession();
+        SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
-        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", recordXml, true, false, source);
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         session.end(new MockCommitter());
@@ -65,9 +65,9 @@ public class DocumentSaveTest extends TestCase {
         boolean newOutput = true;
         SaverSource source = new AlterRecordTestSaverSource(repository, isOK, newOutput, false);
 
-        SaverSession session = SaverSession.newSession();
+        SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
-        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", recordXml, true, true, source);
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, true);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         session.end(new MockCommitter());
@@ -77,9 +77,9 @@ public class DocumentSaveTest extends TestCase {
         newOutput = true;
         source = new AlterRecordTestSaverSource(repository, isOK, newOutput, false);
 
-        session = SaverSession.newSession();
+        session = SaverSession.newSession(source);
         recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
-        context = session.getContextFactory().create("MDM", "DStar", recordXml, true, true, source);
+        context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, true);
         saver = context.createSaver();
         try {
             saver.save(session, context);
@@ -94,9 +94,9 @@ public class DocumentSaveTest extends TestCase {
         newOutput = false;
         source = new AlterRecordTestSaverSource(repository, isOK, newOutput, false);
 
-        session = SaverSession.newSession();
+        session = SaverSession.newSession(source);
         recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
-        context = session.getContextFactory().create("MDM", "DStar", recordXml, true, true, source);
+        context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, true);
         saver = context.createSaver();
         try {
             saver.save(session, context);
@@ -111,9 +111,9 @@ public class DocumentSaveTest extends TestCase {
         newOutput = false;
         source = new AlterRecordTestSaverSource(repository, isOK, newOutput, false);
 
-        session = SaverSession.newSession();
+        session = SaverSession.newSession(source);
         recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
-        context = session.getContextFactory().create("MDM", "DStar", recordXml, true, true, source);
+        context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, true);
         saver = context.createSaver();
         saver.save(session, context);
         session.end(new MockCommitter());
@@ -125,11 +125,11 @@ public class DocumentSaveTest extends TestCase {
 
         SaverSource source = new TestSaverSource(repository, false);
         {
-            SaverSession session = SaverSession.newSession();
+            SaverSession session = SaverSession.newSession(source);
             {
                 for (int i = 0; i < 10; i++) {
                     InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
-                    DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", recordXml, true, false, source);
+                    DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, false);
                     DocumentSaver saver = context.createSaver();
                     saver.save(session, context);
                 }
@@ -141,13 +141,13 @@ public class DocumentSaveTest extends TestCase {
         long max = 0;
         long min = Long.MAX_VALUE;
         {
-            SaverSession session = SaverSession.newSession();
+            SaverSession session = SaverSession.newSession(source);
             {
                 for (int i = 0; i < 200; i++) {
                     long singleExecTime = System.currentTimeMillis();
                     {
                         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
-                        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", recordXml, true, false, source);
+                        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, false);
                         DocumentSaver saver = context.createSaver();
                         saver.save(session, context);
                     }
@@ -174,11 +174,11 @@ public class DocumentSaveTest extends TestCase {
 
         SaverSource source = new TestSaverSource(repository, true);
         {
-            SaverSession session = SaverSession.newSession();
+            SaverSession session = SaverSession.newSession(source);
             {
                 for (int i = 0; i < 10; i++) {
                     InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
-                    DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", recordXml, true, false, source);
+                    DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, false);
                     DocumentSaver saver = context.createSaver();
                     saver.save(session, context);
                 }
@@ -190,13 +190,13 @@ public class DocumentSaveTest extends TestCase {
         long max = 0;
         long min = Long.MAX_VALUE;
         {
-            SaverSession session = SaverSession.newSession();
+            SaverSession session = SaverSession.newSession(source);
             {
                 for (int i = 0; i < 200; i++) {
                     long singleExecTime = System.currentTimeMillis();
                     {
                         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
-                        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", recordXml, true, false, source);
+                        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, false);
                         DocumentSaver saver = context.createSaver();
                         saver.save(session, context);
                     }
@@ -256,11 +256,11 @@ public class DocumentSaveTest extends TestCase {
             this.exist = exist;
         }
 
-        public InputStream get(String typeName, String revisionId, String[] key) {
+        public InputStream get(String dataClusterName, String typeName, String revisionId, String[] key) {
             return DocumentSaveTest.class.getResourceAsStream("test1_original.xml");
         }
 
-        public boolean exist(String typeName, String revisionId, String[] key) {
+        public boolean exist(String dataCluster, String typeName, String revisionId, String[] key) {
             return exist;
         }
 

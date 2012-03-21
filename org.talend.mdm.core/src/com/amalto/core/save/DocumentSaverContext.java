@@ -77,11 +77,11 @@ public interface DocumentSaverContext {
 
     String getRevisionID();
 
-    SaverSource getSaverSource();
-
     void setDatabaseDocument(MutableDocument databaseDocument);
 
     void setDatabaseValidationDocument(MutableDocument databaseValidationDocument);
 
     void setRevisionId(String revisionID);
+
+    void setType(ComplexTypeMetadata type);
 }

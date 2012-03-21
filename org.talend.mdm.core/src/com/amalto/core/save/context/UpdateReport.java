@@ -89,7 +89,7 @@ class UpdateReport implements DocumentSaver {
 
         ((ReportDocumentSaverContext) context).setUpdateReportDocument(updateReportDocument);
         // Save update report
-        saveUpdateReport(updateReportDocument, context.getSaverSource(), session);
+        saveUpdateReport(updateReportDocument, session.getSaverSource(), session);
 
         next.save(session, context);
     }

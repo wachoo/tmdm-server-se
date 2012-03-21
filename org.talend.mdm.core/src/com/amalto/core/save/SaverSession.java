@@ -12,7 +12,9 @@
 package com.amalto.core.save;
 
 import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.save.context.DefaultSaverSource;
 import com.amalto.core.save.context.SaverContextFactory;
+import com.amalto.core.save.context.SaverSource;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,16 +23,51 @@ import java.util.Set;
 
 public class SaverSession {
 
+    private static final Map<String, SaverSource> saverSourcePerUser = new HashMap<String, SaverSource>();
+
     private final SaverContextFactory contextFactory;
 
     private final Map<String, Set<ItemPOJO>> itemsPerDataCluster = new HashMap<String, Set<ItemPOJO>>();
 
-    private SaverSession() {
+    private final SaverSource dataSource;
+
+    private static SaverSource defaultSaverSource;
+
+    private SaverSession(SaverSource dataSource) {
+        this.dataSource = dataSource;
         contextFactory = new SaverContextFactory();
     }
 
-    public static SaverSession newSession() {
-        return new SaverSession();
+    /**
+     * @param saverSource A custom implementation of {@link SaverSource}.
+     * @return A {@link SaverSession} with a custom {@link SaverSource} implementation.
+     */
+    public static SaverSession newSession(SaverSource saverSource) {
+        return new SaverSession(saverSource);
+    }
+
+    /**
+     * @return A {@link SaverSession} with default user.
+     */
+    public static synchronized SaverSession newSession() {
+        if (defaultSaverSource == null) {
+            defaultSaverSource = new DefaultSaverSource();
+        }
+        return new SaverSession(defaultSaverSource);
+    }
+
+    /**
+     * @param userName A MDM user name
+     * @return A {@link SaverSession} with the user name passed as parameter.
+     */
+    public static SaverSession newUserSession(String userName) {
+        SaverSource saverSource = saverSourcePerUser.get(userName);
+        if (saverSource == null) {
+            saverSource = new DefaultSaverSource(userName);
+            saverSourcePerUser.put(userName, saverSource);
+        }
+        SaverSource dataSource = saverSource;
+        return new SaverSession(dataSource);
     }
 
     public SaverContextFactory getContextFactory() {
@@ -61,6 +98,10 @@ public class SaverSession {
         itemsToSave.add(itemToSave);
     }
 
+    public SaverSource getSaverSource() {
+        return dataSource;
+    }
+
     public interface Committer {
 
         void begin(String dataCluster);
@@ -68,6 +109,7 @@ public class SaverSession {
         void commit(String dataCluster);
 
         void save(ItemPOJO item, String revisionId);
+
     }
 
 }

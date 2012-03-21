@@ -25,15 +25,13 @@ class UserContext implements DocumentSaverContext {
 
     private final List<Action> actions = new LinkedList<Action>();
 
-    private final ComplexTypeMetadata type;
+    private ComplexTypeMetadata type;
 
     private String revisionId = null;
 
     private final String dataCluster;
 
     private final String dataModel;
-
-    private final SaverSource dataSource;
 
     private final boolean invokeBeforeSaving;
 
@@ -47,12 +45,10 @@ class UserContext implements DocumentSaverContext {
 
     private MutableDocument dataBaseValidationDocument;
 
-    UserContext(String dataCluster, String dataModel, MutableDocument userDocument, ComplexTypeMetadata type, SaverSource dataSource, boolean updateReport, boolean invokeBeforeSaving) {
+    UserContext(String dataCluster, String dataModel, MutableDocument userDocument, boolean updateReport, boolean invokeBeforeSaving) {
         this.userDocument = userDocument;
-        this.type = type;
         this.dataCluster = dataCluster;
         this.dataModel = dataModel;
-        this.dataSource = dataSource;
         this.invokeBeforeSaving = invokeBeforeSaving;
         this.updateReport = updateReport;
     }
@@ -73,7 +69,7 @@ class UserContext implements DocumentSaverContext {
             saver = new UpdateReport(saver);
         }
 
-        return new Checks(new ID(new GenerateActions(new Security(saver))));
+        return new Init(new ID(new GenerateActions(new Security(saver))));
     }
 
     public MutableDocument getDatabaseDocument() {
@@ -117,10 +113,6 @@ class UserContext implements DocumentSaverContext {
         return revisionId;
     }
 
-    public SaverSource getSaverSource() {
-        return dataSource;
-    }
-
     public void setDatabaseDocument(MutableDocument databaseDocument) {
         this.dataBaseDocument = databaseDocument;
     }
@@ -131,6 +123,10 @@ class UserContext implements DocumentSaverContext {
 
     public void setRevisionId(String revisionID) {
         this.revisionId = revisionID;
+    }
+
+    public void setType(ComplexTypeMetadata type) {
+        this.type = type;
     }
 
     public String[] getId() {

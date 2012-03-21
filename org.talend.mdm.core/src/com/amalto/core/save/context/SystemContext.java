@@ -23,8 +23,6 @@ class SystemContext implements DocumentSaverContext {
 
     private final String dataCluster;
 
-    private final SaverSource dataSource;
-
     private String revisionId;
 
     private String[] id;
@@ -35,14 +33,15 @@ class SystemContext implements DocumentSaverContext {
 
     private MutableDocument databaseValidationDocument;
 
-    public SystemContext(String dataCluster, MutableDocument document, SaverSource dataSource) {
+    private ComplexTypeMetadata type;
+
+    public SystemContext(String dataCluster, MutableDocument document) {
         this.dataCluster = dataCluster;
         this.userDocument = document;
-        this.dataSource = dataSource;
     }
 
     public DocumentSaver createSaver() {
-        return new Checks(new Save());
+        return new Init(new Save());
     }
 
     public MutableDocument getDatabaseDocument() {
@@ -70,7 +69,7 @@ class SystemContext implements DocumentSaverContext {
     }
 
     public ComplexTypeMetadata getType() {
-        throw new UnsupportedOperationException();
+        return type;
     }
 
     public String getDataCluster() {
@@ -85,10 +84,6 @@ class SystemContext implements DocumentSaverContext {
         return revisionId;
     }
 
-    public SaverSource getSaverSource() {
-        return dataSource;
-    }
-
     public void setDatabaseDocument(MutableDocument databaseDocument) {
         this.databaseDocument = databaseDocument;
     }
@@ -99,6 +94,10 @@ class SystemContext implements DocumentSaverContext {
 
     public void setRevisionId(String revisionID) {
         this.revisionId = revisionID;
+    }
+
+    public void setType(ComplexTypeMetadata type) {
+        this.type = type;
     }
 
     public String[] getId() {

@@ -46,7 +46,7 @@ class ID implements DocumentSaver {
         try {
             ComplexTypeMetadata type = context.getType();
             List<FieldMetadata> keyFields = type.getKeyFields();
-            SaverSource database = context.getSaverSource();
+            SaverSource database = session.getSaverSource();
             String universe = database.getUniverse();
             String dataCluster = context.getDataCluster();
 
@@ -92,8 +92,8 @@ class ID implements DocumentSaver {
             // now has an id, so load database document
             String[] savedId = getSavedId();
             String revisionID = context.getRevisionID();
-            if (database.exist(typeName, revisionID, savedId)) {
-                NonCloseableInputStream nonCloseableInputStream = new NonCloseableInputStream(database.get(typeName, revisionID, savedId));
+            if (database.exist(dataCluster, typeName, revisionID, savedId)) {
+                NonCloseableInputStream nonCloseableInputStream = new NonCloseableInputStream(database.get(dataCluster, typeName, revisionID, savedId));
 
                 try {
                     nonCloseableInputStream.mark(-1);

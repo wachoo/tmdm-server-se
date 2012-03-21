@@ -42,7 +42,7 @@ class BeforeSaving implements DocumentSaver {
         if (updateReportDocument == null) {
             throw new IllegalStateException("Update report is missing.");
         }
-        OutputReport outputreport = context.getSaverSource().invokeBeforeSaving(context, updateReportDocument);
+        OutputReport outputreport = session.getSaverSource().invokeBeforeSaving(context, updateReportDocument);
 
         if (outputreport != null) { // when a process was found
             String errorCode;
