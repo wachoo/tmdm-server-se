@@ -538,7 +538,8 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
             	ActiveRoutingOrderV2POJO.class, 
             	new ActiveRoutingOrderV2POJOPK(name)
             );
-    		routingOrdersList.add(routingOrder);
+    		if (routingOrder != null)
+    			routingOrdersList.add(routingOrder);
 		}
 		ActiveRoutingOrderV2POJO[] routingOrders = 
 			routingOrdersList.toArray(
