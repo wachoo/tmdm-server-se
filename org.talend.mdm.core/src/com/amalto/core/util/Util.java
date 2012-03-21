@@ -2073,22 +2073,25 @@ public class Util {
             String userName = null;
             String password = null;
             Subject subject = LocalUser.getCurrentSubject();
-            Set<Principal> set = subject.getPrincipals();
-            for (Iterator<Principal> iter = set.iterator(); iter.hasNext();) {
-                Principal principal = iter.next();
-                if (principal instanceof Group) {
-                    Group group = (Group) principal;
-                    if ("Username".equals(group.getName())) {
-                        if (group.members().hasMoreElements()) {
-                            userName = group.members().nextElement().getName();
+            if (subject != null) {
+                Set<Principal> set = subject.getPrincipals();
+                if (set != null)
+                    for (Iterator<Principal> iter = set.iterator(); iter.hasNext();) {
+                        Principal principal = iter.next();
+                        if (principal instanceof Group) {
+                            Group group = (Group) principal;
+                            if ("Username".equals(group.getName())) {
+                                if (group.members().hasMoreElements()) {
+                                    userName = group.members().nextElement().getName();
+                                }
+                            } else if ("Password".equals(group.getName())) {
+                                if (group.members().hasMoreElements()) {
+                                    password = group.members().nextElement().getName();
+                                }
+                            }
                         }
-                    } else if ("Password".equals(group.getName())) {
-                        if (group.members().hasMoreElements()) {
-                            password = group.members().nextElement().getName();
-                        }
-                    }
-                }
-            }// for
+                    }// for
+            }
             if (userName == null)
                 userName = "";
             if (password == null)
