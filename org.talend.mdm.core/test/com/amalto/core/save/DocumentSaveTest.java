@@ -30,7 +30,7 @@ public class DocumentSaveTest extends TestCase {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
 
-        SaverSource source = new TestSaverSource(repository, false);
+        SaverSource source = new TestSaverSource(repository, false, "test1_original.xml");
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
@@ -45,7 +45,7 @@ public class DocumentSaveTest extends TestCase {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
 
-        SaverSource source = new TestSaverSource(repository, true);
+        SaverSource source = new TestSaverSource(repository, true, "test1_original.xml");
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
@@ -56,6 +56,39 @@ public class DocumentSaveTest extends TestCase {
 
     }
 
+    public void testSystemUpdate() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+
+        SaverSource source = new TestSaverSource(repository, true, "test1_original.xml");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
+        DocumentSaverContext context = session.getContextFactory().create("UpdateReport", "DStar", "Source", recordXml, true, false);
+        DocumentSaver saver = context.createSaver();
+        try {
+            saver.save(session, context);
+            fail("Expected fail due to TMDM-3606");
+        } catch (Exception e) {
+            // Expected
+        }
+        session.end(new MockCommitter());
+    }
+
+    public void testProductUpdate() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+
+        SaverSource source = new TestSaverSource(repository, true, "test2_original.xml");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test2.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        session.end(new MockCommitter());
+    }
+
     public void testBeforeSavingWithAlterRecord() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
@@ -63,7 +96,7 @@ public class DocumentSaveTest extends TestCase {
         //
         boolean isOK = true;
         boolean newOutput = true;
-        SaverSource source = new AlterRecordTestSaverSource(repository, isOK, newOutput, false);
+        SaverSource source = new AlterRecordTestSaverSource(repository, isOK, newOutput);
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
@@ -75,7 +108,7 @@ public class DocumentSaveTest extends TestCase {
         //
         isOK = false;
         newOutput = true;
-        source = new AlterRecordTestSaverSource(repository, isOK, newOutput, false);
+        source = new AlterRecordTestSaverSource(repository, isOK, newOutput);
 
         session = SaverSession.newSession(source);
         recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
@@ -92,7 +125,7 @@ public class DocumentSaveTest extends TestCase {
         //
         isOK = false;
         newOutput = false;
-        source = new AlterRecordTestSaverSource(repository, isOK, newOutput, false);
+        source = new AlterRecordTestSaverSource(repository, isOK, newOutput);
 
         session = SaverSession.newSession(source);
         recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
@@ -109,7 +142,7 @@ public class DocumentSaveTest extends TestCase {
         //
         isOK = true;
         newOutput = false;
-        source = new AlterRecordTestSaverSource(repository, isOK, newOutput, false);
+        source = new AlterRecordTestSaverSource(repository, isOK, newOutput);
 
         session = SaverSession.newSession(source);
         recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
@@ -123,7 +156,7 @@ public class DocumentSaveTest extends TestCase {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
 
-        SaverSource source = new TestSaverSource(repository, false);
+        SaverSource source = new TestSaverSource(repository, false, "test1_original.xml");
         {
             SaverSession session = SaverSession.newSession(source);
             {
@@ -172,7 +205,7 @@ public class DocumentSaveTest extends TestCase {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
 
-        SaverSource source = new TestSaverSource(repository, true);
+        SaverSource source = new TestSaverSource(repository, true, "test1_original.xml");
         {
             SaverSession session = SaverSession.newSession(source);
             {
@@ -249,15 +282,18 @@ public class DocumentSaveTest extends TestCase {
 
         private final boolean exist;
 
+        private final String originalDocumentFileName;
+
         private MetadataRepository updateReportRepository;
 
-        public TestSaverSource(MetadataRepository repository, boolean exist) {
+        public TestSaverSource(MetadataRepository repository, boolean exist, String originalDocumentFileName) {
             this.repository = repository;
             this.exist = exist;
+            this.originalDocumentFileName = originalDocumentFileName;
         }
 
         public InputStream get(String dataClusterName, String typeName, String revisionId, String[] key) {
-            return DocumentSaveTest.class.getResourceAsStream("test1_original.xml");
+            return DocumentSaveTest.class.getResourceAsStream(originalDocumentFileName);
         }
 
         public boolean exist(String dataCluster, String typeName, String revisionId, String[] key) {
@@ -317,8 +353,8 @@ public class DocumentSaveTest extends TestCase {
 
         private final boolean newOutput;
 
-        public AlterRecordTestSaverSource(MetadataRepository repository, boolean OK, boolean newOutput, boolean debug) {
-            super(repository, false);
+        public AlterRecordTestSaverSource(MetadataRepository repository, boolean OK, boolean newOutput) {
+            super(repository, false, "test1_original.xml");
             this.OK = OK;
             this.newOutput = newOutput;
         }

@@ -72,8 +72,15 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
         NodeList originalElementList = currentOriginalElement.getElementsByTagName(containedField.getName());
         NodeList newElementList = currentNewElement.getElementsByTagName(containedField.getName());
 
-        if (originalElementList.getLength() == 0) {
-            return actions;
+        if (originalElementList.getLength() != newElementList.getLength()) {
+            // TODO This is done on purpose: we ignore updates with empty elements.
+            if (newElementList.getLength() == 0) {
+                return actions;
+            }
+        } else {
+            if (originalElementList.getLength() == 0) { // And newElementList length is 0
+                return actions;
+            }
         }
 
         if (!containedField.isMany()) {
@@ -90,8 +97,8 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
             for (int i = 0; i < originalElementList.getLength(); i++) {
                 // Path generation code is a bit duplicated (be careful)... and XPath indexes are 1-based (not 0-based).
                 path.add(containedField.getName() + "[" + (i + 1) + "]");
-                currentOriginalElement = (Element) originalElementList.item(0);
-                currentNewElement = (Element) newElementList.item(0);
+                currentOriginalElement = (Element) originalElementList.item(i);
+                currentNewElement = (Element) newElementList.item(i);
 
                 super.visit(containedField);
 
@@ -148,8 +155,13 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 String originalTextContent = originalList.item(0).getTextContent();
                 String newTextContent = newList.item(0).getTextContent();
 
-                if (!originalTextContent.equals(newTextContent)) {
-                    actions.add(new FieldUpdateAction(date, source, userName, getPath(simpleField.getName()), originalTextContent, newTextContent));
+
+                if (!newTextContent.isEmpty()) {
+                    if (!originalTextContent.equals(newTextContent)) {
+                        actions.add(new FieldUpdateAction(date, source, userName, getPath(simpleField.getName()), originalTextContent, newTextContent));
+                    }
+                } else {
+                    // TODO This is done on purpose: we ignore updates with empty elements.
                 }
             }
         } else if (originalList.getLength() == 0) {
