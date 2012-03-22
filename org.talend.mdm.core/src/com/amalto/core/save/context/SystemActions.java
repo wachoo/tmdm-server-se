@@ -14,28 +14,25 @@ package com.amalto.core.save.context;
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.action.CreateAction;
-import com.amalto.core.metadata.*;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.ReportDocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
-class GenerateActions implements DocumentSaver {
+class SystemActions implements DocumentSaver {
 
     private final DocumentSaver next;
 
-    GenerateActions(DocumentSaver next) {
+    SystemActions(DocumentSaver next) {
         this.next = next;
     }
 
     public void save(SaverSession session, DocumentSaverContext context) {
         final MutableDocument userDocument = context.getUserDocument();
-        MutableDocument databaseDocument = context.getDatabaseDocument();
-        if (databaseDocument == null) {
-            throw new IllegalStateException("Database document is expected to be set.");
-        }
         // Get source of modification (only if we're in the context of an update report).
         String source;
         if (context instanceof ReportDocumentSaverContext) {
@@ -46,22 +43,14 @@ class GenerateActions implements DocumentSaver {
         Date date = new Date(System.currentTimeMillis());
         String userName = session.getSaverSource().getUserName();
 
-        List<Action> actions;
-        if (databaseDocument.asDOM().getDocumentElement() == null) {
-            Action action = new CreateAction(date, source, userName) {
-                @Override
-                public MutableDocument perform(MutableDocument document) {
-                    document.create(userDocument);
-                    return document;
-                }
-            };
-            actions = Collections.singletonList(action);
-        } else {
-            // get updated paths
-            ComplexTypeMetadata type = context.getType();
-            UpdateActionCreator actionCreator = new UpdateActionCreator(databaseDocument.asDOM(), userDocument.asDOM(), source, userName);
-            actions = type.accept(actionCreator);
-        }
+        // Consider all system documents as creation (no need to update field by field).
+        List<Action> actions = Collections.<Action>singletonList(new CreateAction(date, source, userName) {
+            @Override
+            public MutableDocument perform(MutableDocument document) {
+                document.create(userDocument);
+                return document;
+            }
+        });
         context.setActions(actions);
 
         next.save(session, context);

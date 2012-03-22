@@ -20,6 +20,7 @@ import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.util.AutoIncrementGenerator;
+import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -27,109 +28,119 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
 class ID implements DocumentSaver {
+
+    private static final Logger LOGGER = Logger.getLogger(ID.class);
 
     private final DocumentSaver next;
 
     private final List<String> ids = new LinkedList<String>();
 
     private String savedTypeName;
-    
+
     ID(DocumentSaver next) {
         this.next = next;
     }
 
     public void save(SaverSession session, DocumentSaverContext context) {
-        try {
-            ComplexTypeMetadata type = context.getType();
-            List<FieldMetadata> keyFields = type.getKeyFields();
-            SaverSource database = session.getSaverSource();
-            String universe = database.getUniverse();
-            String dataCluster = context.getDataCluster();
-
-            boolean hasMetAutoIncrement = false;
-            MutableDocument userDocument = context.getUserDocument();
-            String typeName = type.getName();
-            for (FieldMetadata keyField : keyFields) {
-                String keyFieldTypeName = keyField.getType().getName();
-                Accessor userAccessor = userDocument.createAccessor(keyField.getName());
-
-                // Get (or generate) ids.
-                String generatedIdValue = null;
-                String currentIdValue;
-                if (EUUIDCustomType.UUID.getName().equalsIgnoreCase(keyFieldTypeName)) {
-                    if (userAccessor.exist()) {
-                        generatedIdValue = userAccessor.get();
-                    } else {
-                        generatedIdValue = java.util.UUID.randomUUID().toString();
-                    }
-                    currentIdValue = generatedIdValue;
-                } else if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(keyFieldTypeName)) {
-                    if (userAccessor.exist()) {
-                        generatedIdValue = userAccessor.get();
-                    } else {
-                        generatedIdValue = String.valueOf(AutoIncrementGenerator.generateNum(universe, dataCluster, typeName + "." + keyField.getName().replaceAll("/", ".")));   //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                        hasMetAutoIncrement = true;
-                    }
-                    currentIdValue = generatedIdValue;
-                } else {
-                    // Not a value to generate, first ensure value is correctly set.
-                    if (!userAccessor.exist()) {
-                        throw new IllegalArgumentException("Expected id '" + keyField.getName() + "' to be set.");
-                    }
-                    currentIdValue = userAccessor.get();
-                }
-
-                if (generatedIdValue != null) {
-                    userAccessor.createAndSet(generatedIdValue);
-                }
-                ids.add(currentIdValue);
-            }
-
-            // now has an id, so load database document
-            String[] savedId = getSavedId();
-            String revisionID = context.getRevisionID();
-            if (database.exist(dataCluster, typeName, revisionID, savedId)) {
-                NonCloseableInputStream nonCloseableInputStream = new NonCloseableInputStream(database.get(dataCluster, typeName, revisionID, savedId));
-
-                try {
-                    nonCloseableInputStream.mark(-1);
-
-                    Document databaseDomDocument = SaverContextFactory.DOM_PARSER_FACTORY.parse(nonCloseableInputStream);
-                    MutableDocument databaseDocument = new DOMDocument(getUserXmlElement(databaseDomDocument));
-
-                    nonCloseableInputStream.reset();
-
-                    SkipAttributeDocumentBuilder documentBuilder = new SkipAttributeDocumentBuilder(SaverContextFactory.DOM_PARSER_FACTORY);
-                    Document databaseValidationDomDocument = documentBuilder.parse(new InputSource(nonCloseableInputStream));
-                    MutableDocument databaseValidationDocument = new DOMDocument(getUserXmlElement(databaseValidationDomDocument));
-
-                    context.setDatabaseDocument(databaseDocument);
-                    context.setDatabaseValidationDocument(databaseValidationDocument);
-                } finally {
-                    nonCloseableInputStream.forceClose();
-                }
-            } else {
-                context.setDatabaseDocument(new DOMDocument(SaverContextFactory.DOM_PARSER_FACTORY.newDocument()));
-                context.setDatabaseValidationDocument(new DOMDocument(SaverContextFactory.DOM_PARSER_FACTORY.newDocument()));
-            }
-
-            // Continue save
-            savedTypeName = context.getType().getName();
-            context.setId(savedId);
-            next.save(session, context);
-
-            if (hasMetAutoIncrement) {
-                // TODO This is somewhat bad: would be better to do it on commit.
-                // Save current state of autoincrement when save is completed:
-                AutoIncrementGenerator.saveToDB();
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        ComplexTypeMetadata type = context.getType();
+        if (type == null) {
+            throw new IllegalStateException("Type of record being saved is expected to be set at this step.");
         }
+        List<FieldMetadata> keyFields = type.getKeyFields();
+        SaverSource database = session.getSaverSource();
+        String universe = database.getUniverse();
+        String dataCluster = context.getDataCluster();
+
+        boolean hasMetAutoIncrement = false;
+        MutableDocument userDocument = context.getUserDocument();
+        String typeName = type.getName();
+        for (FieldMetadata keyField : keyFields) {
+            String keyFieldTypeName = keyField.getType().getName();
+            Accessor userAccessor = userDocument.createAccessor(keyField.getName());
+
+            // Get (or generate) ids.
+            String generatedIdValue = null;
+            String currentIdValue;
+            if (EUUIDCustomType.UUID.getName().equalsIgnoreCase(keyFieldTypeName)) {
+                if (userAccessor.exist()) {
+                    generatedIdValue = userAccessor.get();
+                } else {
+                    generatedIdValue = java.util.UUID.randomUUID().toString();
+                }
+                currentIdValue = generatedIdValue;
+            } else if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(keyFieldTypeName)) {
+                if (userAccessor.exist()) {
+                    generatedIdValue = userAccessor.get();
+                } else {
+                    generatedIdValue = String.valueOf(AutoIncrementGenerator.generateNum(universe, dataCluster, typeName + "." + keyField.getName().replaceAll("/", ".")));   //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    hasMetAutoIncrement = true;
+                }
+                currentIdValue = generatedIdValue;
+            } else {
+                // Not a value to generate, first ensure value is correctly set.
+                if (!userAccessor.exist()) {
+                    throw new IllegalArgumentException("Expected id '" + keyField.getName() + "' to be set.");
+                }
+                currentIdValue = userAccessor.get();
+            }
+
+            if (generatedIdValue != null) {
+                userAccessor.createAndSet(generatedIdValue);
+            }
+            ids.add(currentIdValue);
+        }
+
+        // now has an id, so load database document
+        String[] savedId = getSavedId();
+        String revisionID = context.getRevisionID();
+        if (database.exist(dataCluster, typeName, revisionID, savedId)) {
+            NonCloseableInputStream nonCloseableInputStream = new NonCloseableInputStream(database.get(dataCluster, typeName, revisionID, savedId));
+
+            try {
+                nonCloseableInputStream.mark(-1);
+
+                Document databaseDomDocument = SaverContextFactory.DOM_PARSER_FACTORY.parse(nonCloseableInputStream);
+                MutableDocument databaseDocument = new DOMDocument(getUserXmlElement(databaseDomDocument));
+
+                nonCloseableInputStream.reset();
+
+                SkipAttributeDocumentBuilder documentBuilder = new SkipAttributeDocumentBuilder(SaverContextFactory.DOM_PARSER_FACTORY);
+                Document databaseValidationDomDocument = documentBuilder.parse(new InputSource(nonCloseableInputStream));
+                MutableDocument databaseValidationDocument = new DOMDocument(getUserXmlElement(databaseValidationDomDocument));
+
+                context.setDatabaseDocument(databaseDocument);
+                context.setDatabaseValidationDocument(databaseValidationDocument);
+            } catch(Exception e) {
+                throw new RuntimeException("Exception occurred during database document parsing", e);
+            } finally {
+                try {
+                    nonCloseableInputStream.forceClose();
+                } catch (IOException e) {
+                    LOGGER.error("Exception occurred during close of stream.", e);
+                }
+            } 
+            
+        } else {
+            context.setDatabaseDocument(new DOMDocument(SaverContextFactory.DOM_PARSER_FACTORY.newDocument()));
+            context.setDatabaseValidationDocument(new DOMDocument(SaverContextFactory.DOM_PARSER_FACTORY.newDocument()));
+        }
+
+        // Continue save
+        savedTypeName = context.getType().getName();
+        context.setId(savedId);
+        next.save(session, context);
+
+        if (hasMetAutoIncrement) {
+            // TODO This is somewhat bad: would be better to do it on commit.
+            // Save current state of autoincrement when save is completed:
+            AutoIncrementGenerator.saveToDB();
+        }
+
     }
 
     private static Node getUserXmlElement(Document databaseDomDocument) {

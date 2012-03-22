@@ -16,12 +16,16 @@ import com.amalto.core.history.MutableDocument;
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.save.DocumentSaverContext;
 
-import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 class SystemContext implements DocumentSaverContext {
 
     private final String dataCluster;
+
+    private final String dataModelName;
+
+    private final List<Action> actions = new LinkedList<Action>();
 
     private String revisionId;
 
@@ -35,13 +39,14 @@ class SystemContext implements DocumentSaverContext {
 
     private ComplexTypeMetadata type;
 
-    public SystemContext(String dataCluster, MutableDocument document) {
+    public SystemContext(String dataCluster, String dataModelName, MutableDocument document) {
         this.dataCluster = dataCluster;
+        this.dataModelName = dataModelName;
         this.userDocument = document;
     }
 
     public DocumentSaver createSaver() {
-        return new Init(new Save());
+        return new Init(new ID(new SystemActions(new ApplyActions(new Save()))));
     }
 
     public MutableDocument getDatabaseDocument() {
@@ -61,11 +66,12 @@ class SystemContext implements DocumentSaverContext {
     }
 
     public List<Action> getActions() {
-        return Collections.emptyList();
+        return actions;
     }
 
     public void setActions(List<Action> actions) {
-        // TODO
+        this.actions.clear();
+        this.actions.addAll(actions);
     }
 
     public ComplexTypeMetadata getType() {
@@ -77,7 +83,7 @@ class SystemContext implements DocumentSaverContext {
     }
 
     public String getDataModelName() {
-        throw new UnsupportedOperationException();
+        return dataModelName;
     }
 
     public String getRevisionID() {

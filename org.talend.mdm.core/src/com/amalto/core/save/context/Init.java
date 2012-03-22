@@ -35,6 +35,9 @@ public class Init implements DocumentSaver {
         // Get type name
         String typeName = context.getUserDocument().asDOM().getDocumentElement().getNodeName();
         ComplexTypeMetadata type = saverSource.getMetadataRepository(dataModelName).getComplexType(typeName);
+        if (type == null) {
+            throw new IllegalArgumentException("Type '" + typeName + "' is unknown in data model '" + dataModelName + "'.");
+        }
         context.setType(type);
 
         // check cluster exist or not

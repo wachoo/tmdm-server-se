@@ -36,7 +36,6 @@ class Validation implements DocumentSaver {
 
             next.save(session, context);
         } catch (Exception e) {
-            System.out.println("context = " + context.getDatabaseValidationDocument().exportToString());
             throw new RuntimeException("Failed to validate document", e);
         }
     }

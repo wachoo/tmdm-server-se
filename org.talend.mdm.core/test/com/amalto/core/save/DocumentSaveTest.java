@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.Set;
 
+// TODO Asserts!
 public class DocumentSaveTest extends TestCase {
 
     public void testCreate() throws Exception {
@@ -42,6 +43,7 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void testUpdate() throws Exception {
+        // TODO Test for modification of id (this test modifies id but this is intentional).
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
 
@@ -60,18 +62,13 @@ public class DocumentSaveTest extends TestCase {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
 
-        SaverSource source = new TestSaverSource(repository, true, "test1_original.xml");
+        SaverSource source = new TestSaverSource(repository, true, "test3_original.xml");
 
         SaverSession session = SaverSession.newSession(source);
-        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
-        DocumentSaverContext context = session.getContextFactory().create("UpdateReport", "DStar", "Source", recordXml, true, false);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test3.xml");
+        DocumentSaverContext context = session.getContextFactory().create("UpdateReport", "UpdateReport", "Source", recordXml, true, false);
         DocumentSaver saver = context.createSaver();
-        try {
-            saver.save(session, context);
-            fail("Expected fail due to TMDM-3606");
-        } catch (Exception e) {
-            // Expected
-        }
+        saver.save(session, context);
         session.end(new MockCommitter());
     }
 
@@ -251,7 +248,7 @@ public class DocumentSaveTest extends TestCase {
 
     private static class MockCommitter implements SaverSession.Committer {
 
-        private static final boolean DEBUG = false;
+        private static final boolean DEBUG = true;
 
         public void begin(String dataCluster) {
             if (DEBUG) {

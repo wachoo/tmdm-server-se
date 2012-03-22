@@ -15,6 +15,7 @@ import com.amalto.core.history.MutableDocument;
 import com.amalto.core.save.DOMDocument;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.ReportDocumentSaverContext;
+import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
@@ -34,6 +35,8 @@ public class SaverContextFactory {
     private static final Map<String, XSystemObjects> SYSTEM_DATA_CLUSTERS = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
 
     private static final SAXParserFactory SAX_PARSER_FACTORY = SAXParserFactory.newInstance();
+    
+    private static final String SYSTEM_CONTAINER_PREFIX = "amalto";  //$NON-NLS-1$
 
     static {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -54,24 +57,7 @@ public class SaverContextFactory {
     public DocumentSaverContext create(String dataCluster,
                                        String dataModelName,
                                        InputStream documentStream) {
-        // Parsing
-        MutableDocument userDocument;
-        try {
-            Document userDomDocument = DOM_PARSER_FACTORY.parse(new InputSource(documentStream));
-            userDocument = new DOMDocument(userDomDocument);
-        } catch (Exception e) {
-            throw new RuntimeException("Unable to parse document to save.", e);
-        }
-
-        // Choose right context implementation
-        DocumentSaverContext context;
-        if (dataCluster.startsWith("amalto") || XSystemObjects.isXSystemObject(SYSTEM_DATA_CLUSTERS, XObjectType.DATA_CLUSTER, dataCluster)) { //$NON-NLS-1$
-            context = new SystemContext(dataCluster, userDocument);
-        } else {
-            context = new UserContext(dataCluster, dataModelName, userDocument, false, false);
-        }
-
-        return context;
+        return create(dataCluster, dataModelName, StringUtils.EMPTY, documentStream, false, false);
     }
 
     public DocumentSaverContext create(String dataCluster,
@@ -95,12 +81,16 @@ public class SaverContextFactory {
 
         // Choose right context implementation
         DocumentSaverContext context;
-        if (dataCluster.startsWith("amalto") || XSystemObjects.isXSystemObject(SYSTEM_DATA_CLUSTERS, XObjectType.DATA_CLUSTER, dataCluster)) { //$NON-NLS-1$
-            context = new SystemContext(dataCluster, userDocument);
+        if (dataCluster.startsWith(SYSTEM_CONTAINER_PREFIX) || XSystemObjects.isXSystemObject(SYSTEM_DATA_CLUSTERS, XObjectType.DATA_CLUSTER, dataCluster)) { //$NON-NLS-1$
+            context = new SystemContext(dataCluster, dataModelName, userDocument);
         } else {
             context = new UserContext(dataCluster, dataModelName, userDocument, updateReport, invokeBeforeSaving);
         }
 
-        return ReportDocumentSaverContext.decorate(context, changeSource);
+        if (updateReport) {
+            return ReportDocumentSaverContext.decorate(context, changeSource);
+        } else {
+            return context;
+        }
     }
 }
