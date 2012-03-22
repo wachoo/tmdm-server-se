@@ -64,7 +64,9 @@ class GenerateActions implements DocumentSaver {
         }
         context.setActions(actions);
 
-        next.save(session, context);
+        if (!actions.isEmpty()) { // Ignore rest of save chain if there's no change to perform.
+            next.save(session, context);
+        }
     }
 
     public String[] getSavedId() {
