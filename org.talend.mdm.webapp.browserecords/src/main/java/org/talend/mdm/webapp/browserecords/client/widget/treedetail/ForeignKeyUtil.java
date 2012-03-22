@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Stack;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
@@ -38,7 +39,8 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class ForeignKeyUtil {
 
-    public static void checkChange(final boolean isCreateForeignKey, final String foreignKeyName, final String ids, final ItemsDetailPanel itemsDetailPanel) {
+    public static void checkChange(final boolean isCreateForeignKey, final String foreignKeyName, final String ids,
+            final ItemsDetailPanel itemsDetailPanel) {
 
         Widget widget = itemsDetailPanel.getFirstTabWidget();
         final ItemNodeModel root;
@@ -94,8 +96,8 @@ public class ForeignKeyUtil {
         final boolean isCreated = isCreate;
         if (validateSuccess) {
             BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
-            service.saveItem(viewBean, itemBean.getIds(), CommonUtil.toXML(model, viewBean), isCreate, Locale
-                    .getLanguage(), new SessionAwareAsyncCallback<ItemResult>() {
+            service.saveItem(viewBean, itemBean.getIds(), CommonUtil.toXML(model, viewBean), isCreate, Locale.getLanguage(),
+                    new SessionAwareAsyncCallback<ItemResult>() {
 
                         @Override
                         protected void doOnFailure(Throwable caught) {
@@ -106,26 +108,27 @@ public class ForeignKeyUtil {
                                     MessageBox.alert(MessagesFactory.getMessages().error_title(), err.substring(8), null);
                                 } else
                                     MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                            CommonUtil.pickOutISOMessage(err), null);
+                                            MultilanguageMessageParser.pickOutISOMessage(err), null);
                             } else
                                 super.doOnFailure(caught);
                         }
 
-                public void onSuccess(ItemResult result) {
-                    MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().save_success(),
-                            null);
-                    if (widget instanceof ItemPanel && isCreated) {
-                        ItemsListPanel.getInstance().lastPage();
-                    }
-                    displayForeignKey(isCreateForeignKey, foreignKeyName, ids, itemsDetailPanel);
-                }
-            });
+                        public void onSuccess(ItemResult result) {
+                            MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
+                                    .save_success(), null);
+                            if (widget instanceof ItemPanel && isCreated) {
+                                ItemsListPanel.getInstance().lastPage();
+                            }
+                            displayForeignKey(isCreateForeignKey, foreignKeyName, ids, itemsDetailPanel);
+                        }
+                    });
         } else {
             MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().save_error(), null);
         }
     }
 
-    public static void displayForeignKey(boolean isCreateForeignKey, final String foreignKeyName, final String ids, ItemsDetailPanel itemsDetailPanel) {
+    public static void displayForeignKey(boolean isCreateForeignKey, final String foreignKeyName, final String ids,
+            ItemsDetailPanel itemsDetailPanel) {
         Dispatcher dispatch = Dispatcher.get();
         AppEvent event = new AppEvent(BrowseRecordsEvents.CreateForeignKeyView, foreignKeyName);
         event.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);

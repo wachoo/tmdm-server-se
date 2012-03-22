@@ -23,6 +23,7 @@ public class PhysicalDeleteAction implements DeleteAction {
                 }
                 postDeleteAction.doAction();
             }
+
         });
     }
 }
