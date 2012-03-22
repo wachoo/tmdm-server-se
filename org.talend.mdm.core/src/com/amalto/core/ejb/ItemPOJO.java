@@ -25,7 +25,6 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.exolab.castor.xml.Marshaller;
 import org.talend.mdm.commmon.util.bean.ItemCacheKey;
@@ -65,7 +64,12 @@ public class ItemPOJO implements Serializable {
 
     public final static String LOGGING_EVENT = "logging_event"; //$NON-NLS-1$
 
-    private static final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();
+    /**
+     * FIXME The newInstance() is deprecated and the newFactory() method should be used instead. However since no
+     * changes in behavior are defined by this replacement method, keep deprecated method to ensure there's no
+     * classloading issues for now (see TMDM-3604).
+     **/
+    private static final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
 
     private String dataModelName;// used for binding data model
 
