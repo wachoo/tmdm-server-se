@@ -2,11 +2,6 @@
 <module rename-to='browserecords'>
     <inherits name="org.talend.mdm.webapp.browserecords.BaseBrowseRecords" />
 
-
-	<!-- CHENG: There seems to be a problem with Test classes. -->
-	<source path="client" excludes="**/*Test.java" />
-	
-	
     <!-- Specify the app entry point class. -->
     <entry-point class='org.talend.mdm.webapp.browserecords.client.BrowseRecords' />
 
