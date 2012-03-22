@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.browserecords.client.mvc;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.client.util.WaitBox;
 import org.talend.mdm.webapp.base.client.widget.CallbackAction;
 import org.talend.mdm.webapp.base.shared.TypeModel;
@@ -123,12 +124,11 @@ public class BrowseRecordsController extends Controller {
         final Boolean isCreate = event.getData("isCreate"); //$NON-NLS-1$
         final Boolean isClose = event.getData("isClose"); //$NON-NLS-1$
         final ItemDetailToolBar detailToolBar = event.getData("itemDetailToolBar"); //$NON-NLS-1$
-        WaitBox.show(MessagesFactory.getMessages().save_progress_bar_title(),
-                MessagesFactory.getMessages().save_progress_bar_message(),
-                MessagesFactory.getMessages().please_wait());
+        WaitBox.show(MessagesFactory.getMessages().save_progress_bar_title(), MessagesFactory.getMessages()
+                .save_progress_bar_message(), MessagesFactory.getMessages().please_wait());
 
-        service.saveItem(viewBean, itemBean.getIds(), CommonUtil.toXML(model, viewBean), isCreate,
-                Locale.getLanguage(), new SessionAwareAsyncCallback<ItemResult>() {
+        service.saveItem(viewBean, itemBean.getIds(), CommonUtil.toXML(model, viewBean), isCreate, Locale.getLanguage(),
+                new SessionAwareAsyncCallback<ItemResult>() {
 
                     @Override
                     protected void doOnFailure(Throwable caught) {
@@ -138,8 +138,8 @@ public class BrowseRecordsController extends Controller {
                                 // add for before saving transformer check
                                 MessageBox.alert(MessagesFactory.getMessages().error_title(), err.substring(8), null);
                             } else
-                                MessageBox.alert(MessagesFactory.getMessages().error_title(), CommonUtil.pickOutISOMessage(err),
-                                        null);
+                                MessageBox.alert(MessagesFactory.getMessages().error_title(),
+                                        MultilanguageMessageParser.pickOutISOMessage(err), null);
                         } else
                             super.doOnFailure(caught);
                     }
@@ -149,11 +149,12 @@ public class BrowseRecordsController extends Controller {
                         MessageBox msgBox = null;
                         if (result.getStatus() == ItemResult.FAILURE) {
                             MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                    CommonUtil.pickOutISOMessage(result.getDescription()), null);
+                                    MultilanguageMessageParser.pickOutISOMessage(result.getDescription()), null);
                             return;
                         }
                         if (result.getDescription() != "")//$NON-NLS-1$
-                            msgBox = MessageBox.info(MessagesFactory.getMessages().info_title(), CommonUtil.pickOutISOMessage(result.getDescription()), null);
+                            msgBox = MessageBox.info(MessagesFactory.getMessages().info_title(),
+                                    MultilanguageMessageParser.pickOutISOMessage(result.getDescription()), null);
                         else
                             msgBox = MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
                                     .save_success(), null);
@@ -193,15 +194,16 @@ public class BrowseRecordsController extends Controller {
                             ItemsListPanel.getInstance().refreshGrid();
                         if (detailToolBar.isFkToolBar() && !isClose)
                             detailToolBar.refresh(result.getReturnValue());
-                        CallbackAction.getInstance().doAction(CallbackAction.HIERARCHY_SAVEITEM_CALLBACK,result.getReturnValue());
+                        CallbackAction.getInstance()
+                                .doAction(CallbackAction.HIERARCHY_SAVEITEM_CALLBACK, result.getReturnValue());
                     }
                 });
     }
 
     private native void setTimeout(MessageBox msgBox, int millisecond)/*-{
-        $wnd.setTimeout(function(){
-        msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
-        }, millisecond);
+		$wnd.setTimeout(function() {
+			msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
+		}, millisecond);
     }-*/;
 
     private void onViewForeignKey(final AppEvent event) {
