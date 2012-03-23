@@ -22,10 +22,7 @@ import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.util.AutoIncrementGenerator;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 
 import java.io.IOException;
@@ -111,11 +108,14 @@ class ID implements DocumentSaver {
 
                 SkipAttributeDocumentBuilder documentBuilder = new SkipAttributeDocumentBuilder(SaverContextFactory.DOM_PARSER_FACTORY);
                 Document databaseValidationDomDocument = documentBuilder.parse(new InputSource(nonCloseableInputStream));
-                MutableDocument databaseValidationDocument = new DOMDocument(getUserXmlElement(databaseValidationDomDocument));
+                Element userXmlElement = getUserXmlElement(databaseValidationDomDocument);
+                // TODO This is temporary! This is due to the Web UI that saves invalid documents!
+                clean(userXmlElement);
+                MutableDocument databaseValidationDocument = new DOMDocument(userXmlElement);
 
                 context.setDatabaseDocument(databaseDocument);
                 context.setDatabaseValidationDocument(databaseValidationDocument);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 throw new RuntimeException("Exception occurred during database document parsing", e);
             } finally {
                 try {
@@ -123,8 +123,8 @@ class ID implements DocumentSaver {
                 } catch (IOException e) {
                     LOGGER.error("Exception occurred during close of stream.", e);
                 }
-            } 
-            
+            }
+
         } else {
             context.setDatabaseDocument(new DOMDocument(SaverContextFactory.DOM_PARSER_FACTORY.newDocument()));
             context.setDatabaseValidationDocument(new DOMDocument(SaverContextFactory.DOM_PARSER_FACTORY.newDocument()));
@@ -143,7 +143,47 @@ class ID implements DocumentSaver {
 
     }
 
-    private static Node getUserXmlElement(Document databaseDomDocument) {
+    private static void clean(Element element) {
+        if (element == null) {
+            return;
+        }
+        if (isEmpty(element)) {
+            element.getParentNode().removeChild(element);
+        }
+
+        NodeList children = element.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            Node node = children.item(i);
+            if (node instanceof Element) {
+                clean((Element) node);
+            }
+        }
+    }
+
+    private static boolean isEmpty(Element element) {
+        if (element == null) {
+            return true;
+        }
+
+        NodeList children = element.getChildNodes();
+        if (children.getLength() == 0) {
+            return true;
+        } else {
+            for (int i = 0; i < children.getLength(); i++) {
+                Node node = children.item(i);
+                if (node instanceof Element && !isEmpty((Element) node)) {
+                    return false;
+                } else if (node instanceof Text) {
+                    if (!node.getTextContent().trim().isEmpty()) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+    }
+
+    private static Element getUserXmlElement(Document databaseDomDocument) {
         NodeList userXmlPayloadElement = databaseDomDocument.getElementsByTagName("p"); //$NON-NLS-1$
         if (userXmlPayloadElement.getLength() > 1) {
             throw new IllegalStateException("Document has multiple payload elements.");
@@ -151,7 +191,7 @@ class ID implements DocumentSaver {
         NodeList children = userXmlPayloadElement.item(0).getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
             if (children.item(i) instanceof Element) {
-                return children.item(i);
+                return (Element) children.item(i);
             }
         }
         throw new IllegalStateException("Element 'p' is expected to have an XML element as child.");
