@@ -88,6 +88,37 @@ public class DocumentSaveTest extends TestCase {
 
     }
 
+    public void testLegacyUpdate2() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+
+        SaverSource source = new TestSaverSource(repository, true, "test6_original.xml");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test6.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        session.end(new MockCommitter());
+
+    }
+
+    public void testLegacyUpdate3() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+
+        SaverSource source = new TestSaverSource(repository, true, "test7_original.xml");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test7.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        session.end(new MockCommitter());
+
+    }
+
+
     public void testSystemUpdate() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));

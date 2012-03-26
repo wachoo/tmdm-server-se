@@ -92,6 +92,9 @@ class ID implements DocumentSaver {
             ids.add(currentIdValue);
         }
 
+        // TODO This is temporary! This is due to legacy behavior (consider empty elements as no op)!
+        clean(userDocument.asDOM().getDocumentElement());
+
         // now has an id, so load database document
         String[] savedId = getSavedId();
         String revisionID = context.getRevisionID();
@@ -102,13 +105,16 @@ class ID implements DocumentSaver {
                 nonCloseableInputStream.mark(-1);
 
                 Document databaseDomDocument = SaverContextFactory.DOM_PARSER_FACTORY.parse(nonCloseableInputStream);
-                MutableDocument databaseDocument = new DOMDocument(getUserXmlElement(databaseDomDocument));
+                Element userXmlElement = getUserXmlElement(databaseDomDocument);
+                // TODO This is temporary! This is due to the Web UI that saves invalid documents!
+                clean(userXmlElement);
+                MutableDocument databaseDocument = new DOMDocument(userXmlElement);
 
                 nonCloseableInputStream.reset();
 
                 SkipAttributeDocumentBuilder documentBuilder = new SkipAttributeDocumentBuilder(SaverContextFactory.DOM_PARSER_FACTORY);
                 Document databaseValidationDomDocument = documentBuilder.parse(new InputSource(nonCloseableInputStream));
-                Element userXmlElement = getUserXmlElement(databaseValidationDomDocument);
+                userXmlElement = getUserXmlElement(databaseValidationDomDocument);
                 // TODO This is temporary! This is due to the Web UI that saves invalid documents!
                 clean(userXmlElement);
                 MutableDocument databaseValidationDocument = new DOMDocument(userXmlElement);
@@ -149,13 +155,13 @@ class ID implements DocumentSaver {
         }
         if (isEmpty(element)) {
             element.getParentNode().removeChild(element);
-        }
-
-        NodeList children = element.getChildNodes();
-        for (int i = 0; i < children.getLength(); i++) {
-            Node node = children.item(i);
-            if (node instanceof Element) {
-                clean((Element) node);
+        } else {
+            NodeList children = element.getChildNodes();
+            for (int i = 0; i < children.getLength(); i++) {
+                Node node = children.item(i);
+                if (node instanceof Element) {
+                    clean((Element) node);
+                }
             }
         }
     }

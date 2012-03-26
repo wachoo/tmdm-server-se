@@ -155,7 +155,6 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 String originalTextContent = originalList.item(0).getTextContent();
                 String newTextContent = newList.item(0).getTextContent();
 
-
                 if (!newTextContent.isEmpty()) {
                     if (!originalTextContent.equals(newTextContent)) {
                         actions.add(new FieldUpdateAction(date, source, userName, getPath(simpleField.getName()), originalTextContent, newTextContent));
@@ -167,10 +166,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
         } else if (originalList.getLength() == 0) {
             String newTextContent = newList.item(0).getTextContent();
             actions.add(new FieldUpdateAction(date, source, userName, getPath(simpleField.getName()), StringUtils.EMPTY, newTextContent));
-        } else if (newList.getLength() == 0) {
-            String originalTextContent = originalList.item(0).getTextContent();
-            actions.add(new FieldUpdateAction(date, source, userName, getPath(simpleField.getName()), originalTextContent, StringUtils.EMPTY));
-        }
+        } // TODO if (newList.getLength() == 0) --> user document may omit fields do not generate updates for this.
     }
 
     private void handleManyField(FieldMetadata manyField, NodeList originalList, NodeList newList) {
