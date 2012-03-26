@@ -11,8 +11,6 @@ import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.DeferredCommand;
 
 public class FormatTextField extends TextField<String> {
 
@@ -50,15 +48,6 @@ public class FormatTextField extends TextField<String> {
 
     public void setDiplayValue(String diplayValue) {
         this.diplayValue = diplayValue;
-    }
-
-    protected void alignErrorIcon() {
-        DeferredCommand.addCommand(new Command() {
-
-            public void execute() {
-                errorIcon.el().alignTo(getElement(), "tl-tr", new int[] { 45, 2 }); //$NON-NLS-1$
-            }
-        });
     }
 
     @Override

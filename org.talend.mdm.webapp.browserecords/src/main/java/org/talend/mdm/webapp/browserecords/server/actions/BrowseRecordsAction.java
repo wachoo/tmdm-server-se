@@ -1643,8 +1643,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
             if (wsi == null)
                 return new ItemResult(status, message, ids);
-            else
-                return new ItemResult(status, message, Util.joinStrings(wsi.getIds(), ".")); //$NON-NLS-1$
+            else {
+                WSItem wsItem = CommonUtil.getPort().getItem(new WSGetItem(new WSItemPK(new WSDataClusterPK(getCurrentDataCluster()), concept, wsi.getIds())));
+                return new ItemResult(status, message, Util.joinStrings(wsi.getIds(), "."), wsItem.getInsertionTime()); //$NON-NLS-1$
+            }
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
             throw e;
