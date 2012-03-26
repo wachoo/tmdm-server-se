@@ -27,6 +27,8 @@ public class ItemResult implements Serializable {
 
     private int status;
 
+    private long insertionTime;
+
     private String description;
 
     private String returnValue;
@@ -44,9 +46,13 @@ public class ItemResult implements Serializable {
     }
 
     public ItemResult(int status, String description, String returnValue) {
-        setStatus(status);
-        setDescription(description);
+        this(status, description);
         setReturnValue(returnValue);
+    }
+
+    public ItemResult(int status, String description, String returnValue, long insertionTime) {
+        this(status, description, returnValue);
+        setInsertionTime(insertionTime);
     }
 
     public void setStatus(int status) {
@@ -71,5 +77,13 @@ public class ItemResult implements Serializable {
 
     public void setReturnValue(String returnValue) {
         this.returnValue = returnValue;
+    }
+
+    public long getInsertionTime() {
+        return insertionTime;
+    }
+
+    public void setInsertionTime(long insertionTime) {
+        this.insertionTime = insertionTime;
     }
 }

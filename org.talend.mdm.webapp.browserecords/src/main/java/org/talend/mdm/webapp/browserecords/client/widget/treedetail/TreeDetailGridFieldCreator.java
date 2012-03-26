@@ -44,7 +44,6 @@ import org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator.Te
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.FacetEnum;
 
-import com.extjs.gxt.ui.client.Style.HideMode;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
@@ -54,9 +53,9 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -64,7 +63,6 @@ import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.ui.Widget;
 
 public class TreeDetailGridFieldCreator {
@@ -348,21 +346,8 @@ public class TreeDetailGridFieldCreator {
         field.addListener(Events.Attach, new Listener<FieldEvent>() {
 
             public void handleEvent(FieldEvent fe) {
-                field.el().setStyleAttribute("display", "inline"); //$NON-NLS-1$ //$NON-NLS-2$
                 validate(field, node);
             }
-        });
-
-        field.addListener(Events.Invalid, new Listener<FieldEvent>() {
-
-            public void handleEvent(FieldEvent be) {
-                WidgetComponent errorIcon = getErrorIcon(field);
-                errorIcon.el().removeStyleName("x-hide-visibility"); //$NON-NLS-1$
-                errorIcon.setHideMode(HideMode.DISPLAY);
-                errorIcon.el().setStyleAttribute("display", "inline"); //$NON-NLS-1$ //$NON-NLS-2$
-                errorIcon.el().dom.getStyle().setProperty("position", ""); //$NON-NLS-1$//$NON-NLS-2$
-            }
-
         });
 
         field.addListener(Events.Blur, new Listener<FieldEvent>() {
@@ -381,10 +366,6 @@ public class TreeDetailGridFieldCreator {
             }
         });
     }
-
-    private static native WidgetComponent getErrorIcon(Field<?> field)/*-{
-        return field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon;
-    }-*/;
 
     private static void buildFacets(TypeModel typeModel, Widget w) {
         if (typeModel instanceof SimpleTypeModel) {
