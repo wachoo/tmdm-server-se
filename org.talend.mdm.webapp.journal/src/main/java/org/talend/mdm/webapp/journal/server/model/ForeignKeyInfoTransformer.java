@@ -46,12 +46,12 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
     }
     
     public Document transform(MutableDocument document) {
-        Map<String, FieldMetadata> pathToForeignKeyInfo = metadata.accept(new ForeignKeyInfoResolver());
+        Map<String, ReferenceFieldMetadata> pathToForeignKeyInfo = metadata.accept(new ForeignKeyInfoResolver());
 
-        Set<Map.Entry<String, FieldMetadata>> entries = pathToForeignKeyInfo.entrySet();
-        for (Map.Entry<String, FieldMetadata> entry : entries) {
+        Set<Map.Entry<String, ReferenceFieldMetadata>> entries = pathToForeignKeyInfo.entrySet();
+        for (Map.Entry<String, ReferenceFieldMetadata> entry : entries) {
             String path = entry.getKey();
-            FieldMetadata fieldMetadata = entry.getValue();
+            ReferenceFieldMetadata fieldMetadata = entry.getValue();
             Accessor accessor = document.createAccessor("/ii/p/" + path); //$NON-NLS-1$
 
             if (accessor.exist()) { // The field might not be set, so check if it exists.
@@ -66,7 +66,7 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
         return document;
     }
 
-    private String resolveForeignKeyValue(FieldMetadata foreignKeyField, String foreignKeyValue) {
+    private String resolveForeignKeyValue(ReferenceFieldMetadata foreignKeyField, String foreignKeyValue) {
 
         ItemPOJO item;
         try {
@@ -105,9 +105,9 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
         }
     }
 
-    private static class ForeignKeyInfoResolver extends DefaultMetadataVisitor<Map<String, FieldMetadata>> {
+    private static class ForeignKeyInfoResolver extends DefaultMetadataVisitor<Map<String, ReferenceFieldMetadata>> {
 
-        private final Map<String, FieldMetadata> pathToForeignKeyInfo = new HashMap<String, FieldMetadata>();
+        private final Map<String, ReferenceFieldMetadata> pathToForeignKeyInfo = new HashMap<String, ReferenceFieldMetadata>();
 
         private Stack<String> currentPosition = new Stack<String>();
 
@@ -120,7 +120,7 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
         }
 
         @Override
-        public Map<String, FieldMetadata> visit(ComplexTypeMetadata metadata) {
+        public Map<String, ReferenceFieldMetadata> visit(ComplexTypeMetadata metadata) {
             currentPosition.push(metadata.getName());
             {
                 super.visit(metadata);
@@ -131,7 +131,7 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
         }
 
         @Override
-        public Map<String, FieldMetadata> visit(ReferenceFieldMetadata metadata) {
+        public Map<String, ReferenceFieldMetadata> visit(ReferenceFieldMetadata metadata) {
             currentPosition.push(metadata.getName());
             {
                 if (metadata.hasForeignKeyInfo()) {
@@ -145,26 +145,9 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
         }
 
         @Override
-        public Map<String, FieldMetadata> visit(SimpleTypeFieldMetadata metadata) {
+        public Map<String, ReferenceFieldMetadata> visit(SimpleTypeFieldMetadata metadata) {
             currentPosition.push(metadata.getName());
             {
-                if (metadata.hasForeignKeyInfo()) {
-                    pathToForeignKeyInfo.put(getCurrentPath(), metadata);
-                }
-                super.visit(metadata);
-            }
-            currentPosition.pop();
-
-            return pathToForeignKeyInfo;
-        }
-
-        @Override
-        public Map<String, FieldMetadata> visit(FieldMetadata metadata) {
-            currentPosition.push(metadata.getName());
-            {
-                if (metadata.hasForeignKeyInfo()) {
-                    pathToForeignKeyInfo.put(getCurrentPath(), metadata);
-                }
                 super.visit(metadata);
             }
             currentPosition.pop();
