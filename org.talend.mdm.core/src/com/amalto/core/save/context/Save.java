@@ -26,6 +26,8 @@ class Save implements DocumentSaver {
 
         Element documentElement = context.getDatabaseDocument().asDOM().getDocumentElement();
         ItemPOJO item = new ItemPOJO(dataCluster, typeName, ids, System.currentTimeMillis(), documentElement);
+        // Data model name is rather important! (used by FK integrity checks for instance).
+        item.setDataModelName(context.getDataModelName());
         item.setDataModelRevision(context.getRevisionID()); // TODO Is data model revision ok?
 
         session.save(context.getDataCluster(), item);
