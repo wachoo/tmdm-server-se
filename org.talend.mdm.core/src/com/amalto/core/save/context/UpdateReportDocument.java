@@ -187,5 +187,9 @@ class UpdateReportDocument extends DOMDocument {
         public void markUnmodified() {
             throw new UnsupportedOperationException();
         }
+
+        public int size() {
+            return 1;
+        }
     }
 }

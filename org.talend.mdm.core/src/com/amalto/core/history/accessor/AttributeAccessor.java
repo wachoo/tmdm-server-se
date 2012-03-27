@@ -124,4 +124,8 @@ class AttributeAccessor implements DOMAccessor {
             attributes.removeNamedItem(MODIFIED_MARKER_ATTRIBUTE);
         }
     }
+
+    public int size() {
+        return 1;
+    }
 }

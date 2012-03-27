@@ -92,4 +92,6 @@ public interface Accessor {
      * @see #markModified()
      */
     void markUnmodified();
+
+    int size();
 }

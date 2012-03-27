@@ -60,4 +60,8 @@ class RootAccessor implements DOMAccessor {
     public void markUnmodified() {
         throw new IllegalStateException("Cannot mark this as unmodified. No value to be set in this accessor");
     }
+
+    public int size() {
+        return getNode().getChildNodes().getLength();
+    }
 }

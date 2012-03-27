@@ -59,8 +59,12 @@ class GenerateActions implements DocumentSaver {
         } else {
             // get updated paths
             ComplexTypeMetadata type = context.getType();
-            UpdateActionCreator actionCreator = new UpdateActionCreator(databaseDocument.asDOM(), userDocument.asDOM(), source, userName);
-            actions = type.accept(actionCreator);
+            UpdateActionCreator actionCreator = new UpdateActionCreator(databaseDocument, userDocument, source, userName);
+            try {
+                actions = type.accept(actionCreator);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
         context.setActions(actions);
 

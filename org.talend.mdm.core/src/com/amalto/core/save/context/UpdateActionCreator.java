@@ -12,12 +12,10 @@
 package com.amalto.core.save.context;
 
 import com.amalto.core.history.Action;
+import com.amalto.core.history.MutableDocument;
+import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.action.FieldUpdateAction;
 import com.amalto.core.metadata.*;
-import org.apache.commons.lang.StringUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 import java.util.*;
 
@@ -27,19 +25,19 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     private final List<Action> actions = new LinkedList<Action>();
 
-    private Element currentOriginalElement;
-
-    private Element currentNewElement;
-
     private final Date date;
 
     private final String source;
 
     private final String userName;
 
-    public UpdateActionCreator(Document originalDocument, Document newDocument, String source, String userName) {
-        currentOriginalElement = originalDocument.getDocumentElement();
-        currentNewElement = newDocument.getDocumentElement();
+    private final MutableDocument originalDocument;
+
+    private final MutableDocument newDocument;
+
+    public UpdateActionCreator(MutableDocument originalDocument, MutableDocument newDocument, String source, String userName) {
+        this.originalDocument = originalDocument;
+        this.newDocument = newDocument;
         date = new Date(System.currentTimeMillis());
         this.source = source;
         this.userName = userName;
@@ -69,151 +67,72 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     @Override
     public List<Action> visit(ContainedTypeFieldMetadata containedField) {
-        NodeList originalElementList = currentOriginalElement.getElementsByTagName(containedField.getName());
-        NodeList newElementList = currentNewElement.getElementsByTagName(containedField.getName());
-
-        if (originalElementList.getLength() != newElementList.getLength()) {
-            // TODO This is done on purpose: we ignore updates with empty elements.
-            if (newElementList.getLength() == 0) {
-                return actions;
-            }
-        } else {
-            if (originalElementList.getLength() == 0) { // And newElementList length is 0
-                return actions;
-            }
-        }
-
         if (!containedField.isMany()) {
             path.add(containedField.getName());
-            currentOriginalElement = (Element) originalElementList.item(0);
-            currentNewElement = (Element) newElementList.item(0);
-
             super.visit(containedField);
-
             path.pop();
-            currentOriginalElement = (Element) currentOriginalElement.getParentNode();
-            currentNewElement = (Element) currentNewElement.getParentNode();
         } else {
-            for (int i = 0; i < originalElementList.getLength(); i++) {
+            Accessor accessor = originalDocument.createAccessor(getPath(containedField.getName()));
+            int leftLength = accessor.size();
+            int rightLength = accessor.size();
+
+            for (int i = 0; i < leftLength; i++) {
                 // Path generation code is a bit duplicated (be careful)... and XPath indexes are 1-based (not 0-based).
                 path.add(containedField.getName() + "[" + (i + 1) + "]");
-                currentOriginalElement = (Element) originalElementList.item(i);
-                currentNewElement = (Element) newElementList.item(i);
-
                 super.visit(containedField);
-
                 path.pop();
             }
-            currentOriginalElement = (Element) currentOriginalElement.getParentNode();
-            currentNewElement = (Element) currentNewElement.getParentNode();
+            if (rightLength > leftLength) {
+                for (int i = leftLength; i < rightLength; i++) {
+                    // Path generation code is a bit duplicated (be careful)... and XPath indexes are 1-based (not 0-based).
+                    path.add(containedField.getName() + "[" + (i + 1) + "]");
+                    super.visit(containedField);
+                    path.pop();
+                }
+            }
         }
         return actions;
     }
 
     @Override
     public List<Action> visit(ReferenceFieldMetadata referenceField) {
-        NodeList originalList = currentOriginalElement.getElementsByTagName(referenceField.getName());
-        NodeList newList = currentNewElement.getElementsByTagName(referenceField.getName());
-
-        if (!referenceField.isMany()) {
-            handleUnaryField(referenceField, originalList, newList);
-        } else {
-            handleManyField(referenceField, originalList, newList);
-        }
+        handleField(referenceField);
         return actions;
     }
 
     @Override
     public List<Action> visit(SimpleTypeFieldMetadata simpleField) {
-        NodeList originalList = currentOriginalElement.getElementsByTagName(simpleField.getName());
-        NodeList newList = currentNewElement.getElementsByTagName(simpleField.getName());
-
-        if (!simpleField.isMany()) {
-            handleUnaryField(simpleField, originalList, newList);
-        } else {
-            handleManyField(simpleField, originalList, newList);
-        }
+        handleField(simpleField);
         return actions;
     }
 
     @Override
     public List<Action> visit(EnumerationFieldMetadata enumField) {
-        NodeList originalList = currentOriginalElement.getElementsByTagName(enumField.getName());
-        NodeList newList = currentNewElement.getElementsByTagName(enumField.getName());
-
-        if (!enumField.isMany()) {
-            handleUnaryField(enumField, originalList, newList);
-        } else {
-            handleManyField(enumField, originalList, newList);
-        }
+        handleField(enumField);
         return actions;
     }
 
-    private void handleUnaryField(FieldMetadata simpleField, NodeList originalList, NodeList newList) {
-        if (originalList.getLength() == newList.getLength()) {
-            if (originalList.getLength() == 1) {
-                String originalTextContent = originalList.item(0).getTextContent();
-                String newTextContent = newList.item(0).getTextContent();
+    private void handleField(FieldMetadata simpleField) {
+        String path = getPath(simpleField.getName());
+        Accessor originalAccessor = originalDocument.createAccessor(path);
+        Accessor newAccessor = newDocument.createAccessor(path);
 
-                if (!newTextContent.isEmpty()) {
-                    if (!originalTextContent.equals(newTextContent)) {
-                        actions.add(new FieldUpdateAction(date, source, userName, getPath(simpleField.getName()), originalTextContent, newTextContent));
-                    }
-                } else {
-                    // TODO This is done on purpose: we ignore updates with empty elements.
+        if (!originalAccessor.exist()) {
+            if (!newAccessor.exist()) {
+                // No op
+            } else { // new accessor exist
+                if (!newAccessor.get().isEmpty()) {
+                    actions.add(new FieldUpdateAction(date, source, userName, path, "", newAccessor.get()));
                 }
             }
-        } else if (originalList.getLength() == 0) {
-            String newTextContent = newList.item(0).getTextContent();
-            actions.add(new FieldUpdateAction(date, source, userName, getPath(simpleField.getName()), StringUtils.EMPTY, newTextContent));
-        } // TODO if (newList.getLength() == 0) --> user document may omit fields do not generate updates for this.
-    }
-
-    private void handleManyField(FieldMetadata manyField, NodeList originalList, NodeList newList) {
-        // Path generation code is a bit duplicated (be careful)... and XPath indexes are 1-based (not 0-based).
-        if (originalList.getLength() == newList.getLength()) {
-            for (int i = 0; i < originalList.getLength(); i++) {
-                String originalTextContent = originalList.item(i).getTextContent();
-                String newTextContent = newList.item(i).getTextContent();
-
-                if (!originalTextContent.equals(newTextContent)) {
-                    String itemPath = getPath(manyField.getName()) + "[" + (i + 1) + "]";
-                    actions.add(new FieldUpdateAction(date, source, userName, itemPath, originalTextContent, newTextContent));
+        } else { // original accessor exist
+            if (!newAccessor.exist()) {
+                // No op
+            } else { // new accessor exist
+                if (!originalAccessor.get().equals(newAccessor.get())) {
+                    actions.add(new FieldUpdateAction(date, source, userName, path, originalAccessor.get(), newAccessor.get()));
                 }
-            }
-        } else if (originalList.getLength() > newList.getLength()) {
-            int i = 0;
-            for (; i < newList.getLength(); i++) {
-                String originalTextContent = originalList.item(i).getTextContent();
-                String newTextContent = newList.item(i).getTextContent();
-
-                if (!originalTextContent.equals(newTextContent)) {
-                    String itemPath = getPath(manyField.getName()) + "[" + (i + 1) + "]";
-                    actions.add(new FieldUpdateAction(date, source, userName, itemPath, originalTextContent, newTextContent));
-                }
-            }
-            for (; i < originalList.getLength(); i++) {
-                String originalTextContent = originalList.item(i).getTextContent();
-                String itemPath = getPath(manyField.getName()) + "[" + (i + 1) + "]";
-                actions.add(new FieldUpdateAction(date, source, userName, itemPath, originalTextContent, StringUtils.EMPTY));
-            }
-        } else { // originalList.getLength() < newList.getLength() 
-            int i = 0;
-            for (; i < originalList.getLength(); i++) {
-                String originalTextContent = originalList.item(i).getTextContent();
-                String newTextContent = newList.item(i).getTextContent();
-
-                if (!originalTextContent.equals(newTextContent)) {
-                    String itemPath = getPath(manyField.getName()) + "[" + (i + 1) + "]";
-                    actions.add(new FieldUpdateAction(date, source, userName, itemPath, originalTextContent, newTextContent));
-                }
-            }
-            for (; i < newList.getLength(); i++) {
-                String newListContent = newList.item(i).getTextContent();
-                String itemPath = getPath(manyField.getName()) + "[" + (i + 1) + "]";
-                actions.add(new FieldUpdateAction(date, source, userName, itemPath, StringUtils.EMPTY, newListContent));
             }
         }
     }
-
 }
