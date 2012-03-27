@@ -12,7 +12,7 @@ public class UploadDataTest extends TestCase {
             fail();
         }
         catch (Exception e) {
-            assertTrue(e.getMessage().equals("This is beforeSaving error message")); //$NON-NLS-1$
+            assertTrue(e.getMessage().equals("[EN:This is beforeSaving error message][FR:This is beforeSaving french error message]")); //$NON-NLS-1$
         }
         
         // Check error handling in French
@@ -22,7 +22,7 @@ public class UploadDataTest extends TestCase {
             fail();
         }
         catch (Exception e) {
-            assertTrue(e.getMessage().equals("This is beforeSaving french error message")); //$NON-NLS-1$
+            assertTrue(e.getMessage().equals("[EN:This is beforeSaving error message][FR:This is beforeSaving french error message]")); //$NON-NLS-1$
         }
 
         // Check info handling
