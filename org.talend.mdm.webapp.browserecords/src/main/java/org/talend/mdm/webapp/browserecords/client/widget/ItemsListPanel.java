@@ -81,6 +81,7 @@ import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridView;
 import com.extjs.gxt.ui.client.widget.grid.RowEditor;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
@@ -255,6 +256,10 @@ public class ItemsListPanel extends ContentPanel {
         add(panel);
     }
 
+    public native void setBorderWidthGridView(GridView view, int borderWidth)/*-{
+        view.@com.extjs.gxt.ui.client.widget.grid.GridView::borderWidth = borderWidth;
+    }-*/;
+
     public void updateGrid(CheckBoxSelectionModel<ItemBean> sm, List<ColumnConfig> columnConfigList) {
         // toolBar.searchBut.setEnabled(false);
         if (gridContainer != null && this.findItem(gridContainer.getElement()) != null)
@@ -282,6 +287,7 @@ public class ItemsListPanel extends ContentPanel {
         grid.setStateId("grid"); //$NON-NLS-1$
         re = new SaveRowEditor();
         grid.getView().setForceFit(true);
+        setBorderWidthGridView(grid.getView(), 0);
         if (cm.getColumnCount() > 0) {
             grid.setAutoExpandColumn(cm.getColumn(0).getHeader());
         }
