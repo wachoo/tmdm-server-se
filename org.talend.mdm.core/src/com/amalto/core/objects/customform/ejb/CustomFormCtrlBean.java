@@ -15,15 +15,22 @@ package com.amalto.core.objects.customform.ejb;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 
+import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
+import com.amalto.core.objects.role.ejb.RolePOJO;
+import com.amalto.core.objects.role.ejb.RolePOJOPK;
+import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.RoleSpecification;
 import com.amalto.core.util.XtentisException;
 
 /**
@@ -150,12 +157,28 @@ public class CustomFormCtrlBean implements SessionBean {
      */
     public CustomFormPOJO getUserCustomForm(CustomFormPOJOPK cpk) throws XtentisException {
 
-        try {
-            Collection<ObjectPOJOPK> c = ObjectPOJO.findAllPKs(CustomFormPOJO.class, ""); //$NON-NLS-1$
+        try {            
+            List<String> ids= new ArrayList<String>();
+            String objectType = "Custom Layout";//$NON-NLS-1$
+            ILocalUser user = LocalUser.getLocalUser();
+            HashSet<String> roleNames = user.getRoles();
+            for (Iterator<String> iter = roleNames.iterator(); iter.hasNext(); ) {
+                String roleName = iter.next();
+                if ("administration".equals(roleName)||"authenticated".equals(roleName)) continue; //$NON-NLS-1$ //$NON-NLS-2$
+                
+                //load Role
+                RolePOJO role = ObjectPOJO.load(RolePOJO.class, new RolePOJOPK(roleName));
+                //get Specifications for the View Object
+                RoleSpecification specification = role.getRoleSpecifications().get(objectType);   
+                Set<String> keys=specification.getInstances().keySet();
+                for(String id:keys){
+                    ids.add(id);
+                }
+            }
             List<CustomFormPOJO> list = new ArrayList<CustomFormPOJO>();
-            for (ObjectPOJOPK pk : c) {
-                CustomFormPOJO pojo = ObjectPOJO.load(CustomFormPOJO.class, pk);
-                if (pojo.getDatamodel().equals(cpk.getDatamodel())
+            for (String pk : ids) {
+                CustomFormPOJO pojo = ObjectPOJO.load(CustomFormPOJO.class, new ObjectPOJOPK(pk.split("\\.\\.")));//$NON-NLS-1$
+                if (pojo!=null && pojo.getDatamodel().equals(cpk.getDatamodel())
                         && pojo.getEntity().equals(cpk.getEntity())) {
                     list.add(pojo);
                 }
