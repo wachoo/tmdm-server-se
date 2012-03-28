@@ -169,10 +169,12 @@ public class CustomFormCtrlBean implements SessionBean {
                 //load Role
                 RolePOJO role = ObjectPOJO.load(RolePOJO.class, new RolePOJOPK(roleName));
                 //get Specifications for the View Object
-                RoleSpecification specification = role.getRoleSpecifications().get(objectType);   
-                Set<String> keys=specification.getInstances().keySet();
-                for(String id:keys){
-                    ids.add(id);
+                RoleSpecification specification = role.getRoleSpecifications().get(objectType);
+                if(specification!=null){
+                    Set<String> keys=specification.getInstances().keySet();
+                    for(String id:keys){
+                        ids.add(id);
+                    }
                 }
             }
             List<CustomFormPOJO> list = new ArrayList<CustomFormPOJO>();
