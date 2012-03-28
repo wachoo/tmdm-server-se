@@ -86,11 +86,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
 
 			// Add View Filters from the Roles
 			ArrayList<IWhereItem> roleWhereConditions = getViewWCFromRole(viewPOJOPK);
-			fullWhere = getFullWhereCondition(whereItem, roleWhereConditions);
-
-			// add recordsSecurity filters for the Role
-			roleWhereConditions = getRecordsSecurityFromRole(mainPivotName);
-			fullWhere = getFullWhereCondition(whereItem, roleWhereConditions);
+			fullWhere = getFullWhereCondition(fullWhere, roleWhereConditions);
 
 			return runPivotIndexQuery(clusterName, mainPivotName,
 					pivotWithKeys, universe.getItemsRevisionIDs(),
@@ -131,10 +127,6 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
 			ArrayList conditions = view.getWhereConditions().getList();
 			Util.fixCondtions(conditions);
 			fullWhere = getFullWhereCondition(whereItem, conditions);
-
-			// add recordsSecurity filters for the Role
-			ArrayList<IWhereItem> roleWhereConditions = getRecordsSecurityFromRole(conceptName);
-			fullWhere = getFullWhereCondition(whereItem, roleWhereConditions);
 
 			return runChildrenItemsQuery(clusterName, conceptName, PKXpaths,
 					FKXpath, labelXpath, fatherPK,
@@ -199,11 +191,8 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
 
 			// add View Filters from the Roles
 			ArrayList<IWhereItem> roleWhereConditions = getViewWCFromRole(viewPOJOPK);
-			fullWhere = getFullWhereCondition(whereItem, roleWhereConditions);
+			fullWhere = getFullWhereCondition(fullWhere, roleWhereConditions);
 
-			// add recordsSecurity filters for the Role
-			roleWhereConditions = getRecordsSecurityFromRole(null);
-			fullWhere = getFullWhereCondition(whereItem, roleWhereConditions);
 
 			Map<String, ArrayList<String>> metaDataTypes = getMetaTypes(fullWhere);
 			return runItemsQuery(conceptPatternsToRevisionID,
@@ -308,9 +297,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
 			conceptPatternsToClusterName.put(".*",
 					dataClusterPOJOPK.getUniqueId());
 
-			// add recordsSecurity filters for the Role
-			ArrayList<IWhereItem> roleWhereConditions = getRecordsSecurityFromRole(forceMainPivot);
-			whereItem = getFullWhereCondition(whereItem, roleWhereConditions);
+
 			return runItemsQuery(conceptPatternsToRevisionID,
 					conceptPatternsToClusterName, forceMainPivot,
 					viewablePaths, whereItem, orderBy, direction, start, limit,
@@ -356,9 +343,6 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
 		try {
 			ArrayList<String> elements = new ArrayList<String>();
 			elements.add(conceptName);
-			// add recordsSecurity filters for the Role
-			ArrayList<IWhereItem> roleWhereConditions = getRecordsSecurityFromRole(conceptName);
-			whereItem = getFullWhereCondition(whereItem, roleWhereConditions);
 			
 			return runItemsQuery(conceptPatternsToRevisionID,
 					conceptPatternsToClusterName, null, elements, whereItem,
@@ -387,10 +371,6 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
 	 */
 	protected abstract ArrayList<IWhereItem> getViewWCFromRole(ViewPOJOPK viewPOJOPK)throws Exception ;
 
-	/*
-	 * get the recordsSecurity where conditions CE version return empty
-	 */
-	protected abstract ArrayList<IWhereItem> getRecordsSecurityFromRole(String mainPivotName)throws Exception; 
 
 	protected IWhereItem getFullWhereCondition(IWhereItem whereItem,
 			ArrayList<IWhereItem> conditions) {

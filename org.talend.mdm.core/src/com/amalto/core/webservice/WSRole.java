@@ -10,16 +10,14 @@ public class WSRole {
     protected java.lang.String name;
     protected java.lang.String description;
     protected com.amalto.core.webservice.WSRoleSpecification[] specification;
-    protected java.lang.String[] recordssecurity;
     
     public WSRole() {
     }
     
-    public WSRole(java.lang.String name, java.lang.String description, com.amalto.core.webservice.WSRoleSpecification[] specification, java.lang.String[] recordssecurity) {
+    public WSRole(java.lang.String name, java.lang.String description, com.amalto.core.webservice.WSRoleSpecification[] specification) {
         this.name = name;
         this.description = description;
         this.specification = specification;
-        this.recordssecurity = recordssecurity;
     }
     
     public java.lang.String getName() {
@@ -44,13 +42,5 @@ public class WSRole {
     
     public void setSpecification(com.amalto.core.webservice.WSRoleSpecification[] specification) {
         this.specification = specification;
-    }
-    
-    public java.lang.String[] getRecordssecurity() {
-        return recordssecurity;
-    }
-    
-    public void setRecordssecurity(java.lang.String[] recordssecurity) {
-        this.recordssecurity = recordssecurity;
     }
 }
