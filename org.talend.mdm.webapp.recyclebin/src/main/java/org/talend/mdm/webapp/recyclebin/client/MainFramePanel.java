@@ -53,6 +53,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.extjs.gxt.ui.client.widget.grid.GridView;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -301,6 +302,7 @@ public class MainFramePanel extends ContentPanel {
         grid = new Grid<ItemsTrashItem>(store, cm);
         grid.getView().setAutoFill(true);
         grid.getView().setForceFit(true);
+        setBorderWidthGridView(grid.getView(), 0);
         // grid.setSize(350, 600);
         int usePageSize = PAGE_SIZE;
         if (StateManager.get().get("trashgrid") != null) //$NON-NLS-1$
@@ -323,6 +325,10 @@ public class MainFramePanel extends ContentPanel {
         this.setBottomComponent(pagetoolBar);
         add(grid);
     }
+
+    public native void setBorderWidthGridView(GridView view, int borderWidth)/*-{
+        view.@com.extjs.gxt.ui.client.widget.grid.GridView::borderWidth = borderWidth;
+    }-*/;
 
     private void initTopBar() {
         ToolBar bar = new ToolBar();
