@@ -26,8 +26,10 @@ import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeEx;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.DynamicTreeItem;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
+import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
@@ -136,7 +138,7 @@ public class ViewUtil {
     public static void applyStyleTreeItem(final TreeItem item, final String labelStyle, final String valueStyle, String style) {
         String marginLeft = item.getElement().getStyle().getMarginLeft();
         String padding = item.getElement().getStyle().getPadding();
-        item.getElement().setAttribute("style", style); //$NON-NLS-1$
+        setStyleAttribute(item.getElement(), style);
         item.getElement().getStyle().setProperty("marginLeft", marginLeft); //$NON-NLS-1$
         item.getElement().getStyle().setProperty("padding", padding); //$NON-NLS-1$
         DeferredCommand.addCommand(new Command() {
@@ -145,12 +147,12 @@ public class ViewUtil {
                 if (item.getWidget() instanceof HorizontalPanel) {
                     HorizontalPanel hp = (HorizontalPanel) item.getWidget();
                     HTML label = (HTML) hp.getWidget(0);
-                    label.getElement().setAttribute("style", labelStyle); //$NON-NLS-1$
+                    setStyleAttribute(label.getElement(), labelStyle);
                     if (hp.getWidgetCount() >= 2 && hp.getWidget(1) instanceof Field<?>) {
                         final Field<?> field = (Field<?>) hp.getWidget(1);
                         El inputEl = getInputEl(field);
                         String width = inputEl.dom.getStyle().getWidth();
-                        inputEl.setElementAttribute("style", valueStyle); //$NON-NLS-1$
+                        setStyleAttribute(inputEl.dom, valueStyle);
                         inputEl.dom.getStyle().setProperty("width", width); //$NON-NLS-1$
                     }
                 }
@@ -159,22 +161,38 @@ public class ViewUtil {
     }
 
     public static void copyStyleToTreeItem(TreeItem source, TreeItem target) {
-        target.getElement().setAttribute("style", source.getElement().getAttribute("style")); //$NON-NLS-1$//$NON-NLS-2$
+        setStyleAttribute(target.getElement(), getStyleAttribute(source.getElement()));
         if (source.getWidget() instanceof HorizontalPanel) {
             final HorizontalPanel sourceHp = (HorizontalPanel) source.getWidget();
             final HorizontalPanel targetHp = (HorizontalPanel) target.getWidget();
             HTML sourceLabel = (HTML) sourceHp.getWidget(0);
             HTML targetLabel = (HTML) targetHp.getWidget(0);
-            targetLabel.getElement().setAttribute("style", sourceLabel.getElement().getAttribute("style"));  //$NON-NLS-1$//$NON-NLS-2$
+            setStyleAttribute(targetLabel.getElement(), getStyleAttribute(sourceLabel.getElement()));
             if (sourceHp.getWidgetCount() >= 2 && sourceHp.getWidget(1) instanceof Field<?>) {
                 DeferredCommand.addCommand(new Command() {
                     public void execute() {
                         El sourceInputEl = getInputEl((Field<?>) sourceHp.getWidget(1));
                         El targetInputEl = getInputEl((Field<?>) targetHp.getWidget(1));
-                        targetInputEl.setElementAttribute("style", sourceInputEl.dom.getAttribute("style")); //$NON-NLS-1$ //$NON-NLS-2$
+                        setStyleAttribute(targetInputEl.dom, getStyleAttribute(sourceInputEl.dom));
                     }
                 });
             }
+        }
+    }
+
+    public static void setStyleAttribute(Element el, String styleText) {
+        if (GXT.isIE) {
+            el.getStyle().setProperty("cssText", styleText); //$NON-NLS-1$
+        } else {
+            el.setAttribute("style", styleText); //$NON-NLS-1$
+        }
+    }
+
+    public static String getStyleAttribute(Element el) {
+        if (GXT.isIE) {
+            return el.getStyle().getProperty("cssText"); //$NON-NLS-1$
+        } else {
+            return el.getAttribute("style"); //$NON-NLS-1$
         }
     }
 

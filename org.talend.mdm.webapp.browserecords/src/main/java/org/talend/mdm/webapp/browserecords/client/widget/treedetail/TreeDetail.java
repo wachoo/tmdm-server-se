@@ -41,6 +41,7 @@ import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
+import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -51,6 +52,7 @@ import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -417,8 +419,8 @@ public class TreeDetail extends ContentPanel {
                 Tree columnTree = ViewUtil.transformToCustomLayout(root, ctm, viewBean);
                 columnTrees.add(columnTree);
                 htable.setWidget(0, columnNum, columnTree);
-                htable.getCellFormatter().getElement(0, columnNum).setAttribute("style", ctm.getStyle()); //$NON-NLS-1$
-                htable.getCellFormatter().getElement(0, columnNum).setAttribute("valign", "top"); //$NON-NLS-1$//$NON-NLS-2$
+                ViewUtil.setStyleAttribute(htable.getCellFormatter().getElement(0, columnNum), ctm.getStyle());
+                htable.getCellFormatter().getElement(0, columnNum).setAttribute("vAlign", "top"); //$NON-NLS-1$//$NON-NLS-2$
                 columnNum++;
                 addTreeListener(columnTree);
             }
@@ -474,8 +476,14 @@ public class TreeDetail extends ContentPanel {
 
         public DynamicTreeItem() {
             super();
+            if (GXT.isIE) {
+                getContentElement().getStyle().setDisplay(Display.BLOCK);
+            }
         }
 
+        private native Element getContentElement()/*-{
+            return this.@com.google.gwt.user.client.ui.TreeItem::contentElem;
+        }-*/;
         public void insertItem(DynamicTreeItem item, int beforeIndex) {
             // Detach item from existing parent.
             if ((item.getParentItem() != null) || (item.getTree() != null)) {
