@@ -62,10 +62,14 @@ public class ItemsMainTabPanel extends TabPanel {
         ItemsMainTabPanel instance = instances.get(modelName);
         if (instance == null) {
             instance = new ItemsMainTabPanel();
-            instance.setId("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
             instances.put(modelName, instance);
         }
         return instance;
+    }
+
+    protected void onAttach() {
+        super.onAttach();
+        this.setVisible(this.getItemCount() > 0);
     }
 
     protected void onDetach() {

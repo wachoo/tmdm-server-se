@@ -145,6 +145,7 @@ public class BrowseRecordsController extends Controller {
                     }
 
                     public void onSuccess(ItemResult result) {
+                        itemBean.set("time", result.getInsertionTime()); //$NON-NLS-1$
                         WaitBox.hide();
                         MessageBox msgBox = null;
                         if (result.getStatus() == ItemResult.FAILURE) {
@@ -201,9 +202,9 @@ public class BrowseRecordsController extends Controller {
     }
 
     private native void setTimeout(MessageBox msgBox, int millisecond)/*-{
-		$wnd.setTimeout(function() {
-			msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
-		}, millisecond);
+        $wnd.setTimeout(function() {
+            msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
+        }, millisecond);
     }-*/;
 
     private void onViewForeignKey(final AppEvent event) {
