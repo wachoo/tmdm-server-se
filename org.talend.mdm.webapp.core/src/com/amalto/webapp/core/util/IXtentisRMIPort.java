@@ -782,7 +782,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                 else {
                     if (wsPutItemWithReport.getWsPutItem().getXmlString() != null) {
                         // get back the item modified by the process
-                        LOG.info("Record modified by the process beforeSaving_" + concept + " -->"
+                        LOG.debug("Record modified by the process beforeSaving_" + concept + " -->"
                                 + wsPutItemWithReport.getWsPutItem().getXmlString());
                         itemPojo.setProjectionAsString(wsPutItemWithReport.getWsPutItem().getXmlString());
                     }
