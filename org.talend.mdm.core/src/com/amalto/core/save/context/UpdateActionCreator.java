@@ -35,28 +35,19 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     private final MutableDocument newDocument;
 
+    private final Closure compareClosure;
+
     public UpdateActionCreator(MutableDocument originalDocument, MutableDocument newDocument, String source, String userName) {
         this.originalDocument = originalDocument;
         this.newDocument = newDocument;
         date = new Date(System.currentTimeMillis());
         this.source = source;
         this.userName = userName;
-    }
-
-    private String getPath(String fieldName) {
-        if (path.isEmpty()) {
-            return fieldName;
-        } else {
-            StringBuilder builder = new StringBuilder();
-            Iterator<String> pathIterator = path.iterator();
-            while (pathIterator.hasNext()) {
-                builder.append(pathIterator.next());
-                if (pathIterator.hasNext()) {
-                    builder.append('/');
-                }
+        compareClosure = new Closure() {
+            public void execute() {
+                compare();
             }
-            return builder.append('/').append(fieldName).toString();
-        }
+        };
     }
 
     @Override
@@ -66,54 +57,86 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
     }
 
     @Override
-    public List<Action> visit(ContainedTypeFieldMetadata containedField) {
-        if (!containedField.isMany()) {
-            path.add(containedField.getName());
-            super.visit(containedField);
-            path.pop();
-        } else {
-            Accessor accessor = originalDocument.createAccessor(getPath(containedField.getName()));
-            int leftLength = accessor.size();
-            int rightLength = accessor.size();
-
-            for (int i = 0; i < leftLength; i++) {
-                // Path generation code is a bit duplicated (be careful)... and XPath indexes are 1-based (not 0-based).
-                path.add(containedField.getName() + "[" + (i + 1) + "]");
-                super.visit(containedField);
-                path.pop();
+    public List<Action> visit(final ContainedTypeFieldMetadata containedField) {
+        handleField(containedField, new Closure() {
+            public void execute() {
+                containedField.getContainedType().accept(UpdateActionCreator.this);
             }
-            if (rightLength > leftLength) {
-                for (int i = leftLength; i < rightLength; i++) {
-                    // Path generation code is a bit duplicated (be careful)... and XPath indexes are 1-based (not 0-based).
-                    path.add(containedField.getName() + "[" + (i + 1) + "]");
-                    super.visit(containedField);
-                    path.pop();
-                }
-            }
-        }
+        });
         return actions;
     }
 
     @Override
     public List<Action> visit(ReferenceFieldMetadata referenceField) {
-        handleField(referenceField);
+        handleField(referenceField, compareClosure);
         return actions;
     }
 
     @Override
     public List<Action> visit(SimpleTypeFieldMetadata simpleField) {
-        handleField(simpleField);
+        handleField(simpleField, compareClosure);
         return actions;
     }
 
     @Override
     public List<Action> visit(EnumerationFieldMetadata enumField) {
-        handleField(enumField);
+        handleField(enumField, compareClosure);
         return actions;
     }
 
-    private void handleField(FieldMetadata simpleField) {
-        String path = getPath(simpleField.getName());
+    /**
+     * Interface to encapsulate action to execute on fields
+     */
+    interface Closure {
+        void execute();
+    }
+
+    private String getPath() {
+        if (path.isEmpty()) {
+            throw new IllegalStateException();
+        } else {
+            StringBuilder builder = new StringBuilder();
+            Iterator<String> pathIterator = path.iterator();
+            while (pathIterator.hasNext()) {
+                builder.append(pathIterator.next());
+                if (pathIterator.hasNext()) {
+                    builder.append('/');
+                }
+            }
+            return builder.toString();
+        }
+    }
+
+    private void handleField(FieldMetadata field, Closure closure) {
+        if (field.isMany()) {
+            Accessor leftAccessor = originalDocument.createAccessor(getPath());
+            Accessor rightAccessor = originalDocument.createAccessor(getPath());
+            int leftLength = leftAccessor.size();
+            int rightLength = rightAccessor.size();
+
+            for (int i = 0; i < leftLength; i++) {
+                // Path generation code is a bit duplicated (be careful)... and XPath indexes are 1-based (not 0-based).
+                path.add(field.getName() + "[" + (i + 1) + "]");
+                closure.execute();
+                path.pop();
+            }
+            if (rightLength > leftLength) {
+                for (int i = leftLength; i < rightLength; i++) {
+                    // Path generation code is a bit duplicated (be careful)... and XPath indexes are 1-based (not 0-based).
+                    path.add(field.getName() + "[" + (i + 1) + "]");
+                    closure.execute();
+                    path.pop();
+                }
+            }
+        } else {
+            path.add(field.getName());
+            closure.execute();
+            path.pop();
+        }
+    }
+
+    private void compare() {
+        String path = getPath();
         Accessor originalAccessor = originalDocument.createAccessor(path);
         Accessor newAccessor = newDocument.createAccessor(path);
 
@@ -121,7 +144,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
             if (!newAccessor.exist()) {
                 // No op
             } else { // new accessor exist
-                if (!newAccessor.get().isEmpty()) {
+                if (!newAccessor.get().isEmpty()) { // TODO Empty accessor means no op to ensure legacy behavior
                     actions.add(new FieldUpdateAction(date, source, userName, path, "", newAccessor.get()));
                 }
             }

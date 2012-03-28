@@ -177,7 +177,7 @@ class UpdateReportDocument extends DOMDocument {
         }
 
         public boolean exist() {
-            return true;  //To change body of implemented methods use File | Settings | File Templates.
+            return true;
         }
 
         public void markModified() {

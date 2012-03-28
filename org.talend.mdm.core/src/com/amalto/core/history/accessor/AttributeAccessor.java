@@ -126,6 +126,9 @@ class AttributeAccessor implements DOMAccessor {
     }
 
     public int size() {
+        if (!exist()) {
+            return 0;
+        }
         return 1;
     }
 }

@@ -106,6 +106,9 @@ class UnaryFieldAccessor implements DOMAccessor {
     }
 
     public int size() {
-        return 1;
+        if (!exist()) {
+            return 0;
+        }
+        return getElement().getChildNodes().getLength();
     }
 }

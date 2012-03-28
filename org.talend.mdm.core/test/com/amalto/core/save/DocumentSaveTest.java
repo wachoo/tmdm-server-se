@@ -19,13 +19,28 @@ import com.amalto.core.save.context.SaverSource;
 import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.XtentisException;
 import junit.framework.TestCase;
+import org.w3c.dom.Element;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Set;
 
-// TODO Asserts!
 public class DocumentSaveTest extends TestCase {
+
+    private XPath xPath = XPathFactory.newInstance().newXPath();
+
+    @Override
+    public void setUp() throws Exception {
+        xPath = XPathFactory.newInstance().newXPath();
+    }
+
+    private Object evaluate(Element committedElement, String path) throws XPathExpressionException {
+        return xPath.evaluate(path, committedElement, XPathConstants.STRING);
+    }
 
     public void testCreate() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
@@ -38,8 +53,13 @@ public class DocumentSaveTest extends TestCase {
         DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, true);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
-        session.end(new MockCommitter());
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
 
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("Chicago", evaluate(committedElement, "/Agency/Name"));
+        assertEquals("Chicago", evaluate(committedElement, "/Agency/City"));
     }
 
     public void testUpdate() throws Exception {
@@ -54,8 +74,13 @@ public class DocumentSaveTest extends TestCase {
         DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
-        session.end(new MockCommitter());
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
 
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("Chicago", evaluate(committedElement, "/Agency/Name"));
+        assertEquals("Chicago", evaluate(committedElement, "/Agency/City"));
     }
 
     public void testNoUpdate() throws Exception {
@@ -69,8 +94,10 @@ public class DocumentSaveTest extends TestCase {
         DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
-        session.end(new MockCommitter());
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
 
+        assertFalse(committer.hasSaved());
     }
 
     public void testLegacyUpdate() throws Exception {
@@ -84,8 +111,15 @@ public class DocumentSaveTest extends TestCase {
         DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
-        session.end(new MockCommitter());
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
 
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("Description", evaluate(committedElement, "/Product/Description"));
+        assertEquals("60", evaluate(committedElement, "/Product/Price"));
+        assertEquals("Lemon", evaluate(committedElement, "/Product/Features/Colors/Color[1]"));
+        assertEquals("Light Blue", evaluate(committedElement, "/Product/Features/Colors/Color[2]"));
     }
 
     public void testLegacyUpdate2() throws Exception {
@@ -99,8 +133,15 @@ public class DocumentSaveTest extends TestCase {
         DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
-        session.end(new MockCommitter());
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
 
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("Description", evaluate(committedElement, "/Product/Description"));
+        assertEquals("60", evaluate(committedElement, "/Product/Price"));
+        assertEquals("Lemon", evaluate(committedElement, "/Product/Features/Colors/Color[1]"));
+        assertEquals("Light Blue", evaluate(committedElement, "/Product/Features/Colors/Color[2]"));
     }
 
     public void testLegacyUpdate3() throws Exception {
@@ -114,8 +155,12 @@ public class DocumentSaveTest extends TestCase {
         DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
-        session.end(new MockCommitter());
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
 
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("60", evaluate(committedElement, "/Product/Price"));
     }
 
 
@@ -130,7 +175,12 @@ public class DocumentSaveTest extends TestCase {
         DocumentSaverContext context = session.getContextFactory().create("UpdateReport", "UpdateReport", "Source", recordXml, true, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
-        session.end(new MockCommitter());
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("LOGICAL_DELETE", evaluate(committedElement, "/Update/OperationType"));
     }
 
     public void testProductUpdate() throws Exception {
@@ -144,7 +194,13 @@ public class DocumentSaveTest extends TestCase {
         DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
-        session.end(new MockCommitter());
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("60", evaluate(committedElement, "/Product/Price"));
+        assertEquals("TT", evaluate(committedElement, "/Product/Description"));
+        assertEquals("New product name", evaluate(committedElement, "/Product/Name"));
     }
 
     public void testBeforeSavingWithAlterRecord() throws Exception {
@@ -154,7 +210,7 @@ public class DocumentSaveTest extends TestCase {
         //
         boolean isOK = true;
         boolean newOutput = true;
-        SaverSource source = new AlterRecordTestSaverSource(repository, isOK, newOutput);
+        SaverSource source = new AlterRecordTestSaverSource(repository, false, "test1_original.xml", isOK, newOutput);
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
@@ -166,7 +222,7 @@ public class DocumentSaveTest extends TestCase {
         //
         isOK = false;
         newOutput = true;
-        source = new AlterRecordTestSaverSource(repository, isOK, newOutput);
+        source = new AlterRecordTestSaverSource(repository, false, "test1_original.xml", isOK, newOutput);
 
         session = SaverSession.newSession(source);
         recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
@@ -183,7 +239,7 @@ public class DocumentSaveTest extends TestCase {
         //
         isOK = false;
         newOutput = false;
-        source = new AlterRecordTestSaverSource(repository, isOK, newOutput);
+        source = new AlterRecordTestSaverSource(repository, false, "test1_original.xml", isOK, newOutput);
 
         session = SaverSession.newSession(source);
         recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
@@ -200,7 +256,7 @@ public class DocumentSaveTest extends TestCase {
         //
         isOK = true;
         newOutput = false;
-        source = new AlterRecordTestSaverSource(repository, isOK, newOutput);
+        source = new AlterRecordTestSaverSource(repository, false, "test1_original.xml", isOK, newOutput);
 
         session = SaverSession.newSession(source);
         recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
@@ -311,6 +367,10 @@ public class DocumentSaveTest extends TestCase {
 
         private static final boolean DEBUG = true;
 
+        private Element committedElement;
+
+        private boolean hasSaved;
+
         public void begin(String dataCluster) {
             if (DEBUG) {
                 System.out.println("Start on '" + dataCluster + "'");
@@ -324,6 +384,12 @@ public class DocumentSaveTest extends TestCase {
         }
 
         public void save(ItemPOJO item, String revisionId) {
+            hasSaved = true;
+            try {
+                committedElement = item.getProjection();
+            } catch (XtentisException e) {
+                throw new RuntimeException(e);
+            }
             if (DEBUG) {
                 try {
                     System.out.println(item.getProjectionAsString());
@@ -331,6 +397,14 @@ public class DocumentSaveTest extends TestCase {
                     throw new RuntimeException(e);
                 }
             }
+        }
+
+        public Element getCommittedElement() {
+            return committedElement;
+        }
+
+        public boolean hasSaved() {
+            return hasSaved;
         }
     }
 
@@ -411,8 +485,8 @@ public class DocumentSaveTest extends TestCase {
 
         private final boolean newOutput;
 
-        public AlterRecordTestSaverSource(MetadataRepository repository, boolean OK, boolean newOutput) {
-            super(repository, false, "test1_original.xml");
+        public AlterRecordTestSaverSource(MetadataRepository repository, boolean exist, String fileName, boolean OK, boolean newOutput) {
+            super(repository, exist, fileName);
             this.OK = OK;
             this.newOutput = newOutput;
         }

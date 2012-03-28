@@ -133,6 +133,9 @@ class ManyFieldAccessor implements DOMAccessor {
     }
 
     public int size() {
+        if (!exist()) {
+            return 0;
+        }
         return getCollectionItemNode().getChildNodes().getLength();
     }
 }

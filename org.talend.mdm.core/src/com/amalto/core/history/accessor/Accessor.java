@@ -93,5 +93,9 @@ public interface Accessor {
      */
     void markUnmodified();
 
+    /**
+     * @return Number of elements contained by this accessor. If {@link #exist()} returns <code>false</code>, this method
+     * must return <code>0</code>.
+     */
     int size();
 }
