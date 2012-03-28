@@ -110,7 +110,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
     private void handleField(FieldMetadata field, Closure closure) {
         if (field.isMany()) {
             Accessor leftAccessor = originalDocument.createAccessor(getPath());
-            Accessor rightAccessor = originalDocument.createAccessor(getPath());
+            Accessor rightAccessor = newDocument.createAccessor(getPath());
             int leftLength = leftAccessor.size();
             int rightLength = rightAccessor.size();
 
