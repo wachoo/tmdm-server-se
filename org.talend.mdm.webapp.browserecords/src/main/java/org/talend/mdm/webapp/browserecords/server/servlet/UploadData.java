@@ -412,7 +412,7 @@ public class UploadData extends HttpServlet {
                 if (e.getMessage().indexOf(language.toUpperCase() + ":") == -1) //$NON-NLS-1$
                     err = MESSAGES
                             .getMessage(
-                                    "save_validationrule_fail", "", e.getMessage().replace("<msg>", "[" + language.toUpperCase() + ":").replace("</msg>", "]")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
+                                    "save_validationrule_fail", "", e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$ 
                 else
                     err = e.getMessage();
             }
@@ -447,12 +447,7 @@ public class UploadData extends HttpServlet {
                 errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
                 org.w3c.dom.Node child = errorElement.getFirstChild();
                 if (child instanceof org.w3c.dom.Text) {
-                    if (language == null)
-                        message = child.getTextContent();
-                    else {
-                        Pattern p = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL);//$NON-NLS-1$//$NON-NLS-2$
-                        message = p.matcher(child.getTextContent()).replaceAll("$1");//$NON-NLS-1$  
-                    }
+                    message = child.getTextContent();
                 }
             }
         }
