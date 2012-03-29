@@ -1,5 +1,7 @@
 package talend.ext.images.server.backup;
 
+import com.amalto.core.util.XtentisException;
+
 public interface DBDelegate {
 	
 	//public boolean putResource(ResourcePK resourcePK,byte[] content) throws DBDelegateException;
@@ -9,5 +11,7 @@ public interface DBDelegate {
 	public byte[] getResource(ResourcePK resourcePK);
 	
 	public boolean deleteResource(ResourcePK resourcePK);
+	
+    public String findResourceURI(String imageId) throws XtentisException;
 
 }

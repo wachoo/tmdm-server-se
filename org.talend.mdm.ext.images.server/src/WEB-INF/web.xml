@@ -76,6 +76,15 @@
 			<param-value>talend.ext.images.server.backup.DBDelegateExistImpl</param-value>
 		</init-param>
 	</servlet>
+	<servlet>
+		<servlet-name>ImageLocateServlet</servlet-name>
+		<display-name>ImageLocateServlet</display-name>
+		<servlet-class>talend.ext.images.server.ImageLocateServlet</servlet-class>
+		<init-param>
+			<param-name>resource-locator-delegate-class</param-name>
+			<param-value>talend.ext.images.server.backup.DBDelegateExistImpl</param-value>
+		</init-param>
+	</servlet>
 	
 	
 	<servlet-mapping>
@@ -118,7 +127,11 @@
 		<servlet-name>ImageScaleServlet</servlet-name>
 		<url-pattern>*.PNG</url-pattern>
 	</servlet-mapping> 
-
+	<servlet-mapping>
+		<servlet-name>ImageLocateServlet</servlet-name>
+		<url-pattern>/locator</url-pattern>
+	</servlet-mapping>
+	
     <!-- security -->
 	<security-constraint>
 		<web-resource-collection>
