@@ -99,13 +99,13 @@ public class WorkSpace extends LayoutContainer {
     }
 
     native boolean callJs(JavaScriptObject handler, String id)/*-{
-		var tabPanel = $wnd.amalto.core.getTabPanel();
-		var tabItem = {
-			getId : function() {
-				return id;
-			}
-		};
-		return handler(tabPanel, tabItem);
+        var tabPanel = $wnd.amalto.core.getTabPanel();
+        var tabItem = {
+        	getId : function() {
+        		return id;
+        	}
+        };
+        return handler(tabPanel, tabItem);
     }-*/;
 
     public void un(String eventName, JavaScriptObject handler) {
@@ -116,16 +116,29 @@ public class WorkSpace extends LayoutContainer {
     }
 
     public void addWorkTab(final String itemId, final JavaScriptObject uiObject) {
-
+        // get tabItem according to the itemId
         TabItem item = workTabPanel.getItemByItemId(itemId);
+        // get uiObject's title
+        String text = getTitleUIObject(uiObject);
+        if (text == null || text.trim().length() == 0) {
+            text = itemId;
+        }
+        // render uiObject to simplePanel
+        SimplePanel content = new SimplePanel() {
+
+            @Override
+            protected void onLoad() {
+                renderUIObject(this.getElement(), uiObject);
+            }
+        };
+        // set unique id to Element
+        content.getElement().setId("General_" + DOM.createUniqueId()); //$NON-NLS-1$
+
+        uiMap.put(itemId, uiObject);
 
         if (item == null) {
-            String text = getTitleUIObject(uiObject);
-            if (text == null || text.trim().length() == 0) {
-                text = itemId;
-            }
+            // add a new tabItem
             item = new TabItem(text);
-
             item.addListener(Events.Select, new Listener<BaseEvent>() {
 
                 public void handleEvent(BaseEvent be) {
@@ -135,18 +148,15 @@ public class WorkSpace extends LayoutContainer {
             item.setItemId(itemId);
             item.setClosable(true);
             item.setLayout(new FitLayout());
-            SimplePanel content = new SimplePanel() {
-
-                @Override
-                protected void onLoad() {
-                    renderUIObject(this.getElement(), uiObject);
-                }
-            };
-            content.getElement().setId("General_" + DOM.createUniqueId()); //$NON-NLS-1$
-            item.add(content);
             workTabPanel.add(item);
-            uiMap.put(itemId, uiObject);
+        } else {
+            // tabItem need to be refreshed
+            item.removeAll();
+            item.setText(text);
         }
+
+        // add content to tabItem and select the tabItem
+        item.add(content);
         workTabPanel.setSelection(item);
     }
 
@@ -165,14 +175,14 @@ public class WorkSpace extends LayoutContainer {
     }
 
     public native String getTitleUIObject(JavaScriptObject uiObject)/*-{
-		if (uiObject.title) {
-			if (typeof uiObject.title == "string") {
-				return uiObject.title;
-			} else if (typeof uiObject.title == "function") {
-				return uiObject.title();
-			}
-		}
-		return null;
+        if (uiObject.title) {
+        	if (typeof uiObject.title == "string") {
+        		return uiObject.title;
+        	} else if (typeof uiObject.title == "function") {
+        		return uiObject.title();
+        	}
+        }
+        return null;
     }-*/;
 
     public void setSelection(String itemId) {
@@ -194,7 +204,7 @@ public class WorkSpace extends LayoutContainer {
     }
 
     native void resizeUIObject(JavaScriptObject uiObject, int width, int height)/*-{
-		uiObject.setSize(width, height);
+        uiObject.setSize(width, height);
     }-*/;
 
     private native void renderUIObject(Element el, JavaScriptObject uiObject)/*-{
@@ -225,10 +235,10 @@ public class WorkSpace extends LayoutContainer {
     }
 
     public native void loadApp(String context, String application)/*-{
-		if ($wnd.amalto[context]) {
-			if ($wnd.amalto[context][application]) {
-				$wnd.amalto[context][application].init();
-			}
-		}
+        if ($wnd.amalto[context]) {
+        	if ($wnd.amalto[context][application]) {
+        		$wnd.amalto[context][application].init();
+        	}
+        }
     }-*/;
 }
