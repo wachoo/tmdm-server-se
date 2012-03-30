@@ -3,7 +3,6 @@ package org.talend.mdm.webapp.browserecords.client.util;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -306,7 +305,7 @@ public class CommonUtil {
         String fileExtensioName = "";
         String shortpath = "";
 
-        String[] tokenizer = longFilePath.split("[\\|/]");
+        String[] tokenizer = longFilePath.split("[\\\\|/]");
 
         if (tokenizer != null && tokenizer.length > 0)
             shortpath = tokenizer[tokenizer.length - 1];

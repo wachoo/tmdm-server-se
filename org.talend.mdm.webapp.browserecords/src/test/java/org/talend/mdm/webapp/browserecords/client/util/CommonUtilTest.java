@@ -24,5 +24,27 @@ public class CommonUtilTest extends TestCase {
         assertFalse(CommonUtil.validateSearchValue(xpathMap, "\'a/b\""));   //$NON-NLS-1$
         assertFalse(CommonUtil.validateSearchValue(xpathMap, "\"a/b"));    //$NON-NLS-1$
         assertTrue(CommonUtil.validateSearchValue(xpathMap, "aaa")); //$NON-NLS-1$
-    }    
+    }
+
+    /**
+     * DOC Starkey Comment method "testParseFileName".
+     */
+    public void testParseFileName() {
+
+        // test filename
+        String path = "hshu.jpg"; //$NON-NLS-1$
+        assertEquals(CommonUtil.parseFileName(path)[0], "hshu"); //$NON-NLS-1$
+        assertEquals(CommonUtil.parseFileName(path)[1], "jpg"); //$NON-NLS-1$
+
+        // test for case "\"
+        String path2 = "C:\\fakepath\\hshu.jpg"; //$NON-NLS-1$
+        assertEquals(CommonUtil.parseFileName(path2)[0], "hshu"); //$NON-NLS-1$
+        assertEquals(CommonUtil.parseFileName(path2)[1], "jpg"); //$NON-NLS-1$
+
+        // test for case "/"
+        String path3 = "C:/fakepath/hshu.jpg"; //$NON-NLS-1$
+        assertEquals(CommonUtil.parseFileName(path3)[0], "hshu"); //$NON-NLS-1$
+        assertEquals(CommonUtil.parseFileName(path3)[1], "jpg"); //$NON-NLS-1$
+
+    }
 }
