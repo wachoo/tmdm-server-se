@@ -240,7 +240,7 @@ public class PictureField extends TextField<String> {
             super();
             this.setLayout(new FitLayout());
             this.setHeading(MessagesFactory.getMessages().picture_field_title());
-            this.setSize(380, 180);
+            this.setSize(380, 135);
             this.setModal(true);
             this.setBlinkModal(true);
             FormData formData = new FormData();
@@ -251,9 +251,13 @@ public class PictureField extends TextField<String> {
             editForm.setBodyBorder(false);
             editForm.setLabelWidth(110);
 
-            final TextField<String> catalog = new TextField<String>();
-            catalog.setFieldLabel(MessagesFactory.getMessages().picture_field_imgcatalog());
-            catalog.setName("catalogName"); //$NON-NLS-1$
+            /*
+             * Hidden catalog name
+             * 
+             * final TextField<String> catalog = new TextField<String>();
+             * catalog.setFieldLabel(MessagesFactory.getMessages().picture_field_imgcatalog());
+             * catalog.setName("catalogName"); //$NON-NLS-1$
+             */
 
             MultiField imgIdRow = new MultiField();
             imgIdRow.setFieldLabel(MessagesFactory.getMessages().picture_field_imgid());
@@ -289,7 +293,7 @@ public class PictureField extends TextField<String> {
             });
 
             editForm.add(file, formData);
-            editForm.add(catalog, formData);
+            // editForm.add(catalog, formData);
             editForm.add(imgIdRow, formData);
             editForm.addListener(Events.Submit, new Listener<FormEvent>() {
 
