@@ -148,15 +148,17 @@ public class WorkSpace extends LayoutContainer {
             item.setItemId(itemId);
             item.setClosable(true);
             item.setLayout(new FitLayout());
+            // add content to tabItem and select the tabItem
+            item.add(content);
             workTabPanel.add(item);
         } else {
             // tabItem need to be refreshed
             item.removeAll();
             item.setText(text);
+            // add content to tabItem and select the tabItem
+            item.add(content);
         }
 
-        // add content to tabItem and select the tabItem
-        item.add(content);
         workTabPanel.setSelection(item);
     }
 
@@ -234,11 +236,13 @@ public class WorkSpace extends LayoutContainer {
         }
     }
 
-    public native void loadApp(String context, String application)/*-{
+    public native boolean loadApp(String context, String application)/*-{
         if ($wnd.amalto[context]) {
         	if ($wnd.amalto[context][application]) {
         		$wnd.amalto[context][application].init();
+        		return true;
         	}
         }
+        return false;
     }-*/;
 }

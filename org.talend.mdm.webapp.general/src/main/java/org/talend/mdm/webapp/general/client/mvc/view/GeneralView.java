@@ -24,6 +24,8 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.google.gwt.user.client.DeferredCommand;
+import com.google.gwt.user.client.IncrementalCommand;
 import com.google.gwt.user.client.ui.RootPanel;
 
 public class GeneralView extends View {
@@ -55,7 +57,12 @@ public class GeneralView extends View {
     }
 
     private void loadWelcome(AppEvent event) {
-        WorkSpace.getInstance().loadApp(WELCOMECONTEXT, WELCOMEAPP);
+        DeferredCommand.addCommand(new IncrementalCommand() {
+
+            public boolean execute() {
+                return !WorkSpace.getInstance().loadApp(WELCOMECONTEXT, WELCOMEAPP);
+            }
+        });
     }
 
     private void initFrame(AppEvent event) {
