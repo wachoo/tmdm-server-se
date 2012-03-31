@@ -41,16 +41,19 @@ public class UrlField extends TextField<String> {
 
     protected El input = new El(DOM.createAnchor());
     
-    protected Element handler = new Image(Icons.INSTANCE.add_element()).getElement();
-
+    protected Image editImage = new Image(Icons.INSTANCE.add_element());
+    
     private EditWindow editWin = new EditWindow();
     
     private boolean readOnly;
-    
+
+    protected Element handler;
+
     public UrlField() {
         setFireChangeEventOnSetValue(true);
         editWin.setHeading(MessagesFactory.getMessages().url_field_title());
         editWin.setSize(600, 150);
+        handler = editImage.getElement();
         regJs(handler);
         propertyEditor = new PropertyEditor<String>() {
 
@@ -164,9 +167,12 @@ public class UrlField extends TextField<String> {
         }
     }
 
-    @Override
     public void setReadOnly(boolean readOnly) {
         super.setReadOnly(readOnly);
         this.readOnly = readOnly;
+    }
+    
+    public void setEnabled(boolean enabled) {
+        editImage.setVisible(enabled);
     }
 }
