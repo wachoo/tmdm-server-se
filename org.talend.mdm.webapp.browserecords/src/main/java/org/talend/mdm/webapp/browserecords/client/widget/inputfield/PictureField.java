@@ -25,8 +25,11 @@ import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.FormEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.TabItem;
+import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
@@ -37,6 +40,7 @@ import com.extjs.gxt.ui.client.widget.form.PropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.http.client.Request;
@@ -57,7 +61,7 @@ import com.google.gwt.user.client.ui.Image;
 public class PictureField extends TextField<String> {
 
     private static final String CONTEXT_PATH = GWT.getModuleBaseURL().replaceFirst(GWT.getModuleName() + "/", ""); //$NON-NLS-1$ //$NON-NLS-2$
-
+    
     private static final String DefaultImage = CONTEXT_PATH + "images/icons/no_image.gif"; //$NON-NLS-1$
 
     protected El wrap = new El(DOM.createSpan());
@@ -70,7 +74,7 @@ public class PictureField extends TextField<String> {
 
     protected Element addHandler = new Image(Icons.INSTANCE.image_add()).getElement();
 
-    private EditWindow editWin = new EditWindow();
+    private EditWindow editWindow = new EditWindow();
 
     private boolean readOnly;
 
@@ -155,8 +159,8 @@ public class PictureField extends TextField<String> {
     private void handlerClick(Element el) {
         if (!readOnly) {
             if (el == addHandler) {
-                editWin.show();
-            } else if (el == delHandler) {
+                editWindow.show();
+            }else if (el == delHandler) {
                 dialog.show();
             }
         }
@@ -165,7 +169,7 @@ public class PictureField extends TextField<String> {
     private native void regJs(Element el)/*-{
         var instance = this;
         el.onclick = function() {
-        	instance.@org.talend.mdm.webapp.browserecords.client.widget.inputfield.PictureField::handlerClick(Lcom/google/gwt/user/client/Element;)(this);
+            instance.@org.talend.mdm.webapp.browserecords.client.widget.inputfield.PictureField::handlerClick(Lcom/google/gwt/user/client/Element;)(this);
         };
     }-*/;
 
@@ -176,8 +180,8 @@ public class PictureField extends TextField<String> {
 
         if (value != null && value.length() != 0) {
 
-            if (!value.startsWith("/imageserver/")) //$NON-NLS-1$
-                this.value = "/imageserver/" + value; //$NON-NLS-1$
+            if (!value.startsWith("/imageserver")) //$NON-NLS-1$
+                this.value = "/imageserver" + value; //$NON-NLS-1$
             image.setUrl(this.value);
 
         } else {
@@ -239,10 +243,15 @@ public class PictureField extends TextField<String> {
         public EditWindow() {
             super();
             this.setLayout(new FitLayout());
-            this.setHeading(MessagesFactory.getMessages().picture_field_title());
-            this.setSize(380, 135);
+            this.setHeading(MessagesFactory.getMessages().picture_select_title());
+            this.setSize(460, 450);
             this.setModal(true);
             this.setBlinkModal(true);
+            
+            TabPanel uploadTabPanel = new TabPanel();
+            TabItem localTabItem = new TabItem(MessagesFactory.getMessages().picture_upload_local_title());
+            ContentPanel localContentPanel = new ContentPanel();
+            
             FormData formData = new FormData();
             editForm.setEncoding(FormPanel.Encoding.MULTIPART);
             editForm.setMethod(FormPanel.Method.POST);
@@ -250,14 +259,6 @@ public class PictureField extends TextField<String> {
             editForm.setHeaderVisible(false);
             editForm.setBodyBorder(false);
             editForm.setLabelWidth(110);
-
-            /*
-             * Hidden catalog name
-             * 
-             * final TextField<String> catalog = new TextField<String>();
-             * catalog.setFieldLabel(MessagesFactory.getMessages().picture_field_imgcatalog());
-             * catalog.setName("catalogName"); //$NON-NLS-1$
-             */
 
             MultiField imgIdRow = new MultiField();
             imgIdRow.setFieldLabel(MessagesFactory.getMessages().picture_field_imgid());
@@ -318,12 +319,23 @@ public class PictureField extends TextField<String> {
                 }
 
             });
-
-            add(editForm);
-
-            setButtonAlign(HorizontalAlignment.CENTER);
-            addButton(uploadButton);
-            addButton(resetButton);
+            
+            localContentPanel.setStyleAttribute("margin", "20px");  //$NON-NLS-1$//$NON-NLS-2$
+            localContentPanel.add(editForm);
+            editForm.setLayout(new FormLayout());
+            localContentPanel.setButtonAlign(HorizontalAlignment.CENTER);
+            localContentPanel.addButton(uploadButton);
+            localContentPanel.addButton(resetButton);
+            localContentPanel.setHeaderVisible(false);
+            localTabItem.add(localContentPanel);
+            uploadTabPanel.add(localTabItem);  
+          
+            TabItem remoteTabItem = new TabItem(MessagesFactory.getMessages().picture_upload_remote_title()); 
+            remoteTabItem.setLayout(new FitLayout());            
+            remoteTabItem.add(new PictureSelector(EditWindow.this,PictureField.this)); 
+            uploadTabPanel.add(remoteTabItem);
+            add(uploadTabPanel);
+            this.setResizable(false);
         }
 
         @Override

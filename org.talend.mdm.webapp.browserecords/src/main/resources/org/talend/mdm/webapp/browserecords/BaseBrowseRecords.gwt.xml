@@ -9,5 +9,6 @@
     <source path='shared' />
     <source path='model' />
 
+	<stylesheet src='../resources/css/resources.css' />
     <stylesheet src='../BrowseRecords.css' />
 </module>
