@@ -65,6 +65,9 @@ import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.Widget;
 
 public class TreeDetailGridFieldCreator {
@@ -348,7 +351,7 @@ public class TreeDetailGridFieldCreator {
         field.addListener(Events.Attach, new Listener<FieldEvent>() {
 
             public void handleEvent(FieldEvent fe) {
-                field.el().setStyleAttribute("display", "inline"); //$NON-NLS-1$ //$NON-NLS-2$
+                field.getElement().getStyle().setMarginRight(16D, Unit.PX);
                 validate(field, node);
             }
         });
@@ -356,11 +359,20 @@ public class TreeDetailGridFieldCreator {
         field.addListener(Events.Invalid, new Listener<FieldEvent>() {
 
             public void handleEvent(FieldEvent be) {
-                WidgetComponent errorIcon = getErrorIcon(field);
+                final WidgetComponent errorIcon = getErrorIcon(field);
                 errorIcon.el().removeStyleName("x-hide-visibility"); //$NON-NLS-1$
                 errorIcon.setHideMode(HideMode.DISPLAY);
-                errorIcon.el().setStyleAttribute("display", "inline"); //$NON-NLS-1$ //$NON-NLS-2$
-                errorIcon.el().dom.getStyle().setProperty("position", ""); //$NON-NLS-1$//$NON-NLS-2$
+                errorIcon.el().dom.getStyle().setProperty("position", "absolute"); //$NON-NLS-1$//$NON-NLS-2$
+
+                DeferredCommand.addCommand(new Command() {
+
+                    public void execute() {
+                        errorIcon.el().dom.getStyle().setMarginLeft(field.getWidth(), Unit.PX);
+                        errorIcon.el().dom.getStyle().setMarginTop(-18, Unit.PX);
+                        errorIcon.el().dom.getStyle().clearLeft();
+                        errorIcon.el().dom.getStyle().clearTop();
+                    }
+                });
             }
 
         });
