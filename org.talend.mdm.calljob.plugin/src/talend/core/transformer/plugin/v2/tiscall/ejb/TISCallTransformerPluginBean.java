@@ -334,10 +334,11 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
                     } else {
                         sb = sb.append("<item>\n");
                     }
-
                     for (int j = 0; j < results.size(); j++) {
-                        String str = results.get(j);
+                        String str = results.get(j);                       
                         if (str != null) {
+                            //remove xml header
+                            str=str.replaceAll("<\\?xml .*\\?>", "");
                             if (hasFields) {
                                 if (fieldsObject.has("p" + j)) {
                                     String columnName = (String) fieldsObject.get("p" + j);
@@ -345,20 +346,16 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
                                 } else {
                                     //do nothing
                                 }
-
                             } else {
                                 sb = sb.append("<attr>").append(str).append("</attr>" + "\n");
                             }
-
                         }
                     }
-
                     if (hasConcept) {
                         sb = sb.append("</").append(conceptName).append(">\n");
                     } else {
                         sb = sb.append("</item>\n");
                     }
-
                 }
                 sb = sb.append("</results>" + "\n");
             } else {
