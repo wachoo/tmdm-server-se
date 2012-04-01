@@ -22,11 +22,10 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.ComponentHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Image;
 
@@ -77,16 +76,9 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         return fkWindow;
     }
 
-    protected void alignErrorIcon() {
-        DeferredCommand.addCommand(new Command() {
-            public void execute() {
-                errorIcon.el().alignTo(getElement(), "tl-tr", new int[] { 115, 2 }); //$NON-NLS-1$
-            }
-        });
-    }
-
     protected void onRender(Element target, int index) {
         El wrap = new El(DOM.createDiv());
+
         wrap.addStyleName("x-form-field-wrap"); //$NON-NLS-1$
         wrap.addStyleName("x-form-file-wrap"); //$NON-NLS-1$
 
@@ -95,6 +87,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         input.addStyleName("x-form-file-text"); //$NON-NLS-1$
         input.setId(XDOM.getUniqueId());
         input.setEnabled(false);
+        input.dom.getStyle().setDisplay(Display.INLINE);
 
         if (GXT.isIE && target.getTagName().equals("TD")) { //$NON-NLS-1$
             input.setStyleAttribute("position", "static"); //$NON-NLS-1$  //$NON-NLS-2$
@@ -103,6 +96,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         wrap.appendChild(input.dom);
         input.setStyleAttribute("float", "left");//$NON-NLS-1$  //$NON-NLS-2$
         Element foreignDiv = DOM.createTable();
+        foreignDiv.getStyle().setDisplay(Display.INLINE);
 
         Element tr = DOM.createTR();
         Element body = DOM.createTBody();

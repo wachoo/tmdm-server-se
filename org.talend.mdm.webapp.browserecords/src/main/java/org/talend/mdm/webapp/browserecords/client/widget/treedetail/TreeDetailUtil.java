@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -125,17 +125,18 @@ public class TreeDetailUtil {
         }
 
         if (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {
-            double leftMargin = typeModel.getForeignkey() == null ? 5.0D : 75.0D;
             Image addNodeImg = new Image("/talendmdm/secure/img/genericUI/add.png"); //$NON-NLS-1$
             addNodeImg.getElement().setId("Add"); //$NON-NLS-1$
             addNodeImg.setTitle(MessagesFactory.getMessages().clone_title());
-            addNodeImg.getElement().getStyle().setMarginLeft(leftMargin, Unit.PX);
+            addNodeImg.getElement().getStyle().setMarginLeft(5D, Unit.PX);
+            addNodeImg.getElement().getStyle().setMarginTop(5D, Unit.PX);
             if(!typeModel.isReadOnly())
                 addNodeImg.addClickHandler(h);
             Image removeNodeImg = new Image("/talendmdm/secure/img/genericUI/delete.png"); //$NON-NLS-1$
             removeNodeImg.getElement().setId("Remove"); //$NON-NLS-1$
             removeNodeImg.setTitle(MessagesFactory.getMessages().remove_title());
             removeNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
+            addNodeImg.getElement().getStyle().setMarginTop(5D, Unit.PX);
             if(!typeModel.isReadOnly())
                 removeNodeImg.addClickHandler(h);
 

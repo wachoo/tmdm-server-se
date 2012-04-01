@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -44,6 +44,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator.Te
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.FacetEnum;
 
+import com.extjs.gxt.ui.client.Style.HideMode;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
@@ -53,9 +54,9 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -63,6 +64,10 @@ import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.Widget;
 
 public class TreeDetailGridFieldCreator {
@@ -346,26 +351,52 @@ public class TreeDetailGridFieldCreator {
         field.addListener(Events.Attach, new Listener<FieldEvent>() {
 
             public void handleEvent(FieldEvent fe) {
+                field.getElement().getStyle().setMarginRight(16D, Unit.PX);
                 validate(field, node);
             }
+        });
+
+        field.addListener(Events.Invalid, new Listener<FieldEvent>() {
+
+            public void handleEvent(FieldEvent be) {
+                final WidgetComponent errorIcon = getErrorIcon(field);
+                errorIcon.el().removeStyleName("x-hide-visibility"); //$NON-NLS-1$
+                errorIcon.setHideMode(HideMode.DISPLAY);
+                errorIcon.el().dom.getStyle().setProperty("position", "absolute"); //$NON-NLS-1$//$NON-NLS-2$
+
+                DeferredCommand.addCommand(new Command() {
+
+                    public void execute() {
+                        errorIcon.el().dom.getStyle().setMarginLeft(field.getWidth(), Unit.PX);
+                        errorIcon.el().dom.getStyle().setMarginTop(-18, Unit.PX);
+                        errorIcon.el().dom.getStyle().clearLeft();
+                        errorIcon.el().dom.getStyle().clearTop();
+                    }
+                });
+            }
+
         });
 
         field.addListener(Events.Blur, new Listener<FieldEvent>() {
 
             public void handleEvent(FieldEvent fe) {
-            	// TMDM-3353 only when node is valid, call setObjectValue(); otherwise objectValue is changed to
+                // TMDM-3353 only when node is valid, call setObjectValue(); otherwise objectValue is changed to
                 // original value
                 if (node.isValid())
-	                if (fe.getField() instanceof FormatTextField) {
-	                    node.setObjectValue(((FormatTextField) fe.getField()).getOjbectValue());
-	                } else if (fe.getField() instanceof FormatNumberField) {
-	                    node.setObjectValue(((FormatNumberField) fe.getField()).getOjbectValue());
-	                } else if (fe.getField() instanceof FormatDateField) {
-	                    node.setObjectValue(((FormatDateField) fe.getField()).getOjbectValue());
-	                }
+                    if (fe.getField() instanceof FormatTextField) {
+                        node.setObjectValue(((FormatTextField) fe.getField()).getOjbectValue());
+                    } else if (fe.getField() instanceof FormatNumberField) {
+                        node.setObjectValue(((FormatNumberField) fe.getField()).getOjbectValue());
+                    } else if (fe.getField() instanceof FormatDateField) {
+                        node.setObjectValue(((FormatDateField) fe.getField()).getOjbectValue());
+                    }
             }
         });
     }
+
+    private static native WidgetComponent getErrorIcon(Field<?> field)/*-{
+        return field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon;
+    }-*/;
 
     private static void buildFacets(TypeModel typeModel, Widget w) {
         if (typeModel instanceof SimpleTypeModel) {

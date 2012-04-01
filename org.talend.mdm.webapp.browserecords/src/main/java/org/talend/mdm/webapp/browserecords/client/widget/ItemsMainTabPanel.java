@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -17,6 +17,9 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
@@ -35,6 +38,23 @@ public class ItemsMainTabPanel extends TabPanel {
         // this.setLayout(new FitLayout());
         setResizeTabs(true);
         setAnimScroll(true);
+        this.addListener(Events.BeforeAdd, new Listener<BaseEvent>() {
+
+            public void handleEvent(BaseEvent be) {
+                if (!ItemsMainTabPanel.this.isVisible()) {
+                    ItemsMainTabPanel.this.setVisible(true);
+                }
+            }
+        });
+
+        this.addListener(Events.Remove, new Listener<BaseEvent>() {
+
+            public void handleEvent(BaseEvent be) {
+                if (ItemsMainTabPanel.this.getItemCount() == 0) {
+                    ItemsMainTabPanel.this.setVisible(false);
+                }
+            }
+        });
     }
 
     public static ItemsMainTabPanel getInstance() {
@@ -45,6 +65,11 @@ public class ItemsMainTabPanel extends TabPanel {
             instances.put(modelName, instance);
         }
         return instance;
+    }
+
+    protected void onAttach() {
+        super.onAttach();
+        this.setVisible(this.getItemCount() > 0);
     }
 
     protected void onDetach() {
