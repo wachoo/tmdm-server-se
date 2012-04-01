@@ -98,6 +98,7 @@ public class ReusableType {
                         toPutReusableType.load();// parse it
                     }
                     xPathReusableTypeMap.put(xpath, toPutReusableType);
+                    traverseXSType(el.getType().asComplexType().getContentType().asParticle(), xpath, reusableTypeMap);
                 }
                 parseAnnotation(el, xpath);
             } else {

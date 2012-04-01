@@ -394,10 +394,14 @@ public class SchemaWebAgent extends SchemaManager {
         List<ReusableType> reuseTypeList = dataModelBean.getReusableTypes();
         Map<String, ReusableType> reusableTypeMap = dataModelBean.getReusableTypeMap();
 
+        // Pre-load Reusable Types
+        for (ReusableType type : reuseTypeList) {
+            type.load(reusableTypeMap);// load/parse the reusableType
+        }
+
         // Find possible ReusableTypes which has FK to point to the target entity
         Map<String,ReusableType> possibleReusableTypeMap = new HashMap<String,ReusableType>();
         for (ReusableType type : reuseTypeList) {
-            type.load(reusableTypeMap);// load/parse the reusableType
             Map<String, String> foreignKeyMap = type.getForeignKeyMap();
             // does this reUsableType point to the target entity
             if (foreignKeyMap != null && foreignKeyMap.size() > 0) {
@@ -408,6 +412,13 @@ public class SchemaWebAgent extends SchemaManager {
                     if (isValidatedEntityName(myEntityName, dataModelBean) && myEntityName.equals(entityName)) {
                         // if true, add it to the possible map
                         possibleReusableTypeMap.put(getEntityNameFromXPath(xpathOnEntity), type);
+                        // find all types which has this type
+                        List<ReusableType> containTypes = getMyContainsType(reuseTypeList, type);
+                        if (containTypes != null && containTypes.size() > 0) {
+                            for (ReusableType containType : containTypes) {
+                                possibleReusableTypeMap.put(containType.getName(), containType);
+                            }
+                        }
                         // also find all parent types if have
                         List<ReusableType> myParentTypes = getMyParents(type.getName());
                         if (myParentTypes != null && myParentTypes.size() > 0) {
@@ -477,6 +488,24 @@ public class SchemaWebAgent extends SchemaManager {
 
         return references;
 
+    }
+
+    /**
+     * @param reuseTypeList
+     * @param type
+     * @return
+     */
+    private List<ReusableType> getMyContainsType(List<ReusableType> reuseTypeList, ReusableType type) {
+        List<ReusableType> containTypes = new ArrayList<ReusableType>();
+        for (ReusableType mytype : reuseTypeList) {
+            if (mytype.getxPathReusableTypeMap() != null && mytype.getxPathReusableTypeMap().size() > 0) {
+                for (ReusableType toCheckType : mytype.getxPathReusableTypeMap().values()) {
+                    if (toCheckType != null && toCheckType.getName() != null && toCheckType.getName().equals(type.getName()))
+                        containTypes.add(toCheckType);
+                }
+            }
+        }
+        return containTypes;
     }
 
     /**
