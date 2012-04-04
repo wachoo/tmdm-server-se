@@ -432,8 +432,8 @@ public class DocumentSaveTest extends TestCase {
         }
 
         public void rollback(String dataCluster) {
-            if (DEBUG) {
-                System.out.println("Rollback on '" + dataCluster + "'");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Rollback on '" + dataCluster + "'");
             }
         }
 
