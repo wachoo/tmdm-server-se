@@ -71,14 +71,6 @@ public class SoftIdFieldRef implements FieldMetadata {
         return getField().getType();
     }
 
-    public boolean hasForeignKeyInfo() {
-        return getField().hasForeignKeyInfo();
-    }
-
-    public FieldMetadata getForeignKeyInfoField() {
-        return getField().getForeignKeyInfoField();
-    }
-
     public ComplexTypeMetadata getContainingType() {
         return getField().getContainingType();
     }
@@ -89,14 +81,6 @@ public class SoftIdFieldRef implements FieldMetadata {
 
     public TypeMetadata getDeclaringType() {
         return getField().getDeclaringType();
-    }
-
-    public boolean isFKIntegrity() {
-        return getField().isFKIntegrity();
-    }
-
-    public boolean allowFKIntegrityOverride() {
-        return getField().hasForeignKeyInfo();
     }
 
     public void adopt(ComplexTypeMetadata metadata, MetadataRepository repository) {
@@ -121,10 +105,6 @@ public class SoftIdFieldRef implements FieldMetadata {
 
     public boolean isMandatory() {
         return getField().isMandatory();
-    }
-
-    public void setName(String fieldName) {
-        getField().setName(fieldName);
     }
 
     public <T> T accept(MetadataVisitor<T> visitor) {

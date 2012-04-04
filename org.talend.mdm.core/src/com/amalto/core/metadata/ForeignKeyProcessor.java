@@ -55,7 +55,7 @@ class ForeignKeyProcessor implements XmlSchemaAnnotationProcessor {
     }
 
     private void handleForeignKey(MetadataRepository repository, XmlSchemaAnnotationProcessorState state, XmlSchemaAppInfo appInfo) {
-        state.setReference(true);
+        state.markAsReference();
         String path = appInfo.getMarkup().item(0).getTextContent();
         String[] typeAndFields = path.split("/"); //$NON-NLS-1$
         String userNamespace = repository.getUserNamespace();

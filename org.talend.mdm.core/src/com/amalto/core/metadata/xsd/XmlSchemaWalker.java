@@ -20,16 +20,14 @@ import java.util.Iterator;
  */
 public class XmlSchemaWalker {
 
-    public static <T> T walk(XmlSchemaCollection collection, XmlSchemaVisitor<T> visitor) {
-        T result = null;
+    public static void walk(XmlSchemaCollection collection, XmlSchemaVisitor visitor) {
         XmlSchema[] xmlSchemas = collection.getXmlSchemas();
         for (XmlSchema xmlSchema : xmlSchemas) {
-            result = visitor.visitSchema(xmlSchema);
+            visitor.visitSchema(xmlSchema);
         }
-        return result;
     }
 
-    public static <T> T walk(XmlSchema xmlSchema, XmlSchemaVisitor<T> visitor) {
+    public static void walk(XmlSchema xmlSchema, XmlSchemaVisitor visitor) {
         // Visit element first (create MDM entity types)
         XmlSchemaObjectTable elements = xmlSchema.getElements();
         Iterator allElements = elements.getValues();
@@ -43,36 +41,33 @@ public class XmlSchemaWalker {
         while (types.hasNext()) {
             walk((XmlSchemaType) types.next(), visitor);
         }
-
-        return null;
     }
 
-    public static <T> T walk(XmlSchemaElement element, XmlSchemaVisitor<T> visitor) {
+    public static void walk(XmlSchemaElement element, XmlSchemaVisitor visitor) {
         visitor.visitElement(element);
-        return null;
     }
 
-    public static <T> T walk(XmlSchemaType type, XmlSchemaVisitor<T> visitor) {
+    public static void walk(XmlSchemaType type, XmlSchemaVisitor visitor) {
         if (type instanceof XmlSchemaSimpleType) {
-            return walk(((XmlSchemaSimpleType) type), visitor);
+            walk(((XmlSchemaSimpleType) type), visitor);
         } else if (type instanceof XmlSchemaComplexType) {
-            return walk(((XmlSchemaComplexType) type), visitor);
+            walk(((XmlSchemaComplexType) type), visitor);
         } else {
             throw new IllegalArgumentException("Not supported XML Schema type: " + type.getClass().getName());
         }
     }
 
-    private static <T> T walk(XmlSchemaSimpleType xmlSchemaType, XmlSchemaVisitor<T> visitor) {
-        return visitor.visitSimpleType(xmlSchemaType);
+    private static void walk(XmlSchemaSimpleType xmlSchemaType, XmlSchemaVisitor visitor) {
+        visitor.visitSimpleType(xmlSchemaType);
     }
 
-    private static <T> T walk(XmlSchemaComplexType xmlSchemaType, XmlSchemaVisitor<T> visitor) {
-        return visitor.visitComplexType(xmlSchemaType);
+    private static void walk(XmlSchemaComplexType xmlSchemaType, XmlSchemaVisitor visitor) {
+        visitor.visitComplexType(xmlSchemaType);
     }
 
-    public static <T> T walk(XmlSchemaObject schemaObject, XmlSchemaVisitor<T> visitor) {
+    public static void walk(XmlSchemaObject schemaObject, XmlSchemaVisitor visitor) {
         if (schemaObject instanceof XmlSchemaElement) {
-            return walk(((XmlSchemaElement) schemaObject), visitor);
+            walk(((XmlSchemaElement) schemaObject), visitor);
         } else {
             throw new IllegalArgumentException("Not supported XML Schema type: " + schemaObject.getClass().getName());
         }

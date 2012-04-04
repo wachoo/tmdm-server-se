@@ -50,9 +50,9 @@ public class ConsoleDumpMetadataVisitor extends DefaultMetadataVisitor<Void> {
 
     public Void visit(ComplexTypeMetadata complexType) {
         log("[Type] " + complexType.getName()); //$NON-NLS-1$
-        String keyFields = ""; //$NON-NLS-1$
+        String keyFields = "";
         for (FieldMetadata keyFieldMetadata : complexType.getKeyFields()) {
-            keyFields += keyFieldMetadata.getName() + " ";  //$NON-NLS-1$
+            keyFields += keyFieldMetadata.getName() + " "; //$NON-NLS-1$
         }
         if (!keyFields.isEmpty()) {
             log("\t[Key fields] " + keyFields); //$NON-NLS-1$
@@ -139,7 +139,7 @@ public class ConsoleDumpMetadataVisitor extends DefaultMetadataVisitor<Void> {
 
     @Override
     public Void visit(ContainedTypeFieldMetadata containedField) {
-        log("[Field (Contained type) -> " + containedField.getContainedType().getName() + ")] " + containedField.getName() + (containedField.isMany() ? "*" : "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+        log("[Field (Contained type) -> " + containedField.getContainedType().getName() + ")] " + containedField.getName() + (containedField.isMany() ? "*" : ""));  //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
         logUsers(containedField);
 
         indent++;
@@ -153,7 +153,7 @@ public class ConsoleDumpMetadataVisitor extends DefaultMetadataVisitor<Void> {
 
     private void logUsers(FieldMetadata metadata) {
         if (!metadata.getHideUsers().isEmpty()) {
-            log("\t[Hide users: " + metadata.getHideUsers() + "]"); //$NON-NLS-1$ //$NON-NLS-2$
+            log("\t[Hide users: " + metadata.getHideUsers() + "]");  //$NON-NLS-1$ //$NON-NLS-2$
         }
         if (!metadata.getWriteUsers().isEmpty()) {
             log("\t[Allow write users: " + metadata.getWriteUsers() + "]"); //$NON-NLS-1$ //$NON-NLS-2$

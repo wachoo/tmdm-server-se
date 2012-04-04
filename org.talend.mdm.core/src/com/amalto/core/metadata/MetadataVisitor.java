@@ -12,7 +12,7 @@
 package com.amalto.core.metadata;
 
 /**
- *
+ * Visitor for all type information classes in com.amalto.core.metadata package.
  */
 public interface MetadataVisitor<T> {
 

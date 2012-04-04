@@ -13,8 +13,21 @@ package com.amalto.core.metadata;
 
 import org.apache.ws.commons.schema.XmlSchemaAnnotation;
 
+/**
+ * Enrich a {@link ComplexTypeMetadata} being built with information contained in XML Schema information.
+ * @see MetadataRepository#createFieldMetadata(org.apache.ws.commons.schema.XmlSchemaElement, ComplexTypeMetadata)
+ */
 interface XmlSchemaAnnotationProcessor {
 
+    /**
+     * Process additional type information contained in {@link XmlSchemaAnnotation}.
+     *
+     * @param repository The repository that contains the <code>type</code>.
+     * @param type       The {@link ComplexTypeMetadata} being enriched by the <code>annotation</code>.
+     * @param annotation An XML Schema annotation.
+     * @param state      A {@link XmlSchemaAnnotationProcessorState} that keeps track of information parsed by
+     *                   {@link XmlSchemaAnnotationProcessor}.
+     */
     void process(MetadataRepository repository, ComplexTypeMetadata type, XmlSchemaAnnotation annotation, XmlSchemaAnnotationProcessorState state);
 
 }

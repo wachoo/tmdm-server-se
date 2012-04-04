@@ -28,13 +28,13 @@ public class ContainedTypeFieldMetadata implements FieldMetadata {
 
     private final TypeMetadata declaringType;
 
-    private ComplexTypeMetadata containingType;
-
-    private final TypeMetadata fieldType;
+    private final ContainedComplexTypeMetadata fieldType;
 
     private final boolean isMandatory;
 
-    public ContainedTypeFieldMetadata(ComplexTypeMetadata containingType, boolean isMany, boolean isMandatory, String name, TypeMetadata fieldType, List<String> allowWriteUsers, List<String> hideUsers) {
+    private ComplexTypeMetadata containingType;
+
+    public ContainedTypeFieldMetadata(ComplexTypeMetadata containingType, boolean isMany, boolean isMandatory, String name, ContainedComplexTypeMetadata fieldType, List<String> allowWriteUsers, List<String> hideUsers) {
         if (fieldType == null) {
             throw new IllegalArgumentException("Contained type cannot be null.");
         }
@@ -61,14 +61,6 @@ public class ContainedTypeFieldMetadata implements FieldMetadata {
         return fieldType;
     }
 
-    public boolean hasForeignKeyInfo() {
-        return false; // This type of field can't be a foreign key
-    }
-
-    public FieldMetadata getForeignKeyInfoField() {
-        throw new IllegalStateException("This type of field can't be a foreign key");
-    }
-
     public ComplexTypeMetadata getContainingType() {
         return containingType;
     }
@@ -79,14 +71,6 @@ public class ContainedTypeFieldMetadata implements FieldMetadata {
 
     public TypeMetadata getDeclaringType() {
         return declaringType;
-    }
-
-    public boolean isFKIntegrity() {
-        return false;
-    }
-
-    public boolean allowFKIntegrityOverride() {
-        return false;
     }
 
     public void adopt(ComplexTypeMetadata metadata, MetadataRepository repository) {
@@ -115,28 +99,23 @@ public class ContainedTypeFieldMetadata implements FieldMetadata {
         return isMandatory;
     }
 
-    public void setName(String fieldName) {
-        this.name = fieldName;
-    }
-
     public <T> T accept(MetadataVisitor<T> visitor) {
         return visitor.visit(this);
     }
 
     @Override
     public String toString() {
-        return "Contained {" + //$NON-NLS-1$
-                "declaringType=" + declaringType + //$NON-NLS-1$
-                ", containingType=" + containingType + //$NON-NLS-1$
-                ", name='" + name + '\'' + //$NON-NLS-1$
-                ", isMany=" + isMany + //$NON-NLS-1$
+        return "Contained {" +  //$NON-NLS-1$
+                "declaringType=" + declaringType +   //$NON-NLS-1$
+                ", containingType=" + containingType +   //$NON-NLS-1$
+                ", name='" + name + '\'' +  //$NON-NLS-1$
+                ", isMany=" + isMany +  //$NON-NLS-1$
                 ", fieldTypeName='" + fieldType.getName() + '\'' + //$NON-NLS-1$
-                '}';
+                '}';   //$NON-NLS-1$
     }
 
     public ContainedComplexTypeMetadata getContainedType() {
-        // TODO Ugly cast to remove
-        return (ContainedComplexTypeMetadata) fieldType;
+        return fieldType;
     }
 
     @Override

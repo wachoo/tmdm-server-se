@@ -28,6 +28,12 @@ class UserAccessProcessor implements XmlSchemaAnnotationProcessor {
                     state.getHide().add(appInfo.getMarkup().item(0).getTextContent());
                 } else if (BusinessConcept.APPINFO_X_WRITE.equals(appInfo.getSource())) {
                     state.getAllowWrite().add(appInfo.getMarkup().item(0).getTextContent());
+                } else if ("X_Deny_Create".equals(appInfo.getSource())) {
+                    state.getDenyCreate().add(appInfo.getMarkup().item(0).getTextContent());
+                } else if ("X_Deny_LogicalDelete".equals(appInfo.getSource())) {
+                    state.getDenyLogicalDelete().add(appInfo.getMarkup().item(0).getTextContent());
+                } else if ("X_Deny_PhysicalDelete".equals(appInfo.getSource())) {
+                    state.getDenyPhysicalDelete().add(appInfo.getMarkup().item(0).getTextContent());
                 }
             }
         }

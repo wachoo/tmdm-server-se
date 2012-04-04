@@ -46,14 +46,6 @@ public class CompoundFieldMetadata implements FieldMetadata {
         return new SimpleTypeMetadata(MetadataRepository.XSD_NAMESPACE, "string"); //$NON-NLS-1$ // TODO Constant
     }
 
-    public boolean hasForeignKeyInfo() {
-        throw new UnsupportedOperationException();
-    }
-
-    public FieldMetadata getForeignKeyInfoField() {
-        throw new UnsupportedOperationException();
-    }
-
     public ComplexTypeMetadata getContainingType() {
         return fields[0].getContainingType();
     }
@@ -64,14 +56,6 @@ public class CompoundFieldMetadata implements FieldMetadata {
 
     public TypeMetadata getDeclaringType() {
         return fields[0].getDeclaringType();
-    }
-
-    public boolean isFKIntegrity() {
-        throw new UnsupportedOperationException();
-    }
-
-    public boolean allowFKIntegrityOverride() {
-        throw new UnsupportedOperationException();
     }
 
     public void adopt(ComplexTypeMetadata metadata, MetadataRepository repository) {
@@ -100,10 +84,6 @@ public class CompoundFieldMetadata implements FieldMetadata {
     }
 
     public boolean isMandatory() {
-        throw new UnsupportedOperationException();
-    }
-
-    public void setName(String fieldName) {
         throw new UnsupportedOperationException();
     }
 

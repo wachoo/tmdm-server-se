@@ -12,7 +12,7 @@
 package com.amalto.core.metadata;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -24,6 +24,8 @@ public class SimpleTypeMetadata implements TypeMetadata {
 
     private final String nameSpace;
 
+    private final List<TypeMetadata> superTypes = new LinkedList<TypeMetadata>();
+
     public SimpleTypeMetadata(String nameSpace, String name) {
         if (name == null) {
             throw new IllegalArgumentException("Name cannot be null.");
@@ -34,7 +36,7 @@ public class SimpleTypeMetadata implements TypeMetadata {
     }
 
     public Collection<TypeMetadata> getSuperTypes() {
-        return Collections.emptySet();
+        return superTypes;
     }
 
     public String getName() {
@@ -47,14 +49,6 @@ public class SimpleTypeMetadata implements TypeMetadata {
 
     public boolean isAbstract() {
         return true;
-    }
-
-    public FieldMetadata getField(String fieldName) {
-        throw new IllegalStateException("Should not be called on a simple type.");
-    }
-
-    public List<FieldMetadata> getFields() {
-        return Collections.emptyList();
     }
 
     public boolean isAssignableFrom(TypeMetadata type) {
@@ -71,7 +65,7 @@ public class SimpleTypeMetadata implements TypeMetadata {
     }
 
     public void addSuperType(TypeMetadata superType, MetadataRepository repository) {
-        throw new IllegalStateException("Cannot add a super type to a simple type");
+        superTypes.add(superType);
     }
 
     public <T> T accept(MetadataVisitor<T> visitor) {

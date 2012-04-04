@@ -19,14 +19,14 @@ import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 /**
  *
  */
-public interface XmlSchemaVisitor<T> {
+public interface XmlSchemaVisitor {
 
-    T visitSchema(XmlSchema xmlSchema);
+    void visitSchema(XmlSchema xmlSchema);
 
-    T visitSimpleType(XmlSchemaSimpleType type);
+    void visitSimpleType(XmlSchemaSimpleType type);
 
-    T visitComplexType(XmlSchemaComplexType type);
+    void visitComplexType(XmlSchemaComplexType type);
 
-    T visitElement(XmlSchemaElement element);
+    void visitElement(XmlSchemaElement element);
 
 }

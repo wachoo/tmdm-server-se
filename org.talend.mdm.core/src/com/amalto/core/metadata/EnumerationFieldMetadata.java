@@ -69,14 +69,6 @@ public class EnumerationFieldMetadata implements FieldMetadata {
         return fieldType;
     }
 
-    public boolean hasForeignKeyInfo() {
-        return false;
-    }
-
-    public FieldMetadata getForeignKeyInfoField() {
-        throw new IllegalStateException("This type of field can't be a foreign key");
-    }
-
     public ComplexTypeMetadata getContainingType() {
         return containingType;
     }
@@ -87,14 +79,6 @@ public class EnumerationFieldMetadata implements FieldMetadata {
 
     public TypeMetadata getDeclaringType() {
         return declaringType;
-    }
-
-    public boolean isFKIntegrity() {
-        return false;
-    }
-
-    public boolean allowFKIntegrityOverride() {
-        return false;
     }
 
     public void adopt(ComplexTypeMetadata metadata, MetadataRepository repository) {
@@ -123,22 +107,18 @@ public class EnumerationFieldMetadata implements FieldMetadata {
         return isMandatory;
     }
 
-    public void setName(String fieldName) {
-        this.name = fieldName;
-    }
-
     public <T> T accept(MetadataVisitor<T> visitor) {
         return visitor.visit(this);
     }
 
     @Override
     public String toString() {
-        return "EnumerationFieldMetadata{" + //$NON-NLS-1$
+        return "EnumerationFieldMetadata{" +  //$NON-NLS-1$
                 "declaringType=" + declaringType + //$NON-NLS-1$
                 ", containingType=" + containingType + //$NON-NLS-1$
                 ", is key=" + isKey + //$NON-NLS-1$
                 ", name ='" + name + '\'' + //$NON-NLS-1$
-                ", type name ='" + fieldType.getName() + '\'' + //$NON-NLS-1$
+                ", type name ='" + fieldType.getName() + '\'' +  //$NON-NLS-1$
                 '}';
     }
 

@@ -26,7 +26,7 @@ import java.util.*;
 /**
  *
  */
-public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<Void> {
+public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
 
     public static final String XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema"; //$NON-NLS-1$
 
@@ -116,10 +116,9 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
     /*
      * XML Schema parse.
      */
-    public Void visitSchema(XmlSchema xmlSchema) {
-        Void result;
+    public void visitSchema(XmlSchema xmlSchema) {
         targetNamespace = xmlSchema.getTargetNamespace() == null ? USER_NAMESPACE : xmlSchema.getTargetNamespace();
-        result = XmlSchemaWalker.walk(xmlSchema, this);
+        XmlSchemaWalker.walk(xmlSchema, this);
 
         if (!currentTypeStack.isEmpty()) {
             // At the end of data model parsing, we expect all entity types to be processed.
@@ -128,12 +127,11 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
 
         // No need to keep references to processed XML schema types.
         processedTypes.clear();
-
-        return result;
     }
 
-    public Void visitSimpleType(XmlSchemaSimpleType type) {
+    public void visitSimpleType(XmlSchemaSimpleType type) {
         String typeName = type.getName();
+        List<TypeMetadata> superTypes = new LinkedList<TypeMetadata>();
         if (typeName == null) {
             // Anonymous simple type (expects this is a restriction of a simple type or fails).
             XmlSchemaSimpleTypeContent content = type.getContent();
@@ -147,18 +145,31 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
             } else {
                 throw new NotImplementedException("Support for " + type);
             }
+        } else {
+            // Simple type might inherit from other simple types (i.e. UUID from string).
+            XmlSchemaSimpleTypeContent content = type.getContent();
+            if (content != null) {
+                if (content instanceof XmlSchemaSimpleTypeRestriction) {
+                    QName baseTypeName = ((XmlSchemaSimpleTypeRestriction) content).getBaseTypeName();
+                    superTypes.add(new SoftTypeRef(this, baseTypeName.getNamespaceURI(), baseTypeName.getLocalPart()));
+                }
+            }
         }
 
         TypeMetadata typeMetadata = getType(targetNamespace, typeName);
         if (typeMetadata == null) {
             typeMetadata = new SimpleTypeMetadata(targetNamespace, typeName);
+            for (TypeMetadata superType : superTypes) {
+                typeMetadata.addSuperType(superType, this);
+            }
             addTypeMetadata(typeMetadata);
         }
-        return null;
     }
 
-    public Void visitElement(XmlSchemaElement element) {
+    public void visitElement(XmlSchemaElement element) {
         if (currentTypeStack.isEmpty()) { // "top level" elements means new MDM entity type
+            String typeName = element.getName();
+
             // Id fields
             Set<String> idFields = new HashSet<String>();
             XmlSchemaObjectCollection constraints = element.getConstraints();
@@ -180,9 +191,8 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
 
             typeMetadataKeyStack.push(idFields);
             {
-                ComplexTypeMetadata type = getComplexType(element.getName());
+                ComplexTypeMetadata type = getComplexType(typeName);
                 if (type == null) { // Take type from repository if already built
-                    type = new ComplexTypeMetadataImpl(targetNamespace, element.getName());
                     XmlSchemaAnnotationProcessorState state;
                     try {
                         XmlSchemaAnnotation annotation = element.getAnnotation();
@@ -215,7 +225,8 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
                 }
                 currentTypeStack.pop();
 
-                // TODO Document this (in case id is not defined it current type but in super type)
+                // If type's keys are defined in super type (but not defined as key in super type), register as keys
+                // references to super type's fields.
                 Set<String> unresolvedIds = typeMetadataKeyStack.peek();
                 if (!unresolvedIds.isEmpty()) {
                     for (String unresolvedId : unresolvedIds) {
@@ -228,29 +239,28 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
             FieldMetadata fieldMetadata = createFieldMetadata(element, currentTypeStack.peek());
             currentTypeStack.peek().addField(fieldMetadata);
         }
-        return null;
     }
 
-    public Void visitComplexType(XmlSchemaComplexType type) {
+    public void visitComplexType(XmlSchemaComplexType type) {
         // Minor optimization: don't visit a complex type more than once.
         if (processedTypes.contains(type)) {
-            return null;
+            return;
         }
         processedTypes.add(type);
 
+        String typeName = type.getName();
         boolean isNonInstantiableType = currentTypeStack.isEmpty();
         if (isNonInstantiableType) {
             // There's no current 'entity' type being parsed, this is a complex type not to be used for entity but
             // might be referenced by others entities (for fields, inheritance...).
-            String nonInstantiableTypeName = type.getName();
-            ComplexTypeMetadata nonInstantiableType = new ComplexTypeMetadataImpl(targetNamespace, nonInstantiableTypeName);
-            nonInstantiableTypes.put(nonInstantiableTypeName, nonInstantiableType);
+            ComplexTypeMetadata nonInstantiableType = new ComplexTypeMetadataImpl(targetNamespace, typeName);
+            nonInstantiableTypes.put(typeName, nonInstantiableType);
             currentTypeStack.push(nonInstantiableType);
             typeMetadataKeyStack.push(Collections.<String>emptySet());
         } else {
             // Some types can refer to XSD complex type of an entity iso. the entity name. So keeps the inner type but
             // as non-instantiable.
-            nonInstantiableTypes.put(type.getName(), currentTypeStack.peek());
+            nonInstantiableTypes.put(typeName, currentTypeStack.peek());
         }
 
         XmlSchemaParticle contentTypeParticle = type.getParticle();
@@ -297,7 +307,6 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
             typeMetadataKeyStack.pop();
             currentTypeStack.pop();
         }
-        return null;
     }
 
     // TODO To refactor once test coverage is good.
@@ -405,9 +414,9 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
         }
 
         if (isReference) {
-            return new ReferenceFieldMetadata(containingType, isKey, isMany, isMandatory, fieldName, referencedType, referencedField, foreignKeyInfo, fkIntegrity, fkIntegrityOverride, allowWriteUsers, hideUsers);
+            return new ReferenceFieldMetadata(containingType, isKey, isMany, isMandatory, fieldName, (ComplexTypeMetadata) referencedType, referencedField, foreignKeyInfo, fkIntegrity, fkIntegrityOverride, allowWriteUsers, hideUsers);
         } else if (isContained) {
-            return new ContainedTypeFieldMetadata(containingType, isMany, isMandatory, fieldName, referencedType, allowWriteUsers, hideUsers);
+            return new ContainedTypeFieldMetadata(containingType, isMany, isMandatory, fieldName, (ContainedComplexTypeMetadata) referencedType, allowWriteUsers, hideUsers);
         } else {
             return new SimpleTypeFieldMetadata(containingType, isKey, isMany, isMandatory, fieldName, fieldType, allowWriteUsers, hideUsers);
         }
