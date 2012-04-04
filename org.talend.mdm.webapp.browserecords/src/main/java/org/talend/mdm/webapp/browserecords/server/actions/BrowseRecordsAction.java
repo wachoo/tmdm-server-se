@@ -21,7 +21,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -45,6 +44,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.xpath.XPathExpressionException;
 
+import com.amalto.core.save.SaveException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentHelper;
@@ -111,7 +111,6 @@ import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 import com.amalto.core.util.ValidateException;
 import com.amalto.webapp.core.bean.Configuration;
-import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.RoutingException;
 import com.amalto.webapp.core.util.Util;
@@ -137,7 +136,6 @@ import com.amalto.webapp.util.webservices.WSItem;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSPutItem;
 import com.amalto.webapp.util.webservices.WSPutItemWithReport;
-import com.amalto.webapp.util.webservices.WSRouteItemV2;
 import com.amalto.webapp.util.webservices.WSStringArray;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSTransformer;
@@ -205,7 +203,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     WSItemPK wsItem = CommonUtil.getPort().deleteItem(
                             new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids), override));
                     if (wsItem != null)
-                        pushUpdateReport(ids, concept, "PHYSICAL_DELETE", true); //$NON-NLS-1$
+                        pushUpdateReport(ids, concept, "PHYSICAL_DELETE"); //$NON-NLS-1$
                     else
                         throw new ServiceException(MESSAGES.getMessage("delete_record_failure")); //$NON-NLS-1$
 
@@ -518,7 +516,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                             itemBean.getFormateMap().put(key, formatValue);
                         }
                     }
-                }            
+                }
             }
 
             // dynamic Assemble
@@ -868,21 +866,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return doc;
     }
 
-    private static String[] convertIds(String ids) {
-        String patternStr = "\\[.*\\]"; //$NON-NLS-1$
-        Pattern idsPattern = Pattern.compile(patternStr);
-        idsPattern.matcher(ids);
-        Matcher matcher = idsPattern.matcher(ids);
-        if (!matcher.matches())
-            return new String[] { ids };
-        else
-            extractIdWithBrackets(ids);
-        return null;
-    }
-
     /**
      * DOC HSHU Comment method "switchForeignKeyType".
-     * 
+     *
      * @param targetEntity
      * @param xpathForeignKey
      * @param xpathInfoForeignKey
@@ -928,7 +914,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     /**
      * DOC HSHU Comment method "replaceXpathRoot".
-     * 
+     *
      * @param targetEntity
      * @param xpathForeignKey
      * @return
@@ -1239,32 +1225,25 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return idList.toArray(new String[idList.size()]);
     }
 
-    private String pushUpdateReport(String[] ids, String concept, String operationType) throws Exception {
-        return pushUpdateReport(ids, concept, operationType, false);
-    }
-
-    private String pushUpdateReport(String[] ids, String concept, String operationType, boolean routeAfterSaving)
-            throws Exception {
-        if (LOG.isTraceEnabled())
+    private void pushUpdateReport(String[] ids, String concept, String operationType) throws Exception {
+        if (LOG.isTraceEnabled()) {
             LOG.trace("pushUpdateReport() concept " + concept + " operation " + operationType);//$NON-NLS-1$ //$NON-NLS-2$
-
-        // TODO check updatedPath
-        HashMap<String, UpdateReportItem> updatedPath = null;
-        if (!("PHYSICAL_DELETE".equals(operationType) || "LOGIC_DELETE".equals(operationType)) && updatedPath == null) { //$NON-NLS-1$ //$NON-NLS-2$
-            return "ERROR_2";//$NON-NLS-1$
         }
 
-        String xml2 = createUpdateReport(ids, concept, operationType, updatedPath);
+        if (!("PHYSICAL_DELETE".equals(operationType) || "LOGIC_DELETE".equals(operationType))) { //$NON-NLS-1$ //$NON-NLS-2$
+            throw new UnsupportedOperationException();
+        }
 
-        if (LOG.isDebugEnabled())
-            LOG.debug("pushUpdateReport() " + xml2);//$NON-NLS-1$
+        String updateReportXML = createUpdateReport(ids, concept, operationType);
 
-        // TODO routeAfterSaving is true
-        return persistentUpdateReport(xml2, routeAfterSaving);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("pushUpdateReport() " + updateReportXML);//$NON-NLS-1$
+        }
+
+        CommonUtil.getPort().putItem(new WSPutItem(new WSDataClusterPK("UpdateReport"), updateReportXML, new WSDataModelPK("UpdateReport"), false)); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
-    private String createUpdateReport(String[] ids, String concept, String operationType,
-            HashMap<String, UpdateReportItem> updatedPath) throws Exception {
+    private String createUpdateReport(String[] ids, String concept, String operationType) throws Exception {
 
         String revisionId = null;
         String dataModelPK = getCurrentDataModel() == null ? "" : getCurrentDataModel();//$NON-NLS-1$
@@ -1295,33 +1274,11 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 .append("</Concept><Key>").append(key).append("</Key>"); //$NON-NLS-1$ //$NON-NLS-2$
 
         if ("UPDATE".equals(operationType)) { //$NON-NLS-1$
-            Collection<UpdateReportItem> list = updatedPath.values();
-            boolean isUpdate = false;
-            for (UpdateReportItem item : list) {
-                String oldValue = item.getOldValue() == null ? "" : item.getOldValue();//$NON-NLS-1$
-                String newValue = item.getNewValue() == null ? "" : item.getNewValue();//$NON-NLS-1$
-                if (newValue.equals(oldValue))
-                    continue;
-                sb.append("<Item>   <path>").append(item.getPath()).append("</path>   <oldValue>")//$NON-NLS-1$ //$NON-NLS-2$
-                        .append(oldValue).append("</oldValue>   <newValue>")//$NON-NLS-1$
-                        .append(newValue).append("</newValue></Item>");//$NON-NLS-1$
-                isUpdate = true;
-            }
-            if (!isUpdate)
-                return null;
+            // Important: Leave update report creation to MDM server
+            throw new UnsupportedOperationException();
         }
         sb.append("</Update>");//$NON-NLS-1$
         return sb.toString();
-    }
-
-    private static String persistentUpdateReport(String xml2, boolean routeAfterSaving) throws Exception {
-        if (xml2 == null)
-            return "OK";//$NON-NLS-1$
-        WSItemPK itemPK = CommonUtil.getPort().putItem(
-                new WSPutItem(new WSDataClusterPK("UpdateReport"), xml2, new WSDataModelPK("UpdateReport"), false)); //$NON-NLS-1$ //$NON-NLS-2$
-        if (routeAfterSaving)
-            CommonUtil.getPort().routeItemV2(new WSRouteItemV2(itemPK));
-        return "OK";//$NON-NLS-1$
     }
 
     public String getCurrentDataModel() throws ServiceException {
@@ -1592,58 +1549,24 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     public ItemResult saveItem(String concept, String ids, String xml, boolean isCreate, String language) throws ServiceException {
         Locale locale = new Locale(language);
-        WSItemPK wsi = null;
-        try {
-            // if update, check the item is modified by others?
-            WSPutItemWithReport wsPutItemWithReport = new WSPutItemWithReport(new WSPutItem(new WSDataClusterPK(
-                    getCurrentDataCluster()), xml, new WSDataModelPK(getCurrentDataModel()), isCreate ? false : true),
-                    "genericUI", true); //$NON-NLS-1$
-            wsi = CommonUtil.getPort().putItemWithReport(wsPutItemWithReport);
-            String message = null;
-            int status;
-            if (com.amalto.webapp.core.util.Util.isTransformerExist("beforeSaving_" + concept)) { //$NON-NLS-1$
-                String outputErrorMessage = wsPutItemWithReport.getSource();
-                String errorCode = null;
-                if (outputErrorMessage != null) {
-                    org.w3c.dom.Document doc = com.amalto.webapp.core.util.Util.parse(outputErrorMessage);
-                    // TODO what if multiple error nodes ?
-                    String xpath = "//report/message"; //$NON-NLS-1$
-                    org.w3c.dom.NodeList checkList = com.amalto.webapp.core.util.Util.getNodeList(doc, xpath);
-                    org.w3c.dom.Node errorNode = null;
-                    if (checkList != null && checkList.getLength() > 0)
-                        errorNode = checkList.item(0);
-                    if (errorNode != null && errorNode instanceof org.w3c.dom.Element) {
-                        org.w3c.dom.Element errorElement = (org.w3c.dom.Element) errorNode;
-                        errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
-                        org.w3c.dom.Node child = errorElement.getFirstChild();
-                        if (child instanceof org.w3c.dom.Text) {
-                            if (language == null)
-                                message = child.getTextContent();
-                            else {
-                                Pattern p = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL);//$NON-NLS-1$//$NON-NLS-2$
-                                message = p.matcher(child.getTextContent()).replaceAll("$1");//$NON-NLS-1$  
-                            }
-                        }
-                    }
-                }
 
-                if ("info".equals(errorCode)) { //$NON-NLS-1$
-                    if (message == null || message.length() == 0)
-                        message = MESSAGES.getMessage(locale, "save_process_validation_success"); //$NON-NLS-1$
-                    status = ItemResult.SUCCESS;
-                } else {
-                    // Anything but 0 is unsuccessful
-                    if (message == null || message.length() == 0)
-                        message = MESSAGES.getMessage(locale, "save_process_validation_failure"); //$NON-NLS-1$
-                    throw new ServiceException(message);
-                }
+        try {
+            // TODO (1) if update, check the item is modified by others?
+            // TODO (2) if create, check if the item has not been created by someone else?
+            WSPutItemWithReport wsPutItemWithReport = new WSPutItemWithReport(new WSPutItem(new WSDataClusterPK(
+                    getCurrentDataCluster()), xml, new WSDataModelPK(getCurrentDataModel()), !isCreate),
+                    "genericUI", true); //$NON-NLS-1$
+            int status = ItemResult.SUCCESS;
+            WSItemPK wsi = CommonUtil.getPort().putItemWithReport(wsPutItemWithReport);
+            String message = wsPutItemWithReport.getSource(); // putItemWithReport is expected to put beforeSavingMessage in getSource().
+            if (message == null || message.length() == 0) {
+                message = MESSAGES.getMessage(locale, "save_process_validation_success"); //$NON-NLS-1$
             } else {
                 message = MESSAGES.getMessage(locale, "save_record_success"); //$NON-NLS-1$
-                status = ItemResult.SUCCESS;
             }
-            if (wsi == null)
+            if (wsi == null) {
                 return new ItemResult(status, message, ids);
-            else {
+            } else {
                 WSItem wsItem = CommonUtil.getPort().getItem(
                         new WSGetItem(new WSItemPK(new WSDataClusterPK(getCurrentDataCluster()), concept, wsi.getIds())));
                 return new ItemResult(status, message, Util.joinStrings(wsi.getIds(), "."), wsItem.getInsertionTime()); //$NON-NLS-1$
@@ -1656,6 +1579,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             if (Util.causeIs(e, RoutingException.class)) {
                 err = MESSAGES.getMessage(locale, "save_success_but_exist_exception", //$NON-NLS-1$
                         concept + "." + ids, e.getLocalizedMessage()); //$NON-NLS-1$
+            } else if (Util.causeIs(e, SaveException.class)) {
+                err = MESSAGES.getMessage(locale, "save_process_validation_failure"); //$NON-NLS-1$
             } else if (Util.causeIs(e, CVCException.class)) {
                 err = MESSAGES.getMessage(locale, "save_fail_cvc_exception", concept); //$NON-NLS-1$
             } else if (Util.causeIs(e, ValidateException.class)) {
@@ -1761,13 +1686,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             String[] businessConcepts = Util.getPort().getBusinessConcepts(new WSGetBusinessConcepts(new WSDataModelPK(model)))
                     .getStrings();
             WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();//$NON-NLS-1$
-            for (int i = 0; i < wst.length; i++) {
-                if (isMyRunableProcess(wst[i].getPk(), businessConcept, businessConcepts)) {
-                    WSTransformer trans = Util.getPort().getTransformer(new WSGetTransformer(wst[i]));
+            for (WSTransformerPK transformerPK : wst) {
+                if (isMyRunnableProcess(transformerPK.getPk(), businessConcept, businessConcepts)) {
+                    WSTransformer trans = Util.getPort().getTransformer(new WSGetTransformer(transformerPK));
                     String description = trans.getDescription();
                     Pattern p = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL);//$NON-NLS-1$//$NON-NLS-2$
                     String name = p.matcher(description).replaceAll("$1");//$NON-NLS-1$
-                    if (name.equals("")) {//$NON-NLS-1$
+                    if ("".equals(name)) {//$NON-NLS-1$
                         String action = MESSAGES.getMessage("default_action"); //$NON-NLS-1$
                         if (action != null && action.trim().length() > 0) {
                             name = action;
@@ -1776,7 +1701,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         }
                     }
                     ItemBaseModel itemBaseModel = new ItemBaseModel();
-                    itemBaseModel.set("key", wst[i].getPk()); //$NON-NLS-1$
+                    itemBaseModel.set("key", transformerPK.getPk()); //$NON-NLS-1$
                     itemBaseModel.set("value", name); //$NON-NLS-1$
                     processList.add(itemBaseModel);
                 }
@@ -1788,7 +1713,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    private boolean isMyRunableProcess(String transformerName, String ownerConcept, String[] businessConcepts) {
+    private boolean isMyRunnableProcess(String transformerName, String ownerConcept, String[] businessConcepts) {
 
         String possibleConcept = "";//$NON-NLS-1$
         if (businessConcepts != null) {
@@ -1984,7 +1909,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     /**
      ********************************* Registry style****************************************
-     * 
+     *
      * @param concept
      * @param ids
      * @param dataModelPK
@@ -1999,7 +1924,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
      * @throws TransformerFactoryConfigurationError
      * @throws TransformerConfigurationException
      * @throws TransformerException
-     * 
+     *
      * 1.see if there is a job in the view 2.invoke the job. 3.convert the job's return value into xml doc, 4.convert
      * the wsItem's xml String value into xml doc, 5.cover wsItem's xml with job's xml value. step 6 and 7 must do
      * first. 6.add properties into ViewPOJO. 7.add properties into webservice parameter.

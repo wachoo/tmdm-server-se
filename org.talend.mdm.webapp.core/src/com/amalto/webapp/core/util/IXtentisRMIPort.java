@@ -12,25 +12,11 @@
 // ============================================================================
 package com.amalto.webapp.core.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.StringReader;
+import java.io.*;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
 
 import javax.naming.InitialContext;
 import javax.naming.NameClassPair;
@@ -46,14 +32,14 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import com.amalto.core.save.SaveException;
+import com.amalto.core.save.SaverHelper;
+import com.amalto.core.save.SaverSession;
+import com.amalto.core.save.context.DocumentSaver;
 import org.apache.log4j.Logger;
 import org.jboss.security.Base64Encoder;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.talend.mdm.commmon.util.webapp.XObjectType;
-import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
@@ -70,15 +56,12 @@ import com.amalto.core.ejb.ObjectPOJOPK;
 import com.amalto.core.ejb.TransformerCtrlBean;
 import com.amalto.core.ejb.TransformerPOJO;
 import com.amalto.core.ejb.TransformerPOJOPK;
-import com.amalto.core.ejb.UpdateReportItemPOJO;
-import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.ejb.local.TransformerCtrlLocal;
 import com.amalto.core.integrity.FKIntegrityCheckResult;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK;
 import com.amalto.core.objects.backgroundjob.ejb.local.BackgroundJobCtrlUtil;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.objects.menu.ejb.MenuPOJO;
 import com.amalto.core.objects.menu.ejb.MenuPOJOPK;
@@ -101,21 +84,15 @@ import com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocal;
 import com.amalto.core.objects.transformers.v2.util.TransformerCallBack;
 import com.amalto.core.objects.transformers.v2.util.TransformerContext;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
-import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
-import com.amalto.core.util.AutoIncrementGenerator;
 import com.amalto.core.util.LocalUser;
-import com.amalto.core.util.OutputReport;
-import com.amalto.core.util.UpdateReportItem;
 import com.amalto.core.util.Util;
-import com.amalto.core.util.ValidateException;
 import com.amalto.core.util.Version;
 import com.amalto.core.util.WhereConditionForcePivotFilter;
 import com.amalto.core.util.XSDKey;
 import com.amalto.core.util.XtentisException;
 import com.amalto.webapp.util.webservices.*;
 import com.amalto.xmlserver.interfaces.ItemPKCriteria;
-import com.sun.org.apache.xpath.internal.XPathAPI;
 
 public abstract class IXtentisRMIPort implements XtentisPort {
 
@@ -738,91 +715,32 @@ public abstract class IXtentisRMIPort implements XtentisPort {
     /***************************************************************************
      * Put Item
      * **************************************************************************/
-    @SuppressWarnings("nls")
-    protected WSItemPK putItem(WSPutItem wsPutItem, WSPutItemWithReport wsPutItemWithReport, String resultUpdateReport)
-            throws RemoteException {
-        boolean saveFailure = true;
-        int rootNodeHashCode = 0;
-        try {
-            String projection = wsPutItem.getXmlString();
-            Element root = Util.parse(projection, null).getDocumentElement();
-
-            String concept = root.getLocalName();
-
-            DataModelPOJO dataModel = com.amalto.core.util.Util.getDataModelCtrlLocal().getDataModel(
-                    new DataModelPOJOPK(wsPutItem.getWsDataModelPK().getPk()));
-            Document schema = Util.parseXSD(dataModel.getSchema());
-            XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(schema, concept);
-            // get key values
-            String[] itemKeyValues = Util.getKeyValuesFromItem(root, conceptKey);
-            DataClusterPOJOPK dcpk = new DataClusterPOJOPK(wsPutItem.getWsDataClusterPK().getPk());
-            // update the item using new field values
-            // load the item first if itemkey provided
-            // this only operate non system items
-            if (!XSystemObjects.isXSystemObject(XObjectType.DATA_CLUSTER, wsPutItem.getWsDataClusterPK().getPk())) {
-                if (!wsPutItem.getIsUpdate()) {
-
-                    if (Util.containsUUIDType(concept, dataModel.getSchema(), root)) {
-                        // update the item according to datamodel if there is UUID/AUTO_INCREMENT field and it's empty
-                        // we need to regenerate an empty field like '<uuid_field/>'
-                        Node newNode = Util.updateNodeBySchema(concept, dataModel.getSchema(), root);
-                        projection = Util.getXMLStringFromNode(newNode);
-                    }
-                }
-            }
-            ItemPOJO itemPojo = new ItemPOJO(dcpk, concept, itemKeyValues, System.currentTimeMillis(), projection);
-            rootNodeHashCode = itemPojo.getProjection().hashCode();
-            // see TMDM-1767
-            // invoke validate
-            processUUIDAndValidate(itemPojo, dataModel.getSchema());
-            // invoke beforeSaving
-            if (wsPutItemWithReport != null) {
-                if (!beforeSaving(wsPutItemWithReport, concept, itemPojo.getProjectionAsString(), resultUpdateReport))
-                    return null;
-                else {
-                    if (wsPutItemWithReport.getWsPutItem().getXmlString() != null) {
-                        // get back the item modified by the process
-                        LOG.debug("Record modified by the process beforeSaving_" + concept + " -->"
-                                + wsPutItemWithReport.getWsPutItem().getXmlString());
-                        itemPojo.setProjectionAsString(wsPutItemWithReport.getWsPutItem().getXmlString());
-                    }
-                }
-            }
-
-            ItemPOJOPK itemPOJOPK = com.amalto.core.util.Util.getItemCtrl2Local().putItem(itemPojo, dataModel);
-            // invoke AutoIncrementGenerator
-            if (!wsPutItem.getIsUpdate()) {
-                AutoIncrementGenerator.check(rootNodeHashCode);
-                saveFailure = false;
-            }
-            if (itemPOJOPK == null)
-                return null;
-
-            return new WSItemPK(new WSDataClusterPK(itemPOJOPK.getDataClusterPOJOPK().getUniqueId()),
-                    itemPOJOPK.getConceptName(), itemPOJOPK.getIds());
-        } catch (com.amalto.core.util.XtentisException e) {
-            throw (new RemoteException(e.getLocalizedMessage(), e));
-        } catch (ValidateException e) {
-            throw new RemoteException(e.getLocalizedMessage(), e);
-        } catch (Exception e) {
-            String prefix = "Unable to create/update the item : ";
-            String err = e.getMessage();
-            // simplify the error message
-            if (("Reporting").equals(wsPutItem.getWsDataModelPK().getPk())) {
-                if (err.indexOf("One of '{ListOfFilters}'") != -1) {
-                    err = "At least one filter must be defined";
-                }
-            }
-            throw new RemoteException(prefix + err);
-        } finally {
-            // exist auto_increment, it need save the unused auto_increment id
-            if(saveFailure && !wsPutItem.getIsUpdate())
-                AutoIncrementGenerator.saveUnUsedIdsToDB(true, rootNodeHashCode);
-        }
-    }
-
     public WSItemPK putItem(WSPutItem wsPutItem) throws RemoteException {
-        return putItem(wsPutItem, null, null);
+        try {
+            WSDataClusterPK dataClusterPK = wsPutItem.getWsDataClusterPK();
+            WSDataModelPK dataModelPK = wsPutItem.getWsDataModelPK();
+
+            String dataClusterName = dataClusterPK.getPk();
+            String dataModelName = dataModelPK.getPk();
+
+            SaverSession session = SaverSession.newSession();
+            DocumentSaver saver = SaverHelper.saveItem(wsPutItem.getXmlString(),
+                    session,
+                    dataClusterName,
+                    dataModelName);
+            // Cause items being saved to be committed to database.
+            session.end();
+
+            String[] savedId = saver.getSavedId();
+            String savedConceptName = saver.getSavedConceptName();
+            return new WSItemPK(dataClusterPK, savedConceptName, savedId);
+        } catch (Exception e) {
+            if (LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
+            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
+        }
     }
 
     /***************************************************************************
@@ -2211,176 +2129,41 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
-    private UpdateReportItemPOJO WS2POJO(WSUpdateReportItemPOJO wsUpdateReportItemPOJO) throws Exception {
-        return new UpdateReportItemPOJO(wsUpdateReportItemPOJO.getPath(), wsUpdateReportItemPOJO.getOldValue(),
-                wsUpdateReportItemPOJO.getNewValue());
-    }
-
-    protected boolean beforeSaving(WSPutItemWithReport wsPutItemWithReport, String concept, String xml, String resultUpdateReport)
-            throws Exception {
-        //Do we call Triggers&Before processes?
-        // by default xml string to null to ensure nothing is modified by process
-        wsPutItemWithReport.getWsPutItem().setXmlString(null);
-        if (wsPutItemWithReport.getInvokeBeforeSaving()) {
-            // invoke BeforeSaving process if it exists
-            OutputReport outputreport = Util.beforeSaving(concept, xml, resultUpdateReport);
-            if (outputreport != null) { // when a process was found
-                String message = outputreport.getMessage();
-                Document doc = Util.parse(message);
-                // handle output_report
-                String xpath = "//report/message"; //$NON-NLS-1$
-                Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
-                String errorCode = null;
-                if (errorNode instanceof Element) {
-                    Element errorElement = (Element) errorNode;
-                    errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
-                    org.w3c.dom.Node child = errorElement.getFirstChild();
-                    if (child instanceof org.w3c.dom.Text) {
-                        message = child.getTextContent();
-                    }
-                }
-                // handle output_item
-                if(outputreport.getItem()!=null){
-                	xpath = "//exchange/item"; //$NON-NLS-1$
-	                doc = Util.parse(outputreport.getItem());
-	                Node item = XPathAPI.selectSingleNode(doc, xpath);
-	                if (item != null && item instanceof Element) {
-	                    NodeList list = item.getChildNodes();
-	                    Node node = null;
-	                    for (int i = 0; i < list.getLength(); i++) {
-	                        if (list.item(i) instanceof Element) {
-	                            node = list.item(i);
-	                            break;
-	                        }
-	                    }
-	                    if (node != null) {
-	                        String xmlString = Util.nodeToString(node);
-	                        // set back the modified item by the process
-	                        wsPutItemWithReport.getWsPutItem().setXmlString(xmlString);
-	                    }
-	                }
-                }
-                wsPutItemWithReport.setSource(outputreport.getMessage());
-                return "info".equals(errorCode); //$NON-NLS-1$
-            } else { //when no process was found 
-                return true;
-            }
-        } else {
-            // TMDM-2932 when getInvokeBeforeSaving() returns false, this method must return true.
-            return true;
-        }
-    }
-
-    protected void processUUIDAndValidate(ItemPOJO item, String schema) throws Exception {
-        if (schema != null) {
-            String dataCluster = item.getDataClusterPOJOPK().getUniqueId();
-            String concept = item.getConceptName();
-            if (Util.getUUIDNodes(schema, concept).size() > 0) { // check uuid key exists
-
-                Document schema1 = Util.parse(schema);
-                Node n = Util.processUUID(true, item.getProjection(), schema, dataCluster, concept);
-                XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(schema1, concept);
-                // get key values
-                String[] itemKeyValues = com.amalto.core.util.Util.getKeyValuesFromItem((Element) n, conceptKey);
-                // reset item projection & itemids
-                item.setProjectionAsString(Util.nodeToString(n));
-                item.setItemIds(itemKeyValues);
-            }
-
-            Util.validate(item.getProjection(), schema);
-        }
-    }
-
     public WSItemPK putItemWithReport(WSPutItemWithReport wsPutItemWithReport) throws RemoteException {
         try {
+            WSPutItem wsPutItem = wsPutItemWithReport.getWsPutItem();
+            WSDataClusterPK dataClusterPK = wsPutItem.getWsDataClusterPK();
+            WSDataModelPK dataModelPK = wsPutItem.getWsDataModelPK();
 
-            com.amalto.webapp.util.webservices.WSPutItem wsPutItem = wsPutItemWithReport.getWsPutItem();
-            String source = wsPutItemWithReport.getSource();
-            String operationType = "";//$NON-NLS-1$
-            Map<String, UpdateReportItemPOJO> updateReportItemsMap = new HashMap<String, UpdateReportItemPOJO>();
+            String dataClusterName = dataClusterPK.getPk();
+            String dataModelName = dataModelPK.getPk();
 
-            // before saving
-            String projection = wsPutItem.getXmlString();
-            Element root = Util.parse(projection).getDocumentElement();
-
-
-            String concept = root.getLocalName();
-
-            DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(
-                    new DataModelPOJOPK(wsPutItem.getWsDataModelPK().getPk()));
-            Document schema = Util.parseXSD(dataModel.getSchema());
-            XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(schema, concept);
-
-            // get key values
-            String[] ids = com.amalto.core.util.Util.getKeyValuesFromItem(root, conceptKey);
-            DataClusterPOJOPK dcpk = new DataClusterPOJOPK(wsPutItem.getWsDataClusterPK().getPk());
-            ItemPOJOPK itemPOJOPK = new ItemPOJOPK(dcpk, concept, ids);
-            // get operationType
-            ItemPOJO itemPoJo = ItemPOJO.load(itemPOJOPK);
-            Map<String, UpdateReportItem> updatedPath = new HashMap<String, UpdateReportItem>();
-
-            if (itemPoJo == null) {
-                operationType = UpdateReportPOJO.OPERATION_TYPE_CREATE;
-            } else {
-                operationType = UpdateReportPOJO.OPERATION_TYPE_UPDATE;
-                // get updated path
-                Element old = itemPoJo.getProjection();
-                updatedPath = Util.compareElement("/" + old.getLocalName(), root, old);//$NON-NLS-1$
-                for (Entry<String, UpdateReportItem> entry : updatedPath.entrySet()) {
-                    UpdateReportItemPOJO pojo = new UpdateReportItemPOJO(entry.getValue().getPath(), entry.getValue()
-                            .getOldValue(), entry.getValue().getNewValue());
-                    updateReportItemsMap.put(entry.getKey(), pojo);
-                }
+            SaverSession session = SaverSession.newSession();
+            DocumentSaver saver;
+            try {
+                saver = SaverHelper.saveItemWithReport(wsPutItem.getXmlString(),
+                        session,
+                        dataClusterName,
+                        dataModelName,
+                        wsPutItemWithReport.getSource(),
+                        wsPutItemWithReport.getInvokeBeforeSaving());
+                wsPutItemWithReport.setSource(saver.getBeforeSavingMessage()); // TODO Expected (legacy) behavior: set the before saving message as source.
+            } catch (SaveException e) {
+                wsPutItemWithReport.setSource(e.getBeforeSavingMessage()); // TODO Expected (legacy) behavior: set the before saving message as source.
+                throw new RemoteException("Could not save record", e);
             }
-
-            // create resultUpdateReport
-            String resultUpdateReport = Util.createUpdateReport(ids, concept, operationType, updatedPath, wsPutItem
-                    .getWsDataModelPK().getPk(), wsPutItem.getWsDataClusterPK().getPk());
-
-
-            WSItemPK wsi = null;
-            String dataClusterPK = wsPutItem.getWsDataClusterPK().getPk();
-
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-                    "[putItem-of-putItemWithReport] in dataCluster:" + dataClusterPK);
-            wsi = putItem(wsPutItem, wsPutItemWithReport, resultUpdateReport);
-            if (wsi == null)
-                return null;
-            concept = wsi.getConceptName();
-            ids = wsi.getIds();
-            // additional attributes for data changes log
-            ILocalUser user = LocalUser.getLocalUser();
-            String userName = user.getUsername();
-            String revisionID = "";
-            UniversePOJO universe = user.getUniverse();
-            if (universe != null) {
-                revisionID = universe.getConceptRevisionID(concept);
-            }
-            String dataModelPK = wsPutItem.getWsDataModelPK().getPk();
-
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-                    "[pushUpdateReport-of-putItemWithReport] with concept:" + concept + " operation:" + operationType);
-            UpdateReportPOJO updateReportPOJO = new UpdateReportPOJO(concept, Util.joinStrings(ids, "."), operationType, source,
-                    System.currentTimeMillis(), dataClusterPK, dataModelPK, userName, revisionID, updateReportItemsMap);
-            if (resultUpdateReport != null) {
-                WSItemPK itemPK = putItem(new WSPutItem(new WSDataClusterPK("UpdateReport"), updateReportPOJO.serialize(),//$NON-NLS-1$
-                        new WSDataModelPK("UpdateReport"), false));//$NON-NLS-1$
-                try {
-                    routeItemV2(new WSRouteItemV2(itemPK));
-                } catch (RemoteException ex) {
-                    throw new RoutingException("routing failed: " + ex.getLocalizedMessage());
-                }
-            }
-
-            return wsi;
-        } catch (XtentisException e) {
-            throw (new RemoteException(e.getLocalizedMessage(), e));
-        } catch (RoutingException e) {
-            throw new RemoteException(e.getLocalizedMessage(), e);
+            // Cause items being saved to be committed to database.
+            session.end();
+            String[] savedId = saver.getSavedId();
+            String conceptName = saver.getSavedConceptName();
+            return new WSItemPK(dataClusterPK, conceptName, savedId);
         } catch (Exception e) {
+            if (LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
-
     }
 
     public WSMDMConfig getMDMConfiguration() throws RemoteException {
@@ -2403,13 +2186,71 @@ public abstract class IXtentisRMIPort implements XtentisPort {
     }
 
     public WSItemPKArray putItemArray(WSPutItemArray wsPutItemArray) throws RemoteException {
-        // TODO Auto-generated method stub
-        return null;
+        WSPutItem[] items = wsPutItemArray.getWsPutItem();
+        try {
+            List<WSItemPK> pks = new LinkedList<WSItemPK>();
+            SaverSession session = SaverSession.newSession();
+            for (WSPutItem item : items) {
+                String dataClusterName = item.getWsDataClusterPK().getPk();
+                String dataModelName = item.getWsDataModelPK().getPk();
+
+                DocumentSaver saver = SaverHelper.saveItem(item.getXmlString(),
+                        session,
+                        dataClusterName,
+                        dataModelName);
+                pks.add(new WSItemPK(new WSDataClusterPK(), saver.getSavedConceptName(), saver.getSavedId()));
+            }
+            // Cause items being saved to be committed to database.
+            session.end();
+
+            return new WSItemPKArray(pks.toArray(new WSItemPK[pks.size()]));
+        } catch (Exception e) {
+            if (LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
+            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
+        }
     }
 
     public WSItemPKArray putItemWithReportArray(WSPutItemWithReportArray wsPutItemWithReportArray) throws RemoteException {
-        // TODO Auto-generated method stub
-        return null;
+        try {
+            WSPutItemWithReport[] items = wsPutItemWithReportArray.getWsPutItem();
+
+            List<WSItemPK> pks = new LinkedList<WSItemPK>();
+            SaverSession session = SaverSession.newSession();
+            for (WSPutItemWithReport item : items) {
+                WSPutItem wsPutItem = item.getWsPutItem();
+                String source = item.getSource();
+                String dataClusterName = wsPutItem.getWsDataClusterPK().getPk();
+                String dataModelName = wsPutItem.getWsDataModelPK().getPk();
+
+                DocumentSaver saver;
+                try {
+                    saver = SaverHelper.saveItemWithReport(wsPutItem.getXmlString(),
+                            session,
+                            dataClusterName,
+                            dataModelName,
+                            source,
+                            item.getInvokeBeforeSaving());
+                    item.setSource(saver.getBeforeSavingMessage()); // TODO Expected (legacy) behavior: set the before saving message as source.
+                } catch (SaveException e) {
+                    item.setSource(e.getBeforeSavingMessage()); // TODO Expected (legacy) behavior: set the before saving message as source.
+                    throw new RemoteException("Could not save record.", e);
+                }
+                pks.add(new WSItemPK(new WSDataClusterPK(), saver.getSavedConceptName(), saver.getSavedId()));
+            }
+            // Cause items being saved to be committed to database.
+            session.end();
+
+            return new WSItemPKArray(pks.toArray(new WSItemPK[pks.size()]));
+        } catch (Exception e) {
+            if (LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
+            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
+        }
     }
 
     public WSCheckServiceConfigResponse checkServiceConfiguration(WSCheckServiceConfigRequest serviceName) throws RemoteException {
