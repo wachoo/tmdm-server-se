@@ -1,15 +1,28 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.save;
+
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.Set;
+
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
+import junit.framework.TestCase;
+
+import org.apache.log4j.Logger;
+import org.w3c.dom.Element;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.history.MutableDocument;
@@ -18,18 +31,11 @@ import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.save.context.SaverSource;
 import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.XtentisException;
-import junit.framework.TestCase;
-import org.w3c.dom.Element;
 
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.Set;
-
+@SuppressWarnings("nls")
 public class DocumentSaveTest extends TestCase {
+
+    private static Logger LOG = Logger.getLogger(DocumentSaveTest.class);
 
     private XPath xPath = XPathFactory.newInstance().newXPath();
 
@@ -163,7 +169,6 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("60", evaluate(committedElement, "/Product/Price"));
     }
 
-
     public void testSystemUpdate() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
@@ -172,7 +177,8 @@ public class DocumentSaveTest extends TestCase {
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test3.xml");
-        DocumentSaverContext context = session.getContextFactory().create("UpdateReport", "UpdateReport", "Source", recordXml, true, false);
+        DocumentSaverContext context = session.getContextFactory().create("UpdateReport", "UpdateReport", "Source", recordXml,
+                true, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -276,7 +282,8 @@ public class DocumentSaveTest extends TestCase {
             {
                 for (int i = 0; i < 10; i++) {
                     InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
-                    DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, false);
+                    DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true,
+                            false);
                     DocumentSaver saver = context.createSaver();
                     saver.save(session, context);
                 }
@@ -294,7 +301,8 @@ public class DocumentSaveTest extends TestCase {
                     long singleExecTime = System.currentTimeMillis();
                     {
                         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
-                        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, false);
+                        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml,
+                                true, false);
                         DocumentSaver saver = context.createSaver();
                         saver.save(session, context);
                     }
@@ -309,11 +317,10 @@ public class DocumentSaveTest extends TestCase {
             }
             session.end(new MockCommitter());
         }
-        System.out.println("Time (mean): " + (System.currentTimeMillis() - saveTime) / 200f + " ms.");
-        System.out.println("Time (min): " + min);
-        System.out.println("Time (max): " + max);
+        LOG.info("Time (mean): " + (System.currentTimeMillis() - saveTime) / 200f + " ms.");
+        LOG.info("Time (min): " + min);
+        LOG.info("Time (max): " + max);
     }
-
 
     public void testUpdatePerformance() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
@@ -325,7 +332,8 @@ public class DocumentSaveTest extends TestCase {
             {
                 for (int i = 0; i < 10; i++) {
                     InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
-                    DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, false);
+                    DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true,
+                            false);
                     DocumentSaver saver = context.createSaver();
                     saver.save(session, context);
                 }
@@ -343,7 +351,8 @@ public class DocumentSaveTest extends TestCase {
                     long singleExecTime = System.currentTimeMillis();
                     {
                         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
-                        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, false);
+                        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml,
+                                true, false);
                         DocumentSaver saver = context.createSaver();
                         saver.save(session, context);
                     }
@@ -358,28 +367,26 @@ public class DocumentSaveTest extends TestCase {
             }
             session.end(new MockCommitter());
         }
-        System.out.println("Time (mean): " + (System.currentTimeMillis() - saveTime) / 200f + " ms.");
-        System.out.println("Time (min): " + min);
-        System.out.println("Time (max): " + max);
+        LOG.info("Time (mean): " + (System.currentTimeMillis() - saveTime) / 200f + " ms.");
+        LOG.info("Time (min): " + min);
+        LOG.info("Time (max): " + max);
     }
 
     private static class MockCommitter implements SaverSession.Committer {
-
-        private static final boolean DEBUG = true;
 
         private Element committedElement;
 
         private boolean hasSaved;
 
         public void begin(String dataCluster) {
-            if (DEBUG) {
-                System.out.println("Start on '" + dataCluster + "'");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Start on '" + dataCluster + "'");
             }
         }
 
         public void commit(String dataCluster) {
-            if (DEBUG) {
-                System.out.println("Commit on '" + dataCluster + "'");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Commit on '" + dataCluster + "'");
             }
         }
 
@@ -390,9 +397,9 @@ public class DocumentSaveTest extends TestCase {
             } catch (XtentisException e) {
                 throw new RuntimeException(e);
             }
-            if (DEBUG) {
+            if (LOG.isDebugEnabled()) {
                 try {
-                    System.out.println(item.getProjectionAsString());
+                    LOG.debug(item.getProjectionAsString());
                 } catch (XtentisException e) {
                     throw new RuntimeException(e);
                 }
@@ -485,12 +492,14 @@ public class DocumentSaveTest extends TestCase {
 
         private final boolean newOutput;
 
-        public AlterRecordTestSaverSource(MetadataRepository repository, boolean exist, String fileName, boolean OK, boolean newOutput) {
+        public AlterRecordTestSaverSource(MetadataRepository repository, boolean exist, String fileName, boolean OK,
+                boolean newOutput) {
             super(repository, exist, fileName);
             this.OK = OK;
             this.newOutput = newOutput;
         }
 
+        @Override
         public OutputReport invokeBeforeSaving(DocumentSaverContext context, MutableDocument updateReportDocument) {
             String message = "<report><message type=\"info\">change the value successfully!</message></report>";
             if (!OK) {

@@ -29,6 +29,7 @@ import com.amalto.core.load.io.XMLRootInputStream;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -43,7 +44,7 @@ import org.xml.sax.helpers.DefaultHandler;
 @SuppressWarnings("nls")
 public class LoadParserTest extends TestCase {
 
-    public static final boolean DEBUG = false;
+    private static Logger LOG = Logger.getLogger(LoadParserTest.class);
 
     public void testArgs() {
         ParserTestCallback callback = new ParserTestCallback();
@@ -114,7 +115,7 @@ public class LoadParserTest extends TestCase {
         assertTrue(hasParsedCharacters(callback, "Font de la Xona"));
         assertEquals("3038815", callback.getId());
 
-        if (DEBUG) {
+        if (LOG.isDebugEnabled()) {
             testResource = this.getClass().getResourceAsStream("test2.xml");
             LoadParserCallback callback2 = new ConsolePrintParserCallback();
             LoadParser.parse(testResource, config, callback2);
@@ -153,7 +154,7 @@ public class LoadParserTest extends TestCase {
         assertTrue(hasParsedCharacters(callback, "This is sample text"));
         assertEquals("", callback.getId());
 
-        if (DEBUG) {
+        if (LOG.isDebugEnabled()) {
             testResource = this.getClass().getResourceAsStream("test4.xml");
             LoadParserCallback callback2 = new ConsolePrintParserCallback();
             LoadParser.parse(testResource, config, callback2);
@@ -177,7 +178,7 @@ public class LoadParserTest extends TestCase {
         assertTrue(hasParsedAttribute(callback, "attribute2"));
         assertEquals("0", callback.getId());
 
-        if (DEBUG) {
+        if (LOG.isDebugEnabled()) {
             testResource = this.getClass().getResourceAsStream("test5.xml");
             LoadParserCallback callback2 = new ConsolePrintParserCallback();
             LoadParser.parse(testResource, config, callback2);
@@ -194,7 +195,7 @@ public class LoadParserTest extends TestCase {
 
         LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"uniqueId"}, true, "clusterName", "modelName", idGenerator);
 
-        if (DEBUG) {
+        if (LOG.isDebugEnabled()) {
              InputStream testResource2 = this.getClass().getResourceAsStream("test6.xml");
              LoadParserCallback callback2 = new ConsolePrintParserCallback();
              LoadParser.parse(testResource2, config, callback2);
@@ -264,7 +265,7 @@ public class LoadParserTest extends TestCase {
         assertNotNull(testResource);
         LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"element2"}, false, "clusterName", "modelName");
 
-        if (DEBUG) {
+        if (LOG.isDebugEnabled()) {
             InputStream testResource2 = new ByteArrayInputStream(documents.getBytes());
             testResource2 = new XMLRootInputStream(testResource2, "doc");
             LoadParserCallback callback2 = new ConsolePrintParserCallback();
@@ -289,7 +290,7 @@ public class LoadParserTest extends TestCase {
         assertNotNull(testResource);
         LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"element2"}, false, "clusterName", "modelName");
 
-        if (DEBUG) {
+        if (LOG.isDebugEnabled()) {
             InputStream testResource2 = new ByteArrayInputStream("<root><element1/><element2>text</element2></root><root><element1/><element2>text</element2></root>".getBytes());
             testResource2 = new XMLRootInputStream(testResource2, "doc");
             LoadParserCallback callback2 = new ConsolePrintParserCallback();
@@ -316,7 +317,7 @@ public class LoadParserTest extends TestCase {
         assertFalse(idGenerator.isStateSaved());
         LoadParser.Configuration config = new LoadParser.Configuration("Product", new String[]{"id"}, true, "clusterName", "modelName", idGenerator);
 
-        if (DEBUG) {
+        if (LOG.isDebugEnabled()) {
             InputStream testResource2 = new ByteArrayInputStream("<Product><Name>Test1</Name><Description>Descr1</Description><Availability>false</Availability><Price>0.0</Price></Product><Product><Name>Test1</Name><Description>Descr1</Description><Availability>false</Availability><Price>0.0</Price></Product>".getBytes());
             testResource2 = new XMLRootInputStream(testResource2, "doc");
             LoadParserCallback callback2 = new ConsolePrintParserCallback();
@@ -348,7 +349,7 @@ public class LoadParserTest extends TestCase {
         assertFalse(idGenerator.isStateSaved());
         LoadParser.Configuration config = new LoadParser.Configuration("Product", new String[]{"id1", "id2"}, true, "clusterName", "modelName", idGenerator);
 
-        if (DEBUG) {
+        if (LOG.isDebugEnabled()) {
             InputStream testResource2 = new ByteArrayInputStream("<Product><Name>Test1</Name><Description>Descr1</Description><Availability>false</Availability><Price>0.0</Price></Product><Product><Name>Test1</Name><Description>Descr1</Description><Availability>false</Availability><Price>0.0</Price></Product>".getBytes());
             testResource2 = new XMLRootInputStream(testResource2, "doc");
             LoadParserCallback callback2 = new ConsolePrintParserCallback();
@@ -637,18 +638,18 @@ public class LoadParserTest extends TestCase {
                     }
 
                     public void setDocumentLocator(Locator locator) {
-                        System.out.println("ParserScalabilityTest$ConsolePrintParserCallback.setDocumentLocator");
+                        LOG.debug("ParserScalabilityTest$ConsolePrintParserCallback.setDocumentLocator");
                     }
 
                     public void startDocument() throws SAXException {
-                        System.out.println("[Document start]");
+                        LOG.debug("[Document start]");
                     }
 
                     public void endDocument() throws SAXException {
                         if (indent > 0) {
                             throw new IllegalStateException("XML document isn't well-formed.");
                         }
-                        System.out.println("[Document end]");
+                        LOG.debug("[Document end]");
                     }
 
                     public void startPrefixMapping(String prefix, String uri) throws SAXException {
@@ -693,14 +694,14 @@ public class LoadParserTest extends TestCase {
                                 declaredNamespaces.add(entry.getKey());
                             }
                         }
-                        System.out.println('>');
+                        LOG.debug('>');
                         indent++;
                     }
 
                     public void endElement(String uri, String localName, String qName) throws SAXException {
                         indent--;
                         indent();
-                        System.out.println("</" + localName + ">");
+                        LOG.debug("</" + localName + ">");
                     }
 
                     public void characters(char[] ch, int start, int length) throws SAXException {
@@ -708,19 +709,19 @@ public class LoadParserTest extends TestCase {
                         for (int i = start; i < length; i++) {
                             System.out.print(ch[i]);
                         }
-                        System.out.println("");
+                        LOG.debug("");
                     }
 
                     public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
-                        System.out.println("ParserScalabilityTest$ConsolePrintParserCallback.ignorableWhitespace");
+                        LOG.debug("ParserScalabilityTest$ConsolePrintParserCallback.ignorableWhitespace");
                     }
 
                     public void processingInstruction(String target, String data) throws SAXException {
-                        System.out.println("ParserScalabilityTest$ConsolePrintParserCallback.processingInstruction");
+                        LOG.debug("ParserScalabilityTest$ConsolePrintParserCallback.processingInstruction");
                     }
 
                     public void skippedEntity(String name) throws SAXException {
-                        System.out.println("ParserScalabilityTest$ConsolePrintParserCallback.skippedEntity");
+                        LOG.debug("ParserScalabilityTest$ConsolePrintParserCallback.skippedEntity");
                     }
                 });
                 docReader.parse(input);
