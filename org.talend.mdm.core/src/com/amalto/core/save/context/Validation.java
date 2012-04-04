@@ -17,9 +17,24 @@ import com.amalto.core.schema.validation.Validator;
 import com.amalto.core.schema.validation.XmlSchemaValidator;
 import org.w3c.dom.Element;
 
+import java.lang.reflect.Constructor;
+
 class Validation implements DocumentSaver {
 
     private final DocumentSaver next;
+
+    private static boolean useSchematron = false;
+
+    private static Class<?> schematronValidator;
+
+    static {
+        try {
+            schematronValidator = Class.forName("com.amalto.core.validation.schematron.SchematronRecordValidator"); //$NON-NLS-1$
+            useSchematron = true;
+        } catch (ClassNotFoundException e) {
+            useSchematron = false;
+        }
+    }
 
     Validation(DocumentSaver next) {
         this.next = next;
@@ -27,10 +42,16 @@ class Validation implements DocumentSaver {
 
     public void save(SaverSession session, DocumentSaverContext context) {
         try {
-            // TODO Schematron
             Validator validator = new XmlSchemaValidator(context.getDataModelName(),
                     session.getSaverSource().getSchema(context.getDataModelName()),
                     Validator.NO_OP_VALIDATOR);
+            if (useSchematron) {
+                String schematron = context.getType().getSchematron();
+                if (!schematron.isEmpty()) {
+                    Constructor<?> constructor = schematronValidator.getConstructor(com.amalto.core.schema.validation.Validator.class, String.class);
+                    validator = (Validator) constructor.newInstance(validator, schematron);
+                }
+            }
             Element element = context.getDatabaseValidationDocument().asDOM().getDocumentElement();
             validator.validate(element);
 
@@ -51,4 +72,5 @@ class Validation implements DocumentSaver {
     public String getBeforeSavingMessage() {
         return next.getBeforeSavingMessage();
     }
+
 }

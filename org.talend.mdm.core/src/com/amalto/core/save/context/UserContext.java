@@ -45,8 +45,6 @@ class UserContext implements DocumentSaverContext {
 
     private MutableDocument dataBaseValidationDocument;
 
-    private String beforeSavingMessage;
-
     UserContext(String dataCluster, String dataModel, MutableDocument userDocument, boolean updateReport, boolean invokeBeforeSaving) {
         this.userDocument = userDocument;
         this.dataCluster = dataCluster;

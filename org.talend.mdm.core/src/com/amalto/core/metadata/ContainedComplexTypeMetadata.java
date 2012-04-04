@@ -11,6 +11,8 @@
 
 package com.amalto.core.metadata;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * A "contained" type represents a type inside another type (but this type can not be used as MDM entity type). Usually
  * contained types are created for XSD anonymous types.
@@ -27,7 +29,8 @@ public class ContainedComplexTypeMetadata extends ComplexTypeMetadataImpl {
                 containerType.getDenyCreate(),
                 containerType.getHideUsers(),
                 containerType.getDenyDelete(DeleteType.PHYSICAL),
-                containerType.getDenyDelete(DeleteType.LOGICAL));
+                containerType.getDenyDelete(DeleteType.LOGICAL),
+                StringUtils.EMPTY);
         this.containerType = containerType;
     }
 

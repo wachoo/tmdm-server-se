@@ -59,7 +59,7 @@ public class Init implements DocumentSaver {
         try {
             next.save(session, context);
         } catch (Exception e) {
-            throw new com.amalto.core.save.SaveException("Exception occurred during save.", getBeforeSavingMessage(), e);
+            throw new com.amalto.core.save.SaveException(getBeforeSavingMessage(), e);
         }
 
         if (XSystemObjects.DC_PROVISIONING.getName().equals(dataModelName) && context.getId()[0].equals(saverSource.getUserName())) {

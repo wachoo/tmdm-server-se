@@ -30,7 +30,7 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
 
     public static final String XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema"; //$NON-NLS-1$
 
-    private final static List<XmlSchemaAnnotationProcessor> XML_ANNOTATIONS_PROCESSORS = Arrays.asList(new ForeignKeyProcessor(), new UserAccessProcessor());
+    private final static List<XmlSchemaAnnotationProcessor> XML_ANNOTATIONS_PROCESSORS = Arrays.asList(new ForeignKeyProcessor(), new UserAccessProcessor(), new SchematronProcessor());
 
     private final static String USER_NAMESPACE = StringUtils.EMPTY;
 
@@ -215,7 +215,8 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
                             state.getDenyCreate(),
                             state.getHide(),
                             state.getDenyPhysicalDelete(),
-                            state.getDenyLogicalDelete());
+                            state.getDenyLogicalDelete(),
+                            state.getSchematron());
                     addTypeMetadata(type);
                 }
                 currentTypeStack.push(type);

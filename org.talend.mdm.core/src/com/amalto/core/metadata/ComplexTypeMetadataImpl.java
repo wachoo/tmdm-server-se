@@ -12,6 +12,7 @@
 package com.amalto.core.metadata;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
 
@@ -38,15 +39,17 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
 
     private final List<String> logicalDelete;
 
+    private final String schematron;
+
     private final List<String> physicalDelete;
 
     private MetadataRepository repository;
 
     public ComplexTypeMetadataImpl(String nameSpace, String name) {
-        this(name, nameSpace, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList());
+        this(name, nameSpace, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), StringUtils.EMPTY);
     }
 
-    public ComplexTypeMetadataImpl(String nameSpace, String name, List<String> allowWrite, List<String> denyCreate, List<String> hideUsers, List<String> physicalDelete, List<String> logicalDelete) {
+    public ComplexTypeMetadataImpl(String nameSpace, String name, List<String> allowWrite, List<String> denyCreate, List<String> hideUsers, List<String> physicalDelete, List<String> logicalDelete, String schematron) {
         this.name = name;
         this.nameSpace = nameSpace;
         this.allowWrite = allowWrite;
@@ -54,7 +57,10 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
         this.hideUsers = hideUsers;
         this.physicalDelete = physicalDelete;
         this.logicalDelete = logicalDelete;
+        this.schematron = schematron;
     }
+
+    
 
     public void addSuperType(TypeMetadata superType, MetadataRepository repository) {
         this.repository = repository;
@@ -177,7 +183,7 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
             return registeredCopy;
         }
 
-        ComplexTypeMetadataImpl copy = new ComplexTypeMetadataImpl(getNamespace(), getName(), allowWrite, denyCreate, hideUsers, physicalDelete, logicalDelete);
+        ComplexTypeMetadataImpl copy = new ComplexTypeMetadataImpl(getNamespace(), getName(), allowWrite, denyCreate, hideUsers, physicalDelete, logicalDelete, schematron);
         repository.addTypeMetadata(copy);
 
         List<FieldMetadata> fields = getFields();
@@ -197,7 +203,7 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
     }
 
     public TypeMetadata copyShallow() {
-        return new ComplexTypeMetadataImpl(getNamespace(), getName(), allowWrite, denyCreate, hideUsers, physicalDelete, logicalDelete);
+        return new ComplexTypeMetadataImpl(getNamespace(), getName(), allowWrite, denyCreate, hideUsers, physicalDelete, logicalDelete, schematron);
     }
 
     public List<String> getWriteUsers() {
@@ -221,6 +227,10 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
             default:
                 throw new NotImplementedException("Security information parsing for delete type '" + type + "'");
         }
+    }
+
+    public String getSchematron() {
+        return schematron;
     }
 
     @Override

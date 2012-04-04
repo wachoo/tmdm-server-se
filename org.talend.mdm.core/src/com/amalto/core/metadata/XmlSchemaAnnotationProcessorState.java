@@ -11,6 +11,8 @@
 
 package com.amalto.core.metadata;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,6 +20,16 @@ import java.util.List;
  * A simple bean that keeps track of information parsed by {@link XmlSchemaAnnotationProcessor} implementations.
  */
 class XmlSchemaAnnotationProcessorState {
+
+    private final List<String> hide = new LinkedList<String>();
+
+    private final List<String> allowWrite = new LinkedList<String>();
+
+    private final List<String> denyCreate = new LinkedList<String>();
+
+    private final List<String> denyPhysicalDelete = new LinkedList<String>();
+
+    private final List<String> denyLogicalDelete = new LinkedList<String>();
 
     private boolean fkIntegrity = true; // Default is to enforce FK integrity
 
@@ -33,15 +45,7 @@ class XmlSchemaAnnotationProcessorState {
 
     private FieldMetadata referencedField;
 
-    private final List<String> hide = new LinkedList<String>();
-
-    private final List<String> allowWrite = new LinkedList<String>();
-
-    private final List<String> denyCreate = new LinkedList<String>();
-
-    private final List<String> denyPhysicalDelete = new LinkedList<String>();
-
-    private final List<String> denyLogicalDelete = new LinkedList<String>();
+    private String schematron = StringUtils.EMPTY;
 
     public void setFkIntegrity(boolean fkIntegrity) {
         this.fkIntegrity = fkIntegrity;
@@ -117,5 +121,13 @@ class XmlSchemaAnnotationProcessorState {
 
     public List<String> getDenyLogicalDelete() {
         return denyLogicalDelete;
+    }
+
+    public void setSchematron(String schematron) {
+        this.schematron = schematron;
+    }
+
+    public String getSchematron() {
+        return schematron;
     }
 }

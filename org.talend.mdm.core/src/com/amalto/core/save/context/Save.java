@@ -35,11 +35,11 @@ class Save implements DocumentSaver {
     }
 
     public String[] getSavedId() {
-        throw new NotImplementedException(); // TODO
+        throw new UnsupportedOperationException();
     }
 
     public String getSavedConceptName() {
-        throw new NotImplementedException(); // TODO
+        throw new UnsupportedOperationException();
     }
 
     public String getBeforeSavingMessage() {

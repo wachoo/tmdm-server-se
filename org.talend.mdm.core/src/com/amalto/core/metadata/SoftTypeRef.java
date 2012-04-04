@@ -162,6 +162,10 @@ public class SoftTypeRef implements ComplexTypeMetadata {
         return getTypeAsComplex().getDenyDelete(type);
     }
 
+    public String getSchematron() {
+        return getTypeAsComplex().getSchematron();
+    }
+
     public void registerKey(FieldMetadata keyField) {
         getTypeAsComplex().registerKey(keyField);
     }

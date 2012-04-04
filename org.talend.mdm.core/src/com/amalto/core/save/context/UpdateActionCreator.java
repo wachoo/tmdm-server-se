@@ -116,14 +116,14 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
             for (int i = 0; i < leftLength; i++) {
                 // Path generation code is a bit duplicated (be careful)... and XPath indexes are 1-based (not 0-based).
-                path.add(field.getName() + "[" + (i + 1) + "]");
+                path.add(field.getName() + "[" + (i + 1) + "]"); //$NON-NLS-1$ //$NON-NLS-2$
                 closure.execute(field);
                 path.pop();
             }
             if (rightLength > leftLength) {
                 for (int i = leftLength; i < rightLength; i++) {
                     // Path generation code is a bit duplicated (be careful)... and XPath indexes are 1-based (not 0-based).
-                    path.add(field.getName() + "[" + (i + 1) + "]");
+                    path.add(field.getName() + "[" + (i + 1) + "]"); //$NON-NLS-1$ //$NON-NLS-2$
                     closure.execute(field);
                     path.pop();
                 }

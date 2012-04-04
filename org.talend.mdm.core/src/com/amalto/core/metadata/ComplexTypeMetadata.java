@@ -74,8 +74,20 @@ public interface ComplexTypeMetadata extends TypeMetadata {
      */
     List<String> getDenyDelete(DeleteType type);
 
+    /**
+     * @return Schematron validation rules for this type ready for immediate use (no need to unescape XML characters).
+     * Returns an empty string if no schematron rule was specified for this type.
+     */
+    String getSchematron();
+    
     enum DeleteType {
+        /**
+         * Logical delete (a.k.a. send to trash)
+         */
         LOGICAL,
+        /**
+         * Physical delete (permanent delete).
+         */
         PHYSICAL
     }
 }

@@ -10,20 +10,6 @@
 
 package com.amalto.core.save;
 
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.Set;
-
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
-import junit.framework.TestCase;
-
-import org.apache.log4j.Logger;
-import org.w3c.dom.Element;
-
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.metadata.MetadataRepository;
@@ -31,6 +17,17 @@ import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.save.context.SaverSource;
 import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.XtentisException;
+import junit.framework.TestCase;
+import org.apache.log4j.Logger;
+import org.w3c.dom.Element;
+
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.Set;
 
 @SuppressWarnings("nls")
 public class DocumentSaveTest extends TestCase {
@@ -88,7 +85,7 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("Chicago", evaluate(committedElement, "/Agency/Name"));
         assertEquals("Chicago", evaluate(committedElement, "/Agency/City"));
     }
-    
+
     public void testUpdateSecurity() throws Exception {
         // TODO Test for modification of id (this test modifies id but this is intentional).
         final MetadataRepository repository = new MetadataRepository();
@@ -106,7 +103,10 @@ public class DocumentSaveTest extends TestCase {
         } catch (SaveException e) {
             // Expected
             assertTrue(e.getCause() instanceof IllegalStateException);
-            assertEquals("User is not allowed to perform: update field 'Zip' of type 'Agency' / update field 'State' of type 'Agency'", e.getCause().getMessage());
+            // Don't expect error order to be the same from one run to another.
+            assertTrue(e.getCause().getMessage().contains("'Zip'"));
+            assertTrue(e.getCause().getMessage().contains("'State'"));
+            assertTrue(e.getCause().getMessage().contains("'Agency'"));
         }
     }
 
@@ -188,6 +188,29 @@ public class DocumentSaveTest extends TestCase {
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
         assertEquals("60", evaluate(committedElement, "/Product/Price"));
+    }
+
+    public void testSchematronValidation() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+
+        SaverSource source = new TestSaverSource(repository, true, "test9_original.xml");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test9.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("JohDo", evaluate(committedElement, "/Agent/Id"));
+        assertEquals("John", evaluate(committedElement, "/Agent/Firstname"));
+        assertEquals("Doe", evaluate(committedElement, "/Agent/Lastname"));
+        assertEquals("1", evaluate(committedElement, "/Agent/CommissionCode"));
+        assertEquals("2010-01-01", evaluate(committedElement, "/Agent/StartDate"));
     }
 
     public void testSystemUpdate() throws Exception {
@@ -527,7 +550,7 @@ public class DocumentSaveTest extends TestCase {
         private final boolean newOutput;
 
         public AlterRecordTestSaverSource(MetadataRepository repository, boolean exist, String fileName, boolean OK,
-                boolean newOutput) {
+                                          boolean newOutput) {
             super(repository, exist, fileName);
             this.OK = OK;
             this.newOutput = newOutput;

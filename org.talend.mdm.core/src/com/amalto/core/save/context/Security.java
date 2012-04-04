@@ -58,7 +58,7 @@ class Security implements DocumentSaver {
             while (iterator.hasNext()) {
                 builder.append(iterator.next().getDetails());
                 if (iterator.hasNext()) {
-                    builder.append(" / ");
+                    builder.append(" / ");  //$NON-NLS-1$
                 }
             }
             throw new IllegalStateException("User is not allowed to perform: " + builder);

@@ -97,7 +97,7 @@ public class SaverSession {
         }
 
         // If any change was made to data cluster "UpdateReport", route committed update reports.
-        Set<ItemPOJO> updateReport = itemsPerDataCluster.get("UpdateReport");
+        Set<ItemPOJO> updateReport = itemsPerDataCluster.get("UpdateReport"); //$NON-NLS-1$
         if (updateReport != null) {
             SaverSource saverSource = getSaverSource();
             for (ItemPOJO updateReportPOJO : updateReport) {

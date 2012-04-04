@@ -64,7 +64,7 @@ public class ItemPOJOTestCase extends TestCase {
             + "<MoreInfo>Map@@http://maps.google.com/maps?q=41.4903,-90.56956&amp;ll=41.4903,-90.56956&amp;z=9</MoreInfo>"
             + "<Id>IL03</Id>" + "</Agency></p></ii>";
         try {
-            itempojo = ItemPOJO.parse(xml1);
+            ItemPOJO.parse(xml1);
         } catch (XtentisException e) {
             // Expected
         }
