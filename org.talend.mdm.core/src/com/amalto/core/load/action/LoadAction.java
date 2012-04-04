@@ -14,10 +14,10 @@ package com.amalto.core.load.action;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.util.XSDKey;
 
-import javax.servlet.http.HttpServletRequest;
+import java.io.InputStream;
 
 /**
- * Load strategy to be used during load of documents in MDM.
+ * Load strategy to be used during bulk load of documents in MDM.
  *
  * @see com.amalto.core.servlet.LoadServlet
  */
@@ -35,12 +35,12 @@ public interface LoadAction {
     /**
      * Loads XML documents from <code>request</code> in <code>server</code>.
      *
-     * @param request     The request that contains all XML documents to be loaded in MDM.
+     * @param stream     The stream that contains all XML documents to be loaded in MDM.
      * @param keyMetadata Key metadata <b>or <code>null</code> in case of autoGenPK</b>.
      * @param server      The database where the documents must be persisted.
      * @throws Exception In case anything goes wrong during load.
      */
-    void load(HttpServletRequest request, XSDKey keyMetadata, XmlServerSLWrapperLocal server) throws Exception;
+    void load(InputStream stream, XSDKey keyMetadata, XmlServerSLWrapperLocal server) throws Exception;
 
     /**
      * End load and perform all post-load actions (such as save counter state in case of autogen pk).

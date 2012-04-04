@@ -9,6 +9,10 @@ import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.local.DataClusterCtrlLocal;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
+import com.amalto.core.save.DocumentSaverContext;
+import com.amalto.core.save.SaverSession;
+import com.amalto.core.save.context.DocumentSaver;
+import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XSDKey;
 import org.apache.log4j.Logger;
@@ -73,7 +77,7 @@ public class LoadServlet extends HttpServlet {
         PrintWriter writer = configureWriter(response);
         writer.write("<html><body>"); //$NON-NLS-1$
         writer.write(
-                "<p><b>Load datas into MDM</b><br/>" +
+                "<p><b>Load data into MDM</b><br/>" +
                         "Check jboss/server/default/log/server.log or the jboss console output to determine when load is completed</b></p>"
         );
 
@@ -110,43 +114,23 @@ public class LoadServlet extends HttpServlet {
             throw new ServletException(e);
         }
 
-        // Start parsing/loading
+        SaverSession session = SaverSession.newSession();
+        SaverContextFactory contextFactory = session.getContextFactory();
+        DocumentSaverContext context = contextFactory.createBulkLoad(dataClusterName, dataModelName, keyMetadata, request.getInputStream(), loadAction, server);
+        DocumentSaver saver = context.createSaver();
         try {
-            if (server.supportTransaction()) {
-                server.start(dataClusterName);
-            }
-
-            loadAction.load(request, keyMetadata, server);
-
-            // Commit changes
-            try {
-                if (server.supportTransaction()) {
-                    server.commit(dataClusterName);
-                    server.end(dataClusterName);
-                }
-            } catch (Exception commitException) {
-                throw new ServletException("Commit failed with errors", commitException);
-            }
-
-            // End the load (might persist counter state in case of autogen pk
+            session.begin(dataClusterName);
+            saver.save(session, context);
+            session.end();
+            // End the load (might persist counter state in case of autogen pk).
             loadAction.endLoad(server);
-        } catch (Throwable throwable) {
-            if (server.supportTransaction()) {
-                try {
-                    server.rollback(dataClusterName);
-                } catch (Exception rollbackException) {
-                    log.error("Ignoring rollback exception", rollbackException);
-                }
+        } catch (Exception e) {
+            try {
+                session.abort();
+            } catch (Exception rollbackException) {
+                log.error("Ignoring rollback exception", rollbackException);
             }
-            throw new ServletException(throwable);
-        } finally {
-            if (server.supportTransaction()) {
-                try {
-                    server.end(dataClusterName);
-                } catch (Exception endException) {
-                    log.error("Ignoring end call exception", endException);
-                }
-            }
+            throw new ServletException(e);
         }
 
         writer.write("</body></html>"); //$NON-NLS-1$
@@ -245,6 +229,7 @@ public class LoadServlet extends HttpServlet {
 
     /**
      * A {@link PrintWriter} implementation that intercepts all write method calls.
+     *
      * @see LoadServlet#configureWriter(javax.servlet.http.HttpServletResponse)
      */
     private static class NoOpPrintWriter extends PrintWriter {

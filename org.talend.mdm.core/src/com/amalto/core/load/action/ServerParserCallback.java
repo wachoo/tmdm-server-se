@@ -21,14 +21,16 @@ import org.xml.sax.XMLReader;
  *
  */
 class ServerParserCallback implements LoadParserCallback {
-    private int currentCount;
-    private final XmlServerSLWrapperLocal server;
-    private final String dataClusterName;
 
     private static final Logger log = Logger.getLogger(ServerParserCallback.class);
 
-    public ServerParserCallback(XmlServerSLWrapperLocal server,
-                                String dataClusterName) {
+    private final XmlServerSLWrapperLocal server;
+
+    private final String dataClusterName;
+
+    private int currentCount;
+
+    public ServerParserCallback(XmlServerSLWrapperLocal server, String dataClusterName) {
         this.server = server;
         this.dataClusterName = dataClusterName;
         currentCount = 0;

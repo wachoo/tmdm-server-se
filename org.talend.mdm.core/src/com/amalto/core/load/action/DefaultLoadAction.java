@@ -11,11 +11,8 @@
 
 package com.amalto.core.load.action;
 
-import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -55,9 +52,9 @@ public class DefaultLoadAction implements LoadAction {
         return true;
     }
 
-    public void load(HttpServletRequest request, XSDKey keyMetadata, XmlServerSLWrapperLocal server) throws Exception {
+    public void load(InputStream stream, XSDKey keyMetadata, XmlServerSLWrapperLocal server) throws Exception {
         // If you wish to debug content sent to server evaluate 'IOUtils.toString(request.getInputStream())'
-        XMLStreamTokenizer xmlStreamTokenizer = new XMLStreamTokenizer(request.getInputStream());
+        XMLStreamTokenizer xmlStreamTokenizer = new XMLStreamTokenizer(stream);
         while (xmlStreamTokenizer.hasMoreElements()) {
             String xmlData = xmlStreamTokenizer.nextElement();
 

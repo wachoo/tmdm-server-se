@@ -131,5 +131,9 @@ class UpdateReport implements DocumentSaver {
     public String getSavedConceptName() {
         return next.getSavedConceptName();
     }
+
+    public String getBeforeSavingMessage() {
+        return next.getBeforeSavingMessage();
+    }
 }
 

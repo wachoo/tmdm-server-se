@@ -542,6 +542,8 @@ public abstract class ObjectPOJO implements Serializable{
             //update the cache
             ItemCacheKey key =new ItemCacheKey(revisionID,getPK().getUniqueId(), getCluster(this.getClass()));            
             cachedPojo.put(key, sw.toString());
+            // TODO There was no commit... adding one seems to be a good idea though.
+            server.commit(key.getDataClusterID());
             return getPK();
     	} catch (XtentisException e) {
     		throw(e);

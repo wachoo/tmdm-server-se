@@ -11,11 +11,14 @@
 
 package com.amalto.core.save.context;
 
+import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocal;
+import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.util.*;
 
@@ -177,6 +180,16 @@ public class DefaultSaverSource implements SaverSource {
 
     public void initAutoIncrement() {
         AutoIncrementGenerator.init();
+    }
+
+    public void routeItem(String dataCluster, String typeName, String[] id) {
+        try {
+            RoutingEngineV2CtrlLocal ctrl = Util.getRoutingEngineV2CtrlLocal();
+            DataClusterPOJOPK dataClusterPOJOPK = new DataClusterPOJOPK(dataCluster);
+            ctrl.route(new ItemPOJOPK(dataClusterPOJOPK, typeName, id));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

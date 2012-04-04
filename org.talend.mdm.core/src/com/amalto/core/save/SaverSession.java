@@ -74,6 +74,14 @@ public class SaverSession {
         return contextFactory;
     }
 
+    public void begin(String dataCluster) {
+        begin(dataCluster, new DefaultCommitter());
+    }
+    
+    public void begin(String dataCluster, Committer committer) {
+        committer.begin(dataCluster);
+    } 
+
     public void end() {
         end(new DefaultCommitter());
     }
@@ -81,11 +89,20 @@ public class SaverSession {
     public void end(Committer committer) {
         for (Map.Entry<String, Set<ItemPOJO>> currentTransaction : itemsPerDataCluster.entrySet()) {
             String dataCluster = currentTransaction.getKey();
-            committer.begin(dataCluster);
+            begin(dataCluster, committer);
             for (ItemPOJO currentItemToCommit : currentTransaction.getValue()) {
                 committer.save(currentItemToCommit, currentItemToCommit.getDataModelRevision()); // TODO Use data model revision for revision id?
             }
             committer.commit(dataCluster);
+        }
+
+        // If any change was made to data cluster "UpdateReport", route committed update reports.
+        Set<ItemPOJO> updateReport = itemsPerDataCluster.get("UpdateReport");
+        if (updateReport != null) {
+            SaverSource saverSource = getSaverSource();
+            for (ItemPOJO updateReportPOJO : updateReport) {
+                saverSource.routeItem(updateReportPOJO.getDataClusterPOJOPK().getUniqueId(), updateReportPOJO.getConceptName(), updateReportPOJO.getItemIds());
+            }
         }
     }
 
@@ -102,6 +119,17 @@ public class SaverSession {
         return dataSource;
     }
 
+    public void abort() {
+        abort(new DefaultCommitter());
+    }
+
+    public void abort(Committer committer) {
+        for (Map.Entry<String, Set<ItemPOJO>> currentTransaction : itemsPerDataCluster.entrySet()) {
+            String dataCluster = currentTransaction.getKey();
+            committer.rollback(dataCluster);
+        }
+    }
+
     public interface Committer {
 
         void begin(String dataCluster);
@@ -110,6 +138,7 @@ public class SaverSession {
 
         void save(ItemPOJO item, String revisionId);
 
+        void rollback(String dataCluster);
     }
 
 }

@@ -26,8 +26,10 @@ import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 class ID implements DocumentSaver {
 
@@ -153,15 +155,23 @@ class ID implements DocumentSaver {
         if (element == null) {
             return;
         }
-        if (isEmpty(element)) {
-            element.getParentNode().removeChild(element);
-        } else {
+        if (!isEmpty(element)) {
             NodeList children = element.getChildNodes();
+            Set<Node> nodeToDelete = new HashSet<Node>();
             for (int i = 0; i < children.getLength(); i++) {
                 Node node = children.item(i);
                 if (node instanceof Element) {
-                    clean((Element) node);
+                    Element currentElement = (Element) node;
+                    if (isEmpty(currentElement)) {
+                        // Instead of immediately deleting element... mark it (so children indexes don't change).
+                        nodeToDelete.add(currentElement);
+                    } else {
+                        clean(currentElement);
+                    }
                 }
+            }
+            for (Node node : nodeToDelete) {
+                node.getParentNode().removeChild(node);
             }
         }
     }
@@ -209,5 +219,9 @@ class ID implements DocumentSaver {
 
     public String getSavedConceptName() {
         return savedTypeName;
+    }
+
+    public String getBeforeSavingMessage() {
+        return next.getBeforeSavingMessage();
     }
 }

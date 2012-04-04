@@ -30,9 +30,9 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import com.amalto.core.save.SaveException;
+import com.amalto.core.save.SaverHelper;
 import com.amalto.core.save.context.DocumentSaver;
-import com.amalto.core.save.DocumentSaverContext;
-import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.save.SaverSession;
 import org.apache.log4j.Logger;
 import org.jboss.security.Base64Encoder;
@@ -1524,37 +1524,6 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
-    private static DocumentSaver saveItem(WSPutItem wsPutItem,
-                                          SaverSession session,
-                                          String dataClusterName,
-                                          String dataModelName) throws UnsupportedEncodingException {
-        SaverContextFactory contextFactory = session.getContextFactory();
-        DocumentSaverContext context = contextFactory.create(dataClusterName,
-                dataModelName,
-                new ByteArrayInputStream(wsPutItem.getXmlString().getBytes("UTF-8"))); //$NON-NLS-1$
-        DocumentSaver saver = context.createSaver();
-        saver.save(session, context);
-        return saver;
-    }
-
-    private static DocumentSaver saveItemWithReport(WSPutItem wsPutItem,
-                                                    SaverSession session,
-                                                    String dataClusterName,
-                                                    String dataModelName,
-                                                    String changeSource,
-                                                    boolean beforeSaving) throws UnsupportedEncodingException {
-        SaverContextFactory contextFactory = session.getContextFactory();
-        DocumentSaverContext context = contextFactory.create(dataClusterName,
-                dataModelName,
-                changeSource,
-                new ByteArrayInputStream(wsPutItem.getXmlString().getBytes("UTF-8")), //$NON-NLS-1$
-                true, // Always generate an update report
-                beforeSaving);
-        DocumentSaver saver = context.createSaver();
-        saver.save(session, context);
-        return saver;
-    }
-
     /**
      * @param wsPutItem The record to be added/updated in MDM.
      * @ejb.interface-method view-type = "service-endpoint"
@@ -1571,7 +1540,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             String dataModelName = dataModelPK.getPk();
 
             SaverSession session = SaverSession.newSession();
-            DocumentSaver saver = saveItem(wsPutItem,
+            DocumentSaver saver = SaverHelper.saveItem(wsPutItem,
                     session,
                     dataClusterName,
                     dataModelName);
@@ -1606,7 +1575,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 String dataClusterName = item.getWsDataClusterPK().getPk();
                 String dataModelName = item.getWsDataModelPK().getPk();
 
-                DocumentSaver saver = saveItem(item,
+                DocumentSaver saver = SaverHelper.saveItem(item,
                         session,
                         dataClusterName,
                         dataModelName);
@@ -1645,12 +1614,20 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 String dataClusterName = wsPutItem.getWsDataClusterPK().getPk();
                 String dataModelName = wsPutItem.getWsDataModelPK().getPk();
 
-                DocumentSaver saver = saveItemWithReport(wsPutItem,
-                        session,
-                        dataClusterName,
-                        dataModelName,
-                        source,
-                        item.getInvokeBeforeSaving());
+                DocumentSaver saver;
+                try {
+                    saver = SaverHelper.saveItemWithReport(wsPutItem,
+                            session,
+                            dataClusterName,
+                            dataModelName,
+                            source,
+                            item.getInvokeBeforeSaving());
+                    item.setSource(saver.getBeforeSavingMessage()); // TODO Expected (legacy) behavior: set the before saving message as source.
+                } catch (SaveException e) {
+                    item.setSource(e.getBeforeSavingMessage()); // TODO Expected (legacy) behavior: set the before saving message as source.
+                    throw new RemoteException("Could not save record.", e);
+                }
+
                 pks.add(new WSItemPK(new WSDataClusterPK(), saver.getSavedConceptName(), saver.getSavedId()));
             }
             // Cause items being saved to be committed to database.
@@ -1683,12 +1660,20 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             String dataModelName = dataModelPK.getPk();
 
             SaverSession session = SaverSession.newSession();
-            DocumentSaver saver = saveItemWithReport(wsPutItem,
-                    session,
-                    dataClusterName,
-                    dataModelName,
-                    wsPutItemWithReport.getSource(),
-                    wsPutItemWithReport.getInvokeBeforeSaving());
+            DocumentSaver saver = null;
+            try {
+                saver = SaverHelper.saveItemWithReport(wsPutItem,
+                        session,
+                        dataClusterName,
+                        dataModelName,
+                        wsPutItemWithReport.getSource(),
+                        wsPutItemWithReport.getInvokeBeforeSaving());
+                wsPutItemWithReport.setSource(saver.getBeforeSavingMessage()); // TODO Expected (legacy) behavior: set the before saving message as source.
+            } catch (SaveException e) {
+                wsPutItemWithReport.setSource(e.getBeforeSavingMessage()); // TODO Expected (legacy) behavior: set the before saving message as source.
+                throw new RemoteException("Could not save record.", e);
+            }
+
             // Cause items being saved to be committed to database.
             session.end();
 
@@ -1723,12 +1708,20 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             String dataModelName = dataModelPK.getPk();
 
             SaverSession session = SaverSession.newUserSession(wsPutItemWithCustomReport.getUser()); // This method uses a special user
-            DocumentSaver saver = saveItemWithReport(wsPutItem,
-                    session,
-                    dataClusterName,
-                    dataModelName,
-                    wsPutItemWithReport.getSource(),
-                    wsPutItemWithReport.getInvokeBeforeSaving());
+            DocumentSaver saver;
+            try {
+                saver = SaverHelper.saveItemWithReport(wsPutItem,
+                        session,
+                        dataClusterName,
+                        dataModelName,
+                        wsPutItemWithReport.getSource(),
+                        wsPutItemWithReport.getInvokeBeforeSaving());
+                wsPutItemWithReport.setSource(saver.getBeforeSavingMessage());  // TODO Expected (legacy) behavior: set the before saving message as source.
+            } catch (SaveException e) {
+                wsPutItemWithReport.setSource(e.getBeforeSavingMessage());  // TODO Expected (legacy) behavior: set the before saving message as source.
+                throw new RemoteException("Could not save record.", e);
+            }
+
             // Cause items being saved to be committed to database.
             session.end();
 

@@ -84,4 +84,5 @@ public interface DocumentSaverContext {
     void setRevisionId(String revisionID);
 
     void setType(ComplexTypeMetadata type);
+
 }

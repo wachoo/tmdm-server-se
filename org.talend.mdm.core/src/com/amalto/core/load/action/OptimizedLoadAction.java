@@ -20,7 +20,7 @@ import com.amalto.core.util.XtentisException;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 
-import javax.servlet.http.HttpServletRequest;
+import java.io.InputStream;
 
 /**
  *
@@ -48,7 +48,7 @@ public class OptimizedLoadAction implements LoadAction {
         return true;
     }
 
-    public void load(HttpServletRequest request, XSDKey keyMetadata, XmlServerSLWrapperLocal server) throws Exception {
+    public void load(InputStream stream, XSDKey keyMetadata, XmlServerSLWrapperLocal server) throws Exception {
         if (!".".equals(keyMetadata.getSelector())) { //$NON-NLS-1$
             throw new UnsupportedOperationException("Selector '" + keyMetadata.getSelector() + "' isn't supported.");
         }
@@ -65,7 +65,7 @@ public class OptimizedLoadAction implements LoadAction {
         // Creates a load parser callback that loads data in server using a SAX handler
         ServerParserCallback callback = new ServerParserCallback(server, dataClusterName);
 
-        java.io.InputStream inputStream = new XMLRootInputStream(request.getInputStream(), "root"); //$NON-NLS-1$
+        java.io.InputStream inputStream = new XMLRootInputStream(stream, "root"); //$NON-NLS-1$
         LoadParser.Configuration configuration = new LoadParser.Configuration(typeName, keyMetadata.getFields(), needAutoGenPK, dataClusterName, dataModelName);
         context = LoadParser.parse(inputStream, configuration, callback);
 

@@ -11,10 +11,13 @@
 
 package com.amalto.core.save.context;
 
+import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.history.MutableDocument;
+import com.amalto.core.load.action.LoadAction;
 import com.amalto.core.save.DOMDocument;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.ReportDocumentSaverContext;
+import com.amalto.core.util.XSDKey;
 import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -35,7 +38,7 @@ public class SaverContextFactory {
     private static final Map<String, XSystemObjects> SYSTEM_DATA_CLUSTERS = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
 
     private static final SAXParserFactory SAX_PARSER_FACTORY = SAXParserFactory.newInstance();
-    
+
     private static final String SYSTEM_CONTAINER_PREFIX = "amalto";  //$NON-NLS-1$
 
     static {
@@ -54,12 +57,51 @@ public class SaverContextFactory {
         SAX_PARSER_FACTORY.setValidating(false);
     }
 
+    /**
+     * Creates a {@link DocumentSaverContext} for bulk load operations.
+     *
+     * @param dataCluster Data container name (must exist).
+     * @param dataModelName Data model name (must exist).
+     * @param keyMetadata Key for all records contained in <code>documentStream</code>
+     * @param documentStream AData model name (must exist).
+     * @param loadAction {@link LoadAction} to be used to bulk load records.
+     * @param server Abstraction of the underlying MDM database.
+     * @return A context configured for bulk load.
+     */
+    public DocumentSaverContext createBulkLoad(String dataCluster,
+                                               String dataModelName,
+                                               XSDKey keyMetadata,
+                                               InputStream documentStream,
+                                               LoadAction loadAction,
+                                               XmlServerSLWrapperLocal server) {
+        return new BulkLoadContext(dataCluster, dataModelName, keyMetadata, documentStream, loadAction, server);
+    }
+
+    /**
+     * Creates a {@link DocumentSaverContext} to save a unique record in MDM.
+     *
+     * @param dataCluster Data container name (must exist).
+     * @param dataModelName Data model name (must exist).
+     * @param documentStream A stream that contains one XML document.
+     * @return A context configured to save a record in MDM.
+     */
     public DocumentSaverContext create(String dataCluster,
                                        String dataModelName,
                                        InputStream documentStream) {
         return create(dataCluster, dataModelName, StringUtils.EMPTY, documentStream, false, false);
     }
 
+    /**
+     * Creates a {@link DocumentSaverContext} to save a unique record in MDM, with update report/before saving options.
+     *
+     * @param dataCluster Data container name (must exist).
+     * @param dataModelName Data model name (must exist).
+     * @param changeSource Source of change (for update report). Common values includes 'genericUI'...
+     * @param documentStream A stream that contains one XML document.
+     * @param updateReport <code>true</code> to generate an update report, <code>false</code> otherwise.
+     * @param invokeBeforeSaving <code>true</code> to invoke any existing before saving process, <code>false</code> otherwise.
+     * @return A context configured to save a record in MDM.
+     */
     public DocumentSaverContext create(String dataCluster,
                                        String dataModelName,
                                        String changeSource,

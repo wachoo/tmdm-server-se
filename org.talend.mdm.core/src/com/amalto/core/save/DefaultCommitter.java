@@ -55,4 +55,14 @@ public class DefaultCommitter implements SaverSession.Committer {
             throw new RuntimeException(e);
         }
     }
+
+    public void rollback(String dataCluster) {
+        try {
+            if (xmlServerCtrlLocal.supportTransaction()) {
+                xmlServerCtrlLocal.rollback(dataCluster);
+            }
+        } catch (XtentisException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

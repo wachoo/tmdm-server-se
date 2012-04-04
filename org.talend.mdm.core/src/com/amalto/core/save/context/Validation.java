@@ -47,4 +47,8 @@ class Validation implements DocumentSaver {
     public String getSavedConceptName() {
         return next.getSavedConceptName();
     }
+
+    public String getBeforeSavingMessage() {
+        return next.getBeforeSavingMessage();
+    }
 }

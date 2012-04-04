@@ -19,6 +19,7 @@ import com.amalto.core.save.SaverSession;
 import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.Util;
 import com.sun.org.apache.xpath.internal.XPathAPI;
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -28,6 +29,8 @@ class BeforeSaving implements DocumentSaver {
 
     private DocumentSaver next;
 
+    private String message = StringUtils.EMPTY;
+    
     BeforeSaving(DocumentSaver next) {
         this.next = next;
     }
@@ -46,7 +49,7 @@ class BeforeSaving implements DocumentSaver {
 
         if (outputreport != null) { // when a process was found
             String errorCode;
-            String message = outputreport.getMessage();
+            message = outputreport.getMessage();
             try {
                 Document doc = Util.parse(message);
                 // handle output_report
@@ -104,7 +107,9 @@ class BeforeSaving implements DocumentSaver {
         return next.getSavedConceptName();
     }
 
-
+    public String getBeforeSavingMessage() {
+        return message;
+    }
 }
 
 
