@@ -15,6 +15,8 @@ import com.amalto.core.history.Action;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -29,10 +31,37 @@ class Security implements DocumentSaver {
     public void save(SaverSession session, DocumentSaverContext context) {
         List<Action> actions = context.getActions();
         Set<String> currentUserRoles = session.getSaverSource().getCurrentUserRoles();
+
+        // First check rights on the type
+        List<String> typeWriteUsers = context.getType().getWriteUsers();
+        boolean isAllowed = false;
+        for (String currentUserRole : currentUserRoles) {
+            if (typeWriteUsers.contains(currentUserRole)) {
+                isAllowed = true;
+                break;
+            }
+        }
+        if (!isAllowed) {
+            throw new RuntimeException("User is not allowed to write to type '" + context.getType().getName() + "'.");
+        }
+
+        // Then check security on all actions (updates...)
+        Set<Action> failedActions = new HashSet<Action>();
         for (Action action : actions) {
             if (!action.isAllowed(currentUserRoles)) {
-                throw new IllegalArgumentException("User is not allowed to change data."); // TODO Details
+                failedActions.add(action);
             }
+        }
+        if (!failedActions.isEmpty()) {
+            StringBuilder builder = new StringBuilder();
+            Iterator<Action> iterator = failedActions.iterator();
+            while (iterator.hasNext()) {
+                builder.append(iterator.next().getDetails());
+                if (iterator.hasNext()) {
+                    builder.append(" / ");
+                }
+            }
+            throw new IllegalStateException("User is not allowed to perform: " + builder);
         }
 
         next.save(session, context);
@@ -44,5 +73,9 @@ class Security implements DocumentSaver {
 
     public String getSavedConceptName() {
         return next.getSavedConceptName();
+    }
+
+    public String getBeforeSavingMessage() {
+        return next.getBeforeSavingMessage();
     }
 }

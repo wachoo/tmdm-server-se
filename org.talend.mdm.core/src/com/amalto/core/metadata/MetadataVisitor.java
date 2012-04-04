@@ -31,4 +31,6 @@ public interface MetadataVisitor<T> {
     T visit(ReferenceFieldMetadata referenceField);
 
     T visit(ContainedTypeFieldMetadata containedField);
+
+    T visit(FieldMetadata fieldMetadata);
 }

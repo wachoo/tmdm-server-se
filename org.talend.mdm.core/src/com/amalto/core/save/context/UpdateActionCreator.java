@@ -44,8 +44,8 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
         this.source = source;
         this.userName = userName;
         compareClosure = new Closure() {
-            public void execute() {
-                compare();
+            public void execute(FieldMetadata field) {
+                compare(field);
             }
         };
     }
@@ -59,7 +59,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
     @Override
     public List<Action> visit(final ContainedTypeFieldMetadata containedField) {
         handleField(containedField, new Closure() {
-            public void execute() {
+            public void execute(FieldMetadata field) {
                 containedField.getContainedType().accept(UpdateActionCreator.this);
             }
         });
@@ -88,7 +88,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
      * Interface to encapsulate action to execute on fields
      */
     interface Closure {
-        void execute();
+        void execute(FieldMetadata field);
     }
 
     private String getPath() {
@@ -117,25 +117,25 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
             for (int i = 0; i < leftLength; i++) {
                 // Path generation code is a bit duplicated (be careful)... and XPath indexes are 1-based (not 0-based).
                 path.add(field.getName() + "[" + (i + 1) + "]");
-                closure.execute();
+                closure.execute(field);
                 path.pop();
             }
             if (rightLength > leftLength) {
                 for (int i = leftLength; i < rightLength; i++) {
                     // Path generation code is a bit duplicated (be careful)... and XPath indexes are 1-based (not 0-based).
                     path.add(field.getName() + "[" + (i + 1) + "]");
-                    closure.execute();
+                    closure.execute(field);
                     path.pop();
                 }
             }
         } else {
             path.add(field.getName());
-            closure.execute();
+            closure.execute(field);
             path.pop();
         }
     }
 
-    private void compare() {
+    private void compare(FieldMetadata comparedField) {
         String path = getPath();
         Accessor originalAccessor = originalDocument.createAccessor(path);
         Accessor newAccessor = newDocument.createAccessor(path);
@@ -145,7 +145,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 // No op
             } else { // new accessor exist
                 if (!newAccessor.get().isEmpty()) { // TODO Empty accessor means no op to ensure legacy behavior
-                    actions.add(new FieldUpdateAction(date, source, userName, path, "", newAccessor.get()));
+                    actions.add(new FieldUpdateAction(date, source, userName, path, "", newAccessor.get(), comparedField));
                 }
             }
         } else { // original accessor exist
@@ -153,7 +153,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 // No op
             } else { // new accessor exist
                 if (!originalAccessor.get().equals(newAccessor.get())) {
-                    actions.add(new FieldUpdateAction(date, source, userName, path, originalAccessor.get(), newAccessor.get()));
+                    actions.add(new FieldUpdateAction(date, source, userName, path, originalAccessor.get(), newAccessor.get(), comparedField));
                 }
             }
         }

@@ -57,7 +57,7 @@ public class DefaultMetadataVisitor<T> implements MetadataVisitor<T> {
         return containedField.getContainedType().accept(this);
     }
 
-    public T visit(FieldMetadata field) {
+    public T visit(FieldMetadata fieldMetadata) {
         return null;
     }
 

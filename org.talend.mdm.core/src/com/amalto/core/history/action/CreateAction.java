@@ -13,15 +13,22 @@ package com.amalto.core.history.action;
 
 import com.amalto.core.history.DeleteType;
 import com.amalto.core.history.MutableDocument;
+import com.amalto.core.metadata.ComplexTypeMetadata;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
  *
  */
 public class CreateAction extends AbstractAction {
-    public CreateAction(Date date, String source, String userName) {
+
+    private final ComplexTypeMetadata createdType;
+
+    public CreateAction(Date date, String source, String userName, ComplexTypeMetadata createdType) {
         super(date, source, userName);
+        this.createdType = createdType;
     }
 
     public MutableDocument perform(MutableDocument document) {
@@ -38,5 +45,20 @@ public class CreateAction extends AbstractAction {
 
     public MutableDocument removeModificationMark(MutableDocument document) {
         return document;
+    }
+
+    public boolean isAllowed(Set<String> roles) {
+        List<String> denyCreate = createdType.getDenyCreate();
+        boolean isAllowed = true;
+        for (String role : roles) {
+            if (denyCreate.contains(role)) {
+                isAllowed = false;
+            }
+        }
+        return isAllowed;
+    }
+
+    public String getDetails() {
+        return "create '" + createdType.getName() + "'";
     }
 }

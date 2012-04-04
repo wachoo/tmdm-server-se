@@ -56,4 +56,8 @@ public class NoOpAction implements Action {
     public boolean isAllowed(Set<String> roles) {
         return true;
     }
+
+    public String getDetails() {
+        return StringUtils.EMPTY;
+    }
 }

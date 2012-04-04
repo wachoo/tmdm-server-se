@@ -89,4 +89,12 @@ public class CompositeAction implements Action {
         }
         return isAllowed;
     }
+
+    public String getDetails() {
+        StringBuilder result = new StringBuilder();
+        for (Action action : actions) {
+            result.append(action.getDetails());
+        }
+        return result.toString();
+    }
 }

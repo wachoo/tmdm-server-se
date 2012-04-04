@@ -13,7 +13,6 @@ package com.amalto.core.save.context;
 
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
-import com.amalto.core.history.action.CreateAction;
 import com.amalto.core.metadata.*;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.ReportDocumentSaverContext;
@@ -31,7 +30,7 @@ class GenerateActions implements DocumentSaver {
     }
 
     public void save(SaverSession session, DocumentSaverContext context) {
-        final MutableDocument userDocument = context.getUserDocument();
+        MutableDocument userDocument = context.getUserDocument();
         MutableDocument databaseDocument = context.getDatabaseDocument();
         if (databaseDocument == null) {
             throw new IllegalStateException("Database document is expected to be set.");
@@ -48,13 +47,7 @@ class GenerateActions implements DocumentSaver {
 
         List<Action> actions;
         if (databaseDocument.asDOM().getDocumentElement() == null) {
-            Action action = new CreateAction(date, source, userName) {
-                @Override
-                public MutableDocument perform(MutableDocument document) {
-                    document.create(userDocument);
-                    return document;
-                }
-            };
+            Action action = new OverrideCreateAction(date, source, userName, userDocument, context.getType());
             actions = Collections.singletonList(action);
         } else {
             // get updated paths
@@ -79,6 +72,10 @@ class GenerateActions implements DocumentSaver {
 
     public String getSavedConceptName() {
         return next.getSavedConceptName();
+    }
+
+    public String getBeforeSavingMessage() {
+        return next.getBeforeSavingMessage();
     }
 
 }

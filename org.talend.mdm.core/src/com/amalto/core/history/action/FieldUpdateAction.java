@@ -13,8 +13,11 @@ package com.amalto.core.history.action;
 
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
+import com.amalto.core.metadata.FieldMetadata;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Action performed on a field with maxOccurs = 1.
@@ -27,9 +30,12 @@ public class FieldUpdateAction extends AbstractAction {
 
     private final String newValue;
 
-    public FieldUpdateAction(Date date, String source, String userName, String field, String oldValue, String newValue) {
+    private final FieldMetadata updatedField;
+
+    public FieldUpdateAction(Date date, String source, String userName, String field, String oldValue, String newValue, FieldMetadata updatedField) {
         super(date, source, userName);
         this.field = field;
+        this.updatedField = updatedField;
         this.oldValue = oldValue;
         this.newValue = newValue;
     }
@@ -41,13 +47,13 @@ public class FieldUpdateAction extends AbstractAction {
                 accessor.delete();
             } else {
                 if (!accessor.exist()) {
-                    accessor.create();
+                    accessor.createAndSet(newValue);
+                } else {
+                    accessor.set(newValue);
                 }
-                accessor.set(newValue);
             }
         } else {
-            accessor.create();
-            accessor.set(newValue);
+            accessor.createAndSet(newValue);
         }
         return document;
     }
@@ -56,8 +62,7 @@ public class FieldUpdateAction extends AbstractAction {
         Accessor accessor = document.createAccessor(field);
         if (oldValue != null) {
             if (newValue == null) {
-                accessor.create();
-                accessor.set(oldValue);
+                accessor.createAndSet(oldValue);
             } else {
                 accessor.set(oldValue);
             }
@@ -77,5 +82,21 @@ public class FieldUpdateAction extends AbstractAction {
         Accessor accessor = document.createAccessor(field);
         accessor.markUnmodified();
         return document;
+    }
+
+    public boolean isAllowed(Set<String> roles) {
+        boolean isAllowed = false;
+        List<String> allowedUserRoles = updatedField.getWriteUsers();
+        for (String role : roles) {
+            if (allowedUserRoles.contains(role)) {
+                isAllowed = true;
+                break;
+            }
+        }
+        return isAllowed;
+    }
+
+    public String getDetails() {
+        return "update field '" + updatedField.getName() + "' of type '" + updatedField.getContainingType().getName() + "'";
     }
 }

@@ -13,7 +13,6 @@ package com.amalto.core.save.context;
 
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
-import com.amalto.core.history.action.CreateAction;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.ReportDocumentSaverContext;
 import com.amalto.core.save.SaverSession;
@@ -32,7 +31,7 @@ class SystemActions implements DocumentSaver {
     }
 
     public void save(SaverSession session, DocumentSaverContext context) {
-        final MutableDocument userDocument = context.getUserDocument();
+        MutableDocument userDocument = context.getUserDocument();
         // Get source of modification (only if we're in the context of an update report).
         String source;
         if (context instanceof ReportDocumentSaverContext) {
@@ -44,13 +43,7 @@ class SystemActions implements DocumentSaver {
         String userName = session.getSaverSource().getUserName();
 
         // Consider all system documents as creation (no need to update field by field).
-        List<Action> actions = Collections.<Action>singletonList(new CreateAction(date, source, userName) {
-            @Override
-            public MutableDocument perform(MutableDocument document) {
-                document.create(userDocument);
-                return document;
-            }
-        });
+        List<Action> actions = Collections.<Action>singletonList(new OverrideCreateAction(date, source, userName, userDocument));
         context.setActions(actions);
 
         next.save(session, context);
@@ -62,6 +55,10 @@ class SystemActions implements DocumentSaver {
 
     public String getSavedConceptName() {
         return next.getSavedConceptName();
+    }
+
+    public String getBeforeSavingMessage() {
+        return next.getBeforeSavingMessage();
     }
 
 }

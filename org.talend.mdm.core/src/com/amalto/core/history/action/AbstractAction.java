@@ -44,8 +44,4 @@ abstract class AbstractAction implements Action {
     public String getUserName() {
         return userName;
     }
-
-    public boolean isAllowed(Set<String> roles) {
-        return true; // TODO implement security
-    }
 }

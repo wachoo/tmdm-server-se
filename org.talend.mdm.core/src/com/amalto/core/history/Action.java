@@ -86,4 +86,9 @@ public interface Action {
      * @return <code>true</code> if current roles allow to execute this action, <code>false</code> otherwise.
      */
     boolean isAllowed(Set<String> roles);
+
+    /**
+     * @return A {@link String} representation of this action.
+     */
+    String getDetails();
 }

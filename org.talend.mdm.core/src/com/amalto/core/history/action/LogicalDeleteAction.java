@@ -13,15 +13,22 @@ package com.amalto.core.history.action;
 
 import com.amalto.core.history.DeleteType;
 import com.amalto.core.history.MutableDocument;
+import com.amalto.core.metadata.ComplexTypeMetadata;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
  *
  */
 public class LogicalDeleteAction extends AbstractAction {
-    public LogicalDeleteAction(Date date, String source, String userName) {
+
+    private final ComplexTypeMetadata deletedType;
+
+    public LogicalDeleteAction(Date date, String source, String userName, ComplexTypeMetadata deletedType) {
         super(date, source, userName);
+        this.deletedType = deletedType;
     }
 
     public MutableDocument perform(MutableDocument document) {
@@ -38,5 +45,20 @@ public class LogicalDeleteAction extends AbstractAction {
 
     public MutableDocument removeModificationMark(MutableDocument document) {
         return document;
+    }
+
+    public boolean isAllowed(Set<String> roles) {
+        List<String> denyDelete = deletedType.getDenyDelete(ComplexTypeMetadata.DeleteType.LOGICAL);
+        boolean isAllowed = true;
+        for (String role : roles) {
+            if (denyDelete.contains(role)) {
+                isAllowed = false;
+            }
+        }
+        return isAllowed;
+    }
+
+    public String getDetails() {
+        return "logical delete of type '" + deletedType.getName() + "'";
     }
 }

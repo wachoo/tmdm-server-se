@@ -88,6 +88,27 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("Chicago", evaluate(committedElement, "/Agency/Name"));
         assertEquals("Chicago", evaluate(committedElement, "/Agency/City"));
     }
+    
+    public void testUpdateSecurity() throws Exception {
+        // TODO Test for modification of id (this test modifies id but this is intentional).
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+
+        SaverSource source = new TestSaverSource(repository, true, "test8_original.xml");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test8.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, false);
+        DocumentSaver saver = context.createSaver();
+        try {
+            saver.save(session, context);
+            fail("Expected an exception: user not allowed to change some fields.");
+        } catch (SaveException e) {
+            // Expected
+            assertTrue(e.getCause() instanceof IllegalStateException);
+            assertEquals("User is not allowed to perform: update field 'Zip' of type 'Agency' / update field 'State' of type 'Agency'", e.getCause().getMessage());
+        }
+    }
 
     public void testNoUpdate() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
@@ -223,6 +244,7 @@ public class DocumentSaveTest extends TestCase {
         DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, true);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
+        assertEquals("change the value successfully!", saver.getBeforeSavingMessage());
         session.end(new MockCommitter());
 
         //
@@ -237,8 +259,9 @@ public class DocumentSaveTest extends TestCase {
         try {
             saver.save(session, context);
             fail("Expected an exception.");
-        } catch (Exception e) {
+        } catch (SaveException e) {
             // Expected
+            assertEquals("change the value failed!", e.getBeforeSavingMessage());
         }
         session.end(new MockCommitter());
 
@@ -254,8 +277,9 @@ public class DocumentSaveTest extends TestCase {
         try {
             saver.save(session, context);
             fail("Expected an exception.");
-        } catch (Exception e) {
+        } catch (SaveException e) {
             // Expected
+            assertEquals("change the value failed!", e.getBeforeSavingMessage());
         }
         session.end(new MockCommitter());
 
@@ -269,6 +293,7 @@ public class DocumentSaveTest extends TestCase {
         context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, true);
         saver = context.createSaver();
         saver.save(session, context);
+        assertEquals("change the value successfully!", saver.getBeforeSavingMessage());
         session.end(new MockCommitter());
     }
 
@@ -406,6 +431,12 @@ public class DocumentSaveTest extends TestCase {
             }
         }
 
+        public void rollback(String dataCluster) {
+            if (DEBUG) {
+                System.out.println("Rollback on '" + dataCluster + "'");
+            }
+        }
+
         public Element getCommittedElement() {
             return committedElement;
         }
@@ -464,7 +495,7 @@ public class DocumentSaveTest extends TestCase {
         }
 
         public Set<String> getCurrentUserRoles() {
-            return Collections.emptySet();
+            return Collections.singleton("User");
         }
 
         public String getUserName() {
@@ -483,6 +514,9 @@ public class DocumentSaveTest extends TestCase {
         }
 
         public void initAutoIncrement() {
+        }
+
+        public void routeItem(String dataCluster, String typeName, String[] id) {
         }
     }
 

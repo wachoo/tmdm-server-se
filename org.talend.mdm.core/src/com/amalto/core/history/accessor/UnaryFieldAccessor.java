@@ -47,9 +47,27 @@ class UnaryFieldAccessor implements DOMAccessor {
         return element;
     }
 
+    private void internalSet(String value, Element element) {
+        element.setTextContent(value);
+    }
+
+    private Element internalCreate() {
+        parent.create();
+
+        Document domDocument = document.asDOM();
+        Element element = getElement();
+        if (element == null) {
+            Element newElement = domDocument.createElementNS(domDocument.getNamespaceURI(), fieldName);
+            Node parentNode = parent.getNode();
+            parentNode.appendChild(newElement);
+            element = newElement;
+        }
+        return element;
+    }
+
     public void set(String value) {
         Element element = getElement();
-        element.setTextContent(value);
+        internalSet(value, element);
     }
 
     public String get() {
@@ -62,20 +80,12 @@ class UnaryFieldAccessor implements DOMAccessor {
     }
 
     public void create() {
-        parent.create();
-
-        Document domDocument = document.asDOM();
-        Element element = getElement();
-        if (element == null) {
-            Element newElement = domDocument.createElementNS(domDocument.getNamespaceURI(), fieldName);
-            Node parentNode = parent.getNode();
-            parentNode.appendChild(newElement);
-        }
+        internalCreate();
     }
 
     public void createAndSet(String value) {
-        create();
-        set(value);
+        Element element = internalCreate();
+        internalSet(value, element);
     }
 
     public void delete() {

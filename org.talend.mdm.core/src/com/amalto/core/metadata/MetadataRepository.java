@@ -16,6 +16,7 @@ import com.amalto.core.metadata.xsd.XmlSchemaWalker;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ws.commons.schema.*;
+import org.talend.mdm.commmon.util.core.ICoreConstants;
 
 import javax.xml.namespace.QName;
 import java.io.InputStream;
@@ -182,6 +183,29 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor<V
                 ComplexTypeMetadata type = getComplexType(element.getName());
                 if (type == null) { // Take type from repository if already built
                     type = new ComplexTypeMetadataImpl(targetNamespace, element.getName());
+                    XmlSchemaAnnotationProcessorState state;
+                    try {
+                        XmlSchemaAnnotation annotation = element.getAnnotation();
+                        state = new XmlSchemaAnnotationProcessorState();
+                        for (XmlSchemaAnnotationProcessor processor : XML_ANNOTATIONS_PROCESSORS) {
+                            processor.process(this, type, annotation, state);
+                        }
+                    } catch (Exception e) {
+                        throw new RuntimeException("Annotation processing exception while parsing info for type '" + typeName + "'.", e);
+                    }
+
+                    // If write is not allowed for everyone, at least add System_Admin.
+                    if (state.getAllowWrite().isEmpty()) {
+                        state.getAllowWrite().add(ICoreConstants.SYSTEM_ADMIN_ROLE);
+                    }
+                    
+                    type = new ComplexTypeMetadataImpl(targetNamespace,
+                            typeName,
+                            state.getAllowWrite(),
+                            state.getDenyCreate(),
+                            state.getHide(),
+                            state.getDenyPhysicalDelete(),
+                            state.getDenyLogicalDelete());
                     addTypeMetadata(type);
                 }
                 currentTypeStack.push(type);
