@@ -643,7 +643,7 @@ public class TreeDetail extends ContentPanel {
                         ForeignKeyValidateModel fkValidateModel = validateFK(node);
                         flag = fkValidateModel.isNodeValid();
                         fkValidateMap.put(tm, fkValidateModel);
-                    } else if(parentIsMayNull) {
+                    } else if(parentIsMayNull && node.isValid()) {
                         continue;
                     } else {
                         MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
