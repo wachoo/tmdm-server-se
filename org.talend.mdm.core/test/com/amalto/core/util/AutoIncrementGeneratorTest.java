@@ -56,7 +56,7 @@ public class AutoIncrementGeneratorTest extends TestCase {
         mockObject.saveIdToMap(rootNodeHashCode, key, "19");
         mockObject.saveUnUsedIdsToFile(true, rootNodeHashCode);
         URL url = AutoIncrementGeneratorTest.class.getResource("CONF.AutoIncrement.AutoIncrement_unUsed.xml");
-        String fileName = url.getFile().replaceAll("bin", "test");
+        String fileName = url.getPath();
         String xml = FileUtils.readFileToString(new File(fileName), "UTF-8");
         Properties p = Util.convertAutoIncrement(xml);
         assertEquals("18.19.", p.get(key));
@@ -84,7 +84,7 @@ public class AutoIncrementGeneratorTest extends TestCase {
     public void testWriteXMLToFile() throws IOException {
         String xml = "<AutoIncrement><id>AutoIncrement</id></AutoIncrement>";
         URL url = AutoIncrementGeneratorTest.class.getResource("CONF.AutoIncrement.AutoIncrement.xml");
-        String fileName = url.getFile().replaceAll("bin", "test");
+        String fileName = url.getPath();
         MockAutoIncrementGenerator mockObject = new MockAutoIncrementGenerator();
         mockObject.writeXMLToFile(xml, fileName);
         assertEquals(xml, FileUtils.readFileToString(new File(fileName)));
