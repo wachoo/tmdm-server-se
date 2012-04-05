@@ -16,7 +16,7 @@ public class SaveException extends RuntimeException {
     private final String beforeSavingMessage;
 
     public SaveException(String beforeSavingMessage, Throwable cause) {
-        super("Exception occurred during save.", cause);
+        super("Exception occurred during save: " + beforeSavingMessage, cause);
         this.beforeSavingMessage = beforeSavingMessage;
     }
 
