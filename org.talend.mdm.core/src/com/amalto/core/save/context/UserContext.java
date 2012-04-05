@@ -21,8 +21,6 @@ import java.util.List;
 
 class UserContext implements DocumentSaverContext {
 
-    private static final boolean invokeValidation = true;
-
     private final List<Action> actions = new LinkedList<Action>();
 
     private ComplexTypeMetadata type;
@@ -54,21 +52,14 @@ class UserContext implements DocumentSaverContext {
     }
 
     public DocumentSaver createSaver() {
-        DocumentSaver saver = new Save();
-
-        if (invokeValidation) {
-            saver = new Validation(saver);
-        }
-
-        saver = new ApplyActions(saver);
-
+        DocumentSaver saver = SaverContextFactory.invokeSaverExtension(new Save());
+        saver = new ApplyActions(new Validation(saver));
         if (invokeBeforeSaving) {
             saver = new BeforeSaving(saver);
         }
         if (updateReport) {
             saver = new UpdateReport(saver);
         }
-
         return new Init(new ID(new GenerateActions(new Security(saver))));
     }
 

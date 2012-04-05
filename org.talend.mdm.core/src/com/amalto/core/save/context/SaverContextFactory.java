@@ -19,6 +19,7 @@ import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.ReportDocumentSaverContext;
 import com.amalto.core.util.XSDKey;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
@@ -41,6 +42,28 @@ public class SaverContextFactory {
 
     private static final String SYSTEM_CONTAINER_PREFIX = "amalto";  //$NON-NLS-1$
 
+    private static DocumentSaverExtension saverExtension;
+
+    static DocumentSaver invokeSaverExtension(DocumentSaver saver) {
+        if (saverExtension == null) {
+            try {
+                Class<DocumentSaverExtension> extension = (Class<DocumentSaverExtension>) Class.forName("com.amalto.core.save.DocumentSaverExtensionImpl"); //$NON-NLS-1$
+                saverExtension = extension.newInstance();
+            } catch (ClassNotFoundException e) {
+                Logger.getLogger(UserContext.class).warn("No extension found for save.");
+                saverExtension = new DocumentSaverExtension() {
+                    public DocumentSaver invokeSaverExtension(DocumentSaver saver) {
+                        return saver;
+                    }
+                };
+            } catch (Exception e) {
+                throw new RuntimeException("Unexpected exception occurred during saver extension lookup.");
+            }
+        }
+
+        return saverExtension.invokeSaverExtension(saver);
+    }
+
     static {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
@@ -60,12 +83,12 @@ public class SaverContextFactory {
     /**
      * Creates a {@link DocumentSaverContext} for bulk load operations.
      *
-     * @param dataCluster Data container name (must exist).
-     * @param dataModelName Data model name (must exist).
-     * @param keyMetadata Key for all records contained in <code>documentStream</code>
+     * @param dataCluster    Data container name (must exist).
+     * @param dataModelName  Data model name (must exist).
+     * @param keyMetadata    Key for all records contained in <code>documentStream</code>
      * @param documentStream AData model name (must exist).
-     * @param loadAction {@link LoadAction} to be used to bulk load records.
-     * @param server Abstraction of the underlying MDM database.
+     * @param loadAction     {@link LoadAction} to be used to bulk load records.
+     * @param server         Abstraction of the underlying MDM database.
      * @return A context configured for bulk load.
      */
     public DocumentSaverContext createBulkLoad(String dataCluster,
@@ -80,8 +103,8 @@ public class SaverContextFactory {
     /**
      * Creates a {@link DocumentSaverContext} to save a unique record in MDM.
      *
-     * @param dataCluster Data container name (must exist).
-     * @param dataModelName Data model name (must exist).
+     * @param dataCluster    Data container name (must exist).
+     * @param dataModelName  Data model name (must exist).
      * @param documentStream A stream that contains one XML document.
      * @return A context configured to save a record in MDM.
      */
@@ -94,11 +117,11 @@ public class SaverContextFactory {
     /**
      * Creates a {@link DocumentSaverContext} to save a unique record in MDM, with update report/before saving options.
      *
-     * @param dataCluster Data container name (must exist).
-     * @param dataModelName Data model name (must exist).
-     * @param changeSource Source of change (for update report). Common values includes 'genericUI'...
-     * @param documentStream A stream that contains one XML document.
-     * @param updateReport <code>true</code> to generate an update report, <code>false</code> otherwise.
+     * @param dataCluster        Data container name (must exist).
+     * @param dataModelName      Data model name (must exist).
+     * @param changeSource       Source of change (for update report). Common values includes 'genericUI'...
+     * @param documentStream     A stream that contains one XML document.
+     * @param updateReport       <code>true</code> to generate an update report, <code>false</code> otherwise.
      * @param invokeBeforeSaving <code>true</code> to invoke any existing before saving process, <code>false</code> otherwise.
      * @return A context configured to save a record in MDM.
      */

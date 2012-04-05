@@ -46,7 +46,8 @@ class SystemContext implements DocumentSaverContext {
     }
 
     public DocumentSaver createSaver() {
-        return new Init(new ID(new SystemActions(new ApplyActions(new Save()))));
+        DocumentSaver saver = SaverContextFactory.invokeSaverExtension(new Save());
+        return new Init(new ID(new SystemActions(new ApplyActions(saver))));
     }
 
     public MutableDocument getDatabaseDocument() {

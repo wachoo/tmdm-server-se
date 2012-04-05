@@ -17,7 +17,7 @@ import com.amalto.core.save.SaverSession;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
-public class Init implements DocumentSaver {
+class Init implements DocumentSaver {
 
     private static final String AUTO_INCREMENT_TYPE_NAME = "AutoIncrement";  //$NON-NLS-1$
 
