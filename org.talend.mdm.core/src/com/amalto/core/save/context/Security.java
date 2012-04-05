@@ -30,7 +30,8 @@ class Security implements DocumentSaver {
 
     public void save(SaverSession session, DocumentSaverContext context) {
         List<Action> actions = context.getActions();
-        Set<String> currentUserRoles = session.getSaverSource().getCurrentUserRoles();
+        SaverSource saverSource = session.getSaverSource();
+        Set<String> currentUserRoles = saverSource.getCurrentUserRoles();
 
         // First check rights on the type
         List<String> typeWriteUsers = context.getType().getWriteUsers();
@@ -42,7 +43,7 @@ class Security implements DocumentSaver {
             }
         }
         if (!isAllowed) {
-            throw new RuntimeException("User is not allowed to write to type '" + context.getType().getName() + "'.");
+            throw new RuntimeException("User '" + saverSource.getUserName() + "' is not allowed to write to type '" + context.getType().getName() + "'.");
         }
 
         // Then check security on all actions (updates...)

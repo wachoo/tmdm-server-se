@@ -136,7 +136,14 @@ public class DefaultSaverSource implements SaverSource {
 
     public Set<String> getCurrentUserRoles() {
         try {
-            return LocalUser.getLocalUser().getRoles();
+            if (userName == null) {
+                // No user name specified, get from current user.
+                return LocalUser.getLocalUser().getRoles();
+            } else {
+                User user = new User();
+                user.setUserName(userName);
+                return UserHelper.getInstance().getOriginalRole(user);
+            }
         } catch (XtentisException e) {
             throw new RuntimeException(e);
         }

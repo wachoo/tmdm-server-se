@@ -91,7 +91,7 @@ public class DocumentSaveTest extends TestCase {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
 
-        SaverSource source = new TestSaverSource(repository, true, "test8_original.xml");
+        TestSaverSource source = new TestSaverSource(repository, true, "test8_original.xml");
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test8.xml");
@@ -108,6 +108,14 @@ public class DocumentSaveTest extends TestCase {
             assertTrue(e.getCause().getMessage().contains("'State'"));
             assertTrue(e.getCause().getMessage().contains("'Agency'"));
         }
+
+        // Test changing user name (and user's roles).
+        source.setUserName("admin");
+        session = SaverSession.newSession(source);
+        recordXml = DocumentSaveTest.class.getResourceAsStream("test8.xml");
+        context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, false);
+        saver = context.createSaver();
+        saver.save(session, context);
     }
 
     public void testNoUpdate() throws Exception {
@@ -479,6 +487,8 @@ public class DocumentSaveTest extends TestCase {
 
         private MetadataRepository updateReportRepository;
 
+        private String userName = "User";
+
         public TestSaverSource(MetadataRepository repository, boolean exist, String originalDocumentFileName) {
             this.repository = repository;
             this.exist = exist;
@@ -518,11 +528,15 @@ public class DocumentSaveTest extends TestCase {
         }
 
         public Set<String> getCurrentUserRoles() {
-            return Collections.singleton("User");
+            if ("User".equals(userName)) {
+                return Collections.singleton("User");
+            } else {
+                return Collections.singleton("System_Admin");
+            }
         }
 
         public String getUserName() {
-            return "User";
+            return userName;
         }
 
         public boolean existCluster(String revisionID, String dataClusterName) {
@@ -540,6 +554,10 @@ public class DocumentSaveTest extends TestCase {
         }
 
         public void routeItem(String dataCluster, String typeName, String[] id) {
+        }
+
+        public void setUserName(String userName) {
+            this.userName = userName;
         }
     }
 

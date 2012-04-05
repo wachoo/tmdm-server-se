@@ -77,10 +77,10 @@ public class SaverSession {
     public void begin(String dataCluster) {
         begin(dataCluster, new DefaultCommitter());
     }
-    
+
     public void begin(String dataCluster, Committer committer) {
         committer.begin(dataCluster);
-    } 
+    }
 
     public void end() {
         end(new DefaultCommitter());
