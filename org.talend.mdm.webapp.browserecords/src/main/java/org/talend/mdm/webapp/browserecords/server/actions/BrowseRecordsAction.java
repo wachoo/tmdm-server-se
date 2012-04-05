@@ -1580,7 +1580,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 err = MESSAGES.getMessage(locale, "save_success_but_exist_exception", //$NON-NLS-1$
                         concept + "." + ids, e.getLocalizedMessage()); //$NON-NLS-1$
             } else if (Util.causeIs(e, SaveException.class)) {
-                err = MESSAGES.getMessage(locale, "save_process_validation_failure"); //$NON-NLS-1$
+                SaveException cause = Util.cause(e, SaveException.class);
+                String beforeSavingMessage = cause.getBeforeSavingMessage();
+                if (beforeSavingMessage != null && !beforeSavingMessage.isEmpty()) {
+                    // Return before saving process error message as exception for web ui.
+                    throw new ServiceException(beforeSavingMessage);
+                } else {
+                    err = MESSAGES.getMessage(locale, "save_process_validation_failure"); //$NON-NLS-1$
+                }
             } else if (Util.causeIs(e, CVCException.class)) {
                 err = MESSAGES.getMessage(locale, "save_fail_cvc_exception", concept); //$NON-NLS-1$
             } else if (Util.causeIs(e, ValidateException.class)) {
