@@ -50,9 +50,9 @@ public class MockAutoIncrementGenerator {
         try {
             // setup CONF.AutoIncrement.AutoIncrement.xml
             URL url = MockAutoIncrementGenerator.class.getResource("CONF.AutoIncrement.AutoIncrement_bak.xml");
-            String srcFileName = url.getFile().replaceAll("bin", "test");
+            String srcFileName = url.getPath();
             URL destUrl = MockAutoIncrementGenerator.class.getResource("CONF.AutoIncrement.AutoIncrement.xml");
-            String destFileName = destUrl.getFile().replaceAll("bin", "test");
+            String destFileName = destUrl.getPath();
             File src_AutoIncrementFile = new File(srcFileName);
             File dest_AutoIncrementFile = new File(destFileName);
             FileUtils.copyFile(src_AutoIncrementFile, dest_AutoIncrementFile);
@@ -62,9 +62,9 @@ public class MockAutoIncrementGenerator {
 
             // setup CONF.AutoIncrement.AutoIncrement_unUsed.xml and get unused AutoIncrement ID
             url = MockAutoIncrementGenerator.class.getResource("CONF.AutoIncrement.AutoIncrement_bakUnUsed.xml");
-            srcFileName = url.getFile().replaceAll("bin", "test");
+            srcFileName = url.getPath();
             destUrl = MockAutoIncrementGenerator.class.getResource("CONF.AutoIncrement.AutoIncrement_unUsed.xml");
-            destFileName = destUrl.getFile().replaceAll("bin", "test");
+            destFileName = destUrl.getPath();
             src_AutoIncrementFile = new File(srcFileName);
             dest_AutoIncrementFile = new File(destFileName);
             FileUtils.copyFile(src_AutoIncrementFile, dest_AutoIncrementFile);
@@ -143,7 +143,7 @@ public class MockAutoIncrementGenerator {
         try {
             String xmlString = Util.convertAutoIncrement(CONFIGURATION);
             URL url = AutoIncrementGeneratorTest.class.getResource("CONF.AutoIncrement.AutoIncrement.xml");
-            String fileName = url.getFile().replaceAll("bin", "test");
+            String fileName = url.getPath();
             writeXMLToFile(xmlString, fileName);
         } catch (Exception e) {
             logger.error(e.getLocalizedMessage(), e);
@@ -174,7 +174,7 @@ public class MockAutoIncrementGenerator {
             }
             String xmlString = Util.convertAutoIncrement(UNUSED_AUTOINCREMENTS);
             URL url = AutoIncrementGeneratorTest.class.getResource("CONF.AutoIncrement.AutoIncrement_unUsed.xml");
-            String fileName = url.getFile().replaceAll("bin", "test");
+            String fileName = url.getPath();
             writeXMLToFile(xmlString, fileName);
         } catch (Exception e) {
             logger.error(e.getLocalizedMessage(), e);
