@@ -45,14 +45,16 @@ public class XmlSchemaValidator implements Validator {
 
     public void validate(Element element) throws ValidateException {
         Schema parsedSchema;
-        try {
-            parsedSchema = schemaCache.get(dataModelName);
-            if (parsedSchema == null) {
-                parsedSchema = schemaFactory.newSchema(new StreamSource(schemaAsStream));
-                schemaCache.put(dataModelName, parsedSchema);
+        synchronized (schemaCache) {
+            try {
+                parsedSchema = schemaCache.get(dataModelName);
+                if (parsedSchema == null) {
+                    parsedSchema = schemaFactory.newSchema(new StreamSource(schemaAsStream));
+                    schemaCache.put(dataModelName, parsedSchema);
+                }
+            } catch (SAXException e) {
+                throw new RuntimeException("Exception occurred during XML schema parsing.", e);
             }
-        } catch (SAXException e) {
-            throw new RuntimeException("Exception occurred during XML schema parsing.", e);
         }
 
         javax.xml.validation.Validator validator = parsedSchema.newValidator();

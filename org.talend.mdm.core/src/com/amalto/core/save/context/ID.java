@@ -25,6 +25,8 @@ import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -91,6 +93,7 @@ class ID implements DocumentSaver {
                     userAccessor.createAndSet(generatedIdValue);
                 }
                 currentIdValue = generatedIdValue;
+                hasMetAutoIncrement = true;
             } else {
                 // Not a value to generate, first ensure value is correctly set.
                 if (!userAccessor.exist()) {
@@ -108,13 +111,19 @@ class ID implements DocumentSaver {
         // now has an id, so load database document
         String[] savedId = getSavedId();
         String revisionID = context.getRevisionID();
+        DocumentBuilder documentBuilder;
+        try {
+            documentBuilder = SaverContextFactory.DOM_PARSER_FACTORY.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException("Could not acquire a document builder.", e);
+        }
         if (database.exist(dataCluster, typeName, revisionID, savedId)) {
             NonCloseableInputStream nonCloseableInputStream = new NonCloseableInputStream(database.get(dataCluster, typeName, revisionID, savedId));
 
             try {
                 nonCloseableInputStream.mark(-1);
 
-                Document databaseDomDocument = SaverContextFactory.DOM_PARSER_FACTORY.parse(nonCloseableInputStream);
+                Document databaseDomDocument = documentBuilder.parse(nonCloseableInputStream);
                 Element userXmlElement = getUserXmlElement(databaseDomDocument);
                 // TODO This is temporary! This is due to the Web UI that saves invalid documents!
                 clean(userXmlElement);
@@ -122,8 +131,8 @@ class ID implements DocumentSaver {
 
                 nonCloseableInputStream.reset();
 
-                SkipAttributeDocumentBuilder documentBuilder = new SkipAttributeDocumentBuilder(SaverContextFactory.DOM_PARSER_FACTORY);
-                Document databaseValidationDomDocument = documentBuilder.parse(new InputSource(nonCloseableInputStream));
+                SkipAttributeDocumentBuilder validationDocumentBuilder = new SkipAttributeDocumentBuilder(documentBuilder);
+                Document databaseValidationDomDocument = validationDocumentBuilder.parse(new InputSource(nonCloseableInputStream));
                 userXmlElement = getUserXmlElement(databaseValidationDomDocument);
                 // TODO This is temporary! This is due to the Web UI that saves invalid documents!
                 clean(userXmlElement);
@@ -142,8 +151,8 @@ class ID implements DocumentSaver {
             }
 
         } else {
-            context.setDatabaseDocument(new DOMDocument(SaverContextFactory.DOM_PARSER_FACTORY.newDocument()));
-            context.setDatabaseValidationDocument(new DOMDocument(SaverContextFactory.DOM_PARSER_FACTORY.newDocument()));
+            context.setDatabaseDocument(new DOMDocument(documentBuilder.newDocument()));
+            context.setDatabaseValidationDocument(new DOMDocument(documentBuilder.newDocument()));
         }
 
         // Continue save

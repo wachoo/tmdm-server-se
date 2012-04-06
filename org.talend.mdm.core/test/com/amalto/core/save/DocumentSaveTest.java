@@ -27,6 +27,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.InputStream;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 @SuppressWarnings("nls")
@@ -446,6 +447,32 @@ public class DocumentSaveTest extends TestCase {
         LOG.info("Time (max): " + max);
     }
 
+    public void testConcurrentUpdates() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        SaverSource source = new TestSaverSource(repository, true, "test1_original.xml");
+
+        Set<UpdateRunnable> updateRunnables = new HashSet<UpdateRunnable>();
+        for (int i = 0; i < 10; i++) {
+            updateRunnables.add(new UpdateRunnable(source));
+        }
+        Set<Thread> updateThreads = new HashSet<Thread>();
+        for (Runnable updateRunnable : updateRunnables) {
+            updateThreads.add(new Thread(updateRunnable));
+        }
+        for (Thread updateThread : updateThreads) {
+            updateThread.start();
+        }
+        for (Thread updateThread : updateThreads) {
+            updateThread.join();
+        }
+
+        for (UpdateRunnable updateRunnable : updateRunnables) {
+            assertTrue(updateRunnable.isSuccess());
+        }
+    }
+
+
     private static class MockCommitter implements SaverSession.Committer {
 
         private Element committedElement;
@@ -521,7 +548,7 @@ public class DocumentSaveTest extends TestCase {
             return exist;
         }
 
-        public MetadataRepository getMetadataRepository(String dataModelName) {
+        public synchronized MetadataRepository getMetadataRepository(String dataModelName) {
             if ("UpdateReport".equals(dataModelName)) {
                 if (updateReportRepository == null) {
                     updateReportRepository = new MetadataRepository();
@@ -606,6 +633,36 @@ public class DocumentSaveTest extends TestCase {
                 report.setItem(item);
             }
             return report;
+        }
+    }
+
+    private static class UpdateRunnable implements Runnable {
+
+        private final SaverSource source;
+
+        private boolean success = false;
+
+        public UpdateRunnable(SaverSource source) {
+            this.source = source;
+        }
+
+        public void run() {
+            SaverSession session = SaverSession.newSession(source);
+            {
+                for (int i = 0; i < 100; i++) {
+                    InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
+                    DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml,
+                            true, false);
+                    DocumentSaver saver = context.createSaver();
+                    saver.save(session, context);
+                }
+            }
+            session.end(new MockCommitter());
+            success = true;
+        }
+
+        public boolean isSuccess() {
+            return success;
         }
     }
 }

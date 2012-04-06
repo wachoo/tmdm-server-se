@@ -34,7 +34,7 @@ import java.util.Map;
 
 public class SaverContextFactory {
 
-    public static final DocumentBuilder DOM_PARSER_FACTORY;
+    public static final DocumentBuilderFactory DOM_PARSER_FACTORY;
 
     private static final Map<String, XSystemObjects> SYSTEM_DATA_CLUSTERS = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
 
@@ -65,16 +65,11 @@ public class SaverContextFactory {
     }
 
     static {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setNamespaceAware(true);
-        factory.setIgnoringComments(true);
-        factory.setValidating(false);
-        factory.setIgnoringElementContentWhitespace(true);
-        try {
-            DOM_PARSER_FACTORY = factory.newDocumentBuilder();
-        } catch (ParserConfigurationException e) {
-            throw new RuntimeException("Unable to initialize DOM parser.", e);
-        }
+        DOM_PARSER_FACTORY = DocumentBuilderFactory.newInstance();
+        DOM_PARSER_FACTORY.setNamespaceAware(true);
+        DOM_PARSER_FACTORY.setIgnoringComments(true);
+        DOM_PARSER_FACTORY.setValidating(false);
+        DOM_PARSER_FACTORY.setIgnoringElementContentWhitespace(true);
 
         SAX_PARSER_FACTORY.setNamespaceAware(false);
         SAX_PARSER_FACTORY.setValidating(false);
@@ -138,7 +133,7 @@ public class SaverContextFactory {
         // Parsing
         MutableDocument userDocument;
         try {
-            Document userDomDocument = DOM_PARSER_FACTORY.parse(new InputSource(documentStream));
+            Document userDomDocument = DOM_PARSER_FACTORY.newDocumentBuilder().parse(new InputSource(documentStream));
             userDocument = new DOMDocument(userDomDocument);
         } catch (Exception e) {
             throw new RuntimeException("Unable to parse document to save.", e);

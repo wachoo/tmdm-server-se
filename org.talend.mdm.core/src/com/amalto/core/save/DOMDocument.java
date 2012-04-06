@@ -23,6 +23,8 @@ import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.util.StringTokenizer;
 
@@ -37,7 +39,13 @@ public class DOMDocument implements MutableDocument {
     }
 
     public DOMDocument(Node node) {
-        org.w3c.dom.Document document = SaverContextFactory.DOM_PARSER_FACTORY.newDocument();
+        DocumentBuilder documentBuilder;
+        try {
+            documentBuilder = SaverContextFactory.DOM_PARSER_FACTORY.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException("Could not acquire new document builder.", e);
+        }
+        org.w3c.dom.Document document = documentBuilder.newDocument();
         document.adoptNode(node);
         document.appendChild(node);
         init(document);
