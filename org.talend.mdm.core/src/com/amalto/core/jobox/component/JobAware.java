@@ -13,21 +13,28 @@
 
 package com.amalto.core.jobox.component;
 
-import com.amalto.core.jobox.JobInfo;
-import com.amalto.core.jobox.util.JoboxConfig;
-import com.amalto.core.jobox.util.JoboxException;
-import com.amalto.core.jobox.util.JoboxUtil;
-import org.apache.commons.lang.StringUtils;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Properties;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+
+import com.amalto.core.jobox.JobInfo;
+import com.amalto.core.jobox.util.JoboxConfig;
+import com.amalto.core.jobox.util.JoboxException;
+import com.amalto.core.jobox.util.JoboxUtil;
 
 public class JobAware {
 
@@ -36,6 +43,8 @@ public class JobAware {
     private static final String JOBOX_RESERVED_FOLDER_NAME = "tmp"; //$NON-NLS-1$
 
     private final String workDir;
+
+    private static final Logger LOGGER = Logger.getLogger(JobAware.class);
 
     public JobAware(JoboxConfig joboxConfig) {
         this.workDir = joboxConfig.getWorkPath();
@@ -46,6 +55,7 @@ public class JobAware {
      */
     public List<JobInfo> findJobsInBox() {
         File[] entities = new File(workDir).listFiles(new FileFilter() {
+
             public boolean accept(File pathName) {
                 return !(pathName.isFile() || JOBOX_RESERVED_FOLDER_NAME.equalsIgnoreCase(pathName.getName()));
             }
@@ -66,8 +76,13 @@ public class JobAware {
 
                 JobInfo jobInfo = new JobInfo(jobName, jobVersion);
                 setClassPath4TISJob(entity, jobInfo);
-                String propFilePath = analyzeJobParams(entity, jobInfo);
-                guessMainClass(propFilePath, jobInfo);
+                // get main class from command line
+                guessMainClassFromComandLine(entity, jobInfo);
+                //not found then found it in context properties folder
+                if (jobInfo.getMainClass() == null) {
+                    String propFilePath = analyzeJobParams(entity, jobInfo);
+                    guessMainClass(propFilePath, jobInfo);
+                }
                 jobList.add(jobInfo);
             }
         }
@@ -89,12 +104,68 @@ public class JobAware {
 
             jobInfo = new JobInfo(jobName, jobVersion);
             setClassPath4TISJob(entity, jobInfo);
-            String propFilePath = analyzeJobParams(entity, jobInfo);
-            guessMainClass(propFilePath, jobInfo);
+            // get main class from command line
+            guessMainClassFromComandLine(entity, jobInfo);
+            //not found then found it in context properties folder
+            if (jobInfo.getMainClass() == null) {
+                String propFilePath = analyzeJobParams(entity, jobInfo);
+                guessMainClass(propFilePath, jobInfo);
+            }
         }
         return jobInfo;
     }
 
+    /**
+     * get the main class from the command line xxx_run.sh or xxx_run.bat
+     * 
+     * @param jobInfo
+     */
+    public void guessMainClassFromComandLine(File entity, JobInfo jobInfo) {
+        boolean found = false;
+        try {
+            List<File> checkList = new ArrayList<File>();
+            String cpStr = "classpath.jar";//$NON-NLS-1$   
+            String contextStr = "--context";//$NON-NLS-1$   
+            // try windows .bat file
+            String comandFileName = jobInfo.getName() + "_run.bat";//$NON-NLS-1$   
+            JoboxUtil.findFirstFile(null, entity, comandFileName, checkList); //$NON-NLS-1$
+            if (checkList.size() > 0) {
+                String content = IOUtils.toString(new FileInputStream(checkList.get(0)));
+                int start = content.indexOf(cpStr + ';');
+                int end = content.indexOf(contextStr);
+                if (start != -1 && end != -1 && end > start) {
+                    String mainClass = content.substring(start + cpStr.length() + 1, end);
+                    jobInfo.setMainClass(mainClass.trim());
+                    found = true;
+                }
+            }
+            // try linux  .sh file
+            if (!found) {
+                comandFileName = jobInfo.getName() + "_run.sh";//$NON-NLS-1$   
+                JoboxUtil.findFirstFile(null, entity, comandFileName, checkList); //$NON-NLS-1$
+                if (checkList.size() > 0) {
+                    String content = IOUtils.toString(new FileInputStream(checkList.get(0)));
+                    int start = content.indexOf(cpStr + ':');
+                    int end = content.indexOf(contextStr);
+                    if (start != -1 && end != -1 && end > start) {
+                        String mainClass = content.substring(start + cpStr.length() + 1, end);
+                        jobInfo.setMainClass(mainClass.trim());
+                        found = true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.error(e.getLocalizedMessage(), e);
+        }
+    }
+
+    /**
+     * 
+     * it can't make sure to get the right main class from 'context' properties folder
+     * 
+     * @param propFilePath
+     * @param jobInfo
+     */
     private void guessMainClass(String propFilePath, JobInfo jobInfo) {
         // FIX ME:THIS WAY IS NOT GOOD
         if (propFilePath != null) {

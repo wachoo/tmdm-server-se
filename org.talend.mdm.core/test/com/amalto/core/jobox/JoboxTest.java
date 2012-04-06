@@ -130,6 +130,9 @@ public class JoboxTest extends TestCase {
         assertNotNull(jobInfo);
         assertEquals("TestTalendMDMJob", jobInfo.getName());
         assertEquals("0.1", jobInfo.getVersion());
+        
+        //test main class
+        assertEquals("tests.testtalendmdmjob_0_1.TestTalendMDMJob", jobInfo.getMainClass());
     }
 
     public void testExecuteMDMJob() throws Exception {
