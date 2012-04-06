@@ -156,6 +156,7 @@ public class PagingToolBarEx extends PagingToolBar {
                     }
 
                 });
+                item.setId("MenuItem_" + sb.getId()); //$NON-NLS-1$
                 menu.add(item);
             } else if (c instanceof LabelToolItem) {
                 LabelToolItem l = (LabelToolItem) c;
@@ -173,6 +174,7 @@ public class PagingToolBarEx extends PagingToolBar {
                             tempInputEl = this.input;
                         }
                     };
+                    sizeF.setId("BrowseRecords_PageSize"); //$NON-NLS-1$
 
                     sizeF.setWidth(30);
                     sizeF.setValidator(validator);
@@ -229,6 +231,7 @@ public class PagingToolBarEx extends PagingToolBar {
                     }
 
                 });
+                item.setId("MenuItem_" + b.getId()); //$NON-NLS-1$
                 menu.add(item);
             } else if (c instanceof ButtonGroup) {
                 ButtonGroup g = (ButtonGroup) c;
