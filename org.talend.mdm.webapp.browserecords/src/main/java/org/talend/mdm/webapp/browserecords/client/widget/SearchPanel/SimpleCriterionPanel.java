@@ -39,12 +39,12 @@ import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -86,7 +86,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         keyComboBox.setValueField("value"); //$NON-NLS-1$
         keyComboBox.setStore(list);
         keyComboBox.setTriggerAction(TriggerAction.ALL);
-        keyComboBox.setId("SimpleKeyComboBox"); //$NON-NLS-1$
+        keyComboBox.setId("BrowseRecords_SimpleKeyComboBox"); //$NON-NLS-1$
         addKeyComboBoxListener(null);
         add(keyComboBox);
 
@@ -95,9 +95,10 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         operatorComboBox.setValueField("value"); //$NON-NLS-1$
         operatorComboBox.setStore(operatorlist);
         operatorComboBox.setTriggerAction(TriggerAction.ALL);
-        operatorComboBox.setId("SimpleOperatorComboBox"); //$NON-NLS-1$
+        operatorComboBox.setId("BrowseRecords_SimpleOperatorComboBox"); //$NON-NLS-1$
         add(operatorComboBox);
 
+        content.setId("BrowseRecords_ContentField"); //$NON-NLS-1$
         add(content);
 
         if (ancestor != null)
@@ -129,7 +130,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         keyComboBox.setValueField("value"); //$NON-NLS-1$
         keyComboBox.setStore(list);
         keyComboBox.setTriggerAction(TriggerAction.ALL);
-        keyComboBox.setId("SimpleKeyComboBox"); //$NON-NLS-1$
+        keyComboBox.setId("MenuItem_BrowseRecords_SimpleKeyComboBox"); //$NON-NLS-1$
 
         sizeGrid.setWidget(0, 0, keyComboBox);
 
@@ -138,9 +139,10 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         operatorComboBox.setValueField("value"); //$NON-NLS-1$
         operatorComboBox.setStore(operatorlist);
         operatorComboBox.setTriggerAction(TriggerAction.ALL);
-        operatorComboBox.setId("SimpleOperatorComboBox"); //$NON-NLS-1$
+        operatorComboBox.setId("MenuItem_BrowseRecords_SimpleOperatorComboBox"); //$NON-NLS-1$
         sizeGrid.setWidget(1, 0, operatorComboBox);
 
+        content.setId("MenuItem_BrowseRecords_ContentField"); //$NON-NLS-1$
         sizeGrid.setWidget(2, 0, content);
 
         sizeGrid.getElement().getStyle().setMarginLeft(24D, Unit.PX);

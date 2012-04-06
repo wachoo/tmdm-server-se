@@ -280,6 +280,7 @@ public class ItemsToolBar extends ToolBar {
     private void initToolBar() {
         createBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Create()));
         createBtn.setEnabled(false);
+        createBtn.setId("BrowseRecords_Create"); //$NON-NLS-1$
         add(createBtn);
         createBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
@@ -373,6 +374,7 @@ public class ItemsToolBar extends ToolBar {
 
         deleteMenu.setMenu(sub);
         deleteMenu.setEnabled(false);
+        deleteMenu.setId("BrowseRecords_Delete"); //$NON-NLS-1$
         add(deleteMenu);
 
         uploadBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
@@ -418,7 +420,7 @@ public class ItemsToolBar extends ToolBar {
             }
         });
 
-        uploadBtn.setId("uploadMenuInGrid"); //$NON-NLS-1$
+        uploadBtn.setId("BrowseRecords_UploadMenuInGrid"); //$NON-NLS-1$
         uploadBtn.setMenu(uploadMenu);
 
         uploadBtn.setEnabled(false);
@@ -468,7 +470,7 @@ public class ItemsToolBar extends ToolBar {
         entityCombo.setValueField("value");//$NON-NLS-1$
         entityCombo.setForceSelection(true);
         entityCombo.setTriggerAction(TriggerAction.ALL);
-        entityCombo.setId("EntityComboBox");//$NON-NLS-1$
+        entityCombo.setId("BrowseRecords_EntityComboBox");//$NON-NLS-1$
         entityCombo.setStyleAttribute("padding-right", "17px"); //$NON-NLS-1$ //$NON-NLS-2$
 
         entityCombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
@@ -505,6 +507,7 @@ public class ItemsToolBar extends ToolBar {
                 }
             }
         });
+        searchBut.setId("BrowseRecords_Search"); //$NON-NLS-1$
         add(searchBut);
 
         add(new SeparatorToolItem());
@@ -540,6 +543,7 @@ public class ItemsToolBar extends ToolBar {
             }
 
         });
+        advancedBut.setId("BrowseRecords_AdvancedSearch"); //$NON-NLS-1$
         add(advancedBut);
 
         add(new SeparatorToolItem());
@@ -747,6 +751,7 @@ public class ItemsToolBar extends ToolBar {
             }
 
         });
+        managebookBtn.setId("BrowseRecords_ManageBookMark"); //$NON-NLS-1$
         add(managebookBtn);
 
         // add bookmark save button
@@ -761,6 +766,7 @@ public class ItemsToolBar extends ToolBar {
             }
 
         });
+        bookmarkBtn.setId("BrowseRecords_BookMark"); //$NON-NLS-1$
         add(bookmarkBtn);
 
         initAdvancedPanel();

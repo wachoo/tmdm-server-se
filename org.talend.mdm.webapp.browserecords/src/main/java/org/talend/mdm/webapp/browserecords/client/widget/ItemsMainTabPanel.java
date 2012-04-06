@@ -84,6 +84,7 @@ public class ItemsMainTabPanel extends TabPanel {
         TabItem item = new TabItem(title);
         item.setId(id);
         item.setLayout(new FitLayout());
+        panel.setId("BrowseRecords_DetailPanel_" + id); //$NON-NLS-1$
         item.add(panel);
         item.setClosable(true);
         this.add(item);

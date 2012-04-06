@@ -444,7 +444,7 @@ public class ItemDetailToolBar extends ToolBar {
                         itemPanel.getToolBar().setFkToolBar(isFkToolBar);
                         itemPanel.getToolBar().setHierarchyCall(isHierarchyCall);
                         panel.addTabItem(title, itemPanel, ItemsDetailPanel.SINGLETON, title);
-                        ItemsMainTabPanel.getInstance().addMainTabItem(title, panel, title);
+                        ItemsMainTabPanel.getInstance().addMainTabItem(title, panel, itemBean.getConcept());
                     } else {
                         TreeDetailUtil.initItemsDetailPanelByItemPanel(viewBean, itemBean, isFkToolBar, isHierarchyCall);
                     }

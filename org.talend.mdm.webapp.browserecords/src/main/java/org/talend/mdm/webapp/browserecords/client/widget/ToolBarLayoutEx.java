@@ -118,6 +118,7 @@ public class ToolBarLayoutEx extends ToolBarLayout {
                 }
 
             });
+            item.setId("MenuItem_" + sb.getId()); //$NON-NLS-1$
             menu.add(item);
         } else if (c instanceof LabelToolItem) {
             LabelToolItem l = (LabelToolItem) c;
@@ -158,6 +159,7 @@ public class ToolBarLayoutEx extends ToolBarLayout {
 
                 }
             });
+            comboBoxClone.setId("MenuItem_" + cb.getId()); //$NON-NLS-1$
             menu.add(comboBoxClone);
         } else if (c instanceof HorizontalPanel) {
             SimpleCriterionPanel<?> simplePanel = (SimpleCriterionPanel<?>) c;
@@ -188,6 +190,7 @@ public class ToolBarLayoutEx extends ToolBarLayout {
                 }
 
             });
+            item.setId("MenuItem_" + b.getId()); //$NON-NLS-1$
             menu.add(item);
         } else if (c instanceof ButtonGroup) {
             ButtonGroup g = (ButtonGroup) c;
