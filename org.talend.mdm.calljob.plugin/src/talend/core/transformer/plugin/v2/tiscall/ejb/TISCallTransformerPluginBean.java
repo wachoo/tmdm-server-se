@@ -322,8 +322,8 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
                 WSxml port = (WSxml) context.get(PORT);
                 list = port.runJob(args).getItem();
             }
-
-            StringBuffer sb = new StringBuffer();
+            //FIXME use a better way ?
+            StringBuilder sb = new StringBuilder();
             if (list.size() > 0) {
                 sb = sb.append("<results>\n");
                 for (ArrayOfXsdString aList : list) {
@@ -338,7 +338,7 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
                         String str = results.get(j);                       
                         if (str != null) {
                             //remove xml header
-                            str=str.replaceAll("<\\?xml .*\\?>", "");
+                            str=str.replaceFirst("<\\?xml .*\\?>", "");
                             if (hasFields) {
                                 if (fieldsObject.has("p" + j)) {
                                     String columnName = (String) fieldsObject.get("p" + j);
