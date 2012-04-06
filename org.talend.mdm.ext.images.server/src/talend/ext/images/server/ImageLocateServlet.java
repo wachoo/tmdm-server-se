@@ -2,6 +2,7 @@ package talend.ext.images.server;
 
 import java.io.IOException;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -55,10 +56,15 @@ public class ImageLocateServlet extends HttpServlet {
             e.printStackTrace();// FIXME I know sb. hate this
         }
 
-        if (imgURI != null)
-            response.sendRedirect(imgURI);
-        else
+        if (imgURI != null) {
+            // response.sendRedirect(imgURI);
+            if (imgURI != null && imgURI.startsWith("/imageserver"))
+                imgURI = imgURI.substring(imgURI.indexOf("/imageserver") + 12);
+            RequestDispatcher rd = request.getRequestDispatcher(imgURI);
+            rd.forward(request,response);
+        } else {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        }
     }
 
 }
