@@ -62,10 +62,11 @@ class SunOracleStandardPropertiesStrategy implements StandardPropertiesStrategy 
                 }
             }
 
-            // Ensure jobs takes the default JDK implementations
+            // Ensure jobs takes the default Sun JDK implementations
             properties.put("javax.xml.soap.MessageFactory", "com.sun.xml.internal.messaging.saaj.soap.ver1_1.SOAPMessageFactory1_1Impl");
             properties.put("javax.xml.soap.MetaFactory", "com.sun.xml.internal.messaging.saaj.soap.SAAJMetaFactoryImpl");
             properties.put("javax.xml.soap.SOAPFactory", "");
+            properties.put("javax.xml.soap.SOAPConnectionFactory", "com.sun.xml.internal.messaging.saaj.client.p2p.HttpSOAPConnectionFactory");
 
             bufferedReader.close();
 
