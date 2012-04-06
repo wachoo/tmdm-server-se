@@ -18,37 +18,33 @@ public class Image extends ItemBaseModel implements IsSerializable{
     
     private static final long serialVersionUID = 1L;
     
-    private String catalog;
-    
     private String name;
     
-    private String path;    
+    private String uri;
     
-    public String getCatalog() {
-        return catalog;
-    }
-    
-    public void setCatalog(String catalog) {
-        this.catalog = catalog;
-    }
-
+    private String redirectUri;
 
     public String getName() {
         return name;
     }
-
     
     public void setName(String name) {
         this.name = name;
     }
-
     
-    public String getPath() {
-        return path;
+    public String getUri() {
+        return uri;
     }
-
     
-    public void setPath(String path) {
-        this.path = path;
-    }    
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+    
+    public String getRedirectUri() {
+        return redirectUri;
+    }
+    
+    public void setRedirectUri(String redirectUri) {
+        this.redirectUri = redirectUri;
+    }
 }

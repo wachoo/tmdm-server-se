@@ -49,7 +49,6 @@ import com.extjs.gxt.ui.client.widget.ListView;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
@@ -66,6 +65,8 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 public class PictureSelector extends ContentPanel {
 
     private static final String CONTEXT_URL = GWT.getModuleBaseURL().replace(GWT.getModuleName() + "/", ""); //$NON-NLS-1$ //$NON-NLS-2$
+    
+    private ListLoader<ListLoadResult<BeanModel>> imageloader;
 
     final private PagingToolBarEx pagingBar = new PagingToolBarEx(8);
 
@@ -75,7 +76,7 @@ public class PictureSelector extends ContentPanel {
 
     private List<org.talend.mdm.webapp.base.client.model.Image> all;
 
-    public PictureSelector(final Window parentWindow, final Field targetField) {
+    public PictureSelector(final Window parentWindow, final PictureField targetField) {
 
         RpcProxy<BasePagingLoadResult<org.talend.mdm.webapp.base.client.model.Image>> proxy = new RpcProxy<BasePagingLoadResult<org.talend.mdm.webapp.base.client.model.Image>>() {
 
@@ -135,7 +136,7 @@ public class PictureSelector extends ContentPanel {
             protected ItemBaseModel prepareData(ItemBaseModel model) {
                 org.talend.mdm.webapp.base.client.model.Image image = (org.talend.mdm.webapp.base.client.model.Image) model;
                 model.set("shortName", Format.ellipse(image.getName(), 15)); //$NON-NLS-1$
-                model.set("url", CONTEXT_URL + image.getPath() + "?width=80&height=60"); //$NON-NLS-1$ //$NON-NLS-2$
+                model.set("url", CONTEXT_URL + image.getRedirectUri().replaceFirst("/", "") + "&width=80&height=60"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$                
                 return model;
             }
         };
@@ -152,7 +153,7 @@ public class PictureSelector extends ContentPanel {
             public void handleEvent(ListViewEvent<ModelData> be) {
                 org.talend.mdm.webapp.base.client.model.Image image = (org.talend.mdm.webapp.base.client.model.Image) be
                         .getModel();
-                targetField.setValue(image.getPath().replace(ImageUtil.IMAGE_PATH, "")); //$NON-NLS-1$
+                targetField.setValue(image.getRedirectUri().replace(ImageUtil.IMAGE_PATH, "")); //$NON-NLS-1$
                 parentWindow.hide();
             }
         });
@@ -201,9 +202,13 @@ public class PictureSelector extends ContentPanel {
             }
         };
 
-        ListLoader<ListLoadResult<BeanModel>> imageloader = new BaseListLoader<ListLoadResult<BeanModel>>(imageProxy,
+        imageloader = new BaseListLoader<ListLoadResult<BeanModel>>(imageProxy,
                 new BeanModelReader());
 
+        imageloader.load();
+    }
+    
+    public void refresh() {
         imageloader.load();
     }
 

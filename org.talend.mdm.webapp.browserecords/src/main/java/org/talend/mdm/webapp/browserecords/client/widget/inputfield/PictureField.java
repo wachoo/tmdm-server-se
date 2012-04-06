@@ -25,6 +25,7 @@ import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.FormEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.ComponentHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -43,6 +44,8 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.LoadEvent;
+import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -52,9 +55,7 @@ import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
-import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Image;
 
@@ -124,7 +125,6 @@ public class PictureField extends TextField<String> {
         setFireChangeEventOnSetValue(true);
         regJs(delHandler);
         regJs(addHandler);
-
         dialog.setHeading(MessagesFactory.getMessages().confirm_title());
         dialog.setModal(true);
         dialog.setBlinkModal(true);
@@ -140,6 +140,22 @@ public class PictureField extends TextField<String> {
                 return PictureField.this.value;
             }
         };
+        
+        image.addLoadHandler(new LoadHandler(){
+            public void onLoad(LoadEvent event){
+                com.google.gwt.dom.client.Element element = event.getRelativeElement();
+                if (element == image.getElement()){
+                    int width = image.getWidth();
+                    int height = image.getHeight();
+                    if (width > 0 && width > height) {
+                        if (width > 150)
+                            image.setPixelSize(150, (int) (height * 150 / width));
+                    } else if (height > 150) {
+                        image.setPixelSize((int) (width * 150 / height), 150);
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -153,6 +169,7 @@ public class PictureField extends TextField<String> {
         wrap.dom.appendChild(addHandler);
 
         setElement(wrap.dom, target, index);
+        ComponentHelper.doAttach(image);
         super.onRender(target, index);
     }
 
@@ -187,20 +204,6 @@ public class PictureField extends TextField<String> {
         } else {
             image.setUrl(DefaultImage);
         }
-        DeferredCommand.addCommand(new Command() {
-
-            public void execute() {
-                // Shrink the image if too big, keep aspect ratio
-                int width = image.getWidth();
-                int height = image.getHeight();
-                if (width > 0 && width > height) {
-                    if (width > 150)
-                        image.setPixelSize(150, (int) (height * 150 / width));
-                } else if (height > 150) {
-                    image.setPixelSize((int) (width * 150 / height), 150);
-                }
-            }
-        });
         if (isFireChangeEventOnSetValue()) {
             fireChangeEvent(oldValue, value);
         }
@@ -222,6 +225,8 @@ public class PictureField extends TextField<String> {
         private FormPanel editForm = new FormPanel();
 
         private FileUploadField file = new FileUploadField();
+        
+        PictureSelector pictureSelector = new PictureSelector(EditWindow.this,PictureField.this);   
 
         private SelectionListener<ButtonEvent> listener = new SelectionListener<ButtonEvent>() {
 
@@ -332,7 +337,7 @@ public class PictureField extends TextField<String> {
           
             TabItem remoteTabItem = new TabItem(MessagesFactory.getMessages().picture_upload_remote_title()); 
             remoteTabItem.setLayout(new FitLayout());            
-            remoteTabItem.add(new PictureSelector(EditWindow.this,PictureField.this)); 
+            remoteTabItem.add(pictureSelector); 
             uploadTabPanel.add(remoteTabItem);
             add(uploadTabPanel);
             this.setResizable(false);
@@ -341,6 +346,7 @@ public class PictureField extends TextField<String> {
         @Override
         protected void onShow() {
             super.onShow();
+            pictureSelector.refresh();
             editForm.reset();
         }
     }

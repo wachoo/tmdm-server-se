@@ -49,7 +49,7 @@ public class ImageUploadServlet extends HttpServlet {
 
 	private String sourceFileName = "";
 	private String sourceFileType = "";
-	private String targetUri = "upload";
+	private String targetUri;
 	private String targetCatalogName = "";
 	private String targetFileName = "";
     private String targetFileShortName = "";
@@ -85,7 +85,7 @@ public class ImageUploadServlet extends HttpServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		
-		targetUri="upload";//reset
+	    targetUri = "/locator?imgId="; //$NON-NLS-1$
         String change = request.getParameter("changeFileName");
         if (change != null) {
             changeFileName = Boolean.valueOf(change);
@@ -238,8 +238,7 @@ public class ImageUploadServlet extends HttpServlet {
                 targetFileName = (targetFileShortName + "." + sourceFileType);
 				upath.append(File.separator).append(targetFileName);
 
-				if(!targetCatalogName.equals("/"))targetUri += ("/"+targetCatalogName);
-                targetUri += ("/" + targetFileShortName + "." + sourceFileType);
+				targetUri += targetFileName;
 
 				File uploadedFile = new File(upath.toString());
 				item.write(uploadedFile);

@@ -44,8 +44,8 @@ public class ImageUtil {
             Image image = new Image();
             Element node = (Element)result.item(i);             
             image.setName(getElementTextValue(node,"name")); //$NON-NLS-1$
-            image.setPath(getElementTextValue(node,"uri")); //$NON-NLS-1$
-            image.setCatalog(getCatalogByPath(image.getPath()));
+            image.setUri(getElementTextValue(node,"uri")); //$NON-NLS-1$
+            image.setRedirectUri(getElementTextValue(node,"redirectUri")); //$NON-NLS-1$
             images.add(image);                
         }
         return images;
@@ -54,12 +54,4 @@ public class ImageUtil {
     private static String getElementTextValue(Element parent, String elementTag) {
         return parent.getElementsByTagName(elementTag).item(0).getFirstChild().getNodeValue();
     }
-    
-    private static String getCatalogByPath(String path){
-        String catalog = path.replace("/" + UPLOAD_PATH, ""); //$NON-NLS-1$ //$NON-NLS-2$
-        catalog = catalog.substring(0,catalog.lastIndexOf('/'));
-        return catalog;
-    }
-    
-
 }
