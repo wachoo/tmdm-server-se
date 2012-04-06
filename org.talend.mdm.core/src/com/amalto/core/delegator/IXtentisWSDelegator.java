@@ -1551,10 +1551,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             String savedConceptName = saver.getSavedConceptName();
             return new WSItemPK(dataClusterPK, savedConceptName, savedId);
         } catch (Exception e) {
-            if (LOG.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOG.debug(err, e);
-            }
+            LOG.error("Error during save.", e);
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
@@ -1586,10 +1583,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
             return new WSItemPKArray(pks.toArray(new WSItemPK[pks.size()]));
         } catch (Exception e) {
-            if (LOG.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOG.debug(err, e);
-            }
+            LOG.error("Error during save.", e);
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
@@ -1635,10 +1629,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
             return new WSItemPKArray(pks.toArray(new WSItemPK[pks.size()]));
         } catch (Exception e) {
-            if (LOG.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOG.debug(err, e);
-            }
+            LOG.error("Error during save.", e);
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
@@ -1681,10 +1672,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             String conceptName = saver.getSavedConceptName();
             return new WSItemPK(dataClusterPK, conceptName, savedId);
         } catch (Exception e) {
-            if (LOG.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOG.debug(err, e);
-            }
+            LOG.error("Error during save.", e);
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
@@ -1729,10 +1717,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             String conceptName = saver.getSavedConceptName();
             return new WSItemPK(dataClusterPK, conceptName, savedId);
         } catch (Exception e) {
-            if (LOG.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOG.debug(err, e);
-            }
+            LOG.error("Error during save.", e);
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }

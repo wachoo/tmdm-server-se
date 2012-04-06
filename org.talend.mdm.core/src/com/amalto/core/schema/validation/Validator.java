@@ -11,6 +11,7 @@
 
 package com.amalto.core.schema.validation;
 
+import com.amalto.core.util.ValidateException;
 import org.w3c.dom.Element;
 
 /**
@@ -29,6 +30,6 @@ public interface Validator {
 
     Validator NO_OP_VALIDATOR = new NoOpValidator();
 
-    void validate(Element element);
+    void validate(Element element) throws ValidateException;
 
 }

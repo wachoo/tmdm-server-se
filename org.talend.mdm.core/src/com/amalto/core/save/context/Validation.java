@@ -15,6 +15,7 @@ import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.schema.validation.Validator;
 import com.amalto.core.schema.validation.XmlSchemaValidator;
+import com.amalto.core.util.ValidateException;
 import org.w3c.dom.Element;
 
 import java.lang.reflect.Constructor;
@@ -56,8 +57,10 @@ class Validation implements DocumentSaver {
             validator.validate(element);
 
             next.save(session, context);
+        } catch (ValidateException e) {
+            throw e;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to validate document", e);
+            throw new RuntimeException(e);
         }
     }
 

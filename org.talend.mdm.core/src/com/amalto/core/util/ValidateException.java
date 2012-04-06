@@ -13,7 +13,7 @@
 package com.amalto.core.util;
 
 
-public class ValidateException extends Exception {
+public class ValidateException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 

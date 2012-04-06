@@ -11,9 +11,15 @@
 
 package com.amalto.core.save;
 
+import org.apache.commons.lang.StringUtils;
+
 public class SaveException extends RuntimeException {
 
     private final String beforeSavingMessage;
+
+    public SaveException(Throwable cause) {
+        this(StringUtils.EMPTY, cause);
+    }
 
     public SaveException(String beforeSavingMessage, Throwable cause) {
         super("Exception occurred during save: " + beforeSavingMessage, cause);

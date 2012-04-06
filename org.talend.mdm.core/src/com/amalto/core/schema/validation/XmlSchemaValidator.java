@@ -11,7 +11,10 @@
 
 package com.amalto.core.schema.validation;
 
+import com.amalto.core.util.SAXErrorHandler;
+import com.amalto.core.util.ValidateException;
 import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
 import javax.xml.transform.dom.DOMSource;
@@ -19,14 +22,13 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
 public class XmlSchemaValidator implements Validator {
-    
+
     private static final SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-    
+
     private static final Map<String, Schema> schemaCache = new HashMap<String, Schema>();
 
     private final InputStream schemaAsStream;
@@ -41,20 +43,34 @@ public class XmlSchemaValidator implements Validator {
         this.next = next;
     }
 
-    public void validate(Element element) {
+    public void validate(Element element) throws ValidateException {
+        Schema parsedSchema;
         try {
-            Schema parsedSchema = schemaCache.get(dataModelName);
+            parsedSchema = schemaCache.get(dataModelName);
             if (parsedSchema == null) {
                 parsedSchema = schemaFactory.newSchema(new StreamSource(schemaAsStream));
                 schemaCache.put(dataModelName, parsedSchema);
             }
-
-            javax.xml.validation.Validator validator = parsedSchema.newValidator();
-            validator.validate(new DOMSource(element));
-
-            next.validate(element);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (SAXException e) {
+            throw new RuntimeException("Exception occurred during XML schema parsing.", e);
         }
+
+        javax.xml.validation.Validator validator = parsedSchema.newValidator();
+        SAXErrorHandler errorHandler = new SAXErrorHandler();
+        try {
+            validator.setErrorHandler(errorHandler);
+            validator.validate(new DOMSource(element));
+        } catch (Exception e) {
+            // All errors are expected to be handled by the error handler.
+            throw new RuntimeException("Unexpected validation issue.", e);
+        }
+
+        String errors = errorHandler.getErrors();
+        if (!errors.isEmpty()) {
+            String err = "The item " + element.getLocalName() + " did not validate against the model: \n" + errors; //$NON-NLS-1$ //$NON-NLS-2$
+            throw new ValidateException(err);
+        }
+
+        next.validate(element);
     }
 }

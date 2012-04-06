@@ -65,6 +65,24 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("Chicago", evaluate(committedElement, "/Agency/City"));
     }
 
+    public void testCreateFailure() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+
+        SaverSource source = new TestSaverSource(repository, false, "");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test10.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, true);
+        DocumentSaver saver = context.createSaver();
+        try {
+            saver.save(session, context);
+            fail();
+        } catch (SaveException e) {
+            assertTrue(e.getBeforeSavingMessage().isEmpty());
+        }
+    }
+
     public void testUpdate() throws Exception {
         // TODO Test for modification of id (this test modifies id but this is intentional).
         final MetadataRepository repository = new MetadataRepository();
@@ -523,8 +541,8 @@ public class DocumentSaveTest extends TestCase {
         }
 
         public OutputReport invokeBeforeSaving(DocumentSaverContext context, MutableDocument updateReportDocument) {
-            // Nothing to do
-            return null;
+            String message = "<report><message type=\"info\">change the value successfully!</message></report>";
+            return new OutputReport(message, null);
         }
 
         public Set<String> getCurrentUserRoles() {

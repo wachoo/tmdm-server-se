@@ -14,6 +14,7 @@ package com.amalto.core.save.context;
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
+import com.amalto.core.util.ValidateException;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
@@ -58,6 +59,9 @@ class Init implements DocumentSaver {
         // Continue save
         try {
             next.save(session, context);
+        } catch (ValidateException e) {
+            // In case of validation issue, don't include a potential before saving message in exception.
+            throw new com.amalto.core.save.SaveException(e);
         } catch (Exception e) {
             throw new com.amalto.core.save.SaveException(getBeforeSavingMessage(), e);
         }

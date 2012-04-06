@@ -68,16 +68,27 @@ class ID implements DocumentSaver {
             if (EUUIDCustomType.UUID.getName().equalsIgnoreCase(keyFieldTypeName)) {
                 if (userAccessor.exist()) {
                     generatedIdValue = userAccessor.get();
-                } else {
+                }
+                if (generatedIdValue == null || generatedIdValue.isEmpty()) { // Web UI generates empty elements!
                     generatedIdValue = java.util.UUID.randomUUID().toString();
+                }
+                if (userAccessor.exist()) {
+                    userAccessor.set(generatedIdValue);
+                } else {
+                    userAccessor.createAndSet(generatedIdValue);
                 }
                 currentIdValue = generatedIdValue;
             } else if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(keyFieldTypeName)) {
                 if (userAccessor.exist()) {
                     generatedIdValue = userAccessor.get();
-                } else {
+                }
+                if (generatedIdValue == null || generatedIdValue.isEmpty()) { // Web UI generates empty elements!
                     generatedIdValue = String.valueOf(AutoIncrementGenerator.generateNum(universe, dataCluster, typeName + "." + keyField.getName().replaceAll("/", ".")));   //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    hasMetAutoIncrement = true;
+                }
+                if (userAccessor.exist()) {
+                    userAccessor.set(generatedIdValue);
+                } else {
+                    userAccessor.createAndSet(generatedIdValue);
                 }
                 currentIdValue = generatedIdValue;
             } else {
@@ -88,9 +99,6 @@ class ID implements DocumentSaver {
                 currentIdValue = userAccessor.get();
             }
 
-            if (generatedIdValue != null) {
-                userAccessor.createAndSet(generatedIdValue);
-            }
             ids.add(currentIdValue);
         }
 
