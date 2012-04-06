@@ -1550,6 +1550,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     public ItemResult saveItem(String concept, String ids, String xml, boolean isCreate, String language) throws ServiceException {
         Locale locale = new Locale(language);
 
+        boolean hasBeforeSavingProcess = Util.isTransformerExist("beforeSaving_" + concept);
+
         try {
             // TODO (1) if update, check the item is modified by others?
             // TODO (2) if create, check if the item has not been created by someone else?
@@ -1559,16 +1561,19 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             int status = ItemResult.SUCCESS;
             WSItemPK wsi = CommonUtil.getPort().putItemWithReport(wsPutItemWithReport);
             String message = wsPutItemWithReport.getSource(); // putItemWithReport is expected to put beforeSavingMessage in getSource().
-            if (message == null || message.length() == 0) {
-                message = MESSAGES.getMessage(locale, "save_process_validation_success"); //$NON-NLS-1$
+
+            if (hasBeforeSavingProcess) {
+                // No message from beforeSaving process,
+                if (message == null || message.length() == 0) {
+                    message = MESSAGES.getMessage(locale, "save_process_validation_success"); //$NON-NLS-1$
+                }
             } else {
                 message = MESSAGES.getMessage(locale, "save_record_success"); //$NON-NLS-1$
             }
             if (wsi == null) {
                 return new ItemResult(status, message, ids);
             } else {
-                WSItem wsItem = CommonUtil.getPort().getItem(
-                        new WSGetItem(new WSItemPK(new WSDataClusterPK(getCurrentDataCluster()), concept, wsi.getIds())));
+                WSItem wsItem = CommonUtil.getPort().getItem(new WSGetItem(new WSItemPK(new WSDataClusterPK(getCurrentDataCluster()), concept, wsi.getIds())));
                 return new ItemResult(status, message, Util.joinStrings(wsi.getIds(), "."), wsItem.getInsertionTime()); //$NON-NLS-1$
             }
         } catch (ServiceException e) {
@@ -1582,7 +1587,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             } else if (Util.causeIs(e, SaveException.class)) {
                 SaveException cause = Util.cause(e, SaveException.class);
                 String beforeSavingMessage = cause.getBeforeSavingMessage();
-                if (beforeSavingMessage != null && !beforeSavingMessage.isEmpty()) {
+                if (cause.getCause() instanceof ValidateException) {
+                    err = MESSAGES.getMessage(locale, "save_validationrule_fail", concept + "." + ids, //$NON-NLS-1$//$NON-NLS-2$
+                                            Util.getExceptionMessage(cause.getCause().getLocalizedMessage(), language));
+                } else if (beforeSavingMessage != null && !beforeSavingMessage.isEmpty()) {
                     // Return before saving process error message as exception for web ui.
                     throw new ServiceException(beforeSavingMessage);
                 } else {
@@ -1590,9 +1598,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
             } else if (Util.causeIs(e, CVCException.class)) {
                 err = MESSAGES.getMessage(locale, "save_fail_cvc_exception", concept); //$NON-NLS-1$
-            } else if (Util.causeIs(e, ValidateException.class)) {
-                err = MESSAGES.getMessage(locale, "save_validationrule_fail", concept + "." + ids, //$NON-NLS-1$//$NON-NLS-2$
-                        Util.getExceptionMessage(e.getLocalizedMessage(), language));
             } else if (Util.causeIs(e, JobNotFoundException.class)) {
                 err = MESSAGES.getMessage(locale, "save_fail", concept, //$NON-NLS-1$
                         e.getLocalizedMessage().substring(0, e.getLocalizedMessage().indexOf(";"))); //$NON-NLS-1$
