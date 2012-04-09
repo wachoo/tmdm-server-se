@@ -2012,7 +2012,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             if (null != xmlStringFromProcess && xmlStringFromProcess.length() != 0) {
                 Document wsItemDoc = Util.parse(wsItem.getContent());
-                Document jobDoc = Util.parse(xmlStringFromProcess);
+                Document jobDoc = null;
+                try{
+                    jobDoc=Util.parse(xmlStringFromProcess);
+                }catch(Exception e){
+                    //xml is not good, don't continue the following
+                    return;
+                }
 
                 ArrayList<String> lookupFieldsForWSItemDoc = new ArrayList<String>();
                 XSAnnotation xsa = elementDecl.getAnnotation();
