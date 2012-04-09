@@ -56,11 +56,20 @@ public class BrowseRecords implements EntryPoint {
 
     private native void regItemDetails()/*-{
         $wnd.amalto.itemsbrowser.ItemsBrowser.editItemDetails = function(fromWhichApp, ids, entity, callback){
-        var idstr;
-        if(ids.length == 1){
-        idstr = ids[0];
-        }
-        @org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil::initItemsDetailPanelById(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;Ljava/lang/Boolean;)(fromWhichApp, idstr, entity, new Boolean(false), new Boolean(false));
+            var checkArgs = true;
+            checkArgs = checkArgs && (arguments.length === 4);
+            checkArgs = checkArgs && (typeof fromWhichApp === "string");
+            checkArgs = checkArgs && (ids.constructor == Array);
+            checkArgs = checkArgs && (typeof entity === "string");
+            if (!checkArgs){
+                throw {message: "argument format error!"};
+            }
+            
+            var idstr;
+            if(ids.length == 1){
+                idstr = ids[0];
+            }
+            @org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil::initItemsDetailPanelById(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;Ljava/lang/Boolean;)(fromWhichApp, idstr, entity, new Boolean(false), new Boolean(false));
         };
     }-*/;
 
