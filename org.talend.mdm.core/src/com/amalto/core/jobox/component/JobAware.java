@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -122,6 +123,7 @@ public class JobAware {
      */
     public void guessMainClassFromComandLine(File entity, JobInfo jobInfo) {
         boolean found = false;
+        InputStream in=null;
         try {
             List<File> checkList = new ArrayList<File>();
             String cpStr = "classpath.jar";//$NON-NLS-1$   
@@ -130,7 +132,8 @@ public class JobAware {
             String comandFileName = jobInfo.getName() + "_run.bat";//$NON-NLS-1$   
             JoboxUtil.findFirstFile(null, entity, comandFileName, checkList); //$NON-NLS-1$
             if (checkList.size() > 0) {
-                String content = IOUtils.toString(new FileInputStream(checkList.get(0)));
+                in=new FileInputStream(checkList.get(0));
+                String content = IOUtils.toString(in);
                 int start = content.indexOf(cpStr + ';');
                 int end = content.indexOf(contextStr);
                 if (start != -1 && end != -1 && end > start) {
@@ -143,8 +146,9 @@ public class JobAware {
             if (!found) {
                 comandFileName = jobInfo.getName() + "_run.sh";//$NON-NLS-1$   
                 JoboxUtil.findFirstFile(null, entity, comandFileName, checkList); //$NON-NLS-1$
-                if (checkList.size() > 0) {
-                    String content = IOUtils.toString(new FileInputStream(checkList.get(0)));
+                if (checkList.size() > 0) {  
+                    in=new FileInputStream(checkList.get(0));
+                    String content = IOUtils.toString(in);
                     int start = content.indexOf(cpStr + ':');
                     int end = content.indexOf(contextStr);
                     if (start != -1 && end != -1 && end > start) {
@@ -156,6 +160,10 @@ public class JobAware {
             }
         } catch (Exception e) {
             LOGGER.error(e.getLocalizedMessage(), e);
+        }finally{
+            if(in!=null){
+                IOUtils.closeQuietly(in);
+            }
         }
     }
 
