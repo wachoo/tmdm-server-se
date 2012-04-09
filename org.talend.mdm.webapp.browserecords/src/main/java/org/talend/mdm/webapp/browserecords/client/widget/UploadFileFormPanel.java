@@ -326,19 +326,30 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         this.addListener(Events.Submit, this);
     }
 
-    public void handleEvent(FormEvent be) {
+    public void handleEvent(FormEvent be) {        
         String result = be.getResultHtml().replace("pre>", "f>"); //$NON-NLS-1$//$NON-NLS-2$
+
         waitBar.close();
         if (result.equals("<f>true</f>")) { //$NON-NLS-1$
             window.hide();
             MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().import_success_label(), null);
             ItemsListPanel.getInstance().refreshGrid();
         } else {
-            MessageBox.alert(MessagesFactory.getMessages().error_title(), MultilanguageMessageParser.pickOutISOMessage(result), null);
+            MessageBox.alert(MessagesFactory.getMessages().error_title(), MultilanguageMessageParser.pickOutISOMessage(extractErrorMessage(result)), null);
         }
     }
 
     public HiddenField<String> getNameField() {
         return nameField;
+    }
+    
+    public static String extractErrorMessage(String errMsg) {
+        String saveExceptionString = "com.amalto.core.save.SaveException: Exception occurred during save: "; //$NON-NLS-1$
+        int saveExceptionIndex = errMsg.indexOf(saveExceptionString);
+        if (saveExceptionIndex > -1) { 
+            errMsg = errMsg.substring(saveExceptionIndex + saveExceptionString.length());
+        }
+        
+        return errMsg;
     }
 }
