@@ -395,72 +395,18 @@ public class UploadData extends HttpServlet {
                     new WSDataModelPK(model), false), "genericUI", true); //$NON-NLS-1$
             CommonUtil.getPort().putItemWithReport(wsPutItemWithReport);
 
-
-            if (com.amalto.webapp.core.util.Util.isTransformerExist("beforeSaving_" + concept)) { //$NON-NLS-1$
-                UploadData.checkBeforeSavingErrorMessages(wsPutItemWithReport.getSource(), language);
-            }
-
         } catch (RemoteException e) {
-            String err = MESSAGES.getMessage("save_fail", ""); //$NON-NLS-1$ //$NON-NLS-2$ 
-            if (e.getMessage().indexOf("ERROR_3:") == 0) { //$NON-NLS-1$
+            String err = MESSAGES.getMessage("save_fail", e.getMessage()); //$NON-NLS-1$ 
+            if (e.getMessage() != null && e.getMessage().length() > 0) {
                 err = e.getMessage();
-            }
-
-            if (e.getMessage().indexOf("<msg/>") > -1) //$NON-NLS-1$
-                err = MESSAGES.getMessage("save_validationrule_fail", "", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
-            else if (e.getMessage().indexOf("<msg>") > -1) {//$NON-NLS-1$)
-                if (e.getMessage().indexOf(language.toUpperCase() + ":") == -1) //$NON-NLS-1$
-                    err = MESSAGES
-                            .getMessage(
-                                    "save_validationrule_fail", "", e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$ 
-                else
-                    err = e.getMessage();
             }
 
             throw new ServletException(err);
         } catch (Exception e) {
-            throw new ServletException(e.getClass().getName() + ": " + e.getLocalizedMessage()); //$NON-NLS-1$
+            throw new ServletException(e.getLocalizedMessage());
         }
     }
 
-    /**
-     * If there is a beforeSaving error message, then throw an Exception with the message
-     * contained in the error.
-     * 
-     * @param wsPutItemWithReport
-     * @param language
-     * @throws Exception
-     */
-    public static void checkBeforeSavingErrorMessages(String outputErrorMessage, String language) throws Exception {
-        String message = null;
-        String errorCode = null;
-        Locale locale = new Locale(language);
-        if (outputErrorMessage != null) {
-            org.w3c.dom.Document doc = com.amalto.webapp.core.util.Util.parse(outputErrorMessage);
-            String xpath = "//report/message"; //$NON-NLS-1$
-            org.w3c.dom.NodeList checkList = com.amalto.webapp.core.util.Util.getNodeList(doc, xpath);
-            org.w3c.dom.Node errorNode = null;
-            if (checkList != null && checkList.getLength() > 0)
-                errorNode = checkList.item(0);
-            if (errorNode != null && errorNode instanceof org.w3c.dom.Element) {
-                org.w3c.dom.Element errorElement = (org.w3c.dom.Element) errorNode;
-                errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
-                org.w3c.dom.Node child = errorElement.getFirstChild();
-                if (child instanceof org.w3c.dom.Text) {
-                    message = child.getTextContent();
-                }
-            }
-        }
-
-        if (!"info".equals(errorCode)) { //$NON-NLS-1$
-            // Anything but 0 is unsuccessful
-            if (message == null || message.length() == 0)
-                message = MESSAGES.getMessage(locale, "save_process_validation_failure"); //$NON-NLS-1$
-            throw new ServiceException(message);
-        }
-    }
-    
-    
     /*
      * Returns a string corresponding to the double value given in parameter Exponent is removed and "0" are added at
      * the end of the string if necessary This method is useful when you import long itemid that you don't want to see
