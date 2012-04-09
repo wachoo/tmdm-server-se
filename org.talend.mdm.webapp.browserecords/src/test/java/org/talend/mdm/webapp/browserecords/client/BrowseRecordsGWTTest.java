@@ -17,9 +17,16 @@ import com.google.gwt.junit.client.GWTTestCase;
 @SuppressWarnings("nls")
 public class BrowseRecordsGWTTest extends GWTTestCase {
 
+    protected BrowseRecords browseRecords;
+
+    @Override
+    protected void gwtSetUp() throws Exception {
+        browseRecords = new BrowseRecords();
+    }
+
     public void testOnModuleLoad() {
         // test the entry method without any exception
-        new BrowseRecords().onModuleLoad();
+        browseRecords.onModuleLoad();
     }
 
     public void testGetSessionNotNull() {
