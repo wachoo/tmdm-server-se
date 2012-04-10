@@ -51,7 +51,7 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -155,8 +155,8 @@ public class TreeDetail extends ContentPanel {
     public TreeDetail(ItemsDetailPanel itemsDetailPanel) {
         this.setHeaderVisible(false);
         // this.setAutoWidth(true);
-        this.setLayout(new FitLayout());
-        this.setScrollMode(Scroll.NONE);
+        this.setLayout(new FlowLayout());
+        this.setScrollMode(Scroll.AUTO);
         this.setBorders(false);
         this.setBodyBorder(false);
         this.itemsDetailPanel = itemsDetailPanel;
@@ -479,7 +479,7 @@ public class TreeDetail extends ContentPanel {
             add(tree);
             addTreeListener(tree);
         }
-        this.layout();
+        this.layout(true);
         String foreignKeyDeleteMessage = rootModel.get("foreignKeyDeleteMessage"); //$NON-NLS-1$
         if (foreignKeyDeleteMessage != null && foreignKeyDeleteMessage.trim().length() > 0)
             MessageBox.alert(MessagesFactory.getMessages().warning_title(), foreignKeyDeleteMessage, null).getDialog()
