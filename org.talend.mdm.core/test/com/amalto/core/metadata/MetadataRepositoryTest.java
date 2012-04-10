@@ -87,4 +87,12 @@ public class MetadataRepositoryTest extends TestCase {
         // repository.accept(visitor);
     }
 
+    public void test9() {
+        MetadataRepository repository = new MetadataRepository();
+
+        InputStream stream = getClass().getResourceAsStream("schema9.xsd");
+        repository.load(stream);
+        // repository.accept(visitor);
+    }
+
 }

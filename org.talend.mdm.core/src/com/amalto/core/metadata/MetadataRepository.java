@@ -38,8 +38,6 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
 
     private final Stack<Set<String>> typeMetadataKeyStack = new Stack<Set<String>>();
 
-    private final Set<XmlSchemaComplexType> processedTypes = new HashSet<XmlSchemaComplexType>();
-
     private final Stack<ComplexTypeMetadata> currentTypeStack = new Stack<ComplexTypeMetadata>();
 
     private final Map<String, ComplexTypeMetadata> nonInstantiableTypes = new HashMap<String, ComplexTypeMetadata>();
@@ -124,9 +122,6 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
             // At the end of data model parsing, we expect all entity types to be processed.
             throw new IllegalStateException(currentTypeStack.size() + " types have not been correctly parsed.");
         }
-
-        // No need to keep references to processed XML schema types.
-        processedTypes.clear();
     }
 
     public void visitSimpleType(XmlSchemaSimpleType type) {
@@ -243,12 +238,6 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
     }
 
     public void visitComplexType(XmlSchemaComplexType type) {
-        // Minor optimization: don't visit a complex type more than once.
-        if (processedTypes.contains(type)) {
-            return;
-        }
-        processedTypes.add(type);
-
         String typeName = type.getName();
         boolean isNonInstantiableType = currentTypeStack.isEmpty();
         if (isNonInstantiableType) {
