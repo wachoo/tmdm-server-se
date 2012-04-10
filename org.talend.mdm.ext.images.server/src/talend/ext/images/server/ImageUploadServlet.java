@@ -55,6 +55,8 @@ public class ImageUploadServlet extends HttpServlet {
     private String targetFileShortName = "";
 
     private boolean changeFileName = true;
+    
+    private boolean deleteFile;
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 
@@ -89,9 +91,19 @@ public class ImageUploadServlet extends HttpServlet {
         String change = request.getParameter("changeFileName");
         if (change != null) {
             changeFileName = Boolean.valueOf(change);
+        }else{
+            changeFileName=false;
         }
         logger.debug("changeFileName: " + changeFileName);
 
+        change = request.getParameter("deleteFile");
+        if (change != null) {
+            deleteFile = Boolean.valueOf(change);
+        }else{
+            deleteFile=false;
+        }
+        logger.debug("deleteFile: " + deleteFile);
+        
 		String result=onUpload(request, response);
 		
 		response.setContentType("text/html");
@@ -162,7 +174,10 @@ public class ImageUploadServlet extends HttpServlet {
 						if ( rtnStatus == 1) {
 							logger.info(sourceFileName + " has been uploaded successfully!");
 							return buildUploadResult(true,targetUri);
-						}else if( rtnStatus == -1){
+						}else if ( rtnStatus == 2) {
+                            logger.info(sourceFileName + " has been deleted successfully!");
+                            return buildUploadResult(true,targetUri);
+                        }else if( rtnStatus == -1){
 							String msg="Unavailable file type! ";
 							logger.error(msg);
 							return buildUploadResult(false,msg);
@@ -226,21 +241,29 @@ public class ImageUploadServlet extends HttpServlet {
 			if (!okFileTypes.contains(this.sourceFileType.toLowerCase())) {
 				return -1;
 			}
+            StringBuffer upath = new StringBuffer();
+            // generate catalogName
+            if (StringUtils.isEmpty(targetCatalogName))targetCatalogName = generateCatalogName();
 
+            upath.append(uploadPath);
+            if(!targetCatalogName.equals("/"))upath.append(File.separator).append(targetCatalogName);
+            locateCatalog(upath);
+            targetFileName = (targetFileShortName + "." + sourceFileType);
+            upath.append(File.separator).append(targetFileName);
+
+            targetUri += targetFileName;
+
+            File uploadedFile = new File(upath.toString());			
+			if(deleteFile){
+			    uploadedFile.delete();
+			    //remove the file in the db
+			    if(inBakInDB){
+    			    DBDelegate dbDelegate=(DBDelegate) ReflectionUtil.newInstance(dbDelegateClass,new Object[0]);
+    			    dbDelegate.deleteResource(new ResourcePK(targetCatalogName,targetFileName));
+			    }
+			    return 2;
+			}
 			if (writeToFile) {
-				StringBuffer upath = new StringBuffer();
-				// generate catalogName
-				if (StringUtils.isEmpty(targetCatalogName))targetCatalogName = generateCatalogName();
-
-				upath.append(uploadPath);
-				if(!targetCatalogName.equals("/"))upath.append(File.separator).append(targetCatalogName);
-				locateCatalog(upath);
-                targetFileName = (targetFileShortName + "." + sourceFileType);
-				upath.append(File.separator).append(targetFileName);
-
-				targetUri += targetFileName;
-
-				File uploadedFile = new File(upath.toString());
 				item.write(uploadedFile);
 				
 				if(inBakInDB){
@@ -255,10 +278,8 @@ public class ImageUploadServlet extends HttpServlet {
                     	    uploadedFile.delete();
                         	logger.debug("Rolled back in image server. ");
                         	return -2;
-                    }
-					
-				}
-				
+                    }					
+				}				
 				return 1;
 
 			} else {
