@@ -59,10 +59,12 @@ class Init implements DocumentSaver {
         // Continue save
         try {
             next.save(session, context);
-        } catch (ValidateException e) {
-            // In case of validation issue, don't include a potential before saving message in exception.
-            throw new com.amalto.core.save.SaveException(e);
         } catch (Exception e) {
+            session.clear();
+            if (e instanceof ValidateException) {
+                // In case of validation issue, don't include a potential before saving message in exception.
+                throw new com.amalto.core.save.SaveException(e);
+            }
             throw new com.amalto.core.save.SaveException(getBeforeSavingMessage(), e);
         }
 

@@ -119,6 +119,6 @@ class UnaryFieldAccessor implements DOMAccessor {
         if (!exist()) {
             return 0;
         }
-        return getElement().getChildNodes().getLength();
+        return getElement().getElementsByTagName("*").getLength();  //$NON-NLS-1$
     }
 }

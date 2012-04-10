@@ -169,11 +169,11 @@ class UpdateReportDocument extends DOMDocument {
         }
 
         public void createAndSet(String value) {
-            throw new UnsupportedOperationException();
+            set(value);
         }
 
         public void delete() {
-            throw new UnsupportedOperationException();
+            updateReportDocument.setField(path, "null"); //$NON-NLS-1$
         }
 
         public boolean exist() {

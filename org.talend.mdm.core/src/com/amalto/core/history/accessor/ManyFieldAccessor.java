@@ -34,8 +34,8 @@ class ManyFieldAccessor implements DOMAccessor {
         this.document = document;
     }
 
-    private Node getCollectionItemNode() {
-        Node collectionItemNode = null;
+    private Element getCollectionItemNode() {
+        Element collectionItemNode = null;
         Node node = parent.getNode();
         if (node == null) {
             throw new IllegalStateException("Could not find parent node in document.");
@@ -50,7 +50,7 @@ class ManyFieldAccessor implements DOMAccessor {
         for (int i = 0; i < children.getLength(); i++) {
             if (fieldName.equals(children.item(i).getNodeName())) {
                 if (index == currentIndex) {
-                    collectionItemNode = children.item(i);
+                    collectionItemNode = (Element) children.item(i);
                     break;
                 } else {
                     currentIndex++;
@@ -136,6 +136,6 @@ class ManyFieldAccessor implements DOMAccessor {
         if (!exist()) {
             return 0;
         }
-        return getCollectionItemNode().getChildNodes().getLength();
+        return getCollectionItemNode().getElementsByTagName("*").getLength(); //$NON-NLS-1$
     }
 }

@@ -16,6 +16,7 @@ import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.action.FieldUpdateAction;
 import com.amalto.core.metadata.*;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
 
@@ -109,24 +110,32 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     private void handleField(FieldMetadata field, Closure closure) {
         if (field.isMany()) {
-            Accessor leftAccessor = originalDocument.createAccessor(getPath());
-            Accessor rightAccessor = newDocument.createAccessor(getPath());
+            String currentPath = getPath();
+            Accessor leftAccessor = originalDocument.createAccessor(currentPath);
+            Accessor rightAccessor = newDocument.createAccessor(currentPath);
+            if (!rightAccessor.exist()) {
+                // TODO If new list does not exist, it means element was omitted in new version (legacy behavior).
+                return;
+            }
+            
             int leftLength = leftAccessor.size();
             int rightLength = rightAccessor.size();
 
-            for (int i = 0; i < leftLength; i++) {
-                // Path generation code is a bit duplicated (be careful)... and XPath indexes are 1-based (not 0-based).
-                path.add(field.getName() + "[" + (i + 1) + "]"); //$NON-NLS-1$ //$NON-NLS-2$
-                closure.execute(field);
-                path.pop();
-            }
+            // Proceed in "reverse" order (highest index to lowest) so there won't be issues when deleting elements in
+            // a sequence (if element #2 is deleted before element #3, element #3 becomes #2...).
             if (rightLength > leftLength) {
-                for (int i = leftLength; i < rightLength; i++) {
+                for (int i = rightLength; i > leftLength; i--) {
                     // Path generation code is a bit duplicated (be careful)... and XPath indexes are 1-based (not 0-based).
-                    path.add(field.getName() + "[" + (i + 1) + "]"); //$NON-NLS-1$ //$NON-NLS-2$
+                    path.add(field.getName() + "[" + i + "]"); //$NON-NLS-1$ //$NON-NLS-2$
                     closure.execute(field);
                     path.pop();
                 }
+            }
+            for (int i = leftLength; i > 0; i--) {
+                // Path generation code is a bit duplicated (be careful)... and XPath indexes are 1-based (not 0-based).
+                path.add(field.getName() + "[" + i + "]"); //$NON-NLS-1$ //$NON-NLS-2$
+                closure.execute(field);
+                path.pop();
             }
         } else {
             path.add(field.getName());
@@ -145,12 +154,14 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 // No op
             } else { // new accessor exist
                 if (!newAccessor.get().isEmpty()) { // TODO Empty accessor means no op to ensure legacy behavior
-                    actions.add(new FieldUpdateAction(date, source, userName, path, "", newAccessor.get(), comparedField));
+                    actions.add(new FieldUpdateAction(date, source, userName, path, StringUtils.EMPTY, newAccessor.get(), comparedField));
                 }
             }
         } else { // original accessor exist
             if (!newAccessor.exist()) {
-                // No op
+                if (comparedField.isMany()) {
+                    actions.add(new FieldUpdateAction(date, source, userName, path, originalAccessor.get(), null, comparedField));
+                }
             } else { // new accessor exist
                 if (!originalAccessor.get().equals(newAccessor.get())) {
                     actions.add(new FieldUpdateAction(date, source, userName, path, originalAccessor.get(), newAccessor.get(), comparedField));

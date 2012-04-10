@@ -273,11 +273,37 @@ public class DocumentSaveTest extends TestCase {
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
         session.end(committer);
-
+        
+        assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
         assertEquals("60", evaluate(committedElement, "/Product/Price"));
         assertEquals("TT", evaluate(committedElement, "/Product/Description"));
         assertEquals("New product name", evaluate(committedElement, "/Product/Name"));
+    }
+
+    public void testProductUpdate2() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+
+        SaverSource source = new TestSaverSource(repository, true, "test11_original.xml");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test11.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+        
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("222", evaluate(committedElement, "/Product/Price"));
+        assertEquals("Small", evaluate(committedElement, "/Product/Features/Sizes/Size[1]"));
+        assertEquals("", evaluate(committedElement, "/Product/Features/Sizes/Size[2]"));
+        assertEquals("", evaluate(committedElement, "/Product/Features/Sizes/Size[3]"));
+        assertEquals("White", evaluate(committedElement, "/Product/Features/Colors/Color[1]"));
+        assertEquals("", evaluate(committedElement, "/Product/Features/Colors/Color[2]"));
+        assertEquals("", evaluate(committedElement, "/Product/Features/Colors/Color[3]"));
     }
 
     public void testBeforeSavingWithAlterRecord() throws Exception {
@@ -295,7 +321,9 @@ public class DocumentSaveTest extends TestCase {
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         assertEquals("change the value successfully!", saver.getBeforeSavingMessage());
-        session.end(new MockCommitter());
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+        assertTrue(committer.hasSaved());
 
         //
         isOK = false;
@@ -313,7 +341,9 @@ public class DocumentSaveTest extends TestCase {
             // Expected
             assertEquals("change the value failed!", e.getBeforeSavingMessage());
         }
-        session.end(new MockCommitter());
+        committer = new MockCommitter();
+        session.end(committer);
+        assertFalse(committer.hasSaved());
 
         //
         isOK = false;
@@ -331,7 +361,9 @@ public class DocumentSaveTest extends TestCase {
             // Expected
             assertEquals("change the value failed!", e.getBeforeSavingMessage());
         }
-        session.end(new MockCommitter());
+        committer = new MockCommitter();
+        session.end(committer);
+        assertFalse(committer.hasSaved());
 
         //
         isOK = true;
@@ -344,7 +376,9 @@ public class DocumentSaveTest extends TestCase {
         saver = context.createSaver();
         saver.save(session, context);
         assertEquals("change the value successfully!", saver.getBeforeSavingMessage());
-        session.end(new MockCommitter());
+        committer = new MockCommitter();
+        session.end(committer);
+        assertTrue(committer.hasSaved());
     }
 
     public void testCreatePerformance() throws Exception {
@@ -477,7 +511,7 @@ public class DocumentSaveTest extends TestCase {
 
         private Element committedElement;
 
-        private boolean hasSaved;
+        private boolean hasSaved = false;
 
         public void begin(String dataCluster) {
             if (LOG.isDebugEnabled()) {

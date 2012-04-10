@@ -119,6 +119,13 @@ public class SaverSession {
         return dataSource;
     }
 
+    /**
+     * Causes current session to forget about all changes to save.
+     */
+    public void clear() {
+        itemsPerDataCluster.clear();
+    }
+
     public void abort() {
         abort(new DefaultCommitter());
     }
