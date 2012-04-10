@@ -59,7 +59,7 @@ public class BrowseRecords implements EntryPoint {
             var checkArgs = true;
             checkArgs = checkArgs && (arguments.length === 4);
             checkArgs = checkArgs && (typeof fromWhichApp === "string");
-            checkArgs = checkArgs && (ids.constructor == Array);
+            checkArgs = checkArgs && (ids.length >= 1);
             checkArgs = checkArgs && (typeof entity === "string");
             if (!checkArgs){
                 throw {message: "argument format error!"};
