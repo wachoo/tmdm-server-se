@@ -1929,6 +1929,17 @@ public class Util {
         }
         return false;
     }
+    
+    public static <T> T cause(Throwable throwable, Class<T> cls) {
+        Throwable currentCause = throwable;
+        while (currentCause != null) {
+            if (cls.isInstance(currentCause)) {
+                return (T) currentCause;
+            }
+            currentCause = currentCause.getCause();
+        }
+        return null;
+    }
 
     public static String getExceptionMessage(String message, String language) {
         if (message == null || message.indexOf("<msg/>") != -1) //$NON-NLS-1$
