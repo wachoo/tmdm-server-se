@@ -40,6 +40,7 @@ class UnaryFieldAccessor implements DOMAccessor {
                 Node currentChild = children.item(i);
                 if (fieldName.equals(currentChild.getNodeName())) {
                     element = (Element) currentChild;
+                    break;
                 }
             }
         }
@@ -119,6 +120,7 @@ class UnaryFieldAccessor implements DOMAccessor {
         if (!exist()) {
             return 0;
         }
-        return getElement().getElementsByTagName("*").getLength();  //$NON-NLS-1$
+        Element parentElement = (Element) parent.getNode();
+        return parentElement.getElementsByTagName(fieldName).getLength();
     }
 }

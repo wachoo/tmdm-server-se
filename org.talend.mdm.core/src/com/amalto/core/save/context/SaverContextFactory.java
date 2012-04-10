@@ -27,7 +27,6 @@ import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.InputStream;
 import java.util.Map;
@@ -70,6 +69,7 @@ public class SaverContextFactory {
         DOM_PARSER_FACTORY.setIgnoringComments(true);
         DOM_PARSER_FACTORY.setValidating(false);
         DOM_PARSER_FACTORY.setIgnoringElementContentWhitespace(true);
+        DOM_PARSER_FACTORY.setValidating(false);
 
         SAX_PARSER_FACTORY.setNamespaceAware(false);
         SAX_PARSER_FACTORY.setValidating(false);
@@ -133,7 +133,9 @@ public class SaverContextFactory {
         // Parsing
         MutableDocument userDocument;
         try {
-            Document userDomDocument = DOM_PARSER_FACTORY.newDocumentBuilder().parse(new InputSource(documentStream));
+            DocumentBuilder documentBuilder = DOM_PARSER_FACTORY.newDocumentBuilder();;
+            InputSource source = new InputSource(documentStream);
+            Document userDomDocument = documentBuilder.parse(source);
             userDocument = new DOMDocument(userDomDocument);
         } catch (Exception e) {
             throw new RuntimeException("Unable to parse document to save.", e);

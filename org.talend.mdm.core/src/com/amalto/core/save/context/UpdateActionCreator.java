@@ -109,15 +109,22 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
     }
 
     private void handleField(FieldMetadata field, Closure closure) {
+        path.add(field.getName());
         if (field.isMany()) {
             String currentPath = getPath();
-            Accessor leftAccessor = originalDocument.createAccessor(currentPath);
-            Accessor rightAccessor = newDocument.createAccessor(currentPath);
-            if (!rightAccessor.exist()) {
-                // TODO If new list does not exist, it means element was omitted in new version (legacy behavior).
-                return;
+            Accessor leftAccessor;
+            Accessor rightAccessor;
+            try {
+                leftAccessor = originalDocument.createAccessor(currentPath);
+                rightAccessor = newDocument.createAccessor(currentPath);
+                if (!rightAccessor.exist()) {
+                    // TODO If new list does not exist, it means element was omitted in new version (legacy behavior).
+                    return;
+                }
+            } finally {
+                path.pop();
             }
-            
+
             int leftLength = leftAccessor.size();
             int rightLength = rightAccessor.size();
 
@@ -138,7 +145,6 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 path.pop();
             }
         } else {
-            path.add(field.getName());
             closure.execute(field);
             path.pop();
         }
