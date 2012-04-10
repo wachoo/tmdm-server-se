@@ -57,7 +57,7 @@ public class BrowseRecords implements EntryPoint {
     public native void regItemDetails()/*-{
         $wnd.amalto.itemsbrowser.ItemsBrowser.editItemDetails = function(fromWhichApp, ids, entity, callback){
             var checkArgs = true;
-            checkArgs = checkArgs && (arguments.length === 4);
+            checkArgs = checkArgs && (arguments.length >= 3);
             checkArgs = checkArgs && (typeof fromWhichApp === "string");
             checkArgs = checkArgs && (ids.length >= 1);
             checkArgs = checkArgs && (typeof entity === "string");
