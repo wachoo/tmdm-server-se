@@ -307,29 +307,30 @@ public class ItemsListPanel extends ContentPanel {
 
             @Override
             public void selectionChanged(final SelectionChangedEvent<ItemBean> se) {
-                DeferredCommand.addCommand(new Command() {
+                if (se.getSelectedItem() != null)
+                    DeferredCommand.addCommand(new Command() {
 
-                    public void execute() {
-                        if (isCurrentRecordChange()) {
-                            MessageBox msgBox = MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory
-                                    .getMessages().msg_confirm_save_tree_detail(root.getLabel()),
-                                    new Listener<MessageBoxEvent>() {
+                        public void execute() {
+                            if (isCurrentRecordChange()) {
+                                MessageBox msgBox = MessageBox.confirm(MessagesFactory.getMessages().confirm_title(),
+                                        MessagesFactory.getMessages().msg_confirm_save_tree_detail(root.getLabel()),
+                                        new Listener<MessageBoxEvent>() {
 
-                                        public void handleEvent(MessageBoxEvent be) {
-                                            if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                                saveCurrentChangeBeforeSwitching = true;
-                                                changedRecordId = toolBar.getItemBean().getIds();
-                                                toolBar.saveItemAndClose(true);
+                                            public void handleEvent(MessageBoxEvent be) {
+                                                if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+                                                    saveCurrentChangeBeforeSwitching = true;
+                                                    changedRecordId = toolBar.getItemBean().getIds();
+                                                    toolBar.saveItemAndClose(true);
+                                                }
+                                                selectRow(se);
                                             }
-                                            selectRow(se);
-                                        }
-                                    });
-                            msgBox.getDialog().setWidth(550);
-                        } else
-                            selectRow(se);
+                                        });
+                                msgBox.getDialog().setWidth(550);
+                            } else
+                                selectRow(se);
 
-                    }
-                });
+                        }
+                    });
 
             }
         });
@@ -664,6 +665,19 @@ public class ItemsListPanel extends ContentPanel {
 
     public void setSaveCurrentChangeBeforeSwitching(boolean saveCurrentChangeBeforeSwitching) {
         this.saveCurrentChangeBeforeSwitching = saveCurrentChangeBeforeSwitching;
+    }
+
+    public String getChangedRecordId() {
+        return changedRecordId;
+    }
+
+    public void setChangedRecordId(String changedRecordId) {
+        this.changedRecordId = changedRecordId;
+    }
+
+    public void deSelectCurrentItem() {
+        if (grid != null && grid.getSelectionModel() != null)
+            grid.getSelectionModel().deselect(grid.getSelectionModel().getSelectedItem());
     }
 
     public void initSpecialVariable() {
