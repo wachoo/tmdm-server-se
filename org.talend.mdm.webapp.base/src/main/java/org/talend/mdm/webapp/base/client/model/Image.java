@@ -15,11 +15,15 @@ package org.talend.mdm.webapp.base.client.model;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class Image extends ItemBaseModel implements IsSerializable{
-    
-    private static final long serialVersionUID = 1L;
-    
+
+    private static final long serialVersionUID = 5685241609933670328L;
+
     private String name;
     
+    private String fileName;
+
+    private String catalog;
+
     private String uri;
     
     private String redirectUri;
@@ -32,6 +36,22 @@ public class Image extends ItemBaseModel implements IsSerializable{
         this.name = name;
     }
     
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public String getCatalog() {
+        return catalog;
+    }
+
+    public void setCatalog(String catalog) {
+        this.catalog = catalog;
+    }
+
     public String getUri() {
         return uri;
     }

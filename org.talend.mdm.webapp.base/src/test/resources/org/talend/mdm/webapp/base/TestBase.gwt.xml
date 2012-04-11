@@ -2,4 +2,5 @@
 <module rename-to='BASE'>
 	<inherits name="org.talend.mdm.webapp.base.BASE" />
     <source path='client'/>
+    <inherits name="com.google.gwt.junit.JUnit"/>
 </module>

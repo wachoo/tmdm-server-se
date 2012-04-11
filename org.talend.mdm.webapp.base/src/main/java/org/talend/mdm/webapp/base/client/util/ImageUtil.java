@@ -44,6 +44,8 @@ public class ImageUtil {
             Image image = new Image();
             Element node = (Element)result.item(i);             
             image.setName(getElementTextValue(node,"name")); //$NON-NLS-1$
+            image.setFileName(getElementTextValue(node, "imageName")); //$NON-NLS-1$
+            image.setCatalog(getElementTextValue(node, "catalog")); //$NON-NLS-1$
             image.setUri(getElementTextValue(node,"uri")); //$NON-NLS-1$
             image.setRedirectUri(getElementTextValue(node,"redirectUri")); //$NON-NLS-1$
             images.add(image);                
