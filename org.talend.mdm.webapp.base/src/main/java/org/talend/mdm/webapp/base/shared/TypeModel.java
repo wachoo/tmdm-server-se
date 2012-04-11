@@ -77,6 +77,8 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     private String defaultValueExpression;
 
+    private String visibleExpression;
+
     private String defaultValue;
 
     private boolean hasVisibleRule = false;
@@ -321,6 +323,14 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     public void setDefaultValueExpression(String defaultValueExpression) {
         this.defaultValueExpression = defaultValueExpression;
+    }
+
+    public String getVisibleExpression() {
+        return visibleExpression;
+    }
+
+    public void setVisibleExpression(String visibleExpression) {
+        this.visibleExpression = visibleExpression;
     }
 
     public String getDefaultValue() {
