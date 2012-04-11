@@ -144,7 +144,7 @@ public class BrowseRecordsController extends Controller {
                     }
 
                     public void onSuccess(ItemResult result) {
-                        itemBean.set("time", result.getInsertionTime()); //$NON-NLS-1$
+                        itemBean.setLastUpdateTime(result);
                         WaitBox.hide();
                         MessageBox msgBox = null;
                         if (result.getStatus() == ItemResult.FAILURE) {

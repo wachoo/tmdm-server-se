@@ -105,6 +105,7 @@ import com.amalto.core.jobox.util.JobNotFoundException;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.save.SaveException;
 import com.amalto.core.util.CVCException;
 import com.amalto.core.util.EntityNotFoundException;
 import com.amalto.core.util.Messages;
@@ -1725,7 +1726,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             ItemPOJOPK itempk = new ItemPOJOPK(new DataClusterPOJOPK(getCurrentDataCluster()), itemBean.getConcept(),
                     extractIdWithDots(itemBean.getIds()));
             boolean isModified = com.amalto.core.util.Util.getItemCtrl2Local().isItemModifiedByOther(itempk,
-                    ((Long) itemBean.get("time")).longValue()); //$NON-NLS-1$
+                    itemBean.getLastUpdateTime());
             return isModified;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
