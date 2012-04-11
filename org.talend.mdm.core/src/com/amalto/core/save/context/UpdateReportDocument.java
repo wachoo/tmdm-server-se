@@ -4,6 +4,7 @@ import com.amalto.core.history.DeleteType;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.save.DOMDocument;
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -161,7 +162,7 @@ class UpdateReportDocument extends DOMDocument {
         }
 
         public String get() {
-            throw new UnsupportedOperationException();
+            return StringUtils.EMPTY;
         }
 
         public void create() {
@@ -174,6 +175,9 @@ class UpdateReportDocument extends DOMDocument {
 
         public void delete() {
             updateReportDocument.setField(path, "null"); //$NON-NLS-1$
+        }
+
+        public void deleteContent() {
         }
 
         public boolean exist() {
@@ -190,6 +194,10 @@ class UpdateReportDocument extends DOMDocument {
 
         public int size() {
             return 1;
+        }
+
+        public String getActualType() {
+            return StringUtils.EMPTY;
         }
     }
 }

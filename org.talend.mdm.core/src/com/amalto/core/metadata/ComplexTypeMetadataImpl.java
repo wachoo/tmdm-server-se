@@ -120,15 +120,22 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
     }
 
     public List<FieldMetadata> getFields() {
-        for (TypeMetadata superType : superTypes) {
-            if (superType instanceof ComplexTypeMetadata) {
-                List<FieldMetadata> superTypeFields = ((ComplexTypeMetadata) superType).getFields();
-                for (FieldMetadata superTypeField : superTypeFields) {
-                    superTypeField.adopt(this, repository);
+        if (!superTypes.isEmpty()) {
+            // TODO Make this more efficient (goal is to put super type field before those defined in this type).
+            Collection<FieldMetadata> thisTypeFields = new LinkedList<FieldMetadata>(fieldMetadata.values());
+            fieldMetadata.clear();
+            for (TypeMetadata superType : superTypes) {
+                if (superType instanceof ComplexTypeMetadata) {
+                    List<FieldMetadata> superTypeFields = ((ComplexTypeMetadata) superType).getFields();
+                    for (FieldMetadata superTypeField : superTypeFields) {
+                        superTypeField.adopt(this, repository);
+                    }
                 }
             }
+            for (FieldMetadata thisTypeField : thisTypeFields) {
+                fieldMetadata.put(thisTypeField.getName(), thisTypeField);
+            }
         }
-
         return new ArrayList<FieldMetadata>(fieldMetadata.values());
     }
 

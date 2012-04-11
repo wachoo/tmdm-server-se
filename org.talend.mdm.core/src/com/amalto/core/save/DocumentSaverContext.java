@@ -14,7 +14,6 @@ package com.amalto.core.save;
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.save.context.SaverSource;
 import com.amalto.core.save.context.DocumentSaver;
 
 import java.util.List;

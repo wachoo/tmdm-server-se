@@ -12,7 +12,10 @@
 package com.amalto.core.history.accessor;
 
 import com.amalto.core.history.MutableDocument;
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.*;
+
+import javax.xml.XMLConstants;
 
 /**
  *
@@ -94,6 +97,15 @@ class UnaryFieldAccessor implements DOMAccessor {
         element.getParentNode().removeChild(element);
     }
 
+    public void deleteContent() {
+        Element element = getElement();
+        NodeList children = element.getChildNodes();
+        for (int i = children.getLength() - 1; i >= 0; i--) {
+            Node item = children.item(i);
+            element.removeChild(item);
+        }
+    }
+
     public boolean exist() {
         return parent.exist() && getElement() != null;
     }
@@ -122,5 +134,14 @@ class UnaryFieldAccessor implements DOMAccessor {
         }
         Element parentElement = (Element) parent.getNode();
         return parentElement.getElementsByTagName(fieldName).getLength();
+    }
+
+    public String getActualType() {
+        Attr type = ((Element) getNode()).getAttributeNodeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type"); //$NON-NLS-1$
+        if (type == null) {
+            return StringUtils.EMPTY;
+        } else {
+            return type.getValue();
+        }
     }
 }

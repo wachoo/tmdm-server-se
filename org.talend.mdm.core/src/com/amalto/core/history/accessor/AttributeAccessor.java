@@ -12,11 +12,14 @@
 package com.amalto.core.history.accessor;
 
 import com.amalto.core.history.MutableDocument;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+
+import javax.xml.namespace.QName;
 
 /**
  *
@@ -47,11 +50,42 @@ class AttributeAccessor implements DOMAccessor {
             throw new IllegalStateException("Could not find attributes on parent node.");
         }
 
-        return attributes.getNamedItem(attributeName);
+        QName qName = getQName(document.asDOM());
+        Node attribute = attributes.getNamedItemNS(qName.getNamespaceURI(), qName.getLocalPart());
+        if (attribute == null) {
+            // Look up with namespace didn't work, falls back to standard getNamedItem
+            attribute = attributes.getNamedItem(qName.getLocalPart());
+        }
+        return attribute;
+    }
+
+    private Attr createAttribute(Node parentNode, Document domDocument) {
+        QName qName = getQName(domDocument);
+        Attr newAttribute = domDocument.createAttributeNS(qName.getNamespaceURI(), qName.getLocalPart());
+        String prefix = qName.getPrefix();
+        newAttribute.setPrefix(prefix);
+        parentNode.getAttributes().setNamedItemNS(newAttribute);
+        return newAttribute;
+    }
+
+    private QName getQName(Document domDocument) {
+        QName qName;
+        String prefix = StringUtils.substringBefore(attributeName, ":"); //$NON-NLS-1$
+        String name = StringUtils.substringAfter(attributeName, ":"); //$NON-NLS-1$
+        if (name.isEmpty()) {
+            // No prefix (so prefix is attribute name due to substring calls).
+            qName = new QName(domDocument.getNamespaceURI(), prefix);
+        } else {
+            qName = new QName(domDocument.lookupNamespaceURI(prefix), name, prefix);
+        }
+        return qName;
     }
 
     public void set(String value) {
         Node namedItem = getAttribute();
+        if (namedItem == null) {
+            throw new IllegalStateException("Attribute '" + attributeName + "' does not exist.");
+        }
         if (!(namedItem instanceof Attr)) {
             throw new IllegalStateException("Expected a " + Attr.class.getName() + " instance but got a " + namedItem.getClass().getName());
         }
@@ -83,14 +117,18 @@ class AttributeAccessor implements DOMAccessor {
         Node parentNode = parent.getNode();
         Node attribute = getAttribute();
         if (attribute == null) {
-            Attr newAttribute = domDocument.createAttributeNS(domDocument.getNamespaceURI(), attributeName);
-            parentNode.getAttributes().setNamedItem(newAttribute);
+            createAttribute(parentNode, domDocument);
         }
     }
 
     public void createAndSet(String value) {
-        create();
-        set(value);
+        // Ensure everything is created in parent nodes.
+        parent.create();
+
+        Document domDocument = document.asDOM();
+        Node parentNode = parent.getNode();
+        Attr attribute = createAttribute(parentNode, domDocument);
+        attribute.setValue(value);
     }
 
     public void delete() {
@@ -101,6 +139,10 @@ class AttributeAccessor implements DOMAccessor {
         } else {
             logger.warn("Attempt to delete the attribute '" + attributeName + "'that does not exist.");
         }
+    }
+
+    public void deleteContent() {
+        delete();
     }
 
     public boolean exist() {
@@ -130,5 +172,9 @@ class AttributeAccessor implements DOMAccessor {
             return 0;
         }
         return 1;
+    }
+
+    public String getActualType() {
+        throw new UnsupportedOperationException("Attributes can't override their type.");
     }
 }
