@@ -136,7 +136,7 @@ public class PictureSelector extends ContentPanel {
             protected ItemBaseModel prepareData(ItemBaseModel model) {
                 org.talend.mdm.webapp.base.client.model.Image image = (org.talend.mdm.webapp.base.client.model.Image) model;
                 model.set("shortName", Format.ellipse(image.getName(), 15)); //$NON-NLS-1$
-                model.set("url", CONTEXT_URL + image.getRedirectUri().replaceFirst("/", "") + "&width=80&height=60"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$                
+                model.set("url", CONTEXT_URL + image.getUri() + "?width=80&height=60"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$                
                 return model;
             }
         };
@@ -153,7 +153,7 @@ public class PictureSelector extends ContentPanel {
             public void handleEvent(ListViewEvent<ModelData> be) {
                 org.talend.mdm.webapp.base.client.model.Image image = (org.talend.mdm.webapp.base.client.model.Image) be
                         .getModel();
-                targetField.setValue(image.getRedirectUri().replace(ImageUtil.IMAGE_PATH, "")); //$NON-NLS-1$
+                targetField.setValue(image.getUri().replace(ImageUtil.IMAGE_PATH, "")); //$NON-NLS-1$
                 parentWindow.hide();
             }
         });
