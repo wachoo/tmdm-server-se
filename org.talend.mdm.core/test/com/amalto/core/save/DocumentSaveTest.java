@@ -46,6 +46,28 @@ public class DocumentSaveTest extends TestCase {
         return xPath.evaluate(path, committedElement, XPathConstants.STRING);
     }
 
+    public void testTypeCacheInvalidate() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, false, "test1_original.xml");
+        assertNull(source.getLastInvalidatedTypeCache());
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, true);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+        assertTrue(committer.hasSaved());
+
+        session = SaverSession.newSession(source);
+        session.invalidateTypeCache("DStar");
+        session.end(committer);
+        assertEquals("DStar", source.getLastInvalidatedTypeCache());
+    }
+
     public void testCreate() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
@@ -584,6 +606,7 @@ public class DocumentSaveTest extends TestCase {
         private MetadataRepository updateReportRepository;
 
         private String userName = "User";
+        private String lastInvalidatedTypeCache;
 
         public TestSaverSource(MetadataRepository repository, boolean exist, String originalDocumentFileName) {
             this.repository = repository;
@@ -650,6 +673,14 @@ public class DocumentSaveTest extends TestCase {
         }
 
         public void routeItem(String dataCluster, String typeName, String[] id) {
+        }
+
+        public void invalidateTypeCache(String dataModelName) {
+            lastInvalidatedTypeCache = dataModelName;
+        }
+
+        public String getLastInvalidatedTypeCache() {
+            return lastInvalidatedTypeCache;
         }
 
         public void setUserName(String userName) {

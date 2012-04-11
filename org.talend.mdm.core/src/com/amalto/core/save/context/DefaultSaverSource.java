@@ -20,6 +20,7 @@ import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocal;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
 import com.amalto.core.save.DocumentSaverContext;
+import com.amalto.core.schema.validation.XmlSchemaValidator;
 import com.amalto.core.util.*;
 
 import java.io.ByteArrayInputStream;
@@ -197,6 +198,17 @@ public class DefaultSaverSource implements SaverSource {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void invalidateTypeCache(String dataModelName) {
+        XmlSchemaValidator.invalidateCache(dataModelName);
+        synchronized (repositories) {
+            repositories.remove(dataModelName);
+        }
+        synchronized (schemasAsString) {
+            schemasAsString.remove(dataModelName);
+        }
+
     }
 
 }

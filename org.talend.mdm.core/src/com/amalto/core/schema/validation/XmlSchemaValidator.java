@@ -75,4 +75,10 @@ public class XmlSchemaValidator implements Validator {
 
         next.validate(element);
     }
+
+    public static void invalidateCache(String dataModelName) {
+        synchronized (schemaCache) {
+            schemaCache.remove(dataModelName);
+        }
+    }
 }

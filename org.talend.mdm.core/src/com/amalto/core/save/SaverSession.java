@@ -137,6 +137,10 @@ public class SaverSession {
         }
     }
 
+    public void invalidateTypeCache(String dataModelName) {
+        dataSource.invalidateTypeCache(dataModelName);
+    }
+
     public interface Committer {
 
         void begin(String dataCluster);
