@@ -2,6 +2,10 @@ package org.talend.mdm.webapp.browserecords.server.servlet;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.ServletException;
@@ -18,14 +22,18 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
-import org.dom4j.Node;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.base.server.util.XmlUtil;
+import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
 
 import com.amalto.webapp.core.bean.Configuration;
+import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
+import com.amalto.webapp.util.webservices.WSGetItem;
+import com.amalto.webapp.util.webservices.WSItem;
+import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSViewPK;
 import com.amalto.webapp.util.webservices.WSViewSearch;
 import com.amalto.webapp.util.webservices.WSWhereItem;
@@ -39,7 +47,7 @@ public class DownloadData extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String tableName = request.getParameter("tableName"); //$NON-NLS-1$
-        String header = request.getParameter("header"); //$NON-NLS-1$
+        String header = new String(request.getParameter("header").getBytes("iso-8859-1"), "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         String xpath = request.getParameter("xpath"); //$NON-NLS-1$
 
         String[] fieldNames = header.split("@"); //$NON-NLS-1$
@@ -118,7 +126,27 @@ public class DownloadData extends HttpServlet {
 
         String sortField = request.getParameter("sortField"); //$NON-NLS-1$
         String sortDir = request.getParameter("sortDir"); //$NON-NLS-1$
-
+        
+        Map<String, String> colFkMap = new HashMap<String, String>();
+        Map<String, List<String>> fkMap = new HashMap<String, List<String>>();
+        
+        String fkColXPath = request.getParameter("fkColXPath"); //$NON-NLS-1$
+        if (!fkColXPath.equalsIgnoreCase("")) { //$NON-NLS-1$
+            String fkInfo = request.getParameter("fkInfo"); //$NON-NLS-1$
+            String[] fkColXPathArr = fkColXPath.split("@"); //$NON-NLS-1$
+            String[] fkInfoArr = fkInfo.split("@"); //$NON-NLS-1$
+            for (int i = 0; i < fkColXPathArr.length; i++) {
+                String[] fkStr = fkInfoArr[i].split(","); //$NON-NLS-1$
+                List<String> fkList = new ArrayList<String>();
+                for (String str : fkStr) {
+                    fkList.add(str);
+                }
+                String[] arr = fkColXPathArr[i].split(","); //$NON-NLS-1$
+                fkMap.put(arr[0], fkList);
+                colFkMap.put(arr[0], arr[1]);
+            }
+        }
+               
         Properties mdmConfig = MDMConfiguration.getConfiguration();
         
         Object value =  mdmConfig.get("max.export.browserecord"); //$NON-NLS-1$
@@ -135,7 +163,15 @@ public class DownloadData extends HttpServlet {
             HSSFRow row = sheet.createRow((short) i);
             int colCount = 0;
             for (String xpath : xpathArr) {
-                String tmp = XmlUtil.queryNodeText(doc, xpath.replaceFirst(concept + "/", "result/")); //$NON-NLS-1$ //$NON-NLS-2$
+                String tmp = XmlUtil.queryNodeText(doc, xpath.replaceFirst(concept + "/", "result/")); //$NON-NLS-1$ //$NON-NLS-2$;
+                if (colFkMap.containsKey(xpath)) {
+                    List<String> fkinfoList = fkMap.get(xpath);
+                    if (!fkinfoList.get(0).trim().equalsIgnoreCase("") && !tmp.equalsIgnoreCase("")) { //$NON-NLS-1$ //$NON-NLS-2$
+                        List<String> infoList = getFKInfo(dataCluster, colFkMap.get(xpath), fkinfoList, tmp);
+                        tmp = LabelUtil.convertList2String(infoList, "-"); //$NON-NLS-1$
+                    }
+                }
+                    
                 if (tmp != null) {
                     tmp = tmp.trim();
                     tmp = tmp.replaceAll("__h", ""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -147,6 +183,19 @@ public class DownloadData extends HttpServlet {
                 colCount++;
             }
         }
+    }
+    
+    private List<String> getFKInfo(String dataCluster, String fk, List<String> fkInfoList, String fkValue) throws Exception {
+        List<String> infoList = new ArrayList<String>();
+        String conceptName = fk.substring(0, fk.indexOf("/")); //$NON-NLS-1$
+        String value = LabelUtil.removeBrackets(fkValue);
+        String ids[] = { value };
+        WSItem wsItem = Util.getPort().getItem(new WSGetItem(new WSItemPK(new WSDataClusterPK(dataCluster), conceptName, ids)));
+        Document doc = XmlUtil.parseText(wsItem.getContent());
+        for (String xpath : fkInfoList) {
+            infoList.add(XmlUtil.queryNodeText(doc, xpath));
+        }
+        return infoList;
     }
 
     private Document parseResultDocument(String result, String expectedRootElement) throws DocumentException {
