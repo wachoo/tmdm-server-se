@@ -202,8 +202,14 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 
     public WSDataModelPK putDataModel(WSPutDataModel wsDataModel) throws RemoteException {
         try {
-            return new WSDataModelPK(com.amalto.core.util.Util.getDataModelCtrlLocal()
+            WSDataModelPK wsDataModelPK = new WSDataModelPK(Util.getDataModelCtrlLocal()
                     .putDataModel(XConverter.WS2VO(wsDataModel.getWsDataModel())).getUniqueId());
+
+            SaverSession session = SaverSession.newSession();
+            session.invalidateTypeCache(wsDataModelPK.getPk());
+            session.end();
+
+            return wsDataModelPK;
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
