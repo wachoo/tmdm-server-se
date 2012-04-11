@@ -36,6 +36,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
+import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
@@ -774,46 +775,41 @@ public class ItemsToolBar extends ToolBar {
 
         List<String> headerList = new ArrayList<String>();
         List<String> xPathList = new ArrayList<String>();
+        List<String> fkColXPathList = new ArrayList<String>();
+        List<String> fkInfoList = new ArrayList<String>();       
 
         for (String xpath : viewableXpaths) {
             TypeModel typeModel = dataTypes.get(xpath);
             String header = typeModel == null ? xpath : ViewUtil.getViewableLabel(Locale.getLanguage(), typeModel);
             headerList.add(header);
             xPathList.add(xpath);
+            if (typeModel.getForeignkey() != null) {
+                fkColXPathList.add(xpath + "," + typeModel.getForeignkey()); //$NON-NLS-1$
+                List<String> fkInfo = typeModel.getForeignKeyInfo();
+                if (fkInfo.size() == 0) {
+                    fkInfoList.add(" "); //$NON-NLS-1$
+                } else {
+                    StringBuilder sb = new StringBuilder(fkInfo.get(0));
+                    for (int i = 1; i < fkInfo.size(); i++) {
+                        sb.append(",").append(fkInfo.get(i)); //$NON-NLS-1$
+                    }
+                    fkInfoList.add(sb.toString());
+                }
+            }
         }
 
         Map<String, String> param = new HashMap<String, String>();
-
-        StringBuffer header = new StringBuffer();
-        int i = 0;
-        int count = headerList.size();
-        for (String head : headerList) {
-            i++;
-            header.append(head);
-            if (i < count)
-                header.append("@"); //$NON-NLS-1$
-        }
-        StringBuffer xpath = new StringBuffer();
-
-        i = 0;
-        count = xPathList.size();
-        for (String path : xPathList) {
-            i++;
-            xpath.append(path);
-            if (i < count)
-                xpath.append("@"); //$NON-NLS-1$
-        }
-
-
 
         queryModel.getModel();
         queryModel.getCriteria();
         queryModel.getLanguage();
 
         param.put("tableName", viewBean.getViewPK()); //$NON-NLS-1$
-        param.put("header", header.toString()); //$NON-NLS-1$
-        param.put("xpath", xpath.toString()); //$NON-NLS-1$
-
+        param.put("header", LabelUtil.convertList2String(headerList, "@")); //$NON-NLS-1$ //$NON-NLS-2$
+        param.put("xpath", LabelUtil.convertList2String(xPathList, "@")); //$NON-NLS-1$ //$NON-NLS-2$
+        param.put("fkColXPath", LabelUtil.convertList2String(fkColXPathList, "@")); //$NON-NLS-1$ //$NON-NLS-2$
+        param.put("fkInfo", LabelUtil.convertList2String(fkInfoList, "@")); //$NON-NLS-1$ //$NON-NLS-2$
+        
         param.put("dataCluster", queryModel.getDataClusterPK()); //$NON-NLS-1$
         param.put("viewPk", queryModel.getView().getViewPK()); //$NON-NLS-1$
         param.put("criteria", queryModel.getCriteria()); //$NON-NLS-1$

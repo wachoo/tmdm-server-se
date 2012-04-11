@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.util;
 
+import java.util.List;
+
 
 /**
  * DOC HSHU class global comment. Detailled comment
@@ -50,5 +52,25 @@ public class LabelUtil {
         if (fkTabLabel.trim().endsWith(":")) //$NON-NLS-1$
             return fkTabLabel.substring(0, fkTabLabel.lastIndexOf(":")); //$NON-NLS-1$
         return fkTabLabel;
+    }
+    
+    public static String convertList2String(List<String> list, String separator){
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        int count = list.size();
+        for (String str : list) {
+            i++;
+            sb.append(str);
+            if (i < count)
+                sb.append(separator);
+        }
+        return sb.toString();
+    }
+    
+    public static String removeBrackets(String str) {
+        if (str.indexOf("[") == 0 && str.lastIndexOf("]") == str.length() - 1) { //$NON-NLS-1$ //$NON-NLS-2$
+            return str.subSequence(1, str.length() - 1).toString();
+        }
+        return str;
     }
 }
