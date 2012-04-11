@@ -197,6 +197,9 @@ public class PictureField extends TextField<String> {
 
         if (value != null && value.length() != 0) {
 
+            if (!value.startsWith("/")) //$NON-NLS-1$
+                value = "/" + value; //$NON-NLS-1$
+
             if (!value.startsWith("/imageserver")) //$NON-NLS-1$
                 this.value = "/imageserver" + value; //$NON-NLS-1$
             image.setUrl(this.value);
@@ -271,10 +274,20 @@ public class PictureField extends TextField<String> {
             final TextField<String> name = new TextField<String>();
             name.setFieldLabel(""); //$NON-NLS-1$
             name.setName("fileName"); //$NON-NLS-1$
-            
+           
             imgIdRow.add(name);
             final LabelField extFileNameLabel = new LabelField();
             imgIdRow.add(extFileNameLabel);
+            
+            MultiField catalogRow = new MultiField();
+            catalogRow.setFieldLabel(MessagesFactory.getMessages().picture_field_imgcatalog());
+
+            final TextField<String> catalog = new TextField<String>();
+            catalog.setFieldLabel(""); //$NON-NLS-1$
+            catalog.setName("catalogName"); //$NON-NLS-1$
+
+            catalogRow.add(catalog);
+            catalogRow.add(new LabelField());
 
             file.setAllowBlank(false);
             file.setName("imageFile");//$NON-NLS-1$
@@ -284,7 +297,7 @@ public class PictureField extends TextField<String> {
 
                 public void handleEvent(FieldEvent be) {
                     // reset imgId
-                    // catalog.setValue(""); //$NON-NLS-1$
+                    catalog.setValue(""); //$NON-NLS-1$
                     name.setValue(""); //$NON-NLS-1$
                     // auto fill img id
                     if ((name.getValue() == null || name.getValue().isEmpty())
@@ -299,7 +312,7 @@ public class PictureField extends TextField<String> {
             });
 
             editForm.add(file, formData);
-            // editForm.add(catalog, formData);
+            editForm.add(catalogRow, formData);
             editForm.add(imgIdRow, formData);
             editForm.addListener(Events.Submit, new Listener<FormEvent>() {
 
