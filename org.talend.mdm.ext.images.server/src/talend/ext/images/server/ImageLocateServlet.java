@@ -9,9 +9,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import talend.ext.images.server.backup.DBDelegate;
-import talend.ext.images.server.util.ReflectionUtil;
-
 /**
  * Servlet implementation class ImageLocateServlet
  */
@@ -22,11 +19,9 @@ public class ImageLocateServlet extends HttpServlet {
      */
     private static final long serialVersionUID = -3012919798771313147L;
 
-    private String resourceLocatorDelegateClass = null;
 
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        resourceLocatorDelegateClass = config.getInitParameter("resource-locator-delegate-class");
     }
 
     /**
@@ -42,29 +37,15 @@ public class ImageLocateServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         String imgId = request.getParameter("imgId"); //$NON-NLS-1$
-        if (imgId == null) {
+        String imgCatalog = request.getParameter("imgCatalog"); //$NON-NLS-1$
+        if (imgId == null||imgCatalog == null) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
 
-        // Assume we always have db backup
-        String imgURI = null;
-        try {
-            DBDelegate dbDelegate = (DBDelegate) ReflectionUtil.newInstance(resourceLocatorDelegateClass, new Object[0]);
-            imgURI = dbDelegate.findResourceURI(imgId);
-        } catch (Exception e) {
-            e.printStackTrace();// FIXME I know sb. hate this
-        }
-
-        if (imgURI != null) {
-            // response.sendRedirect(imgURI);
-            if (imgURI != null && imgURI.startsWith("/imageserver"))
-                imgURI = imgURI.substring(imgURI.indexOf("/imageserver") + 12);
-            RequestDispatcher rd = request.getRequestDispatcher(imgURI);
-            rd.forward(request,response);
-        } else {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-        }
+        String imgURI = "/upload/" + imgCatalog + "/" + imgId; //$NON-NLS-1$ //$NON-NLS-2$
+        RequestDispatcher rd = request.getRequestDispatcher(imgURI);
+        rd.forward(request, response);
     }
 
 }

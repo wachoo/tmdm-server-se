@@ -22,6 +22,8 @@ public class ImageLoadFrontFilter {
 
 	private static String resourceFileName = "";
 
+    private static boolean restoreFromDB = false;
+
 	public static boolean doFilter(ServletContext sc, HttpServletRequest req,
 			HttpServletResponse res,boolean inUseDBBackup,String inDBDelegateClass) throws IOException {
 
@@ -35,17 +37,18 @@ public class ImageLoadFrontFilter {
 
 			} else {
 				logger.debug("Resource Missing! ");
-				// get from db backup and recreate in catalog
-				if(inUseDBBackup){
-					DBDelegate dbDelegate=(DBDelegate) ReflectionUtil.newInstance(inDBDelegateClass,new Object[0]);
-					byte[] fileBytes=dbDelegate.getResource(new ResourcePK(resourceCatalogName,resourceFileName));
-					if(fileBytes!=null){
-						if(IOUtil.byteToImage(fileBytes,resourcePath)){
-							logger.debug("Restore file from backup database! ");
-							return true;
-						}
-					}
-				}
+
+                if (restoreFromDB && inUseDBBackup) {
+				 // get from db backup and recreate in catalog
+                    DBDelegate dbDelegate=(DBDelegate) ReflectionUtil.newInstance(inDBDelegateClass,new Object[0]);
+                    byte[] fileBytes=dbDelegate.getResource(new ResourcePK(resourceCatalogName,resourceFileName));
+                    if(fileBytes!=null){
+                        if(IOUtil.byteToImage(fileBytes,resourcePath)){
+                            logger.debug("Restore file from backup database! ");
+                            return true;
+                        }
+                    }
+                }
 
 				return false;
 			}

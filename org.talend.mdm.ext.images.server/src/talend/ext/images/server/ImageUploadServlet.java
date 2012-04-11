@@ -50,9 +50,9 @@ public class ImageUploadServlet extends HttpServlet {
 
     private String bakUseTransaction = "false";
 
-    private String uploadPath = "/upload"; // the folder to upload
+    private String uploadPath = ImageServerInfoServlet.UPLOAD_PATH;
 
-    private String tempPath = "/upload_tmp"; // the folder used to store temporary files of uploading
+    private String tempPath = ImageServerInfoServlet.TEMP_PATH;
 
     private String sourceFileName = "";
 

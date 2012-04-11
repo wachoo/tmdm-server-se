@@ -53,7 +53,7 @@ public class DBDelegateExistImpl implements DBDelegate{
         if (foundItemURIs != null && foundItemURIs.size() > 0) {
 
             String pk;
-            String foundItemURI = foundItemURIs.get(0);
+            String foundItemURI = foundItemURIs.get(0);// FIXME: only get the first one
             if (foundItemURI.lastIndexOf("/") != -1) {
                 pk = foundItemURI.substring(foundItemURI.lastIndexOf("/") + 1);
             } else {
