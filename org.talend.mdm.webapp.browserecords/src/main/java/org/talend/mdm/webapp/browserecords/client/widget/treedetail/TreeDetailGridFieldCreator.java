@@ -340,6 +340,9 @@ public class TreeDetailGridFieldCreator {
                     node.setObjectValue(fe.getField() instanceof ComboBox ? ((SimpleComboValue) fe.getValue()).getValue()
                             .toString() : (Serializable) fe.getValue());
                 }
+                if (fe.getField() instanceof FormatDateField)
+                    ((FormatDateField) field).setFormatedValue();
+                
                 node.setChangeValue(true);
 
                 validate(fe.getField(), node);

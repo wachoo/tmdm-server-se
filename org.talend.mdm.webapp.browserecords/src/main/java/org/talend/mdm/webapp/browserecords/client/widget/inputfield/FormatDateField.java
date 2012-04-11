@@ -15,6 +15,8 @@ import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DeferredCommand;
 
 public class FormatDateField extends DateField {
 
@@ -33,6 +35,8 @@ public class FormatDateField extends DateField {
     private ItemNodeModel node;
     
     private boolean initFlag = true;
+    
+    private Date date;
     
     public FormatDateField() {
 
@@ -200,20 +204,30 @@ public class FormatDateField extends DateField {
             }
 
             this.setOjbectValue(value);
-
-            if (formatPattern != null) {
-                FormatModel model = new FormatModel(formatPattern, date, Locale.getLanguage());
-                service.formatValue(model, new SessionAwareAsyncCallback<String>() {
-
-                    public void onSuccess(String result) {
-                        setDiplayValue(result);
-                        if (isShowFormateValue()){
-                            setRawValue(result);
-                        }                        
-                    }
-                });
-            }
+						this.date = date;
+            
             return true;
+        }
+    }
+    
+    public void setFormatedValue() {
+        if (formatPattern != null && date != null) {
+            final FormatModel model = new FormatModel(formatPattern, date, Locale.getLanguage());
+            DeferredCommand.addCommand(new Command() {
+
+                public void execute() {
+                    service.formatValue(model, new SessionAwareAsyncCallback<String>() {
+
+                        public void onSuccess(String result) {
+                            setDiplayValue(result);
+                            if (isShowFormateValue()) {
+                                setRawValue(result);
+                            }
+                        }
+                    });
+                }
+            });
+
         }
     }
 }
