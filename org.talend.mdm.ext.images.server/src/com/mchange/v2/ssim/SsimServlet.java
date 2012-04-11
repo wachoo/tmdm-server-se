@@ -23,13 +23,25 @@
 
 package com.mchange.v2.ssim;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.SocketException;
+import java.net.URL;
+import java.net.UnknownHostException;
+
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.UnavailableException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import talend.ext.images.server.ImageLoadFrontFilter;
 
-import java.io.*;
-import java.net.*;
 import com.mchange.v1.io.InputStreamUtils;
 import com.mchange.v2.net.LocalHostManager;
 import com.mchange.v2.util.PatternReplacementMap;
@@ -331,12 +343,12 @@ public class SsimServlet extends HttpServlet
 	    }
 	catch ( InterruptedException e )
 	    {
-		e.printStackTrace();
+            // e.printStackTrace();
 		throw new ServletException( e );
 	    }
 	catch ( SsimException e )
 	    {
-		e.printStackTrace();
+            // e.printStackTrace();
 		throw new ServletException( e );
 	    }
     }
