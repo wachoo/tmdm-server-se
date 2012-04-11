@@ -100,4 +100,18 @@ public class ItemBean extends org.talend.mdm.webapp.base.client.model.ItemBean {
     public void setReadOnly(boolean readOnly) {
         this.readOnly = readOnly;
     }
+
+    public long getLastUpdateTime() {
+        return ((Long) this.get("time")).longValue(); //$NON-NLS-1$
+    }
+
+    public void setLastUpdateTime(ItemNodeModel itemNodeModel) {
+        if (itemNodeModel != null)
+            this.set("time", itemNodeModel.get("time")); //$NON-NLS-1$ //$NON-NLS-2$
+    }
+
+    public void setLastUpdateTime(ItemResult result) {
+        if (result != null && result.getInsertionTime() > 0)
+            this.set("time", result.getInsertionTime()); //$NON-NLS-1$
+    }
 }

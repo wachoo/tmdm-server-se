@@ -566,7 +566,7 @@ public class TreeDetail extends ContentPanel {
 
                     public void onSuccess(ItemNodeModel node) {
                         TreeDetail.this.removeAll();
-                        item.set("time", node.get("time")); //$NON-NLS-1$ //$NON-NLS-2$
+                        item.setLastUpdateTime(node);
                         itemsDetailPanel.clearChildrenContent();
                         renderTree(node);
                     }
