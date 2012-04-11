@@ -158,6 +158,14 @@ public class ImageUploadServlet extends HttpServlet {
                         Object fileNameObj = getFileItem(fileItems, defaultFileNamefieldName);
                         if (fileNameObj != null)
                             targetFileShortName = (String) fileNameObj;
+                        else{
+                            String name = uploadFileItem.getName();
+                            int pos=name.lastIndexOf('.');
+                            if(pos!=-1){
+                                name=name.substring(0,pos);                                
+                            }
+                            targetFileShortName=name;
+                        }
 
                         int rtnStatus = processUploadedFile(uploadFileItem, true, Boolean.parseBoolean(bakInDB),
                                 Boolean.parseBoolean(bakUseTransaction));
