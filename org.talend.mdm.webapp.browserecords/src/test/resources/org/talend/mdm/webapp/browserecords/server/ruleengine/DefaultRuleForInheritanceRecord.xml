@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DefaultRuleForInheritance xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<subelement>11</subelement>
+	<name/>
+	<person>
+		<name>www</name>
+	</person>
+</DefaultRuleForInheritance>

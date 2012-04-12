@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<xsd:import namespace="http://www.w3.org/2001/XMLSchema"/>
+<xsd:element name="TestEnumeration">
+<xsd:annotation>
+
+<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:all>
+<xsd:element name="subelement" type="xsd:string">
+<xsd:annotation>
+
+<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+<xsd:element maxOccurs="1" minOccurs="0" name="name" type="xsd:string">
+<xsd:annotation>
+
+<xsd:appinfo source="X_Default_Value_Rule">'zhang'</xsd:appinfo>
+<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+<xsd:element maxOccurs="1" minOccurs="0" name="age" type="Ages">
+<xsd:annotation>
+
+<xsd:appinfo source="X_Default_Value_Rule">'21-30'</xsd:appinfo>
+<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+<xsd:element maxOccurs="1" minOccurs="0" name="favorite" type="Favorite">
+<xsd:annotation>
+
+<xsd:appinfo source="X_Default_Value_Rule">'Orange'</xsd:appinfo>
+<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="num" type="Num">
+<xsd:annotation>
+
+<xsd:appinfo source="X_Default_Value_Rule">6</xsd:appinfo>
+<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+            </xsd:all>
+</xsd:complexType>
+<xsd:unique name="TestEnumeration">
+<xsd:selector xpath="."/>
+<xsd:field xpath="subelement"/>
+</xsd:unique>
+</xsd:element>
+<xsd:simpleType name="Ages">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="10-20"/>
+<xsd:enumeration value="21-30"/>
+<xsd:enumeration value="31-40"/>
+<xsd:enumeration value="41-50"/>
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="Favorite">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="Apple"/>
+<xsd:enumeration value="Orange"/>
+<xsd:enumeration value="Banana"/>
+</xsd:restriction>
+</xsd:simpleType>
+    <xsd:simpleType name="Num">
+<xsd:restriction base="xsd:int">
+<xsd:enumeration value="2"/>
+<xsd:enumeration value="4"/>
+<xsd:enumeration value="6"/>
+<xsd:enumeration value="8"/>
+<xsd:enumeration value="9"/>
+</xsd:restriction>
+</xsd:simpleType>
+</xsd:schema>

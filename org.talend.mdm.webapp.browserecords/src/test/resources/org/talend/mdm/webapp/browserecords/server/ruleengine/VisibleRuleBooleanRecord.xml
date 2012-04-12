@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VisibleRuleBoolean xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<subelement>11</subelement>
+	<name>qq</name>
+	<finished>true</finished>
+	<cp>
+		<title>qqw</title>
+		<finished1>true</finished1>
+		<finished2>true</finished2>
+	</cp>
+</VisibleRuleBoolean>

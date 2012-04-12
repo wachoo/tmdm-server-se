@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BasicVisibleRule>
+	<subelement>111</subelement>
+	<name>1</name>
+	<testfield>qqq</testfield>
+	<cp>
+		<title>ff</title>
+		<address>aaa</address>
+		<address>sss</address>
+		<address>ddd</address>
+	</cp>
+</BasicVisibleRule>

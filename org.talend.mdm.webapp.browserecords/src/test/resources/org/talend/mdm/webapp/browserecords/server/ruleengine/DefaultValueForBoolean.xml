@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<xsd:import namespace="http://www.w3.org/2001/XMLSchema"/>
+<xsd:element name="TestBoolean">
+        <xsd:annotation>
+<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+</xsd:annotation>
+        <xsd:complexType>
+<xsd:all>
+<xsd:element name="subelement" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+<xsd:element maxOccurs="1" minOccurs="0" name="name" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+<xsd:appinfo source="X_Default_Value_Rule">'zhang'</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+<xsd:element maxOccurs="1" minOccurs="0" name="finished" type="xsd:boolean">
+<xsd:annotation>
+<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+
+
+<xsd:appinfo source="X_Default_Value_Rule">fn:true()</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="finished1" type="xsd:boolean">
+<xsd:annotation>
+<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+<xsd:appinfo source="X_Default_Value_Rule">fn:false()</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="finished2" type="xsd:boolean">
+<xsd:annotation>
+<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+<xsd:appinfo source="X_Default_Value_Rule">1 != 2</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="finished3" type="xsd:boolean">
+<xsd:annotation>
+<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+<xsd:appinfo source="X_Default_Value_Rule">1 = 2</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+            </xsd:all>
+</xsd:complexType>
+<xsd:unique name="TestBoolean">
+<xsd:selector xpath="."/>
+<xsd:field xpath="subelement"/>
+</xsd:unique>
+</xsd:element>
+</xsd:schema>
