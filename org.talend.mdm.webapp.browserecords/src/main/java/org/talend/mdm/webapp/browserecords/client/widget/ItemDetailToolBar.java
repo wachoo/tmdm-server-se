@@ -733,8 +733,8 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private void addOpenTaskButton() {
-        if (taskButton == null && itemBean.getTaskId() != null
-                && !"".equals(itemBean.getTaskId()) && !"null".equals(itemBean.getTaskId())) {//$NON-NLS-1$ //$NON-NLS-2$
+        if (taskButton == null && itemBean.getTaskId() != null && itemBean.getTaskId().trim().length() > 0
+                && !"null".equalsIgnoreCase(itemBean.getTaskId().trim())) { //$NON-NLS-1$
             ItemDetailToolBar.this.addSeparator();
             this.taskButton = new Button(MessagesFactory.getMessages().open_task());
 
