@@ -11,6 +11,12 @@
 
 package com.amalto.core.save.context;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.history.MutableDocument;
@@ -20,14 +26,15 @@ import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocal;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
 import com.amalto.core.save.DocumentSaverContext;
+import com.amalto.core.save.RoutingEngineException;
 import com.amalto.core.schema.validation.XmlSchemaValidator;
-import com.amalto.core.util.*;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import com.amalto.core.util.AutoIncrementGenerator;
+import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.OutputReport;
+import com.amalto.core.util.User;
+import com.amalto.core.util.UserHelper;
+import com.amalto.core.util.Util;
+import com.amalto.core.util.XtentisException;
 
 public class DefaultSaverSource implements SaverSource {
 
@@ -196,7 +203,7 @@ public class DefaultSaverSource implements SaverSource {
             DataClusterPOJOPK dataClusterPOJOPK = new DataClusterPOJOPK(dataCluster);
             ctrl.route(new ItemPOJOPK(dataClusterPOJOPK, typeName, id));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RoutingEngineException(e); // it need to catch routingException in web-side
         }
     }
 

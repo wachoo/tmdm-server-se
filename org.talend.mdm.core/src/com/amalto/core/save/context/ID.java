@@ -11,6 +11,24 @@
 
 package com.amalto.core.save.context;
 
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.EUUIDCustomType;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
+import org.xml.sax.InputSource;
+
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.metadata.ComplexTypeMetadata;
@@ -20,18 +38,6 @@ import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.util.AutoIncrementGenerator;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.core.EUUIDCustomType;
-import org.w3c.dom.*;
-import org.xml.sax.InputSource;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
 
 class ID implements DocumentSaver {
 
@@ -85,7 +91,12 @@ class ID implements DocumentSaver {
                     generatedIdValue = userAccessor.get();
                 }
                 if (generatedIdValue == null || generatedIdValue.isEmpty()) { // Web UI generates empty elements!
-                    generatedIdValue = String.valueOf(AutoIncrementGenerator.generateNum(universe, dataCluster, typeName + "." + keyField.getName().replaceAll("/", ".")));   //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    if (session.isWebSession())
+                        generatedIdValue = String.valueOf(AutoIncrementGenerator.generateNum(session.hashCode(), universe,
+                                dataCluster, typeName + "." + keyField.getName().replaceAll("/", "."))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    else
+                        generatedIdValue = String.valueOf(AutoIncrementGenerator.generateNum(universe, dataCluster, typeName
+                                + "." + keyField.getName().replaceAll("/", "."))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
                 if (userAccessor.exist()) {
                     userAccessor.set(generatedIdValue);
@@ -160,7 +171,7 @@ class ID implements DocumentSaver {
         context.setId(savedId);
         next.save(session, context);
 
-        if (hasMetAutoIncrement) {
+        if (hasMetAutoIncrement && !session.isWebSession()) {
             // TODO This is somewhat bad: would be better to do it on commit.
             // Save current state of autoincrement when save is completed:
             AutoIncrementGenerator.saveToDB();
