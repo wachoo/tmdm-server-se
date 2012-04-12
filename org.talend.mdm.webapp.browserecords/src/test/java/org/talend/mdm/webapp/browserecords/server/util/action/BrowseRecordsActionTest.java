@@ -83,37 +83,37 @@ public class BrowseRecordsActionTest extends TestCase {
         boolean taskIdNotNull = itemBean.getTaskId() != null && itemBean.getTaskId().trim().length() > 0
                 && !"null".equalsIgnoreCase(itemBean.getTaskId().trim());
         assertEquals(false, taskIdNotNull);
-        // 1
+        // 1 taskId = ""
         itemBean.setTaskId("");
         taskIdNotNull = itemBean.getTaskId() != null && itemBean.getTaskId().trim().length() > 0
                 && !"null".equalsIgnoreCase(itemBean.getTaskId().trim());
         assertEquals(false, taskIdNotNull);
-        // 2
+        // 2 taskId = " "
         itemBean.setTaskId(" ");
         taskIdNotNull = itemBean.getTaskId() != null && itemBean.getTaskId().trim().length() > 0
                 && !"null".equalsIgnoreCase(itemBean.getTaskId().trim());
         assertEquals(false, taskIdNotNull);
-        // 3
+        // 3 taskId = "null"
         itemBean.setTaskId("null");
         taskIdNotNull = itemBean.getTaskId() != null && itemBean.getTaskId().trim().length() > 0
                 && !"null".equalsIgnoreCase(itemBean.getTaskId().trim());
         assertEquals(false, taskIdNotNull);
-        // 4
+        // 4 taksId = "Null";
         itemBean.setTaskId("Null");
         taskIdNotNull = itemBean.getTaskId() != null && itemBean.getTaskId().trim().length() > 0
                 && !"null".equalsIgnoreCase(itemBean.getTaskId().trim());
         assertEquals(false, taskIdNotNull);
-        // 5
+        // 5 taskId = "null ";
         itemBean.setTaskId("null ");
         taskIdNotNull = itemBean.getTaskId() != null && itemBean.getTaskId().trim().length() > 0
                 && !"null".equalsIgnoreCase(itemBean.getTaskId().trim());
         assertEquals(false, taskIdNotNull);
-        // 6
+        // 6 taskId = "NULL";
         itemBean.setTaskId("NULL");
         taskIdNotNull = itemBean.getTaskId() != null && itemBean.getTaskId().trim().length() > 0
                 && !"null".equalsIgnoreCase(itemBean.getTaskId().trim());
         assertEquals(false, taskIdNotNull);
-        // 7
+        // 7 taskId = "123";
         itemBean.setTaskId("123");
         taskIdNotNull = itemBean.getTaskId() != null && itemBean.getTaskId().trim().length() > 0
                 && !"null".equalsIgnoreCase(itemBean.getTaskId().trim());
