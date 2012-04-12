@@ -67,12 +67,12 @@ public class ImageDeleteServlet extends HttpServlet {
 			if (uri == null || uri.length() == 0)
 				return buildDeleteResult(false,
 						"Request parameter 'uri' can not be empty! ");
+
+            String contextPath = request.getSession().getServletContext().getContextPath();
+            // normalize uri
+            uri = normalizeURI(uri, contextPath);
 			String toDeleteFilePath = getServletContext().getRealPath(uri);
 			logger.debug("To Delete File Path: " + toDeleteFilePath);
-
-            // normalize uri
-            String contextPath = request.getSession().getServletContext().getContextPath();
-            uri = normalizeURI(uri, contextPath);
 
 			// delete on file system
 			// TODO care about synchronized when delete file
@@ -140,7 +140,7 @@ public class ImageDeleteServlet extends HttpServlet {
     private String normalizeURI(String uri, String contextPath) {
 
         if (uri.startsWith(contextPath)) {
-            uri.substring(contextPath.length());
+            uri = uri.substring(contextPath.length());
         }
         if (uri.startsWith("/")) //$NON-NLS-1$
             uri = uri.substring(1);
