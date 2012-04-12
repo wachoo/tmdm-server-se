@@ -23,6 +23,7 @@ import org.talend.mdm.webapp.browserecords.server.util.TestData;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 
+@SuppressWarnings("nls")
 public class BrowseRecordsActionTest extends TestCase {
 
     private BrowseRecordsAction action = new BrowseRecordsAction();
@@ -75,7 +76,50 @@ public class BrowseRecordsActionTest extends TestCase {
 
         }
     }
+    
+	public void test_TaskIdIsNull() {
+        ItemBean itemBean = getItemBean();
 
+        boolean taskIdNotNull = itemBean.getTaskId() != null && itemBean.getTaskId().trim().length() > 0
+                && !"null".equalsIgnoreCase(itemBean.getTaskId().trim());
+        assertEquals(false, taskIdNotNull);
+        // 1
+        itemBean.setTaskId("");
+        taskIdNotNull = itemBean.getTaskId() != null && itemBean.getTaskId().trim().length() > 0
+                && !"null".equalsIgnoreCase(itemBean.getTaskId().trim());
+        assertEquals(false, taskIdNotNull);
+        // 2
+        itemBean.setTaskId(" ");
+        taskIdNotNull = itemBean.getTaskId() != null && itemBean.getTaskId().trim().length() > 0
+                && !"null".equalsIgnoreCase(itemBean.getTaskId().trim());
+        assertEquals(false, taskIdNotNull);
+        // 3
+        itemBean.setTaskId("null");
+        taskIdNotNull = itemBean.getTaskId() != null && itemBean.getTaskId().trim().length() > 0
+                && !"null".equalsIgnoreCase(itemBean.getTaskId().trim());
+        assertEquals(false, taskIdNotNull);
+        // 4
+        itemBean.setTaskId("Null");
+        taskIdNotNull = itemBean.getTaskId() != null && itemBean.getTaskId().trim().length() > 0
+                && !"null".equalsIgnoreCase(itemBean.getTaskId().trim());
+        assertEquals(false, taskIdNotNull);
+        // 5
+        itemBean.setTaskId("null ");
+        taskIdNotNull = itemBean.getTaskId() != null && itemBean.getTaskId().trim().length() > 0
+                && !"null".equalsIgnoreCase(itemBean.getTaskId().trim());
+        assertEquals(false, taskIdNotNull);
+        // 6
+        itemBean.setTaskId("NULL");
+        taskIdNotNull = itemBean.getTaskId() != null && itemBean.getTaskId().trim().length() > 0
+                && !"null".equalsIgnoreCase(itemBean.getTaskId().trim());
+        assertEquals(false, taskIdNotNull);
+        // 7
+        itemBean.setTaskId("123");
+        taskIdNotNull = itemBean.getTaskId() != null && itemBean.getTaskId().trim().length() > 0
+                && !"null".equalsIgnoreCase(itemBean.getTaskId().trim());
+        assertEquals(true, taskIdNotNull);
+    }
+    
     private ItemBean getItemBean() {
         ItemBean item = new ItemBean("Agency", "NJ01", xml); //$NON-NLS-1$//$NON-NLS-2$
         return item;
