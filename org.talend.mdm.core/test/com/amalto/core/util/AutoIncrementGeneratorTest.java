@@ -98,4 +98,23 @@ public class AutoIncrementGeneratorTest extends TestCase {
         assertEquals("2.3.", unused);
     }
 
+    @SuppressWarnings("static-access")
+    public void test_setUpValueWhenThrowException() {
+        boolean saveSuccess = true;
+        try {
+            String xml = "<AutoIncrement><id>AutoIncrement</id></AutoIncrement>";
+            URL url = AutoIncrementGeneratorTest.class.getResource("CONF.AutoIncrement.AutoIncrementTest.xml");
+            if (url == null)
+                throw new NullPointerException("File is not found");
+            String fileName = url.getPath();
+            MockAutoIncrementGenerator mockObject = new MockAutoIncrementGenerator();
+            mockObject.writeXMLToFile(xml, fileName);
+        } catch (Exception e) {
+            saveSuccess = false;
+            assertSame("File is not found", e.getMessage());
+        } finally {
+            assertFalse(saveSuccess);
+        }
+    }
+
 }
