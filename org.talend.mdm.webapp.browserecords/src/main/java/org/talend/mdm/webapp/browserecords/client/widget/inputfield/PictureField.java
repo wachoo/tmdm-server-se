@@ -126,6 +126,7 @@ public class PictureField extends TextField<String> {
         regJs(delHandler);
         regJs(addHandler);
         dialog.setHeading(MessagesFactory.getMessages().confirm_title());
+        dialog.addText(MessagesFactory.getMessages().confirm_delete_img());
         dialog.setModal(true);
         dialog.setBlinkModal(true);
         dialog.setButtons(Dialog.YESNO);
@@ -274,6 +275,7 @@ public class PictureField extends TextField<String> {
             final TextField<String> name = new TextField<String>();
             name.setFieldLabel(""); //$NON-NLS-1$
             name.setName("fileName"); //$NON-NLS-1$
+            name.setAllowBlank(false);
            
             imgIdRow.add(name);
             final LabelField extFileNameLabel = new LabelField();
@@ -285,6 +287,7 @@ public class PictureField extends TextField<String> {
             final TextField<String> catalog = new TextField<String>();
             catalog.setFieldLabel(""); //$NON-NLS-1$
             catalog.setName("catalogName"); //$NON-NLS-1$
+            catalog.setAllowBlank(false);
 
             catalogRow.add(catalog);
             catalogRow.add(new LabelField());
@@ -317,23 +320,24 @@ public class PictureField extends TextField<String> {
             editForm.addListener(Events.Submit, new Listener<FormEvent>() {
 
                 public void handleEvent(FormEvent be) {
-                    String json = be.getResultHtml();
-                    JSONObject jsObject = JSONParser.parse(json).isObject();
-                    JSONBoolean success = jsObject.get("success").isBoolean(); //$NON-NLS-1$
-                    JSONString message = jsObject.get("message").isString(); //$NON-NLS-1$
-                    if (success.booleanValue())
-                        MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
-                                .upload_pic_ok(), null);
-                    else
-                        MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
-                                .upload_pic_fail(), null);
-                    if (success.booleanValue()) {
-                        setValue(message.stringValue());
-                    } else {
-                        setValue(null);
+                    if (name.getValue() != null && name.getValue().trim().length() > 0  && catalog.getValue() != null && catalog.getValue().trim().length() > 0){
+                        String json = be.getResultHtml();
+                        JSONObject jsObject = JSONParser.parse(json).isObject();
+                        JSONBoolean success = jsObject.get("success").isBoolean(); //$NON-NLS-1$
+                        JSONString message = jsObject.get("message").isString(); //$NON-NLS-1$
+                        if (success.booleanValue())
+                            MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
+                                    .upload_pic_ok(), null);
+                        else
+                            MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                                    .upload_pic_fail(), null);
+                        if (success.booleanValue()) {
+                            setValue(message.stringValue());
+                        } else {
+                            setValue(null);
+                        }
+                        EditWindow.this.hide();
                     }
-
-                    EditWindow.this.hide();
                 }
 
             });
