@@ -13,7 +13,6 @@ package com.amalto.core.history.accessor;
 
 import com.amalto.core.history.MutableDocument;
 import org.apache.commons.lang.NotImplementedException;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 /**
@@ -49,11 +48,6 @@ class RootAccessor implements DOMAccessor {
 
     public void delete() {
         // Nothing to do (won't delete the document).
-    }
-
-    public void deleteContent() {
-        Document domDocument = document.asDOM();
-        domDocument.removeChild(domDocument.getDocumentElement());
     }
 
     public boolean exist() {

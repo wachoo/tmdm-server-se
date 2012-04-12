@@ -141,10 +141,6 @@ class AttributeAccessor implements DOMAccessor {
         }
     }
 
-    public void deleteContent() {
-        delete();
-    }
-
     public boolean exist() {
         return parent.exist() && getAttribute() != null;
     }

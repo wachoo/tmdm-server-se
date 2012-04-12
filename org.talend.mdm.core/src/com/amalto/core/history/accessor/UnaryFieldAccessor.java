@@ -97,15 +97,6 @@ class UnaryFieldAccessor implements DOMAccessor {
         element.getParentNode().removeChild(element);
     }
 
-    public void deleteContent() {
-        Element element = getElement();
-        NodeList children = element.getChildNodes();
-        for (int i = children.getLength() - 1; i >= 0; i--) {
-            Node item = children.item(i);
-            element.removeChild(item);
-        }
-    }
-
     public boolean exist() {
         return parent.exist() && getElement() != null;
     }

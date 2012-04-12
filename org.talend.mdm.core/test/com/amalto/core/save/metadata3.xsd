@@ -65,6 +65,11 @@
             </xsd:element>
         </xsd:sequence>
     </xsd:complexType>
+    <xsd:complexType name="ContractDetailSubType2">
+        <xsd:complexContent>
+            <xsd:extension base="ContractDetailType"/>
+        </xsd:complexContent>
+    </xsd:complexType>
     <xsd:complexType name="ContractDetailSubType">
         <xsd:complexContent>
             <xsd:extension base="ContractDetailType">

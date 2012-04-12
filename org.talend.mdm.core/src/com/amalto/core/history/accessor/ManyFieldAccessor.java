@@ -87,17 +87,21 @@ class ManyFieldAccessor implements DOMAccessor {
         if (node == null) {
             NodeList children = parentNode.getElementsByTagName(fieldName);
             int currentCollectionSize = children.getLength();
-            Node refNode;
             if (currentCollectionSize > 0) {
-                refNode = children.item(currentCollectionSize - 1).getNextSibling();
+                Node refNode = children.item(currentCollectionSize - 1).getNextSibling();
+                while (currentCollectionSize <= index) {
+                    Element newChild = domDocument.createElementNS(domDocument.getNamespaceURI(), fieldName);
+                    parentNode.insertBefore(newChild, refNode);
+                    currentCollectionSize++;
+                }
             } else {
-                refNode = parentNode.getLastChild(); // TODO Better way to way where to insert (look at XSD sequence)
-            }
-
-            while (currentCollectionSize <= index) {
-                Element newChild = domDocument.createElementNS(domDocument.getNamespaceURI(), fieldName);
-                parentNode.insertBefore(newChild, refNode);
-                currentCollectionSize++;
+                // TODO Better way to way where to insert (look at XSD sequence)
+                // Collection is not present at all, append at the end of parent element.
+                while (currentCollectionSize <= index) {
+                    Element newChild = domDocument.createElementNS(domDocument.getNamespaceURI(), fieldName);
+                    parentNode.appendChild(newChild);
+                    currentCollectionSize++;
+                }
             }
         }
     }
@@ -113,15 +117,6 @@ class ManyFieldAccessor implements DOMAccessor {
             return; // Node has already been deleted.
         }
         node.getParentNode().removeChild(node);
-    }
-
-    public void deleteContent() {
-        Element collectionItemNode = getCollectionItemNode();
-        NodeList children = collectionItemNode.getChildNodes();
-        for (int i = children.getLength() - 1; i >= 0; i--) {
-            Node item = children.item(i);
-            collectionItemNode.removeChild(item);
-        }
     }
 
     public boolean exist() {

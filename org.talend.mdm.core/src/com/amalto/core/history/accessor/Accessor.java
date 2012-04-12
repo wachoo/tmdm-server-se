@@ -58,11 +58,6 @@ public interface Accessor {
     void delete();
 
     /**
-     * Similar to {@link #delete()} but does not delete the underlying element, only all child elements (if any).
-     */
-    void deleteContent();
-    
-    /**
      * @return Returns true if the field exists (i.e. the full path to the field exists). If it doesn't, a call to
      *         {@link #create()} should be able to create everything needed.
      */

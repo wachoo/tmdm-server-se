@@ -186,6 +186,46 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("sdfsdf", evaluate(committedElement, "/Contract/detail[1]/code"));
     }
 
+    public void testSubclassTypeChange2() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata3.xsd"));
+
+        SaverSource source = new TestSaverSource(repository, true, "test15_original.xml", "metadata3.xsd");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test15.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "Contract", "Source", recordXml, true, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("ContractDetailSubType", evaluate(committedElement, "/Contract/detail[1]/@xsi:type"));
+        assertEquals("cccccc", evaluate(committedElement, "/Contract/detail[1]/code"));
+        assertEquals("sdfsdf", evaluate(committedElement, "/Contract/detail[1]/features/actor"));
+    }
+
+    public void testSubclassTypeChange3() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata3.xsd"));
+
+        SaverSource source = new TestSaverSource(repository, true, "test16_original.xml", "metadata3.xsd");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test16.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "Contract", "Source", recordXml, true, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("ContractDetailSubType2", evaluate(committedElement, "/Contract/detail[1]/@xsi:type"));
+        assertEquals("sdfsdf", evaluate(committedElement, "/Contract/detail[1]/code"));
+    }
 
     public void testUpdateSecurity() throws Exception {
         // TODO Test for modification of id (this test modifies id but this is intentional).

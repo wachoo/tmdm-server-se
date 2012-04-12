@@ -177,9 +177,6 @@ class UpdateReportDocument extends DOMDocument {
             updateReportDocument.setField(path, "null"); //$NON-NLS-1$
         }
 
-        public void deleteContent() {
-        }
-
         public boolean exist() {
             return true;
         }
