@@ -45,8 +45,8 @@ class ChangeTypeAction implements Action {
         this.newType = newType;
 
         pathToClean = new HashSet<String>();
-        // Compute paths to fields that changed from previous type
-        if (previousType != null) {
+        // Compute paths to fields that changed from previous type (only if type changed).
+        if (previousType != null && previousType.getName().equals(newType.getName())) {
             newType.accept(new TypeComparison(previousType, pathToClean));
             previousType.accept(new TypeComparison(newType, pathToClean));
         }

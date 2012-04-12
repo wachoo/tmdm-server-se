@@ -74,6 +74,10 @@ class ManyFieldAccessor implements DOMAccessor {
         return collectionItemNode.getTextContent();
     }
 
+    public void touch() {
+        document.setLastAccessedNode(getCollectionItemNode());
+    }
+
     public Node getNode() {
         return getCollectionItemNode();
     }
@@ -81,6 +85,7 @@ class ManyFieldAccessor implements DOMAccessor {
     public void create() {
         parent.create();
 
+        // TODO Refactor this
         Document domDocument = document.asDOM();
         Element parentNode = (Element) parent.getNode();
         Node node = getCollectionItemNode();
@@ -95,12 +100,24 @@ class ManyFieldAccessor implements DOMAccessor {
                     currentCollectionSize++;
                 }
             } else {
-                // TODO Better way to way where to insert (look at XSD sequence)
                 // Collection is not present at all, append at the end of parent element.
-                while (currentCollectionSize <= index) {
-                    Element newChild = domDocument.createElementNS(domDocument.getNamespaceURI(), fieldName);
-                    parentNode.appendChild(newChild);
-                    currentCollectionSize++;
+                Node lastAccessedNode = document.getLastAccessedNode();
+                if (lastAccessedNode != null) {
+                    Node refNode = lastAccessedNode.getNextSibling();
+                    while (!(refNode instanceof Element)) {
+                        refNode = refNode.getNextSibling();
+                    }
+                    while (currentCollectionSize <= index) {
+                        Element newChild = domDocument.createElementNS(domDocument.getNamespaceURI(), fieldName);
+                        parentNode.insertBefore(newChild, refNode);
+                        currentCollectionSize++;
+                    }
+                } else {
+                    while (currentCollectionSize <= index) {
+                        Element newChild = domDocument.createElementNS(domDocument.getNamespaceURI(), fieldName);
+                        parentNode.appendChild(newChild);
+                        currentCollectionSize++;
+                    }
                 }
             }
         }

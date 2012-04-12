@@ -165,6 +165,9 @@ class UpdateReportDocument extends DOMDocument {
             return StringUtils.EMPTY;
         }
 
+        public void touch() {
+        }
+
         public void create() {
             // Nothing to do.
         }

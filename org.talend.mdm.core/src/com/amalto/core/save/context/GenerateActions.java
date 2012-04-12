@@ -62,9 +62,22 @@ class GenerateActions implements DocumentSaver {
         }
         context.setActions(actions);
 
-        if (!actions.isEmpty()) { // Ignore rest of save chain if there's no change to perform.
+        boolean hasModificationActions = hasModificationActions(actions);
+        if (hasModificationActions) { // Ignore rest of save chain if there's no change to perform.
             next.save(session, context);
         }
+    }
+
+    private boolean hasModificationActions(List<Action> actions) {
+        if (actions.isEmpty()) {
+            return false;
+        }
+        for (Action action : actions) {
+            if (!(action instanceof UpdateActionCreator.TouchAction)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public String[] getSavedId() {

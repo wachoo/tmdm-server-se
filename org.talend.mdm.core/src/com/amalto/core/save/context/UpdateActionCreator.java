@@ -176,6 +176,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
         Accessor originalAccessor = originalDocument.createAccessor(path);
         Accessor newAccessor = newDocument.createAccessor(path);
 
+        generateNoOp(path);
         if (!originalAccessor.exist()) {
             if (!newAccessor.exist()) {
                 // No op
@@ -196,5 +197,64 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
             }
         }
     }
+    
+    private void generateNoOp(final String path) {
+        // TODO Do only this if type is a sequence (useless if type isn't ordered).
+        actions.add(new TouchAction(path, date, source, userName));
+    }
 
+    public static class TouchAction implements Action {
+
+        private final String path;
+
+        private Date date;
+
+        private String source;
+
+        private String userName;
+
+        private TouchAction(String path, Date date, String source, String userName) {
+            this.path = path;
+            this.date = date;
+            this.source = source;
+            this.userName = userName;
+        }
+
+        public MutableDocument perform(MutableDocument document) {
+            document.createAccessor(path).touch();
+            return document;
+        }
+
+        public MutableDocument undo(MutableDocument document) {
+            return document;
+        }
+
+        public MutableDocument addModificationMark(MutableDocument document) {
+            return document;
+        }
+
+        public MutableDocument removeModificationMark(MutableDocument document) {
+            return document;
+        }
+
+        public Date getDate() {
+            return date;
+        }
+
+        public String getSource() {
+            return source;
+        }
+
+        public String getUserName() {
+            return userName;
+        }
+
+        public boolean isAllowed(Set<String> roles) {
+            return true;
+        }
+
+        public String getDetails() {
+            return "Accessing value";
+        }
+    }
 }

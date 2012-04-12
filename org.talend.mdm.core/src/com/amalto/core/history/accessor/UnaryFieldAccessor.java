@@ -57,7 +57,6 @@ class UnaryFieldAccessor implements DOMAccessor {
 
     private Element internalCreate() {
         parent.create();
-
         Document domDocument = document.asDOM();
         Element element = getElement();
         if (element == null) {
@@ -77,6 +76,10 @@ class UnaryFieldAccessor implements DOMAccessor {
     public String get() {
         Element element = getElement();
         return element.getTextContent();
+    }
+
+    public void touch() {
+        document.setLastAccessedNode(getElement());
     }
 
     public Node getNode() {

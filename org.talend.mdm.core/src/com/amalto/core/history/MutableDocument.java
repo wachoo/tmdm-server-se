@@ -12,6 +12,7 @@
 package com.amalto.core.history;
 
 import com.amalto.core.history.accessor.Accessor;
+import org.w3c.dom.Node;
 
 /**
  * A {@link Document} that is able to change.
@@ -92,4 +93,16 @@ public interface MutableDocument extends Document {
      */
     Document applyChanges();
 
+    /**
+     * @return Returns the last node accessed on this document.
+     * @see {@link com.amalto.core.history.accessor.Accessor#touch()}
+     */
+    Node getLastAccessedNode();
+
+    /**
+     * Sets a new accessed node in the document.
+     * @param lastAccessedNode A {@link Node} in the underlying DOM document.
+     * @see {@link com.amalto.core.history.accessor.Accessor#touch()}
+     */
+    void setLastAccessedNode(Node lastAccessedNode);
 }

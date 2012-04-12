@@ -104,6 +104,10 @@ class AttributeAccessor implements DOMAccessor {
         return attribute.getValue();
     }
 
+    public void touch() {
+        // Nothing to do.
+    }
+
     public Node getNode() {
         return getAttribute();
     }

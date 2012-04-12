@@ -34,6 +34,10 @@ class RootAccessor implements DOMAccessor {
         throw new IllegalStateException("Cannot get value");
     }
 
+    public void touch() {
+        // Nothing to do.
+    }
+
     public Node getNode() {
         return document.asDOM();
     }

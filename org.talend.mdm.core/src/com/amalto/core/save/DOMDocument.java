@@ -30,6 +30,8 @@ public class DOMDocument implements MutableDocument {
 
     private org.w3c.dom.Document domDocument;
 
+    private Node lastAccessedNode;
+
     private String rootElementName;
 
     public DOMDocument(org.w3c.dom.Document domDocument) {
@@ -60,6 +62,14 @@ public class DOMDocument implements MutableDocument {
         }
     }
 
+    public Node getLastAccessedNode() {
+        return lastAccessedNode;
+    }
+
+    public void setLastAccessedNode(Node lastAccessedNode) {
+        this.lastAccessedNode = lastAccessedNode;
+    }
+
     public String exportToString() {
         try {
             return Util.nodeToString(domDocument);
@@ -69,6 +79,9 @@ public class DOMDocument implements MutableDocument {
     }
 
     public Document transform(DocumentTransformer transformer) {
+        if (transformer == null) {
+            throw new IllegalArgumentException("Transformer argument cannot be null");
+        }
         return transformer.transform(this);
     }
 
@@ -77,7 +90,11 @@ public class DOMDocument implements MutableDocument {
     }
 
     public Accessor createAccessor(String path) {
-        return DOMAccessorFactory.createAccessor(rootElementName + '/' + path, this);
+        if (rootElementName != null) {
+            return DOMAccessorFactory.createAccessor(rootElementName + '/' + path, this);
+        } else {
+            return DOMAccessorFactory.createAccessor(path, this);
+        }
     }
 
     public org.w3c.dom.Document asDOM() {

@@ -37,6 +37,12 @@ public interface Accessor {
     String get();
 
     /**
+     * Do not modify the accessed object but mark the accessed object in the {@link com.amalto.core.history.MutableDocument}.
+     * @see {@link com.amalto.core.history.MutableDocument#getLastAccessedNode()}.
+     */
+    void touch();
+
+    /**
      * Creates all the structure necessary to make {@link #set(String)} successful. It creates all
      * missing XML elements in the document.
      *

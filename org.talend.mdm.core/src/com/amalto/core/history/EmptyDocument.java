@@ -14,6 +14,7 @@ package com.amalto.core.history;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.accessor.DOMAccessorFactory;
 import org.apache.commons.lang.StringUtils;
+import org.w3c.dom.Node;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -87,5 +88,12 @@ public class EmptyDocument implements MutableDocument {
 
     public Document applyChanges() {
         return this;
+    }
+
+    public Node getLastAccessedNode() {
+        return null;
+    }
+
+    public void setLastAccessedNode(Node lastAccessedNode) {
     }
 }
