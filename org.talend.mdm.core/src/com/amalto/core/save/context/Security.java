@@ -33,9 +33,11 @@ class Security implements DocumentSaver {
         SaverSource saverSource = session.getSaverSource();
         Set<String> currentUserRoles = saverSource.getCurrentUserRoles();
 
-        boolean bypassSecurityChecks = "admin".equals(saverSource.getUserName()); // admin has all rights, so bypass security checks
-        if (currentUserRoles.contains("administration")) {
-            bypassSecurityChecks = true; // administration has all roles, so bypass security checks
+        // admin has all rights, so bypass security checks
+        boolean bypassSecurityChecks = "admin".equals(saverSource.getUserName()); //$NON-NLS-1$
+        // administration has all roles, so bypass security checks
+        if (currentUserRoles.contains("administration")) { //$NON-NLS-1$
+            bypassSecurityChecks = true;
         }
 
         if (!bypassSecurityChecks) {
