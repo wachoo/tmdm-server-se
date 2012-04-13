@@ -33,36 +33,43 @@ class Security implements DocumentSaver {
         SaverSource saverSource = session.getSaverSource();
         Set<String> currentUserRoles = saverSource.getCurrentUserRoles();
 
-        // First check rights on the type
-        List<String> typeWriteUsers = context.getType().getWriteUsers();
-        boolean isAllowed = false;
-        for (String currentUserRole : currentUserRoles) {
-            if (typeWriteUsers.contains(currentUserRole)) {
-                isAllowed = true;
-                break;
-            }
-        }
-        if (!isAllowed) {
-            throw new RuntimeException("User '" + saverSource.getUserName() + "' is not allowed to write to type '" + context.getType().getName() + "'.");
+        boolean bypassSecurityChecks = "admin".equals(saverSource.getUserName()); // admin has all rights, so bypass security checks
+        if (currentUserRoles.contains("administration")) {
+            bypassSecurityChecks = true; // administration has all roles, so bypass security checks
         }
 
-        // Then check security on all actions (updates...)
-        Set<Action> failedActions = new HashSet<Action>();
-        for (Action action : actions) {
-            if (!action.isAllowed(currentUserRoles)) {
-                failedActions.add(action);
-            }
-        }
-        if (!failedActions.isEmpty()) {
-            StringBuilder builder = new StringBuilder();
-            Iterator<Action> iterator = failedActions.iterator();
-            while (iterator.hasNext()) {
-                builder.append(iterator.next().getDetails());
-                if (iterator.hasNext()) {
-                    builder.append(" / ");  //$NON-NLS-1$
+        if (!bypassSecurityChecks) {
+            // First check rights on the type
+            List<String> typeWriteUsers = context.getType().getWriteUsers();
+            boolean isAllowed = false;
+            for (String currentUserRole : currentUserRoles) {
+                if (typeWriteUsers.contains(currentUserRole)) {
+                    isAllowed = true;
+                    break;
                 }
             }
-            throw new IllegalStateException("User is not allowed to perform: " + builder);
+            if (!isAllowed) {
+                throw new RuntimeException("User '" + saverSource.getUserName() + "' is not allowed to write to type '" + context.getType().getName() + "'.");
+            }
+
+            // Then check security on all actions (updates...)
+            Set<Action> failedActions = new HashSet<Action>();
+            for (Action action : actions) {
+                if (!action.isAllowed(currentUserRoles)) {
+                    failedActions.add(action);
+                }
+            }
+            if (!failedActions.isEmpty()) {
+                StringBuilder builder = new StringBuilder();
+                Iterator<Action> iterator = failedActions.iterator();
+                while (iterator.hasNext()) {
+                    builder.append(iterator.next().getDetails());
+                    if (iterator.hasNext()) {
+                        builder.append(" / ");  //$NON-NLS-1$
+                    }
+                }
+                throw new IllegalStateException("User is not allowed to perform: " + builder);
+            }
         }
 
         next.save(session, context);
