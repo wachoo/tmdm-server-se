@@ -140,6 +140,30 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
         }
     }
 
+    private String getParentPath() {
+        if (path.isEmpty()) {
+            throw new IllegalStateException();
+        } else {
+            StringBuilder builder = new StringBuilder();
+            String currentField = null;
+            try {
+                currentField = path.pop();
+                Iterator<String> pathIterator = path.iterator();
+                while (pathIterator.hasNext()) {
+                    builder.append(pathIterator.next());
+                    if (pathIterator.hasNext()) {
+                        builder.append('/');
+                    }
+                }
+                return builder.toString();
+            } finally {
+                if (currentField != null) {
+                    path.push(currentField);
+                }
+            }
+        }
+    }
+
     private void handleField(FieldMetadata field, Closure closure) {
         path.add(field.getName());
         if (field.isMany()) {
@@ -176,28 +200,33 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
         Accessor originalAccessor = originalDocument.createAccessor(path);
         Accessor newAccessor = newDocument.createAccessor(path);
 
-        generateNoOp(path);
         if (!originalAccessor.exist()) {
             if (!newAccessor.exist()) {
                 // No op
             } else { // new accessor exist
                 if (!newAccessor.get().isEmpty()) { // TODO Empty accessor means no op to ensure legacy behavior
+                    generateNoOp(getParentPath());
                     actions.add(new FieldUpdateAction(date, source, userName, path, StringUtils.EMPTY, newAccessor.get(), comparedField));
+                    // generateNoOp(path);
                 }
             }
         } else { // original accessor exist
             if (!newAccessor.exist()) {
                 if (comparedField.isMany()) {
+                    generateNoOp(getParentPath());
                     actions.add(new FieldUpdateAction(date, source, userName, path, originalAccessor.get(), null, comparedField));
+                    // generateNoOp(path);
                 }
             } else { // new accessor exist
                 if (!originalAccessor.get().equals(newAccessor.get())) {
+                    generateNoOp(getParentPath());
                     actions.add(new FieldUpdateAction(date, source, userName, path, originalAccessor.get(), newAccessor.get(), comparedField));
+                    // generateNoOp(path);
                 }
             }
         }
     }
-    
+
     private void generateNoOp(final String path) {
         // TODO Do only this if type is a sequence (useless if type isn't ordered).
         actions.add(new TouchAction(path, date, source, userName));

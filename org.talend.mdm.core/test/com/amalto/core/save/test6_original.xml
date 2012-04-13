@@ -18,16 +18,13 @@
     <taskId/>
     <p>
         <Product>
+            <Picture>http://</Picture>
             <Id>1</Id>
             <Name>Old product name</Name>
             <Description>Description</Description>
-            <Availability/>
-            <Features>
-                <Colors>
-                    <Color>Light Blue</Color>
-                </Colors>
-            </Features>
-            <Price>30</Price>
+            <Availability>false</Availability>
+            <Price>23</Price>
+            <OnlineStore>@@http://</OnlineStore>
         </Product>
     </p>
 </ii>

@@ -133,7 +133,7 @@ public class SaverContextFactory {
         // Parsing
         MutableDocument userDocument;
         try {
-            DocumentBuilder documentBuilder = DOM_PARSER_FACTORY.newDocumentBuilder();;
+            DocumentBuilder documentBuilder = DOM_PARSER_FACTORY.newDocumentBuilder();
             InputSource source = new InputSource(documentStream);
             Document userDomDocument = documentBuilder.parse(source);
             userDocument = new DOMDocument(userDomDocument);

@@ -15,12 +15,15 @@ import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.util.ValidateException;
+import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 class Init implements DocumentSaver {
 
     private static final String AUTO_INCREMENT_TYPE_NAME = "AutoIncrement";  //$NON-NLS-1$
+
+    private static final Logger LOGGER = Logger.getLogger(Init.class);
 
     private final DocumentSaver next;
 
@@ -60,6 +63,7 @@ class Init implements DocumentSaver {
         try {
             next.save(session, context);
         } catch (Exception e) {
+            LOGGER.error("Exception occurred during save.", e);
             session.clear();
             if (e instanceof ValidateException) {
                 // In case of validation issue, don't include a potential before saving message in exception.
