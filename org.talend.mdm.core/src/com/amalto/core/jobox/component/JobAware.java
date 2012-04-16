@@ -134,11 +134,9 @@ public class JobAware {
             if (checkList.size() > 0) {
                 in=new FileInputStream(checkList.get(0));
                 String content = IOUtils.toString(in);
-                int start = content.indexOf(cpStr + ';');
-                int end = content.indexOf(contextStr);
-                if (start != -1 && end != -1 && end > start) {
-                    String mainClass = content.substring(start + cpStr.length() + 1, end);
-                    jobInfo.setMainClass(mainClass.trim());
+                String mainClass = JoboxUtil.parseMainClassFromJCL(content);
+                if (mainClass != null) {
+                    jobInfo.setMainClass(mainClass);
                     found = true;
                 }
             }
@@ -149,11 +147,9 @@ public class JobAware {
                 if (checkList.size() > 0) {  
                     in=new FileInputStream(checkList.get(0));
                     String content = IOUtils.toString(in);
-                    int start = content.indexOf(cpStr + ':');
-                    int end = content.indexOf(contextStr);
-                    if (start != -1 && end != -1 && end > start) {
-                        String mainClass = content.substring(start + cpStr.length() + 1, end);
-                        jobInfo.setMainClass(mainClass.trim());
+                    String mainClass = JoboxUtil.parseMainClassFromJCL(content);
+                    if (mainClass != null) {
+                        jobInfo.setMainClass(mainClass);
                         found = true;
                     }
                 }

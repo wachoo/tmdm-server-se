@@ -13,13 +13,17 @@
 
 package com.amalto.core.jobox.util;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -236,4 +240,72 @@ public class JoboxUtil {
         }
         return urls.toArray(new URL[urls.size()]);
     }
+
+    /**
+     * DOC Starkey Comment method "parseMainClassFromJCL".
+     * 
+     * @throws IOException
+     */
+    public static String parseMainClassFromJCL(String content) throws IOException {
+
+        String mainClass = null;
+
+        BufferedReader reader = new BufferedReader(new StringReader(content));
+        String line;
+        while ((line = reader.readLine()) != null) {
+
+            if (line != null && line.length() > 0) {
+
+                boolean hasJAL = false;
+                Queue<String> myQueue = new LinkedList<String>();
+                String[] tokens = line.split("\\s"); //$NON-NLS-1$
+                for (int i = 0; i < tokens.length; i++) {
+
+                    if (hasJAL && tokens[i].trim().length() > 0)
+                        myQueue.offer(tokens[i].trim());
+
+                    if (tokens[i].equals("java")) { //$NON-NLS-1$
+                        hasJAL = true;
+                    }
+
+                }// end for
+
+                if (hasJAL) {
+
+                    String str;
+                    boolean needConsume = false;
+                    while ((str = myQueue.poll()) != null) {
+
+                        if (!str.startsWith("-")) { //$NON-NLS-1$
+                            if (needConsume) {
+                                needConsume = false;// consume
+                            } else {
+                                mainClass = str;
+                                break;
+                            }
+                        }
+
+                        if (str.startsWith("-")) { //$NON-NLS-1$
+                            
+                            str = str.substring(1);
+                            if (str.startsWith("-")) //$NON-NLS-1$
+                                str = str.substring(1);
+                            
+                            // FIXME is there any more?
+                            if (str.equals("cp") || str.equals("classpath") || str.equals("jar")) {  //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+                                needConsume = true;
+                            }
+                        }
+
+                    }
+                }
+
+            }
+
+        }
+
+        return mainClass;
+
+    }
+
 }
