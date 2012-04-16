@@ -165,7 +165,7 @@ public class ImageUploadServlet extends HttpServlet {
                                 name=name.substring(0,pos);                                
                             }
                             targetFileShortName=name;
-                        }
+                        }// FIXME this will make the if conditions on line 227 to 233 useless
 
                         int rtnStatus = processUploadedFile(uploadFileItem, true, Boolean.parseBoolean(bakInDB),
                                 Boolean.parseBoolean(bakUseTransaction));
