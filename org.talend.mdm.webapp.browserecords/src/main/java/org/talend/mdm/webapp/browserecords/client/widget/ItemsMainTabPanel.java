@@ -15,19 +15,12 @@ package org.talend.mdm.webapp.browserecords.client.widget;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
-import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
-import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
@@ -128,62 +121,10 @@ public class ItemsMainTabPanel extends TabPanel {
         return super.add(item);
     }
 
-    private boolean isConfirmedTabClose = false;
     private void addItemListener(final TabItem item) {
-        item.addListener(Events.BeforeClose, new Listener<TabPanelEvent>() {
-
-            public void handleEvent(TabPanelEvent be) {
-                if (isConfirmedTabClose)
-                    isConfirmedTabClose = false;
-                else {
-                    be.setCancelled(true);
-                    closeTabItem(item);
-                }
-            }
-        });
+        if (item.getListeners(Events.BeforeClose) != null && item.getListeners(Events.BeforeClose).size() == 1)
+            return;
+        item.addListener(Events.BeforeClose, new TabItemListener(item));
     }
 
-
-    public void closeTabItem(final TabItem item) {
-        ItemsDetailPanel itemsDetailPanel = (ItemsDetailPanel) item.getWidget(0);
-        boolean isChangeCurrentRecord;
-        if (itemsDetailPanel != null && itemsDetailPanel.getCurrentItemPanel() != null) {
-            ItemPanel itemPanel = itemsDetailPanel.getCurrentItemPanel();
-            if(itemPanel.getOperation().equals(ItemDetailToolBar.VIEW_OPERATION)){
-                final ItemDetailToolBar toolBar = itemPanel.getToolBar();
-                ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getTree().getItem(0).getUserObject();
-                isChangeCurrentRecord = root != null ? TreeDetailUtil.isChangeValue(root) : false;
-                if (isChangeCurrentRecord) {
-                    MessageBox msgBox = MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory
-                            .getMessages().msg_confirm_save_tree_detail(root.getLabel()), new Listener<MessageBoxEvent>() {
-
-                        public void handleEvent(MessageBoxEvent be) {
-                            if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                if (!toolBar.isHierarchyCall() && !toolBar.isFkToolBar()) {
-                                    ItemsListPanel.getInstance().setChangedRecordId(toolBar.getItemBean().getIds());
-                                    ItemsListPanel.getInstance().setSaveCurrentChangeBeforeSwitching(true);
-                                }
-                                toolBar.saveItemAndClose(true);
-
-                            }
-                            isConfirmedTabClose = true;
-                            item.close();
-                        }
-                    });
-                    msgBox.getDialog().setWidth(550);
-                } else {
-                    isConfirmedTabClose = true;
-                    item.close();
-                }
-                if (!toolBar.isHierarchyCall() && !toolBar.isFkToolBar()) {
-                    ItemsListPanel.getInstance().deSelectCurrentItem();
-                }
-            } else {
-                isConfirmedTabClose = true;
-                item.removeAllListeners();
-                item.close();
-                isConfirmedTabClose = false;
-            }
-        }
-    }
 }

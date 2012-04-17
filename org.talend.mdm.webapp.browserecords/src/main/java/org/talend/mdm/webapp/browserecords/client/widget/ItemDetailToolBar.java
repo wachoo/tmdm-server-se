@@ -43,6 +43,7 @@ import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.core.El;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -1017,6 +1018,23 @@ public class ItemDetailToolBar extends ToolBar {
 
     public void closeCurrentTabPanel() {
         ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
+    }
+
+    /**
+     * call when save the most out tabItem
+     */
+    public void refreshNodeStatus() {
+        ItemPanel itemPanel = (ItemPanel) itemsDetailPanel.getFirstTabWidget();
+        ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getTree().getItem(0).getUserObject();
+        setChangeValue(root);
+    }
+
+    private void setChangeValue(ItemNodeModel model) {
+        if (model.isChangeValue())
+            model.setChangeValue(false);
+        for (ModelData node : model.getChildren()) {
+            setChangeValue((ItemNodeModel) node);
+        }
     }
 
     public native void closeOutTabPanel()/*-{

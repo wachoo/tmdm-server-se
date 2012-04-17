@@ -188,6 +188,7 @@ public class CommonUtil {
             } else {
                 node.setObjectValue(model.getDefaultValue());
             }
+            node.setChangeValue(true);
         } else {
             if (model.getType().getTypeName().equals(DataTypeConstants.BOOLEAN.getTypeName())) {
                 node.setObjectValue((Serializable) DataTypeConstants.BOOLEAN.getDefaultValue());

@@ -384,4 +384,6 @@ public interface BrowseRecordsMessages extends Messages {
     String search_field_error_title();
     
     String search_field_error_info(String value);
+
+    String msg_confirm_close_tab(String entityName);
 }

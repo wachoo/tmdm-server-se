@@ -166,7 +166,8 @@ public class BrowseRecordsController extends Controller {
                                     && (isClose || !detailToolBar.isFkToolBar()))
                                 ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
                         }
-
+                        if (detailToolBar.isOutMost())
+                            detailToolBar.refreshNodeStatus();
                         if (isClose) {
                             if (detailToolBar.isOutMost())
                                 detailToolBar.closeOutTabPanel();

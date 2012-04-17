@@ -35,6 +35,8 @@ import org.talend.mdm.webapp.browserecords.client.widget.BreadCrumb;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.TabItemListener;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -43,8 +45,12 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Style.Unit;
@@ -235,9 +241,78 @@ public class TreeDetailUtil {
 
     }
 
+    /**
+     * MessageBox will be displayed when item is updated <br>
+     * <li>message info: Current record {0} has been modified. Are you sure you want to close the tab now ?
+     */
+    public static void checkRecord(final TabItem item, final ItemsDetailPanel itemsDetailPanel, final TabItemListener listener,
+            final JavaScriptObject handler) {
+        boolean isChangeCurrentRecord;
+        if (itemsDetailPanel != null && itemsDetailPanel.getCurrentItemPanel() != null) {
+            ItemPanel itemPanel = itemsDetailPanel.getCurrentItemPanel();
+            final ItemDetailToolBar toolBar = itemPanel.getToolBar();
+            if (itemPanel.getOperation().equals(ItemDetailToolBar.VIEW_OPERATION)
+                    || itemPanel.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION)
+                    || itemPanel.getOperation().equals(ItemDetailToolBar.DUPLICATE_OPERATION)) {
+                ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getTree().getItem(0).getUserObject();
+                isChangeCurrentRecord = root != null ? TreeDetailUtil.isChangeValue(root) : false;
+                if (isChangeCurrentRecord) {
+                    MessageBox msgBox = MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory
+                            .getMessages().msg_confirm_close_tab(root.getLabel()), new Listener<MessageBoxEvent>() {
+
+                        public void handleEvent(MessageBoxEvent be) {
+                            if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+                                if (listener != null)
+                                    closeTabItem(item, toolBar, listener);
+                                else
+                                    closeOutTabItem(itemsDetailPanel.getItemId(), handler);
+                            } else
+                                return;
+                        }
+                    });
+                    msgBox.getDialog().setWidth(550);
+                    return;
+                } else {
+                    if (listener != null)
+                        closeTabItem(item, toolBar, listener);
+                    else
+                        closeOutTabItem(itemsDetailPanel.getItemId(), handler);
+                }
+            } else {
+                if (listener != null)
+                    closeTabItem(item, toolBar, listener);
+                else
+                    closeOutTabItem(itemsDetailPanel.getItemId(), handler);
+            }
+        }
+    }
+
+    private static void closeTabItem(TabItem item, ItemDetailToolBar toolBar, TabItemListener listener) {
+        if (toolBar != null && !toolBar.isOutMost() && !toolBar.isHierarchyCall() && !toolBar.isFkToolBar()) {
+            ItemsListPanel.getInstance().deSelectCurrentItem();
+        }
+        listener.isConfirmedTabClose = true;
+        item.close();
+    }
+
+    public native static void closeOutTabItem(String itemId, JavaScriptObject removeTabEvent)/*-{
+        var tabPanel = $wnd.amalto.core.getTabPanel();
+        tabPanel.un("beforeremove", removeTabEvent);
+        tabPanel.remove(itemId);
+    }-*/;
+
     public native static void renderTreeDetailPanel(String itemId, ItemsDetailPanel detailPanel)/*-{
         var tabPanel = $wnd.amalto.core.getTabPanel();  
         var panel = @org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil::transferTreeDetailPanel(Lorg/talend/mdm/webapp/browserecords/client/widget/ItemsDetailPanel;)(detailPanel);
+        var removeTabEvent = function(tabPanel, tabItem){
+        if(itemId == tabItem.getId()){
+        @org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil::checkRecord(Lcom/extjs/gxt/ui/client/widget/TabItem;Lorg/talend/mdm/webapp/browserecords/client/widget/ItemsDetailPanel;Lorg/talend/mdm/webapp/browserecords/client/widget/TabItemListener;Lcom/google/gwt/core/client/JavaScriptObject;)(null,detailPanel,null,removeTabEvent);
+        return false;
+        }else{
+        return true;
+        }
+        };
+        tabPanel.on("beforeremove", removeTabEvent);
         tabPanel.add(panel);
         tabPanel.setSelection(itemId);
     }-*/;
