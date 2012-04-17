@@ -95,8 +95,8 @@ class ManyFieldAccessor implements DOMAccessor {
             if (currentCollectionSize > 0) {
                 Node refNode = children.item(currentCollectionSize - 1).getNextSibling();
                 while (currentCollectionSize <= index) {
-                    Element newChild = domDocument.createElementNS(domDocument.getNamespaceURI(), fieldName);
-                    parentNode.insertBefore(newChild, refNode);
+                    node = domDocument.createElementNS(domDocument.getNamespaceURI(), fieldName);
+                    parentNode.insertBefore(node, refNode);
                     currentCollectionSize++;
                 }
             } else {
@@ -108,24 +108,25 @@ class ManyFieldAccessor implements DOMAccessor {
                         refNode = refNode.getNextSibling();
                     }
                     while (currentCollectionSize <= index) {
-                        Element newChild = domDocument.createElementNS(domDocument.getNamespaceURI(), fieldName);
+                        node = domDocument.createElementNS(domDocument.getNamespaceURI(), fieldName);
                         if (lastAccessedNode == parentNode) {
-                            parentNode.appendChild(newChild);
+                            parentNode.appendChild(node);
                         } else if (refNode != null) {
-                            parentNode.insertBefore(newChild, refNode);
+                            parentNode.insertBefore(node, refNode);
                         } else {
-                            parentNode.appendChild(newChild);
+                            parentNode.appendChild(node);
                         }
                         currentCollectionSize++;
                     }
                 } else {
                     while (currentCollectionSize <= index) {
-                        Element newChild = domDocument.createElementNS(domDocument.getNamespaceURI(), fieldName);
-                        parentNode.appendChild(newChild);
+                        node = domDocument.createElementNS(domDocument.getNamespaceURI(), fieldName);
+                        parentNode.appendChild(node);
                         currentCollectionSize++;
                     }
                 }
             }
+            document.setLastAccessedNode(node);
         }
     }
 

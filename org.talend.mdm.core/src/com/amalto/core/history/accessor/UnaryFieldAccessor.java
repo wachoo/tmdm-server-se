@@ -64,6 +64,7 @@ class UnaryFieldAccessor implements DOMAccessor {
             Node parentNode = parent.getNode();
             parentNode.appendChild(newElement);
             element = newElement;
+            document.setLastAccessedNode(element);
         }
         return element;
     }

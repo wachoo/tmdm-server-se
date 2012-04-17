@@ -40,6 +40,8 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     private final Closure compareClosure;
 
+    private String previousPath;
+
     public UpdateActionCreator(MutableDocument originalDocument, MutableDocument newDocument, String source, String userName, MetadataRepository repository) {
         this.originalDocument = originalDocument;
         this.newDocument = newDocument;
@@ -89,6 +91,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                     if (!field.getType().isAssignableFrom(newTypeMetadata)) {
                         throw new IllegalArgumentException("Type '" + newTypeMetadata.getName() + "' is not assignable from type '" + newTypeMetadata.getName() + "'");
                     }
+                    generateNoOp(previousPath);
                     actions.add(new ChangeTypeAction(date, source, userName, currentPath, previousTypeMetadata, newTypeMetadata));
                     type = newTypeMetadata;
                 }
@@ -140,30 +143,6 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
         }
     }
 
-    private String getParentPath() {
-        if (path.isEmpty()) {
-            throw new IllegalStateException();
-        } else {
-            StringBuilder builder = new StringBuilder();
-            String currentField = null;
-            try {
-                currentField = path.pop();
-                Iterator<String> pathIterator = path.iterator();
-                while (pathIterator.hasNext()) {
-                    builder.append(pathIterator.next());
-                    if (pathIterator.hasNext()) {
-                        builder.append('/');
-                    }
-                }
-                return builder.toString();
-            } finally {
-                if (currentField != null) {
-                    path.push(currentField);
-                }
-            }
-        }
-    }
-
     private void handleField(FieldMetadata field, Closure closure) {
         path.add(field.getName());
         if (field.isMany()) {
@@ -205,26 +184,24 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 // No op
             } else { // new accessor exist
                 if (!newAccessor.get().isEmpty()) { // TODO Empty accessor means no op to ensure legacy behavior
-                    generateNoOp(getParentPath());
+                    generateNoOp(previousPath);
                     actions.add(new FieldUpdateAction(date, source, userName, path, StringUtils.EMPTY, newAccessor.get(), comparedField));
-                    // generateNoOp(path);
                 }
             }
         } else { // original accessor exist
             if (!newAccessor.exist()) {
                 if (comparedField.isMany()) {
-                    generateNoOp(getParentPath());
+                    generateNoOp(previousPath);
                     actions.add(new FieldUpdateAction(date, source, userName, path, originalAccessor.get(), null, comparedField));
-                    // generateNoOp(path);
                 }
             } else { // new accessor exist
                 if (!originalAccessor.get().equals(newAccessor.get())) {
-                    generateNoOp(getParentPath());
+                    generateNoOp(previousPath);
                     actions.add(new FieldUpdateAction(date, source, userName, path, originalAccessor.get(), newAccessor.get(), comparedField));
-                    // generateNoOp(path);
                 }
             }
         }
+        previousPath = path;
     }
 
     private void generateNoOp(final String path) {
