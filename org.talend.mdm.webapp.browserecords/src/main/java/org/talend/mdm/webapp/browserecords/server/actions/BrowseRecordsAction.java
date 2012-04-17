@@ -105,7 +105,6 @@ import com.amalto.core.jobox.util.JobNotFoundException;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.save.SaveException;
 import com.amalto.core.util.CVCException;
 import com.amalto.core.util.EntityNotFoundException;
 import com.amalto.core.util.Messages;
@@ -1361,7 +1360,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
             Map<String, Integer> multiNodeIndex = new HashMap<String, Integer>();
             StringBuffer foreignKeyDeleteMessage = new StringBuffer();
-            ItemNodeModel itemModel = builderNode(multiNodeIndex, root, entity, "", "", true, foreignKeyDeleteMessage, language); //$NON-NLS-1$ //$NON-NLS-2$
+            ItemNodeModel itemModel = builderNode(multiNodeIndex, root, entity, "", "", true, foreignKeyDeleteMessage, false, language); //$NON-NLS-1$ //$NON-NLS-2$
             DynamicLabelUtil.getDynamicLabel(XmlUtil.parseDocument(doc), "", itemModel, metaDataTypes, language); //$NON-NLS-1$
             itemModel.set("time", item.get("time")); //$NON-NLS-1$ //$NON-NLS-2$
             itemModel.set("foreignKeyDeleteMessage", foreignKeyDeleteMessage.toString()); //$NON-NLS-1$
@@ -1391,7 +1390,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             Map<String, Integer> multiNodeIndex = new HashMap<String, Integer>();
             StringBuffer foreignKeyDeleteMessage = new StringBuffer();
             Element root = resultDoc.getDocumentElement();
-            itemModel = builderNode(multiNodeIndex, root, entity, "", "", false, foreignKeyDeleteMessage, language); //$NON-NLS-1$ //$NON-NLS-2$
+            itemModel = builderNode(multiNodeIndex, root, entity, "", "", false, foreignKeyDeleteMessage, true, language); //$NON-NLS-1$ //$NON-NLS-2$
             DynamicLabelUtil.getDynamicLabel(doc4j, "", itemModel, metaDataTypes, language); //$NON-NLS-1$
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
@@ -1425,7 +1424,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             StringBuffer foreignKeyDeleteMessage = new StringBuffer();
             Element root = resultDoc.getDocumentElement();
             String baseXpath = contextPath.substring(0, contextPath.lastIndexOf('/'));
-            itemModel = builderNode(multiNodeIndex, root, entity, baseXpath, "", true, foreignKeyDeleteMessage, language); //$NON-NLS-1$
+            itemModel = builderNode(multiNodeIndex, root, entity, baseXpath, "", true, foreignKeyDeleteMessage, true, language); //$NON-NLS-1$
             DynamicLabelUtil.getDynamicLabel(doc4j, baseXpath, itemModel, metaDataTypes, language);
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
@@ -1438,7 +1437,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     private ItemNodeModel builderNode(Map<String, Integer> multiNodeIndex, Element el, EntityModel entity, String baseXpath,
-            String xpath, boolean isPolyType, StringBuffer foreignKeyDeleteMessage, String language) throws Exception {
+            String xpath, boolean isPolyType, StringBuffer foreignKeyDeleteMessage, boolean isCreate, String language) throws Exception {
         Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
         String realType = el.getAttribute("xsi:type"); //$NON-NLS-1$
         if (isPolyType) {
@@ -1507,6 +1506,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         } else if (model.isSimpleType()) {
             nodeModel.setObjectValue(el.getTextContent());
         }
+        if (isCreate && model.getDefaultValueExpression() != null && model.getDefaultValueExpression().trim().length() > 0) {
+            nodeModel.setChangeValue(true);
+        }
 
         NodeList children = el.getChildNodes();
         if (children != null && !model.isSimpleType()) {
@@ -1530,7 +1532,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
                         if (typeModel.getTypePath().equals(tem_typePath)) {
                             ItemNodeModel childNode = builderNode(multiNodeIndex, (Element) child, entity, baseXpath, xpath,
-                                    isPolyType, foreignKeyDeleteMessage, language);
+                                    isPolyType, foreignKeyDeleteMessage, isCreate, language);
                             childNode.setHasVisiblueRule(typeModel.isHasVisibleRule());
                             nodeModel.add(childNode);
                             existNodeFlag = true;

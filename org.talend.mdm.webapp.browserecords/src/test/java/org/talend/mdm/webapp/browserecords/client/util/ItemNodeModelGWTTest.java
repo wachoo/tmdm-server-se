@@ -13,14 +13,20 @@
 package org.talend.mdm.webapp.browserecords.client.util;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsGWTTest;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatDateField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatNumberField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextField;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailGridFieldCreator;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil;
+import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
@@ -187,6 +193,22 @@ public class ItemNodeModelGWTTest extends BrowseRecordsGWTTest {
         assertEquals(true, field3.isValid());
         assertEquals("field3", field3.getObjectValue());
 
+    }
+
+	public void test_isChangeValue() {
+        ComplexTypeModel root = new ComplexTypeModel("root", DataTypeConstants.STRING);
+        root.addDescription("en", "root");
+        TypeModel idModel = new SimpleTypeModel("id", DataTypeConstants.LONG);
+        idModel.addDescription("en", "id");
+        root.addSubType(idModel);
+        TypeModel nameModel = new SimpleTypeModel("name", DataTypeConstants.STRING);
+        nameModel.addDescription("en", "name");
+        nameModel.setDefaultValueExpression("test");
+        nameModel.setDefaultValue("Hello");
+        root.addSubType(nameModel);
+        List<ItemNodeModel> list = CommonUtil.getDefaultTreeModel(root, "en");
+        ItemNodeModel rootNode = list.get(0);
+        assertTrue(TreeDetailUtil.isChangeValue(rootNode));
     }
 
     private static void addFieldListener(final Field<?> field, final ItemNodeModel node, final Map<String, Field<?>> fieldMap) {

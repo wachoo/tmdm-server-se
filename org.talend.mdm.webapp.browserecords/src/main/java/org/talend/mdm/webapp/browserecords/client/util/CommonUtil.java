@@ -3,7 +3,6 @@ package org.talend.mdm.webapp.browserecords.client.util;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -189,6 +188,7 @@ public class CommonUtil {
             } else {
                 node.setObjectValue(model.getDefaultValue());
             }
+            node.setChangeValue(true);
         } else {
             if (model.getType().getTypeName().equals(DataTypeConstants.BOOLEAN.getTypeName())) {
                 node.setObjectValue((Serializable) DataTypeConstants.BOOLEAN.getDefaultValue());
