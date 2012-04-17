@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -34,7 +33,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.base.shared.FileUtil;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
@@ -227,6 +225,10 @@ public class UploadData extends HttpServlet {
                             }
                             case Cell.CELL_TYPE_STRING: {
                                 cellValue = tmpCell.getRichStringCellValue().getString();
+                                int result = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.isFKFormat(cellValue);
+                                if(result > 0){
+                                    cellValue = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForrignKeyId(cellValue, result);
+                                }
                                 break;
                             }
                             case Cell.CELL_TYPE_BOOLEAN: {

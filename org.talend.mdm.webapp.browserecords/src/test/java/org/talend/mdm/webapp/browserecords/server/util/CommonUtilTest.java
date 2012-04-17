@@ -166,4 +166,41 @@ public class CommonUtilTest extends TestCase {
         actualMsg = Util.getExceptionMessage(message, language);
         assertEquals("price must > 10", actualMsg);
     }
+    
+    public void testIsFKFormat(){
+        int result = -1;
+        result = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.isFKFormat(null);
+        assertEquals(0, result);
+
+        result = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.isFKFormat("   ");
+        assertEquals(0, result);
+
+        result = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.isFKFormat("[1]");
+        assertEquals(1, result);
+        
+        result = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.isFKFormat("a[1]b");
+        assertEquals(0, result);
+
+        result = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.isFKFormat("[1]-aaa");
+        assertEquals(2, result);
+        
+        result = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.isFKFormat("aaa-[1]-aaa");
+        assertEquals(0, result);
+
+    }
+
+    public void testGetForrignKeyId() {
+        String fk = null;
+        fk = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForrignKeyId("test", 0);
+        assertNull(fk);
+        
+        fk = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForrignKeyId("[1]", 1);
+        assertEquals("[1]", fk);
+        
+        fk = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForrignKeyId("test", 2);
+        assertNull(fk);
+        
+        fk = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForrignKeyId("[2]-test", 2);
+        assertEquals("[2]", fk);
+    }
 }

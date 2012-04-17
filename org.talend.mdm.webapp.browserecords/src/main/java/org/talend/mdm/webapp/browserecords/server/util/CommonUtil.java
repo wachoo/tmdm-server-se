@@ -18,6 +18,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
@@ -123,5 +125,36 @@ public class CommonUtil {
                 node.setObjectValue((Serializable) DataTypeConstants.URL.getDefaultValue());
             }
         }
+    }
+    
+    public static int isFKFormat(String str){
+        if(str == null)
+            return 0;
+        
+        if(str.trim().equalsIgnoreCase("")) //$NON-NLS-1$
+            return 0;
+        
+        Pattern p = Pattern.compile("^\\[.+\\]$"); //$NON-NLS-1$
+        Matcher m = p.matcher(str);
+        if(m.matches())
+            return 1;
+        
+        p = Pattern.compile("^\\[.+\\]-.+"); //$NON-NLS-1$
+        m = p.matcher(str);
+        if(m.matches())
+            return 2;
+        
+        return 0;
+    }
+    
+    public static String getForrignKeyId(String str, int type){
+        if(type == 1)
+            return str;
+        if(type == 2){
+            int index = str.indexOf("-"); //$NON-NLS-1$
+            if(index > 0)
+                return str.substring(0, index);
+        }
+        return null;            
     }
 }
