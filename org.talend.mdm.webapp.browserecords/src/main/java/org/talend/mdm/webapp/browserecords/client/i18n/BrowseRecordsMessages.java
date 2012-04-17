@@ -392,4 +392,6 @@ public interface BrowseRecordsMessages extends Messages {
     String fkinfo_display_lable();
     
     String fkinfo_display_type_lable();
+    
+    String error_column_header(String columnName,String concept);
 }

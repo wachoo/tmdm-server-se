@@ -151,7 +151,7 @@ public class CSVReader {
      */
     private String[] parseLine(String nextLine) throws IOException {
 
-        if (nextLine == null) {
+        if (nextLine == null || "".equals(nextLine)) { //$NON-NLS-1$
             return null;
         }
 
