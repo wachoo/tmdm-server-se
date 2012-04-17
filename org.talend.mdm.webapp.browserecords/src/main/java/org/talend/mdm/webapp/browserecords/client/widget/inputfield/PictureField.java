@@ -46,11 +46,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -86,6 +81,11 @@ public class PictureField extends TextField<String> {
             super.onButtonPressed(button);
             if (button == getButtonBar().getItemByItemId(YES)) {
 
+                // Only delete it from client side
+                setValue(null);
+                dialog.hide();
+
+                /*
                 RequestBuilder reqBuilder = new RequestBuilder(RequestBuilder.GET,
                         "/imageserver/secure/ImageDeleteServlet?uri=" + value);//$NON-NLS-1$
 
@@ -114,6 +114,7 @@ public class PictureField extends TextField<String> {
                 } catch (RequestException e) {
                     MessageBox.alert("RequestException", e.getMessage(), null); //$NON-NLS-1$
                 }
+                */
 
             } else if (button == getButtonBar().getItemByItemId(NO)) {
                 dialog.hide();
