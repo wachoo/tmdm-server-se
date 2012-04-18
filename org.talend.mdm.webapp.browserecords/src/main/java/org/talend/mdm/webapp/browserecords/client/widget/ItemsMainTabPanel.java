@@ -36,6 +36,7 @@ public class ItemsMainTabPanel extends TabPanel {
 
     private ItemsMainTabPanel() {
         // this.setLayout(new FitLayout());
+        setId("ItemsMainTabPanel"); //$NON-NLS-1$
         setResizeTabs(true);
         setAnimScroll(true);
         this.addListener(Events.BeforeAdd, new Listener<BaseEvent>() {

@@ -309,9 +309,9 @@ public class ItemDetailToolBar extends ToolBar {
     private void addSaveButton() {
         if (saveButton == null) {
             saveButton = new Button(MessagesFactory.getMessages().save_btn());
+            saveButton.setId("saveButton"); //$NON-NLS-1$
             saveButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
             saveButton.setToolTip(MessagesFactory.getMessages().save_tip());
-
             saveButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                 @Override
@@ -336,6 +336,7 @@ public class ItemDetailToolBar extends ToolBar {
     private void addSaveQuitButton() {
         if (saveAndCloseButton == null) {
             saveAndCloseButton = new Button(MessagesFactory.getMessages().save_close_btn());
+            saveAndCloseButton.setId("saveAndCloseButton"); //$NON-NLS-1$
             saveAndCloseButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.save_and_close()));
             saveAndCloseButton.setToolTip(MessagesFactory.getMessages().save_close_tip());
 
@@ -363,10 +364,13 @@ public class ItemDetailToolBar extends ToolBar {
     private void addDeleteMenu() {
         if (deleteButton == null) {
             deleteButton = new Button(MessagesFactory.getMessages().delete_btn());
+            deleteButton.setId("deleteButton"); //$NON-NLS-1$
             deleteButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
 
             deleteMenu = new Menu();
+            deleteMenu.setId("deleteMenu"); //$NON-NLS-1$
             delete_SendToTrash = new MenuItem(MessagesFactory.getMessages().trash_btn());
+            delete_SendToTrash.setId("delete_SendToTrash"); //$NON-NLS-1$
             delete_SendToTrash.addSelectionListener(new SelectionListener<MenuEvent>() {
 
                 @Override
@@ -394,6 +398,7 @@ public class ItemDetailToolBar extends ToolBar {
             deleteMenu.add(delete_SendToTrash);
 
             delete_Delete = new MenuItem(MessagesFactory.getMessages().delete_btn());
+            delete_Delete.setId("delete_Delete"); //$NON-NLS-1$
             deleteMenu.add(delete_Delete);
             delete_Delete.addSelectionListener(new SelectionListener<MenuEvent>() {
 
@@ -427,6 +432,7 @@ public class ItemDetailToolBar extends ToolBar {
     private void addDuplicateButton() {
         if (duplicateButton == null) {
             duplicateButton = new Button(MessagesFactory.getMessages().duplicate_btn());
+            duplicateButton.setId("duplicateButton"); //$NON-NLS-1$
             duplicateButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.duplicate()));
             duplicateButton.setToolTip(MessagesFactory.getMessages().duplicate_tip());
             duplicateButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -463,6 +469,7 @@ public class ItemDetailToolBar extends ToolBar {
     private void addJournalButton() {
         if (journalButton == null) {
             journalButton = new Button(MessagesFactory.getMessages().journal_btn());
+            journalButton.setId("journalButton"); //$NON-NLS-1$
             journalButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.journal()));
             journalButton.setToolTip(MessagesFactory.getMessages().journal_tip());
 
@@ -485,6 +492,7 @@ public class ItemDetailToolBar extends ToolBar {
     private void addFreshButton() {
         if (refreshButton == null) {
             refreshButton = new Button();
+            refreshButton.setId("refreshButton"); //$NON-NLS-1$
             refreshButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.refreshToolbar()));
             refreshButton.setToolTip(MessagesFactory.getMessages().refresh_tip());
             refreshButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -572,6 +580,7 @@ public class ItemDetailToolBar extends ToolBar {
 
                 final List<String> lineageList = list;
                 relationButton = new Button(MessagesFactory.getMessages().relations_btn());
+                relationButton.setId("relationButton"); //$NON-NLS-1$
                 relationButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.relations()));
                 relationButton.setToolTip(MessagesFactory.getMessages().relations_tooltip());
                 relationButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -600,6 +609,7 @@ public class ItemDetailToolBar extends ToolBar {
     private void addOpenTabButton() {
         if (openTabButton == null) {
             openTabButton = new Button();
+            openTabButton.setId("openTabButton"); //$NON-NLS-1$
             openTabButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTab()));
             openTabButton.setToolTip(MessagesFactory.getMessages().openitem_tab());
             openTabButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -628,6 +638,7 @@ public class ItemDetailToolBar extends ToolBar {
                         workFlowList.add(processList);
                         if (workFlowCombo == null) {
                             workFlowCombo = new ComboBox<ItemBaseModel>();
+                            workFlowCombo.setId("workFlowCombo"); //$NON-NLS-1$
                             workFlowCombo.setStore(workFlowList);
                             workFlowCombo.setDisplayField("value");//$NON-NLS-1$
                             workFlowCombo.setValueField("key");//$NON-NLS-1$
@@ -644,6 +655,7 @@ public class ItemDetailToolBar extends ToolBar {
                         add(workFlowCombo);
                         if (launchProcessButton == null) {
                             launchProcessButton = new Button();
+                            launchProcessButton.setId("launchProcessButton"); //$NON-NLS-1$
                             launchProcessButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.launch_process()));
                             launchProcessButton.setToolTip(MessagesFactory.getMessages().launch_process_tooltip());
                             launchProcessButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -694,6 +706,7 @@ public class ItemDetailToolBar extends ToolBar {
     private void addPersonalViewButton() {
         if (personalviewButton == null) {
             personalviewButton = new Button(MessagesFactory.getMessages().personalview_btn());
+            personalviewButton.setId("personalviewButton"); //$NON-NLS-1$
             personalviewButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                 @Override
@@ -715,6 +728,7 @@ public class ItemDetailToolBar extends ToolBar {
     private void addGeneratedViewButton() {
         if (generatedviewButton == null) {
             generatedviewButton = new Button(MessagesFactory.getMessages().generatedview_btn());
+            generatedviewButton.setId("generatedviewButton"); //$NON-NLS-1$
             generatedviewButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                 @Override
@@ -738,6 +752,7 @@ public class ItemDetailToolBar extends ToolBar {
                 && !"null".equalsIgnoreCase(itemBean.getTaskId().trim())) { //$NON-NLS-1$
             ItemDetailToolBar.this.addSeparator();
             this.taskButton = new Button(MessagesFactory.getMessages().open_task());
+            taskButton.setId("taskButton"); //$NON-NLS-1$
 
             taskButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
@@ -818,6 +833,7 @@ public class ItemDetailToolBar extends ToolBar {
         final ListStore<ItemBaseModel> smartViewList = new ListStore<ItemBaseModel>();
         if (smartViewCombo == null) {
             smartViewCombo = new ComboBox<ItemBaseModel>();
+            smartViewCombo.setId("smartViewCombo"); //$NON-NLS-1$
             smartViewCombo.setStore(smartViewList);
             smartViewCombo.setDisplayField("value"); //$NON-NLS-1$
             smartViewCombo.setValueField("key"); //$NON-NLS-1$
@@ -866,6 +882,7 @@ public class ItemDetailToolBar extends ToolBar {
 
     private void addPrintButton() {
         Button printBtn = new Button(MessagesFactory.getMessages().print_btn());
+        printBtn.setId("printBtn"); //$NON-NLS-1$
         printBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             @Override
