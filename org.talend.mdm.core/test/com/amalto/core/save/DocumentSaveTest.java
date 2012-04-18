@@ -594,7 +594,7 @@ public class DocumentSaveTest extends TestCase {
             {
                 for (int i = 0; i < 10; i++) {
                     InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
-                    DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, true, false);=======
+                    DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, true, false);
                     DocumentSaver saver = context.createSaver();
                     saver.save(session, context);
                 }

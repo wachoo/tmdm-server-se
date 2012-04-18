@@ -226,11 +226,11 @@ public class LoadParserTest extends TestCase {
 
         LoadParser.Configuration config = new LoadParser.Configuration("Product", new String[]{"Id"}, false, "clusterName", "modelName", idGenerator);
 
-        if (DEBUG) {
-             InputStream testResource2 = this.getClass().getResourceAsStream("test7.xml");
-             LoadParserCallback callback2 = new ConsolePrintParserCallback();
-             LoadParser.parse(testResource2, config, callback2);
-         }
+        if (LOG.isDebugEnabled()) {
+            InputStream testResource2 = this.getClass().getResourceAsStream("test7.xml");
+            LoadParserCallback callback2 = new ConsolePrintParserCallback();
+            LoadParser.parse(testResource2, config, callback2);
+        }
 
         StateContext context = LoadParser.parse(testResource, config, callback);
         assertTrue(callback.hasBeenFlushed());
