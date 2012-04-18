@@ -11,16 +11,14 @@ import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.Node;
 import org.dom4j.QName;
-import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
-import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 
 public class DisplayRuleTest extends TestCase {
 
     // TODO --------------------test default value rule---------------------
     public void test_Basic_DefaultValue_Rule() {
         // TODO test basic default value rule;
-        Map<String, TypeModel> metaDatas = DisplayRuleTestData.getMetaData("DefaultValueModel.xml", "TestDefaultModel"); //$NON-NLS-1$ //$NON-NLS-2$
+        Map<String, TypeModel> metaDatas = DisplayRuleTestData.get_Basic_DefaultValue_Rule();
         DisplayRuleEngine engine = new DisplayRuleEngine(metaDatas, "TestDefaultModel"); //$NON-NLS-1$
         Document dom4jDoc = DisplayRuleTestData.getDocument("DefaultValueRecord.xml"); //$NON-NLS-1$
         List<RuleValueItem> ruleValueItems = engine.execDefaultValueRule(dom4jDoc);
@@ -41,7 +39,7 @@ public class DisplayRuleTest extends TestCase {
      public void test_Basic_DefaultValue_Rule_WithFunction() {
         // TODO test basic default value rule with xslt function
 
-        Map<String, TypeModel> metaDatas = DisplayRuleTestData.getMetaData("DefaultValueWithFunctionModel.xml", "TestDefaultModel"); //$NON-NLS-1$ //$NON-NLS-2$
+        Map<String, TypeModel> metaDatas = DisplayRuleTestData.get_Basic_DefaultValue_Rule_WithFunction();
         DisplayRuleEngine engine = new DisplayRuleEngine(metaDatas, "TestDefaultModel"); //$NON-NLS-1$
         Document dom4jDoc = DisplayRuleTestData.getDocument("DefaultValueRecord.xml"); //$NON-NLS-1$
         List<RuleValueItem> ruleValueItems = engine.execDefaultValueRule(dom4jDoc);
@@ -61,8 +59,7 @@ public class DisplayRuleTest extends TestCase {
     public void test_Basic_DefaultValue_Rule_WithFunctionAndXPath() {
         // TODO test basic default value rule with xslt function and xpath
 
-        Map<String, TypeModel> metaDatas = DisplayRuleTestData.getMetaData(
-                "DefaultRuleWithFunctionAndXPath.xml", "DefaultRuleWithFunctionAndXPath"); //$NON-NLS-1$ //$NON-NLS-2$
+        Map<String, TypeModel> metaDatas = DisplayRuleTestData.get_DefaultValue_Rule_WithFunctionAndXPath();
         DisplayRuleEngine engine = new DisplayRuleEngine(metaDatas, "DefaultRuleWithFunctionAndXPath"); //$NON-NLS-1$
         Document dom4jDoc = DisplayRuleTestData.getDocument("DefaultRuleWithFunctionAndXPathRecord.xml"); //$NON-NLS-1$
         List<RuleValueItem> ruleValueItems = engine.execDefaultValueRule(dom4jDoc);
@@ -82,7 +79,7 @@ public class DisplayRuleTest extends TestCase {
     public void test_DefaultValueForBoolean() {
         // TODO test default rule for boolean type
 
-        Map<String, TypeModel> metaDatas = DisplayRuleTestData.getMetaData("DefaultValueForBoolean.xml", "TestBoolean"); //$NON-NLS-1$ //$NON-NLS-2$
+        Map<String, TypeModel> metaDatas = DisplayRuleTestData.get_DefaultValueForBoolean();
         DisplayRuleEngine engine = new DisplayRuleEngine(metaDatas, "TestBoolean"); //$NON-NLS-1$
         Document dom4jDoc = DisplayRuleTestData.getDocument("DefaultValueForBooleanRecord.xml"); //$NON-NLS-1$
         List<RuleValueItem> ruleValueItems = engine.execDefaultValueRule(dom4jDoc);
@@ -108,7 +105,7 @@ public class DisplayRuleTest extends TestCase {
      public void test_DefaultValueForEnumeration() {
         // TODO test default rule for enumeration
 
-        Map<String, TypeModel> metaDatas = DisplayRuleTestData.getMetaData("DefaultValueForEnumeration.xml", "TestEnumeration"); //$NON-NLS-1$ //$NON-NLS-2$
+        Map<String, TypeModel> metaDatas = DisplayRuleTestData.get_DefaultValueForEnumeration();
         DisplayRuleEngine engine = new DisplayRuleEngine(metaDatas, "TestEnumeration"); //$NON-NLS-1$
         Document dom4jDoc = DisplayRuleTestData.getDocument("DefaultValueForEnumerationRecord.xml"); //$NON-NLS-1$
         List<RuleValueItem> ruleValueItems = engine.execDefaultValueRule(dom4jDoc);
@@ -131,7 +128,7 @@ public class DisplayRuleTest extends TestCase {
     public void test_Multiple_Occurence_DefaultValueRule() {
         // TODO test Multiple occurence default rule
 
-        Map<String, TypeModel> metaDatas = DisplayRuleTestData.getMetaData("MultipleOccurenceDefaultValueRule.xml", "MultipleOccurence"); //$NON-NLS-1$ //$NON-NLS-2$
+        Map<String, TypeModel> metaDatas = DisplayRuleTestData.get_Multiple_Occurence_DefaultValueRule();
         DisplayRuleEngine engine = new DisplayRuleEngine(metaDatas, "MultipleOccurence"); //$NON-NLS-1$
         Document dom4jDoc = DisplayRuleTestData.getDocument("MultipleOccurenceDefaultValueRuleRecord.xml"); //$NON-NLS-1$
         List<RuleValueItem> ruleValueItems = engine.execDefaultValueRule(dom4jDoc);
@@ -157,21 +154,7 @@ public class DisplayRuleTest extends TestCase {
     public void test_DefaultRuleForInheritance() {
         // TODO test default rule for inheritance
 
-        Map<String, TypeModel> metaDatas = DisplayRuleTestData.getMetaData("DefaultRuleForInheritance.xml", "DefaultRuleForInheritance"); //$NON-NLS-1$ //$NON-NLS-2$
-
-        SimpleTypeModel personNameType = new SimpleTypeModel();
-        personNameType.setXpath("DefaultRuleForInheritance/person/name"); //$NON-NLS-1$
-        metaDatas.put("DefaultRuleForInheritance/person/name", personNameType); //$NON-NLS-1$
-
-        ComplexTypeModel person_StudentType = new ComplexTypeModel();
-        person_StudentType.setXpath("DefaultRuleForInheritance/person/score"); //$NON-NLS-1$
-        person_StudentType.setDefaultValueExpression("fn:concat(/DefaultRuleForInheritance/name,'''s score is 100')"); //$NON-NLS-1$
-        metaDatas.put("DefaultRuleForInheritance/person/score", person_StudentType); //$NON-NLS-1$
-
-        ComplexTypeModel person_TeacherType = new ComplexTypeModel();
-        person_TeacherType.setXpath("DefaultRuleForInheritance/person/salary"); //$NON-NLS-1$
-        person_TeacherType.setDefaultValueExpression("fn:concat(/DefaultRuleForInheritance/name,'''s salary is 1000')"); //$NON-NLS-1$
-        metaDatas.put("DefaultRuleForInheritance/person/salary", person_TeacherType); //$NON-NLS-1$
+        Map<String, TypeModel> metaDatas = DisplayRuleTestData.get_DefaultRuleForInheritance();
 
         DisplayRuleEngine engine = new DisplayRuleEngine(metaDatas, "DefaultRuleForInheritance"); //$NON-NLS-1$
         Document dom4jDoc = DisplayRuleTestData.getDocument("DefaultRuleForInheritanceRecord.xml"); //$NON-NLS-1$
@@ -238,7 +221,8 @@ public class DisplayRuleTest extends TestCase {
     // TODO ---------------------test visible rule---------------------------
     public void test_Basic_VisibleRule() {
         // TODO test basic visible rule
-        Map<String, TypeModel> metaDatas = DisplayRuleTestData.getMetaData("BasicVisibleRule.xml", "BasicVisibleRule"); //$NON-NLS-1$ //$NON-NLS-2$
+        Map<String, TypeModel> metaDatas = DisplayRuleTestData.get_Basic_VisibleRule();
+
         DisplayRuleEngine engine = new DisplayRuleEngine(metaDatas, "BasicVisibleRule"); //$NON-NLS-1$
         Document dom4jDoc = DisplayRuleTestData.getDocument("BasicVisibleRuleRecord.xml"); //$NON-NLS-1$
         List<RuleValueItem> ruleValueItems = engine.execVisibleRule(dom4jDoc);
@@ -262,8 +246,9 @@ public class DisplayRuleTest extends TestCase {
 
     public void test_Basic_VisibleRule_Rule_WithFunction() {
         // TODO test visible rule with xslt function
-        
-        Map<String, TypeModel> metaDatas = DisplayRuleTestData.getMetaData("BasicVisibleRuleWithFunction.xml", "BasicVisibleRuleFunction"); //$NON-NLS-1$ //$NON-NLS-2$
+
+        Map<String, TypeModel> metaDatas = DisplayRuleTestData.get_Basic_VisibleRule_Rule_WithFunction();
+
         DisplayRuleEngine engine = new DisplayRuleEngine(metaDatas, "BasicVisibleRuleFunction"); //$NON-NLS-1$
         Document dom4jDoc = DisplayRuleTestData.getDocument("BasicVisibleRuleWithFunctionRecord.xml"); //$NON-NLS-1$
         List<RuleValueItem> ruleValueItems = engine.execVisibleRule(dom4jDoc);
@@ -290,7 +275,9 @@ public class DisplayRuleTest extends TestCase {
     public void test_Basic_VisibleRule_Rule_WithFunctionXPath() {
         // TODO test visible rule with xslt function and xpath
         
-        Map<String, TypeModel> metaDatas = DisplayRuleTestData.getMetaData("BasicVisibleRuleWithFunctionXPath.xml", "BasicVisibleRuleWithFunctionXPath"); //$NON-NLS-1$ //$NON-NLS-2$
+
+        Map<String, TypeModel> metaDatas = DisplayRuleTestData.get_VisibleRule_Rule_WithFunctionXPath();
+
         DisplayRuleEngine engine = new DisplayRuleEngine(metaDatas, "BasicVisibleRuleWithFunctionXPath"); //$NON-NLS-1$
         Document dom4jDoc = DisplayRuleTestData.getDocument("BasicVisibleRuleWithFunctionXPathRecord.xml"); //$NON-NLS-1$
         List<RuleValueItem> ruleValueItems = engine.execVisibleRule(dom4jDoc);
@@ -379,7 +366,9 @@ public class DisplayRuleTest extends TestCase {
     public void test_VisibleRule_UsingBoolean_Attribute() {
         // TODO Visibility rule using Boolean attribute
         
-        Map<String, TypeModel> metaDatas = DisplayRuleTestData.getMetaData("VisibleRuleBoolean.xml", "VisibleRuleBoolean"); //$NON-NLS-1$ //$NON-NLS-2$
+
+        Map<String, TypeModel> metaDatas = DisplayRuleTestData.get_VisibleRule_UsingBoolean_Attribute();
+
         DisplayRuleEngine engine = new DisplayRuleEngine(metaDatas, "VisibleRuleBoolean"); //$NON-NLS-1$
         Document dom4jDoc = DisplayRuleTestData.getDocument("VisibleRuleBooleanRecord.xml"); //$NON-NLS-1$
         List<RuleValueItem> ruleValueItems = engine.execVisibleRule(dom4jDoc);
@@ -400,23 +389,7 @@ public class DisplayRuleTest extends TestCase {
     public void test_VisibleRuleForInheritance() {
         // TODO test visible rule for inheritance
 
-        Map<String, TypeModel> metaDatas = DisplayRuleTestData.getMetaData("VisibleRuleForInheritance.xml", "VisibleRuleForInheritance"); //$NON-NLS-1$ //$NON-NLS-2$
-        //
-
-        SimpleTypeModel personNameType = new SimpleTypeModel();
-        personNameType.setXpath("VisibleRuleForInheritance/person/name"); //$NON-NLS-1$
-        personNameType.setVisibleExpression("fn:string-length('hello world')>8"); //$NON-NLS-1$
-        metaDatas.put("VisibleRuleForInheritance/person/name", personNameType); //$NON-NLS-1$
-
-        ComplexTypeModel person_StudentType = new ComplexTypeModel();
-        person_StudentType.setXpath("VisibleRuleForInheritance/person/score"); //$NON-NLS-1$
-        person_StudentType.setVisibleExpression("fn:string-length('hello world')>15"); //$NON-NLS-1$
-        metaDatas.put("VisibleRuleForInheritance/person/score", person_StudentType); //$NON-NLS-1$
-
-        ComplexTypeModel person_TeacherType = new ComplexTypeModel();
-        person_TeacherType.setXpath("VisibleRuleForInheritance/person/salary"); //$NON-NLS-1$
-        person_TeacherType.setVisibleExpression("fn:string-length('hello world')>10"); //$NON-NLS-1$
-        metaDatas.put("VisibleRuleForInheritance/person/salary", person_TeacherType); //$NON-NLS-1$
+        Map<String, TypeModel> metaDatas = DisplayRuleTestData.get_VisibleRuleForInheritance();
 
         DisplayRuleEngine engine = new DisplayRuleEngine(metaDatas, "VisibleRuleForInheritance"); //$NON-NLS-1$
         Document dom4jDoc = DisplayRuleTestData.getDocument("VisibleRuleForInheritanceRecord.xml"); //$NON-NLS-1$
@@ -478,5 +451,4 @@ public class DisplayRuleTest extends TestCase {
         el.addElement("name"); //$NON-NLS-1$
         el.addElement("salary"); //$NON-NLS-1$
     }
-
 }
