@@ -41,6 +41,7 @@ public class WorkSpace extends LayoutContainer {
     private WorkSpace() {
         super();
         this.setLayout(new FitLayout());
+        workTabPanel.setId("Globle_WorkTabPanel"); //$NON-NLS-1$
         workTabPanel.setMinTabWidth(115);
         workTabPanel.setAnimScroll(true);
         workTabPanel.setTabScroll(true);
