@@ -205,9 +205,9 @@ public class UploadData extends HttpServlet {
                             }
                             case Cell.CELL_TYPE_STRING: {
                                 fieldValue = tmpCell.getRichStringCellValue().getString();
-                                int result = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.isFKFormat(fieldValue);
+                                int result = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getFKFormatType(fieldValue);
                                 if(result > 0){
-                                    fieldValue = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForrignKeyId(fieldValue, result);
+                                    fieldValue = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyId(fieldValue, result);
                                 }
                                 break;
                             }

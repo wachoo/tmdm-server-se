@@ -389,9 +389,9 @@ public interface BrowseRecordsMessages extends Messages {
 
     String msg_confirm_close_tab(String entityName);
     
-    String fkinfo_display_lable();
+    String fkinfo_display_label();
     
-    String fkinfo_display_type_lable();
+    String fkinfo_display_type_label();
     
     String error_column_header(String columnName,String concept);
 }

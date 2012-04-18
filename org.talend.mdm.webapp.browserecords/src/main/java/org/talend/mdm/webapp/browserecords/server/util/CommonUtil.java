@@ -127,7 +127,7 @@ public class CommonUtil {
         }
     }
     
-    public static int isFKFormat(String str){
+    public static int getFKFormatType(String str){
         if(str == null)
             return 0;
         
@@ -147,7 +147,7 @@ public class CommonUtil {
         return 0;
     }
     
-    public static String getForrignKeyId(String str, int type){
+    public static String getForeignKeyId(String str, int type){
         if(type == 1)
             return str;
         if(type == 2){

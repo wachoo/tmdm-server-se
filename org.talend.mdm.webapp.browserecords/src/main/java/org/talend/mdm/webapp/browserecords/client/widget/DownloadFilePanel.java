@@ -81,7 +81,7 @@ public class DownloadFilePanel extends FormPanel{
         this.add(fileName, new FormData("90%")); //$NON-NLS-1$
         
         fkResovled = new CheckBox();
-        fkResovled.setFieldLabel(MessagesFactory.getMessages().fkinfo_display_lable());
+        fkResovled.setFieldLabel(MessagesFactory.getMessages().fkinfo_display_label());
         fkResovled.setLabelStyle("width:90px"); //$NON-NLS-1$
         fkResovled.addListener(Events.Change, new Listener<BaseEvent>() {
 
@@ -113,7 +113,7 @@ public class DownloadFilePanel extends FormPanel{
         fkDisplayCombo = new ComboBox<ItemBaseModel>();
         fkDisplayCombo.setId("fkDisplay");//$NON-NLS-1$
         fkDisplayCombo.setName("fkDisplay");//$NON-NLS-1$
-        fkDisplayCombo.setFieldLabel(MessagesFactory.getMessages().fkinfo_display_type_lable());
+        fkDisplayCombo.setFieldLabel(MessagesFactory.getMessages().fkinfo_display_type_label());
         fkDisplayCombo.setDisplayField("label"); //$NON-NLS-1$
         fkDisplayCombo.setValueField("key"); //$NON-NLS-1$
         fkDisplayCombo.setStore(fkDisplayStoreList);
@@ -129,7 +129,7 @@ public class DownloadFilePanel extends FormPanel{
             public void componentSelected(ButtonEvent ce) {
                 if(!DownloadFilePanel.this.isValid())
                     return;
-                Map<String, String> param = buidlExportParameter();
+                Map<String, String> param = buildExportParameter();
                 PostDataUtil.postData("/browserecords/download", param); //$NON-NLS-1$
                 DownloadFilePanel.this.window.hide();
             }
@@ -137,7 +137,7 @@ public class DownloadFilePanel extends FormPanel{
         this.add(exportBtn);
     }
     
-    private Map<String, String> buidlExportParameter() {
+    private Map<String, String> buildExportParameter() {
         List<String> viewableXpaths = viewBean.getViewableXpaths();
         EntityModel entityModel = viewBean.getBindingEntityModel();
         Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
