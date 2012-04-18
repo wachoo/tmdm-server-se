@@ -52,13 +52,13 @@ public interface FKIntegrityCheckDataSource {
      * @param clusterName   Cluster name where the count should be done.
      * @param ids           Id of an existing instance in database. In case of composite key, each item of the array contains
      *                      a key value.
-     * @param fromType      Type where count is performed.
+     * @param fromTypeName  Type name where count is performed.
      * @param fromReference Reference from <code>fromType</code> to the id <code>id</code>.   @return A count greater or equals to 0.
      * @return A count greater or equals to 0.
      * @throws com.amalto.core.util.XtentisException
      *          In case of any exception during count execution.
      */
-    long countInboundReferences(String clusterName, String[] ids, TypeMetadata fromType, ReferenceFieldMetadata fromReference) throws XtentisException;
+    long countInboundReferences(String clusterName, String[] ids, String fromTypeName, ReferenceFieldMetadata fromReference) throws XtentisException;
 
     /**
      * <p>

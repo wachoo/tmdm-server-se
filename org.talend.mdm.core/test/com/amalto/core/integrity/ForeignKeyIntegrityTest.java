@@ -11,17 +11,27 @@
 
 package com.amalto.core.integrity;
 
-import com.amalto.core.metadata.*;
-import junit.framework.TestCase;
-
 import java.util.Collections;
 import java.util.Set;
+
+import junit.framework.TestCase;
+
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.metadata.ReferenceFieldMetadata;
+import com.amalto.core.metadata.TypeMetadata;
 
 /**
  *
  */
 @SuppressWarnings({"HardCodedStringLiteral", "nls"})
 public class ForeignKeyIntegrityTest extends TestCase {
+
+    static {
+        System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
+                "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
+    }
 
     private Set<ReferenceFieldMetadata> getReferencedFields(MetadataRepository repository, String typeName) {
         TypeMetadata type = repository.getType(typeName);
@@ -427,6 +437,40 @@ public class ForeignKeyIntegrityTest extends TestCase {
         String dataCluster = "DataCluster";
         String typeName = "BusinessFunction";
         String[] ids = {"1"};
+        assertFalse(integrityChecker.allowDelete(dataCluster, typeName, ids, false, dataSource));
+        FKIntegrityCheckResult policy = integrityChecker.getFKIntegrityPolicy(dataCluster, typeName, ids, dataSource);
+        assertEquals(FKIntegrityCheckResult.FORBIDDEN, policy);
+    }
+
+    /**
+     * SocieteCliente -ref(1)-> Contrat
+     * 
+     * The reference field "contrat" is defined under a contained complex type "contrats"
+     * 
+     * @throws Exception
+     */
+    public void testModel17() throws Exception {
+
+        MetadataRepository repository = getMetadataRepository("model17.xsd");
+
+        // Check FK integrity checks following TMDM-3739
+        Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "Contrat");
+        assertEquals(1, references.size());
+        ReferenceFieldMetadata referencedField = references.iterator().next();
+        assertEquals("SocieteCliente", referencedField.getData(ForeignKeyIntegrity.ATTRIBUTE_ROOTTYPE));
+        assertEquals("SocieteCliente/contrats/contrat", referencedField.getData(ForeignKeyIntegrity.ATTRIBUTE_XPATH));
+
+        String dataCluster = "DataCluster";
+        String typeName = "Contrat";
+        String[] ids = { "1" };
+
+        IntegrityCheckDataSourceMock dataSource = new IntegrityCheckDataSourceMock(repository);
+        // Check the anonymous type and leave the type name empty
+        assertEquals(0,
+                new DefaultCheckDataSource().countInboundReferences(dataCluster, ids, "", referencedField));
+
+        FKIntegrityChecker integrityChecker = FKIntegrityChecker.getInstance();
+
         assertFalse(integrityChecker.allowDelete(dataCluster, typeName, ids, false, dataSource));
         FKIntegrityCheckResult policy = integrityChecker.getFKIntegrityPolicy(dataCluster, typeName, ids, dataSource);
         assertEquals(FKIntegrityCheckResult.FORBIDDEN, policy);
