@@ -618,8 +618,14 @@ public class ItemDetailToolBar extends ToolBar {
                 public void componentSelected(ButtonEvent ce) {
                     // TMDM-3202 open in a top-level tab
                     String fromWhichApp = isHierarchyCall ? MessagesFactory.getMessages().hierarchy_title() : ""; //$NON-NLS-1$
+                    String smartViewMode = itemBean.getSmartViewMode();
+                    String opt = ItemDetailToolBar.VIEW_OPERATION;
+                    if (smartViewMode.equals(ItemBean.PERSOMODE))
+                        opt = ItemDetailToolBar.PERSONALEVIEW_OPERATION;
+                    else if (smartViewMode.equals(ItemBean.SMARTMODE))
+                        opt = ItemDetailToolBar.SMARTVIEW_OPERATION;
                     TreeDetailUtil.initItemsDetailPanelById(fromWhichApp, itemBean.getIds(), itemBean.getConcept(), isFkToolBar,
-                            isHierarchyCall);
+                            isHierarchyCall, opt);
                 }
             });
         }

@@ -171,6 +171,12 @@ public class TreeDetailUtil {
     
     public static void initItemsDetailPanelById(final String fromWhichApp, String ids, final String concept,
             final Boolean isFkToolBar, final Boolean isHierarchyCall) {
+        initItemsDetailPanelById(fromWhichApp, ids, concept, isFkToolBar, isHierarchyCall, ItemDetailToolBar.VIEW_OPERATION);
+
+    }
+
+    public static void initItemsDetailPanelById(final String fromWhichApp, String ids, final String concept,
+            final Boolean isFkToolBar, final Boolean isHierarchyCall, final String operation) {
         String[] idArr = ids.split(","); //$NON-NLS-1$
         final ItemsDetailPanel panel = new ItemsDetailPanel();
         final BrowseRecordsServiceAsync brService = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
@@ -180,7 +186,7 @@ public class TreeDetailUtil {
                 brService.getView("Browse_items_" + concept, Locale.getLanguage(), new SessionAwareAsyncCallback<ViewBean>() { //$NON-NLS-1$
 
                             public void onSuccess(ViewBean viewBean) {
-                                ItemPanel itemPanel = new ItemPanel(viewBean, item, ItemDetailToolBar.VIEW_OPERATION, panel);
+                                ItemPanel itemPanel = new ItemPanel(viewBean, item, operation, panel);
                                 itemPanel.getToolBar().setOutMost(true);
                                 itemPanel.getToolBar().setFkToolBar(isFkToolBar);
                                 itemPanel.getToolBar().setHierarchyCall(isHierarchyCall);
