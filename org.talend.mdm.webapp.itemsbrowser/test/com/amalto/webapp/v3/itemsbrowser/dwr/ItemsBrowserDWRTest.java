@@ -65,7 +65,7 @@ public class ItemsBrowserDWRTest extends TestCase {
         String xpathForeignKey = "ProductFamily/Id";
         String xpathInfoForeignKey = "ProductFamily/Name";
         // 1. foreignKeyInfo = ProductFamily/Name
-        WSWhereItem whereItem = Mock_UtilForeignKeyWhereCondition(xpathForeignKey, xpathInfoForeignKey, value);
+        WSWhereItem whereItem = Mock_UtilForeignKeyWhereCondition(xpathForeignKey, xpathInfoForeignKey, value, true);
         assertNotNull(whereItem);
         assertNotNull(whereItem.getWhereOr());
         assertNotNull(whereItem.getWhereOr().getWhereItems());
@@ -87,7 +87,7 @@ public class ItemsBrowserDWRTest extends TestCase {
 
         // 2. foreignKeyInfo = ProductFamily/Name,ProductFaimly/Description
         xpathInfoForeignKey = "ProductFamily/Name,ProductFamily/Description";
-        whereItem = Mock_UtilForeignKeyWhereCondition(xpathForeignKey, xpathInfoForeignKey, value);
+        whereItem = Mock_UtilForeignKeyWhereCondition(xpathForeignKey, xpathInfoForeignKey, value, true);
         assertEquals(3, whereItem.getWhereOr().getWhereItems().length);
         whereItem1 = whereItem.getWhereOr().getWhereItems()[0];
         condition1 = whereItem1.getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0].getWhereCondition();
@@ -110,7 +110,7 @@ public class ItemsBrowserDWRTest extends TestCase {
 
         // 3. foreignKeyInfo is null
         xpathInfoForeignKey = "";
-        whereItem = Mock_UtilForeignKeyWhereCondition(xpathForeignKey, xpathInfoForeignKey, value);
+        whereItem = Mock_UtilForeignKeyWhereCondition(xpathForeignKey, xpathInfoForeignKey, value, true);
         assertEquals(1, whereItem.getWhereOr().getWhereItems().length);
         whereItem1 = whereItem.getWhereOr().getWhereItems()[0];
         condition1 = whereItem1.getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0].getWhereCondition();
@@ -121,7 +121,7 @@ public class ItemsBrowserDWRTest extends TestCase {
         // 4. foreignKey = ProductFamily, foreignKeyInfo = ProductFamily/Name
         xpathForeignKey = "ProductFamily";
         xpathInfoForeignKey = "ProductFamily/Name";
-        whereItem = Mock_UtilForeignKeyWhereCondition(xpathForeignKey, xpathInfoForeignKey, value);
+        whereItem = Mock_UtilForeignKeyWhereCondition(xpathForeignKey, xpathInfoForeignKey, value, true);
         assertNotNull(whereItem);
         assertNotNull(whereItem.getWhereOr());
         assertNotNull(whereItem.getWhereOr().getWhereItems());
@@ -141,21 +141,39 @@ public class ItemsBrowserDWRTest extends TestCase {
         assertEquals(WSWhereOperator._CONTAINS, condition2.getOperator().getValue());
         assertEquals("Hats", condition2.getRightValueOrPath());
 
+        // 5. foreignKey = ProductFamily, foreignKeyInfo = ProductFamily/Name, isCount = false, xpathForeignKey =
+        // ProductFamily/Id;
+        whereItem = Mock_UtilForeignKeyWhereCondition(xpathForeignKey, xpathInfoForeignKey, value, false);
+        assertNotNull(whereItem);
+        assertNotNull(whereItem.getWhereOr());
+        assertNotNull(whereItem.getWhereOr().getWhereItems());
+        assertEquals(1, whereItem.getWhereOr().getWhereItems().length);
+
+        whereItem1 = whereItem.getWhereOr().getWhereItems()[0];
+        condition1 = whereItem1.getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0].getWhereCondition();
+        assertEquals("ProductFamily/Id", condition1.getLeftPath());
+        assertEquals(WSWhereOperator._EQUALS, condition1.getOperator().getValue());
+        assertEquals("Hats", condition1.getRightValueOrPath());
+
     }
 
     /**
      * DOC Administrator Comment method "Mock_UtilForeignKeyWhereCondition". Mock buildWhereItems in
-     * com.amalto.webapp.core.util.Util.getForeignKeyList method
+     * com.amalto.webapp.core.util.Util.getForeignKeyList method<br>
+     * isCount : it is true when you use the ForeignKeyWindow to search FK results, it is false when you display a FK
+     * item on UI
      * 
      * @return
      * @throws Exception
      */
-    private WSWhereItem Mock_UtilForeignKeyWhereCondition(String xpathForeignKey, String xpathInfoForeignKey, String value)
+    private WSWhereItem Mock_UtilForeignKeyWhereCondition(String xpathForeignKey, String xpathInfoForeignKey, String value,
+            boolean isCount)
             throws Exception {
         String initXpathForeignKey = Util.getForeignPathFromPath(xpathForeignKey);
         initXpathForeignKey = initXpathForeignKey.split("/")[0];
         String[] fkInfos = xpathInfoForeignKey.split(",");
-        String fkWhere = initXpathForeignKey + "/../* CONTAINS " + value;
+        String queryKeyWord = isCount ? " CONTAINS " : " EQUALS "; //$NON-NLS-1$ //$NON-NLS-2$
+        String fkWhere = initXpathForeignKey + "/../*" + queryKeyWord + value;
         if (xpathInfoForeignKey.trim().length() > 0) {
             StringBuffer ids = new StringBuffer();
             String realForeignKey = null;
@@ -164,23 +182,24 @@ public class ItemsBrowserDWRTest extends TestCase {
                 if (fks != null && fks.length > 0) {
                     realForeignKey = fks[0];
                     for (int i = 0; i < fks.length; i++) {
-                        ids.append(fks[i] + " CONTAINS " + value);
+                        ids.append(fks[i] + queryKeyWord + value);
                         if (i != fks.length - 1)
                             ids.append(" OR ");
                     }
                 }
             }
             StringBuffer sb = new StringBuffer();
-            for (String fkInfo : fkInfos) {
-                sb.append((fkInfo.startsWith(".") ? Util.convertAbsolutePath((realForeignKey != null && realForeignKey.trim()
-                        .length() > 0) ? realForeignKey : xpathForeignKey, fkInfo) : fkInfo)
-                        + " CONTAINS " + value);
-                sb.append(" OR ");
-            }
+            if (isCount)
+                for (String fkInfo : fkInfos) {
+                    sb.append((fkInfo.startsWith(".") ? Util.convertAbsolutePath((realForeignKey != null && realForeignKey.trim()
+                            .length() > 0) ? realForeignKey : xpathForeignKey, fkInfo) : fkInfo)
+                            + " CONTAINS " + value);
+                    sb.append(" OR ");
+                }
             if (realForeignKey != null)
                 sb.append(ids.toString());
             else
-                sb.append(xpathForeignKey + " CONTAINS " + value);
+                sb.append(xpathForeignKey + queryKeyWord + value);
             fkWhere = sb.toString();
         }
 
@@ -217,6 +236,15 @@ public class ItemsBrowserDWRTest extends TestCase {
         language = "fr";
         actualMsg = Util.getExceptionMessage(message, language);
         assertEquals("fr validate error", actualMsg);
+        // 7
+        message = "[EN:price must > 10][FR:price must > 10]";
+        if (message.length() > 0) {
+            if (message.indexOf("<msg>") == -1)
+                message = "<msg>" + message + "</msg>";
+        }
+        language = "en";
+        actualMsg = Util.getExceptionMessage(message, language);
+        assertEquals("price must > 10", actualMsg);
 
     }
 }

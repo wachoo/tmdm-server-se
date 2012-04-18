@@ -1355,7 +1355,8 @@ public class Util {
                 List<WSWhereItem> condition = new ArrayList<WSWhereItem>();
                 if (whereItem != null)
                     condition.add(whereItem);
-                String fkWhere = initXpathForeignKey + "/../* EQUALS " + value; //$NON-NLS-1$
+                String queryKeyWord = isCount ? " CONTAINS " : " EQUALS "; //$NON-NLS-1$ //$NON-NLS-2$
+                String fkWhere = initXpathForeignKey + "/../*" + queryKeyWord + value; //$NON-NLS-1$ 
                 if (xpathInfoForeignKey.trim().length() > 0) {
                     StringBuffer ids = new StringBuffer();
                     String realXpathForeignKey = null; // In studio, ForeignKey = ConceptName, but not ConceptName/Id
@@ -1364,17 +1365,26 @@ public class Util {
                         if (fks != null && fks.length > 0) {
                             realXpathForeignKey = fks[0];
                             for (int i = 0; i < fks.length; i++) {
-                                ids.append(fks[i] + " EQUALS " + value); //$NON-NLS-1$
+                                ids.append(fks[i] + queryKeyWord + value);
                                 if (i != fks.length - 1)
                                     ids.append(" OR "); //$NON-NLS-1$
                             }
                         }
                     }
                     StringBuffer sb = new StringBuffer();
+                    if (isCount)
+                        for (String fkInfo : xpathInfos) {
+                            sb.append((fkInfo.startsWith(".") ? convertAbsolutePath( //$NON-NLS-1$
+                                    (realXpathForeignKey != null && realXpathForeignKey.trim().length() > 0) ? realXpathForeignKey
+                                            : xpathForeignKey, fkInfo)
+                                    : fkInfo)
+                                    + " CONTAINS " + value); //$NON-NLS-1$
+                            sb.append(" OR "); //$NON-NLS-1$
+                        }
                     if (realXpathForeignKey != null)
                         sb.append(ids.toString());
                     else
-                        sb.append(xpathForeignKey + " EQUALS " + value); //$NON-NLS-1$
+                        sb.append(xpathForeignKey + queryKeyWord + value);
                     fkWhere = sb.toString();
                 }
                 WSWhereItem wc = buildWhereItems(fkWhere);
