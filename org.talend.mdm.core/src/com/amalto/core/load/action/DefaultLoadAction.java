@@ -11,37 +11,35 @@
 
 package com.amalto.core.load.action;
 
-import java.io.InputStream;
-
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-
-import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.load.io.XMLStreamTokenizer;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
-import com.amalto.core.util.Util;
+import com.amalto.core.save.DocumentSaverContext;
+import com.amalto.core.save.SaverSession;
+import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.util.XSDKey;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 /**
  *
  */
 public class DefaultLoadAction implements LoadAction {
-    private final String dataClusterName;
-    private final String typeName;
-    private final String dataModelName;
-    private final boolean needValidate;
-    private final boolean needAutoGenPK;
 
-    public DefaultLoadAction(String dataClusterName, String typeName,
-                             String dataModelName, boolean needValidate, boolean needAutoGenPK) {
+    private static final Logger LOGGER = Logger.getLogger(DefaultLoadAction.class);
+
+    private final String dataClusterName;
+
+    private final String dataModelName;
+
+    private final boolean needValidate;
+
+    public DefaultLoadAction(String dataClusterName, String dataModelName, boolean needValidate) {
         this.dataClusterName = dataClusterName;
-        this.typeName = typeName;
         this.dataModelName = dataModelName;
         this.needValidate = needValidate;
-        this.needAutoGenPK = needAutoGenPK;
     }
 
     public boolean supportValidation() {
@@ -53,54 +51,34 @@ public class DefaultLoadAction implements LoadAction {
     }
 
     public void load(InputStream stream, XSDKey keyMetadata, XmlServerSLWrapperLocal server) throws Exception {
-        // If you wish to debug content sent to server evaluate 'IOUtils.toString(request.getInputStream())'
-        XMLStreamTokenizer xmlStreamTokenizer = new XMLStreamTokenizer(stream);
-        while (xmlStreamTokenizer.hasMoreElements()) {
-            String xmlData = xmlStreamTokenizer.nextElement();
+        SaverSession session = SaverSession.newSession();
+        try {
+            SaverContextFactory contextFactory = session.getContextFactory();
+            session.begin(dataClusterName);
 
-            DataModelPOJO dataModel = Util.getDataModelCtrlLocal()
-                    .getDataModel(new DataModelPOJOPK(dataModelName));
-            String schemaString = dataModel.getSchema();
-
-            if (xmlData == null || xmlData.trim().length() == 0) {
-                return;
-            }
-
-            Element root = Util.parse(xmlData).getDocumentElement();
-
-            // get key values
-            // support UUID or auto-increase temporarily
-            String[] ids = null;
-            if (!needAutoGenPK) {
-                ids = Util.getKeyValuesFromItem(root, keyMetadata);
-            } else {
-                if (Util.getUUIDNodes(schemaString, typeName).size() > 0) { // check
-                    // uuid
-                    // key
-                    // exists
-                    Node n = Util.processUUID(root, schemaString, dataClusterName, typeName);
-                    // get key values
-                    ids = Util.getKeyValuesFromItem((Element) n, keyMetadata);
-                    // reset item projection
-                    xmlData = Util.nodeToString(n);
+            // If you wish to debug content sent to server evaluate 'IOUtils.toString(request.getInputStream())'
+            XMLStreamTokenizer xmlStreamTokenizer = new XMLStreamTokenizer(stream);
+            while (xmlStreamTokenizer.hasMoreElements()) {
+                String xmlData = xmlStreamTokenizer.nextElement();
+                if (xmlData != null && xmlData.trim().length() > 0) {
+                    DocumentSaverContext context = contextFactory.create(dataClusterName,
+                            dataModelName,
+                            StringUtils.EMPTY,
+                            new ByteArrayInputStream(xmlData.getBytes("UTF-8")),
+                            needValidate,
+                            false,
+                            false);
+                    context.createSaver().save(session, context);
                 }
             }
-
-            DataClusterPOJOPK clusterPK = new DataClusterPOJOPK(dataClusterName);
-            ItemPOJO itemPOJO = new ItemPOJO(clusterPK, typeName, ids,
-                    System.currentTimeMillis(), xmlData);
-
-            // validate
-            if (schemaString != null && needValidate) {
-                Util.validate(itemPOJO.getProjection(), schemaString);
+            session.end();
+        } catch (Exception e) {
+            try {
+                session.abort();
+            } catch (Exception rollbackException) {
+                LOGGER.error("Exception occurred during transaction rollback.", rollbackException);
             }
-
-            if (dataModelName != null && dataModelName.length() > 0) {
-                itemPOJO.setDataModelName(dataModelName);
-            }
-
-            // When doing bulk load, disable cache
-            itemPOJO.store(false);
+            throw new RuntimeException(e);
         }
     }
 

@@ -118,15 +118,21 @@ public abstract class ServiceBean implements EntityBean {
             setServiceData(vo.getServiceData());
              
             //create the doc
+            server.start(CLUSTER);
             long res = server.putDocumentFromString(
             	serialize(), 
             	getServiceName(),
 				CLUSTER,
 				revisionID
 			);
-            
-            if (res==-1) throw new CreateException("Check the XML Server Wrapper logs");
-            
+
+            if (res==-1) {
+                server.rollback(CLUSTER);
+                throw new CreateException("Check the XML Server Wrapper logs");
+            } else {
+                server.commit(CLUSTER);
+            }
+
             return vo.getPrimaryKey();
             
         } catch (XtentisException e) {
@@ -251,13 +257,15 @@ public abstract class ServiceBean implements EntityBean {
 	        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
 			
             //store
+            server.start(CLUSTER);
             if ( -1 == server.putDocumentFromString(
                 	serialize(), 
                 	getServiceName(),
 					CLUSTER,
 					revisionID
 				))
-            	throw new EJBException("Check the Xml Sever Wrapper logs");  
+            	throw new EJBException("Check the Xml Sever Wrapper logs");
+            server.commit(CLUSTER);
 		} catch (XtentisException e) {
 			throw new EJBException(e.getMessage());
 	    } catch (Exception e) {

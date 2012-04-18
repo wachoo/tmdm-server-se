@@ -528,22 +528,24 @@ public abstract class ObjectPOJO implements Serializable{
     		Marshaller.marshal(this, sw);
            
             //store
+            String dataClusterName = getCluster(this.getClass());
+            server.start(dataClusterName);
             if ( -1 ==  server.putDocumentFromString(
                 	sw.toString(),
                 	getPK().getUniqueId(),
-					getCluster(this.getClass()),
+                    dataClusterName,
 					revisionID
 				)) {
             	setLastError("Unable to store: check The XML Server Wrapper Logs");
+                server.rollback(dataClusterName);
             	return null;
             }
+            server.commit(dataClusterName);
             	
             setLastError(""); //$NON-NLS-1$ 
             //update the cache
-            ItemCacheKey key =new ItemCacheKey(revisionID,getPK().getUniqueId(), getCluster(this.getClass()));            
+            ItemCacheKey key =new ItemCacheKey(revisionID,getPK().getUniqueId(), dataClusterName);
             cachedPojo.put(key, sw.toString());
-            // TODO There was no commit... adding one seems to be a good idea though.
-            server.commit(key.getDataClusterID());
             return getPK();
     	} catch (XtentisException e) {
     		throw(e);
@@ -793,12 +795,14 @@ public abstract class ObjectPOJO implements Serializable{
             //get the xml server wrapper
             XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
 			String cluster= getCluster((Class<? extends ObjectPOJO>) getObjectClass(objectName));          
-			server.putDocumentFromString(
+			server.start(cluster);
+            server.putDocumentFromString(
 				xml, 
 				uniqueID, 
 				cluster, 
 				revisionID
 			);
+            server.commit(cluster);
             ItemCacheKey key =new ItemCacheKey(revisionID,uniqueID, cluster);            
             cachedPojo.put(key, xml);
     	} catch (XtentisException e) {

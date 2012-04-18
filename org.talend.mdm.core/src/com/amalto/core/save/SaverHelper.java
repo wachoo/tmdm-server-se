@@ -59,6 +59,7 @@ public class SaverHelper {
                 dataModelName,
                 changeSource,
                 new ByteArrayInputStream(xmlString.getBytes("UTF-8")), //$NON-NLS-1$
+                true, // Always validate
                 true, // Always generate an update report
                 beforeSaving);
         DocumentSaver saver = context.createSaver();

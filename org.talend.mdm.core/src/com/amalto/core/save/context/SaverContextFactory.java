@@ -106,7 +106,7 @@ public class SaverContextFactory {
     public DocumentSaverContext create(String dataCluster,
                                        String dataModelName,
                                        InputStream documentStream) {
-        return create(dataCluster, dataModelName, StringUtils.EMPTY, documentStream, false, false);
+        return create(dataCluster, dataModelName, StringUtils.EMPTY, documentStream, true, false, false);
     }
 
     /**
@@ -116,6 +116,7 @@ public class SaverContextFactory {
      * @param dataModelName      Data model name (must exist).
      * @param changeSource       Source of change (for update report). Common values includes 'genericUI'...
      * @param documentStream     A stream that contains one XML document.
+     * @param validate           <code>true</code> to validate XML document before saving it, <code>false</code> otherwise.
      * @param updateReport       <code>true</code> to generate an update report, <code>false</code> otherwise.
      * @param invokeBeforeSaving <code>true</code> to invoke any existing before saving process, <code>false</code> otherwise.
      * @return A context configured to save a record in MDM.
@@ -124,6 +125,7 @@ public class SaverContextFactory {
                                        String dataModelName,
                                        String changeSource,
                                        InputStream documentStream,
+                                       boolean validate,
                                        boolean updateReport,
                                        boolean invokeBeforeSaving) {
         if (invokeBeforeSaving && !updateReport) {
@@ -146,7 +148,7 @@ public class SaverContextFactory {
         if (dataCluster.startsWith(SYSTEM_CONTAINER_PREFIX) || XSystemObjects.isXSystemObject(SYSTEM_DATA_CLUSTERS, XObjectType.DATA_CLUSTER, dataCluster)) { //$NON-NLS-1$
             context = new SystemContext(dataCluster, dataModelName, userDocument);
         } else {
-            context = new UserContext(dataCluster, dataModelName, userDocument, updateReport, invokeBeforeSaving);
+            context = new UserContext(dataCluster, dataModelName, userDocument, validate, updateReport, invokeBeforeSaving);
         }
 
         if (updateReport) {

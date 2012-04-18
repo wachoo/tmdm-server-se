@@ -31,6 +31,8 @@ class UserContext implements DocumentSaverContext {
 
     private final String dataModel;
 
+    private final boolean validate;
+
     private final boolean invokeBeforeSaving;
 
     private final boolean updateReport;
@@ -43,17 +45,21 @@ class UserContext implements DocumentSaverContext {
 
     private MutableDocument dataBaseValidationDocument;
 
-    UserContext(String dataCluster, String dataModel, MutableDocument userDocument, boolean updateReport, boolean invokeBeforeSaving) {
+    UserContext(String dataCluster, String dataModel, MutableDocument userDocument, boolean validate, boolean updateReport, boolean invokeBeforeSaving) {
         this.userDocument = userDocument;
         this.dataCluster = dataCluster;
         this.dataModel = dataModel;
+        this.validate = validate;
         this.invokeBeforeSaving = invokeBeforeSaving;
         this.updateReport = updateReport;
     }
 
     public DocumentSaver createSaver() {
         DocumentSaver saver = SaverContextFactory.invokeSaverExtension(new Save());
-        saver = new ApplyActions(new Validation(saver));
+        if (validate) {
+            saver = new Validation(saver);
+        }
+        saver = new ApplyActions(saver); // Apply actions is mandatory
         if (invokeBeforeSaving) {
             saver = new BeforeSaving(saver);
         }

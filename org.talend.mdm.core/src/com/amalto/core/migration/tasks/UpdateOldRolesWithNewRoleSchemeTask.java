@@ -14,6 +14,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 
+import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.w3c.dom.Document;
@@ -38,19 +39,22 @@ public class UpdateOldRolesWithNewRoleSchemeTask extends AbstractMigrationTask {
         final String userClusterName = "amaltoOBJECTSRole";
         String query = "collection(\"" + userClusterName + "\")/role-pOJO/PK/ids"; // collection("/amaltoOBJECTSRole")/role-pOJO/PK/ids
         try {
-            ArrayList<String> list = ConfigurationHelper.getServer().runQuery(null, userClusterName, query, null);
+            XmlServerSLWrapperLocal server = ConfigurationHelper.getServer();
+            ArrayList<String> list = server.runQuery(null, userClusterName, query, null);
             for (String user : list) {
                 NodeList users = Util.getNodeList(Util.parse(user), "/ids");
                 for (int i = 0; i < users.getLength(); i++) {
                     String uniqueID = users.item(i).getFirstChild().getNodeValue();
-                    String userXml = ConfigurationHelper.getServer().getDocumentAsString(null, userClusterName, uniqueID);
+                    String userXml = server.getDocumentAsString(null, userClusterName, uniqueID);
                     String newUniqueID = ICoreConstants.rolesConvert.oldRoleToNewRoleMap.get(uniqueID);
                     if (newUniqueID != null) {
                         for (Map.Entry<String, String> pair : ICoreConstants.rolesConvert.oldRoleToNewRoleMap.entrySet()) {
                             userXml = userXml.replaceAll(pair.getKey().toString(), pair.getValue().toString());
                         }
-                        ConfigurationHelper.getServer().putDocumentFromString(userXml, newUniqueID, userClusterName, null);
-                        ConfigurationHelper.getServer().deleteDocument(null, userClusterName, uniqueID);
+                        server.start(userClusterName);
+                        server.putDocumentFromString(userXml, newUniqueID, userClusterName, null);
+                        server.commit(userClusterName);
+                        server.deleteDocument(null, userClusterName, uniqueID);
                     }
                 }
             }
@@ -65,22 +69,25 @@ public class UpdateOldRolesWithNewRoleSchemeTask extends AbstractMigrationTask {
         final String userClusterName = "PROVISIONING";
         String query = "collection(\"" + userClusterName + "\")/ii/p/User/username";
         try {
-            ArrayList<String> list = ConfigurationHelper.getServer().runQuery(null, userClusterName, query, null);
+            XmlServerSLWrapperLocal server = ConfigurationHelper.getServer();
+            ArrayList<String> list = server.runQuery(null, userClusterName, query, null);
+            server.start(userClusterName);
             for (String user : list) {
                 NodeList users = Util.getNodeList(Util.parse(user), "/username");
                 for (int i = 0; i < users.getLength(); i++) {
                     String entry = users.item(i).getFirstChild().getNodeValue();
                     String uniqueID = userClusterName + ".User." + entry;
-                    String userXml = ConfigurationHelper.getServer().getDocumentAsString(null, userClusterName, uniqueID);
+                    String userXml = server.getDocumentAsString(null, userClusterName, uniqueID);
                     String updateXml = new String(userXml);
                     for (Map.Entry<String, String> pair : ICoreConstants.rolesConvert.oldRoleToNewRoleMap.entrySet()) {
                         userXml = userXml.replaceAll(pair.getKey().toString(), pair.getValue().toString());
                     }
                     if (!updateXml.equals(userXml)) {
-                        ConfigurationHelper.getServer().putDocumentFromString(userXml, uniqueID, userClusterName, null);
+                        server.putDocumentFromString(userXml, uniqueID, userClusterName, null);
                     }
                 }
             }
+            server.commit(userClusterName);
         } catch (Exception e) {
             return false;
         }
@@ -105,14 +112,15 @@ public class UpdateOldRolesWithNewRoleSchemeTask extends AbstractMigrationTask {
         String query = "collection(\"" + dataModelClusterName + "\")/data-model-pOJO/name"; // collection('amaltoOBJECTSDataModel')/data-model-pOJO/name
         List<String> roleNames = getRoleDefinitions();
         try {
-            ArrayList<String> list = ConfigurationHelper.getServer().runQuery(null, dataModelClusterName, query, null);
+            XmlServerSLWrapperLocal server = ConfigurationHelper.getServer();
+            ArrayList<String> list = server.runQuery(null, dataModelClusterName, query, null);
             for (String role : list) {
                 NodeList roles = Util.getNodeList(Util.parse(role), "/name");
                 for (int i = 0; i < roles.getLength(); i++) {
                     String uniqueID = roles.item(i).getFirstChild().getNodeValue();
                     if (uniqueID.equals("XMLSCHEMA---"))
                         continue;
-                    String dataModelXml = ConfigurationHelper.getServer().getDocumentAsString(null, dataModelClusterName,
+                    String dataModelXml = server.getDocumentAsString(null, dataModelClusterName,
                             uniqueID);
                     String cpyXml = new String(dataModelXml);
                     for (Map.Entry<String, String> pair : ICoreConstants.rolesConvert.oldRoleToNewRoleMap.entrySet()) {
@@ -159,7 +167,9 @@ public class UpdateOldRolesWithNewRoleSchemeTask extends AbstractMigrationTask {
                         }
                     }
                     if (!dataModelXml.equals(cpyXml)) {
-                        ConfigurationHelper.getServer().putDocumentFromString(dataModelXml, uniqueID, dataModelClusterName, null);
+                        server.start(dataModelClusterName);
+                        server.putDocumentFromString(dataModelXml, uniqueID, dataModelClusterName, null);
+                        server.commit(dataModelClusterName);
                         ObjectPOJO.clearCache();
                     }
                 }
