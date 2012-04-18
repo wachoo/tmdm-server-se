@@ -216,6 +216,30 @@ public class LoadParserTest extends TestCase {
         assertTrue(idGenerator.isStateSaved());
     }
 
+    public void test7() {
+        TestAutoIdGenerator idGenerator = new TestAutoIdGenerator();
+        InputStream testResource = this.getClass().getResourceAsStream("test7.xml");
+        assertFalse(idGenerator.isStateSaved());
+        assertNotNull(testResource);
+
+        ParserTestCallback callback = new ParserTestCallback();
+
+        LoadParser.Configuration config = new LoadParser.Configuration("Product", new String[]{"Id"}, false, "clusterName", "modelName", idGenerator);
+
+        if (DEBUG) {
+             InputStream testResource2 = this.getClass().getResourceAsStream("test7.xml");
+             LoadParserCallback callback2 = new ConsolePrintParserCallback();
+             LoadParser.parse(testResource2, config, callback2);
+         }
+
+        StateContext context = LoadParser.parse(testResource, config, callback);
+        assertTrue(callback.hasBeenFlushed());
+        assertTrue(hasParsedElement(callback, "Picture"));
+        assertEquals("231035933", callback.getId());
+
+        context.close();
+    }
+
 
     public void test3MultiThread() {
         int threadNumber = 20;
