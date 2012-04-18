@@ -19,6 +19,7 @@ import java.util.Map;
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
+import org.talend.mdm.webapp.base.client.widget.ColumnAlignGrid;
 import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
 import org.talend.mdm.webapp.recyclebin.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.recyclebin.client.resources.icon.Icons;
@@ -53,7 +54,6 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
-import com.extjs.gxt.ui.client.widget.grid.GridView;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -299,10 +299,9 @@ public class MainFramePanel extends ContentPanel {
                 proxy);
 
         final ListStore<ItemsTrashItem> store = new ListStore<ItemsTrashItem>(loader);
-        grid = new Grid<ItemsTrashItem>(store, cm);
+        grid = new ColumnAlignGrid<ItemsTrashItem>(store, cm);
         grid.getView().setAutoFill(true);
         grid.getView().setForceFit(true);
-        setBorderWidthGridView(grid.getView(), 0);
         // grid.setSize(350, 600);
         int usePageSize = PAGE_SIZE;
         if (StateManager.get().get("trashgrid") != null) //$NON-NLS-1$
@@ -325,10 +324,6 @@ public class MainFramePanel extends ContentPanel {
         this.setBottomComponent(pagetoolBar);
         add(grid);
     }
-
-    public native void setBorderWidthGridView(GridView view, int borderWidth)/*-{
-        view.@com.extjs.gxt.ui.client.widget.grid.GridView::borderWidth = borderWidth;
-    }-*/;
 
     private void initTopBar() {
         ToolBar bar = new ToolBar();
@@ -416,6 +411,6 @@ public class MainFramePanel extends ContentPanel {
     }
 
     private native void refreshBrowseRecordsGrid()/*-{
-		$wnd.amalto.browserecords.BrowseRecords.refreshGrid();
+        $wnd.amalto.browserecords.BrowseRecords.refreshGrid();
     }-*/;
 }
