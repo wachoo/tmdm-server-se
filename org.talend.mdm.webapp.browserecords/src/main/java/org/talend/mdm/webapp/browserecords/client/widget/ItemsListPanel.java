@@ -25,6 +25,7 @@ import org.talend.mdm.webapp.base.client.exception.ParserException;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.client.util.Parser;
+import org.talend.mdm.webapp.base.client.widget.ColumnAlignGrid;
 import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
@@ -81,7 +82,6 @@ import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.grid.GridView;
 import com.extjs.gxt.ui.client.widget.grid.RowEditor;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
@@ -256,10 +256,6 @@ public class ItemsListPanel extends ContentPanel {
         add(panel);
     }
 
-    public native void setBorderWidthGridView(GridView view, int borderWidth)/*-{
-        view.@com.extjs.gxt.ui.client.widget.grid.GridView::borderWidth = borderWidth;
-    }-*/;
-
     public void updateGrid(CheckBoxSelectionModel<ItemBean> sm, List<ColumnConfig> columnConfigList) {
         // toolBar.searchBut.setEnabled(false);
         if (gridContainer != null && this.findItem(gridContainer.getElement()) != null)
@@ -281,13 +277,12 @@ public class ItemsListPanel extends ContentPanel {
         pagingBar.setVisible(false);
         pagingBar.bind(loader);
         gridContainer.setBottomComponent(pagingBar);
-        grid = new Grid<ItemBean>(store, cm);
+        grid = new ColumnAlignGrid<ItemBean>(store, cm);
         grid.setSelectionModel(sm);
         grid.setStateful(true);
         grid.setStateId("grid"); //$NON-NLS-1$
         re = new SaveRowEditor();
         grid.getView().setForceFit(true);
-        setBorderWidthGridView(grid.getView(), 0);
         if (cm.getColumnCount() > 0) {
             grid.setAutoExpandColumn(cm.getColumn(0).getHeader());
         }
