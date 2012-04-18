@@ -70,7 +70,7 @@ class Security implements DocumentSaver {
                         builder.append(" / ");  //$NON-NLS-1$
                     }
                 }
-                throw new IllegalStateException("User is not allowed to perform: " + builder);
+                throw new IllegalStateException("User '" + saverSource.getUserName() + "' is not allowed to perform following operation(s): " + builder);
             }
         }
 
