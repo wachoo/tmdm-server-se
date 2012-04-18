@@ -40,7 +40,8 @@ class IntegrityCheckDataSourceMock implements FKIntegrityCheckDataSource {
         return "DataModel";
     }
 
-    public long countInboundReferences(String clusterName, String[] ids, TypeMetadata fromType, ReferenceFieldMetadata fromReference) throws XtentisException {
+    public long countInboundReferences(String clusterName, String[] ids, String fromTypeName, ReferenceFieldMetadata fromReference)
+            throws XtentisException {
         return 1;
     }
 

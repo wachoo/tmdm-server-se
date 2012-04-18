@@ -11,12 +11,15 @@
 
 package com.amalto.core.integrity;
 
+import static com.amalto.core.integrity.FKIntegrityCheckResult.ALLOWED;
+import static com.amalto.core.integrity.FKIntegrityCheckResult.FORBIDDEN;
+import static com.amalto.core.integrity.FKIntegrityCheckResult.FORBIDDEN_OVERRIDE_ALLOWED;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.amalto.core.integrity.FKIntegrityCheckResult.*;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.ReferenceFieldMetadata;
 import com.amalto.core.metadata.TypeMetadata;
@@ -137,8 +140,8 @@ public class FKIntegrityChecker {
         for (ReferenceFieldMetadata incomingReference : fieldToCheck) {
             if (incomingReference.isFKIntegrity()) { // Don't execute a count if we don't care about FK integrity for the field.
                 boolean allowOverride = incomingReference.allowFKIntegrityOverride();
-                TypeMetadata referencingType = incomingReference.getContainingType();
-                long count = dataSource.countInboundReferences(clusterName, ids, referencingType, incomingReference);
+                String referencingTypeName = getFromTypeNameThroughIncomingReference(incomingReference);
+                long count = dataSource.countInboundReferences(clusterName, ids, referencingTypeName, incomingReference);
 
                 if (count > 0) {
                     if (allowOverride) {
@@ -146,7 +149,6 @@ public class FKIntegrityChecker {
                     } else {
                         get(checkResultToFields, FORBIDDEN).add(incomingReference);
                     }
-
                 } else {
                     get(checkResultToFields, ALLOWED).add(incomingReference);
                 }
@@ -189,6 +191,27 @@ public class FKIntegrityChecker {
 
             return conflictResolution;
         }
+    }
+
+    /**
+     * Get from type name by incomingReference
+     * 
+     * @param incomingReference
+     * @return The from type name
+     */
+    private String getFromTypeNameThroughIncomingReference(ReferenceFieldMetadata incomingReference) {
+
+        if (incomingReference == null)
+            return null;
+
+        String rootTypeName = incomingReference.getData(ForeignKeyIntegrity.ATTRIBUTE_ROOTTYPE);
+        if (rootTypeName != null && rootTypeName.trim().length() > 0) {
+            return rootTypeName;
+        }else{
+            TypeMetadata referencingType = incomingReference.getContainingType();
+            return referencingType.getName();
+        }
+
     }
 
     /**

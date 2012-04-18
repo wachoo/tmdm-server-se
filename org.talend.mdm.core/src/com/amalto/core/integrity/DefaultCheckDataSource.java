@@ -13,15 +13,21 @@
 
 package com.amalto.core.integrity;
 
+import static com.amalto.core.integrity.FKIntegrityCheckResult.ALLOWED;
+import static com.amalto.core.integrity.FKIntegrityCheckResult.FORBIDDEN;
+import static com.amalto.core.integrity.FKIntegrityCheckResult.FORBIDDEN_OVERRIDE_ALLOWED;
+
 import java.io.ByteArrayInputStream;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
-import static com.amalto.core.integrity.FKIntegrityCheckResult.*;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.metadata.ReferenceFieldMetadata;
@@ -33,8 +39,6 @@ import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereCondition;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 
 class DefaultCheckDataSource implements FKIntegrityCheckDataSource {
 
@@ -66,18 +70,29 @@ class DefaultCheckDataSource implements FKIntegrityCheckDataSource {
         return dataModel;
     }
 
-    public long countInboundReferences(String clusterName, String[] ids, TypeMetadata fromType, ReferenceFieldMetadata fromReference) throws XtentisException {
+    public long countInboundReferences(String clusterName, String[] ids, String fromTypeName, ReferenceFieldMetadata fromReference)
+            throws XtentisException {
         // Transform ids into the string format expected in base
-        String referencedId = "";
+        String referencedId = ""; //$NON-NLS-1$
         for (String id : ids) {
             referencedId += '[' + id + ']';
         }
 
         LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
-        conceptPatternsToClusterName.put(".*", clusterName);
+        conceptPatternsToClusterName.put(".*", clusterName); //$NON-NLS-1$
 
-        IWhereItem whereItem = new WhereCondition(fromReference.getContainingType().getName() + '/' + fromReference.getName(), WhereCondition.EQUALS, referencedId, WhereCondition.NO_OPERATOR);
-        return Util.getXmlServerCtrlLocal().countItems(new LinkedHashMap(), conceptPatternsToClusterName, fromType.getName(), whereItem);
+        String leftPath = fromReference.getData(ForeignKeyIntegrity.ATTRIBUTE_XPATH);
+        if (leftPath == null || leftPath.length() == 0)
+            return 0;
+        IWhereItem whereItem = new WhereCondition(leftPath,
+                WhereCondition.EQUALS, referencedId, WhereCondition.NO_OPERATOR);
+
+        // For the anonymous type and leave the type name empty
+        if (fromTypeName == null || fromTypeName.trim().equals("")) //$NON-NLS-1$
+            return 0;
+
+        return Util.getXmlServerCtrlLocal()
+                .countItems(new LinkedHashMap(), conceptPatternsToClusterName, fromTypeName, whereItem);
     }
 
     public Set<ReferenceFieldMetadata> getForeignKeyList(String concept, String dataModel) throws XtentisException {
@@ -101,14 +116,14 @@ class DefaultCheckDataSource implements FKIntegrityCheckDataSource {
 
     public void resolvedConflict(Map<FKIntegrityCheckResult, Set<FieldMetadata>> checkResultToFields, FKIntegrityCheckResult conflictResolution) {
         if (logger.isInfoEnabled()) {
-            logger.info("Found conflicts in data model relative to FK integrity checks");
-            logger.info("= Forbidden deletes =");
+            logger.info("Found conflicts in data model relative to FK integrity checks"); //$NON-NLS-1$
+            logger.info("= Forbidden deletes ="); //$NON-NLS-1$
             dumpFields(FORBIDDEN, checkResultToFields);
-            logger.info("= Forbidden deletes (override allowed) =");
+            logger.info("= Forbidden deletes (override allowed) ="); //$NON-NLS-1$
             dumpFields(FORBIDDEN_OVERRIDE_ALLOWED, checkResultToFields);
-            logger.info("= Allowed deletes =");
+            logger.info("= Allowed deletes ="); //$NON-NLS-1$
             dumpFields(ALLOWED, checkResultToFields);
-            logger.info("Conflict resolution: " + conflictResolution);
+            logger.info("Conflict resolution: " + conflictResolution); //$NON-NLS-1$
         }
     }
 

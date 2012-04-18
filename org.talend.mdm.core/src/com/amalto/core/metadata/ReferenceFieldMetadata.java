@@ -13,7 +13,7 @@ package com.amalto.core.metadata;
 
 import java.util.List;
 
-public class ReferenceFieldMetadata implements FieldMetadata {
+public class ReferenceFieldMetadata extends MetadataExtensible implements FieldMetadata {
 
     private final boolean isKey;
 
