@@ -77,19 +77,17 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -141,8 +139,6 @@ public class ItemsToolBar extends ToolBar {
 
     private List<ItemBaseModel> userCriteriasList;
 
-    private ListStore<ItemBaseModel> tableList = new ListStore<ItemBaseModel>();
-
     private boolean advancedPanelVisible = false;
 
     private boolean bookmarkShared = false;
@@ -150,10 +146,6 @@ public class ItemsToolBar extends ToolBar {
     private String bookmarkName = null;
 
     private ItemBaseModel currentModel = null;
-
-    private ComboBox<ItemBaseModel> combo = null;
-
-    private ViewBean tableView;
 
     private FKRelRecordWindow relWindow = new FKRelRecordWindow();
 
@@ -413,8 +405,16 @@ public class ItemsToolBar extends ToolBar {
             public void componentSelected(MenuEvent ce) {
                 QueryModel queryModel = ItemsListPanel.getInstance().getCurrentQueryModel();
                 if (queryModel != null) {
-                    Map<String, String> param = buidlExportParameter(queryModel);
-                    PostDataUtil.postData("/browserecords/download", param); //$NON-NLS-1$
+                	final Window window = new Window();
+                    window.setSize(380, 180);
+                    window.setPlain(true);
+                    window.setModal(true);
+                    window.setBlinkModal(true);
+                    window.setHeading(MessagesFactory.getMessages().export_title());
+                    window.setLayout(new FitLayout());
+                    window.setClosable(true);
+                    window.add(new DownloadFilePanel(queryModel, window));
+                    window.show();
                 }
             }
         });
@@ -767,86 +767,6 @@ public class ItemsToolBar extends ToolBar {
         initAdvancedPanel();
     }
 
-    private Map<String, String> buidlExportParameter(QueryModel queryModel) {
-        ViewBean viewBean = BrowseRecords.getSession().getCurrentView();
-        List<String> viewableXpaths = viewBean.getViewableXpaths();
-        EntityModel entityModel = viewBean.getBindingEntityModel();
-        Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
-
-        List<String> headerList = new ArrayList<String>();
-        List<String> xPathList = new ArrayList<String>();
-        List<String> fkColXPathList = new ArrayList<String>();
-        List<String> fkInfoList = new ArrayList<String>();       
-
-        for (String xpath : viewableXpaths) {
-            TypeModel typeModel = dataTypes.get(xpath);
-            String header = typeModel == null ? xpath : ViewUtil.getViewableLabel(Locale.getLanguage(), typeModel);
-            headerList.add(header);
-            xPathList.add(xpath);
-            if (typeModel.getForeignkey() != null) {
-                fkColXPathList.add(xpath + "," + typeModel.getForeignkey()); //$NON-NLS-1$
-                List<String> fkInfo = typeModel.getForeignKeyInfo();
-                if (fkInfo.size() == 0) {
-                    fkInfoList.add(" "); //$NON-NLS-1$
-                } else {
-                    StringBuilder sb = new StringBuilder(fkInfo.get(0));
-                    for (int i = 1; i < fkInfo.size(); i++) {
-                        sb.append(",").append(fkInfo.get(i)); //$NON-NLS-1$
-                    }
-                    fkInfoList.add(sb.toString());
-                }
-            }
-        }
-
-        Map<String, String> param = new HashMap<String, String>();
-
-        queryModel.getModel();
-        queryModel.getCriteria();
-        queryModel.getLanguage();
-
-        param.put("tableName", viewBean.getViewPK()); //$NON-NLS-1$
-        param.put("header", LabelUtil.convertList2String(headerList, "@")); //$NON-NLS-1$ //$NON-NLS-2$
-        param.put("xpath", LabelUtil.convertList2String(xPathList, "@")); //$NON-NLS-1$ //$NON-NLS-2$
-        param.put("fkColXPath", LabelUtil.convertList2String(fkColXPathList, "@")); //$NON-NLS-1$ //$NON-NLS-2$
-        param.put("fkInfo", LabelUtil.convertList2String(fkInfoList, "@")); //$NON-NLS-1$ //$NON-NLS-2$
-        
-        param.put("dataCluster", queryModel.getDataClusterPK()); //$NON-NLS-1$
-        param.put("viewPk", queryModel.getView().getViewPK()); //$NON-NLS-1$
-        param.put("criteria", queryModel.getCriteria()); //$NON-NLS-1$
-        param.put("language", queryModel.getLanguage()); //$NON-NLS-1$
-
-        PagingLoadConfig pagingLoad = queryModel.getPagingLoadConfig();
-        String sortDir = null;
-        if (SortDir.ASC.equals(pagingLoad.getSortDir())) {
-            sortDir = "ascending"; //$NON-NLS-1$
-        }
-        if (SortDir.DESC.equals(pagingLoad.getSortDir())) {
-            sortDir = "descending"; //$NON-NLS-1$
-        }
-        Map<String, TypeModel> types = queryModel.getModel().getMetaDataTypes();
-        TypeModel typeModel = types.get(pagingLoad.getSortField());
-        if (typeModel != null) {
-            if (DataTypeConstants.INTEGER.getTypeName().equals(typeModel.getType().getBaseTypeName())
-                    || DataTypeConstants.INT.getTypeName().equals(typeModel.getType().getBaseTypeName())
-                    || DataTypeConstants.LONG.getTypeName().equals(typeModel.getType().getBaseTypeName())
-                    || DataTypeConstants.DECIMAL.getTypeName().equals(typeModel.getType().getBaseTypeName())
-                    || DataTypeConstants.FLOAT.getTypeName().equals(typeModel.getType().getBaseTypeName())
-                    || DataTypeConstants.DOUBLE.getTypeName().equals(typeModel.getType().getBaseTypeName())) {
-                sortDir = "NUMBER:" + sortDir; //$NON-NLS-1$
-            }
-        }
-
-        if (pagingLoad.getSortField() != null) {
-            param.put("sortField", pagingLoad.getSortField()); //$NON-NLS-1$
-        }
-        if (sortDir != null) {
-            param.put("sortDir", sortDir); //$NON-NLS-1$
-        }
-        param.put("offset", Integer.toString(pagingLoad.getOffset())); //$NON-NLS-1$
-        param.put("limit", Integer.toString(pagingLoad.getLimit())); //$NON-NLS-1$
-        return param;
-    }
-
     private void updateUserCriteriasList() {
         service.getUserCriterias(entityCombo.getValue().get("value").toString(), //$NON-NLS-1$
                 new SessionAwareAsyncCallback<List<ItemBaseModel>>() {
@@ -1095,57 +1015,12 @@ public class ItemsToolBar extends ToolBar {
                 });
     }
 
-    private void addDownloadPanel(final ContentPanel panel) {
-        String currentTableName = currentModel.get("value"); //$NON-NLS-1$
-        service.getView(currentTableName, Locale.getLanguage(), new SessionAwareAsyncCallback<ViewBean>() {
-
-            public void onSuccess(ViewBean bean) {
-                tableView = bean;
-                panel.removeAll();
-                DownloadTablePanel dtpanel = DownloadTablePanel.getInstance(tableView.getViewPK());
-                dtpanel.updateGrid(tableView, panel.getWidth());
-                panel.add(dtpanel);
-                panel.layout(true);
-            }
-        });
-    }
-
-    public void renderDownloadPanel(ContentPanel panel) {
-        if (BrowseRecords.getSession().getCustomizeModelList() != null) {
-            if (BrowseRecords.getSession().getCustomizeModelList().contains(currentModel)) {
-                tableView = BrowseRecords.getSession().getCustomizeModelViewMap().get(currentModel);
-                panel.removeAll();
-                DownloadTablePanel dtpanel = DownloadTablePanel.getInstance(tableView.getViewPK());
-                dtpanel.updateGrid(tableView, panel.getWidth());
-                panel.add(dtpanel);
-                panel.layout(true);
-            }
-        }
-
-        this.addDownloadPanel(panel);
-    }
-
-    public void addOption(ItemBaseModel model) {
-        tableList.add(model);
-        combo.setStore(tableList);
-
-        combo.setValue(model);
-    }
-
     public ItemBaseModel getCurrentModel() {
         return currentModel;
     }
 
     public void setCurrentModel(ItemBaseModel currentModel) {
         this.currentModel = currentModel;
-    }
-
-    public ViewBean getTableView() {
-        return tableView;
-    }
-
-    public void setTableView(ViewBean tableView) {
-        this.tableView = tableView;
     }
 
     public SimpleCriterionPanel<?> getSimplePanel() {

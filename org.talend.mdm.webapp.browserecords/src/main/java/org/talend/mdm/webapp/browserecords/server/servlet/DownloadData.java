@@ -47,8 +47,10 @@ public class DownloadData extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String tableName = request.getParameter("tableName"); //$NON-NLS-1$
-        String header = new String(request.getParameter("header").getBytes("iso-8859-1"), "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        String fileName = new String(request.getParameter("fileName").getBytes("iso-8859-1"), "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$                
+        String header = new String(request.getParameter("header").getBytes("iso-8859-1"), "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$        
         String xpath = request.getParameter("xpath"); //$NON-NLS-1$
+        
 
         String[] fieldNames = header.split("@"); //$NON-NLS-1$
         String[] xpathArr = xpath.split("@"); //$NON-NLS-1$
@@ -57,7 +59,7 @@ public class DownloadData extends HttpServlet {
 
         response.reset();
         response.setContentType("application/vnd.ms-excel"); //$NON-NLS-1$
-        String theReportFile = concept + ".xls"; //$NON-NLS-1$
+        String theReportFile = fileName + ".xls"; //$NON-NLS-1$
         response.setHeader("Content-Disposition", "attachment; filename=\"" + theReportFile + "\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         HSSFWorkbook wb = new HSSFWorkbook();
         HSSFSheet sheet = wb.createSheet("Talend MDM"); //$NON-NLS-1$
@@ -127,28 +129,31 @@ public class DownloadData extends HttpServlet {
         String sortField = request.getParameter("sortField"); //$NON-NLS-1$
         String sortDir = request.getParameter("sortDir"); //$NON-NLS-1$
         
+        boolean fkResovled = Boolean.valueOf(request.getParameter("fkResovled")); //$NON-NLS-1$
+        String fkDisplay = request.getParameter("fkDisplay"); //$NON-NLS-1$
+        
         Map<String, String> colFkMap = new HashMap<String, String>();
         Map<String, List<String>> fkMap = new HashMap<String, List<String>>();
-        
-        String fkColXPath = request.getParameter("fkColXPath"); //$NON-NLS-1$
-        if (!fkColXPath.equalsIgnoreCase("")) { //$NON-NLS-1$
-            String fkInfo = request.getParameter("fkInfo"); //$NON-NLS-1$
-            String[] fkColXPathArr = fkColXPath.split("@"); //$NON-NLS-1$
-            String[] fkInfoArr = fkInfo.split("@"); //$NON-NLS-1$
-            for (int i = 0; i < fkColXPathArr.length; i++) {
-                String[] fkStr = fkInfoArr[i].split(","); //$NON-NLS-1$
-                List<String> fkList = new ArrayList<String>();
-                for (String str : fkStr) {
-                    fkList.add(str);
+        if (fkResovled) {
+            String fkColXPath = request.getParameter("fkColXPath"); //$NON-NLS-1$
+            if (!fkColXPath.equalsIgnoreCase("")) { //$NON-NLS-1$
+                String fkInfo = request.getParameter("fkInfo"); //$NON-NLS-1$
+                String[] fkColXPathArr = fkColXPath.split("@"); //$NON-NLS-1$
+                String[] fkInfoArr = fkInfo.split("@"); //$NON-NLS-1$
+                for (int i = 0; i < fkColXPathArr.length; i++) {
+                    String[] fkStr = fkInfoArr[i].split(","); //$NON-NLS-1$
+                    List<String> fkList = new ArrayList<String>();
+                    for (String str : fkStr) {
+                        fkList.add(str);
+                    }
+                    String[] arr = fkColXPathArr[i].split(","); //$NON-NLS-1$
+                    fkMap.put(arr[0], fkList);
+                    colFkMap.put(arr[0], arr[1]);
                 }
-                String[] arr = fkColXPathArr[i].split(","); //$NON-NLS-1$
-                fkMap.put(arr[0], fkList);
-                colFkMap.put(arr[0], arr[1]);
             }
         }
                
-        Properties mdmConfig = MDMConfiguration.getConfiguration();
-        
+        Properties mdmConfig = MDMConfiguration.getConfiguration();        
         Object value =  mdmConfig.get("max.export.browserecord"); //$NON-NLS-1$
 
         int maxCount = 1000;
@@ -164,14 +169,19 @@ public class DownloadData extends HttpServlet {
             int colCount = 0;
             for (String xpath : xpathArr) {
                 String tmp = XmlUtil.queryNodeText(doc, xpath.replaceFirst(concept + "/", "result/")); //$NON-NLS-1$ //$NON-NLS-2$;
-                if (colFkMap.containsKey(xpath)) {
-                    List<String> fkinfoList = fkMap.get(xpath);
-                    if (!fkinfoList.get(0).trim().equalsIgnoreCase("") && !tmp.equalsIgnoreCase("")) { //$NON-NLS-1$ //$NON-NLS-2$
-                        List<String> infoList = getFKInfo(dataCluster, colFkMap.get(xpath), fkinfoList, tmp);
-                        tmp = LabelUtil.convertList2String(infoList, "-"); //$NON-NLS-1$
+                if (fkResovled) {
+                    if (colFkMap.containsKey(xpath)) {
+                        List<String> fkinfoList = fkMap.get(xpath);
+                        if (!fkinfoList.get(0).trim().equalsIgnoreCase("") && !tmp.equalsIgnoreCase("")) { //$NON-NLS-1$ //$NON-NLS-2$
+                            List<String> infoList = getFKInfo(dataCluster, colFkMap.get(xpath), fkinfoList, tmp);
+                            if (fkDisplay.equalsIgnoreCase("Id-FKInfo")) { //$NON-NLS-1$
+                                infoList.add(0, tmp);
+                            }
+                            tmp = LabelUtil.convertList2String(infoList, "-"); //$NON-NLS-1$                            
+                        }
                     }
                 }
-                    
+                             
                 if (tmp != null) {
                     tmp = tmp.trim();
                     tmp = tmp.replaceAll("__h", ""); //$NON-NLS-1$ //$NON-NLS-2$

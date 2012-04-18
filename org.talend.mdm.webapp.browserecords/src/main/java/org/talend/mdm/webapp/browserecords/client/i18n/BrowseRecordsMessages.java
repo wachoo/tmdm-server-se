@@ -250,6 +250,8 @@ public interface BrowseRecordsMessages extends Messages {
     String save_close_tip();
 
     String upload_title();
+    
+    String export_title();
 
     String label_combo_filetype_select();
 
@@ -376,6 +378,10 @@ public interface BrowseRecordsMessages extends Messages {
     String search_field_error_info(String value);
     
     String msg_confirm_close_tab(String entityName);
+    
+    String fkinfo_display_label();
+    
+    String fkinfo_display_type_label();
     
     String error_column_header(String columnName,String concept);
 }
