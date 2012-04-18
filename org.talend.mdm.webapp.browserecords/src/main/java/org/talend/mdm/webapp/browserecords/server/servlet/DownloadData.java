@@ -27,6 +27,7 @@ import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.base.server.util.XmlUtil;
 import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
+import org.talend.mdm.webapp.browserecords.server.util.DownloadUtil;
 
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.Util;
@@ -136,21 +137,8 @@ public class DownloadData extends HttpServlet {
         Map<String, List<String>> fkMap = new HashMap<String, List<String>>();
         if (fkResovled) {
             String fkColXPath = request.getParameter("fkColXPath"); //$NON-NLS-1$
-            if (!fkColXPath.equalsIgnoreCase("")) { //$NON-NLS-1$
-                String fkInfo = request.getParameter("fkInfo"); //$NON-NLS-1$
-                String[] fkColXPathArr = fkColXPath.split("@"); //$NON-NLS-1$
-                String[] fkInfoArr = fkInfo.split("@"); //$NON-NLS-1$
-                for (int i = 0; i < fkColXPathArr.length; i++) {
-                    String[] fkStr = fkInfoArr[i].split(","); //$NON-NLS-1$
-                    List<String> fkList = new ArrayList<String>();
-                    for (String str : fkStr) {
-                        fkList.add(str);
-                    }
-                    String[] arr = fkColXPathArr[i].split(","); //$NON-NLS-1$
-                    fkMap.put(arr[0], fkList);
-                    colFkMap.put(arr[0], arr[1]);
-                }
-            }
+            String fkInfo = request.getParameter("fkInfo"); //$NON-NLS-1$
+            DownloadUtil.assembleFkMap(colFkMap, fkMap, fkColXPath, fkInfo);
         }
                
         Properties mdmConfig = MDMConfiguration.getConfiguration();        
