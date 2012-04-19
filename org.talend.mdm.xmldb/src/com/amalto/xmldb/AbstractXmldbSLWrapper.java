@@ -504,19 +504,19 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
     }
 
     public void start(String dataClusterName) throws XmlServerException {
-        throw new UnsupportedOperationException();
+        // NOOP
     }
 
     public void commit(String dataClusterName) throws XmlServerException {
-        throw new UnsupportedOperationException();
+        // NOOP
     }
 
     public void rollback(String dataClusterName) throws XmlServerException {
-        throw new UnsupportedOperationException();
+        // NOOP
     }
 
     public void end(String dataClusterName) throws XmlServerException {
-        throw new UnsupportedOperationException();
+        // NOOP
     }
 
     public List<String> globalSearch(String dataCluster, String keyword, int start, int end) throws XmlServerException {
