@@ -28,11 +28,6 @@ import com.amalto.core.metadata.TypeMetadata;
 @SuppressWarnings({"HardCodedStringLiteral", "nls"})
 public class ForeignKeyIntegrityTest extends TestCase {
 
-    static {
-        System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
-                "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
-    }
-
     private Set<ReferenceFieldMetadata> getReferencedFields(MetadataRepository repository, String typeName) {
         TypeMetadata type = repository.getType(typeName);
 
@@ -464,15 +459,28 @@ public class ForeignKeyIntegrityTest extends TestCase {
         String typeName = "Contrat";
         String[] ids = { "1" };
 
-        IntegrityCheckDataSourceMock dataSource = new IntegrityCheckDataSourceMock(repository);
-        // Check the anonymous type and leave the type name empty
-        assertEquals(0,
-                new DefaultCheckDataSource().countInboundReferences(dataCluster, ids, "", referencedField));
-
         FKIntegrityChecker integrityChecker = FKIntegrityChecker.getInstance();
-
+        IntegrityCheckDataSourceMock dataSource = new IntegrityCheckDataSourceMock(repository);
         assertFalse(integrityChecker.allowDelete(dataCluster, typeName, ids, false, dataSource));
         FKIntegrityCheckResult policy = integrityChecker.getFKIntegrityPolicy(dataCluster, typeName, ids, dataSource);
         assertEquals(FKIntegrityCheckResult.FORBIDDEN, policy);
+    }
+
+
+    public void testEmptyTypeName() throws Exception {
+
+        MetadataRepository repository = getMetadataRepository("model17.xsd");
+        Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "Contrat");
+        assertEquals(1, references.size());
+        ReferenceFieldMetadata referencedField = references.iterator().next();
+
+        String dataCluster = "DataCluster";
+        String[] ids = { "1" };
+        FKIntegrityCheckDataSource dataSource = new DefaultCheckDataSource();
+
+        // Check the anonymous type and leave the type name empty
+        assertEquals(0, dataSource.countInboundReferences(dataCluster, ids, null, referencedField));
+        assertEquals(0, dataSource.countInboundReferences(dataCluster, ids, "", referencedField));
+
     }
 }
