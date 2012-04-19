@@ -43,16 +43,25 @@ class GenerateActions implements DocumentSaver {
             source = StringUtils.EMPTY;
         }
         Date date = new Date(System.currentTimeMillis());
-        String userName = session.getSaverSource().getUserName();
+        SaverSource saverSource = session.getSaverSource();
+        String userName = saverSource.getUserName();
 
+        ComplexTypeMetadata type = context.getType();
         List<Action> actions;
         if (databaseDocument.asDOM().getDocumentElement() == null) {
-            Action action = new OverrideCreateAction(date, source, userName, userDocument, context.getType());
-            actions = Collections.singletonList(action);
+            // This is a creation (database document is empty).
+            Action createAction = new OverrideCreateAction(date, source, userName, userDocument, context.getType());
+            // Generate field update actions for UUID and AutoIncrement elements.
+            String universe = saverSource.getUniverse();
+            CreateActions createActions = new CreateActions(date, source, userName, context.getDataCluster(), universe);
+            List<Action> fieldActions = type.accept(createActions);
+            // Builds action list (be sure to include actual creation as first action).
+            actions = new LinkedList<Action>();
+            actions.add(createAction);
+            actions.addAll(fieldActions);
         } else {
             // get updated paths
-            ComplexTypeMetadata type = context.getType();
-            MetadataRepository metadataRepository = session.getSaverSource().getMetadataRepository(context.getDataModelName());
+            MetadataRepository metadataRepository = saverSource.getMetadataRepository(context.getDataModelName());
             UpdateActionCreator actionCreator = new UpdateActionCreator(databaseDocument, userDocument, source, userName, metadataRepository);
             try {
                 actions = type.accept(actionCreator);
