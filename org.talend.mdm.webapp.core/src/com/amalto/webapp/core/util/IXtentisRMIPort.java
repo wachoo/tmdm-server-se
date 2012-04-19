@@ -12,25 +12,11 @@
 // ============================================================================
 package com.amalto.webapp.core.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.StringReader;
+import java.io.*;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
+import java.util.Map.Entry;
 
 import javax.naming.InitialContext;
 import javax.naming.NameClassPair;
@@ -46,6 +32,10 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import com.amalto.core.save.SaveException;
+import com.amalto.core.save.SaverHelper;
+import com.amalto.core.save.SaverSession;
+import com.amalto.core.save.context.DocumentSaver;
 import org.apache.log4j.Logger;
 import org.jboss.security.Base64Encoder;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
@@ -95,12 +85,6 @@ import com.amalto.core.objects.transformers.v2.util.TransformerCallBack;
 import com.amalto.core.objects.transformers.v2.util.TransformerContext;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
-import com.amalto.core.save.RoutingEngineException;
-import com.amalto.core.save.SaveException;
-import com.amalto.core.save.SaverHelper;
-import com.amalto.core.save.SaverSession;
-import com.amalto.core.save.context.DocumentSaver;
-import com.amalto.core.util.AutoIncrementGenerator;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.Version;
@@ -2149,8 +2133,6 @@ public abstract class IXtentisRMIPort implements XtentisPort {
     }
 
     public WSItemPK putItemWithReport(WSPutItemWithReport wsPutItemWithReport) throws RemoteException {
-        boolean saveFailure = true;
-        int rootNodeHashCode = 0;
         try {
             WSPutItem wsPutItem = wsPutItemWithReport.getWsPutItem();
             WSDataClusterPK dataClusterPK = wsPutItem.getWsDataClusterPK();
@@ -2160,8 +2142,6 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             String dataModelName = dataModelPK.getPk();
 
             SaverSession session = SaverSession.newSession();
-            rootNodeHashCode = session.hashCode();
-            session.setWebSession(true);
             DocumentSaver saver;
             try {
                 saver = SaverHelper.saveItemWithReport(wsPutItem.getXmlString(),
@@ -2177,28 +2157,12 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             }
             // Cause items being saved to be committed to database.
             session.end();
-            // invoke AutoIncrementGenerator
-            if (!wsPutItem.getIsUpdate()) {
-                AutoIncrementGenerator.check(rootNodeHashCode);
-                saveFailure = false;
-            }
             String[] savedId = saver.getSavedId();
             String conceptName = saver.getSavedConceptName();
             return new WSItemPK(dataClusterPK, conceptName, savedId);
-        } catch (RoutingEngineException e) {
-            // save successfully, but running route engine failed.
-            if (!wsPutItemWithReport.getWsPutItem().getIsUpdate()) {
-                AutoIncrementGenerator.check(rootNodeHashCode);
-                saveFailure = false;
-            }
-            throw new RemoteException(e.getLocalizedMessage(), new RoutingException("routing failed: " + e.getLocalizedMessage()));
         } catch (Exception e) {
             LOG.error("Error during save.", e);
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
-        } finally {
-            // exist auto_increment, it need save the unused auto_increment id
-            if (saveFailure && !wsPutItemWithReport.getWsPutItem().getIsUpdate())
-                AutoIncrementGenerator.saveUnUsedIdsToDB(true, rootNodeHashCode);
         }
     }
 

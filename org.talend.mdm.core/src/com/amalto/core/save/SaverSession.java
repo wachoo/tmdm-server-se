@@ -11,15 +11,15 @@
 
 package com.amalto.core.save;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.save.context.DefaultSaverSource;
 import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.save.context.SaverSource;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class SaverSession {
 
@@ -32,8 +32,6 @@ public class SaverSession {
     private final SaverSource dataSource;
 
     private static SaverSource defaultSaverSource;
-
-    private boolean isWebSession;
 
     private SaverSession(SaverSource dataSource) {
         this.dataSource = dataSource;
@@ -119,14 +117,6 @@ public class SaverSession {
 
     public SaverSource getSaverSource() {
         return dataSource;
-    }
-
-    public boolean isWebSession() {
-        return isWebSession;
-    }
-
-    public void setWebSession(boolean isWebSession) {
-        this.isWebSession = isWebSession;
     }
 
     /**
