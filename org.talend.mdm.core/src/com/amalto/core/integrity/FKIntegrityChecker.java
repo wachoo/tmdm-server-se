@@ -202,7 +202,7 @@ public class FKIntegrityChecker {
     private String getFromTypeNameThroughIncomingReference(ReferenceFieldMetadata incomingReference) {
 
         if (incomingReference == null)
-            return null;
+            throw new IllegalArgumentException("The input reference field metadata should is null! "); //$NON-NLS-1$
 
         String rootTypeName = incomingReference.getData(ForeignKeyIntegrity.ATTRIBUTE_ROOTTYPE);
         if (rootTypeName != null && rootTypeName.trim().length() > 0) {

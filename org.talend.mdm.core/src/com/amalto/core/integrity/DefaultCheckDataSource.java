@@ -72,6 +72,11 @@ class DefaultCheckDataSource implements FKIntegrityCheckDataSource {
 
     public long countInboundReferences(String clusterName, String[] ids, String fromTypeName, ReferenceFieldMetadata fromReference)
             throws XtentisException {
+
+        // For the anonymous type and leave the type name empty
+        if (fromTypeName == null || fromTypeName.trim().equals("")) //$NON-NLS-1$
+            return 0;
+
         // Transform ids into the string format expected in base
         String referencedId = ""; //$NON-NLS-1$
         for (String id : ids) {
@@ -82,14 +87,8 @@ class DefaultCheckDataSource implements FKIntegrityCheckDataSource {
         conceptPatternsToClusterName.put(".*", clusterName); //$NON-NLS-1$
 
         String leftPath = fromReference.getData(ForeignKeyIntegrity.ATTRIBUTE_XPATH);
-        if (leftPath == null || leftPath.length() == 0)
-            return 0;
         IWhereItem whereItem = new WhereCondition(leftPath,
                 WhereCondition.EQUALS, referencedId, WhereCondition.NO_OPERATOR);
-
-        // For the anonymous type and leave the type name empty
-        if (fromTypeName == null || fromTypeName.trim().equals("")) //$NON-NLS-1$
-            return 0;
 
         return Util.getXmlServerCtrlLocal()
                 .countItems(new LinkedHashMap(), conceptPatternsToClusterName, fromTypeName, whereItem);
