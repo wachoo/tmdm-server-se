@@ -92,8 +92,9 @@ public class ForeignKeyBean extends ItemBaseModel {
 
     @Override
     public String toString() {
-        
-        if (foreignKeyInfo.size() != 0){
+        if (foreignKeyInfo.size() != 0) {
+            if (getDisplayInfo() != null)
+                return getDisplayInfo();
             StringBuilder sb = new StringBuilder();
             Collection<String> fkInfoValues = foreignKeyInfo.values();
             int i = 0;
@@ -104,7 +105,7 @@ public class ForeignKeyBean extends ItemBaseModel {
                 i++;
             }
             return sb.toString();
-        }else{
+        } else {
             return this.getId();
         }
     }

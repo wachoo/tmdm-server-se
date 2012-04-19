@@ -392,7 +392,6 @@ public class ForeignKeyListWindow extends Window {
             public void handleEvent(final GridEvent<ForeignKeyBean> be) {
                 ForeignKeyBean fkBean = be.getModel();
                 fkBean.setForeignKeyPath(xPath);
-                fkBean.setDisplayInfo(fkBean.toString() != null ? fkBean.toString() : fkBean.getId());
                 returnCriteriaFK.setCriteriaFK(fkBean);
                 closeOrHideWindow();
             }

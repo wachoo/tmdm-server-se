@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 
@@ -28,6 +29,7 @@ import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.WSWhereItem;
 import com.amalto.webapp.util.webservices.WSWhereOperator;
 
+@SuppressWarnings("nls")
 public class ForeignKeyHelperTest extends TestCase {
 
     public void testGetForeignKeyHolder() throws Exception {
@@ -166,5 +168,41 @@ public class ForeignKeyHelperTest extends TestCase {
         }
 
         return Util.buildWhereItems(fkWhere);
+    }
+      
+    public void testConvertFKInfo2DisplayInfo(){
+        ForeignKeyBean bean1 = new ForeignKeyBean();
+        bean1.set("Name", "Apple Store");
+        bean1.set("Id", "1");
+        bean1.set("Code", "10001");
+        bean1.set("i", "1");
+        bean1.getForeignKeyInfo().put("Store/Id", "1");
+        bean1.getForeignKeyInfo().put("Store/Code", "10001");
+        bean1.getForeignKeyInfo().put("Store/Name", "Apple Store");
+        
+        List<String> fkInfoList = new ArrayList<String>();
+        fkInfoList.add("Store/Name");
+        fkInfoList.add("Store/Code");
+        fkInfoList.add("Store/Id");
+        
+        ForeignKeyHelper.convertFKInfo2DisplayInfo(bean1, fkInfoList);
+        
+        assertNotNull(bean1.getDisplayInfo());
+        assertEquals("Apple Store-10001-1", bean1.getDisplayInfo());
+        
+        
+        ForeignKeyBean bean2 = new ForeignKeyBean();
+        bean2.set("Name", "Google Market");
+        bean2.set("Id", "2");
+        bean2.set("Code", "10002");
+        bean2.set("i", "2");
+        bean2.getForeignKeyInfo().put("Store/Id", "2");
+        bean2.getForeignKeyInfo().put("Store/Code", "10002");
+        bean2.getForeignKeyInfo().put("Store/Name", "Google Market");
+        
+        fkInfoList.clear();
+        
+        ForeignKeyHelper.convertFKInfo2DisplayInfo(bean2, fkInfoList);
+        assertNull(bean2.getDisplayInfo());
     }
 }

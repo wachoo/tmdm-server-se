@@ -133,6 +133,7 @@ public class ForeignKeyHelper {
 
                 if (resultAsDOM.getNodeName().equals("result")) { //$NON-NLS-1$
                     initFKBean(resultAsDOM, bean, fk, model.getForeignKeyInfo());
+                    convertFKInfo2DisplayInfo(bean, model.getForeignKeyInfo());
                 } else {
                     bean.set(resultAsDOM.getNodeName(), resultAsDOM.getTextContent().trim());
                 }
@@ -300,5 +301,20 @@ public class ForeignKeyHelper {
                 initFKBean(curEle, bean, fk, getForeignKeyInfos);
             }
         }
+    }
+    
+    public static void convertFKInfo2DisplayInfo(ForeignKeyBean bean, List<String> foreignKeyInfos) {
+        if (foreignKeyInfos.size() == 0)
+            return;
+
+        String infoStr = ""; //$NON-NLS-1$
+        for (String str : foreignKeyInfos) {
+            if (infoStr.equals("")) //$NON-NLS-1$
+                infoStr += bean.getForeignKeyInfo().get(str);
+            else
+                infoStr += "-" + bean.getForeignKeyInfo().get(str); //$NON-NLS-1$
+        }
+
+        bean.setDisplayInfo(infoStr);
     }
 }
