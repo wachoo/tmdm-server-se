@@ -255,17 +255,12 @@ public class DocumentSaveTest extends TestCase {
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test8.xml");
         DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, true, false);
         DocumentSaver saver = context.createSaver();
-        try {
-            saver.save(session, context);
-            fail("Expected an exception: user not allowed to change some fields.");
-        } catch (SaveException e) {
-            // Expected
-            assertTrue(e.getCause() instanceof IllegalStateException);
-            // Don't expect error order to be the same from one run to another.
-            assertTrue(e.getCause().getMessage().contains("'Zip'"));
-            assertTrue(e.getCause().getMessage().contains("'State'"));
-            assertTrue(e.getCause().getMessage().contains("'Agency'"));
-        }
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("04102", evaluate(committedElement, "/Agency/Zip"));
+        assertEquals("ME", evaluate(committedElement, "/Agency/State"));
 
         // Test changing user name (and user's roles).
         source.setUserName("admin");
@@ -274,6 +269,10 @@ public class DocumentSaveTest extends TestCase {
         context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, true, false);
         saver = context.createSaver();
         saver.save(session, context);
+        session.end(committer);
+        committedElement = committer.getCommittedElement();
+        assertEquals("10001", evaluate(committedElement, "/Agency/Zip"));
+        assertEquals("NY", evaluate(committedElement, "/Agency/State"));
     }
 
     public void testNoUpdate() throws Exception {

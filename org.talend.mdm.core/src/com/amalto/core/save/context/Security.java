@@ -14,6 +14,7 @@ package com.amalto.core.save.context;
 import com.amalto.core.history.Action;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
+import org.apache.log4j.Logger;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -21,6 +22,8 @@ import java.util.List;
 import java.util.Set;
 
 class Security implements DocumentSaver {
+
+    private static final Logger LOGGER = Logger.getLogger(Security.class);
 
     private final DocumentSaver next;
 
@@ -70,7 +73,8 @@ class Security implements DocumentSaver {
                         builder.append(" / ");  //$NON-NLS-1$
                     }
                 }
-                throw new IllegalStateException("User '" + saverSource.getUserName() + "' is not allowed to perform following operation(s): " + builder);
+                LOGGER.error("User '" + saverSource.getUserName() + "' is not allowed to perform following operation(s): " + builder);
+                actions.removeAll(failedActions);
             }
         }
 
