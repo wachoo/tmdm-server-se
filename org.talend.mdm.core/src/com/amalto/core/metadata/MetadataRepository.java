@@ -199,9 +199,9 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
                         throw new RuntimeException("Annotation processing exception while parsing info for type '" + typeName + "'.", e);
                     }
 
-                    // If write is not allowed for everyone, at least add System_Admin.
+                    // If write is not allowed for everyone, at least add "administration".
                     if (state.getAllowWrite().isEmpty()) {
-                        state.getAllowWrite().add(ICoreConstants.SYSTEM_ADMIN_ROLE);
+                        state.getAllowWrite().add(ICoreConstants.ADMIN_PERMISSION);
                     }
                     
                     type = new ComplexTypeMetadataImpl(targetNamespace,
