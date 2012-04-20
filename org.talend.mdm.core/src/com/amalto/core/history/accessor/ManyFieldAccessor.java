@@ -71,7 +71,12 @@ class ManyFieldAccessor implements DOMAccessor {
 
     public String get() {
         Node collectionItemNode = getCollectionItemNode();
-        return collectionItemNode.getTextContent();
+        Node firstChild = collectionItemNode.getFirstChild();
+        if (firstChild != null) {
+            return firstChild.getNodeValue();
+        } else {
+            return StringUtils.EMPTY;
+        }
     }
 
     public void touch() {
@@ -87,9 +92,9 @@ class ManyFieldAccessor implements DOMAccessor {
 
         // TODO Refactor this
         Document domDocument = document.asDOM();
-        Element parentNode = (Element) parent.getNode();
         Node node = getCollectionItemNode();
         if (node == null) {
+            Element parentNode = (Element) parent.getNode();
             NodeList children = parentNode.getElementsByTagName(fieldName);
             int currentCollectionSize = children.getLength();
             if (currentCollectionSize > 0) {

@@ -40,7 +40,9 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     private final Closure compareClosure;
 
-    private String previousPath;
+    private final Set<String> touchedPaths = new HashSet<String>();
+
+    private String lastMatchPath;
 
     public UpdateActionCreator(MutableDocument originalDocument, MutableDocument newDocument, String source, String userName, MetadataRepository repository) {
         this.originalDocument = originalDocument;
@@ -64,41 +66,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     @Override
     public List<Action> visit(final ContainedTypeFieldMetadata containedField) {
-        handleField(containedField, new Closure() {
-            public void execute(FieldMetadata field) {
-                ComplexTypeMetadata type = containedField.getContainedType();
-
-                String currentPath = getPath();
-                Accessor leftAccessor = originalDocument.createAccessor(currentPath);
-                Accessor rightAccessor = newDocument.createAccessor(currentPath);
-                String newType = StringUtils.EMPTY;
-                String previousType = StringUtils.EMPTY;
-                if (rightAccessor.exist()) {
-                    newType = rightAccessor.getActualType();
-                }
-                if (leftAccessor.exist()) {
-                    previousType = leftAccessor.getActualType();
-                }
-
-                if (!newType.isEmpty()) {
-                    ComplexTypeMetadata newTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(newType);
-                    ComplexTypeMetadata previousTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(previousType);
-                    // Perform some checks about the xsi:type value (valid or not?).
-                    if (newTypeMetadata == null) {
-                        throw new IllegalArgumentException("Type '" + newType + "' was not found.");
-                    }
-                    // Check if type of element isn't a subclass of declared type (use of xsi:type).
-                    if (!field.getType().isAssignableFrom(newTypeMetadata)) {
-                        throw new IllegalArgumentException("Type '" + newTypeMetadata.getName() + "' is not assignable from type '" + newTypeMetadata.getName() + "'");
-                    }
-                    generateNoOp(previousPath);
-                    actions.add(new ChangeTypeAction(date, source, userName, currentPath, previousTypeMetadata, newTypeMetadata));
-                    type = newTypeMetadata;
-                }
-
-                type.accept(UpdateActionCreator.this);
-            }
-        });
+        handleField(containedField, new ContainedTypeClosure(containedField));
         return actions;
     }
 
@@ -183,30 +151,36 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
             if (!newAccessor.exist()) {
                 // No op
             } else { // new accessor exist
-                if (!newAccessor.get().isEmpty()) { // TODO Empty accessor means no op to ensure legacy behavior
-                    generateNoOp(previousPath);
+                generateNoOp(lastMatchPath);
+                if (newAccessor.get() != null && !newAccessor.get().isEmpty()) { // TODO Empty accessor means no op to ensure legacy behavior
                     actions.add(new FieldUpdateAction(date, source, userName, path, StringUtils.EMPTY, newAccessor.get(), comparedField));
+                    generateNoOp(path);
+                } else {
+                    // No op.
                 }
             }
         } else { // original accessor exist
             if (!newAccessor.exist()) {
                 if (comparedField.isMany()) {
-                    generateNoOp(previousPath);
                     actions.add(new FieldUpdateAction(date, source, userName, path, originalAccessor.get(), null, comparedField));
                 }
             } else { // new accessor exist
-                if (!originalAccessor.get().equals(newAccessor.get())) {
-                    generateNoOp(previousPath);
+                lastMatchPath = path;
+                if (originalAccessor.get() != null && !originalAccessor.get().equals(newAccessor.get())) {
+                    actions.add(new FieldUpdateAction(date, source, userName, path, originalAccessor.get(), newAccessor.get(), comparedField));
+                } else if (originalAccessor.get() == null && newAccessor.get() != null) {
                     actions.add(new FieldUpdateAction(date, source, userName, path, originalAccessor.get(), newAccessor.get(), comparedField));
                 }
             }
         }
-        previousPath = path;
     }
 
-    private void generateNoOp(final String path) {
+    private void generateNoOp(String path) {
         // TODO Do only this if type is a sequence (useless if type isn't ordered).
-        actions.add(new TouchAction(path, date, source, userName));
+        if (!touchedPaths.contains(path) && path != null) {
+            touchedPaths.add(path);
+            actions.add(new TouchAction(path, date, source, userName));
+        }
     }
 
     public static class TouchAction implements Action {
@@ -261,6 +235,59 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
         public String getDetails() {
             return "Accessing value";
+        }
+
+        @Override
+        public String toString() {
+            return "TouchAction{" +
+                    "path='" + path + '\'' +
+                    '}';
+        }
+    }
+
+    private class ContainedTypeClosure implements Closure {
+        private final ContainedTypeFieldMetadata containedField;
+
+        public ContainedTypeClosure(ContainedTypeFieldMetadata containedField) {
+            this.containedField = containedField;
+        }
+
+        public void execute(FieldMetadata field) {
+            ComplexTypeMetadata type = containedField.getContainedType();
+
+            compare(field);
+
+            String currentPath = getPath();
+            Accessor leftAccessor = originalDocument.createAccessor(currentPath);
+            Accessor rightAccessor = newDocument.createAccessor(currentPath);
+            if (rightAccessor.exist()) {
+                String newType = rightAccessor.getActualType();
+                String previousType = StringUtils.EMPTY;
+                if (leftAccessor.exist()) {
+                    previousType = leftAccessor.getActualType();
+                }
+
+                if (!newType.isEmpty()) {
+                    ComplexTypeMetadata newTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(newType);
+                    ComplexTypeMetadata previousTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(previousType);
+                    // Perform some checks about the xsi:type value (valid or not?).
+                    if (newTypeMetadata == null) {
+                        throw new IllegalArgumentException("Type '" + newType + "' was not found.");
+                    }
+                    // Check if type of element isn't a subclass of declared type (use of xsi:type).
+                    if (!field.getType().isAssignableFrom(newTypeMetadata)) {
+                        throw new IllegalArgumentException("Type '" + field.getType().getName() + "' is not assignable from type '" + newTypeMetadata.getName() + "'");
+                    }
+
+                    // if (!newType.equals(previousType)) {
+                    actions.add(new ChangeTypeAction(date, source, userName, currentPath, previousTypeMetadata, newTypeMetadata));
+                    //}
+                    type = newTypeMetadata;
+                }
+            }
+
+            type.accept(UpdateActionCreator.this);
+            lastMatchPath = currentPath;
         }
     }
 }

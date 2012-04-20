@@ -12,11 +12,7 @@
 <Product>
     <Id>1</Id>
     <Name>Old product name</Name>
-    <Description/>
     <Features>
-        <Sizes>
-            <Size/>
-        </Sizes>
         <Colors>
             <Color>Lemon</Color>
             <Color>Light Blue</Color>

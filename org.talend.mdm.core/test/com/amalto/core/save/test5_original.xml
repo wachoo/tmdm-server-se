@@ -22,9 +22,6 @@
             <Name>Old product name</Name>
             <Description>Description</Description>
             <Features>
-                <Sizes>
-                    <Size/>
-                </Sizes>
                 <Colors>
                     <Color>Light Blue</Color>
                 </Colors>

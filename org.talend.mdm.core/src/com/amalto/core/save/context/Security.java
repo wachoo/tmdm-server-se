@@ -75,6 +75,12 @@ class Security implements DocumentSaver {
                 }
                 LOGGER.error("User '" + saverSource.getUserName() + "' is not allowed to perform following operation(s): " + builder);
                 actions.removeAll(failedActions);
+
+                // Make a no op if failedActions is empty and display a warning.
+                if (actions.isEmpty()) {
+                    LOGGER.warn("No more actions to perform after security checks, abort save operations.");
+                    return;
+                }
             }
         }
 

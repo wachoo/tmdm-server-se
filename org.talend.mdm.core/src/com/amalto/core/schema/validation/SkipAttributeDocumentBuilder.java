@@ -107,7 +107,11 @@ public class SkipAttributeDocumentBuilder extends DocumentBuilder {
                 } else {
                     String namespaceURI = prefixDeclarations.get(prefix);
                     if (namespaceURI == null) {
-                        throw new IllegalArgumentException("Prefix '" + prefix + "' isn't declared;");
+                        if ("xsi".equals(prefix)) {
+                            namespaceURI = XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI;
+                        } else {
+                            throw new IllegalArgumentException("Prefix '" + prefix + "' isn't declared;");
+                        }
                     }
                     // Takes care of XML schema instance (XSI) attributes (because they must be kept).
                     if (XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI.equals(namespaceURI)) {
@@ -137,8 +141,12 @@ public class SkipAttributeDocumentBuilder extends DocumentBuilder {
 
         @Override
         public void characters(char[] ch, int start, int length) throws SAXException {
-            Text textNode = document.createTextNode(new String(ch, start, length));
-            elementStack.peek().appendChild(textNode);
+            String value = new String(ch, start, length);
+            // Ignore empty strings (incl. those with line feeds).
+            if (!value.trim().isEmpty()) {
+                Text textNode = document.createTextNode(value);
+                elementStack.peek().appendChild(textNode);
+            }
         }
     }
 }

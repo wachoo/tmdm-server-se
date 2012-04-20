@@ -53,6 +53,7 @@ class ChangeTypeAction implements Action {
     }
 
     public MutableDocument perform(MutableDocument document) {
+        // Ensure xsi prefix is declared
         Document domDocument = document.asDOM();
         String xsi = domDocument.lookupNamespaceURI("xsi"); //$NON-NLS-1$
         if (xsi == null) {
@@ -105,6 +106,14 @@ class ChangeTypeAction implements Action {
 
     public String getDetails() {
         return "Change type to " + newType.getName();
+    }
+
+    @Override
+    public String toString() {
+        return "ChangeTypeAction{" +
+                "path='" + path + '\'' +
+                ", newType=" + newType +
+                '}';
     }
 
     private class TypeComparison extends DefaultMetadataVisitor<Set<String>> {

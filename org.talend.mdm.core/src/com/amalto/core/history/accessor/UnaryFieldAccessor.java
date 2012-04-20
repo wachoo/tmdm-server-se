@@ -62,7 +62,14 @@ class UnaryFieldAccessor implements DOMAccessor {
         if (element == null) {
             Element newElement = domDocument.createElementNS(domDocument.getNamespaceURI(), fieldName);
             Node parentNode = parent.getNode();
-            parentNode.appendChild(newElement);
+            Node lastAccessedNode = document.getLastAccessedNode();
+            if (parentNode == lastAccessedNode) {
+                parentNode.insertBefore(newElement, parentNode.getFirstChild());
+            } else if(lastAccessedNode != null) {
+                parentNode.insertBefore(newElement, lastAccessedNode.getNextSibling());
+            } else {
+                parentNode.appendChild(newElement);
+            }
             element = newElement;
             document.setLastAccessedNode(element);
         }
@@ -76,7 +83,12 @@ class UnaryFieldAccessor implements DOMAccessor {
 
     public String get() {
         Element element = getElement();
-        return element.getTextContent();
+        Node textChild = element.getFirstChild();
+        if (textChild != null) {
+            return textChild.getNodeValue();
+        } else {
+            return StringUtils.EMPTY;
+        }
     }
 
     public void touch() {

@@ -28,10 +28,8 @@ import org.xml.sax.InputSource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 class ID implements DocumentSaver {
 
@@ -105,15 +103,12 @@ class ID implements DocumentSaver {
             ids.add(currentIdValue);
         }
 
-        // TODO This is temporary! This is due to legacy behavior (consider empty elements as no op)!
-        clean(userDocument.asDOM().getDocumentElement());
-
         // now has an id, so load database document
         String[] savedId = getSavedId();
         String revisionID = context.getRevisionID();
         DocumentBuilder documentBuilder;
         try {
-            documentBuilder = SaverContextFactory.DOM_PARSER_FACTORY.newDocumentBuilder();
+            documentBuilder = new SkipAttributeDocumentBuilder(SaverContextFactory.DOM_PARSER_FACTORY.newDocumentBuilder());
         } catch (ParserConfigurationException e) {
             throw new RuntimeException("Could not acquire a document builder.", e);
         }
@@ -125,17 +120,12 @@ class ID implements DocumentSaver {
 
                 Document databaseDomDocument = documentBuilder.parse(nonCloseableInputStream);
                 Element userXmlElement = getUserXmlElement(databaseDomDocument);
-                // TODO This is temporary! This is due to the Web UI that saves invalid documents!
-                clean(userXmlElement);
                 MutableDocument databaseDocument = new DOMDocument(userXmlElement);
 
                 nonCloseableInputStream.reset();
 
-                SkipAttributeDocumentBuilder validationDocumentBuilder = new SkipAttributeDocumentBuilder(documentBuilder);
-                Document databaseValidationDomDocument = validationDocumentBuilder.parse(new InputSource(nonCloseableInputStream));
+                Document databaseValidationDomDocument = documentBuilder.parse(new InputSource(nonCloseableInputStream));
                 userXmlElement = getUserXmlElement(databaseValidationDomDocument);
-                // TODO This is temporary! This is due to the Web UI that saves invalid documents!
-                clean(userXmlElement);
                 MutableDocument databaseValidationDocument = new DOMDocument(userXmlElement);
 
                 context.setDatabaseDocument(databaseDocument);
@@ -166,54 +156,6 @@ class ID implements DocumentSaver {
             AutoIncrementGenerator.saveToDB();
         }
 
-    }
-
-    private static void clean(Element element) {
-        if (element == null) {
-            return;
-        }
-        if (!isEmpty(element)) {
-            NodeList children = element.getChildNodes();
-            Set<Node> nodeToDelete = new HashSet<Node>();
-            for (int i = 0; i < children.getLength(); i++) {
-                Node node = children.item(i);
-                if (node instanceof Element) {
-                    Element currentElement = (Element) node;
-                    if (isEmpty(currentElement)) {
-                        // Instead of immediately deleting element... mark it (so children indexes don't change).
-                        nodeToDelete.add(currentElement);
-                    } else {
-                        clean(currentElement);
-                    }
-                }
-            }
-            for (Node node : nodeToDelete) {
-                node.getParentNode().removeChild(node);
-            }
-        }
-    }
-
-    private static boolean isEmpty(Element element) {
-        if (element == null) {
-            return true;
-        }
-
-        NodeList children = element.getChildNodes();
-        if (children.getLength() == 0) {
-            return true;
-        } else {
-            for (int i = 0; i < children.getLength(); i++) {
-                Node node = children.item(i);
-                if (node instanceof Element && !isEmpty((Element) node)) {
-                    return false;
-                } else if (node instanceof Text) {
-                    if (!node.getTextContent().trim().isEmpty()) {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
     }
 
     private static Element getUserXmlElement(Document databaseDomDocument) {

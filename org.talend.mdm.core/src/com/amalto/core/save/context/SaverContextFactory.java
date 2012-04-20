@@ -17,6 +17,7 @@ import com.amalto.core.load.action.LoadAction;
 import com.amalto.core.save.DOMDocument;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.ReportDocumentSaverContext;
+import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.util.XSDKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -67,8 +68,6 @@ public class SaverContextFactory {
         DOM_PARSER_FACTORY = DocumentBuilderFactory.newInstance();
         DOM_PARSER_FACTORY.setNamespaceAware(true);
         DOM_PARSER_FACTORY.setIgnoringComments(true);
-        DOM_PARSER_FACTORY.setValidating(false);
-        DOM_PARSER_FACTORY.setIgnoringElementContentWhitespace(true);
         DOM_PARSER_FACTORY.setValidating(false);
 
         SAX_PARSER_FACTORY.setNamespaceAware(false);
@@ -135,7 +134,7 @@ public class SaverContextFactory {
         // Parsing
         MutableDocument userDocument;
         try {
-            DocumentBuilder documentBuilder = DOM_PARSER_FACTORY.newDocumentBuilder();
+            DocumentBuilder documentBuilder = new SkipAttributeDocumentBuilder(DOM_PARSER_FACTORY.newDocumentBuilder());
             InputSource source = new InputSource(documentStream);
             Document userDomDocument = documentBuilder.parse(source);
             userDocument = new DOMDocument(userDomDocument);

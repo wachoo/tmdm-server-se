@@ -14,11 +14,9 @@ package com.amalto.core.history.accessor;
 import com.amalto.core.history.MutableDocument;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
+import org.w3c.dom.*;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
 /**
@@ -60,6 +58,11 @@ class AttributeAccessor implements DOMAccessor {
     }
 
     private Attr createAttribute(Node parentNode, Document domDocument) {
+        // Ensure xsi prefix is declared
+        String xsi = domDocument.lookupNamespaceURI("xsi"); //$NON-NLS-1$
+        if (xsi == null) {
+            domDocument.getDocumentElement().setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, "xmlns:xsi", XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);  //$NON-NLS-1$
+        }
         QName qName = getQName(domDocument);
         Attr newAttribute = domDocument.createAttributeNS(qName.getNamespaceURI(), qName.getLocalPart());
         String prefix = qName.getPrefix();

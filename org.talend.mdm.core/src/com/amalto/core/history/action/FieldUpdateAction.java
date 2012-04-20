@@ -99,4 +99,13 @@ public class FieldUpdateAction extends AbstractAction {
     public String getDetails() {
         return "update field '" + updatedField.getName() + "' of type '" + updatedField.getContainingType().getName() + "'";
     }
+
+    @Override
+    public String toString() {
+        return "FieldUpdateAction{" +
+                "path='" + field + '\'' +
+                ", oldValue='" + oldValue + '\'' +
+                ", newValue='" + newValue + '\'' +
+                '}';
+    }
 }
