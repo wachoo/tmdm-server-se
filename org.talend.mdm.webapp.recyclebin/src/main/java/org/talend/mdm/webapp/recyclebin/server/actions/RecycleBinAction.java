@@ -12,31 +12,44 @@
 // ============================================================================
 package org.talend.mdm.webapp.recyclebin.server.actions;
 
+import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.recyclebin.client.RecycleBinService;
 import org.talend.mdm.webapp.recyclebin.shared.ItemsTrashItem;
+import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
+import com.amalto.webapp.util.webservices.WSDataModel;
+import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSDroppedItem;
 import com.amalto.webapp.util.webservices.WSDroppedItemPK;
 import com.amalto.webapp.util.webservices.WSDroppedItemPKArray;
 import com.amalto.webapp.util.webservices.WSExistsItem;
 import com.amalto.webapp.util.webservices.WSFindAllDroppedItemsPKs;
+import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
+import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSLoadDroppedItem;
 import com.amalto.webapp.util.webservices.WSRecoverDroppedItem;
@@ -44,6 +57,7 @@ import com.amalto.webapp.util.webservices.WSRemoveDroppedItem;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.sun.xml.xsom.XSElementDecl;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -68,9 +82,23 @@ public class RecycleBinAction implements RecycleBinService {
 
             for (WSDroppedItemPK pk : items) {
                 WSDroppedItem wsitem = Util.getPort().loadDroppedItem(new WSLoadDroppedItem(pk));
-                ItemsTrashItem item = new ItemsTrashItem();
-                item = WS2POJO(wsitem);
-                li.add(item);
+
+                String conceptName = wsitem.getConceptName();
+                String conceptXML = wsitem.getProjection();
+                String modelName = getModelNameFromConceptXML(conceptXML);
+
+                if (modelName != null) {
+                    WSDataModel model = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(modelName)));
+                    if (model != null) {
+                        String modelXSD = model.getXsdSchema();
+                        if (org.talend.mdm.webapp.recyclebin.server.actions.Util.checkReadAccess(modelXSD, conceptName)) {
+                            ItemsTrashItem item = new ItemsTrashItem();
+                            item = WS2POJO(wsitem);
+                            li.add(item);
+
+                        }
+                    }
+                }
             }
             List<ItemsTrashItem> sublist = new ArrayList<ItemsTrashItem>();
             int start = load.getOffset(), limit = load.getLimit();
@@ -86,6 +114,34 @@ public class RecycleBinAction implements RecycleBinService {
             throw new ServiceException(e.getLocalizedMessage());
         }
 
+    }
+
+
+
+    public static String getModelNameFromConceptXML(String conceptXML) {
+        String result = null;
+
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            InputSource is = new InputSource();
+            is.setCharacterStream(new StringReader(conceptXML));
+
+            Document doc = db.parse(is);
+            NodeList nodes = doc.getElementsByTagName("dmn"); //$NON-NLS-1$
+            if (nodes.getLength() > 0) {
+                Element element = (Element) nodes.item(0);
+                Node child = element.getFirstChild();
+                if (child instanceof CharacterData) {
+                    CharacterData cd = (CharacterData) child;
+                    result = cd.getData();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return result;
     }
 
     private ItemsTrashItem WS2POJO(WSDroppedItem item) throws Exception {
@@ -169,9 +225,19 @@ public class RecycleBinAction implements RecycleBinService {
         }
     }
 
-    public void recoverDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids)
-            throws ServiceException {
+    public void recoverDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String modelName,
+            String ids) throws ServiceException {
         try {
+            if (modelName != null) {
+                WSDataModel model = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(modelName)));
+                if (model != null) {
+                    String modelXSD = model.getXsdSchema();
+                                       
+                    if (!org.talend.mdm.webapp.recyclebin.server.actions.Util.checkRestoreAccess(modelXSD, conceptName)) {
+                        throw new Exception("User does not have permission to restore this record."); //$NON-NLS-1$
+                    }
+                }
+            }
 
             String[] ids1 = ids.split("\\.");//$NON-NLS-1$
             WSDataClusterPK wddcpk = new WSDataClusterPK(itemPk);
@@ -187,8 +253,9 @@ public class RecycleBinAction implements RecycleBinService {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
         }
-
     }
+
+
 
     // TODO use session instead
     public String getCurrentDataModel() throws ServiceException {

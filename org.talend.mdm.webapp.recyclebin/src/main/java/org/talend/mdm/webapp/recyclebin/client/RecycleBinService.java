@@ -30,7 +30,7 @@ public interface RecycleBinService extends RemoteService {
 
     String removeDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids) throws ServiceException;
 
-    void recoverDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids) throws ServiceException;
+    void recoverDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String modelName, String ids) throws ServiceException;
 
     String getCurrentDataModel() throws ServiceException;
 

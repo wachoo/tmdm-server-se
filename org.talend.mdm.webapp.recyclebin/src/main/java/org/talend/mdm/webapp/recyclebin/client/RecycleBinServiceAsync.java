@@ -28,7 +28,7 @@ public interface RecycleBinServiceAsync {
     void removeDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids,
             AsyncCallback<String> callback);
 
-    void recoverDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids,
+    void recoverDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String modelName, String ids,
             AsyncCallback<Void> callback);
 
     void getCurrentDataModel(AsyncCallback<String> callback);

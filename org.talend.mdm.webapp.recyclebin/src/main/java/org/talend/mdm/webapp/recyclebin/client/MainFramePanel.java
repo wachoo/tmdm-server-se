@@ -15,6 +15,8 @@ package org.talend.mdm.webapp.recyclebin.client;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
@@ -83,6 +85,8 @@ public class MainFramePanel extends ContentPanel {
     private PagingToolBarEx pagetoolBar = null;
 
     private Grid<ItemsTrashItem> grid;
+    
+    private final Map<String, String> CONCEPT_MODEL_MAP = new HashMap<String, String>();
 
     private static final int COLUMN_WIDTH = 100;
 
@@ -280,6 +284,9 @@ public class MainFramePanel extends ContentPanel {
                         new SessionAwareAsyncCallback<PagingLoadResult<ItemsTrashItem>>() {
 
                             public void onSuccess(PagingLoadResult<ItemsTrashItem> result) {
+                                for (ItemsTrashItem trashItem : result.getData()) {
+                                    CONCEPT_MODEL_MAP.put(trashItem.getConceptName(), trashItem.getDataModelName());
+                                }
                                 callback.onSuccess(new BasePagingLoadResult<ItemsTrashItem>(result.getData(), result.getOffset(),
                                         result.getTotalLength()));
                             }
@@ -397,15 +404,30 @@ public class MainFramePanel extends ContentPanel {
     }
 
     public void recoverDroppedItem(final BaseModelData model, final Grid<BaseModelData> grid) {
+        String conceptName = model.get("conceptName").toString(); //$NON-NLS-1$
+        String modelName = CONCEPT_MODEL_MAP.get(conceptName);
         service.recoverDroppedItem(model.get("itemPK").toString(), model.get("partPath").toString(),//$NON-NLS-1$//$NON-NLS-2$
-                model.get("revisionId") == null ? null : model.get("revisionId").toString(), model //$NON-NLS-1$//$NON-NLS-2$
-                        .get("conceptName").toString(), model.get("ids").toString(),//$NON-NLS-1$//$NON-NLS-2$
+                model.get("revisionId") == null ? null : model.get("revisionId").toString(), //$NON-NLS-1$ //$NON-NLS-2$
+                        conceptName, modelName, model.get("ids").toString(),//$NON-NLS-1$
                 new SessionAwareAsyncCallback<Void>() {
 
                     public void onSuccess(Void arg0) {
                         pagetoolBar.refresh();
                         grid.getStore().remove(model);
                         refreshBrowseRecordsGrid();
+                    }
+                    
+                    protected void doOnFailure(Throwable caught) {
+                        String errorMsg = caught.getLocalizedMessage();
+                        if (errorMsg == null || "".equals(errorMsg)) { //$NON-NLS-1$
+                            if (Log.isDebugEnabled())
+                                errorMsg = caught.toString(); // for debugging purpose
+                            else
+                                errorMsg = BaseMessagesFactory.getMessages().unknown_error();
+                        }
+                        if (errorMsg.equals("User does not have permission to restore this record.")) { //$NON-NLS-1$
+                            MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().restore_no_permissions(), null);
+                        }
                     }
                 });
     }
