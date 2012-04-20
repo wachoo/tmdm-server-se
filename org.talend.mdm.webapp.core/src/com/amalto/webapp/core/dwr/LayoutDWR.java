@@ -1,7 +1,9 @@
 package com.amalto.webapp.core.dwr;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
+import java.util.Locale;
 
 import javax.security.jacc.PolicyContextException;
 
@@ -143,5 +145,10 @@ public class LayoutDWR {
      */
     public boolean isShowMsg() throws Exception {
         return Webapp.INSTANCE.isShowMsg();
+    }
+
+    public static String formatValue(String lang, String format, String value) {
+        long time = Long.parseLong(value);
+        return String.format(new Locale(lang), format, new Date(time));
     }
 }
