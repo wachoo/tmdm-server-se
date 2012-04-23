@@ -15,11 +15,6 @@
     <packaging>war</packaging>
     <name>org.talend.mdm.webapp.recyclebin</name>
 
-    <properties>
-        <!-- This is temporary but tests make MDM build fail -->
-        <maven.test.failure.ignore>true</maven.test.failure.ignore>
-    </properties>
-    
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -75,27 +70,22 @@
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.webapp.core</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.commons.core</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.commmon</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.core</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.xmlserver.interfaces</artifactId>
         </dependency>
-
     </dependencies>
 
     <build>

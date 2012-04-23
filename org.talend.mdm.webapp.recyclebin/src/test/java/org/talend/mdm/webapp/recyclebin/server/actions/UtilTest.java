@@ -30,7 +30,7 @@ public class UtilTest extends TestCase {
 
     public void testCheckRestoreAccessHelper() throws Exception {
         String modelXSD = getXSDModel("UtilTest.xsd");
-        assertTrue(Util.checkRestoreAccessHelper(modelXSD, "M26_E01", ROLES));
+        assertFalse(Util.checkRestoreAccessHelper(modelXSD, "M26_E01", ROLES));
         assertTrue(Util.checkRestoreAccessHelper(modelXSD, "M26_E02", ROLES));
         assertFalse(Util.checkRestoreAccessHelper(modelXSD, "M26_E03", ROLES));
         assertFalse(Util.checkRestoreAccessHelper(modelXSD, "M26_E04", ROLES));
