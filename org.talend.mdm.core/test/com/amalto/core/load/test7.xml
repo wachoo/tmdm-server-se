@@ -16,6 +16,6 @@
     <Price>16.99</Price>
     <Family/>
     <Id>231035933</Id>
-    <Picture><![CDATA[/imageserver/upload/TalendShop/dog.jpg?width=150&height=90&preserveAspectRatio=true]]></Picture>
+    <Picture>/imageserver/upload/TalendShop/dog.jpg?width=150&amp;height=90&amp;preserveAspectRatio=true</Picture>
     <OnlineStore>Talend Shop@@http://www.cafepress.com/Talend.231035933</OnlineStore>
 </Product>
