@@ -627,44 +627,52 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     public ViewBean getView(String viewPk, String language) throws ServiceException {
+
+        WSView wsView = null;
+        ViewBean vb = new ViewBean();
+        vb.setViewPK(viewPk);
         try {
-            ViewBean vb = new ViewBean();
-            vb.setViewPK(viewPk);
-
             // get WSView
-            WSView wsView = CommonUtil.getPort().getView(new WSGetView(new WSViewPK(viewPk)));
-
+            wsView = CommonUtil.getPort().getView(new WSGetView(new WSViewPK(viewPk)));
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            Locale locale = new Locale(language);
+            throw new ServiceException(MESSAGES.getMessage(locale, "find_view_error", viewPk)); //$NON-NLS-1$
+        }
+        String model = null;
+        String concept = null;
+        EntityModel entityModel = null;
+        try {
             // bind entity model
-            String model = getCurrentDataModel();
-            String concept = ViewHelper.getConceptFromDefaultViewName(viewPk);
-            EntityModel entityModel = new EntityModel();
+            model = getCurrentDataModel();
+            concept = ViewHelper.getConceptFromDefaultViewName(viewPk);
+            entityModel = new EntityModel();
             DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
-
-            // DisplayRulesUtil.setRoot(DataModelHelper.getEleDecl());
-            vb.setBindingEntityModel(entityModel);
-
-            // viewables
-            String[] viewables = ViewHelper.getViewables(wsView);
-            // FIXME remove viewableXpath
-            if (viewables != null) {
-                for (String viewable : viewables) {
-                    vb.addViewableXpath(viewable);
-                }
-            }
-            vb.setViewables(viewables);
-
-            // searchables
-            vb.setSearchables(ViewHelper.getSearchables(wsView, model, language, entityModel));
-
-            // bind layout model
-            vb.setColumnLayoutModel(getColumnTreeLayout(concept));
-
-            return vb;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             Locale locale = new Locale(language);
             throw new ServiceException(MESSAGES.getMessage(locale, "parse_model_error")); //$NON-NLS-1$
         }
+
+        // DisplayRulesUtil.setRoot(DataModelHelper.getEleDecl());
+        vb.setBindingEntityModel(entityModel);
+
+        // viewables
+        String[] viewables = ViewHelper.getViewables(wsView);
+        // FIXME remove viewableXpath
+        if (viewables != null) {
+            for (String viewable : viewables) {
+                vb.addViewableXpath(viewable);
+            }
+        }
+        vb.setViewables(viewables);
+
+        // searchables
+        vb.setSearchables(ViewHelper.getSearchables(wsView, model, language, entityModel));
+
+        // bind layout model
+        vb.setColumnLayoutModel(getColumnTreeLayout(concept));
+        return vb;
     }
 
     public void logicalDeleteItem(ItemBean item, String path, boolean override) throws ServiceException {
