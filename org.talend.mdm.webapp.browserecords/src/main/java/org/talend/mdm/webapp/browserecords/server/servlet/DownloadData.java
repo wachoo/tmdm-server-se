@@ -156,19 +156,24 @@ public class DownloadData extends HttpServlet {
             HSSFRow row = sheet.createRow((short) i);
             int colCount = 0;
             for (String xpath : xpathArr) {
-                String tmp = XmlUtil.queryNodeText(doc, xpath.replaceFirst(concept + "/", "result/")); //$NON-NLS-1$ //$NON-NLS-2$;
-                if (fkResovled) {
-                    if (colFkMap.containsKey(xpath)) {
-                        List<String> fkinfoList = fkMap.get(xpath);
-                        if (!fkinfoList.get(0).trim().equalsIgnoreCase("") && !tmp.equalsIgnoreCase("")) { //$NON-NLS-1$ //$NON-NLS-2$
-                            List<String> infoList = getFKInfo(dataCluster, colFkMap.get(xpath), fkinfoList, tmp);
-                            if (fkDisplay.equalsIgnoreCase("Id-FKInfo")) { //$NON-NLS-1$
-                                infoList.add(0, tmp);
+                String tmp = null;
+                if(DownloadUtil.isJoinField(xpath, concept)){
+                    tmp = XmlUtil.queryNodeText(doc, xpath.replaceFirst(concept + "/", "result/")); //$NON-NLS-1$ //$NON-NLS-2$;
+                    if (fkResovled) {
+                        if (colFkMap.containsKey(xpath)) {
+                            List<String> fkinfoList = fkMap.get(xpath);
+                            if (!fkinfoList.get(0).trim().equalsIgnoreCase("") && !tmp.equalsIgnoreCase("")) { //$NON-NLS-1$ //$NON-NLS-2$
+                                List<String> infoList = getFKInfo(dataCluster, colFkMap.get(xpath), fkinfoList, tmp);
+                                if (fkDisplay.equalsIgnoreCase("Id-FKInfo")) { //$NON-NLS-1$
+                                    infoList.add(0, tmp);
+                                }
+                                tmp = LabelUtil.convertList2String(infoList, "-"); //$NON-NLS-1$                            
                             }
-                            tmp = LabelUtil.convertList2String(infoList, "-"); //$NON-NLS-1$                            
                         }
                     }
-                }
+                } else {
+                    tmp = DownloadUtil.getJoinFieldValue(doc, xpath, colCount);
+                }          
                              
                 if (tmp != null) {
                     tmp = tmp.trim();

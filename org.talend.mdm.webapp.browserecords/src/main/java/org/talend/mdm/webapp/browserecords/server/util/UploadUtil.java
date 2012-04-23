@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@SuppressWarnings("nls")
 public class UploadUtil {
     
     public static Map<String,Boolean> getVisibleMap(String headerString){
@@ -38,7 +39,7 @@ public class UploadUtil {
             mandatorySet.add(field);
 
         for (String fieldValue : fields) {
-            String fieldName = getFieldName(fieldValue); //$NON-NLS-1$
+            String fieldName = getFieldName(fieldValue);
             if (mandatorySet.contains(fieldName))
                 mandatorySet.remove(fieldName);
         }
@@ -71,5 +72,15 @@ public class UploadUtil {
             currentCause = currentCause.getCause();
         }
         return message;
+    }
+    
+    public static boolean isViewableXpathValid(String viewableXpath, String concept){
+        String[] xPathArr = viewableXpath.split("@"); //$NON-NLS-1$
+        for(String path : xPathArr){
+            String str = path.substring(0, path.indexOf("/"));
+            if(!str.equalsIgnoreCase(concept))
+                return false;
+        }
+        return true;
     }
 }
