@@ -10,8 +10,12 @@ public class NumberFieldCellEditor extends CellEditor {
         super(field);
     }
     public Object preProcessValue(Object value) {
-        if (value == null) return null;
         String numberType = getField().getData("numberType");//$NON-NLS-1$
+
+        if (value == null || ((String) value).trim().length() == 0) {
+            return "integer".equals(numberType) ? 0 : 0D; //$NON-NLS-1$
+        }
+
         if ("integer".equals(numberType)){//$NON-NLS-1$
             return Integer.parseInt((String)value);
         } else {
@@ -20,7 +24,8 @@ public class NumberFieldCellEditor extends CellEditor {
     }
 
     public Object postProcessValue(Object value) {
-        if (value == null) return null;
+        if (value == null)
+            return ""; //$NON-NLS-1$
         String numberType = getField().getData("numberType");//$NON-NLS-1$
         if ("integer".equals(numberType)){//$NON-NLS-1$
             Integer v = (Integer) value;
