@@ -5,10 +5,14 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 
 public class Util {
+
+    private static final Logger LOG = Logger.getLogger(Util.class);
 
     public static boolean checkReadAccess(String modelXSD, String conceptName) {
         boolean result = false;
@@ -18,6 +22,7 @@ public class Util {
             List<String> roleList = Arrays.asList(roles.split(",")); //$NON-NLS-1$
             result = checkReadAccessHelper(modelXSD, conceptName, roleList);
         } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
         }
 
         return result;
@@ -42,6 +47,7 @@ public class Util {
                 result = !userIsNoAccess;
             }
         } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
         }
 
         return result;
@@ -55,6 +61,7 @@ public class Util {
             List<String> roleList = Arrays.asList(roles.split(",")); //$NON-NLS-1$
             result = checkRestoreAccessHelper(modelXSD, conceptName, roleList);
         } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
         }
 
         return result;
@@ -82,6 +89,7 @@ public class Util {
                 result = !userIsNoAccess && userHasWriteAccess;
             }
         } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
         }
 
         return result;

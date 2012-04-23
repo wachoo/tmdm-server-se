@@ -1,49 +1,56 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.webapp.recyclebin.server.actions;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang.ArrayUtils;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import junit.framework.TestCase;
 
+import org.w3c.dom.Document;
+
+@SuppressWarnings("nls")
 public class UtilTest extends TestCase {
 
-    private String modelXSD = null;
-    private static final List<String> ROLES = Arrays.asList(new String[]{"System_Admin"}); //$NON-NLS-1$
-    
-    protected void setUp() throws Exception {
-        
-        InputStream in = getClass().getClassLoader().getResourceAsStream("UtilTest.xsd"); //$NON-NLS-1$
-        StringBuffer fileData = new StringBuffer();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8")); //$NON-NLS-1$
-        char[] buf = new char[1024];
-        int numRead=0;
-        while((numRead=reader.read(buf)) != -1){
-            String readData = String.valueOf(buf, 0, numRead);
-            fileData.append(readData);
-            buf = new char[1024];
-        }
-        reader.close();
-        modelXSD = fileData.toString();
+    private static final List<String> ROLES = Arrays.asList(new String[] { "System_Admin" });
+
+    public void testCheckRestoreAccessHelper() throws Exception {
+        String modelXSD = getXSDModel("UtilTest.xsd");
+        assertTrue(Util.checkRestoreAccessHelper(modelXSD, "M26_E01", ROLES));
+        assertTrue(Util.checkRestoreAccessHelper(modelXSD, "M26_E02", ROLES));
+        assertFalse(Util.checkRestoreAccessHelper(modelXSD, "M26_E03", ROLES));
+        assertFalse(Util.checkRestoreAccessHelper(modelXSD, "M26_E04", ROLES));
     }
 
-    public void testCheckRestoreAccessHelper() {
-        assertTrue(Util.checkRestoreAccessHelper(modelXSD, "M26_E01", ROLES)); //$NON-NLS-1$
-        assertTrue(Util.checkRestoreAccessHelper(modelXSD, "M26_E02", ROLES)); //$NON-NLS-1$
-        assertFalse(Util.checkRestoreAccessHelper(modelXSD, "M26_E03", ROLES)); //$NON-NLS-1$
-        assertFalse(Util.checkRestoreAccessHelper(modelXSD, "M26_E04", ROLES)); //$NON-NLS-1$
+    public void testCheckReadAccessHelper() throws Exception {
+        String modelXSD = getXSDModel("UtilTest.xsd");
+        assertTrue(Util.checkReadAccessHelper(modelXSD, "M26_E01", ROLES));
+        assertTrue(Util.checkReadAccessHelper(modelXSD, "M26_E02", ROLES));
+        assertFalse(Util.checkReadAccessHelper(modelXSD, "M26_E03", ROLES));
+        assertFalse(Util.checkReadAccessHelper(modelXSD, "M26_E04", ROLES));
     }
 
-    public void testCheckReadAccessHelper() {
-        assertTrue(Util.checkReadAccessHelper(modelXSD, "M26_E01", ROLES)); //$NON-NLS-1$
-        assertTrue(Util.checkReadAccessHelper(modelXSD, "M26_E02", ROLES)); //$NON-NLS-1$
-        assertFalse(Util.checkReadAccessHelper(modelXSD, "M26_E03", ROLES)); //$NON-NLS-1$
-        assertFalse(Util.checkReadAccessHelper(modelXSD, "M26_E04", ROLES)); //$NON-NLS-1$
-    }    
+    private String getXSDModel(String filename) throws Exception {
+        InputStream is = getClass().getClassLoader().getResourceAsStream(filename);
+        assertNotNull(is);
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(is);
+        String XSDModel = com.amalto.core.util.Util.nodeToString(doc);
+        return XSDModel;
+    }
 }
