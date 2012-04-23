@@ -163,7 +163,7 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
 				var foreignKeyCombo = Ext.getCmp('task-foreign-key-filter');
 				foreignKeyCombo.focus(true, 100);
 				foreignKeyCombo.reset();
-				
+				foreignKeyCombo.getEl().dom.style.top = 0;
 				if(count < 500) {
 					foreignKeyCombo.setRawValue("");
 					foreignKeyCombo.doQuery(".*", true);
