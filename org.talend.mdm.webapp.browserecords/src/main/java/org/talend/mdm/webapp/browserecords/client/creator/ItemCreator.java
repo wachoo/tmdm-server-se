@@ -70,43 +70,4 @@ public class ItemCreator {
 
         return itemBean;
     }
-    
-    public static ItemBean createItemBeanWithForeignKey(String concept, EntityModel entityModel,String fkPath,String fkValue) {
-        ItemBean itemBean = new ItemBean(concept, "", null);//$NON-NLS-1$
-
-        Map<String, TypeModel> types = entityModel.getMetaDataTypes();
-        Set<String> xpaths = types.keySet();
-        for (String path : xpaths) {
-            TypeModel typeModel = types.get(path);
-
-            if (path.endsWith(itemBean.getConcept())) {
-                itemBean.setLabel(typeModel.getLabel(UrlUtil.getLanguage()));
-                itemBean.setDescription(typeModel.getDescriptionMap().get(UrlUtil.getLanguage()));
-            }
-
-            if (typeModel.isSimpleType()) {
-
-                if (typeModel.getType().equals(DataTypeConstants.DATE)) {
-                    itemBean.set(path, new Date());
-                } else if (typeModel.isMultiOccurrence()) {
-                    List<Serializable> list = new ArrayList<Serializable>();
-                    int[] range = typeModel.getRange();
-                    int min = range[0];
-                    for (int i = 0; i < min; i++) {
-                        list.add("");//$NON-NLS-1$
-                    }
-                    itemBean.set(path, list);
-                } else {
-                    itemBean.set(path, "");//$NON-NLS-1$
-                }
-                
-                if (fkPath.equals(fkPath)){
-                    itemBean.set(path, fkValue);
-                }
-            }
-        }
-
-        return itemBean;
-    }
-
 }
