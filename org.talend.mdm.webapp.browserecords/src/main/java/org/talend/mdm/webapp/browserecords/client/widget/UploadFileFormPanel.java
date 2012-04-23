@@ -22,9 +22,8 @@ import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.base.shared.FileUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
-import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.browserecords.client.util.UserSession;
+import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.Constants;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
@@ -72,6 +71,8 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
     private HiddenField<String> mandatoryField;
     
     private HiddenField<String> languageField;
+    
+    private HiddenField<String> viewableXpathField;
     
     private MessageBox waitBar;
     
@@ -133,9 +134,6 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
     
     private void renderForm() {
 
-        ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
-        Map<String, TypeModel> typeModels = viewBean.getBindingEntityModel().getMetaDataTypes();
-
         nameField = new HiddenField<String>();
         nameField.setName("concept");//$NON-NLS-1$
         nameField.setValue(tableName);
@@ -155,6 +153,11 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         languageField.setName("language");//$NON-NLS-1$
         languageField.setValue(UrlUtil.getLanguage());
         this.add(languageField);
+        
+        viewableXpathField = new HiddenField<String>();
+        viewableXpathField.setName("viewableXpath");//$NON-NLS-1$
+        viewableXpathField.setValue(LabelUtil.convertList2String(viewBean.getViewableXpaths(), "@")); //$NON-NLS-1$
+        this.add(viewableXpathField);
         
         file = new FileUploadField();
         file.setAllowBlank(false);

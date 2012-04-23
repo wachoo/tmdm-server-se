@@ -22,7 +22,7 @@ import junit.framework.TestCase;
 
 import org.talend.mdm.webapp.browserecords.server.util.UploadUtil;
 
-
+@SuppressWarnings("nls")
 public class UploadUtilTest  extends TestCase {
     
     String header = "Id:true@Name:false:@Age:true"; //$NON-NLS-1$
@@ -70,6 +70,17 @@ public class UploadUtilTest  extends TestCase {
         Exception exception = new Exception("Exception Cause",servletException); //$NON-NLS-1$
         assertEquals(UploadUtil.getRootCause(exception),"RemoteException Cause"); //$NON-NLS-1$
     }
-    
-
+        
+    public void testIsViewableXpathValid(){
+        String viewableXpath = "Product/Id@Product/Name@Product/Description@Product/Price@Product/Family@ProductFamily/Name";
+        String concept = "Product";
+        assertFalse(UploadUtil.isViewableXpathValid(viewableXpath, concept));
+        
+        concept = "ProductFamily";
+        assertFalse(UploadUtil.isViewableXpathValid(viewableXpath, concept));
+        
+        viewableXpath = "Product/Id@Product/Name@Product/Description@Product/Price@Product/Family";
+        concept = "Product";
+        assertTrue(UploadUtil.isViewableXpathValid(viewableXpath, concept));
+    }
 }

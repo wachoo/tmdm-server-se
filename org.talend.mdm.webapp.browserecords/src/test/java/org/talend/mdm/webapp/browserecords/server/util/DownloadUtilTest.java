@@ -12,14 +12,22 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.server.util;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.log4j.Logger;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.talend.mdm.webapp.base.server.util.XmlUtil;
 
 import junit.framework.TestCase;
 
 @SuppressWarnings("nls")
 public class DownloadUtilTest extends TestCase {
+    
+    private static final Logger LOG = Logger.getLogger(DownloadUtilTest.class);
     
     public void testAssembleFkMap(){
         Map<String, String> colFkMap = new HashMap<String, String>();
@@ -51,5 +59,35 @@ public class DownloadUtilTest extends TestCase {
         assertEquals(2, fkMap.get(fk2).size());
         assertEquals("ProductFamliy/name", fkMap.get(fk2).get(0));
         assertEquals("ProductFamliy/Code", fkMap.get(fk2).get(1));
+    }
+    
+    public void testIsJoinField(){
+        String xPath = "Product/Id";
+        String concept = "Product";
+        boolean result = DownloadUtil.isJoinField(xPath, concept);
+        assertTrue(result);
+
+        xPath = "Product/Name";
+        concept = "ProductFamily";
+        result = DownloadUtil.isJoinField(xPath, concept);
+        assertFalse(result);
+        
+        xPath = "ProductFamily/Name";
+        concept = "productfamily";
+        result = DownloadUtil.isJoinField(xPath, concept);
+        assertTrue(result);
+    }
+    
+    public void testGetJoinFieldValue(){
+        InputStream is = DownloadUtilTest.class.getResourceAsStream("result.xml");
+        Document doc = null;
+        try {
+            doc = XmlUtil.parse(is);
+        } catch (DocumentException e) {
+            LOG.error(e);
+        }
+        
+        String value = DownloadUtil.getJoinFieldValue(doc, "ProductFamily/Name", 5);
+        assertEquals("Mugs", value);
     }
 }

@@ -152,17 +152,19 @@ public class DownloadFilePanel extends FormPanel{
             String header = typeModel == null ? xpath : ViewUtil.getViewableLabel(Locale.getLanguage(), typeModel);
             headerList.add(header);
             xPathList.add(xpath);
-            if (typeModel.getForeignkey() != null) {
-                fkColXPathList.add(xpath + "," + typeModel.getForeignkey()); //$NON-NLS-1$
-                List<String> fkInfo = typeModel.getForeignKeyInfo();
-                if (fkInfo.size() == 0) {
-                    fkInfoList.add(" "); //$NON-NLS-1$
-                } else {
-                    StringBuilder sb = new StringBuilder(fkInfo.get(0));
-                    for (int i = 1; i < fkInfo.size(); i++) {
-                        sb.append(",").append(fkInfo.get(i)); //$NON-NLS-1$
+            if(typeModel != null){
+            	if (typeModel.getForeignkey() != null) {
+                    fkColXPathList.add(xpath + "," + typeModel.getForeignkey()); //$NON-NLS-1$
+                    List<String> fkInfo = typeModel.getForeignKeyInfo();
+                    if (fkInfo.size() == 0) {
+                        fkInfoList.add(" "); //$NON-NLS-1$
+                    } else {
+                        StringBuilder sb = new StringBuilder(fkInfo.get(0));
+                        for (int i = 1; i < fkInfo.size(); i++) {
+                            sb.append(",").append(fkInfo.get(i)); //$NON-NLS-1$
+                        }
+                        fkInfoList.add(sb.toString());
                     }
-                    fkInfoList.add(sb.toString());
                 }
             }
         }

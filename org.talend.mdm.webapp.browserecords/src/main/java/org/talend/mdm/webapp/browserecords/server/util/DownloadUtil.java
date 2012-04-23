@@ -16,6 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.dom4j.Document;
+import org.dom4j.Node;
+
 public class DownloadUtil {
 
     public static void assembleFkMap(Map<String, String> colFkMap, Map<String, List<String>> fkMap, String fkColXPath, String fkInfo) {
@@ -33,5 +36,21 @@ public class DownloadUtil {
                 colFkMap.put(arr[0], arr[1]);
             }
         }
+    }
+    
+    public static boolean isJoinField(String xPath, String concept){
+        String str = xPath.substring(0, xPath.indexOf("/")); //$NON-NLS-1$
+        return str.equalsIgnoreCase(concept);
+    }
+    
+    public static String getJoinFieldValue(Document doc, String xPath, int count){
+        if(doc.getRootElement().elements().size() > count){ 
+            Node node = (Node) doc.getRootElement().elements().get(count);
+            String joinConcept = xPath.substring(0, xPath.indexOf("/")); //$NON-NLS-1$
+            String joinFieldXpath = xPath.replaceFirst(joinConcept + "/", "/result/");  //$NON-NLS-1$//$NON-NLS-2$
+            if(node.getPath().equalsIgnoreCase(joinFieldXpath))
+                return node.getText();
+        }  
+        return ""; //$NON-NLS-1$
     }
 }

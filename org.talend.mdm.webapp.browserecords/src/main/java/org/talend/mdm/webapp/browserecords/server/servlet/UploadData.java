@@ -101,6 +101,8 @@ public class UploadData extends HttpServlet {
         String encoding = "utf-8";//$NON-NLS-1$
         String header = ""; //$NON-NLS-1$
         String mandatoryField = ""; //$NON-NLS-1$
+        String viewableXpath = ""; //$NON-NLS-1$
+        
         boolean headersOnFirstLine = false; 
         int rowNumber = 0;
 
@@ -147,6 +149,8 @@ public class UploadData extends HttpServlet {
                         header = item.getString();
                     if (name.equals("mandatoryField"))//$NON-NLS-1$
                         mandatoryField = item.getString();
+                    if (name.equals("viewableXpath"))//$NON-NLS-1$
+                        viewableXpath = item.getString();
                     if (name.equals("headersOnFirstLine"))//$NON-NLS-1$
                         headersOnFirstLine = "on".equals(item.getString());//$NON-NLS-1$
                 } else {
@@ -159,6 +163,11 @@ public class UploadData extends HttpServlet {
             }// while item
             
             concept = ViewHelper.getConceptFromDefaultViewName(viewPK);
+            
+            if (!UploadUtil.isViewableXpathValid(viewableXpath, concept)) {
+                throw new ServletException(MESSAGES.getMessage(locale, "error_invaild_field", concept)); //$NON-NLS-1$
+            }
+            
             Map<String,Boolean> visibleMap = UploadUtil.getVisibleMap(header);
             Set<String> mandatorySet = UploadUtil.chechMandatoryField(mandatoryField, visibleMap.keySet());
 
