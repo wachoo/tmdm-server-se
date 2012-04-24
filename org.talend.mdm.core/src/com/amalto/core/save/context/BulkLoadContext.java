@@ -30,6 +30,8 @@ class BulkLoadContext implements DocumentSaverContext {
 
     private final BulkLoadSaver bulkLoadSaver;
 
+    private boolean isCreate;
+
     public BulkLoadContext(String dataCluster, String dataModelName, XSDKey keyMetadata, InputStream documentStream, LoadAction loadAction, XmlServerSLWrapperLocal server) {
         this.dataCluster = dataCluster;
         this.dataModelName = dataModelName;
@@ -102,6 +104,19 @@ class BulkLoadContext implements DocumentSaverContext {
 
     public void setType(ComplexTypeMetadata type) {
         throw new UnsupportedOperationException();
+    }
+
+    public boolean isReplace() {
+        // Bulk load always replace.
+        return true;
+    }
+
+    public boolean isCreate() {
+        return isCreate;
+    }
+
+    public void setCreate(boolean isCreate) {
+        this.isCreate = isCreate;
     }
 
 }

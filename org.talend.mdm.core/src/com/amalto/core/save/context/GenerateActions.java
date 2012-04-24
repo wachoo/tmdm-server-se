@@ -24,7 +24,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
-import java.util.*;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 class GenerateActions implements DocumentSaver {
 
@@ -52,28 +54,37 @@ class GenerateActions implements DocumentSaver {
         String userName = saverSource.getUserName();
 
         ComplexTypeMetadata type = context.getType();
+        String universe = saverSource.getUniverse();
         List<Action> actions;
+        MetadataRepository metadataRepository = saverSource.getMetadataRepository(context.getDataModelName());
         if (databaseDocument.asDOM().getDocumentElement() == null) {
             // Remove empty elements -> web ui sends empty elements (but do this only for creation).
             clean(userDocument.asDOM().getDocumentElement());
             // This is a creation (database document is empty).
             Action createAction = new OverrideCreateAction(date, source, userName, userDocument, context.getType());
             // Generate field update actions for UUID and AutoIncrement elements.
-            String universe = saverSource.getUniverse();
             CreateActions createActions = new CreateActions(date, source, userName, context.getDataCluster(), universe);
-            List<Action> fieldActions = type.accept(createActions);
+            UpdateActionCreator updateActions = new UpdateActionCreator(databaseDocument, userDocument, source, userName, metadataRepository);
+
             // Builds action list (be sure to include actual creation as first action).
             actions = new LinkedList<Action>();
             actions.add(createAction);
-            actions.addAll(fieldActions);
+            actions.addAll(type.accept(createActions));
+            actions.addAll(type.accept(updateActions));
         } else {
-            // get updated paths
-            MetadataRepository metadataRepository = saverSource.getMetadataRepository(context.getDataModelName());
-            UpdateActionCreator actionCreator = new UpdateActionCreator(databaseDocument, userDocument, source, userName, metadataRepository);
-            try {
+            if (!context.isReplace()) { // "Is update"
+                // get updated paths
+                UpdateActionCreator actionCreator = new UpdateActionCreator(databaseDocument, userDocument, source, userName, metadataRepository);
                 actions = type.accept(actionCreator);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            } else { // "Is replace" (similar to creation but without clean up of empty elements).
+                UpdateActionCreator updateActions = new UpdateActionCreator(databaseDocument, userDocument, source, userName, metadataRepository);
+                // Builds action list (be sure to include actual creation as first action).
+                actions = new LinkedList<Action>();
+                Action createAction = new OverrideReplaceAction(date, source, userName, userDocument, context.getType());
+                CreateActions createActions = new CreateActions(date, source, userName, context.getDataCluster(), universe);
+                actions.add(createAction);
+                actions.addAll(type.accept(createActions));
+                actions.addAll(type.accept(updateActions));
             }
         }
         context.setActions(actions);

@@ -61,10 +61,12 @@ public class DefaultLoadAction implements LoadAction {
             while (xmlStreamTokenizer.hasMoreElements()) {
                 String xmlData = xmlStreamTokenizer.nextElement();
                 if (xmlData != null && xmlData.trim().length() > 0) {
+                    // Note: in case you wish to change the "replace" behavior, also check com.amalto.core.save.context.BulkLoadContext.isReplace()
                     DocumentSaverContext context = contextFactory.create(dataClusterName,
                             dataModelName,
                             StringUtils.EMPTY,
                             new ByteArrayInputStream(xmlData.getBytes("UTF-8")),
+                            true, // Always replace in this case (bulk load).
                             needValidate,
                             false,
                             false);

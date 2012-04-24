@@ -23,16 +23,18 @@ public class SaverHelper {
                                          SaverSession session,
                                          String dataClusterName,
                                          String dataModelName) throws UnsupportedEncodingException {
-        return saveItem(wsPutItem.getXmlString(), session, dataClusterName, dataModelName);
+        return saveItem(wsPutItem.getXmlString(), session, !wsPutItem.getIsUpdate(), dataClusterName, dataModelName);
     }
 
     public static DocumentSaver saveItem(String xmlString,
                                          SaverSession session,
+                                         boolean isReplace,
                                          String dataClusterName,
                                          String dataModelName) throws UnsupportedEncodingException {
         SaverContextFactory contextFactory = session.getContextFactory();
         DocumentSaverContext context = contextFactory.create(dataClusterName,
                 dataModelName,
+                isReplace,
                 new ByteArrayInputStream(xmlString.getBytes("UTF-8"))); //$NON-NLS-1$
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
@@ -45,11 +47,12 @@ public class SaverHelper {
                                                    String dataModelName,
                                                    String changeSource,
                                                    boolean beforeSaving) throws UnsupportedEncodingException {
-        return saveItemWithReport(wsPutItem.getXmlString(), session, dataClusterName, dataModelName, changeSource, beforeSaving);
+        return saveItemWithReport(wsPutItem.getXmlString(), session, !wsPutItem.getIsUpdate(), dataClusterName, dataModelName, changeSource, beforeSaving);
     }
 
     public static DocumentSaver saveItemWithReport(String xmlString,
                                                    SaverSession session,
+                                                   boolean isReplace,
                                                    String dataClusterName,
                                                    String dataModelName,
                                                    String changeSource,
@@ -59,6 +62,7 @@ public class SaverHelper {
                 dataModelName,
                 changeSource,
                 new ByteArrayInputStream(xmlString.getBytes("UTF-8")), //$NON-NLS-1$
+                isReplace,
                 true, // Always validate
                 true, // Always generate an update report
                 beforeSaving);

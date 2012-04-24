@@ -45,13 +45,18 @@ class UserContext implements DocumentSaverContext {
 
     private MutableDocument dataBaseValidationDocument;
 
-    UserContext(String dataCluster, String dataModel, MutableDocument userDocument, boolean validate, boolean updateReport, boolean invokeBeforeSaving) {
+    private boolean isReplace;
+
+    private boolean isCreate;
+
+    UserContext(String dataCluster, String dataModel, MutableDocument userDocument, boolean isReplace, boolean validate, boolean updateReport, boolean invokeBeforeSaving) {
         this.userDocument = userDocument;
         this.dataCluster = dataCluster;
         this.dataModel = dataModel;
         this.validate = validate;
         this.invokeBeforeSaving = invokeBeforeSaving;
         this.updateReport = updateReport;
+        this.isReplace = isReplace;
     }
 
     public DocumentSaver createSaver() {
@@ -124,6 +129,18 @@ class UserContext implements DocumentSaverContext {
 
     public void setType(ComplexTypeMetadata type) {
         this.type = type;
+    }
+
+    public boolean isReplace() {
+        return isReplace;
+    }
+
+    public boolean isCreate() {
+        return isCreate;
+    }
+
+    public void setCreate(boolean isCreate) {
+        this.isCreate = isCreate;
     }
 
     public String[] getId() {

@@ -139,8 +139,18 @@ class ID implements DocumentSaver {
                     LOGGER.error("Exception occurred during close of stream.", e);
                 }
             }
-
         } else {
+            // It's a creation but display warning if calling asks for a replace operation.
+            if (context.isReplace()) {
+                StringBuilder builder = new StringBuilder();
+                for (String idElement : savedId) {
+                    builder.append('[' + idElement + ']');
+                }
+                LOGGER.warn("Can not replace record with id '" + builder.toString() + "' because it does not exist in database. Consider operation as a creation.");
+            }
+
+            // Creation... so mark context
+            context.setCreate(true);
             context.setDatabaseDocument(new DOMDocument(documentBuilder.newDocument()));
             context.setDatabaseValidationDocument(new DOMDocument(documentBuilder.newDocument()));
         }

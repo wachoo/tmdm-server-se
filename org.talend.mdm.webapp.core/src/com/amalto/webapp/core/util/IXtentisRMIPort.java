@@ -732,6 +732,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             SaverSession session = SaverSession.newSession();
             DocumentSaver saver = SaverHelper.saveItem(wsPutItem.getXmlString(),
                     session,
+                    !wsPutItem.getIsUpdate(),
                     dataClusterName,
                     dataModelName);
             // Cause items being saved to be committed to database.
@@ -2146,6 +2147,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             try {
                 saver = SaverHelper.saveItemWithReport(wsPutItem.getXmlString(),
                         session,
+                        !wsPutItem.getIsUpdate(),
                         dataClusterName,
                         dataModelName,
                         wsPutItemWithReport.getSource(),
@@ -2196,6 +2198,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 
                 DocumentSaver saver = SaverHelper.saveItem(item.getXmlString(),
                         session,
+                        !item.getIsUpdate(),
                         dataClusterName,
                         dataModelName);
                 pks.add(new WSItemPK(new WSDataClusterPK(), saver.getSavedConceptName(), saver.getSavedId()));
@@ -2226,6 +2229,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                 try {
                     saver = SaverHelper.saveItemWithReport(wsPutItem.getXmlString(),
                             session,
+                            !wsPutItem.getIsUpdate(),
                             dataClusterName,
                             dataModelName,
                             source,

@@ -39,6 +39,8 @@ class SystemContext implements DocumentSaverContext {
 
     private ComplexTypeMetadata type;
 
+    private boolean isCreate;
+
     public SystemContext(String dataCluster, String dataModelName, MutableDocument document) {
         this.dataCluster = dataCluster;
         this.dataModelName = dataModelName;
@@ -105,6 +107,19 @@ class SystemContext implements DocumentSaverContext {
 
     public void setType(ComplexTypeMetadata type) {
         this.type = type;
+    }
+
+    public boolean isReplace() {
+        // System documents are always replaced.
+        return true;
+    }
+
+    public boolean isCreate() {
+        return isCreate;
+    }
+
+    public void setCreate(boolean isCreate) {
+        this.isCreate = isCreate;
     }
 
     public String[] getId() {

@@ -1,0 +1,47 @@
+/*
+ * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+ *
+ * This source code is available under agreement available at
+ * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+ *
+ * You should have received a copy of the agreement
+ * along with this program; if not, write to Talend SA
+ * 9 rue Pages 92150 Suresnes, France
+ */
+
+package com.amalto.core.save.context;
+
+import com.amalto.core.history.MutableDocument;
+import com.amalto.core.history.action.CreateAction;
+import com.amalto.core.metadata.ComplexTypeMetadata;
+
+import java.util.Date;
+import java.util.Set;
+
+class OverrideReplaceAction extends CreateAction {
+
+    private final MutableDocument userDocument;
+
+    private final ComplexTypeMetadata type;
+
+    public OverrideReplaceAction(Date date, String source, String userName, MutableDocument userDocument) {
+        this(date, source, userName, userDocument, null);
+    }
+
+    public OverrideReplaceAction(Date date, String source, String userName, MutableDocument userDocument, ComplexTypeMetadata type) {
+        super(date, source, userName, type);
+        this.userDocument = userDocument;
+        this.type = type;
+    }
+
+    @Override
+    public MutableDocument perform(MutableDocument document) {
+        document.setContent(userDocument);
+        return document;
+    }
+
+    @Override
+    public boolean isAllowed(Set<String> roles) {
+        return type == null || super.isAllowed(roles);
+    }
+}

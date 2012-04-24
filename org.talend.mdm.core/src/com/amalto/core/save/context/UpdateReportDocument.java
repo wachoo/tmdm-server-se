@@ -11,6 +11,8 @@ import org.w3c.dom.Node;
 
 class UpdateReportDocument extends DOMDocument {
 
+    private static final NoOpAccessor NO_OP_ACCESSOR = new NoOpAccessor();
+
     private final Document updateReportDocument;
 
     private final MutableDocument savedDocument;
@@ -117,6 +119,11 @@ class UpdateReportDocument extends DOMDocument {
     }
 
     @Override
+    public MutableDocument setContent(MutableDocument content) {
+        return this;
+    }
+
+    @Override
     public MutableDocument delete(DeleteType deleteType) {
         // Nothing to do
         // TODO Could extend saver to handle deletes?
@@ -141,8 +148,12 @@ class UpdateReportDocument extends DOMDocument {
     public Accessor createAccessor(String path) {
         if (!isRecordingFieldChange) {
             return super.createAccessor(path);
-        } else {
+        } else if (!isCreated) {
             return new FieldChangeRecorder(path, this);
+        } else {  // isCreated
+            // TODO Don't record changes on created record (but uncomment line below and it will).
+            // return new FieldChangeRecorder(path, this);
+            return NO_OP_ACCESSOR;
         }
     }
 
@@ -194,6 +205,45 @@ class UpdateReportDocument extends DOMDocument {
 
         public int size() {
             return 1;
+        }
+
+        public String getActualType() {
+            return StringUtils.EMPTY;
+        }
+    }
+
+    private static class NoOpAccessor implements Accessor {
+        public void set(String value) {
+        }
+
+        public String get() {
+            return StringUtils.EMPTY;
+        }
+
+        public void touch() {
+        }
+
+        public void create() {
+        }
+
+        public void createAndSet(String value) {
+        }
+
+        public void delete() {
+        }
+
+        public boolean exist() {
+            return true;
+        }
+
+        public void markModified() {
+        }
+
+        public void markUnmodified() {
+        }
+
+        public int size() {
+            return 0;
         }
 
         public String getActualType() {

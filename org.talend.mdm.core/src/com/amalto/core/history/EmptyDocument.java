@@ -78,6 +78,10 @@ public class EmptyDocument implements MutableDocument {
         return this;
     }
 
+    public MutableDocument setContent(MutableDocument content) {
+        return this;
+    }
+
     public MutableDocument delete(DeleteType deleteType) {
         return this;
     }

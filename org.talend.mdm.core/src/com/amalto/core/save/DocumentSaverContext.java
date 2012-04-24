@@ -84,4 +84,12 @@ public interface DocumentSaverContext {
 
     void setType(ComplexTypeMetadata type);
 
+    /**
+     * @return <code>true</code> if calling code wish to replace record instead of updating it, <code>false</code> otherwise.
+     */
+    boolean isReplace();
+
+    boolean isCreate();
+
+    void setCreate(boolean isCreate);
 }

@@ -12,10 +12,12 @@
 package com.amalto.core.save.context;
 
 import com.amalto.core.history.Action;
+import com.amalto.core.history.MutableDocument;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import org.apache.log4j.Logger;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -76,6 +78,14 @@ class Security implements DocumentSaver {
                 LOGGER.error("User '" + saverSource.getUserName() + "' is not allowed to perform following operation(s): " + builder);
                 actions.removeAll(failedActions);
 
+                // Revert all unauthorized actions in case of replace or create.
+                if (context.isReplace() || context.isCreate()) {
+                    LOGGER.warn("Following operation(s) are being ignored for replace/create: " + builder);
+                    for (Action failedAction : failedActions) {
+                        actions.add(new ReverseAction(failedAction));
+                    }
+                }
+
                 // Make a no op if failedActions is empty and display a warning.
                 if (actions.isEmpty()) {
                     LOGGER.warn("No more actions to perform after security checks, abort save operations.");
@@ -97,5 +107,51 @@ class Security implements DocumentSaver {
 
     public String getBeforeSavingMessage() {
         return next.getBeforeSavingMessage();
+    }
+
+    // Special action implementation for reverting an underlying action when perform() is called.
+    private static class ReverseAction implements Action {
+
+        private final Action action;
+
+        public ReverseAction(Action action) {
+            this.action = action;
+        }
+
+        public MutableDocument perform(MutableDocument document) {
+            return action.undo(document);
+        }
+
+        public MutableDocument undo(MutableDocument document) {
+            return document;
+        }
+
+        public MutableDocument addModificationMark(MutableDocument document) {
+            return action.addModificationMark(document);
+        }
+
+        public MutableDocument removeModificationMark(MutableDocument document) {
+            return action.removeModificationMark(document);
+        }
+
+        public Date getDate() {
+            return action.getDate();
+        }
+
+        public String getSource() {
+            return action.getSource();
+        }
+
+        public String getUserName() {
+            return action.getUserName();
+        }
+
+        public boolean isAllowed(Set<String> roles) {
+            return true;
+        }
+
+        public String getDetails() {
+            return "revert modification: (" + action.getDetails() + ")";
+        }
     }
 }

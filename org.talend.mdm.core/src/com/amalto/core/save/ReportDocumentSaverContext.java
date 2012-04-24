@@ -107,6 +107,18 @@ public class ReportDocumentSaverContext implements DocumentSaverContext {
         delegate.setType(type);
     }
 
+    public boolean isReplace() {
+        return delegate.isReplace();
+    }
+
+    public boolean isCreate() {
+        return delegate.isCreate();
+    }
+
+    public void setCreate(boolean isCreate) {
+        delegate.setCreate(isCreate);
+    }
+
     public String[] getId() {
         return delegate.getId();
     }

@@ -122,6 +122,11 @@ public class DOMDocument implements MutableDocument {
         return this;
     }
 
+    public MutableDocument setContent(MutableDocument content) {
+        init(content.asDOM());
+        return this;
+    }
+
     public MutableDocument delete(DeleteType deleteType) {
         return this;
     }
