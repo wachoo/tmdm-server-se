@@ -18,12 +18,19 @@ import com.amalto.core.save.context.DocumentSaver;
 
 import java.util.List;
 
+/**
+ * A context holding information about the save of a <b>single</b> record in MDM.
+ */
 public interface DocumentSaverContext {
 
+    /**
+     * @return Creates a {@link DocumentSaver} chain able to store the record.
+     */
     DocumentSaver createSaver();
 
     /**
-     * @return The document as it is present (or not) in database.
+     * @return The document as it is present (or not) in database. If document does not exist in database, an empty
+     * DOM document is returned (<b>not</b> <code>null</code>).
      */
     MutableDocument getDatabaseDocument();
 
@@ -70,10 +77,19 @@ public interface DocumentSaverContext {
      */
     void setId(String[] id);
 
+    /**
+     * @return The data cluster name where the record should be stored.
+     */
     String getDataCluster();
 
+    /**
+     * @return The data model name where the record entity type is defined.
+     */
     String getDataModelName();
 
+    /**
+     * @return The revision of the record being saved.
+     */
     String getRevisionID();
 
     void setDatabaseDocument(MutableDocument databaseDocument);
@@ -89,6 +105,9 @@ public interface DocumentSaverContext {
      */
     boolean isReplace();
 
+    /**
+     * @return <code>true</code> if document is being created.
+     */
     boolean isCreate();
 
     void setCreate(boolean isCreate);

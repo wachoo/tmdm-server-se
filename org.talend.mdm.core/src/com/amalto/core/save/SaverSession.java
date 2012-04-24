@@ -74,18 +74,34 @@ public class SaverSession {
         return contextFactory;
     }
 
+    /**
+     * Start a transaction for this session on a given data cluster.
+     * @param dataCluster The data cluster where a transaction should be started.
+     */
     public void begin(String dataCluster) {
         begin(dataCluster, new DefaultCommitter());
     }
 
+    /**
+     * Start a transaction for this session on a given data cluster.
+     * @param dataCluster The data cluster where a transaction should be started.
+     * @param committer A {@link Committer} committer for interaction between save session and underlying storage.
+     */
     public void begin(String dataCluster, Committer committer) {
         committer.begin(dataCluster);
     }
 
+    /**
+     * End this session (means commit on all data clusters where a transaction was started).
+     */
     public void end() {
         end(new DefaultCommitter());
     }
 
+    /**
+     * End this session (means commit on all data clusters where a transaction was started).
+     * @param committer A {@link Committer} committer to use when committing transactions on underlying storage.
+     */
     public void end(Committer committer) {
         for (Map.Entry<String, Set<ItemPOJO>> currentTransaction : itemsPerDataCluster.entrySet()) {
             String dataCluster = currentTransaction.getKey();
@@ -106,6 +122,11 @@ public class SaverSession {
         }
     }
 
+    /**
+     * Adds a new record to be saved in this session.
+     * @param dataCluster Data cluster where the record should be saved.
+     * @param itemToSave The item to save.
+     */
     public void save(String dataCluster, ItemPOJO itemToSave) {
         Set<ItemPOJO> itemsToSave = itemsPerDataCluster.get(dataCluster);
         if (itemsToSave == null) {
@@ -115,6 +136,9 @@ public class SaverSession {
         itemsToSave.add(itemToSave);
     }
 
+    /**
+     * @return {@link SaverSource} to interact with MDM server.
+     */
     public SaverSource getSaverSource() {
         return dataSource;
     }
@@ -126,10 +150,17 @@ public class SaverSession {
         itemsPerDataCluster.clear();
     }
 
+    /**
+     * Aborts current transaction (means rollback on all data clusters where a transaction was started).
+     */
     public void abort() {
         abort(new DefaultCommitter());
     }
 
+    /**
+     * Aborts current transaction (means rollback on all data clusters where a transaction was started).
+     * @param committer A {@link Committer} committer for interaction between save session and underlying storage.
+     */
     public void abort(Committer committer) {
         for (Map.Entry<String, Set<ItemPOJO>> currentTransaction : itemsPerDataCluster.entrySet()) {
             String dataCluster = currentTransaction.getKey();
@@ -137,18 +168,38 @@ public class SaverSession {
         }
     }
 
+    /**
+     * Invalidate any type cache for the data model.
+     * @param dataModelName A data model name.
+     */
     public void invalidateTypeCache(String dataModelName) {
         dataSource.invalidateTypeCache(dataModelName);
     }
 
     public interface Committer {
-
+        /**
+         * Begin a transaction on a data cluster
+         * @param dataCluster A data cluster name.
+         */
         void begin(String dataCluster);
 
+        /**
+         * Commit a transaction on a data cluster
+         * @param dataCluster A data cluster name
+         */
         void commit(String dataCluster);
 
+        /**
+         * Saves a MDM record for a given revision.
+         * @param item The item to save.
+         * @param revisionId A revision id.
+         */
         void save(ItemPOJO item, String revisionId);
 
+        /**
+         * Rollbacks changes done on a data cluster.
+         * @param dataCluster Data cluster name.
+         */
         void rollback(String dataCluster);
     }
 
