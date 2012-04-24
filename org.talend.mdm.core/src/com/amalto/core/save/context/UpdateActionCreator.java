@@ -65,7 +65,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
     }
 
     @Override
-    public List<Action> visit(final ContainedTypeFieldMetadata containedField) {
+    public List<Action> visit(ContainedTypeFieldMetadata containedField) {
         handleField(containedField, new ContainedTypeClosure(containedField));
         return actions;
     }
@@ -130,12 +130,16 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
             // Proceed in "reverse" order (highest index to lowest) so there won't be issues when deleting elements in
             // a sequence (if element #2 is deleted before element #3, element #3 becomes #2...).
-            for (int i = Math.max(leftAccessor.size(), rightAccessor.size()); i > 0; i--) {
+            int max = Math.max(leftAccessor.size(), rightAccessor.size());
+            for (int i = max; i > 0; i--) {
                 // XPath indexes are 1-based (not 0-based).
                 path.add(field.getName() + "[" + i + "]"); //$NON-NLS-1$ //$NON-NLS-2$
                 closure.execute(field);
                 path.pop();
             }
+            path.add(field.getName() + "[" + max + "]"); //$NON-NLS-1$ //$NON-NLS-2$
+            lastMatchPath = getPath();
+            path.pop();
         } else {
             closure.execute(field);
             path.pop();
