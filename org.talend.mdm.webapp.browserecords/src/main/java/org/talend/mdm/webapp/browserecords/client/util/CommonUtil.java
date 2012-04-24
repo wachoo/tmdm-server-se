@@ -3,8 +3,10 @@ package org.talend.mdm.webapp.browserecords.client.util;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
@@ -16,6 +18,8 @@ import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
 
 public class CommonUtil {
@@ -110,13 +114,23 @@ public class CommonUtil {
     private static Element _toXML(Document doc, ItemNodeModel nodeModel, ViewBean viewBean, ItemNodeModel rootModel) {
         Element root = doc.createElement(nodeModel.getName());
         TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(nodeModel.getTypePath());
-        Serializable value = nodeModel.getObjectValue();
-        if (typeModel.isSimpleType() && value != null && nodeModel.getParent() != null) {
-            if (value instanceof ForeignKeyBean)
-                root.appendChild(doc.createTextNode(((ForeignKeyBean) value).getId()));
-            else
-                root.appendChild(doc.createTextNode(value.toString()));
+        if (!typeModel.isVisible() || typeModel.isReadOnly()) {
+            return null;
         }
+        Serializable value = nodeModel.getObjectValue();
+
+        if (typeModel.isSimpleType()) {
+            if (value != null && nodeModel.getParent() != null) {
+                String elValue = null;
+                if (value instanceof ForeignKeyBean) {
+                    elValue = ((ForeignKeyBean) value).getId();
+                } else {
+                    elValue = value.toString();
+                }
+                root.appendChild(doc.createTextNode(elValue));
+            }
+        }
+
 
         if (nodeModel.getRealType() != null) {
             root.setAttribute("xsi:type", nodeModel.getRealType()); //$NON-NLS-1$
@@ -131,10 +145,83 @@ public class CommonUtil {
         if (children != null) {
             for (ModelData child : children) {
                 Element el = _toXML(doc, (ItemNodeModel) child, viewBean, rootModel);
-                root.appendChild(el);
+                if (el != null) {
+                    root.appendChild(el);
+                }
             }
+            mergerChildrenWhenEmpty(root);
         }
         return root;
+    }
+
+    private static void mergerChildrenWhenEmpty(Element el) {
+        Map<String, List<Element>> childrenGroup = childrenElGroup(el);
+        Set<String> keySet = childrenGroup.keySet();
+        for (String key : keySet) {
+            List<Element> group = childrenGroup.get(key);
+            if (isEmptyValueEls(group)) {
+                removeRedundantChildren(group);
+            }
+        }
+    }
+
+    private static void removeRedundantChildren(List<Element> childrenEl) {
+        for (int i = 1; i < childrenEl.size(); i++) {
+            Element el = childrenEl.get(i);
+            el.getParentNode().removeChild(el);
+        }
+    }
+
+    private static boolean isEmptyValueEls(List<Element> els) {
+        for (Element el : els) {
+            if (!isEmptyValueEl(el)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean isEmptyValueEl(Element el) {
+        List<Element> childrenEl = childrenEl(el);
+        if (childrenEl.size() == 0) {
+            Node node = el.getFirstChild();
+            return node == null || node.getNodeValue() == null || node.getNodeValue().trim().length() == 0;
+        }
+
+        for (Element childEl : childrenEl) {
+            if (!isEmptyValueEl(childEl)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static List<Element> childrenEl(Element el) {
+        List<Element> els = new ArrayList<Element>();
+        NodeList childNodes = el.getChildNodes();
+        if (childNodes != null) {
+            for (int i = 0; i < childNodes.getLength(); i++) {
+                Node child = childNodes.item(i);
+                if (child.getNodeType() == Node.ELEMENT_NODE) {
+                    els.add((Element) child);
+                }
+            }
+        }
+        return els;
+    }
+
+    private static Map<String, List<Element>> childrenElGroup(Element el) {
+        Map<String, List<Element>> childrenGroup = new LinkedHashMap<String, List<Element>>();
+        List<Element> childrenEl = childrenEl(el);
+        for (Element childEl : childrenEl) {
+            List<Element> group = childrenGroup.get(childEl.getNodeName());
+            if (group == null) {
+                group = new ArrayList<Element>();
+                childrenGroup.put(childEl.getNodeName(), group);
+            }
+            group.add(childEl);
+        }
+        return childrenGroup;
     }
 
     public static List<ItemNodeModel> getDefaultTreeModel(TypeModel model, String language) {
