@@ -25,6 +25,7 @@
       <errorHandler class="org.jboss.logging.util.OnlyOnceErrorHandler"/>
       <param name="File" value="${jboss.server.log.dir}/server.log"/>
       <param name="Append" value="false"/>
+      <param name="Threshold" value="INFO"/>
 
       <!-- Rollover at midnight each day -->
       <param name="DatePattern" value="'.'yyyy-MM-dd"/>
@@ -183,6 +184,10 @@
    <!-- ================ -->
 
     <category name="com.amalto">
+        <priority value="INFO"/>
+    </category>
+
+    <category name="org.talend">
         <priority value="INFO"/>
     </category>
 
