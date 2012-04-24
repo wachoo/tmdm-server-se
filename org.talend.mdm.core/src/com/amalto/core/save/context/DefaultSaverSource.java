@@ -21,6 +21,7 @@ import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocal;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.schema.validation.XmlSchemaValidator;
+import com.amalto.core.servlet.LoadServlet;
 import com.amalto.core.util.*;
 
 import java.io.ByteArrayInputStream;
@@ -208,7 +209,9 @@ public class DefaultSaverSource implements SaverSource {
         synchronized (schemasAsString) {
             schemasAsString.remove(dataModelName);
         }
-
+        synchronized (LoadServlet.typeNameToKeyDef) {
+            LoadServlet.typeNameToKeyDef.clear();
+        }
     }
 
 }

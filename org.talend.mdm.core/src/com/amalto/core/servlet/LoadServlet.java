@@ -49,7 +49,7 @@ public class LoadServlet extends HttpServlet {
 
     private static final Logger log = Logger.getLogger(LoadServlet.class);
 
-    private static final Map<String, XSDKey> typeNameToKeyDef = new HashMap<String, XSDKey>();
+    public static final Map<String, XSDKey> typeNameToKeyDef = new HashMap<String, XSDKey>();
 
     private static final String PARAMETER_ACTION = "action"; //$NON-NLS-1$
 
