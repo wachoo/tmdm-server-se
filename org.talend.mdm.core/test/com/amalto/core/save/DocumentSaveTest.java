@@ -692,6 +692,51 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("my code", evaluate(committedElement, "/Contract/detail/code"));
     }
 
+    public void testAddComplexElementToSequence() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata4.xsd"));
+
+        SaverSource source = new TestSaverSource(repository, true, "test20_original.xml", "metadata4.xsd");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test20.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "Artikel", "Source", recordXml, true, true, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("444", evaluate(committedElement, "/testImport/KeyMapping/Keys[4]/Key"));
+        assertEquals("444", evaluate(committedElement, "/testImport/KeyMapping/Keys[4]/System"));
+        assertEquals("333", evaluate(committedElement, "/testImport/KeyMapping/Keys[3]/Key"));
+        assertEquals("333", evaluate(committedElement, "/testImport/KeyMapping/Keys[3]/System"));
+        assertEquals("222", evaluate(committedElement, "/testImport/KeyMapping/Keys[2]/Key"));
+        assertEquals("222", evaluate(committedElement, "/testImport/KeyMapping/Keys[2]/System"));
+        assertEquals("111", evaluate(committedElement, "/testImport/KeyMapping/Keys[1]/Key"));
+        assertEquals("111", evaluate(committedElement, "/testImport/KeyMapping/Keys[1]/System"));
+    }
+
+    public void testRemoveComplexElementFromSequence() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata4.xsd"));
+
+        SaverSource source = new TestSaverSource(repository, true, "test21_original.xml", "metadata4.xsd");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test21.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "Artikel", "Source", recordXml, true, true, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("", evaluate(committedElement, "/testImport/KeyMapping/Keys[3]/Key"));
+        assertEquals("", evaluate(committedElement, "/testImport/KeyMapping/Keys[3]/System"));
+        assertEquals("222", evaluate(committedElement, "/testImport/KeyMapping/Keys[2]/Key"));
+        assertEquals("222", evaluate(committedElement, "/testImport/KeyMapping/Keys[2]/System"));
+        assertEquals("111", evaluate(committedElement, "/testImport/KeyMapping/Keys[1]/Key"));
+        assertEquals("111", evaluate(committedElement, "/testImport/KeyMapping/Keys[1]/System"));
+    }
 
     private static class MockCommitter implements SaverSession.Committer {
 

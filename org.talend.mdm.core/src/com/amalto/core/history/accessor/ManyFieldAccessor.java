@@ -132,6 +132,10 @@ class ManyFieldAccessor implements DOMAccessor {
                 }
             }
             document.setLastAccessedNode(node);
+        } else if (node.getChildNodes().getLength() == 0) {
+            // This accessor creates (n-1) empty elements when accessing first collection element at index n.
+            // This setLastAccessedNode call allows all (n-1) elements to find their parent.
+            document.setLastAccessedNode(node);
         }
     }
 

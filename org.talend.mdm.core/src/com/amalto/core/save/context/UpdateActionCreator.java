@@ -160,16 +160,18 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 }
             }
         } else { // original accessor exist
+            String oldValue = originalAccessor.get();
             if (!newAccessor.exist()) {
                 if (comparedField.isMany()) {
-                    actions.add(new FieldUpdateAction(date, source, userName, path, originalAccessor.get(), null, comparedField));
+                    // Null values may happen if accessor is targeting an element that contains other elements
+                    actions.add(new FieldUpdateAction(date, source, userName, path, oldValue == null ? StringUtils.EMPTY : oldValue, null, comparedField));
                 }
             } else { // new accessor exist
                 lastMatchPath = path;
-                if (originalAccessor.get() != null && !originalAccessor.get().equals(newAccessor.get())) {
-                    actions.add(new FieldUpdateAction(date, source, userName, path, originalAccessor.get(), newAccessor.get(), comparedField));
-                } else if (originalAccessor.get() == null && newAccessor.get() != null) {
-                    actions.add(new FieldUpdateAction(date, source, userName, path, originalAccessor.get(), newAccessor.get(), comparedField));
+                if (oldValue != null && !oldValue.equals(newAccessor.get())) {
+                    actions.add(new FieldUpdateAction(date, source, userName, path, oldValue, newAccessor.get(), comparedField));
+                } else if (oldValue == null && newAccessor.get() != null) {
+                    actions.add(new FieldUpdateAction(date, source, userName, path, oldValue, newAccessor.get(), comparedField));
                 }
             }
         }
