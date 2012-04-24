@@ -72,7 +72,7 @@ public class DefaultSaverSource implements SaverSource {
             }
             String uniqueId = builder.toString();
 
-            String documentAsString = database.getDocumentAsString(revisionId, dataClusterName, uniqueId); //$NON-NLS-1$
+            String documentAsString = database.getDocumentAsString(revisionId, dataClusterName, uniqueId, "UTF-8"); //$NON-NLS-1$
             if (documentAsString != null) {
                 return new ByteArrayInputStream(documentAsString.getBytes("UTF-8")); //$NON-NLS-1$
             } else {
