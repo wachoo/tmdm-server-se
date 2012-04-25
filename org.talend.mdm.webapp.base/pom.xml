@@ -81,6 +81,10 @@
             <artifactId>jbossall-client</artifactId>
         </dependency>
         <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
             <groupId>jaxen</groupId>
             <artifactId>jaxen</artifactId>
             <scope>test</scope>
