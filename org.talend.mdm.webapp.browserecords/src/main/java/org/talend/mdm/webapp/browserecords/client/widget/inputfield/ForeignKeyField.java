@@ -49,12 +49,15 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
 
     private ItemsDetailPanel itemsDetailPanel;
 
-    public ForeignKeyField(String foreignKey, List<String> foreignKeyInfo, ItemsDetailPanel itemsDetailPanel) {
+    public ForeignKeyField(String currentNodeXpath, String fkFilter, String foreignKey, List<String> foreignKeyInfo,
+            ItemsDetailPanel itemsDetailPanel) {
         this.itemsDetailPanel = itemsDetailPanel;
         this.foreignKeyName = foreignKey.split("/")[0]; //$NON-NLS-1$
         this.setFireChangeEventOnSetValue(true);
         this.setReturnCriteriaFK();
         fkWindow.setForeignKeyInfos(foreignKey, foreignKeyInfo);
+        fkWindow.setCurrentXpath(currentNodeXpath);
+        fkWindow.setForeignKeyFilter(fkFilter);
         fkWindow.setSize(470, 340);
         fkWindow.setResizable(false);
         fkWindow.setModal(true);
@@ -63,7 +66,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
     }
 
     public ForeignKeyField(String foreignKey, List<String> foreignKeyInfo, ForeignKeyFieldList fkFieldList, ItemsDetailPanel itemsDetailPanel) {
-        this(foreignKey, foreignKeyInfo, itemsDetailPanel);
+        this(null, null, foreignKey, foreignKeyInfo, itemsDetailPanel);
         this.fkFieldList = fkFieldList;
         this.isFkList = true;
     }
@@ -155,6 +158,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
             public void onClick(ClickEvent arg0) {
                 Dispatcher dispatch = Dispatcher.get();
                 AppEvent event = new AppEvent(BrowseRecordsEvents.SelectForeignKeyView, foreignKeyName);
+                event.setData("detailPanel", itemsDetailPanel); //$NON-NLS-1$
                 event.setSource(ForeignKeyField.this.getFkWindow());
                 dispatch.dispatch(event);
             }

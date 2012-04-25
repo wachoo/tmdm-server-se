@@ -283,7 +283,8 @@ public class BrowseRecordsView extends View {
     private void onSelectForeignKeyView(AppEvent event) {
         EntityModel entityModel = event.getData();
         ForeignKeyListWindow fkListWindow = (ForeignKeyListWindow) event.getSource();
-        fkListWindow.show(entityModel);
+        ItemsDetailPanel itemsDetailPanel = event.getData("detailPanel"); //$NON-NLS-1$
+        fkListWindow.show(entityModel, itemsDetailPanel, null);
     }
 
     private void onCreateForeignKeyView(AppEvent event) {

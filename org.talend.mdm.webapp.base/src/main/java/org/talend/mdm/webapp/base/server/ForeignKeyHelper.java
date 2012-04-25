@@ -13,10 +13,14 @@
 package org.talend.mdm.webapp.base.server;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
@@ -27,6 +31,7 @@ import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.base.server.util.Constants;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.base.shared.XpathUtil;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -51,7 +56,8 @@ public class ForeignKeyHelper {
     public static ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,
             String dataClusterPK, boolean ifFKFilter, String value) throws Exception {
 
-        ForeignKeyHolder holder = getForeignKeyHolder(model, ifFKFilter, value);
+        ForeignKeyHolder holder = getForeignKeyHolder((String) config.get("xml"), (String) config.get("dataObject"), //$NON-NLS-1$ //$NON-NLS-2$
+                (String) config.get("currentXpath"), model, ifFKFilter, value); //$NON-NLS-1$
         String[] results = null;
         if (holder != null) {
             String conceptName = holder.conceptName;
@@ -169,7 +175,8 @@ public class ForeignKeyHelper {
         String fkFilter;
     }
 
-    protected static ForeignKeyHolder getForeignKeyHolder(TypeModel model, boolean ifFKFilter, String value) throws Exception {
+    protected static ForeignKeyHolder getForeignKeyHolder(String xml, String dataObject, String currentXpath, TypeModel model,
+            boolean ifFKFilter, String value) throws Exception {
 
         String xpathForeignKey = model.getForeignkey();
         if (xpathForeignKey == null) {
@@ -180,9 +187,10 @@ public class ForeignKeyHelper {
         String xpathInfoForeignKey = model.getForeignKeyInfo().toString().replaceAll("\\[", "").replaceAll("\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
         // in search panel, the fkFilter is empty
         String fkFilter;
-        if (ifFKFilter)
+        if (ifFKFilter) {
             fkFilter = model.getFkFilter().replaceAll("&quot;", "\""); //$NON-NLS-1$ //$NON-NLS-2$
-        else
+            fkFilter = parseForeignKeyFilter(xml, dataObject, fkFilter, currentXpath);
+        } else
             fkFilter = ""; //$NON-NLS-1$
 
         String initxpathForeignKey = Util.getForeignPathFromPath(xpathForeignKey);
@@ -316,5 +324,133 @@ public class ForeignKeyHelper {
         }
 
         bean.setDisplayInfo(infoStr);
+    }
+    
+    private static String parseForeignKeyFilter(String xml, String dataObject, String fkFilter, String currentXpath)
+            throws Exception {
+        String parsedFkfilter = fkFilter;
+        if (fkFilter != null) {
+            if (Util.isCustomFilter(fkFilter)) {
+                fkFilter = StringEscapeUtils.unescapeXml(fkFilter);
+                parsedFkfilter = parseRightValueOrPath(xml, dataObject, fkFilter, currentXpath);
+                return parsedFkfilter;
+            }
+            // parse
+            String[] criterias = fkFilter.split("#");//$NON-NLS-1$
+            List<Map<String, String>> conditions = new ArrayList<Map<String, String>>();
+            for (String cria : criterias) {
+                Map<String, String> conditionMap = new HashMap<String, String>();
+                String[] values = cria.split("\\$\\$");//$NON-NLS-1$
+                for (int i = 0; i < values.length; i++) {
+
+                    switch (i) {
+                    case 0:
+                        conditionMap.put("Xpath", values[0]);//$NON-NLS-1$
+                        break;
+                    case 1:
+                        conditionMap.put("Operator", values[1]);//$NON-NLS-1$
+                        break;
+                    case 2:
+                        String rightValueOrPath = values[2];
+                        rightValueOrPath = StringEscapeUtils.unescapeXml(rightValueOrPath);
+                        rightValueOrPath = parseRightValueOrPath(xml, dataObject, rightValueOrPath, currentXpath);
+                        conditionMap.put("Value", rightValueOrPath);//$NON-NLS-1$
+                        break;
+                    case 3:
+                        conditionMap.put("Predicate", values[3]);//$NON-NLS-1$
+                        break;
+                    default:
+                        break;
+                    }
+                }
+                conditions.add(conditionMap);
+            }
+            // build
+            if (conditions.size() > 0) {
+                StringBuffer sb = new StringBuffer();
+                for (Iterator<Map<String, String>> iterator = conditions.iterator(); iterator.hasNext();) {
+                    Map<String, String> conditionMap = (Map<String, String>) iterator.next();
+                    if (conditionMap.size() > 0) {
+                        String xpath = conditionMap.get("Xpath") == null ? "" : conditionMap.get("Xpath");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                        String operator = conditionMap.get("Operator") == null ? "" : conditionMap.get("Operator");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                        String value = conditionMap.get("Value") == null ? "" : conditionMap.get("Value");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                        String predicate = conditionMap.get("Predicate") == null ? "" : conditionMap.get("Predicate");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                        sb.append(xpath + "$$" + operator + "$$" + value + "$$" + predicate + "#");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+                    }
+                }
+                if (sb.length() > 0)
+                    parsedFkfilter = sb.toString();
+            }
+        }
+        return parsedFkfilter;
+    }
+    
+    private static String parseRightValueOrPath(String xml, String dataObject, String rightValueOrPath, String currentXpath)
+            throws Exception {
+        String origiRightValueOrPath = rightValueOrPath;
+        String patternString = dataObject + "(/[A-Za-z0-9_\\[\\]]*)+";//$NON-NLS-1$
+        Pattern pattern = Pattern.compile(patternString);
+        Matcher matcher = pattern.matcher(rightValueOrPath);
+        while (matcher.find()) {
+            for (int j = 0; j < matcher.groupCount(); j++) {
+                String gettedXpath = matcher.group(j);
+                if (gettedXpath != null) {
+                    // check literal
+                    int startPos = matcher.start(j);
+                    int endPos = matcher.end(j);
+                    if (startPos > 0 && endPos < origiRightValueOrPath.length() - 1) {
+                        String checkValue = origiRightValueOrPath.substring(startPos - 1, endPos + 1).trim();
+                        if (checkValue.startsWith("\"") && checkValue.endsWith("\""))//$NON-NLS-1$//$NON-NLS-2$
+                            return rightValueOrPath;
+                    }
+
+                    // clean start char
+                    if (currentXpath.startsWith("//"))//$NON-NLS-1$
+                        currentXpath = currentXpath.substring(2);
+                    else if (currentXpath.startsWith("/"))//$NON-NLS-1$
+                        currentXpath = currentXpath.substring(1);
+
+                    if (gettedXpath.startsWith("//"))//$NON-NLS-1$
+                        gettedXpath = currentXpath.substring(2);
+                    else if (gettedXpath.startsWith("/"))//$NON-NLS-1$
+                        gettedXpath = currentXpath.substring(1);
+
+                    if (currentXpath.matches(".*\\[(\\d+)\\].*") && !gettedXpath.matches(".*\\[(\\d+)\\].*")) {//$NON-NLS-1$//$NON-NLS-2$
+                        // get ..
+                        String currentXpathParent = currentXpath;
+                        String gettedXpathParent = gettedXpath;
+                        if (currentXpath.lastIndexOf("/") != -1)//$NON-NLS-1$
+                            currentXpathParent = currentXpath.substring(0, currentXpath.lastIndexOf("/"));//$NON-NLS-1$
+                        if (gettedXpath.lastIndexOf("/") != -1)//$NON-NLS-1$
+                            gettedXpathParent = gettedXpath.substring(0, gettedXpath.lastIndexOf("/"));//$NON-NLS-1$
+                        // clean
+                        String currentXpathParentReplaced = currentXpathParent.replaceAll("\\[(\\d+)\\]", "");//$NON-NLS-1$//$NON-NLS-2$
+                        // compare
+                        if (currentXpathParentReplaced.equals(gettedXpathParent)) {
+                            if (gettedXpath.lastIndexOf("/") != -1)//$NON-NLS-1$
+                                gettedXpath = currentXpathParent + gettedXpath.substring(gettedXpath.lastIndexOf("/"));//$NON-NLS-1$
+                        }
+                    }
+
+                    // get replaced value
+                    String replacedValue = null;
+                    boolean matchedAValue = false;
+                    if (!matchedAValue && xml != null) {
+                        Document doc = Util.parse(xml);
+                        if (doc != null) {
+                            replacedValue = Util.getFirstTextNode(doc, gettedXpath);
+                            if (replacedValue != null)
+                                matchedAValue = true;
+                        }
+                    }
+
+                    replacedValue = replacedValue == null ? "null" : replacedValue;//$NON-NLS-1$
+                    if (matchedAValue)
+                        replacedValue = "\"" + replacedValue + "\"";//$NON-NLS-1$//$NON-NLS-2$
+                    rightValueOrPath = rightValueOrPath.replaceFirst(patternString, replacedValue);
+                }
+            }
+        }
+        return rightValueOrPath;
     }
 }

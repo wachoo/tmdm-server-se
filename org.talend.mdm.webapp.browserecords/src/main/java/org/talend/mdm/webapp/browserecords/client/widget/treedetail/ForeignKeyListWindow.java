@@ -23,10 +23,13 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyDrawer;
+import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.model.Restriction;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
@@ -110,6 +113,10 @@ public class ForeignKeyListWindow extends Window {
     private List<String> foreignKeyInfo;
 
     private String foreignKeyFilter;
+    
+    private String xml;
+
+    private String currentXpath;
 
     public ForeignKeyListWindow() {
     }
@@ -174,13 +181,18 @@ public class ForeignKeyListWindow extends Window {
         super.onRender(parent, pos);
         final TypeModel typeModel = buildTypeModel();
 
-        final boolean hasForeignKeyFilter = this.foreignKeyFilter != null && !"".equals(this.foreignKeyFilter) ? true : false; //$NON-NLS-1$
+        final boolean hasForeignKeyFilter = this.foreignKeyFilter != null && this.foreignKeyFilter.trim().length() > 0 ? true
+                : false;
 
         xPath = typeModel.getXpath();
         RpcProxy<PagingLoadResult<ForeignKeyBean>> proxy = new RpcProxy<PagingLoadResult<ForeignKeyBean>>() {
 
             @Override
             public void load(final Object loadConfig, final AsyncCallback<PagingLoadResult<ForeignKeyBean>> callback) {
+            		PagingLoadConfig config = (PagingLoadConfig) loadConfig;
+                config.set("xml", xml); //$NON-NLS-1$
+                config.set("currentXpath", currentXpath); //$NON-NLS-1$
+                config.set("dataObject", entityModel.getConceptName()); //$NON-NLS-1$
                 service.getForeignKeyList((PagingLoadConfig) loadConfig, typeModel, BrowseRecords.getSession().getAppHeader()
                         .getDatacluster(), hasForeignKeyFilter, getFilterValue(),
                         new SessionAwareAsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>>() {
@@ -413,12 +425,23 @@ public class ForeignKeyListWindow extends Window {
 
     }
 
-    public void show(EntityModel entityModel) {
+    public void show(EntityModel entityModel, ItemsDetailPanel detailPanel, String xPath) {
+        if (this.foreignKeyFilter != null && this.foreignKeyFilter.trim().length() > 0) {
+            ItemPanel itemPanel = (ItemPanel) detailPanel.getFirstTabWidget();
+            ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getRootModel();
+            xml = CommonUtil.toXML(root, itemPanel.getViewBean());
+        }
+        if (xPath != null)
+            this.currentXpath = xPath;
         this.setEntityModel(entityModel);
         show();
     }
 
     protected void closeOrHideWindow() {
         hide(null);
+    }
+    
+    public void setCurrentXpath(String currentXpath) {
+        this.currentXpath = currentXpath;
     }
 }

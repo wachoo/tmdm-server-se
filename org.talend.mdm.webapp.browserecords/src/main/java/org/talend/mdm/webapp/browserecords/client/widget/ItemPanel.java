@@ -166,6 +166,10 @@ public class ItemPanel extends ContentPanel {
     public ItemDetailToolBar getToolBar() {
         return toolBar;
     }
+    
+    public ViewBean getViewBean() {
+        return viewBean;
+    }
 
     public void initTreeDetail(ViewBean viewBean, ItemBean item, String operation) {
         this.viewBean = viewBean;
