@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.browserecords.client.widget;
 
 import java.util.List;
+import java.util.Map;
 
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail;
@@ -42,6 +43,8 @@ public class ItemPanel extends ContentPanel {
 
     private String operation;
     
+    private Map<String, String> initDataMap;
+
     private boolean isForeignKeyPanel;
 
     private ContentPanel contenPanel;
@@ -102,11 +105,11 @@ public class ItemPanel extends ContentPanel {
         if(!isForeignKeyPanel){
             tree.setToolBar(toolBar);
             if (ItemDetailToolBar.CREATE_OPERATION.equals(operation)) {
-                tree.initTree(viewBean, null, operation);
+                tree.initTree(viewBean, null, initDataMap, operation);
             } else if (ItemDetailToolBar.VIEW_OPERATION.equals(operation)) {
                 tree.initTree(viewBean, item);
             } else if (ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {
-                tree.initTree(viewBean, item, operation);
+                tree.initTree(viewBean, item, initDataMap, operation);
             } else if (ItemDetailToolBar.PERSONALEVIEW_OPERATION.equals(operation)
                     || ItemDetailToolBar.SMARTVIEW_OPERATION.equals(operation)) {
                 tree.initTree(viewBean, item);
@@ -177,5 +180,11 @@ public class ItemPanel extends ContentPanel {
         this.toolBar = new ItemDetailToolBar(item, operation, viewBean, tree.getItemsDetailPanel());
         this.operation = operation;
         this.initUI(null);
+    }
+
+    public void initTreeDetail(ViewBean viewBean, ItemBean item, Map<String, String> initDataMap, String operation) {
+        this.initDataMap = initDataMap;
+        initTreeDetail(viewBean, item, operation);
+
     }
 }

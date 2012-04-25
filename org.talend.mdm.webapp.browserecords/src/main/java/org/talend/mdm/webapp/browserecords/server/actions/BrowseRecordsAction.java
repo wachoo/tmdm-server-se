@@ -1337,7 +1337,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    public ItemNodeModel createDefaultItemNodeModel(ViewBean viewBean, String language) throws ServiceException {
+    public ItemNodeModel createDefaultItemNodeModel(ViewBean viewBean, Map<String, String> initDataMap, String language) throws ServiceException {
         String concept = viewBean.getBindingEntityModel().getConceptName();
 
         EntityModel entity = viewBean.getBindingEntityModel();
@@ -1351,6 +1351,15 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             List<TypeModel> hasBeenProcessed = dfRule.orderProcess(doc4j);
             for (TypeModel tm : hasBeenProcessed) {
                 dfRule.setDefaultValue(tm.getXpath(), concept, doc4j, tm.getDefaultValueExpression());
+            }
+            if (initDataMap != null) {
+                Set<String> paths = initDataMap.keySet();
+                for (String path : paths) {
+                    org.dom4j.Node node = doc4j.selectSingleNode(path);
+                    if (node != null) {
+                        node.setText(initDataMap.get(path));
+                    }
+                }
             }
             Document resultDoc = dfRule.parseDocument(doc4j);
             Map<String, Integer> multiNodeIndex = new HashMap<String, Integer>();

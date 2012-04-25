@@ -121,9 +121,10 @@ public interface BrowseRecordsServiceAsync {
     void formatValue(FormatModel model, AsyncCallback<String> callback);
 
     void getEntityModel(String concept, String language, AsyncCallback<EntityModel> callback);
-
-    void createDefaultItemNodeModel(ViewBean viewBean, String language, AsyncCallback<ItemNodeModel> callback);
+    
+    void createDefaultItemNodeModel(ViewBean viewBean, Map<String, String> initDataMap, String language, AsyncCallback<ItemNodeModel> callback);
 
     void createSubItemNodeModel(ViewBean viewBean, String xml, String typePath, String contextPath, String realType,
             String language, AsyncCallback<ItemNodeModel> callback);
+
 }

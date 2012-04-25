@@ -163,13 +163,13 @@ public class TreeDetail extends ContentPanel {
     }
 
     public void initTree(ViewBean viewBean, ItemBean itemBean) {
-        initTree(viewBean, itemBean, null);
+        initTree(viewBean, itemBean, null, null);
     }
 
-    public void initTree(ViewBean viewBean, ItemBean itemBean, final String operation) {
+    public void initTree(ViewBean viewBean, ItemBean itemBean, Map<String, String> initDataMap, final String operation) {
         this.viewBean = viewBean;
         if (itemBean == null) {
-            buildPanel(operation);
+            buildPanel(operation, initDataMap);
         } else {
             final BrowseRecordsServiceAsync itemService = getItemService();
             itemService.getItemNodeModel(itemBean, viewBean.getBindingEntityModel(), Locale.getLanguage(),
@@ -200,8 +200,9 @@ public class TreeDetail extends ContentPanel {
         }
     }
 
-    private void buildPanel(final String operation) {
-        getItemService().createDefaultItemNodeModel(viewBean, Locale.getLanguage(), new SessionAwareAsyncCallback<ItemNodeModel>() {
+    private void buildPanel(final String operation, Map<String, String> initDataMap) {
+        getItemService().createDefaultItemNodeModel(viewBean, initDataMap, Locale.getLanguage(),
+                new SessionAwareAsyncCallback<ItemNodeModel>() {
             public void onSuccess(ItemNodeModel result) {
                 
                 renderTree(result, operation);

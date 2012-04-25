@@ -14,10 +14,12 @@ package org.talend.mdm.webapp.browserecords.client.model;
 
 import java.io.Serializable;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 /**
  * DOC Administrator  class global comment. Detailled comment
  */
-public class ItemResult implements Serializable {
+public class ItemResult implements IsSerializable, Serializable {
 
     public static final int SUCCESS = 0;
 
