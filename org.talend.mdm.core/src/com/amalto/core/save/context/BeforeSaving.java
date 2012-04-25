@@ -27,8 +27,7 @@ import org.w3c.dom.NodeList;
 
 public class BeforeSaving implements DocumentSaver {
 
-    
-    public static String BEFORE_SAVING_VALIDATION_MESSAGE_PREFIX = "BeforeSaving Validation Error --> "; //$NON-NLS-1$
+    public static final String BEFORE_SAVING_VALIDATION_MESSAGE_PREFIX = "BeforeSaving Validation Error --> "; //$NON-NLS-1$
     
     private DocumentSaver next;
 

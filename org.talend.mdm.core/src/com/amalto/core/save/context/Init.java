@@ -63,14 +63,9 @@ class Init implements DocumentSaver {
         try {
             next.save(session, context);
         } catch (Exception e) {
-            Throwable e2 = e.getCause();
-            String errorMessage = null;
-            if (e2 != null) {
-                errorMessage = e2.getMessage();
-            }
-            
-            if (errorMessage == null || errorMessage.indexOf(BeforeSaving.BEFORE_SAVING_VALIDATION_MESSAGE_PREFIX) != 0) {
-                LOGGER.error("Exception occurred during save.", e); //$NON-NLS-1$
+            // TMDM-3638: Don't log error if there's a before saving error.
+            if (getBeforeSavingMessage().isEmpty()) {
+                LOGGER.error("Exception occurred during save.", e);
             }
             
             session.clear();
@@ -81,7 +76,7 @@ class Init implements DocumentSaver {
             throw new com.amalto.core.save.SaveException(getBeforeSavingMessage(), e);
         }
 
-        if (XSystemObjects.DC_PROVISIONING.getName().equals(dataModelName) && context.getId()[0].equals(saverSource.getUserName())) {
+        if (XSystemObjects.DC_PROVISIONING.getName().equals(dataModelName)) {
             saverSource.resetLocalUsers();
         }
 
