@@ -63,7 +63,16 @@ class Init implements DocumentSaver {
         try {
             next.save(session, context);
         } catch (Exception e) {
-            LOGGER.error("Exception occurred during save.", e);
+            Throwable e2 = e.getCause();
+            String errorMessage = null;
+            if (e2 != null) {
+                errorMessage = e2.getMessage();
+            }
+            
+            if (errorMessage == null || errorMessage.indexOf(BeforeSaving.BEFORE_SAVING_VALIDATION_MESSAGE_PREFIX) != 0) {
+                LOGGER.error("Exception occurred during save.", e); //$NON-NLS-1$
+            }
+            
             session.clear();
             if (e instanceof ValidateException) {
                 // In case of validation issue, don't include a potential before saving message in exception.

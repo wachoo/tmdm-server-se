@@ -25,8 +25,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-class BeforeSaving implements DocumentSaver {
+public class BeforeSaving implements DocumentSaver {
 
+    
+    public static String BEFORE_SAVING_VALIDATION_MESSAGE_PREFIX = "BeforeSaving Validation Error --> "; //$NON-NLS-1$
+    
     private DocumentSaver next;
 
     private String message = StringUtils.EMPTY;
@@ -66,7 +69,7 @@ class BeforeSaving implements DocumentSaver {
                 }
 
                 if (!"info".equals(errorCode)) { //$NON-NLS-1$
-                    throw new RuntimeException("BeforeSaving Validation Error --> " + message);
+                    throw new RuntimeException(BEFORE_SAVING_VALIDATION_MESSAGE_PREFIX + message);
                 }
 
                 // handle output_item
