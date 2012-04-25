@@ -20,6 +20,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 
 import com.amalto.core.history.MutableDocument;
 
@@ -89,8 +90,12 @@ class UnaryFieldAccessor implements DOMAccessor {
 
     public String get() {
         Element element = getElement();
-        if (element.hasChildNodes()) {
-            return element.getTextContent();
+        Node textChild = element.getFirstChild();
+        if (textChild != null) {
+            if (textChild instanceof Text)
+                return element.getTextContent();// get node value can not handle bracket well
+            else
+                return textChild.getNodeValue();
         } else {
             return StringUtils.EMPTY;
         }
