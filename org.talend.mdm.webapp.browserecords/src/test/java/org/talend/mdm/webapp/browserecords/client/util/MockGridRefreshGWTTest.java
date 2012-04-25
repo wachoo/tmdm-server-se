@@ -306,7 +306,7 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
 
         }
 
-        public void createDefaultItemNodeModel(ViewBean viewBean, String language, AsyncCallback<ItemNodeModel> callback) {
+        public void createDefaultItemNodeModel(ViewBean viewBean, Map<String, String> initDataMap, String language, AsyncCallback<ItemNodeModel> callback) {
 
         }
 
