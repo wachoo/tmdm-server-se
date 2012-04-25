@@ -1,6 +1,13 @@
+/**
+ * Global variable
+ */
 var timeLinePanelHeight = false;
 var jsonData4Timeline = false;
 var initDate4Timeline = false;
+
+/**
+ * Private variable
+ */
 var lastLoadTime;
 var currentTime;
 var startTime;
@@ -91,30 +98,37 @@ function renderTimeline(jsonData, initDate){
     var timeLine = Timeline.create(tl_el, bandInfos, Timeline.HORIZONTAL);    
     eventSource1.loadJSON(jsonData, document.location.href);
     
-    timeLine.getBand(1).addOnScrollListener(function(band) {    	
-		startTime = band.getMinVisibleDate();
-		endTime = band.getMaxVisibleDate();
-	    tempTime = band.getCenterVisibleDate();
-	    if (tempTime && oldTempTime){
-	    	var tabPanel = amalto.core.getTabPanel();
-	    	var updateReportPanel = tabPanel.getItem('UpdateReportPanel');
-	    	var pageSize = updateReportPanel.getCookie('updateReportPaging_pageSize')
-	    	var start = null;
-	    	if (tempTime.getTime() - oldTempTime.getTime() > 0){
-	    		start = parseInt(startIndex) + parseInt(pageSize);
-	    	} else if (tempTime.getTime() - oldTempTime.getTime() < 0){
-	    		start = parseInt(startIndex) - parseInt(pageSize);
-	    	}
-	    	if (start != null && start >= 0){
-	    		if (timeOutId != null){
-					window.clearTimeout(timeOutId);
-	    		}
-	    		timeOutId = setTimeout('loadDate(' + start + ',' + pageSize + ')',200)
-	    	}
-	    }
-	    oldTempTime = tempTime;
-	    
+    timeLine.getBand(1).addOnScrollListener(function(band) {
+    	getTimeRange(band);
     });
+
+    timeLine.getBand(2).addOnScrollListener(function(band) {
+    	getTimeRange(band);
+    });
+}
+
+function getTimeRange(band) {
+	startTime = band.getMinVisibleDate();
+	endTime = band.getMaxVisibleDate();
+    tempTime = band.getCenterVisibleDate();
+    if (tempTime && oldTempTime){
+    	var tabPanel = amalto.core.getTabPanel();
+    	var updateReportPanel = tabPanel.getItem('UpdateReportPanel');
+    	var pageSize = updateReportPanel.getCookie('updateReportPaging_pageSize')
+    	var start = null;
+    	if (tempTime.getTime() - oldTempTime.getTime() > 0){
+    		start = parseInt(startIndex) + parseInt(pageSize);
+    	} else if (tempTime.getTime() - oldTempTime.getTime() < 0){
+    		start = parseInt(startIndex) - parseInt(pageSize);
+    	}
+    	if (start != null && start >= 0){
+    		if (timeOutId != null){
+				window.clearTimeout(timeOutId);
+    		}
+    		timeOutId = setTimeout('loadDate(' + start + ',' + pageSize + ')',200)
+    	}
+    }
+    oldTempTime = tempTime;
 }
 
 function loadDate(start, limit)
