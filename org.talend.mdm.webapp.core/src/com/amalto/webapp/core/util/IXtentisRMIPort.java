@@ -35,6 +35,7 @@ import javax.xml.xpath.XPathFactory;
 import com.amalto.core.save.SaveException;
 import com.amalto.core.save.SaverHelper;
 import com.amalto.core.save.SaverSession;
+import com.amalto.core.save.context.BeforeSaving;
 import com.amalto.core.save.context.DocumentSaver;
 import org.apache.log4j.Logger;
 import org.jboss.security.Base64Encoder;
@@ -2163,7 +2164,24 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             String conceptName = saver.getSavedConceptName();
             return new WSItemPK(dataClusterPK, conceptName, savedId);
         } catch (Exception e) {
-            LOG.error("Error during save.", e);
+            Throwable e2 = e.getCause();
+            Throwable e3 = null;
+            Throwable e4 = null;
+            String errorMessage = null;
+            if (e2 != null) {
+                e3 = e2.getCause();
+                if (e3 != null) {
+                    e4 = e3.getCause();
+                    if (e4 != null) {
+                        errorMessage  = e4.getMessage();
+                    }
+                }
+            }
+            
+            if (errorMessage == null || errorMessage.indexOf(BeforeSaving.BEFORE_SAVING_VALIDATION_MESSAGE_PREFIX) != 0) {
+                LOG.error("Error during save.", e);
+            }
+            
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
