@@ -11,6 +11,16 @@
 
 package com.amalto.core.save.context;
 
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
+
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.metadata.ComplexTypeMetadata;
@@ -18,15 +28,6 @@ import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.ReportDocumentSaverContext;
 import com.amalto.core.save.SaverSession;
-import org.apache.commons.lang.StringUtils;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
-
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 
 class GenerateActions implements DocumentSaver {
 
@@ -119,7 +120,8 @@ class GenerateActions implements DocumentSaver {
         if (element == null) {
             return true;
         }
-
+        if (element.hasAttributes())
+            return false;
         NodeList children = element.getChildNodes();
         if (children.getLength() == 0) {
             return true;
