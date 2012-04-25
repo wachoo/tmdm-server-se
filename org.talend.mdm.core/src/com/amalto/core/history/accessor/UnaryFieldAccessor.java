@@ -11,11 +11,17 @@
 
 package com.amalto.core.history.accessor;
 
-import com.amalto.core.history.MutableDocument;
-import org.apache.commons.lang.StringUtils;
-import org.w3c.dom.*;
-
 import javax.xml.XMLConstants;
+
+import org.apache.commons.lang.StringUtils;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import com.amalto.core.history.MutableDocument;
 
 /**
  *
@@ -83,9 +89,8 @@ class UnaryFieldAccessor implements DOMAccessor {
 
     public String get() {
         Element element = getElement();
-        Node textChild = element.getFirstChild();
-        if (textChild != null) {
-            return textChild.getNodeValue();
+        if (element.hasChildNodes()) {
+            return element.getTextContent();
         } else {
             return StringUtils.EMPTY;
         }
