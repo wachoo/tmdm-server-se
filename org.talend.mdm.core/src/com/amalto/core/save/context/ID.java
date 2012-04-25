@@ -140,6 +140,15 @@ class ID implements DocumentSaver {
                 }
             }
         } else {
+            // Throw an exception if trying to update a document that does not exist.
+            if (!context.isReplace()) { // Is update
+                StringBuilder builder = new StringBuilder();
+                for (String idElement : savedId) {
+                    builder.append('[' + idElement + ']');
+                }
+                throw new IllegalStateException("Can not update document '" + type.getName() + "' with id '" + builder.toString() + "' because it does not exist.");
+            }
+
             // Creation... so mark context
             context.setCreate(true);
             context.setDatabaseDocument(new DOMDocument(documentBuilder.newDocument()));

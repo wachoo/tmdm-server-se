@@ -120,8 +120,10 @@ class GenerateActions implements DocumentSaver {
         if (element == null) {
             return true;
         }
-        if (element.hasAttributes())
+        if (element.hasAttributes()) {
             return false;
+        }
+
         NodeList children = element.getChildNodes();
         if (children.getLength() == 0) {
             return true;
