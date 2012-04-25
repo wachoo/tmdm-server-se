@@ -681,5 +681,48 @@ public class ItemsListPanel extends ContentPanel {
             changedRecordId = null;
         }
     }
+    
+    public void refreshGrid(final ItemBean itemBean) {
+        if (gridContainer != null) {// refresh when grid is not empty
+            if (pagingBar != null && pagingBar.getItemCount() > 0) {
+                if (grid.getSelectionModel().getSelectedItem() != null) {
+                    if (saveCurrentChangeBeforeSwitching) {
+                        refresh(changedRecordId, false);
+                    } else {
+                        String ids = grid.getSelectionModel().getSelectedItem().getIds();
+                        refresh(ids, true);
+                    }
+                } else {
+                    if (itemBean != null){                                              
+                        String ids[] = {itemBean.getIds()};
+                        service.getItemBeanById(itemBean.getConcept(), ids, Locale.getLanguage(), new AsyncCallback<ItemBean>() {
+
+                            public void onSuccess(ItemBean result) {
+                                if (store.findModel(result) == null) {
+                                    store.remove(store.getAt(0));
+                                    store.add(result);
+                                }else
+                                {
+                                    refresh(result.getIds(), true);
+                                }
+                                grid.getSelectionModel().select(result, true);
+                            }
+
+                            public void onFailure(Throwable exception) {
+                                pagingBar.last();
+                            }
+                        });
+                    }else{
+                        pagingBar.last();
+                    }
+                }
+                return;
+            }
+        }
+        if (ItemsToolBar.getInstance().getSimplePanel() != null && ItemsToolBar.getInstance().getSimplePanel().getCriteria() != null) {
+            ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchBut);      
+            ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, be);
+        }
+    }
 
 }
