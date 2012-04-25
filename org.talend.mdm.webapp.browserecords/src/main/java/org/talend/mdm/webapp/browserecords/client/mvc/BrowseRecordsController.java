@@ -231,6 +231,7 @@ public class BrowseRecordsController extends Controller {
             public void onSuccess(EntityModel entityModel) {
                 AppEvent ae = new AppEvent(event.getType(), entityModel);
                 ae.setSource(event.getSource());
+                ae.setData("detailPanel", event.getData("detailPanel")); //$NON-NLS-1$//$NON-NLS-2$
                 forwardToView(view, ae);
             }
 

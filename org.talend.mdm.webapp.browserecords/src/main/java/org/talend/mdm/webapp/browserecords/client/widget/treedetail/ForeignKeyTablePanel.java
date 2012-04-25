@@ -439,7 +439,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                 selectFKBtn.addClickHandler(new ClickHandler() {
 
                     public void onClick(ClickEvent event) {
-                        fkWindow.show(entityModel);
+                        fkWindow.show(entityModel, itemsDetailPanel, fkTypeModel.getXpath());
                         currentNodeModel = model;
                     }
                 });
