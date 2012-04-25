@@ -13,10 +13,9 @@
 package org.talend.mdm.webapp.recyclebin.client;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
@@ -26,6 +25,7 @@ import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
 import org.talend.mdm.webapp.recyclebin.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.recyclebin.client.resources.icon.Icons;
 import org.talend.mdm.webapp.recyclebin.shared.ItemsTrashItem;
+import org.talend.mdm.webapp.recyclebin.shared.NoPermissionException;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
@@ -158,15 +158,34 @@ public class MainFramePanel extends ContentPanel {
                     ListStore<BaseModelData> store, final Grid<BaseModelData> grid) {
                 Image image = new Image();
                 image.setResource(Icons.INSTANCE.delete());
+                image.addStyleName("clickable"); //$NON-NLS-1$
                 image.addClickHandler(new ClickHandler() {
 
                     public void onClick(ClickEvent event) {
                         service.isEntityPhysicalDeletable(
                                 model.get("conceptName").toString(), new SessionAwareAsyncCallback<Boolean>() {//$NON-NLS-1$
 
+                                    protected void doOnFailure(Throwable caught) {
+                                        String errorMsg = caught.getLocalizedMessage();
+                                        if (errorMsg == null || "".equals(errorMsg)) { //$NON-NLS-1$
+                                            if (Log.isDebugEnabled())
+                                                errorMsg = caught.toString(); // for debugging purpose
+                                            else
+                                                errorMsg = BaseMessagesFactory.getMessages().unknown_error();
+                                        }
+
+                                        if (caught instanceof NoPermissionException) {
+                                            MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), MessagesFactory
+                                                    .getMessages().restore_no_permissions(), null);
+                                            // GWT.log(errorMsg, caught);
+                                        } else {
+                                            MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), errorMsg, null);
+                                            // GWT.log(errorMsg, caught);
+                                        }
+                                    }
+
                                     public void onSuccess(Boolean result) {
-                                        if (!result)
-                                            return;
+
                                         MessageBox.confirm(BaseMessagesFactory.getMessages().confirm_title(), MessagesFactory
                                                 .getMessages().delete_confirm(), new Listener<MessageBoxEvent>() {
 
@@ -232,6 +251,7 @@ public class MainFramePanel extends ContentPanel {
                     ListStore<BaseModelData> store, final Grid<BaseModelData> grid) {
                 Image image = new Image();
                 image.setResource(Icons.INSTANCE.restore());
+                image.addStyleName("clickable"); //$NON-NLS-1$
                 image.addClickHandler(new ClickHandler() {
 
                     public void onClick(ClickEvent event) {
@@ -425,8 +445,14 @@ public class MainFramePanel extends ContentPanel {
                             else
                                 errorMsg = BaseMessagesFactory.getMessages().unknown_error();
                         }
-                        if (errorMsg.equals("User does not have permission to restore this record.")) { //$NON-NLS-1$
-                            MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().restore_no_permissions(), null);
+
+                        if (caught instanceof NoPermissionException) {
+                            MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                                    .restore_no_permissions(), null);
+                            // GWT.log(errorMsg, caught);
+                        } else {
+                            MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), errorMsg, null);
+                            // GWT.log(errorMsg, caught);
                         }
                     }
                 });

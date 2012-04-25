@@ -19,8 +19,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -29,6 +27,7 @@ import org.apache.log4j.Logger;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.recyclebin.client.RecycleBinService;
 import org.talend.mdm.webapp.recyclebin.shared.ItemsTrashItem;
+import org.talend.mdm.webapp.recyclebin.shared.NoPermissionException;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -48,7 +47,6 @@ import com.amalto.webapp.util.webservices.WSDroppedItemPK;
 import com.amalto.webapp.util.webservices.WSDroppedItemPKArray;
 import com.amalto.webapp.util.webservices.WSExistsItem;
 import com.amalto.webapp.util.webservices.WSFindAllDroppedItemsPKs;
-import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
 import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSLoadDroppedItem;
@@ -57,7 +55,6 @@ import com.amalto.webapp.util.webservices.WSRemoveDroppedItem;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
-import com.sun.xml.xsom.XSElementDecl;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -165,7 +162,10 @@ public class RecycleBinAction implements RecycleBinService {
 
     public boolean isEntityPhysicalDeletable(String conceptName) throws ServiceException {
         try {
-            return !SchemaWebAgent.getInstance().isEntityDenyPhysicalDeletable(conceptName);
+            boolean isDeletable = !SchemaWebAgent.getInstance().isEntityDenyPhysicalDeletable(conceptName);
+            if (!isDeletable)
+                throw new NoPermissionException();
+            return isDeletable;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
@@ -233,9 +233,8 @@ public class RecycleBinAction implements RecycleBinService {
                 if (model != null) {
                     String modelXSD = model.getXsdSchema();
                                        
-                    if (!org.talend.mdm.webapp.recyclebin.server.actions.Util.checkRestoreAccess(modelXSD, conceptName)) {
-                        throw new Exception("User does not have permission to restore this record."); //$NON-NLS-1$
-                    }
+                    if (!org.talend.mdm.webapp.recyclebin.server.actions.Util.checkRestoreAccess(modelXSD, conceptName))
+                        throw new NoPermissionException();
                 }
             }
 
