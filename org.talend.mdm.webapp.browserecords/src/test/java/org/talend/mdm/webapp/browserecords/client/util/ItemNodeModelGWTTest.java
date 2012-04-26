@@ -238,4 +238,19 @@ public class ItemNodeModelGWTTest extends BrowseRecordsGWTTest {
         });
     }
 
+    public void test_getCurrentConceptName() {
+
+        // 1. Selected Item is Product
+        String currentXpath = "Product/parent";
+        assertEquals("Product", currentXpath.split("/")[0]);
+
+        // 2. Selected Item is Family
+        currentXpath = "ProductFamily/parent";
+        assertEquals("ProductFamily", currentXpath.split("/")[0]);
+
+        // 3. Selected Item is Product/Features/parent
+        currentXpath = "Product/Features/parent";
+        assertEquals("Product", currentXpath.split("/")[0]);
+
+    }
 }
