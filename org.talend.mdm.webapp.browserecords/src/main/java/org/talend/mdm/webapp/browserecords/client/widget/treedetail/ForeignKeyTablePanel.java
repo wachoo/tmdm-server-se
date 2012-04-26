@@ -340,24 +340,29 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             public void componentSelected(ButtonEvent ce) {
                 List<ItemNodeModel> selectedFkModelList = grid.getSelectionModel().getSelectedItems();
                 if (selectedFkModelList != null && selectedFkModelList.size() > 0) {
-
-                    if (grid.getStore().getCount() == 1) {
-                        ItemNodeModel itemNodeModel = grid.getStore().getAt(0);
-                        itemNodeModel.setObjectValue(null);
-                        itemNodeModel.setChangeValue(true);
-                    } else {
-                        boolean tipMinOccurs = (fkModels.size() - selectedFkModelList.size()) < fkTypeModel.getMinOccurs();
-                        for (int i = selectedFkModelList.size() - 1; i >= 0; i--) {
-                            ItemNodeModel itemNodeModel = selectedFkModelList.get(i);
-                            delFk(itemNodeModel);
-                        }
-                        // minOccurs tip
-                        if (tipMinOccurs) {
-                            MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
-                                    .fk_validate_min_occurence(fkTypeModel.getLabel(Locale.getLanguage()),
-                                            fkTypeModel.getMinOccurs()), null);
+                    boolean tipMinOccurs = (fkModels.size() - selectedFkModelList.size()) < fkTypeModel.getMinOccurs();
+                    boolean allSelected = (grid.getStore().getCount() == selectedFkModelList.size());
+                    int endIndex = allSelected ? 1 : 0;
+                    for (int i = selectedFkModelList.size() - 1; i >= endIndex; i--) {
+                        ItemNodeModel itemNodeModel = selectedFkModelList.get(i);
+                        delFk(itemNodeModel);
+                    }
+                    if (allSelected) {
+                        if (grid.getStore().getCount() == 1) {
+                            ItemNodeModel itemNodeModel = grid.getStore().getAt(0);
+                            if (itemNodeModel != null) {
+                                itemNodeModel.setObjectValue(null);
+                                itemNodeModel.setChangeValue(true);
+                            }
                         }
                     }
+                    // minOccurs tip
+                    if (tipMinOccurs) {
+                        MessageBox.alert(MessagesFactory.getMessages().info_title(),
+                                MessagesFactory.getMessages().fk_validate_min_occurence(
+                                        fkTypeModel.getLabel(Locale.getLanguage()), fkTypeModel.getMinOccurs()), null);
+                    }
+
                     pagingBar.refresh();
                 }
             }
