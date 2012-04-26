@@ -102,13 +102,9 @@ public class ForeignKeyUtil {
                         @Override
                         protected void doOnFailure(Throwable caught) {
                             String err = caught.getMessage();
-                            if (err != null) {
-                                if (err.indexOf("ERROR_3:") == 0) { //$NON-NLS-1$
-                                    // add for before saving transformer check
-                                    MessageBox.alert(MessagesFactory.getMessages().error_title(), err.substring(8), null);
-                                } else
-                                    MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                            MultilanguageMessageParser.pickOutISOMessage(err), null);
+                            if (err != null) {                                
+                                MessageBox.alert(MessagesFactory.getMessages().error_title(),
+                                        MultilanguageMessageParser.pickOutISOMessage(err), null);
                             } else
                                 super.doOnFailure(caught);
                         }
