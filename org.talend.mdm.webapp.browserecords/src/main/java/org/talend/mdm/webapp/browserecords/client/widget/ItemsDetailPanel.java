@@ -50,6 +50,8 @@ public class ItemsDetailPanel extends ContentPanel {
 
     public final static String MULTIPLE = "MULTIPLE"; //$NON-NLS-1$
 
+    public final static String PKTAB = "PKTAB"; //$NON-NLS-1$
+
     // Panel within gray outer border in which all content is contained
     private LayoutContainer mainPanel = new LayoutContainer();
 
@@ -217,6 +219,10 @@ public class ItemsDetailPanel extends ContentPanel {
     public Widget getFirstTabWidget() {
 
         return itemsDetailTabPanel.getFirstTabWidget();
+    }
+    
+    public Widget getPrimaryKeyTabWidget() {
+        return itemsDetailTabPanel.getPrimaryKeyTabWidget();
     }
 
     public Widget getCurrentlySelectedTabWidget() {
@@ -436,6 +442,7 @@ public class ItemsDetailPanel extends ContentPanel {
                 }
 
             } else {
+                panel.setId(PKTAB); // Setup id='PKTAB' constant when render Primary Key Tab
                 int itemIndex = this.tabIds.indexOf(id);
                 if (itemIndex == -1) {
                     if (this.getTabCount() == 0) {
@@ -598,6 +605,21 @@ public class ItemsDetailPanel extends ContentPanel {
             this.tabIds.removeAllElements();
             this.tabPanels.removeAllElements();
             this.tabContent.removeAll();
+        }
+
+        /**
+         * Return the Primary Key Tab by constant 'PKTAB'
+         * 
+         * @return
+         */
+        public Widget getPrimaryKeyTabWidget() {
+            if (this.tabPanels.size() > 0) {
+                for (ContentPanel panel : this.tabPanels) {
+                    if (PKTAB.equals(panel.getId()))
+                        return panel;
+                }
+            }
+            return null;
         }
 
         /**

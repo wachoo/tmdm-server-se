@@ -254,8 +254,9 @@ public class TreeDetailUtil {
     public static void checkRecord(final TabItem item, final ItemsDetailPanel itemsDetailPanel, final TabItemListener listener,
             final JavaScriptObject handler) {
         boolean isChangeCurrentRecord;
-        if (itemsDetailPanel != null && itemsDetailPanel.getCurrentItemPanel() != null) {
-            ItemPanel itemPanel = itemsDetailPanel.getCurrentItemPanel();
+        if (itemsDetailPanel != null && itemsDetailPanel.getPrimaryKeyTabWidget() != null) {
+            // get tree root node from the primary key tab
+            ItemPanel itemPanel = (ItemPanel) itemsDetailPanel.getPrimaryKeyTabWidget();
             final ItemDetailToolBar toolBar = itemPanel.getToolBar();
             if (itemPanel.getOperation().equals(ItemDetailToolBar.VIEW_OPERATION)
                     || itemPanel.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION)
