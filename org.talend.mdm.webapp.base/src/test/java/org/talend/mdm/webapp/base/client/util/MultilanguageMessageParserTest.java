@@ -53,5 +53,19 @@ public class MultilanguageMessageParserTest extends TestCase {
         assertTrue(MultilanguageMessageParser.pickOutISOMessage(s, "en").equals("e\\e")); //$NON-NLS-1$ //$NON-NLS-2$
         assertTrue(MultilanguageMessageParser.pickOutISOMessage(s, "fr").equals("f]f")); //$NON-NLS-1$//$NON-NLS-2$
         assertTrue(MultilanguageMessageParser.pickOutISOMessage(s, "zh").equals("c]c]")); //$NON-NLS-1$ //$NON-NLS-2$
+        
+        //Testing null
+        s = null;
+        assertNull(MultilanguageMessageParser.pickOutISOMessage(s, "en")); //$NON-NLS-1$
+        
+        //Testing empty string
+        s = ""; //$NON-NLS-1$
+        assertNotNull(MultilanguageMessageParser.pickOutISOMessage(s, "en")); //$NON-NLS-1$
+        assertEquals(s, MultilanguageMessageParser.pickOutISOMessage(s, "en")); //$NON-NLS-1$
+        
+        //Testing messy string
+        s= "arhrnltkdzngds"; //$NON-NLS-1$
+        assertNotNull(MultilanguageMessageParser.pickOutISOMessage(s, "en")); //$NON-NLS-1$
+        assertEquals(s, MultilanguageMessageParser.pickOutISOMessage(s, "en")); //$NON-NLS-1$
     }
 }
