@@ -120,17 +120,21 @@ public class ImageUploadServlet extends HttpServlet {
 				ProgressListener progressListener = new ProgressListener() {
 					public void update(long pBytesRead, long pContentLength,
 							int pItems) {
-						System.out.println("We are currently reading item "
-								+ pItems);
-						if (pContentLength == -1) {
-							System.out.println("So far, " + pBytesRead
-									+ " bytes have been read.");
-						} else {
-							System.out
-									.println("So far, " + pBytesRead + " of "
-											+ pContentLength
-											+ " bytes have been read.");
+						if(logger.isDebugEnabled()){
+							
+							logger.debug("We are currently reading item "
+									+ pItems);
+							if (pContentLength == -1) {
+								logger.debug("So far, " + pBytesRead
+										+ " bytes have been read.");
+							} else {
+								logger.debug("So far, " + pBytesRead + " of "
+												+ pContentLength
+												+ " bytes have been read.");
+							}
+							
 						}
+						
 					}
 				};
 				sevletFileUpload.setProgressListener(progressListener);
