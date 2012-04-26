@@ -194,7 +194,7 @@ public class PictureField extends TextField<String> {
 
     @Override
     public void setValue(String value) {
-        if (value.equalsIgnoreCase("http://")) { //$NON-NLS-1$
+        if ("http://".equalsIgnoreCase(value)) { //$NON-NLS-1$
             return;
         }
         
