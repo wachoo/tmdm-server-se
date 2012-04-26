@@ -36,11 +36,11 @@ import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.dnd.ListViewDragSource;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.ListViewEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -53,6 +53,7 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -105,23 +106,17 @@ public class PictureSelector extends ContentPanel {
         BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, 200, 100, 300);
         HorizontalPanel searchPanel = new HorizontalPanel();
         Button searchButton = new Button(MessagesFactory.getMessages().search_btn());
-        searchButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-            public void componentSelected(ButtonEvent ce) {
-                if (searchFiled.getValue() == null || "".equals(searchFiled.getValue())) { //$NON-NLS-1$
-                    result = all;
-                } else {
-                    result = new LinkedList<org.talend.mdm.webapp.base.client.model.Image>();
-                    for (org.talend.mdm.webapp.base.client.model.Image image : all) {
-                        if (image.getName().contains(searchFiled.getValue())) {
-                            result.add(image);
-                        }
-                    }
-                }
-                loader.load();
-            }
-        });
         searchFiled.setWidth(240);
+        searchFiled.addKeyListener(new KeyListener() {
+
+            public void componentKeyUp(ComponentEvent event) {
+                if (event.getKeyCode() == KeyCodes.KEY_ENTER) {
+                    // When user press Enter key, perform the search.
+                    doSearch(loader);
+                }
+            }
+
+        });
         searchPanel.add(searchFiled);
         searchPanel.add(searchButton);
         searchPanel.setSpacing(10);
@@ -205,9 +200,24 @@ public class PictureSelector extends ContentPanel {
         imageloader = new BaseListLoader<ListLoadResult<BeanModel>>(imageProxy,
                 new BeanModelReader());
 
-        imageloader.load();
+        // imageloader.load();
     }
     
+    private void doSearch(PagingLoader<PagingLoadResult<ItemBaseModel>> loader) {
+        if (searchFiled.getValue() == null || "".equals(searchFiled.getValue())) { //$NON-NLS-1$
+            result = all;
+        } else {
+            result = new LinkedList<org.talend.mdm.webapp.base.client.model.Image>();
+            for (org.talend.mdm.webapp.base.client.model.Image image : all) {
+                // no case sensitive
+                if (image.getName() != null && image.getName().toLowerCase().contains(searchFiled.getValue().toLowerCase())) {
+                    result.add(image);
+                }
+            }
+        }
+        loader.load();
+    }
+
     public void refresh() {
         imageloader.load();
     }

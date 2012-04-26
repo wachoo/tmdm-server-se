@@ -19,6 +19,7 @@ import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.core.XDOM;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
@@ -359,6 +360,13 @@ public class PictureField extends TextField<String> {
             TabItem remoteTabItem = new TabItem(MessagesFactory.getMessages().picture_upload_remote_title()); 
             remoteTabItem.setLayout(new FitLayout());            
             remoteTabItem.add(pictureSelector); 
+            remoteTabItem.addListener(Events.OnClick, new Listener() {
+
+                public void handleEvent(BaseEvent be) {
+                    pictureSelector.refresh();
+                }
+
+            });
             uploadTabPanel.add(remoteTabItem);
             add(uploadTabPanel);
             this.setResizable(false);
