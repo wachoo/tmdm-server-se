@@ -19,41 +19,65 @@ import org.talend.mdm.webapp.base.client.model.Image;
 
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
 
-public class ImageUtil {    
-    
+public class ImageUtil {
+
     final public static String IMAGE_SERVER_PATH = "pubcomponent/secure/pictures"; //$NON-NLS-1$
-    
+
     final public static String IMAGE_SERVER_USERNAME = "administrator"; //$NON-NLS-1$
-    
+
     final public static String IMAGE_SERVER_PASSWORD = "administrator"; //$NON-NLS-1$
-    
+
     final public static String IMAGE_PATH = "imageserver/"; //$NON-NLS-1$
-    
+
     final public static String UPLOAD_PATH = IMAGE_PATH + "upload/"; //$NON-NLS-1$
-    
-    public static List<Image> getImages(String xml) throws Exception{
+
+    public static List<Image> getImages(String xml) throws Exception {
+
         List<Image> images = new LinkedList<Image>();
+
+        if (xml == null || xml.trim().length() == 0)
+            return images;
+
         Document docment = XMLParser.parse(xml);
         Element element = docment.getDocumentElement();
         XMLParser.removeWhitespace(element);
-        NodeList result = element.getElementsByTagName("entry") ; //$NON-NLS-1$
-        for (int i=0;i<result.getLength();i++){
+
+        if (!element.hasChildNodes())
+            return images;
+
+        NodeList result = element.getElementsByTagName("entry"); //$NON-NLS-1$
+        for (int i = 0; i < result.getLength(); i++) {
             Image image = new Image();
-            Element node = (Element)result.item(i);             
-            image.setName(getElementTextValue(node,"name")); //$NON-NLS-1$
+            Element node = (Element) result.item(i);
+            image.setName(getElementTextValue(node, "name")); //$NON-NLS-1$
             image.setFileName(getElementTextValue(node, "imageName")); //$NON-NLS-1$
             image.setCatalog(getElementTextValue(node, "catalog")); //$NON-NLS-1$
-            image.setUri(getElementTextValue(node,"uri")); //$NON-NLS-1$
-            image.setRedirectUri(getElementTextValue(node,"redirectUri")); //$NON-NLS-1$
-            images.add(image);                
+            image.setUri(getElementTextValue(node, "uri")); //$NON-NLS-1$
+            image.setRedirectUri(getElementTextValue(node, "redirectUri")); //$NON-NLS-1$
+            images.add(image);
         }
         return images;
     }
-    
+
     private static String getElementTextValue(Element parent, String elementTag) {
-        return parent.getElementsByTagName(elementTag).item(0).getFirstChild().getNodeValue();
+
+        if (parent == null || elementTag == null)
+            throw new IllegalArgumentException();
+
+        NodeList foundNodes = parent.getElementsByTagName(elementTag);
+
+        if (foundNodes.getLength() == 0)
+            return null;
+
+        Node textNode = foundNodes.item(0).getFirstChild();
+
+        if (textNode == null)
+            return null;
+
+        return textNode.getNodeValue();
     }
 }

@@ -1,5 +1,6 @@
 package talend.ext.images.server;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -40,7 +41,11 @@ public class ImageServerInfoServlet extends HttpServlet {
         if (action != null) {
             if (action.equals("getUploadHome")) {
                 String realUploadPath = getServletContext().getRealPath(UPLOAD_PATH);
-
+                
+                if(!new File(realUploadPath).exists()){
+                    response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                }
+                    
                 response.setContentType("text/plain");
                 PrintWriter writer = response.getWriter();
                 writer.write(realUploadPath);

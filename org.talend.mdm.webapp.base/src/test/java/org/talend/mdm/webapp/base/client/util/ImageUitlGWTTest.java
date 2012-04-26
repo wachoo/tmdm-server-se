@@ -383,6 +383,19 @@ public class ImageUitlGWTTest extends GWTTestCase{
         assertEquals("/imageserver/locator?imgId=wanted-poster-1.jpg&imgCatalog=c201203", image15.getRedirectUri()); //$NON-NLS-1$
     }
     
+    public void testGetImagesWithEmptyResponse() throws Exception {
+
+        List<Image> images = ImageUtil.getImages(null);
+        assertTrue(images.isEmpty());
+
+        images = ImageUtil.getImages("");
+        assertTrue(images.isEmpty());
+
+        images = ImageUtil.getImages("<list/>");
+        assertTrue(images.isEmpty());
+
+    }
+
     // GWTTestCase Required
     @Override
     public String getModuleName() {        
