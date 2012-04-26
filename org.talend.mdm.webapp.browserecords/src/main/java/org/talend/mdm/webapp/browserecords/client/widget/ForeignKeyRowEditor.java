@@ -51,7 +51,8 @@ public class ForeignKeyRowEditor extends RowEditor<ItemNodeModel> {
                 return;
             }
             String ids = fkBean.getId().replaceAll("\\[", "").replaceAll("\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
-            service.updateItem(fkTypeModel.getForeignkey().split("/")[0], ids, fkBean.getForeignKeyInfo(), Locale.getLanguage(), //$NON-NLS-1$
+            service.updateItem(
+                    fkTypeModel.getForeignkey().split("/")[0], ids, fkBean.getForeignKeyInfo(), null, Locale.getLanguage(), //$NON-NLS-1$
                     new SessionAwareAsyncCallback<String>() {
 
                 @Override

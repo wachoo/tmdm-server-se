@@ -293,8 +293,7 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
 
         }
 
-        public void updateItem(String concept, String ids, Map<String, String> changedNodes, String language,
-                AsyncCallback<String> callback) {
+        public void updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, String language, AsyncCallback<String> callback) {
 
         }
 

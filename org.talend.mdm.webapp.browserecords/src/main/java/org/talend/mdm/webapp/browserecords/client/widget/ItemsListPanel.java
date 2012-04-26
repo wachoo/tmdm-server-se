@@ -37,6 +37,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
+import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.DateUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
@@ -384,7 +385,22 @@ public class ItemsListPanel extends ContentPanel {
                     }
                 }
 
-                service.updateItem(itemBean.getConcept(), itemBean.getIds(), changedField, Locale.getLanguage(),
+                ItemsDetailPanel detailPanel = ItemsMainTabPanel.getInstance().getDefaultViewTabItem();
+
+                Widget widget = detailPanel.getFirstTabWidget();
+
+                ItemNodeModel model = null;
+                if (widget instanceof ItemPanel) {// save primary key
+                    ItemPanel itemPanel = (ItemPanel) widget;
+                    model = (ItemNodeModel) itemPanel.getTree().getRootModel();
+                } else if (widget instanceof ForeignKeyTreeDetail) { // save foreign key
+                    ForeignKeyTreeDetail fkDetail = (ForeignKeyTreeDetail) widget;
+                    model = fkDetail.getRootModel();
+                }
+                ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
+                String xml = CommonUtil.toXML(model, viewBean);
+
+                service.updateItem(itemBean.getConcept(), itemBean.getIds(), changedField, xml, Locale.getLanguage(),
                         new SessionAwareAsyncCallback<String>() {
 
                             @Override

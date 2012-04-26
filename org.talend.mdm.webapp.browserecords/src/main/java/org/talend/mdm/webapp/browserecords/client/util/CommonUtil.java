@@ -102,6 +102,8 @@ public class CommonUtil {
     }
 
     public static String toXML(ItemNodeModel nodeModel, ViewBean viewBean) {
+        if (nodeModel == null)
+            return null;
         Document doc = XMLParser.createDocument();
         Element root = _toXML(doc, nodeModel, viewBean, nodeModel);
         if (nodeModel.get(XMLNS_TMDM) != null)

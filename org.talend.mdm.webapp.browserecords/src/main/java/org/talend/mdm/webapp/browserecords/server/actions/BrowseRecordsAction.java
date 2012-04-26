@@ -460,7 +460,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             String concept = itemBean.getConcept();
             // get item
             WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(dataCluster);
-            String[] ids = itemBean.getIds() == null ? null : itemBean.getIds().split("\\.");//$NON-NLS-1$
+            String[] ids = extractIdWithDots(itemBean.getIds());
 
             // parse schema firstly, then use element declaration (DataModelHelper.getEleDecl)
             DataModelHelper.parseSchema(dataModel, concept, entityModel, RoleHelper.getUserRoles());
@@ -1637,16 +1637,21 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return saveItem(concept, ids, xml, isCreate, language);
     }
 
-    public String updateItem(String concept, String ids, Map<String, String> changedNodes, String language)
+    public String updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, String language)
             throws ServiceException {
-        String dataCluster = getCurrentDataCluster();
-        // get item
-        WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(dataCluster);
-        String[] idArray = ids.split("\\."); //$NON-NLS-1$
-        WSItem wsItem;
         try {
-            wsItem = CommonUtil.getPort().getItem(new WSGetItem(new WSItemPK(wsDataClusterPK, concept, idArray)));
-            org.dom4j.Document doc = org.talend.mdm.webapp.base.server.util.XmlUtil.parseText(wsItem.getContent());
+            org.dom4j.Document doc;
+            if (xml == null || xml.trim().length() == 0) {
+                String dataCluster = getCurrentDataCluster();
+                // get item
+                WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(dataCluster);
+                String[] idArray = extractIdWithDots(ids);
+
+                WSItem wsItem = CommonUtil.getPort().getItem(new WSGetItem(new WSItemPK(wsDataClusterPK, concept, idArray)));
+                doc = org.talend.mdm.webapp.base.server.util.XmlUtil.parseText(wsItem.getContent());
+            } else {
+                doc = org.talend.mdm.webapp.base.server.util.XmlUtil.parseText(xml);
+            }
 
             for (String xpath : changedNodes.keySet()) {
                 String value = changedNodes.get(xpath);
