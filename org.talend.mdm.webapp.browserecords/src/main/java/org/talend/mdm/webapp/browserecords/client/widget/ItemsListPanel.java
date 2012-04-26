@@ -24,6 +24,7 @@ import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.exception.ParserException;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
+import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.client.util.Parser;
 import org.talend.mdm.webapp.base.client.widget.ColumnAlignGrid;
 import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
@@ -418,11 +419,12 @@ public class ItemsListPanel extends ContentPanel {
                                 }
 
                                 String err = caught.getLocalizedMessage();
-                                if (err != null)
-                                    err.replaceAll("\\[", "{").replaceAll("\\]", "}"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-                                MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                        Locale.getExceptionString(Locale.getLanguage(), err), null);
-
+                                if (err != null) {                                    
+                                    MessageBox.alert(MessagesFactory.getMessages().error_title(),
+                                            MultilanguageMessageParser.pickOutISOMessage(err), null);
+                                } else {
+                                    super.doOnFailure(caught);
+                                }
                             }
 
                             public void onSuccess(String result) {
@@ -438,7 +440,7 @@ public class ItemsListPanel extends ContentPanel {
                                     record.commit(false);
                                 }
                                 MessageBox.alert(MessagesFactory.getMessages().info_title(),
-                                        Locale.getExceptionMessageByLanguage(Locale.getLanguage(), result), null);
+                                        MultilanguageMessageParser.pickOutISOMessage(result), null);
                                 // refreshForm(itemBean)
                                 if (itemBean != null) {
                                     if (gridUpdateLock) {
