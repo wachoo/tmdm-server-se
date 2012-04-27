@@ -59,8 +59,6 @@ class GenerateActions implements DocumentSaver {
         List<Action> actions;
         MetadataRepository metadataRepository = saverSource.getMetadataRepository(context.getDataModelName());
         if (databaseDocument.asDOM().getDocumentElement() == null) {
-            // Remove empty elements -> web ui sends empty elements (but do this only for creation).
-            clean(userDocument.asDOM().getDocumentElement());
             // This is a creation (database document is empty).
             Action createAction = new OverrideCreateAction(date, source, userName, userDocument, context.getType());
             // Generate field update actions for UUID and AutoIncrement elements.
@@ -93,52 +91,6 @@ class GenerateActions implements DocumentSaver {
         boolean hasModificationActions = hasModificationActions(actions);
         if (hasModificationActions) { // Ignore rest of save chain if there's no change to perform.
             next.save(session, context);
-        }
-    }
-
-    private static void clean(Element element) {
-        if (element == null) {
-            return;
-        }
-        if (!isEmpty(element)) {
-            NodeList children = element.getChildNodes();
-            for (int i = children.getLength(); i >= 0; i--) {
-                Node node = children.item(i);
-                if (node instanceof Element) {
-                    Element currentElement = (Element) node;
-                    if (isEmpty(currentElement)) {
-                        node.getParentNode().removeChild(node);
-                    } else {
-                        clean(currentElement);
-                    }
-                }
-            }
-        }
-    }
-
-    private static boolean isEmpty(Element element) {
-        if (element == null) {
-            return true;
-        }
-        if (element.hasAttributes()) {
-            return false;
-        }
-
-        NodeList children = element.getChildNodes();
-        if (children.getLength() == 0) {
-            return true;
-        } else {
-            for (int i = 0; i < children.getLength(); i++) {
-                Node node = children.item(i);
-                if (node instanceof Element && !isEmpty((Element) node)) {
-                    return false;
-                } else if (node instanceof Text) {
-                    if (!node.getTextContent().trim().isEmpty()) {
-                        return false;
-                    }
-                }
-            }
-            return true;
         }
     }
 

@@ -499,7 +499,8 @@ public class DocumentSaveTest extends TestCase {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
 
-        SaverSource source = new TestSaverSource(repository, true, "test2_original.xml", "metadata1.xsd");
+        TestSaverSource source = new TestSaverSource(repository, true, "test2_original.xml", "metadata1.xsd");
+        source.setUserName("admin");
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test2.xml");

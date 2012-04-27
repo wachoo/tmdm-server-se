@@ -110,7 +110,8 @@
                                 <xsd:appinfo source="X_Write">User</xsd:appinfo>
                             </xsd:annotation>
                         </xsd:element>
-                        <xsd:element maxOccurs="1" minOccurs="1" name="AutoIncrementCounter" nillable="false" type="AUTO_INCREMENT">
+                        <xsd:element maxOccurs="1" minOccurs="1" name="AutoIncrementCounter" nillable="false"
+                                     type="AUTO_INCREMENT">
                             <xsd:annotation>
                                 <xsd:appinfo source="X_Label_EN">Start date</xsd:appinfo>
                                 <xsd:appinfo source="X_Label_FR">Date d'entrée</xsd:appinfo>
@@ -368,6 +369,25 @@
                         <xsd:appinfo source="X_Write">User</xsd:appinfo>
                         <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
                     </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="Stores">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">User</xsd:appinfo>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                    </xsd:annotation>
+                    <xsd:complexType>
+                        <xsd:annotation>
+                            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                            <xsd:appinfo source="X_Write">User</xsd:appinfo>
+                        </xsd:annotation>
+                        <xsd:sequence>
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                                <xsd:appinfo source="X_Write">User</xsd:appinfo>
+                            </xsd:annotation>
+                            <xsd:element minOccurs="1" maxOccurs="unbounded" name="Store" type="xsd:string"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
                 </xsd:element>
             </xsd:all>
         </xsd:complexType>

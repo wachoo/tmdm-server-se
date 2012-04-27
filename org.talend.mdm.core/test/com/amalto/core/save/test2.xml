@@ -15,4 +15,7 @@
     <Description>TT</Description>
     <Features/>
     <Price>60</Price>
+    <Stores>
+        <Store/>
+    </Stores>
 </Product>

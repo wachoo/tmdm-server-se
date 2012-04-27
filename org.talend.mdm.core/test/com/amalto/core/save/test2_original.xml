@@ -31,6 +31,10 @@
                 </Colors>
             </Features>
             <Price>30</Price>
+            <Stores>
+                <Store>1</Store>
+                <Store>2</Store>
+            </Stores>
         </Product>
     </p>
 </ii>
