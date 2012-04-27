@@ -341,7 +341,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                 List<ItemNodeModel> selectedFkModelList = grid.getSelectionModel().getSelectedItems();
                 if (selectedFkModelList != null && selectedFkModelList.size() > 0) {
                     boolean tipMinOccurs = (fkModels.size() - selectedFkModelList.size()) < fkTypeModel.getMinOccurs();
-                    boolean allSelected = (grid.getStore().getCount() == selectedFkModelList.size());
+                    boolean allSelected = (fkModels.size() == selectedFkModelList.size());
                     int endIndex = allSelected ? 1 : 0;
                     for (int i = selectedFkModelList.size() - 1; i >= endIndex; i--) {
                         ItemNodeModel itemNodeModel = selectedFkModelList.get(i);
@@ -431,6 +431,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             count = 0;
         if (fkModels.size() > count) {
             fkModels.remove(currentFkModel);
+            grid.getStore().remove(currentFkModel);
             TreeModel parent = currentFkModel.getParent();
             parent.remove(currentFkModel);
             ((ItemNodeModel) parent).setChangeValue(true);
