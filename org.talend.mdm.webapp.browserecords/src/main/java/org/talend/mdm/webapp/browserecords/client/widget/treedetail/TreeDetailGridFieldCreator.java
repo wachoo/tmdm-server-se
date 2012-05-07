@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -281,21 +282,38 @@ public class TreeDetailGridFieldCreator {
                 dateField.setPropertyEditor(new DateTimePropertyEditor(DateUtil.datePattern));
                     
             
-            if (hasValue)
-                dateField.setValue(hasValue ? DateUtil.convertStringToDate(value.toString()) : null);
-
+            if (hasValue) {
+                Date d = DateUtil.convertStringToDate(value.toString());
+                dateField.setValue(hasValue ? d : null);
+                dateField.setDate(d);
+                if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$
+                    dateField.setFormatedValue();
+                }
+            }
+            
             field = dateField;
         } else if (DataTypeConstants.DATETIME.getTypeName().equals(baseType)) {
-            FormatDateField dateTimeField = new FormatDateField(node);
-            if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$
-                dateTimeField.setFormatPattern(pattern);
-            }
-            dateTimeField.setPropertyEditor(new DateTimePropertyEditor(DateUtil.formatDateTimePattern));
-            if (hasValue)
-                dateTimeField
-                        .setValue(hasValue ? DateUtil.convertStringToDate(DateUtil.dateTimePattern, value.toString()) : null);
 
-            field = dateTimeField;
+            FormatDateField dateField = new FormatDateField(node);
+            if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$                
+                dateField.setFormatPattern(pattern);
+                dateField.setShowFormateValue(true);
+            }
+                dateField.setPropertyEditor(new DateTimePropertyEditor(DateUtil.formatDateTimePattern));
+                    
+            
+            if (hasValue) {
+                Date d = DateUtil.convertStringToDate(DateUtil.dateTimePattern, value.toString());
+                dateField.setValue(hasValue ? d : null);
+                dateField.setDate(d);
+                if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$
+                    dateField.setFormatedValue();
+                }
+            }
+            
+            field = dateField;
+            
+            
         } else if (DataTypeConstants.STRING.getTypeName().equals(baseType)) {
             FormatTextField textField = new FormatTextField();
             if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$
