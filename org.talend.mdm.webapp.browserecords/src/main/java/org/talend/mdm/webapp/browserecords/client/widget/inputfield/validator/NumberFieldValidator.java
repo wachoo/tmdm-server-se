@@ -75,7 +75,7 @@ public class NumberFieldValidator implements Validator {
             double numberValue = Double.parseDouble(value);
             if (numberValue >= max){
                 succeed = false;
-                defaultMessage += MessagesFactory.getMessages().check_minExclusive() + max + "\n";//$NON-NLS-1$
+                defaultMessage += MessagesFactory.getMessages().check_maxExclusive() + max + "\n";//$NON-NLS-1$
             }
         }
         
