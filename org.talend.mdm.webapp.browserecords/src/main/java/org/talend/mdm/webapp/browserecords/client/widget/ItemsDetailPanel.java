@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-import org.talend.mdm.webapp.browserecords.client.util.FormatUtil;
 import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -26,6 +25,7 @@ import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.BoxComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
@@ -166,14 +166,14 @@ public class ItemsDetailPanel extends ContentPanel {
             int i = 1;
             for (String str : xpathList) {
                 if (i == 1) {
-                    textTitle.setText(FormatUtil.convertHtmlCharacter(str) + toolTipString);
+                    textTitle.setText(Format.htmlEncode(str) + toolTipString);
                     banner.add(textTitle);
                     i++;
                     continue;
                 }
                 Text subTitle = new Text();
                 subTitle.setStyleName("ItemsDetailPanel-subTitle"); //$NON-NLS-1$
-                subTitle.setText(FormatUtil.convertHtmlCharacter(str));
+                subTitle.setText(Format.htmlEncode(str));
                 subTitleList.add(subTitle);
                 banner.add(subTitle);
             }
