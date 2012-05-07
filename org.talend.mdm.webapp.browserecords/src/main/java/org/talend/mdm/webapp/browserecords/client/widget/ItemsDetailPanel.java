@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import org.talend.mdm.webapp.browserecords.client.util.FormatUtil;
 import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -165,14 +166,14 @@ public class ItemsDetailPanel extends ContentPanel {
             int i = 1;
             for (String str : xpathList) {
                 if (i == 1) {
-                    textTitle.setText(str + toolTipString);
+                    textTitle.setText(FormatUtil.convertHtmlCharacter(str) + toolTipString);
                     banner.add(textTitle);
                     i++;
                     continue;
                 }
                 Text subTitle = new Text();
                 subTitle.setStyleName("ItemsDetailPanel-subTitle"); //$NON-NLS-1$
-                subTitle.setText(str);
+                subTitle.setText(FormatUtil.convertHtmlCharacter(str));
                 subTitleList.add(subTitle);
                 banner.add(subTitle);
             }

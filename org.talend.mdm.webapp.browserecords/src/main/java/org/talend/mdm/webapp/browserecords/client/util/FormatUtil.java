@@ -69,4 +69,20 @@ public class FormatUtil {
             return pattern;
         }
     }
+    
+    public static String convertHtmlCharacter(String value){
+        if (value.contains("<")){ //$NON-NLS-1$
+            value = value.replace("<", "&lt;"); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        if (value.contains(">")){ //$NON-NLS-1$
+            value = value.replace(">", "&gt;"); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        if (value.contains("'")){ //$NON-NLS-1$
+            value = value.replace("'", "&apos;"); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        if (value.contains("\"")){ //$NON-NLS-1$
+            value = value.replace("\"", "&quot;"); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        return value;
+    }   
 }

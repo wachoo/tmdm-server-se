@@ -16,6 +16,7 @@ import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
+import org.talend.mdm.webapp.browserecords.client.util.FormatUtil;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -89,7 +90,17 @@ public class CellRendererCreator {
                 }
             };
             return renderer;
-        }        
+        }
+        if ("string".equals(dataType.getType().getTypeName())){ //$NON-NLS-1$
+            GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
+
+                public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
+                        ListStore<ModelData> store, Grid<ModelData> grid) {
+                    return FormatUtil.convertHtmlCharacter((String)model.get(property));
+                }
+            };
+            return renderer;
+        }
         return null;
     }
     
