@@ -39,6 +39,7 @@ import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.core.util.Webapp;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModel;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
@@ -88,7 +89,8 @@ public class RecycleBinAction implements RecycleBinService {
                     WSDataModel model = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(modelName)));
                     if (model != null) {
                         String modelXSD = model.getXsdSchema();
-                        if (org.talend.mdm.webapp.recyclebin.server.actions.Util.checkReadAccess(modelXSD, conceptName)) {
+                        if (!Webapp.INSTANCE.isEnterpriseVersion() || 
+                            org.talend.mdm.webapp.recyclebin.server.actions.Util.checkReadAccess(modelXSD, conceptName)) {
                             ItemsTrashItem item = new ItemsTrashItem();
                             item = WS2POJO(wsitem);
                             li.add(item);
@@ -233,7 +235,8 @@ public class RecycleBinAction implements RecycleBinService {
                 if (model != null) {
                     String modelXSD = model.getXsdSchema();
                                        
-                    if (!org.talend.mdm.webapp.recyclebin.server.actions.Util.checkRestoreAccess(modelXSD, conceptName))
+                    if (Webapp.INSTANCE.isEnterpriseVersion() &&
+                        !org.talend.mdm.webapp.recyclebin.server.actions.Util.checkRestoreAccess(modelXSD, conceptName))
                         throw new NoPermissionException();
                 }
             }
