@@ -142,3 +142,6 @@ div .sub-body{
 .x-form-text, .ext-ie .x-form-file {
     vertical-align: baseline;
 }
+.ext-ie8 .x-menu-item-icon{
+    left: 3px !important;
+}
