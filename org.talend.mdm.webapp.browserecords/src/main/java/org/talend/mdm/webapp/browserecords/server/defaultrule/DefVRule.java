@@ -30,6 +30,7 @@ import org.dom4j.Namespace;
 import org.dom4j.Node;
 import org.dom4j.QName;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.shared.ExpressionUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
@@ -214,12 +215,14 @@ public class DefVRule {
         if (model.getMinOccurs() > 1 && model.getMaxOccurs() > model.getMinOccurs()) {
             for (int i = 0; i < model.getMinOccurs(); i++) {
                 Element el = doc.createElement(model.getName());
+                applySimpleTypesDefaultValue(model, el);
                 itemNodes.add(el);
                 if (model.getForeignkey() != null)
                     break;
             }
         } else {
             Element el = doc.createElement(model.getName());
+            applySimpleTypesDefaultValue(model, el);
             itemNodes.add(el);
         }
         if (!model.isSimpleType()) {
@@ -245,4 +248,29 @@ public class DefVRule {
         }
         return itemNodes;
     }
+
+    private void applySimpleTypesDefaultValue(TypeModel nodeTypeModel,Element el) {
+        
+        if (nodeTypeModel != null && el != null) {
+            
+            if (nodeTypeModel.isSimpleType()) {
+                if (nodeTypeModel.getType().equals(DataTypeConstants.BOOLEAN)) {
+                    el.setTextContent("false"); //$NON-NLS-1$
+                } else if (nodeTypeModel.getType().equals(DataTypeConstants.INT)
+                        || nodeTypeModel.getType().equals(DataTypeConstants.INTEGER)
+                        || nodeTypeModel.getType().equals(DataTypeConstants.SHORT)
+                        || nodeTypeModel.getType().equals(DataTypeConstants.LONG)) {
+                    el.setTextContent("0"); //$NON-NLS-1$
+                } else if (nodeTypeModel.getType().equals(DataTypeConstants.DECIMAL)
+                        || nodeTypeModel.getType().equals(DataTypeConstants.DOUBLE)
+                        || nodeTypeModel.getType().equals(DataTypeConstants.FLOAT)) {
+                    el.setTextContent("0.0"); //$NON-NLS-1$
+                }
+                // TODO is there any more?
+            }
+            
+        }
+    }
+
+
 }
