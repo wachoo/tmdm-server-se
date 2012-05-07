@@ -210,7 +210,6 @@ public class ItemDetailToolBar extends ToolBar {
     private void initToolBar() {
         this.setHeight(TOOLBAR_HEIGHT + "px"); //$NON-NLS-1$
         this.addStyleName("ItemDetailToolBar"); //$NON-NLS-1$       
-
         if (operation.equalsIgnoreCase(ItemDetailToolBar.VIEW_OPERATION)
                 || operation.equalsIgnoreCase(ItemDetailToolBar.PERSONALEVIEW_OPERATION)) {
             initViewToolBar();
@@ -244,7 +243,7 @@ public class ItemDetailToolBar extends ToolBar {
             this.addFreshButton();
             if (this.openTab) {
                 this.addSeparator();
-                this.addOpenTabButton();
+                this.addOpenTabButton(false);
             }
             this.addRelationButton();
             this.addOpenTaskButton();
@@ -606,29 +605,30 @@ public class ItemDetailToolBar extends ToolBar {
         });
     }
 
-    private void addOpenTabButton() {
-        if (openTabButton == null) {
-            openTabButton = new Button();
-            openTabButton.setId("openTabButton"); //$NON-NLS-1$
-            openTabButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTab()));
-            openTabButton.setToolTip(MessagesFactory.getMessages().openitem_tab());
-            openTabButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+    private void addOpenTabButton(final boolean fromSmartView) {
+        openTabButton = new Button();
+        openTabButton.setId("openTabButton"); //$NON-NLS-1$
+        openTabButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTab()));
+        openTabButton.setToolTip(MessagesFactory.getMessages().openitem_tab());
+        openTabButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
-                @Override
-                public void componentSelected(ButtonEvent ce) {
-                    // TMDM-3202 open in a top-level tab
-                    String fromWhichApp = isHierarchyCall ? MessagesFactory.getMessages().hierarchy_title() : ""; //$NON-NLS-1$
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                // TMDM-3202 open in a top-level tab
+                String fromWhichApp = isHierarchyCall ? MessagesFactory.getMessages().hierarchy_title() : ""; //$NON-NLS-1$
+                String opt = ItemDetailToolBar.VIEW_OPERATION;
+                if (fromSmartView) {
+                    opt = ItemDetailToolBar.SMARTVIEW_OPERATION;
+                } else {
                     String smartViewMode = itemBean.getSmartViewMode();
-                    String opt = ItemDetailToolBar.VIEW_OPERATION;
-                    if (smartViewMode.equals(ItemBean.PERSOMODE))
+                    if (smartViewMode.equals(ItemBean.PERSOMODE) || smartViewMode.equals(ItemBean.SMARTMODE)) {
                         opt = ItemDetailToolBar.PERSONALEVIEW_OPERATION;
-                    else if (smartViewMode.equals(ItemBean.SMARTMODE))
-                        opt = ItemDetailToolBar.SMARTVIEW_OPERATION;
-                    TreeDetailUtil.initItemsDetailPanelById(fromWhichApp, itemBean.getIds(), itemBean.getConcept(), isFkToolBar,
-                            isHierarchyCall, opt);
+                    }
                 }
-            });
-        }
+                TreeDetailUtil.initItemsDetailPanelById(fromWhichApp, itemBean.getIds(), itemBean.getConcept(), isFkToolBar,
+                        isHierarchyCall, opt);
+            }
+        });
         openTabButton.setWidth(30);
         add(openTabButton);
     }
@@ -710,46 +710,40 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private void addPersonalViewButton() {
-        if (personalviewButton == null) {
-            personalviewButton = new Button(MessagesFactory.getMessages().personalview_btn());
-            personalviewButton.setId("personalviewButton"); //$NON-NLS-1$
-            personalviewButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+        personalviewButton = new Button(MessagesFactory.getMessages().personalview_btn());
+        personalviewButton.setId("personalviewButton"); //$NON-NLS-1$
+        personalviewButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
-                @Override
-                public void componentSelected(ButtonEvent ce) {
-                    updateSmartViewToolBar();
-                    if (itemsDetailPanel.getFirstTabWidget() instanceof ItemPanel) {
-                        ItemPanel itemPanel = (ItemPanel) itemsDetailPanel.getFirstTabWidget();
-                        itemPanel.getTree().setVisible(false);
-                        itemPanel.getSmartPanel().setVisible(true);
-                        itemsDetailPanel.selectTabAtIndex(0);
-                    }
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                updateSmartViewToolBar();
+                if (itemsDetailPanel.getFirstTabWidget() instanceof ItemPanel) {
+                    ItemPanel itemPanel = (ItemPanel) itemsDetailPanel.getFirstTabWidget();
+                    itemPanel.getTree().setVisible(false);
+                    itemPanel.getSmartPanel().setVisible(true);
+                    itemsDetailPanel.selectTabAtIndex(0);
                 }
-
-            });
-        }
+            }
+        });
         add(personalviewButton);
     }
 
     private void addGeneratedViewButton() {
-        if (generatedviewButton == null) {
-            generatedviewButton = new Button(MessagesFactory.getMessages().generatedview_btn());
-            generatedviewButton.setId("generatedviewButton"); //$NON-NLS-1$
-            generatedviewButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+        generatedviewButton = new Button(MessagesFactory.getMessages().generatedview_btn());
+        generatedviewButton.setId("generatedviewButton"); //$NON-NLS-1$
+        generatedviewButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
-                @Override
-                public void componentSelected(ButtonEvent ce) {
-                    updateViewToolBar();
-                    if (itemsDetailPanel.getFirstTabWidget() instanceof ItemPanel) {
-                        ItemPanel itemPanel = (ItemPanel) itemsDetailPanel.getFirstTabWidget();
-                        itemPanel.getTree().setVisible(true);
-                        itemPanel.getSmartPanel().setVisible(false);
-                        itemsDetailPanel.selectTabAtIndex(0);
-                    }
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                updateViewToolBar();
+                if (itemsDetailPanel.getFirstTabWidget() instanceof ItemPanel) {
+                    ItemPanel itemPanel = (ItemPanel) itemsDetailPanel.getFirstTabWidget();
+                    itemPanel.getTree().setVisible(true);
+                    itemPanel.getSmartPanel().setVisible(false);
+                    itemsDetailPanel.selectTabAtIndex(0);
                 }
-
-            });
-        }
+            }
+        });
         add(generatedviewButton);
     }
 
@@ -792,20 +786,23 @@ public class ItemDetailToolBar extends ToolBar {
             this.addJournalButton();
             this.addSeparator();
             this.addFreshButton();
+            if (this.openTab) {
+                this.addSeparator();
+                this.addOpenTabButton(true);
+            }
             this.addWorkFlosCombo();
         }
     }
 
     private void updateSmartViewToolBar() {
         int tabCount = itemsDetailPanel.getTabCount();
-
         for (int i = 0; i < tabCount; ++i) {
             Widget widget = itemsDetailPanel.getTabWidgetAtIndex(i);
             if (widget instanceof ItemPanel) {
                 ItemPanel itemPanel = (ItemPanel) widget;
                 ItemDetailToolBar toolbar = itemPanel.getToolBar();
-
-                if (toolbar.getOperation().equals(ItemDetailToolBar.VIEW_OPERATION)) {
+                if (toolbar.getOperation().equals(ItemDetailToolBar.VIEW_OPERATION)
+                        || toolbar.getOperation().equals(ItemDetailToolBar.PERSONALEVIEW_OPERATION)) {
                     toolbar.removeAll();
                     toolbar.initSmartViewToolBar();
                     toolbar.setOperation(ItemDetailToolBar.SMARTVIEW_OPERATION);
@@ -828,7 +825,7 @@ public class ItemDetailToolBar extends ToolBar {
                     itemsDetailPanel.selectTabAtIndex(i);
                     toolbar.removeAll();
                     toolbar.initViewToolBar();
-                    toolbar.setOperation(ItemDetailToolBar.VIEW_OPERATION);
+                    toolbar.setOperation(ItemDetailToolBar.PERSONALEVIEW_OPERATION);
                     toolbar.layout(true);
                 }
             }
@@ -857,10 +854,6 @@ public class ItemDetailToolBar extends ToolBar {
                             frameUrl += ("&name=" + se.getSelectedItem().get("key"));//$NON-NLS-1$ //$NON-NLS-2$
                         itemPanel.getSmartPanel().setUrl(frameUrl);
                         itemPanel.getSmartPanel().layout(true);
-                        if (itemPanel.getTree().isVisible()) {
-                            itemPanel.getSmartPanel().setVisible(true);
-                            itemPanel.getTree().setVisible(false);
-                        }
                     }
                 }
 

@@ -24,6 +24,7 @@ import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
+import org.talend.mdm.webapp.browserecords.client.model.RecordsPagingConfig;
 import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
@@ -31,7 +32,6 @@ import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Style.SortDir;
-import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -42,9 +42,9 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 
 /**
@@ -189,12 +189,12 @@ public class DownloadFilePanel extends FormPanel{
         param.put("criteria", queryModel.getCriteria()); //$NON-NLS-1$
         param.put("language", queryModel.getLanguage()); //$NON-NLS-1$
 
-        PagingLoadConfig pagingLoad = queryModel.getPagingLoadConfig();
+        RecordsPagingConfig pagingLoad = queryModel.getPagingLoadConfig();
         String sortDir = null;
-        if (SortDir.ASC.equals(pagingLoad.getSortDir())) {
+        if (SortDir.ASC.equals(SortDir.findDir(pagingLoad.getSortDir()))) {
             sortDir = "ascending"; //$NON-NLS-1$
         }
-        if (SortDir.DESC.equals(pagingLoad.getSortDir())) {
+        if (SortDir.DESC.equals(SortDir.findDir(pagingLoad.getSortDir()))) {
             sortDir = "descending"; //$NON-NLS-1$
         }
         Map<String, TypeModel> types = queryModel.getModel().getMetaDataTypes();

@@ -127,6 +127,15 @@ public class ItemPanel extends ContentPanel {
         smartPanel.setVisible(false);
         smartPanel.setHeaderVisible(false);
         this.add(smartPanel, new RowData(1, 1));
+
+        if (ItemDetailToolBar.SMARTVIEW_OPERATION.equals(operation)) {
+            smartPanel.setVisible(true);
+            tree.setVisible(false);
+        } else if (ItemDetailToolBar.PERSONALEVIEW_OPERATION.equals(operation)) {
+            smartPanel.setVisible(false);
+            tree.setVisible(true);
+        }
+
     }
 
     public void onUpdatePolymorphism(ComplexTypeModel typeModel) {

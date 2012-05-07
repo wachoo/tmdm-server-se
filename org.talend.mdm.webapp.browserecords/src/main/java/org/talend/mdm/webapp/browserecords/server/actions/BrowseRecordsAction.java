@@ -71,6 +71,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
+import org.talend.mdm.webapp.browserecords.client.model.RecordsPagingConfig;
 import org.talend.mdm.webapp.browserecords.client.model.Restriction;
 import org.talend.mdm.webapp.browserecords.client.model.SearchTemplate;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
@@ -704,12 +705,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     public ItemBasePageLoadResult<ItemBean> queryItemBeans(QueryModel config) throws ServiceException {
         try {
-            PagingLoadConfig pagingLoad = config.getPagingLoadConfig();
+            RecordsPagingConfig pagingLoad = config.getPagingLoadConfig();
             String sortDir = null;
-            if (SortDir.ASC.equals(pagingLoad.getSortDir())) {
+            if (SortDir.ASC.equals(SortDir.findDir(pagingLoad.getSortDir()))) {
                 sortDir = ItemHelper.SEARCH_DIRECTION_ASC;
             }
-            if (SortDir.DESC.equals(pagingLoad.getSortDir())) {
+            if (SortDir.DESC.equals(SortDir.findDir(pagingLoad.getSortDir()))) {
                 sortDir = ItemHelper.SEARCH_DIRECTION_DESC;
             }
             Map<String, TypeModel> types = config.getModel().getMetaDataTypes();

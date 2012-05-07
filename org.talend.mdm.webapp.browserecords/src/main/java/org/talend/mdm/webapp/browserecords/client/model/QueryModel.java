@@ -16,13 +16,11 @@ import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
-import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-
 public class QueryModel extends ItemBaseModel {
 
     private static final long serialVersionUID = 4315775494963149856L;
 
-    PagingLoadConfig pagingLoadConfig;
+    RecordsPagingConfig pagingLoadConfig;
 
     String dataClusterPK;
 
@@ -40,11 +38,11 @@ public class QueryModel extends ItemBaseModel {
 
     }
 
-    public PagingLoadConfig getPagingLoadConfig() {
+    public RecordsPagingConfig getPagingLoadConfig() {
         return pagingLoadConfig;
     }
 
-    public void setPagingLoadConfig(PagingLoadConfig pagingLoadConfig) {
+    public void setPagingLoadConfig(RecordsPagingConfig pagingLoadConfig) {
         this.pagingLoadConfig = pagingLoadConfig;
     }
 

@@ -36,6 +36,7 @@ import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
+import org.talend.mdm.webapp.browserecords.client.model.RecordsPagingConfig;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
@@ -123,7 +124,7 @@ public class ItemsListPanel extends ContentPanel {
         public void load(Object loadConfig, final AsyncCallback<PagingLoadResult<ItemBean>> callback) {
             final QueryModel qm = new QueryModel();
             ItemsToolBar.getInstance().setQueryModel(qm);
-            qm.setPagingLoadConfig((PagingLoadConfig) loadConfig);
+            qm.setPagingLoadConfig(copyPgLoad((PagingLoadConfig) loadConfig));
             int pageSize = pagingBar.getPageSize();
             qm.getPagingLoadConfig().setLimit(pageSize);
             qm.setLanguage(Locale.getLanguage());
@@ -164,6 +165,15 @@ public class ItemsListPanel extends ContentPanel {
             });
         }
     };
+
+    private RecordsPagingConfig copyPgLoad(PagingLoadConfig pconfig) {
+        RecordsPagingConfig rpConfig = new RecordsPagingConfig();
+        rpConfig.setLimit(pconfig.getLimit());
+        rpConfig.setOffset(pconfig.getOffset());
+        rpConfig.setSortDir(pconfig.getSortDir() == null ? "NONE" : pconfig.getSortDir().toString()); //$NON-NLS-1$
+        rpConfig.setSortField(pconfig.getSortField());
+        return rpConfig;
+    }
 
     public QueryModel getCurrentQueryModel() {
         return currentQueryModel;
@@ -505,7 +515,15 @@ public class ItemsListPanel extends ContentPanel {
                     return;
                 }
                 // TMDM-3202 open in a top-level tab
-                TreeDetailUtil.initItemsDetailPanelById("", m.getIds(), m.getConcept(), false, false); //$NON-NLS-1$
+                ItemBean itemBean = grid.getSelectionModel().getSelectedItem();
+                String smartViewMode = itemBean.getSmartViewMode();
+                String opt = ItemDetailToolBar.VIEW_OPERATION;
+                if (smartViewMode.equals(ItemBean.PERSOMODE))
+                    opt = ItemDetailToolBar.PERSONALEVIEW_OPERATION;
+                else if (smartViewMode.equals(ItemBean.SMARTMODE))
+                    opt = ItemDetailToolBar.SMARTVIEW_OPERATION;
+
+                TreeDetailUtil.initItemsDetailPanelById("", m.getIds(), m.getConcept(), false, false, opt); //$NON-NLS-1$
             }
         });
         contextMenu.add(openInTab);
