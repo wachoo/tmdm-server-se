@@ -16,6 +16,7 @@ import java.io.StringReader;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,8 @@ import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.base.shared.FacetModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.base.shared.TypeModelNotFoundException;
+import org.talend.mdm.webapp.base.shared.TypePath;
 import org.talend.mdm.webapp.browserecords.client.creator.DataTypeCreator;
 import org.talend.mdm.webapp.browserecords.server.displayrule.DisplayRulesUtil;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
@@ -38,8 +41,10 @@ import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.amalto.core.util.Util;
+import com.amalto.webapp.core.dmagent.SchemaAbstractWebAgent;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSConceptKey;
@@ -65,6 +70,17 @@ public class DataModelHelper {
 
     private static XSElementDecl eleDecl;
 
+    private static SchemaAbstractWebAgent schemaManager = SchemaWebAgent.getInstance();
+
+    private static Map<String, List<String>> aliasXpathMap = new HashMap<String, List<String>>();
+
+    // FIXME: had better use POJO rather than static method
+    public static boolean alwaysEnterprise = false;
+
+    public static void overrideSchemaManager(SchemaAbstractWebAgent _schemaManager) {
+        schemaManager = _schemaManager;
+    }
+
     public static XSElementDecl getEleDecl() {
         return eleDecl;
     }
@@ -76,14 +92,53 @@ public class DataModelHelper {
      * @param concept
      */
     public static void parseSchema(String model, String concept, EntityModel entityModel, List<String> roles) {
+        parseSchema(model, concept, null, null, entityModel, roles);
+    }
+
+    /**
+     * DOC HSHU Comment method "parseSchema".
+     * 
+     * @param model
+     * @param concept
+     */
+    public static void parseSchema(String model, String concept, XSElementDecl elDecl, String[] ids, EntityModel entityModel,
+            List<String> roles) {
+
         entityModel.setConceptName(concept);
+
         // set pk
-        entityModel.setKeys(getBusinessConceptKeys(model, concept));
+        if (ids == null)
+            ids = getBusinessConceptKeys(model, concept);
+        entityModel.setKeys(ids);
+
         // analyst model
-        eleDecl = getBusinessConcept(model, concept);
+        if (elDecl == null)
+            elDecl = getBusinessConcept(model, concept);
+        eleDecl = elDecl;
+
         if (eleDecl != null) {
             travelXSElement(eleDecl, eleDecl.getName(), entityModel, null, roles, 0, 0);
+            aliasXpathMap.clear();
         }
+
+    }
+
+    /**
+     * DOC Administrator Comment method "convertXsd2ElDecl".
+     * 
+     * @param concept
+     * @param xsd
+     * @return
+     * @throws SAXException
+     */
+    public static XSElementDecl convertXsd2ElDecl(String concept, String xsd) throws SAXException {
+        XSElementDecl eleDecl;
+        XSOMParser reader = new XSOMParser();
+        reader.setAnnotationParser(new DomAnnotationParserFactory());
+        reader.parse(new StringReader(xsd));
+        XSSchemaSet xss = reader.getResult();
+        eleDecl = getElementDeclByName(concept, xss);
+        return eleDecl;
     }
 
     /**
@@ -95,7 +150,7 @@ public class DataModelHelper {
         XSElementDecl eleDecl = null;
         try {
             if (!BaseConfiguration.isStandalone()) {
-                eleDecl = SchemaWebAgent.getInstance().getBusinessConcept(concept).getE();
+                eleDecl = schemaManager.getBusinessConcept(concept).getE();
             } else {
                 String xsd = CommonUtil.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(model))).getXsdSchema();
                 XSOMParser reader = new XSOMParser();
@@ -193,7 +248,7 @@ public class DataModelHelper {
             // go for polymiorphism
             List<ReusableType> subTypes = null;
             try {
-                subTypes = SchemaWebAgent.getInstance().getMySubtypes(typeName);
+                subTypes = schemaManager.getMySubtypes(typeName);
             } catch (Exception e1) {
                 logger.error(e1.getMessage(), e1);
                 return null;
@@ -207,7 +262,7 @@ public class DataModelHelper {
                 parentType.addComplexReusableTypes(abstractReusableComplexType);
                 ReusableType abstractReusable = null;
                 try {
-                    abstractReusable = SchemaWebAgent.getInstance().getReusableType(typeName);
+                    abstractReusable = schemaManager.getReusableType(typeName);
                 } catch (Exception e1) {
                     logger.error(e1.getMessage(), e1);
                     return null;
@@ -218,6 +273,12 @@ public class DataModelHelper {
                     if (subParticles != null) {
                         for (int i = 0; i < subParticles.length; i++) {
                             XSParticle xsParticle = subParticles[i];
+                            List<String> currentXPathAlias = aliasXpathMap.get(currentXPath);
+                            if (currentXPathAlias == null) {
+                                currentXPathAlias = new ArrayList<String>();
+                                aliasXpathMap.put(currentXPath, currentXPathAlias);
+                            }
+                            currentXPathAlias.add(currentXPath + ":" + abstractReusable.getName()); //$NON-NLS-1$
                             travelParticle(xsParticle, currentXPath, entityModel, abstractReusableComplexType, roles);
                         }
                     }
@@ -233,9 +294,8 @@ public class DataModelHelper {
                             if (subParticles != null) {
                                 for (int i = 0; i < subParticles.length; i++) {
                                     XSParticle xsParticle = subParticles[i];
-
                                     travelParticle(xsParticle,
-                                            currentXPath + ":" + reusableType.getName(), entityModel, reusableComplexType, roles); //$NON-NLS-1$
+                                            currentXPath + ":" + reusableType.getName(), entityModel, reusableComplexType, roles); //$NON-NLS-1$ 
                                 }
                             }
                         }
@@ -273,6 +333,7 @@ public class DataModelHelper {
         if (typeModel != null) {
             typeModel.setXpath(currentXPath.replaceAll(":\\w+", "")); //$NON-NLS-1$//$NON-NLS-2$
             typeModel.setTypePath(currentXPath);
+            typeModel.setTypePathObject(new TypePath(currentXPath, aliasXpathMap));
             typeModel.setNillable(e.isNillable());
         }
         return typeModel;
@@ -308,7 +369,7 @@ public class DataModelHelper {
             XSElementDecl subElement = xsParticle.getTerm().asElementDecl();
             travelXSElement(
                     subElement,
-                    currentXPath + "/" + subElement.getName(), entityModel, parentTypeModel, roles, xsParticle.getMinOccurs(), xsParticle.getMaxOccurs());//$NON-NLS-1$
+                    currentXPath + "/" + subElement.getName(), entityModel, parentTypeModel, roles, xsParticle.getMinOccurs(), xsParticle.getMaxOccurs()); //$NON-NLS-1$ 
         }
     }
 
@@ -384,7 +445,7 @@ public class DataModelHelper {
                 }
             }// end for
         }
-        if (!Util.isEnterprise())
+        if (!alwaysEnterprise && !Util.isEnterprise())
             typeModel.setReadOnly(false);
         else
             typeModel.setReadOnly(!writable);
@@ -459,6 +520,42 @@ public class DataModelHelper {
             logger.error(e.getMessage(), e);
         }
         return keys;
+
+    }
+
+    /**
+     * DOC Administrator Comment method "findTypeModelByTypePath".
+     * 
+     * @param metaDataTypes
+     * @param typePath
+     * @return
+     */
+    public static TypeModel findTypeModelByTypePath(Map<String, TypeModel> metaDataTypes, String typePath) {
+
+        if (metaDataTypes == null || typePath == null)
+            throw new IllegalArgumentException();
+
+        TypeModel model = null;
+
+        model = metaDataTypes.get(typePath);
+        if (model == null) {
+            for (Iterator iterator = metaDataTypes.keySet().iterator(); iterator.hasNext();) {
+                String keyTypePath = (String) iterator.next();
+                TypeModel myTypeModel = metaDataTypes.get(keyTypePath);
+                if (myTypeModel.getTypePathObject() != null && myTypeModel.getTypePathObject().hasVariantion()) {
+                    List<String> allPossibleTypepath = myTypeModel.getTypePathObject().getAllAliasXpaths();
+                    if (allPossibleTypepath != null && allPossibleTypepath.contains(typePath)) {
+                        model = myTypeModel;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (model == null)
+            throw new TypeModelNotFoundException();
+        else
+            return model;
 
     }
 
