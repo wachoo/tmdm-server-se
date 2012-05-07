@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.inputfield;
 
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
@@ -83,7 +84,9 @@ public class PictureField extends TextField<String> {
             if (button == getButtonBar().getItemByItemId(YES)) {
 
                 // Only delete it from client side
-                setValue(null);
+                setValue(DataTypeConstants.PICTURE.getDefaultValue() == null ? null : (String) DataTypeConstants.PICTURE
+                        .getDefaultValue());// reset value when delete
+
                 dialog.hide();
 
                 /*
@@ -195,10 +198,13 @@ public class PictureField extends TextField<String> {
 
     @Override
     public void setValue(String value) {
-        if ("http://".equalsIgnoreCase(value)) { //$NON-NLS-1$
+        
+        // external source
+        if (value != null && (value.toLowerCase().startsWith("http") || value.toLowerCase().startsWith("https"))) { //$NON-NLS-1$//$NON-NLS-2$
+            image.setUrl(value);
             return;
         }
-        
+
         String oldValue = this.value;
         this.value = value;
 

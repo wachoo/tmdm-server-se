@@ -31,7 +31,7 @@ public enum DataTypeConstants implements DataType {
 
     UUID("UUID", ""), //$NON-NLS-1$ //$NON-NLS-2$
     AUTO_INCREMENT("AUTO_INCREMENT", ""), //$NON-NLS-1$ //$NON-NLS-2$
-    PICTURE("PICTURE", "http://"), //$NON-NLS-1$ //$NON-NLS-2$
+    PICTURE("PICTURE", ""), //$NON-NLS-1$ //$NON-NLS-2$ // Change picture default value to empty
     URL("URL", "@@http://"), //$NON-NLS-1$ //$NON-NLS-2$
 
     UNKNOW("unknow", "");//$NON-NLS-1$ //$NON-NLS-2$
