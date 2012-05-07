@@ -36,11 +36,13 @@ import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.dnd.ListViewDragSource;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.ListViewEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -105,10 +107,8 @@ public class PictureSelector extends ContentPanel {
         LayoutContainer container = new LayoutContainer();
         BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, 200, 100, 300);
         HorizontalPanel searchPanel = new HorizontalPanel();
-        Button searchButton = new Button(MessagesFactory.getMessages().search_btn());
         searchFiled.setWidth(240);
         searchFiled.addKeyListener(new KeyListener() {
-
             public void componentKeyUp(ComponentEvent event) {
                 if (event.getKeyCode() == KeyCodes.KEY_ENTER) {
                     // When user press Enter key, perform the search.
@@ -116,6 +116,14 @@ public class PictureSelector extends ContentPanel {
                 }
             }
 
+        });
+        
+        Button searchButton = new Button(MessagesFactory.getMessages().search_btn());
+        searchButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            public void componentSelected(ButtonEvent ce) {
+                doSearch(loader);
+            }
         });
         searchPanel.add(searchFiled);
         searchPanel.add(searchButton);
@@ -212,6 +220,7 @@ public class PictureSelector extends ContentPanel {
                 // no case sensitive
                 if (image.getName() != null && image.getName().toLowerCase().contains(searchFiled.getValue().toLowerCase())) {
                     result.add(image);
+                    pagingBar.first();
                 }
             }
         }
