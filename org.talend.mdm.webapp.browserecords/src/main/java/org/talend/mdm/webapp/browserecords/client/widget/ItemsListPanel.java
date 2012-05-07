@@ -112,6 +112,8 @@ public class ItemsListPanel extends ContentPanel {
     }
 
     private QueryModel currentQueryModel;
+    
+    private ItemBean createItemBean = null;
 
     BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
 
@@ -232,11 +234,17 @@ public class ItemsListPanel extends ContentPanel {
                 if (store.getModels().size() > 0) {
                     if (selectedItems == null) {
                         // search and create
-                        if (isCreate)
-                            grid.getSelectionModel().select(grid.getStore().getCount() - 1, false);
-                        else
+                        if (isCreate && createItemBean != null){
+                            if (grid.getStore().findModel(createItemBean) != null){
+                                grid.getSelectionModel().select(createItemBean,true);
+                            }else{
+                                grid.getSelectionModel().select(-1, false);
+                            }
+                        }else{
                             grid.getSelectionModel().select(0, false);
+                        } 
                         isCreate = false;
+                        createItemBean = null;
                     }
                 } else {
                     ItemsToolBar.getInstance().searchBut.setEnabled(true);
@@ -699,5 +707,39 @@ public class ItemsListPanel extends ContentPanel {
             changedRecordId = null;
         }
     }
-
+    
+    public void refreshGrid(final ItemBean itemBean) {
+        if (gridContainer != null) {// refresh when grid is not empty
+            if (pagingBar != null && pagingBar.getItemCount() > 0) {
+                if (grid.getSelectionModel().getSelectedItem() != null) {
+                    if (saveCurrentChangeBeforeSwitching) {
+                        refresh(changedRecordId, false);
+                    } else {
+                        String ids = grid.getSelectionModel().getSelectedItem().getIds();
+                        refresh(ids, true);
+                    }
+                } else {
+                    if (itemBean != null){                                              
+                        String ids[] = {itemBean.getIds()};
+                        service.getItemBeanById(itemBean.getConcept(), ids, Locale.getLanguage(), new AsyncCallback<ItemBean>() {
+                            public void onSuccess(ItemBean result) {
+                                createItemBean = result;
+                                pagingBar.refresh();                                
+                            }
+                            public void onFailure(Throwable exception) {
+                                pagingBar.last();
+                            }
+                        });
+                    }else{
+                        pagingBar.last();
+                    }
+                }
+                return;
+            }
+        }
+        if (ItemsToolBar.getInstance().getSimplePanel() != null && ItemsToolBar.getInstance().getSimplePanel().getCriteria() != null) {
+            ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchBut);      
+            ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, be);
+        }
+    }
 }
