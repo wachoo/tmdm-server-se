@@ -210,6 +210,10 @@ public class FormatDateField extends DateField {
         }
     }
 
+    public void setDate(Date date) {
+        this.date = date;
+    }
+    
     public void setFormatedValue() {
         if (formatPattern != null && date != null) {
             final FormatModel model = new FormatModel(formatPattern, date, Locale.getLanguage());
