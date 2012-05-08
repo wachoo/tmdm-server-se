@@ -4,7 +4,6 @@
 
     <inherits name='com.extjs.gxt.ui.GXT' />
     <inherits name="com.google.gwt.i18n.I18N" />
-    <inherits name="com.google.gwt.junit.JUnit"/>
 
     <!-- GWT locale -->
     <extend-property name="locale" values="fr" />
