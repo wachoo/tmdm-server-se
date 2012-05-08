@@ -86,7 +86,8 @@ public class FormatDateField extends DateField {
             return true;
         if(date == null && ojbectValue != null)
             return true;
-        String str = DateUtil.convertDate(date);
+        // convert date to string according to the DateTimePropertyEditor
+        String str = getPropertyEditor().getStringValue(date);
         if(str.equalsIgnoreCase(ojbectValue))
             return false;
         else
