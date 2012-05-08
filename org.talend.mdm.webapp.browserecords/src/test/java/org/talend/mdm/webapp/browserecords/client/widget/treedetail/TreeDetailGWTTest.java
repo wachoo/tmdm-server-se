@@ -54,13 +54,10 @@ public class TreeDetailGWTTest extends GWTTestCase {
         ViewBean viewBean = new ViewBean();
         viewBean.setBindingEntityModel(entity);
         detail.setViewBean(viewBean);
-        
-        boolean flag = true;
-        flag = detail.validateNode(root, flag);
-        assertFalse(flag);
+
     }
     
     public String getModuleName() {
-        return "org.talend.mdm.webapp.browserecords.TestBrowseRecords"; //$NON-NLS-1$
+        return "org.talend.mdm.webapp.browserecords.TestBrowseRecords";
     }
 }

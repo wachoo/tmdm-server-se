@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
-import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
@@ -28,7 +27,6 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeModel;
-import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyValidateModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
@@ -609,138 +607,6 @@ public class TreeDetail extends ContentPanel {
             CountMapItem item = (CountMapItem) o;
             return item.getXpath().equals(xpath) && item.getParentModel().equals(parentModel);
         }
-    }
-
-    public boolean validateTree() {
-        boolean flag = true;
-        // ItemNodeModel rootNode = (ItemNodeModel) tree.getItem(0).getUserObject();
-        ItemNodeModel rootNode = (ItemNodeModel) root.getUserObject();
-        if (rootNode != null) {
-            flag = validateNode(rootNode, flag);
-        }
-        return flag;
-    }
-
-    public boolean validateNode(ItemNodeModel rootNode, boolean flag) {
-
-        if (rootNode.getChildren() != null && rootNode.getChildren().size() > 0) {
-            Map<TypeModel, Integer> map = new HashMap<TypeModel, Integer>();
-            Map<TypeModel, ForeignKeyValidateModel> fkValidateMap = new HashMap<TypeModel, ForeignKeyValidateModel>();
-            for (ModelData model : rootNode.getChildren()) {
-
-                ItemNodeModel node = (ItemNodeModel) model;
-                if (!node.isValid() && node.getChildCount() == 0) {
-                    TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getTypePath());
-                    boolean parentIsMayNull = rootNode.getParent() != null && !rootNode.isMandatory();
-                    if (tm.getForeignkey() != null) {
-                        // fk minOccurs check
-                        if (!map.containsKey(tm))
-                            map.put(tm, 0);
-                        else if (parentIsMayNull && fkValidateMap.get(tm).isNodeValid()) {
-                            map.put(tm, map.get(tm) + 1);
-                            continue;
-                        }
-                        map.put(tm, map.get(tm) + 1);
-                        ForeignKeyValidateModel fkValidateModel = validateFK(node);
-                        flag = fkValidateModel.isNodeValid();
-                        fkValidateMap.put(tm, fkValidateModel);
-                    } else if(parentIsMayNull && node.isValid()) {
-                        continue;
-                    } else {
-                        MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
-                                .validation_error(node.getBindingPath()), null);
-                        flag = false;
-                    }
-
-                }
-
-                if (node.getChildren() != null && node.getChildren().size() > 0) {
-                    flag = validateNode(node, flag);
-                }
-
-                if (!flag) {
-                    break;
-                }
-            }
-            if (flag) {
-                for (TypeModel typeModel : fkValidateMap.keySet()) {
-                    if (fkValidateMap.get(typeModel).isHaveNodeValue()) {
-                        int count = map.get(typeModel);
-                        if (typeModel.getMinOccurs() > count) {
-                            MessageBox.alert(
-                                    MessagesFactory.getMessages().error_title(),
-                                    MessagesFactory.getMessages().fk_save_validate(
-                                            ForeignKeyUtil.transferXpathToLabel(typeModel, viewBean), typeModel.getMinOccurs()),
-                                    null);
-                            flag = false;
-                            break;
-                        }
-                    }
-                }
-            }
-
-        }
-        return flag;
-    }
-
-    private ForeignKeyValidateModel validateFK(ItemNodeModel node) {
-        ItemNodeModel parent = (ItemNodeModel) node.getParent();
-        boolean isHaveNodeValue = false;
-        boolean isNodeValid = true;
-        if (parent != null && parent.getParent() != null && !parent.isMandatory()) {
-            for (ModelData model : parent.getChildren()) {
-                ItemNodeModel nodeModel = (ItemNodeModel) model;
-                if (nodeModel.getObjectValue() != null) {
-                    if (nodeModel.getObjectValue() instanceof ForeignKeyBean) {
-                        ForeignKeyBean fkBean = (ForeignKeyBean) nodeModel.getObjectValue();
-                        if (fkBean.getId() == null || fkBean.getId().trim().length() == 0) {
-                            continue;
-                        } else {
-                            isHaveNodeValue = true;
-                            break;
-                        }
-                    } else if (nodeModel.getObjectValue().toString().trim().length() > 0) {
-                        isHaveNodeValue = true;
-                        break;
-                    }
-                }
-            }
-            if (isHaveNodeValue) {
-                for (ModelData model : parent.getChildren()) {
-                    ItemNodeModel nodeModel = (ItemNodeModel) model;
-                    TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getTypePath());
-                    if (tm.getForeignkey() != null) {
-                        if (!validateFKValue(nodeModel)) {
-                            isNodeValid = false;
-                            break;
-                        }
-                    }
-                }
-            }
-        } else {
-            isHaveNodeValue = true;
-            isNodeValid = validateFKValue(node);
-        }
-        return new ForeignKeyValidateModel(isHaveNodeValue, isNodeValid);
-    }
-
-    private boolean validateFKValue(ItemNodeModel node) {
-        if (!node.isValid() && node.getChildCount() == 0) {
-            TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getTypePath());
-            // fk minOccurs check
-            if (tm.getMinOccurs() >= 1) {
-                // check value
-                ForeignKeyBean fkBean = (ForeignKeyBean) node.getObjectValue();
-                if (fkBean == null || fkBean.getId() == null) {
-                    MessageBox.alert(
-                            MessagesFactory.getMessages().error_title(),
-                            MessagesFactory.getMessages().fk_save_validate(ForeignKeyUtil.transferXpathToLabel(tm, viewBean),
-                                    tm.getMinOccurs()), null);
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
     private boolean hasVisibleRule(TypeModel typeModel) {
