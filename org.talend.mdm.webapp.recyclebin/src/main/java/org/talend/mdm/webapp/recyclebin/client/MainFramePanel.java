@@ -85,7 +85,7 @@ public class MainFramePanel extends ContentPanel {
     private PagingToolBarEx pagetoolBar = null;
 
     private Grid<ItemsTrashItem> grid;
-    
+
     private final Map<String, String> CONCEPT_MODEL_MAP = new HashMap<String, String>();
 
     private static final int COLUMN_WIDTH = 100;
@@ -179,7 +179,8 @@ public class MainFramePanel extends ContentPanel {
                                                     .getMessages().restore_no_permissions(), null);
                                             // GWT.log(errorMsg, caught);
                                         } else {
-                                            MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), errorMsg, null);
+                                            MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), MessagesFactory
+                                                    .getMessages().delete_no_permissions(), null);
                                             // GWT.log(errorMsg, caught);
                                         }
                                     }
@@ -428,7 +429,7 @@ public class MainFramePanel extends ContentPanel {
         String modelName = CONCEPT_MODEL_MAP.get(conceptName);
         service.recoverDroppedItem(model.get("itemPK").toString(), model.get("partPath").toString(),//$NON-NLS-1$//$NON-NLS-2$
                 model.get("revisionId") == null ? null : model.get("revisionId").toString(), //$NON-NLS-1$ //$NON-NLS-2$
-                        conceptName, modelName, model.get("ids").toString(),//$NON-NLS-1$
+                conceptName, modelName, model.get("ids").toString(),//$NON-NLS-1$
                 new SessionAwareAsyncCallback<Void>() {
 
                     public void onSuccess(Void arg0) {
@@ -436,7 +437,7 @@ public class MainFramePanel extends ContentPanel {
                         grid.getStore().remove(model);
                         refreshBrowseRecordsGrid();
                     }
-                    
+
                     protected void doOnFailure(Throwable caught) {
                         String errorMsg = caught.getLocalizedMessage();
                         if (errorMsg == null || "".equals(errorMsg)) { //$NON-NLS-1$
@@ -459,6 +460,6 @@ public class MainFramePanel extends ContentPanel {
     }
 
     private native void refreshBrowseRecordsGrid()/*-{
-        $wnd.amalto.browserecords.BrowseRecords.refreshGrid();
+		$wnd.amalto.browserecords.BrowseRecords.refreshGrid();
     }-*/;
 }

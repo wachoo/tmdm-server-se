@@ -54,4 +54,6 @@ public interface RecycleBinMessages extends Messages {
     String dataModelName();
     
     String restore_no_permissions();
+    
+    String delete_no_permissions();
 }
