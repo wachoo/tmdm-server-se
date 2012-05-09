@@ -1075,7 +1075,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             Collection res = Util.getItemCtrl2Local().getItems(new DataClusterPOJOPK(wsGetItems.getWsDataClusterPK().getPk()),
                     wsGetItems.getConceptName(),
                     WS2VO(wsGetItems.getWhereItem(), new WhereConditionForcePivotFilter(wcfContext)),
-                    wsGetItems.getSpellTreshold(), wsGetItems.getSkip(), wsGetItems.getMaxItems(),
+                    wsGetItems.getSpellTreshold(), wsGetItems.getSort(), wsGetItems.getDir(), wsGetItems.getSkip(), wsGetItems.getMaxItems(),
                     wsGetItems.getTotalCountOnFirstResult() == null? false: wsGetItems.getTotalCountOnFirstResult());
             return new WSStringArray((String[]) res.toArray(new String[res.size()]));
         } catch (XtentisException e) {
