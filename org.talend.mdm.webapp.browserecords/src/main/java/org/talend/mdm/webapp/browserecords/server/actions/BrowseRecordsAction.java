@@ -84,6 +84,7 @@ import org.talend.mdm.webapp.browserecords.server.displayrule.DisplayRulesUtil;
 import org.talend.mdm.webapp.browserecords.server.provider.DefaultSmartViewProvider;
 import org.talend.mdm.webapp.browserecords.server.provider.SmartViewProvider;
 import org.talend.mdm.webapp.browserecords.server.util.DynamicLabelUtil;
+import org.talend.mdm.webapp.browserecords.server.util.NoAccessCheckUtil;
 import org.talend.mdm.webapp.browserecords.server.util.SmartViewUtil;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
@@ -115,11 +116,13 @@ import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.RoutingException;
 import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.core.util.Webapp;
 import com.amalto.webapp.core.util.XmlUtil;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSBoolean;
 import com.amalto.webapp.util.webservices.WSByteArray;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
+import com.amalto.webapp.util.webservices.WSDataModel;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSDeleteItem;
 import com.amalto.webapp.util.webservices.WSDropItem;
@@ -627,6 +630,25 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     public ViewBean getView(String viewPk, String language) throws ServiceException {
+        
+        String model = getCurrentDataModel();
+        String concept = ViewHelper.getConceptFromDefaultViewName(viewPk);
+        if (concept != null) {
+            WSDataModel modelObj = null;
+            try {
+                modelObj = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(model)));
+            } catch (Exception e) {
+                modelObj = null;
+            }
+            
+            if (modelObj != null) {
+                String modelXSD = modelObj.getXsdSchema();
+                if (Webapp.INSTANCE.isEnterpriseVersion() && NoAccessCheckUtil.checkNoAccess(modelXSD, concept)) {
+                    Locale locale = new Locale(language);
+                    throw new ServiceException(MESSAGES.getMessage(locale, "entity_no_access")); //$NON-NLS-1$
+                }
+            }
+        }
 
         WSView wsView = null;
         ViewBean vb = new ViewBean();
@@ -639,13 +661,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             Locale locale = new Locale(language);
             throw new ServiceException(MESSAGES.getMessage(locale, "find_view_error", viewPk)); //$NON-NLS-1$
         }
-        String model = null;
-        String concept = null;
         EntityModel entityModel = null;
         try {
             // bind entity model
-            model = getCurrentDataModel();
-            concept = ViewHelper.getConceptFromDefaultViewName(viewPk);
             entityModel = new EntityModel();
             DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
         } catch (Exception e) {
