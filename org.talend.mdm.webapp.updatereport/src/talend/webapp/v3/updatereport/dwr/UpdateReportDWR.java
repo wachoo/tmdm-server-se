@@ -162,6 +162,14 @@ public class UpdateReportDWR {
         getItems.setSkip(start);
         getItems.setMaxItems(limit);
         getItems.setWsDataClusterPK(wsDataClusterPK);
+//        Will uncomment the following code once Francois fixes the rest of issue of TMDM-3183
+//        if(sort != null){
+//            getItems.setSort("Update/" + upperCaseFirstLetter(sort)); //$NON-NLS-1$
+//        }
+//        if(dir != null){
+//            getItems.setDir(dir.toLowerCase());
+//        }
+        
         WSStringArray resultsArray = Util.getPort().getItems(getItems);
         String[] results = resultsArray == null ? new String[0] : resultsArray.getStrings();
 
@@ -228,6 +236,12 @@ public class UpdateReportDWR {
     	Object[] data = listRange.getData();
 
         return generateEventString(data, language);
+    }
+    
+    private static String upperCaseFirstLetter(String str){
+        byte[] byteArr = str.getBytes();
+        byteArr[0] -= 32;
+        return new String(byteArr);
     }
 
     // This is the HTML displayed in the time line bubble (when you click on an event).

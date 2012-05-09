@@ -112,7 +112,7 @@ Ext
 								totalProperty : 'totalSize',
 								root : 'data'
 							}, this.recordType),
-							remoteSort : false
+							remoteSort : true
 						});
 
 						this.store1.on('beforeload', function(button, event) {
