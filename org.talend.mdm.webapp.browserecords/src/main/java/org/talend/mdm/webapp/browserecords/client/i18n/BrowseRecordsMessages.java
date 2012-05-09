@@ -394,4 +394,6 @@ public interface BrowseRecordsMessages extends Messages {
     String fkinfo_display_type_label();
     
     String error_column_header(String columnName,String concept);
+    
+    String entity_no_access();
 }

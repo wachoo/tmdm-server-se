@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.server.actions;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
@@ -84,6 +86,7 @@ import org.talend.mdm.webapp.browserecords.server.displayrule.DisplayRulesUtil;
 import org.talend.mdm.webapp.browserecords.server.provider.DefaultSmartViewProvider;
 import org.talend.mdm.webapp.browserecords.server.provider.SmartViewProvider;
 import org.talend.mdm.webapp.browserecords.server.util.DynamicLabelUtil;
+import org.talend.mdm.webapp.browserecords.server.util.NoAccessCheckUtil;
 import org.talend.mdm.webapp.browserecords.server.util.SmartViewUtil;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
@@ -102,6 +105,8 @@ import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.integrity.FKIntegrityCheckResult;
 import com.amalto.core.jobox.util.JobNotFoundException;
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
@@ -115,11 +120,13 @@ import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.RoutingException;
 import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.core.util.Webapp;
 import com.amalto.webapp.core.util.XmlUtil;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSBoolean;
 import com.amalto.webapp.util.webservices.WSByteArray;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
+import com.amalto.webapp.util.webservices.WSDataModel;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSDeleteItem;
 import com.amalto.webapp.util.webservices.WSDropItem;
@@ -499,7 +506,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 } else
                     node = doc.selectSingleNode(key);
 
-                if(node != null){
+                if (node != null) {
                     String dateText = node.getText();
 
                     if (dateText != null) {
@@ -626,6 +633,25 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     public ViewBean getView(String viewPk, String language) throws ServiceException {
+        
+        String model = getCurrentDataModel();
+        String concept = ViewHelper.getConceptFromDefaultViewName(viewPk);
+        if (concept != null) {
+            WSDataModel modelObj = null;
+            try {
+                modelObj = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(model)));
+            } catch (Exception e) {
+                modelObj = null;
+            }
+            
+            if (modelObj != null) {
+                String modelXSD = modelObj.getXsdSchema();
+                if (Webapp.INSTANCE.isEnterpriseVersion() && NoAccessCheckUtil.checkNoAccess(modelXSD, concept)) {
+                    Locale locale = new Locale(language);
+                    throw new ServiceException(MESSAGES.getMessage(locale, "entity_no_access")); //$NON-NLS-1$
+                }
+            }
+        }
 
         WSView wsView = null;
         ViewBean vb = new ViewBean();
@@ -638,13 +664,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             Locale locale = new Locale(language);
             throw new ServiceException(MESSAGES.getMessage(locale, "find_view_error", viewPk)); //$NON-NLS-1$
         }
-        String model = null;
-        String concept = null;
         EntityModel entityModel = null;
         try {
             // bind entity model
-            model = getCurrentDataModel();
-            concept = ViewHelper.getConceptFromDefaultViewName(viewPk);
             entityModel = new EntityModel();
             DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
         } catch (Exception e) {
@@ -674,6 +696,50 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return vb;
     }
 
+    public static boolean checkNoAccess(String modelXSD, String conceptName) {
+        boolean result = false;
+
+        try {
+            String roles = com.amalto.webapp.core.util.Util.getPrincipalMember("Roles"); //$NON-NLS-1$
+            List<String> roleList = Arrays.asList(roles.split(",")); //$NON-NLS-1$
+            result = checkNoAccessHelper(modelXSD, conceptName, roleList);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+
+        return result;
+    }
+
+    public static boolean checkNoAccessHelper(String modelXSD, String conceptName, List<String> roles) {
+        boolean result = false;
+
+        if (LOG.isDebugEnabled())
+            LOG.debug("Check no access permission on " + conceptName + " for roles " + roles); //$NON-NLS-1$ //$NON-NLS-2$
+
+        try {
+            MetadataRepository repository = new MetadataRepository();
+            InputStream is = new ByteArrayInputStream(modelXSD.getBytes("UTF-8")); //$NON-NLS-1$
+            repository.load(is);
+
+            ComplexTypeMetadata metadata = repository.getComplexType(conceptName);
+
+            if (metadata != null) {
+                List<String> noAccessRoles = metadata.getHideUsers();
+                if (LOG.isDebugEnabled())
+                    LOG.debug("Roles without access " + noAccessRoles); //$NON-NLS-1$
+                noAccessRoles.retainAll(roles);
+                result = !noAccessRoles.isEmpty();
+            } else {
+                if (LOG.isDebugEnabled())
+                    LOG.debug("Complex Type " + conceptName + " not found"); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+
+        return result;
+    }
+    
     public void logicalDeleteItem(ItemBean item, String path, boolean override) throws ServiceException {
         try {
             String dataClusterPK = getCurrentDataCluster();
@@ -877,7 +943,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     /**
      * DOC HSHU Comment method "switchForeignKeyType".
-     *
+     * 
      * @param targetEntity
      * @param xpathForeignKey
      * @param xpathInfoForeignKey
@@ -923,7 +989,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     /**
      * DOC HSHU Comment method "replaceXpathRoot".
-     *
+     * 
      * @param targetEntity
      * @param xpathForeignKey
      * @return
@@ -1249,7 +1315,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             LOG.debug("pushUpdateReport() " + updateReportXML);//$NON-NLS-1$
         }
 
-        CommonUtil.getPort().putItem(new WSPutItem(new WSDataClusterPK("UpdateReport"), updateReportXML, new WSDataModelPK("UpdateReport"), false)); //$NON-NLS-1$ //$NON-NLS-2$
+        CommonUtil.getPort().putItem(
+                new WSPutItem(new WSDataClusterPK("UpdateReport"), updateReportXML, new WSDataModelPK("UpdateReport"), false)); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     private String createUpdateReport(String[] ids, String concept, String operationType) throws Exception {
@@ -1339,7 +1406,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    public ItemNodeModel createDefaultItemNodeModel(ViewBean viewBean, Map<String, String> initDataMap, String language) throws ServiceException {
+    public ItemNodeModel createDefaultItemNodeModel(ViewBean viewBean, Map<String, String> initDataMap, String language)
+            throws ServiceException {
         String concept = viewBean.getBindingEntityModel().getConceptName();
 
         EntityModel entity = viewBean.getBindingEntityModel();
@@ -1509,8 +1577,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         }
 
                         if (typeModel.getTypePath().equals(tem_typePath)
-                                || (typeModel.getTypePathObject() != null && typeModel.getTypePathObject().getAllAliasXpaths()!=null 
-                                        && typeModel.getTypePathObject().getAllAliasXpaths().contains(tem_typePath))) {
+                                || (typeModel.getTypePathObject() != null
+                                        && typeModel.getTypePathObject().getAllAliasXpaths() != null && typeModel
+                                        .getTypePathObject().getAllAliasXpaths().contains(tem_typePath))) {
                             ItemNodeModel childNode = builderNode(multiNodeIndex, (Element) child, entity, baseXpath, xpath,
                                     isPolyType, foreignKeyDeleteMessage, isCreate, language);
                             childNode.setHasVisiblueRule(typeModel.isHasVisibleRule());
@@ -1582,11 +1651,11 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             // TODO (1) if update, check the item is modified by others?
             // TODO (2) if create, check if the item has not been created by someone else?
             WSPutItemWithReport wsPutItemWithReport = new WSPutItemWithReport(new WSPutItem(new WSDataClusterPK(
-                    getCurrentDataCluster()), xml, new WSDataModelPK(getCurrentDataModel()), !isCreate),
-                    "genericUI", true); //$NON-NLS-1$
+                    getCurrentDataCluster()), xml, new WSDataModelPK(getCurrentDataModel()), !isCreate), "genericUI", true); //$NON-NLS-1$
             int status = ItemResult.SUCCESS;
             WSItemPK wsi = CommonUtil.getPort().putItemWithReport(wsPutItemWithReport);
-            String message = wsPutItemWithReport.getSource(); // putItemWithReport is expected to put beforeSavingMessage in getSource().
+            String message = wsPutItemWithReport.getSource(); // putItemWithReport is expected to put
+                                                              // beforeSavingMessage in getSource().
 
             if (hasBeforeSavingProcess) {
                 // No message from beforeSaving process,
@@ -1599,7 +1668,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             if (wsi == null) {
                 return new ItemResult(status, message, ids);
             } else {
-                WSItem wsItem = CommonUtil.getPort().getItem(new WSGetItem(new WSItemPK(new WSDataClusterPK(getCurrentDataCluster()), concept, wsi.getIds())));
+                WSItem wsItem = CommonUtil.getPort().getItem(
+                        new WSGetItem(new WSItemPK(new WSDataClusterPK(getCurrentDataCluster()), concept, wsi.getIds())));
                 return new ItemResult(status, message, Util.joinStrings(wsi.getIds(), "."), wsItem.getInsertionTime()); //$NON-NLS-1$
             }
         } catch (ServiceException e) {
@@ -1615,7 +1685,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 String beforeSavingMessage = cause.getBeforeSavingMessage();
                 if (cause.getCause() instanceof ValidateException) {
                     err = MESSAGES.getMessage(locale, "save_validationrule_fail", concept + "." + ids, //$NON-NLS-1$//$NON-NLS-2$
-                                            Util.getExceptionMessage(cause.getCause().getLocalizedMessage(), language));
+                            Util.getExceptionMessage(cause.getCause().getLocalizedMessage(), language));
                 } else if (beforeSavingMessage != null && !beforeSavingMessage.isEmpty()) {
                     // Return before saving process error message as exception for web ui.
                     throw new ServiceException(beforeSavingMessage);
@@ -1952,7 +2022,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     /**
      ********************************* Registry style****************************************
-     *
+     * 
      * @param concept
      * @param ids
      * @param dataModelPK
@@ -1967,7 +2037,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
      * @throws TransformerFactoryConfigurationError
      * @throws TransformerConfigurationException
      * @throws TransformerException
-     *
+     * 
      * 1.see if there is a job in the view 2.invoke the job. 3.convert the job's return value into xml doc, 4.convert
      * the wsItem's xml String value into xml doc, 5.cover wsItem's xml with job's xml value. step 6 and 7 must do
      * first. 6.add properties into ViewPOJO. 7.add properties into webservice parameter.
@@ -2044,10 +2114,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             if (null != xmlStringFromProcess && xmlStringFromProcess.length() != 0) {
                 Document wsItemDoc = Util.parse(wsItem.getContent());
                 Document jobDoc = null;
-                try{
-                    jobDoc=Util.parse(xmlStringFromProcess);
-                }catch(Exception e){
-                    //xml is not good, don't continue the following
+                try {
+                    jobDoc = Util.parse(xmlStringFromProcess);
+                } catch (Exception e) {
+                    // xml is not good, don't continue the following
                     return;
                 }
 
