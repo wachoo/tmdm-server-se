@@ -116,7 +116,7 @@ class UpdateReport implements DocumentSaver {
         ItemPOJO updateReport = new ItemPOJO(new DataClusterPOJOPK(UPDATE_REPORT_DATA_MODEL), UPDATE_REPORT_TYPE, idAsArray, System.currentTimeMillis(), updateReportDocument.asDOM().getDocumentElement());
 
         // Call session's save to save all items in correct order (one transaction per data cluster for the XML db).
-        session.save(UPDATE_REPORT_DATA_MODEL, updateReport);
+        session.save(UPDATE_REPORT_DATA_MODEL, updateReport, false);
     }
 
     private void createHeaderField(MutableDocument updateReportDocument, String fieldName, String value) {

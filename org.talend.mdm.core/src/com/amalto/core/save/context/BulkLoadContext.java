@@ -119,4 +119,12 @@ class BulkLoadContext implements DocumentSaverContext {
         this.isCreate = isCreate;
     }
 
+    public boolean hasMetAutoIncrement() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void setHasMetAutoIncrement(boolean hasMetAutoIncrement) {
+        throw new UnsupportedOperationException();
+    }
+
 }

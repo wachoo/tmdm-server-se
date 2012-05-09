@@ -62,7 +62,7 @@ class GenerateActions implements DocumentSaver {
             // This is a creation (database document is empty).
             Action createAction = new OverrideCreateAction(date, source, userName, userDocument, context.getType());
             // Generate field update actions for UUID and AutoIncrement elements.
-            CreateActions createActions = new CreateActions(date, source, userName, context.getDataCluster(), universe);
+            CreateActions createActions = new CreateActions(date, source, userName, context.getDataCluster(), universe, saverSource);
             UpdateActionCreator updateActions = new UpdateActionCreator(databaseDocument, userDocument, source, userName, metadataRepository);
 
             // Builds action list (be sure to include actual creation as first action).
@@ -70,6 +70,15 @@ class GenerateActions implements DocumentSaver {
             actions.add(createAction);
             actions.addAll(type.accept(createActions));
             actions.addAll(type.accept(updateActions));
+
+            context.setHasMetAutoIncrement(createActions.hasMetAutoIncrement());
+            List<String> idValues = createActions.getIdValues();
+            // TODO This does not guarantee key values are in correct order with key fields (for cases where ID is composed of mixed AUTO_INCREMENT and user fields).
+            // Join ids read from XML document and generated ID values.
+            String[] joinIds = new String[context.getId().length + idValues.size()];
+            System.arraycopy(context.getId(), 0, joinIds, 0, context.getId().length);
+            System.arraycopy(idValues.toArray(new String[idValues.size()]), 0, joinIds, context.getId().length, idValues.size());
+            context.setId(joinIds);
         } else {
             if (!context.isReplace()) { // "Is update"
                 // get updated paths
@@ -80,7 +89,7 @@ class GenerateActions implements DocumentSaver {
                 // Builds action list (be sure to include actual creation as first action).
                 actions = new LinkedList<Action>();
                 Action createAction = new OverrideReplaceAction(date, source, userName, userDocument, context.getType());
-                CreateActions createActions = new CreateActions(date, source, userName, context.getDataCluster(), universe);
+                CreateActions createActions = new CreateActions(date, source, userName, context.getDataCluster(), universe, saverSource);
                 actions.add(createAction);
                 actions.addAll(type.accept(createActions));
                 actions.addAll(type.accept(updateActions));

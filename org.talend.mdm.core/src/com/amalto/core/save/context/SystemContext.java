@@ -122,6 +122,13 @@ class SystemContext implements DocumentSaverContext {
         this.isCreate = isCreate;
     }
 
+    public boolean hasMetAutoIncrement() {
+        return false;
+    }
+
+    public void setHasMetAutoIncrement(boolean hasMetAutoIncrement) {
+    }
+
     public String[] getId() {
         return id;
     }

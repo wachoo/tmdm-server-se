@@ -10,11 +10,11 @@
   -->
 
 <Agency>
-    <Id>5258f292-5670-473b-bc01-8b63434682f3</Id>
+    <Id>100</Id>
     <Name>Chicago</Name>
     <City>Chicago</City>
-    <State>NY</State>
-    <Zip>10001</Zip>
+    <State>ME</State>
+    <Zip>04102</Zip>
     <Region>EAST</Region>
     <Information>
         <MoreInfo>http://www.newSite.org</MoreInfo>

@@ -15,6 +15,7 @@ import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.save.context.DefaultSaverSource;
 import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.save.context.SaverSource;
+import com.amalto.core.util.AutoIncrementGenerator;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,6 +33,10 @@ public class SaverSession {
     private final SaverSource dataSource;
 
     private static SaverSource defaultSaverSource;
+
+    private static DefaultCommitter defaultCommitter;
+
+    private boolean hasMetAutoIncrement = false;
 
     private SaverSession(SaverSource dataSource) {
         this.dataSource = dataSource;
@@ -76,16 +81,25 @@ public class SaverSession {
 
     /**
      * Start a transaction for this session on a given data cluster.
+     *
      * @param dataCluster The data cluster where a transaction should be started.
      */
     public void begin(String dataCluster) {
-        begin(dataCluster, new DefaultCommitter());
+        begin(dataCluster, getDefaultCommitter());
+    }
+
+    private DefaultCommitter getDefaultCommitter() {
+        if (defaultCommitter == null) {
+            defaultCommitter = new DefaultCommitter();
+        }
+        return defaultCommitter;
     }
 
     /**
      * Start a transaction for this session on a given data cluster.
+     *
      * @param dataCluster The data cluster where a transaction should be started.
-     * @param committer A {@link Committer} committer for interaction between save session and underlying storage.
+     * @param committer   A {@link Committer} committer for interaction between save session and underlying storage.
      */
     public void begin(String dataCluster, Committer committer) {
         committer.begin(dataCluster);
@@ -95,11 +109,12 @@ public class SaverSession {
      * End this session (means commit on all data clusters where a transaction was started).
      */
     public void end() {
-        end(new DefaultCommitter());
+        end(getDefaultCommitter());
     }
 
     /**
      * End this session (means commit on all data clusters where a transaction was started).
+     *
      * @param committer A {@link Committer} committer to use when committing transactions on underlying storage.
      */
     public void end(Committer committer) {
@@ -120,14 +135,26 @@ public class SaverSession {
                 saverSource.routeItem(updateReportPOJO.getDataClusterPOJOPK().getUniqueId(), updateReportPOJO.getConceptName(), updateReportPOJO.getItemIds());
             }
         }
+
+        // Save current state of autoincrement when save is completed.
+        if (hasMetAutoIncrement) {
+            SaverSource saverSource = getSaverSource();
+            saverSource.saveAutoIncrement();
+        }
     }
 
     /**
      * Adds a new record to be saved in this session.
-     * @param dataCluster Data cluster where the record should be saved.
-     * @param itemToSave The item to save.
+     *
+     * @param dataCluster         Data cluster where the record should be saved.
+     * @param itemToSave          The item to save.
+     * @param hasMetAutoIncrement <code>true</code> if AUTO_INCREMENT type has been met during save of <code>item</code>,
+     *                            <code>false</code> otherwise.
      */
-    public void save(String dataCluster, ItemPOJO itemToSave) {
+    public void save(String dataCluster, ItemPOJO itemToSave, boolean hasMetAutoIncrement) {
+        if (!this.hasMetAutoIncrement) {
+            this.hasMetAutoIncrement = hasMetAutoIncrement;
+        }
         Set<ItemPOJO> itemsToSave = itemsPerDataCluster.get(dataCluster);
         if (itemsToSave == null) {
             itemsToSave = new HashSet<ItemPOJO>();
@@ -154,11 +181,12 @@ public class SaverSession {
      * Aborts current transaction (means rollback on all data clusters where a transaction was started).
      */
     public void abort() {
-        abort(new DefaultCommitter());
+        abort(getDefaultCommitter());
     }
 
     /**
      * Aborts current transaction (means rollback on all data clusters where a transaction was started).
+     *
      * @param committer A {@link Committer} committer for interaction between save session and underlying storage.
      */
     public void abort(Committer committer) {
@@ -170,6 +198,7 @@ public class SaverSession {
 
     /**
      * Invalidate any type cache for the data model.
+     *
      * @param dataModelName A data model name.
      */
     public void invalidateTypeCache(String dataModelName) {
@@ -179,25 +208,29 @@ public class SaverSession {
     public interface Committer {
         /**
          * Begin a transaction on a data cluster
+         *
          * @param dataCluster A data cluster name.
          */
         void begin(String dataCluster);
 
         /**
          * Commit a transaction on a data cluster
+         *
          * @param dataCluster A data cluster name
          */
         void commit(String dataCluster);
 
         /**
          * Saves a MDM record for a given revision.
-         * @param item The item to save.
+         *
+         * @param item       The item to save.
          * @param revisionId A revision id.
          */
         void save(ItemPOJO item, String revisionId);
 
         /**
          * Rollbacks changes done on a data cluster.
+         *
          * @param dataCluster Data cluster name.
          */
         void rollback(String dataCluster);

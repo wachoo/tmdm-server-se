@@ -50,4 +50,8 @@ public interface SaverSource {
     void routeItem(String dataCluster, String typeName, String[] id);
 
     void invalidateTypeCache(String dataModelName);
+
+    void saveAutoIncrement();
+
+    String nextAutoIncrementId(String universe, String dataCluster, String conceptName);
 }

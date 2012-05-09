@@ -147,6 +147,10 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
     }
 
     private void compare(FieldMetadata comparedField) {
+        if (comparedField.isKey()) {
+            // Can't update a key: don't even try to compare the field.
+            return;
+        }
         String path = getPath();
         Accessor originalAccessor = originalDocument.createAccessor(path);
         Accessor newAccessor = newDocument.createAccessor(path);

@@ -119,6 +119,14 @@ public class ReportDocumentSaverContext implements DocumentSaverContext {
         delegate.setCreate(isCreate);
     }
 
+    public boolean hasMetAutoIncrement() {
+        return delegate.hasMetAutoIncrement();
+    }
+
+    public void setHasMetAutoIncrement(boolean hasMetAutoIncrement) {
+        delegate.setHasMetAutoIncrement(hasMetAutoIncrement);
+    }
+
     public String[] getId() {
         return delegate.getId();
     }

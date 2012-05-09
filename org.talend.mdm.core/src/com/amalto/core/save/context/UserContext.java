@@ -49,6 +49,8 @@ class UserContext implements DocumentSaverContext {
 
     private boolean isCreate;
 
+    private boolean hasMetAutoIncrement;
+
     UserContext(String dataCluster, String dataModel, MutableDocument userDocument, boolean isReplace, boolean validate, boolean updateReport, boolean invokeBeforeSaving) {
         this.userDocument = userDocument;
         this.dataCluster = dataCluster;
@@ -141,6 +143,14 @@ class UserContext implements DocumentSaverContext {
 
     public void setCreate(boolean isCreate) {
         this.isCreate = isCreate;
+    }
+
+    public boolean hasMetAutoIncrement() {
+        return hasMetAutoIncrement;
+    }
+
+    public void setHasMetAutoIncrement(boolean hasMetAutoIncrement) {
+        this.hasMetAutoIncrement = hasMetAutoIncrement;
     }
 
     public String[] getId() {

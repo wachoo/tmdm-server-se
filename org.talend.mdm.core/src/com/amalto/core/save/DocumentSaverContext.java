@@ -111,4 +111,8 @@ public interface DocumentSaverContext {
     boolean isCreate();
 
     void setCreate(boolean isCreate);
+
+    boolean hasMetAutoIncrement();
+
+    void setHasMetAutoIncrement(boolean hasMetAutoIncrement);
 }

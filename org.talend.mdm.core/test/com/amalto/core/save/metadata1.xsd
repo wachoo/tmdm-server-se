@@ -417,8 +417,8 @@
         <xsd:annotation>
             <xsd:appinfo source="X_Label_EN">Product Family</xsd:appinfo>
             <xsd:appinfo source="X_Label_FR">Famille Produit</xsd:appinfo>
-
             <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+            <xsd:appinfo source="X_Write">User</xsd:appinfo>
         </xsd:annotation>
         <xsd:complexType>
             <xsd:all maxOccurs="1" minOccurs="1">
@@ -426,7 +426,7 @@
                     <xsd:annotation>
                         <xsd:appinfo source="X_Label_EN">Id (sequence)</xsd:appinfo>
                         <xsd:appinfo source="X_Label_FR">Id (sequence)</xsd:appinfo>
-
+                        <xsd:appinfo source="X_Write">User</xsd:appinfo>
                         <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
                     </xsd:annotation>
                 </xsd:element>
@@ -434,7 +434,7 @@
                     <xsd:annotation>
                         <xsd:appinfo source="X_Label_EN">Name</xsd:appinfo>
                         <xsd:appinfo source="X_Label_FR">Nom</xsd:appinfo>
-
+                        <xsd:appinfo source="X_Write">User</xsd:appinfo>
                         <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
                     </xsd:annotation>
                 </xsd:element>

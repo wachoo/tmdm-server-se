@@ -10,28 +10,6 @@
 
 package com.amalto.core.save;
 
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
-import javax.xml.XMLConstants;
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
-import junit.framework.TestCase;
-
-import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.metadata.MetadataRepository;
@@ -42,6 +20,20 @@ import com.amalto.core.schema.validation.Validator;
 import com.amalto.core.schema.validation.XmlSchemaValidator;
 import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.XtentisException;
+import junit.framework.TestCase;
+import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import javax.xml.XMLConstants;
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import java.io.InputStream;
+import java.util.*;
 
 @SuppressWarnings("nls")
 public class DocumentSaveTest extends TestCase {
@@ -133,7 +125,7 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("ContractDetailType", evaluate(committedElement, "/Contract/detail[1]/@xsi:type"));
         assertEquals("", evaluate(committedElement, "/Contract/detail[1]/code"));
     }
-    
+
     public void testCreateSecurity() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
@@ -152,6 +144,46 @@ public class DocumentSaveTest extends TestCase {
         Element committedElement = committer.getCommittedElement();
         assertEquals("", evaluate(committedElement, "/Agency/Zip"));
         assertEquals("", evaluate(committedElement, "/Agency/State"));
+    }
+
+    public void testCreateWithUUIDOverwrite() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+
+        SaverSource source = new TestSaverSource(repository, false, "", "metadata1.xsd");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test23.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, true, true, true);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertNotSame("100", evaluate(committedElement, "/Agency/Id")); // Id is expected to be overwritten in case of creation
+    }
+
+    public void testCreateWithAutoIncrementOverwrite() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, false, "", "metadata1.xsd");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test24.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, true, true, true);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        assertFalse(source.hasSavedAutoIncrement());
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(source.hasSavedAutoIncrement());
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertNotSame("100", evaluate(committedElement, "/ProductFamily/Id")); // Id is expected to be overwritten in case of creation
     }
 
     public void testCreateFailure() throws Exception {
@@ -192,7 +224,7 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("Chicago", evaluate(committedElement, "/Agency/Name"));
         assertEquals("Chicago", evaluate(committedElement, "/Agency/City"));
     }
-    
+
     public void testUpdateOnNonExisting() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
@@ -352,7 +384,7 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("10001", evaluate(committedElement, "/Agency/Zip"));
         assertEquals("NY", evaluate(committedElement, "/Agency/State"));
     }
-    
+
     public void testReplaceSecurity() throws Exception {
         // TODO Test for modification of id (this test modifies id but this is intentional).
         final MetadataRepository repository = new MetadataRepository();
@@ -902,6 +934,10 @@ public class DocumentSaveTest extends TestCase {
 
         private final String schemaFileName;
 
+        private boolean hasSavedAutoIncrement;
+
+        private int currentId = 0;
+
         public TestSaverSource(MetadataRepository repository, boolean exist, String originalDocumentFileName, String schemaFileName) {
             this.repository = repository;
             this.exist = exist;
@@ -972,6 +1008,18 @@ public class DocumentSaveTest extends TestCase {
 
         public void invalidateTypeCache(String dataModelName) {
             lastInvalidatedTypeCache = dataModelName;
+        }
+
+        public void saveAutoIncrement() {
+            hasSavedAutoIncrement = true;
+        }
+
+        public String nextAutoIncrementId(String universe, String dataCluster, String conceptName) {
+            return String.valueOf(currentId++);
+        }
+
+        public boolean hasSavedAutoIncrement() {
+            return hasSavedAutoIncrement;
         }
 
         public String getLastInvalidatedTypeCache() {

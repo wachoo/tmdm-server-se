@@ -214,4 +214,12 @@ public class DefaultSaverSource implements SaverSource {
         }
     }
 
+    public void saveAutoIncrement() {
+        AutoIncrementGenerator.saveToDB();
+    }
+
+    public String nextAutoIncrementId(String universe, String dataCluster, String conceptName) {
+        return String.valueOf(AutoIncrementGenerator.generateNum(universe, dataCluster, conceptName));
+    }
+
 }

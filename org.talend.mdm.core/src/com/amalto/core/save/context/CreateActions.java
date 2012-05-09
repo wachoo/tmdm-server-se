@@ -23,6 +23,7 @@ import java.util.*;
 /**
  * Generate actions on creation (like setting UUID and AUTO_INCREMENT fields that <b>are not</b> part of the saved entity
  * type).
+ *
  * @see ID for code that sets ID values.
  */
 class CreateActions extends DefaultMetadataVisitor<List<Action>> {
@@ -39,14 +40,21 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
 
     private final String universe;
 
+    private final SaverSource saverSource;
+
     private final String dataCluster;
 
-    CreateActions(Date date, String source, String userName, String dataCluster, String universe) {
+    private final List<String> idValues = new LinkedList<String>();
+
+    private boolean hasMetAutoIncrement;
+
+    CreateActions(Date date, String source, String userName, String dataCluster, String universe, SaverSource saverSource) {
         this.date = date;
         this.source = source;
         this.userName = userName;
         this.dataCluster = dataCluster;
         this.universe = universe;
+        this.saverSource = saverSource;
     }
 
     private String getPath() {
@@ -105,19 +113,28 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
     public List<Action> visit(SimpleTypeFieldMetadata simpleField) {
         path.push(simpleField.getName());
         {
-            if (!simpleField.isKey()) { // Ids are handled in ID phase
-                // Handle UUID and AutoIncrement elements
-                if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(simpleField.getType().getName())) {
-                    String conceptName = getPath() + "." + simpleField.getName().replaceAll("/", "."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    String autoIncrementValue = String.valueOf(AutoIncrementGenerator.generateNum(universe, dataCluster, conceptName));
-                    actions.add(new FieldUpdateAction(date, source, userName, getPath(), StringUtils.EMPTY, autoIncrementValue, simpleField));
-                } else if (EUUIDCustomType.UUID.getName().equalsIgnoreCase(simpleField.getType().getName())) {
-                    String uuidValue = UUID.randomUUID().toString();
-                    actions.add(new FieldUpdateAction(date, source, userName, getPath(), StringUtils.EMPTY, uuidValue, simpleField));
-                }
+            // Handle UUID and AutoIncrement elements (this code also ensures any previous value is overwritten, see TMDM-3900).
+            if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(simpleField.getType().getName())) {
+                String conceptName = getPath() + "." + simpleField.getName().replaceAll("/", "."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                String autoIncrementValue = saverSource.nextAutoIncrementId(universe, dataCluster, conceptName);
+                actions.add(new FieldUpdateAction(date, source, userName, getPath(), StringUtils.EMPTY, autoIncrementValue, simpleField));
+                idValues.add(autoIncrementValue);
+                hasMetAutoIncrement = true; // Remembers we've just met an auto increment value
+            } else if (EUUIDCustomType.UUID.getName().equalsIgnoreCase(simpleField.getType().getName())) {
+                String uuidValue = UUID.randomUUID().toString();
+                idValues.add(uuidValue);
+                actions.add(new FieldUpdateAction(date, source, userName, getPath(), StringUtils.EMPTY, uuidValue, simpleField));
             }
         }
         path.pop();
         return super.visit(simpleField);
+    }
+
+    public boolean hasMetAutoIncrement() {
+        return hasMetAutoIncrement;
+    }
+
+    public List<String> getIdValues() {
+        return idValues;
     }
 }

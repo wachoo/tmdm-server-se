@@ -20,22 +20,26 @@ import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Element;
 
 class Save implements DocumentSaver {
+
+    private String[] savedId = new String[0];
+
     public void save(SaverSession session, DocumentSaverContext context) {
         DataClusterPOJOPK dataCluster = new DataClusterPOJOPK(context.getDataCluster());
         String typeName = context.getType().getName();
-        String[] ids = context.getId();
-
+        savedId = context.getId();
+        if (savedId.length == 0) {
+            throw new IllegalStateException("No ID information to save instance of '" + typeName + "'");
+        }
         Element documentElement = context.getDatabaseDocument().asDOM().getDocumentElement();
-        ItemPOJO item = new ItemPOJO(dataCluster, typeName, ids, System.currentTimeMillis(), documentElement);
+        ItemPOJO item = new ItemPOJO(dataCluster, typeName, savedId, System.currentTimeMillis(), documentElement);
         // Data model name is rather important! (used by FK integrity checks for instance).
         item.setDataModelName(context.getDataModelName());
         item.setDataModelRevision(context.getRevisionID()); // TODO Is data model revision ok?
-
-        session.save(context.getDataCluster(), item);
+        session.save(context.getDataCluster(), item, context.hasMetAutoIncrement());
     }
 
     public String[] getSavedId() {
-        throw new UnsupportedOperationException();
+        return savedId;
     }
 
     public String getSavedConceptName() {

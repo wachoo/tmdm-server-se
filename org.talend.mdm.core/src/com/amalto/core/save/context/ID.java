@@ -19,10 +19,11 @@ import com.amalto.core.save.DOMDocument;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
-import com.amalto.core.util.AutoIncrementGenerator;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -52,46 +53,27 @@ class ID implements DocumentSaver {
         }
         List<FieldMetadata> keyFields = type.getKeyFields();
         SaverSource database = session.getSaverSource();
-        String universe = database.getUniverse();
         String dataCluster = context.getDataCluster();
 
-        boolean hasMetAutoIncrement = false;
         MutableDocument userDocument = context.getUserDocument();
         String typeName = type.getName();
         for (FieldMetadata keyField : keyFields) {
             String keyFieldTypeName = keyField.getType().getName();
             Accessor userAccessor = userDocument.createAccessor(keyField.getName());
 
-            // Get (or generate) ids.
-            String generatedIdValue = null;
+            // Get ids.
             String currentIdValue;
-            if (EUUIDCustomType.UUID.getName().equalsIgnoreCase(keyFieldTypeName)) {
-                if (userAccessor.exist()) {
-                    generatedIdValue = userAccessor.get();
-                }
-                if (generatedIdValue == null || generatedIdValue.isEmpty()) { // Web UI generates empty elements!
-                    generatedIdValue = java.util.UUID.randomUUID().toString();
-                }
-                if (userAccessor.exist()) {
-                    userAccessor.set(generatedIdValue);
+            if (EUUIDCustomType.UUID.getName().equalsIgnoreCase(keyFieldTypeName) || EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(keyFieldTypeName)) {
+                if (userAccessor.exist()) { // Ignore cases where id is not there (will usually mean this is a creation).
+                    String value = userAccessor.get();
+                    if (!value.trim().isEmpty()) {
+                        currentIdValue = value;
+                    } else {
+                        currentIdValue = null;  // Value is empty, don't consider this as an ID value.
+                    }
                 } else {
-                    userAccessor.createAndSet(generatedIdValue);
+                    currentIdValue = null; // Element does not exist, don't consider this as an ID value.
                 }
-                currentIdValue = generatedIdValue;
-            } else if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(keyFieldTypeName)) {
-                if (userAccessor.exist()) {
-                    generatedIdValue = userAccessor.get();
-                }
-                if (generatedIdValue == null || generatedIdValue.isEmpty()) { // Web UI generates empty elements!
-                    generatedIdValue = String.valueOf(AutoIncrementGenerator.generateNum(universe, dataCluster, typeName + "." + keyField.getName().replaceAll("/", ".")));   //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                }
-                if (userAccessor.exist()) {
-                    userAccessor.set(generatedIdValue);
-                } else {
-                    userAccessor.createAndSet(generatedIdValue);
-                }
-                currentIdValue = generatedIdValue;
-                hasMetAutoIncrement = true;
             } else {
                 // Not a value to generate, first ensure value is correctly set.
                 if (!userAccessor.exist()) {
@@ -100,11 +82,13 @@ class ID implements DocumentSaver {
                 currentIdValue = userAccessor.get();
             }
 
-            ids.add(currentIdValue);
+            if (currentIdValue != null) {
+                ids.add(currentIdValue);
+            }
         }
 
         // now has an id, so load database document
-        String[] savedId = getSavedId();
+        String[] xmlDocumentId = ids.toArray(new String[ids.size()]);
         String revisionID = context.getRevisionID();
         DocumentBuilder documentBuilder;
         try {
@@ -112,9 +96,8 @@ class ID implements DocumentSaver {
         } catch (ParserConfigurationException e) {
             throw new RuntimeException("Could not acquire a document builder.", e);
         }
-        if (database.exist(dataCluster, typeName, revisionID, savedId)) {
-            NonCloseableInputStream nonCloseableInputStream = new NonCloseableInputStream(database.get(dataCluster, typeName, revisionID, savedId));
-
+        if (xmlDocumentId.length > 0 && database.exist(dataCluster, typeName, revisionID, xmlDocumentId)) {
+            NonCloseableInputStream nonCloseableInputStream = new NonCloseableInputStream(database.get(dataCluster, typeName, revisionID, xmlDocumentId));
             try {
                 nonCloseableInputStream.mark(-1);
 
@@ -143,8 +126,8 @@ class ID implements DocumentSaver {
             // Throw an exception if trying to update a document that does not exist.
             if (!context.isReplace()) { // Is update
                 StringBuilder builder = new StringBuilder();
-                for (String idElement : savedId) {
-                    builder.append('[' + idElement + ']');
+                for (String idElement : xmlDocumentId) {
+                    builder.append('[').append(idElement).append(']');
                 }
                 throw new IllegalStateException("Can not update document '" + type.getName() + "' with id '" + builder.toString() + "' because it does not exist.");
             }
@@ -157,15 +140,8 @@ class ID implements DocumentSaver {
 
         // Continue save
         savedTypeName = context.getType().getName();
-        context.setId(savedId);
+        context.setId(xmlDocumentId);
         next.save(session, context);
-
-        if (hasMetAutoIncrement) {
-            // TODO This is somewhat bad: would be better to do it on commit.
-            // Save current state of autoincrement when save is completed:
-            AutoIncrementGenerator.saveToDB();
-        }
-
     }
 
     private static Element getUserXmlElement(Document databaseDomDocument) {
@@ -183,7 +159,7 @@ class ID implements DocumentSaver {
     }
 
     public String[] getSavedId() {
-        return ids.toArray(new String[ids.size()]);
+        return next.getSavedId();
     }
 
     public String getSavedConceptName() {
