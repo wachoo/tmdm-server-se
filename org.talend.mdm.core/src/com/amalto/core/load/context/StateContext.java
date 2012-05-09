@@ -58,5 +58,7 @@ public interface StateContext {
 
     String getCurrentIdElement();
 
+    boolean skipElement();
+
     void close();
 }

@@ -174,7 +174,7 @@ public class DefaultStateContext implements StateContext {
         currentLocation.push(elementLocalName);
 
         // Check path
-        if (!isFlushDone()) {
+        if (!isMetadataReady) {
             PathMatcher match = match(elementLocalName);
             if (match != null) {
                 isIdElement = true;
@@ -243,6 +243,10 @@ public class DefaultStateContext implements StateContext {
 
     public String getCurrentIdElement() {
         return currentIdElementName;
+    }
+
+    public boolean skipElement() {
+        return false;
     }
 
     public void close() {

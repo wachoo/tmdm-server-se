@@ -196,10 +196,10 @@ public class LoadParserTest extends TestCase {
         LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"uniqueId"}, true, "clusterName", "modelName", idGenerator);
 
         if (LOG.isDebugEnabled()) {
-             InputStream testResource2 = this.getClass().getResourceAsStream("test6.xml");
-             LoadParserCallback callback2 = new ConsolePrintParserCallback();
-             LoadParser.parse(testResource2, config, callback2);
-         }
+            InputStream testResource2 = this.getClass().getResourceAsStream("test6.xml");
+            LoadParserCallback callback2 = new ConsolePrintParserCallback();
+            LoadParser.parse(testResource2, config, callback2);
+        }
 
         StateContext context = LoadParser.parse(testResource, config, callback);
         assertTrue(callback.hasBeenFlushed());
@@ -364,6 +364,40 @@ public class LoadParserTest extends TestCase {
         context.close();
         assertTrue(idGenerator.isStateSaved());
     }
+
+    public void testAutoGenIdWithExistingElements() {
+        TestAutoIdGenerator idGenerator = new TestAutoIdGenerator();
+        InputStream testResource = new ByteArrayInputStream("<Product><id>1000</id><Name>Test1</Name><Description>Descr1</Description><Availability>false</Availability><Price>0.0</Price></Product>".getBytes());
+        testResource = new XMLRootInputStream(testResource, "doc");
+        assertNotNull(testResource);
+        assertFalse(idGenerator.isStateSaved());
+        LoadParser.Configuration config = new LoadParser.Configuration("Product", new String[]{"id"}, true, "clusterName", "modelName", idGenerator);
+
+        if (LOG.isDebugEnabled()) {
+            InputStream testResource2 = new ByteArrayInputStream("<Product><id>1000</id><Name>Test1</Name><Description>Descr1</Description><Availability>false</Availability><Price>0.0</Price></Product>".getBytes());
+            testResource2 = new XMLRootInputStream(testResource2, "doc");
+            LoadParserCallback callback2 = new ConsolePrintParserCallback();
+            LoadParser.parse(testResource2, config, callback2);
+        }
+
+
+        ParserTestCallback callback = new ParserTestCallback();
+
+        StateContext context = LoadParser.parse(testResource, config, callback);
+        assertTrue(callback.hasBeenFlushed());
+        assertEquals(1, callback.getFlushCount());
+        assertEquals(16, callback.getStartedElements().size());
+        assertTrue(hasParsedElement(callback, "Product"));
+        assertTrue(hasParsedElement(callback, "Name"));
+        assertTrue(hasParsedCharacters(callback, "Test1"));
+        assertEquals("0", callback.getId());
+        assertTrue(idGenerator.getKeyFields().contains("id"));
+
+        assertFalse(idGenerator.isStateSaved());
+        context.close();
+        assertTrue(idGenerator.isStateSaved());
+    }
+
 
     public void testMultipleXmlRootWithAutoGenCompoundId() {
         TestAutoIdGenerator idGenerator = new TestAutoIdGenerator();
@@ -718,14 +752,14 @@ public class LoadParserTest extends TestCase {
                                 declaredNamespaces.add(entry.getKey());
                             }
                         }
-                        LOG.debug('>');
+                        System.out.print('>');
                         indent++;
                     }
 
                     public void endElement(String uri, String localName, String qName) throws SAXException {
                         indent--;
                         indent();
-                        LOG.debug("</" + localName + ">");
+                        System.out.print("</" + localName + ">");
                     }
 
                     public void characters(char[] ch, int start, int length) throws SAXException {
@@ -733,7 +767,7 @@ public class LoadParserTest extends TestCase {
                         for (int i = start; i < length; i++) {
                             System.out.print(ch[i]);
                         }
-                        LOG.debug("");
+                        System.out.print("");
                     }
 
                     public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {

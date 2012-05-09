@@ -148,6 +148,10 @@ public class AutoGenStateContext implements StateContext {
         return delegate.getCurrentIdElement();
     }
 
+    public boolean skipElement() {
+        return delegate.isIdElement();
+    }
+
     public void close() {
         // This line is rather important since the generator might need to persist its state
         // see DefaultAutoIdGenerator for instance.

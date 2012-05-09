@@ -19,6 +19,7 @@ import com.amalto.core.load.context.StateContext;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.events.XMLEvent;
 
 /**
  *
@@ -30,18 +31,25 @@ public class StartElement implements State {
     }
 
     public void parse(StateContext context, XMLStreamReader reader) throws XMLStreamException {
-        try {
-            context.getWriter().writeStartElement(reader);
-        } catch (Exception e) {
-            throw new XMLStreamException(e);
-        }
-
         String elementLocalName = reader.getName().getLocalPart();
         context.enterElement(elementLocalName);
-        if (!context.getPayLoadElementName().equals(elementLocalName) && context.isIdElement()) {
-            context.setCurrent(SetId.INSTANCE);
-        } else {
+
+        if (context.skipElement()) {
+            while (reader.next() != XMLEvent.END_ELEMENT) {
+            }
+            context.leaveElement();
             context.setCurrent(Selector.INSTANCE);
+        } else {
+            try {
+                context.getWriter().writeStartElement(reader);
+            } catch (Exception e) {
+                throw new XMLStreamException(e);
+            }
+            if (!context.getPayLoadElementName().equals(elementLocalName) && context.isIdElement()) {
+                context.setCurrent(SetId.INSTANCE);
+            } else {
+                context.setCurrent(Selector.INSTANCE);
+            }
         }
     }
 
