@@ -1045,7 +1045,7 @@ public abstract class QueryBuilder {
             String rawQuery = rawQueryStringBuffer.toString();
 
             // Determine Query based on number of results an counts
-            String query = getPagingString(withTotalCountOnFirstRow, partialXQLPackage, start, limit, rawQuery);
+            String query = getPagingString(withTotalCountOnFirstRow, partialXQLPackage, start, limit, rawQuery, viewableFullPaths);
 
             // create a intermediate line for subsequence
 
@@ -1293,7 +1293,7 @@ public abstract class QueryBuilder {
      * @return
      */
     public String getPagingString(boolean withTotalCountOnFirstRow, PartialXQLPackage partialXQLPackage, long start, long limit,
-            String rawQuery) {
+                                  String rawQuery, List<String> viewableFullPaths) {
         boolean subsequence = (start >= 0 && limit >= 0 && limit != Integer.MAX_VALUE);
         StringBuilder query = new StringBuilder();
         if (subsequence) {

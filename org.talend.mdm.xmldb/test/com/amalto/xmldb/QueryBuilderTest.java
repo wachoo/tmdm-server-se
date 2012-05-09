@@ -12,12 +12,7 @@
 // ============================================================================
 package com.amalto.xmldb;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import junit.framework.TestCase;
 
@@ -125,7 +120,7 @@ public class QueryBuilderTest extends TestCase {
         String expected = "let $_page_ :=\n";
         expected += "for $pivot0 in subsequence($_leres0_,1,10) return <result>{<Id>{string($pivot0/Id)}</Id>}</result>\n";
         expected += "return (<totalCount>{count($_leres0_)}</totalCount>, $_page_)";
-        String actual = queryBuilder.getPagingString(withTotalCountOnFirstRow, partialXQLPackage, start, limit, rawQuery);
+        String actual = queryBuilder.getPagingString(withTotalCountOnFirstRow, partialXQLPackage, start, limit, rawQuery, Collections.<String>emptyList());
         assertEquals(expected, actual);
     }
 
