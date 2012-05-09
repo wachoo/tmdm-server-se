@@ -695,50 +695,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         vb.setColumnLayoutModel(getColumnTreeLayout(concept));
         return vb;
     }
-
-    public static boolean checkNoAccess(String modelXSD, String conceptName) {
-        boolean result = false;
-
-        try {
-            String roles = com.amalto.webapp.core.util.Util.getPrincipalMember("Roles"); //$NON-NLS-1$
-            List<String> roleList = Arrays.asList(roles.split(",")); //$NON-NLS-1$
-            result = checkNoAccessHelper(modelXSD, conceptName, roleList);
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-        }
-
-        return result;
-    }
-
-    public static boolean checkNoAccessHelper(String modelXSD, String conceptName, List<String> roles) {
-        boolean result = false;
-
-        if (LOG.isDebugEnabled())
-            LOG.debug("Check no access permission on " + conceptName + " for roles " + roles); //$NON-NLS-1$ //$NON-NLS-2$
-
-        try {
-            MetadataRepository repository = new MetadataRepository();
-            InputStream is = new ByteArrayInputStream(modelXSD.getBytes("UTF-8")); //$NON-NLS-1$
-            repository.load(is);
-
-            ComplexTypeMetadata metadata = repository.getComplexType(conceptName);
-
-            if (metadata != null) {
-                List<String> noAccessRoles = metadata.getHideUsers();
-                if (LOG.isDebugEnabled())
-                    LOG.debug("Roles without access " + noAccessRoles); //$NON-NLS-1$
-                noAccessRoles.retainAll(roles);
-                result = !noAccessRoles.isEmpty();
-            } else {
-                if (LOG.isDebugEnabled())
-                    LOG.debug("Complex Type " + conceptName + " not found"); //$NON-NLS-1$ //$NON-NLS-2$
-            }
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-        }
-
-        return result;
-    }
     
     public void logicalDeleteItem(ItemBean item, String path, boolean override) throws ServiceException {
         try {
