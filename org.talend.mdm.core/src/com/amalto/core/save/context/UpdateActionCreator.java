@@ -60,6 +60,8 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     @Override
     public List<Action> visit(ComplexTypeMetadata complexType) {
+        // This is an update, so both original and new document have a "entity root" element (TMDM-3883).
+        generateNoOp("/");
         super.visit(complexType);
         return actions;
     }

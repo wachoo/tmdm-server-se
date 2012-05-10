@@ -869,6 +869,23 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("111", evaluate(committedElement, "/testImport/KeyMapping/Keys[1]/System"));
     }
 
+    public void test25() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata3.xsd"));
+
+        SaverSource source = new TestSaverSource(repository, true, "test25_original.xml", "metadata3.xsd");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test25.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, false, true, true, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+    }
+
     private static class MockCommitter implements SaverSession.Committer {
 
         private Element committedElement;
