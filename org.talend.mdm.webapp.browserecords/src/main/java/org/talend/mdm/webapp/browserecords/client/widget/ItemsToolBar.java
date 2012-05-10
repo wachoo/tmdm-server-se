@@ -308,11 +308,10 @@ public class ItemsToolBar extends ToolBar {
 
         });
 
-        // deleteMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
         Menu sub = new Menu();
         MenuItem delMenu = new MenuItem(MessagesFactory.getMessages().delete_btn());
         delMenu.setId("physicalDelMenuInGrid");//$NON-NLS-1$
-        // delMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
+        delMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
 
         // TODO duplicate with recordToolbar
         delMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
@@ -366,6 +365,7 @@ public class ItemsToolBar extends ToolBar {
 
         deleteMenu.setMenu(sub);
         deleteMenu.setEnabled(false);
+        deleteMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
         add(deleteMenu);
 
         uploadBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
