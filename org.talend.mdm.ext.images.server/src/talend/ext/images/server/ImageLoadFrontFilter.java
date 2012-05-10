@@ -62,15 +62,19 @@ public class ImageLoadFrontFilter {
 	private static String parseResourcePath(ServletContext sc,
 			HttpServletRequest req) {
 		String path = sc.getRealPath("/upload");
-		String input = req.getRequestURI();
-		if (input.indexOf("?") != -1) {
-			input = input.substring(0, input.indexOf("?"));
+		try{
+		    String input = new String(req.getServletPath().getBytes("iso-8859-1"), "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$
+		    if (input.indexOf("?") != -1) {
+	            input = input.substring(0, input.indexOf("?"));
+	        }
+	        input = input.replaceAll("//", "/");
+	        input = input.substring(input.indexOf("/upload") + 7);
+	        parseCatalogAndFile(input);
+	        input = input.replace("/", File.separator);
+	        path += input;	        
+		}catch (Exception exception){
+		    exception.printStackTrace();
 		}
-		input = input.replaceAll("//", "/");
-		input = input.substring(input.indexOf("/upload") + 7);
-		parseCatalogAndFile(input);
-		input = input.replace("/", File.separator);
-		path += input;
 		return path;
 	}
 

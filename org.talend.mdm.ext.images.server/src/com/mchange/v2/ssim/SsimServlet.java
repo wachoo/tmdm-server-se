@@ -242,7 +242,7 @@ public class SsimServlet extends HttpServlet
 	    }
 
 
-	String servletPath = req.getServletPath();
+	String servletPath = new String(req.getServletPath().getBytes("iso-8859-1"), "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$
 	String uid = null;
 	boolean base_url_host = false;
 	boolean explicitly_replaced_pattern = false;
