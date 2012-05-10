@@ -68,7 +68,7 @@ public abstract class SchemaManager {
 
     protected abstract DataModelBean getFromPool(DataModelID dataModelID) throws Exception;
 
-    private DataModelBean instantiateDataModelBean(String dataModelSchema) throws SAXException {
+    protected DataModelBean instantiateDataModelBean(String dataModelSchema) throws SAXException {
         DataModelBean dataModelBean = new DataModelBean();
         XSSchemaSet result = null;
         // parse
@@ -172,6 +172,54 @@ public abstract class SchemaManager {
             }
         }
         return targetReusableType;
+    }
+
+    /**
+     * DOC Administrator Comment method "getMySubtypes".
+     * 
+     * @param parentTypeName
+     * @param deep
+     * @param dataModelBean
+     * @return
+     * @throws Exception
+     */
+    public List<ReusableType> getMySubtypes(String parentTypeName, boolean deep, DataModelBean dataModelBean) throws Exception {
+
+        List<ReusableType> subTypes = new ArrayList<ReusableType>();
+
+        List<ReusableType> reusableTypes = dataModelBean.getReusableTypes();
+
+        setMySubtypes(parentTypeName, subTypes, reusableTypes, deep);
+
+        return subTypes;
+
+    }
+
+    /**
+     * DOC HSHU Comment method "setMySubtypes".
+     * 
+     * @param parentTypeName
+     * @param subTypes
+     * @param reusableTypes
+     * @param deep
+     */
+    private void setMySubtypes(String parentTypeName, List<ReusableType> subTypes, List<ReusableType> reusableTypes, boolean deep) {
+        List<String> checkList = new ArrayList<String>();
+
+        for (ReusableType reusableType : reusableTypes) {
+            if (reusableType.getParentName() != null && reusableType.getParentName().equals(parentTypeName)) {
+                subTypes.add(reusableType);
+                checkList.add(reusableType.getName());
+            }
+        }
+
+        if (deep) {
+            if (checkList.size() > 0) {
+                for (String storedTypeName : checkList) {
+                    setMySubtypes(storedTypeName, subTypes, reusableTypes, deep);
+                }
+            }
+        }
     }
 
 }

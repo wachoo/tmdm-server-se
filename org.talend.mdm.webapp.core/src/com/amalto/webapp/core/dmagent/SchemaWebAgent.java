@@ -24,7 +24,6 @@ import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.DataModelBean;
 import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
-import org.talend.mdm.commmon.util.datamodel.management.SchemaManager;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -47,7 +46,7 @@ import com.sun.xml.xsom.XSParticle;
 /**
  * DOC HSHU class global comment. Detailled comment
  */
-public class SchemaWebAgent extends SchemaManager {
+public class SchemaWebAgent extends SchemaAbstractWebAgent {
 
     private static SchemaWebAgent agent;
 
@@ -216,17 +215,9 @@ public class SchemaWebAgent extends SchemaManager {
      * @throws Exception
      */
     public List<ReusableType> getMySubtypes(String parentTypeName, boolean deep) throws Exception {
-        List<ReusableType> subTypes = new ArrayList<ReusableType>();
-
-        DataModelBean dataModelBean = getFromPool(getMyDataModelTicket());
-
-        List<ReusableType> reusableTypes = dataModelBean.getReusableTypes();
-
-        setMySubtypes(parentTypeName, subTypes, reusableTypes, deep);
-
-        return subTypes;
-
+        return getMySubtypes(parentTypeName, deep, getFromPool(getMyDataModelTicket()));
     }
+
 
     public List<ReusableType> getMyParents(String subTypeName) throws Exception {
         DataModelBean dataModelBean = getFromPool(getMyDataModelTicket());
@@ -264,32 +255,7 @@ public class SchemaWebAgent extends SchemaManager {
         return resuable;
     }
 
-    /**
-     * DOC HSHU Comment method "setMySubtypes".
-     * 
-     * @param parentTypeName
-     * @param subTypes
-     * @param reusableTypes
-     * @param deep
-     */
-    private void setMySubtypes(String parentTypeName, List<ReusableType> subTypes, List<ReusableType> reusableTypes, boolean deep) {
-        List<String> checkList = new ArrayList<String>();
 
-        for (ReusableType reusableType : reusableTypes) {
-            if (reusableType.getParentName() != null && reusableType.getParentName().equals(parentTypeName)) {
-                subTypes.add(reusableType);
-                checkList.add(reusableType.getName());
-            }
-        }
-
-        if (deep) {
-            if (checkList.size() > 0) {
-                for (String storedTypeName : checkList) {
-                    setMySubtypes(storedTypeName, subTypes, reusableTypes, deep);
-                }
-            }
-        }
-    }
 
     /**
      * DOC HSHU Comment method "isMySubType".
