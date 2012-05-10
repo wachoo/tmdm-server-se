@@ -1451,7 +1451,11 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             StringBuffer foreignKeyDeleteMessage = new StringBuffer();
             Element root = resultDoc.getDocumentElement();
             String baseXpath = contextPath.substring(0, contextPath.lastIndexOf('/'));
-            itemModel = builderNode(multiNodeIndex, root, entity, baseXpath, "", true, foreignKeyDeleteMessage, true, language); //$NON-NLS-1$
+            String baseXpathWithInheritance = baseXpath;
+            if (typePath.substring(0, typePath.lastIndexOf("/")).contains(":")) //$NON-NLS-1$ //$NON-NLS-2$
+                baseXpathWithInheritance = typePath.substring(0, typePath.lastIndexOf("/")); //$NON-NLS-1$
+            itemModel = builderNode(multiNodeIndex, root, entity, baseXpathWithInheritance,
+                    "", true, foreignKeyDeleteMessage, true, language); //$NON-NLS-1$
             DynamicLabelUtil.getDynamicLabel(doc4j, baseXpath, itemModel, metaDataTypes, language);
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
