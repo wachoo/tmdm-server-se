@@ -51,7 +51,7 @@ class UpdateReport implements DocumentSaver {
         UpdateReportDocument updateReportDocument;
         try {
             Document updateReportAsDOM = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-            updateReportAsDOM.appendChild(updateReportAsDOM.createElement("Update")); //$NON-NLS-1$
+            updateReportAsDOM.appendChild(updateReportAsDOM.createElement(UPDATE_REPORT_TYPE));
             updateReportDocument = new UpdateReportDocument(updateReportAsDOM, databaseDocument);
         } catch (ParserConfigurationException e) {
             throw new RuntimeException(e);

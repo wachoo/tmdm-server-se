@@ -61,7 +61,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
     @Override
     public List<Action> visit(ComplexTypeMetadata complexType) {
         // This is an update, so both original and new document have a "entity root" element (TMDM-3883).
-        generateNoOp("/");
+        generateNoOp("/"); //$NON-NLS-1$
         super.visit(complexType);
         return actions;
     }
@@ -135,11 +135,11 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
             int max = Math.max(leftAccessor.size(), rightAccessor.size());
             for (int i = max; i > 0; i--) {
                 // XPath indexes are 1-based (not 0-based).
-                path.add(field.getName() + "[" + i + "]"); //$NON-NLS-1$ //$NON-NLS-2$
+                path.add(field.getName() + '[' + i + ']');
                 closure.execute(field);
                 path.pop();
             }
-            path.add(field.getName() + "[" + max + "]"); //$NON-NLS-1$ //$NON-NLS-2$
+            path.add(field.getName() + '[' + max + ']');
             lastMatchPath = getPath();
             path.pop();
         } else {
@@ -199,11 +199,11 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
         private final String path;
 
-        private Date date;
+        private final Date date;
 
-        private String source;
+        private final String source;
 
-        private String userName;
+        private final String userName;
 
         private TouchAction(String path, Date date, String source, String userName) {
             this.path = path;
@@ -246,13 +246,13 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
         }
 
         public String getDetails() {
-            return "Accessing value";
+            return "Accessing value"; //$NON-NLS-1$
         }
 
         @Override
         public String toString() {
-            return "TouchAction{" +
-                    "path='" + path + '\'' +
+            return "TouchAction{" + //$NON-NLS-1$
+                    "path='" + path + '\'' + //$NON-NLS-1$
                     '}';
         }
     }

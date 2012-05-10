@@ -44,6 +44,7 @@ public class SaverContextFactory {
 
     private static DocumentSaverExtension saverExtension;
 
+    @SuppressWarnings("unchecked")
     static DocumentSaver invokeSaverExtension(DocumentSaver saver) {
         if (saverExtension == null) {
             try {
@@ -92,20 +93,6 @@ public class SaverContextFactory {
                                                LoadAction loadAction,
                                                XmlServerSLWrapperLocal server) {
         return new BulkLoadContext(dataCluster, dataModelName, keyMetadata, documentStream, loadAction, server);
-    }
-
-    /**
-     * Creates a {@link DocumentSaverContext} to save a unique record in MDM.
-     *
-     * @param dataCluster    Data container name (must exist).
-     * @param dataModelName  Data model name (must exist).
-     * @param documentStream A stream that contains one XML document.
-     * @return A context configured to save a record in MDM.
-     */
-    public DocumentSaverContext create(String dataCluster,
-                                       String dataModelName,
-                                       InputStream documentStream) {
-        return create(dataCluster, dataModelName, StringUtils.EMPTY, documentStream, false, true, false, false);
     }
 
     /**

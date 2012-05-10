@@ -14,7 +14,6 @@ package com.amalto.core.save.context;
 import com.amalto.core.history.Action;
 import com.amalto.core.history.action.FieldUpdateAction;
 import com.amalto.core.metadata.*;
-import com.amalto.core.util.AutoIncrementGenerator;
 import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 

@@ -15,7 +15,6 @@ import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.save.context.DefaultSaverSource;
 import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.save.context.SaverSource;
-import com.amalto.core.util.AutoIncrementGenerator;
 
 import java.util.HashMap;
 import java.util.HashSet;

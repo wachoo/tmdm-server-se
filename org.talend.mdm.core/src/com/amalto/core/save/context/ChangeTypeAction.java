@@ -64,7 +64,7 @@ class ChangeTypeAction implements Action {
         String typeName = newType.getNamespace();
         if (typeAccessor.exist() && !typeName.equals(typeAccessor.get())) {
             for (String currentPathToDelete : pathToClean) {
-                Accessor accessor = document.createAccessor(path + "/" + currentPathToDelete); //$NON-NLS-1$
+                Accessor accessor = document.createAccessor(path + '/' + currentPathToDelete);
                 if (accessor.exist()) {
                     accessor.delete();
                 }
@@ -105,14 +105,14 @@ class ChangeTypeAction implements Action {
     }
 
     public String getDetails() {
-        return "Change type to " + newType.getName();
+        return "Change type to " + newType.getName(); //$NON-NLS-1$
     }
 
     @Override
     public String toString() {
-        return "ChangeTypeAction{" +
-                "path='" + path + '\'' +
-                ", newType=" + newType +
+        return "ChangeTypeAction{" +  //$NON-NLS-1$
+                "path='" + path + '\'' + //$NON-NLS-1$
+                ", newType=" + newType + //$NON-NLS-1$
                 '}';
     }
 

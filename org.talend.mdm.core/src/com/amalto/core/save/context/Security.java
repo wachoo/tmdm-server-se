@@ -151,7 +151,7 @@ class Security implements DocumentSaver {
         }
 
         public String getDetails() {
-            return "revert modification: (" + action.getDetails() + ")";
+            return "revert modification: (" + action.getDetails() + ")";  //$NON-NLS-1$ //$NON-NLS-2$
         }
     }
 }

@@ -43,7 +43,7 @@ class ApplyActions implements DocumentSaver {
         next.save(session, context);
     }
 
-    public static void clean(Element element) {
+    private static void clean(Element element) {
         if (element == null) {
             return;
         }

@@ -24,10 +24,6 @@ class OverrideReplaceAction extends CreateAction {
 
     private final ComplexTypeMetadata type;
 
-    public OverrideReplaceAction(Date date, String source, String userName, MutableDocument userDocument) {
-        this(date, source, userName, userDocument, null);
-    }
-
     public OverrideReplaceAction(Date date, String source, String userName, MutableDocument userDocument, ComplexTypeMetadata type) {
         super(date, source, userName, type);
         this.userDocument = userDocument;

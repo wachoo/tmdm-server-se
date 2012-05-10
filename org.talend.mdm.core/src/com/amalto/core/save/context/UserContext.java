@@ -23,10 +23,6 @@ class UserContext implements DocumentSaverContext {
 
     private final List<Action> actions = new LinkedList<Action>();
 
-    private ComplexTypeMetadata type;
-
-    private String revisionId = null;
-
     private final String dataCluster;
 
     private final String dataModel;
@@ -37,6 +33,12 @@ class UserContext implements DocumentSaverContext {
 
     private final boolean updateReport;
 
+    private final boolean isReplace;
+
+    private ComplexTypeMetadata type;
+
+    private String revisionId = null;
+
     private String[] id;
 
     private MutableDocument userDocument;
@@ -44,8 +46,6 @@ class UserContext implements DocumentSaverContext {
     private MutableDocument dataBaseDocument;
 
     private MutableDocument dataBaseValidationDocument;
-
-    private boolean isReplace;
 
     private boolean isCreate;
 
