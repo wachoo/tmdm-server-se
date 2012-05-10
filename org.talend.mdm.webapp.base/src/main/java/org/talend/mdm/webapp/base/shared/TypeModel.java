@@ -35,6 +35,10 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     private String typePath;
 
+    private TypePath typePathObject;
+
+    private List<String> aliasTypePaths;
+
     private Map<String, String> labelMap;
 
     private Map<String, String> descriptionMap;
@@ -131,6 +135,14 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     public void setTypePath(String typePath) {
         this.typePath = typePath;
+    }
+
+    public TypePath getTypePathObject() {
+        return typePathObject;
+    }
+
+    public void setTypePathObject(TypePath typePathObject) {
+        this.typePathObject = typePathObject;
     }
 
     public String getLabel(String language) {

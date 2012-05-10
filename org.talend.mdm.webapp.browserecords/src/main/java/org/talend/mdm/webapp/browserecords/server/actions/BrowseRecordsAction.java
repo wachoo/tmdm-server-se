@@ -1393,6 +1393,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             return itemModel;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
+            e.printStackTrace();
             throw new ServiceException(e.getLocalizedMessage());
         }
     }
@@ -1483,7 +1484,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         typePath = typePath.replaceAll(":" + realType + "$", ""); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
         ItemNodeModel nodeModel = new ItemNodeModel(el.getNodeName());
 
-        TypeModel model = metaDataTypes.get(typePath);
+        TypeModel model = DataModelHelper.findTypeModelByTypePath(metaDataTypes, typePath);
         nodeModel.setBindingPath(model.getXpath());
         nodeModel.setTypePath(model.getTypePath());
         String realXPath = xpath;
@@ -1512,7 +1513,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         if (model.getMinOccurs() > 0) {
             nodeModel.setMandatory(true);
         }
-        String foreignKey = metaDataTypes.get(typePath).getForeignkey();
+        String foreignKey = DataModelHelper.findTypeModelByTypePath(metaDataTypes, typePath).getForeignkey();
         if (foreignKey != null && foreignKey.trim().length() > 0) {
             // set foreignKeyBean
             model.setRetrieveFKinfos(true);
@@ -1556,7 +1557,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                             tem_typePath = typePath + "/" + child.getNodeName(); //$NON-NLS-1$
                         }
 
-                        if (typeModel.getTypePath().equals(tem_typePath)) {
+                        if (typeModel.getTypePath().equals(tem_typePath)
+                                || (typeModel.getTypePathObject() != null && typeModel.getTypePathObject().getAllAliasXpaths()!=null 
+                                        && typeModel.getTypePathObject().getAllAliasXpaths().contains(tem_typePath))) {
                             ItemNodeModel childNode = builderNode(multiNodeIndex, (Element) child, entity, baseXpath, xpath,
                                     isPolyType, foreignKeyDeleteMessage, isCreate, language);
                             childNode.setHasVisiblueRule(typeModel.isHasVisibleRule());
@@ -2172,9 +2175,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             String model = getCurrentDataModel();
             EntityModel entityModel = new EntityModel();
             DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
-            // DisplayRulesUtil.setRoot(DataModelHelper.getEleDecl());
 
-            DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
             dynamicAssemble(itemBean, entityModel, language);
 
             return itemBean;
