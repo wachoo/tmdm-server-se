@@ -12,40 +12,33 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
-import org.talend.mdm.webapp.base.shared.FacetModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
-import org.talend.mdm.webapp.browserecords.client.util.DateUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKField;
-import org.talend.mdm.webapp.browserecords.client.widget.inputfield.BooleanField;
-import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatDateField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.MultipleField;
-import org.talend.mdm.webapp.browserecords.client.widget.inputfield.PictureField;
-import org.talend.mdm.webapp.browserecords.client.widget.inputfield.UrlField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.converter.BooleanConverter;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.converter.DateConverter;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.converter.DateTimeConverter;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.converter.FKConverter;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.converter.NumberConverter;
-import org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator.NumberFieldValidator;
-import org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator.TextFieldValidator;
-import org.talend.mdm.webapp.browserecords.shared.FacetEnum;
+import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldCreateContext;
+import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldCreator;
+import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldSource;
+import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldStyle;
 
 import com.extjs.gxt.ui.client.binding.FieldBinding;
 import com.extjs.gxt.ui.client.binding.FormBinding;
 import com.extjs.gxt.ui.client.binding.SimpleComboBoxFieldBinding;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
-import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
-import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.ui.Widget;
 
 public class FieldCreator {
@@ -71,23 +64,14 @@ public class FieldCreator {
             comboBox.setTriggerAction(TriggerAction.ALL);
             setEnumerationValues(dataType, comboBox);
             field = comboBox;
-        } else if (dataType.getType().equals(DataTypeConstants.UUID)) {
-            TextField<String> uuidField = new TextField<String>();
-            uuidField.setEnabled(false);
-            field = uuidField;
-        } else if (dataType.getType().equals(DataTypeConstants.AUTO_INCREMENT)) {
-            TextField<String> autoIncrementField = new TextField<String>();
-            autoIncrementField.setEnabled(false);
-            field = autoIncrementField;
-        } else if (dataType.getType().equals(DataTypeConstants.PICTURE)) {
-            PictureField pictureField = new PictureField();
-            field = pictureField;
-        } else if (dataType.getType().equals(DataTypeConstants.URL)) {
-            UrlField urlField = new UrlField();
-            urlField.setFieldLabel(dataType.getLabel(language));
-            field = urlField;
         } else {
-            field = createCustomField(dataType, language);
+            TypeFieldCreateContext context = new TypeFieldCreateContext(dataType);
+            context.setLanguage(language);
+            TypeFieldCreator typeFieldCreator = new TypeFieldCreator(new TypeFieldSource(TypeFieldSource.CELL_EDITOR), context);
+            Map<String, TypeFieldStyle> sytles = new HashMap<String, TypeFieldStyle>();
+            sytles.put(TypeFieldStyle.ATTRI_WIDTH, new TypeFieldStyle(TypeFieldStyle.ATTRI_WIDTH,
+                    "400", TypeFieldStyle.SCOPE_BUILTIN_TYPEFIELD)); //$NON-NLS-1$
+            field = typeFieldCreator.createFieldWithUpdateStyle(sytles);
         }
 
         field.setFieldLabel(dataType.getLabel(language));
@@ -123,80 +107,6 @@ public class FieldCreator {
         field.setEnabled(!dataType.isReadOnly());
 
         return field;
-    }
-
-    public static Field<?> createCustomField(SimpleTypeModel dataType, String language) {
-        Field<?> field;
-        String baseType = dataType.getType().getBaseTypeName();
-        if (DataTypeConstants.INTEGER.getTypeName().equals(baseType) || DataTypeConstants.INT.getTypeName().equals(baseType)
-                || DataTypeConstants.LONG.getTypeName().equals(baseType)) {
-            NumberField numberField = new NumberField();
-            numberField.setData("numberType", "integer");//$NON-NLS-1$ //$NON-NLS-2$
-            numberField.setPropertyEditorType(Integer.class);
-            numberField.setValidator(NumberFieldValidator.getInstance());
-            field = numberField;
-        } else if (DataTypeConstants.FLOAT.getTypeName().equals(baseType)
-                || DataTypeConstants.DOUBLE.getTypeName().equals(baseType)) {
-            NumberField numberField = new NumberField();
-            numberField.setData("numberType", "double");//$NON-NLS-1$ //$NON-NLS-2$
-            numberField.setPropertyEditorType(Double.class);
-            numberField.setValidator(NumberFieldValidator.getInstance());
-            field = numberField;
-        } else if (DataTypeConstants.DECIMAL.getTypeName().equals(baseType)) {
-            NumberField numberField = new NumberField();
-            numberField.setData("numberType", "decimal");//$NON-NLS-1$ //$NON-NLS-2$
-            numberField.setValidator(NumberFieldValidator.getInstance());
-            numberField.setPropertyEditorType(Double.class);
-            field = numberField;
-        } else if (DataTypeConstants.BOOLEAN.getTypeName().equals(baseType)) {
-            BooleanField booleanField = new BooleanField();
-            booleanField.setDisplayField("text");//$NON-NLS-1$
-            booleanField.getStore().add(new SimpleComboValue<Boolean>() {
-
-                {
-                    this.setValue(true);
-                    this.set("text", "TRUE");}});//$NON-NLS-1$ //$NON-NLS-2$
-            booleanField.getStore().add(new SimpleComboValue<Boolean>() {
-
-                {
-                    this.setValue(false);
-                    this.set("text", "FALSE");}});//$NON-NLS-1$ //$NON-NLS-2$
-            field = booleanField;
-        } else if (DataTypeConstants.DATE.getTypeName().equals(baseType)) {
-            Map<String, String> formatMap = dataType.getDisplayFomats();
-            String pattern = formatMap.get("format_" + language.toLowerCase()); //$NON-NLS-1$            
-            FormatDateField dateField = new FormatDateField();
-            if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$                
-                dateField.setFormatPattern(pattern);
-            }
-            dateField.setPropertyEditor(new DateTimePropertyEditor(DateUtil.datePattern));
-            field = dateField;
-        } else if (DataTypeConstants.DATETIME.getTypeName().equals(baseType)) {
-            FormatDateField dateTimeField = new FormatDateField();
-            dateTimeField.setDateTime(true);
-            dateTimeField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd HH:mm:ss"));//$NON-NLS-1$
-            field = dateTimeField;
-        } else if (DataTypeConstants.STRING.getTypeName().equals(baseType)) {
-            TextField<String> textField = new TextField<String>();
-            textField.setValidator(TextFieldValidator.getInstance());
-            field = textField;
-        } else {
-            TextField<String> textField = new TextField<String>();
-            textField.setValidator(TextFieldValidator.getInstance());
-            field = textField;
-            textField.setMessages(null);
-        }
-        field.setWidth(400);
-        field.setData("facetErrorMsgs", dataType.getFacetErrorMsgs().get(language));//$NON-NLS-1$
-        buildFacets(dataType, field);
-        return field;
-    }
-
-    private static void buildFacets(TypeModel typeModel, Widget w) {
-        List<FacetModel> facets = ((SimpleTypeModel) typeModel).getFacets();
-        for (FacetModel facet : facets) {
-            FacetEnum.setFacetValue(facet.getName(), w, facet.getValue());
-        }
     }
 
     private static void setEnumerationValues(TypeModel typeModel, Widget w) {
