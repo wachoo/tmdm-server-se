@@ -45,7 +45,7 @@ public class SaverContextFactory {
     private static DocumentSaverExtension saverExtension;
 
     @SuppressWarnings("unchecked")
-    static DocumentSaver invokeSaverExtension(DocumentSaver saver) {
+    static synchronized DocumentSaver invokeSaverExtension(DocumentSaver saver) {
         if (saverExtension == null) {
             try {
                 Class<DocumentSaverExtension> extension = (Class<DocumentSaverExtension>) Class.forName("com.amalto.core.save.DocumentSaverExtensionImpl"); //$NON-NLS-1$

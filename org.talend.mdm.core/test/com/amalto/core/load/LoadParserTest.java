@@ -199,6 +199,7 @@ public class LoadParserTest extends TestCase {
             InputStream testResource2 = this.getClass().getResourceAsStream("test6.xml");
             LoadParserCallback callback2 = new ConsolePrintParserCallback();
             LoadParser.parse(testResource2, config, callback2);
+            idGenerator.reset();
         }
 
         StateContext context = LoadParser.parse(testResource, config, callback);
@@ -230,6 +231,7 @@ public class LoadParserTest extends TestCase {
             InputStream testResource2 = this.getClass().getResourceAsStream("test7.xml");
             LoadParserCallback callback2 = new ConsolePrintParserCallback();
             LoadParser.parse(testResource2, config, callback2);
+            idGenerator.reset();
         }
 
         StateContext context = LoadParser.parse(testResource, config, callback);
@@ -346,6 +348,7 @@ public class LoadParserTest extends TestCase {
             testResource2 = new XMLRootInputStream(testResource2, "doc");
             LoadParserCallback callback2 = new ConsolePrintParserCallback();
             LoadParser.parse(testResource2, config, callback2);
+            idGenerator.reset();
         }
 
         ParserTestCallback callback = new ParserTestCallback();
@@ -378,6 +381,7 @@ public class LoadParserTest extends TestCase {
             testResource2 = new XMLRootInputStream(testResource2, "doc");
             LoadParserCallback callback2 = new ConsolePrintParserCallback();
             LoadParser.parse(testResource2, config, callback2);
+            idGenerator.reset();
         }
 
 
@@ -412,6 +416,7 @@ public class LoadParserTest extends TestCase {
             testResource2 = new XMLRootInputStream(testResource2, "doc");
             LoadParserCallback callback2 = new ConsolePrintParserCallback();
             LoadParser.parse(testResource2, config, callback2);
+            idGenerator.reset();
         }
 
         ParserTestCallback callback = new ParserTestCallback();
@@ -813,6 +818,10 @@ public class LoadParserTest extends TestCase {
 
         public Set<String> getKeyFields() {
             return keyElementNames;
+        }
+
+        public void reset() {
+            currentId = 0;
         }
     }
 }
