@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Contract xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<id>1</id>
+<comment>1</comment>
+<detail xsi:type="ContractDetailSubType">
+<code>1</code>
+<subType xsi:type="ContractDetailSubTypeTwo"><type/><description/></subType>
+</detail>
+<enumEle>pending</enumEle>
+</Contract>

@@ -12,8 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.server.actions;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
@@ -105,8 +103,6 @@ import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.integrity.FKIntegrityCheckResult;
 import com.amalto.core.jobox.util.JobNotFoundException;
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
@@ -1425,7 +1421,11 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             StringBuffer foreignKeyDeleteMessage = new StringBuffer();
             Element root = resultDoc.getDocumentElement();
             String baseXpath = contextPath.substring(0, contextPath.lastIndexOf('/'));
-            itemModel = builderNode(multiNodeIndex, root, entity, baseXpath, "", true, foreignKeyDeleteMessage, true, language); //$NON-NLS-1$
+            String baseXpathWithInheritance = baseXpath;
+            if (typePath.substring(0, typePath.lastIndexOf("/")).contains(":")) //$NON-NLS-1$ //$NON-NLS-2$
+                baseXpathWithInheritance = typePath.substring(0, typePath.lastIndexOf("/")); //$NON-NLS-1$
+            itemModel = builderNode(multiNodeIndex, root, entity, baseXpathWithInheritance,
+                    "", true, foreignKeyDeleteMessage, true, language); //$NON-NLS-1$
             DynamicLabelUtil.getDynamicLabel(doc4j, baseXpath, itemModel, metaDataTypes, language);
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
