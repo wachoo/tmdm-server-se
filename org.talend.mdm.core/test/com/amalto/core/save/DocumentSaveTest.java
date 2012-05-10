@@ -877,7 +877,7 @@ public class DocumentSaveTest extends TestCase {
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test25.xml");
-        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, false, true, true, false);
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "Contract", "Source", recordXml, false, true, true, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
