@@ -3788,4 +3788,13 @@ public class Util {
         String pivotLeaf = pivotPaths[pivotPaths.length - 1];
         return new String[] { parentPivot, pivotLeaf };
     }
+    
+    public static <T> T getException(Throwable throwable, Class<T> cls){
+        if(cls.isInstance(throwable))
+            return (T) throwable;
+        
+        if(throwable.getCause() != null)
+            return getException(throwable.getCause(), cls);
+        return null;
+    }
 }

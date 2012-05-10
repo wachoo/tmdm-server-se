@@ -106,6 +106,7 @@ import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.TransformerPluginContext;
 import com.amalto.core.util.TransformerPluginSpec;
 import com.amalto.core.util.Util;
+import com.amalto.core.util.ValidateException;
 import com.amalto.core.util.Version;
 import com.amalto.core.util.WhereConditionFilter;
 import com.amalto.core.util.WhereConditionForcePivotFilter;
@@ -1666,6 +1667,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                         wsPutItemWithReport.getInvokeBeforeSaving());
                 wsPutItemWithReport.setSource(saver.getBeforeSavingMessage()); // TODO Expected (legacy) behavior: set the before saving message as source.
             } catch (SaveException e) {
+                ValidateException ve = Util.getException(e, ValidateException.class);
+                if(ve != null)
+                    throw e;
                 wsPutItemWithReport.setSource(e.getBeforeSavingMessage()); // TODO Expected (legacy) behavior: set the before saving message as source.
                 throw new RemoteException("Could not save record.", e);
             }

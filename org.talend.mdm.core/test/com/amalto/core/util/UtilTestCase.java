@@ -31,6 +31,7 @@ import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
 import com.amalto.core.objects.transformers.v2.util.TransformerContext;
+import com.amalto.core.save.SaveException;
 import com.sun.org.apache.xpath.internal.XPathAPI;
 
 /**
@@ -208,4 +209,15 @@ public class UtilTestCase extends TestCase {
         return null;
     }
 
+    public void testGetException() {
+        String str = "Failed";
+        Exception e = new Exception(new SaveException(new ValidateException((str))));
+        ValidateException ve = Util.getException(e, ValidateException.class);
+        assertNotNull(ve);
+        assertEquals(str, ve.getMessage());
+        
+        e = new Exception(new SaveException(new Exception(str)));
+        ve = Util.getException(e, ValidateException.class);
+        assertNull(ve);
+    }
 }
