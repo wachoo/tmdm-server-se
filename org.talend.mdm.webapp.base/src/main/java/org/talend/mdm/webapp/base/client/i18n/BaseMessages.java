@@ -39,4 +39,6 @@ public interface BaseMessages extends Messages {
     String unknown_error();
     
     String session_timeout_error();
+
+    String typemode_notfound_error(String typePath);
 }

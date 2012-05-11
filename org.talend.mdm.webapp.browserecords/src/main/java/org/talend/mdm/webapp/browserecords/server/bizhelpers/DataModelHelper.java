@@ -524,13 +524,14 @@ public class DataModelHelper {
     }
 
     /**
-     * DOC Administrator Comment method "findTypeModelByTypePath".
-     * 
      * @param metaDataTypes
      * @param typePath
      * @return
+     * @throws TypeModelNotFoundException
      */
-    public static TypeModel findTypeModelByTypePath(Map<String, TypeModel> metaDataTypes, String typePath) {
+    public static TypeModel findTypeModelByTypePath(Map<String, TypeModel> metaDataTypes, String typePath)
+            throws TypeModelNotFoundException {
+
 
         if (metaDataTypes == null || typePath == null)
             throw new IllegalArgumentException();
@@ -553,7 +554,7 @@ public class DataModelHelper {
         }
 
         if (model == null)
-            throw new TypeModelNotFoundException();
+            throw new TypeModelNotFoundException(typePath);
         else
             return model;
 
