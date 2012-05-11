@@ -70,4 +70,10 @@ public final class BaseMessagesImpl implements BaseMessages {
     public String session_timeout_error() {
         return MESSAGES.getMessage("session_timeout_error");
     }
+
+    public String typemode_notfound_error(String typePath) {
+        if (typePath == null)
+            typePath = "";
+        return MESSAGES.getMessage("typemode_notfound_error", typePath);
+    }
 }

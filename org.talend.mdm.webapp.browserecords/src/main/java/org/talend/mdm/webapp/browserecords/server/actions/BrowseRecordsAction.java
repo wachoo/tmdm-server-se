@@ -1393,7 +1393,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             return itemModel;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            e.printStackTrace();
+            if (e instanceof ServiceException)
+                throw (ServiceException) e;
             throw new ServiceException(e.getLocalizedMessage());
         }
     }
