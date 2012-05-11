@@ -30,6 +30,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 public class MultiOccurrenceChangeItem extends HorizontalPanel {
 
@@ -144,9 +145,38 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
             }
         }
         this.setCellWidth(label, "200px"); //$NON-NLS-1$
+        this.getElement().getStyle().setPaddingBottom(6D, Unit.PX);
         this.setVisible(typeModel.isVisible());
     }
     
+    public void clearWarning() {
+
+        Widget w = this.getWidget(this.getWidgetCount() - 1);
+        w.getElement().getParentElement().getStyle().setProperty("border", "");  //$NON-NLS-1$//$NON-NLS-2$
+
+        w = this.getWidget(this.getWidgetCount() - 1);
+        w.getElement().getParentElement().getStyle().setProperty("border", ""); //$NON-NLS-1$ //$NON-NLS-2$
+
+        this.getElement().getStyle().setProperty("border", ""); //$NON-NLS-1$ //$NON-NLS-2$
+
+    }
+    public void setWarningFirst() {
+        Widget w = this.getWidget(this.getWidgetCount() - 1);
+        w.getElement().getParentElement().getStyle().setProperty("borderTop", "solid 3px #ff8888"); //$NON-NLS-1$ //$NON-NLS-2$
+    }
+
+    public void setWarning() {
+        this.getElement().getStyle().setProperty("borderRight", "solid 3px #ff8888"); //$NON-NLS-1$ //$NON-NLS-2$
+        Widget w = this.getWidget(this.getWidgetCount() - 1);
+        w.getElement().getParentElement().getStyle().setProperty("paddingRight", "5px"); //$NON-NLS-1$ //$NON-NLS-2$
+    }
+
+    public void setWarningLast() {
+        this.getElement().getStyle().setPaddingBottom(0D, Unit.PX);
+        Widget w = this.getWidget(this.getWidgetCount() - 1);
+        w.getElement().getParentElement().getStyle().setProperty("borderBottom", "solid 3px #ff8888"); //$NON-NLS-1$ //$NON-NLS-2$
+    }
+
     public void setTreeDetail(TreeDetail treeDetail){
         this.treeDetail = treeDetail;
     }

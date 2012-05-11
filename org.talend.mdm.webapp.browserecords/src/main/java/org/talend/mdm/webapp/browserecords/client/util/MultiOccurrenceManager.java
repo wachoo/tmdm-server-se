@@ -129,22 +129,26 @@ public class MultiOccurrenceManager {
         String mandatory = checkMandatory(items);
         for (int i = 0; i < items.size(); i++) {
             DynamicTreeItem childItem = items.get(i);
-            childItem.getElement().getStyle().clearBorderColor();
-            childItem.getElement().getStyle().clearBorderStyle();
-            childItem.getElement().getStyle().clearBorderWidth();
+            MultiOccurrenceChangeItem multiItem = (MultiOccurrenceChangeItem) childItem.getWidget();
+            ItemNodeModel nodeModel = childItem.getItemNodeModel();
+            multiItem.clearWarning();
+            childItem.getElement().getStyle().setProperty("borderRight", ""); //$NON-NLS-1$ //$NON-NLS-2$
             childItem.getElement().setTitle(null);
-            childItem.getItemNodeModel().setValid(true);
+            nodeModel.setValid(true);
             if (mandatory != null) {
-                if (i == 0) {
-                    childItem.getElement().getStyle().setProperty("borderTop", "solid 1px red"); //$NON-NLS-1$ //$NON-NLS-2$
+                if (nodeModel.isLeaf()) {
+                    if (i == 0) {
+                        multiItem.setWarningFirst();
+                    }
+                    if (i == items.size() - 1) {
+                        multiItem.setWarningLast();
+                    }
+                    multiItem.setWarning();
+                } else {
+                    childItem.getElement().getStyle().setProperty("borderRight", "solid 3px #ff8888"); //$NON-NLS-1$ //$NON-NLS-2$
                 }
-                if (i == items.size() - 1) {
-                    childItem.getElement().getStyle().setProperty("borderBottom", "solid 1px red"); //$NON-NLS-1$ //$NON-NLS-2$
-                }
-                childItem.getElement().getStyle().setProperty("borderLeft", "solid 1px red"); //$NON-NLS-1$ //$NON-NLS-2$
-                childItem.getElement().getStyle().setProperty("borderRight", "solid 1px red"); //$NON-NLS-1$ //$NON-NLS-2$
                 childItem.setTitle(mandatory);
-                childItem.getItemNodeModel().setValid(false);
+                nodeModel.setValid(false);
             }
         }
     }

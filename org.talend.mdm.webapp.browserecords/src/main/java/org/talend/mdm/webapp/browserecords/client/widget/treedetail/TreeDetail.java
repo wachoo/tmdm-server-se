@@ -420,6 +420,8 @@ public class TreeDetail extends ContentPanel {
             if (GXT.isIE) {
                 getContentElement().getStyle().setDisplay(Display.BLOCK);
             }
+            this.getElement().getStyle().setPaddingTop(0D, Unit.PX);
+            this.getElement().getStyle().setPaddingBottom(0D, Unit.PX);
         }
 
         private native Element getContentElement()/*-{
