@@ -39,8 +39,6 @@ public class ItemNodeModelGWTTest extends BrowseRecordsGWTTest {
 
     private String name = "Test";
 
-    private String bindingPath = "Product/Name";
-
     private String description = "Test";
 
     private String dynamicLabel = "TestDynamicLabel";
@@ -56,7 +54,6 @@ public class ItemNodeModelGWTTest extends BrowseRecordsGWTTest {
     public void testClone() {
 
         ItemNodeModel nodeModel = new ItemNodeModel(name);
-        nodeModel.setBindingPath(bindingPath);
         nodeModel.setDescription(description);
         nodeModel.setDynamicLabel(dynamicLabel);
         nodeModel.setLabel(label);
@@ -68,7 +65,6 @@ public class ItemNodeModelGWTTest extends BrowseRecordsGWTTest {
         ItemNodeModel clonedModel = nodeModel.clone(true);
         assertEquals(name, clonedModel.getName());
         assertEquals(description, clonedModel.getDescription());
-        assertEquals(bindingPath, clonedModel.getBindingPath());
         assertEquals(dynamicLabel, clonedModel.getDynamicLabel());
         assertEquals(label, clonedModel.getLabel());
         assertEquals(typePath, clonedModel.getTypePath());
@@ -80,7 +76,6 @@ public class ItemNodeModelGWTTest extends BrowseRecordsGWTTest {
         clonedModel = nodeModel.clone(false);
         assertEquals(name, clonedModel.getName());
         assertEquals(description, clonedModel.getDescription());
-        assertEquals(bindingPath, clonedModel.getBindingPath());
         assertEquals(dynamicLabel, clonedModel.getDynamicLabel());
         assertEquals(label, clonedModel.getLabel());
         assertEquals(typePath, clonedModel.getTypePath());
