@@ -12,6 +12,12 @@ amalto.updatereport.UpdateReportPanel = function(config) {
 	loadResource("/updatereport/secure/js/UpdateReportTimeLinePanel.js", "");
 };
 
+Ext.override(Ext.menu.Menu, {
+    autoWidth: function() {
+        this.width += "px";
+    }
+}); 
+
 var GRID_TITLE = {
 	'fr' : 'Résultats',
 	'en' : 'Results'
