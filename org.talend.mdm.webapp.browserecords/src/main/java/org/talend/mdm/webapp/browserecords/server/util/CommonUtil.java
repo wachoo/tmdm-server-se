@@ -63,7 +63,6 @@ public class CommonUtil {
                 node.setChildNodes(list);
             }
             node.setName(model.getName());
-            node.setBindingPath(model.getXpath());
             node.setTypePath(model.getTypePath());
             node.setDescription(model.getDescriptionMap().get(language));
             node.setLabel(model.getLabel(language));

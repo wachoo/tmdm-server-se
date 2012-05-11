@@ -99,18 +99,17 @@ public class ForeignKeyTreeDetail extends ContentPanel {
             final String typePath = selectedModel.getTypePath();
             final CountMapItem countMapItem = new CountMapItem(xpath, parentModel);
             final int count = occurMap.containsKey(countMapItem) ? occurMap.get(countMapItem) : 0;
-
+            final TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath);
             if ("Add".equals(arg0.getRelativeElement().getId()) || "Clone".equals(arg0.getRelativeElement().getId())) { //$NON-NLS-1$ //$NON-NLS-2$               
-                if (viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath).getMaxOccurs() < 0
-                        || count < viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath).getMaxOccurs()) {
+                if (typeModel.getMaxOccurs() < 0 || count < typeModel.getMaxOccurs()) {
                     // clone a new item
                     ItemNodeModel model = selectedModel.clone("Clone".equals(arg0.getRelativeElement().getId()) ? true : false); //$NON-NLS-1$
 
                     int selectModelIndex = parentModel.indexOf(selectedModel);
                     parentModel.insert(model, selectModelIndex + 1);
                     // if it has default value
-                    if (viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath).getDefaultValue() != null)
-                        model.setObjectValue(viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath).getDefaultValue());
+                    if (typeModel.getDefaultValue() != null)
+                        model.setObjectValue(typeModel.getDefaultValue());
                     parentItem.insertItem(buildGWTTree(model, true), parentItem.getChildIndex(selectedItem) + 1);
                     occurMap.put(countMapItem, count + 1);
                 } else
@@ -122,9 +121,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
 
                             public void handleEvent(MessageBoxEvent be) {
                                 if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                                    if (count > 1
-                                            && count > viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath)
-                                                    .getMinOccurs()) {
+                                    if (count > 1 && count > typeModel.getMinOccurs()) {
                                         parentItem.removeItem(selectedItem);
                                         parentModel.remove(selectedModel);
                                         occurMap.put(countMapItem, count - 1);

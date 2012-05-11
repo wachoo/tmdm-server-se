@@ -217,8 +217,6 @@ public class DefVRule {
                 Element el = doc.createElement(model.getName());
                 applySimpleTypesDefaultValue(model, el);
                 itemNodes.add(el);
-                if (model.getForeignkey() != null)
-                    break;
             }
         } else {
             Element el = doc.createElement(model.getName());

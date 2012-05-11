@@ -27,6 +27,7 @@ import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ComboBoxModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
+import org.talend.mdm.webapp.browserecords.client.util.MultiOccurrenceManager;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKPropertyEditor;
@@ -57,13 +58,13 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
@@ -192,7 +193,7 @@ public class TreeDetailGridFieldCreator {
         }
         fieldMap.put(node.getId().toString(), field);
         updateMandatory(field, node, fieldMap);
-        addFieldListener(field, node, fieldMap);
+        addFieldListener(dataType, field, node, fieldMap);
         return field;
     }
 
@@ -209,7 +210,8 @@ public class TreeDetailGridFieldCreator {
         fieldMap.remove(node.getId().toString());
     }
 
-    private static void addFieldListener(final Field<?> field, final ItemNodeModel node, final Map<String, Field<?>> fieldMap) {
+    private static void addFieldListener(final TypeModel typeModel, final Field<?> field, final ItemNodeModel node,
+            final Map<String, Field<?>> fieldMap) {
 
         field.addListener(Events.Change, new Listener<FieldEvent>() {
 
@@ -231,6 +233,14 @@ public class TreeDetailGridFieldCreator {
                 validate(fe.getField(), node);
 
                 updateMandatory(field, node, fieldMap);
+
+                TreeDetail treeDetail = getCurrentTreeDetail(field);
+                if (treeDetail != null) {
+                    MultiOccurrenceManager multiManager = treeDetail.getMultiManager();
+                    if (multiManager != null) {
+                        multiManager.warningBrothers(node);
+                    }
+                }
             }
         });
 
@@ -330,6 +340,19 @@ public class TreeDetailGridFieldCreator {
         } else {
             setMandatory(field, node.isMandatory());
         }
+    }
+
+    private static TreeDetail getCurrentTreeDetail(Widget child) {
+        if (child == null)
+            return null;
+        Widget current = child;
+        while (current != null) {
+            if (current instanceof TreeDetail) {
+                return (TreeDetail) current;
+            }
+            current = current.getParent();
+        }
+        return null;
     }
 
     @SuppressWarnings("rawtypes")

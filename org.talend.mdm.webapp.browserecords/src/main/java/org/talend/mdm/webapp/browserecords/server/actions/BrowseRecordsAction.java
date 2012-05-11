@@ -1460,7 +1460,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         ItemNodeModel nodeModel = new ItemNodeModel(el.getNodeName());
 
         TypeModel model = DataModelHelper.findTypeModelByTypePath(metaDataTypes, typePath);
-        nodeModel.setBindingPath(model.getXpath());
         nodeModel.setTypePath(model.getTypePath());
         String realXPath = xpath;
         if (isPolyType) {
@@ -1485,7 +1484,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         nodeModel.setLabel(model.getLabel(language));
         nodeModel.setDescription(model.getDescriptionMap().get(language));
         nodeModel.setName(el.getNodeName());
-        if (model.getMinOccurs() > 0) {
+        if (model.getMinOccurs() == 1 && model.getMaxOccurs() == 1) {
             nodeModel.setMandatory(true);
         }
         String foreignKey = DataModelHelper.findTypeModelByTypePath(metaDataTypes, typePath).getForeignkey();

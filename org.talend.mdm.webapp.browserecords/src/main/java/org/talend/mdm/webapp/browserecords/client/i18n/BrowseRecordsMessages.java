@@ -221,6 +221,8 @@ public interface BrowseRecordsMessages extends Messages {
 
     String multiOccurrence_maximize(int value);
 
+    String multiOccurrence_minimize_title(int minOccurs, String nodeName);
+
     String clone_title();
 
     String deepclone_title();

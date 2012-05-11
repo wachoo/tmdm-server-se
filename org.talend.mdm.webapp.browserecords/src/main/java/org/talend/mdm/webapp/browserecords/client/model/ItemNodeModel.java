@@ -19,8 +19,6 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
 
     private String label;
 
-    private String bindingPath;
-
     private String typePath;
 
     private int index = 0;
@@ -197,29 +195,22 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
     }
 
     public String getBindingPath() {
-        if (this.bindingPath == null) {
-            StringBuffer xp = new StringBuffer();
-            List<String> paths = new ArrayList<String>();
-            TreeModel parent = this;
 
-            while (parent != null) {
-                paths.add((String) parent.get("name")); //$NON-NLS-1$
-                parent = parent.getParent();
-            }
+        StringBuffer xp = new StringBuffer();
+        List<String> paths = new ArrayList<String>();
+        TreeModel parent = this;
 
-            for (int i = paths.size() - 1; i >= 0; i--) {
-                if (i != paths.size() - 1)
-                    xp.append("/"); //$NON-NLS-1$
-                xp.append(paths.get(i));
-            }
-            bindingPath = xp.toString();
+        while (parent != null) {
+            paths.add((String) parent.get("name")); //$NON-NLS-1$
+            parent = parent.getParent();
         }
-        return bindingPath;
 
-    }
-
-    public void setBindingPath(String bindingPath) {
-        this.bindingPath = bindingPath;
+        for (int i = paths.size() - 1; i >= 0; i--) {
+            if (i != paths.size() - 1)
+                xp.append("/"); //$NON-NLS-1$
+            xp.append(paths.get(i));
+        }
+        return xp.toString();
     }
 
     public String getTypePath() {
@@ -269,7 +260,6 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
 
     public ItemNodeModel clone(boolean withValue) {
         ItemNodeModel clonedModel = new ItemNodeModel(get("name").toString()); //$NON-NLS-1$
-        clonedModel.setBindingPath(getBindingPath());
         clonedModel.setTypePath(getTypePath());
         List<ItemNodeModel> clonedList = new ArrayList<ItemNodeModel>();
         for (ModelData data : this.getChildren()) {

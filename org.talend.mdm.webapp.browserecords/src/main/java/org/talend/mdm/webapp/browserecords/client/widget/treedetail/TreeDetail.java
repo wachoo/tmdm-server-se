@@ -30,8 +30,8 @@ import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
-import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
+import org.talend.mdm.webapp.browserecords.client.util.MultiOccurrenceManager;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
@@ -43,17 +43,12 @@ import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.DOM;
@@ -74,81 +69,23 @@ public class TreeDetail extends ContentPanel {
 
     private Map<String, Field<?>> fieldMap = new HashMap<String, Field<?>>();
 
-    private HashMap<CountMapItem, Integer> occurMap = new HashMap<CountMapItem, Integer>();
-
     private ForeignKeyRender fkRender = new ForeignKeyRenderImpl();
 
     private ItemDetailToolBar toolBar;
 
     private DynamicTreeItem selectedItem;
 
+    MultiOccurrenceManager multiManager;
+
+    public DynamicTreeItem getSelectedItem() {
+        return selectedItem;
+    }
+
+    public MultiOccurrenceManager getMultiManager() {
+        return multiManager;
+    }
+
     private ItemsDetailPanel itemsDetailPanel;
-
-    private ClickHandler handler = new ClickHandler() {
-
-        public void onClick(ClickEvent arg0) {
-            if (selectedItem == null)
-                return;
-            // final DynamicTreeItem selected = (DynamicTreeItem) tree.getSelectedItem();
-            final DynamicTreeItem parentItem = (DynamicTreeItem) selectedItem.getParentItem();
-            final ItemNodeModel selectedModel = selectedItem.getItemNodeModel();
-            final ItemNodeModel parentModel = (ItemNodeModel) selectedModel.getParent();
-
-            final String xpath = selectedModel.getBindingPath();
-            final String typePath = selectedModel.getTypePath();
-            final CountMapItem countMapItem = new CountMapItem(xpath, parentModel);
-            final int count = occurMap.containsKey(countMapItem) ? occurMap.get(countMapItem) : 0;
-
-            if ("Add".equals(arg0.getRelativeElement().getId()) || "Clone".equals(arg0.getRelativeElement().getId())) { //$NON-NLS-1$ //$NON-NLS-2$               
-                if (viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath).getMaxOccurs() < 0
-                        || count < viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath).getMaxOccurs()) {
-                    // clone a new item
-                    ItemNodeModel model = selectedModel.clone("Clone".equals(arg0.getRelativeElement().getId()) ? true : false); //$NON-NLS-1$
-                    model.setDynamicLabel(LabelUtil.getNormalLabel(model.getLabel()));
-                    model.setMandatory(selectedModel.isMandatory());
-                    int selectModelIndex = parentModel.indexOf(selectedModel);
-                    parentModel.insert(model, selectModelIndex + 1);
-                    parentModel.setChangeValue(true);
-                    // if it has default value
-                    if (viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath).getDefaultValue() != null)
-                        model.setObjectValue(viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath).getDefaultValue());
-                    DynamicTreeItem treeItem = buildGWTTree(model, null, true, null);
-                    ViewUtil.copyStyleToTreeItem(selectedItem, treeItem);
-                    parentItem.insertItem(treeItem, parentItem.getChildIndex(selectedItem) + 1);
-                    occurMap.put(countMapItem, count + 1);
-                } else
-                    MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
-                            .multiOccurrence_maximize(count), null);
-            } else {
-                MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages().delete_confirm(),
-                        new Listener<MessageBoxEvent>() {
-
-                            public void handleEvent(MessageBoxEvent be) {
-                                if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-
-                                    if (count > 1
-                                            && count > viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath)
-                                                    .getMinOccurs()) {
-                                        TreeDetailGridFieldCreator.deleteField(selectedModel, fieldMap);
-                                        parentItem.removeItem(selectedItem);
-                                        parentModel.remove(selectedModel);
-                                        parentModel.setChangeValue(true);
-                                        occurMap.put(countMapItem, count - 1);
-                                        if (parentModel.getChildCount() > 0) {
-                                            ItemNodeModel child = (ItemNodeModel) parentModel.getChild(0);
-                                            Field<?> field = fieldMap.get(child.getId().toString());
-                                            if (field != null)
-                                                TreeDetailGridFieldCreator.updateMandatory(field, child, fieldMap);
-                                        }
-                                    } else
-                                        MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
-                                                .multiOccurrence_minimize(count), null);
-                                }
-                            }
-                        });
-            }
-        }
-    };
 
     public TreeDetail(ItemsDetailPanel itemsDetailPanel) {
         this.setHeaderVisible(false);
@@ -166,6 +103,7 @@ public class TreeDetail extends ContentPanel {
 
     public void initTree(ViewBean viewBean, ItemBean itemBean, Map<String, String> initDataMap, final String operation) {
         this.viewBean = viewBean;
+        this.multiManager = new MultiOccurrenceManager(viewBean.getBindingEntityModel().getMetaDataTypes(), this);
         if (itemBean == null) {
             buildPanel(operation, initDataMap);
         } else {
@@ -226,7 +164,8 @@ public class TreeDetail extends ContentPanel {
                 });
     }
 
-    private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue,String operation) {
+    public DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue,
+            String operation) {
         Map<TypeModel, List<ItemNodeModel>> foreighKeyMap = new LinkedHashMap<TypeModel, List<ItemNodeModel>>();
         Map<TypeModel, ItemNodeModel> foreignKeyParentMap = new LinkedHashMap<TypeModel, ItemNodeModel>();
         DynamicTreeItem reuslt = buildGWTTree(itemNode, item, withDefaultValue, operation, foreighKeyMap, foreignKeyParentMap);
@@ -258,7 +197,10 @@ public class TreeDetail extends ContentPanel {
                     }
                 }
             }
-            item.setWidget(TreeDetailUtil.createWidget(itemNode, viewBean, fieldMap, handler, operation, itemsDetailPanel));
+            
+            MultiOccurrenceChangeItem itemWidget = TreeDetailUtil.createWidget(itemNode, viewBean, fieldMap, null, operation, itemsDetailPanel);
+            itemWidget.setTreeDetail(this);
+            item.setWidget(itemWidget);
         }
 
         List<ModelData> itemNodeChildren = itemNode.getChildren();
@@ -288,11 +230,10 @@ public class TreeDetail extends ContentPanel {
                     TreeItem childItem = buildGWTTree(node, null, withDefaultValue, operation, foreighKeyMap, foreignKeyParentMap);
                     if (childItem != null) { //
                         item.addItem(childItem);
-                        int count = 0;
-                        CountMapItem countMapItem = new CountMapItem(nodeBindingPath, itemNode);
-                        if (occurMap.containsKey(countMapItem))
-                            count = occurMap.get(countMapItem);
-                        occurMap.put(countMapItem, count + 1);
+
+                        if (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {
+                            multiManager.addMultiOccurrenceNode((DynamicTreeItem) childItem);
+                        }
                     }
                 }
             }
@@ -397,6 +338,7 @@ public class TreeDetail extends ContentPanel {
     private void renderTree(ItemNodeModel rootModel, String operation) {
 
         root = buildGWTTree(rootModel, null, false, operation);
+        multiManager.warningAllItems();
         isFirstKey = true;
         root.setState(true);
         tree = new TreeEx();
@@ -578,7 +520,7 @@ public class TreeDetail extends ContentPanel {
                 });
     }
 
-    private class CountMapItem {
+    public class CountMapItem {
 
         private String xpath;
 

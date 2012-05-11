@@ -46,6 +46,7 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
@@ -62,10 +63,13 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.dom.client.Style.Cursor;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteriaFK {
 
@@ -80,6 +84,8 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
     ToolBar toolBar = new ToolBar();
 
     ToolBar firstToolBar = new ToolBar();
+
+    HTML statusBar = new HTML();
 
     Button addFkButton = new Button(MessagesFactory.getMessages().add_btn(), AbstractImagePrototype.create(Icons.INSTANCE
             .Create()));
@@ -150,6 +156,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         toolBar.add(removeFkButton);
         toolBar.add(new SeparatorToolItem());
         toolBar.add(createFkButton);
+        toolBar.add(new SeparatorToolItem());
         addListener();
         LayoutContainer toolBarPanel = new LayoutContainer();
         toolBarPanel.add(toolBar);
@@ -302,7 +309,16 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         pagingBar.bind(loader);
         loader.setRemoteSort(true);
 
-        this.setBottomComponent(pagingBar);
+        VerticalPanel vp = new VerticalPanel();
+        vp.setWidth("100%"); //$NON-NLS-1$
+        statusBar.getElement().getStyle().setFontSize(12D, Unit.PX);
+        statusBar.setHeight("16px"); //$NON-NLS-1$
+        vp.add(statusBar);
+        vp.add(pagingBar);
+
+        this.setBottomComponent(new WidgetComponent(vp));
+
+        updateMandatory();
     }
 
     private void updateSiblingNodes() {
@@ -356,13 +372,14 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                             }
                         }
                     }
+
                     // minOccurs tip
                     if (tipMinOccurs) {
                         MessageBox.alert(MessagesFactory.getMessages().info_title(),
                                 MessagesFactory.getMessages().fk_validate_min_occurence(
                                         fkTypeModel.getLabel(Locale.getLanguage()), fkTypeModel.getMinOccurs()), null);
                     }
-
+                    updateMandatory();
                     pagingBar.refresh();
                 }
             }
@@ -491,6 +508,29 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         currentNodeModel.setTypeName(fk.getTypeName());
         currentNodeModel.setChangeValue(true);
         grid.getView().refresh(false);
+        updateMandatory();
+    }
+
+    private void updateMandatory() {
+        if (this.fkModels.size() > 0) {
+            ItemNodeModel fk = fkModels.get(0);
+            int fkValueCount = 0;
+            for (ItemNodeModel fkModel : fkModels) {
+                if (fkModel.getObjectValue() != null) {
+                    fkValueCount++;
+                }
+            }
+            if (fkValueCount < fkTypeModel.getMinOccurs()){
+
+                setStatusHtml("<b style=\"color: red;\">" + MessagesFactory.getMessages().multiOccurrence_minimize_title(fkTypeModel.getMinOccurs(), fk.getName()) + "</b>"); //$NON-NLS-1$//$NON-NLS-2$
+            } else {
+                setStatusHtml(null);
+            }
+        }
+    }
+
+    public void setStatusHtml(String html) {
+        statusBar.setHTML(html);
     }
 
     private void hookContextMenu(final ForeignKeyRowEditor re) {

@@ -156,6 +156,46 @@ public class CommonUtil {
         return root;
     }
 
+    public static int getCountOfBrotherOfTheSameName(ItemNodeModel nodeModel) {
+        int count = 0;
+        String name = nodeModel.getName();
+        ItemNodeModel parentModel = (ItemNodeModel) nodeModel.getParent();
+        if (parentModel == null)
+            return 1;
+        for (int i = 0; i < parentModel.getChildCount(); i++) {
+            ItemNodeModel childModel = (ItemNodeModel) parentModel.getChild(i);
+            if (name.equals(childModel.getName())) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public static boolean hasChildrenValue(ItemNodeModel parentModel) {
+        List<ModelData> childs = parentModel.getChildren();
+        if (childs != null && childs.size() > 0) {
+            for (int i = 0; i < childs.size(); i++) {
+                ItemNodeModel child = (ItemNodeModel) childs.get(i);
+                if (hasChildrenValue(child)) {
+                    return true;
+                } else {
+                    continue;
+                }
+            }
+        } else {
+            return parentModel.getObjectValue() != null && !"".equals(parentModel.getObjectValue()); //$NON-NLS-1$
+        }
+        return false;
+    }
+
+    public static String getRealXpathWithoutLastIndex(ItemNodeModel nodeModel) {
+        return getRealXPath(nodeModel).replaceAll("\\[\\d+\\]$", ""); //$NON-NLS-1$//$NON-NLS-2$
+    }
+
+    public static String getRealXpathWithoutLastIndex(String realPath) {
+        return realPath.replaceAll("\\[\\d+\\]$", ""); //$NON-NLS-1$ //$NON-NLS-2$
+    }
+
     private static void mergerChildrenWhenEmpty(Element el) {
         Map<String, List<Element>> childrenGroup = childrenElGroup(el);
         Set<String> keySet = childrenGroup.keySet();
@@ -258,7 +298,6 @@ public class CommonUtil {
                 node.setChildNodes(list);
             }
             node.setName(model.getName());
-            node.setBindingPath(model.getXpath());
             node.setTypePath(model.getTypePath());
             node.setDescription(model.getDescriptionMap().get(language));
             node.setLabel(model.getLabel(language));
