@@ -162,12 +162,12 @@ public class UpdateReportDWR {
         getItems.setSkip(start);
         getItems.setMaxItems(limit);
         getItems.setWsDataClusterPK(wsDataClusterPK);
-        if(sort != null){
-            getItems.setSort("Update/" + upperCaseFirstLetter(sort)); //$NON-NLS-1$
-        }
-        if(dir != null){
-            getItems.setDir(dir.toLowerCase() + "ending"); //$NON-NLS-1$
-        }
+//        if(sort != null){
+//            getItems.setSort("Update/" + upperCaseFirstLetter(sort)); //$NON-NLS-1$
+//        }
+//        if(dir != null){
+//            getItems.setDir(dir.toLowerCase() + "ending"); //$NON-NLS-1$
+//        }
         
         WSStringArray resultsArray = Util.getPort().getItems(getItems);
         String[] results = resultsArray == null ? new String[0] : resultsArray.getStrings();
