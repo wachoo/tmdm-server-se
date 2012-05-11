@@ -229,6 +229,8 @@ public interface BrowseRecordsMessages extends Messages {
 
     String remove_title();
 
+    String reset_value_title();
+
     String picture_select_title();
 
     String picture_upload_local_title();

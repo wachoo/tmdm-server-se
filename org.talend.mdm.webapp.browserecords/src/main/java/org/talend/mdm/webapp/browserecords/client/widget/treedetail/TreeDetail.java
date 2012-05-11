@@ -339,6 +339,7 @@ public class TreeDetail extends ContentPanel {
 
         root = buildGWTTree(rootModel, null, false, operation);
         multiManager.warningAllItems();
+        multiManager.handleOptIcons();
         isFirstKey = true;
         root.setState(true);
         tree = new TreeEx();

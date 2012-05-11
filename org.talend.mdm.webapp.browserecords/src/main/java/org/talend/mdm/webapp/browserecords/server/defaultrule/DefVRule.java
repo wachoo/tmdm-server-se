@@ -212,7 +212,7 @@ public class DefVRule {
 
     private List<Element> _getDefaultXML(TypeModel model, String realType, Document doc, String language) {
         List<Element> itemNodes = new ArrayList<Element>();
-        if (model.getMinOccurs() > 1 && model.getMaxOccurs() > model.getMinOccurs()) {
+        if (model.getMinOccurs() > 1) {
             for (int i = 0; i < model.getMinOccurs(); i++) {
                 Element el = doc.createElement(model.getName());
                 applySimpleTypesDefaultValue(model, el);

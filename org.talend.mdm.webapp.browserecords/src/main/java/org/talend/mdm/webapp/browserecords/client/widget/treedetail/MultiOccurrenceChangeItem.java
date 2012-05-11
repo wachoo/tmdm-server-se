@@ -39,6 +39,8 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
         void addedNode(DynamicTreeItem selectedItem, String optId);
 
         void removedNode(DynamicTreeItem selectedItem);
+
+        void clearNodeValue(DynamicTreeItem selectedItem);
     }
 
     private AddRemoveHandler addRemoveHandler;
@@ -50,6 +52,8 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
     private Image removeNodeImg;
 
     private TreeDetail treeDetail;
+
+    private Field<?> field;
 
     private ViewBean viewBean;
 
@@ -92,7 +96,7 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
                     && ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {
                 itemNode.setObjectValue(""); //$NON-NLS-1$
             }
-            Field<?> field = TreeDetailGridFieldCreator.createField(itemNode, typeModel, Locale.getLanguage(), fieldMap,
+            field = TreeDetailGridFieldCreator.createField(itemNode, typeModel, Locale.getLanguage(), fieldMap,
                     operation, itemsDetailPanel);
             field.setWidth(200);
             field.addListener(Events.Blur, new Listener<FieldEvent>() {
@@ -149,6 +153,35 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
         this.setVisible(typeModel.isVisible());
     }
     
+    public void clearValue() {
+        if (field != null) {
+            field.setValue(null);
+        }
+    }
+
+    public void switchRemoveOpt(boolean isRemoveNode) {
+        if (removeNodeImg != null) {
+            if (isRemoveNode) {
+                removeNodeImg.setUrl("/talendmdm/secure/img/genericUI/delete.png"); //$NON-NLS-1$
+                removeNodeImg.getElement().setId("Remove"); //$NON-NLS-1$
+                removeNodeImg.setTitle(MessagesFactory.getMessages().remove_title());
+            } else {
+                removeNodeImg.setUrl("/talendmdm/secure/img/genericUI/clear-value.gif"); //$NON-NLS-1$
+                removeNodeImg.setTitle(MessagesFactory.getMessages().reset_value_title());
+                removeNodeImg.getElement().setId("Clear"); //$NON-NLS-1$
+            }
+        }
+    }
+    
+    public void setAddIconVisible(boolean visible) {
+        if (addNodeImg != null) {
+            addNodeImg.setVisible(visible);
+        }
+        if (cloneNodeImg != null) {
+            cloneNodeImg.setVisible(visible);
+        }
+    }
+
     public void clearWarning() {
 
         Widget w = this.getWidget(this.getWidgetCount() - 1);
@@ -187,13 +220,14 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
             final DynamicTreeItem selectedItem = treeDetail.getSelectedItem();
             if (selectedItem == null)
                 return;
-            if ("Add".equals(arg0.getRelativeElement().getId()) || "Clone".equals(arg0.getRelativeElement().getId())) { //$NON-NLS-1$ //$NON-NLS-2$ 
-                if (addRemoveHandler != null) {
+
+            if (addRemoveHandler != null) {
+                if ("Add".equals(arg0.getRelativeElement().getId()) || "Clone".equals(arg0.getRelativeElement().getId())) { //$NON-NLS-1$ //$NON-NLS-2$ 
                     addRemoveHandler.addedNode(selectedItem, arg0.getRelativeElement().getId());
-                }
-            } else {
-                if (addRemoveHandler != null) {
+                } else if ("Remove".equals(arg0.getRelativeElement().getId())) { //$NON-NLS-1$
                     addRemoveHandler.removedNode(selectedItem);
+                } else {
+                    addRemoveHandler.clearNodeValue(selectedItem);
                 }
             }
         }

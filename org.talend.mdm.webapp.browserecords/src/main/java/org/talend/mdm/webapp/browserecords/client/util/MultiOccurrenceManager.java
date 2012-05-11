@@ -90,6 +90,10 @@ public class MultiOccurrenceManager {
                 public void addedNode(DynamicTreeItem selectedItem, String optId) {
                     handleAddNode(selectedItem, optId);
                 }
+
+                public void clearNodeValue(DynamicTreeItem selectedItem) {
+                    handleClearNodeValue(selectedItem);
+                }
             });
         }
     }
@@ -150,6 +154,7 @@ public class MultiOccurrenceManager {
                 childItem.setTitle(mandatory);
                 nodeModel.setValid(false);
             }
+
         }
     }
 
@@ -158,7 +163,46 @@ public class MultiOccurrenceManager {
         while (keyIter.hasNext()) {
             String xpath = keyIter.next();
             warningItems(xpath);
+        }
+    }
 
+    public void handleOptIcons() {
+        Iterator<String> keyIter = multiOccurrence.keySet().iterator();
+        while (keyIter.hasNext()) {
+            String xpath = keyIter.next();
+            handleOptIcon(xpath);
+        }
+
+    }
+
+    private void handleOptIcon(String realPath) {
+        String xpath = CommonUtil.getRealXpathWithoutLastIndex(realPath);
+        List<DynamicTreeItem> items = multiOccurrence.get(xpath);
+        if (items == null)
+            return;
+        if (items.size() > 0) {
+
+            TypeModel tm = metaDataTypes.get(items.get(0).getItemNodeModel().getTypePath());
+
+            if (tm.getMinOccurs() == 0 && items.size() == 1) {
+                MultiOccurrenceChangeItem itemWidget = (MultiOccurrenceChangeItem) items.get(0).getWidget();
+                itemWidget.switchRemoveOpt(false);
+            } else {
+                MultiOccurrenceChangeItem itemWidget = (MultiOccurrenceChangeItem) items.get(0).getWidget();
+                itemWidget.switchRemoveOpt(true);
+            }
+
+            boolean canAdd;
+            if (tm.getMaxOccurs() <= 0) {
+                canAdd = true;
+            } else {
+                canAdd = items.size() < tm.getMaxOccurs();
+            }
+            for (int i = 0; i < items.size(); i++) {
+                DynamicTreeItem item = items.get(i);
+                MultiOccurrenceChangeItem itemWidget = (MultiOccurrenceChangeItem) item.getWidget();
+                itemWidget.setAddIconVisible(canAdd);
+            }
         }
     }
 
@@ -235,6 +279,8 @@ public class MultiOccurrenceManager {
 
             warningItems(treeItem.getItemNodeModel());
 
+            handleOptIcon(CommonUtil.getRealXPath(selectedModel));
+
         } else {
             MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
                     .multiOccurrence_maximize(count), null);
@@ -260,9 +306,11 @@ public class MultiOccurrenceManager {
                         removeMultiOccurrenceNode(selectedItem);
                         selectedModel.setObjectValue(null);
                         warningItems(selectedModel);
+                        String selectedXpath = CommonUtil.getRealXPath(selectedModel);
                         parentItem.removeItem(selectedItem);
                         parentModel.remove(selectedModel);
                         parentModel.setChangeValue(true);
+                        handleOptIcon(selectedXpath);
 
                         if (parentModel.getChildCount() > 0) {
                             ItemNodeModel child = (ItemNodeModel) parentModel.getChild(0);
@@ -277,6 +325,18 @@ public class MultiOccurrenceManager {
                 }
             }
         });
+    }
+
+    private void handleClearNodeValue(final DynamicTreeItem selectedItem) {
+        ItemNodeModel nodeModel = selectedItem.getItemNodeModel();
+        if (nodeModel.isLeaf()) {
+            nodeModel.setObjectValue(null);
+            MultiOccurrenceChangeItem itemWidget = (MultiOccurrenceChangeItem) selectedItem.getWidget();
+            itemWidget.clearValue();
+        }
+        for (int i = 0; i < selectedItem.getChildCount(); i++) {
+            handleClearNodeValue((DynamicTreeItem) selectedItem.getChild(i));
+        }
     }
 
 }

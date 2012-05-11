@@ -356,7 +356,6 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             public void componentSelected(ButtonEvent ce) {
                 List<ItemNodeModel> selectedFkModelList = grid.getSelectionModel().getSelectedItems();
                 if (selectedFkModelList != null && selectedFkModelList.size() > 0) {
-                    boolean tipMinOccurs = (fkModels.size() - selectedFkModelList.size()) < fkTypeModel.getMinOccurs();
                     boolean allSelected = (fkModels.size() == selectedFkModelList.size());
                     int endIndex = allSelected ? 1 : 0;
                     for (int i = selectedFkModelList.size() - 1; i >= endIndex; i--) {
@@ -373,12 +372,6 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                         }
                     }
 
-                    // minOccurs tip
-                    if (tipMinOccurs) {
-                        MessageBox.alert(MessagesFactory.getMessages().info_title(),
-                                MessagesFactory.getMessages().fk_validate_min_occurence(
-                                        fkTypeModel.getLabel(Locale.getLanguage()), fkTypeModel.getMinOccurs()), null);
-                    }
                     updateMandatory();
                     pagingBar.refresh();
                 }
