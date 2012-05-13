@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.DataTypeCustomized;
@@ -17,6 +18,7 @@ import org.talend.mdm.webapp.browserecords.client.util.DateUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.BooleanField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatDateField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatNumberField;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextAreaField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.PictureField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.SpinnerField;
@@ -99,12 +101,16 @@ public class TypeFieldCreatorGWTTest extends GWTTestCase {
         Map<String, TypeFieldStyle> sytles = new HashMap<String, TypeFieldStyle>();
         sytles.put(TypeFieldStyle.ATTRI_WIDTH, new TypeFieldStyle(TypeFieldStyle.ATTRI_WIDTH, "400",
                 TypeFieldStyle.SCOPE_BUILTIN_TYPEFIELD)); //$NON-NLS-1$
-
         context.setDataType(nameNodeModel);
         createdField = typeFieldCreator.createFieldWithValueAndUpdateStyle(nameNode, sytles);
         assertNotNull(createdField);
         assertTrue(createdField instanceof FormatTextField);
         assertEquals(nameValue, createdField.getValue());
+        
+        nameNode.setObjectValue(makeRandomString(71));
+        createdField = typeFieldCreator.createFieldWithValueAndUpdateStyle(nameNode, sytles);
+        assertNotNull(createdField);
+        assertTrue(createdField instanceof FormatTextAreaField);
 
         context.setDataType(priceNodeModel);
         createdField = typeFieldCreator.createFieldWithValueAndUpdateStyle(priceNode, sytles);
@@ -197,6 +203,18 @@ public class TypeFieldCreatorGWTTest extends GWTTestCase {
         assertTrue(createdField instanceof TextField);
         assertEquals(typeFieldSource.getOperatorMap(), OperatorConstants.fullOperators);
 
+    }
+
+    public static String makeRandomString(int length) {
+        // a-zA-Z0-9
+        String str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        Random rand = new Random();
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < length; i++) {
+            int number = rand.nextInt(62);
+            sb.append(str.charAt(number));
+        }
+        return sb.toString();
     }
 
     private native String getWidthFromField(Field field)/*-{
