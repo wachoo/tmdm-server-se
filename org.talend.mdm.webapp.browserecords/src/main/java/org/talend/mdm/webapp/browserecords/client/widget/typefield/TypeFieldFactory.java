@@ -17,6 +17,7 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.browserecords.client.model.OperatorConstants;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextAreaField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator.TextFieldValidator;
 
@@ -25,6 +26,8 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 public abstract class TypeFieldFactory implements IsSerializable {
+
+    public static final int TEXTAREA_THRESHOLD_LENGTH = 70;
 
     protected TypeFieldSource source;
 
@@ -90,17 +93,28 @@ public abstract class TypeFieldFactory implements IsSerializable {
     protected Field<?> genFormatTextField() {
         Field<?> field;
         FormatTextField textField = new FormatTextField();
+
+        // auto switch text area
+        if (source != null && source.getName().equals(TypeFieldSource.FORM_INPUT)) {
+            if (hasValue() && getValue().toString().length() > TEXTAREA_THRESHOLD_LENGTH) {
+                textField = new FormatTextAreaField();
+            }
+        }
+
         if (!isEmpty(displayformatPattern)) {
             textField.setFormatPattern(displayformatPattern);
         }
 
         textField.setValidator(TextFieldValidator.getInstance());
 
+        // clear message
         if (source != null && source.getName().equals(TypeFieldSource.CELL_EDITOR))
             textField.setMessages(null);
 
-        if (context.isWithValue())
+        // set value
+        if (context.isWithValue()) {
             textField.setValue(hasValue() ? getValue().toString() : ""); //$NON-NLS-1$
+        }
 
         field = textField;
         return field;
