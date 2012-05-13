@@ -13,7 +13,7 @@
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,8 +27,6 @@ import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ComboBoxModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
-import org.talend.mdm.webapp.browserecords.client.util.DateUtil;
-import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKPropertyEditor;
@@ -38,10 +36,11 @@ import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ForeignKeyFi
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatDateField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatNumberField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextField;
-import org.talend.mdm.webapp.browserecords.client.widget.inputfield.PictureField;
-import org.talend.mdm.webapp.browserecords.client.widget.inputfield.UrlField;
-import org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator.NumberFieldValidator;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator.TextFieldValidator;
+import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldCreateContext;
+import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldCreator;
+import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldSource;
+import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldStyle;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.FacetEnum;
 
@@ -59,7 +58,6 @@ import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.DateField;
-import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
@@ -104,32 +102,6 @@ public class TreeDetailGridFieldCreator {
             comboBox.setSimpleValue(hasValue ? value.toString() : ""); //$NON-NLS-1$
             field = comboBox;
 
-        } else if (dataType.getType().equals(DataTypeConstants.UUID)) {
-            TextField<String> uuidField = new TextField<String>();
-            uuidField.setEnabled(false);
-            uuidField.setReadOnly(true);
-            if (hasValue)
-                uuidField.setValue(value.toString());
-            field = uuidField;
-        } else if (dataType.getType().equals(DataTypeConstants.AUTO_INCREMENT)) {
-            TextField<String> autoIncrementField = new TextField<String>();
-            autoIncrementField.setEnabled(false);
-            autoIncrementField.setReadOnly(true);
-            if (hasValue) {
-                autoIncrementField.setValue(value.toString());
-            } else {
-                autoIncrementField.setValue(MessagesFactory.getMessages().auto());
-            }
-            field = autoIncrementField;
-        } else if (dataType.getType().equals(DataTypeConstants.PICTURE)) {
-            PictureField pictureField = new PictureField();
-            pictureField.setValue(hasValue ? value.toString() : ""); //$NON-NLS-1$
-            field = pictureField;
-        } else if (dataType.getType().equals(DataTypeConstants.URL)) {
-            UrlField urlField = new UrlField();
-            urlField.setFieldLabel(dataType.getLabel(language));
-            urlField.setValue(hasValue ? value.toString() : ""); //$NON-NLS-1$
-            field = urlField;
         } else if (dataType instanceof ComplexTypeModel) {
             final ComboBoxField<ComboBoxModel> comboxField = new ComboBoxField<ComboBoxModel>();
             comboxField.setDisplayField("value"); //$NON-NLS-1$
@@ -177,7 +149,12 @@ public class TreeDetailGridFieldCreator {
 
             field = comboxField;
         } else {
-            field = createCustomField(node, dataType, language);
+            TypeFieldCreateContext context = new TypeFieldCreateContext(dataType);
+            context.setLanguage(language);
+            TypeFieldCreator typeFieldCreator = new TypeFieldCreator(new TypeFieldSource(TypeFieldSource.FORM_INPUT), context);
+            Map<String, TypeFieldStyle> sytles = new HashMap<String, TypeFieldStyle>();
+            sytles.put(TypeFieldStyle.ATTRI_WIDTH, new TypeFieldStyle(TypeFieldStyle.ATTRI_WIDTH, "400", TypeFieldStyle.SCOPE_BUILTIN_TYPEFIELD)); //$NON-NLS-1$
+            field = typeFieldCreator.createFieldWithValueAndUpdateStyle(node, sytles);
         }
 
         field.setFieldLabel(dataType.getLabel(language));
@@ -222,119 +199,6 @@ public class TreeDetailGridFieldCreator {
     public static Field<?> createField(ItemNodeModel node, final TypeModel dataType, String language,
             Map<String, Field<?>> fieldMap, final ItemsDetailPanel itemsDetailPanel) {
         return createField(node, dataType, language, fieldMap, null, itemsDetailPanel);
-    }
-
-    public static Field<?> createCustomField(ItemNodeModel node, TypeModel dataType, String language) {
-        Serializable value = node.getObjectValue();
-        String pattern = dataType.getDisplayFomats().get("format_" + Locale.getLanguage()); //$NON-NLS-1$
-        Field<?> field;
-        boolean hasValue = value != null && !"".equals(value); //$NON-NLS-1$
-        String baseType = dataType.getType().getBaseTypeName();
-        if (DataTypeConstants.INTEGER.getTypeName().equals(baseType) || DataTypeConstants.INT.getTypeName().equals(baseType)
-                || DataTypeConstants.LONG.getTypeName().equals(baseType)) {
-            FormatNumberField numberField = new FormatNumberField();
-            if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$
-                numberField.setFormatPattern(pattern);
-            }
-            numberField.setData("numberType", "integer");//$NON-NLS-1$ //$NON-NLS-2$
-            numberField.setPropertyEditorType(Integer.class);
-            numberField.setValidator(NumberFieldValidator.getInstance());
-            if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$     
-                // numberField.setPropertyEditor(new NumberPropertyEditor(pattern));
-            }
-            numberField.setValue((hasValue ? Long.parseLong(value.toString()) : null));
-            field = numberField;
-        } else if (DataTypeConstants.FLOAT.getTypeName().equals(baseType)
-                || DataTypeConstants.DOUBLE.getTypeName().equals(baseType)) {
-            FormatNumberField numberField = new FormatNumberField();
-            if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$
-                numberField.setFormatPattern(pattern);
-            }
-            numberField.setData("numberType", "double");//$NON-NLS-1$ //$NON-NLS-2$
-            numberField.setPropertyEditorType(Double.class);
-            numberField.setValidator(NumberFieldValidator.getInstance());
-            if (DataTypeConstants.DOUBLE.getTypeName().equals(baseType))
-                numberField.setValue((hasValue ? Double.parseDouble(value.toString()) : null));
-            else
-                numberField.setValue((hasValue ? Float.parseFloat(value.toString()) : null));
-            field = numberField;
-        } else if (DataTypeConstants.DECIMAL.getTypeName().equals(baseType)) {
-            FormatNumberField numberField = new FormatNumberField();
-            if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$
-                numberField.setFormatPattern(pattern);
-            }
-            numberField.setData("numberType", "decimal");//$NON-NLS-1$ //$NON-NLS-2$
-            numberField.setValidator(NumberFieldValidator.getInstance());
-            numberField.setPropertyEditorType(Double.class);
-            numberField.setValue((hasValue ? Double.parseDouble(value.toString()) : null));
-
-            field = numberField;
-        } else if (DataTypeConstants.BOOLEAN.getTypeName().equals(baseType)) {
-            CheckBox checkBox = new CheckBox();
-            checkBox.setValue(hasValue ? ((value.toString().equals("true") || value.equals(true)) ? true : false) : null); //$NON-NLS-1$
-            field = checkBox;
-        } else if (DataTypeConstants.DATE.getTypeName().equals(baseType)) {
-            FormatDateField dateField = new FormatDateField(node);
-            if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$                
-                dateField.setFormatPattern(pattern);
-                dateField.setShowFormateValue(true);
-            }
-                dateField.setPropertyEditor(new DateTimePropertyEditor(DateUtil.datePattern));
-                    
-            
-            if (hasValue) {
-                Date d = DateUtil.convertStringToDate(value.toString());
-                dateField.setValue(hasValue ? d : null);
-                dateField.setDate(d);
-                if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$
-                    dateField.setFormatedValue();
-                }
-            }
-            
-            field = dateField;
-        } else if (DataTypeConstants.DATETIME.getTypeName().equals(baseType)) {
-
-            FormatDateField dateField = new FormatDateField(node);
-            if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$                
-                dateField.setFormatPattern(pattern);
-                dateField.setShowFormateValue(true);
-            }
-                dateField.setPropertyEditor(new DateTimePropertyEditor(DateUtil.formatDateTimePattern));
-                    
-            
-            if (hasValue) {
-                Date d = DateUtil.convertStringToDate(DateUtil.dateTimePattern, value.toString());
-                dateField.setValue(hasValue ? d : null);
-                dateField.setDate(d);
-                if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$
-                    dateField.setFormatedValue();
-                }
-            }
-            
-            field = dateField;
-            
-            
-        } else if (DataTypeConstants.STRING.getTypeName().equals(baseType)) {
-            FormatTextField textField = new FormatTextField();
-            if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$
-                textField.setFormatPattern(pattern);
-            }
-            textField.setValidator(TextFieldValidator.getInstance());
-            textField.setValue(hasValue ? value.toString() : ""); //$NON-NLS-1$
-
-            field = textField;
-        } else {
-            FormatTextField textField = new FormatTextField();
-            if (pattern != null && !"".equals(pattern)) { //$NON-NLS-1$
-                textField.setFormatPattern(pattern);
-            }
-            textField.setValue(hasValue ? value.toString() : ""); //$NON-NLS-1$
-            textField.setValidator(TextFieldValidator.getInstance());
-            field = textField;
-        }
-
-        field.setWidth(400);
-        return field;
     }
 
     public static void deleteField(ItemNodeModel node, Map<String, Field<?>> fieldMap) {
