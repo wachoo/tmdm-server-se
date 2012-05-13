@@ -96,7 +96,8 @@ public abstract class TypeFieldFactory implements IsSerializable {
 
         textField.setValidator(TextFieldValidator.getInstance());
 
-        textField.setMessages(null);
+        if (source != null && source.getName().equals(TypeFieldSource.CELL_EDITOR))
+            textField.setMessages(null);
 
         if (context.isWithValue())
             textField.setValue(hasValue() ? getValue().toString() : ""); //$NON-NLS-1$
