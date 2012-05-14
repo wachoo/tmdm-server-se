@@ -255,29 +255,28 @@ public class TreeDetail extends ContentPanel {
         if (typeModelFK == null)
             return false; // Not a FK
 
+        if (!typeModel.isSeparateFk())
+            return false;
+
         ItemNodeModel parentNode = (ItemNodeModel) node.getParent();
-        if (parentNode == null)
+        if (parentNode == null) {
             return false; // It is root
-        else {
-            ItemNodeModel grandParentNode = (ItemNodeModel) parentNode.getParent();
-            if (grandParentNode == null) {
-                return true;// parentNode is the root node
-            } else if (grandParentNode.getParent() == null) {
-                // grandParentNode is the root node then
-                // TMDM-3123 : Is it the only contained in a complex type with maxOccurs >=1 ?
-                String parentNodeBindingPath = parentNode.getBindingPath();
-                TypeModel parentTypeModel = metaDataTypes.get(parentNodeBindingPath);
-                if (!parentTypeModel.isSimpleType()) {
-                    ComplexTypeModel parentComplexTypeModel = (ComplexTypeModel) parentTypeModel;
-                    if (parentComplexTypeModel.getSubTypes().size() == 1) {
-                        if (parentComplexTypeModel.getMaxOccurs() == 0 || parentComplexTypeModel.getMaxOccurs() == 1) {
-                            return true;
-                        }
-                    }
-                }
+        }
+        if (parentNode.getParent() == null) {
+            return true;
+        }
+        return isOnlySonTypeNode(node);
+    }
+
+    static boolean isOnlySonTypeNode(ItemNodeModel node) {
+        ItemNodeModel parentNode = (ItemNodeModel) node.getParent();
+        for (int i = 0; i < parentNode.getChildCount(); i++) {
+            ItemNodeModel childNode = (ItemNodeModel) parentNode.getChild(i);
+            if (!node.getTypePath().equals(childNode.getTypePath())) {
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     public void onUpdatePolymorphism(ComplexTypeModel typeModel) {
