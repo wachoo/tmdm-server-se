@@ -549,6 +549,14 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 		return BeanDelegatorContainer.getUniqueInstance().getXtentisWSDelegator().getItems(wsGetItems);
 	}
 	
+    /**
+     * @ejb.interface-method view-type = "service-endpoint"
+     * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
+     */
+    public WSStringArray getItemsSort(WSGetItemsSort wsGetItemsSort) throws RemoteException {
+        return BeanDelegatorContainer.getUniqueInstance().getXtentisWSDelegator().getItemsSort(wsGetItemsSort);
+    }
+    	
 	/**
 	 * @ejb.interface-method view-type = "service-endpoint"
 	 * @ejb.permission 

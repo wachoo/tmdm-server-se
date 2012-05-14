@@ -550,6 +550,25 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    public WSStringArray getItemsSort(WSGetItemsSort wsGetItemsSort) throws RemoteException {
+        try {
+            Map wcfContext = new HashMap();
+            wcfContext.put(WhereConditionForcePivotFilter.FORCE_PIVOT, wsGetItemsSort.getConceptName());
+
+            Collection res = com.amalto.core.util.Util.getItemCtrl2Local().getItems(
+                    new DataClusterPOJOPK(wsGetItemsSort.getWsDataClusterPK().getPk()), wsGetItemsSort.getConceptName(),
+                    XConverter.WS2VO(wsGetItemsSort.getWhereItem(), new WhereConditionForcePivotFilter(wcfContext)),
+                    wsGetItemsSort.getSpellTreshold(), wsGetItemsSort.getSort(), wsGetItemsSort.getDir(), wsGetItemsSort.getSkip(), wsGetItemsSort.getMaxItems(), wsGetItemsSort.getTotalCountOnFirstResult());
+            return new WSStringArray((String[]) res.toArray(new String[res.size()]));
+        } catch (com.amalto.core.util.XtentisException e) {
+            throw (new RemoteException(e.getLocalizedMessage(), e));
+            // } catch (com.amalto.webapp.util.XtentisException e) {
+            // throw(new RemoteException(e.getLocalizedMessage()));
+        } catch (Exception e) {
+            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
+        }
+    }
+    
     public WSItemPKsByCriteriaResponse getItemPKsByCriteria(WSGetItemPKsByCriteria wsGetItemPKsByCriteria) throws RemoteException {
         try {
 

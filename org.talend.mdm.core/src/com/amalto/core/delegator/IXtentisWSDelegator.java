@@ -1090,6 +1090,28 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
+    public WSStringArray getItemsSort(WSGetItemsSort wsGetItemsSort) throws RemoteException {
+        try {
+            Map wcfContext = new HashMap();
+            wcfContext.put(WhereConditionForcePivotFilter.FORCE_PIVOT, wsGetItemsSort.getConceptName());
+
+            Collection res = Util.getItemCtrl2Local().getItems(new DataClusterPOJOPK(wsGetItemsSort.getWsDataClusterPK().getPk()),
+                    wsGetItemsSort.getConceptName(),
+                    WS2VO(wsGetItemsSort.getWhereItem(), new WhereConditionForcePivotFilter(wcfContext)),
+                    wsGetItemsSort.getSpellTreshold(), wsGetItemsSort.getSort(), wsGetItemsSort.getDir(), wsGetItemsSort.getSkip(), wsGetItemsSort.getMaxItems(),
+                    wsGetItemsSort.getTotalCountOnFirstResult() == null? false: wsGetItemsSort.getTotalCountOnFirstResult());
+            return new WSStringArray((String[]) res.toArray(new String[res.size()]));
+        } catch (XtentisException e) {
+            throw (new RemoteException(e.getLocalizedMessage(), e));
+        } catch (Exception e) {
+           throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
+        }
+    }
+    
+    /**
+     * @ejb.interface-method view-type = "service-endpoint"
+     * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
+     */
     public WSItemPKsByCriteriaResponse getItemPKsByCriteria(WSGetItemPKsByCriteria wsGetItemPKsByCriteria) throws RemoteException {
 
         return doGetItemPKsByCriteria(wsGetItemPKsByCriteria, false);

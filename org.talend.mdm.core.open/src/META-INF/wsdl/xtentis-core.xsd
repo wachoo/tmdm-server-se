@@ -844,6 +844,26 @@
 	</xsd:complexType>
 	<xsd:element name="WSGetItems" type="tns:WSGetItems"/>
 
+	<xsd:complexType name="WSGetItemsSort">
+		<xsd:annotation>
+			<xsd:documentation>
+				Returns items based on the cluster pk and a search
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataClusterPK" nillable="false" type="tns:WSDataClusterPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="conceptName" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="whereItem" nillable="true" type="tns:WSWhereItem"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="spellTreshold" nillable="false" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="skip" nillable="false" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="maxItems" nillable="false" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="totalCountOnFirstResult" nillable="false" type="xsd:boolean"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="sort" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="dir" nillable="false" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetItemsSort" type="tns:WSGetItemsSort"/>
+	
 	<xsd:complexType name="WSGetItemPKsByCriteria">
 		<xsd:annotation>
 			<xsd:documentation>

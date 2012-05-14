@@ -319,6 +319,13 @@
 		<part name="results" element="tns:WSStringArray"/>
 	</message>
 		
+	<message name="getItemsSortRequest">
+		<part name="wsGetItemsSort" element="tns:WSGetItemsSort"/>
+	</message>
+	<message name="getItemsSortResponse">
+		<part name="results" element="tns:WSStringArray"/>
+	</message>
+			
 	<message name="getItemPKsByCriteriaRequest">
 		<part name="wsGetItemPKsByCriteria" element="tns:WSGetItemPKsByCriteria"/>
 	</message>
@@ -1135,6 +1142,10 @@
 			<input message="tns:getItemsRequest"/>
 			<output message="tns:getItemsResponse"/>
 		</operation>
+		<operation name="getItemsSort">
+			<input message="tns:getItemsSortRequest"/>
+			<output message="tns:getItemsSortResponse"/>
+		</operation>		
 		<operation name="getItemPKsByCriteria">
 			<input message="tns:getItemPKsByCriteriaRequest"/>
 			<output message="tns:getItemPKsByCriteriaResponse"/>
@@ -1779,6 +1790,11 @@
 			<input><soap:body use="literal"/></input>
 			<output><soap:body use="literal"/></output>
 		</operation>
+		<operation name="getItemsSort">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>		
 		<operation name="getItemPKsByCriteria">
 			<soap:operation/>
 			<input><soap:body use="literal"/></input>
