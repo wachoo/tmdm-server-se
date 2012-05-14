@@ -279,8 +279,8 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
 
                     XmlSchemaParticle particle = ((XmlSchemaComplexContentExtension) content).getParticle();
                     if (particle != null) {
-                        if (particle instanceof XmlSchemaSequence) {
-                            XmlSchemaObjectCollection items = ((XmlSchemaSequence) particle).getItems();
+                        if (particle instanceof XmlSchemaGroupBase) {
+                            XmlSchemaObjectCollection items = ((XmlSchemaGroupBase) particle).getItems();
                             Iterator itemsIterator = items.getIterator();
                             while (itemsIterator.hasNext()) {
                                 XmlSchemaWalker.walk(((XmlSchemaElement) itemsIterator.next()), this);
