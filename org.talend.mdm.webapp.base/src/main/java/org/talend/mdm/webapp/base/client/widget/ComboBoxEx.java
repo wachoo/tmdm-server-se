@@ -59,6 +59,7 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Accessibility;
 import com.google.gwt.user.client.ui.RootPanel;
 
@@ -227,7 +228,7 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
 
     private String lastSelectionText;
 
-    private boolean lazyRender = true, initialized;
+    private boolean lazyRender = true, initialized, firstClick = true;
 
     private LayoutContainer list;
 
@@ -317,9 +318,8 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
         eventPreview.remove();
         expanded = false;
         list.hide();
-
         RootPanel.get().remove(list);
-        if (GXT.isAriaEnabled()) {
+        if (GXT.isAriaEnabled() && hasFocus) {
             // inspect 32 is keeping focus on hidden list item in dropdown
             input.blur();
             input.focus();
@@ -380,7 +380,7 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
         }
 
         list.show();
-        list.layout();
+        list.layout(true);
         list.el().updateZIndex(0);
         restrict();
 
@@ -886,9 +886,10 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
      * @param store the store
      */
     public void setStore(ListStore<D> store) {
-        this.store = store;
         if (rendered) {
             bindStore(store);
+        } else {
+            this.store = store;
         }
     }
 
@@ -1450,7 +1451,9 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
     }
 
     protected void onWindowResize(int width, int height) {
-        collapse();
+        if (!GXT.isIE8 || (GXT.isIE8 && firstClick))
+            collapse();
+        firstClick = false;
     }
 
     protected boolean selectByValue(String value) {
@@ -1465,6 +1468,8 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
     @Override
     protected void triggerBlur(ComponentEvent ce) {
         doForce();
+        dqTask.cancel();
+        collapse();
         super.triggerBlur(ce);
     }
 
@@ -1531,7 +1536,7 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
         doQuery(getRawValue(), false);
     }
 
-    private void restrict() {
+    protected void restrict() {
         list.el().setVisibility(false);
         listView.setHeight("auto"); //$NON-NLS-1$
         list.setHeight("auto"); //$NON-NLS-1$
@@ -1542,22 +1547,23 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
 
         int h = listView.getHeight() + fw;
 
-        h = Math.min(h, maxHeight - fw);
+        int mH = Math.min(maxHeight, Window.getClientHeight() - 10);
+        h = Math.min(h, mH);
         list.setSize(w, h);
-        list.el().alignTo(getElement(), listAlign, null);
+        list.el().alignTo(getAlignElement(), listAlign, null);
 
-        h -= fh;
+        h -= fw;
 
         int width = w - list.el().getFrameWidth("lr"); //$NON-NLS-1$
         listView.syncSize();
-        listView.setSize(width, h - list.el().getFrameWidth("tb")); //$NON-NLS-1$
+        listView.setSize(width, h);
 
         if (pageTb != null) {
             pageTb.setWidth(width);
         }
 
         int y = list.el().getY();
-        int b = y + h;
+        int b = y + h + fw;
         int vh = XDOM.getViewportSize().height + XDOM.getBodyScrollTop();
         if (b > vh) {
             y = y - (b - vh) - 5;
@@ -1578,7 +1584,7 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
         }
     }
 
-  private void selectPrev() {
+    private void selectPrev() {
         int count = store.getCount();
         if (count > 0) {
             int selectedIndex = store.indexOf(selectedItem);
@@ -1590,7 +1596,7 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
         }
     }
 
-  private void updateHiddenValue() {
+    private void updateHiddenValue() {
         if (hiddenInput != null) {
             String v = ""; //$NON-NLS-1$
             D val = getValue();
@@ -1599,6 +1605,10 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
             }
             hiddenInput.setValue(v);
         }
+    }
+
+    protected Element getAlignElement() {
+        return getElement();
     }
 
 }
