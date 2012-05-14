@@ -94,7 +94,7 @@ public class TreeDetailGridFieldCreator {
         } else if (dataType.hasEnumeration()) {
             SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
             comboBox.setFireChangeEventOnSetValue(true);
-            if (dataType.getMinOccurs() > 0)
+            if (dataType.getMinOccurs() == 1 && dataType.getMaxOccurs() == 1)
                 comboBox.setAllowBlank(false);
             comboBox.setEditable(false);
             comboBox.setForceSelection(true);

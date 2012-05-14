@@ -183,13 +183,13 @@ public class MultiOccurrenceManager {
         if (items.size() > 0) {
 
             TypeModel tm = metaDataTypes.get(items.get(0).getItemNodeModel().getTypePath());
-
-            if (tm.getMinOccurs() == 0 && items.size() == 1) {
+            boolean isFk = tm.getForeignkey() != null && tm.getForeignkey().trim().length() > 0;
+            if (items.size() == 1) {
                 MultiOccurrenceChangeItem itemWidget = (MultiOccurrenceChangeItem) items.get(0).getWidget();
-                itemWidget.switchRemoveOpt(false);
+                itemWidget.switchRemoveOpt(false, isFk);
             } else {
                 MultiOccurrenceChangeItem itemWidget = (MultiOccurrenceChangeItem) items.get(0).getWidget();
-                itemWidget.switchRemoveOpt(true);
+                itemWidget.switchRemoveOpt(true, isFk);
             }
 
             boolean canAdd;

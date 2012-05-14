@@ -155,20 +155,24 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
     
     public void clearValue() {
         if (field != null) {
-            field.setValue(null);
+            field.clear();
         }
     }
 
-    public void switchRemoveOpt(boolean isRemoveNode) {
+    public void switchRemoveOpt(boolean isRemoveNode, boolean isFk) {
         if (removeNodeImg != null) {
+            removeNodeImg.setVisible(true);
             if (isRemoveNode) {
                 removeNodeImg.setUrl("/talendmdm/secure/img/genericUI/delete.png"); //$NON-NLS-1$
                 removeNodeImg.getElement().setId("Remove"); //$NON-NLS-1$
                 removeNodeImg.setTitle(MessagesFactory.getMessages().remove_title());
             } else {
-                removeNodeImg.setUrl("/talendmdm/secure/img/genericUI/clear-value.gif"); //$NON-NLS-1$
+                removeNodeImg.setUrl("/talendmdm/secure/img/genericUI/clear-value.png"); //$NON-NLS-1$
                 removeNodeImg.setTitle(MessagesFactory.getMessages().reset_value_title());
                 removeNodeImg.getElement().setId("Clear"); //$NON-NLS-1$
+                if (isFk) {
+                    removeNodeImg.setVisible(false);
+                }
             }
         }
     }
