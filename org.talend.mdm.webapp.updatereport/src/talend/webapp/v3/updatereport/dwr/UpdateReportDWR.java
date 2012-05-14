@@ -155,21 +155,21 @@ public class UpdateReportDWR {
             wi = new WSWhereItem(null, and, null);
         }
 
-        com.amalto.webapp.util.webservices.WSGetItems getItems = new com.amalto.webapp.util.webservices.WSGetItems();
+        com.amalto.webapp.util.webservices.WSGetItemsSort getItems = new com.amalto.webapp.util.webservices.WSGetItemsSort();
         getItems.setConceptName(conceptName);
         getItems.setWhereItem(wi);
         getItems.setTotalCountOnFirstResult(true);
         getItems.setSkip(start);
         getItems.setMaxItems(limit);
         getItems.setWsDataClusterPK(wsDataClusterPK);
-//        if(sort != null){
-//            getItems.setSort("Update/" + upperCaseFirstLetter(sort)); //$NON-NLS-1$
-//        }
-//        if(dir != null){
-//            getItems.setDir(dir.toLowerCase() + "ending"); //$NON-NLS-1$
-//        }
+        if(sort != null){
+            getItems.setSort("Update/" + upperCaseFirstLetter(sort)); //$NON-NLS-1$
+        }
+        if(dir != null){
+            getItems.setDir(dir.toLowerCase() + "ending"); //$NON-NLS-1$
+        }
         
-        WSStringArray resultsArray = Util.getPort().getItems(getItems);
+        WSStringArray resultsArray = Util.getPort().getItemsSort(getItems);
         String[] results = resultsArray == null ? new String[0] : resultsArray.getStrings();
 
         // I would be better to return count as part of getItems call... but requires refactoring in getItems.
