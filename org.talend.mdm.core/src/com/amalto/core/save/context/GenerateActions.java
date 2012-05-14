@@ -54,8 +54,7 @@ class GenerateActions implements DocumentSaver {
         String universe = saverSource.getUniverse();
         List<Action> actions;
         MetadataRepository metadataRepository = saverSource.getMetadataRepository(context.getDataModelName());
-        if (databaseDocument.asDOM().getDocumentElement() == null) {
-            // This is a creation (database document is empty).
+        if (context.isCreate()) {
             Action createAction = new OverrideCreateAction(date, source, userName, userDocument, context.getType());
             // Generate field update actions for UUID and AutoIncrement elements.
             CreateActions createActions = new CreateActions(date, source, userName, context.getDataCluster(), universe, saverSource);

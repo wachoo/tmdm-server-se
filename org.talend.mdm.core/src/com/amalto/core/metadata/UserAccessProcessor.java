@@ -25,15 +25,15 @@ class UserAccessProcessor implements XmlSchemaAnnotationProcessor {
             while (annotations.hasNext()) {
                 XmlSchemaAppInfo appInfo = (XmlSchemaAppInfo) annotations.next();
                 if (BusinessConcept.APPINFO_X_HIDE.equals(appInfo.getSource())) {
-                    state.getHide().add(appInfo.getMarkup().item(0).getTextContent());
+                    state.getHide().add(appInfo.getMarkup().item(0).getNodeValue());
                 } else if (BusinessConcept.APPINFO_X_WRITE.equals(appInfo.getSource())) {
-                    state.getAllowWrite().add(appInfo.getMarkup().item(0).getTextContent());
-                } else if ("X_Deny_Create".equals(appInfo.getSource())) {
-                    state.getDenyCreate().add(appInfo.getMarkup().item(0).getTextContent());
-                } else if ("X_Deny_LogicalDelete".equals(appInfo.getSource())) {
-                    state.getDenyLogicalDelete().add(appInfo.getMarkup().item(0).getTextContent());
-                } else if ("X_Deny_PhysicalDelete".equals(appInfo.getSource())) {
-                    state.getDenyPhysicalDelete().add(appInfo.getMarkup().item(0).getTextContent());
+                    state.getAllowWrite().add(appInfo.getMarkup().item(0).getNodeValue());
+                } else if ("X_Deny_Create".equals(appInfo.getSource())) { //$NON-NLS-1$
+                    state.getDenyCreate().add(appInfo.getMarkup().item(0).getNodeValue());
+                } else if ("X_Deny_LogicalDelete".equals(appInfo.getSource())) { //$NON-NLS-1$
+                    state.getDenyLogicalDelete().add(appInfo.getMarkup().item(0).getNodeValue());
+                } else if ("X_Deny_PhysicalDelete".equals(appInfo.getSource())) { //$NON-NLS-1$
+                    state.getDenyPhysicalDelete().add(appInfo.getMarkup().item(0).getNodeValue());
                 }
             }
         }

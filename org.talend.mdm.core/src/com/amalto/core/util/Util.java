@@ -2275,7 +2275,7 @@ public class Util {
         } catch (Exception e) {
             String err = "Error : unable to access the XML Server wrapper";
             org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err, e);
-            throw new XtentisException(err);
+            throw new XtentisException(err, e);
         }
         return server;
     }
