@@ -27,7 +27,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 public abstract class TypeFieldFactory implements IsSerializable {
 
-    public static final int TEXTAREA_THRESHOLD_LENGTH = 70;
+    public static final int TEXTAREA_THRESHOLD_LENGTH = 30;// default value
 
     protected TypeFieldSource source;
 
