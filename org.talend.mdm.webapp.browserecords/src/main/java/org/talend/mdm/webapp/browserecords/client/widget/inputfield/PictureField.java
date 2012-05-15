@@ -58,6 +58,9 @@ import com.google.gwt.user.client.ui.Image;
 
 public class PictureField extends TextField<String> {
 
+
+    private static final int DEFAULT_IMAGE_SCALE_SIZE = 150;
+
     private static final String CONTEXT_PATH = GWT.getModuleBaseURL().replaceFirst(GWT.getModuleName() + "/", ""); //$NON-NLS-1$ //$NON-NLS-2$
     
     private static final String DefaultImage = CONTEXT_PATH + "resources/images/talend/no_image.png"; //$NON-NLS-1$
@@ -147,17 +150,19 @@ public class PictureField extends TextField<String> {
             }
         };
         
+
         image.addLoadHandler(new LoadHandler(){
             public void onLoad(LoadEvent event){
                 com.google.gwt.dom.client.Element element = event.getRelativeElement();
-                if (element == image.getElement()){
+                if (element == image.getElement() && isInternalImageURL(image.getUrl())) {
                     int width = image.getWidth();
                     int height = image.getHeight();
+                    int size = DEFAULT_IMAGE_SCALE_SIZE;
                     if (width > 0 && width > height) {
-                        if (width > 150)
-                            image.setPixelSize(150, (int) (height * 150 / width));
-                    } else if (height > 150) {
-                        image.setPixelSize((int) (width * 150 / height), 150);
+                        if (width > size)
+                            image.setPixelSize(size, (int) (height * size / width));
+                    } else if (height > size) {
+                        image.setPixelSize((int) (width * size / height), size);
                     }
                 }
             }
@@ -225,7 +230,7 @@ public class PictureField extends TextField<String> {
            
             if (!value.startsWith("/imageserver")) //$NON-NLS-1$
                 this.value = "/imageserver" + value; //$NON-NLS-1$
-            image.setUrl(this.value); 
+            image.setUrl(scaleInternalUrl(this.value, DEFAULT_IMAGE_SCALE_SIZE));
 
         } else {
             image.setUrl(DefaultImage);
@@ -234,6 +239,20 @@ public class PictureField extends TextField<String> {
         if (isFireChangeEventOnSetValue()) {
             fireChangeEvent(oldValue, value);
         }
+    }
+
+    private boolean isInternalImageURL(String url) {
+        if (url == null || url.trim().length() == 0)
+            return false;
+        return url.startsWith("/imageserver"); //$NON-NLS-1$
+    }
+
+    private String scaleInternalUrl(String inputValue, int size) {
+
+        if (inputValue == null || inputValue.trim().length() == 0)
+            return inputValue;
+
+        return inputValue += "?width=" + size + "&height=" + size + "&preserveAspectRatio=true"; //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
     }
 
     @Override
