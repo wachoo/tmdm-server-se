@@ -21,10 +21,14 @@ import java.util.Stack;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil;
+import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 
 import com.amalto.webapp.core.util.Util;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -202,5 +206,33 @@ public class CommonUtilTest extends TestCase {
         
         fk = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyId("[2]-test", 2);
         assertEquals("[2]", fk);
+    }
+    
+    public void test_isChangeValue() {
+        String language = "en";
+        boolean isCreate = true;
+        // Build a root
+        ComplexTypeModel root = new ComplexTypeModel("root", DataTypeConstants.STRING);
+        root.addDescription(language, "root");
+        // add id to root
+        TypeModel idModel = new SimpleTypeModel("id", DataTypeConstants.LONG);
+        idModel.addDescription(language, "id");
+        root.addSubType(idModel);
+        // add name to root
+        TypeModel nameModel = new SimpleTypeModel("name", DataTypeConstants.STRING);
+        nameModel.addDescription(language, "name");
+        nameModel.setDefaultValueExpression("Hello");
+        nameModel.setDefaultValue("Hello");
+        root.addSubType(nameModel);
+        // when create a tree model
+        List<ItemNodeModel> list = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getDefaultTreeModel(root, isCreate,
+                language);
+        ItemNodeModel rootNode = list.get(0);
+        assertTrue(TreeDetailUtil.isChangeValue(rootNode));
+        // when display a tree model
+        isCreate = false;
+        list = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getDefaultTreeModel(root, isCreate, language);
+        rootNode = list.get(0);
+        assertFalse(TreeDetailUtil.isChangeValue(rootNode));
     }
 }

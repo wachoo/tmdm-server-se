@@ -32,7 +32,7 @@ import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
  */
 public class CommonUtil {
 
-    public static List<ItemNodeModel> getDefaultTreeModel(TypeModel model, String language) {
+    public static List<ItemNodeModel> getDefaultTreeModel(TypeModel model, boolean isCreate, String language) {
         List<ItemNodeModel> itemNodes = new ArrayList<ItemNodeModel>();
 
         if (model.getMinOccurs() > 1 && model.getMaxOccurs() > model.getMinOccurs()) {
@@ -52,13 +52,13 @@ public class CommonUtil {
                 node.setMandatory(true);
             }
             if (model.isSimpleType()) {
-                setDefaultValue(model, node);
+                setDefaultValue(model, node, isCreate);
             } else {
                 ComplexTypeModel complexModel = (ComplexTypeModel) model;
                 List<TypeModel> children = complexModel.getSubTypes();
                 List<ItemNodeModel> list = new ArrayList<ItemNodeModel>();
                 for (TypeModel typeModel : children) {
-                    list.addAll(getDefaultTreeModel(typeModel, language));
+                    list.addAll(getDefaultTreeModel(typeModel, isCreate, language));
                 }
                 node.setChildNodes(list);
             }
@@ -71,7 +71,7 @@ public class CommonUtil {
         return itemNodes;
     }
 
-    private static void setDefaultValue(TypeModel model, ItemNodeModel node) {
+    private static void setDefaultValue(TypeModel model, ItemNodeModel node, boolean isCreate) {
 
         if (model.getDefaultValueExpression() != null && model.getDefaultValueExpression().trim().length() > 0) {
             if (!"".equals(model.getForeignkey()) && model.getForeignkey() != null) { //$NON-NLS-1$
@@ -82,7 +82,8 @@ public class CommonUtil {
             } else {
                 node.setObjectValue(model.getDefaultValue());
             }
-            node.setChangeValue(true);
+            if (isCreate)
+                node.setChangeValue(true);
         } else {
             if (model.getType().getTypeName().equals(DataTypeConstants.BOOLEAN.getTypeName())) {
                 node.setObjectValue((Serializable) DataTypeConstants.BOOLEAN.getDefaultValue());

@@ -1580,7 +1580,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
                 if (!existNodeFlag) { // add default tree node when the node has not been saved in DB.
                     nodeModel.add(org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getDefaultTreeModel(typeModel,
-                            language).get(0));
+                            isCreate, language).get(0));
                 }
             }
 
