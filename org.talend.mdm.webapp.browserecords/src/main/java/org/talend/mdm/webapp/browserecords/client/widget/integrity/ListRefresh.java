@@ -14,6 +14,7 @@ package org.talend.mdm.webapp.browserecords.client.widget.integrity;
 
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel.ReLoadData;
 
 /**
  * This implementation of {@link PostDeleteAction} refreshes the content of the item browser list (can be used
@@ -43,8 +44,12 @@ public class ListRefresh implements PostDeleteAction {
         // TMDM-3556, it didn't need to reload when delete FK in separate tab
         if (bar == null || (!bar.isHierarchyCall() && !bar.isFkToolBar())) {
             // Reload
-            ItemsListPanel.getInstance().getStore().getLoader().load();
+            ItemsListPanel.getInstance().reload(new ReLoadData() {
+                public void onReLoadData() {
+                    next.doAction();
+                }
+            });
         }
-        next.doAction();
+
     }
 }

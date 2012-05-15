@@ -98,6 +98,13 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class ItemsListPanel extends ContentPanel {
 
+    public interface ReLoadData {
+
+        void onReLoadData();
+    }
+
+    ReLoadData reLoad;
+
     List<ItemBean> selectedItems = null;
 
     private boolean isCreate = false;
@@ -249,6 +256,9 @@ public class ItemsListPanel extends ContentPanel {
                     ItemsToolBar.getInstance().searchBut.setEnabled(true);
                     // ItemsMainTabPanel.getInstance().getCurrentViewTabItem().clearAll();
 
+                }
+                if (reLoad != null) {
+                    reLoad.onReLoadData();
                 }
             }
         });
@@ -504,6 +514,11 @@ public class ItemsListPanel extends ContentPanel {
             Element parent = DOM.getParent(gridContainer.getElement());
             gridContainer.setSize(parent.getOffsetWidth(), parent.getOffsetHeight());
         }
+    }
+
+    public void reload(ReLoadData reLoad) {
+        this.reLoad = reLoad;
+        loader.load();
     }
 
     public ListStore<ItemBean> getStore() {
