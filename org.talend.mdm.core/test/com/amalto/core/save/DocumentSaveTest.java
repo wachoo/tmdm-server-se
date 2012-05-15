@@ -163,6 +163,8 @@ public class DocumentSaveTest extends TestCase {
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
         assertNotSame("100", evaluate(committedElement, "/Agency/Id")); // Id is expected to be overwritten in case of creation
+        assertEquals(1, saver.getSavedId().length);
+        assertNotSame("100", saver.getSavedId()[0]);
     }
 
     public void testCreateWithAutoIncrementOverwrite() throws Exception {

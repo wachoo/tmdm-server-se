@@ -178,6 +178,14 @@
                     <xsd:appinfo source="X_Write">User</xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="Value" nillable="false" type="UUID">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Label_EN">Identifier</xsd:appinfo>
+                    <xsd:appinfo source="X_Label_FR">Identifiant</xsd:appinfo>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                    <xsd:appinfo source="X_Write">User</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
             <xsd:element maxOccurs="1" minOccurs="1" name="Name" nillable="false" type="xsd:string">
                 <xsd:annotation>
                     <xsd:appinfo source="X_Label_EN">Name</xsd:appinfo>

@@ -57,7 +57,7 @@ class GenerateActions implements DocumentSaver {
         if (context.isCreate()) {
             Action createAction = new OverrideCreateAction(date, source, userName, userDocument, context.getType());
             // Generate field update actions for UUID and AutoIncrement elements.
-            CreateActions createActions = new CreateActions(date, source, userName, context.getDataCluster(), universe, saverSource);
+            CreateActions createActions = new CreateActions(userDocument, date, source, userName, context.getDataCluster(), universe, saverSource);
             UpdateActionCreator updateActions = new UpdateActionCreator(databaseDocument, userDocument, source, userName, metadataRepository);
 
             // Builds action list (be sure to include actual creation as first action).
@@ -84,7 +84,7 @@ class GenerateActions implements DocumentSaver {
                 // Builds action list (be sure to include actual creation as first action).
                 actions = new LinkedList<Action>();
                 Action createAction = new OverrideReplaceAction(date, source, userName, userDocument, context.getType());
-                CreateActions createActions = new CreateActions(date, source, userName, context.getDataCluster(), universe, saverSource);
+                CreateActions createActions = new CreateActions(userDocument, date, source, userName, context.getDataCluster(), universe, saverSource);
                 actions.add(createAction);
                 actions.addAll(type.accept(createActions));
                 actions.addAll(type.accept(updateActions));

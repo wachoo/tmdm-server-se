@@ -97,6 +97,7 @@ class ID implements DocumentSaver {
             throw new RuntimeException("Could not acquire a document builder.", e);
         }
         if (xmlDocumentId.length > 0 && database.exist(dataCluster, typeName, revisionID, xmlDocumentId)) {
+            context.setId(xmlDocumentId);
             NonCloseableInputStream nonCloseableInputStream = new NonCloseableInputStream(database.get(dataCluster, typeName, revisionID, xmlDocumentId));
             try {
                 nonCloseableInputStream.mark(-1);
@@ -140,7 +141,6 @@ class ID implements DocumentSaver {
 
         // Continue save
         savedTypeName = context.getType().getName();
-        context.setId(xmlDocumentId);
         next.save(session, context);
     }
 

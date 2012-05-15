@@ -29,7 +29,7 @@ class SystemContext implements DocumentSaverContext {
 
     private String revisionId;
 
-    private String[] id;
+    private String[] id = new String[0];
 
     private MutableDocument userDocument;
 

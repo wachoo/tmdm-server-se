@@ -39,7 +39,7 @@ class UserContext implements DocumentSaverContext {
 
     private String revisionId = null;
 
-    private String[] id;
+    private String[] id = new String[0];
 
     private MutableDocument userDocument;
 
