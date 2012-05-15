@@ -1,13 +1,16 @@
 package org.talend.mdm.webapp.browserecords.client.widget.integrity;
 
-import com.extjs.gxt.ui.client.widget.MessageBox;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 
-import java.util.Map;
-import java.util.Set;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 
 /**
  *
@@ -33,6 +36,7 @@ class ListDeleteStrategy implements DeleteStrategy {
     public void delete(Map<ItemBean, FKIntegrityResult> items, DeleteAction action, PostDeleteAction postDeleteAction) {
         Set<Map.Entry<ItemBean, FKIntegrityResult>> itemsToDelete = items.entrySet();
         boolean hasMetForbiddenDeletes = false;
+        List<ItemBean> itemBeans = new ArrayList<ItemBean>();
         for (Map.Entry<ItemBean, FKIntegrityResult> currentItem : itemsToDelete) {
             FKIntegrityResult integrityCheckResult = currentItem.getValue();
             switch (integrityCheckResult) {
@@ -41,10 +45,11 @@ class ListDeleteStrategy implements DeleteStrategy {
                     hasMetForbiddenDeletes = true;
                     break;
                 case ALLOWED:
-                    action.delete(currentItem.getKey(), service, false, postDeleteAction);
+                    itemBeans.add(currentItem.getKey());
                     break;
             }
         }
+        action.delete(itemBeans, service, false, postDeleteAction);
 
         if (hasMetForbiddenDeletes) {
             MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()

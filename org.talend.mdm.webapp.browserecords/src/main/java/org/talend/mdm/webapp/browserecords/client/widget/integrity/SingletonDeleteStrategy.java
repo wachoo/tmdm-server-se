@@ -1,5 +1,6 @@
 package org.talend.mdm.webapp.browserecords.client.widget.integrity;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +64,7 @@ class SingletonDeleteStrategy implements DeleteStrategy {
 
                 public void handleEvent(MessageBoxEvent be) {
                     if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                        action.delete(item, service, true, postDeleteAction);
+                        action.delete(Arrays.asList(item), service, true, postDeleteAction);
                     }
                 }
             });
@@ -97,7 +98,7 @@ class SingletonDeleteStrategy implements DeleteStrategy {
             // No need to call postDeleteAction.doAction() here (no delete was done).
             break;
         case ALLOWED:
-            action.delete(item, service, false, postDeleteAction);
+            action.delete(Arrays.asList(item), service, false, postDeleteAction);
             break;
         }
 
