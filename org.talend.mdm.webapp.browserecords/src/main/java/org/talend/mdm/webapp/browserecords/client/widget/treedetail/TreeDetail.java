@@ -35,6 +35,7 @@ import org.talend.mdm.webapp.browserecords.client.util.MultiOccurrenceManager;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextField;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
@@ -348,6 +349,9 @@ public class TreeDetail extends ContentPanel {
             FlexTable htable = new FlexTable();
             htable.setHeight("100%"); //$NON-NLS-1$
             columnTrees.clear();
+            int columnWidth = this.getWidth() / columnLayoutModel.getColumnTreeModels().size();
+            if(columnWidth > 500)
+                this.setFiledWidth(columnWidth, 300);
             int columnNum = 0;
             for (ColumnTreeModel ctm : columnLayoutModel.getColumnTreeModels()) {
                 // Tree columnTree = displayGWTTree(ctm);
@@ -366,6 +370,7 @@ public class TreeDetail extends ContentPanel {
             add(htable);
 
         } else {
+            this.setFiledWidth(this.getWidth(), 400);
             add(tree);
             addTreeListener(tree);
         }
@@ -376,6 +381,18 @@ public class TreeDetail extends ContentPanel {
                     .setWidth(600);
     }
 
+    private void setFiledWidth(int width, int offset) {
+        for (int i = 0; i < root.getChildCount(); i++) {
+            DynamicTreeItem item = (DynamicTreeItem) root.getChild(i);
+            Field<?> field = ((MultiOccurrenceChangeItem) item.getWidget()).getField();
+            if (field instanceof FormatTextField) {
+                if(width - offset > 200) {
+                    field.setWidth(width - offset);
+                }
+            }
+        }
+    }
+    
     // get selected item in tree
     private void addTreeListener(Tree tree) {
         tree.addSelectionHandler(new SelectionHandler<TreeItem>() {
