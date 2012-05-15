@@ -4,8 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextField;
+import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -56,7 +58,105 @@ public class TreeDetailGWTTest extends GWTTestCase {
         detail.setViewBean(viewBean);
 
     }
-    
+
+    public void testIsFKDisplayedIntoTab(){
+        Map<String, TypeModel> metaDataTypes = new HashMap<String, TypeModel>();
+
+        ItemNodeModel product = new ItemNodeModel("Produce");
+        ComplexTypeModel productType = new ComplexTypeModel();
+        productType.setTypePath("Product");
+        metaDataTypes.put(productType.getTypePath(), productType);
+        product.setTypePath(productType.getTypePath());
+
+        ItemNodeModel picture = new ItemNodeModel("Picture");
+        SimpleTypeModel pictureType = new SimpleTypeModel();
+        pictureType.setTypePath("Product/Picture");
+        picture.setTypePath(pictureType.getTypePath());
+        metaDataTypes.put(pictureType.getTypePath(), pictureType);
+        product.add(picture);
+
+        ItemNodeModel name = new ItemNodeModel("Name");
+        SimpleTypeModel nameType = new SimpleTypeModel();
+        nameType.setTypePath("Product/Name");
+        name.setTypePath(nameType.getTypePath());
+        metaDataTypes.put(nameType.getTypePath(), nameType);
+        product.add(name);
+
+        ItemNodeModel description = new ItemNodeModel("Description");
+        SimpleTypeModel descriptionType = new SimpleTypeModel();
+        descriptionType.setTypePath("Product/Description");
+        description.setTypePath(descriptionType.getTypePath());
+        metaDataTypes.put(descriptionType.getTypePath(), descriptionType);
+        product.add(description);
+
+        ItemNodeModel family = new ItemNodeModel("Family");
+        SimpleTypeModel familyType = new SimpleTypeModel();
+        familyType.setTypePath("Product/Family");
+        familyType.setForeignkey("ProductFamily/Id");
+        familyType.setSeparateFk(true);
+        family.setTypePath(familyType.getTypePath());
+        metaDataTypes.put(familyType.getTypePath(), familyType);
+        product.add(family);
+
+        ItemNodeModel stores = new ItemNodeModel("Stores");
+        ComplexTypeModel storesType = new ComplexTypeModel();
+        storesType.setTypePath("Product/Stores");
+        stores.setTypePath(storesType.getTypePath());
+        metaDataTypes.put(storesType.getTypePath(), storesType);
+        product.add(stores);
+
+        SimpleTypeModel storeType = new SimpleTypeModel();
+        storeType.setTypePath("Product/Store");
+        storeType.setForeignkey("Store/Id");
+        storeType.setSeparateFk(true);
+        
+        ItemNodeModel store1 = new ItemNodeModel("Store");
+        store1.setTypePath(storeType.getTypePath());
+        stores.add(store1);
+        ItemNodeModel store2 = new ItemNodeModel("Store");
+        store2.setTypePath(storeType.getTypePath());
+        stores.add(store2);
+        ItemNodeModel store3 = new ItemNodeModel("Store");
+        store3.setTypePath(storeType.getTypePath());
+        stores.add(store3);
+        metaDataTypes.put(storeType.getTypePath(), storeType);
+        storesType.addSubType(storeType);
+
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(product, productType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(picture, pictureType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(name, nameType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(description, descriptionType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(family, familyType, metaDataTypes), true);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(stores, storesType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(store1, storeType, metaDataTypes), true);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(store2, storeType, metaDataTypes), true);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(store3, storeType, metaDataTypes), true);
+        
+        familyType.setSeparateFk(false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(product, productType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(picture, pictureType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(name, nameType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(description, descriptionType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(family, familyType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(stores, storesType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(store1, storeType, metaDataTypes), true);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(store2, storeType, metaDataTypes), true);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(store3, storeType, metaDataTypes), true);
+
+        storeType.setSeparateFk(false);
+
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(product, productType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(picture, pictureType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(name, nameType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(description, descriptionType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(family, familyType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(stores, storesType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(store1, storeType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(store2, storeType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(store3, storeType, metaDataTypes), false);
+
+    }
+
     public String getModuleName() {
         return "org.talend.mdm.webapp.browserecords.TestBrowseRecords";
     }

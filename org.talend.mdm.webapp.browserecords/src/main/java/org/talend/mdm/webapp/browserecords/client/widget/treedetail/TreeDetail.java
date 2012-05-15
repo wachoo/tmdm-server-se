@@ -265,18 +265,12 @@ public class TreeDetail extends ContentPanel {
         if (parentNode.getParent() == null) {
             return true;
         }
-        return isOnlySonTypeNode(node);
-    }
-
-    static boolean isOnlySonTypeNode(ItemNodeModel node) {
-        ItemNodeModel parentNode = (ItemNodeModel) node.getParent();
-        for (int i = 0; i < parentNode.getChildCount(); i++) {
-            ItemNodeModel childNode = (ItemNodeModel) parentNode.getChild(i);
-            if (!node.getTypePath().equals(childNode.getTypePath())) {
-                return false;
-            }
+        TypeModel parentType = metaDataTypes.get(parentNode.getTypePath());
+        if (parentType instanceof ComplexTypeModel){
+            List<TypeModel> subTypes = ((ComplexTypeModel) parentType).getSubTypes();
+            return subTypes != null && subTypes.size() == 1;
         }
-        return true;
+        return false;
     }
 
     public void onUpdatePolymorphism(ComplexTypeModel typeModel) {
