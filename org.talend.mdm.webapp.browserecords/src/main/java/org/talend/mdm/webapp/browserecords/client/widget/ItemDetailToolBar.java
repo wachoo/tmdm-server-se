@@ -374,23 +374,13 @@ public class ItemDetailToolBar extends ToolBar {
 
                 @Override
                 public void componentSelected(MenuEvent ce) {
-                    final MessageBox box = MessageBox.prompt(MessagesFactory.getMessages().path(), MessagesFactory.getMessages()
-                            .path_desc());
-                    box.getTextBox().setValue("/"); //$NON-NLS-1$
-                    box.addCallback(new Listener<MessageBoxEvent>() {
-
-                        public void handleEvent(MessageBoxEvent be) {
-                            if (be.getButtonClicked().getItemId().equals(Dialog.OK)) {
-                                PostDeleteAction postDeleteAction = new CloseTabPostDeleteAction(ItemDetailToolBar.this, new ListRefresh(ItemDetailToolBar.this, new ContainerUpdate(
-                                        ItemDetailToolBar.this, NoOpPostDeleteAction.INSTANCE)));
-                                DeleteAction deleteAction = new LogicalDeleteAction(be.getValue());
-                                // Collections.singletonList(itemBean) --- it could not be sent to backend correctly
-                                List<ItemBean> list = new ArrayList<ItemBean>();
-                                list.add(itemBean);
-                                service.checkFKIntegrity(list, new DeleteCallback(deleteAction, postDeleteAction, service));
-                            }
-                        }
-                    });
+                    PostDeleteAction postDeleteAction = new CloseTabPostDeleteAction(ItemDetailToolBar.this, new ListRefresh(ItemDetailToolBar.this, new ContainerUpdate(
+                            ItemDetailToolBar.this, NoOpPostDeleteAction.INSTANCE)));
+                    DeleteAction deleteAction = new LogicalDeleteAction("/");
+                    // Collections.singletonList(itemBean) --- it could not be sent to backend correctly
+                    List<ItemBean> list = new ArrayList<ItemBean>();
+                    list.add(itemBean);
+                    service.checkFKIntegrity(list, new DeleteCallback(deleteAction, postDeleteAction, service));                    
                 }
             });
             delete_SendToTrash.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Send_to_trash()));

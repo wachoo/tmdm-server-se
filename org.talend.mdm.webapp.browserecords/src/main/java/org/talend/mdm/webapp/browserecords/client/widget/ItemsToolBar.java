@@ -341,23 +341,15 @@ public class ItemsToolBar extends ToolBar {
 
             @Override
             public void componentSelected(MenuEvent ce) {
-                final MessageBox box = MessageBox.prompt(MessagesFactory.getMessages().path(), MessagesFactory.getMessages()
-                        .path_desc(), new Listener<MessageBoxEvent>() {
-
-                    public void handleEvent(MessageBoxEvent be) {
-                        if (be.getButtonClicked().getItemId().equals(Dialog.OK)) {
-                            final ItemsListPanel list = ItemsListPanel.getInstance();
-                            if (list.getGrid() != null) {
-                                PostDeleteAction postDeleteAction = new ListRefresh(new ContainerUpdate(
-                                        NoOpPostDeleteAction.INSTANCE));
-                                DeleteAction deleteAction = new LogicalDeleteAction(be.getValue());
-                                service.checkFKIntegrity(list.getGrid().getSelectionModel().getSelectedItems(),
-                                        new DeleteCallback(deleteAction, postDeleteAction, service));
-                            }
-                        }
-                    }
-                });
-                box.getTextBox().setValue("/"); //$NON-NLS-1$
+                
+                final ItemsListPanel list = ItemsListPanel.getInstance();
+                if (list.getGrid() != null) {
+                    PostDeleteAction postDeleteAction = new ListRefresh(new ContainerUpdate(
+                            NoOpPostDeleteAction.INSTANCE));
+                    DeleteAction deleteAction = new LogicalDeleteAction("/"); //$NON-NLS-1$
+                    service.checkFKIntegrity(list.getGrid().getSelectionModel().getSelectedItems(),
+                            new DeleteCallback(deleteAction, postDeleteAction, service));
+                }
             }
         });
 
@@ -959,6 +951,7 @@ public class ItemsToolBar extends ToolBar {
             public String validate(Field<?> field, String value) {
                 if (field == bookmarkfield) {
                     if (bookmarkfield.getValue() == null || bookmarkfield.getValue().trim().equals("")) //$NON-NLS-1$
+
                         return MessagesFactory.getMessages().required_field();
                 }
 
