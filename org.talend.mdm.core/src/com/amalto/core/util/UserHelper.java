@@ -12,14 +12,7 @@
 // ============================================================================
 package com.amalto.core.util;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-
-import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 
 
 /**
@@ -27,12 +20,15 @@ import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
  * 
  */
 public final class UserHelper {
+
     private UserHelper() {
-        listUsers();
+        um = new UserManageOptimizedImpl();
     }
     
     private static UserHelper instance;
-    static List<User> users;
+
+    private UserManage um;
+
     
     public static synchronized UserHelper getInstance() {
         if (instance == null) {
@@ -50,16 +46,8 @@ public final class UserHelper {
      * get web users
      * @return
      */
-    public int getWebUsers(){
-        List<User> viewers = new ArrayList<User>();
-        
-        for(User user : users) {
-           if(user.enabled && user.getRoleNames().contains(XSystemObjects.ROLE_DEFAULT_WEB.getName())) {
-               viewers.add(user); 
-           }
-        }
-        
-        return viewers.size();
+    public int getWebUsers() {
+        return um.getWebUsers();
     }
     
     /**
@@ -67,7 +55,7 @@ public final class UserHelper {
      * @return
      */
     public int getViewerUsers() {
-        return getUserCount(XSystemObjects.ROLE_DEFAULT_WEB.getName());
+        return um.getViewerUsers();
     }
     
     /**
@@ -75,7 +63,7 @@ public final class UserHelper {
      * @return
      */
     public int getNormalUsers() {
-        return getUserCount(XSystemObjects.ROLE_DEFAULT_USER.getName());
+        return um.getNormalUsers();
     }
     
     /**
@@ -83,57 +71,15 @@ public final class UserHelper {
      * @return
      */
     public int getNBAdminUsers() {
-        return getUserCount(XSystemObjects.ROLE_DEFAULT_ADMIN.getName());
+        return um.getNBAdminUsers();
     }
     
-    private int getUserCount(String role) {
-        List<User> userList = new ArrayList<User>();
-        
-        for(User user : users) {
-            if(user.enabled && user.getRoleNames().contains(role)) {
-                userList.add(user); 
-           }
-        }
-        return userList.size();
-    }
     /**
      * Get the number of active users.
      * @return
      */
     public int getActiveUsers() {
-       List<User> activeUsers = new ArrayList<User>();
-       
-       for(User user : users) {
-          if(user.enabled) {
-             activeUsers.add(user);
-          }
-       }
-       
-       return activeUsers.size();
-    }
-    /**
-     * list all users.
-     * @return
-     */
-    public List<User> listUsers() {
-       String dataclusterPK = XSystemObjects.DC_PROVISIONING.getName();
-       List<String> results = new ArrayList<String>();
-       users = new ArrayList<User>();
-       
-       try {
-          results = Util.getItemCtrl2Local().getItems(
-             new DataClusterPOJOPK(dataclusterPK), "User", null, 0, 0, Integer.MAX_VALUE, false);
-      
-          for(String userXML : results) {
-             User user = User.parse(userXML);
-             users.add(user);
-          }
-       }
-       catch(Exception e) {
-           e.printStackTrace();
-       }
-       
-       return users;
+        return um.getActiveUsers();
     }
     
     /**
@@ -142,15 +88,7 @@ public final class UserHelper {
      * @return
      */
     public boolean isExistUser(User user) {
-        boolean result = false;
-        
-        for(User existUser : users) {
-            if(user.getUserName().equals(existUser.getUserName())) {
-                return true;
-            }
-        }
-        
-        return result;
+        return um.isExistUser(user);
     }
     
     /**
@@ -159,24 +97,7 @@ public final class UserHelper {
      * @return
      */
     public boolean isUpdateDCDM(User user) {
-        boolean result = false;
-        
-        for(User existUser : users) {
-            if(user.getUserName().equals(existUser.getUserName())) {
-                String cluster = user.getDynamic().get("cluster");
-                String model = user.getDynamic().get("model");
-                
-                if(cluster == null && model == null) {
-                    return false;
-                }
-                else if(cluster != null && cluster.equals(existUser.getDynamic().get("cluster")) ||
-                   model != null && model.equals(existUser.getDynamic().get("model"))) {
-                   return true;
-                }
-            }
-        }
-        
-        return result;
+        return um.isUpdateDCDM(user);
     }
     
     /**
@@ -185,18 +106,7 @@ public final class UserHelper {
      * @return
      */
     public boolean isActiveUser(User user) {
-        boolean result = false;
-        
-        if(!user.isEnabled()) {
-            return false;
-        }
-        
-        for(User existUser : users) {
-            if(existUser.getUserName().equals(user.getUserName())) {
-                return existUser.isEnabled() != user.isEnabled();
-            }
-        }
-        return result;
+        return um.isActiveUser(user);
     }
     
     /**
@@ -205,21 +115,15 @@ public final class UserHelper {
      * @return
      */
     public Set<String> getOriginalRole(User user) {
-        Set<String> result = new HashSet<String>();
-        
-        for(User existUser : users) {
-            if(existUser.getUserName().equals(user.getUserName())) {
-                return existUser.getRoleNames();
-            }
-        }
-        
-        return result;
+        return um.getOriginalRole(user);
     }
-    
+
     /**
      * check the users.
      */
     public void checkUsers() {
-        listUsers();
+        if (um instanceof UserManageImpl)
+            ((UserManageImpl) um).listUsers();
     }
+
 }
