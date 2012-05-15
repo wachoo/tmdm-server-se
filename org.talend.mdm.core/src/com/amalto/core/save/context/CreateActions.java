@@ -11,13 +11,24 @@
 
 package com.amalto.core.save.context;
 
-import com.amalto.core.history.Action;
-import com.amalto.core.history.action.FieldUpdateAction;
-import com.amalto.core.metadata.*;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Stack;
+import java.util.UUID;
+
 import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 
-import java.util.*;
+import com.amalto.core.history.Action;
+import com.amalto.core.history.action.FieldUpdateAction;
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.ContainedTypeFieldMetadata;
+import com.amalto.core.metadata.DefaultMetadataVisitor;
+import com.amalto.core.metadata.EnumerationFieldMetadata;
+import com.amalto.core.metadata.ReferenceFieldMetadata;
+import com.amalto.core.metadata.SimpleTypeFieldMetadata;
 
 /**
  * Generate actions on creation (like setting UUID and AUTO_INCREMENT fields that <b>are not</b> part of the saved entity
@@ -47,6 +58,8 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
 
     private boolean hasMetAutoIncrement;
 
+    private String rootTypeName = null;
+
     CreateActions(Date date, String source, String userName, String dataCluster, String universe, SaverSource saverSource) {
         this.date = date;
         this.source = source;
@@ -74,6 +87,8 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
 
     @Override
     public List<Action> visit(ComplexTypeMetadata complexType) {
+        if (rootTypeName == null)
+            rootTypeName = complexType.getName();
         super.visit(complexType);
         return actions;
     }
@@ -114,7 +129,7 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
         {
             // Handle UUID and AutoIncrement elements (this code also ensures any previous value is overwritten, see TMDM-3900).
             if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(simpleField.getType().getName())) {
-                String conceptName = getPath() + "." + simpleField.getName().replaceAll("/", "."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                String conceptName = rootTypeName + "." + getPath().replaceAll("/", "."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 String autoIncrementValue = saverSource.nextAutoIncrementId(universe, dataCluster, conceptName);
                 actions.add(new FieldUpdateAction(date, source, userName, getPath(), StringUtils.EMPTY, autoIncrementValue, simpleField));
                 idValues.add(autoIncrementValue);
