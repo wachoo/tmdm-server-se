@@ -20,6 +20,7 @@ import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
+import org.talend.mdm.webapp.base.client.widget.ColumnAlignGrid;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
@@ -39,9 +40,18 @@ import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
+import com.extjs.gxt.ui.client.Style.SortDir;
+import com.extjs.gxt.ui.client.data.BasePagingLoader;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.extjs.gxt.ui.client.data.PagingLoader;
+import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -54,6 +64,16 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public class MockGridRefreshGWTTest extends GWTTestCase {
 
     boolean isGridRefresh;
+    
+    boolean isCreate = false;
+    
+    ItemBean createItemBean = null;
+    
+    ItemBean selectedItem = null;
+    
+    Grid<ItemBean> grid = null;
+    
+    ListStore<ItemBean> store = null;
 
     MockBrowseRecordsServiceAsync service = new MockBrowseRecordsServiceAsync();
 
@@ -130,8 +150,124 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         onDeleteItemBeans();
         assertEquals(true, isGridRefresh);
     }
+    
+    public void testGridRefreshAfterSave(){ 
 
-    private void onSaveItem(AppEvent event) {
+      AppEvent event = new AppEvent(BrowseRecordsEvents.SaveItem);
+      ItemDetailToolBar detailToolBar = new ItemDetailToolBar(null);
+      event.setData("itemDetailToolBar", detailToolBar);
+        
+        RpcProxy<PagingLoadResult<ItemBean>> proxy = new RpcProxy<PagingLoadResult<ItemBean>>() {
+            public void load(Object loadConfig, final AsyncCallback<PagingLoadResult<ItemBean>> callback) {
+                return;
+            }
+        };
+        
+        PagingLoader<PagingLoadResult<ModelData>> loader = new BasePagingLoader<PagingLoadResult<ModelData>>(proxy);        
+        
+        store = new ListStore<ItemBean>(loader);   
+            
+        ColumnConfig idColumn = new ColumnConfig("id","id", 200);
+        
+        ColumnConfig nameColumn = new ColumnConfig("name","name", 200);
+        
+        List<ColumnConfig> ccList = new ArrayList<ColumnConfig>();
+        
+        ccList.add(idColumn);
+        
+        ccList.add(nameColumn);
+        
+        ColumnModel cm = new ColumnModel(ccList);
+        
+        grid = new ColumnAlignGrid<ItemBean>(store, cm);
+        
+        //init store data        
+        ItemBean itemBean1 = new ItemBean();
+        itemBean1.set("id", "1");
+        itemBean1.set("name", "Apple");
+        store.add(itemBean1);
+        ItemBean itemBean2 = new ItemBean();
+        itemBean2.set("id", "4");
+        itemBean2.set("name", "Banana");
+        store.add(itemBean2);
+        
+        //test 1  pagesize=3  pageNumber=1  pageCount=1  position=2
+        detailToolBar.setOutMost(false);
+        detailToolBar.setFkToolBar(false);
+        detailToolBar.setHierarchyCall(false);
+        selectedItem = null;
+        isCreate = true;
+        ItemBean itemBean3 = new ItemBean();
+        itemBean3.set("id", "3");
+        itemBean3.set("name", "Zero");
+        store.add(itemBean3);
+        event.setData(itemBean3);
+        onSaveItem(event);
+        assertEquals(selectedItem.get("name"), "Zero");
+        assertEquals(store.getAt(1).get("name"), "Zero");
+        
+        //test 2  pagesize=3  pageNumber=2  pageCount=2  position=4
+        detailToolBar.setOutMost(false);
+        detailToolBar.setFkToolBar(false);
+        detailToolBar.setHierarchyCall(false);
+        selectedItem = null;
+        isCreate = true;
+        ItemBean itemBean4 = new ItemBean();
+        itemBean4.set("id", "6");
+        itemBean4.set("name", "City");
+        store.add(itemBean4);   
+        event.setData(itemBean4);
+        onSaveItem(event);
+        assertEquals(selectedItem.get("name"), "City");
+        assertEquals(store.getAt(3).get("name"), "City");
+        
+        //test 3  pagesize=3  pageNumber=2  pageCount=2  position=2
+        detailToolBar.setOutMost(false);
+        detailToolBar.setFkToolBar(false);
+        detailToolBar.setHierarchyCall(false);
+        selectedItem = null;
+        isCreate = true;
+        ItemBean itemBean5 = new ItemBean();
+        itemBean5.set("id", "2");
+        itemBean5.set("name", "Orange");
+        store.add(itemBean5);
+        event.setData(itemBean5);
+        onSaveItem(event);
+        assertNull(selectedItem);
+        assertEquals(store.getAt(1).get("name"), "Orange");        
+        
+        //test 4  pagesize=3  pageNumber=2  pageCount=2  position=6
+        detailToolBar.setOutMost(false);
+        detailToolBar.setFkToolBar(false);
+        detailToolBar.setHierarchyCall(false);
+        selectedItem = null;
+        isCreate = true;
+        ItemBean itemBean6 = new ItemBean();
+        itemBean6.set("id", "8");
+        itemBean6.set("name", "Dance");
+        store.add(itemBean6);
+        event.setData(itemBean6);
+        onSaveItem(event);
+        assertEquals(selectedItem.get("name"), "Dance");
+        assertEquals(store.getAt(5).get("name"), "Dance");  
+        
+        //test 5  pagesize=3  pageNumber=2  pageCount=3  position=6
+        detailToolBar.setOutMost(false);
+        detailToolBar.setFkToolBar(false);
+        detailToolBar.setHierarchyCall(false);
+        selectedItem = null;
+        isCreate = true;
+        ItemBean itemBean7 = new ItemBean();
+        itemBean7.set("id", "7");
+        itemBean7.set("name", "Edit");
+        store.add(itemBean7); 
+        event.setData(itemBean7);
+        onSaveItem(event);
+        assertEquals(selectedItem.get("name"), "Edit");
+        assertEquals(store.getAt(5).get("name"), "Edit"); 
+    }
+
+    private void onSaveItem(final AppEvent event) {
 
         final ItemDetailToolBar detailToolBar = event.getData("itemDetailToolBar");
 
@@ -143,9 +279,62 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
                 if (!detailToolBar.isFkToolBar() && !detailToolBar.isOutMost() && !detailToolBar.isHierarchyCall()) {
                     gridRefresh();
                 }
+                
+                if (!detailToolBar.isOutMost() && !detailToolBar.isFkToolBar() && !detailToolBar.isHierarchyCall() && isCreate){                 
+                    createItemBean = event.getData();
+                    isCreate = true;
+                    store.sort("id", SortDir.ASC);
+                    refreshGrid(createItemBean);
+                }
             }
             
         });
+    }
+    
+    private void refreshGrid(ItemBean itemBean){
+        if (selectedItem == null && itemBean != null){
+            fireLoadEvent();
+        }
+    }
+    
+    private void fireLoadEvent(){
+     // mock grid loadListener
+        if (store.getModels().size() > 0) {
+            if (selectedItem == null) {
+             // search and create
+                if (isCreate && createItemBean != null){
+                    // mock pageRecord pageSize = 3 
+                    // totalRecordCount <= 3 pageNumber = 1
+                    // totalRecordCount <= 6 pageNumber = 2
+                    // totalRecordCount > 6 pageNumber = 2
+                    int start = 0;
+                    int end = 0;
+                    if (store.getCount() <= 3){
+                        end = store.getCount() - 1;
+                    }else if (store.getCount() <= 6){
+                        start = 3;
+                        end = store.getCount() - 1;
+                    }else{
+                        start = 3;
+                        end = 5;
+                    }
+                    for (int i=start;i<=end;i++){
+                        if (grid.getStore().getAt(i) == createItemBean){
+                            grid.getSelectionModel().select(-1, false);
+                            grid.getSelectionModel().select(createItemBean,true);
+                            break;
+                        }else{
+                            grid.getSelectionModel().select(-1, false);
+                        }
+                    }
+                }else{
+                    fail();
+                }
+                selectedItem  = grid.getSelectionModel().getSelectedItem();
+                isCreate = false;
+                createItemBean = null;
+            }
+        } 
     }
     
     private void onDeleteItem(){
