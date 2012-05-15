@@ -198,7 +198,18 @@ public class PictureField extends TextField<String> {
 
     @Override
     public void setValue(String value) {
-        
+
+        if (value != null && value.length() != 0) {
+            this.setAllowBlank(true);
+            super.setValue(value);
+            this.validate();
+        }
+        else {
+            this.setAllowBlank(false);
+            super.setValue(""); //$NON-NLS-1$
+            this.validate();            
+        }
+     
         // external source
         if (value != null && (value.toLowerCase().startsWith("http") || value.toLowerCase().startsWith("https"))) { //$NON-NLS-1$//$NON-NLS-2$
             image.setUrl(value);
@@ -219,6 +230,7 @@ public class PictureField extends TextField<String> {
         } else {
             image.setUrl(DefaultImage);
         }
+        
         if (isFireChangeEventOnSetValue()) {
             fireChangeEvent(oldValue, value);
         }
