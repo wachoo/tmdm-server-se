@@ -93,7 +93,7 @@ public class TreeDetailGWTTest extends GWTTestCase {
         SimpleTypeModel familyType = new SimpleTypeModel();
         familyType.setTypePath("Product/Family");
         familyType.setForeignkey("ProductFamily/Id");
-        familyType.setSeparateFk(true);
+        familyType.setNotSeparateFk(false);
         family.setTypePath(familyType.getTypePath());
         metaDataTypes.put(familyType.getTypePath(), familyType);
         product.add(family);
@@ -108,7 +108,7 @@ public class TreeDetailGWTTest extends GWTTestCase {
         SimpleTypeModel storeType = new SimpleTypeModel();
         storeType.setTypePath("Product/Store");
         storeType.setForeignkey("Store/Id");
-        storeType.setSeparateFk(true);
+        storeType.setNotSeparateFk(false);
         
         ItemNodeModel store1 = new ItemNodeModel("Store");
         store1.setTypePath(storeType.getTypePath());
@@ -132,7 +132,7 @@ public class TreeDetailGWTTest extends GWTTestCase {
         assertEquals(TreeDetail.isFKDisplayedIntoTab(store2, storeType, metaDataTypes), true);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(store3, storeType, metaDataTypes), true);
         
-        familyType.setSeparateFk(false);
+        familyType.setNotSeparateFk(true);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(product, productType, metaDataTypes), false);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(picture, pictureType, metaDataTypes), false);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(name, nameType, metaDataTypes), false);
@@ -143,7 +143,7 @@ public class TreeDetailGWTTest extends GWTTestCase {
         assertEquals(TreeDetail.isFKDisplayedIntoTab(store2, storeType, metaDataTypes), true);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(store3, storeType, metaDataTypes), true);
 
-        storeType.setSeparateFk(false);
+        storeType.setNotSeparateFk(true);
 
         assertEquals(TreeDetail.isFKDisplayedIntoTab(product, productType, metaDataTypes), false);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(picture, pictureType, metaDataTypes), false);
