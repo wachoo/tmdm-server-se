@@ -190,13 +190,16 @@ public class ForeignKeyListWindow extends Window {
             @Override
             public void load(final Object loadConfig, final AsyncCallback<PagingLoadResult<ForeignKeyBean>> callback) {
                 PagingLoadConfig config = (PagingLoadConfig) loadConfig;
+                
+                final String currentFilterText = getFilterValue();
+                
                 if (hasForeignKeyFilter) {
                     config.set("xml", xml); //$NON-NLS-1$
                     config.set("currentXpath", currentXpath); //$NON-NLS-1$
                     config.set("dataObject", currentXpath.split("/")[0]); //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 service.getForeignKeyList((PagingLoadConfig) loadConfig, typeModel, BrowseRecords.getSession().getAppHeader()
-                        .getDatacluster(), hasForeignKeyFilter, getFilterValue(),
+                        .getDatacluster(), hasForeignKeyFilter, currentFilterText,
                         new SessionAwareAsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>>() {
 
                             @Override
@@ -205,8 +208,10 @@ public class ForeignKeyListWindow extends Window {
                             }
 
                             public void onSuccess(ItemBasePageLoadResult<ForeignKeyBean> result) {
-                                callback.onSuccess(new BasePagingLoadResult<ForeignKeyBean>(result.getData(), result.getOffset(),
-                                        result.getTotalLength()));
+                                if (currentFilterText.equals(getFilterValue())) {
+                                    callback.onSuccess(new BasePagingLoadResult<ForeignKeyBean>(result.getData(), result.getOffset(),
+                                            result.getTotalLength()));
+                                }
                             }
 
                         });
