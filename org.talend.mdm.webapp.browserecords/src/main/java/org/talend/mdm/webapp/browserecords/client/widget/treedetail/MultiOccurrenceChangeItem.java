@@ -236,8 +236,4 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
             }
         }
     };
-    
-    public Field<?> getField() {
-        return field;
-    }
 }

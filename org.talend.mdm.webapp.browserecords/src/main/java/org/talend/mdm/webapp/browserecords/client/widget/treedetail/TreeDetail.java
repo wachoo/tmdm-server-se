@@ -55,8 +55,10 @@ import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
+import com.google.gwt.user.client.ui.Widget;
 
 public class TreeDetail extends ContentPanel {
 
@@ -350,12 +352,12 @@ public class TreeDetail extends ContentPanel {
             htable.setHeight("100%"); //$NON-NLS-1$
             columnTrees.clear();
             int columnWidth = this.getWidth() / columnLayoutModel.getColumnTreeModels().size();
-            if(columnWidth > 500)
-                this.setFiledWidth(columnWidth, 300);
             int columnNum = 0;
             for (ColumnTreeModel ctm : columnLayoutModel.getColumnTreeModels()) {
                 // Tree columnTree = displayGWTTree(ctm);
                 Tree columnTree = ViewUtil.transformToCustomLayout(root, ctm, viewBean);
+                if(columnWidth > 500)
+                    this.setFiledWidth(columnTree.getItem(0), columnWidth, 300, 0);
                 columnTrees.add(columnTree);
                 htable.setWidget(0, columnNum, columnTree);
                 ViewUtil.setStyleAttribute(htable.getCellFormatter().getElement(0, columnNum), ctm.getStyle());
@@ -370,7 +372,7 @@ public class TreeDetail extends ContentPanel {
             add(htable);
 
         } else {
-            this.setFiledWidth(this.getWidth(), 400);
+            this.setFiledWidth(root, this.getWidth(), 400, 0);
             add(tree);
             addTreeListener(tree);
         }
@@ -381,15 +383,23 @@ public class TreeDetail extends ContentPanel {
                     .setWidth(600);
     }
 
-    private void setFiledWidth(int width, int offset) {
-        for (int i = 0; i < root.getChildCount(); i++) {
-            DynamicTreeItem item = (DynamicTreeItem) root.getChild(i);
-            Field<?> field = ((MultiOccurrenceChangeItem) item.getWidget()).getField();
-            if (field instanceof FormatTextField) {
-                if(width - offset > 200) {
-                    field.setWidth(width - offset);
-                }
+    private void setFiledWidth(TreeItem item, int width, int offset, int level) {
+        for (int i = 0; i < item.getChildCount(); i++) {
+            TreeItem subItem = item.getChild(i);
+            if (subItem.getWidget() instanceof HorizontalPanel){
+                HorizontalPanel hp = (HorizontalPanel) subItem.getWidget();
+                if (hp.getWidgetCount() > 1) {
+                    Widget field = hp.getWidget(1);
+                    if (field instanceof FormatTextField) {
+                        int size = width - (offset + 19 * level);
+                        if (size > 200) {
+                            ((FormatTextField) field).setWidth(size);
+                        }
+                    }
+                }         
             }
+            if (item.getChildCount() > 0)
+                setFiledWidth(subItem, width, offset, level + 1);
         }
     }
     
