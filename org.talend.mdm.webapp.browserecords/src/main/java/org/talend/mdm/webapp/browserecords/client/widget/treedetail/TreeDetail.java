@@ -38,6 +38,7 @@ import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextField;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
@@ -60,6 +61,7 @@ import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
+import com.google.gwt.user.client.ui.Widget;
 
 public class TreeDetail extends ContentPanel {
 
@@ -445,10 +447,12 @@ public class TreeDetail extends ContentPanel {
         if (columnLayoutModel != null) {// TODO if create a new PrimaryKey, tree UI should not render according to the
                                         // layout template
             HorizontalPanel hp = new HorizontalPanel();
-
+            int columnWidth = this.getWidth() / columnLayoutModel.getColumnTreeModels().size(); 
             columnTrees.clear();
             for (ColumnTreeModel ctm : columnLayoutModel.getColumnTreeModels()) {
                 Tree columnTree = displayGWTTree(ctm);
+                if(columnWidth > 500) 
+                 	this.setFiledWidth(columnTree.getItem(0), columnWidth, 300, 0); 
                 columnTrees.add(columnTree);
                 hp.add(columnTree);
                 addTreeListener(columnTree);
@@ -476,6 +480,7 @@ public class TreeDetail extends ContentPanel {
                 }
             }
         } else {
+        	setFiledWidth(root, this.getWidth(), 400, 0);
             add(tree);
             addTreeListener(tree);
         }
@@ -486,6 +491,23 @@ public class TreeDetail extends ContentPanel {
                     .setWidth(600);
     }
 
+	private void setFiledWidth(TreeItem item, int width, int offset, int level) {
+		for (int i = 0; i < item.getChildCount(); i++) {
+			TreeItem subItem = item.getChild(i);
+			HorizontalPanel hp = (HorizontalPanel) subItem.getWidget();
+			if(hp.getWidgetCount() > 1) {
+				Widget field = hp.getWidget(1);
+				if (field instanceof FormatTextField) {
+					int size = width - (offset + 19 * level);
+					if (size > 200) {
+						((FormatTextField)field).setWidth(size);
+					}
+				}
+			}
+			if (item.getChildCount() > 0)
+				setFiledWidth(subItem, width, offset, level + 1);
+		}
+	}
     /**
      * Recursively set the valid flags of the ItemNodeModel's corresponding to the dynamicTreeItem and all its children
      * dynamicTreeItem's to true. Used to set the valid flag for all those items excluded from the display because of a
