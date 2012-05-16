@@ -12,7 +12,7 @@
 package com.amalto.core.metadata;
 
 /**
- *
+ * Visitor for all type information classes in com.amalto.core.metadata package.
  */
 public interface MetadataVisitor<T> {
 
@@ -31,4 +31,6 @@ public interface MetadataVisitor<T> {
     T visit(ReferenceFieldMetadata referenceField);
 
     T visit(ContainedTypeFieldMetadata containedField);
+
+    T visit(FieldMetadata fieldMetadata);
 }

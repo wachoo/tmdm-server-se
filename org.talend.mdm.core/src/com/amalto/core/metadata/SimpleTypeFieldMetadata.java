@@ -67,14 +67,6 @@ public class SimpleTypeFieldMetadata implements FieldMetadata {
         return fieldType;
     }
 
-    public boolean hasForeignKeyInfo() {
-        return false; // This type of field can't be a foreign key
-    }
-
-    public FieldMetadata getForeignKeyInfoField() {
-        throw new IllegalStateException("This type of field can't be a foreign key");
-    }
-
     public ComplexTypeMetadata getContainingType() {
         return containingType;
     }
@@ -85,14 +77,6 @@ public class SimpleTypeFieldMetadata implements FieldMetadata {
 
     public TypeMetadata getDeclaringType() {
         return declaringType;
-    }
-
-    public boolean isFKIntegrity() {
-        return false;
-    }
-
-    public boolean allowFKIntegrityOverride() {
-        return false;
     }
 
     public void adopt(ComplexTypeMetadata metadata, MetadataRepository repository) {
@@ -119,10 +103,6 @@ public class SimpleTypeFieldMetadata implements FieldMetadata {
 
     public boolean isMandatory() {
         return isMandatory;
-    }
-
-    public void setName(String fieldName) {
-        this.name = fieldName;
     }
 
     public <T> T accept(MetadataVisitor<T> visitor) {

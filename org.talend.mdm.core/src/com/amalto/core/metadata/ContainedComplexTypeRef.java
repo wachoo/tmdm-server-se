@@ -14,6 +14,11 @@ package com.amalto.core.metadata;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Represents a contained type (in a sense of nested contained type in a MDM entity type) but in this case actual type
+ * definition is located in a shared type of the {@link MetadataRepository}. This happens when a type declares a element
+ * of a type that is not a MDM entity type.
+ */
 public class ContainedComplexTypeRef extends ContainedComplexTypeMetadata {
 
     private final SoftTypeRef reference;

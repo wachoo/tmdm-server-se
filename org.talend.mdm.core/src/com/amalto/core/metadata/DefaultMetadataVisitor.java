@@ -14,10 +14,15 @@ package com.amalto.core.metadata;
 import java.util.Collection;
 
 /**
- *
+ * Default visitor for data model classes in package com.amalto.core.metadata.
  */
 public class DefaultMetadataVisitor<T> implements MetadataVisitor<T> {
 
+    /**
+     * Visit all types located in <code>repository</code>.
+     * @param repository A {@link MetadataRepository}.
+     * @return Result typed as T.
+     */
     public T visit(MetadataRepository repository) {
         Collection<TypeMetadata> types = repository.getTypes();
         for (TypeMetadata type : types) {
@@ -27,10 +32,19 @@ public class DefaultMetadataVisitor<T> implements MetadataVisitor<T> {
         return null;
     }
 
+    /**
+     * @param simpleType A simple typed field.
+     * @return Result typed as T.
+     */
     public T visit(SimpleTypeMetadata simpleType) {
         return null;
     }
 
+    /**
+     * Visit all fields declared in <code>complexType</code>.
+     * @param complexType A complex type.
+     * @return Result typed as T.
+     */
     public T visit(ComplexTypeMetadata complexType) {
         Collection<FieldMetadata> fields = complexType.getFields();
         for (FieldMetadata field : fields) {
@@ -40,6 +54,11 @@ public class DefaultMetadataVisitor<T> implements MetadataVisitor<T> {
         return null;
     }
 
+    /**
+     * Visit all field declared in contained type.
+     * @param containedType A contained type.
+     * @return Result typed as T.
+     */
     public T visit(ContainedComplexTypeMetadata containedType) {
         Collection<FieldMetadata> fields = containedType.getFields();
         for (FieldMetadata field : fields) {
@@ -57,7 +76,7 @@ public class DefaultMetadataVisitor<T> implements MetadataVisitor<T> {
         return containedField.getContainedType().accept(this);
     }
 
-    public T visit(FieldMetadata field) {
+    public T visit(FieldMetadata fieldMetadata) {
         return null;
     }
 

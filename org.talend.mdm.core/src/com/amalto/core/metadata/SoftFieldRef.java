@@ -42,7 +42,7 @@ public class SoftFieldRef implements FieldMetadata {
 
     private FieldMetadata getField() {
         if (containingType != null) {
-            TypeMetadata type = repository.getType(containingType.getName());
+            ComplexTypeMetadata type = repository.getComplexType(containingType.getName());
             if (type == null) {
                 throw new IllegalArgumentException("Type '" + containingType + "' does not exist.");
             }
@@ -68,14 +68,6 @@ public class SoftFieldRef implements FieldMetadata {
         return getField().getType();
     }
 
-    public boolean hasForeignKeyInfo() {
-        return getField().hasForeignKeyInfo();
-    }
-
-    public FieldMetadata getForeignKeyInfoField() {
-        return getField().getForeignKeyInfoField();
-    }
-
     public ComplexTypeMetadata getContainingType() {
         return getField().getContainingType();
     }
@@ -86,14 +78,6 @@ public class SoftFieldRef implements FieldMetadata {
 
     public TypeMetadata getDeclaringType() {
         return getField().getDeclaringType();
-    }
-
-    public boolean isFKIntegrity() {
-        return getField().isFKIntegrity();
-    }
-
-    public boolean allowFKIntegrityOverride() {
-        return getField().allowFKIntegrityOverride();
     }
 
     public void adopt(ComplexTypeMetadata metadata, MetadataRepository repository) {
@@ -120,10 +104,6 @@ public class SoftFieldRef implements FieldMetadata {
 
     public boolean isMandatory() {
         return getField().isMandatory();
-    }
-
-    public void setName(String fieldName) {
-        getField().setName(fieldName);
     }
 
     public <T> T accept(MetadataVisitor<T> visitor) {

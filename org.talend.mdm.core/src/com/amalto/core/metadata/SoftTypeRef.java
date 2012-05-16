@@ -17,7 +17,9 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- *
+ * Represents a reference to a {@link ComplexTypeMetadata} type where methods are evaluated using 
+ * {@link MetadataRepository#getComplexType(String)} calls. This is useful to reference types that might not be already
+ * parsed by {@link MetadataRepository#load(java.io.InputStream)}.
  */
 public class SoftTypeRef implements ComplexTypeMetadata {
 
@@ -90,11 +92,11 @@ public class SoftTypeRef implements ComplexTypeMetadata {
     }
 
     public FieldMetadata getField(String fieldName) {
-        return getType().getField(fieldName);
+        return getTypeAsComplex().getField(fieldName);
     }
 
     public List<FieldMetadata> getFields() {
-        return getType().getFields();
+        return getTypeAsComplex().getFields();
     }
 
     public boolean isAssignableFrom(TypeMetadata type) {
@@ -142,6 +144,26 @@ public class SoftTypeRef implements ComplexTypeMetadata {
 
     public void addField(FieldMetadata fieldMetadata) {
         getTypeAsComplex().addField(fieldMetadata);
+    }
+
+    public List<String> getWriteUsers() {
+        return getTypeAsComplex().getWriteUsers();
+    }
+
+    public List<String> getHideUsers() {
+        return getTypeAsComplex().getHideUsers();
+    }
+
+    public List<String> getDenyCreate() {
+        return getTypeAsComplex().getDenyCreate();
+    }
+
+    public List<String> getDenyDelete(DeleteType type) {
+        return getTypeAsComplex().getDenyDelete(type);
+    }
+
+    public String getSchematron() {
+        return getTypeAsComplex().getSchematron();
     }
 
     public void registerKey(FieldMetadata keyField) {

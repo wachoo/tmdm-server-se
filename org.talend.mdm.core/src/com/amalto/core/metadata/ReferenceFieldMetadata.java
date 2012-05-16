@@ -35,18 +35,18 @@ public class ReferenceFieldMetadata extends MetadataExtensible implements FieldM
 
     private final boolean isMandatory;
 
-    private TypeMetadata referencedType;
+    private final String name;
+
+    private ComplexTypeMetadata referencedType;
 
     private ComplexTypeMetadata containingType;
-
-    private String name;
 
     public ReferenceFieldMetadata(ComplexTypeMetadata containingType,
                                   boolean isKey,
                                   boolean isMany,
                                   boolean isMandatory,
                                   String name,
-                                  TypeMetadata referencedType,
+                                  ComplexTypeMetadata referencedType,
                                   FieldMetadata referencedField,
                                   FieldMetadata foreignKeyInfo,
                                   boolean fkIntegrity,
@@ -71,7 +71,7 @@ public class ReferenceFieldMetadata extends MetadataExtensible implements FieldM
         return referencedField;
     }
 
-    public TypeMetadata getReferencedType() {
+    public ComplexTypeMetadata getReferencedType() {
         return referencedType;
     }
 
@@ -126,7 +126,7 @@ public class ReferenceFieldMetadata extends MetadataExtensible implements FieldM
     }
 
     public FieldMetadata copy(MetadataRepository repository) {
-        TypeMetadata referencedTypeCopy = referencedType.copy(repository);
+        ComplexTypeMetadata referencedTypeCopy = (ComplexTypeMetadata) referencedType.copy(repository);
         FieldMetadata referencedFieldCopy = referencedField.copy(repository);
         FieldMetadata foreignKeyInfoCopy = hasForeignKeyInfo() ? foreignKeyInfo.copy(repository) : null;
         ComplexTypeMetadata containingTypeCopy = (ComplexTypeMetadata) containingType.copy(repository);
@@ -155,10 +155,6 @@ public class ReferenceFieldMetadata extends MetadataExtensible implements FieldM
 
     public boolean isMandatory() {
         return isMandatory;
-    }
-
-    public void setName(String fieldName) {
-        this.name = fieldName;
     }
 
     public List<String> getHideUsers() {

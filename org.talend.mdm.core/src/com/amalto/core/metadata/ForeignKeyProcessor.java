@@ -28,16 +28,16 @@ class ForeignKeyProcessor implements XmlSchemaAnnotationProcessor {
                 } else if ("X_ForeignKeyInfo".equals(appInfo.getSource())) { //$NON-NLS-1$
                     handleForeignKeyInfo(repository, type, state, appInfo);
                 } else if ("X_FKIntegrity".equals(appInfo.getSource())) { //$NON-NLS-1$
-                    state.setFkIntegrity(Boolean.valueOf(appInfo.getMarkup().item(0).getTextContent()));
+                    state.setFkIntegrity(Boolean.valueOf(appInfo.getMarkup().item(0).getNodeValue()));
                 } else if ("X_FKIntegrity_Override".equals(appInfo.getSource())) { //$NON-NLS-1$
-                    state.setFkIntegrityOverride(Boolean.valueOf(appInfo.getMarkup().item(0).getTextContent()));
+                    state.setFkIntegrityOverride(Boolean.valueOf(appInfo.getMarkup().item(0).getNodeValue()));
                 }
             }
         }
     }
 
     private void handleForeignKeyInfo(MetadataRepository repository, ComplexTypeMetadata type, XmlSchemaAnnotationProcessorState state, XmlSchemaAppInfo appInfo) {
-        String path = appInfo.getMarkup().item(0).getTextContent();
+        String path = appInfo.getMarkup().item(0).getNodeValue();
         String[] typeAndFields = path.split("/"); //$NON-NLS-1$
         String typeName;
         if (typeAndFields[0].equals(".")) { //$NON-NLS-1$
@@ -55,8 +55,8 @@ class ForeignKeyProcessor implements XmlSchemaAnnotationProcessor {
     }
 
     private void handleForeignKey(MetadataRepository repository, XmlSchemaAnnotationProcessorState state, XmlSchemaAppInfo appInfo) {
-        state.setReference(true);
-        String path = appInfo.getMarkup().item(0).getTextContent();
+        state.markAsReference();
+        String path = appInfo.getMarkup().item(0).getNodeValue();
         String[] typeAndFields = path.split("/"); //$NON-NLS-1$
         String userNamespace = repository.getUserNamespace();
         state.setFieldType(new SoftTypeRef(repository, userNamespace, typeAndFields[0].trim()));
