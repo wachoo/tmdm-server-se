@@ -132,23 +132,22 @@ class ForeignKeyInfoTransformer implements DocumentTransformer {
         }
 
         @Override
+        public Map<String, ReferenceFieldMetadata> visit(ContainedTypeFieldMetadata containedField) {
+            currentPosition.push(containedField.getName());
+            {
+                super.visit(containedField);
+            }
+            currentPosition.pop();
+            return pathToForeignKeyInfo;
+        }
+
+        @Override
         public Map<String, ReferenceFieldMetadata> visit(ReferenceFieldMetadata metadata) {
             currentPosition.push(metadata.getName());
             {
                 if (metadata.hasForeignKeyInfo()) {
                     pathToForeignKeyInfo.put(getCurrentPath(), metadata);
                 }
-                super.visit(metadata);
-            }
-            currentPosition.pop();
-
-            return pathToForeignKeyInfo;
-        }
-
-        @Override
-        public Map<String, ReferenceFieldMetadata> visit(SimpleTypeFieldMetadata metadata) {
-            currentPosition.push(metadata.getName());
-            {
                 super.visit(metadata);
             }
             currentPosition.pop();
