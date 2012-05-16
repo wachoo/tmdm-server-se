@@ -494,13 +494,15 @@ public class TreeDetail extends ContentPanel {
 	private void setFiledWidth(TreeItem item, int width, int offset, int level) {
 		for (int i = 0; i < item.getChildCount(); i++) {
 			TreeItem subItem = item.getChild(i);
-			HorizontalPanel hp = (HorizontalPanel) subItem.getWidget();
-			if(hp.getWidgetCount() > 1) {
-				Widget field = hp.getWidget(1);
-				if (field instanceof FormatTextField) {
-					int size = width - (offset + 19 * level);
-					if (size > 200) {
-						((FormatTextField)field).setWidth(size);
+			if (subItem.getWidget() instanceof HorizontalPanel) {
+				HorizontalPanel hp = (HorizontalPanel) subItem.getWidget();
+				if(hp.getWidgetCount() > 1) {
+					Widget field = hp.getWidget(1);
+					if (field instanceof FormatTextField) {
+						int size = width - (offset + 19 * level);
+						if (size > 200) {
+							((FormatTextField)field).setWidth(size);
+						}
 					}
 				}
 			}
