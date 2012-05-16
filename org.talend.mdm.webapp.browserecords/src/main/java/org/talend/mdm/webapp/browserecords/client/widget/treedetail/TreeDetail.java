@@ -66,7 +66,7 @@ public class TreeDetail extends ContentPanel {
 
     private TreeEx tree = new TreeEx();
 
-    private TreeItem root;
+    private DynamicTreeItem root;
 
     private List<Tree> columnTrees = new ArrayList<Tree>();
 
@@ -106,7 +106,6 @@ public class TreeDetail extends ContentPanel {
 
     public void initTree(ViewBean viewBean, ItemBean itemBean, Map<String, String> initDataMap, final String operation) {
         this.viewBean = viewBean;
-        this.multiManager = new MultiOccurrenceManager(viewBean.getBindingEntityModel().getMetaDataTypes(), this);
         if (itemBean == null) {
             buildPanel(operation, initDataMap);
         } else {
@@ -233,10 +232,6 @@ public class TreeDetail extends ContentPanel {
                     TreeItem childItem = buildGWTTree(node, null, withDefaultValue, operation, foreighKeyMap, foreignKeyParentMap);
                     if (childItem != null) { //
                         item.addItem(childItem);
-
-                        if (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {
-                            multiManager.addMultiOccurrenceNode((DynamicTreeItem) childItem);
-                        }
                     }
                 }
             }
@@ -290,6 +285,7 @@ public class TreeDetail extends ContentPanel {
         }
 
         treeNode.setRealType(typeModel.getName());
+        multiManager.removeMultiOccurrenceNode(selectedItem);
         selectedItem.removeItems();
 
         String contextPath = CommonUtil.getRealXPath(treeNode);
@@ -309,6 +305,9 @@ public class TreeDetail extends ContentPanel {
                     treeNode.add(child);
                 }
                 buildGWTTree(treeNode, selectedItem, false, null);
+                multiManager.addMultiOccurrenceNode(selectedItem);
+                multiManager.warningAllItems();
+                multiManager.handleOptIcons();
             }
         });
         
@@ -333,7 +332,9 @@ public class TreeDetail extends ContentPanel {
 
     private void renderTree(ItemNodeModel rootModel, String operation) {
 
+        multiManager = new MultiOccurrenceManager(viewBean.getBindingEntityModel().getMetaDataTypes(), this);
         root = buildGWTTree(rootModel, null, false, operation);
+        multiManager.addMultiOccurrenceNode((DynamicTreeItem) root);
         multiManager.warningAllItems();
         multiManager.handleOptIcons();
         isFirstKey = true;
@@ -607,7 +608,7 @@ public class TreeDetail extends ContentPanel {
         return fieldMap;
     }
 
-    public void setRoot(TreeItem root) {
+    public void setRoot(DynamicTreeItem root) {
         this.root = root;
         if (root != null && root.getElement() != null) {
             root.getElement().setId("TreeDetail-root"); //$NON-NLS-1$

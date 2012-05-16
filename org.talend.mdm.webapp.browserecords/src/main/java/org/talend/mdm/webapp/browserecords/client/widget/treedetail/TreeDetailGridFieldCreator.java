@@ -27,6 +27,7 @@ import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ComboBoxModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
+import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.MultiOccurrenceManager;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
@@ -212,7 +213,7 @@ public class TreeDetailGridFieldCreator {
 
     private static void addFieldListener(final TypeModel typeModel, final Field<?> field, final ItemNodeModel node,
             final Map<String, Field<?>> fieldMap) {
-
+        field.setFireChangeEventOnSetValue(true);
         field.addListener(Events.Change, new Listener<FieldEvent>() {
 
             @SuppressWarnings("rawtypes")
@@ -222,8 +223,12 @@ public class TreeDetailGridFieldCreator {
                 } else if (fe.getField() instanceof CheckBox) {
                     node.setObjectValue(fe.getValue().toString());
                 } else {
-                    node.setObjectValue(fe.getField() instanceof ComboBox ? ((SimpleComboValue) fe.getValue()).getValue()
-                            .toString() : (Serializable) fe.getValue());
+                    if (fe.getField() instanceof ComboBox) {
+                        SimpleComboValue value = (SimpleComboValue) fe.getValue();
+                        node.setObjectValue((Serializable) (value == null ? null : value.getValue()));
+                    } else {
+                        node.setObjectValue((Serializable) fe.getValue());
+                    }
                 }
                 if (fe.getField() instanceof FormatDateField)
                     ((FormatDateField) field).setFormatedValue();
@@ -322,7 +327,7 @@ public class TreeDetailGridFieldCreator {
             List<ModelData> childs = parent.getChildren();
             for (int i = 0; i < childs.size(); i++) {
                 ItemNodeModel child = (ItemNodeModel) childs.get(i);
-                if (child.getObjectValue() != null && !"".equals(child.getObjectValue())) { //$NON-NLS-1$
+                if (CommonUtil.hasChildrenValue(child)) {
                     flag = true;
                     break;
                 }

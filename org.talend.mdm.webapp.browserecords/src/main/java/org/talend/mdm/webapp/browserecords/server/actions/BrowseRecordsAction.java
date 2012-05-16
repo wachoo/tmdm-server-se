@@ -1624,9 +1624,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             if (wsi == null) {
                 return new ItemResult(status, message, ids);
             } else {
+                String[] pk = wsi.getIds();
+                if (pk == null || pk.length == 0) {
+                    pk = extractIdWithDots(ids);
+                }
                 WSItem wsItem = CommonUtil.getPort().getItem(
-                        new WSGetItem(new WSItemPK(new WSDataClusterPK(getCurrentDataCluster()), concept, wsi.getIds())));
-                return new ItemResult(status, message, Util.joinStrings(wsi.getIds(), "."), wsItem.getInsertionTime()); //$NON-NLS-1$
+                        new WSGetItem(new WSItemPK(new WSDataClusterPK(getCurrentDataCluster()), concept, pk)));
+                return new ItemResult(status, message, Util.joinStrings(pk, "."), wsItem.getInsertionTime()); //$NON-NLS-1$
             }
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);

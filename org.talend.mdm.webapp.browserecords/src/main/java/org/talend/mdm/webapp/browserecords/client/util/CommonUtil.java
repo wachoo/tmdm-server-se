@@ -183,7 +183,15 @@ public class CommonUtil {
                 }
             }
         } else {
-            return parentModel.getObjectValue() != null && !"".equals(parentModel.getObjectValue()); //$NON-NLS-1$
+            Serializable value = parentModel.getObjectValue();
+            if (value != null) {
+                if (value instanceof ForeignKeyBean) {
+                    ForeignKeyBean fkBean = (ForeignKeyBean) value;
+                    return fkBean.getId() != null && fkBean.getId().trim().length() > 0;
+                } else {
+                    return !"".equals(value); //$NON-NLS-1$
+                }
+            }
         }
         return false;
     }
@@ -269,8 +277,8 @@ public class CommonUtil {
     public static List<ItemNodeModel> getDefaultTreeModel(TypeModel model, String language) {
         List<ItemNodeModel> itemNodes = new ArrayList<ItemNodeModel>();
 
-        if (model.getMinOccurs() > 1 && model.getMaxOccurs() > model.getMinOccurs()) {
-            for (int i = 0; i < model.getMaxOccurs() - model.getMinOccurs(); i++) {
+        if (model.getMinOccurs() > 1) {
+            for (int i = 0; i < model.getMinOccurs(); i++) {
                 ItemNodeModel itemNode = new ItemNodeModel();
 
                 itemNodes.add(itemNode);

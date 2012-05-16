@@ -17,6 +17,7 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.DynamicTreeItem;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
@@ -27,7 +28,6 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.ui.Frame;
-import com.google.gwt.user.client.ui.TreeItem;
 
 public class ItemPanel extends ContentPanel {
 
@@ -73,7 +73,8 @@ public class ItemPanel extends ContentPanel {
         this.initUI(null);
     }
 
-    public ItemPanel(ViewBean viewBean, ItemBean item, String operation, ContentPanel contenPanel, TreeItem root, ItemsDetailPanel itemsDetailPanel) {
+    public ItemPanel(ViewBean viewBean, ItemBean item, String operation, ContentPanel contenPanel, DynamicTreeItem root,
+            ItemsDetailPanel itemsDetailPanel) {
         tree = new TreeDetail(itemsDetailPanel);
         this.viewBean = viewBean;
         this.item = item;
@@ -84,7 +85,7 @@ public class ItemPanel extends ContentPanel {
         this.initUI(root);
     }
     
-    public ItemPanel(ViewBean viewBean, ItemBean item, String operation, ContentPanel contenPanel, TreeItem root,
+    public ItemPanel(ViewBean viewBean, ItemBean item, String operation, ContentPanel contenPanel, DynamicTreeItem root,
             ItemsDetailPanel itemsDetailPanel, boolean openTab) {
         tree = new TreeDetail(itemsDetailPanel);
         this.viewBean = viewBean;
@@ -96,7 +97,7 @@ public class ItemPanel extends ContentPanel {
         this.initUI(root);
     }
     
-    private void initUI(TreeItem root) {
+    private void initUI(DynamicTreeItem root) {
         this.setBodyBorder(false);
         this.setHeaderVisible(false);
         this.setTopComponent(toolBar);

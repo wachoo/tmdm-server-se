@@ -35,8 +35,8 @@ public class CommonUtil {
     public static List<ItemNodeModel> getDefaultTreeModel(TypeModel model, boolean isCreate, String language) {
         List<ItemNodeModel> itemNodes = new ArrayList<ItemNodeModel>();
 
-        if (model.getMinOccurs() > 1 && model.getMaxOccurs() > model.getMinOccurs()) {
-            for (int i = 0; i < model.getMaxOccurs() - model.getMinOccurs(); i++) {
+        if (model.getMinOccurs() > 1) {
+            for (int i = 0; i < model.getMinOccurs(); i++) {
                 ItemNodeModel itemNode = new ItemNodeModel();
                 itemNodes.add(itemNode);
                 if (model.getForeignkey() != null)

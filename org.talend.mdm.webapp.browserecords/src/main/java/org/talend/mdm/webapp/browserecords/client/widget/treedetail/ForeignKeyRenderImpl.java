@@ -28,6 +28,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel.ItemDetailTabPanelContentHandle;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.DynamicTreeItem;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -36,7 +37,6 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.TreeItem;
 
 public class ForeignKeyRenderImpl implements ForeignKeyRender {
 
@@ -55,15 +55,15 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
             String concept = fkTypeModel.getForeignkey().split("/")[0]; //$NON-NLS-1$
 
             final Map<String, Field<?>> fieldMap;
-            TreeItem root;
+            DynamicTreeItem root;
             if (cp instanceof TreeDetail) {
                 TreeDetail treeDetail = (TreeDetail) cp;
                 fieldMap = treeDetail.getFieldMap();
-                root = treeDetail.getTree().getItem(0);
+                root = (DynamicTreeItem) treeDetail.getTree().getItem(0);
             } else {
                 ForeignKeyTreeDetail fkTreeDetail = (ForeignKeyTreeDetail) cp;
                 fieldMap = fkTreeDetail.getFieldMap();
-                root = fkTreeDetail.getRoot();
+                root = (DynamicTreeItem) fkTreeDetail.getRoot();
             }
             final ForeignKeyTablePanel fkPanel = new ForeignKeyTablePanel();
 

@@ -37,16 +37,25 @@ public class MultiOccurrenceManager {
     }
 
     public void addMultiOccurrenceNode(DynamicTreeItem item) {
+
         ItemNodeModel nodeModel = item.getItemNodeModel();
-        String xpath = CommonUtil.getRealXpathWithoutLastIndex(nodeModel);
-        List<DynamicTreeItem> multiNodes = multiOccurrence.get(xpath);
-        if (multiNodes == null) {
-            multiNodes = new ArrayList<DynamicTreeItem>();
-            multiOccurrence.put(xpath, multiNodes);
+        TypeModel typeModel = metaDataTypes.get(nodeModel.getTypePath());
+        if (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {
+            String xpath = CommonUtil.getRealXpathWithoutLastIndex(nodeModel);
+            List<DynamicTreeItem> multiNodes = multiOccurrence.get(xpath);
+            if (multiNodes == null) {
+                multiNodes = new ArrayList<DynamicTreeItem>();
+                multiOccurrence.put(xpath, multiNodes);
+            }
+            setAddRemoveEvent(item);
+            int index = getIndexOfMultiItem(item);
+            multiNodes.add(index, item);
         }
-        setAddRemoveEvent(item);
-        int index = getIndexOfMultiItem(item);
-        multiNodes.add(index, item);
+
+        for (int i = 0; i < item.getChildCount(); i++) {
+            DynamicTreeItem childItem = (DynamicTreeItem) item.getChild(i);
+            addMultiOccurrenceNode(childItem);
+        }
     }
 
     private int getIndexOfMultiItem(DynamicTreeItem item) {
@@ -67,13 +76,18 @@ public class MultiOccurrenceManager {
         return index;
     }
 
-    private void removeMultiOccurrenceNode(DynamicTreeItem item) {
+    public void removeMultiOccurrenceNode(DynamicTreeItem item) {
         ItemNodeModel nodeModel = item.getItemNodeModel();
         String xpath = CommonUtil.getRealXpathWithoutLastIndex(nodeModel);
         List<DynamicTreeItem> multiNodes = multiOccurrence.get(xpath);
         if (multiNodes != null) {
             multiNodes.remove(item);
             clearAddRemoveEvent(item);
+        }
+
+        for (int i = 0; i < item.getChildCount(); i++) {
+            DynamicTreeItem childItem = (DynamicTreeItem) item.getChild(i);
+            removeMultiOccurrenceNode(childItem);
         }
     }
 
@@ -330,7 +344,6 @@ public class MultiOccurrenceManager {
     private void handleClearNodeValue(final DynamicTreeItem selectedItem) {
         ItemNodeModel nodeModel = selectedItem.getItemNodeModel();
         if (nodeModel.isLeaf()) {
-            nodeModel.setObjectValue(null);
             MultiOccurrenceChangeItem itemWidget = (MultiOccurrenceChangeItem) selectedItem.getWidget();
             itemWidget.clearValue();
         }
