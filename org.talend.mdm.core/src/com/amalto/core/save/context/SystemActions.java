@@ -13,6 +13,8 @@ package com.amalto.core.save.context;
 
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
+import com.amalto.core.history.accessor.Accessor;
+import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.ReportDocumentSaverContext;
 import com.amalto.core.save.SaverSession;
@@ -45,6 +47,16 @@ class SystemActions implements DocumentSaver {
         // Consider all system documents as creation (no need to update field by field).
         List<Action> actions = Collections.<Action>singletonList(new OverrideCreateAction(date, source, userName, userDocument));
         context.setActions(actions);
+
+        // Get ID from the system document
+        List<FieldMetadata> keyFields = context.getType().getKeyFields();
+        String[] ids = new String[keyFields.size()];
+        int i = 0;
+        for (FieldMetadata keyField : keyFields) {
+            Accessor accessor = context.getUserDocument().createAccessor(keyField.getName());
+            ids[i++] = accessor.get();
+        }
+        context.setId(ids);
 
         next.save(session, context);
     }
