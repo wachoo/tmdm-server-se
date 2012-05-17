@@ -55,6 +55,8 @@ public class TypeFieldCreateContext implements IsSerializable {
 
     private ItemNodeModel node;
 
+    private boolean isMandatory;
+
 
     public TypeModel getDataType() {
         return dataType;
@@ -103,6 +105,14 @@ public class TypeFieldCreateContext implements IsSerializable {
 
     protected void setTypeFieldStyles(Map<String, TypeFieldStyle> typeFieldStyles) {
         this.typeFieldStyles = typeFieldStyles;
+    }
+
+    public boolean isMandatory() {
+        return isMandatory;
+    }
+
+    public void setMandatory(boolean isMandatory) {
+        this.isMandatory = isMandatory;
     }
 
 }

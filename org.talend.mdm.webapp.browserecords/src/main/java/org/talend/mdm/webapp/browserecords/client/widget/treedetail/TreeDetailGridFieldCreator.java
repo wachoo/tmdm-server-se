@@ -59,13 +59,13 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
@@ -153,10 +153,11 @@ public class TreeDetailGridFieldCreator {
         } else {
             TypeFieldCreateContext context = new TypeFieldCreateContext(dataType);
             context.setLanguage(language);
+            context.setMandatory(node.isMandatory());
             TypeFieldCreator typeFieldCreator = new TypeFieldCreator(new TypeFieldSource(TypeFieldSource.FORM_INPUT), context);
             Map<String, TypeFieldStyle> sytles = new HashMap<String, TypeFieldStyle>();
             sytles.put(TypeFieldStyle.ATTRI_WIDTH, new TypeFieldStyle(TypeFieldStyle.ATTRI_WIDTH, "400", TypeFieldStyle.SCOPE_BUILTIN_TYPEFIELD)); //$NON-NLS-1$
-            field = typeFieldCreator.createFieldWithValueAndUpdateStyle(node, sytles, node.isMandatory());
+            field = typeFieldCreator.createFieldWithValueAndUpdateStyle(node, sytles);
         }
 
         field.setFieldLabel(dataType.getLabel(language));

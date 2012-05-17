@@ -14,7 +14,6 @@ package org.talend.mdm.webapp.browserecords.client.widget.typefield;
 
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.PictureField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.UrlField;
 
@@ -23,22 +22,14 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 
 public class CustomTypeFieldFactory extends TypeFieldFactory {
 
-    private boolean isMandatory;
-    
     public CustomTypeFieldFactory() {
 
     }
 
-    public CustomTypeFieldFactory(TypeFieldSource source, TypeFieldCreateContext context, boolean isMandatory) {
-        super(source, context);
-        this.isMandatory = isMandatory;
-    }
-
     public CustomTypeFieldFactory(TypeFieldSource source, TypeFieldCreateContext context) {
-        this(source, context, false);
+        super(source, context);
     }
 
-    
     /*
      * (non-Javadoc)
      * 
@@ -65,7 +56,7 @@ public class CustomTypeFieldFactory extends TypeFieldFactory {
             }
             field = autoIncrementField;
         } else if (context.getDataType().getType().equals(DataTypeConstants.PICTURE)) {
-            PictureField pictureField = new PictureField(isMandatory);
+            PictureField pictureField = new PictureField(context.isMandatory());
             if (context.isWithValue())
                 pictureField.setValue(hasValue() ? getValue().toString() : ""); //$NON-NLS-1$
             field = pictureField;
