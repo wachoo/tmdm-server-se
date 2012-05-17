@@ -44,6 +44,7 @@ import org.dom4j.io.SAXReader;
 import org.dom4j.io.SAXValidator;
 import org.dom4j.io.XMLWriter;
 import org.dom4j.util.XMLErrorHandler;
+import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.base.server.util.callback.AttributeProcess;
 import org.talend.mdm.webapp.base.server.util.callback.DocumentCreate;
 import org.talend.mdm.webapp.base.server.util.callback.ElementProcess;
@@ -75,6 +76,28 @@ public final class XmlUtil {
         InputStream is = XmlUtil.class.getResourceAsStream("/" + fileName); //$NON-NLS-1$
         Document document = parse(is);
         return document;
+    }
+
+    public static org.w3c.dom.Document parseDocument(Document doc4j) throws ServiceException {
+        org.dom4j.io.DOMWriter d4Writer = new org.dom4j.io.DOMWriter();
+        try {
+            return d4Writer.write(doc4j);
+        } catch (DocumentException e) {
+            logger.error(e.getMessage(), e);
+            throw new ServiceException(e.getMessage());
+        }
+    }
+
+    public static Document mergeDoc(Document mainDoc, Document subDoc, String contextPath) {
+        org.dom4j.Element el = (org.dom4j.Element) mainDoc.selectSingleNode(contextPath);
+        org.dom4j.Element root = (org.dom4j.Element) subDoc.getRootElement();
+        List children = root.elements();
+        for (int i = 0; i < children.size(); i++) {
+            org.dom4j.Element child = (org.dom4j.Element) children.get(i);
+            root.remove(child);
+            el.add(child);
+        }
+        return mainDoc;
     }
 
     /**
