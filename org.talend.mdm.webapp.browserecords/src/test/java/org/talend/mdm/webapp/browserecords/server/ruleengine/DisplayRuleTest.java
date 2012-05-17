@@ -12,6 +12,7 @@ import org.dom4j.Namespace;
 import org.dom4j.Node;
 import org.dom4j.QName;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
 public class DisplayRuleTest extends TestCase {
 
@@ -27,12 +28,21 @@ public class DisplayRuleTest extends TestCase {
 
         assertEquals(ruleValueItems.get(0).getXpath(), "TestDefaultModel/name[1]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(0).getValue(), "zhang"); //$NON-NLS-1$
+        Node node = dom4jDoc.selectSingleNode(ruleValueItems.get(0).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(0).getValue());
 
         assertEquals(ruleValueItems.get(1).getXpath(), "TestDefaultModel/cp[1]/title[1]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(1).getValue(), "hello"); //$NON-NLS-1$
+        node = dom4jDoc.selectSingleNode(ruleValueItems.get(1).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(1).getValue());
 
         assertEquals(ruleValueItems.get(2).getXpath(), "TestDefaultModel/cp[1]/content[1]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(2).getValue(), "3"); //$NON-NLS-1$
+        node = dom4jDoc.selectSingleNode(ruleValueItems.get(2).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(2).getValue());
 
     }
 
@@ -42,18 +52,28 @@ public class DisplayRuleTest extends TestCase {
         Map<String, TypeModel> metaDatas = DisplayRuleTestData.get_Basic_DefaultValue_Rule_WithFunction();
         DisplayRuleEngine engine = new DisplayRuleEngine(metaDatas, "TestDefaultModel"); //$NON-NLS-1$
         Document dom4jDoc = DisplayRuleTestData.getDocument("DefaultValueRecord.xml"); //$NON-NLS-1$
+
         List<RuleValueItem> ruleValueItems = engine.execDefaultValueRule(dom4jDoc);
 
         assertEquals(ruleValueItems.size(), 3);
 
         assertEquals(ruleValueItems.get(0).getXpath(), "TestDefaultModel/name[1]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(0).getValue(), "zhang"); //$NON-NLS-1$
+        Node node = dom4jDoc.selectSingleNode(ruleValueItems.get(0).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(0).getValue());
 
         assertEquals(ruleValueItems.get(1).getXpath(), "TestDefaultModel/cp[1]/title[1]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(1).getValue(), "helloworld!!!"); //$NON-NLS-1$
+        node = dom4jDoc.selectSingleNode(ruleValueItems.get(1).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(1).getValue());
 
         assertEquals(ruleValueItems.get(2).getXpath(), "TestDefaultModel/cp[1]/content[1]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(2).getValue(), "10"); //$NON-NLS-1$
+        node = dom4jDoc.selectSingleNode(ruleValueItems.get(2).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(2).getValue());
     }
 
     public void test_Basic_DefaultValue_Rule_WithFunctionAndXPath() {
@@ -68,12 +88,21 @@ public class DisplayRuleTest extends TestCase {
 
         assertEquals(ruleValueItems.get(0).getXpath(), "DefaultRuleWithFunctionAndXPath/detail[1]/name[1]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(0).getValue(), "zhang yang"); //$NON-NLS-1$
+        Node node = dom4jDoc.selectSingleNode(ruleValueItems.get(0).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(0).getValue());
 
         assertEquals(ruleValueItems.get(1).getXpath(), "DefaultRuleWithFunctionAndXPath/title[1]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(1).getValue(), "detail name is [zhang yang]"); //$NON-NLS-1$
+        node = dom4jDoc.selectSingleNode(ruleValueItems.get(1).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(1).getValue());
 
         assertEquals(ruleValueItems.get(2).getXpath(), "DefaultRuleWithFunctionAndXPath/detail[1]/content[1]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(2).getValue(), "name is [zhang yang] title is [detail name is [zhang yang]]"); //$NON-NLS-1$
+        node = dom4jDoc.selectSingleNode(ruleValueItems.get(2).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(2).getValue());
     }
 
     public void test_DefaultValueForBoolean() {
@@ -88,18 +117,33 @@ public class DisplayRuleTest extends TestCase {
 
         assertEquals(ruleValueItems.get(0).getXpath(), "TestBoolean/name[1]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(0).getValue(), "zhang"); //$NON-NLS-1$
+        Node node = dom4jDoc.selectSingleNode(ruleValueItems.get(0).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(0).getValue());
 
         assertEquals(ruleValueItems.get(1).getXpath(), "TestBoolean/finished[1]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(1).getValue(), "true"); //$NON-NLS-1$
+        node = dom4jDoc.selectSingleNode(ruleValueItems.get(1).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(1).getValue());
 
         assertEquals(ruleValueItems.get(2).getXpath(), "TestBoolean/finished1[1]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(2).getValue(), "false"); //$NON-NLS-1$
+        node = dom4jDoc.selectSingleNode(ruleValueItems.get(2).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(2).getValue());
 
         assertEquals(ruleValueItems.get(3).getXpath(), "TestBoolean/finished2[1]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(3).getValue(), "true"); //$NON-NLS-1$
+        node = dom4jDoc.selectSingleNode(ruleValueItems.get(3).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(3).getValue());
 
         assertEquals(ruleValueItems.get(4).getXpath(), "TestBoolean/finished3[1]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(4).getValue(), "false"); //$NON-NLS-1$
+        node = dom4jDoc.selectSingleNode(ruleValueItems.get(4).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(4).getValue());
     }
 
      public void test_DefaultValueForEnumeration() {
@@ -114,15 +158,27 @@ public class DisplayRuleTest extends TestCase {
 
         assertEquals(ruleValueItems.get(0).getXpath(), "TestEnumeration/name[1]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(0).getValue(), "zhang"); //$NON-NLS-1$
+        Node node = dom4jDoc.selectSingleNode(ruleValueItems.get(0).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(0).getValue());
 
         assertEquals(ruleValueItems.get(1).getXpath(), "TestEnumeration/age[1]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(1).getValue(), "21-30"); //$NON-NLS-1$
+        node = dom4jDoc.selectSingleNode(ruleValueItems.get(1).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(1).getValue());
 
         assertEquals(ruleValueItems.get(2).getXpath(), "TestEnumeration/favorite[1]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(2).getValue(), "Orange"); //$NON-NLS-1$
+        node = dom4jDoc.selectSingleNode(ruleValueItems.get(2).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(2).getValue());
 
         assertEquals(ruleValueItems.get(3).getXpath(), "TestEnumeration/num[1]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(3).getValue(), "6"); //$NON-NLS-1$
+        node = dom4jDoc.selectSingleNode(ruleValueItems.get(3).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(3).getValue());
     }
 
     public void test_Multiple_Occurence_DefaultValueRule() {
@@ -137,18 +193,33 @@ public class DisplayRuleTest extends TestCase {
 
         assertEquals(ruleValueItems.get(0).getXpath(), "MultipleOccurence/cp[1]/address[1]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(0).getValue(), "hello this is address"); //$NON-NLS-1$
+        Node node = dom4jDoc.selectSingleNode(ruleValueItems.get(0).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(0).getValue());
 
         assertEquals(ruleValueItems.get(1).getXpath(), "MultipleOccurence/cp[1]/address[2]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(1).getValue(), "hello this is address"); //$NON-NLS-1$
+        node = dom4jDoc.selectSingleNode(ruleValueItems.get(1).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(1).getValue());
 
         assertEquals(ruleValueItems.get(2).getXpath(), "MultipleOccurence/cp[1]/address[3]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(2).getValue(), "hello this is address"); //$NON-NLS-1$
+        node = dom4jDoc.selectSingleNode(ruleValueItems.get(2).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(2).getValue());
 
         assertEquals(ruleValueItems.get(3).getXpath(), "MultipleOccurence/tel[1]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(3).getValue(), "phone: 1323234323"); //$NON-NLS-1$
+        node = dom4jDoc.selectSingleNode(ruleValueItems.get(3).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(3).getValue());
 
         assertEquals(ruleValueItems.get(4).getXpath(), "MultipleOccurence/tel[2]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(4).getValue(), "phone: 1323234323"); //$NON-NLS-1$
+        node = dom4jDoc.selectSingleNode(ruleValueItems.get(4).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(4).getValue());
     }
 
     public void test_DefaultRuleForInheritance() {
@@ -164,6 +235,9 @@ public class DisplayRuleTest extends TestCase {
 
         assertEquals(ruleValueItems.get(0).getXpath(), "DefaultRuleForInheritance/name[1]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(0).getValue(), "zhang yang"); //$NON-NLS-1$
+        Node node = dom4jDoc.selectSingleNode(ruleValueItems.get(0).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(0).getValue());
 
         dom4jDoc.selectSingleNode(ruleValueItems.get(0).getXpath()).setText(ruleValueItems.get(0).getValue());
 
@@ -174,9 +248,15 @@ public class DisplayRuleTest extends TestCase {
 
         assertEquals(ruleValueItems.get(0).getXpath(), "DefaultRuleForInheritance/name[1]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(0).getValue(), "zhang yang"); //$NON-NLS-1$
+        node = dom4jDoc.selectSingleNode(ruleValueItems.get(0).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(0).getValue());
 
         assertEquals(ruleValueItems.get(1).getXpath(), "DefaultRuleForInheritance/person[1]/score[1]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(1).getValue(), "zhang yang's score is 100"); //$NON-NLS-1$
+        node = dom4jDoc.selectSingleNode(ruleValueItems.get(1).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(1).getValue());
 
         changeDocForDefaultRuleForInheritance_Teacher(dom4jDoc);
         ruleValueItems = engine.execDefaultValueRule(dom4jDoc);
@@ -185,9 +265,15 @@ public class DisplayRuleTest extends TestCase {
 
         assertEquals(ruleValueItems.get(0).getXpath(), "DefaultRuleForInheritance/name[1]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(0).getValue(), "zhang yang"); //$NON-NLS-1$
+        node = dom4jDoc.selectSingleNode(ruleValueItems.get(0).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(0).getValue());
 
         assertEquals(ruleValueItems.get(1).getXpath(), "DefaultRuleForInheritance/person[1]/salary[1]"); //$NON-NLS-1$
         assertEquals(ruleValueItems.get(1).getValue(), "zhang yang's salary is 1000"); //$NON-NLS-1$
+        node = dom4jDoc.selectSingleNode(ruleValueItems.get(1).getXpath());
+        assertNotNull(node);
+        assertEquals(node.getText(), ruleValueItems.get(1).getValue());
 
     }
 
@@ -225,21 +311,21 @@ public class DisplayRuleTest extends TestCase {
 
         DisplayRuleEngine engine = new DisplayRuleEngine(metaDatas, "BasicVisibleRule"); //$NON-NLS-1$
         Document dom4jDoc = DisplayRuleTestData.getDocument("BasicVisibleRuleRecord.xml"); //$NON-NLS-1$
-        List<RuleValueItem> ruleValueItems = engine.execVisibleRule(dom4jDoc);
+        List<VisibleRuleResult> ruleValueItems = engine.execVisibleRule(dom4jDoc);
 
         assertEquals(ruleValueItems.size(), 4);
 
         assertEquals(ruleValueItems.get(0).getXpath(), "BasicVisibleRule/testfield[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(0).getValue(), "true"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(0).isVisible(), true);
 
         assertEquals(ruleValueItems.get(1).getXpath(), "BasicVisibleRule/cp[1]/address[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(1).getValue(), "false"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(1).isVisible(), false);
 
         assertEquals(ruleValueItems.get(2).getXpath(), "BasicVisibleRule/cp[1]/address[2]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(2).getValue(), "false"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(2).isVisible(), false);
 
         assertEquals(ruleValueItems.get(3).getXpath(), "BasicVisibleRule/cp[1]/address[3]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(3).getValue(), "false"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(3).isVisible(), false);
 
 
     }
@@ -251,24 +337,24 @@ public class DisplayRuleTest extends TestCase {
 
         DisplayRuleEngine engine = new DisplayRuleEngine(metaDatas, "BasicVisibleRuleFunction"); //$NON-NLS-1$
         Document dom4jDoc = DisplayRuleTestData.getDocument("BasicVisibleRuleWithFunctionRecord.xml"); //$NON-NLS-1$
-        List<RuleValueItem> ruleValueItems = engine.execVisibleRule(dom4jDoc);
+        List<VisibleRuleResult> ruleValueItems = engine.execVisibleRule(dom4jDoc);
 
         assertEquals(ruleValueItems.size(), 5);
 
         assertEquals(ruleValueItems.get(0).getXpath(), "BasicVisibleRuleFunction/testfield[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(0).getValue(), "false"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(0).isVisible(), false);
 
         assertEquals(ruleValueItems.get(1).getXpath(), "BasicVisibleRuleFunction/cp[1]/title[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(1).getValue(), "false"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(1).isVisible(), false);
 
         assertEquals(ruleValueItems.get(2).getXpath(), "BasicVisibleRuleFunction/cp[1]/address[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(2).getValue(), "true"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(2).isVisible(), true);
 
         assertEquals(ruleValueItems.get(3).getXpath(), "BasicVisibleRuleFunction/cp[1]/address[2]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(3).getValue(), "true"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(3).isVisible(), true);
 
         assertEquals(ruleValueItems.get(4).getXpath(), "BasicVisibleRuleFunction/cp[1]/address[3]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(4).getValue(), "true"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(4).isVisible(), true);
 
     }
 
@@ -280,24 +366,24 @@ public class DisplayRuleTest extends TestCase {
 
         DisplayRuleEngine engine = new DisplayRuleEngine(metaDatas, "BasicVisibleRuleWithFunctionXPath"); //$NON-NLS-1$
         Document dom4jDoc = DisplayRuleTestData.getDocument("BasicVisibleRuleWithFunctionXPathRecord.xml"); //$NON-NLS-1$
-        List<RuleValueItem> ruleValueItems = engine.execVisibleRule(dom4jDoc);
+        List<VisibleRuleResult> ruleValueItems = engine.execVisibleRule(dom4jDoc);
 
         assertEquals(ruleValueItems.size(), 5);
 
         assertEquals(ruleValueItems.get(0).getXpath(), "BasicVisibleRuleWithFunctionXPath/testfield[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(0).getValue(), "false"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(0).isVisible(), false);
 
         assertEquals(ruleValueItems.get(1).getXpath(), "BasicVisibleRuleWithFunctionXPath/cp[1]/title[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(1).getValue(), "false"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(1).isVisible(), false);
 
         assertEquals(ruleValueItems.get(2).getXpath(), "BasicVisibleRuleWithFunctionXPath/cp[1]/address[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(2).getValue(), "false"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(2).isVisible(), false);
 
         assertEquals(ruleValueItems.get(3).getXpath(), "BasicVisibleRuleWithFunctionXPath/cp[1]/address[2]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(3).getValue(), "false"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(3).isVisible(), false);
 
         assertEquals(ruleValueItems.get(4).getXpath(), "BasicVisibleRuleWithFunctionXPath/cp[1]/address[3]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(4).getValue(), "false"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(4).isVisible(), false);
         
         Node node = dom4jDoc.selectSingleNode("/BasicVisibleRuleWithFunctionXPath/name"); //$NON-NLS-1$
         node.setText("1234"); //$NON-NLS-1$
@@ -306,19 +392,19 @@ public class DisplayRuleTest extends TestCase {
         assertEquals(ruleValueItems.size(), 5);
 
         assertEquals(ruleValueItems.get(0).getXpath(), "BasicVisibleRuleWithFunctionXPath/testfield[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(0).getValue(), "true"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(0).isVisible(), true);
 
         assertEquals(ruleValueItems.get(1).getXpath(), "BasicVisibleRuleWithFunctionXPath/cp[1]/title[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(1).getValue(), "false"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(1).isVisible(), false);
 
         assertEquals(ruleValueItems.get(2).getXpath(), "BasicVisibleRuleWithFunctionXPath/cp[1]/address[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(2).getValue(), "false"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(2).isVisible(), false);
 
         assertEquals(ruleValueItems.get(3).getXpath(), "BasicVisibleRuleWithFunctionXPath/cp[1]/address[2]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(3).getValue(), "false"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(3).isVisible(), false);
 
         assertEquals(ruleValueItems.get(4).getXpath(), "BasicVisibleRuleWithFunctionXPath/cp[1]/address[3]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(4).getValue(), "false"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(4).isVisible(), false);
 
 
         node.setText("12345"); //$NON-NLS-1$
@@ -327,19 +413,19 @@ public class DisplayRuleTest extends TestCase {
         assertEquals(ruleValueItems.size(), 5);
 
         assertEquals(ruleValueItems.get(0).getXpath(), "BasicVisibleRuleWithFunctionXPath/testfield[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(0).getValue(), "true"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(0).isVisible(), true);
 
         assertEquals(ruleValueItems.get(1).getXpath(), "BasicVisibleRuleWithFunctionXPath/cp[1]/title[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(1).getValue(), "true"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(1).isVisible(), true);
 
         assertEquals(ruleValueItems.get(2).getXpath(), "BasicVisibleRuleWithFunctionXPath/cp[1]/address[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(2).getValue(), "false"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(2).isVisible(), false);
 
         assertEquals(ruleValueItems.get(3).getXpath(), "BasicVisibleRuleWithFunctionXPath/cp[1]/address[2]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(3).getValue(), "false"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(3).isVisible(), false);
 
         assertEquals(ruleValueItems.get(4).getXpath(), "BasicVisibleRuleWithFunctionXPath/cp[1]/address[3]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(4).getValue(), "false"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(4).isVisible(), false);
 
         node.setText("123456"); //$NON-NLS-1$
         ruleValueItems = engine.execVisibleRule(dom4jDoc);
@@ -347,19 +433,19 @@ public class DisplayRuleTest extends TestCase {
         assertEquals(ruleValueItems.size(), 5);
 
         assertEquals(ruleValueItems.get(0).getXpath(), "BasicVisibleRuleWithFunctionXPath/testfield[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(0).getValue(), "true"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(0).isVisible(), true);
 
         assertEquals(ruleValueItems.get(1).getXpath(), "BasicVisibleRuleWithFunctionXPath/cp[1]/title[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(1).getValue(), "true"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(1).isVisible(), true);
 
         assertEquals(ruleValueItems.get(2).getXpath(), "BasicVisibleRuleWithFunctionXPath/cp[1]/address[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(2).getValue(), "true"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(2).isVisible(), true);
 
         assertEquals(ruleValueItems.get(3).getXpath(), "BasicVisibleRuleWithFunctionXPath/cp[1]/address[2]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(3).getValue(), "true"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(3).isVisible(), true);
 
         assertEquals(ruleValueItems.get(4).getXpath(), "BasicVisibleRuleWithFunctionXPath/cp[1]/address[3]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(4).getValue(), "true"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(4).isVisible(), true);
 
     }
 
@@ -371,18 +457,18 @@ public class DisplayRuleTest extends TestCase {
 
         DisplayRuleEngine engine = new DisplayRuleEngine(metaDatas, "VisibleRuleBoolean"); //$NON-NLS-1$
         Document dom4jDoc = DisplayRuleTestData.getDocument("VisibleRuleBooleanRecord.xml"); //$NON-NLS-1$
-        List<RuleValueItem> ruleValueItems = engine.execVisibleRule(dom4jDoc);
+        List<VisibleRuleResult> ruleValueItems = engine.execVisibleRule(dom4jDoc);
 
         assertEquals(ruleValueItems.size(), 3);
 
         assertEquals(ruleValueItems.get(0).getXpath(), "VisibleRuleBoolean/finished[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(0).getValue(), "false"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(0).isVisible(), false);
 
         assertEquals(ruleValueItems.get(1).getXpath(), "VisibleRuleBoolean/cp[1]/finished1[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(1).getValue(), "true"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(1).isVisible(), true);
 
         assertEquals(ruleValueItems.get(2).getXpath(), "VisibleRuleBoolean/cp[1]/finished2[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(2).getValue(), "false"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(2).isVisible(), false);
 
     }
 
@@ -393,15 +479,15 @@ public class DisplayRuleTest extends TestCase {
 
         DisplayRuleEngine engine = new DisplayRuleEngine(metaDatas, "VisibleRuleForInheritance"); //$NON-NLS-1$
         Document dom4jDoc = DisplayRuleTestData.getDocument("VisibleRuleForInheritanceRecord.xml"); //$NON-NLS-1$
-        List<RuleValueItem> ruleValueItems = engine.execVisibleRule(dom4jDoc);
+        List<VisibleRuleResult> ruleValueItems = engine.execVisibleRule(dom4jDoc);
 
         assertEquals(ruleValueItems.size(), 2);
 
         assertEquals(ruleValueItems.get(0).getXpath(), "VisibleRuleForInheritance/testfield[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(0).getValue(), "true"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(0).isVisible(), true);
 
         assertEquals(ruleValueItems.get(1).getXpath(), "VisibleRuleForInheritance/person[1]/name[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(1).getValue(), "true"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(1).isVisible(), true);
 
 
         changeDocForVisibleRuleForInheritance_Student(dom4jDoc);
@@ -411,25 +497,25 @@ public class DisplayRuleTest extends TestCase {
         assertEquals(ruleValueItems.size(), 3);
 
         assertEquals(ruleValueItems.get(0).getXpath(), "VisibleRuleForInheritance/testfield[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(0).getValue(), "true"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(0).isVisible(), true);
 
         assertEquals(ruleValueItems.get(1).getXpath(), "VisibleRuleForInheritance/person[1]/name[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(1).getValue(), "true"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(1).isVisible(), true);
 
         assertEquals(ruleValueItems.get(2).getXpath(), "VisibleRuleForInheritance/person[1]/score[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(2).getValue(), "false"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(2).isVisible(), false);
 
         changeDocForVisibleRuleForInheritance_Teacher(dom4jDoc);
         ruleValueItems = engine.execVisibleRule(dom4jDoc);
 
         assertEquals(ruleValueItems.get(0).getXpath(), "VisibleRuleForInheritance/testfield[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(0).getValue(), "true"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(0).isVisible(), true);
 
         assertEquals(ruleValueItems.get(1).getXpath(), "VisibleRuleForInheritance/person[1]/name[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(1).getValue(), "true"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(1).isVisible(), true);
 
         assertEquals(ruleValueItems.get(2).getXpath(), "VisibleRuleForInheritance/person[1]/salary[1]"); //$NON-NLS-1$
-        assertEquals(ruleValueItems.get(2).getValue(), "true"); //$NON-NLS-1$
+        assertEquals(ruleValueItems.get(2).isVisible(), true);
 
 
     }
