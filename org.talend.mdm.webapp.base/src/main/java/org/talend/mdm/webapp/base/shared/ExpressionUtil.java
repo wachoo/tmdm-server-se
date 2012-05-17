@@ -20,25 +20,43 @@ public class ExpressionUtil {
 
     private String expression;
 
-    private char peek = ' ';
-
-    private boolean end = false;
+    private int peek = ' ';
 
     private int charIndex = 0;
+
+    private boolean inString = false;
+
+    private char delimiter = ' ';
+
+    private int inPredicates = 0;
 
     public ExpressionUtil(String expression){
         this.expression = expression;
     }
 
+    private boolean peekNotIn(char... cs) {
+        for (char c : cs) {
+            if (peek == c)
+                return false;
+        }
+        return true;
+    }
+
+    private boolean inXpath() {
+        if (peek == -1)
+            return false;
+        return inPredicates > 0 || (peekNotIn(',', ')', '+', '-', '*', '=', '!', '<', '>', ' ') && !inString);
+    }
+
     public List<String> getDepTypes() {
         charIndex = 0;
         peek = ' ';
-        end = false;
+        inString = false;
         List<String> typePathes = new ArrayList<String>();
-        while (!end) {
+        while (peek != -1) {
             String xpath = scan();
             if (xpath != null) {
-                String typePath = xpath.replaceAll("\\[\\d+\\]", ""); //$NON-NLS-1$//$NON-NLS-2$
+                String typePath = xpath.replaceAll("\\[.+?\\]", ""); //$NON-NLS-1$//$NON-NLS-2$
                 typePath = typePath.startsWith("/") ? typePath.substring(1) : typePath; //$NON-NLS-1$
                 typePathes.add(typePath);
             }
@@ -47,17 +65,32 @@ public class ExpressionUtil {
     }
 
     private void readch() {
+        if (charIndex == expression.length()) {
+            peek = -1;
+            return;
+        }
         peek = expression.charAt(charIndex);
+        if (inString) {
+            if (peek == delimiter) {
+                inString = false;
+                delimiter = ' ';
+            }
+        } else {
+            if (peek == '\"' || peek == '\'') {
+                inString = true;
+                delimiter = (char) peek;
+            }
+        }
+        
+        if (!inString){
+            if (peek == '[') {
+                inPredicates++;
+            }
+            if (peek == ']') {
+                inPredicates--;
+            }
+        }
         charIndex++;
-        end = (charIndex >= expression.length());
-    }
-
-    private boolean readch(char c) {
-        readch();
-        if (peek != c)
-            return false;
-        peek = ' ';
-        return true;
     }
 
     public String scan() {
@@ -69,52 +102,39 @@ public class ExpressionUtil {
                 break;
         }
 
-        if (peek == '\"') {
-            do {
-                readch();
-            } while (peek != '\"');
+        while (inString) {
+            readch();
         }
 
         if (peek == '/') {
-            boolean inString = false;
+
             StringBuffer b = new StringBuffer();
             do {
-                b.append(peek);
+                b.append((char) peek);
                 readch();
-                if (peek == '\"')
-                    inString = !inString;
-            } while (peek != ',' && peek != ')' && !inString);
+            } while (inXpath());
             return b.toString();
         }
 
         if (peek == '.') {
-            if (readch('.')) {
-                boolean inString = false;
-                StringBuffer b = new StringBuffer();
-                b.append(".."); //$NON-NLS-1$
-                readch();
-                while (peek != ',' && peek != ')' && !inString) {
-                    b.append(peek);
+            StringBuffer b = new StringBuffer();
+            b.append((char) peek);
+            readch();
+            if (peek == '.') {
+                do {
+                    b.append((char) peek);
                     readch();
-                    if (peek == '\"')
-                        inString = !inString;
-                }
+                } while (inXpath());
                 return b.toString();
-            } else {
-                boolean inString = false;
-                StringBuffer b = new StringBuffer();
-                b.append("./"); //$NON-NLS-1$
-                readch();
-                while (peek != ',' && peek != ')' && !inString) {
-                    b.append(peek);
+            }
+            if (peek == '/') {
+                do {
+                    b.append((char) peek);
                     readch();
-                    if (peek == '\"')
-                        inString = !inString;
-                }
+                } while (inXpath());
                 return b.toString();
             }
         }
         return null;
     }
-
 }
