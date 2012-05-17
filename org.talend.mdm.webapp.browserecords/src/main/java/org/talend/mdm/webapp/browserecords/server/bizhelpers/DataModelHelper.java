@@ -27,14 +27,11 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
-import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
 import org.talend.mdm.webapp.base.server.BaseConfiguration;
-import org.talend.mdm.webapp.base.server.i18n.BaseMessagesImpl;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.base.shared.FacetModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
-import org.talend.mdm.webapp.base.shared.TypeModelNotFoundException;
 import org.talend.mdm.webapp.base.shared.TypePath;
 import org.talend.mdm.webapp.browserecords.client.creator.DataTypeCreator;
 import org.talend.mdm.webapp.browserecords.server.displayrule.DisplayRulesUtil;
@@ -203,7 +200,7 @@ public class DataModelHelper {
 
             // parse annotation
             if (typeModel != null) {
-                parseAnnotation(currentXPath, e, typeModel, roles);
+                parseAnnotation(e, typeModel, roles);
                 if (parentTypeModel != null && !typeModel.isReadOnly() && entityModel.isReadOnly())
                     entityModel.setReadOnly(false);
                 typeModel.setMinOccurs(minOccurs);
@@ -375,7 +372,7 @@ public class DataModelHelper {
         }
     }
 
-    private static void parseAnnotation(String currentXPath, XSElementDecl e, TypeModel typeModel, List<String> roles) {
+    private static void parseAnnotation(XSElementDecl e, TypeModel typeModel, List<String> roles) {
         boolean writable = false;
         ArrayList<String> pkInfoList = new ArrayList<String>();
         ArrayList<String> fkInfoList = new ArrayList<String>();
@@ -534,7 +531,7 @@ public class DataModelHelper {
      * @return
      * @throws TypeModelNotFoundException
      */
-    public static TypeModel findTypeModelByTypePath(Map<String, TypeModel> metaDataTypes, String typePath, String language)
+    public static TypeModel findTypeModelByTypePath(Map<String, TypeModel> metaDataTypes, String typePath)
             throws TypeModelNotFoundException {
 
         if (metaDataTypes == null || typePath == null)
@@ -544,8 +541,8 @@ public class DataModelHelper {
 
         model = metaDataTypes.get(typePath);
         if (model == null) {
-            for (Iterator iterator = metaDataTypes.keySet().iterator(); iterator.hasNext();) {
-                String keyTypePath = (String) iterator.next();
+            for (Iterator<String> iterator = metaDataTypes.keySet().iterator(); iterator.hasNext();) {
+                String keyTypePath = iterator.next();
                 TypeModel myTypeModel = metaDataTypes.get(keyTypePath);
                 if (myTypeModel.getTypePathObject() != null && myTypeModel.getTypePathObject().hasVariantion()) {
                     List<String> allPossibleTypepath = myTypeModel.getTypePathObject().getAllAliasXpaths();
@@ -558,11 +555,8 @@ public class DataModelHelper {
         }
 
         if (model == null)
-            throw new TypeModelNotFoundException(((BaseMessagesImpl) BaseMessagesFactory.getMessages()).typemode_notfound_error(
-                    typePath, language));
+            throw new TypeModelNotFoundException(typePath);
         else
             return model;
-
     }
-
 }
