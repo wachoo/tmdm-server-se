@@ -29,4 +29,6 @@ public abstract class SchemaAbstractWebAgent extends SchemaManager {
 
     public abstract List<ReusableType> getMySubtypes(String parentTypeName) throws Exception;
 
+    public abstract List<ReusableType> getMySubtypes(String parentTypeName, boolean deep) throws Exception;
+
 }
