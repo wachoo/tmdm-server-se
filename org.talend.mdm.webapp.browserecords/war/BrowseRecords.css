@@ -341,6 +341,7 @@ a{
 #TreeDetail-tree
 {
     overflow: auto;
+    padding-top: 5px;
 }
 
 #TreeDetail-root
