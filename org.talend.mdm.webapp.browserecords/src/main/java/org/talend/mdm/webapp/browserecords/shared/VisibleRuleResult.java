@@ -20,6 +20,15 @@ public class VisibleRuleResult implements Serializable, IsSerializable {
     private String xpath;
     private boolean visible;
 
+    public VisibleRuleResult() {
+
+    }
+
+    public VisibleRuleResult(String xpath, boolean visible) {
+        this.xpath = xpath;
+        this.visible = visible;
+    }
+
 	public boolean isVisible() {
 		return visible;
 	}

@@ -39,6 +39,7 @@ import org.w3c.dom.Element;
 
 import com.amalto.webapp.core.util.XmlUtil;
 
+@Deprecated
 public class DefVRule {
 
     private static final Logger LOG = Logger.getLogger(DefVRule.class);

@@ -123,7 +123,7 @@ public interface BrowseRecordsService extends RemoteService {
 
     ItemBean getItemBeanById(String concept, String[] ids, String language) throws ServiceException;
 
-    List<VisibleRuleResult> executeVisibleRule(String xml) throws ServiceException;
+    List<VisibleRuleResult> executeVisibleRule(ViewBean viewBean, String xml) throws ServiceException;
 
     boolean isItemModifiedByOthers(ItemBean itemBean) throws ServiceException;
 

@@ -307,7 +307,7 @@ public class BrowseRecordsController extends Controller {
             EntityModel entityModel = (EntityModel) BrowseRecords.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
             entityModel.getMetaDataTypes();
 
-            service.executeVisibleRule(CommonUtil.toXML(model, viewBean),
+            service.executeVisibleRule(viewBean, CommonUtil.toXML(model, viewBean, true),
                     new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
 
                         public void onSuccess(List<VisibleRuleResult> arg0) {

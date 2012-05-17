@@ -78,11 +78,9 @@ import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ItemHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.RoleHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
-import org.talend.mdm.webapp.browserecords.server.defaultrule.DefVRule;
-import org.talend.mdm.webapp.browserecords.server.displayrule.DisplayRule;
-import org.talend.mdm.webapp.browserecords.server.displayrule.DisplayRulesUtil;
 import org.talend.mdm.webapp.browserecords.server.provider.DefaultSmartViewProvider;
 import org.talend.mdm.webapp.browserecords.server.provider.SmartViewProvider;
+import org.talend.mdm.webapp.browserecords.server.ruleengine.DisplayRuleEngine;
 import org.talend.mdm.webapp.browserecords.server.util.DynamicLabelUtil;
 import org.talend.mdm.webapp.browserecords.server.util.NoAccessCheckUtil;
 import org.talend.mdm.webapp.browserecords.server.util.SmartViewUtil;
@@ -1367,14 +1365,15 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
         ItemNodeModel itemModel = null;
         try {
-            DefVRule dfRule = new DefVRule(metaDataTypes);
+            DisplayRuleEngine ruleEngine = new DisplayRuleEngine(metaDataTypes, concept);
+
             TypeModel typeModel = metaDataTypes.get(concept);
-            Document doc = dfRule.getSubXML(typeModel, null, language);
+            Document doc = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getSubXML(typeModel, null, language);
+
             org.dom4j.Document doc4j = XmlUtil.parseDocument(doc);
-            List<TypeModel> hasBeenProcessed = dfRule.orderProcess(doc4j);
-            for (TypeModel tm : hasBeenProcessed) {
-                dfRule.setDefaultValue(tm.getXpath(), concept, doc4j, tm.getDefaultValueExpression());
-            }
+
+            ruleEngine.execDefaultValueRule(doc4j);
+
             if (initDataMap != null) {
                 Set<String> paths = initDataMap.keySet();
                 for (String path : paths) {
@@ -1384,7 +1383,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     }
                 }
             }
-            Document resultDoc = dfRule.parseDocument(doc4j);
+
+            Document resultDoc = org.talend.mdm.webapp.base.server.util.XmlUtil.parseDocument(doc4j);
             Map<String, Integer> multiNodeIndex = new HashMap<String, Integer>();
             StringBuffer foreignKeyDeleteMessage = new StringBuffer();
             Element root = resultDoc.getDocumentElement();
@@ -1407,17 +1407,18 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
         ItemNodeModel itemModel = null;
         try {
-            DefVRule dfRule = new DefVRule(metaDataTypes);
+            DisplayRuleEngine ruleEngine = new DisplayRuleEngine(metaDataTypes, concept);
             TypeModel typeModel = metaDataTypes.get(typePath);
             org.dom4j.Document mainDoc = DocumentHelper.parseText(xml);
-            org.dom4j.Document subDoc = XmlUtil.parseDocument(dfRule.getSubXML(typeModel, realType, language));
-            org.dom4j.Document doc4j = dfRule.mergeDoc(mainDoc, subDoc, contextPath);
 
-            List<TypeModel> hasBeenProcessed = dfRule.orderProcess(doc4j);
-            for (TypeModel tm : hasBeenProcessed) {
-                dfRule.setDefaultValue(tm.getXpath(), concept, doc4j, tm.getDefaultValueExpression());
-            }
-            Document resultDoc = dfRule.getSubDoc(doc4j, contextPath);
+            org.dom4j.Document subDoc = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil
+                    .getSubXML(typeModel, realType, language));
+
+            org.dom4j.Document doc4j = org.talend.mdm.webapp.base.server.util.XmlUtil.mergeDoc(mainDoc, subDoc, contextPath);
+
+            ruleEngine.orderDataModels(doc4j);
+
+            Document resultDoc = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getSubDoc(doc4j, contextPath);
             Map<String, Integer> multiNodeIndex = new HashMap<String, Integer>();
             StringBuffer foreignKeyDeleteMessage = new StringBuffer();
             Element root = resultDoc.getDocumentElement();
@@ -2152,26 +2153,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    public List<VisibleRuleResult> executeVisibleRule(String xml) throws ServiceException {
+    public List<VisibleRuleResult> executeVisibleRule(ViewBean viewBean, String xml) throws ServiceException {
         try {
+            String concept = viewBean.getBindingEntityModel().getConceptName();
+            EntityModel entity = viewBean.getBindingEntityModel();
+            Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
+            DisplayRuleEngine ruleEngine = new DisplayRuleEngine(metaDataTypes, concept);
             org.dom4j.Document doc = org.talend.mdm.webapp.base.server.util.XmlUtil.parseText(xml);
-            String model = getCurrentDataModel();
-            String concept = doc.getRootElement().getName();
-            XSElementDecl root = DataModelHelper.getBusinessConcept(model, concept);
-            DisplayRulesUtil displayUtil = new DisplayRulesUtil(root);
-
-            List<DisplayRule> displayRules = displayUtil.handleVisibleRules(doc);
-
-            List<VisibleRuleResult> res = new ArrayList<VisibleRuleResult>(displayRules.size());
-
-            for (DisplayRule disru : displayRules) {
-                VisibleRuleResult ee = new VisibleRuleResult();
-                ee.setXpath(disru.getXpath());
-                ee.setVisible("true".equals(disru.getValue())); //$NON-NLS-1$
-                res.add(ee);
-            }
-
-            return res;
+            return ruleEngine.execVisibleRule(doc);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
