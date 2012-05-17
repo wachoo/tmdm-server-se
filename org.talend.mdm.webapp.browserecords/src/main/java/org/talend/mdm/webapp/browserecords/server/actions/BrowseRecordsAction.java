@@ -1460,7 +1460,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         typePath = typePath.replaceAll(":" + realType + "$", ""); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
         ItemNodeModel nodeModel = new ItemNodeModel(el.getNodeName());
 
-        TypeModel model = DataModelHelper.findTypeModelByTypePath(metaDataTypes, typePath);
+        TypeModel model = DataModelHelper.findTypeModelByTypePath(metaDataTypes, typePath, language);
         nodeModel.setTypePath(model.getTypePath());
         String realXPath = xpath;
         if (isPolyType) {
@@ -1488,7 +1488,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         if (model.getMinOccurs() == 1 && model.getMaxOccurs() == 1) {
             nodeModel.setMandatory(true);
         }
-        String foreignKey = DataModelHelper.findTypeModelByTypePath(metaDataTypes, typePath).getForeignkey();
+        String foreignKey = DataModelHelper.findTypeModelByTypePath(metaDataTypes, typePath, language).getForeignkey();
         if (foreignKey != null && foreignKey.trim().length() > 0) {
             // set foreignKeyBean
             model.setRetrieveFKinfos(true);

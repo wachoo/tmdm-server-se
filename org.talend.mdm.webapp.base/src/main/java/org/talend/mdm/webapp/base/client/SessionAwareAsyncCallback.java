@@ -12,10 +12,16 @@
 // ============================================================================
 package org.talend.mdm.webapp.base.client;
 
-import org.talend.mdm.webapp.base.client.exception.ServiceExceptionHandler;
+import org.talend.mdm.webapp.base.client.exception.SessionTimeoutException;
+import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
 import org.talend.mdm.webapp.base.client.util.WaitBox;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.google.gwt.user.client.Cookies;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public abstract class SessionAwareAsyncCallback<T> implements AsyncCallback<T> {
@@ -25,12 +31,29 @@ public abstract class SessionAwareAsyncCallback<T> implements AsyncCallback<T> {
         if (Log.isErrorEnabled())
             Log.error(caught.toString());
 
-        ServiceExceptionHandler serviceExceptionHandler = new ServiceExceptionHandler(caught);
-        if (!serviceExceptionHandler.work())
+        if (caught instanceof SessionTimeoutException) {
+            MessageBox.alert(BaseMessagesFactory.getMessages().warning_title(), BaseMessagesFactory.getMessages()
+                    .session_timeout_error(), new Listener<MessageBoxEvent>() {
+
+                public void handleEvent(MessageBoxEvent be) {
+                    Cookies.removeCookie("JSESSIONID"); //$NON-NLS-1$
+                    Cookies.removeCookie("JSESSIONIDSSO"); //$NON-NLS-1$
+                    Window.Location.replace("/talendmdm/secure/");//$NON-NLS-1$
+                }
+            });
+        } else {
             doOnFailure(caught);
+        }
     }
 
     protected void doOnFailure(Throwable caught) {
-        ServiceExceptionHandler.doOnFailure(caught);
+        String errorMsg = caught.getLocalizedMessage();
+        if (errorMsg == null || "".equals(errorMsg)) { //$NON-NLS-1$
+            if (Log.isDebugEnabled())
+                errorMsg = caught.toString(); // for debugging purpose
+            else
+                errorMsg = BaseMessagesFactory.getMessages().unknown_error();
+        }
+        MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), errorMsg, null);
     }
 }

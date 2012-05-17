@@ -12,16 +12,11 @@
 // ============================================================================
 package org.talend.mdm.webapp.base.client.exception;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class ServiceException extends Exception implements IsSerializable {
 
     private static final long serialVersionUID = 1L;
-
-    private Map<String, Object> parameterMap;
 
     public ServiceException() {
         super();
@@ -29,31 +24,5 @@ public class ServiceException extends Exception implements IsSerializable {
 
     public ServiceException(String message) {
         super(message);
-    }
-
-    public ServiceException(Throwable cause) {
-        super(cause);
-    }
-
-    public ServiceException(String msg, Throwable cause) {
-        super(msg, cause);
-    }
-
-    public ServiceException(String parameterKey, Object parameterValue) {
-        super();
-        setParameter(parameterKey, parameterValue);
-    }
-
-
-    private void setParameter(String key, Object parameter) {
-        if (parameterMap == null)
-            parameterMap = new HashMap<String, Object>();
-        parameterMap.put(key, parameter);
-    }
-
-    protected <X> X getParameter(String key) {
-        if (parameterMap == null)
-            return null;
-        return (X) parameterMap.get(key);
     }
 }

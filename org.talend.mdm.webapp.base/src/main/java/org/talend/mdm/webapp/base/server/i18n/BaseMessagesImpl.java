@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.base.server.i18n;
 
+import java.util.Locale;
+
 import org.talend.mdm.webapp.base.client.i18n.BaseMessages;
 
 import com.amalto.core.util.Messages;
@@ -71,9 +73,16 @@ public final class BaseMessagesImpl implements BaseMessages {
         return MESSAGES.getMessage("session_timeout_error");
     }
 
-    public String typemode_notfound_error(String typePath) {
+    public String typemode_notfound_error(String typePath, String language) {
         if (typePath == null)
             typePath = "";
-        return MESSAGES.getMessage("typemode_notfound_error", typePath);
+        if (language != null)
+            return MESSAGES.getMessage(new Locale(language), "typemode_notfound_error", typePath);
+        else
+            return MESSAGES.getMessage("typemode_notfound_error", typePath);
+    }
+
+    public String typemode_notfound_error(String typePath) {
+        return typemode_notfound_error(typePath, null);
     }
 }

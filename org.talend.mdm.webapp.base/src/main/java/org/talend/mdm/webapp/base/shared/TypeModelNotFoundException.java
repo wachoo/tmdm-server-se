@@ -11,38 +11,24 @@
 
 package org.talend.mdm.webapp.base.shared;
 
-import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
-public class TypeModelNotFoundException extends ServiceException {
-
-    private static final String PARAM_TYPEPATH = "PARAM_TYPEPATH"; //$NON-NLS-1$
+public class TypeModelNotFoundException extends RuntimeException implements IsSerializable {
 
     public TypeModelNotFoundException() {
-        super();
+        super("Failed to find the target type-model! "); //$NON-NLS-1$
     }
 
     public TypeModelNotFoundException(Throwable cause) {
-        super(cause);
+        super("Failed to find the target type-model! ", cause); //$NON-NLS-1$
     }
 
-    public TypeModelNotFoundException(String msg, Throwable cause) {
-        super(msg, cause);
+    public TypeModelNotFoundException(String message) {
+        super(message);
     }
 
-    public TypeModelNotFoundException(String typePath) {
-
-        super(PARAM_TYPEPATH, typePath);
-
+    public TypeModelNotFoundException(String message, Throwable cause) {
+        super(message, cause);
     }
-
-    public String getTypePathParameter() {
-        
-        if(getParameter(PARAM_TYPEPATH)==null)
-            return ""; //$NON-NLS-1$
-
-        return getParameter(PARAM_TYPEPATH);
-            
-    }
-
 
 }

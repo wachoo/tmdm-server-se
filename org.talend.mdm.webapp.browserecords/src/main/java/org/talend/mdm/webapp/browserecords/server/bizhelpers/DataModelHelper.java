@@ -27,7 +27,9 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
+import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
 import org.talend.mdm.webapp.base.server.BaseConfiguration;
+import org.talend.mdm.webapp.base.server.i18n.BaseMessagesImpl;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.base.shared.FacetModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
@@ -532,9 +534,8 @@ public class DataModelHelper {
      * @return
      * @throws TypeModelNotFoundException
      */
-    public static TypeModel findTypeModelByTypePath(Map<String, TypeModel> metaDataTypes, String typePath)
+    public static TypeModel findTypeModelByTypePath(Map<String, TypeModel> metaDataTypes, String typePath, String language)
             throws TypeModelNotFoundException {
-
 
         if (metaDataTypes == null || typePath == null)
             throw new IllegalArgumentException();
@@ -557,7 +558,8 @@ public class DataModelHelper {
         }
 
         if (model == null)
-            throw new TypeModelNotFoundException(typePath);
+            throw new TypeModelNotFoundException(((BaseMessagesImpl) BaseMessagesFactory.getMessages()).typemode_notfound_error(
+                    typePath, language));
         else
             return model;
 
