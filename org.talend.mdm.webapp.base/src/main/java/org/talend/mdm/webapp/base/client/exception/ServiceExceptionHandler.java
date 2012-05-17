@@ -37,10 +37,10 @@ public class ServiceExceptionHandler {
     /**
      * DOC hshu Comment method "work".
      */
-    public void work() {
+    public boolean work() {
 
         if (caught == null)
-            return;
+            return true;
 
         if (caught instanceof SessionTimeoutException) {
             MessageBox.alert(BaseMessagesFactory.getMessages().warning_title(), BaseMessagesFactory.getMessages()
@@ -52,13 +52,14 @@ public class ServiceExceptionHandler {
                     Window.Location.replace("/talendmdm/secure/");//$NON-NLS-1$
                 }
             });
+            return true;
         } else if (caught instanceof TypeModelNotFoundException) {
             MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), BaseMessagesFactory.getMessages()
                     .typemode_notfound_error(((TypeModelNotFoundException) caught).getTypePathParameter()), null);
-        } else {
-            doOnFailure(caught);
+            return true;
         }
-
+        
+        return false;
     }
 
     public static void doOnFailure(Throwable caught) {
@@ -71,5 +72,5 @@ public class ServiceExceptionHandler {
         }
         MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), errorMsg, null);
     }
-
+    
 }

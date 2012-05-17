@@ -26,7 +26,8 @@ public abstract class SessionAwareAsyncCallback<T> implements AsyncCallback<T> {
             Log.error(caught.toString());
 
         ServiceExceptionHandler serviceExceptionHandler = new ServiceExceptionHandler(caught);
-        serviceExceptionHandler.work();
+        if (!serviceExceptionHandler.work())
+            doOnFailure(caught);
     }
 
     protected void doOnFailure(Throwable caught) {
