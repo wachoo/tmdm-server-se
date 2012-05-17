@@ -250,7 +250,7 @@ public class DataModelHelper {
             // go for polymiorphism
             List<ReusableType> subTypes = null;
             try {
-                subTypes = schemaManager.getMySubtypes(typeName);
+                subTypes = schemaManager.getMySubtypes(typeName, true);
             } catch (Exception e1) {
                 logger.error(e1.getMessage(), e1);
                 return null;

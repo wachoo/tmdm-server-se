@@ -47,6 +47,23 @@ public class DataModelHelperTest extends TestCase {
         Map<String, TypeModel> metaDataTypes = entityModel.getMetaDataTypes();
         assertEquals(13, metaDataTypes.size());
         assertTrue(!metaDataTypes.get("Contract/detail").isSimpleType());
+
+        stream = getClass().getResourceAsStream("ContractMultiLevel.xsd");
+        xsd = inputStream2String(stream);
+        EntityModel newModel = new EntityModel();
+        DataModelHelper.alwaysEnterprise = true;
+        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
+        DataModelHelper.parseSchema("Contract", "Contract", DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, newModel,
+                Arrays.asList(roles));
+        metaDataTypes = newModel.getMetaDataTypes();
+        assertEquals(11, metaDataTypes.size());
+        assertFalse(metaDataTypes.get("Contract/detail").isSimpleType());
+        assertTrue(metaDataTypes.get("Contract/detail/code").isSimpleType());
+        assertTrue(metaDataTypes.get("Contract/detail:ContractDetailSubType/code").isSimpleType());
+        assertTrue(metaDataTypes.get("Contract/detail:ContractDetailSubType/subType").isSimpleType());
+        assertTrue(metaDataTypes.get("Contract/detail:ContractDetailSubTypeOne/code").isSimpleType());
+        assertTrue(metaDataTypes.get("Contract/detail:ContractDetailSubTypeOne/subType").isSimpleType());
+        assertTrue(metaDataTypes.get("Contract/detail:ContractDetailSubTypeOne/subTypeOne").isSimpleType());
     }
 
     private String inputStream2String(InputStream is) throws IOException {

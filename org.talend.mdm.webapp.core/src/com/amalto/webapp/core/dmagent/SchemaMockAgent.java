@@ -104,6 +104,12 @@ public class SchemaMockAgent extends SchemaAbstractWebAgent {
 
     }
 
+    public List<ReusableType> getMySubtypes(String parentTypeName, boolean deep) throws Exception {
+
+        return getMySubtypes(parentTypeName, deep, getFromPool(dataModelID));
+
+    }
+
     public ReusableType getReusableType(String typeName) throws Exception {
 
         return getReusableType(typeName, dataModelID);
