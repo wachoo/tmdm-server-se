@@ -38,6 +38,7 @@ public class TypeFieldCreator implements IsSerializable {
     private TypeFieldSource source;
 
     private TypeFieldCreateContext context;
+    
 
     /**
      * DOC Administrator TypeFieldCreator constructor comment.
@@ -51,6 +52,7 @@ public class TypeFieldCreator implements IsSerializable {
         this.source = source;
         this.context = context;
     }
+    
 
     public Field<?> createFieldWithValueAndUpdateStyle(ItemNodeModel node, Map<String, TypeFieldStyle> sytles) {
 
@@ -60,6 +62,16 @@ public class TypeFieldCreator implements IsSerializable {
         this.context.setTypeFieldStyles(sytles);
 
         return createField();
+    }
+
+    public Field<?> createFieldWithValueAndUpdateStyle(ItemNodeModel node, Map<String, TypeFieldStyle> sytles, boolean isMandatory) {
+
+        this.context.setWithValue(true);
+        this.context.setNode(node);
+        this.context.setUpdateStyle(true);
+        this.context.setTypeFieldStyles(sytles);
+
+        return createField(isMandatory);
     }
 
     public Field<?> createFieldWithUpdateStyle(Map<String, TypeFieldStyle> sytles) {
@@ -74,7 +86,7 @@ public class TypeFieldCreator implements IsSerializable {
         return createField();
     }
 
-    public Field<?> createField() {
+    public Field<?> createField(boolean isMandatory) {
 
         if (context == null || context.getDataType() == null || source == null)
             throw new IllegalArgumentException();
@@ -92,7 +104,7 @@ public class TypeFieldCreator implements IsSerializable {
             || dataType.equals(DataTypeConstants.PICTURE)
             || dataType.equals(DataTypeConstants.URL)) {
 
-            fieldFactory = new CustomTypeFieldFactory(source, context);
+            fieldFactory = new CustomTypeFieldFactory(source, context, isMandatory);
 
         } else if (DataTypeConstants.STRING.getTypeName().equals(baseType)
                || DataTypeConstants.NORMALIZEDSTRING.getTypeName().equals(baseType)
@@ -171,6 +183,11 @@ public class TypeFieldCreator implements IsSerializable {
         }
 
         return field;
+    }
+
+    public Field<?> createField() {
+
+        return createField(false);
     }
 
     /**

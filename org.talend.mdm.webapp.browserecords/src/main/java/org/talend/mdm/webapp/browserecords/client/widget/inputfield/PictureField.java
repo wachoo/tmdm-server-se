@@ -78,6 +78,8 @@ public class PictureField extends TextField<String> {
     private EditWindow editWindow = new EditWindow();
 
     private boolean readOnly;
+    
+    private boolean isMandatory;
 
     private Dialog dialog = new Dialog() {
 
@@ -129,7 +131,7 @@ public class PictureField extends TextField<String> {
         }
     };
 
-    public PictureField() {
+    public PictureField(boolean isMandatory) {
         setFireChangeEventOnSetValue(true);
         regJs(delHandler);
         regJs(addHandler);
@@ -167,6 +169,12 @@ public class PictureField extends TextField<String> {
                 }
             }
         });
+
+        this.isMandatory = isMandatory;
+    }
+    
+    public PictureField() {
+        this(false);
     }
 
     @Override
@@ -204,15 +212,16 @@ public class PictureField extends TextField<String> {
     @Override
     public void setValue(String value) {
 
-        if (value != null && value.length() != 0) {
-            this.setAllowBlank(true);
-            super.setValue(value);
-            this.validate();
-        }
-        else {
-            this.setAllowBlank(false);
-            super.setValue(""); //$NON-NLS-1$
-            this.validate();            
+        if (isMandatory) {
+            if (value != null && value.length() != 0) {
+                this.setAllowBlank(true);
+                super.setValue(value);
+                this.validate();
+            } else {
+                this.setAllowBlank(false);
+                super.setValue(""); //$NON-NLS-1$
+                this.validate();
+            }
         }
      
         // external source

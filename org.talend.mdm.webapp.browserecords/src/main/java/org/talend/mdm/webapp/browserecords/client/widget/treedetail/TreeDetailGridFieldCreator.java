@@ -156,7 +156,7 @@ public class TreeDetailGridFieldCreator {
             TypeFieldCreator typeFieldCreator = new TypeFieldCreator(new TypeFieldSource(TypeFieldSource.FORM_INPUT), context);
             Map<String, TypeFieldStyle> sytles = new HashMap<String, TypeFieldStyle>();
             sytles.put(TypeFieldStyle.ATTRI_WIDTH, new TypeFieldStyle(TypeFieldStyle.ATTRI_WIDTH, "400", TypeFieldStyle.SCOPE_BUILTIN_TYPEFIELD)); //$NON-NLS-1$
-            field = typeFieldCreator.createFieldWithValueAndUpdateStyle(node, sytles);
+            field = typeFieldCreator.createFieldWithValueAndUpdateStyle(node, sytles, node.isMandatory());
         }
 
         field.setFieldLabel(dataType.getLabel(language));
