@@ -44,9 +44,13 @@ import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.BoxComponentEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.dom.client.Style.Unit;
@@ -98,6 +102,22 @@ public class TreeDetail extends ContentPanel {
         this.setBorders(false);
         this.setBodyBorder(false);
         this.itemsDetailPanel = itemsDetailPanel;
+        this.addListener(Events.Resize, new Listener<BoxComponentEvent>() {
+
+            public void handleEvent(BoxComponentEvent be) {
+                if (root == null)
+                    return;
+                TreeDetail td = (TreeDetail) be.getSource();
+                int width = be.getWidth();
+                if (td.getWidget(0) instanceof TreeEx && columnTrees.size() == 0) {
+                    td.setFiledWidth(root, width, 400, 0);
+                } else if (td.getWidget(0) instanceof FlexTable && columnTrees.size() > 0) {
+                    int columnWidth = width / columnTrees.size();
+                    for(Tree columnTree : columnTrees)
+                        td.setFiledWidth(columnTree.getItem(0), columnWidth, 300, 0);
+                }
+            }     
+        });
     }
 
     public void initTree(ViewBean viewBean, ItemBean itemBean) {
@@ -391,12 +411,11 @@ public class TreeDetail extends ContentPanel {
                 HorizontalPanel hp = (HorizontalPanel) subItem.getWidget();
                 if (hp.getWidgetCount() > 1) {
                     Widget field = hp.getWidget(1);
-                    if (field instanceof FormatTextField) {
-                        int size = width - (offset + 19 * level);
-                        if (size > 200) {
-                            ((FormatTextField) field).setWidth(size);
-                        }
-                    }
+                    int size = width - (offset + 19 * level);
+                    if (field instanceof FormatTextField)
+                        ((FormatTextField) field).setWidth(size > 200 ? size : 200);
+                    else if (field instanceof SimpleComboBox)
+                        ((SimpleComboBox) field).setWidth(size > 200 ? size : 200);
                 }         
             }
             if (item.getChildCount() > 0)
