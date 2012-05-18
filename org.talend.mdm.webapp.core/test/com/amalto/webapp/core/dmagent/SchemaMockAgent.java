@@ -20,18 +20,17 @@ import org.talend.mdm.commmon.util.datamodel.management.DataModelBean;
 import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 
-
 /**
  * DOC HSHU class global comment. Detailled comment
  */
 public class SchemaMockAgent extends SchemaAbstractWebAgent {
-
 
     private String dataModelSchema;
 
     private LinkedHashMap<DataModelID, DataModelBean> map;
 
     private DataModelID dataModelID;
+
     /**
      * DOC Administrator SchemaMockAgent constructor comment.
      */
@@ -88,9 +87,9 @@ public class SchemaMockAgent extends SchemaAbstractWebAgent {
     @Override
     protected DataModelBean getFromPool(DataModelID dataModelID) throws Exception {
 
-        if(map.get(dataModelID)!=null)
+        if (map.get(dataModelID) != null)
             return map.get(dataModelID);
-        
+
         DataModelBean dmBean = instantiateDataModelBean(dataModelSchema);
         map.put(dataModelID, dmBean);
 
