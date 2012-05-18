@@ -77,6 +77,7 @@ import org.talend.mdm.webapp.browserecords.client.model.SearchTemplate;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ItemHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.RoleHelper;
+import org.talend.mdm.webapp.browserecords.server.bizhelpers.TypeModelNotFoundException;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
 import org.talend.mdm.webapp.browserecords.server.defaultrule.DefVRule;
 import org.talend.mdm.webapp.browserecords.server.displayrule.DisplayRule;
@@ -630,7 +631,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     public ViewBean getView(String viewPk, String language) throws ServiceException {
-        
+
         String model = getCurrentDataModel();
         String concept = ViewHelper.getConceptFromDefaultViewName(viewPk);
         if (concept != null) {
@@ -640,7 +641,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             } catch (Exception e) {
                 modelObj = null;
             }
-            
+
             if (modelObj != null) {
                 String modelXSD = modelObj.getXsdSchema();
                 if (Webapp.INSTANCE.isEnterpriseVersion() && NoAccessCheckUtil.checkNoAccess(modelXSD, concept)) {
@@ -1391,10 +1392,11 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             itemModel.set("time", item.get("time")); //$NON-NLS-1$ //$NON-NLS-2$
             itemModel.set("foreignKeyDeleteMessage", foreignKeyDeleteMessage.toString()); //$NON-NLS-1$
             return itemModel;
+        } catch (ServiceException e) {
+            LOG.error(e.getMessage(), e);
+            throw e;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            if (e instanceof ServiceException)
-                throw (ServiceException) e;
             throw new ServiceException(e.getLocalizedMessage());
         }
     }
@@ -1489,7 +1491,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         typePath = typePath.replaceAll(":" + realType + "$", ""); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
         ItemNodeModel nodeModel = new ItemNodeModel(el.getNodeName());
 
-        TypeModel model = DataModelHelper.findTypeModelByTypePath(metaDataTypes, typePath, language);
+        TypeModel model = findTypeModelByTypePath(metaDataTypes, typePath, language);
         nodeModel.setBindingPath(model.getXpath());
         nodeModel.setTypePath(model.getTypePath());
         String realXPath = xpath;
@@ -1518,7 +1520,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         if (model.getMinOccurs() > 0) {
             nodeModel.setMandatory(true);
         }
-        String foreignKey = DataModelHelper.findTypeModelByTypePath(metaDataTypes, typePath, language).getForeignkey();
+        String foreignKey = findTypeModelByTypePath(metaDataTypes, typePath, language).getForeignkey();
         if (foreignKey != null && foreignKey.trim().length() > 0) {
             // set foreignKeyBean
             model.setRetrieveFKinfos(true);
@@ -2221,4 +2223,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return String.format(new Locale(model.getLanguage()), model.getFormat(), model.getObject());
     }
 
+    private TypeModel findTypeModelByTypePath(Map<String, TypeModel> metaDataTypes, String typePath, String language)
+            throws ServiceException {
+        try {
+            return DataModelHelper.findTypeModelByTypePath(metaDataTypes, typePath);
+        } catch (TypeModelNotFoundException e) {
+            throw new ServiceException(MESSAGES.getMessage(new Locale(language), "typemodel_notfound", e.getXpathNotFound())); //$NON-NLS-1$
+        }
+    }
 }
