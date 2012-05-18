@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.browserecords.client.widget.typefield;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.model.OperatorConstants;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextAreaField;
@@ -26,8 +27,6 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 public abstract class TypeFieldFactory implements IsSerializable {
-
-    public static final int TEXTAREA_THRESHOLD_LENGTH = 30;// default value
 
     protected TypeFieldSource source;
 
@@ -96,7 +95,7 @@ public abstract class TypeFieldFactory implements IsSerializable {
 
         // auto switch text area
         if (source != null && source.getName().equals(TypeFieldSource.FORM_INPUT)) {
-            if (hasValue() && getValue().toString().length() > TEXTAREA_THRESHOLD_LENGTH) {
+            if (hasValue() && getValue().toString().length() > context.getAutoTextAreaLength()) {
                 textField = new FormatTextAreaField();
             }
         }

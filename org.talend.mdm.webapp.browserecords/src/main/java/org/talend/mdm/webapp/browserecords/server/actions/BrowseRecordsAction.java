@@ -82,6 +82,7 @@ import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
 import org.talend.mdm.webapp.browserecords.server.provider.DefaultSmartViewProvider;
 import org.talend.mdm.webapp.browserecords.server.provider.SmartViewProvider;
 import org.talend.mdm.webapp.browserecords.server.ruleengine.DisplayRuleEngine;
+import org.talend.mdm.webapp.browserecords.server.util.BrowseRecordsConfiguration;
 import org.talend.mdm.webapp.browserecords.server.util.DynamicLabelUtil;
 import org.talend.mdm.webapp.browserecords.server.util.NoAccessCheckUtil;
 import org.talend.mdm.webapp.browserecords.server.util.SmartViewUtil;
@@ -1128,6 +1129,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             header.setDatacluster(getCurrentDataCluster());
             header.setDatamodel(getCurrentDataModel());
             header.setStandAloneMode(BaseConfiguration.isStandalone());
+            header.setAutoTextAreaLength(BrowseRecordsConfiguration.getAutoTextAreaLength());
             return header;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
