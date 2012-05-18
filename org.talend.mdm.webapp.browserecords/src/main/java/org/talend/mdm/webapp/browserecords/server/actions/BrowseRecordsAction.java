@@ -501,7 +501,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 } else
                     node = doc.selectSingleNode(key);
 
-                if (node != null) {
+                
+                if (node != null && itemBean.getOriginalMap() != null) {
                     String dateText = node.getText();
 
                     if (dateText != null) {
