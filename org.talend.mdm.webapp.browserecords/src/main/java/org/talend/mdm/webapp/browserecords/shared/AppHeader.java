@@ -25,6 +25,8 @@ public class AppHeader implements IsSerializable {
 
     private boolean isStandAloneMode = false;
 
+    private int autoTextAreaLength;
+
     /**
      * DOC HSHU AppHeader constructor comment.
      */
@@ -54,6 +56,14 @@ public class AppHeader implements IsSerializable {
 
     public void setDatacluster(String datacluster) {
         this.datacluster = datacluster;
+    }
+
+    public int getAutoTextAreaLength() {
+        return autoTextAreaLength;
+    }
+
+    public void setAutoTextAreaLength(int autoTextAreaLength) {
+        this.autoTextAreaLength = autoTextAreaLength;
     }
 
     @Override

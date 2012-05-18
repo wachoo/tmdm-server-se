@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.browserecords.client.widget.typefield;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
@@ -56,6 +57,8 @@ public class TypeFieldCreateContext implements IsSerializable {
     private ItemNodeModel node;
 
     private boolean isMandatory;
+    
+    private int autoTextAreaLength;
 
 
     public TypeModel getDataType() {
@@ -115,4 +118,16 @@ public class TypeFieldCreateContext implements IsSerializable {
         this.isMandatory = isMandatory;
     }
 
+    
+    public int getAutoTextAreaLength() {
+        if (autoTextAreaLength == 0)
+            autoTextAreaLength = BrowseRecords.getSession().getAppHeader().getAutoTextAreaLength();
+        return autoTextAreaLength;
+    }
+
+    
+    public void setAutoTextAreaLength(int autoTextAreaLength) {
+        this.autoTextAreaLength = autoTextAreaLength;
+    }
+    
 }
