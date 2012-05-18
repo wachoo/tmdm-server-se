@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BasicVisibleRuleWithFunctionXPath xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<subelement>111</subelement>
+	<name>1</name>
+	<testfield>eer</testfield>
+	<cp>
+		<title>qqq</title>
+		<address>aa</address>
+		<address>ss</address>
+		<address>dd</address>
+	</cp>
+</BasicVisibleRuleWithFunctionXPath>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BasicVisibleRuleFunction xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<subelement>111</subelement>
+	<name>1</name>
+	<cp>
+		<title>qq</title>
+		<address>ww</address>
+		<address>ee</address>
+		<address>rr</address>
+	</cp>
+	<testfield>44</testfield>
+</BasicVisibleRuleFunction>
