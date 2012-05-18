@@ -25,8 +25,6 @@ import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 
-import com.amalto.webapp.core.dmagent.SchemaMockAgent;
-
 @SuppressWarnings("nls")
 public class DataModelHelperTest extends TestCase {
 
