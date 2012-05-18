@@ -10,12 +10,13 @@
 	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
 	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
 	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
+	<property name="tom.location" value="${basedir}/.." />
 
 
     <!-- ================================= 
           target: all              
          ================================= -->
-	<target name="all" depends="version,package,undeploy,deploy" description="-->webapp core">
+	<target name="all" depends="version,junit,package,undeploy,deploy" description="-->webapp core">
 		<!--
 			On newer eclipse versions - activate Refresh in the External Tools Configuration 
 			<eclipse.refreshLocal resource="${basedir}"/> 
@@ -64,6 +65,62 @@
 			<zipfileset dir="src" includes="**/*.properties" />
 		</jar>
 		<delete file="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES" />
+	</target>
+
+	<target name="junit">
+		<echo message="${tom.location}/talend.mdm.libraries/lib/junit-3.8.1.jar" />
+
+		<delete dir="${basedir}/target/test-classes" />
+		<mkdir dir="${basedir}/target/test-classes" />
+
+		<delete dir="${basedir}/target/test-reports" />
+		<mkdir dir="${basedir}/target/test-reports" />
+
+		<path id="base.classpath">
+			<pathelement path="bin" />
+			<pathelement path="${tom.location}/org.talend.mdm.xmlserver.interfaces/bin" />
+			<pathelement path="${tom.location}/org.talend.mdm.core/bin" />
+			<pathelement path="${tom.location}/talend.mdm.libraries/lib/log4j.jar" />
+			<pathelement path="${tom.location}/talend.mdm.libraries/lib/z.xsom.jar" />
+			<pathelement path="${tom.location}/org.talend.mdm.commmon/bin" />
+			<pathelement path="${tom.location}/org.talend.mdm.commons.core/bin" />
+		</path>
+
+		<path id="compile.classpath">
+			<pathelement path="${tom.location}/talend.mdm.libraries/lib/junit-3.8.1.jar" />
+			<path refid="base.classpath" />
+		</path>
+
+		<path id="test.classpath">
+			<pathelement path="target/test-classes" />
+			<path refid="compile.classpath" />
+			<pathelement path="${tom.location}/talend.mdm.libraries/lib/commons-logging.jar" />
+		</path>
+
+		<copy todir="${basedir}/target/test-classes" verbose="true">
+			<fileset dir="${basedir}/test" excludes="**/*.java" />
+		</copy>
+
+		<javac srcdir="${basedir}/test" destdir="${basedir}/target/test-classes">
+			<classpath>
+				<path refid="compile.classpath" />
+			</classpath>
+		</javac>
+
+		<junit printsummary="yes" haltonfailure="yes" showoutput="yes">
+			<classpath>
+				<path refid="test.classpath" />
+			</classpath>
+
+			<batchtest fork="yes" todir="target/test-reports">
+				<fileset dir="target/test-classes">
+					<include name="**/*Test.class" />
+				</fileset>
+			</batchtest>
+
+			<formatter type="plain" />
+			<formatter type="xml" />
+		</junit>
 	</target>
 		
     <target name="undeploy" description="--> remove packages">		
