@@ -97,6 +97,7 @@ public class TypeFieldCreatorGWTTest extends GWTTestCase {
 
         TypeFieldCreateContext context = new TypeFieldCreateContext();
         context.setLanguage(language);
+        context.setAutoTextAreaLength(30);
         TypeFieldCreator typeFieldCreator = new TypeFieldCreator(new TypeFieldSource(TypeFieldSource.FORM_INPUT), context);
         Map<String, TypeFieldStyle> sytles = new HashMap<String, TypeFieldStyle>();
         sytles.put(TypeFieldStyle.ATTRI_WIDTH, new TypeFieldStyle(TypeFieldStyle.ATTRI_WIDTH, "400",
