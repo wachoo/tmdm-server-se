@@ -474,7 +474,7 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
 
         }
 
-        public void executeVisibleRule(String xml, AsyncCallback<List<VisibleRuleResult>> asyncCallback) {
+        public void executeVisibleRule(ViewBean viewBean, String xml, AsyncCallback<List<VisibleRuleResult>> asyncCallback) {
 
         }
 
