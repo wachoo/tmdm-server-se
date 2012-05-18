@@ -168,7 +168,7 @@ public class TreeDetail extends ContentPanel {
         initTree(viewBean, itemBean, null);
     }
 
-    public void initTree(ViewBean viewBean, ItemBean itemBean, final String operation) {
+    public void initTree(final ViewBean viewBean, ItemBean itemBean, final String operation) {
         this.viewBean = viewBean;
         if (itemBean == null) {
             buildPanel(operation);
@@ -180,7 +180,7 @@ public class TreeDetail extends ContentPanel {
                         public void onSuccess(ItemNodeModel node) {
                             renderTree(node, operation);
                             if (node.isHasVisiblueRule()) {
-                                itemService.executeVisibleRule(CommonUtil.toXML(node, TreeDetail.this.viewBean),
+                                itemService.executeVisibleRule(viewBean, CommonUtil.toXML(node, TreeDetail.this.viewBean, true),
                                         new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
 
                                             public void onSuccess(List<VisibleRuleResult> arg0) {
@@ -209,7 +209,7 @@ public class TreeDetail extends ContentPanel {
                 renderTree(result, operation);
                 if (hasVisibleRule(viewBean.getBindingEntityModel().getMetaDataTypes().get(
                         viewBean.getBindingEntityModel().getConceptName()))) {
-                            getItemService().executeVisibleRule(CommonUtil.toXML(result, viewBean),
+                            getItemService().executeVisibleRule(viewBean, CommonUtil.toXML(result, viewBean, true),
                             new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
 
                                 public void onSuccess(List<VisibleRuleResult> arg0) {
@@ -539,7 +539,7 @@ public class TreeDetail extends ContentPanel {
 
     private void recrusiveSetItems(VisibleRuleResult visibleResult, DynamicTreeItem rootItem) {
         if (rootItem.getItemNodeModel() != null) {
-            if (rootItem.getItemNodeModel().getBindingPath().equals(visibleResult.getXpath())) {
+            if (CommonUtil.getRealXPath(rootItem.getItemNodeModel()).equals(visibleResult.getXpath())) {
                 rootItem.setVisible(visibleResult.isVisible());
             }
         }
@@ -549,8 +549,10 @@ public class TreeDetail extends ContentPanel {
         }
 
         for (int i = 0; i < rootItem.getChildCount(); i++) {
-            DynamicTreeItem item = (DynamicTreeItem) rootItem.getChild(i);
-            recrusiveSetItems(visibleResult, item);
+            if (rootItem.getChild(i) instanceof DynamicTreeItem) {
+                DynamicTreeItem item = (DynamicTreeItem) rootItem.getChild(i);
+                recrusiveSetItems(visibleResult, item);
+            }
         }
     }
 

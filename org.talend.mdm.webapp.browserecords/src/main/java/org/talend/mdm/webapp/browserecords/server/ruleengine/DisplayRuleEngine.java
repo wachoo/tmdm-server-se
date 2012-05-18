@@ -27,6 +27,7 @@ import org.dom4j.Node;
 import org.dom4j.QName;
 import org.talend.mdm.webapp.base.shared.ExpressionUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
 import com.amalto.webapp.core.util.XmlUtil;
 
@@ -147,9 +148,9 @@ public class DisplayRuleEngine {
     }
 
 
-    public List<RuleValueItem> execVisibleRule(Document dom4jDoc) {
+    public List<VisibleRuleResult> execVisibleRule(Document dom4jDoc) {
 
-        List<RuleValueItem> valueItems = new ArrayList<RuleValueItem>();
+        List<VisibleRuleResult> valueItems = new ArrayList<VisibleRuleResult>();
         try {
             for (TypeModel model : metaDatas.values()) {
                 if (model.getVisibleExpression() != null && model.getVisibleExpression().trim().length() > 0) {
@@ -170,9 +171,9 @@ public class DisplayRuleEngine {
                                 org.dom4j.Element elem = (org.dom4j.Element) valueNode;
                                 String value = elem.attributeValue("visible"); //$NON-NLS-1$
                                 if ("false".equals(value)) { //$NON-NLS-1$
-                                    valueItems.add(new RuleValueItem(preciseXPath, "false")); //$NON-NLS-1$
+                                    valueItems.add(new VisibleRuleResult(preciseXPath, false));
                                 } else if (value == null || "true".equals(value)) { //$NON-NLS-1$
-                                    valueItems.add(new RuleValueItem(preciseXPath, "true")); //$NON-NLS-1$
+                                    valueItems.add(new VisibleRuleResult(preciseXPath, true));
                                 }
                             }
                         }

@@ -98,8 +98,14 @@ public class CommonUtil {
     }
 
     public static String toXML(ItemNodeModel nodeModel, ViewBean viewBean) {
+        return toXML(nodeModel, viewBean, false);
+    }
+
+    public static String toXML(ItemNodeModel nodeModel, ViewBean viewBean, boolean isAll) {
+        if (nodeModel == null)
+            return null;
         Document doc = XMLParser.createDocument();
-        Element root = _toXML(doc, nodeModel, viewBean, nodeModel);
+        Element root = _toXML(doc, nodeModel, viewBean, nodeModel, isAll);
         if (nodeModel.get(XMLNS_TMDM) != null)
             root.setAttribute(XMLNS_TMDM, XMLNS_TMDM_VALUE);
         root.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance"); //$NON-NLS-1$//$NON-NLS-2$
@@ -107,7 +113,7 @@ public class CommonUtil {
         return doc.toString();
     }
 
-    private static Element _toXML(Document doc, ItemNodeModel nodeModel, ViewBean viewBean, ItemNodeModel rootModel) {
+    private static Element _toXML(Document doc, ItemNodeModel nodeModel, ViewBean viewBean, ItemNodeModel rootModel, boolean isAll) {
         Element root = doc.createElement(nodeModel.getName());
         TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(nodeModel.getTypePath());
         Serializable value = nodeModel.getObjectValue();
@@ -130,8 +136,10 @@ public class CommonUtil {
         List<ModelData> children = nodeModel.getChildren();
         if (children != null) {
             for (ModelData child : children) {
-                Element el = _toXML(doc, (ItemNodeModel) child, viewBean, rootModel);
-                root.appendChild(el);
+                Element el = _toXML(doc, (ItemNodeModel) child, viewBean, rootModel, isAll);
+                if (el != null) {
+                    root.appendChild(el);
+                }
             }
         }
         return root;
