@@ -139,7 +139,7 @@ public class PictureSelector extends ContentPanel {
             protected ItemBaseModel prepareData(ItemBaseModel model) {
                 org.talend.mdm.webapp.base.client.model.Image image = (org.talend.mdm.webapp.base.client.model.Image) model;
                 model.set("shortName", Format.ellipse(image.getName(), 15)); //$NON-NLS-1$
-                model.set("url", CONTEXT_URL + image.getUri() + "?width=80&height=60"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$                
+                model.set("url", CONTEXT_URL + image.getUri() + "?width=80&height=60&randomNum=" + Math.random()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$                
                 return model;
             }
         };

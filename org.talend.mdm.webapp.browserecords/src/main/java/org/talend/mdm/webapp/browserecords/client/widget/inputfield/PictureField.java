@@ -383,7 +383,7 @@ public class PictureField extends TextField<String> {
                             MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
                                     .upload_pic_fail(), null);
                         if (success.booleanValue()) {
-                            setValue(message.stringValue() + "/" + catalog.getValue() + "/" + name.getValue() + extFileNameLabel.getText()); //$NON-NLS-1$ //$NON-NLS-2$
+                            setValue(message.stringValue());
                         } else {
                             setValue(null);
                         }

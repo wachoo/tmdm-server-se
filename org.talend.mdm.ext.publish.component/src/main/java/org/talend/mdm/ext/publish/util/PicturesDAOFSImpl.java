@@ -1,12 +1,15 @@
-/*
- * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- * 
- * This source code is available under agreement available at
- * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- * 
- * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
- * 92150 Suresnes, France
- */
+// ============================================================================
+//
+// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.ext.publish.util;
 
 import java.io.ByteArrayOutputStream;
@@ -34,16 +37,16 @@ import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import com.amalto.core.util.XtentisException;
 
 public class PicturesDAOFSImpl implements PicturesDAO {
-
+	
     private String resourceURL;
-
+    
     private static final String FILTER_IMAGR_START_SYMBOL = "."; //$NON-NLS-1$
-
+	
     public PicturesDAOFSImpl(String hostURL) {
         this.resourceURL = hostURL + "/imageserver/secure/serverinfo?action=getUploadHome"; //$NON-NLS-1$
-    }
-
-    public String[] getAllPKs() throws XtentisException {
+	}
+	
+    public String[] getAllPKs() throws XtentisException{
 
         List<String> pks = new ArrayList<String>();
         String imageUploadPath = retrieveImageUploadPath();
@@ -51,7 +54,7 @@ public class PicturesDAOFSImpl implements PicturesDAO {
         // Use catalog folders under root directory
         // Store imagefiles within each catalog folder
         // Do not support multi level catalogs
-        File uploadHome = new File(imageUploadPath);
+        File uploadHome=new File(imageUploadPath);
         if (uploadHome.exists()) {
             File[] catalogs = uploadHome.listFiles();
             for (int i = 0; i < catalogs.length; i++) {
@@ -71,7 +74,12 @@ public class PicturesDAOFSImpl implements PicturesDAO {
                     // on root level
                     if (allowedImageResource(catalogs[i])) {
                         pk = catalogs[i].getName();
-                        pks.add(pk);
+
+                        // for the case file name with "-" under root folder
+                        if (pk.indexOf("-") != -1) //$NON-NLS-1$
+                            pks.add("-" + pk); //$NON-NLS-1$
+                        else
+                            pks.add(pk);
                     }
                 }
 
@@ -79,7 +87,8 @@ public class PicturesDAOFSImpl implements PicturesDAO {
         }
 
         return (String[]) pks.toArray(new String[pks.size()]);
-    }
+	}
+    
 
     private boolean allowedImageResource(File file) {
 
@@ -91,6 +100,7 @@ public class PicturesDAOFSImpl implements PicturesDAO {
 
         return false;
     }
+
 
     private boolean isImage(File file) {
 
@@ -145,8 +155,8 @@ public class PicturesDAOFSImpl implements PicturesDAO {
         // request and print response
         Client client = new Client(Protocol.HTTP);
         final Response response = client.handle(request);
-
-        if (response.getStatus().equals(Status.CLIENT_ERROR_NOT_FOUND))
+        
+        if(response.getStatus().equals(Status.CLIENT_ERROR_NOT_FOUND))
             throw new RuntimeException("Image server home not found! "); //$NON-NLS-1$
 
         final Representation output = response.getEntity();
@@ -155,7 +165,7 @@ public class PicturesDAOFSImpl implements PicturesDAO {
             output.write(baos);
             imageUploadPath = baos.toString();
         } catch (IOException e) {
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(e.getLocalizedMessage(), e);
+            e.printStackTrace();
         }
 
         return imageUploadPath;

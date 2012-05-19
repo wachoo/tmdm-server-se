@@ -174,7 +174,7 @@ public class ImageUploadServlet extends HttpServlet {
 
                         if (rtnStatus == 1) {
                             logger.info(sourceFileName + " has been uploaded successfully!");
-                            return buildUploadResult(true,targetUri.substring(0,targetUri.indexOf("/"))); //$NON-NLS-1$
+                            return buildUploadResult(true, targetUri);// Please do not change default output
                         }else if( rtnStatus == -1){
                             String msg = "Unavailable file type! ";
                             logger.error(msg);
