@@ -20,13 +20,26 @@ import java.util.Arrays;
 import java.util.Map;
 
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit3.PowerMockSuite;
 import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 
+import com.amalto.core.util.Util;
+
+@PrepareForTest({ Util.class })
 @SuppressWarnings("nls")
 public class DataModelHelperTest extends TestCase {
+
+    @SuppressWarnings("unchecked")
+    public static TestSuite suite() throws Exception {
+        return new PowerMockSuite("Unit tests for " + DataModelHelperTest.class.getSimpleName(), DataModelHelperTest.class);
+    }
 
     public void testParsingMetadata() throws Exception {
 
@@ -38,7 +51,9 @@ public class DataModelHelperTest extends TestCase {
         InputStream stream = getClass().getResourceAsStream("Contract.xsd");
         String xsd = inputStream2String(stream);
         
-        DataModelHelper.alwaysEnterprise = true;
+        PowerMockito.mockStatic(Util.class);
+        Mockito.when(Util.isEnterprise()).thenReturn(false);
+
         DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
         DataModelHelper.parseSchema("Contract", "Contract", DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, entityModel,
                 Arrays.asList(roles));
@@ -49,7 +64,10 @@ public class DataModelHelperTest extends TestCase {
         stream = getClass().getResourceAsStream("ContractMultiLevel.xsd");
         xsd = inputStream2String(stream);
         EntityModel newModel = new EntityModel();
-        DataModelHelper.alwaysEnterprise = true;
+
+        PowerMockito.mockStatic(Util.class);
+        Mockito.when(Util.isEnterprise()).thenReturn(false);
+
         DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
         DataModelHelper.parseSchema("Contract", "Contract", DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, newModel,
                 Arrays.asList(roles));

@@ -20,7 +20,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit3.PowerMockSuite;
 import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
@@ -33,15 +38,22 @@ import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.xml.sax.SAXException;
 
+import com.amalto.core.util.Util;
 import com.extjs.gxt.ui.client.data.ModelData;
 
-
+@PrepareForTest({ Util.class })
 @SuppressWarnings("nls")
 public class BrowseRecordsActionTest extends TestCase {
 
     private BrowseRecordsAction action = new BrowseRecordsAction();
 
     private String xml = "<Agency><Name>Newark</Name><Name>Newark1</Name><City>Newark</City><State>NJ</State><Zip>07107</Zip><Region>EAST</Region><MoreInfo>Map@@http://maps.google.com/maps?q=40.760667,-74.1879&amp;ll=40.760667,-74.1879&amp;z=9</MoreInfo><Id>NJ01</Id></Agency>"; //$NON-NLS-1$
+
+    @SuppressWarnings("unchecked")
+    public static TestSuite suite() throws Exception {
+        return new PowerMockSuite("Unit tests for " + BrowseRecordsActionTest.class.getSimpleName(),
+                BrowseRecordsActionTest.class);
+    }
 
     public void testMultiOccurenceNode() throws Exception {
         String language = "en"; //$NON-NLS-1$
@@ -193,7 +205,8 @@ public class BrowseRecordsActionTest extends TestCase {
         InputStream stream = BrowseRecordsActionTest.class.getResourceAsStream("../../../ContractInheritance.xsd");
         String xsd = inputStream2String(stream);
 
-        DataModelHelper.alwaysEnterprise = true;
+        PowerMockito.mockStatic(Util.class);
+        Mockito.when(Util.isEnterprise()).thenReturn(false);
         DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
         DataModelHelper.parseSchema("Contract", "Contract", DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, entityModel,
                 Arrays.asList(roles));

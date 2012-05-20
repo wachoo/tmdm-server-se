@@ -73,9 +73,6 @@ public class DataModelHelper {
 
     private static Map<String, List<String>> aliasXpathMap = new HashMap<String, List<String>>();
 
-    // FIXME: had better use POJO rather than static method
-    public static boolean alwaysEnterprise = false;
-
     public static void overrideSchemaManager(SchemaAbstractWebAgent _schemaManager) {
         schemaManager = _schemaManager;
     }
@@ -447,13 +444,14 @@ public class DataModelHelper {
                 }
             }// end for
         }
-        if (!alwaysEnterprise && !Util.isEnterprise())
+        if (!Util.isEnterprise())
             typeModel.setReadOnly(false);
         else
             typeModel.setReadOnly(!writable);
         typeModel.setForeignKeyInfo(fkInfoList);
         typeModel.setPrimaryKeyInfo(pkInfoList);
     }
+
 
     /**
      * DOC HSHU Comment method "getLangFromLabelAnnotation".
