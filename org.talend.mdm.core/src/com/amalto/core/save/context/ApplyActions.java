@@ -15,10 +15,7 @@ import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
+import org.w3c.dom.*;
 
 class ApplyActions implements DocumentSaver {
 
@@ -68,7 +65,15 @@ class ApplyActions implements DocumentSaver {
             return true;
         }
         if (element.hasAttributes()) {
-            return false;
+            // Returns true (isEmpty) if all attributes are empty.
+            NamedNodeMap attributes = element.getAttributes();
+            for (int i = 0; i < attributes.getLength(); i++) {
+                String attributeValue = attributes.item(i).getNodeValue();
+                if (attributeValue != null && !attributeValue.trim().isEmpty()) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         NodeList children = element.getChildNodes();

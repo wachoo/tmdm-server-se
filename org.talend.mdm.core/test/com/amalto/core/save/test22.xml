@@ -15,5 +15,6 @@
     <detail xsi:type="ContractDetailType">
         <code></code>
     </detail>
+    <detail xsi:type=""/>
     <enumEle>approved</enumEle>
 </Contract>
