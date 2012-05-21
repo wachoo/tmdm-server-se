@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.rpc.InvocationException;
 import com.google.gwt.user.client.rpc.StatusCodeException;
 
 public abstract class SessionAwareAsyncCallback<T> implements AsyncCallback<T> {
@@ -55,11 +56,16 @@ public abstract class SessionAwareAsyncCallback<T> implements AsyncCallback<T> {
             else
                 errorMsg = BaseMessagesFactory.getMessages().unknown_error();
         }
+        if (errorMsg == null || "".equals(errorMsg)) //$NON-NLS-1$
+            errorMsg = caught.toString(); // last chance
         MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), errorMsg, null);
     }
 
     private boolean sessionExpired(Throwable caught) {
-        if (caught instanceof SessionTimeoutException)
+        if (caught instanceof InvocationException) {
+            // expire session in case of a network failure
+            return true;
+        } else if (caught instanceof SessionTimeoutException)
             return true;
         else if (caught instanceof StatusCodeException)
             return ((StatusCodeException) caught).getStatusCode() == 403;
