@@ -4,25 +4,30 @@
     "http://java.sun.com/dtd/web-app_2_3.dtd">
 
 <web-app>
-  
-  <!-- Servlets -->
-  <servlet>
-    <servlet-name>recyclebinServlet</servlet-name>
-    <servlet-class>org.talend.mdm.webapp.general.gwt.ProxyGWTServiceImpl</servlet-class>
-  </servlet>
 
- 
-  <servlet-mapping>
-    <servlet-name>recyclebinServlet</servlet-name>
-    <url-pattern>/recyclebin/RecycleBinService</url-pattern>
-  </servlet-mapping>   
-  
+    <!-- Servlets -->
+    <servlet>
+        <servlet-name>recyclebinServlet</servlet-name>
+        <servlet-class>org.talend.mdm.webapp.general.gwt.ProxyGWTServiceImpl</servlet-class>
+    </servlet>
+
+
+    <servlet-mapping>
+        <servlet-name>recyclebinServlet</servlet-name>
+        <url-pattern>/recyclebin/RecycleBinService</url-pattern>
+    </servlet-mapping>
+
+    <!-- Default page to serve -->
+    <welcome-file-list>
+        <welcome-file>RecycleBin.html</welcome-file>
+    </welcome-file-list>
+
     <!-- Security -->
     @{dev.mode.excluded.start}
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Secure resources</web-resource-name>
-            <url-pattern>/secure/*</url-pattern>
+            <url-pattern>/recyclebin/RecycleBinService</url-pattern>
         </web-resource-collection>
         <web-resource-collection>
             <web-resource-name>Main page resource</web-resource-name>
@@ -43,7 +48,7 @@
         <realm-name>xtentisSecurity</realm-name>
         <form-login-config>
             <form-login-page>/loginAgent.html</form-login-page>
-            <form-error-page>/loginErrorAgent.html</form-error-page>
+            <form-error-page>/loginAgent.html</form-error-page>
         </form-login-config>
     </login-config>
 
@@ -54,11 +59,5 @@
         <role-name>authenticated</role-name>
     </security-role>
     @{dev.mode.excluded.end}
- 
-  
-  <!-- Default page to serve -->
-  <welcome-file-list>
-    <welcome-file>RecycleBin.html</welcome-file>
-  </welcome-file-list>
 
 </web-app>

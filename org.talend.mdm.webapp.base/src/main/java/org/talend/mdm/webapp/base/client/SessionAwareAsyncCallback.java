@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.rpc.StatusCodeException;
 
 public abstract class SessionAwareAsyncCallback<T> implements AsyncCallback<T> {
 
@@ -31,7 +32,7 @@ public abstract class SessionAwareAsyncCallback<T> implements AsyncCallback<T> {
         if (Log.isErrorEnabled())
             Log.error(caught.toString());
 
-        if (caught instanceof SessionTimeoutException) {
+        if (sessionExpired(caught)) {
             MessageBox.alert(BaseMessagesFactory.getMessages().warning_title(), BaseMessagesFactory.getMessages()
                     .session_timeout_error(), new Listener<MessageBoxEvent>() {
 
@@ -55,5 +56,14 @@ public abstract class SessionAwareAsyncCallback<T> implements AsyncCallback<T> {
                 errorMsg = BaseMessagesFactory.getMessages().unknown_error();
         }
         MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), errorMsg, null);
+    }
+
+    private boolean sessionExpired(Throwable caught) {
+        if (caught instanceof SessionTimeoutException)
+            return true;
+        else if (caught instanceof StatusCodeException)
+            return ((StatusCodeException) caught).getStatusCode() == 403;
+        else
+            return false;
     }
 }
