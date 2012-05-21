@@ -19,6 +19,7 @@ import org.talend.mdm.webapp.base.client.util.WaitBox;
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
+import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
@@ -56,15 +57,17 @@ public abstract class SessionAwareAsyncCallback<T> implements AsyncCallback<T> {
             else
                 errorMsg = BaseMessagesFactory.getMessages().unknown_error();
         }
-        if (errorMsg == null || "".equals(errorMsg)) //$NON-NLS-1$
-            errorMsg = caught.toString(); // last chance
+        errorMsg = Format.htmlEncode(errorMsg);
         MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), errorMsg, null);
     }
 
     private boolean sessionExpired(Throwable caught) {
         if (caught instanceof InvocationException) {
-            // expire session in case of a network failure
-            return true;
+            String msg = caught.getMessage();
+            // FIXME Is there a better way to detect session expiration?
+            // When session expired container will use configured login-config element in web.xml, and return content of
+            // loginAgent.html.
+            return msg == null ? false : msg.contains("<meta http-equiv=\"refresh\" content=\"0; url=/talendmdm/secure\""); //$NON-NLS-1$
         } else if (caught instanceof SessionTimeoutException)
             return true;
         else if (caught instanceof StatusCodeException)
