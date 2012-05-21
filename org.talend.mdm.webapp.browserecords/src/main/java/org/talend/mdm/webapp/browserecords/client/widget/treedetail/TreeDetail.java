@@ -404,22 +404,48 @@ public class TreeDetail extends ContentPanel {
                     .setWidth(600);
     }
 
+    private int getLevel(TreeItem item) {
+        int level = -1;
+        if (item == null) {
+            return level;
+        }
+
+        TreeItem current = item;
+        while (current != null) {
+            level++;
+            current = current.getParentItem();
+        }
+        return level;
+    }
+
+    public void adjustFieldWidget(TreeItem item) {
+        int level = getLevel(item);
+        ColumnTreeLayoutModel columnLayoutModel = viewBean.getColumnLayoutModel();
+        if (columnLayoutModel != null) {
+            int columnWidth = this.getWidth() / columnLayoutModel.getColumnTreeModels().size();
+            if (columnWidth > 500) {
+                setFiledWidth(item, columnWidth, 300, level);
+            }
+        } else {
+            setFiledWidth(item, this.getWidth(), 400, level);
+        }
+    }
+
     private void setFiledWidth(TreeItem item, int width, int offset, int level) {
+        if (item.getWidget() instanceof HorizontalPanel) {
+            HorizontalPanel hp = (HorizontalPanel) item.getWidget();
+            if (hp.getWidgetCount() > 1) {
+                Widget field = hp.getWidget(1);
+                int size = width - (offset + 19 * level);
+                if (field instanceof FormatTextField)
+                    ((FormatTextField) field).setWidth(size > 200 ? size : 200);
+                else if (field instanceof SimpleComboBox)
+                    ((SimpleComboBox) field).setWidth(size > 200 ? size : 200);
+            }
+        }
         for (int i = 0; i < item.getChildCount(); i++) {
             TreeItem subItem = item.getChild(i);
-            if (subItem.getWidget() instanceof HorizontalPanel){
-                HorizontalPanel hp = (HorizontalPanel) subItem.getWidget();
-                if (hp.getWidgetCount() > 1) {
-                    Widget field = hp.getWidget(1);
-                    int size = width - (offset + 19 * level);
-                    if (field instanceof FormatTextField)
-                        ((FormatTextField) field).setWidth(size > 200 ? size : 200);
-                    else if (field instanceof SimpleComboBox)
-                        ((SimpleComboBox) field).setWidth(size > 200 ? size : 200);
-                }         
-            }
-            if (item.getChildCount() > 0)
-                setFiledWidth(subItem, width, offset, level + 1);
+            setFiledWidth(subItem, width, offset, level + 1);
         }
     }
     

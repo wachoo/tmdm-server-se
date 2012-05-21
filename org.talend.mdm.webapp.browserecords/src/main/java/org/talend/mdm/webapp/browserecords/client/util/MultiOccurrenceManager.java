@@ -287,6 +287,7 @@ public class MultiOccurrenceManager {
 
             DynamicTreeItem parentItem = (DynamicTreeItem) selectedItem.getParentItem();
             parentItem.insertItem(treeItem, parentItem.getChildIndex(selectedItem) + 1);
+            treeDetail.adjustFieldWidget(treeItem);
 
             MultiOccurrenceManager multiManager = treeDetail.getMultiManager();
             multiManager.addMultiOccurrenceNode((DynamicTreeItem) treeItem);
