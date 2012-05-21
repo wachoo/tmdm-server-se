@@ -99,7 +99,7 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
             field = TreeDetailGridFieldCreator.createField(itemNode, typeModel, Locale.getLanguage(), fieldMap,
                     operation, itemsDetailPanel);
             field.setWidth(200);
-            field.addListener(Events.Blur, new Listener<FieldEvent>() {
+            field.addListener(Events.Change, new Listener<FieldEvent>() {
 
                 public void handleEvent(FieldEvent be) {
                     AppEvent app = new AppEvent(BrowseRecordsEvents.ExecuteVisibleRule);
