@@ -31,12 +31,14 @@ import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
+import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.BreadCrumb;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.TabItemListener;
+import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -174,6 +176,13 @@ public class TreeDetailUtil {
         String[] idArr = ids.split(","); //$NON-NLS-1$
         final ItemsDetailPanel panel = new ItemsDetailPanel();
         final BrowseRecordsServiceAsync brService = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
+        if (BrowseRecords.getSession().getAppHeader() == null) {
+        	brService.getAppHeader(new SessionAwareAsyncCallback<AppHeader>() {
+                public void onSuccess(AppHeader header) {
+                    BrowseRecords.getSession().put(UserSession.APP_HEADER, header);
+                }
+            });
+        }
         brService.getItemBeanById(concept, idArr, Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBean>() {
 
             public void onSuccess(final ItemBean item) {
