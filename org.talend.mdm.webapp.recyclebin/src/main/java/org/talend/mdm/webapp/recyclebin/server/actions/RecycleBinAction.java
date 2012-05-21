@@ -86,16 +86,26 @@ public class RecycleBinAction implements RecycleBinService {
                 String modelName = getModelNameFromConceptXML(conceptXML);
 
                 if (modelName != null) {
-                    WSDataModel model = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(modelName)));
-                    if (model != null) {
-                        String modelXSD = model.getXsdSchema();
-                        if (!Webapp.INSTANCE.isEnterpriseVersion() || 
-                            org.talend.mdm.webapp.recyclebin.server.actions.Util.checkReadAccess(modelXSD, conceptName)) {
-                            ItemsTrashItem item = new ItemsTrashItem();
-                            item = WS2POJO(wsitem);
-                            li.add(item);
+                    WSDataModel model = null;
+                    String modelXSD = null;
 
+                    try {
+                        model = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(modelName)));
+                        if (model != null) {
+                            modelXSD = model.getXsdSchema();
                         }
+                    } catch (Exception e) {
+                        model = null;
+                        modelXSD = null;
+                    }
+
+                    if (!Webapp.INSTANCE.isEnterpriseVersion()
+                            || (modelXSD != null && org.talend.mdm.webapp.recyclebin.server.actions.Util.checkReadAccess(
+                                    modelXSD, conceptName))) {
+                        ItemsTrashItem item = new ItemsTrashItem();
+                        item = WS2POJO(wsitem);
+                        li.add(item);
+
                     }
                 }
             }
@@ -114,8 +124,6 @@ public class RecycleBinAction implements RecycleBinService {
         }
 
     }
-
-
 
     public static String getModelNameFromConceptXML(String conceptXML) {
         String result = null;
@@ -234,9 +242,9 @@ public class RecycleBinAction implements RecycleBinService {
                 WSDataModel model = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(modelName)));
                 if (model != null) {
                     String modelXSD = model.getXsdSchema();
-                                       
-                    if (Webapp.INSTANCE.isEnterpriseVersion() &&
-                        !org.talend.mdm.webapp.recyclebin.server.actions.Util.checkRestoreAccess(modelXSD, conceptName))
+
+                    if (Webapp.INSTANCE.isEnterpriseVersion()
+                            && !org.talend.mdm.webapp.recyclebin.server.actions.Util.checkRestoreAccess(modelXSD, conceptName))
                         throw new NoPermissionException();
                 }
             }
@@ -256,8 +264,6 @@ public class RecycleBinAction implements RecycleBinService {
             throw new ServiceException(e.getLocalizedMessage());
         }
     }
-
-
 
     // TODO use session instead
     public String getCurrentDataModel() throws ServiceException {
