@@ -26,12 +26,14 @@ import org.talend.mdm.webapp.browserecords.client.model.BreadCrumbModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
+import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.BreadCrumb;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.TabItemListener;
+import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -63,6 +65,17 @@ public class TreeDetailUtil {
     
     public static void initItemsDetailPanelById(final String fromWhichApp, String ids, final String concept,
             final Boolean isFkToolBar, final Boolean isHierarchyCall) {
+        if (BrowseRecords.getSession().getAppHeader() == null) {
+            final BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry
+                    .get(BrowseRecords.BROWSERECORDS_SERVICE);
+
+            service.getAppHeader(new SessionAwareAsyncCallback<AppHeader>() {
+                public void onSuccess(AppHeader header) {
+                    BrowseRecords.getSession().put(UserSession.APP_HEADER, header);
+                }
+            });
+        }
+
         initItemsDetailPanelById(fromWhichApp, ids, concept, isFkToolBar, isHierarchyCall, ItemDetailToolBar.VIEW_OPERATION);
 
     }
