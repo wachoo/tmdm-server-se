@@ -76,6 +76,7 @@ public class CommonUtil {
             }
             node.setName(model.getName());
             node.setTypePath(model.getTypePath());
+            node.setHasVisiblueRule(model.isHasVisibleRule());
             node.setDescription(model.getDescriptionMap().get(language));
             node.setLabel(model.getLabel(language));
         }

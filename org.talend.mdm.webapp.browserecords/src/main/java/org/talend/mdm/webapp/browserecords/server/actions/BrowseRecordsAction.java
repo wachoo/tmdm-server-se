@@ -1468,6 +1468,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
         TypeModel model = findTypeModelByTypePath(metaDataTypes, typePath, language);
         nodeModel.setTypePath(model.getTypePath());
+        nodeModel.setHasVisiblueRule(model.isHasVisibleRule());
         String realXPath = xpath;
         if (isPolyType) {
             realXPath = realXPath.replaceAll(":\\w+", ""); //$NON-NLS-1$//$NON-NLS-2$
@@ -1544,7 +1545,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                         .getTypePathObject().getAllAliasXpaths().contains(tem_typePath))) {
                             ItemNodeModel childNode = builderNode(multiNodeIndex, (Element) child, entity, baseXpath, xpath,
                                     isPolyType, foreignKeyDeleteMessage, isCreate, language);
-                            childNode.setHasVisiblueRule(typeModel.isHasVisibleRule());
                             nodeModel.add(childNode);
                             existNodeFlag = true;
                             if (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {
