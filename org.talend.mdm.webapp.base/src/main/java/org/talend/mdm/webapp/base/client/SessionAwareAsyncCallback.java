@@ -63,15 +63,19 @@ public abstract class SessionAwareAsyncCallback<T> implements AsyncCallback<T> {
 
     private boolean sessionExpired(Throwable caught) {
         if (caught instanceof InvocationException) {
+            if (caught instanceof StatusCodeException)
+                // In some cases, when session expires, instead of redirecting the server will throw the exception
+                // "HTTP Status 403 -The request body was too large to be cached during the authentication process"
+                // See http://lists.jboss.org/pipermail/jboss-user/2006-November/020832.html
+                return ((StatusCodeException) caught).getStatusCode() == 403;
             String msg = caught.getMessage();
             // FIXME Is there a better way to detect session expiration?
-            // When session expired container will use configured login-config element in web.xml, and return content of
-            // loginAgent.html.
+            // When session expires container will use configured login-config element in web.xml, and return content of
+            // loginAgent.html for the browser to redirect to the login page. However, since GWT RPC response cannot be
+            // HTML, the InvocationException is thrown with the HTML content as the message.
             return msg == null ? false : msg.contains("<meta http-equiv=\"refresh\" content=\"0; url=/talendmdm/secure\""); //$NON-NLS-1$
         } else if (caught instanceof SessionTimeoutException)
             return true;
-        else if (caught instanceof StatusCodeException)
-            return ((StatusCodeException) caught).getStatusCode() == 403;
         else
             return false;
     }
