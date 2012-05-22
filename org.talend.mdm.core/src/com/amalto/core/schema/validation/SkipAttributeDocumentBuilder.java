@@ -28,13 +28,17 @@ import java.util.Stack;
 
 public class SkipAttributeDocumentBuilder extends DocumentBuilder {
 
-    private final SAXParserFactory saxParserFactory;
+    public static final String TALEND_NAMESPACE = "http://www.talend.com/mdm"; //$NON-NLS-1$
+
+    private final static SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
 
     private final DocumentBuilder documentBuilder;
 
-    public SkipAttributeDocumentBuilder(DocumentBuilder documentBuilder) {
+    private final boolean ignoreTalendNamespace;
+
+    public SkipAttributeDocumentBuilder(DocumentBuilder documentBuilder, boolean ignoreTalendNamespace) {
         this.documentBuilder = documentBuilder;
-        this.saxParserFactory = SAXParserFactory.newInstance();
+        this.ignoreTalendNamespace = ignoreTalendNamespace;
     }
 
     @Override
@@ -42,7 +46,7 @@ public class SkipAttributeDocumentBuilder extends DocumentBuilder {
         try {
             Document document = newDocument();
             SAXParser parser = saxParserFactory.newSAXParser();
-            parser.parse(is, new SkipAttributeHandler(document));
+            parser.parse(is, new SkipAttributeHandler(document, ignoreTalendNamespace));
             return document;
         } catch (ParserConfigurationException e) {
             throw new SAXException(e);
@@ -87,8 +91,11 @@ public class SkipAttributeDocumentBuilder extends DocumentBuilder {
 
         private final Map<String, String> prefixDeclarations = new HashMap<String, String>();
 
-        public SkipAttributeHandler(Document document) {
+        private final boolean ignoreTalendNamespace;
+
+        public SkipAttributeHandler(Document document, boolean ignoreTalendNamespace) {
             this.document = document;
+            this.ignoreTalendNamespace = ignoreTalendNamespace;
         }
 
         @Override
@@ -107,8 +114,10 @@ public class SkipAttributeDocumentBuilder extends DocumentBuilder {
                 } else {
                     String namespaceURI = prefixDeclarations.get(prefix);
                     if (namespaceURI == null) {
-                        if ("xsi".equals(prefix)) {
+                        if ("xsi".equals(prefix)) {  //$NON-NLS-1$
                             namespaceURI = XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI;
+                        } else if ("tmdm".equals(prefix)) {  //$NON-NLS-1$
+                            namespaceURI = SkipAttributeDocumentBuilder.TALEND_NAMESPACE;
                         } else {
                             throw new IllegalArgumentException("Prefix '" + prefix + "' isn't declared;");
                         }
@@ -119,7 +128,12 @@ public class SkipAttributeDocumentBuilder extends DocumentBuilder {
                         attribute.setValue(value);
                         element.setAttributeNodeNS(attribute);
                     }
-                    // Ignore everything else (e.g. 'tmdm'...).
+                    // Ignore everything else (e.g. 'tmdm'...) if we have to.
+                    if (TALEND_NAMESPACE.equals(namespaceURI) && !ignoreTalendNamespace) {
+                        Attr attribute = document.createAttributeNS(namespaceURI, qualifiedName);
+                        attribute.setValue(value);
+                        element.setAttributeNodeNS(attribute);
+                    }
                 }
             }
 

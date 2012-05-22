@@ -91,10 +91,16 @@ class ID implements DocumentSaver {
         String[] xmlDocumentId = ids.toArray(new String[ids.size()]);
         String revisionID = context.getRevisionID();
         DocumentBuilder documentBuilder;
+        DocumentBuilder validationDocumentBuilder;
         try {
-            documentBuilder = new SkipAttributeDocumentBuilder(SaverContextFactory.DOM_PARSER_FACTORY.newDocumentBuilder());
+            documentBuilder = new SkipAttributeDocumentBuilder(SaverContextFactory.DOM_PARSER_FACTORY.newDocumentBuilder(), false);
         } catch (ParserConfigurationException e) {
             throw new RuntimeException("Could not acquire a document builder.", e);
+        }
+        try {
+            validationDocumentBuilder = new SkipAttributeDocumentBuilder(SaverContextFactory.DOM_PARSER_FACTORY.newDocumentBuilder(), true);
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException("Could not acquire a document builder for validation.", e);
         }
         if (xmlDocumentId.length > 0 && database.exist(dataCluster, typeName, revisionID, xmlDocumentId)) {
             context.setId(xmlDocumentId);
@@ -108,7 +114,7 @@ class ID implements DocumentSaver {
 
                 nonCloseableInputStream.reset();
 
-                Document databaseValidationDomDocument = documentBuilder.parse(new InputSource(nonCloseableInputStream));
+                Document databaseValidationDomDocument = validationDocumentBuilder.parse(new InputSource(nonCloseableInputStream));
                 userXmlElement = getUserXmlElement(databaseValidationDomDocument);
                 MutableDocument databaseValidationDocument = new DOMDocument(userXmlElement);
 

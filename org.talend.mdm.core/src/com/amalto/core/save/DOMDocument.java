@@ -70,6 +70,10 @@ public class DOMDocument implements MutableDocument {
         this.lastAccessedNode = lastAccessedNode;
     }
 
+    public MutableDocument copy() {
+        return new DOMDocument(domDocument.getDocumentElement().cloneNode(true));
+    }
+
     public String exportToString() {
         try {
             return Util.nodeToString(domDocument);

@@ -141,7 +141,8 @@ public class SaverContextFactory {
         // Parsing
         MutableDocument userDocument;
         try {
-            DocumentBuilder documentBuilder = new SkipAttributeDocumentBuilder(DOM_PARSER_FACTORY.newDocumentBuilder());
+            // Don't ignore talend internal attributes when parsing this document
+            DocumentBuilder documentBuilder = new SkipAttributeDocumentBuilder(DOM_PARSER_FACTORY.newDocumentBuilder(), false);
             InputSource source = new InputSource(documentStream);
             Document userDomDocument = documentBuilder.parse(source);
             userDocument = new DOMDocument(userDomDocument);

@@ -9,7 +9,7 @@
   ~ 9 rue Pages 92150 Suresnes, France
   -->
 
-<Product>
+<Product xmlns:tmdm="http://www.talend.com/mdm">
     <Id>1</Id>
     <Price>60</Price>
 </Product>

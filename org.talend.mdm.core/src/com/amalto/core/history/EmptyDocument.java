@@ -100,4 +100,8 @@ public class EmptyDocument implements MutableDocument {
 
     public void setLastAccessedNode(Node lastAccessedNode) {
     }
+
+    public MutableDocument copy() {
+        return this;
+    }
 }

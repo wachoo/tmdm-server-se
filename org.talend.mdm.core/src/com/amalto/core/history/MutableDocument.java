@@ -113,4 +113,10 @@ public interface MutableDocument extends Document {
      * @see {@link com.amalto.core.history.accessor.Accessor#touch()}
      */
     void setLastAccessedNode(Node lastAccessedNode);
+
+    /**
+     * @return A copy of this document: modifications on copy are not reflected on this document. For DOM based
+     * implementation, this require a (deep) copy of the DOM tree, so use this method carefully.
+     */
+    MutableDocument copy();
 }

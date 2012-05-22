@@ -79,7 +79,7 @@ public class DocumentSaveTest extends TestCase {
         InputStream contractXML = DocumentSaveTest.class.getResourceAsStream("contract.xml");
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setNamespaceAware(true);
-        Document contract = new SkipAttributeDocumentBuilder(documentBuilderFactory.newDocumentBuilder()).parse(contractXML);
+        Document contract = new SkipAttributeDocumentBuilder(documentBuilderFactory.newDocumentBuilder(), true).parse(contractXML);
 
         XmlSchemaValidator validator = new XmlSchemaValidator("", DocumentSaveTest.class.getResourceAsStream("metadata3.xsd"), Validator.NO_OP_VALIDATOR);
         validator.validate(contract.getDocumentElement());
@@ -204,6 +204,46 @@ public class DocumentSaveTest extends TestCase {
         } catch (SaveException e) {
             assertTrue(e.getBeforeSavingMessage().isEmpty());
         }
+    }
+
+    public void testCreateWithForeignKeyType() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+
+        SaverSource source = new TestSaverSource(repository, false, "", "metadata1.xsd");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test26.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, true, true, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("16.99", evaluate(committedElement, "/Product/Price"));
+        assertEquals("Test", evaluate(committedElement, "/Product/Family/@tmdm:type"));
+    }
+
+    public void testReplaceWithForeignKeyType() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+
+        SaverSource source = new TestSaverSource(repository, true, "test26_original.xml", "metadata1.xsd");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test26.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, true, true, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("16.99", evaluate(committedElement, "/Product/Price"));
+        assertEquals("Test", evaluate(committedElement, "/Product/Family/@tmdm:type"));
     }
 
     public void testUpdate() throws Exception {
@@ -485,6 +525,7 @@ public class DocumentSaveTest extends TestCase {
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
         assertEquals("60", evaluate(committedElement, "/Product/Price"));
+        assertEquals("Test", evaluate(committedElement, "/Product/Family/@tmdm:type"));
     }
 
     public void testSchematronValidation() throws Exception {
@@ -1135,6 +1176,7 @@ public class DocumentSaveTest extends TestCase {
 
         private TestNamespaceContext() {
             declaredPrefix.put("xsi", XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);
+            declaredPrefix.put("tmdm", SkipAttributeDocumentBuilder.TALEND_NAMESPACE);
         }
 
         public String getNamespaceURI(String prefix) {

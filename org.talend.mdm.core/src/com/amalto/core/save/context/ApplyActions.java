@@ -15,6 +15,7 @@ import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
+import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import org.w3c.dom.*;
 
 class ApplyActions implements DocumentSaver {
@@ -34,66 +35,15 @@ class ApplyActions implements DocumentSaver {
         }
 
         // Never store empty elements in database
-        clean(databaseDocument.asDOM().getDocumentElement());
-        clean(validationDocument.asDOM().getDocumentElement());
+        clean(databaseDocument.asDOM().getDocumentElement(), EmptyElementCleaner.INSTANCE);
+        clean(validationDocument.asDOM().getDocumentElement(), EmptyElementCleaner.INSTANCE);
 
+        if (context.isCreate() || context.isReplace()) {
+            // See TMDM-4038
+            clean(validationDocument.asDOM().getDocumentElement(), TechnicalAttributeCleaner.INSTANCE);
+        }
         next.save(session, context);
     }
-
-    private static void clean(Element element) {
-        if (element == null) {
-            return;
-        }
-        if (!isEmpty(element)) {
-            NodeList children = element.getChildNodes();
-            for (int i = children.getLength(); i >= 0; i--) {
-                Node node = children.item(i);
-                if (node instanceof Element) {
-                    Element currentElement = (Element) node;
-                    if (isEmpty(currentElement)) {
-                        node.getParentNode().removeChild(node);
-                    } else {
-                        clean(currentElement);
-                    }
-                }
-            }
-        }
-    }
-
-    private static boolean isEmpty(Element element) {
-        if (element == null) {
-            return true;
-        }
-        if (element.hasAttributes()) {
-            // Returns true (isEmpty) if all attributes are empty.
-            NamedNodeMap attributes = element.getAttributes();
-            for (int i = 0; i < attributes.getLength(); i++) {
-                String attributeValue = attributes.item(i).getNodeValue();
-                if (attributeValue != null && !attributeValue.trim().isEmpty()) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        NodeList children = element.getChildNodes();
-        if (children.getLength() == 0) {
-            return true;
-        } else {
-            for (int i = 0; i < children.getLength(); i++) {
-                Node node = children.item(i);
-                if (node instanceof Element && !isEmpty((Element) node)) {
-                    return false;
-                } else if (node instanceof Text) {
-                    if (!node.getTextContent().trim().isEmpty()) {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
-    }
-
 
     public String[] getSavedId() {
         return next.getSavedId();
@@ -105,5 +55,81 @@ class ApplyActions implements DocumentSaver {
 
     public String getBeforeSavingMessage() {
         return next.getBeforeSavingMessage();
+    }
+
+    private static void clean(Element element, Cleaner cleaner) {
+        if (element == null) {
+            return;
+        }
+        if (!cleaner.clean(element)) {
+            NodeList children = element.getChildNodes();
+            for (int i = children.getLength(); i >= 0; i--) {
+                Node node = children.item(i);
+                if (node instanceof Element) {
+                    Element currentElement = (Element) node;
+                    if (cleaner.clean(currentElement)) {
+                        node.getParentNode().removeChild(node);
+                    } else {
+                        clean(currentElement, cleaner);
+                    }
+                }
+            }
+        }
+    }
+
+    interface Cleaner {
+        /**
+         * @param element An element to clean
+         * @return <code>true</code> if element should be removed by caller, <code>false</code> otherwise.
+         */
+        boolean clean(Element element);
+    }
+
+    private static class EmptyElementCleaner implements Cleaner {
+
+        static Cleaner INSTANCE = new EmptyElementCleaner();
+
+        public boolean clean(Element element) {
+            if (element == null) {
+                return true;
+            }
+            if (element.hasAttributes()) {
+                // Returns true (isEmpty) if all attributes are empty.
+                NamedNodeMap attributes = element.getAttributes();
+                for (int i = 0; i < attributes.getLength(); i++) {
+                    String attributeValue = attributes.item(i).getNodeValue();
+                    if (attributeValue != null && !attributeValue.trim().isEmpty()) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            NodeList children = element.getChildNodes();
+            if (children.getLength() == 0) {
+                return true;
+            } else {
+                for (int i = 0; i < children.getLength(); i++) {
+                    Node node = children.item(i);
+                    if (node instanceof Element && !clean((Element) node)) {
+                        return false;
+                    } else if (node instanceof Text) {
+                        if (!node.getNodeValue().trim().isEmpty()) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+        }
+    }
+
+    private static class TechnicalAttributeCleaner implements Cleaner {
+        static Cleaner INSTANCE = new TechnicalAttributeCleaner();
+
+        public boolean clean(Element element) {
+            element.removeAttributeNS(SkipAttributeDocumentBuilder.TALEND_NAMESPACE, "type"); //$NON-NLS-1$
+            return false;
+        }
     }
 }

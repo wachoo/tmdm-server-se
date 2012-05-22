@@ -32,7 +32,9 @@ class OverrideReplaceAction extends CreateAction {
 
     @Override
     public MutableDocument perform(MutableDocument document) {
-        document.setContent(userDocument);
+        // Copy the document because this action is applied on 2 documents (and one of them removes attributes that should
+        // not be removed from the other).
+        document.setContent(userDocument.copy());
         return document;
     }
 
