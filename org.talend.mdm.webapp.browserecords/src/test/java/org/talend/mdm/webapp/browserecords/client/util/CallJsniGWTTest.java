@@ -62,7 +62,7 @@ public class CallJsniGWTTest extends BrowseRecordsGWTTest {
         result = result && errors[0] === "argument format error!";
         result = result && errors[1] === "argument format error!";
         result = result && errors[2] === "argument format error!";
-        result = result && errors[3] === "argument format error!";
+        result = result && errors[3] != "argument format error!";
         result = result && errors[4] != "argument format error!";
         return result;
     }-*/;
