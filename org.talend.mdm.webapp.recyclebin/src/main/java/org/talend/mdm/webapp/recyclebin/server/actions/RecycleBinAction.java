@@ -35,6 +35,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
+import com.amalto.core.util.LocalUser;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
@@ -89,14 +91,16 @@ public class RecycleBinAction implements RecycleBinService {
                     WSDataModel model = null;
                     String modelXSD = null;
 
-                    try {
-                        model = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(modelName)));
-                        if (model != null) {
-                            modelXSD = model.getXsdSchema();
-                        }
-                    } catch (Exception e) {
-                        model = null;
-                        modelXSD = null;
+                    // For enterprise version we check the user roles first, if one user don't have read permission on a
+                    // DataModel Object, then ignore it
+                    if (Webapp.INSTANCE.isEnterpriseVersion()
+                            && !LocalUser.getLocalUser().userCanRead(DataModelPOJO.class, modelName))
+                        continue;
+
+                    model = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(modelName)));
+
+                    if (model != null) {
+                        modelXSD = model.getXsdSchema();
                     }
 
                     if (!Webapp.INSTANCE.isEnterpriseVersion()
