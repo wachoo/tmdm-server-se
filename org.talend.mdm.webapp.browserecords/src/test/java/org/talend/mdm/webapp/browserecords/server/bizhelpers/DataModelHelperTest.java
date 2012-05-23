@@ -16,7 +16,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -26,11 +28,17 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit3.PowerMockSuite;
+
 import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 
 import com.amalto.core.util.Util;
+import com.sun.xml.xsom.XSElementDecl;
+import com.sun.xml.xsom.XSSchemaSet;
+import com.sun.xml.xsom.impl.ComplexTypeImpl;
+import com.sun.xml.xsom.parser.XSOMParser;
+import com.sun.xml.xsom.util.DomAnnotationParserFactory;
 
 @PrepareForTest({ Util.class })
 @SuppressWarnings("nls")
@@ -82,16 +90,93 @@ public class DataModelHelperTest extends TestCase {
         assertTrue(metaDataTypes.get("Contract/detail:ContractDetailSubTypeOne/subTypeOne").isSimpleType());
     }
 
-    private String inputStream2String(InputStream is) throws IOException {
+    private String inputStream2String(InputStream is) {
 
         BufferedReader in = new BufferedReader(new InputStreamReader(is));
         StringBuffer buffer = new StringBuffer();
         String line = "";
-        while ((line = in.readLine()) != null) {
-            buffer.append(line);
+        try {
+            while ((line = in.readLine()) != null) {
+                buffer.append(line);
+            }
+        } catch (IOException e) {
+            fail();
         }
         return buffer.toString();
 
     }
-
+    
+    public void testConvertXsd2ElDecl() throws Exception {
+        String concept = "Product";
+        String xsd = inputStream2String(this.getClass().getResourceAsStream("Product.xsd"));
+        XSElementDecl decl = DataModelHelper.convertXsd2ElDecl(concept, xsd);
+        assertNotNull(decl);
+        assertEquals(concept, decl.getName());
+        
+        concept = "ABC";
+        decl = DataModelHelper.convertXsd2ElDecl(concept, xsd);
+        assertNull(decl);
+    }
+    
+    public void testFindTypeModelByTypePath() {
+        try {
+            DataModelHelper.findTypeModelByTypePath(null, null);
+            fail();
+        } catch (Exception e) {
+            assertNotNull(e);
+            assertEquals(IllegalArgumentException.class, e.getClass());
+        }
+        
+        try {
+            DataModelHelper.findTypeModelByTypePath(new HashMap<String, TypeModel>(), null);
+            fail();
+        } catch (Exception e) {
+            assertNotNull(e);
+            assertEquals(IllegalArgumentException.class, e.getClass());
+        }
+        
+        try {
+            DataModelHelper.findTypeModelByTypePath(null, "Product/Name");
+            fail();
+        } catch (Exception e) {
+            assertNotNull(e);
+            assertEquals(IllegalArgumentException.class, e.getClass());
+        }
+        
+        try {
+            DataModelHelper.findTypeModelByTypePath(new HashMap<String, TypeModel>(), "Product/Name");
+            fail();
+        } catch (Exception e) {
+            assertNotNull(e);
+            assertEquals(TypeModelNotFoundException.class, e.getClass());
+            assertEquals(((TypeModelNotFoundException)e).getXpathNotFound(), "Product/Name");
+        }
+          
+    }
+    
+    public void testGetBusinessConcept() {
+        String datamodelName="Product";
+        String concept="Product";
+        String xsd = inputStream2String(this.getClass().getResourceAsStream("Product.xsd"));
+        
+        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
+        XSElementDecl decl = DataModelHelper.getBusinessConcept(datamodelName, concept);
+        assertNotNull(decl);
+        assertEquals(concept, decl.getName());
+        assertEquals(ComplexTypeImpl.class, decl.getType().getClass());
+    }
+    
+    public void testGetElementDeclByName() throws Exception {
+        String concept="Product";
+        String xsd = inputStream2String(this.getClass().getResourceAsStream("Product.xsd"));
+        XSOMParser reader = new XSOMParser();
+        reader.setAnnotationParser(new DomAnnotationParserFactory());
+        reader.parse(new StringReader(xsd));
+        XSSchemaSet xss = reader.getResult();
+        XSElementDecl decl = DataModelHelper.getElementDeclByName(concept, xss);
+        assertNotNull(decl);
+        assertEquals(concept, decl.getName());
+        assertEquals(ComplexTypeImpl.class, decl.getType().getClass());
+    }
+    
 }
