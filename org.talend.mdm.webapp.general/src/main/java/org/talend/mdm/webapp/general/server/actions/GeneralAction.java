@@ -20,7 +20,6 @@ import org.talend.mdm.webapp.general.model.UserBean;
 import org.talend.mdm.webapp.general.server.util.Utils;
 import org.w3c.dom.Document;
 
-import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.bean.Configuration;
@@ -163,11 +162,10 @@ public class GeneralAction implements GeneralService {
             throw new ServiceException(e.getLocalizedMessage());
         }
     }
+
     public void logout() throws ServiceException {
         try {
-            String username = com.amalto.webapp.core.util.Util.getAjaxSubject().getUsername();
             Util.getPort().logout(new WSLogout("")).getValue(); //$NON-NLS-1$
-            ILocalUser.getOnlineUsers().remove(username);
             GwtWebContextFactory.get().getSession().invalidate();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
