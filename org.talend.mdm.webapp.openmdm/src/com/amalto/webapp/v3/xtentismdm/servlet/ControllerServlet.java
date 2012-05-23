@@ -31,7 +31,6 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
-import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 import com.amalto.core.util.Util;
@@ -84,18 +83,10 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
         try {
             // see 0013864
             username = com.amalto.webapp.core.util.Util.getAjaxSubject().getUsername();
-            if (MDMConfiguration.getAdminUser().equals(username)) {//$NON-NLS-1$		    
+            if (MDMConfiguration.getAdminUser().equals(username)) {	    
                 throw new WebappForbiddenLoginException(MESSAGES.getMessage(locale, "login.exception.forbidden", username)); //$NON-NLS-1$);
             }
-            LinkedHashMap<String, String> onlineUsers = ILocalUser.getOnlineUsers();
-            if (onlineUsers.containsKey(username)) {
 
-                if (onlineUsers.get(username) != null && req.getSession().getId() != null
-                        && !onlineUsers.get(username).equals(req.getSession().getId())) {
-                    throw new WebappRepeatedLoginException();
-                }
-
-            }
             // restore the session timeout
             if (req.getSession().getAttribute("sessionTimeOut") != null) //$NON-NLS-1$
                 req.getSession().setMaxInactiveInterval((Integer) req.getSession().getAttribute("sessionTimeOut")); //$NON-NLS-1$
@@ -103,12 +94,9 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
             // Dispatch call
             String jsp = req.getParameter("action"); //$NON-NLS-1$	
             if ("logout".equals(jsp)) { //$NON-NLS-1$
-                ILocalUser.getOnlineUsers().remove(username);
                 req.getSession().invalidate();
                 res.sendRedirect("../index.html"); //$NON-NLS-1$
             } else {
-
-                ILocalUser.getOnlineUsers().put(username, req.getSession().getId());
                 String target = req.getParameter("target"); //$NON-NLS-1$
                 // when parameter no equals "original" to redirect to /general/secure/
                 if (!"original".equals(target)) { //$NON-NLS-1$

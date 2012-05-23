@@ -12,35 +12,22 @@
 // ============================================================================
 package com.amalto.webapp.v3.xtentismdm.servlet;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
+import org.apache.log4j.Logger;
+
 public class SessionListener implements HttpSessionListener {
 
-    public static final String ACTIVE_SESSIONS = "activeSessions"; //$NON-NLS-1$
+    private static final Logger logger = Logger.getLogger(SessionListener.class);
 
     public void sessionCreated(HttpSessionEvent event) {
-        HttpSession session = event.getSession();
-        ServletContext context = session.getServletContext();
-        @SuppressWarnings("unchecked")
-        Map<String, HttpSession> activeSessions = (Map<String, HttpSession>) context.getAttribute(ACTIVE_SESSIONS);
-        if (activeSessions == null) {
-            activeSessions = new HashMap<String, HttpSession>();
-            context.setAttribute(ACTIVE_SESSIONS, activeSessions);
-        }
-        activeSessions.put(session.getId(), session);
+        if (logger.isDebugEnabled())
+            logger.debug("Session created"); //$NON-NLS-1$
     }
 
     public void sessionDestroyed(HttpSessionEvent event) {
-        HttpSession session = event.getSession();
-        ServletContext context = session.getServletContext();
-        @SuppressWarnings("unchecked")
-        Map<String, HttpSession> activeSessions = (Map<String, HttpSession>) context.getAttribute(ACTIVE_SESSIONS);
-        activeSessions.remove(session.getId());
+        if (logger.isDebugEnabled())
+            logger.debug("Session destroyed"); //$NON-NLS-1$
     }
 }
