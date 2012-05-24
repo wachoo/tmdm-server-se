@@ -161,8 +161,8 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
             if (!newAccessor.exist()) {
                 // No op
             } else { // new accessor exist
-                generateNoOp(lastMatchPath);
                 if (newAccessor.get() != null && !newAccessor.get().isEmpty()) { // TODO Empty accessor means no op to ensure legacy behavior
+                    generateNoOp(lastMatchPath);
                     actions.add(new FieldUpdateAction(date, source, userName, path, StringUtils.EMPTY, newAccessor.get(), comparedField));
                     generateNoOp(path);
                 } else {

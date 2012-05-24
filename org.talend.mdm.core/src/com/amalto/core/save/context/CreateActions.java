@@ -133,7 +133,18 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
     }
 
     @Override
+    public List<Action> visit(FieldMetadata fieldMetadata) {
+        handleField(fieldMetadata);
+        return super.visit(fieldMetadata);    //To change body of overridden methods use File | Settings | File Templates.
+    }
+
+    @Override
     public List<Action> visit(SimpleTypeFieldMetadata simpleField) {
+        handleField(simpleField);
+        return super.visit(simpleField);
+    }
+
+    private void handleField(FieldMetadata simpleField) {
         path.push(simpleField.getName());
         {
             // Handle UUID and AutoIncrement elements (this code also ensures any previous value is overwritten, see TMDM-3900).
@@ -164,7 +175,6 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
             }
         }
         path.pop();
-        return super.visit(simpleField);
     }
 
     public boolean hasMetAutoIncrement() {

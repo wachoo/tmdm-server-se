@@ -37,6 +37,9 @@ public class SoftIdFieldRef implements FieldMetadata {
     public FieldMetadata getField() {
         ComplexTypeMetadata type = (ComplexTypeMetadata) repository.getType(typeName);
         if (type == null) {
+            type = (ComplexTypeMetadata) repository.getNonInstantiableType(typeName);
+        }
+        if (type == null) {
             throw new IllegalArgumentException("Type '" + typeName + "' does not exist.");
         }
         List<FieldMetadata> keyFields = type.getKeyFields();

@@ -44,7 +44,7 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
         this.metadata = metadata;
         this.dataClusterName = dataClusterName;
     }
-    
+
     public Document transform(MutableDocument document) {
         Map<String, ReferenceFieldMetadata> pathToForeignKeyInfo = metadata.accept(new ForeignKeyInfoResolver());
 
@@ -57,8 +57,8 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
             if (accessor.exist()) { // The field might not be set, so check if it exists.
                 String foreignKeyValue = accessor.get(); // Raw foreign key value (surrounded by "[")
                 String resolvedForeignKeyInfo = resolveForeignKeyValue(fieldMetadata, foreignKeyValue); // Value to be
-                                                                                                        // displayed to
-                                                                                                        // users
+                // displayed to
+                // users
                 accessor.set(resolvedForeignKeyInfo);
             }
         }
@@ -138,6 +138,17 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
                     pathToForeignKeyInfo.put(getCurrentPath(), metadata);
                 }
                 super.visit(metadata);
+            }
+            currentPosition.pop();
+
+            return pathToForeignKeyInfo;
+        }
+
+        @Override
+        public Map<String, ReferenceFieldMetadata> visit(FieldMetadata fieldMetadata) {
+            currentPosition.push(fieldMetadata.getName());
+            {
+                super.visit(fieldMetadata);
             }
             currentPosition.pop();
 

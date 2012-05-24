@@ -60,8 +60,6 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
         this.schematron = schematron;
     }
 
-    
-
     public void addSuperType(TypeMetadata superType, MetadataRepository repository) {
         this.repository = repository;
         superTypes.add(superType);
@@ -128,6 +126,9 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
                 if (superType instanceof ComplexTypeMetadata) {
                     List<FieldMetadata> superTypeFields = ((ComplexTypeMetadata) superType).getFields();
                     for (FieldMetadata superTypeField : superTypeFields) {
+                        if (keyFields.containsKey(superTypeField.getName()) && !superTypeField.isKey()) {
+                            superTypeField = new ForceKeyFieldMetadata(superTypeField);
+                        }
                         superTypeField.adopt(this, repository);
                     }
                 }
@@ -246,5 +247,70 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
         if (!(o instanceof ComplexTypeMetadata)) return false;
         ComplexTypeMetadata that = (ComplexTypeMetadata) o;
         return that.getName().equals(name) && that.getNamespace().equals(nameSpace);
+    }
+
+    // See TMDM-4054: Cleaner fix would be to integrate metadata parser from 5.2 to 5.1. At the time this is written
+    // metadata parser from 5.2 isn't stable enough to be backported to 5.1
+    private class ForceKeyFieldMetadata implements FieldMetadata {
+
+        private final FieldMetadata delegate;
+
+        public ForceKeyFieldMetadata(FieldMetadata delegate) {
+            this.delegate = delegate;
+        }
+
+        public boolean isKey() {
+            return true;
+        }
+
+        public String getName() {
+            return delegate.getName();
+        }
+
+        public TypeMetadata getType() {
+            return delegate.getType();
+        }
+
+        public ComplexTypeMetadata getContainingType() {
+            return delegate.getContainingType();
+        }
+
+        public List<String> getHideUsers() {
+            return delegate.getHideUsers();
+        }
+
+        public TypeMetadata getDeclaringType() {
+            return delegate.getDeclaringType();
+        }
+
+        public List<String> getWriteUsers() {
+            return delegate.getWriteUsers();
+        }
+
+        public boolean isMany() {
+            return delegate.isMany();
+        }
+
+        public boolean isMandatory() {
+            return delegate.isMandatory();
+        }
+
+        public FieldMetadata copy(MetadataRepository repository) {
+            return new ForceKeyFieldMetadata(delegate.copy(repository));
+        }
+
+        public void adopt(ComplexTypeMetadata metadata, MetadataRepository repository) {
+            FieldMetadata copy = copy(repository);
+            copy.setContainingType(metadata);
+            metadata.addField(copy);
+        }
+
+        public void setContainingType(ComplexTypeMetadata typeMetadata) {
+            delegate.setContainingType(typeMetadata);
+        }
+
+        public <T> T accept(MetadataVisitor<T> visitor) {
+            return visitor.visit(this);
+        }
     }
 }
