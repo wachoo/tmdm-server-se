@@ -24,6 +24,7 @@ import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.Menu;
+import com.amalto.webapp.core.util.SessionListener;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.Webapp;
 import com.amalto.webapp.util.webservices.WSDataCluster;
@@ -165,6 +166,8 @@ public class GeneralAction implements GeneralService {
 
     public void logout() throws ServiceException {
         try {
+            String username = com.amalto.webapp.core.util.Util.getAjaxSubject().getUsername();
+            SessionListener.unregisterUser(username);
             Util.getPort().logout(new WSLogout("")).getValue(); //$NON-NLS-1$
             GwtWebContextFactory.get().getSession().invalidate();
         } catch (Exception e) {

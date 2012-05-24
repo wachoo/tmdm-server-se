@@ -1,199 +1,116 @@
-/*
-* Copyright 2004 The Apache Software Foundation
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-
+// ============================================================================
+//
+// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package com.amalto.webapp.core.util;
 
-
-import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionAttributeListener;
 import javax.servlet.http.HttpSessionBindingEvent;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
+import org.apache.commons.collections.BidiMap;
+import org.apache.commons.collections.bidimap.TreeBidiMap;
+import org.apache.log4j.Logger;
 
-/**
- * Example listener for context-related application events, which were
- * introduced in the 2.3 version of the Servlet API.  This listener
- * merely documents the occurrence of such events in the application log
- * associated with our servlet context.
- *
- * @author Craig R. McClanahan
- * @version $Revision: 267129 $ $Date: 2004-03-18 11:40:35 -0500 (Thu, 18 Mar 2004) $
- */
+public final class SessionListener implements ServletContextListener, HttpSessionAttributeListener, HttpSessionListener {
 
-public final class SessionListener
-    implements ServletContextListener,
-	       HttpSessionAttributeListener, HttpSessionListener {
+    private static final Logger logger = Logger.getLogger(SessionListener.class);
 
+    private static BidiMap registeredSessions = new TreeBidiMap();
 
-    // ----------------------------------------------------- Instance Variables
+    public synchronized static void registerUser(String user, String session) throws WebappRepeatedLoginException {
+        String registeredSession = (String) registeredSessions.get(user);
+        if (registeredSession != null) {
+            if (!registeredSession.equals(session))
+                throw new WebappRepeatedLoginException();
+        } else {
+            if (logger.isDebugEnabled())
+                logger.debug("Registering session " + session + " with user " + user); //$NON-NLS-1$ //$NON-NLS-2$
+            registeredSessions.put(user, session);
+        }
+    }
 
+    public static synchronized void unregisterUser(String user) {
+        if (!registeredSessions.containsKey(user)) {
+            if (logger.isDebugEnabled())
+                logger.warn("No session registered with user " + user); //$NON-NLS-1$
+        } else {
+            String session = (String) registeredSessions.remove(user);
+            if (logger.isDebugEnabled())
+                logger.debug("Unregistered session " + session + " with user " + user); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+    }
 
-    /**
-     * The servlet context with which we are associated.
-     */
-	private ServletContext context = null;
-	
+    private synchronized static void unregisterSession(String session) {
+        if (!registeredSessions.containsValue(session)) {
+            if (logger.isDebugEnabled())
+                logger.warn("Session " + session + " is not registered"); //$NON-NLS-1$ //$NON-NLS-2$
+            return;
+        }
+        String user = (String) registeredSessions.getKey(session);
+        if (user == null) {
+            if (logger.isDebugEnabled())
+                logger.warn("Session " + session + " is not registered with a user"); //$NON-NLS-1$ //$NON-NLS-2$
+            return;
+        } else {
+            registeredSessions.remove(user);
+            if (logger.isDebugEnabled())
+                logger.debug("Unregistered session " + session + " with user " + user); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+    }
 
-
-    // --------------------------------------------------------- Public Methods
-
-
-    /**
-     * Record the fact that a servlet context attribute was added.
-     *
-     * @param event The session attribute event
-     */
     public void attributeAdded(HttpSessionBindingEvent event) {
-
-	log("attributeAdded('" + event.getSession().getId() + "', '" +
-	    event.getName() + "', '" + parseObject(event.getValue()) + "')");
-
+        if (logger.isDebugEnabled())
+            logger.debug("attributeAdded('" + event.getSession().getId() + "', '" + event.getName() + "', '" + event.getValue() //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    + "')"); //$NON-NLS-1$
     }
 
-
-    /**
-     * Record the fact that a servlet context attribute was removed.
-     *
-     * @param event The session attribute event
-     */
     public void attributeRemoved(HttpSessionBindingEvent event) {
-
-	log("attributeRemoved('" + event.getSession().getId() + "', '" +
-	    event.getName() + "', '" + parseObject(event.getValue()) + "')");
-
+        if (logger.isDebugEnabled())
+            logger.debug("attributeRemoved('" + event.getSession().getId() + "', '" + event.getName() + "', '" + event.getValue() //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    + "')"); //$NON-NLS-1$
     }
 
-
-    /**
-     * Record the fact that a servlet context attribute was replaced.
-     *
-     * @param event The session attribute event
-     */
     public void attributeReplaced(HttpSessionBindingEvent event) {
-
-	log("attributeReplaced('" + event.getSession().getId() + "', '" +
-	    event.getName() + "', '" + parseObject(event.getValue()) + "')");
-
+        if (logger.isDebugEnabled())
+            logger.debug("attributeReplaced('" + event.getSession().getId() + "', '" + event.getName() + "', '" + event.getValue() //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    + "')"); //$NON-NLS-1$
     }
 
-
-    /**
-     * Record the fact that this web application has been destroyed.
-     *
-     * @param event The servlet context event
-     */
     public void contextDestroyed(ServletContextEvent event) {
-
-	log("contextDestroyed()");
-	this.context = null;
-
+        if (logger.isDebugEnabled())
+            logger.debug("contextDestroyed()"); //$NON-NLS-1$
     }
 
-
-    /**
-     * Record the fact that this web application has been initialized.
-     *
-     * @param event The servlet context event
-     */
     public void contextInitialized(ServletContextEvent event) {
-
-	this.context = event.getServletContext();
-	log("contextInitialized()");
-
+        if (logger.isDebugEnabled())
+            logger.debug("contextInitialized()"); //$NON-NLS-1$
     }
 
-
-    /**
-     * Record the fact that a session has been created.
-     *
-     * @param event The session event
-     */
     public void sessionCreated(HttpSessionEvent event) {
-
-	log("sessionCreated('" + event.getSession().getId() + "')");
-
+        HttpSession session = event.getSession();
+        String sessionId = session.getId();
+        if (logger.isDebugEnabled())
+            logger.debug("Session " + sessionId + " created"); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
-
-    /**
-     * Record the fact that a session has been destroyed.
-     *
-     * @param event The session event
-     */
     public void sessionDestroyed(HttpSessionEvent event) {
-
-	log("sessionDestroyed('" + event.getSession().getId() + "')");
-
+        HttpSession session = event.getSession();
+        String sessionId = session.getId();
+        if (logger.isDebugEnabled())
+            logger.debug("Session " + sessionId + " destroyed"); //$NON-NLS-1$ //$NON-NLS-2$
+        unregisterSession(sessionId);
     }
-
-
-    // -------------------------------------------------------- Private Methods
-
-
-    /**
-     * Log a message to the servlet context application log.
-     *
-     * @param message Message to be logged
-     */
-    private void log(String message) {
-
-	if (context != null)
-	    context.log("SessionListener: " + message);
-	else
-	    System.out.println("SessionListener: " + message);
-
-    }
-
-
-    /**
-     * Log a message and associated exception to the servlet context
-     * application log.
-     *
-     * @param message Message to be logged
-     * @param throwable Exception to be logged
-     */
-    private void log(String message, Throwable throwable) {
-
-	if (context != null)
-	    context.log("SessionListener: " + message, throwable);
-	else {
-	    System.out.println("SessionListener: " + message);
-	    throwable.printStackTrace(System.out);
-	}
-
-    }
-    
-    private String parseObject(Object obj){
-    	String str="";
-    	
-    	if(obj instanceof String[]){
-    		String[] stringArray=(String[]) obj;
-    		for (int i = 0; i < stringArray.length; i++) {
-    			str+=stringArray[i]+"|";
-			}
-    		return str;
-    	}
-    	
-    	str=obj.toString();
-    	
-    	return str;
-    }
-
-
 }
