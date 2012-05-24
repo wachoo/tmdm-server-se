@@ -20,6 +20,7 @@ import java.io.StringReader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -30,7 +31,10 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit3.PowerMockSuite;
 
 import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
+import org.talend.mdm.webapp.base.client.model.DataTypeCustomized;
+import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 
 import com.amalto.core.util.Util;
@@ -179,4 +183,149 @@ public class DataModelHelperTest extends TestCase {
         assertEquals(ComplexTypeImpl.class, decl.getType().getClass());
     }
     
+    public void testProductDemo() throws Exception {
+        EntityModel entityModel=new EntityModel();
+        String datamodelName="Product";
+        String concept="Product";
+        String[] ids={""};
+        String[] roles={"Demo_User", "Demo_Manager", "System_Admin", "authenticated", "administration"};
+        String xsd = inputStream2String(this.getClass().getResourceAsStream("Product.xsd"));
+        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
+        DataModelHelper.parseSchema(datamodelName, concept, DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, entityModel, Arrays.asList(roles));
+        Map<String, TypeModel> metaDataTypes = entityModel.getMetaDataTypes();
+        assertNotSame(0, metaDataTypes.size());
+        assertEquals(concept, entityModel.getConceptName());
+        assertEquals(16, metaDataTypes.size());
+        
+        Set<String> keySet = metaDataTypes.keySet();
+        assertTrue(keySet.contains("Product"));
+        assertFalse(keySet.contains("ProductFamily"));
+        
+        assertTrue(keySet.contains("Product/Id"));
+        assertEquals(1, metaDataTypes.get("Product/Id").getMinOccurs());
+        assertEquals(1, metaDataTypes.get("Product/Id").getMaxOccurs());
+        assertEquals("string", metaDataTypes.get("Product/Id").getType().getTypeName());
+        assertEquals("Unique Id", metaDataTypes.get("Product/Id").getLabelMap().get("en"));
+        assertEquals("Id unique", metaDataTypes.get("Product/Id").getLabelMap().get("fr"));
+        
+        assertTrue(keySet.contains("Product/Picture"));
+        assertEquals(0, metaDataTypes.get("Product/Picture").getMinOccurs());
+        assertEquals(1, metaDataTypes.get("Product/Picture").getMaxOccurs());
+        assertEquals("PICTURE", metaDataTypes.get("Product/Picture").getType().getTypeName());
+        assertEquals("Picture", metaDataTypes.get("Product/Picture").getLabelMap().get("en"));
+        assertEquals("Image", metaDataTypes.get("Product/Picture").getLabelMap().get("fr"));
+ 
+        assertTrue(keySet.contains("Product/Name"));
+        assertEquals(SimpleTypeModel.class, metaDataTypes.get("Product/Name").getClass());
+        assertEquals(1, metaDataTypes.get("Product/Name").getMinOccurs());
+        assertEquals(1, metaDataTypes.get("Product/Name").getMaxOccurs());
+        assertEquals("string", metaDataTypes.get("Product/Name").getType().getTypeName());
+        assertEquals("Name", metaDataTypes.get("Product/Name").getLabelMap().get("en"));
+        assertEquals("Nom", metaDataTypes.get("Product/Name").getLabelMap().get("fr"));
+        
+        assertTrue(keySet.contains("Product/Description"));
+        assertFalse(metaDataTypes.get("Product/Description").isDenyCreatable());
+        assertFalse(metaDataTypes.get("Product/Description").isDenyLogicalDeletable());
+        assertFalse(metaDataTypes.get("Product/Description").isDenyPhysicalDeleteable());
+        assertNull(metaDataTypes.get("Product/Description").getReusableTypes());
+        
+        assertTrue(keySet.contains("Product/Features"));
+        assertEquals(ComplexTypeModel.class, metaDataTypes.get("Product/Features").getClass());
+        assertEquals(0, metaDataTypes.get("Product/Features").getMinOccurs());
+        assertEquals(1, metaDataTypes.get("Product/Features").getMaxOccurs());
+        assertEquals("unknow", metaDataTypes.get("Product/Features").getType().getTypeName());
+        assertFalse(metaDataTypes.get("Product/Features").isAutoExpand());
+        assertNull(metaDataTypes.get("Product/Features").getReusableTypes());
+        assertNotNull(((ComplexTypeModel)metaDataTypes.get("Product/Features")).getSubTypes());
+        assertEquals(2, ((ComplexTypeModel)metaDataTypes.get("Product/Features")).getSubTypes().size());
+        
+        assertTrue(keySet.contains("Product/Features/Sizes"));
+        assertEquals(0, metaDataTypes.get("Product/Features/Sizes").getMinOccurs());
+        assertEquals(1, metaDataTypes.get("Product/Features/Sizes").getMaxOccurs());
+        assertEquals(((ComplexTypeModel)metaDataTypes.get("Product/Features")).getSubTypes().get(0), metaDataTypes.get("Product/Features/Sizes"));
+        
+        assertTrue(keySet.contains("Product/Features/Sizes/Size"));
+        assertEquals(SimpleTypeModel.class, metaDataTypes.get("Product/Features/Sizes/Size").getClass());
+        assertEquals(1, metaDataTypes.get("Product/Features/Sizes/Size").getMinOccurs());
+        assertEquals(-1, metaDataTypes.get("Product/Features/Sizes/Size").getMaxOccurs());
+        assertEquals(DataTypeCustomized.class, metaDataTypes.get("Product/Features/Sizes/Size").getType().getClass());
+        assertEquals("Size", metaDataTypes.get("Product/Features/Sizes/Size").getType().getTypeName());
+        assertNotNull(((SimpleTypeModel)metaDataTypes.get("Product/Features/Sizes/Size")).getEnumeration());
+        assertEquals(4, ((SimpleTypeModel)metaDataTypes.get("Product/Features/Sizes/Size")).getEnumeration().size());
+        assertTrue(((SimpleTypeModel)metaDataTypes.get("Product/Features/Sizes/Size")).getEnumeration().contains("Small"));
+        assertTrue(((SimpleTypeModel)metaDataTypes.get("Product/Features/Sizes/Size")).getEnumeration().contains("Medium"));
+        assertTrue(((SimpleTypeModel)metaDataTypes.get("Product/Features/Sizes/Size")).getEnumeration().contains("Large"));
+        assertTrue(((SimpleTypeModel)metaDataTypes.get("Product/Features/Sizes/Size")).getEnumeration().contains("X-Large"));
+        
+        assertEquals(true, keySet.contains("Product/Features/Colors"));
+        assertEquals(((ComplexTypeModel)metaDataTypes.get("Product/Features")).getSubTypes().get(1), metaDataTypes.get("Product/Features/Colors"));
+        
+        
+        assertEquals(true, keySet.contains("Product/Features/Colors/Color"));
+        assertEquals(SimpleTypeModel.class, metaDataTypes.get("Product/Features/Colors/Color").getClass());
+        assertEquals(1, metaDataTypes.get("Product/Features/Colors/Color").getMinOccurs());
+        assertEquals(-1, metaDataTypes.get("Product/Features/Colors/Color").getMaxOccurs());
+        assertEquals(DataTypeCustomized.class, metaDataTypes.get("Product/Features/Colors/Color").getType().getClass());
+        assertEquals("Color", metaDataTypes.get("Product/Features/Colors/Color").getType().getTypeName());
+        assertEquals(5, ((SimpleTypeModel)metaDataTypes.get("Product/Features/Colors/Color")).getEnumeration().size());
+        assertTrue(((SimpleTypeModel)metaDataTypes.get("Product/Features/Colors/Color")).getEnumeration().contains("White"));
+        assertTrue(((SimpleTypeModel)metaDataTypes.get("Product/Features/Colors/Color")).getEnumeration().contains("Light Blue"));
+        assertTrue(((SimpleTypeModel)metaDataTypes.get("Product/Features/Colors/Color")).getEnumeration().contains("Light Pink"));
+        assertTrue(((SimpleTypeModel)metaDataTypes.get("Product/Features/Colors/Color")).getEnumeration().contains("Lemon"));
+        assertTrue(((SimpleTypeModel)metaDataTypes.get("Product/Features/Colors/Color")).getEnumeration().contains("Khaki"));
+
+        
+        assertEquals(true, keySet.contains("Product/Availability"));
+        assertEquals("boolean", metaDataTypes.get("Product/Availability").getType().getTypeName());
+        assertNull(metaDataTypes.get("Product/Availability").getForeignkey());
+                
+        assertEquals(true, keySet.contains("Product/Price"));
+        assertEquals(1, metaDataTypes.get("Product/Price").getMinOccurs());
+        assertEquals(1, metaDataTypes.get("Product/Price").getMaxOccurs());
+        assertEquals("decimal", metaDataTypes.get("Product/Price").getType().getTypeName());
+        assertNotNull(metaDataTypes.get("Product/Price").getDescriptionMap());
+        assertEquals(2, metaDataTypes.get("Product/Price").getDescriptionMap().size());
+        assertEquals("Run a price request to change this price", metaDataTypes.get("Product/Price").getDescriptionMap().get("en"));
+        assertEquals("Faites une demande de changement de prix pour modifier", metaDataTypes.get("Product/Price").getDescriptionMap().get("fr"));
+        
+        assertEquals(true, keySet.contains("Product/Family"));
+        assertNotNull(metaDataTypes.get("Product/Family").getForeignkey());
+        assertEquals("ProductFamily/Id", metaDataTypes.get("Product/Family").getForeignkey());
+        assertNotNull(metaDataTypes.get("Product/Family").getForeignKeyInfo());
+        assertEquals(1, metaDataTypes.get("Product/Family").getForeignKeyInfo().size());
+        assertEquals("ProductFamily/Name", metaDataTypes.get("Product/Family").getForeignKeyInfo().get(0));
+        assertNull(metaDataTypes.get("Product/Family").getFkFilter());
+                
+        assertEquals(true, keySet.contains("Product/OnlineStore"));
+        assertEquals("URL", metaDataTypes.get("Product/OnlineStore").getType().getTypeName());       
+        
+        assertEquals(true, keySet.contains("Product/Stores"));
+        assertEquals(0, metaDataTypes.get("Product/Stores").getMinOccurs());
+        assertEquals(1, metaDataTypes.get("Product/Stores").getMaxOccurs());
+        assertEquals(ComplexTypeModel.class, metaDataTypes.get("Product/Stores").getClass());
+        assertNotNull(((ComplexTypeModel)metaDataTypes.get("Product/Stores")).getSubTypes());
+        assertEquals(1, ((ComplexTypeModel)metaDataTypes.get("Product/Stores")).getSubTypes().size());
+        
+        assertEquals(true, keySet.contains("Product/Stores/Store"));
+        assertEquals(((ComplexTypeModel)metaDataTypes.get("Product/Stores")).getSubTypes().get(0), metaDataTypes.get("Product/Stores/Store"));
+        assertNotNull(metaDataTypes.get("Product/Stores/Store").getForeignkey());
+        assertEquals("Store/Id", metaDataTypes.get("Product/Stores/Store").getForeignkey());
+        assertNotNull(metaDataTypes.get("Product/Stores/Store").getForeignKeyInfo());
+        assertEquals(1, metaDataTypes.get("Product/Stores/Store").getForeignKeyInfo().size());
+        assertEquals("Store/Address", metaDataTypes.get("Product/Stores/Store").getForeignKeyInfo().get(0));
+        assertNull(metaDataTypes.get("Product/Stores/Store").getFkFilter());
+    
+        concept = "ProductFamily";
+        entityModel = new EntityModel();
+        DataModelHelper.parseSchema(datamodelName, concept, DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, entityModel, Arrays.asList(roles));
+        metaDataTypes = entityModel.getMetaDataTypes();
+        
+        assertNotNull(metaDataTypes.get("ProductFamily"));
+        assertNotNull(metaDataTypes.get("ProductFamily").getPrimaryKeyInfo());
+        assertEquals(1, metaDataTypes.get("ProductFamily").getPrimaryKeyInfo().size());
+        assertEquals("ProductFamily/Name", metaDataTypes.get("ProductFamily").getPrimaryKeyInfo().get(0));
+        
+        assertNotNull(metaDataTypes.get("ProductFamily/Id"));
+        assertEquals("AUTO_INCREMENT", metaDataTypes.get("ProductFamily/Id").getType().getTypeName());
+    }
 }
