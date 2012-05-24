@@ -25,6 +25,7 @@ import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 
 import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.WSWhereItem;
 import com.amalto.webapp.util.webservices.WSWhereOperator;
@@ -134,7 +135,7 @@ public class ForeignKeyHelperTest extends TestCase {
         value = "";
         ifFKFilter = true;
         model.setFkFilter("Product/Family$$<$$Product/Family$$#");
-        xml = "<Product><id>1</id><name>test</name><Family>[3]</Family></Product>";
+        xml = "<Product><id>1</id><Name>Shirts</Name><Family>[3]</Family></Product>";
         foreignKeyInfos.clear();
         result = ForeignKeyHelper.getForeignKeyHolder(xml, dataCluster, currentXpath, model, ifFKFilter, value);
         whereItem = result.whereItem;
@@ -142,6 +143,72 @@ public class ForeignKeyHelperTest extends TestCase {
         assertEquals("Product/Family", condition1.getLeftPath()); //$NON-NLS-1$
         assertEquals(WSWhereOperator._LOWER_THAN, condition1.getOperator().getValue());
         assertEquals("[3]", condition1.getRightValueOrPath()); //$NON-NLS-1$
+
+        model.setFkFilter("Product/Family$$<$$Product/Family$$And#Product/Name$$Contains$$Product/Name$$#");
+        result = ForeignKeyHelper.getForeignKeyHolder(xml, dataCluster, currentXpath, model, ifFKFilter, value);
+        whereItem = result.whereItem;
+        assertEquals(2, whereItem.getWhereAnd().getWhereItems().length);
+        condition1 = whereItem.getWhereAnd().getWhereItems()[0].getWhereCondition();
+        assertEquals("Product/Family", condition1.getLeftPath()); //$NON-NLS-1$
+        assertEquals(WSWhereOperator._LOWER_THAN, condition1.getOperator().getValue());
+        assertEquals("[3]", condition1.getRightValueOrPath()); //$NON-NLS-1$
+        assertEquals(WSStringPredicate._AND, condition1.getStringPredicate().getValue());
+        condition2 = whereItem.getWhereAnd().getWhereItems()[1].getWhereCondition();
+        assertEquals("Product/Name", condition2.getLeftPath()); //$NON-NLS-1$
+        assertEquals(WSWhereOperator._CONTAINS, condition2.getOperator().getValue());
+        assertEquals("Shirts", condition2.getRightValueOrPath()); //$NON-NLS-1$
+
+        // 6. ifFKFilter = true,fkFilter = 'ProductFamily/Name$$Contains$$Product/Name$$#',foreignKeyInfo is null
+        value = "";
+        ifFKFilter = true;
+        model.setFkFilter("ProductFamily/Name$$Contains$$Product/Name$$#");
+        xml = "<Product><id>1</id><Name>Shirts</Name><Family>[3]</Family></Product>";
+        foreignKeyInfos.clear();
+        result = ForeignKeyHelper.getForeignKeyHolder(xml, dataCluster, currentXpath, model, ifFKFilter, value);
+        whereItem = result.whereItem;
+        condition1 = whereItem.getWhereAnd().getWhereItems()[0].getWhereCondition();
+        assertEquals("ProductFamily/Name", condition1.getLeftPath()); //$NON-NLS-1$
+        assertEquals(WSWhereOperator._CONTAINS, condition1.getOperator().getValue());
+        assertEquals("Shirts", condition1.getRightValueOrPath()); //$NON-NLS-1$
+
+        // 7. FK inheritance: ifFKFilter = true,fkFilter = 'ProductType/Type/@xsi:type$$=$$ProductTypeOne$$#'
+        /*******************************************************************************************************
+         * FK filter note<br>
+         * Product/Type is a foreign key<br>
+         * -----Foreign Key : ProductType/Id<br>
+         * -----Foreign Key Filter : ProductType/Type/@xsi:type$$=$$ProductTypeOne$$#<br>
+         * ProductType is an entity(exist three attributes: Id,Name and Type, Type is a comlexType(ComplexProductType))<br>
+         * ComplexProductType is an abstract complex type<br>
+         * ProductTypeOne inherited ComplexProductType<br>
+         * ProductTypeTwo inherited ComplexProductType<br>
+         ********************************************************************************************************/
+        ifFKFilter = true;
+        xml = "";
+        dataCluster = "Product";
+        currentXpath = "Product/Type";
+        model.setFkFilter("ProductType/Type/@xsi:type$$=$$ProductTypeOne$$#");
+        foreignKeyInfos.clear();
+        result = ForeignKeyHelper.getForeignKeyHolder(xml, dataCluster, currentXpath, model, ifFKFilter, value);
+        whereItem = result.whereItem;
+        condition1 = whereItem.getWhereAnd().getWhereItems()[0].getWhereCondition();
+        assertEquals("ProductType/Type/@xsi:type", condition1.getLeftPath()); //$NON-NLS-1$
+        assertEquals(WSWhereOperator._EQUALS, condition1.getOperator().getValue());
+        assertEquals("ProductTypeOne", condition1.getRightValueOrPath()); //$NON-NLS-1$
+
+        xml = "<Product><id>1</id><Name>Shirts</Name><Family>[3]</Family></Product>";
+        model.setFkFilter("ProductType/Type/@xsi:type$$=$$ProductTypeTwo$$And#ProductType/Name$$Contains$$Product/Name$$#");
+        result = ForeignKeyHelper.getForeignKeyHolder(xml, dataCluster, currentXpath, model, ifFKFilter, value);
+        whereItem = result.whereItem;
+        assertEquals(2, whereItem.getWhereAnd().getWhereItems().length);
+        condition1 = whereItem.getWhereAnd().getWhereItems()[0].getWhereCondition();
+        assertEquals("ProductType/Type/@xsi:type", condition1.getLeftPath()); //$NON-NLS-1$
+        assertEquals(WSWhereOperator._EQUALS, condition1.getOperator().getValue());
+        assertEquals("ProductTypeTwo", condition1.getRightValueOrPath()); //$NON-NLS-1$
+        assertEquals(WSStringPredicate._AND, condition1.getStringPredicate().getValue());
+        condition2 = whereItem.getWhereAnd().getWhereItems()[1].getWhereCondition();
+        assertEquals("ProductType/Name", condition2.getLeftPath()); //$NON-NLS-1$
+        assertEquals(WSWhereOperator._CONTAINS, condition2.getOperator().getValue());
+        assertEquals("Shirts", condition2.getRightValueOrPath()); //$NON-NLS-1$
 
     }
 
