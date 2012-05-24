@@ -36,6 +36,7 @@ import com.amalto.core.util.MessagesFactory;
 import com.amalto.core.util.Util;
 import com.amalto.webapp.core.util.WebappForbiddenLoginException;
 import com.amalto.webapp.core.util.WebappRepeatedLoginException;
+import com.amalto.webapp.core.util.SessionListener;
 
 public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericControllerServlet {
 
@@ -83,7 +84,7 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
         try {
             // see 0013864
             username = com.amalto.webapp.core.util.Util.getAjaxSubject().getUsername();
-            if (MDMConfiguration.getAdminUser().equals(username)) {	    
+            if (MDMConfiguration.getAdminUser().equals(username)) {
                 throw new WebappForbiddenLoginException(MESSAGES.getMessage(locale, "login.exception.forbidden", username)); //$NON-NLS-1$);
             }
 
@@ -92,11 +93,13 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
                 req.getSession().setMaxInactiveInterval((Integer) req.getSession().getAttribute("sessionTimeOut")); //$NON-NLS-1$
 
             // Dispatch call
-            String jsp = req.getParameter("action"); //$NON-NLS-1$	
+            String jsp = req.getParameter("action"); //$NON-NLS-1$  
             if ("logout".equals(jsp)) { //$NON-NLS-1$
                 req.getSession().invalidate();
                 res.sendRedirect("../index.html"); //$NON-NLS-1$
             } else {
+                SessionListener.registerUser(username, req.getSession().getId());
+
                 String target = req.getParameter("target"); //$NON-NLS-1$
                 // when parameter no equals "original" to redirect to /general/secure/
                 if (!"original".equals(target)) { //$NON-NLS-1$
@@ -151,9 +154,9 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
             String key = iterator.next();
             String value = map.get(key);
             if (key.equals(language)) {
-                html += "		<option value=\"" + key + "\" selected>" + value + "</option>\n"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                html += "       <option value=\"" + key + "\" selected>" + value + "</option>\n"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
             } else {
-                html += "		<option value=\"" + key + "\">" + value + "</option>\n"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                html += "       <option value=\"" + key + "\">" + value + "</option>\n"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
             }
 
         }
@@ -179,32 +182,20 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
                 + "&nbsp;&nbsp;" //$NON-NLS-1$
                 + "</div></td>\n" //$NON-NLS-1$
                 + "<td><div><select style=\" font: normal  11px tahoma,verdana,helvetica; right: 5px\" id=\"languageSelect\" onchange=\"amalto.core.switchLanguage();\">\n" //$NON-NLS-1$
-                + html
-                + "	</select></div></td>" //$NON-NLS-1$
+                + html + "  </select></div></td>" //$NON-NLS-1$
                 + "<td><div id=\"logout-btn\" ></div></td>\n" //$NON-NLS-1$
-                +
-
-                "<td><div style=\"float position:relative;top: 1px;\" ><a href='" //$NON-NLS-1$
-                + request.getContextPath()
-                + "/secure/?action=logout' id='logout-btn' class='logout-btn'></a></div></td>\n" //$NON-NLS-1$
-                +
-
-                "</tr>\n" //$NON-NLS-1$
+                + "<td><div style=\"float position:relative;top: 1px;\" ><a href='" //$NON-NLS-1$
+                + request.getContextPath() + "/secure/?action=logout' id='logout-btn' class='logout-btn'></a></div></td>\n" //$NON-NLS-1$
+                + "</tr>\n" //$NON-NLS-1$
                 + "</table></div>" //$NON-NLS-1$
-                +
-
-                "</div>\n" //$NON-NLS-1$
-                +
-
-                "<div id=\"menus\" class=\"menus-list\"></div>\n" //$NON-NLS-1$
+                + "</div>\n" //$NON-NLS-1$
+                + "<div id=\"menus\" class=\"menus-list\"></div>\n" //$NON-NLS-1$
                 + "<div id=\"centerdiv\"></div>\n" //$NON-NLS-1$
                 + "<div id=\"statusdiv\"></div>\n" //$NON-NLS-1$
                 + "<input type=\"hidden\" id=\"contextPath\" value=" //$NON-NLS-1$
-                + request.getContextPath()
-                + "/>\n" //$NON-NLS-1$
+                + request.getContextPath() + "/>\n" //$NON-NLS-1$
                 + "<input type=\"hidden\" id=\"serverPath\" value=" //$NON-NLS-1$
-                + request.getScheme()
-                + "://" + request.getLocalAddr() + ":" + request.getLocalPort() + "/>\n" + "</body>";   //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
+                + request.getScheme() + "://" + request.getLocalAddr() + ":" + request.getLocalPort() + "/>\n" + "</body>"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
     }
 
     private LinkedHashMap<String, String> getLanguageMap() {

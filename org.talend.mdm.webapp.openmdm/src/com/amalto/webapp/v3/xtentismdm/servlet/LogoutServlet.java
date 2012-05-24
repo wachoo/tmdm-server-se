@@ -21,6 +21,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
+import com.amalto.webapp.core.util.SessionListener;
+
 public class LogoutServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
@@ -38,10 +40,17 @@ public class LogoutServlet extends HttpServlet {
     }
 
     private void doLogout(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        if (logger.isDebugEnabled())
-            logger.debug("Logout called with user " + req.getParameter("user")); //$NON-NLS-1$ //$NON-NLS-2$
-        req.getSession().invalidate();
-        resp.sendRedirect(req.getContextPath() + "/index.html"); //$NON-NLS-1$
-    }
+        String user = req.getParameter("user"); //$NON-NLS-1$
+        if (user != null) {
+            try {
+                SessionListener.unregisterUser(user);
+            } catch (Exception e) {
+                if (logger.isDebugEnabled())
+                    logger.debug("Error happened while updating online users!"); //$NON-NLS-1$
+            }
+        }
 
+        resp.sendRedirect(req.getContextPath());
+        req.getSession().invalidate();
+    }
 }
