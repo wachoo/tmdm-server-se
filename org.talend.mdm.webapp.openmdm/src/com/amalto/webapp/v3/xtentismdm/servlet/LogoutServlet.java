@@ -41,16 +41,24 @@ public class LogoutServlet extends HttpServlet {
 
     private void doLogout(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String user = req.getParameter("user"); //$NON-NLS-1$
+        int errorCode = -1;
         if (user != null) {
             try {
-                SessionListener.unregisterUser(user);
+                String username = com.amalto.webapp.core.util.Util.getAjaxSubject().getUsername();
+                if (user.equals(username))
+                    SessionListener.unregisterUser(user);
+                else
+                    errorCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
             } catch (Exception e) {
                 if (logger.isDebugEnabled())
-                    logger.debug("Error happened while updating online users!"); //$NON-NLS-1$
+                    logger.debug("Error occured while updating online users!"); //$NON-NLS-1$
+                errorCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
             }
         }
-
-        resp.sendRedirect(req.getContextPath());
+        if (errorCode != -1)
+            resp.sendError(errorCode);
+        else
+            resp.sendRedirect(req.getContextPath());
         req.getSession().invalidate();
     }
 }
