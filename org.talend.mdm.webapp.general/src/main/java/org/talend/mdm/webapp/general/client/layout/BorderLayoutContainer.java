@@ -13,7 +13,6 @@
 package org.talend.mdm.webapp.general.client.layout;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
@@ -42,7 +41,6 @@ public class BorderLayoutContainer extends Viewport {
         WorkSpace center = WorkSpace.getInstance();
         center.setId("MDMCenterWorkspace"); //$NON-NLS-1$
         center.setBorders(false);
-        center.setScrollMode(Scroll.AUTOX);
 
         ActionsPanel east = ActionsPanel.getInstance();
         east.setBorders(false);

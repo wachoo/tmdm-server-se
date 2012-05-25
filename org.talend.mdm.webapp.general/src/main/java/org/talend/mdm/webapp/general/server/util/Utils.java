@@ -127,10 +127,14 @@ public class Utils {
                     }
 
                 } else {
+                    
                     String tmp = "<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/" + gxtEntryModule + "/" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                             + gxtEntryModule + ".nocache.js\"></script>\n"; //$NON-NLS-1$
-                    if (!imports.contains(tmp))
+                    if (!imports.contains(tmp)) {
+                        imports
+                                .add("<link rel=\"stylesheet\" type=\"text/css\" href=\"/" + subMenu.getContext() + "/" + subMenu.getApplication() + ".css\" />\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         imports.add(tmp);
+                    }
                 }
                 i++;
             }
