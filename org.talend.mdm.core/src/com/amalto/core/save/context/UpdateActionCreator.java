@@ -150,7 +150,9 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     private void compare(FieldMetadata comparedField) {
         if (comparedField.isKey()) {
-            // Can't update a key: don't even try to compare the field.
+            // Can't update a key: don't even try to compare the field (but update lastMatchPath in case next compared
+            // element is right after key field).
+            lastMatchPath = getPath();
             return;
         }
         String path = getPath();
