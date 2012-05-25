@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:al="http://eclipse.org/graphiti/mm/algorithms" xmlns:mdmcomp="http://org.talend/mdm/form/components" xmlns:mdmform="http://org.talend/mdm/form" xmlns:pi="http://eclipse.org/graphiti/mm/pictograms">
+  <pi:Diagram xmi:id="_EpviwJ2rEeGyRYGwGKSA-A" visible="true" gridUnit="10" diagramTypeId="mdmform" name="Product.Store" snapToGrid="true" showGuides="true" pictogramLinks="_Eup38Z2rEeGyRYGwGKSA-A _EvQU452rEeGyRYGwGKSA-A _EvZe1p2rEeGyRYGwGKSA-A _EvZe2J2rEeGyRYGwGKSA-A _EvjP0J2rEeGyRYGwGKSA-A _EvjP0p2rEeGyRYGwGKSA-A _EvjP2J2rEeGyRYGwGKSA-A _EvjP2p2rEeGyRYGwGKSA-A _EvjP4J2rEeGyRYGwGKSA-A _EvjP4p2rEeGyRYGwGKSA-A _EvjP6J2rEeGyRYGwGKSA-A _EvjP6p2rEeGyRYGwGKSA-A">
+    <graphicsAlgorithm xsi:type="al:Rectangle" xmi:id="_EpviwZ2rEeGyRYGwGKSA-A" background="_Epviw52rEeGyRYGwGKSA-A" foreground="_Epviwp2rEeGyRYGwGKSA-A" lineWidth="1" transparency="0.0" width="1000" height="1000"/>
+    <children xsi:type="pi:ContainerShape" xmi:id="_EuNMAJ2rEeGyRYGwGKSA-A" visible="true" active="true">
+      <graphicsAlgorithm xsi:type="al:Rectangle" xmi:id="_EuguAJ2rEeGyRYGwGKSA-A" background="_EuguAp2rEeGyRYGwGKSA-A" foreground="_EuguAZ2rEeGyRYGwGKSA-A" lineWidth="2" transparency="0.0" width="300" height="450" x="10" y="20"/>
+      <link xmi:id="_Eup38Z2rEeGyRYGwGKSA-A" businessObjects="_Eup38J2rEeGyRYGwGKSA-A"/>
+      <children xsi:type="pi:ContainerShape" xmi:id="_EvjP1J2rEeGyRYGwGKSA-A" visible="true" active="true">
+        <graphicsAlgorithm xsi:type="al:Rectangle" xmi:id="_EvjP1Z2rEeGyRYGwGKSA-A" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="260" height="20" x="5" y="5">
+          <graphicsAlgorithmChildren xsi:type="al:Image" xmi:id="_EvjP2Z2rEeGyRYGwGKSA-A" lineWidth="1" transparency="0.0" width="195" height="20" x="65" id="org.talend.mdm.form.editor.text" stretchH="false" stretchV="false" proportional="false"/>
+        </graphicsAlgorithm>
+        <link xmi:id="_EvjP2p2rEeGyRYGwGKSA-A" businessObjects="_EvjP052rEeGyRYGwGKSA-A"/>
+        <children xmi:id="_EvjP1p2rEeGyRYGwGKSA-A" visible="true">
+          <graphicsAlgorithm xsi:type="al:Text" xmi:id="_EvjP152rEeGyRYGwGKSA-A" foreground="_EvZe1Z2rEeGyRYGwGKSA-A" lineWidth="1" transparency="0.0" width="65" height="20" x="2" horizontalAlignment="ALIGNMENT_CENTER" value="Lat"/>
+          <link xmi:id="_EvjP2J2rEeGyRYGwGKSA-A" businessObjects="_EvjP052rEeGyRYGwGKSA-A"/>
+        </children>
+      </children>
+      <children xsi:type="pi:ContainerShape" xmi:id="_EvjP5J2rEeGyRYGwGKSA-A" visible="true" active="true">
+        <graphicsAlgorithm xsi:type="al:Rectangle" xmi:id="_EvjP5Z2rEeGyRYGwGKSA-A" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="260" height="20" x="5" y="30">
+          <graphicsAlgorithmChildren xsi:type="al:Image" xmi:id="_EvjP6Z2rEeGyRYGwGKSA-A" lineWidth="1" transparency="0.0" width="195" height="20" x="65" id="org.talend.mdm.form.editor.url" stretchH="false" stretchV="false" proportional="false"/>
+        </graphicsAlgorithm>
+        <link xmi:id="_EvjP6p2rEeGyRYGwGKSA-A" businessObjects="_EvjP452rEeGyRYGwGKSA-A"/>
+        <children xmi:id="_EvjP5p2rEeGyRYGwGKSA-A" visible="true">
+          <graphicsAlgorithm xsi:type="al:Text" xmi:id="_EvjP552rEeGyRYGwGKSA-A" foreground="_EvZe1Z2rEeGyRYGwGKSA-A" lineWidth="1" transparency="0.0" width="65" height="20" x="2" horizontalAlignment="ALIGNMENT_CENTER" value="Map"/>
+          <link xmi:id="_EvjP6J2rEeGyRYGwGKSA-A" businessObjects="_EvjP452rEeGyRYGwGKSA-A"/>
+        </children>
+      </children>
+      <children xsi:type="pi:ContainerShape" xmi:id="_EvZe2p2rEeGyRYGwGKSA-A" visible="true" active="true">
+        <graphicsAlgorithm xsi:type="al:Rectangle" xmi:id="_EvZe252rEeGyRYGwGKSA-A" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="260" height="20" x="5" y="55">
+          <graphicsAlgorithmChildren xsi:type="al:Image" xmi:id="_EvjP0Z2rEeGyRYGwGKSA-A" lineWidth="1" transparency="0.0" width="195" height="20" x="65" id="org.talend.mdm.form.editor.text" stretchH="false" stretchV="false" proportional="false"/>
+        </graphicsAlgorithm>
+        <link xmi:id="_EvjP0p2rEeGyRYGwGKSA-A" businessObjects="_EvZe2Z2rEeGyRYGwGKSA-A"/>
+        <children xmi:id="_EvZe3J2rEeGyRYGwGKSA-A" visible="true">
+          <graphicsAlgorithm xsi:type="al:Text" xmi:id="_EvZe3Z2rEeGyRYGwGKSA-A" foreground="_EvZe1Z2rEeGyRYGwGKSA-A" lineWidth="1" transparency="0.0" width="65" height="20" x="2" horizontalAlignment="ALIGNMENT_CENTER" value="Address"/>
+          <link xmi:id="_EvjP0J2rEeGyRYGwGKSA-A" businessObjects="_EvZe2Z2rEeGyRYGwGKSA-A"/>
+        </children>
+      </children>
+      <children xsi:type="pi:ContainerShape" xmi:id="_EvZe0Z2rEeGyRYGwGKSA-A" visible="true" active="true">
+        <graphicsAlgorithm xsi:type="al:Rectangle" xmi:id="_EvZe0p2rEeGyRYGwGKSA-A" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="260" height="20" x="5" y="80">
+          <graphicsAlgorithmChildren xsi:type="al:Image" xmi:id="_EvZe152rEeGyRYGwGKSA-A" lineWidth="1" transparency="0.0" width="195" height="20" x="65" id="org.talend.mdm.form.editor.text" stretchH="false" stretchV="false" proportional="false"/>
+        </graphicsAlgorithm>
+        <link xmi:id="_EvZe2J2rEeGyRYGwGKSA-A" businessObjects="_EvZe0J2rEeGyRYGwGKSA-A"/>
+        <children xmi:id="_EvZe052rEeGyRYGwGKSA-A" visible="true">
+          <graphicsAlgorithm xsi:type="al:Text" xmi:id="_EvZe1J2rEeGyRYGwGKSA-A" foreground="_EvZe1Z2rEeGyRYGwGKSA-A" lineWidth="1" transparency="0.0" width="65" height="20" x="2" horizontalAlignment="ALIGNMENT_CENTER" value="Id"/>
+          <link xmi:id="_EvZe1p2rEeGyRYGwGKSA-A" businessObjects="_EvZe0J2rEeGyRYGwGKSA-A"/>
+        </children>
+      </children>
+      <children xsi:type="pi:ContainerShape" xmi:id="_EvjP3J2rEeGyRYGwGKSA-A" visible="true" active="true">
+        <graphicsAlgorithm xsi:type="al:Rectangle" xmi:id="_EvjP3Z2rEeGyRYGwGKSA-A" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="260" height="20" x="5" y="105">
+          <graphicsAlgorithmChildren xsi:type="al:Image" xmi:id="_EvjP4Z2rEeGyRYGwGKSA-A" lineWidth="1" transparency="0.0" width="195" height="20" x="65" id="org.talend.mdm.form.editor.text" stretchH="false" stretchV="false" proportional="false"/>
+        </graphicsAlgorithm>
+        <link xmi:id="_EvjP4p2rEeGyRYGwGKSA-A" businessObjects="_EvjP252rEeGyRYGwGKSA-A"/>
+        <children xmi:id="_EvjP3p2rEeGyRYGwGKSA-A" visible="true">
+          <graphicsAlgorithm xsi:type="al:Text" xmi:id="_EvjP352rEeGyRYGwGKSA-A" foreground="_EvZe1Z2rEeGyRYGwGKSA-A" lineWidth="1" transparency="0.0" width="65" height="20" x="2" horizontalAlignment="ALIGNMENT_CENTER" value="Long"/>
+          <link xmi:id="_EvjP4J2rEeGyRYGwGKSA-A" businessObjects="_EvjP252rEeGyRYGwGKSA-A"/>
+        </children>
+      </children>
+    </children>
+    <children xsi:type="pi:ContainerShape" xmi:id="_EvQU4J2rEeGyRYGwGKSA-A" visible="true" active="true">
+      <graphicsAlgorithm xsi:type="al:Rectangle" xmi:id="_EvQU4Z2rEeGyRYGwGKSA-A" background="_EuguAp2rEeGyRYGwGKSA-A" foreground="_EuguAZ2rEeGyRYGwGKSA-A" lineWidth="2" transparency="0.0" width="300" height="450" x="330" y="20"/>
+      <link xmi:id="_EvQU452rEeGyRYGwGKSA-A" businessObjects="_EvQU4p2rEeGyRYGwGKSA-A"/>
+    </children>
+    <colors xmi:id="_Epviwp2rEeGyRYGwGKSA-A" red="227" green="238" blue="249"/>
+    <colors xmi:id="_Epviw52rEeGyRYGwGKSA-A" red="255" green="255" blue="255"/>
+    <colors xmi:id="_EuguAZ2rEeGyRYGwGKSA-A" red="255" green="102"/>
+    <colors xmi:id="_EuguAp2rEeGyRYGwGKSA-A" red="207" green="227" blue="250"/>
+    <colors xmi:id="_EvZe1Z2rEeGyRYGwGKSA-A" red="51" green="51" blue="153"/>
+  </pi:Diagram>
+  <mdmform:Panel xmi:id="_Eup38J2rEeGyRYGwGKSA-A" label="">
+    <children xsi:type="mdmcomp:TextField" xmi:id="_EvjP052rEeGyRYGwGKSA-A" parent="_Eup38J2rEeGyRYGwGKSA-A" maxOccurs="1" type="double" xpath="/Store/Lat" label="Lat"/>
+    <children xsi:type="mdmcomp:TextField" xmi:id="_EvjP452rEeGyRYGwGKSA-A" parent="_Eup38J2rEeGyRYGwGKSA-A" maxOccurs="1" type="URL" xpath="/Store/Map" label="Map"/>
+    <children xsi:type="mdmcomp:TextField" xmi:id="_EvZe2Z2rEeGyRYGwGKSA-A" parent="_Eup38J2rEeGyRYGwGKSA-A" maxOccurs="1" type="string" xpath="/Store/Address" label="Address"/>
+    <children xsi:type="mdmcomp:TextField" xmi:id="_EvZe0J2rEeGyRYGwGKSA-A" parent="_Eup38J2rEeGyRYGwGKSA-A" minOccurs="1" maxOccurs="1" key="true" type="string" xpath="/Store/Id" label="Id"/>
+    <children xsi:type="mdmcomp:TextField" xmi:id="_EvjP252rEeGyRYGwGKSA-A" parent="_Eup38J2rEeGyRYGwGKSA-A" maxOccurs="1" type="double" xpath="/Store/Long" label="Long"/>
+  </mdmform:Panel>
+  <mdmform:Panel xmi:id="_EvQU4p2rEeGyRYGwGKSA-A" label=""/>
+</xmi:XMI>

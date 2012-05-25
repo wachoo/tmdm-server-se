@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:al="http://eclipse.org/graphiti/mm/algorithms" xmlns:mdmcomp="http://org.talend/mdm/form/components" xmlns:mdmform="http://org.talend/mdm/form" xmlns:pi="http://eclipse.org/graphiti/mm/pictograms">
+  <pi:Diagram xmi:id="_IsdwoKYXEeGd19qX0jg98A" visible="true" gridUnit="10" diagramTypeId="mdmform" name="Product.MyTest" snapToGrid="true" showGuides="true" pictogramLinks="_Ism6laYXEeGd19qX0jg98A _Ism6maYXEeGd19qX0jg98A _Ism6naYXEeGd19qX0jg98A _IswrlaYXEeGd19qX0jg98A _Iswrl6YXEeGd19qX0jg98A _IswrnaYXEeGd19qX0jg98A _Iswrn6YXEeGd19qX0jg98A _Iswro6YXEeGd19qX0jg98A _IswrqaYXEeGd19qX0jg98A _Iswrq6YXEeGd19qX0jg98A _Iswrr6YXEeGd19qX0jg98A _IswrtaYXEeGd19qX0jg98A _Iswrt6YXEeGd19qX0jg98A _IswrvaYXEeGd19qX0jg98A _Iswrv6YXEeGd19qX0jg98A _IswrxaYXEeGd19qX0jg98A _Iswrx6YXEeGd19qX0jg98A _Iswry6YXEeGd19qX0jg98A _Iswr0aYXEeGd19qX0jg98A _Iswr06YXEeGd19qX0jg98A _Iswr2aYXEeGd19qX0jg98A _Iswr26YXEeGd19qX0jg98A">
+    <graphicsAlgorithm xsi:type="al:Rectangle" xmi:id="_IsdwoaYXEeGd19qX0jg98A" background="_Isdwo6YXEeGd19qX0jg98A" foreground="_IsdwoqYXEeGd19qX0jg98A" lineWidth="1" transparency="0.0" width="1000" height="1000"/>
+    <children xsi:type="pi:ContainerShape" xmi:id="_Ism6kKYXEeGd19qX0jg98A" visible="true" active="true">
+      <graphicsAlgorithm xsi:type="al:Rectangle" xmi:id="_Ism6kaYXEeGd19qX0jg98A" background="_Ism6k6YXEeGd19qX0jg98A" foreground="_Ism6kqYXEeGd19qX0jg98A" lineWidth="2" transparency="0.0" width="300" height="450" x="10" y="20"/>
+      <link xmi:id="_Ism6laYXEeGd19qX0jg98A" businessObjects="_Ism6lKYXEeGd19qX0jg98A"/>
+      <children xsi:type="pi:ContainerShape" xmi:id="_IswrkKYXEeGd19qX0jg98A" visible="true" active="true">
+        <graphicsAlgorithm xsi:type="al:Rectangle" xmi:id="_IswrkaYXEeGd19qX0jg98A" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="260" height="20" x="5" y="5">
+          <graphicsAlgorithmChildren xsi:type="al:Image" xmi:id="_IswrlqYXEeGd19qX0jg98A" lineWidth="1" transparency="0.0" width="195" height="20" x="65" id="org.talend.mdm.form.editor.text" stretchH="false" stretchV="false" proportional="false"/>
+        </graphicsAlgorithm>
+        <link xmi:id="_Iswrl6YXEeGd19qX0jg98A" businessObjects="_Ism6nqYXEeGd19qX0jg98A"/>
+        <children xmi:id="_IswrkqYXEeGd19qX0jg98A" visible="true">
+          <graphicsAlgorithm xsi:type="al:Text" xmi:id="_Iswrk6YXEeGd19qX0jg98A" foreground="_IswrlKYXEeGd19qX0jg98A" lineWidth="1" transparency="0.0" width="65" height="20" x="2" horizontalAlignment="ALIGNMENT_CENTER" value="Id"/>
+          <link xmi:id="_IswrlaYXEeGd19qX0jg98A" businessObjects="_Ism6nqYXEeGd19qX0jg98A"/>
+        </children>
+      </children>
+      <children xsi:type="pi:ContainerShape" xmi:id="_IswrmaYXEeGd19qX0jg98A" visible="true" active="true">
+        <graphicsAlgorithm xsi:type="al:Rectangle" xmi:id="_IswrmqYXEeGd19qX0jg98A" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="260" height="20" x="5" y="30">
+          <graphicsAlgorithmChildren xsi:type="al:Image" xmi:id="_IswrnqYXEeGd19qX0jg98A" lineWidth="1" transparency="0.0" width="195" height="20" x="65" id="org.talend.mdm.form.editor.text" stretchH="false" stretchV="false" proportional="false"/>
+        </graphicsAlgorithm>
+        <link xmi:id="_Iswrn6YXEeGd19qX0jg98A" businessObjects="_IswrmKYXEeGd19qX0jg98A"/>
+        <children xmi:id="_Iswrm6YXEeGd19qX0jg98A" visible="true">
+          <graphicsAlgorithm xsi:type="al:Text" xmi:id="_IswrnKYXEeGd19qX0jg98A" foreground="_IswrlKYXEeGd19qX0jg98A" lineWidth="1" transparency="0.0" width="65" height="20" x="2" horizontalAlignment="ALIGNMENT_CENTER" value="Age"/>
+          <link xmi:id="_IswrnaYXEeGd19qX0jg98A" businessObjects="_IswrmKYXEeGd19qX0jg98A"/>
+        </children>
+      </children>
+      <children xsi:type="pi:ContainerShape" xmi:id="_IswroaYXEeGd19qX0jg98A" visible="true" active="true">
+        <graphicsAlgorithm xsi:type="al:Rectangle" xmi:id="_IswroqYXEeGd19qX0jg98A" background="_Ism6k6YXEeGd19qX0jg98A" foreground="_Ism6kqYXEeGd19qX0jg98A" lineWidth="2" transparency="0.0" width="290" height="115" x="5" y="55"/>
+        <link xmi:id="_Iswro6YXEeGd19qX0jg98A" businessObjects="_IswroKYXEeGd19qX0jg98A"/>
+        <children xsi:type="pi:ContainerShape" xmi:id="_IswrpaYXEeGd19qX0jg98A" visible="true" active="true">
+          <graphicsAlgorithm xsi:type="al:Rectangle" xmi:id="_IswrpqYXEeGd19qX0jg98A" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="260" height="20" x="5" y="5">
+            <graphicsAlgorithmChildren xsi:type="al:Image" xmi:id="_IswrqqYXEeGd19qX0jg98A" lineWidth="1" transparency="0.0" width="195" height="20" x="65" id="org.talend.mdm.form.editor.text" stretchH="false" stretchV="false" proportional="false"/>
+          </graphicsAlgorithm>
+          <link xmi:id="_Iswrq6YXEeGd19qX0jg98A" businessObjects="_IswrpKYXEeGd19qX0jg98A"/>
+          <children xmi:id="_Iswrp6YXEeGd19qX0jg98A" visible="true">
+            <graphicsAlgorithm xsi:type="al:Text" xmi:id="_IswrqKYXEeGd19qX0jg98A" foreground="_IswrlKYXEeGd19qX0jg98A" lineWidth="1" transparency="0.0" width="65" height="20" x="2" horizontalAlignment="ALIGNMENT_CENTER" value="R1"/>
+            <link xmi:id="_IswrqaYXEeGd19qX0jg98A" businessObjects="_IswrpKYXEeGd19qX0jg98A"/>
+          </children>
+        </children>
+        <children xsi:type="pi:ContainerShape" xmi:id="_IswrraYXEeGd19qX0jg98A" visible="true" active="true">
+          <graphicsAlgorithm xsi:type="al:Rectangle" xmi:id="_IswrrqYXEeGd19qX0jg98A" background="_Ism6k6YXEeGd19qX0jg98A" foreground="_Ism6kqYXEeGd19qX0jg98A" lineWidth="2" transparency="0.0" width="290" height="55" x="5" y="30"/>
+          <link xmi:id="_Iswrr6YXEeGd19qX0jg98A" businessObjects="_IswrrKYXEeGd19qX0jg98A"/>
+          <children xsi:type="pi:ContainerShape" xmi:id="_IswrsaYXEeGd19qX0jg98A" visible="true" active="true">
+            <graphicsAlgorithm xsi:type="al:Rectangle" xmi:id="_IswrsqYXEeGd19qX0jg98A" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="260" height="20" x="5" y="5">
+              <graphicsAlgorithmChildren xsi:type="al:Image" xmi:id="_IswrtqYXEeGd19qX0jg98A" lineWidth="1" transparency="0.0" width="195" height="20" x="65" id="org.talend.mdm.form.editor.text" stretchH="false" stretchV="false" proportional="false"/>
+            </graphicsAlgorithm>
+            <link xmi:id="_Iswrt6YXEeGd19qX0jg98A" businessObjects="_IswrsKYXEeGd19qX0jg98A"/>
+            <children xmi:id="_Iswrs6YXEeGd19qX0jg98A" visible="true">
+              <graphicsAlgorithm xsi:type="al:Text" xmi:id="_IswrtKYXEeGd19qX0jg98A" foreground="_IswrlKYXEeGd19qX0jg98A" lineWidth="1" transparency="0.0" width="65" height="20" x="2" horizontalAlignment="ALIGNMENT_CENTER" value="RR1"/>
+              <link xmi:id="_IswrtaYXEeGd19qX0jg98A" businessObjects="_IswrsKYXEeGd19qX0jg98A"/>
+            </children>
+          </children>
+          <children xsi:type="pi:ContainerShape" xmi:id="_IswruaYXEeGd19qX0jg98A" visible="true" active="true">
+            <graphicsAlgorithm xsi:type="al:Rectangle" xmi:id="_IswruqYXEeGd19qX0jg98A" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="260" height="20" x="5" y="30">
+              <graphicsAlgorithmChildren xsi:type="al:Image" xmi:id="_IswrvqYXEeGd19qX0jg98A" lineWidth="1" transparency="0.0" width="195" height="20" x="65" id="org.talend.mdm.form.editor.text" stretchH="false" stretchV="false" proportional="false"/>
+            </graphicsAlgorithm>
+            <link xmi:id="_Iswrv6YXEeGd19qX0jg98A" businessObjects="_IswruKYXEeGd19qX0jg98A"/>
+            <children xmi:id="_Iswru6YXEeGd19qX0jg98A" visible="true">
+              <graphicsAlgorithm xsi:type="al:Text" xmi:id="_IswrvKYXEeGd19qX0jg98A" foreground="_IswrlKYXEeGd19qX0jg98A" lineWidth="1" transparency="0.0" width="65" height="20" x="2" horizontalAlignment="ALIGNMENT_CENTER" value="RR2"/>
+              <link xmi:id="_IswrvaYXEeGd19qX0jg98A" businessObjects="_IswruKYXEeGd19qX0jg98A"/>
+            </children>
+          </children>
+        </children>
+        <children xsi:type="pi:ContainerShape" xmi:id="_IswrwaYXEeGd19qX0jg98A" visible="true" active="true">
+          <graphicsAlgorithm xsi:type="al:Rectangle" xmi:id="_IswrwqYXEeGd19qX0jg98A" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="260" height="20" x="5" y="90">
+            <graphicsAlgorithmChildren xsi:type="al:Image" xmi:id="_IswrxqYXEeGd19qX0jg98A" lineWidth="1" transparency="0.0" width="195" height="20" x="65" id="org.talend.mdm.form.editor.text" stretchH="false" stretchV="false" proportional="false"/>
+          </graphicsAlgorithm>
+          <link xmi:id="_Iswrx6YXEeGd19qX0jg98A" businessObjects="_IswrwKYXEeGd19qX0jg98A"/>
+          <children xmi:id="_Iswrw6YXEeGd19qX0jg98A" visible="true">
+            <graphicsAlgorithm xsi:type="al:Text" xmi:id="_IswrxKYXEeGd19qX0jg98A" foreground="_IswrlKYXEeGd19qX0jg98A" lineWidth="1" transparency="0.0" width="65" height="20" x="2" horizontalAlignment="ALIGNMENT_CENTER" value="R3"/>
+            <link xmi:id="_IswrxaYXEeGd19qX0jg98A" businessObjects="_IswrwKYXEeGd19qX0jg98A"/>
+          </children>
+        </children>
+      </children>
+      <children xsi:type="pi:ContainerShape" xmi:id="_IswryaYXEeGd19qX0jg98A" visible="true" active="true">
+        <graphicsAlgorithm xsi:type="al:Rectangle" xmi:id="_IswryqYXEeGd19qX0jg98A" background="_Ism6k6YXEeGd19qX0jg98A" foreground="_Ism6kqYXEeGd19qX0jg98A" lineWidth="2" transparency="0.0" width="290" height="55" x="5" y="175"/>
+        <link xmi:id="_Iswry6YXEeGd19qX0jg98A" businessObjects="_IswryKYXEeGd19qX0jg98A"/>
+        <children xsi:type="pi:ContainerShape" xmi:id="_IswrzaYXEeGd19qX0jg98A" visible="true" active="true">
+          <graphicsAlgorithm xsi:type="al:Rectangle" xmi:id="_IswrzqYXEeGd19qX0jg98A" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="260" height="20" x="5" y="5">
+            <graphicsAlgorithmChildren xsi:type="al:Image" xmi:id="_Iswr0qYXEeGd19qX0jg98A" lineWidth="1" transparency="0.0" width="195" height="20" x="65" id="org.talend.mdm.form.editor.text" stretchH="false" stretchV="false" proportional="false"/>
+          </graphicsAlgorithm>
+          <link xmi:id="_Iswr06YXEeGd19qX0jg98A" businessObjects="_IswrzKYXEeGd19qX0jg98A"/>
+          <children xmi:id="_Iswrz6YXEeGd19qX0jg98A" visible="true">
+            <graphicsAlgorithm xsi:type="al:Text" xmi:id="_Iswr0KYXEeGd19qX0jg98A" foreground="_IswrlKYXEeGd19qX0jg98A" lineWidth="1" transparency="0.0" width="65" height="20" x="2" horizontalAlignment="ALIGNMENT_CENTER" value="A1"/>
+            <link xmi:id="_Iswr0aYXEeGd19qX0jg98A" businessObjects="_IswrzKYXEeGd19qX0jg98A"/>
+          </children>
+        </children>
+        <children xsi:type="pi:ContainerShape" xmi:id="_Iswr1aYXEeGd19qX0jg98A" visible="true" active="true">
+          <graphicsAlgorithm xsi:type="al:Rectangle" xmi:id="_Iswr1qYXEeGd19qX0jg98A" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="260" height="20" x="5" y="30">
+            <graphicsAlgorithmChildren xsi:type="al:Image" xmi:id="_Iswr2qYXEeGd19qX0jg98A" lineWidth="1" transparency="0.0" width="195" height="20" x="65" id="org.talend.mdm.form.editor.text" stretchH="false" stretchV="false" proportional="false"/>
+          </graphicsAlgorithm>
+          <link xmi:id="_Iswr26YXEeGd19qX0jg98A" businessObjects="_Iswr1KYXEeGd19qX0jg98A"/>
+          <children xmi:id="_Iswr16YXEeGd19qX0jg98A" visible="true">
+            <graphicsAlgorithm xsi:type="al:Text" xmi:id="_Iswr2KYXEeGd19qX0jg98A" foreground="_IswrlKYXEeGd19qX0jg98A" lineWidth="1" transparency="0.0" width="65" height="20" x="2" horizontalAlignment="ALIGNMENT_CENTER" value="A2"/>
+            <link xmi:id="_Iswr2aYXEeGd19qX0jg98A" businessObjects="_Iswr1KYXEeGd19qX0jg98A"/>
+          </children>
+        </children>
+      </children>
+    </children>
+    <children xsi:type="pi:ContainerShape" xmi:id="_Ism6lqYXEeGd19qX0jg98A" visible="true" active="true">
+      <graphicsAlgorithm xsi:type="al:Rectangle" xmi:id="_Ism6l6YXEeGd19qX0jg98A" background="_Ism6k6YXEeGd19qX0jg98A" foreground="_Ism6kqYXEeGd19qX0jg98A" lineWidth="2" transparency="0.0" width="300" height="450" x="330" y="20"/>
+      <link xmi:id="_Ism6maYXEeGd19qX0jg98A" businessObjects="_Ism6mKYXEeGd19qX0jg98A"/>
+    </children>
+    <children xsi:type="pi:ContainerShape" xmi:id="_Ism6mqYXEeGd19qX0jg98A" visible="true" active="true">
+      <graphicsAlgorithm xsi:type="al:Rectangle" xmi:id="_Ism6m6YXEeGd19qX0jg98A" background="_Ism6k6YXEeGd19qX0jg98A" foreground="_Ism6kqYXEeGd19qX0jg98A" lineWidth="2" transparency="0.0" width="300" height="450" x="650" y="20"/>
+      <link xmi:id="_Ism6naYXEeGd19qX0jg98A" businessObjects="_Ism6nKYXEeGd19qX0jg98A"/>
+    </children>
+    <colors xmi:id="_IsdwoqYXEeGd19qX0jg98A" red="227" green="238" blue="249"/>
+    <colors xmi:id="_Isdwo6YXEeGd19qX0jg98A" red="255" green="255" blue="255"/>
+    <colors xmi:id="_Ism6kqYXEeGd19qX0jg98A" red="255" green="102"/>
+    <colors xmi:id="_Ism6k6YXEeGd19qX0jg98A" red="207" green="227" blue="250"/>
+    <colors xmi:id="_IswrlKYXEeGd19qX0jg98A" red="51" green="51" blue="153"/>
+  </pi:Diagram>
+  <mdmform:Panel xmi:id="_Ism6lKYXEeGd19qX0jg98A" label="">
+    <children xsi:type="mdmcomp:TextField" xmi:id="_Ism6nqYXEeGd19qX0jg98A" parent="_Ism6lKYXEeGd19qX0jg98A" minOccurs="1" maxOccurs="1" key="true" type="string" xpath="/MyTest/Id" label="Id"/>
+    <children xsi:type="mdmcomp:TextField" xmi:id="_IswrmKYXEeGd19qX0jg98A" parent="_Ism6lKYXEeGd19qX0jg98A" maxOccurs="1" type="int" xpath="/MyTest/Age" label="Age"/>
+    <children xsi:type="mdmform:Panel" xmi:id="_IswroKYXEeGd19qX0jg98A" parent="_Ism6lKYXEeGd19qX0jg98A" maxOccurs="1" xpath="/MyTest/Remark" label="Remark">
+      <children xsi:type="mdmcomp:TextField" xmi:id="_IswrpKYXEeGd19qX0jg98A" parent="_IswroKYXEeGd19qX0jg98A" maxOccurs="1" type="string" xpath="/MyTest/Remark/R1" label="R1"/>
+      <children xsi:type="mdmform:Panel" xmi:id="_IswrrKYXEeGd19qX0jg98A" parent="_IswroKYXEeGd19qX0jg98A" maxOccurs="1" xpath="/MyTest/Remark/R2" label="R2">
+        <children xsi:type="mdmcomp:TextField" xmi:id="_IswrsKYXEeGd19qX0jg98A" parent="_IswrrKYXEeGd19qX0jg98A" maxOccurs="1" type="string" xpath="/MyTest/Remark/R2/RR1" label="RR1"/>
+        <children xsi:type="mdmcomp:TextField" xmi:id="_IswruKYXEeGd19qX0jg98A" parent="_IswrrKYXEeGd19qX0jg98A" maxOccurs="1" type="string" xpath="/MyTest/Remark/R2/RR2" label="RR2"/>
+      </children>
+      <children xsi:type="mdmcomp:TextField" xmi:id="_IswrwKYXEeGd19qX0jg98A" parent="_IswroKYXEeGd19qX0jg98A" maxOccurs="1" type="string" xpath="/MyTest/Remark/R3" label="R3"/>
+    </children>
+    <children xsi:type="mdmform:Panel" xmi:id="_IswryKYXEeGd19qX0jg98A" parent="_Ism6lKYXEeGd19qX0jg98A" maxOccurs="1" xpath="/MyTest/AAA" label="AAA">
+      <children xsi:type="mdmcomp:TextField" xmi:id="_IswrzKYXEeGd19qX0jg98A" parent="_IswryKYXEeGd19qX0jg98A" maxOccurs="1" type="string" xpath="/MyTest/AAA/A1" label="A1"/>
+      <children xsi:type="mdmcomp:TextField" xmi:id="_Iswr1KYXEeGd19qX0jg98A" parent="_IswryKYXEeGd19qX0jg98A" maxOccurs="1" type="string" xpath="/MyTest/AAA/A2" label="A2"/>
+    </children>
+  </mdmform:Panel>
+  <mdmform:Panel xmi:id="_Ism6mKYXEeGd19qX0jg98A" label=""/>
+  <mdmform:Panel xmi:id="_Ism6nKYXEeGd19qX0jg98A" label=""/>
+</xmi:XMI>

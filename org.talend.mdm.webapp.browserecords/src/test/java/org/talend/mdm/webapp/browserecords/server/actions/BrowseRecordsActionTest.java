@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.browserecords.server.util.action;
+package org.talend.mdm.webapp.browserecords.server.actions;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -192,7 +192,7 @@ public class BrowseRecordsActionTest extends TestCase {
     }
 
     private String getXml(String fileName) throws IOException {
-        InputStream stream = BrowseRecordsActionTest.class.getResourceAsStream("../../../" + fileName);
+        InputStream stream = BrowseRecordsActionTest.class.getResourceAsStream("../../" + fileName);
         return inputStream2String(stream);
     }
 
@@ -202,7 +202,7 @@ public class BrowseRecordsActionTest extends TestCase {
         String concept = "Contract";
         String[] ids = { "" };
         String[] roles = { "Demo_Manager", "System_Admin", "authenticated", "administration" };
-        InputStream stream = BrowseRecordsActionTest.class.getResourceAsStream("../../../ContractInheritance.xsd");
+        InputStream stream = BrowseRecordsActionTest.class.getResourceAsStream("../../ContractInheritance.xsd");
         String xsd = inputStream2String(stream);
 
         PowerMockito.mockStatic(Util.class);
