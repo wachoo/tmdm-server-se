@@ -149,7 +149,7 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
             }
         }
         this.setCellWidth(label, "200px"); //$NON-NLS-1$
-        this.getElement().getStyle().setPaddingBottom(6D, Unit.PX);
+        this.getElement().getStyle().setMarginBottom(6D, Unit.PX);
         this.setVisible(typeModel.isVisible());
     }
     
