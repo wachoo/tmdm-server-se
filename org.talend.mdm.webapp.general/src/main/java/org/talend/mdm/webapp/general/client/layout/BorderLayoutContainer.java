@@ -22,6 +22,8 @@ import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.dom.client.Style.Position;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.Element;
 
 public class BorderLayoutContainer extends Viewport {
@@ -84,6 +86,9 @@ public class BorderLayoutContainer extends Viewport {
         add(south, southData);
         south.add(messageHtml);
         registerWorkingMessage();
+        this.getElement().getStyle().setPosition(Position.ABSOLUTE);
+        this.getElement().getStyle().setTop(0D, Unit.PX);
+        this.getElement().getStyle().setLeft(0D, Unit.PX);
     }
 
     public void setMessage(String message) {
