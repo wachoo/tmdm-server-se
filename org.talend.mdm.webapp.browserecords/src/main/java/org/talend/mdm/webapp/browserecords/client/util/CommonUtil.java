@@ -120,8 +120,10 @@ public class CommonUtil {
     private static Element _toXML(Document doc, ItemNodeModel nodeModel, ViewBean viewBean, ItemNodeModel rootModel, boolean isAll) {
         Element root = doc.createElement(nodeModel.getName());
         TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(nodeModel.getTypePath());
-        if (!typeModel.isVisible() || typeModel.isReadOnly()) {
-            return null;
+        if (!isAll) {
+            if (!typeModel.isVisible() || typeModel.isReadOnly()) {
+                return null;
+            }
         }
         Serializable value = nodeModel.getObjectValue();
 
