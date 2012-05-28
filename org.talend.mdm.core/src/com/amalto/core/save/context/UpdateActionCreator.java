@@ -11,14 +11,28 @@
 
 package com.amalto.core.save.context;
 
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.Stack;
+
+import org.apache.commons.lang.StringUtils;
+
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.action.FieldUpdateAction;
-import com.amalto.core.metadata.*;
-import org.apache.commons.lang.StringUtils;
-
-import java.util.*;
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.ContainedTypeFieldMetadata;
+import com.amalto.core.metadata.DefaultMetadataVisitor;
+import com.amalto.core.metadata.EnumerationFieldMetadata;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.metadata.ReferenceFieldMetadata;
+import com.amalto.core.metadata.SimpleTypeFieldMetadata;
 
 class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
@@ -294,6 +308,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                     }
 
                     // if (!newType.equals(previousType)) {
+                    generateNoOp(lastMatchPath);
                     actions.add(new ChangeTypeAction(date, source, userName, currentPath, previousTypeMetadata, newTypeMetadata));
                     //}
                     type = newTypeMetadata;

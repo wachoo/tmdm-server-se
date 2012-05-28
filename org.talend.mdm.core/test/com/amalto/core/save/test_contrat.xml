@@ -1,0 +1,12 @@
+<Contrat xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <numeroContrat>999</numeroContrat>
+   <numeroContratExterne></numeroContratExterne>
+   <dateSignatureContrat/>
+   <dateDebutPrevueContrat/>
+   <dateDebutEffectiveContrat/>
+   <dateFinContrat/>
+   <commentaires/>
+   <detailContrat xsi:type="AP-RE">
+       <codeDecompte></codeDecompte>
+   </detailContrat>
+</Contrat>

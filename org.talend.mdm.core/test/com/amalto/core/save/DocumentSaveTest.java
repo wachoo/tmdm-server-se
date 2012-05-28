@@ -10,6 +10,28 @@
 
 package com.amalto.core.save;
 
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import javax.xml.XMLConstants;
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
+import junit.framework.TestCase;
+
+import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.metadata.MetadataRepository;
@@ -20,20 +42,6 @@ import com.amalto.core.schema.validation.Validator;
 import com.amalto.core.schema.validation.XmlSchemaValidator;
 import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.XtentisException;
-import junit.framework.TestCase;
-import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import javax.xml.XMLConstants;
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-import java.io.InputStream;
-import java.util.*;
 
 @SuppressWarnings("nls")
 public class DocumentSaveTest extends TestCase {
@@ -265,6 +273,34 @@ public class DocumentSaveTest extends TestCase {
         Element committedElement = committer.getCommittedElement();
         assertEquals("Chicago", evaluate(committedElement, "/Agency/Name"));
         assertEquals("Chicago", evaluate(committedElement, "/Agency/City"));
+    }
+
+    static {
+        System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
+                "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
+    }
+
+    public void testUpdateWithChangeTypeActionAndSequenceGroup() throws Exception {
+
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("Contrat.xsd"));
+
+        SaverSource source = new TestSaverSource(repository, true, "test_contrat_original.xml", "Contrat.xsd");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test_contrat.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "Contrat", "Source", recordXml, false, true,
+                true,
+                false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("999", evaluate(committedElement, "/Contrat/numeroContrat"));
+        assertEquals("AP-RE", evaluate(committedElement, "/Contrat/detailContrat/@xsi:type"));
     }
 
     public void testUpdateOnNonExisting() throws Exception {
