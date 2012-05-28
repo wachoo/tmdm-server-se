@@ -53,6 +53,72 @@ public class DataModelHelperTest extends TestCase {
         return new PowerMockSuite("Unit tests for " + DataModelHelperTest.class.getSimpleName(), DataModelHelperTest.class);
     }
 
+    
+    public void testParsingPermissionsMetadata() throws Exception {
+        EntityModel entityModel = new EntityModel();
+        String datamodelName = "M01";
+        String concept = "M01_E01";
+        String[] ids = {"M01_E01/subelement"};
+        String[] roles = {"System_Admin", "authenticated", "administration"};
+        InputStream stream = getClass().getResourceAsStream("M01.xsd");
+        String xsd = inputStream2String(stream);
+        
+        PowerMockito.mockStatic(Util.class);
+        Mockito.when(Util.isEnterprise()).thenReturn(true);
+        
+        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
+        DataModelHelper.parseSchema("Contract", "Contract", DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, entityModel,
+                Arrays.asList(roles));
+        
+        Map<String, TypeModel> metaDataTypes = entityModel.getMetaDataTypes();
+        
+        // Check that if a field is No Access, then parsed to be not visible in WebUI
+        TypeModel tm = metaDataTypes.get("M01_E01/f2");
+        assertNotNull(tm);
+        assertTrue(!tm.isVisible());
+        
+        // Check that if a field has no explicit permissions, then parsed to be visible in WebUI
+        tm = metaDataTypes.get("M01_E01/f1");
+        assertNotNull(tm);
+        assertTrue(tm.isVisible());
+        
+        // Check that if a field has explicit No Access and Write Access, then parsed to be not visible in WebUI
+        tm = metaDataTypes.get("M01_E01/f3");
+        assertNotNull(tm);
+        assertTrue(!tm.isVisible());
+
+        // Check that if a subfield has explicit No Access, then parsed to be not visible in WebUI
+        tm = metaDataTypes.get("M01_E01/f4/sf1");
+        assertNotNull(tm);
+        assertTrue(!tm.isVisible());
+        
+        // Check that if a subfield has explicit No Access, then parsed to be not visible in WebUI
+        tm = metaDataTypes.get("M01_E01/f4/sf2");
+        assertNotNull(tm);
+        assertTrue(!tm.isVisible());
+
+        // Check that if a custom subfield has explicit No Access, then parsed to be not visible in WebUI
+        tm = metaDataTypes.get("M01_E01/f5/sf1");
+        assertNotNull(tm);
+        assertTrue(!tm.isVisible());
+        
+        // Check that if a custom subfield has explicit No Access, then parsed to be not visible in WebUI
+        tm = metaDataTypes.get("M01_E01/f5/sf2");
+        assertNotNull(tm);
+        assertTrue(!tm.isVisible());
+        
+        // What happens is parent node should be invisible but child node is set to visible?
+        tm = metaDataTypes.get("M01_E01/f6");
+        assertNotNull(tm);
+        assertTrue(!tm.isVisible());
+
+        // What happens is parent node should be invisible but child node is set to visible?
+        tm = metaDataTypes.get("M01_E01/f6/sf1");
+        assertNotNull(tm);
+        assertTrue(tm.isVisible());
+    }
+    
+    
     public void testParsingMetadata() throws Exception {
 
         EntityModel entityModel=new EntityModel();
@@ -91,7 +157,7 @@ public class DataModelHelperTest extends TestCase {
         assertTrue(metaDataTypes.get("Contract/detail:ContractDetailSubType/subType").isSimpleType());
         assertTrue(metaDataTypes.get("Contract/detail:ContractDetailSubTypeOne/code").isSimpleType());
         assertTrue(metaDataTypes.get("Contract/detail:ContractDetailSubTypeOne/subType").isSimpleType());
-        assertTrue(metaDataTypes.get("Contract/detail:ContractDetailSubTypeOne/subTypeOne").isSimpleType());
+        assertTrue(metaDataTypes.get("Contract/detail:ContractDetailSubTypeOne/subTypeOne").isSimpleType());        
     }
 
     private String inputStream2String(InputStream is) {
