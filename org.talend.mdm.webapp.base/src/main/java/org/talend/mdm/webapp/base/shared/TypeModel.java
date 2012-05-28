@@ -57,6 +57,8 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     private String foreignkey;
 
+    private boolean isSeparateFk;
+
     private List<String> foreignKeyInfo;
 
     private String fkFilter;
@@ -221,6 +223,14 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     public void setForeignkey(String foreignkey) {
         this.foreignkey = foreignkey;
+    }
+
+    public boolean isSeparateFk() {
+        return isSeparateFk;
+    }
+
+    public void setSeparateFk(boolean isSeparateFk) {
+        this.isSeparateFk = isSeparateFk;
     }
 
     public boolean isRetrieveFKinfos() {
