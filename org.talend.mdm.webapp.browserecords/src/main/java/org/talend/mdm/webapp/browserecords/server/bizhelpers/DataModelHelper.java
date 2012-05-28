@@ -403,6 +403,9 @@ public class DataModelHelper {
                             }
                         } else if ("X_ForeignKey".equals(appinfoSource)) {//$NON-NLS-1$
                             typeModel.setForeignkey(appinfoSourceValue);
+                        } else if ("X_ForeignKey_Sep".equals(appinfoSource)) {//$NON-NLS-1$
+                            boolean isSeparateFk = appinfoSourceValue == null ? false : Boolean.valueOf(appinfoSourceValue);
+                            typeModel.setSeparateFk(isSeparateFk);
                         } else if ("X_Retrieve_FKinfos".equals(appinfoSource)) {//$NON-NLS-1$
                             typeModel.setRetrieveFKinfos("true".equals(appinfoSourceValue));//$NON-NLS-1$
                         } else if ("X_ForeignKeyInfo".equals(appinfoSource)) {//$NON-NLS-1$
