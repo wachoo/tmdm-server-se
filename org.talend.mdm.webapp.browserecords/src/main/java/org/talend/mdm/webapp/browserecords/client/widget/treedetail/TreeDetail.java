@@ -335,7 +335,7 @@ public class TreeDetail extends ContentPanel {
         if (typeModelFK == null)
             return false; // Not a FK
 
-        if (!typeModel.isSeparateFk())
+        if (typeModel.isNotSeparateFk())
             return false;
 
         ItemNodeModel parentNode = (ItemNodeModel) node.getParent();
