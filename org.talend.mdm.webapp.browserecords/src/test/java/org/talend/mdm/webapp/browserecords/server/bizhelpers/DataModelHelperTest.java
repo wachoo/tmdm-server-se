@@ -116,8 +116,37 @@ public class DataModelHelperTest extends TestCase {
         tm = metaDataTypes.get("M01_E01/f6/sf1");
         assertNotNull(tm);
         assertTrue(tm.isVisible());
+        
+        
     }
     
+    
+    public void testParsingDeleteCreatePermissionsMetadata() throws Exception {
+        
+        EntityModel entityModel = new EntityModel();
+        String datamodelName = "M01";
+        String concept = "M01_E02";
+        String[] ids = {"M01_E02/subelement"};
+        String[] roles = {"System_Admin", "authenticated", "administration"};
+        InputStream stream = getClass().getResourceAsStream("M01.xsd");
+        String xsd = inputStream2String(stream);
+        
+        PowerMockito.mockStatic(Util.class);
+        Mockito.when(Util.isEnterprise()).thenReturn(true);
+        
+        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
+        DataModelHelper.parseSchema("Contract", "Contract", DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, entityModel,
+                Arrays.asList(roles));
+        
+        Map<String, TypeModel> metaDataTypes = entityModel.getMetaDataTypes();
+        
+        // Check that if a field is No Access, then parsed to be not visible in WebUI
+        TypeModel tm = metaDataTypes.get("M01_E02");
+        assertNotNull(tm);
+        assertTrue(tm.isDenyLogicalDeletable());
+        assertTrue(tm.isDenyPhysicalDeleteable());
+        assertTrue(tm.isDenyCreatable());
+    }
     
     public void testParsingMetadata() throws Exception {
 

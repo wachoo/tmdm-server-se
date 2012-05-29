@@ -92,4 +92,24 @@
    </xsd:element>
   </xsd:all>
  </xsd:complexType>
+ <xsd:element name="M01_E02">
+  <xsd:annotation>
+   <xsd:appinfo source="X_Deny_LogicalDelete">System_Admin</xsd:appinfo>
+   <xsd:appinfo source="X_Deny_PhysicalDelete">System_Admin</xsd:appinfo>
+   <xsd:appinfo source="X_Deny_Create">System_Admin</xsd:appinfo>
+  </xsd:annotation>
+  <xsd:complexType>
+   <xsd:all>
+    <xsd:element name="subelement" type="xsd:string">
+     <xsd:annotation>
+      <xsd:appinfo source="X_Deny_Create">System_Admin</xsd:appinfo>
+     </xsd:annotation>
+    </xsd:element>
+   </xsd:all>
+  </xsd:complexType>
+  <xsd:unique name="M01_E02">
+   <xsd:selector xpath="." />
+   <xsd:field xpath="subelement" />
+  </xsd:unique>
+ </xsd:element>
 </xsd:schema>
