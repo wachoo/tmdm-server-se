@@ -11,15 +11,17 @@
 
 package com.amalto.core.save;
 
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.save.context.DefaultSaverSource;
-import com.amalto.core.save.context.SaverContextFactory;
-import com.amalto.core.save.context.SaverSource;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+
+import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.save.context.DefaultSaverSource;
+import com.amalto.core.save.context.SaverContextFactory;
+import com.amalto.core.save.context.SaverSource;
 
 public class SaverSession {
 
@@ -137,8 +139,12 @@ public class SaverSession {
 
         // Save current state of autoincrement when save is completed.
         if (hasMetAutoIncrement) {
+            // TMDM-3964 : Auto-Increment Id can not be saved immediately to DB
+            String dataCluster = XSystemObjects.DC_CONF.getName();
+            begin(dataCluster, committer);
             SaverSource saverSource = getSaverSource();
             saverSource.saveAutoIncrement();
+            committer.commit(dataCluster);
         }
     }
 
