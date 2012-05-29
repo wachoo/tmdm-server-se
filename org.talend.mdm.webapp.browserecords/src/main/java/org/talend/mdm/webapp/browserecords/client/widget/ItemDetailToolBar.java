@@ -939,15 +939,12 @@ public class ItemDetailToolBar extends ToolBar {
         AppEvent app = new AppEvent(BrowseRecordsEvents.SaveItem);
         ItemNodeModel model = null;
         if (widget instanceof ItemPanel) {// save primary key
-            ItemPanel itemPanel = (ItemPanel) widget;
-            if (itemPanel.getTree().validateTree()) {
-                validate = true;
-                model = (ItemNodeModel) itemPanel.getTree().getRootModel();
-                app.setData("ItemBean", itemPanel.getItem()); //$NON-NLS-1$
-                app.setData(
-                        "isCreate", itemPanel.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION) || itemPanel.getOperation().equals(ItemDetailToolBar.DUPLICATE_OPERATION) ? true : false); //$NON-NLS-1$
-            }
-
+            ItemPanel itemPanel = (ItemPanel) widget;            
+            validate = true;
+            model = (ItemNodeModel) itemPanel.getTree().getRootModel();
+            app.setData("ItemBean", itemPanel.getItem()); //$NON-NLS-1$
+            app.setData(
+                    "isCreate", itemPanel.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION) || itemPanel.getOperation().equals(ItemDetailToolBar.DUPLICATE_OPERATION) ? true : false); //$NON-NLS-1$
         } else if (widget instanceof ForeignKeyTreeDetail) { // save foreign key
             ForeignKeyTreeDetail fkDetail = (ForeignKeyTreeDetail) widget;
             if (fkDetail.validateTree()) {

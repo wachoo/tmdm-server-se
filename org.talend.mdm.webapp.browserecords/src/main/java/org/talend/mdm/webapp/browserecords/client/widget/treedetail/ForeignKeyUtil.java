@@ -77,13 +77,10 @@ public class ForeignKeyUtil {
         boolean validateSuccess = false;
         if (widget instanceof ItemPanel) {// save primary key
             viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
-            ItemPanel itemPanel = (ItemPanel) widget;
-            if (itemPanel.getTree().validateTree()) {
-                validateSuccess = true;
-                itemBean = itemPanel.getItem();
-                isCreate = itemPanel.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION) ? true : false;
-            }
-
+            ItemPanel itemPanel = (ItemPanel) widget;            
+            validateSuccess = true;
+            itemBean = itemPanel.getItem();
+            isCreate = itemPanel.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION) ? true : false;
         } else if (widget instanceof ForeignKeyTreeDetail) { // save foreign key
             ForeignKeyTreeDetail fkDetail = (ForeignKeyTreeDetail) widget;
             if (fkDetail.validateTree()) {
