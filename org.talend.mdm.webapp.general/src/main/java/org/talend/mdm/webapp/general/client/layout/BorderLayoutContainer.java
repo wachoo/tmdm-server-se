@@ -20,7 +20,6 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.dom.client.Style.Position;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.Element;
@@ -44,12 +43,6 @@ public class BorderLayoutContainer extends Viewport {
 
         ActionsPanel east = ActionsPanel.getInstance();
         east.setBorders(false);
-        ContentPanel south = new ContentPanel();
-        south.setId("status"); //$NON-NLS-1$
-        south.setLayout(new FitLayout());
-        south.setHeaderVisible(false);
-        south.setBorders(false);
-        south.setFrame(true);
 
         BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, 40);
         northData.setCollapsible(false);
@@ -72,17 +65,10 @@ public class BorderLayoutContainer extends Viewport {
         eastData.setFloatable(false);
         eastData.setMargins(new Margins(0, 0, 0, 5));
 
-        BorderLayoutData southData = new BorderLayoutData(LayoutRegion.SOUTH, 2);
-        southData.setSplit(false);
-        southData.setCollapsible(false);
-        southData.setFloatable(true);
-
         add(north, northData);
         add(west, westData);
         add(center, centerData);
         add(east, eastData);
-        add(south, southData);
-        south.add(messageHtml);
         registerWorkingMessage();
         this.getElement().getStyle().setPosition(Position.ABSOLUTE);
         this.getElement().getStyle().setTop(0D, Unit.PX);
