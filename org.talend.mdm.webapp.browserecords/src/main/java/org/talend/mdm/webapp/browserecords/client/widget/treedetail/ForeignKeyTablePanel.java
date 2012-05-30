@@ -42,6 +42,7 @@ import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.state.StateManager;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -71,7 +72,9 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
     private static final int COLUMN_WIDTH = 100;
 
-    private final static int PAGE_SIZE = 10;
+    private int PAGE_SIZE = 10;
+    
+    private String panelName;
 
     private PagingToolBarEx pagingBar = null;
 
@@ -116,8 +119,9 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
     
     private ItemsDetailPanel itemsDetailPanel;
 
-    public ForeignKeyTablePanel() {
-        super();
+    public ForeignKeyTablePanel(String panelName) {
+    	super();
+    	this.panelName = panelName;
     }
 
     public ForeignKeyTablePanel(final EntityModel entityModel, ItemNodeModel parent, final List<ItemNodeModel> fkModels,
@@ -283,6 +287,8 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         final ForeignKeyRowEditor re = new ForeignKeyRowEditor(fkTypeModel);
         grid.setSelectionModel(sm);
         grid.addPlugin(sm);
+        grid.setStateId(panelName);
+        grid.setStateful(true);
         hookContextMenu(re);
         if(entityModel.getMetaDataTypes() != null){
             TypeModel fkType = entityModel.getMetaDataTypes().get(entityModel.getConceptName());
@@ -296,6 +302,9 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         grid.setBorders(false);
         this.add(grid);
 
+        if (StateManager.get().get(panelName) != null){
+            PAGE_SIZE = Integer.valueOf(((Map<?, ?>) StateManager.get().get(panelName)).get("limit").toString()); //$NON-NLS-1$
+        }
         pagingBar = new PagingToolBarEx(PAGE_SIZE);
         pagingBar.setHideMode(HideMode.VISIBILITY);
         pagingBar.getMessages().setDisplayMsg(MessagesFactory.getMessages().page_displaying_records());
