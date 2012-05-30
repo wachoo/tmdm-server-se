@@ -126,14 +126,10 @@ public class Utils {
                         imports.add(tmp);
                     }
                 } else {
-                    
                     String tmp = "<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/" + gxtEntryModule + "/" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                             + gxtEntryModule + ".nocache.js\"></script>\n"; //$NON-NLS-1$
-                    if (!imports.contains(tmp)) {
-                        imports
-                                .add("<link rel=\"stylesheet\" type=\"text/css\" href=\"/" + subMenu.getContext() + "/" + subMenu.getApplication() + ".css\" />\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    if (!imports.contains(tmp))
                         imports.add(tmp);
-                    }
                 }
                 i++;
             }
@@ -153,18 +149,20 @@ public class Utils {
 
         int importsSize = imports.size();
         for (int i = 0; i < importsSize; ++i) {
-        	String importsString = imports.get(i);
+            String importsString = imports.get(i);
             if (importsString.indexOf("src=\"/itemsbrowser/secure/js/ItemsBrowser.js\"") != -1)isItemsbrowserExist = true;//$NON-NLS-1$
             //            if (importMenu.indexOf("src=\"/itemsbrowser2/secure/js/ItemsBrowser2.js\"") != -1)isItemsbrowser2Exist = true;//$NON-NLS-1$
             if (importsString.indexOf("src=\"/browserecords/browserecords/browserecords.nocache.js\"") != -1) {
-            	isBrowserRecordExist = true;//$NON-NLS-1$
-            	browseRecordsIndex = i;
+                isBrowserRecordExist = true;//$NON-NLS-1$
+                browseRecordsIndex = i;
             }
         }
         if (isBrowserRecordExist && !isItemsbrowserExist) {
-        	// Insert imports before browserecords since browserecords uses JS objects in these imports
-        	imports.add(browseRecordsIndex, "<script type=\"text/javascript\" src=\"/itemsbrowser/secure/js/ItemsBrowser.js\"></script>\n");//$NON-NLS-1$
-        	imports.add(browseRecordsIndex, "<script type=\"text/javascript\" src=\"/itemsbrowser/secure/dwr/interface/ItemsBrowserInterface.js\"></script>\n");//$NON-NLS-1$
+            // Insert imports before browserecords since browserecords uses JS objects in these imports
+            imports.add(browseRecordsIndex,
+                    "<script type=\"text/javascript\" src=\"/itemsbrowser/secure/js/ItemsBrowser.js\"></script>\n");//$NON-NLS-1$
+            imports.add(browseRecordsIndex,
+                    "<script type=\"text/javascript\" src=\"/itemsbrowser/secure/dwr/interface/ItemsBrowserInterface.js\"></script>\n");//$NON-NLS-1$
         }
     }
 
