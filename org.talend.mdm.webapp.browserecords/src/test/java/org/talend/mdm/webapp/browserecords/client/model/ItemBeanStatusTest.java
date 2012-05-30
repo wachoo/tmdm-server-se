@@ -12,18 +12,13 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.model;
 
-import com.google.gwt.junit.client.GWTTestCase;
-
+import junit.framework.TestCase;
 
 /**
  * DOC Starkey  class global comment. Detailled comment
  */
 @SuppressWarnings("nls")
-public class ItemBeanStatusGWTTest extends GWTTestCase {
-
-    public String getModuleName() {
-        return "org.talend.mdm.webapp.browserecords.TestBrowseRecords"; //$NON-NLS-1$
-    }
+public class ItemBeanStatusTest extends TestCase {
 
     /**
      * DOC Starkey Comment method "testLastUpdateTime".

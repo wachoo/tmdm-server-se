@@ -12,12 +12,12 @@
 // ============================================================================
 package org.talend.mdm.webapp.base.client;
 
+import junit.framework.TestCase;
+
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 
-import com.google.gwt.junit.client.GWTTestCase;
-
 @SuppressWarnings("nls")
-public class SessionAwareAsyncCallbackGWTTest extends GWTTestCase {
+public class SessionAwareAsyncCallbackTest extends TestCase {
 
     public void testOnFailure() {
         final String flag = "failed";
@@ -37,9 +37,5 @@ public class SessionAwareAsyncCallbackGWTTest extends GWTTestCase {
         }.doOnFailure(new ServiceException(flag));
     }
     
-    @Override
-    public String getModuleName() {
-        return "org.talend.mdm.webapp.base.TestBase";
-    }
-
+ 
 }

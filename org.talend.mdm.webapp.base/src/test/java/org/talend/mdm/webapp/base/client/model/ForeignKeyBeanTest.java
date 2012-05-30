@@ -12,10 +12,10 @@
 // ============================================================================
 package org.talend.mdm.webapp.base.client.model;
 
-import com.google.gwt.junit.client.GWTTestCase;
+import junit.framework.TestCase;
 
 @SuppressWarnings("nls")
-public class ForeignKeyBeanGWTTest extends GWTTestCase {
+public class ForeignKeyBeanTest extends TestCase {
 
     
     private ForeignKeyBean mockForeignKeyBean(){        
@@ -47,9 +47,5 @@ public class ForeignKeyBeanGWTTest extends GWTTestCase {
         assertNotNull(bean.toString());
         assertEquals(displayInfo, bean.toString());
     }
-    
-    @Override
-    public String getModuleName() {
-        return "org.talend.mdm.webapp.base.TestBase"; //$NON-NLS-1$
-    }
+
 }
