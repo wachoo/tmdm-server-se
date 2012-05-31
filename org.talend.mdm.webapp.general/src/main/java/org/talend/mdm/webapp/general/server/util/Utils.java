@@ -41,13 +41,15 @@ public class Utils {
     private static final String GXT_PROPERTIES = "gxt.properties"; //$NON-NLS-1$
 
     private static final String EXCLUDING_PROPERTIES = "excluding.properties"; //$NON-NLS-1$
+    
+    private static final String GXT_CSS_RESOURCES = "gxt_css_resource.xml";
 
     private static final String WELCOMECONTEXT = "welcomeportal", WELCOMEAPP = "WelcomePortal";//$NON-NLS-1$ //$NON-NLS-2$
 
     private static final String DEFAULT_LANG = "en"; //$NON-NLS-1$
 
     /** a reference to the factory used to create Gxt instances */
-    private static GxtFactory gxtFactory = new GxtFactory(GXT_PROPERTIES, EXCLUDING_PROPERTIES);
+    private static GxtFactory gxtFactory = new GxtFactory(GXT_PROPERTIES, EXCLUDING_PROPERTIES, GXT_CSS_RESOURCES);
 
     public static void getJavascriptImportDetail(List<String> imports) {
         try {
@@ -83,6 +85,12 @@ public class Utils {
         return i;
     }
 
+    public static ArrayList<String> getCssImport() throws Exception {
+    	ArrayList<String> imports = new ArrayList<String>();
+        getCssImportDetail(Menu.getRootMenu(), imports, 1, 1);
+        return imports;
+    }
+    
     public static ArrayList<String> getJavascriptImport() throws Exception {
         ArrayList<String> imports = new ArrayList<String>();
         getJavascriptImportDetail(Menu.getRootMenu(), imports, 1, 1);
@@ -92,6 +100,33 @@ public class Utils {
         return imports;
     }
 
+    private static int getCssImportDetail(Menu menu, List<String> imports, int level, int i) throws Exception {
+
+        for (Iterator<String> iter = menu.getSubMenus().keySet().iterator(); iter.hasNext();) {
+            String key = iter.next();
+            Menu subMenu = menu.getSubMenus().get(key);
+
+            if (subMenu.getContext() != null) {
+                if (gxtFactory.isExcluded(subMenu.getContext(), subMenu.getApplication())) {
+                    continue;
+                }
+                GxtProjectModel gxtPro = gxtFactory.getGxtCss(subMenu.getContext(), subMenu.getApplication());
+                if (gxtPro != null){
+	        		List<String> csses = gxtPro.getCss_addresses();
+	        		if (csses != null){
+	        			for (String css : csses){
+	        				imports.add("<link rel='stylesheet' type='text/css' href='" + css + "'/>\n");
+	        			}
+	        		}
+                }
+                i++;
+            }
+            if (subMenu.getSubMenus().size() > 0)
+                i = getJavascriptImportDetail(subMenu, imports, level + 1, i);
+        }
+        return i;
+    }
+    
     private static int getJavascriptImportDetail(Menu menu, List<String> imports, int level, int i) throws Exception {
         if (menu.getParent() == null) {
             // add welcome by default
