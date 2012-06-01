@@ -15,6 +15,7 @@ package com.amalto.core.load.context;
 
 import com.amalto.core.load.Constants;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -53,7 +54,11 @@ public class StateContextSAXWriter implements StateContextWriter {
         char[] characters = reader.getTextCharacters();
         int textStart = reader.getTextStart();
         char[] textCharacters = ArrayUtils.subarray(characters, textStart, textStart + reader.getTextLength());
-        contentHandler.characters(textCharacters, 0, textCharacters.length);
+        /*
+         * See TMDM-3780 implementation note.
+         */
+        char[] chars = StringEscapeUtils.escapeXml(new String(textCharacters)).toCharArray();
+        contentHandler.characters(chars, 0, chars.length);
     }
 
     public void writeStartElement(XMLStreamReader reader) throws XMLStreamException, SAXException {
@@ -83,7 +88,8 @@ public class StateContextSAXWriter implements StateContextWriter {
     }
 
     public void writeCharacters(String characters) throws Exception {
-        char[] chars = characters.toCharArray();
+        // TMDM-3780 Ensures characters are correctly escaped.
+        char[] chars = StringEscapeUtils.escapeXml(characters).toCharArray();
         contentHandler.characters(chars, 0, chars.length);
     }
 
