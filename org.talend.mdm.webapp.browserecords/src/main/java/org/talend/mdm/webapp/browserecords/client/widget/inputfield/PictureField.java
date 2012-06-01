@@ -281,6 +281,8 @@ public class PictureField extends TextField<String> {
 
         private FileUploadField file = new FileUploadField();
         
+        private TextField<String> name;
+        
         PictureSelector pictureSelector = new PictureSelector(EditWindow.this,PictureField.this);   
 
         private SelectionListener<ButtonEvent> listener = new SelectionListener<ButtonEvent>() {
@@ -289,7 +291,9 @@ public class PictureField extends TextField<String> {
             public void componentSelected(ButtonEvent ce) {
                 Button button = ce.getButton();
                 if (button == uploadButton) {
-                    editForm.submit();
+                    if(editForm.isValid()) {                        
+                        editForm.submit();
+                    }
                 } else if (button == resetButton) {
                     editForm.reset();
                 }
@@ -323,7 +327,7 @@ public class PictureField extends TextField<String> {
             MultiField imgIdRow = new MultiField();
             imgIdRow.setFieldLabel(MessagesFactory.getMessages().picture_field_imgid());
 
-            final TextField<String> name = new TextField<String>();
+            name = new TextField<String>();
             name.setFieldLabel(""); //$NON-NLS-1$
             name.setName("fileName"); //$NON-NLS-1$
             name.setAllowBlank(false);
@@ -338,7 +342,6 @@ public class PictureField extends TextField<String> {
             final TextField<String> catalog = new TextField<String>();
             catalog.setFieldLabel(""); //$NON-NLS-1$
             catalog.setName("catalogName"); //$NON-NLS-1$
-            catalog.setAllowBlank(false);
 
             catalogRow.add(catalog);
             catalogRow.add(new LabelField());
@@ -370,25 +373,23 @@ public class PictureField extends TextField<String> {
             editForm.add(imgIdRow, formData);
             editForm.addListener(Events.Submit, new Listener<FormEvent>() {
 
-                public void handleEvent(FormEvent be) {
-                    if (name.getValue() != null && name.getValue().trim().length() > 0  && catalog.getValue() != null && catalog.getValue().trim().length() > 0){
-                        String json = be.getResultHtml();
-                        JSONObject jsObject = JSONParser.parse(json).isObject();
-                        JSONBoolean success = jsObject.get("success").isBoolean(); //$NON-NLS-1$
-                        JSONString message = jsObject.get("message").isString(); //$NON-NLS-1$
-                        if (success.booleanValue())
-                            MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
-                                    .upload_pic_ok(), null);
-                        else
-                            MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
-                                    .upload_pic_fail(), null);
-                        if (success.booleanValue()) {
-                            setValue(message.stringValue());
-                        } else {
-                            setValue(null);
-                        }
-                        EditWindow.this.hide();
+                public void handleEvent(FormEvent be) {                    
+                    String json = be.getResultHtml();
+                    JSONObject jsObject = JSONParser.parse(json).isObject();
+                    JSONBoolean success = jsObject.get("success").isBoolean(); //$NON-NLS-1$
+                    JSONString message = jsObject.get("message").isString(); //$NON-NLS-1$
+                    if (success.booleanValue())
+                        MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
+                                .upload_pic_ok(), null);
+                    else
+                        MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                                .upload_pic_fail(), null);
+                    if (success.booleanValue()) {
+                        setValue(message.stringValue());
+                    } else {
+                        setValue(null);
                     }
+                    EditWindow.this.hide();
                 }
 
             });
