@@ -110,7 +110,7 @@ public class ViewUtil {
 
     private static void __transformToCustomLayout(TreeItem item, ColumnElement columnEl, Set<TreeItem> customLayoutDisplayedElements, ViewBean viewBean) {
         customLayoutDisplayedElements.add(item);
-        applyStyleTreeItem(item, columnEl.getLabelStyle(), columnEl.getValueStyle(), columnEl.getStyle());
+        applyStyleTreeItem(item, columnEl.getLabelStyle(), convertCSS4ValueStyle(columnEl.getValueStyle()), columnEl.getStyle());
         if (columnEl.getChildren() == null)
             return;
         for (ColumnElement ce : columnEl.getChildren()) {
@@ -222,4 +222,12 @@ public class ViewUtil {
     private static native El getInputEl(Field<?> field)/*-{
         return field.@com.extjs.gxt.ui.client.widget.form.Field::getInputEl()();
     }-*/;
+    
+    public static String convertCSS4ValueStyle(String css) {
+        if (css == null)
+            return null;
+        if (css.contains("background-color")) //$NON-NLS-1$
+            css = css.replaceAll("background-color", "background-image:none; background-color"); //$NON-NLS-1$ //$NON-NLS-2$
+        return css;
+    }
 }
