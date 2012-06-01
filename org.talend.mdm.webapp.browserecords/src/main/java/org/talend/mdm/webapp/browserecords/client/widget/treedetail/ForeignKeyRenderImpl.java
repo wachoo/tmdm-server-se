@@ -65,7 +65,7 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
                 fieldMap = fkTreeDetail.getFieldMap();
                 root = (DynamicTreeItem) fkTreeDetail.getRoot();
             }
-            final ForeignKeyTablePanel fkPanel = new ForeignKeyTablePanel();
+            final ForeignKeyTablePanel fkPanel = new ForeignKeyTablePanel(concept + "_ForeignKeyTablePanel");
 
             ItemPanel itemPanel = new ItemPanel(pkViewBean, toolBar.getItemBean(), toolBar.getOperation(), fkPanel, root,
                     detailPanel, toolBar.isOpenTab());
