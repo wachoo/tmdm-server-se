@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -57,6 +56,7 @@ import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -194,7 +194,7 @@ public class TreeDetail extends ContentPanel {
 
     private boolean isFirstKey = true;
 
-    private DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue,
+    DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue,
             String operation, Map<TypeModel, List<ItemNodeModel>> foreighKeyMap, Map<TypeModel, ItemNodeModel> foreignKeyParentMap) {
         if (item == null) {
             item = new DynamicTreeItem();
@@ -220,35 +220,13 @@ public class TreeDetail extends ContentPanel {
         List<ModelData> itemNodeChildren = itemNode.getChildren();
 
         if (itemNodeChildren != null && itemNodeChildren.size() > 0) {
-            Map<String, TypeModel> metaDataTypes = viewBean.getBindingEntityModel().getMetaDataTypes();
-            for (ModelData model : itemNodeChildren) {
-                ItemNodeModel node = (ItemNodeModel) model;
-                Serializable nodeObjectValue = node.getObjectValue();
-                String typePath = node.getTypePath();
-
-                TypeModel typeModel = metaDataTypes.get(typePath);
-                String typeModelDefaultValue = typeModel.getDefaultValue();
-                if (withDefaultValue && typeModelDefaultValue != null && (nodeObjectValue == null || nodeObjectValue.equals(""))) //$NON-NLS-1$
-                    node.setObjectValue(typeModelDefaultValue);
-
-                boolean isFKDisplayedIntoTab = isFKDisplayedIntoTab(node, typeModel, metaDataTypes);
-
-                if (isFKDisplayedIntoTab) {
-                    if (!foreighKeyMap.containsKey(typeModel)) {
-                        foreighKeyMap.put(typeModel, new ArrayList<ItemNodeModel>());
-                        foreignKeyParentMap.put(typeModel, itemNode);
-                    }
-                    foreighKeyMap.get(typeModel).add(node);
-                } else {
-                    TreeItem childItem = buildGWTTree(node, null, withDefaultValue, operation, foreighKeyMap, foreignKeyParentMap);
-                    if (childItem != null) { //
-                        item.addItem(childItem);
-                    }
-                }
+            IncrementalBuildTree incCommand = new IncrementalBuildTree(this, itemNode, viewBean, withDefaultValue, foreighKeyMap,
+                    foreignKeyParentMap, operation, item);
+            if (itemNode.getParent() != null && itemNode.getParent().getParent() == null) {
+                addCommand(incCommand, true);
+            } else {
+                addCommand(incCommand, false);
             }
-
-            if (itemNodeChildren.size() > 0 && item.getChildCount() == 0)
-                return null; // All went to FK Tab, in that case return null so the tree item is not added
 
             item.getElement().getStyle().setPaddingLeft(3.0, Unit.PX);
         }
@@ -258,6 +236,15 @@ public class TreeDetail extends ContentPanel {
         item.setState(viewBean.getBindingEntityModel().getMetaDataTypes().get(itemNode.getTypePath()).isAutoExpand());
 
         return item;
+    }
+
+    public static void addCommand(IncrementalBuildTree command, boolean sync) {
+        if (sync || command.getChildCount() < IncrementalBuildTree.GROUP_SIZE) {
+            while (command.execute())
+                ;
+        } else {
+            DeferredCommand.addCommand(command);
+        }
     }
 
     static boolean isFKDisplayedIntoTab(ItemNodeModel node, TypeModel typeModel, Map<String, TypeModel> metaDataTypes) {
@@ -326,13 +313,13 @@ public class TreeDetail extends ContentPanel {
     }
 
     public void onExecuteVisibleRule(List<VisibleRuleResult> visibleResults) {
-        DynamicTreeItem rootItem = (DynamicTreeItem) tree.getItem(0);
         for (VisibleRuleResult visibleResult : visibleResults) {
             if (columnTrees.size() > 0) {
                 for (Tree columnTree : columnTrees) {
                     recrusiveSetItems(visibleResult, (DynamicTreeItem) columnTree.getItem(0));
                 }
             } else {
+                DynamicTreeItem rootItem = (DynamicTreeItem) tree.getItem(0);
                 recrusiveSetItems(visibleResult, rootItem);
             }
         }
@@ -351,12 +338,8 @@ public class TreeDetail extends ContentPanel {
         multiManager.handleOptIcons();
         isFirstKey = true;
         root.setState(true);
-        tree = new TreeEx();
-        tree.getElement().setId("TreeDetail-tree"); //$NON-NLS-1$
         if (root.getElement().getFirstChildElement() != null)
             root.getElement().getFirstChildElement().setClassName("rootNode"); //$NON-NLS-1$
-        tree.addItem(root);
-        root.getElement().setId("TreeDetail-root"); //$NON-NLS-1$
         
         ColumnTreeLayoutModel columnLayoutModel = viewBean.getColumnLayoutModel();
         if (columnLayoutModel != null) {// TODO if create a new PrimaryKey, tree UI should not render according to the
@@ -385,6 +368,9 @@ public class TreeDetail extends ContentPanel {
             add(htable);
 
         } else {
+            tree = new TreeEx();
+            tree.getElement().setId("TreeDetail-tree"); //$NON-NLS-1$ 
+            tree.addItem(root);
             this.setFiledWidth(root, this.getWidth(), 400, 0);
             add(tree);
             addTreeListener(tree);
@@ -553,6 +539,33 @@ public class TreeDetail extends ContentPanel {
         public void removeItem(DynamicTreeItem item) {
             super.removeItem(item);
         }
+
+        public void setState(boolean open, boolean fireEvents) { 
+            // Only do the physical update if it changes 
+            if (this.getOpen() != open) { 
+                setOpen(open); 
+                __updateState(true, true); 
+                if (fireEvents && this.getTree() != null) {
+                    fireTreeStateChanged(this.getTree(), this, open);
+                }
+            }
+        }
+
+        private native boolean getOpen()/*-{
+            return this.@com.google.gwt.user.client.ui.TreeItem::open;
+        }-*/;
+
+        private native void setOpen(boolean open)/*-{
+            this.@com.google.gwt.user.client.ui.TreeItem::open = open;
+        }-*/;
+
+        private native void __updateState(boolean animate, boolean updateTreeSelection)/*-{
+            this.@com.google.gwt.user.client.ui.TreeItem::updateState(ZZ)(animate, updateTreeSelection);
+        }-*/;
+
+        private native void fireTreeStateChanged(Tree tree, TreeItem item, boolean open)/*-{
+            tree.@com.google.gwt.user.client.ui.Tree::fireStateChanged(Lcom/google/gwt/user/client/ui/TreeItem;Z)(item, open);
+        }-*/;
 
         public void setItemNodeModel(ItemNodeModel treeNode) {
             itemNode = treeNode;
