@@ -210,6 +210,25 @@ public class ForeignKeyHelperTest extends TestCase {
         assertEquals(WSWhereOperator._CONTAINS, condition2.getOperator().getValue());
         assertEquals("Shirts", condition2.getRightValueOrPath()); //$NON-NLS-1$
 
+        // 8. ifFKFilter = true,fkFilter = 'CategoryOrga/TypeOrgaFK$$=$$OrganisationOperationnelle/OpOrgType$$#'
+        ifFKFilter = true;
+        value = "";
+        dataCluster = "OrganisationOperationnelle";
+        currentXpath = "OrganisationOperationnelle/OpOrgCategory";
+        xml = "<OrganisationOperationnelle><OpOrgIdentifiantNoeud>1</OpOrgIdentifiantNoeud><OpOrgType>[1]</OpOrgType></OrganisationOperationnelle>";
+        model = new SimpleTypeModel("OpOrgCategory", DataTypeConstants.STRING); //$NON-NLS-1$
+        foreignKeyInfos.clear();
+        foreignKeyInfos.add("CategoryOrga/CategoryOrgaName");
+        model.setForeignKeyInfo(foreignKeyInfos);
+        model.setForeignkey("CategoryOrga/Id");
+        model.setFkFilter("CategoryOrga/TypeOrgaFK$$=$$OrganisationOperationnelle/OpOrgType$$");
+        result = ForeignKeyHelper.getForeignKeyHolder(xml, dataCluster, currentXpath, model, ifFKFilter, value);
+        whereItem = result.whereItem;
+        condition1 = whereItem.getWhereAnd().getWhereItems()[0].getWhereCondition();
+        assertEquals("CategoryOrga/TypeOrgaFK", condition1.getLeftPath()); //$NON-NLS-1$
+        assertEquals(WSWhereOperator._EQUALS, condition1.getOperator().getValue());
+        assertEquals("[1]", condition1.getRightValueOrPath()); //$NON-NLS-1$
+
     }
 
     /**
