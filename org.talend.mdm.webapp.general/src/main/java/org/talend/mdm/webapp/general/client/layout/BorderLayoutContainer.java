@@ -70,6 +70,7 @@ public class BorderLayoutContainer extends Viewport {
         add(center, centerData);
         add(east, eastData);
         registerWorkingMessage();
+        this.setId("MDMGeneral"); //$NON-NLS-1$
         this.getElement().getStyle().setPosition(Position.ABSOLUTE);
         this.getElement().getStyle().setTop(0D, Unit.PX);
         this.getElement().getStyle().setLeft(0D, Unit.PX);
