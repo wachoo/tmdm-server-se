@@ -87,13 +87,19 @@ public class ControllerServlet extends HttpServlet {
     @SuppressWarnings("nls")
     protected String getHtml(String language) throws Exception {
         StringBuilder html = new StringBuilder();
-        html.append("<!DOCTYPE html>");
-        html.append("<html>");
-        html.append("<head>");
-        html.append("<title>Talend MDM</title>");
-        html.append("<meta id='gwt:property' name='gwt:property' content='locale=").append(language).append("'>");
-        html.append("<link rel='stylesheet' type='text/css' href='/general/resources/css/gxt-all.css'/>");
-        html.append("<script type='text/javascript' language='javascript' src='/general/general/general.nocache.js'></script>"); //$NON-NLS-1$
+        html.append("<!DOCTYPE html>\n");
+        html.append("<html>\n");
+        html.append("<head>\n");
+        html.append("<title>Talend MDM</title>\n");
+        html.append("<meta id='gwt:property' name='gwt:property' content='locale=").append(language).append("'>\n");
+        html.append("<link rel='stylesheet' type='text/css' href='/general/resources/css/gxt-all.css'/>\n");
+        List<String> cssImports = Utils.getCssImport();
+        for (String css : cssImports){
+        	html.append(css);
+        }
+
+        html.append("<script type='text/javascript' language='javascript' src='/general/general/general.nocache.js'></script>\n"); //$NON-NLS-1$
+        
         html.append(Utils.getCommonImport());
         List<String> imports = Utils.getJavascriptImport();
         for (String js : imports) {
