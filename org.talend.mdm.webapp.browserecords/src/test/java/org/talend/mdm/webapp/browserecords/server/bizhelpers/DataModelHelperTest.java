@@ -19,6 +19,7 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,7 +30,6 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit3.PowerMockSuite;
-
 import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
 import org.talend.mdm.webapp.base.client.model.DataTypeCustomized;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
@@ -422,5 +422,48 @@ public class DataModelHelperTest extends TestCase {
         
         assertNotNull(metaDataTypes.get("ProductFamily/Id"));
         assertEquals("AUTO_INCREMENT", metaDataTypes.get("ProductFamily/Id").getType().getTypeName());
+    }
+
+    public void testParseLabels() throws Exception {
+        String datamodelName = "Employee";
+        String concept = "Employee";
+        String[] ids = { "" };
+        String[] roles = { "Emp_Manager", "Emp_User" };
+        InputStream stream = getClass().getResourceAsStream("Employee.xsd");
+        String language = "fr";
+        String xsd = inputStream2String(stream);
+
+        EntityModel employeeModel = new EntityModel();
+
+        PowerMockito.mockStatic(Util.class);
+        Mockito.when(Util.isEnterprise()).thenReturn(false);
+        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
+        DataModelHelper.parseSchema(datamodelName, concept, DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, employeeModel,
+                Arrays.asList(roles));
+
+        Map<String, TypeModel> types = employeeModel.getMetaDataTypes();
+        TypeModel addressType = types.get("Employee/Address");
+        assertEquals(2, addressType.getLabelMap().size());
+        assertEquals("adresse", addressType.getLabel(language));
+
+        List<ComplexTypeModel> reusableTypes = ((ComplexTypeModel) addressType).getReusableComplexTypes();
+        for (ComplexTypeModel complexTypeModel : reusableTypes) {
+            String typeName = complexTypeModel.getName();
+            if(typeName.equals("AddressType")){
+                assertEquals(2, complexTypeModel.getLabelMap().size());
+                assertEquals("adresseType", complexTypeModel.getLabel(language));
+            }else if(typeName.equals("CNAddressType")){
+                assertEquals(0, complexTypeModel.getLabelMap().size());
+                assertEquals(typeName, complexTypeModel.getLabel(language));
+            }else if(typeName.equals("EUAddressType")){
+                assertEquals(0, complexTypeModel.getLabelMap().size());
+                assertEquals(typeName, complexTypeModel.getLabel(language));
+            }else if(typeName.equals("USAddressType")){
+                assertEquals(2, complexTypeModel.getLabelMap().size());
+                assertEquals("USAdresseType", complexTypeModel.getLabel(language));
+            }
+
+        }
+
     }
 }
