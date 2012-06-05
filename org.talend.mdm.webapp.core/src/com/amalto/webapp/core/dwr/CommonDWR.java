@@ -25,6 +25,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.amalto.webapp.core.bean.Configuration;
+import com.amalto.webapp.core.util.FieldLabel;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
@@ -222,7 +223,7 @@ public class CommonDWR {
 */	
 	public static String getConceptLabel(String dataModelPK, String concept, String language)
 		throws RemoteException, Exception{
-		String x_Label = "X_Label_"+language.toUpperCase();
+        String x_Label = (new FieldLabel(language)).getLabelAnnotation();
 		Map<String,XSElementDecl> map = getConceptMap(dataModelPK);	
     	return getLabel(map.get(concept),x_Label).equals("")?map.get(concept).getName():getLabel(map.get(concept),x_Label);
 	}
@@ -244,7 +245,7 @@ public class CommonDWR {
 			throws RemoteException, Exception{
 		
 		WebContext ctx = WebContextFactory.get();
-		String x_Label = "X_Label_"+language.toUpperCase();
+        String x_Label = (new FieldLabel(language)).getLabelAnnotation();
 		
 		Map<String,XSElementDecl> conceptMap=null;
 		if(inputConceptMap==null||inputConceptMap.size()==0) {
