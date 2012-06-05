@@ -104,7 +104,7 @@ public class TreeDetailGridFieldCreator {
 
         } else if (dataType instanceof ComplexTypeModel) {
             final ComboBoxField<ComboBoxModel> comboxField = new ComboBoxField<ComboBoxModel>();
-            comboxField.setDisplayField("value"); //$NON-NLS-1$
+            comboxField.setDisplayField("text"); //$NON-NLS-1$
             comboxField.setValueField("value"); //$NON-NLS-1$
             comboxField.setTypeAhead(true);
             comboxField.setTriggerAction(TriggerAction.ALL);
@@ -116,10 +116,10 @@ public class TreeDetailGridFieldCreator {
             for (int i = 0; i < reusableTypes.size(); i++) {
                 ComboBoxModel cbm;
                 if (dataType.isAbstract() && i == 0) {
-                    cbm = new ComboBoxModel(reusableTypes.get(i).getName(),
+                    cbm = new ComboBoxModel(reusableTypes.get(i).getLabel(language),
                             "[" + MessagesFactory.getMessages().abstract_type() + "]"); //$NON-NLS-1$ //$NON-NLS-2$
                 } else {
-                    cbm = new ComboBoxModel(reusableTypes.get(i).getName(), reusableTypes.get(i).getName());
+                    cbm = new ComboBoxModel(reusableTypes.get(i).getLabel(language), reusableTypes.get(i).getName());
                 }
                 cbm.set("reusableType", reusableTypes.get(i)); //$NON-NLS-1$
                 comboxStore.add(cbm);

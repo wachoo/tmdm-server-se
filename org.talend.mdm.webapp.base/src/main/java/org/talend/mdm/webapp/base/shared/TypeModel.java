@@ -158,6 +158,10 @@ public abstract class TypeModel implements Serializable, IsSerializable {
         return labelMap;
     }
 
+    public void setLabelMap(Map<String, String> labelMap) {
+        this.labelMap = labelMap;
+    }
+
     /**
      * Sets the labelMap.
      * 

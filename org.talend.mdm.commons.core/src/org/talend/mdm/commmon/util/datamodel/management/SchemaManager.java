@@ -208,6 +208,7 @@ public abstract class SchemaManager {
 
         for (ReusableType reusableType : reusableTypes) {
             if (reusableType.getParentName() != null && reusableType.getParentName().equals(parentTypeName)) {
+                reusableType.load();
                 subTypes.add(reusableType);
                 checkList.add(reusableType.getName());
             }

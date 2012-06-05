@@ -254,10 +254,13 @@ public class DataModelHelper {
             }
 
             if (subTypes != null && subTypes.size() > 0) {
-                typeModel.setAbstract(new ReusableType(e.getType()).isAbstract());
+                ReusableType parentReusableType=new ReusableType(e.getType());
+                parentReusableType.load();
+                typeModel.setAbstract(parentReusableType.isAbstract());
                 ComplexTypeModel parentType = (ComplexTypeModel) typeModel;
                 ComplexTypeModel abstractReusableComplexType = new ComplexTypeModel(typeName, DataTypeCreator.getDataType(
                         typeName, baseTypeName));
+                abstractReusableComplexType.setLabelMap(parentReusableType.getLabelMap());
                 parentType.addComplexReusableTypes(abstractReusableComplexType);
                 ReusableType abstractReusable = null;
                 try {
@@ -287,6 +290,7 @@ public class DataModelHelper {
                         ComplexTypeModel reusableComplexType = new ComplexTypeModel(reusableType.getName(),
                                 DataTypeCreator.getDataType(reusableType.getName(), baseTypeName));
                         reusableComplexType.setPolymorphism(true);
+                        reusableComplexType.setLabelMap(reusableType.getLabelMap());
                         XSModelGroup group = reusableType.getXsParticle().getTerm().asModelGroup();
                         if (group != null) {
                             XSParticle[] subParticles = group.getChildren();
