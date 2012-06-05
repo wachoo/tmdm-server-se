@@ -1944,6 +1944,7 @@ public class Util {
         return null;
     }
 
+    @Deprecated
     public static String getExceptionMessage(String message, String language) {
         if (message == null || message.indexOf("<msg/>") != -1) //$NON-NLS-1$
             return ""; //$NON-NLS-1$

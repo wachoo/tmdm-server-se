@@ -17,9 +17,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.server.util.DynamicLabelUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnElement;
@@ -62,9 +62,8 @@ public class ViewHelper {
      */
     public static String getViewLabel(String language, WSView wsview) {
 
-        Pattern p = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL);//$NON-NLS-1$ //$NON-NLS-2$ 
-        String viewDesc = p
-                .matcher(!wsview.getDescription().equals("") ? wsview.getDescription() : wsview.getName()).replaceAll("$1");//$NON-NLS-1$ //$NON-NLS-2$ 
+        String viewDesc = MultilanguageMessageParser.pickOutISOMessage(
+                !wsview.getDescription().equals("") ? wsview.getDescription() : wsview.getName(), language); //$NON-NLS-1$
         viewDesc = viewDesc.equals("") ? wsview.getName() : viewDesc; //$NON-NLS-1$ 
         return viewDesc;
 

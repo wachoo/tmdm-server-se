@@ -23,6 +23,12 @@ public class MultilanguageMessageParserTest extends TestCase {
         assertTrue(MultilanguageMessageParser.pickOutISOMessage(s, "fr").equals("f")); //$NON-NLS-1$//$NON-NLS-2$
         assertTrue(MultilanguageMessageParser.pickOutISOMessage(s, "zh").equals("c")); //$NON-NLS-1$ //$NON-NLS-2$
 
+        // Case-insensitive check
+        s = "[FR:f][en:e][ZH:c]"; //$NON-NLS-1$
+        assertTrue(MultilanguageMessageParser.pickOutISOMessage(s, "EN").equals("e")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertTrue(MultilanguageMessageParser.pickOutISOMessage(s, "fr").equals("f")); //$NON-NLS-1$//$NON-NLS-2$
+        assertTrue(MultilanguageMessageParser.pickOutISOMessage(s, "ZH").equals("c")); //$NON-NLS-1$ //$NON-NLS-2$
+
         // Test backslash escaped ] and \ characters
         s = "[fr:f\\]f][en:e\\\\e][zh:c\\]c\\]]"; //$NON-NLS-1$
         assertTrue(MultilanguageMessageParser.pickOutISOMessage(s, "en").equals("e\\e")); //$NON-NLS-1$//$NON-NLS-2$

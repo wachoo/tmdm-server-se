@@ -47,6 +47,7 @@ public class Locale {
         return errorString;
     }-*/;
 
+    @Deprecated
     public static native String getExceptionString(String language, String result)/*-{
         var pattern = "([{]" + language.toUpperCase() + ":" + "(([^{]|[{][^{}]*[}])*)})";
         var resultArray = result.match(pattern);

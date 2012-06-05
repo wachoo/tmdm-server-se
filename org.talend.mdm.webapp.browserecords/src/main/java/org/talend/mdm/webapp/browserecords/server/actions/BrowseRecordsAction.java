@@ -59,6 +59,7 @@ import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.client.model.SubTypeBean;
+import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.server.BaseConfiguration;
 import org.talend.mdm.webapp.base.server.ForeignKeyHelper;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
@@ -198,8 +199,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if (errorNode instanceof Element) {
                     Element errorElement = (Element) errorNode;
                     errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
-                    Pattern p = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL);//$NON-NLS-1$//$NON-NLS-2$
-                    message = p.matcher(errorElement.getTextContent()).replaceAll("$1");//$NON-NLS-1$                   
+                    message = MultilanguageMessageParser.pickOutISOMessage(errorElement.getTextContent(), language);
                 }
             }
 
@@ -1806,8 +1806,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if (isMyRunableProcess(wst[i].getPk(), businessConcept, businessConcepts)) {
                     WSTransformer trans = Util.getPort().getTransformer(new WSGetTransformer(wst[i]));
                     String description = trans.getDescription();
-                    Pattern p = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL);//$NON-NLS-1$//$NON-NLS-2$
-                    String name = p.matcher(description).replaceAll("$1");//$NON-NLS-1$
+                    String name = MultilanguageMessageParser.pickOutISOMessage(description, language);
                     if (name.equals("")) {//$NON-NLS-1$
                         String action = MESSAGES.getMessage("default_action"); //$NON-NLS-1$
                         if (action != null && action.trim().length() > 0) {
