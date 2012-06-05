@@ -291,7 +291,9 @@ public class PictureField extends TextField<String> {
             public void componentSelected(ButtonEvent ce) {
                 Button button = ce.getButton();
                 if (button == uploadButton) {
-                    if(editForm.isValid()) {                        
+                    if(editForm.isValid()) {
+                        if(name.getValue().contains("#")) //$NON-NLS-1$
+                            name.setValue(name.getValue().replaceAll("#", "$"));  //$NON-NLS-1$//$NON-NLS-2$
                         editForm.submit();
                     }
                 } else if (button == resetButton) {
