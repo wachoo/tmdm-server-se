@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.server.bizhelpers;
 
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,20 +22,27 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
-<<<<<<< .working
-=======
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit3.PowerMockSuite;
->>>>>>> .merge-right.r84716
 import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 
+import com.amalto.core.util.Util;
+
+@PrepareForTest({ Util.class })
 @SuppressWarnings("nls")
 public class DataModelHelperTest extends TestCase {
+	
+    @SuppressWarnings("unchecked")
+    public static TestSuite suite() throws Exception {
+        return new PowerMockSuite("Unit tests for " + DataModelHelperTest.class.getSimpleName(), DataModelHelperTest.class);
+    }
 
     public void testParsingMetadata() throws Exception {
 
