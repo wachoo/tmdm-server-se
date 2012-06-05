@@ -487,7 +487,7 @@ public abstract class QueryBuilder {
                 } else if (isRightValueDate) {
                     where.append("string-length(").append(factorPivots).append(") > 0 and xs:date(").append(factorPivots).append(") = xs:date(\"").append(encoded).append("\")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 } else {
-                    where.append("string(").append(factorPivots).append(") eq \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    where.append(factorPivots).append(" eq \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
             } else if (operator.equals(WhereCondition.NOT_EQUALS)) {
                 if (isNum) {
@@ -499,7 +499,7 @@ public abstract class QueryBuilder {
                 } else if (isXpathFunction) {
                     where.append(factorPivots).append(" != ").append(encoded); //$NON-NLS-1$
                 } else {
-                    where.append("string(").append(factorPivots).append(") ne \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$  //$NON-NLS-3$
+                    where.append(factorPivots).append(" ne \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$  //$NON-NLS-3$
                 }
             } else if (operator.equals(WhereCondition.GREATER_THAN)) {
                 if (isNum) {
@@ -515,7 +515,7 @@ public abstract class QueryBuilder {
                 } else if (isRightValueDate) {
                     where.append("string-length(").append(factorPivots).append(") > 0 and xs:date(").append(factorPivots).append(") > xs:date(\"").append(encoded).append("\")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 } else {
-                    where.append("string(").append(factorPivots).append(") gt \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    where.append(factorPivots).append(" gt \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
             } else if (operator.equals(WhereCondition.GREATER_THAN_OR_EQUAL)) {
                 if (isNum) {
@@ -531,7 +531,7 @@ public abstract class QueryBuilder {
                 } else if (isRightValueDate) {
                     where.append("string-length(").append(factorPivots).append(") > 0 and xs:date(").append(factorPivots).append(") >= xs:date(\"").append(encoded).append("\")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 } else {
-                    where.append("string(").append(factorPivots).append(") ge \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    where.append(factorPivots).append(" ge \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
             } else if (operator.equals(WhereCondition.LOWER_THAN)) {
                 if (isNum) {
@@ -547,7 +547,7 @@ public abstract class QueryBuilder {
                 } else if (isRightValueDate) {
                     where.append("string-length(").append(factorPivots).append(") > 0 and xs:date(").append(factorPivots).append(") < xs:date(\"").append(encoded).append("\")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 } else {
-                    where.append("string(").append(factorPivots).append(") lt \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    where.append(factorPivots).append(" lt \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
             } else if (operator.equals(WhereCondition.LOWER_THAN_OR_EQUAL)) {
                 if (isNum) {
@@ -563,7 +563,7 @@ public abstract class QueryBuilder {
                 } else if (isRightValueDate) {
                     where.append("string-length(").append(factorPivots).append(") > 0 and xs:date(").append(factorPivots).append(") <= xs:date(\"").append(encoded).append("\")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 } else {
-                    where.append("string(").append(factorPivots).append(") le \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    where.append(factorPivots).append(" le \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
             } else if (operator.equals(WhereCondition.EMPTY_NULL)) {
                 String predicate = wc.getStringPredicate();
