@@ -66,7 +66,7 @@ public class QueryBuilderTest extends TestCase {
                 false);
         Map<String, ArrayList<String>> metaDataTypes = null;
 
-        String expected = "string($pivot0/ViewPK) eq \"Browse_items_Product\"";
+        String expected = "$pivot0/ViewPK eq \"Browse_items_Product\"";
         String actual = queryBuilder.buildWhereCondition(whereCond, pivots, metaDataTypes);
         assertEquals(expected, actual);
     }
