@@ -24,7 +24,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-class StorageAdminImpl implements StorageAdmin {
+public class StorageAdminImpl implements StorageAdmin {
 
     private final Map<String, Storage> storages = new HashMap<String, Storage>();
 
