@@ -25,7 +25,7 @@
     <property name="lib" value="z.mdm.core.jar"/>
     <property name="conf" value="mdm.conf"/>
     <property name="conf.template" value="mdm.conf.template"/>
-	<property name="svn.revision" value="36233"/>
+    <property name="svn.revision" value="36233"/>
 
     <property name="tom.location" value="${basedir}/../../tom"/>
     <property name="tem.location" value="${basedir}/../../tem"/>
@@ -95,6 +95,10 @@
 
         <delete dir="${basedir}/target/test-classes"/>
         <mkdir dir="${basedir}/target/test-classes"/>
+
+        <copy todir="${basedir}/bin/" verbose="true" overwrite="true">
+            <fileset dir="${basedir}/src" includes="**/**.xml"/>
+        </copy>
 
         <delete dir="${basedir}/target/test-reports"/>
         <mkdir dir="${basedir}/target/test-reports"/>
@@ -187,6 +191,9 @@
     </target>
 
     <target name="package" depends="version">
+        <copy todir="${basedir}/bin/" verbose="true" overwrite="true">
+            <fileset dir="${basedir}/src" includes="**/**.xml"/>
+        </copy>
 
         <jar destfile="${ejbs}" manifest="src/META-INF/MANIFEST.MF">
 
