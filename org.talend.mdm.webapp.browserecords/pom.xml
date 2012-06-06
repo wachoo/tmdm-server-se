@@ -147,6 +147,11 @@
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.core</artifactId>
         </dependency>
+        <!-- Deprecate to use this dependency within any none test scope for Browse Records -->
+		<dependency>
+			<groupId>org.talend.mdm</groupId>
+			<artifactId>org.talend.mdm.xmlserver.interfaces</artifactId>
+		</dependency>
 
     </dependencies>
 

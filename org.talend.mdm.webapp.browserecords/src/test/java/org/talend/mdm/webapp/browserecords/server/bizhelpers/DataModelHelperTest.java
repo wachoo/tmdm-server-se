@@ -117,6 +117,8 @@ public class DataModelHelperTest extends TestCase {
 
         List<ComplexTypeModel> reusableTypes = ((ComplexTypeModel) addressType).getReusableComplexTypes();
         for (ComplexTypeModel complexTypeModel : reusableTypes) {
+        	if(complexTypeModel==null||complexTypeModel.getLabelMap()==null)
+        		continue;
             String typeName = complexTypeModel.getName();
             if(typeName.equals("AddressType")){
                 assertEquals(2, complexTypeModel.getLabelMap().size());
