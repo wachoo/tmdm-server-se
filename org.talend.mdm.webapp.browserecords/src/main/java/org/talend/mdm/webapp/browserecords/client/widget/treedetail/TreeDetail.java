@@ -97,7 +97,7 @@ public class TreeDetail extends ContentPanel {
     
     private ClickHandler handler = new ClickHandler() {
 
-        public void onClick(ClickEvent arg0) {
+        public void onClick(ClickEvent event) {
             if (selectedItem == null)
                 return;
             // final DynamicTreeItem selected = (DynamicTreeItem) tree.getSelectedItem();
@@ -110,11 +110,17 @@ public class TreeDetail extends ContentPanel {
             final CountMapItem countMapItem = new CountMapItem(xpath, parentModel);
             final int count = occurMap.containsKey(countMapItem) ? occurMap.get(countMapItem) : 0;
 
-            if ("Add".equals(arg0.getRelativeElement().getId()) || "Clone".equals(arg0.getRelativeElement().getId())) { //$NON-NLS-1$ //$NON-NLS-2$               
-                if (viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath).getMaxOccurs() < 0
-                        || count < viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath).getMaxOccurs()) {
-                    // clone a new item
-                    ItemNodeModel model = selectedModel.clone("Clone".equals(arg0.getRelativeElement().getId()) ? true : false); //$NON-NLS-1$
+            if ("Add".equals(event.getRelativeElement().getId()) || "Clone".equals(event.getRelativeElement().getId())) { //$NON-NLS-1$ //$NON-NLS-2$               
+            	TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath);
+            	if (typeModel.getMaxOccurs() < 0 || count < typeModel.getMaxOccurs()) {
+            		ItemNodeModel model = null;
+                	if("Clone".equals(event.getRelativeElement().getId())) {
+                    	model = selectedModel.clone(true);
+                    } else {
+                    	List<ItemNodeModel> modelList = CommonUtil.getDefaultTreeModel(typeModel, Locale.getLanguage());
+                    	if(modelList.size() > 0)
+                    		model = modelList.get(0);
+                    }
                     model.setDynamicLabel(LabelUtil.getNormalLabel(model.getLabel()));
                     model.setMandatory(selectedModel.isMandatory());
                     int selectModelIndex = parentModel.indexOf(selectedModel);
