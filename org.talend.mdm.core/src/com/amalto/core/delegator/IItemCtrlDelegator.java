@@ -1,18 +1,20 @@
 package com.amalto.core.delegator;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
+import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.ejb.ObjectPOJO;
+import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.metadata.ReferenceFieldMetadata;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.objects.role.ejb.RolePOJO;
+import com.amalto.core.objects.role.ejb.RolePOJOPK;
+import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.objects.view.ejb.ViewPOJO;
+import com.amalto.core.objects.view.ejb.ViewPOJOPK;
 import com.amalto.core.query.user.OrderBy;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryHelper;
@@ -24,158 +26,147 @@ import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordWriter;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
 import com.amalto.core.util.*;
+import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.XmlServerException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.ejb.ObjectPOJO;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.objects.role.ejb.RolePOJO;
-import com.amalto.core.objects.role.ejb.RolePOJOPK;
-import com.amalto.core.objects.universe.ejb.UniversePOJO;
-import com.amalto.core.objects.view.ejb.ViewPOJO;
-import com.amalto.core.objects.view.ejb.ViewPOJOPK;
-import com.amalto.xmlserver.interfaces.IWhereItem;
-import com.amalto.xmlserver.interfaces.WhereAnd;
-
-import javax.naming.InitialContext;
+import java.io.*;
+import java.util.*;
 
 public abstract class IItemCtrlDelegator implements IBeanDelegator,
-		IItemCtrlDelegatorService {
-	Logger logger = Logger.getLogger(IItemCtrlDelegator.class);
+        IItemCtrlDelegatorService {
+    Logger logger = Logger.getLogger(IItemCtrlDelegator.class);
 
-	// methods from ItemCtrl2Bean
-	public ArrayList<String> getItemsPivotIndex(String clusterName,
-			String mainPivotName,
-			LinkedHashMap<String, String[]> pivotWithKeys, String[] indexPaths,
-			IWhereItem whereItem, String[] pivotDirections,
-			String[] indexDirections, int start, int limit)
-			throws XtentisException {
-		try {
+    // methods from ItemCtrl2Bean
+    public ArrayList<String> getItemsPivotIndex(String clusterName,
+                                                String mainPivotName,
+                                                LinkedHashMap<String, String[]> pivotWithKeys, String[] indexPaths,
+                                                IWhereItem whereItem, String[] pivotDirections,
+                                                String[] indexDirections, int start, int limit)
+            throws XtentisException {
+        try {
 
-			// validate parameters
-			if (pivotWithKeys.size() == 0) {
-				String err = "The Map of pivots must contain at least one element";
-				logger.error(err);
-				throw new XtentisException(err);
-			}
+            // validate parameters
+            if (pivotWithKeys.size() == 0) {
+                String err = "The Map of pivots must contain at least one element";
+                logger.error(err);
+                throw new XtentisException(err);
+            }
 
-			if (indexPaths.length == 0) {
-				String err = "The Array of Index Paths must contain at least one element";
-				logger.error(err);
-				throw new XtentisException(err);
-			}
+            if (indexPaths.length == 0) {
+                String err = "The Array of Index Paths must contain at least one element";
+                logger.error(err);
+                throw new XtentisException(err);
+            }
 
-			// get the universe and revision ID
-			ILocalUser localuser = getLocalUser();
-			UniversePOJO universe = localuser.getUniverse();
-			if (universe == null) {
-				String err = "ERROR: no Universe set for user '"
-						+ localuser.getUsername() + "'";
-				logger.error(err);
-				throw new XtentisException(err);
-			}
+            // get the universe and revision ID
+            ILocalUser localuser = getLocalUser();
+            UniversePOJO universe = localuser.getUniverse();
+            if (universe == null) {
+                String err = "ERROR: no Universe set for user '"
+                        + localuser.getUsername() + "'";
+                logger.error(err);
+                throw new XtentisException(err);
+            }
 
-			ViewPOJOPK viewPOJOPK = new ViewPOJOPK("Browse_items_"
-					+ mainPivotName);
-			ViewPOJO view = getViewPOJO(viewPOJOPK);
+            ViewPOJOPK viewPOJOPK = new ViewPOJOPK("Browse_items_"
+                    + mainPivotName);
+            ViewPOJO view = getViewPOJO(viewPOJOPK);
 
-			// Create an ItemWhere which combines the search and and view wheres
-			IWhereItem fullWhere;
-			ArrayList conditions = view.getWhereConditions().getList();
-			Util.fixCondtions(conditions);
-			fullWhere = getFullWhereCondition(whereItem, conditions);
+            // Create an ItemWhere which combines the search and and view wheres
+            IWhereItem fullWhere;
+            ArrayList conditions = view.getWhereConditions().getList();
+            Util.fixCondtions(conditions);
+            fullWhere = getFullWhereCondition(whereItem, conditions);
 
-			// Add View Filters from the Roles
-			ArrayList<IWhereItem> roleWhereConditions = getViewWCFromRole(viewPOJOPK);
-			fullWhere = getFullWhereCondition(fullWhere, roleWhereConditions);
+            // Add View Filters from the Roles
+            ArrayList<IWhereItem> roleWhereConditions = getViewWCFromRole(viewPOJOPK);
+            fullWhere = getFullWhereCondition(fullWhere, roleWhereConditions);
 
-			return runPivotIndexQuery(clusterName, mainPivotName,
-					pivotWithKeys, universe.getItemsRevisionIDs(),
-					universe.getDefaultItemRevisionID(), indexPaths, fullWhere,
-					pivotDirections, indexDirections, start, limit);
+            return runPivotIndexQuery(clusterName, mainPivotName,
+                    pivotWithKeys, universe.getItemsRevisionIDs(),
+                    universe.getDefaultItemRevisionID(), indexPaths, fullWhere,
+                    pivotDirections, indexDirections, start, limit);
 
-		} catch (XtentisException e) {
-			throw (e);
-		} catch (Exception e) {
-			String err = "Unable to search: " + ": " + e.getClass().getName()
-					+ ": " + e.getLocalizedMessage();
-			logger.error(err, e);
-			throw new XtentisException(err);
-		}
-	}
+        } catch (XtentisException e) {
+            throw (e);
+        } catch (Exception e) {
+            String err = "Unable to search: " + ": " + e.getClass().getName()
+                    + ": " + e.getLocalizedMessage();
+            logger.error(err, e);
+            throw new XtentisException(err);
+        }
+    }
 
-	public ArrayList<String> getChildrenItems(String clusterName,
-			String conceptName, String[] PKXpaths, String FKXpath,
-			String labelXpath, String fatherPK, IWhereItem whereItem,
-			int start, int limit) throws XtentisException {
-		try {
-			// get the universe and revision ID
-			ILocalUser localuser = getLocalUser();
-			UniversePOJO universe = localuser.getUniverse();
-			if (universe == null) {
-				String err = "ERROR: no Universe set for user '"
-						+ localuser.getUsername() + "'";
-				logger.error(err);
-				throw new XtentisException(err);
-			}
+    public ArrayList<String> getChildrenItems(String clusterName,
+                                              String conceptName, String[] PKXpaths, String FKXpath,
+                                              String labelXpath, String fatherPK, IWhereItem whereItem,
+                                              int start, int limit) throws XtentisException {
+        try {
+            // get the universe and revision ID
+            ILocalUser localuser = getLocalUser();
+            UniversePOJO universe = localuser.getUniverse();
+            if (universe == null) {
+                String err = "ERROR: no Universe set for user '"
+                        + localuser.getUsername() + "'";
+                logger.error(err);
+                throw new XtentisException(err);
+            }
 
-			ViewPOJOPK viewPOJOPK = new ViewPOJOPK("Browse_items_"
-					+ conceptName);
-			ViewPOJO view = getViewPOJO(viewPOJOPK);
+            ViewPOJOPK viewPOJOPK = new ViewPOJOPK("Browse_items_"
+                    + conceptName);
+            ViewPOJO view = getViewPOJO(viewPOJOPK);
 
-			// Create an ItemWhere which combines the search and and view wheres
-			IWhereItem fullWhere;
-			ArrayList conditions = view.getWhereConditions().getList();
-			Util.fixCondtions(conditions);
-			fullWhere = getFullWhereCondition(whereItem, conditions);
+            // Create an ItemWhere which combines the search and and view wheres
+            IWhereItem fullWhere;
+            ArrayList conditions = view.getWhereConditions().getList();
+            Util.fixCondtions(conditions);
+            fullWhere = getFullWhereCondition(whereItem, conditions);
 
-			return runChildrenItemsQuery(clusterName, conceptName, PKXpaths,
-					FKXpath, labelXpath, fatherPK,
-					universe.getItemsRevisionIDs(),
-					universe.getDefaultItemRevisionID(), fullWhere, start,
-					limit);
+            return runChildrenItemsQuery(clusterName, conceptName, PKXpaths,
+                    FKXpath, labelXpath, fatherPK,
+                    universe.getItemsRevisionIDs(),
+                    universe.getDefaultItemRevisionID(), fullWhere, start,
+                    limit);
 
-		} catch (XtentisException e) {
-			throw (e);
-		} catch (Exception e) {
-			String err = "Unable to search: " + ": " + e.getClass().getName()
-					+ ": " + e.getLocalizedMessage();
-			logger.error(err, e);
-			throw new XtentisException(err);
-		}
-	}
+        } catch (XtentisException e) {
+            throw (e);
+        } catch (Exception e) {
+            String err = "Unable to search: " + ": " + e.getClass().getName()
+                    + ": " + e.getLocalizedMessage();
+            logger.error(err, e);
+            throw new XtentisException(err);
+        }
+    }
 
-	public void resendFailtSvnMessage() throws Exception {
+    public void resendFailtSvnMessage() throws Exception {
 
-	}
+    }
 
-	public ArrayList<String> viewSearch(DataClusterPOJOPK dataClusterPOJOPK,
-			ViewPOJOPK viewPOJOPK, IWhereItem whereItem, int spellThreshold,
-			String orderBy, String direction, int start, int limit)
-			throws XtentisException {
+    public ArrayList<String> viewSearch(DataClusterPOJOPK dataClusterPOJOPK,
+                                        ViewPOJOPK viewPOJOPK, IWhereItem whereItem, int spellThreshold,
+                                        String orderBy, String direction, int start, int limit)
+            throws XtentisException {
 
-		// get the universe and revision ID
-        UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
-		if (universe == null) {
+        // get the universe and revision ID
+        UniversePOJO universe = getLocalUser().getUniverse();
+        if (universe == null) {
             String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
             org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-			throw new XtentisException(err);
-		}
+            throw new XtentisException(err);
+        }
 
-		try {
-            ViewPOJO view = Util.getViewCtrlLocalHome().create().getView(viewPOJOPK);
-			whereItem = Util.fixWebCondtions(whereItem);
-			// Create an ItemWhere which combines the search and and view wheres
-			IWhereItem fullWhere;
-			ArrayList conditions = view.getWhereConditions().getList();
-			// fix conditions:value of condition do not generate xquery.
-			Util.fixCondtions(conditions);
+        try {
+            ViewPOJO view = getViewPOJO(viewPOJOPK);
+            whereItem = Util.fixWebCondtions(whereItem);
+            // Create an ItemWhere which combines the search and and view wheres
+            IWhereItem fullWhere;
+            ArrayList conditions = view.getWhereConditions().getList();
+            // fix conditions:value of condition do not generate xquery.
+            Util.fixCondtions(conditions);
 
             if (conditions == null || conditions.size() == 0) {
                 if (whereItem == null)
@@ -195,7 +186,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
             }
 
             // Add Filters from the Roles
-            ILocalUser user = LocalUser.getLocalUser();
+            ILocalUser user = getLocalUser();
             HashSet<String> roleNames = user.getRoles();
             ArrayList<IWhereItem> roleWhereConditions = new ArrayList<IWhereItem>();
             String objectType = "View";
@@ -316,52 +307,34 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                 }
                 return resultsAsString;
             } else {
-                XmlServerSLWrapperLocal xmlServer;
-                try {
-                    xmlServer = ((XmlServerSLWrapperLocalHome) new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-                } catch (Exception e) {
-                    String err = "Unable to search items in data cluster '" + dataClusterPOJOPK.getUniqueId() + "': unable to access the XML Server wrapper";
-                    logger.error(err, e);
-                    throw new XtentisException(err, e);
-                }
                 // build the patterns to revision ID map
-                LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(universe.getItemsRevisionIDs());
-                if (universe.getDefaultItemRevisionID() != null) {
-                    conceptPatternsToRevisionID.put(".*", universe.getDefaultItemRevisionID());
-                }
+                LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(
+                        universe.getItemsRevisionIDs());
+                if (universe.getDefaultItemRevisionID() != null
+                        && universe.getDefaultItemRevisionID().length() > 0)
+                    conceptPatternsToRevisionID.put(".*",
+                            universe.getDefaultItemRevisionID());
 
-                // build the patterns to cluster map - only one cluster at this
-                // stage
+                // build the patterns to cluster map - only one cluster at this stage
                 LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
-                conceptPatternsToClusterName.put(".*",
-                        dataClusterPOJOPK.getUniqueId());
+                conceptPatternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId());
 
-                String query = xmlServer.getItemsQuery(
-                        conceptPatternsToRevisionID,
-                        conceptPatternsToClusterName,
-                        null, //the main pivots will be that of the first element of the viewable list
-                        view.getViewableBusinessElements().getList(),
-                        fullWhere,
-                        orderBy,
-                        direction,
-                        start,
-                        limit,
-                        spellThreshold,
-                        true,
-                        null
-                );
-
-                return xmlServer.runQuery(null, null, query, null);
+                Map<String, ArrayList<String>> metaDataTypes = getMetaTypes(fullWhere);
+                return runItemsQuery(conceptPatternsToRevisionID,
+                        conceptPatternsToClusterName, null, view
+                        .getViewableBusinessElements().getList(),
+                        fullWhere, orderBy, direction, start, limit,
+                        spellThreshold, true, metaDataTypes, true);
             }
-		} catch (XtentisException e) {
-			throw (e);
-		} catch (Exception e) {
-			String err = "Unable to single search: " + ": "
-					+ e.getClass().getName() + ": " + e.getLocalizedMessage();
-			org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+        } catch (XtentisException e) {
+            throw (e);
+        } catch (Exception e) {
+            String err = "Unable to single search: " + ": "
+                    + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
             throw new XtentisException(err, e);
-		}
-	}
+        }
+    }
 
     public ItemPOJOPK putItem(ItemPOJO item, String schema, String dataModelName) throws XtentisException {
         if (logger.isTraceEnabled()) {
@@ -405,79 +378,79 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
         }
     }
 
-	public ArrayList<String> xPathsSearch(DataClusterPOJOPK dataClusterPOJOPK,
-			String forceMainPivot, ArrayList<String> viewablePaths,
-			IWhereItem whereItem, int spellThreshold, String orderBy,
-			String direction, int start, int limit, boolean returnCount)
-			throws XtentisException {
-		try {
-			if (viewablePaths.size() == 0) {
-				String err = "The list of viewable xPaths must contain at least one element";
-				logger.error(err);
-				throw new XtentisException(err);
-			}
-			// Check if user is allowed to read the cluster
-			ILocalUser user = getLocalUser();
-			boolean authorized = false;
-			if (MDMConfiguration.getAdminUser().equals(user.getUsername())
-					|| LocalUser.UNAUTHENTICATED_USER
-							.equals(user.getUsername())) {
-				authorized = true;
-			} else if (user.userCanRead(DataClusterPOJO.class,
-					dataClusterPOJOPK.getUniqueId())) {
-				authorized = true;
-			}
-			if (!authorized) {
-				throw new XtentisException(
-						"Unauthorized read access on data cluster '"
-								+ dataClusterPOJOPK.getUniqueId()
-								+ "' by user '" + user.getUsername() + "'");
-			}
+    public ArrayList<String> xPathsSearch(DataClusterPOJOPK dataClusterPOJOPK,
+                                          String forceMainPivot, ArrayList<String> viewablePaths,
+                                          IWhereItem whereItem, int spellThreshold, String orderBy,
+                                          String direction, int start, int limit, boolean returnCount)
+            throws XtentisException {
+        try {
+            if (viewablePaths.size() == 0) {
+                String err = "The list of viewable xPaths must contain at least one element";
+                logger.error(err);
+                throw new XtentisException(err);
+            }
+            // Check if user is allowed to read the cluster
+            ILocalUser user = getLocalUser();
+            boolean authorized = false;
+            if (MDMConfiguration.getAdminUser().equals(user.getUsername())
+                    || LocalUser.UNAUTHENTICATED_USER
+                    .equals(user.getUsername())) {
+                authorized = true;
+            } else if (user.userCanRead(DataClusterPOJO.class,
+                    dataClusterPOJOPK.getUniqueId())) {
+                authorized = true;
+            }
+            if (!authorized) {
+                throw new XtentisException(
+                        "Unauthorized read access on data cluster '"
+                                + dataClusterPOJOPK.getUniqueId()
+                                + "' by user '" + user.getUsername() + "'");
+            }
 
-			// get the universe and revision ID
-			UniversePOJO universe = user.getUniverse();
-			if (universe == null) {
-				String err = "ERROR: no Universe set for user '"
-						+ LocalUser.getLocalUser().getUsername() + "'";
-				logger.error(err);
-				throw new XtentisException(err);
-			}
+            // get the universe and revision ID
+            UniversePOJO universe = user.getUniverse();
+            if (universe == null) {
+                String err = "ERROR: no Universe set for user '"
+                        + LocalUser.getLocalUser().getUsername() + "'";
+                logger.error(err);
+                throw new XtentisException(err);
+            }
 
-			// build the patterns to revision ID map
-			LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(
-					universe.getItemsRevisionIDs());
-			if (universe.getDefaultItemRevisionID() != null) {
-				conceptPatternsToRevisionID.put(".*",
-						universe.getDefaultItemRevisionID());
-			}
+            // build the patterns to revision ID map
+            LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(
+                    universe.getItemsRevisionIDs());
+            if (universe.getDefaultItemRevisionID() != null) {
+                conceptPatternsToRevisionID.put(".*",
+                        universe.getDefaultItemRevisionID());
+            }
 
-			// build the patterns to cluster map - only one cluster at this
-			// stage
-			LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
-			conceptPatternsToClusterName.put(".*",
-					dataClusterPOJOPK.getUniqueId());
+            // build the patterns to cluster map - only one cluster at this
+            // stage
+            LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
+            conceptPatternsToClusterName.put(".*",
+                    dataClusterPOJOPK.getUniqueId());
 
             // add recordsSecurity filters for the Role
             whereItem = getFullWhereCondition(whereItem, new ArrayList<IWhereItem>(0));
-			return runItemsQuery(conceptPatternsToRevisionID,
-					conceptPatternsToClusterName, forceMainPivot,
-					viewablePaths, whereItem, orderBy, direction, start, limit,
-					spellThreshold, returnCount, Collections.emptyMap(), false);
+            return runItemsQuery(conceptPatternsToRevisionID,
+                    conceptPatternsToClusterName, forceMainPivot,
+                    viewablePaths, whereItem, orderBy, direction, start, limit,
+                    spellThreshold, returnCount, Collections.emptyMap(), false);
 
-		} catch (XtentisException e) {
-			throw (e);
-		} catch (Exception e) {
-			String err = "Unable to single search: " + ": "
-					+ e.getClass().getName() + ": " + e.getLocalizedMessage();
-			logger.error(err, e);
-			throw new XtentisException(err, e);
-		}
-	}
+        } catch (XtentisException e) {
+            throw (e);
+        } catch (Exception e) {
+            String err = "Unable to single search: " + ": "
+                    + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            logger.error(err, e);
+            throw new XtentisException(err, e);
+        }
+    }
 
-	public ArrayList<String> getItems(DataClusterPOJOPK dataClusterPOJOPK,
-			String conceptName, IWhereItem whereItem, int spellThreshold,
-			String orderBy, String direction, int start, int limit,
-			boolean totalCountOnFirstRow) throws XtentisException {
+    public ArrayList<String> getItems(DataClusterPOJOPK dataClusterPOJOPK,
+                                      String conceptName, IWhereItem whereItem, int spellThreshold,
+                                      String orderBy, String direction, int start, int limit,
+                                      boolean totalCountOnFirstRow) throws XtentisException {
 
         Server server = ServerContext.INSTANCE.get();
         MetadataRepository repository = server.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
@@ -531,140 +504,142 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
             return resultsAsString;
         } else {
             // ******* Old behavior **********
-		// get the universe and revision ID
-		ILocalUser user = getLocalUser();
-		UniversePOJO universe = user.getUniverse();
-		if (universe == null) {
-			String err = "ERROR: no Universe set for user '"
-					+ user.getUsername() + "'";
-			logger.error(err);
-			throw new XtentisException(err);
-		}
+            // get the universe and revision ID
+            ILocalUser user = getLocalUser();
+            UniversePOJO universe = user.getUniverse();
+            if (universe == null) {
+                String err = "ERROR: no Universe set for user '"
+                        + user.getUsername() + "'";
+                logger.error(err);
+                throw new XtentisException(err);
+            }
 
-		// build the patterns to revision ID map
-		LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(
-				universe.getItemsRevisionIDs());
-		if (universe.getDefaultItemRevisionID() != null
-				&& universe.getDefaultItemRevisionID().length() > 0)
-			conceptPatternsToRevisionID.put(".*",
-					universe.getDefaultItemRevisionID());
+            // build the patterns to revision ID map
+            LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(
+                    universe.getItemsRevisionIDs());
+            if (universe.getDefaultItemRevisionID() != null
+                    && universe.getDefaultItemRevisionID().length() > 0)
+                conceptPatternsToRevisionID.put(".*",
+                        universe.getDefaultItemRevisionID());
 
-		// build the patterns to cluster map - only one cluster at this stage
-		LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
-		conceptPatternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId());
+            // build the patterns to cluster map - only one cluster at this stage
+            LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
+            conceptPatternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId());
 
-		try {
-			ArrayList<String> elements = new ArrayList<String>();
-			elements.add(conceptName);
+            try {
+                ArrayList<String> elements = new ArrayList<String>();
+                elements.add(conceptName);
                 // add recordsSecurity filters for the Role
                 whereItem = getFullWhereCondition(whereItem, new ArrayList<IWhereItem>(0));
 
-			return runItemsQuery(conceptPatternsToRevisionID,
-					conceptPatternsToClusterName, null, elements, whereItem,
-					orderBy, direction, start, limit, spellThreshold,
-					totalCountOnFirstRow, Collections.emptyMap(), false);
-		} catch (XtentisException e) {
-			throw (e);
-		} catch (Exception e) {
-			String err = "Unable to get the items: " + ": "
-					+ e.getClass().getName() + ": " + e.getLocalizedMessage();
-			logger.error(err, e);
-			throw new XtentisException(err, e);
-		}
-	}
+                return runItemsQuery(conceptPatternsToRevisionID,
+                        conceptPatternsToClusterName, null, elements, whereItem,
+                        orderBy, direction, start, limit, spellThreshold,
+                        totalCountOnFirstRow, Collections.emptyMap(), false);
+            } catch (XtentisException e) {
+                throw (e);
+            } catch (Exception e) {
+                String err = "Unable to get the items: " + ": "
+                        + e.getClass().getName() + ": " + e.getLocalizedMessage();
+                logger.error(err, e);
+                throw new XtentisException(err, e);
+            }
+        }
     }
 
-	protected Map<String, ArrayList<String>> getMetaTypes(IWhereItem fullWhere)throws Exception{
-		return Util.getMetaDataTypes(fullWhere);
-	}
+    protected Map<String, ArrayList<String>> getMetaTypes(IWhereItem fullWhere) throws Exception {
+        return Util.getMetaDataTypes(fullWhere);
+    }
 
-	/**
-	 * get view where conditions from Role CE version return empty
-	 * 
-	 * @param viewPOJOPK
-	 * @return
-	 * @throws Exception
-	 */
-	protected abstract ArrayList<IWhereItem> getViewWCFromRole(ViewPOJOPK viewPOJOPK)throws Exception ;
+    /**
+     * get view where conditions from Role CE version return empty
+     *
+     * @param viewPOJOPK
+     * @return
+     * @throws Exception
+     */
+    protected abstract ArrayList<IWhereItem> getViewWCFromRole(ViewPOJOPK viewPOJOPK) throws Exception;
 
-	protected IWhereItem getFullWhereCondition(IWhereItem whereItem,
-			ArrayList<IWhereItem> conditions) {
-		IWhereItem fullWhere;
-		if (conditions == null || conditions.size() == 0) {
-			if (whereItem == null)
-				fullWhere = null;
-			else
-				fullWhere = whereItem;
-		} else {
-			if (whereItem == null) {
-				fullWhere = new WhereAnd(conditions);
-			} else {
-				WhereAnd viewWhere = new WhereAnd(conditions);
-				WhereAnd wAnd = new WhereAnd();
-				wAnd.add(whereItem);
-				wAnd.add(viewWhere);
-				fullWhere = wAnd;
-			}
-		}
-		return fullWhere;
-	}
+    protected IWhereItem getFullWhereCondition(IWhereItem whereItem,
+                                               ArrayList<IWhereItem> conditions) {
+        IWhereItem fullWhere;
+        if (conditions == null || conditions.size() == 0) {
+            if (whereItem == null)
+                fullWhere = null;
+            else
+                fullWhere = whereItem;
+        } else {
+            if (whereItem == null) {
+                fullWhere = new WhereAnd(conditions);
+            } else {
+                WhereAnd viewWhere = new WhereAnd(conditions);
+                WhereAnd wAnd = new WhereAnd();
+                wAnd.add(whereItem);
+                wAnd.add(viewWhere);
+                fullWhere = wAnd;
+            }
+        }
+        return fullWhere;
+    }
 
-	/****************** test interfaces ******************************/
+    /**
+     * *************** test interfaces *****************************
+     */
 
-	public ViewPOJO getViewPOJO(ViewPOJOPK viewPOJOPK) throws Exception {
-		return Util.getViewCtrlLocalHome().create().getView(viewPOJOPK);
-	}
+    public ViewPOJO getViewPOJO(ViewPOJOPK viewPOJOPK) throws Exception {
+        return Util.getViewCtrlLocalHome().create().getView(viewPOJOPK);
+    }
 
-	public ILocalUser getLocalUser() throws XtentisException {
-		return LocalUser.getLocalUser();
-	}
+    public ILocalUser getLocalUser() throws XtentisException {
+        return LocalUser.getLocalUser();
+    }
 
-	public ArrayList<String> runItemsQuery(
-			LinkedHashMap conceptPatternsToRevisionID,
-			LinkedHashMap conceptPatternsToClusterName, String forceMainPivot,
-			ArrayList viewableFullPaths, IWhereItem whereItem, String orderBy,
-			String direction, int start, int limit, int spellThreshold,
-			boolean firstTotalCount, Map metaDataTypes, boolean withStartLimit)
-			throws XtentisException {
-		XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
-		String query = server.getItemsQuery(conceptPatternsToRevisionID,
-				conceptPatternsToClusterName,
-				forceMainPivot, // the main pivots will be that of the first
-								// element of the viewable list
-				viewableFullPaths, whereItem, orderBy, direction, start, limit,
-				spellThreshold, firstTotalCount, metaDataTypes);
-		logger.debug(query);
-		if (withStartLimit)
-			return server.runQuery(null, null, query, null, start, limit, true);
-		else
-			return server.runQuery(null, null, query, null);
-	}
+    public ArrayList<String> runItemsQuery(
+            LinkedHashMap conceptPatternsToRevisionID,
+            LinkedHashMap conceptPatternsToClusterName, String forceMainPivot,
+            ArrayList viewableFullPaths, IWhereItem whereItem, String orderBy,
+            String direction, int start, int limit, int spellThreshold,
+            boolean firstTotalCount, Map metaDataTypes, boolean withStartLimit)
+            throws XtentisException {
+        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+        String query = server.getItemsQuery(conceptPatternsToRevisionID,
+                conceptPatternsToClusterName,
+                forceMainPivot, // the main pivots will be that of the first
+                // element of the viewable list
+                viewableFullPaths, whereItem, orderBy, direction, start, limit,
+                spellThreshold, firstTotalCount, metaDataTypes);
+        logger.debug(query);
+        if (withStartLimit)
+            return server.runQuery(null, null, query, null, start, limit, true);
+        else
+            return server.runQuery(null, null, query, null);
+    }
 
-	public ArrayList<String> runChildrenItemsQuery(String clusterName,
-			String conceptName, String[] PKXpaths, String FKXpath,
-			String labelXpath, String fatherPK, LinkedHashMap itemsRevisionIDs,
-			String defaultRevisionID, IWhereItem whereItem, int start, int limit)
-			throws XtentisException {
-		XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
-		String query = server.getChildrenItemsQuery(clusterName, conceptName,
-				PKXpaths, FKXpath, labelXpath, fatherPK, itemsRevisionIDs,
-				defaultRevisionID, whereItem, start, limit);
+    public ArrayList<String> runChildrenItemsQuery(String clusterName,
+                                                   String conceptName, String[] PKXpaths, String FKXpath,
+                                                   String labelXpath, String fatherPK, LinkedHashMap itemsRevisionIDs,
+                                                   String defaultRevisionID, IWhereItem whereItem, int start, int limit)
+            throws XtentisException {
+        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+        String query = server.getChildrenItemsQuery(clusterName, conceptName,
+                PKXpaths, FKXpath, labelXpath, fatherPK, itemsRevisionIDs,
+                defaultRevisionID, whereItem, start, limit);
 
-		logger.debug(query);
-		return server.runQuery(null, null, query, null);
-	}
+        logger.debug(query);
+        return server.runQuery(null, null, query, null);
+    }
 
-	public ArrayList<String> runPivotIndexQuery(String clusterName,
-			String mainPivotName, LinkedHashMap pivotWithKeys,
-			LinkedHashMap itemsRevisionIDs, String defaultRevisionID,
-			String[] indexPaths, IWhereItem whereItem,
-			String[] pivotDirections, String[] indexDirections, int start,
-			int limit) throws XtentisException {
-		XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
-		String query = server.getPivotIndexQuery(clusterName, mainPivotName,
-				pivotWithKeys, itemsRevisionIDs, defaultRevisionID, indexPaths,
-				whereItem, pivotDirections, indexDirections, start, limit);
-		logger.debug(query);
-		return server.runQuery(null, null, query, null, start, limit, false);
-	}
+    public ArrayList<String> runPivotIndexQuery(String clusterName,
+                                                String mainPivotName, LinkedHashMap pivotWithKeys,
+                                                LinkedHashMap itemsRevisionIDs, String defaultRevisionID,
+                                                String[] indexPaths, IWhereItem whereItem,
+                                                String[] pivotDirections, String[] indexDirections, int start,
+                                                int limit) throws XtentisException {
+        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+        String query = server.getPivotIndexQuery(clusterName, mainPivotName,
+                pivotWithKeys, itemsRevisionIDs, defaultRevisionID, indexPaths,
+                whereItem, pivotDirections, indexDirections, start, limit);
+        logger.debug(query);
+        return server.runQuery(null, null, query, null, start, limit, false);
+    }
 }

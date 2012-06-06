@@ -12,12 +12,14 @@
 package com.amalto.core.server;
 
 import com.amalto.core.metadata.MetadataRepository;
+import org.apache.log4j.Logger;
 
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 class MockMetadataRepositoryAdmin implements MetadataRepositoryAdmin {
+    public static final Logger LOGGER = Logger.getLogger(MockMetadataRepositoryAdmin.class);
     private final Map<String, MetadataRepository> metadataRepository = new HashMap<String, MetadataRepository>();
 
     public MetadataRepository get(String metadataRepositoryId) {
@@ -30,7 +32,8 @@ class MockMetadataRepositoryAdmin implements MetadataRepositoryAdmin {
                 if (resourceAsStream == null) {
                     String base = this.getClass().getResource(".").toString();
                     String fullFileName = base + metadataRepositoryId;
-                    throw new IllegalArgumentException("File " + fullFileName + " can not be found.");
+                    LOGGER.info("File " + fullFileName + " can not be found.");
+                    return repository;
                 }
                 repository.load(resourceAsStream);
                 metadataRepository.put(metadataRepositoryId, repository);
