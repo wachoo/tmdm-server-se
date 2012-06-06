@@ -41,13 +41,13 @@ public class IncrementalBuildTree implements IncrementalCommand {
 	
 	private List<ModelData> itemNodeChildren;
 	
+	private ViewBean viewBean;
+	
 	private Map<String, TypeModel> metaDataTypes;
 	
 	private boolean withDefaultValue;
 	
-	private Map<TypeModel, List<ItemNodeModel>> foreighKeyMap;
-	
-	private Map<TypeModel, ItemNodeModel> foreignKeyParentMap;
+	private Map<TypeModel, List<ItemNodeModel>> foreighKeyMap = new HashMap<TypeModel, List<ItemNodeModel>>();
 	
 	private String operation;
 	
@@ -69,17 +69,15 @@ public class IncrementalBuildTree implements IncrementalCommand {
 	}
 	
 	public IncrementalBuildTree(TreeDetail treeDetail, ItemNodeModel itemNode, ViewBean viewBean, boolean withDefaultValue, 
-			Map<TypeModel, List<ItemNodeModel>> foreighKeyMap, Map<TypeModel, ItemNodeModel> foreignKeyParentMap,
 			String operation, DynamicTreeItem item, HashMap<CountMapItem, Integer> occurMap){
 		this.treeDetail = treeDetail;
 		this.itemNode = itemNode;
 		this.withDefaultValue = withDefaultValue;
-		this.foreighKeyMap = foreighKeyMap;
-		this.foreignKeyParentMap = foreignKeyParentMap;
 		this.operation = operation;
 		this.item = item;
 		this.occurMap = occurMap;
 		itemNodeChildren = itemNode.getChildren();
+		this.viewBean = viewBean;
 		metaDataTypes = viewBean.getBindingEntityModel().getMetaDataTypes();
 		level = getLevel();
 		
@@ -118,6 +116,16 @@ public class IncrementalBuildTree implements IncrementalCommand {
 			}
 		}
 	}
+
+	
+	private void tryRenderFks(){
+		if (foreighKeyMap.size() > 0) {
+            for (TypeModel model : foreighKeyMap.keySet()) {
+            	treeDetail.getFkRender().RenderForeignKey(itemNode, foreighKeyMap.get(model), model, treeDetail.getToolBar(), viewBean, treeDetail, treeDetail.getItemsDetailPanel());
+            }
+            foreighKeyMap.clear();
+        }
+	}
 	
 	private void executeGroup(){
 		while (index < itemNodeChildren.size()){
@@ -136,11 +144,11 @@ public class IncrementalBuildTree implements IncrementalCommand {
 	        if (isFKDisplayedIntoTab) {
 	            if (!foreighKeyMap.containsKey(typeModel)) {
 	                foreighKeyMap.put(typeModel, new ArrayList<ItemNodeModel>());
-	                foreignKeyParentMap.put(typeModel, itemNode);
 	            }
 	            foreighKeyMap.get(typeModel).add(node);
+	            
 	        } else {
-	            TreeItem childItem = treeDetail.buildGWTTree(node, null, withDefaultValue, operation, foreighKeyMap, foreignKeyParentMap);
+	            TreeItem childItem = treeDetail.buildGWTTree(node, null, withDefaultValue, operation);
 	            if (childItem != null) { //
 	        		initItemWidth(childItem, level);
 	                item.addItem(childItem);
@@ -151,6 +159,7 @@ public class IncrementalBuildTree implements IncrementalCommand {
 	                occurMap.put(countMapItem, count + 1);
 	            }
 	        }
+
 	        if (index % GROUP_SIZE == 0){
 	        	return;
 	        }
@@ -166,6 +175,8 @@ public class IncrementalBuildTree implements IncrementalCommand {
           if (itemNodeChildren.size() > 0 && item.getChildCount() == 0){
         	  item.remove(); // All went to FK Tab, in that case return null so the tree item is not added
           }
+          
+          tryRenderFks();
           return false;
         }
 	}

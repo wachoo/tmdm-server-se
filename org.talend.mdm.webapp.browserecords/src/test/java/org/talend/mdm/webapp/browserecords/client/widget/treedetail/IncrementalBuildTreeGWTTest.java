@@ -84,7 +84,7 @@ public class IncrementalBuildTreeGWTTest extends GWTTestCase {
 		ItemNodeModel testNode = builderItemNode();
 		
 		incCommand = new IncrementalBuildTree(mockTreeDetail, testNode, viewBean, false, 
-				foreighKeyMap, foreignKeyParentMap, ItemDetailToolBar.VIEW_OPERATION, item, occurMap);
+				 ItemDetailToolBar.VIEW_OPERATION, item, occurMap);
 
 		while (incCommand.execute());
 		assertNotNull(item);

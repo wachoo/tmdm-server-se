@@ -1,7 +1,9 @@
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
@@ -144,17 +146,17 @@ public class ForeignKeyUtil {
         return false;
     }
 
-    public static List<ItemNodeModel> getAllForeignKeyModelParent(ViewBean viewBean, ItemNodeModel parent) {
-        List<ItemNodeModel> list = new ArrayList<ItemNodeModel>();
-        for (ModelData child : parent.getChildren()) {
-            ItemNodeModel childModel = (ItemNodeModel) child;
-            TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(childModel.getTypePath());
-            if (tm.getForeignkey() != null && !list.contains(parent))
-                list.add(parent);
-            else if (tm.getForeignkey() == null)
-                list.addAll(getAllForeignKeyModelParent(viewBean, childModel));
+    public static Set<ItemNodeModel> getAllForeignKeyModelParent(ViewBean viewBean, ItemNodeModel node) {
+        Set<ItemNodeModel> set = new HashSet<ItemNodeModel>();
+        TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getTypePath());
+        if (tm.getForeignkey() != null){
+        	set.add((ItemNodeModel) node.getParent());
         }
-        return list;
+        for (ModelData child : node.getChildren()) {
+            ItemNodeModel childModel = (ItemNodeModel) child;
+            set.addAll(getAllForeignKeyModelParent(viewBean, childModel));
+        }
+        return set;
     }
 
     public static String transferXpathToLabel(TypeModel fkTypeModel, ViewBean pkViewBean) {
