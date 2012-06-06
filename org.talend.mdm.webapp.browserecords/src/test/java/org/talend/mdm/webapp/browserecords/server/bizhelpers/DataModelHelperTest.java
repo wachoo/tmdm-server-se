@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -78,6 +79,26 @@ public class DataModelHelperTest extends TestCase {
         assertTrue(metaDataTypes.get("Contract/detail:ContractDetailSubTypeOne/code").isSimpleType());
         assertTrue(metaDataTypes.get("Contract/detail:ContractDetailSubTypeOne/subType").isSimpleType());
         assertTrue(metaDataTypes.get("Contract/detail:ContractDetailSubTypeOne/subTypeOne").isSimpleType());
+    }
+    
+    public void testTypePath() throws Exception {
+    
+        EntityModel entityModel=new EntityModel();
+        String datamodelName="RTE";
+        String concept="Contrat";
+        String[] ids={""};
+        String[] roles={"Demo_Manager", "System_Admin", "authenticated", "administration"};
+        InputStream stream = getClass().getResourceAsStream("RTE.xsd");
+        String xsd = inputStream2String(stream);
+        
+        DataModelHelper.alwaysEnterprise = true;
+        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
+        DataModelHelper.parseSchema(datamodelName, concept, DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, entityModel,
+                Arrays.asList(roles));
+        Map<String, TypeModel> metaDataTypes = entityModel.getMetaDataTypes();
+        TypeModel testModel=metaDataTypes.get("Contrat/detailContrat:AP-RP/Perimetre/entitesPresentes/EDPs/EDP/dateDebutApplication");
+        assertEquals("Contrat/detailContrat/Perimetre/entitesPresentes/EDPs/EDP/dateDebutApplication", testModel.getXpath());
+        
     }
 
     private String inputStream2String(InputStream is) throws IOException {
