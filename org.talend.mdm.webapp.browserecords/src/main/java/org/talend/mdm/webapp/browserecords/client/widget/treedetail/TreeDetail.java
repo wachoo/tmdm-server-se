@@ -313,22 +313,23 @@ public class TreeDetail extends ContentPanel {
         if (typeModelFK == null)
             return false; // Not a FK
 
-        if (typeModel.isNotSeparateFk())
+        if (typeModel.isNotSeparateFk()) {
+            ItemNodeModel parentNode = (ItemNodeModel) node.getParent();
+            if (parentNode == null) {
+                return false; // It is root
+            }
+            if (parentNode.getParent() == null) {
+                return true;
+            }
+            TypeModel parentType = metaDataTypes.get(parentNode.getTypePath());
+            if (parentType instanceof ComplexTypeModel) {
+                List<TypeModel> subTypes = ((ComplexTypeModel) parentType).getSubTypes();
+                return subTypes != null && subTypes.size() == 1;
+            }
             return false;
-
-        ItemNodeModel parentNode = (ItemNodeModel) node.getParent();
-        if (parentNode == null) {
-            return false; // It is root
-        }
-        if (parentNode.getParent() == null) {
+        } else {
             return true;
         }
-        TypeModel parentType = metaDataTypes.get(parentNode.getTypePath());
-        if (parentType instanceof ComplexTypeModel){
-            List<TypeModel> subTypes = ((ComplexTypeModel) parentType).getSubTypes();
-            return subTypes != null && subTypes.size() == 1;
-        }
-        return false;
     }
 
     public void onUpdatePolymorphism(ComplexTypeModel typeModel) {
