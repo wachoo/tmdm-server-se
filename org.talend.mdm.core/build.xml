@@ -99,6 +99,9 @@
         <copy todir="${basedir}/bin/" verbose="true" overwrite="true">
             <fileset dir="${basedir}/src" includes="**/**.xml"/>
         </copy>
+        <copy todir="${basedir}/bin/" verbose="true" overwrite="true">
+            <fileset dir="${basedir}/src" includes="**/**.dtd"/>
+        </copy>
 
         <delete dir="${basedir}/target/test-reports"/>
         <mkdir dir="${basedir}/target/test-reports"/>
@@ -193,6 +196,9 @@
     <target name="package" depends="version">
         <copy todir="${basedir}/bin/" verbose="true" overwrite="true">
             <fileset dir="${basedir}/src" includes="**/**.xml"/>
+        </copy>
+        <copy todir="${basedir}/bin/" verbose="true" overwrite="true">
+            <fileset dir="${basedir}/src" includes="**/**.dtd"/>
         </copy>
 
         <jar destfile="${ejbs}" manifest="src/META-INF/MANIFEST.MF">
