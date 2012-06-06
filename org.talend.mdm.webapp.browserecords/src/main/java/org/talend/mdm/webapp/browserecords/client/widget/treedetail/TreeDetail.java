@@ -210,24 +210,22 @@ public class TreeDetail extends ContentPanel {
             itemService.getItemNodeModel(itemBean, viewBean.getBindingEntityModel(), Locale.getLanguage(),
                     new SessionAwareAsyncCallback<ItemNodeModel>() {
 
-                        public void onSuccess(ItemNodeModel node) {
-                            renderTree(node, operation);
-                            if (node.isHasVisiblueRule()) {
+                        public void onSuccess(final ItemNodeModel node) {
+                            
+                            if (hasVisibleRule(viewBean.getBindingEntityModel().getMetaDataTypes().get(
+                                    viewBean.getBindingEntityModel().getConceptName()))) {
                                 itemService.executeVisibleRule(viewBean, CommonUtil.toXML(node, TreeDetail.this.viewBean, true),
                                         new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
 
                                             public void onSuccess(List<VisibleRuleResult> arg0) {
                                                 for (VisibleRuleResult visibleRuleResult : arg0) {
-                                                    if (columnTrees.size() > 0){
-                                                        for (Tree columnTree : columnTrees) {
-                                                            recrusiveSetItems(visibleRuleResult, (DynamicTreeItem) columnTree.getItem(0));
-                                                        }
-                                                    } else {
-                                                        recrusiveSetItems(visibleRuleResult, (DynamicTreeItem) root);                                                        
-                                                    }
+                                                	recrusiveSetItems(visibleRuleResult, node);
                                                 }
+                                                renderTree(node, operation);
                                             }
                                         });
+                            } else {
+                            	renderTree(node, operation);
                             }
                         }
 
@@ -237,9 +235,8 @@ public class TreeDetail extends ContentPanel {
 
     private void buildPanel(final String operation) {
         getItemService().createDefaultItemNodeModel(viewBean, Locale.getLanguage(), new SessionAwareAsyncCallback<ItemNodeModel>() {
-            public void onSuccess(ItemNodeModel result) {
-                
-                renderTree(result, operation);
+            public void onSuccess(final ItemNodeModel result) {
+
                 if (hasVisibleRule(viewBean.getBindingEntityModel().getMetaDataTypes().get(
                         viewBean.getBindingEntityModel().getConceptName()))) {
                             getItemService().executeVisibleRule(viewBean, CommonUtil.toXML(result, viewBean, true),
@@ -247,19 +244,16 @@ public class TreeDetail extends ContentPanel {
 
                                 public void onSuccess(List<VisibleRuleResult> arg0) {
                                     for (VisibleRuleResult visibleRuleResult : arg0) {
-                                        if (columnTrees.size() > 0){
-                                            for (Tree columnTree : columnTrees){
-                                                recrusiveSetItems(visibleRuleResult, (DynamicTreeItem) columnTree.getItem(0));
-                                            }
-                                        } else {
-                                            recrusiveSetItems(visibleRuleResult, (DynamicTreeItem) root);
-                                        }
+                                    	recrusiveSetItems(visibleRuleResult, result);
                                     }
+                                    renderTree(result, operation);
                                 }
                             });
+                } else {
+                	renderTree(result, operation);
                 }
             }
-                });
+        });
     }
 
 
@@ -298,6 +292,7 @@ public class TreeDetail extends ContentPanel {
         }
 
         item.setUserObject(itemNode);
+        item.setVisible(itemNode.isVisible());
         item.setState(viewBean.getBindingEntityModel().getMetaDataTypes().get(itemNode.getTypePath()).isAutoExpand());
 
         return item;
@@ -530,6 +525,19 @@ public class TreeDetail extends ContentPanel {
         });
     }
 
+    private void recrusiveSetItems(VisibleRuleResult visibleResult, ItemNodeModel itemNode) {
+        if (itemNode != null) {
+            if (CommonUtil.getRealXPath(itemNode).equals(visibleResult.getXpath())) {
+                itemNode.setVisible(visibleResult.isVisible());
+            }
+        }
+
+        for (int i = 0; i < itemNode.getChildCount(); i++) {
+            ItemNodeModel childNode = (ItemNodeModel) itemNode.getChild(i);
+            recrusiveSetItems(visibleResult, childNode);
+        }
+    }
+    
     private void recrusiveSetItems(VisibleRuleResult visibleResult, DynamicTreeItem rootItem) {
         if (rootItem.getItemNodeModel() != null) {
             if (CommonUtil.getRealXPath(rootItem.getItemNodeModel()).equals(visibleResult.getXpath())) {

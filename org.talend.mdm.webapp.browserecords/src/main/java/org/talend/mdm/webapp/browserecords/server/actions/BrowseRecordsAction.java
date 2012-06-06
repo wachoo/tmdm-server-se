@@ -1495,6 +1495,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
         TypeModel model = findTypeModelByTypePath(metaDataTypes, typePath, language);
         nodeModel.setBindingPath(model.getXpath());
+        nodeModel.setHasVisiblueRule(model.isHasVisibleRule());
         nodeModel.setTypePath(model.getTypePath());
         String realXPath = xpath;
         if (isPolyType) {
@@ -1571,7 +1572,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                         && typeModel.getTypePathObject().getAllAliasXpaths().contains(tem_typePath))) {
                             ItemNodeModel childNode = builderNode(multiNodeIndex, (Element) child, entity, baseXpath, xpath,
                                     isPolyType, foreignKeyDeleteMessage, isCreate, language);
-                            childNode.setHasVisiblueRule(typeModel.isHasVisibleRule());
                             nodeModel.add(childNode);
                             existNodeFlag = true;
                             if (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {
