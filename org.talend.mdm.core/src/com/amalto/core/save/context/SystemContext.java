@@ -129,6 +129,16 @@ class SystemContext implements DocumentSaverContext {
     public void setHasMetAutoIncrement(boolean hasMetAutoIncrement) {
     }
 
+    @Override
+    public void setTaskId(String taskId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getTaskId() {
+        return null;
+    }
+
     public String[] getId() {
         return id;
     }

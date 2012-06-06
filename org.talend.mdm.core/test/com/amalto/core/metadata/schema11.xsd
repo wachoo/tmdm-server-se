@@ -735,8 +735,8 @@
         <xsd:sequence>
             <xsd:element maxOccurs="unbounded" minOccurs="0" name="Enfant" type="xsd:string">
                 <xsd:annotation>
-                    <xsd:appinfo source="X_ForeignKey">ElementOrganisation/IdElementOrganisation</xsd:appinfo>
-                    <xsd:appinfo source="X_ForeignKeyInfo">ElementOrganisation/Nom</xsd:appinfo>
+                    <xsd:appinfo source="X_ForeignKey">ElementOrganisationPj/IdElementOrganisation</xsd:appinfo>
+                    <xsd:appinfo source="X_ForeignKeyInfo">ElementOrganisationPj/Nom</xsd:appinfo>
                     <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
                     <xsd:appinfo source="X_Label_FR">El閙ent d'organisation</xsd:appinfo>
                     <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
@@ -801,7 +801,7 @@
                     <xsd:annotation>
                         <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
                         <xsd:appinfo source="X_ForeignKey">NiveauOrganisation/IdNiveauOrganisation</xsd:appinfo>
-                        <xsd:appinfo source="X_ForeignKeyInfo">NiveauOrganisation/Nom</xsd:appinfo>
+                        <xsd:appinfo source="X_ForeignKeyInfo">NiveauOrganisation/nom</xsd:appinfo>
                         <xsd:appinfo source="X_ForeignKeyInfo">NiveauOrganisation/Valeur</xsd:appinfo>
                         <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
                         <xsd:appinfo source="X_Label_FR">Niveau d'organisation</xsd:appinfo>
@@ -810,7 +810,7 @@
                 <xsd:element maxOccurs="1" minOccurs="0" name="PereOrgranisationFk" type="xsd:string">
                     <xsd:annotation>
                         <xsd:appinfo source="X_ForeignKey">Organisation/IdOrganisation</xsd:appinfo>
-                        <xsd:appinfo source="X_ForeignKeyInfo">Organisation/Nom</xsd:appinfo>
+                        <xsd:appinfo source="X_ForeignKeyInfo">Organisation/IdOrganisation</xsd:appinfo>
                         <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
                         <xsd:appinfo source="X_Label_FR">Organisation parente</xsd:appinfo>
                         <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
@@ -838,7 +838,7 @@
                     <xsd:element maxOccurs="1" minOccurs="1" name="Organisations" type="OrganisationListe">
                         <xsd:annotation>
                             <xsd:appinfo source="X_ForeignKey">Organisation/IdOrganisation</xsd:appinfo>
-                            <xsd:appinfo source="X_ForeignKeyInfo">Organisation/RaisonSociale</xsd:appinfo>
+                            <xsd:appinfo source="X_ForeignKeyInfo">Organisation/IdOrganisation</xsd:appinfo>
                             <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
                             <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
                         </xsd:annotation>

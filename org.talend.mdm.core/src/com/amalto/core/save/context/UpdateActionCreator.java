@@ -11,28 +11,14 @@
 
 package com.amalto.core.save.context;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.Stack;
-
-import org.apache.commons.lang.StringUtils;
-
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.action.FieldUpdateAction;
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.ContainedTypeFieldMetadata;
-import com.amalto.core.metadata.DefaultMetadataVisitor;
-import com.amalto.core.metadata.EnumerationFieldMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataRepository;
-import com.amalto.core.metadata.ReferenceFieldMetadata;
-import com.amalto.core.metadata.SimpleTypeFieldMetadata;
+import com.amalto.core.metadata.*;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.*;
 
 class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
@@ -177,8 +163,8 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
             if (!newAccessor.exist()) {
                 // No op
             } else { // new accessor exist
+                generateNoOp(lastMatchPath);
                 if (newAccessor.get() != null && !newAccessor.get().isEmpty()) { // TODO Empty accessor means no op to ensure legacy behavior
-                    generateNoOp(lastMatchPath);
                     actions.add(new FieldUpdateAction(date, source, userName, path, StringUtils.EMPTY, newAccessor.get(), comparedField));
                     generateNoOp(path);
                 } else {
@@ -303,14 +289,11 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                         throw new IllegalArgumentException("Type '" + newType + "' was not found.");
                     }
                     // Check if type of element isn't a subclass of declared type (use of xsi:type).
-                    if (!field.getType().isAssignableFrom(newTypeMetadata)) {
+                    if (!newTypeMetadata.isAssignableFrom(field.getType())) {
                         throw new IllegalArgumentException("Type '" + field.getType().getName() + "' is not assignable from type '" + newTypeMetadata.getName() + "'");
                     }
 
-                    // if (!newType.equals(previousType)) {
-                    generateNoOp(lastMatchPath);
                     actions.add(new ChangeTypeAction(date, source, userName, currentPath, previousTypeMetadata, newTypeMetadata));
-                    //}
                     type = newTypeMetadata;
                 }
             }

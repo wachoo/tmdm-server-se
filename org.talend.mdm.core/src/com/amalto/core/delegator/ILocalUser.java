@@ -34,6 +34,8 @@ public abstract class ILocalUser implements IBeanDelegator {
 
     private static final Logger logger = Logger.getLogger(ILocalUser.class);
 
+    protected static LinkedHashMap<String,String> onlineUsers = new LinkedHashMap<String,String>();
+
     public Subject getICurrentSubject() throws XtentisException {
         String SUBJECT_CONTEXT_KEY = "javax.security.auth.Subject.container"; //$NON-NLS-1$     		
         Subject subject;
@@ -49,6 +51,10 @@ public abstract class ILocalUser implements IBeanDelegator {
 
     public ILocalUser getILocalUser() throws XtentisException {
         return null;
+    }
+
+    public static LinkedHashMap<String, String> getOnlineUsers() {
+        return onlineUsers;
     }
 
     public HashSet<String> getRoles() {

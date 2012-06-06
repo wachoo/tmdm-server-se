@@ -98,13 +98,27 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
         return allTypes;
     }
 
+    public Collection<TypeMetadata> getTypes(String namespace) {
+        return this.allTypes.get(namespace).values();
+    }
+
     public void load(InputStream inputStream) {
+        if (inputStream == null) {
+            throw new IllegalArgumentException("Input stream is null.");
+        }
+
         XmlSchemaCollection collection = new XmlSchemaCollection();
         collection.read(new InputStreamReader(inputStream), new ValidationEventHandler());
 
         XmlSchemaWalker.walk(collection, this);
 
-        // TODO Ensure data model is correct (e.g. FK to composite ids are correct).
+        // "Freeze" all types (a consequence of this will be validation of all reference fields).
+        for (ComplexTypeMetadata type : getUserComplexTypes()) {
+            type.freeze();
+        }
+        for (ComplexTypeMetadata type : nonInstantiableTypes.values()) {
+            type.freeze();
+        }
     }
 
     public <T> T accept(MetadataVisitor<T> visitor) {
@@ -203,7 +217,7 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
                     if (state.getAllowWrite().isEmpty()) {
                         state.getAllowWrite().add(ICoreConstants.ADMIN_PERMISSION);
                     }
-                    
+
                     type = new ComplexTypeMetadataImpl(targetNamespace,
                             typeName,
                             state.getAllowWrite(),

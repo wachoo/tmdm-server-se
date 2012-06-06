@@ -26,13 +26,15 @@ public class ContainedTypeFieldMetadata implements FieldMetadata {
 
     private final List<String> hideUsers;
 
-    private final TypeMetadata declaringType;
-
-    private final ContainedComplexTypeMetadata fieldType;
-
     private final boolean isMandatory;
 
+    private TypeMetadata declaringType;
+
+    private ContainedComplexTypeMetadata fieldType;
+
     private ComplexTypeMetadata containingType;
+
+    private boolean isFrozen;
 
     public ContainedTypeFieldMetadata(ComplexTypeMetadata containingType, boolean isMany, boolean isMandatory, String name, ContainedComplexTypeMetadata fieldType, List<String> allowWriteUsers, List<String> hideUsers) {
         if (fieldType == null) {
@@ -67,6 +69,21 @@ public class ContainedTypeFieldMetadata implements FieldMetadata {
 
     public void setContainingType(ComplexTypeMetadata typeMetadata) {
         this.containingType = typeMetadata;
+    }
+
+    public FieldMetadata freeze() {
+        if (isFrozen) {
+            return this;
+        }
+        isFrozen = true;
+        fieldType = (ContainedComplexTypeMetadata) fieldType.freeze();
+        declaringType = declaringType.freeze();
+        containingType = (ComplexTypeMetadata) containingType.freeze();
+        return this;
+    }
+
+    public void promoteToKey() {
+        throw new UnsupportedOperationException("Contained type field can't be promoted to key.");
     }
 
     public TypeMetadata getDeclaringType() {

@@ -34,11 +34,8 @@ public class SoftIdFieldRef implements FieldMetadata {
         this.fieldName = fieldName;
     }
 
-    public FieldMetadata getField() {
+    private FieldMetadata getField() {
         ComplexTypeMetadata type = (ComplexTypeMetadata) repository.getType(typeName);
-        if (type == null) {
-            type = (ComplexTypeMetadata) repository.getNonInstantiableType(typeName);
-        }
         if (type == null) {
             throw new IllegalArgumentException("Type '" + typeName + "' does not exist.");
         }
@@ -80,6 +77,14 @@ public class SoftIdFieldRef implements FieldMetadata {
 
     public void setContainingType(ComplexTypeMetadata typeMetadata) {
         getField().setContainingType(typeMetadata);
+    }
+
+    public FieldMetadata freeze() {
+        return getField().freeze();
+    }
+
+    public void promoteToKey() {
+        getField().promoteToKey();
     }
 
     public TypeMetadata getDeclaringType() {

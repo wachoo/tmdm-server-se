@@ -92,4 +92,15 @@ public interface FieldMetadata extends MetadataVisitable {
      */
     void setContainingType(ComplexTypeMetadata typeMetadata);
 
+    /**
+     * Freezes all modifications that can be done to a field. Similar to {@link com.amalto.core.metadata.TypeMetadata#freeze()}.
+     * @return A frozen field metadata.
+     * @see com.amalto.core.metadata.TypeMetadata#freeze()
+     */
+    FieldMetadata freeze();
+
+    /**
+     * Promotes this field to "key". After this method has been called, {@link #isKey()} must return <code>true</code>.
+     */
+    void promoteToKey();
 }

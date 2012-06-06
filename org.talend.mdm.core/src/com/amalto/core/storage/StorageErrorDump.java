@@ -1,0 +1,147 @@
+/*
+ * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+ *
+ * This source code is available under agreement available at
+ * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+ *
+ * You should have received a copy of the agreement
+ * along with this program; if not, write to Talend SA
+ * 9 rue Pages 92150 Suresnes, France
+ */
+
+package com.amalto.core.storage;
+
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.ConsoleDumpMetadataVisitor;
+import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.UserQueryDumpConsole;
+import com.amalto.core.storage.datasource.DataSource;
+import com.amalto.core.storage.hibernate.HibernateMappingGenerator;
+import com.amalto.core.storage.hibernate.StorageTableResolver;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.util.Util;
+import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.util.Collection;
+import java.util.Set;
+
+public class StorageErrorDump implements Storage {
+
+    private static final Logger LOGGER = Logger.getLogger(StorageErrorDump.class);
+
+    private final Storage delegate;
+
+    public StorageErrorDump(Storage delegate) {
+        this.delegate = delegate;
+    }
+
+    public void init(String dataSourceName) {
+        delegate.init(dataSourceName);
+    }
+
+    private void handlePrepareError(MetadataRepository repository, boolean force, Exception e) {
+        // Dumps types to console
+        LOGGER.error("##### Error during storage preparation (force = " + force + "#####");
+        LOGGER.info("Types:");
+        repository.accept(new ConsoleDumpMetadataVisitor());
+
+        // TODO Dumps hibernate mapping (if possible).
+        // TODO Dumps hibernate configuration
+
+        // Re-throw exception
+        throw new RuntimeException(e);
+    }
+
+    public void prepare(MetadataRepository repository, boolean force, boolean dropExistingData) {
+        try {
+            delegate.prepare(repository, force, dropExistingData);
+        } catch (Exception e) {
+            handlePrepareError(repository, force, e);
+        }
+    }
+
+    public void prepare(MetadataRepository repository, boolean dropExistingData) {
+        try {
+            delegate.prepare(repository, dropExistingData);
+        } catch (Exception e) {
+            handlePrepareError(repository, false, e);
+        }
+    }
+
+    public StorageResults fetch(Expression userQuery) {
+        try {
+            return delegate.fetch(userQuery);
+        } catch (Exception e) {
+            // Dumps query to console
+            LOGGER.error("##### Error during fetch operation #####");
+            LOGGER.info("Query:");
+            userQuery.accept(new UserQueryDumpConsole(LOGGER));
+
+            // Re-throw exception
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void update(DataRecord record) {
+        delegate.update(record);
+    }
+
+    public void update(Iterable<DataRecord> records) {
+        delegate.update(records);
+    }
+
+    public void delete(Expression userQuery) {
+        try {
+            delegate.delete(userQuery);
+        } catch (Exception e) {
+            // Dumps query to console
+            LOGGER.error("##### Error during delete operation #####");
+            LOGGER.info("Query:");
+            userQuery.accept(new UserQueryDumpConsole(LOGGER));
+
+            // Re-throw exception
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void close() {
+        delegate.close();
+    }
+
+    public void begin() {
+        delegate.begin();
+    }
+
+    public void commit() {
+        delegate.commit();
+    }
+
+    public void rollback() {
+        delegate.rollback();
+    }
+
+    public void end() {
+        delegate.end();
+    }
+
+    public void reindex() {
+        delegate.reindex();
+    }
+
+    public Set<String> getFullTextSuggestion(String keyword, FullTextSuggestion mode, int suggestionSize) {
+        return delegate.getFullTextSuggestion(keyword, mode, suggestionSize);
+    }
+
+    public String getName() {
+        return delegate.getName();
+    }
+
+    public DataSource getDataSource() {
+        return delegate.getDataSource();
+    }
+}

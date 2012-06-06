@@ -45,8 +45,12 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
 
     private MetadataRepository repository;
 
+    private List<FieldMetadata> allFields;
+
+    private boolean isFrozen;
+
     public ComplexTypeMetadataImpl(String nameSpace, String name) {
-        this(name, nameSpace, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), StringUtils.EMPTY);
+        this(nameSpace, name, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), StringUtils.EMPTY);
     }
 
     public ComplexTypeMetadataImpl(String nameSpace, String name, List<String> allowWrite, List<String> denyCreate, List<String> hideUsers, List<String> physicalDelete, List<String> logicalDelete, String schematron) {
@@ -60,7 +64,11 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
         this.schematron = schematron;
     }
 
+
     public void addSuperType(TypeMetadata superType, MetadataRepository repository) {
+        if (isFrozen) {
+            throw new IllegalStateException("Type '" + name + "' is frozen and can not be modified.");
+        }
         this.repository = repository;
         superTypes.add(superType);
     }
@@ -118,26 +126,10 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
     }
 
     public List<FieldMetadata> getFields() {
-        if (!superTypes.isEmpty()) {
-            // TODO Make this more efficient (goal is to put super type field before those defined in this type).
-            Collection<FieldMetadata> thisTypeFields = new LinkedList<FieldMetadata>(fieldMetadata.values());
-            fieldMetadata.clear();
-            for (TypeMetadata superType : superTypes) {
-                if (superType instanceof ComplexTypeMetadata) {
-                    List<FieldMetadata> superTypeFields = ((ComplexTypeMetadata) superType).getFields();
-                    for (FieldMetadata superTypeField : superTypeFields) {
-                        if (keyFields.containsKey(superTypeField.getName()) && !superTypeField.isKey()) {
-                            superTypeField = new ForceKeyFieldMetadata(superTypeField);
-                        }
-                        superTypeField.adopt(this, repository);
-                    }
-                }
-            }
-            for (FieldMetadata thisTypeField : thisTypeFields) {
-                fieldMetadata.put(thisTypeField.getName(), thisTypeField);
-            }
+        if (!isFrozen) {
+            throw new IllegalStateException("Type '" + name + "' is not frozen.");
         }
-        return new ArrayList<FieldMetadata>(fieldMetadata.values());
+        return Collections.unmodifiableList(new LinkedList<FieldMetadata>(fieldMetadata.values()));
     }
 
     public boolean isAssignableFrom(TypeMetadata type) {
@@ -169,6 +161,9 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
     }
 
     public void addField(FieldMetadata fieldMetadata) {
+        if (isFrozen) {
+            throw new IllegalStateException("Type '" + name + "' is frozen and can not be modified.");
+        }
         if (fieldMetadata == null) {
             throw new IllegalArgumentException("Field can not be null.");
         }
@@ -183,6 +178,9 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
             throw new IllegalArgumentException("Key field can not be null.");
         }
         keyFields.put(keyField.getName(), keyField);
+        if (!keyField.isKey()) {
+            keyField.promoteToKey();
+        }
     }
 
     public ComplexTypeMetadata copy(MetadataRepository repository) {
@@ -205,6 +203,10 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
         List<FieldMetadata> typeKeyFields = getKeyFields();
         for (FieldMetadata typeKeyField : typeKeyFields) {
             copy.registerKey(typeKeyField.copy(repository));
+        }
+
+        if (isFrozen) {
+            copy.freeze();
         }
 
         return copy;
@@ -241,76 +243,44 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
         return schematron;
     }
 
+    public TypeMetadata freeze() {
+        if (isFrozen) {
+            return this;
+        }
+
+        // Gets fields from super types.
+        if (!superTypes.isEmpty()) {
+            Collection<FieldMetadata> thisTypeFields = new LinkedList<FieldMetadata>(fieldMetadata.values());
+            fieldMetadata.clear();
+            for (TypeMetadata superType : superTypes) {
+                superType = superType.freeze();
+                if (superType instanceof ComplexTypeMetadata) {
+                    List<FieldMetadata> superTypeFields = ((ComplexTypeMetadata) superType).getFields();
+                    for (FieldMetadata superTypeField : superTypeFields) {
+                        superTypeField.adopt(this, repository);
+                    }
+                }
+            }
+            for (FieldMetadata thisTypeField : thisTypeFields) {
+                fieldMetadata.put(thisTypeField.getName(), thisTypeField);
+            }
+        }
+
+        // Freeze all fields.
+        Collection<FieldMetadata> values = new LinkedList<FieldMetadata>(fieldMetadata.values());
+        for (FieldMetadata value : values) {
+            fieldMetadata.put(value.getName(), value.freeze());
+        }
+
+        isFrozen = true;
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof ComplexTypeMetadata)) return false;
         ComplexTypeMetadata that = (ComplexTypeMetadata) o;
         return that.getName().equals(name) && that.getNamespace().equals(nameSpace);
-    }
-
-    // See TMDM-4054: Cleaner fix would be to integrate metadata parser from 5.2 to 5.1. At the time this is written
-    // metadata parser from 5.2 isn't stable enough to be backported to 5.1
-    private class ForceKeyFieldMetadata implements FieldMetadata {
-
-        private final FieldMetadata delegate;
-
-        public ForceKeyFieldMetadata(FieldMetadata delegate) {
-            this.delegate = delegate;
-        }
-
-        public boolean isKey() {
-            return true;
-        }
-
-        public String getName() {
-            return delegate.getName();
-        }
-
-        public TypeMetadata getType() {
-            return delegate.getType();
-        }
-
-        public ComplexTypeMetadata getContainingType() {
-            return delegate.getContainingType();
-        }
-
-        public List<String> getHideUsers() {
-            return delegate.getHideUsers();
-        }
-
-        public TypeMetadata getDeclaringType() {
-            return delegate.getDeclaringType();
-        }
-
-        public List<String> getWriteUsers() {
-            return delegate.getWriteUsers();
-        }
-
-        public boolean isMany() {
-            return delegate.isMany();
-        }
-
-        public boolean isMandatory() {
-            return delegate.isMandatory();
-        }
-
-        public FieldMetadata copy(MetadataRepository repository) {
-            return new ForceKeyFieldMetadata(delegate.copy(repository));
-        }
-
-        public void adopt(ComplexTypeMetadata metadata, MetadataRepository repository) {
-            FieldMetadata copy = copy(repository);
-            copy.setContainingType(metadata);
-            metadata.addField(copy);
-        }
-
-        public void setContainingType(ComplexTypeMetadata typeMetadata) {
-            delegate.setContainingType(typeMetadata);
-        }
-
-        public <T> T accept(MetadataVisitor<T> visitor) {
-            return visitor.visit(this);
-        }
     }
 }

@@ -18,6 +18,8 @@ public class CompoundFieldMetadata implements FieldMetadata {
 
     private final FieldMetadata[] fields;
 
+    private boolean isFrozen;
+
     public CompoundFieldMetadata(FieldMetadata... fields) {
         this.fields = fields;
     }
@@ -54,6 +56,22 @@ public class CompoundFieldMetadata implements FieldMetadata {
         throw new UnsupportedOperationException();
     }
 
+    public FieldMetadata freeze() {
+        if (isFrozen) {
+            return this;
+        }
+        isFrozen = true;
+        int i = 0;
+        for (FieldMetadata field : fields) {
+            fields[i++] = field.freeze();
+        }
+        return this;
+    }
+
+    public void promoteToKey() {
+        throw new UnsupportedOperationException();
+    }
+
     public TypeMetadata getDeclaringType() {
         return fields[0].getDeclaringType();
     }
@@ -63,7 +81,12 @@ public class CompoundFieldMetadata implements FieldMetadata {
     }
 
     public FieldMetadata copy(MetadataRepository repository) {
-        throw new UnsupportedOperationException();
+        FieldMetadata[] fieldsCopy = new FieldMetadata[fields.length];
+        int i = 0;
+        for (FieldMetadata field : fields) {
+            fieldsCopy[i++] = field.copy(repository);
+        }
+        return new CompoundFieldMetadata(fieldsCopy);
     }
 
     @Override

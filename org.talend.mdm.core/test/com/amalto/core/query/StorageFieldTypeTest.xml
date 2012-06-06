@@ -1,0 +1,29 @@
+<TypeA>
+    <Id>1</Id>
+    <anyURI>http://www.test.org</anyURI>
+    <base64Binary>ARTJKLFJKSJKLSD</base64Binary>
+    <boolean>true</boolean>
+    <byte>1</byte>
+    <date>2010-01-01</date>
+    <dateTime>2010-01-01T00:00:00</dateTime>
+    <decimal>789789789</decimal>
+    <double>500000</double>
+    <duration>49:00:00</duration>
+    <float>30.09</float>
+    <hexBinary>01EEFF</hexBinary>
+    <int>9</int>
+    <integer>10</integer>
+    <long>6789012345</long>
+    <negativeInteger>-1</negativeInteger>
+    <nonNegativeInteger>1</nonNegativeInteger>
+    <nonPositiveInteger>-25</nonPositiveInteger>
+    <positiveInteger>56</positiveInteger>
+    <qname>name</qname>
+    <short>8</short>
+    <string>string</string>
+    <time>5:00:09</time>
+    <unsignedByte>16</unsignedByte>
+    <unsignedInt>65536</unsignedInt>
+    <unsignedLong>56784678467486748</unsignedLong>
+    <unsignedShort>8</unsignedShort>
+</TypeA>

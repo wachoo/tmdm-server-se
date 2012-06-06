@@ -4395,7 +4395,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 	public WSString refreshCache(WSRefreshCache refreshCache){
 		ItemPOJO.clearCache();
 		ObjectPOJO.clearCache();
-		return new WSString("Refresh the item and object cache sucessfully!");
+		return new WSString("Refresh the item and object cache successfully!");
 	}
 
 

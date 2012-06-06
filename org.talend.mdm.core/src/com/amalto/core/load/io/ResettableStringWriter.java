@@ -31,12 +31,14 @@ public class ResettableStringWriter extends StringWriter {
     public ResettableStringWriter() {
     }
 
-    public void reset() {
+    public String reset() {
         if (currentLength > maxLength) {
             maxLength = currentLength;
         }
         currentLength = 0;
+        String result = delegate.toString();
         delegate = new StringWriter(maxLength);
+        return result;
     }
 
     @Override

@@ -64,6 +64,10 @@ public class SimpleTypeMetadata implements TypeMetadata {
         return new SimpleTypeMetadata(nameSpace, name);
     }
 
+    public TypeMetadata freeze() {
+        return this;
+    }
+
     public void addSuperType(TypeMetadata superType, MetadataRepository repository) {
         superTypes.add(superType);
     }

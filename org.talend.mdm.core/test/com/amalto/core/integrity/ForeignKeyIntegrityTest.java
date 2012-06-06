@@ -11,16 +11,11 @@
 
 package com.amalto.core.integrity;
 
-import java.util.Collections;
-import java.util.Set;
-
+import com.amalto.core.metadata.*;
 import junit.framework.TestCase;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataRepository;
-import com.amalto.core.metadata.ReferenceFieldMetadata;
-import com.amalto.core.metadata.TypeMetadata;
+import java.util.Collections;
+import java.util.Set;
 
 /**
  *
@@ -450,10 +445,7 @@ public class ForeignKeyIntegrityTest extends TestCase {
 
         // Check FK integrity checks following TMDM-3739
         Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "Contrat");
-        assertEquals(1, references.size());
-        ReferenceFieldMetadata referencedField = references.iterator().next();
-        assertEquals("SocieteCliente", referencedField.getData(ForeignKeyIntegrity.ATTRIBUTE_ROOTTYPE));
-        assertEquals("SocieteCliente/contrats/contrat", referencedField.getData(ForeignKeyIntegrity.ATTRIBUTE_XPATH));
+        assertEquals(7, references.size());
 
         String dataCluster = "DataCluster";
         String typeName = "Contrat";
@@ -471,7 +463,7 @@ public class ForeignKeyIntegrityTest extends TestCase {
 
         MetadataRepository repository = getMetadataRepository("model17.xsd");
         Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "Contrat");
-        assertEquals(1, references.size());
+        assertEquals(7, references.size());
         ReferenceFieldMetadata referencedField = references.iterator().next();
 
         String dataCluster = "DataCluster";

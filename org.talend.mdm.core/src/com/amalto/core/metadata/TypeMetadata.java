@@ -79,4 +79,11 @@ public interface TypeMetadata extends MetadataVisitable {
      */
     TypeMetadata copyShallow();
 
+    /**
+     * Mark type as unmodifiable and resolves all information (fields, super type) that <b>must</b> be present in {@link MetadataRepository}
+     * when this method is called.
+     * @return A {@link TypeMetadata} that can't be modified afterwards.
+     */
+    TypeMetadata freeze();
+
 }

@@ -115,4 +115,8 @@ public interface DocumentSaverContext {
     boolean hasMetAutoIncrement();
 
     void setHasMetAutoIncrement(boolean hasMetAutoIncrement);
+
+    void setTaskId(String taskId);
+
+    String getTaskId();
 }

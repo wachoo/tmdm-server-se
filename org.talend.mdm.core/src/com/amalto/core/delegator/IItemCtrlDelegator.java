@@ -1,26 +1,38 @@
 package com.amalto.core.delegator;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.InitialContext;
-
+import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.metadata.ReferenceFieldMetadata;
+import com.amalto.core.query.user.OrderBy;
+import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.query.user.UserQueryHelper;
+import com.amalto.core.server.Server;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordWriter;
+import com.amalto.core.storage.record.DataRecordXmlWriter;
+import com.amalto.core.util.*;
+import com.amalto.xmlserver.interfaces.XmlServerException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.role.ejb.RolePOJO;
@@ -28,15 +40,10 @@ import com.amalto.core.objects.role.ejb.RolePOJOPK;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
-import com.amalto.core.util.CVCException;
-import com.amalto.core.util.LocalUser;
-import com.amalto.core.util.RoleSpecification;
-import com.amalto.core.util.RoleWhereCondition;
-import com.amalto.core.util.Util;
-import com.amalto.core.util.XSDKey;
-import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
+
+import javax.naming.InitialContext;
 
 public abstract class IItemCtrlDelegator implements IBeanDelegator,
 		IItemCtrlDelegatorService {
@@ -152,65 +159,209 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
 			ViewPOJOPK viewPOJOPK, IWhereItem whereItem, int spellThreshold,
 			String orderBy, String direction, int start, int limit)
 			throws XtentisException {
+
 		// get the universe and revision ID
-		ILocalUser localuser = getLocalUser();
-		UniversePOJO universe = localuser.getUniverse();
+        UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
 		if (universe == null) {
-			String err = "ERROR: no Universe set for user '"
-					+ localuser.getUsername() + "'";
-			logger.error(err);
+            String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
+            org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
 			throw new XtentisException(err);
 		}
 
-		// build the patterns to revision ID map
-		LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(
-				universe.getItemsRevisionIDs());
-		if (universe.getDefaultItemRevisionID() != null
-				&& universe.getDefaultItemRevisionID().length() > 0)
-			conceptPatternsToRevisionID.put(".*",
-					universe.getDefaultItemRevisionID());
-
-		// build the patterns to cluster map - only one cluster at this stage
-		LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
-		conceptPatternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId());
-
 		try {
-
-			ViewPOJO view = getViewPOJO(viewPOJOPK);
-			// ViewLocal view =
-			// ViewUtil.getLocalHome().findByPrimaryKey(viewPK);
-			// ///////////////////////////////////////////////////////
+            ViewPOJO view = Util.getViewCtrlLocalHome().create().getView(viewPOJOPK);
 			whereItem = Util.fixWebCondtions(whereItem);
 			// Create an ItemWhere which combines the search and and view wheres
 			IWhereItem fullWhere;
 			ArrayList conditions = view.getWhereConditions().getList();
 			// fix conditions:value of condition do not generate xquery.
 			Util.fixCondtions(conditions);
-			// add view where conditions
-			fullWhere = getFullWhereCondition(whereItem, conditions);
 
-			// add View Filters from the Roles
-			ArrayList<IWhereItem> roleWhereConditions = getViewWCFromRole(viewPOJOPK);
-			fullWhere = getFullWhereCondition(fullWhere, roleWhereConditions);
+            if (conditions == null || conditions.size() == 0) {
+                if (whereItem == null)
+                    fullWhere = null;
+                else
+                    fullWhere = whereItem;
+            } else {
+                if (whereItem == null) {
+                    fullWhere = new WhereAnd(conditions);
+                } else {
+                    WhereAnd viewWhere = new WhereAnd(conditions);
+                    WhereAnd wAnd = new WhereAnd();
+                    wAnd.add(whereItem);
+                    wAnd.add(viewWhere);
+                    fullWhere = wAnd;
+                }
+            }
 
+            // Add Filters from the Roles
+            ILocalUser user = LocalUser.getLocalUser();
+            HashSet<String> roleNames = user.getRoles();
+            ArrayList<IWhereItem> roleWhereConditions = new ArrayList<IWhereItem>();
+            String objectType = "View";
+            for (String roleName : roleNames) {
+                if ("administration".equals(roleName) || "authenticated".equals(roleName)) {
+                    continue;
+                }
+                //load Role
+                RolePOJO role = ObjectPOJO.load(RolePOJO.class, new RolePOJOPK(roleName));
+                //get Specifications for the View Object
+                RoleSpecification specification = role.getRoleSpecifications().get(objectType);
+                if (specification != null) {
+                    if (!specification.isAdmin()) {
+                        Set<String> regexIds = specification.getInstances().keySet();
+                        for (String regexId : regexIds) {
+                            if (viewPOJOPK.getIds()[0].matches(regexId)) {
+                                HashSet<String> parameters = specification.getInstances().get(regexId).getParameters();
+                                for (String marshaledWhereCondition : parameters) {
+                                    if (marshaledWhereCondition == null || marshaledWhereCondition.trim().length() == 0) {
+                                        continue;
+                                    }
+                                    String conditionValue = RoleWhereCondition.parse(marshaledWhereCondition).toWhereCondition().getRightValueOrPath();
 
-			Map<String, ArrayList<String>> metaDataTypes = getMetaTypes(fullWhere);
-			return runItemsQuery(conceptPatternsToRevisionID,
-					conceptPatternsToClusterName, null, view
-							.getViewableBusinessElements().getList(),
-							fullWhere, orderBy, direction, start, limit,
-					spellThreshold, true, metaDataTypes, true);
+                                    if (conditionValue != null && conditionValue.length() > 0) {
+                                        roleWhereConditions.add(RoleWhereCondition.parse(marshaledWhereCondition).toWhereCondition());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // add collected additional conditions
+            if (roleWhereConditions.size() > 0) {
+                if (fullWhere == null) {
+                    fullWhere = new WhereAnd(roleWhereConditions);
+                } else {
+                    WhereAnd viewWhere = new WhereAnd(roleWhereConditions);
+                    WhereAnd wAnd = new WhereAnd();
+                    wAnd.add(fullWhere);
+                    wAnd.add(viewWhere);
+                    fullWhere = wAnd;
+                }
+            }
 
+            Server server = ServerContext.INSTANCE.get();
+            MetadataRepository repository = server.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
+            Storage storage = server.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId());
+
+            if (storage != null) {
+                // Build query (find 'main' type)
+                String typeName = ((String) view.getSearchableBusinessElements().getList().get(0)).split("/")[0];
+                ComplexTypeMetadata type = repository.getComplexType(typeName);
+                UserQueryBuilder qb = UserQueryBuilder.from(type);
+
+                // Select fields
+                ArrayListHolder<String> viewableBusinessElements = view.getViewableBusinessElements();
+                for (String viewableBusinessElement : viewableBusinessElements.getList()) {
+                    String viewableTypeName = StringUtils.substringBefore(viewableBusinessElement, "/");
+                    String viewablePath = StringUtils.substringAfter(viewableBusinessElement, "/");
+                    ComplexTypeMetadata viewableType = repository.getComplexType(viewableTypeName);
+                    qb.select(viewableType.getField(viewablePath));
+                }
+
+                // Condition and paging
+                qb.where(UserQueryHelper.buildCondition(qb, fullWhere, repository));
+                qb.start(start < 0 ? 0 : start); // UI can send negative start index
+                qb.limit(limit);
+
+                // Order by
+                if (orderBy != null) {
+                    FieldMetadata field = type.getField(StringUtils.substringAfter(orderBy, "/"));
+                    if (field == null) {
+                        throw new IllegalArgumentException("Field '" + orderBy + "' does not exist.");
+                    }
+                    OrderBy.Direction queryDirection;
+                    if ("ascending".equals(direction)) {
+                        queryDirection = OrderBy.Direction.ASC;
+                    } else {
+                        queryDirection = OrderBy.Direction.DESC;
+                    }
+                    qb.orderBy(field, queryDirection);
+                }
+
+                // Get records
+                StorageResults results = storage.fetch(qb.getSelect());
+                ArrayList<String> resultsAsString = new ArrayList<String>();
+                resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>");
+                DataRecordWriter writer = new DataRecordWriter() {
+                    public void write(DataRecord record, OutputStream output) throws IOException {
+                        Writer out = new BufferedWriter(new OutputStreamWriter(output));
+                        out.write("<result>\n");
+                        for (FieldMetadata fieldMetadata : record.getSetFields()) {
+                            Object value = record.get(fieldMetadata);
+                            Object valueAsString = String.valueOf(value);
+                            if (fieldMetadata instanceof ReferenceFieldMetadata) {
+                                valueAsString = "[" + valueAsString + ']';
+                            }
+                            if (value != null) {
+                                out.append("\t<" + fieldMetadata.getName() + ">" + valueAsString + "</" + fieldMetadata.getName() + ">\n");
+                            }
+                        }
+                        out.append("</result>");
+                        out.flush();
+                    }
+                };
+
+                ByteArrayOutputStream output = new ByteArrayOutputStream();
+                for (DataRecord result : results) {
+                    try {
+                        writer.write(result, output);
+                    } catch (IOException e) {
+                        throw new XmlServerException(e);
+                    }
+                    String document = new String(output.toByteArray());
+                    resultsAsString.add(document);
+                    output.reset();
+                }
+                return resultsAsString;
+            } else {
+                XmlServerSLWrapperLocal xmlServer;
+                try {
+                    xmlServer = ((XmlServerSLWrapperLocalHome) new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
+                } catch (Exception e) {
+                    String err = "Unable to search items in data cluster '" + dataClusterPOJOPK.getUniqueId() + "': unable to access the XML Server wrapper";
+                    logger.error(err, e);
+                    throw new XtentisException(err, e);
+                }
+                // build the patterns to revision ID map
+                LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(universe.getItemsRevisionIDs());
+                if (universe.getDefaultItemRevisionID() != null) {
+                    conceptPatternsToRevisionID.put(".*", universe.getDefaultItemRevisionID());
+                }
+
+                // build the patterns to cluster map - only one cluster at this
+                // stage
+                LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
+                conceptPatternsToClusterName.put(".*",
+                        dataClusterPOJOPK.getUniqueId());
+
+                String query = xmlServer.getItemsQuery(
+                        conceptPatternsToRevisionID,
+                        conceptPatternsToClusterName,
+                        null, //the main pivots will be that of the first element of the viewable list
+                        view.getViewableBusinessElements().getList(),
+                        fullWhere,
+                        orderBy,
+                        direction,
+                        start,
+                        limit,
+                        spellThreshold,
+                        true,
+                        null
+                );
+
+                return xmlServer.runQuery(null, null, query, null);
+            }
 		} catch (XtentisException e) {
 			throw (e);
 		} catch (Exception e) {
 			String err = "Unable to single search: " + ": "
 					+ e.getClass().getName() + ": " + e.getLocalizedMessage();
 			org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
-			throw new XtentisException(err);
+            throw new XtentisException(err, e);
 		}
 	}
-
 
     public ItemPOJOPK putItem(ItemPOJO item, String schema, String dataModelName) throws XtentisException {
         if (logger.isTraceEnabled()) {
@@ -224,8 +375,17 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
             if (dataModelName != null) {
                 item.setDataModelName(dataModelName);
             }
+
             //Store
-            ItemPOJOPK pk = item.store();
+            XmlServerSLWrapperLocal xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
+            String dataClusterName = item.getDataClusterPOJOPK().getUniqueId();
+            xmlServerCtrlLocal.start(dataClusterName);
+            ItemPOJOPK pk;
+            {
+                pk = item.store();
+            }
+            xmlServerCtrlLocal.commit(dataClusterName);
+
             if (pk == null) {
                 throw new XtentisException("Could not put item " + Util.joinStrings(item.getItemIds(), ".") + ". Check server logs.");
             }
@@ -297,7 +457,8 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
 			conceptPatternsToClusterName.put(".*",
 					dataClusterPOJOPK.getUniqueId());
 
-
+            // add recordsSecurity filters for the Role
+            whereItem = getFullWhereCondition(whereItem, new ArrayList<IWhereItem>(0));
 			return runItemsQuery(conceptPatternsToRevisionID,
 					conceptPatternsToClusterName, forceMainPivot,
 					viewablePaths, whereItem, orderBy, direction, start, limit,
@@ -318,6 +479,58 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
 			String orderBy, String direction, int start, int limit,
 			boolean totalCountOnFirstRow) throws XtentisException {
 
+        Server server = ServerContext.INSTANCE.get();
+        MetadataRepository repository = server.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
+        Storage storage = server.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId());
+
+        if (storage != null) {
+            ComplexTypeMetadata type = repository.getComplexType(conceptName);
+            UserQueryBuilder qb = UserQueryBuilder.from(type);
+
+            // Condition and paging
+            qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
+            qb.start(start < 0 ? 0 : start); // UI can send negative start index
+            qb.limit(limit);
+
+            // Order by
+            if (orderBy != null) {
+                FieldMetadata field = type.getField(StringUtils.substringAfter(orderBy, "/"));
+                if (field == null) {
+                    throw new IllegalArgumentException("Field '" + orderBy + "' does not exist.");
+                }
+                OrderBy.Direction queryDirection;
+                if ("ascending".equals(direction)) {
+                    queryDirection = OrderBy.Direction.ASC;
+                } else {
+                    queryDirection = OrderBy.Direction.DESC;
+                }
+                qb.orderBy(field, queryDirection);
+            }
+
+            // Get records
+            StorageResults results = storage.fetch(qb.getSelect());
+            ArrayList<String> resultsAsString = new ArrayList<String>();
+            if (totalCountOnFirstRow) {
+                resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>");
+            }
+
+            DataRecordWriter writer = new DataRecordXmlWriter();
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            for (DataRecord result : results) {
+                try {
+                    output.write("<result>".getBytes());
+                    writer.write(result, output);
+                    output.write("</result>".getBytes());
+                } catch (IOException e) {
+                    throw new XtentisException(e);
+                }
+                String document = new String(output.toByteArray());
+                resultsAsString.add(document);
+                output.reset();
+            }
+            return resultsAsString;
+        } else {
+            // ******* Old behavior **********
 		// get the universe and revision ID
 		ILocalUser user = getLocalUser();
 		UniversePOJO universe = user.getUniverse();
@@ -343,7 +556,9 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
 		try {
 			ArrayList<String> elements = new ArrayList<String>();
 			elements.add(conceptName);
-			
+                // add recordsSecurity filters for the Role
+                whereItem = getFullWhereCondition(whereItem, new ArrayList<IWhereItem>(0));
+
 			return runItemsQuery(conceptPatternsToRevisionID,
 					conceptPatternsToClusterName, null, elements, whereItem,
 					orderBy, direction, start, limit, spellThreshold,
@@ -357,12 +572,13 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
 			throw new XtentisException(err, e);
 		}
 	}
+    }
 
 	protected Map<String, ArrayList<String>> getMetaTypes(IWhereItem fullWhere)throws Exception{
 		return Util.getMetaDataTypes(fullWhere);
 	}
+
 	/**
-	 * 
 	 * get view where conditions from Role CE version return empty
 	 * 
 	 * @param viewPOJOPK
@@ -370,7 +586,6 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
 	 * @throws Exception
 	 */
 	protected abstract ArrayList<IWhereItem> getViewWCFromRole(ViewPOJOPK viewPOJOPK)throws Exception ;
-
 
 	protected IWhereItem getFullWhereCondition(IWhereItem whereItem,
 			ArrayList<IWhereItem> conditions) {

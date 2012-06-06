@@ -19,15 +19,9 @@ public class ReferenceFieldMetadata extends MetadataExtensible implements FieldM
 
     private final boolean isMany;
 
-    private final FieldMetadata referencedField;
-
-    private final FieldMetadata foreignKeyInfo;
-
     private final boolean allowFKIntegrityOverride;
 
     private final boolean isFKIntegrity;
-
-    private final TypeMetadata declaringType;
 
     private final List<String> hideUsers;
 
@@ -37,9 +31,17 @@ public class ReferenceFieldMetadata extends MetadataExtensible implements FieldM
 
     private final String name;
 
+    private FieldMetadata referencedField;
+
+    private FieldMetadata foreignKeyInfo;
+
+    private TypeMetadata declaringType;
+
     private ComplexTypeMetadata referencedType;
 
     private ComplexTypeMetadata containingType;
+
+    private boolean isFrozen;
 
     public ReferenceFieldMetadata(ComplexTypeMetadata containingType,
                                   boolean isKey,
@@ -93,6 +95,32 @@ public class ReferenceFieldMetadata extends MetadataExtensible implements FieldM
 
     public void setContainingType(ComplexTypeMetadata typeMetadata) {
         this.containingType = typeMetadata;
+    }
+
+    public FieldMetadata freeze() {
+        if (isFrozen) {
+            return this;
+        }
+        isFrozen = true;
+        declaringType = declaringType.freeze();
+        containingType = (ComplexTypeMetadata) containingType.freeze();
+        if (foreignKeyInfo != null) {
+            try {
+                foreignKeyInfo = foreignKeyInfo.freeze();
+            } catch (Exception e) {
+                throw new RuntimeException("Field '" + name + "' in type '" + containingType.getName() + "': foreign key info is invalid.", e);
+            }
+        }
+        try {
+            referencedField = referencedField.freeze();
+        } catch (Exception e) {
+            throw new RuntimeException("Field '" + name + "' in type '" + containingType.getName() + "': referenced field is invalid.", e);
+        }
+        return this;
+    }
+
+    public void promoteToKey() {
+        throw new UnsupportedOperationException("FK field can't be promoted to key.");
     }
 
     public TypeMetadata getDeclaringType() {

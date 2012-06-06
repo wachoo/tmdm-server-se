@@ -1,0 +1,25 @@
+<!--
+  ~ Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at
+  ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+  ~
+  ~ You should have received a copy of the agreement
+  ~ along with this program; if not, write to Talend SA
+  ~ 9 rue Pages 92150 Suresnes, France
+  -->
+
+<datasources xmlns="http://www.talend.com/mdm/datasources">
+
+    <!-- DEFAULT DATASOURCE -->
+    <datasource name="RDBMS-1">
+        <type>RDBMS</type>
+        <rdbms-configuration>
+            <dialect>H2</dialect>
+            <connection-driver-class>org.h2.Driver</connection-driver-class>
+            <connection-url>jdbc:h2://tmp/data/${container}</connection-url>
+            <fulltext-index-directory>/var/lucene/indexes/RDBMS-1</fulltext-index-directory>
+        </rdbms-configuration>
+    </datasource>
+
+</datasources>

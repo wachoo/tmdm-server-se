@@ -490,7 +490,7 @@ public class ItemPOJO implements Serializable {
             String err = "Unable to load the item  " + itemPOJOPK.getUniqueID() + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
             LOG.error(err, e);
-            throw new EJBException(err);
+            throw new EJBException(err, e);
         }
     }
 

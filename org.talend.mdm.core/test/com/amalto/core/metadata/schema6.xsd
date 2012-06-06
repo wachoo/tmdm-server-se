@@ -5503,7 +5503,7 @@
                             <xsd:sequence>
                                 <xsd:element maxOccurs="unbounded" minOccurs="0" name="Gdp" type="xsd:string">
                                     <xsd:annotation>
-                                        <xsd:appinfo source="X_ForeignKey">Gdp/codeSiteGrc</xsd:appinfo>
+                                        <xsd:appinfo source="X_ForeignKey">Gdp</xsd:appinfo>
                                         <xsd:appinfo source="X_ForeignKeyInfo">Gdp/nom1Grc</xsd:appinfo>
                                         <xsd:appinfo source="X_ForeignKeyInfo">Gdp/nom2Grc</xsd:appinfo>
                                         <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
@@ -5599,7 +5599,7 @@
                             <xsd:sequence>
                                 <xsd:element maxOccurs="unbounded" minOccurs="0" name="Gdp" type="xsd:string">
                                     <xsd:annotation>
-                                        <xsd:appinfo source="X_ForeignKey">Gdp/codeSiteGrc</xsd:appinfo>
+                                        <xsd:appinfo source="X_ForeignKey">Gdp</xsd:appinfo>
                                         <xsd:appinfo source="X_ForeignKeyInfo">Gdp/nom1Grc</xsd:appinfo>
                                         <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
                                         <xsd:appinfo source="X_Label_FR">GDP</xsd:appinfo>
@@ -5631,7 +5631,7 @@
                             <xsd:sequence>
                                 <xsd:element maxOccurs="unbounded" minOccurs="0" name="Gdp" type="xsd:string">
                                     <xsd:annotation>
-                                        <xsd:appinfo source="X_ForeignKey">Gdp/codeSiteGrc</xsd:appinfo>
+                                        <xsd:appinfo source="X_ForeignKey">Gdp</xsd:appinfo>
                                         <xsd:appinfo source="X_ForeignKeyInfo">Gdp/nom1Grc</xsd:appinfo>
                                         <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
                                         <xsd:appinfo source="X_Label_FR">GDP</xsd:appinfo>

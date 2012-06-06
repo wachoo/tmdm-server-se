@@ -21,9 +21,11 @@ import java.util.List;
  */
 public class ContainedComplexTypeRef extends ContainedComplexTypeMetadata {
 
-    private final SoftTypeRef reference;
+    private ComplexTypeMetadata reference;
 
-    public ContainedComplexTypeRef(ComplexTypeMetadata containerType, String nameSpace, String name, SoftTypeRef reference) {
+    private boolean isFrozen = false;
+
+    public ContainedComplexTypeRef(ComplexTypeMetadata containerType, String nameSpace, String name, ComplexTypeMetadata reference) {
         super(containerType, nameSpace, name);
         this.reference = reference;
     }
@@ -45,6 +47,27 @@ public class ContainedComplexTypeRef extends ContainedComplexTypeMetadata {
     @Override
     public List<FieldMetadata> getFields() {
         return reference.getFields();
+    }
+
+    @Override
+    public TypeMetadata freeze() {
+        if (isFrozen) {
+            return this;
+        }
+        isFrozen = true;
+        super.freeze();
+        reference = (ComplexTypeMetadata) reference.freeze();
+        return this;
+    }
+
+    @Override
+    public String getName() {
+        return reference.getName();
+    }
+
+    @Override
+    public String getNamespace() {
+        return reference.getNamespace();
     }
 
     @Override

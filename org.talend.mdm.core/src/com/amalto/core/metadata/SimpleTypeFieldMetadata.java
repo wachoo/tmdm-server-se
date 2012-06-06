@@ -20,30 +20,32 @@ public class SimpleTypeFieldMetadata implements FieldMetadata {
 
     private final boolean isMany;
 
-    private String name;
-
-    private final TypeMetadata fieldType;
+    private final String name;
 
     private final List<String> allowWriteUsers;
 
     private final List<String> hideUsers;
 
-    private final boolean isKey;
-
-    private final TypeMetadata declaringType;
-
     private final boolean isMandatory;
-    
+
+    private TypeMetadata fieldType;
+
+    private boolean isKey;
+
+    private TypeMetadata declaringType;
+
     private ComplexTypeMetadata containingType;
+
+    private boolean isFrozen;
 
     public SimpleTypeFieldMetadata(ComplexTypeMetadata containingType, boolean isKey, boolean isMany, boolean isMandatory, String name, TypeMetadata fieldType, List<String> allowWriteUsers, List<String> hideUsers) {
         if (fieldType == null) {
             throw new IllegalArgumentException("Type name cannot be null.");
         }
         if (isKey && !isMandatory) {
-            throw new IllegalArgumentException("Key field must be mandatory (field '" + name + "' or type '" + containingType.getName() + "' is optional)");
+            throw new IllegalArgumentException("Key field must be mandatory (field '" + name + "' in type '" + containingType.getName() + "' is optional)");
         }
-        
+
         this.isMandatory = isMandatory;
         this.containingType = containingType;
         this.declaringType = containingType;
@@ -73,6 +75,21 @@ public class SimpleTypeFieldMetadata implements FieldMetadata {
 
     public void setContainingType(ComplexTypeMetadata typeMetadata) {
         this.containingType = typeMetadata;
+    }
+
+    public FieldMetadata freeze() {
+        if (isFrozen) {
+            return this;
+        }
+        isFrozen = true;
+        fieldType = fieldType.freeze();
+        declaringType = declaringType.freeze();
+        containingType = (ComplexTypeMetadata) containingType.freeze();
+        return this;
+    }
+
+    public void promoteToKey() {
+        isKey = true;
     }
 
     public TypeMetadata getDeclaringType() {

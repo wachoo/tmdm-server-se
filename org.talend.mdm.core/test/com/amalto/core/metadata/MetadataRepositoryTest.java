@@ -18,7 +18,6 @@ import java.io.InputStream;
 /**
  *
  */
-@SuppressWarnings("nls")
 public class MetadataRepositoryTest extends TestCase {
 
     ConsoleDumpMetadataVisitor visitor = new ConsoleDumpMetadataVisitor();
@@ -109,7 +108,7 @@ public class MetadataRepositoryTest extends TestCase {
 
         InputStream stream = getClass().getResourceAsStream("schema11.xsd");
         repository.load(stream);
-//        repository.accept(visitor);
+        // repository.accept(visitor);
     }
 
 

@@ -11,6 +11,7 @@
 
 package com.amalto.core.metadata;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.ws.commons.schema.XmlSchemaAnnotation;
 import org.apache.ws.commons.schema.XmlSchemaAppInfo;
 
@@ -81,10 +82,12 @@ class ForeignKeyProcessor implements XmlSchemaAnnotationProcessor {
 
         SoftFieldRef fieldMetadata = null;
         while (!processQueue.isEmpty()) {
+            // In case of "PersonneMorale/IdPersonneMorale[PersonneMorale/ListeRole/Role/IdRole=DEP]", skip xpath condition.
+            String currentField = StringUtils.substringBefore(processQueue.poll().trim(), "["); //$NON-NLS-1$
             if (fieldMetadata == null) {
-                fieldMetadata = new SoftFieldRef(repository, processQueue.poll().trim(), currentType);
+                fieldMetadata = new SoftFieldRef(repository, currentField, currentType);
             } else {
-                fieldMetadata = new SoftFieldRef(repository, processQueue.poll().trim(), fieldMetadata);
+                fieldMetadata = new SoftFieldRef(repository, currentField, fieldMetadata);
             }
         }
         return fieldMetadata;

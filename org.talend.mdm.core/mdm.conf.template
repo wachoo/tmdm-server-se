@@ -10,6 +10,11 @@
 # System Setting
 ######################################################
 
+#################################################################################################
+###if you setup admin.password here, you must setup admin.password MD5 encrypted text as the 
+###value of 3 elements <adminPassword> in {jboss.home}/server/default/conf/login-config.xml
+###e.g admin.password=talend  value of <adminPassword> should be 1a254116eb5e70714b0680dfd4d8f7d4                     
+#################################################################################################
 #mdm admin username
 admin.user=admin
 #mdm admin password
@@ -43,20 +48,17 @@ cluster_override=false
 # configration reload frequency
 #configuration.reloadfrequency=60
 
-
-######################################################
-# eXist DB Setting
-######################################################
-xmldb.server.name=localhost
-xmldb.server.port=8080
-xmldb.administrator.username=admin
-xmldb.administrator.password=1bc29b36f623ba82aaf6724fd3b16718
-xmldb.driver=org.exist.xmldb.DatabaseImpl
-xmldb.dbid=exist
-xmldb.dburl=exist/xmlrpc/db
-xmldb.isupurl=exist/
-xmldb.type=exist
-xmlserver.class=com.amalto.xmldb.XmldbSLWrapper
+#############
+# DUAL
+#############
+xmldb.type=qizx
+xmlserver.class=com.amalto.core.storage.DispatchWrapper
+mdm.internal.wrapper=org.talend.mdm.qizx.xmldb.QizxWrapper
+user.wrapper=com.amalto.core.storage.StorageWrapper
+qizx.db.type=embedded
+db.autoPrepare=true
+db.datasources=datasources.xml
+db.default.datasource=RDBMS-1
 
 ######################################################
 # Subscription Engine

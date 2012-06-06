@@ -17,7 +17,21 @@ import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.query.user.OrderBy;
+import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.query.user.UserQueryHelper;
+import com.amalto.core.server.Server;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordWriter;
+import com.amalto.xmlserver.interfaces.*;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.CommonUtil;
 import org.talend.mdm.commmon.util.core.EDBType;
@@ -43,13 +57,13 @@ import com.amalto.core.util.JazzyConfiguration;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
-import com.amalto.xmlserver.interfaces.CustomWhereCondition;
-import com.amalto.xmlserver.interfaces.IWhereItem;
-import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
-import com.amalto.xmlserver.interfaces.ItemPKCriteria;
-import com.amalto.xmlserver.interfaces.WhereAnd;
-import com.amalto.xmlserver.interfaces.WhereCondition;
-import com.amalto.xmlserver.interfaces.WhereOr;
+
+import java.io.*;
+import java.util.*;
+
+import static com.amalto.core.query.user.UserQueryBuilder.alias;
+import static com.amalto.core.query.user.UserQueryBuilder.count;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 /**
  * @author Bruno Grieder
@@ -485,7 +499,123 @@ public class ItemCtrl2Bean implements SessionBean {
     public ArrayList<String> xPathsSearch(DataClusterPOJOPK dataClusterPOJOPK, String forceMainPivot,
             ArrayList<String> viewablePaths, IWhereItem whereItem, int spellThreshold, String orderBy, String direction,
             int start, int limit, boolean returnCount) throws XtentisException {
-    	return BeanDelegatorContainer.getUniqueInstance().getItemCtrlDelegator().xPathsSearch(dataClusterPOJOPK, forceMainPivot, viewablePaths, whereItem, spellThreshold, orderBy, direction, start, limit, returnCount);
+        try {
+            if (viewablePaths.size() == 0) {
+                String err = "The list of viewable xPaths must contain at least one element";
+                LOGGER.error(err);
+                throw new XtentisException(err);
+    }
+
+            // Check if user is allowed to read the cluster
+            ILocalUser user = LocalUser.getLocalUser();
+            boolean authorized = false;
+            if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
+                authorized = true;
+            } else if (user.userCanRead(DataClusterPOJO.class, dataClusterPOJOPK.getUniqueId())) {
+                authorized = true;
+            }
+            if (!authorized) {
+                throw new XtentisException("Unauthorized read access on data cluster '" + dataClusterPOJOPK.getUniqueId() + "' by user '"
+                        + user.getUsername() + "'");
+            }
+
+            // get the universe and revision ID
+            UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
+            if (universe == null) {
+                String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
+                LOGGER.error(err);
+                throw new XtentisException(err);
+            }
+
+            Server server = ServerContext.INSTANCE.get();
+            MetadataRepository repository = server.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
+            Storage storage = server.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId());
+
+            if (storage == null) {
+                // build the patterns to revision ID map
+                LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(
+                        universe.getItemsRevisionIDs());
+                if (universe.getDefaultItemRevisionID() != null) {
+                    conceptPatternsToRevisionID.put(".*", universe.getDefaultItemRevisionID());
+                }
+
+                // build the patterns to cluster map - only one cluster at this stage
+                LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
+                conceptPatternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId());
+
+                XmlServerSLWrapperLocal xmlServer = Util.getXmlServerCtrlLocal();
+
+                String query = xmlServer.getItemsQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, forceMainPivot,
+                        viewablePaths, whereItem, orderBy, direction, start, limit, spellThreshold, returnCount, Collections.emptyMap());
+
+                return xmlServer.runQuery(null, null, query, null);
+            } else {
+
+                // TODO Other viewable types
+                // TODO Fields
+                String typeName = viewablePaths.get(0).split("/")[0];
+                ComplexTypeMetadata type = repository.getComplexType(typeName);
+                UserQueryBuilder qb = from(type);
+                qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
+                qb.start(start);
+                qb.limit(limit);
+                if (orderBy != null) {
+                    FieldMetadata field = type.getField(StringUtils.substringAfter(orderBy, "/"));
+                    if (field == null) {
+                        throw new IllegalArgumentException("Field '" + orderBy + "' does not exist.");
+                    }
+                    OrderBy.Direction queryDirection;
+                    if ("ascending".equals(direction)) {
+                        queryDirection = OrderBy.Direction.ASC;
+                    } else {
+                        queryDirection = OrderBy.Direction.DESC;
+                    }
+                    qb.orderBy(field, queryDirection);
+                }
+
+                StorageResults results = storage.fetch(qb.getSelect());
+                ArrayList<String> resultsAsString = new ArrayList<String>();
+                if (returnCount) {
+                    resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>");
+                }
+                DataRecordWriter writer = new DataRecordWriter() {
+                    public void write(DataRecord record, OutputStream output) throws IOException {
+                        Writer out = new BufferedWriter(new OutputStreamWriter(output));
+                        out.write("<result>\n");
+                        for (FieldMetadata fieldMetadata : record.getSetFields()) {
+                            Object value = record.get(fieldMetadata);
+                            if (fieldMetadata.isKey()) {
+                                out.append("\t<i>" + value + "</i>\n");
+                            }
+                            if (value != null) {
+                                out.append("\t<" + fieldMetadata.getName() + ">" + value + "</" + fieldMetadata.getName() + ">\n");
+                            }
+                        }
+                        out.append("</result>");
+                        out.flush();
+                    }
+                };
+
+                ByteArrayOutputStream output = new ByteArrayOutputStream();
+                for (DataRecord result : results) {
+                    try {
+                        writer.write(result, output);
+                    } catch (IOException e) {
+                        throw new XmlServerException(e);
+                    }
+                    String document = new String(output.toByteArray());
+                    resultsAsString.add(document);
+                    output.reset();
+                }
+                return resultsAsString;
+            }
+        } catch (XtentisException e) {
+            throw (e);
+        } catch (Exception e) {
+            String err = "Unable to single search: " + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            LOGGER.error(err, e);
+            throw new XtentisException(err, e);
+        }
     }
 
     /**
@@ -557,7 +687,10 @@ public class ItemCtrl2Bean implements SessionBean {
     public long count(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem whereItem, int spellThreshold)
             throws XtentisException {
         try {
+            Server mdmServer = ServerContext.INSTANCE.get();
+            Storage storage = mdmServer.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId());
 
+            if (storage == null) {
             // get the universe and revision ID
             UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
             if (universe == null) {
@@ -578,6 +711,32 @@ public class ItemCtrl2Bean implements SessionBean {
 
             XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
             return server.countItems(conceptPatternsToRevisionID, conceptPatternsToClusterName, conceptName, whereItem);
+            } else {
+                MetadataRepository repository = mdmServer.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
+
+                Collection<ComplexTypeMetadata> types;
+                if ("*".equals(conceptName)) {
+                    types = repository.getUserComplexTypes();
+                } else {
+                    types = Collections.singletonList(repository.getComplexType(conceptName));
+                }
+
+                long count = 0;
+                for (ComplexTypeMetadata type : types) {
+                    UserQueryBuilder qb = from(type)
+                            .select(alias(UserQueryBuilder.count(), "count"));
+
+                    StorageResults countResult = storage.fetch(qb.getSelect());
+                    Iterator<DataRecord> resultsIterator = countResult.iterator();
+                    if (resultsIterator.hasNext()) {
+                        Object countObjectValue = resultsIterator.next().get("count");
+                        count += Long.parseLong(String.valueOf(countObjectValue));
+                    } else {
+                        throw new IllegalStateException("Count returned no result for type '" + type.getName() + "'.");
+                    }
+                }
+                return count;
+            }
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
@@ -919,17 +1078,21 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param universe Universe
      * @return A {@link TreeMap} of concept names to revision IDs
      * @throws XtentisException
-     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
     public TreeMap<String, String> getConceptsInDataCluster(DataClusterPOJOPK dataClusterPOJOPK, UniversePOJO universe)
             throws XtentisException {
         try {
+            TreeMap<String, String> concepts = new TreeMap<String, String>();
+
+            Server mdmServer = ServerContext.INSTANCE.get();
+            MetadataRepository repository = mdmServer.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
+
+            if (repository == null) {
             ILocalUser user = LocalUser.getLocalUser();
             boolean authorized = false;
-            if (MDMConfiguration.getAdminUser().equals(user.getUsername())
-                    || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
+                if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
                 authorized = true;
             } else if (user.userCanRead(DataClusterPOJO.class, dataClusterPOJOPK.getUniqueId())) {
                 authorized = true;
@@ -939,13 +1102,7 @@ public class ItemCtrl2Bean implements SessionBean {
                         + " by user " + user.getUsername());
             }
 
-            // FIXME: getConceptsInDataCluster works with xQuery only
             // This should be moved to ItemCtrl
-            String query = "distinct-values(/ii/n/text())";
-
-            // get the concepts
-            TreeMap<String, String> concepts = new TreeMap<String, String>();
-
             // get the universe
             if (universe == null)
                 universe = user.getUniverse();
@@ -954,6 +1111,7 @@ public class ItemCtrl2Bean implements SessionBean {
             Set<String> revisionsChecked = new HashSet<String>();
 
             // First go through every revision
+                String query;
             Set<String> patterns = universe.getItemsRevisionIDs().keySet();
             for (String pattern : patterns) {
                 String revisionID = universe.getConceptRevisionID(pattern);
@@ -998,9 +1156,14 @@ public class ItemCtrl2Bean implements SessionBean {
                     }
                 }
             }
+            } else {
+                Collection<ComplexTypeMetadata> types = repository.getUserComplexTypes();
+                for (ComplexTypeMetadata type : types) {
+                    concepts.put(type.getName(), "");
+                }
+            }
 
             return concepts;
-
         } catch (Exception e) {
             String err = "Unable to search for concept names in the data cluster '" + dataClusterPOJOPK.getUniqueId() + "'";
             LOGGER.error(err, e);

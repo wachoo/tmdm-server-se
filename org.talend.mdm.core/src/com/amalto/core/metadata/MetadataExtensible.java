@@ -13,9 +13,6 @@ package com.amalto.core.metadata;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * DOC Starkey  class global comment. Detailed comment
- */
 public class MetadataExtensible {
 
     private Map<String, Object> dataMap;
@@ -30,8 +27,9 @@ public class MetadataExtensible {
      * @param data the new value for the property
      */
     public void setData(String key, Object data) {
-        if (dataMap == null)
+        if (dataMap == null) {
             dataMap = new HashMap<String, Object>();
+        }
         dataMap.put(key, data);
     }
 
@@ -42,8 +40,9 @@ public class MetadataExtensible {
      * @return the value or <code>null</code> if it has not been set
      */
     public <X> X getData(String key) {
-        if (dataMap == null)
+        if (dataMap == null) {
             return null;
+        }
         return (X) dataMap.get(key);
     }
 

@@ -12,20 +12,6 @@
 // ============================================================================
 package com.amalto.core.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import junit.framework.TestCase;
-
-import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
 import com.amalto.core.ejb.DroppedItemPOJO;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
@@ -33,6 +19,17 @@ import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
 import com.amalto.core.objects.transformers.v2.util.TransformerContext;
 import com.amalto.core.save.SaveException;
 import com.sun.org.apache.xpath.internal.XPathAPI;
+import junit.framework.TestCase;
+import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * DOC achen  class global comment. Detailled comment
@@ -52,8 +49,7 @@ public class UtilTestCase extends TestCase {
             Util.defaultValidate(element, schema);
         } catch (Exception e) {
             String str = e.getLocalizedMessage();
-            assertTrue(str
-                    .contains("cvc-complex-type.2.4.b: The content of element 'Agency' is not complete. One of '{Id}' is expected"));
+            assertTrue(str.contains("cvc-complex-type.2.4.b"));
         }
         // invalid content cvc-complex-type.2.4.
 

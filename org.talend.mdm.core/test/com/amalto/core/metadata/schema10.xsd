@@ -1,5 +1,5 @@
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-    <xsd:import namespace="http://www.w3.org/2001/XMLSchema" />
+    <xsd:import namespace="http://www.w3.org/2001/XMLSchema"/>
     <xsd:complexType name="BusinessTypeType">
         <xsd:complexContent>
             <xsd:extension base="GenericElementsType">
@@ -7,19 +7,16 @@
                     <xsd:element maxOccurs="1" minOccurs="1" name="BusinessType" type="xsd:string">
                         <xsd:annotation>
 
-                            <xsd:appinfo source="X_Label_EN">Business Type (Saleable Inventory)
-                            </xsd:appinfo>
+                            <xsd:appinfo source="X_Label_EN">Business Type (Saleable Inventory)</xsd:appinfo>
 
 
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0" name="BusinessTypeChange"
-                        type="TermNameChangeType">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="BusinessTypeChange" type="TermNameChangeType">
                         <xsd:annotation>
 
-                            <xsd:appinfo source="X_Label_EN">Business Type name workflow
-                            </xsd:appinfo>
+                            <xsd:appinfo source="X_Label_EN">Business Type name workflow</xsd:appinfo>
 
 
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
@@ -68,8 +65,7 @@
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0" name="NarrowTerms"
-                        type="BusinessFunctionFKType2">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="NarrowTerms" type="BusinessFunctionFKType2">
                         <xsd:annotation>
 
 
@@ -90,16 +86,14 @@
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0" name="NarrowTermsChange"
-                        type="RelationChangeType">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="NarrowTermsChange" type="RelationChangeType">
                         <xsd:annotation>
 
 
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0" name="ExpandsToChange"
-                        type="RelationChangeType">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="ExpandsToChange" type="RelationChangeType">
                         <xsd:annotation>
 
 
@@ -126,8 +120,8 @@
             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
         </xsd:annotation>
         <xsd:unique name="ExpansionTerm">
-            <xsd:selector xpath="." />
-            <xsd:field xpath="Id" />
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="Id"/>
         </xsd:unique>
     </xsd:element>
     <xsd:complexType name="ExpansionTermType">
@@ -141,8 +135,7 @@
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0" name="ExpansionTermChange"
-                        type="TermNameChangeType">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="ExpansionTermChange" type="TermNameChangeType">
                         <xsd:annotation>
 
 
@@ -219,8 +212,8 @@
             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
         </xsd:annotation>
         <xsd:unique name="BusinessType">
-            <xsd:selector xpath="." />
-            <xsd:field xpath="Id" />
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="Id"/>
         </xsd:unique>
     </xsd:element>
     <xsd:element name="BusinessFunction" type="BusinessFunctionType">
@@ -230,24 +223,22 @@
             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
         </xsd:annotation>
         <xsd:unique name="BusinessFunction">
-            <xsd:selector xpath="." />
-            <xsd:field xpath="Id" />
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="Id"/>
         </xsd:unique>
     </xsd:element>
     <xsd:complexType name="BusinessFunctionType">
         <xsd:complexContent>
             <xsd:extension base="GenericElementsType">
                 <xsd:sequence>
-                    <xsd:element maxOccurs="1" minOccurs="1" name="BusinessFunction"
-                        type="xsd:string">
+                    <xsd:element maxOccurs="1" minOccurs="1" name="BusinessFunction" type="xsd:string">
                         <xsd:annotation>
 
 
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0" name="BusinessFunctionChange"
-                        type="TermNameChangeType">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="BusinessFunctionChange" type="TermNameChangeType">
                         <xsd:annotation>
 
 
@@ -324,16 +315,13 @@
             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
 
 
-            <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup_1.0#Read-only
-            </xsd:appinfo>
-            <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only
-            </xsd:appinfo>
-            <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandName_NameChange_1.0#Read-only
-            </xsd:appinfo>
+            <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup_1.0#Read-only</xsd:appinfo>
+            <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only</xsd:appinfo>
+            <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandName_NameChange_1.0#Read-only</xsd:appinfo>
         </xsd:annotation>
         <xsd:unique name="BrandGroup">
-            <xsd:selector xpath="." />
-            <xsd:field xpath="Id" />
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="Id"/>
         </xsd:unique>
     </xsd:element>
     <xsd:complexType name="BrandGroupType">
@@ -355,8 +343,7 @@
                             </xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0" name="BrandGroupChange"
-                        type="TermNameChangeType">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="BrandGroupChange" type="TermNameChangeType">
                         <xsd:annotation>
 
 
@@ -388,8 +375,7 @@
                             </xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0" name="NarrowTermsChange"
-                        type="RelationChangeType">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="NarrowTermsChange" type="RelationChangeType">
                         <xsd:annotation>
 
 
@@ -414,14 +400,12 @@
 
             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
 
-            <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandName_NameChange_1.0#Read-only
-            </xsd:appinfo>
-            <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only
-            </xsd:appinfo>
+            <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandName_NameChange_1.0#Read-only</xsd:appinfo>
+            <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only</xsd:appinfo>
         </xsd:annotation>
         <xsd:unique name="BrandName">
-            <xsd:selector xpath="." />
-            <xsd:field xpath="Id" />
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="Id"/>
         </xsd:unique>
     </xsd:element>
     <xsd:complexType name="BrandNameType">
@@ -440,8 +424,7 @@
                             </xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0" name="BrandNameChange"
-                        type="TermNameChangeType">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="BrandNameChange" type="TermNameChangeType">
                         <xsd:annotation>
 
 
@@ -466,44 +449,39 @@
             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
         </xsd:annotation>
         <xsd:unique name="TaxonomyCategory">
-            <xsd:selector xpath="." />
-            <xsd:field xpath="Id" />
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="Id"/>
         </xsd:unique>
     </xsd:element>
     <xsd:complexType name="TaxonomyCategoryType">
         <xsd:complexContent>
             <xsd:extension base="GenericElementsType">
                 <xsd:sequence>
-                    <xsd:element maxOccurs="1" minOccurs="1" name="TaxonomyCategory"
-                        type="xsd:string">
+                    <xsd:element maxOccurs="1" minOccurs="1" name="TaxonomyCategory" type="xsd:string">
                         <xsd:annotation>
 
 
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0" name="TaxonomyCategoryChange"
-                        type="TermNameChangeType">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="TaxonomyCategoryChange" type="TermNameChangeType">
                         <xsd:annotation>
 
 
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0" name="NarrowTerms"
-                        type="TaxonomySubCategoryFKType">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="NarrowTerms" type="TaxonomySubCategoryFKType">
                         <xsd:annotation>
 
 
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0" name="X-SI_BusinessType"
-                        type="BusinessTypeFKType2">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="X-SI_BusinessType" type="BusinessTypeFKType2">
                         <xsd:annotation>
 
-                            <xsd:appinfo source="X_Label_EN">X-SI Taxonomy Term - Business Type
-                            </xsd:appinfo>
+                            <xsd:appinfo source="X_Label_EN">X-SI Taxonomy Term - Business Type</xsd:appinfo>
                             <xsd:appinfo source="X_AutoExpand">false</xsd:appinfo>
 
 
@@ -511,39 +489,34 @@
                         </xsd:annotation>
                     </xsd:element>
                     <xsd:element maxOccurs="1" minOccurs="0" name="X-SI_BusinessFunction"
-                        type="BusinessFunctionFKType2">
+                                 type="BusinessFunctionFKType2">
                         <xsd:annotation>
 
-                            <xsd:appinfo source="X_Label_EN">X-SI TaxonomyTerm - Business Function
-                            </xsd:appinfo>
+                            <xsd:appinfo source="X_Label_EN">X-SI TaxonomyTerm - Business Function</xsd:appinfo>
                             <xsd:appinfo source="X_AutoExpand">false</xsd:appinfo>
 
 
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0" name="X-SI_ExpansionTerm"
-                        type="ExpansionTermFKType">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="X-SI_ExpansionTerm" type="ExpansionTermFKType">
                         <xsd:annotation>
 
-                            <xsd:appinfo source="X_Label_EN">X-SI Taxonomy Term - Expansion Term
-                            </xsd:appinfo>
+                            <xsd:appinfo source="X_Label_EN">X-SI Taxonomy Term - Expansion Term</xsd:appinfo>
                             <xsd:appinfo source="X_AutoExpand">false</xsd:appinfo>
 
 
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0" name="NarrowTermsChange"
-                        type="RelationChangeType">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="NarrowTermsChange" type="RelationChangeType">
                         <xsd:annotation>
 
 
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0" name="X-SI_BusinessTypeChange"
-                        type="RelationChangeType">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="X-SI_BusinessTypeChange" type="RelationChangeType">
                         <xsd:annotation>
 
 
@@ -551,15 +524,14 @@
                         </xsd:annotation>
                     </xsd:element>
                     <xsd:element maxOccurs="1" minOccurs="0" name="X-SI_BusinessFunctionChange"
-                        type="RelationChangeType">
+                                 type="RelationChangeType">
                         <xsd:annotation>
 
 
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0" name="X-SI_ExpansionTermChange"
-                        type="RelationChangeType">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="X-SI_ExpansionTermChange" type="RelationChangeType">
                         <xsd:annotation>
 
 
@@ -579,36 +551,32 @@
             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
         </xsd:annotation>
         <xsd:unique name="TaxonomySubCategory">
-            <xsd:selector xpath="." />
-            <xsd:field xpath="Id" />
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="Id"/>
         </xsd:unique>
     </xsd:element>
     <xsd:complexType name="TaxonomySubCategoryType">
         <xsd:complexContent>
             <xsd:extension base="GenericElementsType">
                 <xsd:sequence>
-                    <xsd:element maxOccurs="1" minOccurs="1" name="TaxonomySubCategory"
-                        type="xsd:string">
+                    <xsd:element maxOccurs="1" minOccurs="1" name="TaxonomySubCategory" type="xsd:string">
                         <xsd:annotation>
 
 
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0" name="TaxonomySubCategoryChange"
-                        type="TermNameChangeType">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="TaxonomySubCategoryChange" type="TermNameChangeType">
                         <xsd:annotation>
 
 
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0" name="X-SI_BusinessType"
-                        type="BusinessTypeFKType2">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="X-SI_BusinessType" type="BusinessTypeFKType2">
                         <xsd:annotation>
 
-                            <xsd:appinfo source="X_Label_EN">X-SI Taxonomy Term - Business Type
-                            </xsd:appinfo>
+                            <xsd:appinfo source="X_Label_EN">X-SI Taxonomy Term - Business Type</xsd:appinfo>
                             <xsd:appinfo source="X_AutoExpand">false</xsd:appinfo>
 
 
@@ -616,31 +584,27 @@
                         </xsd:annotation>
                     </xsd:element>
                     <xsd:element maxOccurs="1" minOccurs="0" name="X-SI_BusinessFunction"
-                        type="BusinessFunctionFKType2">
+                                 type="BusinessFunctionFKType2">
                         <xsd:annotation>
 
-                            <xsd:appinfo source="X_Label_EN">X-SI Taxonomy Term - Business Function
-                            </xsd:appinfo>
+                            <xsd:appinfo source="X_Label_EN">X-SI Taxonomy Term - Business Function</xsd:appinfo>
                             <xsd:appinfo source="X_AutoExpand">false</xsd:appinfo>
 
 
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0" name="X-SI_ExpansionTerm"
-                        type="ExpansionTermFKType">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="X-SI_ExpansionTerm" type="ExpansionTermFKType">
                         <xsd:annotation>
 
-                            <xsd:appinfo source="X_Label_EN">X-SI Taxonomy Term - Expansion Term
-                            </xsd:appinfo>
+                            <xsd:appinfo source="X_Label_EN">X-SI Taxonomy Term - Expansion Term</xsd:appinfo>
                             <xsd:appinfo source="X_AutoExpand">false</xsd:appinfo>
 
 
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0" name="X-SI_BusinessTypeChange"
-                        type="RelationChangeType">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="X-SI_BusinessTypeChange" type="RelationChangeType">
                         <xsd:annotation>
 
 
@@ -648,15 +612,14 @@
                         </xsd:annotation>
                     </xsd:element>
                     <xsd:element maxOccurs="1" minOccurs="0" name="X-SI_BusinessFunctionChange"
-                        type="RelationChangeType">
+                                 type="RelationChangeType">
                         <xsd:annotation>
 
 
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0" name="X-SI_ExpansionTermChange"
-                        type="RelationChangeType">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="X-SI_ExpansionTermChange" type="RelationChangeType">
                         <xsd:annotation>
 
 
@@ -676,16 +639,15 @@
             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
         </xsd:annotation>
         <xsd:unique name="TradeAssociationGroup">
-            <xsd:selector xpath="." />
-            <xsd:field xpath="Id" />
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="Id"/>
         </xsd:unique>
     </xsd:element>
     <xsd:complexType name="TradeAssociationsType">
         <xsd:complexContent>
             <xsd:extension base="GenericElementsType">
                 <xsd:sequence>
-                    <xsd:element maxOccurs="1" minOccurs="1" name="TradeAssociationGroup"
-                        type="xsd:string">
+                    <xsd:element maxOccurs="1" minOccurs="1" name="TradeAssociationGroup" type="xsd:string">
                         <xsd:annotation>
 
 
@@ -693,75 +655,71 @@
                         </xsd:annotation>
                     </xsd:element>
                     <xsd:element maxOccurs="1" minOccurs="0" name="TradeAssociationGroupChange"
-                        type="TermNameChangeType">
+                                 type="TermNameChangeType">
                         <xsd:annotation>
 
 
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0" name="NarrowTerms"
-                        type="TradeAssociationNameFKType">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="NarrowTerms" type="TradeAssociationNameFKType">
                         <xsd:annotation>
 
 
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0"
-                        name="X-TradeAssociation-BusinessType" type="BusinessTypeFKType">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="X-TradeAssociation-BusinessType"
+                                 type="BusinessTypeFKType">
                         <xsd:annotation>
 
-                            <xsd:appinfo source="X_Label_EN">X-Trade Association - Business Type
-                            </xsd:appinfo>
+                            <xsd:appinfo source="X_Label_EN">X-Trade Association - Business Type</xsd:appinfo>
 
 
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0"
-                        name="X-TradeAssociation-BusinessFunction" type="BusinessFunctionFKType">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="X-TradeAssociation-BusinessFunction"
+                                 type="BusinessFunctionFKType">
                         <xsd:annotation>
 
-                            <xsd:appinfo source="X_Label_EN">X-Trade Association - Business Function
-                            </xsd:appinfo>
+                            <xsd:appinfo source="X_Label_EN">X-Trade Association - Business Function</xsd:appinfo>
 
 
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0"
-                        name="X-TradeAssociation-ExpansionTerm" type="ExpansionTermFKType">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="X-TradeAssociation-ExpansionTerm"
+                                 type="ExpansionTermFKType">
                         <xsd:annotation>
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0" name="NarrowTermsChange"
-                        type="RelationChangeType">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="NarrowTermsChange" type="RelationChangeType">
                         <xsd:annotation>
 
 
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0"
-                        name="X-TradeAssociation-BusinessTypeChange" type="RelationChangeType">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="X-TradeAssociation-BusinessTypeChange"
+                                 type="RelationChangeType">
                         <xsd:annotation>
 
 
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0"
-                        name="X-TradeAssociation-BusinessFunctionChange" type="RelationChangeType">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="X-TradeAssociation-BusinessFunctionChange"
+                                 type="RelationChangeType">
                         <xsd:annotation>
 
 
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element maxOccurs="1" minOccurs="0"
-                        name="X-TradeAssociation-ExpansionTermChange" type="RelationChangeType">
+                    <xsd:element maxOccurs="1" minOccurs="0" name="X-TradeAssociation-ExpansionTermChange"
+                                 type="RelationChangeType">
                         <xsd:annotation>
                             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
                         </xsd:annotation>
@@ -779,16 +737,15 @@
             <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
         </xsd:annotation>
         <xsd:unique name="TradeAssociationName">
-            <xsd:selector xpath="." />
-            <xsd:field xpath="Id" />
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="Id"/>
         </xsd:unique>
     </xsd:element>
     <xsd:complexType name="TradeAssociationNameType">
         <xsd:complexContent>
             <xsd:extension base="GenericElementsType">
                 <xsd:sequence>
-                    <xsd:element maxOccurs="1" minOccurs="1" name="TradeAssociationName"
-                        type="xsd:string">
+                    <xsd:element maxOccurs="1" minOccurs="1" name="TradeAssociationName" type="xsd:string">
                         <xsd:annotation>
 
 
@@ -796,7 +753,7 @@
                         </xsd:annotation>
                     </xsd:element>
                     <xsd:element maxOccurs="1" minOccurs="0" name="TradeAssociationNameChange"
-                        type="TermNameChangeType">
+                                 type="TermNameChangeType">
                         <xsd:annotation>
 
 
@@ -823,8 +780,7 @@
 
                     <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandName_NameChange_1.0#Read-only
                     </xsd:appinfo>
-                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only
-                    </xsd:appinfo>
+                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only</xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
             <xsd:element maxOccurs="1" minOccurs="1" name="Status" type="StatusApprovalType">
@@ -837,21 +793,20 @@
                     <xsd:appinfo source="X_Label_EN">New Classification Code Status</xsd:appinfo>
                     <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandName_NameChange_1.0#Read-only
                     </xsd:appinfo>
-                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Writable
-                    </xsd:appinfo>
+                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Writable</xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
         </xsd:all>
     </xsd:complexType>
     <xsd:simpleType name="StatusApprovalType">
         <xsd:restriction base="xsd:string">
-            <xsd:enumeration value="Approved" />
-            <xsd:enumeration value="Pending" />
-            <xsd:enumeration value="Rejected" />
+            <xsd:enumeration value="Approved"/>
+            <xsd:enumeration value="Pending"/>
+            <xsd:enumeration value="Rejected"/>
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:simpleType name="AUTO_INCREMENT">
-        <xsd:restriction base="xsd:string" />
+        <xsd:restriction base="xsd:string"/>
     </xsd:simpleType>
     <xsd:complexType name="TermNameChangeType">
         <xsd:all maxOccurs="1" minOccurs="1">
@@ -867,8 +822,7 @@
 
                     <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandName_NameChange_1.0#Read-only
                     </xsd:appinfo>
-                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only
-                    </xsd:appinfo>
+                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only</xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
             <xsd:element maxOccurs="1" minOccurs="1" name="Status" type="StatusApprovalType">
@@ -880,8 +834,7 @@
 
                     <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandName_NameChange_1.0#Writable
                     </xsd:appinfo>
-                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only
-                    </xsd:appinfo>
+                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only</xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
         </xsd:all>
@@ -903,8 +856,7 @@
     </xsd:complexType>
     <xsd:complexType name="BusinessFunctionFKType">
         <xsd:sequence maxOccurs="1" minOccurs="1">
-            <xsd:element maxOccurs="unbounded" minOccurs="0" name="BusinessFunction_id"
-                type="xsd:string">
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="BusinessFunction_id" type="xsd:string">
                 <xsd:annotation>
                     <xsd:appinfo source="X_ForeignKey">BusinessFunction/Id</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">BusinessFunction/BusinessFunction</xsd:appinfo>
@@ -919,8 +871,7 @@
     </xsd:complexType>
     <xsd:complexType name="ExpansionTermFKType">
         <xsd:sequence>
-            <xsd:element maxOccurs="unbounded" minOccurs="0" name="ExpansionTerm_id"
-                type="xsd:string">
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="ExpansionTerm_id" type="xsd:string">
                 <xsd:annotation>
                     <xsd:appinfo source="X_ForeignKey">ExpansionTerm/Id</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">ExpansionTerm/ExpansionTerm</xsd:appinfo>
@@ -948,10 +899,8 @@
                     <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
 
 
-                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup_1.0#Read-only
-                    </xsd:appinfo>
-                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only
-                    </xsd:appinfo>
+                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup_1.0#Read-only</xsd:appinfo>
+                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only</xsd:appinfo>
                     <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandName_NameChange_1.0#Read-only
                     </xsd:appinfo>
                 </xsd:annotation>
@@ -960,13 +909,11 @@
     </xsd:complexType>
     <xsd:complexType name="TradeAssociationNameFKType">
         <xsd:sequence maxOccurs="unbounded" minOccurs="0">
-            <xsd:element maxOccurs="unbounded" minOccurs="0" name="TradeAssociationName_id"
-                type="xsd:string">
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="TradeAssociationName_id" type="xsd:string">
                 <xsd:annotation>
                     <xsd:appinfo source="X_ForeignKey">TradeAssociationName/Id</xsd:appinfo>
                     <xsd:appinfo source="X_Label_EN">Trade Association Name</xsd:appinfo>
-                    <xsd:appinfo source="X_ForeignKeyInfo">TradeAssociationName/TradeAssociationName
-                    </xsd:appinfo>
+                    <xsd:appinfo source="X_ForeignKeyInfo">TradeAssociationName/TradeAssociationName</xsd:appinfo>
                     <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
 
 
@@ -977,8 +924,7 @@
     </xsd:complexType>
     <xsd:complexType name="BusinessTypeFKType">
         <xsd:sequence maxOccurs="unbounded" minOccurs="0">
-            <xsd:element maxOccurs="unbounded" minOccurs="0" name="BusinessType_id"
-                type="xsd:string">
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="BusinessType_id" type="xsd:string">
                 <xsd:annotation>
                     <xsd:appinfo source="X_ForeignKey">BusinessType/Id</xsd:appinfo>
                     <xsd:appinfo source="X_ForeignKeyInfo">BusinessType/BusinessType</xsd:appinfo>
@@ -993,12 +939,10 @@
     </xsd:complexType>
     <xsd:complexType name="TaxonomySubCategoryFKType">
         <xsd:sequence maxOccurs="unbounded" minOccurs="0">
-            <xsd:element maxOccurs="unbounded" minOccurs="0" name="TaxonomySubCategory_id"
-                type="xsd:string">
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="TaxonomySubCategory_id" type="xsd:string">
                 <xsd:annotation>
                     <xsd:appinfo source="X_ForeignKey">TaxonomySubCategory/Id</xsd:appinfo>
-                    <xsd:appinfo source="X_ForeignKeyInfo">TaxonomySubCategory/TaxonomySubCategory
-                    </xsd:appinfo>
+                    <xsd:appinfo source="X_ForeignKeyInfo">TaxonomySubCategory/TaxonomySubCategory</xsd:appinfo>
                     <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
                     <xsd:appinfo source="X_Label_EN">Taxonomy Sub Category</xsd:appinfo>
 
@@ -1019,8 +963,7 @@
 
                     <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandName_NameChange_1.0#Read-only
                     </xsd:appinfo>
-                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only
-                    </xsd:appinfo>
+                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only</xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
             <xsd:element maxOccurs="1" minOccurs="1" name="Status" type="StatusApprovalType">
@@ -1032,8 +975,7 @@
 
                     <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandName_NameChange_1.0#Read-only
                     </xsd:appinfo>
-                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only
-                    </xsd:appinfo>
+                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only</xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
         </xsd:all>
@@ -1049,8 +991,7 @@
 
                     <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandName_NameChange_1.0#Read-only
                     </xsd:appinfo>
-                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only
-                    </xsd:appinfo>
+                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only</xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
             <xsd:element maxOccurs="1" minOccurs="0" name="Updated" type="xsd:dateTime">
@@ -1062,8 +1003,7 @@
 
                     <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandName_NameChange_1.0#Read-only
                     </xsd:appinfo>
-                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only
-                    </xsd:appinfo>
+                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only</xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
             <xsd:element maxOccurs="1" minOccurs="1" name="Published" type="xsd:boolean">
@@ -1077,8 +1017,7 @@
 
                     <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandName_NameChange_1.0#Read-only
                     </xsd:appinfo>
-                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only
-                    </xsd:appinfo>
+                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only</xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
             <xsd:element maxOccurs="1" minOccurs="0" name="PublishedReleaseNumber" type="xsd:string">
@@ -1097,8 +1036,7 @@
 
                     <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandName_NameChange_1.0#Read-only
                     </xsd:appinfo>
-                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only
-                    </xsd:appinfo>
+                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only</xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
             <xsd:element maxOccurs="1" minOccurs="1" name="UnpublishedAllApproved" type="xsd:boolean">
@@ -1110,8 +1048,7 @@
 
                     <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandName_NameChange_1.0#Read-only
                     </xsd:appinfo>
-                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only
-                    </xsd:appinfo>
+                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only</xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
         </xsd:all>
@@ -1155,8 +1092,8 @@
             </xsd:all>
         </xsd:complexType>
         <xsd:unique name="Release">
-            <xsd:selector xpath="." />
-            <xsd:field xpath="ReleaseID" />
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="ReleaseID"/>
         </xsd:unique>
     </xsd:element>
     <xsd:complexType name="GenericElementsType">
@@ -1171,8 +1108,7 @@
                     <xsd:appinfo source="X_Description_EN">Id</xsd:appinfo>
                     <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandName_NameChange_1.0#Read-only
                     </xsd:appinfo>
-                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only
-                    </xsd:appinfo>
+                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only</xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
             <xsd:element maxOccurs="1" minOccurs="1" name="ZthesId" type="xsd:string">
@@ -1184,8 +1120,7 @@
 
                     <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandName_NameChange_1.0#Read-only
                     </xsd:appinfo>
-                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only
-                    </xsd:appinfo>
+                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only</xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
             <xsd:element maxOccurs="1" minOccurs="1" name="Release" type="ReleaseType">
@@ -1197,8 +1132,7 @@
 
                     <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandName_NameChange_1.0#Read-only
                     </xsd:appinfo>
-                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only
-                    </xsd:appinfo>
+                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only</xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
             <xsd:element maxOccurs="1" minOccurs="1" name="Deleted" type="xsd:boolean">
@@ -1212,8 +1146,7 @@
 
                     <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandName_NameChange_1.0#Read-only
                     </xsd:appinfo>
-                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only
-                    </xsd:appinfo>
+                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only</xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
             <xsd:element maxOccurs="1" minOccurs="0" name="DeletedChange" type="DeletedChangeType">
@@ -1225,8 +1158,7 @@
 
                     <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandName_NameChange_1.0#Read-only
                     </xsd:appinfo>
-                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only
-                    </xsd:appinfo>
+                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only</xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
             <xsd:element maxOccurs="1" minOccurs="1" name="CrcCode" type="xsd:string">
@@ -1238,8 +1170,7 @@
 
                     <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandName_NameChange_1.0#Read-only
                     </xsd:appinfo>
-                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only
-                    </xsd:appinfo>
+                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only</xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
             <xsd:element maxOccurs="1" minOccurs="0" name="ClassificationCode" type="xsd:string">
@@ -1252,12 +1183,11 @@
                     <xsd:appinfo source="X_Label_EN">Classification Code</xsd:appinfo>
                     <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandName_NameChange_1.0#Read-only
                     </xsd:appinfo>
-                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only
-                    </xsd:appinfo>
+                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only</xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
             <xsd:element maxOccurs="1" minOccurs="0" name="ClassificationCodeChange"
-                type="ClassificationCodeChangeType">
+                         type="ClassificationCodeChangeType">
                 <xsd:annotation>
 
 
@@ -1266,8 +1196,7 @@
 
                     <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandName_NameChange_1.0#Read-only
                     </xsd:appinfo>
-                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only
-                    </xsd:appinfo>
+                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only</xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
         </xsd:sequence>
@@ -1282,10 +1211,8 @@
                     <xsd:appinfo source="X_Write">OM5_Admin</xsd:appinfo>
 
 
-                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup_1.0#Read-only
-                    </xsd:appinfo>
-                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only
-                    </xsd:appinfo>
+                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup_1.0#Read-only</xsd:appinfo>
+                    <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandGroup2_1.0#Read-only</xsd:appinfo>
                     <xsd:appinfo source="X_Workflow">OM5_DataSteward#OM5_DM_BrandName_NameChange_1.0#Read-only
                     </xsd:appinfo>
                 </xsd:annotation>
@@ -1339,8 +1266,7 @@
                                 </xsd:appinfo>
                             </xsd:annotation>
                         </xsd:element>
-                        <xsd:element maxOccurs="1" minOccurs="1" name="Status"
-                            type="StatusApprovalType">
+                        <xsd:element maxOccurs="1" minOccurs="1" name="Status" type="StatusApprovalType">
                             <xsd:annotation>
 
 
