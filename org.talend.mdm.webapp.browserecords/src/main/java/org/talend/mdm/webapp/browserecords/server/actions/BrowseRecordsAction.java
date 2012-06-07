@@ -813,7 +813,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if (!key.equals(xpath)) {
                     NodeList list = Util.getNodeList(doc.getDocumentElement(), xpath.replaceFirst(concept + "/", "./")); //$NON-NLS-1$//$NON-NLS-2$
                     if (list != null)
-                        for (int k = 0; k < list.getLength(); i++) {
+                        for (int k = 0; k < list.getLength(); k++) {
                             Node node = list.item(k);
                             String realType = ((Element) node.getParentNode()).getAttribute("xsi:type"); //$NON-NLS-1$
                             if (key.replaceAll(":" + realType, "").equals(xpath)) { //$NON-NLS-1$//$NON-NLS-2$
