@@ -193,7 +193,11 @@ public class BrowseRecordsController extends Controller {
                         }
                         if (detailToolBar.isFkToolBar() && !isClose)
                             detailToolBar.refresh(result.getReturnValue());
-                        ItemsMainTabPanel.getInstance().getCurrentViewTabItem().savedCallback(result.getReturnValue());
+                        
+                        // Only Hierarchy call the next method
+                        // TMDM-4112 : JavaScript Error on IE8
+                        if (detailToolBar.isHierarchyCall())
+                        	ItemsMainTabPanel.getInstance().getCurrentViewTabItem().savedCallback(result.getReturnValue());
                     }
                 });
     }
