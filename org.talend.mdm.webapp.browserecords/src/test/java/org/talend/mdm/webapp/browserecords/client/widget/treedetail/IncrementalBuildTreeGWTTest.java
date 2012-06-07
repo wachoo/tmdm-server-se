@@ -30,7 +30,6 @@ import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.google.gwt.junit.client.GWTTestCase;
-import com.google.gwt.user.client.ui.TreeItem;
 
 public class IncrementalBuildTreeGWTTest extends GWTTestCase {
 
@@ -81,15 +80,12 @@ public class IncrementalBuildTreeGWTTest extends GWTTestCase {
         mockTreeDetail.setViewBean(viewBean);
         ItemNodeModel testNode = builderItemNode();
 
-        incCommand = new IncrementalBuildTree(mockTreeDetail, testNode, viewBean, false, foreighKeyMap, foreignKeyParentMap,
+        incCommand = new IncrementalBuildTree(mockTreeDetail, testNode, viewBean, false,
                 ItemDetailToolBar.VIEW_OPERATION, item);
 
         while (incCommand.execute());
         assertNotNull(item);
-        assertEquals(3, item.getChildCount());
-        TreeItem cpItem = item.getChild(2);
-        assertNotNull(cpItem);
-        assertEquals(126, cpItem.getChildCount());
+        assertEquals(128, item.getChildCount());
     }
 
     private ViewBean getViewBean() {
@@ -114,6 +110,12 @@ public class IncrementalBuildTreeGWTTest extends GWTTestCase {
         initTypeModel(nameType);
         nameType.addLabel("en", "name field"); //$NON-NLS-1$ //$NON-NLS-2$
         metaDataTypes.put(nameType.getTypePath(), nameType);
+
+        SimpleTypeModel addressType = new SimpleTypeModel("address", DataTypeCreator.getDataType("string", "anyType")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        addressType.setTypePath("Test/address"); //$NON-NLS-1$
+        initTypeModel(addressType);
+        addressType.addLabel("en", "address field"); //$NON-NLS-1$//$NON-NLS-2$
+        metaDataTypes.put(addressType.getTypePath(), addressType);
 
         ComplexTypeModel cpType = new ComplexTypeModel("cp", DataTypeCreator.getDataType("CP", "anyType")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         cpType.setTypePath("Test/cp"); //$NON-NLS-1$
@@ -173,6 +175,12 @@ public class IncrementalBuildTreeGWTTest extends GWTTestCase {
         ItemNodeModel nameNode = new ItemNodeModel("name"); //$NON-NLS-1$
         nameNode.setTypePath("Test/name"); //$NON-NLS-1$
         testNode.add(nameNode);
+        
+        for (int j = 0; j < 125; j++) {
+            ItemNodeModel addressNode = new ItemNodeModel("address"); //$NON-NLS-1$
+            addressNode.setTypePath("Test/address"); //$NON-NLS-1$
+            testNode.add(nameNode);
+        }
 
         ItemNodeModel cpNode = new ItemNodeModel("cp"); //$NON-NLS-1$
         cpNode.setTypePath("Test/cp"); //$NON-NLS-1$
@@ -182,7 +190,7 @@ public class IncrementalBuildTreeGWTTest extends GWTTestCase {
         cpTitleNode.setTypePath("Test/cp/title"); //$NON-NLS-1$
         cpNode.add(cpTitleNode);
 
-        for (int i = 0; i < 125; i++) {
+        for (int i = 0; i < 15; i++) {
             ItemNodeModel detailNode = new ItemNodeModel("detail"); //$NON-NLS-1$
             detailNode.setTypePath("Test/cp/detail"); //$NON-NLS-1$
             ItemNodeModel detailTitleNode = new ItemNodeModel("title"); //$NON-NLS-1$

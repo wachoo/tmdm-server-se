@@ -5,10 +5,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.MultiOccurrenceChangeItem;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailGridFieldCreator;
@@ -86,8 +88,10 @@ public class MultiOccurrenceManager {
         }
 
         for (int i = 0; i < item.getChildCount(); i++) {
-            DynamicTreeItem childItem = (DynamicTreeItem) item.getChild(i);
-            removeMultiOccurrenceNode(childItem);
+            if (item.getChild(i) instanceof DynamicTreeItem) {
+                DynamicTreeItem childItem = (DynamicTreeItem) item.getChild(i);
+                removeMultiOccurrenceNode(childItem);
+            }
         }
     }
 
@@ -330,6 +334,13 @@ public class MultiOccurrenceManager {
                         parentItem.removeItem(selectedItem);
                         parentModel.remove(selectedModel);
                         parentModel.setChangeValue(true);
+
+                        Set<ItemNodeModel> fkContainers = ForeignKeyUtil.getAllForeignKeyModelParent(treeDetail.getViewBean(),
+                                selectedModel);
+                        for (ItemNodeModel fkContainer : fkContainers) {
+                            treeDetail.getFkRender().removeRelationFkPanel(fkContainer);
+                        }
+
                         handleOptIcon(selectedXpath);
 
                         if (parentModel.getChildCount() > 0) {
