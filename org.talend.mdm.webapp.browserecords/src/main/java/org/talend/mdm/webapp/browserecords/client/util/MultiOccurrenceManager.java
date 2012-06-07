@@ -270,9 +270,14 @@ public class MultiOccurrenceManager {
         int count = CommonUtil.getCountOfBrotherOfTheSameName(selectedModel);
 
         if (typeModel.getMaxOccurs() < 0 || count < typeModel.getMaxOccurs()) {
-            // clone a new item
-
-            ItemNodeModel model = selectedModel.clone("Clone".equals(optId) ? true : false); //$NON-NLS-1$
+            ItemNodeModel model = null;
+            if("Clone".equals(optId)) { //$NON-NLS-1$
+                model = selectedModel.clone(true);
+            } else {
+                List<ItemNodeModel> modelList = CommonUtil.getDefaultTreeModel(typeModel, Locale.getLanguage());
+                if(modelList.size() > 0)
+                    model = modelList.get(0);
+            }
             model.setDynamicLabel(LabelUtil.getNormalLabel(model.getLabel()));
             model.setMandatory(selectedModel.isMandatory());
             ItemNodeModel parentModel = (ItemNodeModel) selectedModel.getParent();
