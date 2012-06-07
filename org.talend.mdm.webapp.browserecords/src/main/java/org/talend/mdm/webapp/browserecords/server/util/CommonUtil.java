@@ -176,7 +176,7 @@ public class CommonUtil {
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document doc = builder.newDocument();
-            List<Element> list = _getDefaultXML(typeModel, realType, doc, language);
+            List<Element> list = _getDefaultXML(typeModel, null, realType, doc, language);
             Element root = list.get(0);
             doc.appendChild(root);
             return doc;
@@ -195,17 +195,18 @@ public class CommonUtil {
         return XmlUtil.parseDocument(doc);
     }
 
-    private static List<Element> _getDefaultXML(TypeModel model, String realType, Document doc, String language) {
+    private static List<Element> _getDefaultXML(TypeModel model, TypeModel parentModel, String realType, Document doc,
+            String language) {
         List<Element> itemNodes = new ArrayList<Element>();
         if (model.getMinOccurs() > 1) {
             for (int i = 0; i < model.getMinOccurs(); i++) {
                 Element el = doc.createElement(model.getName());
-                applySimpleTypesDefaultValue(model, el);
+                applySimpleTypesDefaultValue(model, parentModel, el);
                 itemNodes.add(el);
             }
         } else {
             Element el = doc.createElement(model.getName());
-            applySimpleTypesDefaultValue(model, el);
+            applySimpleTypesDefaultValue(model, parentModel, el);
             itemNodes.add(el);
         }
         if (!model.isSimpleType()) {
@@ -222,7 +223,7 @@ public class CommonUtil {
                     node.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "xsi:type", realType); //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 for (TypeModel typeModel : children) {
-                    List<Element> els = _getDefaultXML(typeModel, realType, doc, language);
+                    List<Element> els = _getDefaultXML(typeModel, model, realType, doc, language);
                     for (Element el : els) {
                         node.appendChild(el);
                     }
@@ -232,22 +233,17 @@ public class CommonUtil {
         return itemNodes;
     }
 
-    private static void applySimpleTypesDefaultValue(TypeModel nodeTypeModel, Element el) {
+    private static void applySimpleTypesDefaultValue(TypeModel nodeTypeModel, TypeModel parentModel, Element el) {
+
+        // if parent node is non-mandatory don't apply system default value
+        if (parentModel != null && parentModel instanceof ComplexTypeModel && parentModel.getMinOccurs() == 0)
+            return;
 
         if (nodeTypeModel != null && el != null) {
-
-            if (nodeTypeModel.isSimpleType()) {
+            // only assist system default value for mandatory node
+            if (nodeTypeModel.isSimpleType() && nodeTypeModel.getMinOccurs() > 0) {
                 if (nodeTypeModel.getType().equals(DataTypeConstants.BOOLEAN)) {
                     el.setTextContent("false"); //$NON-NLS-1$
-                } else if (nodeTypeModel.getType().equals(DataTypeConstants.INT)
-                        || nodeTypeModel.getType().equals(DataTypeConstants.INTEGER)
-                        || nodeTypeModel.getType().equals(DataTypeConstants.SHORT)
-                        || nodeTypeModel.getType().equals(DataTypeConstants.LONG)) {
-                    el.setTextContent("0"); //$NON-NLS-1$
-                } else if (nodeTypeModel.getType().equals(DataTypeConstants.DECIMAL)
-                        || nodeTypeModel.getType().equals(DataTypeConstants.DOUBLE)
-                        || nodeTypeModel.getType().equals(DataTypeConstants.FLOAT)) {
-                    el.setTextContent("0.0"); //$NON-NLS-1$
                 }
                 // TODO is there any more?
             }
