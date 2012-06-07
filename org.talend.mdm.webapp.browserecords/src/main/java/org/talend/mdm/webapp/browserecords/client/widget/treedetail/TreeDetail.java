@@ -307,27 +307,26 @@ public class TreeDetail extends ContentPanel {
 	}
 
     static boolean isFKDisplayedIntoTab(ItemNodeModel node, TypeModel typeModel, Map<String, TypeModel> metaDataTypes) {
-        String typeModelFK = typeModel.getForeignkey();
+    	String typeModelFK = typeModel.getForeignkey();
         if (typeModelFK == null)
             return false; // Not a FK
-
-        if (typeModel.isNotSeparateFk()) {
-            ItemNodeModel parentNode = (ItemNodeModel) node.getParent();
-            if (parentNode == null) {
-                return false; // It is root
-            }
-            if (parentNode.getParent() == null) {
-                return true;
-            }
-            TypeModel parentType = metaDataTypes.get(parentNode.getTypePath());
-            if (parentType instanceof ComplexTypeModel) {
-                List<TypeModel> subTypes = ((ComplexTypeModel) parentType).getSubTypes();
-                return subTypes != null && subTypes.size() == 1;
-            }
-            return false;
-        } else {
-            return true;
+        
+        ItemNodeModel parentNode = (ItemNodeModel) node.getParent();
+        if (parentNode == null) {
+            return false; // It is root
         }
+        if (parentNode.getParent() == null) {
+        	return !typeModel.isNotSeparateFk();
+        }
+        
+        TypeModel parentType = metaDataTypes.get(parentNode.getTypePath());
+        assert parentType instanceof ComplexTypeModel : "any node's parent type must be ComplexTypeModel"; //$NON-NLS-1$
+
+        List<TypeModel> subTypes = ((ComplexTypeModel) parentType).getSubTypes();
+        if (subTypes != null && subTypes.size() == 1){
+        	return !typeModel.isNotSeparateFk();
+        }
+        return false;
     }
 
     public void onUpdatePolymorphism(ComplexTypeModel typeModel) {

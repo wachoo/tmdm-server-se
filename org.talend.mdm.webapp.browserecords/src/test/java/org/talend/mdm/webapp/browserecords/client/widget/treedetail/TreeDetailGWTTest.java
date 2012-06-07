@@ -122,6 +122,40 @@ public class TreeDetailGWTTest extends GWTTestCase {
         metaDataTypes.put(storeType.getTypePath(), storeType);
         storesType.addSubType(storeType);
 
+        ItemNodeModel otherNode = new ItemNodeModel("OtherNode");
+        ComplexTypeModel otherNodeType = new ComplexTypeModel();
+        otherNodeType.setTypePath("Product/OtherNodeType");
+        otherNode.setTypePath(otherNodeType.getTypePath());
+        metaDataTypes.put(otherNodeType.getTypePath(), otherNodeType);
+        product.add(otherNode);
+        
+        ItemNodeModel oNode1 = new ItemNodeModel("O1");
+        SimpleTypeModel o1Type = new SimpleTypeModel();
+        o1Type.setTypePath("Product/OtherNodeType/O1");
+        o1Type.setForeignkey("Other/Id");
+        o1Type.setNotSeparateFk(false);
+        metaDataTypes.put(o1Type.getTypePath(), o1Type);
+        otherNodeType.addSubType(o1Type);
+        oNode1.setTypePath(o1Type.getTypePath());
+        otherNode.add(oNode1);
+        
+        ItemNodeModel oNode2 = new ItemNodeModel("O2");
+        SimpleTypeModel o2Type = new SimpleTypeModel();
+        o2Type.setTypePath("Product/OtherNodeType/O2");
+        metaDataTypes.put(o2Type.getTypePath(), o2Type);
+        otherNodeType.addSubType(o2Type);
+        oNode2.setTypePath(o2Type.getTypePath());
+        otherNode.add(oNode2);
+
+        ItemNodeModel oNode3 = new ItemNodeModel("O3");
+        SimpleTypeModel o3Type = new SimpleTypeModel();
+        o3Type.setTypePath("Product/OtherNodeType/O3");
+        metaDataTypes.put(o3Type.getTypePath(), o3Type);
+        otherNodeType.addSubType(o3Type);
+        oNode3.setTypePath(o3Type.getTypePath());
+        otherNode.add(oNode3);
+        
+        
         assertEquals(TreeDetail.isFKDisplayedIntoTab(product, productType, metaDataTypes), false);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(picture, pictureType, metaDataTypes), false);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(name, nameType, metaDataTypes), false);
@@ -131,17 +165,25 @@ public class TreeDetailGWTTest extends GWTTestCase {
         assertEquals(TreeDetail.isFKDisplayedIntoTab(store1, storeType, metaDataTypes), true);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(store2, storeType, metaDataTypes), true);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(store3, storeType, metaDataTypes), true);
+        assertEquals(false, TreeDetail.isFKDisplayedIntoTab(otherNode, otherNodeType, metaDataTypes));
+        assertEquals(false, TreeDetail.isFKDisplayedIntoTab(oNode1, o1Type, metaDataTypes));
+        assertEquals(false, TreeDetail.isFKDisplayedIntoTab(oNode2, o2Type, metaDataTypes));
+        assertEquals(false, TreeDetail.isFKDisplayedIntoTab(oNode3, o3Type, metaDataTypes));
         
         familyType.setNotSeparateFk(true);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(product, productType, metaDataTypes), false);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(picture, pictureType, metaDataTypes), false);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(name, nameType, metaDataTypes), false);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(description, descriptionType, metaDataTypes), false);
-        assertEquals(TreeDetail.isFKDisplayedIntoTab(family, familyType, metaDataTypes), true);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(family, familyType, metaDataTypes), false);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(stores, storesType, metaDataTypes), false);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(store1, storeType, metaDataTypes), true);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(store2, storeType, metaDataTypes), true);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(store3, storeType, metaDataTypes), true);
+        assertEquals(false, TreeDetail.isFKDisplayedIntoTab(otherNode, otherNodeType, metaDataTypes));
+        assertEquals(false, TreeDetail.isFKDisplayedIntoTab(oNode1, o1Type, metaDataTypes));
+        assertEquals(false, TreeDetail.isFKDisplayedIntoTab(oNode2, o2Type, metaDataTypes));
+        assertEquals(false, TreeDetail.isFKDisplayedIntoTab(oNode3, o3Type, metaDataTypes));
 
         storeType.setNotSeparateFk(true);
 
@@ -149,12 +191,32 @@ public class TreeDetailGWTTest extends GWTTestCase {
         assertEquals(TreeDetail.isFKDisplayedIntoTab(picture, pictureType, metaDataTypes), false);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(name, nameType, metaDataTypes), false);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(description, descriptionType, metaDataTypes), false);
-        assertEquals(TreeDetail.isFKDisplayedIntoTab(family, familyType, metaDataTypes), true);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(family, familyType, metaDataTypes), false);
         assertEquals(TreeDetail.isFKDisplayedIntoTab(stores, storesType, metaDataTypes), false);
-        assertEquals(TreeDetail.isFKDisplayedIntoTab(store1, storeType, metaDataTypes), true);
-        assertEquals(TreeDetail.isFKDisplayedIntoTab(store2, storeType, metaDataTypes), true);
-        assertEquals(TreeDetail.isFKDisplayedIntoTab(store3, storeType, metaDataTypes), true);
-
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(store1, storeType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(store2, storeType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(store3, storeType, metaDataTypes), false);
+        assertEquals(false, TreeDetail.isFKDisplayedIntoTab(otherNode, otherNodeType, metaDataTypes));
+        assertEquals(false, TreeDetail.isFKDisplayedIntoTab(oNode1, o1Type, metaDataTypes));
+        assertEquals(false, TreeDetail.isFKDisplayedIntoTab(oNode2, o2Type, metaDataTypes));
+        assertEquals(false, TreeDetail.isFKDisplayedIntoTab(oNode3, o3Type, metaDataTypes));
+        
+        o1Type.setNotSeparateFk(true);
+        
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(product, productType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(picture, pictureType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(name, nameType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(description, descriptionType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(family, familyType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(stores, storesType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(store1, storeType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(store2, storeType, metaDataTypes), false);
+        assertEquals(TreeDetail.isFKDisplayedIntoTab(store3, storeType, metaDataTypes), false);
+        assertEquals(false, TreeDetail.isFKDisplayedIntoTab(otherNode, otherNodeType, metaDataTypes));
+        assertEquals(false, TreeDetail.isFKDisplayedIntoTab(oNode1, o1Type, metaDataTypes));
+        assertEquals(false, TreeDetail.isFKDisplayedIntoTab(oNode2, o2Type, metaDataTypes));
+        assertEquals(false, TreeDetail.isFKDisplayedIntoTab(oNode3, o3Type, metaDataTypes));
+        
     }
 
     public String getModuleName() {
