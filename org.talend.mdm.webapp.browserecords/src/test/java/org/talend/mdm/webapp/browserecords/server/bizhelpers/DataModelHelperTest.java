@@ -120,6 +120,26 @@ public class DataModelHelperTest extends TestCase {
         
     }
     
+    public void testTypePath() throws Exception {
+
+        EntityModel entityModel = new EntityModel();
+        String datamodelName = "RTE";
+        String concept = "Contrat";
+        String[] ids = { "" };
+        String[] roles = { "Demo_Manager", "System_Admin", "authenticated", "administration" };
+        InputStream stream = getClass().getResourceAsStream("RTE.xsd");
+        String xsd = inputStream2String(stream);
+
+        DataModelHelper.alwaysEnterprise = true;
+        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
+        DataModelHelper.parseSchema(datamodelName, concept, DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, entityModel,
+                Arrays.asList(roles));
+        Map<String, TypeModel> metaDataTypes = entityModel.getMetaDataTypes();
+        TypeModel testModel = metaDataTypes
+                .get("Contrat/detailContrat:AP-RP/Perimetre/entitesPresentes/EDPs/EDP/dateDebutApplication");
+        assertEquals("Contrat/detailContrat/Perimetre/entitesPresentes/EDPs/EDP/dateDebutApplication", testModel.getXpath());
+
+    }
     
     public void testParsingDeleteCreatePermissionsMetadata() throws Exception {
         
