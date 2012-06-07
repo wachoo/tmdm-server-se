@@ -24,6 +24,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextField;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.CountMapItem;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.DynamicTreeItem;
+import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -120,10 +121,19 @@ public class IncrementalBuildTree implements IncrementalCommand {
 	
 	private void tryRenderFks(){
 		if (foreighKeyMap.size() > 0) {
-            for (TypeModel model : foreighKeyMap.keySet()) {
-            	treeDetail.getFkRender().RenderForeignKey(itemNode, foreighKeyMap.get(model), model, treeDetail.getToolBar(), viewBean, treeDetail, treeDetail.getItemsDetailPanel());
-            }
-            foreighKeyMap.clear();
+			for (TypeModel model : foreighKeyMap.keySet()) {
+				treeDetail.getFkRender().RenderForeignKey(itemNode, foreighKeyMap.get(model), model, treeDetail.getToolBar(), viewBean, treeDetail, treeDetail.getItemsDetailPanel());
+			}
+			foreighKeyMap.clear();
+
+			TypeModel itemType = metaDataTypes.get(itemNode.getTypePath());
+			if (itemType instanceof ComplexTypeModel){
+				List<TypeModel> subTypes = ((ComplexTypeModel) itemType).getSubTypes();
+				if (subTypes != null && subTypes.size() == 1){
+					// All went to FK Tab, in that case return null so the tree item is hide
+					item.getElement().setPropertyBoolean("EmptyFkContainer", true); //$NON-NLS-1$
+				}
+			}
         }
 	}
 	
@@ -149,7 +159,7 @@ public class IncrementalBuildTree implements IncrementalCommand {
 	            
 	        } else {
 	            TreeItem childItem = treeDetail.buildGWTTree(node, null, withDefaultValue, operation);
-	            if (childItem != null) { //
+	            if (childItem != null && !childItem.getElement().getPropertyBoolean("EmptyFkContainer")) { //$NON-NLS-1$
 	        		initItemWidth(childItem, level);
 	                item.addItem(childItem);
 	                int count = 0;
@@ -172,10 +182,6 @@ public class IncrementalBuildTree implements IncrementalCommand {
         if (index < itemNodeChildren.size()){
         	return true;
         } else { 
-          if (itemNodeChildren.size() > 0 && item.getChildCount() == 0){
-        	  item.remove(); // All went to FK Tab, in that case return null so the tree item is not added
-          }
-          
           tryRenderFks();
           return false;
         }
