@@ -1421,7 +1421,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             org.dom4j.Document doc4j = org.talend.mdm.webapp.base.server.util.XmlUtil.mergeDoc(mainDoc, subDoc, contextPath);
 
-            ruleEngine.orderDataModels(doc4j);
+            ruleEngine.execDefaultValueRule(doc4j);
 
             Document resultDoc = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getSubDoc(doc4j, contextPath);
             Map<String, Integer> multiNodeIndex = new HashMap<String, Integer>();
