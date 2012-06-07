@@ -14,9 +14,9 @@ package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
@@ -76,11 +76,15 @@ public class TreeDetail extends ContentPanel {
 
     private Map<String, Field<?>> fieldMap = new HashMap<String, Field<?>>();
 
-    private ForeignKeyRender fkRender = new ForeignKeyRenderImpl();
+    private final ForeignKeyRender fkRender = new ForeignKeyRenderImpl();
 
     private ItemDetailToolBar toolBar;
 
     private DynamicTreeItem selectedItem;
+
+    public ForeignKeyRender getFkRender(){
+    	return fkRender;
+    }
 
     MultiOccurrenceManager multiManager;
 
@@ -178,24 +182,10 @@ public class TreeDetail extends ContentPanel {
         });
     }
 
-    public DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue,
-            String operation) {
-        Map<TypeModel, List<ItemNodeModel>> foreighKeyMap = new LinkedHashMap<TypeModel, List<ItemNodeModel>>();
-        Map<TypeModel, ItemNodeModel> foreignKeyParentMap = new LinkedHashMap<TypeModel, ItemNodeModel>();
-        DynamicTreeItem reuslt = buildGWTTree(itemNode, item, withDefaultValue, operation, foreighKeyMap, foreignKeyParentMap);
-        if (foreighKeyMap.size() > 0) {
-            for (TypeModel model : foreighKeyMap.keySet()) {
-                fkRender.RenderForeignKey(foreignKeyParentMap.get(model), foreighKeyMap.get(model), model, toolBar, viewBean,
-                        this, itemsDetailPanel);
-            }
-        }
-        return reuslt;
-    }
-
     private boolean isFirstKey = true;
 
-    DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue,
-            String operation, Map<TypeModel, List<ItemNodeModel>> foreighKeyMap, Map<TypeModel, ItemNodeModel> foreignKeyParentMap) {
+    public DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue,
+            String operation) {
         if (item == null) {
             item = new DynamicTreeItem();
             item.setItemNodeModel(itemNode);
@@ -220,8 +210,8 @@ public class TreeDetail extends ContentPanel {
         List<ModelData> itemNodeChildren = itemNode.getChildren();
 
         if (itemNodeChildren != null && itemNodeChildren.size() > 0) {
-            IncrementalBuildTree incCommand = new IncrementalBuildTree(this, itemNode, viewBean, withDefaultValue, foreighKeyMap,
-                    foreignKeyParentMap, operation, item);
+            IncrementalBuildTree incCommand = new IncrementalBuildTree(this, itemNode, viewBean, withDefaultValue, operation,
+                    item);
             if (itemNode.getParent() == null) {
                 addCommand(incCommand, true);
             } else {
@@ -278,7 +268,7 @@ public class TreeDetail extends ContentPanel {
         selectedItem.setState(true);
         final ItemNodeModel treeNode = selectedItem.getItemNodeModel();
 
-        List<ItemNodeModel> fkContainers = ForeignKeyUtil.getAllForeignKeyModelParent(viewBean, treeNode);
+        Set<ItemNodeModel> fkContainers = ForeignKeyUtil.getAllForeignKeyModelParent(viewBean, treeNode);
         for (ItemNodeModel fkContainer : fkContainers) {
             fkRender.removeRelationFkPanel(fkContainer);
         }
@@ -700,6 +690,10 @@ public class TreeDetail extends ContentPanel {
 
     public void setViewBean(ViewBean viewBean) {
         this.viewBean = viewBean;
+    }
+
+    public ViewBean getViewBean() {
+        return viewBean;
     }
 
     public ItemsDetailPanel getItemsDetailPanel() {
