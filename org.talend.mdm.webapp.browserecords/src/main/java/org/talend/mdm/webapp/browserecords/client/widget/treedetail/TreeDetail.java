@@ -222,7 +222,7 @@ public class TreeDetail extends ContentPanel {
         if (itemNodeChildren != null && itemNodeChildren.size() > 0) {
             IncrementalBuildTree incCommand = new IncrementalBuildTree(this, itemNode, viewBean, withDefaultValue, foreighKeyMap,
                     foreignKeyParentMap, operation, item);
-            if (itemNode.getParent() != null && itemNode.getParent().getParent() == null) {
+            if (itemNode.getParent() == null) {
                 addCommand(incCommand, true);
             } else {
                 addCommand(incCommand, false);
@@ -252,20 +252,20 @@ public class TreeDetail extends ContentPanel {
         if (typeModelFK == null)
             return false; // Not a FK
 
-        if (typeModel.isNotSeparateFk())
-            return false;
-
         ItemNodeModel parentNode = (ItemNodeModel) node.getParent();
         if (parentNode == null) {
             return false; // It is root
         }
         if (parentNode.getParent() == null) {
-            return true;
+            return !typeModel.isNotSeparateFk();
         }
+
         TypeModel parentType = metaDataTypes.get(parentNode.getTypePath());
-        if (parentType instanceof ComplexTypeModel){
-            List<TypeModel> subTypes = ((ComplexTypeModel) parentType).getSubTypes();
-            return subTypes != null && subTypes.size() == 1;
+        assert parentType instanceof ComplexTypeModel : "any node's parent type must be ComplexTypeModel"; //$NON-NLS-1$
+
+        List<TypeModel> subTypes = ((ComplexTypeModel) parentType).getSubTypes();
+        if (subTypes != null && subTypes.size() == 1) {
+            return !typeModel.isNotSeparateFk();
         }
         return false;
     }
@@ -432,7 +432,9 @@ public class TreeDetail extends ContentPanel {
         tree.addSelectionHandler(new SelectionHandler<TreeItem>() {
 
             public void onSelection(SelectionEvent<TreeItem> event) {
-                selectedItem = (DynamicTreeItem) event.getSelectedItem();
+                if (event.getSelectedItem() instanceof DynamicTreeItem) {
+                    selectedItem = (DynamicTreeItem) event.getSelectedItem();
+                }
             }
         });
     }
