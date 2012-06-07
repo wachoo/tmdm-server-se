@@ -73,6 +73,9 @@ public class DataModelHelper {
 
     private static Map<String, List<String>> aliasXpathMap = new HashMap<String, List<String>>();
 
+    // FIXME: had better use POJO rather than static method
+    public static boolean alwaysEnterprise = false;
+
     public static void overrideSchemaManager(SchemaAbstractWebAgent _schemaManager) {
         schemaManager = _schemaManager;
     }
@@ -331,13 +334,34 @@ public class DataModelHelper {
             // return null
         }
         if (typeModel != null) {
-            typeModel.setXpath(currentXPath.replaceAll(":\\w+", "")); //$NON-NLS-1$//$NON-NLS-2$
+            typeModel.setXpath(convertTypePath2Xpath(currentXPath)); //$NON-NLS-1$//$NON-NLS-2$
             typeModel.setTypePath(currentXPath);
             typeModel.setTypePathObject(new TypePath(currentXPath, aliasXpathMap));
             typeModel.setNillable(e.isNillable());
         }
         return typeModel;
     }
+    
+    private static String convertTypePath2Xpath(String typePath) {
+    	
+    	if(typePath==null||typePath.trim().length()==0)
+    		return "";
+    	StringBuilder resultPath=new StringBuilder();
+    	String[] paths=typePath.split("/");
+    	for (String path : paths) {
+    		if(path==null||path.trim().length()==0)
+    			continue;
+    		int pos=path.indexOf(":");
+			if(pos!=-1){
+				path=path.substring(0,pos);
+			}
+			if(resultPath.toString().length()>0)resultPath.append("/");
+			resultPath.append(path);
+		}
+    	
+    	return resultPath.toString();
+
+	}
 
     private static XSType getBuiltinPrimitiveType(XSType type) {
         // See http://www.w3.org/TR/xmlschema-2/#built-in-primitive-datatypes
