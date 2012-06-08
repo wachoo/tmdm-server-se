@@ -705,11 +705,27 @@ public class TreeDetail extends ContentPanel {
         getItemService().getItemNodeModel(item, viewBean.getBindingEntityModel(), Locale.getLanguage(),
                 new SessionAwareAsyncCallback<ItemNodeModel>() {
 
-                    public void onSuccess(ItemNodeModel node) {
+                    public void onSuccess(final ItemNodeModel node) {
                         TreeDetail.this.removeAll();
                         item.setLastUpdateTime(node);
                         itemsDetailPanel.clearChildrenContent();
-                        renderTree(node);
+                        
+                        if (hasVisibleRule(viewBean.getBindingEntityModel().getMetaDataTypes().get(
+                                viewBean.getBindingEntityModel().getConceptName()))) {
+                        	BrowseRecordsServiceAsync itemService = getItemService();
+                            itemService.executeVisibleRule(viewBean, CommonUtil.toXML(node, TreeDetail.this.viewBean, true),
+                                    new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
+
+                                public void onSuccess(List<VisibleRuleResult> visibleResults) {
+                                	if (visibleResults != null){
+                                		recrusiveSetItems(visibleResults, node);
+                                	}
+                                	renderTree(node);                                	
+                                }
+                            });
+                        }else {
+                        	renderTree(node);                        	
+                        }
                     }
 
                     @Override
