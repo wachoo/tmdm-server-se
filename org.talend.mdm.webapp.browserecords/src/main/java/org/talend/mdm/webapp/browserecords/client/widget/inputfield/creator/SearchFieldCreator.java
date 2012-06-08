@@ -36,8 +36,13 @@ public class SearchFieldCreator {
 
     public static Field<?> createField(TypeModel typeModel) {
         Field<?> field = null;
-
-            if (typeModel.getForeignkey() != null) {
+			// when the search condition is no element of entity,the typeModel is null.For example search element/@xsi:type equals something
+            if (typeModel == null){
+                TextField<String> textField = new TextField<String>();
+                textField.setValue("*");//$NON-NLS-1$
+                field = textField;
+                cons = OperatorConstants.stringOperators;
+            } else if (typeModel.getForeignkey() != null) {
                 FKField fkField = new FKField();
                 field = fkField;
                 cons = OperatorConstants.foreignKeyOperators;

@@ -47,6 +47,8 @@ public class OperatorConstants implements Serializable, IsSerializable {
     public static Map<String, String> booleanOperators = new LinkedHashMap<String, String>();
 
     public static Map<String, String> enumOperators = new LinkedHashMap<String, String>();
+    
+    public static Map<String, String> stringOperators = new LinkedHashMap<String, String>();
 
     static {
 
@@ -82,6 +84,12 @@ public class OperatorConstants implements Serializable, IsSerializable {
         enumOperators.put("GREATER_THAN", MessagesFactory.getMessages().criteria_GREATER_THAN()); //$NON-NLS-1$
         enumOperators.put("LOWER_THAN_OR_EQUAL", MessagesFactory.getMessages().criteria_LOWER_THAN_OR_EQUAL()); //$NON-NLS-1$
         enumOperators.put("GREATER_THAN_OR_EQUAL", MessagesFactory.getMessages().criteria_GREATER_THAN_OR_EQUAL()); //$NON-NLS-1$
+        
+        stringOperators.put("EQUALS", MessagesFactory.getMessages().criteria_EQUALS()); //$NON-NLS-1$
+        stringOperators.put("CONTAINS", MessagesFactory.getMessages().criteria_CONTAINS()); //$NON-NLS-1$
+        stringOperators.put("NOT_EQUALS", MessagesFactory.getMessages().criteria_NOT_EQUALS()); //$NON-NLS-1$
+        stringOperators.put("STARTSWITH", MessagesFactory.getMessages().criteria_STARTSWITH()); //$NON-NLS-1$
+        stringOperators.put("STRICTCONTAINS", MessagesFactory.getMessages().criteria_STRICTCONTAINS()); //$NON-NLS-1$
     }
 
 }
