@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.widget.ComponentHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.dom.client.Style.Display;
+import com.google.gwt.dom.client.Style.Position;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
@@ -101,6 +102,10 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         Element foreignDiv = DOM.createTable();
         foreignDiv.getStyle().setDisplay(Display.INLINE);
 
+        // TMDM-4153: FK Icons display issue on main tab by using chrome browser
+        if (GXT.isChrome)
+            foreignDiv.getStyle().setPosition(Position.ABSOLUTE);
+
         Element tr = DOM.createTR();
         Element body = DOM.createTBody();
 
@@ -129,6 +134,12 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         addListener();
         this.setAutoWidth(true);
         super.onRender(target, index);
+    }
+
+    public int getWidth() {
+        // when isChrome, it need to add foreignDiv's width
+        // TMDM-4153: FK mandatory icons display issue on main tab by using chrome browser
+        return GXT.isChrome ? getOffsetWidth() + 75 : getOffsetWidth();
     }
 
     public void setReadOnly(boolean readOnly) {
