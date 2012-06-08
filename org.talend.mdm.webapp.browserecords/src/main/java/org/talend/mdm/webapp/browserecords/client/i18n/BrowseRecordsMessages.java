@@ -390,4 +390,10 @@ public interface BrowseRecordsMessages extends Messages {
     String error_column_header(String columnName,String concept);
 
     String entity_no_access();
+    
+    String rendering_title();
+    
+    String render_message();
+    
+    String rendering_progress();
 }

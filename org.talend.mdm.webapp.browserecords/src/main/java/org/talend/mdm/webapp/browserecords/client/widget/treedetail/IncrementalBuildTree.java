@@ -27,6 +27,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.D
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.google.gwt.user.client.IncrementalCommand;
@@ -63,7 +64,7 @@ public class IncrementalBuildTree implements IncrementalCommand {
 	private int itemWidth = 0;
 	private int offset = 0;
 	
-	public static final int GROUP_SIZE = 30;
+	public static final int GROUP_SIZE = 5;
 	
 	public int getChildCount(){
 		return itemNode.getChildCount();
@@ -91,7 +92,7 @@ public class IncrementalBuildTree implements IncrementalCommand {
         	itemWidth = treeDetail.getWidth();
         	offset = 400;
         }
-		
+        treeDetail.stepRenderCounter();
 	}
 	
 	private int getLevel(){
@@ -177,14 +178,25 @@ public class IncrementalBuildTree implements IncrementalCommand {
 	}
 	
 	public boolean execute() {
-		executeGroup();
-
+		try {
+			executeGroup();
+		} catch(Exception e) {
+			treeDetail.resetRenderCounter();
+			Log.info("render tree item generate error:", e); //$NON-NLS-1$
+		}
+		
         if (index < itemNodeChildren.size()){
         	return true;
         } else { 
-          tryRenderFks();
-          return false;
+        	try {
+        		tryRenderFks();
+        	} catch (Exception e){
+        		treeDetail.resetRenderCounter();
+        		Log.info("render foreign key generate error:", e); //$NON-NLS-1$
+        	} finally {
+        		treeDetail.endRender();
+        	}
+        	return false;
         }
 	}
-
 }

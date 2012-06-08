@@ -15,15 +15,18 @@ package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
+import org.talend.mdm.webapp.base.client.util.WaitBox;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
+import org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnElement;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
@@ -40,6 +43,7 @@ import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -59,6 +63,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.DeferredCommand;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
@@ -66,6 +71,8 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class TreeDetail extends ContentPanel {
 
+	private int ONE_SECOND = 1000;
+	
     private ViewBean viewBean;
 
     private TreeEx tree = new TreeEx();
@@ -85,6 +92,8 @@ public class TreeDetail extends ContentPanel {
     private DynamicTreeItem selectedItem;
 
     private ItemsDetailPanel itemsDetailPanel;
+    
+    private int renderedCounter = 0;
 
     // In case of custom layout, which displays some elements and not others,
     // we store the DynamicTreeItem corresponding to the displayed elements in
@@ -93,6 +102,36 @@ public class TreeDetail extends ContentPanel {
 
     public ForeignKeyRender getFkRender(){
     	return fkRender;
+    }
+    
+    public void beginRender(){
+    	BrowseRecordsMessages msg = MessagesFactory.getMessages();
+    	WaitBox.show(msg.rendering_title(), msg.render_message(), msg.rendering_progress());
+    	Timer timer = new Timer(){
+			public void run() {
+				WaitBox.hide();
+				Log.info("render detail timeout!"); //$NON-NLS-1$
+			}
+    	};
+    	timer.schedule(ONE_SECOND * 300);
+    }
+    
+    public void stepRenderCounter(){
+    	renderedCounter++;
+    }
+    
+    public void resetRenderCounter(){
+    	renderedCounter= 0;
+    	WaitBox.hide();
+    }
+    
+    public void endRender(){
+    	if (renderedCounter > 0){
+    		renderedCounter--;
+    	}
+    	if (renderedCounter == 0){
+    		WaitBox.hide();
+    	}
     }
     
     private ClickHandler handler = new ClickHandler() {
@@ -217,10 +256,10 @@ public class TreeDetail extends ContentPanel {
                                 itemService.executeVisibleRule(viewBean, CommonUtil.toXML(node, TreeDetail.this.viewBean, true),
                                         new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
 
-                                            public void onSuccess(List<VisibleRuleResult> arg0) {
-                                                for (VisibleRuleResult visibleRuleResult : arg0) {
-                                                	recrusiveSetItems(visibleRuleResult, node);
-                                                }
+                                            public void onSuccess(List<VisibleRuleResult> visibleResults) {
+                                            	if (visibleResults != null){
+                                            		recrusiveSetItems(visibleResults, node);
+                                            	}
                                                 renderTree(node, operation);
                                             }
                                         });
@@ -242,10 +281,10 @@ public class TreeDetail extends ContentPanel {
                             getItemService().executeVisibleRule(viewBean, CommonUtil.toXML(result, viewBean, true),
                             new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
 
-                                public void onSuccess(List<VisibleRuleResult> arg0) {
-                                    for (VisibleRuleResult visibleRuleResult : arg0) {
-                                    	recrusiveSetItems(visibleRuleResult, result);
-                                    }
+                                public void onSuccess(List<VisibleRuleResult> visibleResults) {
+                                	if (visibleResults != null){
+                                		recrusiveSetItems(visibleResults, result);
+                                	}
                                     renderTree(result, operation);
                                 }
                             });
@@ -282,7 +321,7 @@ public class TreeDetail extends ContentPanel {
 
         if (itemNodeChildren != null && itemNodeChildren.size() > 0) {
         	IncrementalBuildTree incCommand = new IncrementalBuildTree(this, itemNode, viewBean, withDefaultValue, operation, item, occurMap);
-        	if (itemNode.getParent() != null && itemNode.getParent().getParent() == null){
+        	if (itemNode.getParent() == null){
         		addCommand(incCommand, true);
         	} else {
         		addCommand(incCommand, false);
@@ -421,6 +460,7 @@ public class TreeDetail extends ContentPanel {
 
     private void renderTree(ItemNodeModel rootModel, String operation) {
 
+    	beginRender();
         root = buildGWTTree(rootModel, null, false, operation);
         isFirstKey = true;
         root.setState(true);
@@ -524,24 +564,51 @@ public class TreeDetail extends ContentPanel {
         });
     }
 
-    private void recrusiveSetItems(VisibleRuleResult visibleResult, ItemNodeModel itemNode) {
+    private void recrusiveSetItems(List<VisibleRuleResult> visibleResults, ItemNodeModel itemNode) {
         if (itemNode != null) {
-            if (CommonUtil.getRealXPath(itemNode).equals(visibleResult.getXpath())) {
-                itemNode.setVisible(visibleResult.isVisible());
-            }
+            String realPath = CommonUtil.getRealXPath(itemNode);
+
+            boolean maybeUse = false;
+            Iterator<VisibleRuleResult> iter = visibleResults.iterator();
+            
+        	while (iter.hasNext()){
+        		VisibleRuleResult vr = iter.next();
+        		if (vr.getXpath().equals(realPath)){
+        			itemNode.setVisible(vr.isVisible());
+                    iter.remove();
+                    return;
+        		}
+        		if (vr.getXpath().startsWith(realPath)){
+        			maybeUse = true;
+        			break;
+        		}
+        	}
+        	if (!maybeUse){
+        		return;
+        	}
+        }
+        
+        if (visibleResults.size() == 0){
+        	return;
         }
 
         for (int i = 0; i < itemNode.getChildCount(); i++) {
             ItemNodeModel childNode = (ItemNodeModel) itemNode.getChild(i);
-            recrusiveSetItems(visibleResult, childNode);
+            recrusiveSetItems(visibleResults, childNode);
         }
     }
     
     private void recrusiveSetItems(VisibleRuleResult visibleResult, DynamicTreeItem rootItem) {
         if (rootItem.getItemNodeModel() != null) {
-            if (CommonUtil.getRealXPath(rootItem.getItemNodeModel()).equals(visibleResult.getXpath())) {
+        	String realPath = CommonUtil.getRealXPath(rootItem.getItemNodeModel());
+            if (realPath.equals(visibleResult.getXpath())) {
                 rootItem.setVisible(visibleResult.isVisible());
+                return;
             }
+            
+            if (!visibleResult.getXpath().startsWith(realPath)){
+        		return;
+        	}
         }
 
         if (rootItem.getChildCount() == 0) {
