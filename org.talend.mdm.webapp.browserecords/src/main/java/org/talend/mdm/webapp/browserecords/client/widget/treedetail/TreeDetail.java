@@ -21,7 +21,6 @@ import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
-import org.talend.mdm.webapp.base.client.util.WaitBox;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
@@ -90,16 +89,19 @@ public class TreeDetail extends ContentPanel {
     private DynamicTreeItem selectedItem;
 
     private int renderedCounter = 0;
+
+    private MessageBox progressBar;
+
     public ForeignKeyRender getFkRender(){
     	return fkRender;
     }
     
     public void beginRender(){
     	BrowseRecordsMessages msg = MessagesFactory.getMessages();
-    	WaitBox.show(msg.rendering_title(), msg.render_message(), msg.rendering_progress());
+        progressBar = MessageBox.wait(msg.rendering_title(), msg.render_message(), msg.rendering_progress());
     	Timer timer = new Timer(){
 			public void run() {
-				WaitBox.hide();
+                closeProgressBar();
 				Log.info("render detail timeout!"); //$NON-NLS-1$
 			}
     	};
@@ -112,7 +114,12 @@ public class TreeDetail extends ContentPanel {
     
     public void resetRenderCounter(){
     	renderedCounter= 0;
-    	WaitBox.hide();
+        closeProgressBar();
+    }
+
+    public void closeProgressBar() {
+        if (progressBar != null)
+            progressBar.close();
     }
     
     public void endRender(){
@@ -120,7 +127,7 @@ public class TreeDetail extends ContentPanel {
     		renderedCounter--;
     	}
     	if (renderedCounter == 0){
-    		WaitBox.hide();
+            closeProgressBar();
     	}
     }
     
