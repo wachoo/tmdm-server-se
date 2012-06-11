@@ -292,28 +292,62 @@ public class Util {
         return d;
     }
 
+    private static boolean isNullNode(Node node){
+    	NodeList subList = node.getChildNodes();
+    	if(subList.getLength() == 0)
+    		return true;
+    	
+    	boolean flag = true;
+    	for(int i=0; i<subList.getLength(); i++) {
+    		if(subList.item(i).getNodeType() == Node.ELEMENT_NODE)
+    			return false;
+    		if(subList.item(i).getNodeType() == Node.TEXT_NODE)
+    			if(!subList.item(i).getTextContent().trim().equalsIgnoreCase(""))
+    				if(!subList.item(i).getTextContent().replace("/r", "").replace("/n", "").replace("/t", "").trim().equalsIgnoreCase(""))
+    					flag = false;
+    	}
+    	
+    	if(!flag)
+    		return false;
+    	return true;
+    }
+    
+    private static boolean isLeafNode(Node node){
+    	NodeList subList = node.getChildNodes();
+    	if(subList.getLength() == 0)
+    		return true;
+
+    	for(int i=0; i<subList.getLength(); i++) {
+    		if(subList.item(i).getNodeType() == Node.ELEMENT_NODE)
+    			return false;
+    	}
+    	return true;
+    }
     /**
      * @author ymli fix the bug:0009642: remove the null element to match the shema
      * @param element
      */
-    public static boolean setNullNode(Node element) {
-        // String xml = Util.nodeToString(element);
-        boolean removed = false;
+    public static void setNullNode(Node element) {
+    	if(isNullNode(element)) {
+    		Node parentNode = element.getParentNode();
+    		parentNode.removeChild(element);
+    		setNullNode(parentNode);
+    	}    		
         NodeList nodelist = element.getChildNodes();
         for (int i = 0; i < nodelist.getLength(); i++) {
-            Node node = nodelist.item(i);
-            int length = node.getChildNodes().getLength();
-            if (length <= 1 && (node.getTextContent() == null || node.getTextContent().trim().equals(""))) {
-                element.removeChild(node);
-                // xml = Util.nodeToString(element);
-                setNullNode(element);
-                removed = true;
-            } else if (length > 1 && node != null) {
-                if (setNullNode(node))
-                    setNullNode(node.getParentNode());
+            Node node = nodelist.item(i);         
+            if(node.getNodeType() == Node.TEXT_NODE)
+            	continue;
+            
+            if(!isLeafNode(node)) {
+            	setNullNode(node);
+            } else {
+            	if(isNullNode(node)) {
+            		element.removeChild(node);
+            		setNullNode(element);
+            	}
             }
         }
-        return removed;
     }
 
     public static Document defaultValidate(Element element, String schema) throws Exception {

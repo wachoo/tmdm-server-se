@@ -207,5 +207,20 @@ public class UtilTestCase extends TestCase {
         // entry
         return null;
     }
-
+    
+    public void testSetNullNode() throws Exception{
+    	InputStream in = UtilTestCase.class.getResourceAsStream("test1.xml");
+        String xml = getStringFromInputStream(in);
+        Element element = Util.parse(xml).getDocumentElement();
+        Util.setNullNode(element);
+        String xmlStr = Util.nodeToString(element);
+        assertFalse(xmlStr.contains("NullValue"));
+        assertFalse(xmlStr.contains("optionalElement"));
+        assertFalse(xmlStr.contains("EntireNullNode"));
+        assertFalse(xmlStr.contains("NullSubNode1"));
+        assertFalse(xmlStr.contains("NullSubNode2"));
+        assertFalse(xmlStr.contains("PartialNullNode1"));
+        assertTrue(xmlStr.contains("PartialNullNode2"));
+        assertFalse(xmlStr.contains("PartialNullNode3"));        
+    }
 }
