@@ -340,7 +340,7 @@ a{
 
 #TreeDetail-tree
 {
-    overflow: auto;
+    overflow: hidden;
     padding-top: 5px;
 }
 
