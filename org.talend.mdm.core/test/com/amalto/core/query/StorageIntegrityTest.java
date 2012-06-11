@@ -161,6 +161,32 @@ public class StorageIntegrityTest extends TestCase {
         }
     }
 
+    public void test7() throws Exception {
+        MetadataRepository repository = prepareMetadata("StorageIntegrityTest_6.xsd");
+        ComplexTypeMetadata type = repository.getComplexType("Metadata3_Referenced_6");
+        Storage storage = prepareStorage(repository);
+
+        try {
+            DataRecordReader<String> factory = new XmlStringDataRecordReader();
+            DataRecord record = factory.read("MDM", 1, type, "<Metadata3_Referenced_6><Id>1</Id><field/></Metadata3_Referenced_6>");
+            storage.begin();
+            try {
+                storage.update(record);
+                storage.commit();
+                fail("Expected fail due to NOT NULL constraint.");
+            } catch (Exception e) {
+                storage.rollback();
+            }
+
+            record = factory.read("MDM", 1, type, "<Metadata3_Referenced_6><Id>1</Id><field>Field Value</field></Metadata3_Referenced_6>");
+            storage.begin();
+            storage.update(record);
+            storage.commit();
+        } finally {
+            storage.close();
+        }
+    }
+
     private MetadataRepository prepareMetadata(String dataModelFile) {
         MetadataRepository repository = new MetadataRepository();
         repository.load(StorageFullTextTest.class.getResourceAsStream(dataModelFile));

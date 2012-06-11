@@ -78,16 +78,6 @@ public class OptimizedLoadAction implements LoadAction {
         if (context != null) {
             // This call should clean up everything (incl. save counter state in case of autogen pk).
             context.close();
-
-            // Commit changes if any was performed.
-            try {
-                if (server.supportTransaction()) {
-                    server.commit(dataClusterName);
-                    server.end(dataClusterName);
-                }
-            } catch (XtentisException e) {
-                throw new RuntimeException(e);
-            }
         }
     }
 }

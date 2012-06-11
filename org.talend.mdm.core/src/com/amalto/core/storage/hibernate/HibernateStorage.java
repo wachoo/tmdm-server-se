@@ -366,6 +366,7 @@ public class HibernateStorage implements Storage {
         if (!transaction.isActive()) {
             throw new IllegalStateException("Can not rollback transaction, no transaction is active.");
         }
+        session.clear();
         if (!transaction.wasRolledBack()) {
             transaction.rollback();
         } else {
