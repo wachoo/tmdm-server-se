@@ -14,7 +14,6 @@ package org.talend.mdm.webapp.base.client;
 
 import org.talend.mdm.webapp.base.client.exception.SessionTimeoutException;
 import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
-import org.talend.mdm.webapp.base.client.util.WaitBox;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -30,7 +29,6 @@ import com.google.gwt.user.client.rpc.StatusCodeException;
 public abstract class SessionAwareAsyncCallback<T> implements AsyncCallback<T> {
 
     public final void onFailure(Throwable caught) {
-        WaitBox.hide();
         if (Log.isErrorEnabled())
             Log.error(caught.toString());
 

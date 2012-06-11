@@ -5,12 +5,15 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages;
+import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextField;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.DOM;
@@ -217,6 +220,24 @@ public class TreeDetailGWTTest extends GWTTestCase {
         assertEquals(false, TreeDetail.isFKDisplayedIntoTab(oNode2, o2Type, metaDataTypes));
         assertEquals(false, TreeDetail.isFKDisplayedIntoTab(oNode3, o3Type, metaDataTypes));
         
+    }
+
+    public void testProgressBar() {
+        BrowseRecordsMessages msg = MessagesFactory.getMessages();
+        // 1. rendering item
+        MessageBox progressBar = MessageBox.wait(msg.rendering_title(), msg.render_message(), msg.rendering_progress());
+        assertEquals(msg.rendering_title(), progressBar.getTitle());
+        assertEquals(msg.render_message(), progressBar.getMessage());
+        assertEquals(msg.rendering_progress(), progressBar.getProgressText());
+        assertEquals(true, progressBar.isVisible());
+        progressBar.close();
+        assertEquals(false, progressBar.isVisible());
+        // 2. deleting item
+        progressBar = MessageBox.wait(msg.delete_item_title(), null, msg.delete_item_progress());
+        assertEquals(msg.delete_item_title(), progressBar.getTitle());
+        assertEquals(null, progressBar.getMessage());
+        assertEquals(msg.delete_item_progress(), progressBar.getProgressText());
+        progressBar.close();
     }
 
     public String getModuleName() {
