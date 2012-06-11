@@ -16,7 +16,6 @@ import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
-import org.talend.mdm.webapp.base.client.util.WaitBox;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
@@ -123,7 +122,7 @@ public class BrowseRecordsController extends Controller {
         final Boolean isCreate = event.getData("isCreate"); //$NON-NLS-1$
         final Boolean isClose = event.getData("isClose"); //$NON-NLS-1$
         final ItemDetailToolBar detailToolBar = event.getData("itemDetailToolBar"); //$NON-NLS-1$
-        WaitBox.show(MessagesFactory.getMessages().save_progress_bar_title(), MessagesFactory.getMessages()
+        final MessageBox progressBar = MessageBox.wait(MessagesFactory.getMessages().save_progress_bar_title(), MessagesFactory.getMessages()
                 .save_progress_bar_message(), MessagesFactory.getMessages().please_wait());
 
         service.saveItem(viewBean, itemBean.getIds(), CommonUtil.toXML(model, viewBean), isCreate, Locale.getLanguage(),
@@ -131,6 +130,7 @@ public class BrowseRecordsController extends Controller {
 
                     @Override
                     protected void doOnFailure(Throwable caught) {
+                    	progressBar.close();
                         String err = caught.getMessage();
                         if (err != null) {                           
                             MessageBox.alert(MessagesFactory.getMessages().error_title(),
@@ -141,7 +141,7 @@ public class BrowseRecordsController extends Controller {
 
                     public void onSuccess(ItemResult result) {
                         itemBean.setLastUpdateTime(result);
-                        WaitBox.hide();
+                        progressBar.close();
                         MessageBox msgBox = null;
                         if (result.getStatus() == ItemResult.FAILURE) {
                             MessageBox.alert(MessagesFactory.getMessages().error_title(),

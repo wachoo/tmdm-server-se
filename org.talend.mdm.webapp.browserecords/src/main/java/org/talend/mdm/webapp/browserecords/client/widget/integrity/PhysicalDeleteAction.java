@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
-import org.talend.mdm.webapp.base.client.util.WaitBox;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
@@ -22,11 +21,11 @@ public class PhysicalDeleteAction implements DeleteAction {
     public void delete(final List<ItemBean> items, BrowseRecordsServiceAsync service, boolean override,
             final PostDeleteAction postDeleteAction) {
         final BrowseRecordsMessages message = MessagesFactory.getMessages();
-        WaitBox.show(message.delete_item_title(), null, message.delete_item_progress());
+        final MessageBox progressBar = MessageBox.wait(message.delete_item_title(), null, message.delete_item_progress());
         service.deleteItemBeans(items, override, Locale.getLanguage(), new SessionAwareAsyncCallback<List<String>>() {
 
             public void onSuccess(List<String> msgs) {
-                WaitBox.hide();
+                progressBar.close();
                 if (msgs != null) {
                     StringBuffer sb = new StringBuffer();
                     for (String msg : msgs) {
@@ -38,6 +37,11 @@ public class PhysicalDeleteAction implements DeleteAction {
                     }
                 }
                 postDeleteAction.doAction();
+            }
+            @Override
+            protected void doOnFailure(Throwable caught) {
+            	progressBar.close();
+            	super.doOnFailure(caught);
             }
 
         });
