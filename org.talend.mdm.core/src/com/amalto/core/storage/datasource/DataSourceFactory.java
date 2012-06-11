@@ -152,13 +152,13 @@ public class DataSourceFactory {
                     String dialectName = (String) evaluate(dataSource, xPath, "rdbms-configuration/dialect", XPathConstants.STRING); //$NON-NLS-1$
                     String driverClassName = (String) evaluate(dataSource, xPath, "rdbms-configuration/connection-driver-class", XPathConstants.STRING); //$NON-NLS-1$
                     String connectionURL = (String) evaluate(dataSource, xPath, "rdbms-configuration/connection-url", XPathConstants.STRING); //$NON-NLS-1$
-                    String databaseName = (String) evaluate(dataSource, xPath, "rdbms-configuration/database-name", XPathConstants.STRING); //$NON-NLS-1$
                     String userName = (String) evaluate(dataSource, xPath, "rdbms-configuration/connection-username", XPathConstants.STRING); //$NON-NLS-1$
                     String password = (String) evaluate(dataSource, xPath, "rdbms-configuration/connection-password", XPathConstants.STRING); //$NON-NLS-1$
                     String indexDirectory = (String) evaluate(dataSource, xPath, "rdbms-configuration/fulltext-index-directory", XPathConstants.STRING); //$NON-NLS-1$
                     String initConnectionURL = (String) evaluate(dataSource, xPath, "rdbms-configuration/init/connection-url", XPathConstants.STRING); //$NON-NLS-1$
                     String initUserName = (String) evaluate(dataSource, xPath, "rdbms-configuration/init/connection-username", XPathConstants.STRING); //$NON-NLS-1$
                     String initPassword = (String) evaluate(dataSource, xPath, "rdbms-configuration/init/connection-password", XPathConstants.STRING); //$NON-NLS-1$
+                    String databaseName = (String) evaluate(dataSource, xPath, "rdbms-configuration/init/database-name", XPathConstants.STRING); //$NON-NLS-1$
 
                     currentDataSource = new RDBMSDataSource(name,
                             dialectName,

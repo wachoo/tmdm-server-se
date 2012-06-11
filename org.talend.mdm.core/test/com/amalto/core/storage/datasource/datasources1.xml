@@ -16,7 +16,6 @@
             <dialect>MySQL</dialect>
             <connection-driver-class>com.mysql.jdbc.Driver</connection-driver-class>
             <connection-url>jdbc:mysql://10.42.150.15:3306/Test3</connection-url>
-            <database-name>mdm_dev2</database-name>
             <connection-username>root</connection-username>
             <connection-password>toor</connection-password>
             <fulltext-index-directory>/var/lucene/indexes/DS2</fulltext-index-directory>
@@ -25,6 +24,7 @@
                 <connection-url>jdbc:mysql://10.42.150.15:3306/</connection-url>
                 <connection-username>root</connection-username>
                 <connection-password>toor</connection-password>
+                <database-name>mdm_dev2</database-name>
             </init>
         </rdbms-configuration>
     </datasource>
@@ -35,7 +35,6 @@
             <dialect>MySQL</dialect>
             <connection-driver-class>com.mysql.jdbc.Driver</connection-driver-class>
             <connection-url>jdbc:mysql://10.42.150.15:3306/${container}</connection-url>
-            <database-name>${container}</database-name>
             <connection-username>root</connection-username>
             <connection-password>toor</connection-password>
             <fulltext-index-directory>/var/lucene/indexes/DS1</fulltext-index-directory>
@@ -44,6 +43,7 @@
                 <connection-url>jdbc:mysql://10.42.150.15:3306/</connection-url>
                 <connection-username>root</connection-username>
                 <connection-password>toor</connection-password>
+                <database-name>${container}</database-name>
             </init>
         </rdbms-configuration>
     </datasource>
@@ -54,10 +54,15 @@
             <dialect>MySQL</dialect>
             <connection-driver-class>com.mysql.jdbc.Driver</connection-driver-class>
             <connection-url>jdbc:mysql://10.42.150.15:3306/mdm_dev2</connection-url>
-            <database-name>mdm_dev2</database-name>
             <connection-username>root</connection-username>
             <connection-password>toor</connection-password>
             <fulltext-index-directory>/var/lucene/indexes/DS2</fulltext-index-directory>
+            <init>
+                <connection-url>jdbc:mysql://10.42.150.15:3306/</connection-url>
+                <connection-username>root</connection-username>
+                <connection-password>toor</connection-password>
+                <database-name>mdm_dev2</database-name>
+            </init>
         </rdbms-configuration>
     </datasource>
 </datasources>

@@ -84,7 +84,7 @@ public class DataSourceParsingTest extends TestCase {
         assertTrue(dataSource instanceof RDBMSDataSource);
 
         RDBMSDataSource rdbmsDataSource = (RDBMSDataSource) dataSource;
-        assertFalse(rdbmsDataSource.hasInit());
+        assertTrue(rdbmsDataSource.hasInit());
         assertEquals("jdbc:mysql://10.42.150.15:3306/mdm_dev2", rdbmsDataSource.getConnectionURL());
         assertEquals("mdm_dev2", rdbmsDataSource.getDatabaseName());
     }
