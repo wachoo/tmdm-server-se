@@ -27,7 +27,8 @@ class OracleStorageInitializer implements StorageInitializer {
         try {
             RDBMSDataSource dataSource = getDataSource(storage);
             Driver driver = (Driver) Class.forName(dataSource.getDriverClassName()).newInstance();
-            driver.connect(dataSource.getConnectionURL(), new Properties());
+            Connection connection = driver.connect(dataSource.getConnectionURL(), new Properties());
+            connection.close();
             return true;
         } catch (SQLException e) {
             return false;

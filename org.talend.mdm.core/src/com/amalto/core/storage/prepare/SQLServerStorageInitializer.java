@@ -26,7 +26,9 @@ class SQLServerStorageInitializer implements StorageInitializer {
     public boolean isInitialized(Storage storage) {
         try {
             RDBMSDataSource dataSource = getDataSource(storage);
-            DriverManager.getConnection(dataSource.getConnectionURL(), dataSource.getUserName(), dataSource.getPassword());
+            //DriverManager.registerDriver((Driver) Class.forName(dataSource.getDriverClassName()).newInstance());
+            Connection connection = DriverManager.getConnection(dataSource.getConnectionURL(), dataSource.getUserName(), dataSource.getPassword());
+            connection.close();
             return true;
         } catch (SQLException e) {
             return false;
