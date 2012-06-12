@@ -21,6 +21,7 @@ import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
+import org.talend.mdm.webapp.base.client.util.WaitBox;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
@@ -180,26 +181,24 @@ public class TreeDetail extends ContentPanel {
             buildPanel(operation, initDataMap);
         } else {
             final BrowseRecordsServiceAsync itemService = getItemService();
+            BrowseRecordsMessages msg = MessagesFactory.getMessages();
+            WaitBox.show(msg.load_title(), msg.load_message(), msg.load_progress());
             itemService.getItemNodeModel(itemBean, viewBean.getBindingEntityModel(), Locale.getLanguage(),
                     new SessionAwareAsyncCallback<ItemNodeModel>() {
 
                         public void onSuccess(final ItemNodeModel node) {
-                            if (node.isHasVisiblueRule()) {
-                                itemService.executeVisibleRule(viewBean, CommonUtil.toXML(node, TreeDetail.this.viewBean, true),
-                                        new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
 
-                                            public void onSuccess(List<VisibleRuleResult> visibleResults) {
-                                                if (visibleResults != null){
-                                                    recrusiveSetItems(visibleResults, node);
-                                                }
-                                                renderTree(node, operation);
+                            itemService.executeVisibleRule(viewBean, CommonUtil.toXML(node, TreeDetail.this.viewBean, true),
+                                    new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
+
+                                        public void onSuccess(List<VisibleRuleResult> visibleResults) {
+                                            if (visibleResults != null) {
+                                                recrusiveSetItems(visibleResults, node);
                                             }
-                                        });
-                            } else {
-                                renderTree(node, operation);
-                            }
+                                            renderTree(node, operation);
+                                        }
+                                    });
                         }
-
                     });
         }
     }
@@ -208,22 +207,16 @@ public class TreeDetail extends ContentPanel {
         getItemService().createDefaultItemNodeModel(viewBean, initDataMap, Locale.getLanguage(),
                 new SessionAwareAsyncCallback<ItemNodeModel>() {
             public void onSuccess(final ItemNodeModel result) {
-                
-                if (hasVisibleRule(viewBean.getBindingEntityModel().getMetaDataTypes().get(
-                        viewBean.getBindingEntityModel().getConceptName()))) {
-                            getItemService().executeVisibleRule(viewBean, CommonUtil.toXML(result, viewBean, true),
-                            new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
+                getItemService().executeVisibleRule(viewBean, CommonUtil.toXML(result, viewBean, true),
+                new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
 
-                                public void onSuccess(List<VisibleRuleResult> visibleResults) {
-                                    if (visibleResults != null){
-                                        recrusiveSetItems(visibleResults, result);
-                                    }
-                                    renderTree(result, operation);
-                                }
-                            });
-                } else {
-                    renderTree(result, operation);
-                }
+                    public void onSuccess(List<VisibleRuleResult> visibleResults) {
+                        if (visibleResults != null){
+                            recrusiveSetItems(visibleResults, result);
+                        }
+                        renderTree(result, operation);
+                    }
+                });
             }
         });
     }
