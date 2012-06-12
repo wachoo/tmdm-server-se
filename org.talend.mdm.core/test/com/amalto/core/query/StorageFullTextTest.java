@@ -144,6 +144,9 @@ public class StorageFullTextTest extends StorageTestCase {
 
         StorageResults results = storage.fetch(qb.getSelect());
         try {
+            for (DataRecord result : results) {
+                System.out.println("result = " + result);
+            }
             assertEquals(1, results.getCount());
         } finally {
             results.close();
@@ -187,6 +190,21 @@ public class StorageFullTextTest extends StorageTestCase {
             fail("Expected an exception: not implemented when test was written.");
         } catch (Exception e) {
             // Expected
+        }
+    }
+
+    public void testSimpleSearchWithProjection() throws Exception {
+        UserQueryBuilder qb = from(supplier)
+                .select(supplier.getField("Contact/Name"))
+                .where(fullText("Renault"));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            for (DataRecord result : results) {
+                System.out.println("result = " + result);
+            }
+        } finally {
+            results.close();
         }
     }
 

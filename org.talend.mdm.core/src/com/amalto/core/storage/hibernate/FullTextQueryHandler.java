@@ -66,12 +66,6 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         if (!joins.isEmpty()) {
             throw new IllegalArgumentException("Cannot perform join clause(s) when doing full text search.");
         }
-        if (select.isProjection()) {
-            Expression projectedField = select.getSelectedFields().get(0);
-            if (!(projectedField instanceof Count)) {
-                throw new UnsupportedOperationException("No support for field projections in full text query builder.");
-            }
-        }
         revisionId = select.getRevisionId();
 
         Condition condition = select.getCondition();
@@ -130,17 +124,55 @@ class FullTextQueryHandler extends AbstractQueryHandler {
     }
 
     private StorageResults createResults(List list) {
-        CloseableIterator<DataRecord> iterator = new ListIterator(mappingMetadataRepository, storageClassLoader, storageName, revisionId, list.iterator(), callbacks);
+        CloseableIterator<DataRecord> iterator;
+        if (selectedFields.isEmpty()) {
+            iterator = new ListIterator(mappingMetadataRepository, storageClassLoader, storageName, revisionId, list.iterator(), callbacks);
+        } else {
+            iterator = new ListIterator(mappingMetadataRepository, storageClassLoader, storageName, revisionId, list.iterator(), callbacks) {
+                @Override
+                public DataRecord next() {
+                    DataRecord next = super.next();
+                    DataRecord nextRecord = new DataRecord(next.getType(), next.getRecordMetadata());
+                    for (TypedExpression selectedField : selectedFields) {
+                        FieldMetadata field = ((Field) selectedField).getFieldMetadata();
+                        nextRecord.set(field, next.get(field));
+                    }
+                    return nextRecord;
+                }
+            };
+        }
         return new FullTextStorageResults(pageSize, query.getResultSize(), iterator);
     }
 
     private StorageResults createResults(ScrollableResults scrollableResults) {
-        CloseableIterator<DataRecord> iterator = new ScrollableIterator(mappingMetadataRepository,
-                storageClassLoader,
-                storageName,
-                revisionId,
-                scrollableResults,
-                callbacks);
+        CloseableIterator<DataRecord> iterator;
+        if (selectedFields.isEmpty()) {
+            iterator = new ScrollableIterator(mappingMetadataRepository,
+                    storageClassLoader,
+                    storageName,
+                    revisionId,
+                    scrollableResults,
+                    callbacks);
+        } else {
+            iterator = new ScrollableIterator(mappingMetadataRepository,
+                    storageClassLoader,
+                    storageName,
+                    revisionId,
+                    scrollableResults,
+                    callbacks) {
+                @Override
+                public DataRecord next() {
+                    DataRecord next = super.next();
+                    DataRecord nextRecord = new DataRecord(next.getType(), next.getRecordMetadata());
+                    for (TypedExpression selectedField : selectedFields) {
+                        FieldMetadata field = ((Field) selectedField).getFieldMetadata();
+                        nextRecord.set(field, next.get(field));
+                    }
+                    return nextRecord;
+                }
+            };
+        }
+
         return new FullTextStorageResults(pageSize, query.getResultSize(), iterator);
     }
 
@@ -211,11 +243,11 @@ class FullTextQueryHandler extends AbstractQueryHandler {
     }
 
     private static class FullTextStorageResults implements StorageResults {
-        
+
         private final int size;
-        
+
         private final int count;
-        
+
         private final CloseableIterator<DataRecord> iterator;
 
         public FullTextStorageResults(int size, int count, CloseableIterator<DataRecord> iterator) {

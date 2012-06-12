@@ -48,7 +48,7 @@ public class UserQueryDumpConsole implements Visitor<Void> {
             print("Selected fields");
             increaseIndent();
             {
-                List<Expression> selectedFields = select.getSelectedFields();
+                List<TypedExpression> selectedFields = select.getSelectedFields();
                 for (Expression selectedField : selectedFields) {
                     selectedField.accept(this);
                 }

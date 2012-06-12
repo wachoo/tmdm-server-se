@@ -211,7 +211,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         if (select.isProjection()) {
             projectionList = Projections.projectionList();
             {
-                List<Expression> selectedFields = select.getSelectedFields();
+                List<TypedExpression> selectedFields = select.getSelectedFields();
                 for (Expression selectedField : selectedFields) {
                     selectedField.accept(this);
                 }

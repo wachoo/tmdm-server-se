@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class Select implements Expression {
 
-    private final List<Expression> selectedFields = new LinkedList<Expression>();
+    private final List<TypedExpression> selectedFields = new LinkedList<TypedExpression>();
 
     private final List<Join> joins = new LinkedList<Join>();
 
@@ -48,7 +48,7 @@ public class Select implements Expression {
         this.revisionId = revisionId;
     }
 
-    public List<Expression> getSelectedFields() {
+    public List<TypedExpression> getSelectedFields() {
         return selectedFields;
     }
 
@@ -118,7 +118,7 @@ public class Select implements Expression {
     public Select copy() {
         Select copy = new Select();
         copy.setRevisionId(this.revisionId);
-        for (Expression selectedField : selectedFields) {
+        for (TypedExpression selectedField : selectedFields) {
             copy.getSelectedFields().add(selectedField);
         }
         copy.setCondition(this.condition);

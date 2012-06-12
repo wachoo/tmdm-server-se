@@ -49,8 +49,8 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
 
     @Override
     public AbstractQueryHandler visit(Select select) {
-        List<Expression> selectedFields = select.getSelectedFields();
-        for (Expression selectedField : selectedFields) {
+        List<TypedExpression> selectedFields = select.getSelectedFields();
+        for (TypedExpression selectedField : selectedFields) {
             selectedField.accept(this);
         }
 

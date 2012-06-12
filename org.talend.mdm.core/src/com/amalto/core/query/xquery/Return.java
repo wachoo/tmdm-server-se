@@ -37,7 +37,7 @@ public class Return implements Expression {
     private Return() {
     }
 
-    public static Return createWrappedReturn(Map<TypeMetadata, Variable> variable, List<com.amalto.core.query.user.Expression> fields, String wrapperElementName) {
+    public static Return createWrappedReturn(Map<TypeMetadata, Variable> variable, List<com.amalto.core.query.user.TypedExpression> fields, String wrapperElementName) {
         Return returnFunction = new Return();
 
         List<Expression> expressions = new ArrayList<Expression>(fields.size());

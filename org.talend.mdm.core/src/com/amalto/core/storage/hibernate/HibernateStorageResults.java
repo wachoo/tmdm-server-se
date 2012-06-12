@@ -12,10 +12,7 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.query.user.Expression;
-import com.amalto.core.query.user.Paging;
-import com.amalto.core.query.user.Select;
-import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.query.user.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
@@ -53,7 +50,7 @@ public class HibernateStorageResults implements StorageResults {
     public int getCount() {
         try {
             Select countSelect = select.copy();
-            List<Expression> selectedFields = countSelect.getSelectedFields();
+            List<TypedExpression> selectedFields = countSelect.getSelectedFields();
             Paging paging = countSelect.getPaging();
             selectedFields.clear();
             selectedFields.add(UserQueryBuilder.count());

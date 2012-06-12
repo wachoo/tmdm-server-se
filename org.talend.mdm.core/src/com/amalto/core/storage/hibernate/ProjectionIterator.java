@@ -38,7 +38,7 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
 
     private final Set<EndOfResultsCallback> callbacks;
 
-    public ProjectionIterator(Iterator iterator, List<TypedExpression> selectedFields, Set<EndOfResultsCallback> callbacks) {
+    public ProjectionIterator(Iterator<Object> iterator, List<TypedExpression> selectedFields, Set<EndOfResultsCallback> callbacks) {
         this.iterator = iterator;
         this.selectedFields = selectedFields;
         this.callbacks = callbacks;

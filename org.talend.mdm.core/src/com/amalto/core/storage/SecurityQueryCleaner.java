@@ -29,7 +29,7 @@ class SecurityQueryCleaner extends VisitorAdapter<Expression> {
 
     @Override
     public Expression visit(Select select) {
-        Iterator<Expression> fields = select.getSelectedFields().iterator();
+        Iterator<TypedExpression> fields = select.getSelectedFields().iterator();
         while (fields.hasNext()) {
             if (!fields.next().accept(checker)) {
                 fields.remove();

@@ -375,7 +375,7 @@ public class UserQueryBuilder {
         }
     }
 
-    public UserQueryBuilder select(Expression expression) {
+    public UserQueryBuilder select(TypedExpression expression) {
         select.getSelectedFields().add(expression);
         select.setProjection(true);
         return this;
