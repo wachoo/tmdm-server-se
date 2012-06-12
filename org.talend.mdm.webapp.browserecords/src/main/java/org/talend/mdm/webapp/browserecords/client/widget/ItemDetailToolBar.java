@@ -317,7 +317,7 @@ public class ItemDetailToolBar extends ToolBar {
                 public void componentSelected(ButtonEvent ce) {
                     Widget widget = itemsDetailPanel.getFirstTabWidget();
                     ItemPanel itemPanel = (ItemPanel) widget;
-                    ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getTree().getItem(0).getUserObject();
+                    ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getRootModel();
                     if (operation.equalsIgnoreCase(ItemDetailToolBar.CREATE_OPERATION)
                             || operation.equalsIgnoreCase(ItemDetailToolBar.DUPLICATE_OPERATION)
                             || TreeDetailUtil.isChangeValue(root)) {
