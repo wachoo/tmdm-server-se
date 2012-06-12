@@ -396,4 +396,10 @@ public interface BrowseRecordsMessages extends Messages {
     String render_message();
     
     String rendering_progress();
+    
+    String load_title();
+    
+    String load_message();
+    
+    String load_progress();
 }
