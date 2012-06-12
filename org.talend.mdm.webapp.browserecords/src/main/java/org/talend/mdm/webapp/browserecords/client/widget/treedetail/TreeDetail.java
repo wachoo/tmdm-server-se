@@ -562,7 +562,7 @@ public class TreeDetail extends ContentPanel {
         tree.addSelectionHandler(new SelectionHandler<TreeItem>() {
 
             public void onSelection(SelectionEvent<TreeItem> event) {
-            	if (selectedItem instanceof DynamicTreeItem){
+            	if (event.getSelectedItem() instanceof DynamicTreeItem){
             		selectedItem = (DynamicTreeItem) event.getSelectedItem();
             	}
             }
