@@ -21,7 +21,6 @@ import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
-import org.talend.mdm.webapp.base.client.util.WaitBox;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
@@ -182,7 +181,7 @@ public class TreeDetail extends ContentPanel {
         } else {
             final BrowseRecordsServiceAsync itemService = getItemService();
             BrowseRecordsMessages msg = MessagesFactory.getMessages();
-            WaitBox.show(msg.load_title(), msg.load_message(), msg.load_progress());
+            final MessageBox loadProgress = MessageBox.wait(msg.load_title(), msg.load_message(), msg.load_progress());
             itemService.getItemNodeModel(itemBean, viewBean.getBindingEntityModel(), Locale.getLanguage(),
                     new SessionAwareAsyncCallback<ItemNodeModel>() {
 
@@ -195,9 +194,15 @@ public class TreeDetail extends ContentPanel {
                                             if (visibleResults != null) {
                                                 recrusiveSetItems(visibleResults, node);
                                             }
+                                            loadProgress.close();
                                             renderTree(node, operation);
                                         }
                                     });
+                        }
+
+                        protected void doOnFailure(Throwable caught) {
+                            loadProgress.close();
+                            super.doOnFailure(caught);
                         }
                     });
         }
