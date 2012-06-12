@@ -42,6 +42,61 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
 	    'en' : 'BrowseRecords->'
 	};
 	
+	var LABEL_SEARCH_DATA = {
+		    'fr' : 'Recherche de données',
+		    'en' : 'Search Data'
+	};
+	
+	var LABEL_SEARCH_PANEL = {
+		    'fr' : 'Panneau de recherche',
+		    'en' : 'Search Panel'
+	};
+	
+	var LABEL_ENTITY = {
+		    'fr' : 'Entité',
+		    'en' : 'Entity'
+	};
+	
+	var LABEL_FROM = {
+		    'fr' : 'De',
+		    'en' : 'From'
+	};
+	
+	var LABEL_TO = {
+		    'fr' : 'A',
+		    'en' : 'To'
+	};
+	
+	var LABEL_KEYWORDS = {
+		    'fr' : 'Mots clés',
+		    'en' : 'Keywords'
+	};
+	
+	var LABEL_RESET = {
+		    'fr' : 'Réinitialiser',
+		    'en' : 'Reset'
+	};
+	
+	var LABEL_SEARCH = {
+		    'fr' : 'Rechercher',
+		    'en' : 'Search'
+	};
+	
+	var LABEL_EXPORT = {
+		    'fr' : 'Exporter',
+		    'en' : 'Export'
+	};
+	
+	var LABEL_DATE = {
+		    'fr' : 'Date',
+		    'en' : 'Date'
+	};
+	
+	var LABEL_KEY = {
+		    'fr' : 'Clé',
+		    'en' : 'Key'
+	};
+	
     Ext.apply(Ext.form.VTypes, {  
          dateRange: function(val, field){  
              if(field.dateRange){  
@@ -102,19 +157,19 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
 		columns : [
 			{
 				hidden : false,
-				header : "Date",
+				header : LABEL_DATE[language],
 				dataIndex : "date",
 				sortable : true
 			},
 			{
 				hidden : false,
-				header : "Entity",
+				header : LABEL_ENTITY[language],
 				dataIndex : "entity",
 				sortable : true
 			},
 			{
 				hidden : false,
-				header :  "Key",
+				header :  LABEL_KEY[language],
 				dataIndex :"key",
 				sortable : true
 			}
@@ -176,13 +231,13 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
 		
 	Ext.apply(this, {			
 		layout : "border",
-		title : "Search Entity",
+		title : LABEL_SEARCH_DATA[language],
 		items : [this.gridPanel1, {
 			frame : false,
 			height : 170,
 			layout : "fit",
 			split : false,
-			title : "Search Panel",
+			title : LABEL_SEARCH_PANEL[language],
 			collapsible : true,
 			border: false,
 			items : [{
@@ -194,7 +249,7 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
 					items : [{
 						id : 'entityCB',
 						name : "entity",
-						fieldLabel : "entity",
+						fieldLabel : LABEL_ENTITY[language],
 						store: this.lineageEntities,
 						xtype : "combo",
 						allowBlank : false,
@@ -209,7 +264,7 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
 					{
 						id : "fromDate",
 						name : "fromDate",
-						fieldLabel : "From",
+						fieldLabel : LABEL_FROM[language],
 						xtype : "datefield",
 						format : "Y-m-d H:i:s",
 						width: 150,
@@ -225,7 +280,7 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
 					{
 						name : "keyWords",
 						//emptyText : "Select a source...",
-						fieldLabel :"keyWords",
+						fieldLabel :LABEL_KEYWORDS[language],
 						xtype : "textfield",
 						displayField:'text',
 				        valueField:'value',   
@@ -244,7 +299,7 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
 					layout : "form",
 					items : [{
 						name : "key",
-						fieldLabel : "key",
+						fieldLabel : LABEL_KEY[language],
 						xtype : "textfield",
 						listeners : {
                            'specialkey' : function(field, event) {
@@ -255,7 +310,7 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
 					{
 						id : "toDate",
 						name : "toDate",
-						fieldLabel : "To",
+						fieldLabel : LABEL_TO[language],
 						xtype : "datefield",
 						format : "Y-m-d H:i:s",
 						width: 150,
@@ -278,12 +333,12 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
 				handler : function(button, event) {
 					this.onResetBtnClick(button, event);
 				}.createDelegate(this),
-				text : "reset"
+				text : LABEL_RESET[language]
 			},{
 				handler : function(button, event) {
 					this.onSearchBtnClick(button, event);
 				}.createDelegate(this),
-				text : "search"
+				text : LABEL_SEARCH[language]
 			},{	
 				handler: function() {					
 					var curcriteria = this.getRequestParam();
@@ -306,7 +361,7 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
 		   			
 					this.exporting(curcriteria);
 				}.createDelegate(this),
-				text : "export"
+				text : LABEL_EXPORT[language]
 			}]
 			}],
 			id : "searchEntityPanel",
