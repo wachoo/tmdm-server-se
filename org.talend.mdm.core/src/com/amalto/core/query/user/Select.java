@@ -12,7 +12,11 @@
 package com.amalto.core.query.user;
 
 import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.ContainedTypeFieldMetadata;
+import com.amalto.core.metadata.FieldMetadata;
+import org.apache.log4j.Logger;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,6 +24,8 @@ import java.util.List;
  *
  */
 public class Select implements Expression {
+
+    private static final Logger LOGGER = Logger.getLogger(Select.class);
 
     private final List<TypedExpression> selectedFields = new LinkedList<TypedExpression>();
 
@@ -70,7 +76,7 @@ public class Select implements Expression {
 
     /**
      * @return <code>false</code> if the query is supposed to return a whole instance or <code>true</code> if the query
-     * is selecting few fields (that may or not belong to the same type).
+     *         is selecting few fields (that may or not belong to the same type).
      */
     public boolean isProjection() {
         return isProjection;
@@ -108,12 +114,23 @@ public class Select implements Expression {
         if (condition != null) {
             condition = (Condition) condition.normalize();
         }
+        Iterator<TypedExpression> selectedFieldsIterator = selectedFields.iterator();
+        while (selectedFieldsIterator.hasNext()) {
+            TypedExpression selectedField = selectedFieldsIterator.next();
+            if (selectedField instanceof Field) {
+                FieldMetadata fieldMetadata = ((Field) selectedField).getFieldMetadata();
+                if (fieldMetadata instanceof ContainedTypeFieldMetadata) {
+                    LOGGER.warn("Field '" + fieldMetadata.getName() + "' does not contain value and will be ignored.");
+                    selectedFieldsIterator.remove();
+                }
+            }
+        }
         return this;
     }
 
     /**
      * @return A copy of this {@link Select} instance. This is a shallow copy (only Select instance is new, all referenced
-     * objects such as {@link Condition}, {@link Paging}... are not copied).
+     *         objects such as {@link Condition}, {@link Paging}... are not copied).
      */
     public Select copy() {
         Select copy = new Select();

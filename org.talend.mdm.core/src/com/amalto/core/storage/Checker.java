@@ -156,4 +156,9 @@ class Checker extends VisitorAdapter<Boolean> {
     public Boolean visit(Field field) {
         return !delegator.hide(field.getFieldMetadata().getContainingType()) && !delegator.hide(field.getFieldMetadata());
     }
+
+    @Override
+    public Boolean visit(Condition condition) {
+        return true;
+    }
 }
