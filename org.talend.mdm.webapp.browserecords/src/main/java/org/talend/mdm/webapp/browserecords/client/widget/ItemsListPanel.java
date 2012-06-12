@@ -666,7 +666,7 @@ public class ItemsListPanel extends ContentPanel {
                 } else {
                     ItemPanel itemPanel = (ItemPanel) widget;
                     toolBar = itemPanel.getToolBar();
-                    root = (ItemNodeModel) itemPanel.getTree().getTree().getItem(0).getUserObject();
+                    root = (ItemNodeModel) itemPanel.getTree().getRootModel();
                 }
                 return root != null ? TreeDetailUtil.isChangeValue(root) : false;
             }
