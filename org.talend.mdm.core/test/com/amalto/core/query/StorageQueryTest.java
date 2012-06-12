@@ -96,8 +96,8 @@ public class StorageQueryTest extends StorageTestCase {
                     "Dupond</lastname><age>10</age><score>130000.00</score><Available>true</Available><addresses><address>[2][true]</address><address>" +
                     "[1][false]</address></addresses><Status>Employee</Status></Person>";
             String expectedXml2 = "<Person><id>1</id><firstname>Julien</firstname><middlename>John</middlename><lastname>" +
-                                "Dupond</lastname><age>10</age><score>130000</score><Available>true</Available><addresses><address>[2][true]</address><address>" +
-                                "[1][false]</address></addresses><Status>Employee</Status></Person>";
+                    "Dupond</lastname><age>10</age><score>130000</score><Available>true</Available><addresses><address>[2][true]</address><address>" +
+                    "[1][false]</address></addresses><Status>Employee</Status></Person>";
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             for (DataRecord result : results) {
                 try {
@@ -108,7 +108,7 @@ public class StorageQueryTest extends StorageTestCase {
             }
 
             String actual = new String(output.toByteArray());
-            if(!"Oracle".equalsIgnoreCase(DATABASE)) {
+            if (!"Oracle".equalsIgnoreCase(DATABASE)) {
                 assertEquals(expectedXml, actual);
             } else {
                 assertEquals(expectedXml2, actual);
@@ -392,6 +392,19 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
+    public void testIntervalCondition() throws Exception {
+        UserQueryBuilder qb = from(person)
+                .where(gte(person.getField("age"), "10"))
+                .where(lte(person.getField("age"), "30"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getSize());
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
     public void testGreaterThanEqualsDateCondition() throws Exception {
         UserQueryBuilder qb = from(country)
                 .where(gte(country.getField("creationDate"), "2011-10-10"));
@@ -524,7 +537,7 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testConditionAnd() throws Exception {
         UserQueryBuilder qb = from(person)
-                .where(and(eq(person.getField("lastname"), "Dupond"), eq(person.getField("firstname"), "Robert")));
+                .where(and(eq(person.getField("lastname"), "Dupond"), eq(person.getField("firstname"), "Robert-Damien")));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(0, results.getSize());
@@ -536,7 +549,7 @@ public class StorageQueryTest extends StorageTestCase {
         // Wheres are equivalent to "and" statements
         qb = from(person)
                 .where(eq(person.getField("lastname"), "Dupond"))
-                .where(eq(person.getField("firstname"), "Robert"));
+                .where(eq(person.getField("firstname"), "Robert-Damien"));
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(0, results.getSize());

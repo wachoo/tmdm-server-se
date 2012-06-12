@@ -266,6 +266,11 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 public Boolean visit(FullText fullText) {
                     return true; // Consider all "full text" as hibernate-worthy conditions.
                 }
+
+                @Override
+                public Boolean visit(Range range) {
+                    return true; // Consider all "range" as hibernate-worthy conditions.
+                }
             });
             if (hasActualCondition) {
                 condition.accept(this);
@@ -357,6 +362,14 @@ class StandardQueryHandler extends AbstractQueryHandler {
     public StorageResults visit(NotIsNull notIsNull) {
         Criterion criterion = notIsNull.accept(CRITERION_VISITOR);
         criteria.add(criterion);
+        return null;
+    }
+
+    @Override
+    public StorageResults visit(Range range) {
+        Object start = range.getStart().accept(VALUE_ADAPTER);
+        Object end = range.getEnd().accept(VALUE_ADAPTER);
+        criteria.add(Restrictions.between(range.accept(FIELD_VISITOR), start, end));
         return null;
     }
 

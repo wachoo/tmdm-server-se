@@ -18,6 +18,7 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,6 +30,9 @@ public class StorageAdminImpl implements StorageAdmin {
     private final Map<String, Storage> storages = new HashMap<String, Storage>();
 
     private Logger LOGGER = Logger.getLogger(StorageAdminImpl.class);
+
+    // Default value is "false" (meaning the storage will not remove existing data).
+    private static final boolean autoClean = Boolean.valueOf(MDMConfiguration.getConfiguration().getProperty("db.autoClean", "false"));
 
     public String[] getAll(String revisionID) {
         Set<String> allStorageNames = storages.keySet();
@@ -60,10 +64,11 @@ public class StorageAdminImpl implements StorageAdmin {
 
         try {
             Storage masterDataModelStorage = internalCreateStorage(dataModelName, storageName, dataSourceName, HibernateStorage.StorageType.MASTER);
-            Storage stagingDataModelStorage = internalCreateStorage(dataModelName, storageName, dataSourceName, HibernateStorage.StorageType.STAGING);
-
             storages.put(storageName, masterDataModelStorage);
-            storages.put(storageName + STAGING_PREFIX, stagingDataModelStorage);
+
+            // Creation of staging storage is disabled for now
+            // Storage stagingDataModelStorage = internalCreateStorage(dataModelName, storageName, dataSourceName, HibernateStorage.StorageType.STAGING);
+            // storages.put(storageName + STAGING_PREFIX, stagingDataModelStorage);
 
             return masterDataModelStorage;
         } catch (Exception e) {
@@ -81,7 +86,7 @@ public class StorageAdminImpl implements StorageAdmin {
             throw new UnsupportedOperationException("Data model '" + dataModelName + "' must exist before container '" + storageName + "' can be created.");
         }
         MetadataRepository metadataRepository = metadataRepositoryAdmin.get(dataModelName);
-        dataModelStorage.prepare(metadataRepository, hasDataModel, false);
+        dataModelStorage.prepare(metadataRepository, hasDataModel, autoClean);
         return dataModelStorage;
     }
 

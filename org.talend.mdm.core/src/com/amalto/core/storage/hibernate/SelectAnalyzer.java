@@ -152,6 +152,11 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
     }
 
     @Override
+    public AbstractQueryHandler visit(Range range) {
+        return null;
+    }
+
+    @Override
     public AbstractQueryHandler visit(Field field) {
         if (!field.getFieldMetadata().isKey()) {
             isOnlyId = false;

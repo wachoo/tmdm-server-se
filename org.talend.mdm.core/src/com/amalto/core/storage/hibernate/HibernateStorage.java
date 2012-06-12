@@ -12,7 +12,10 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.metadata.*;
+import com.amalto.core.query.optimization.Optimizer;
+import com.amalto.core.query.optimization.RangeOptimizer;
 import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.Select;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
@@ -44,8 +47,6 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class HibernateStorage implements Storage {
 
@@ -66,6 +67,8 @@ public class HibernateStorage implements Storage {
     public static final HibernateStorage.LocalEntityResolver ENTITY_RESOLVER = new HibernateStorage.LocalEntityResolver();
 
     private static final Logger LOGGER = Logger.getLogger(HibernateStorage.class);
+
+    private static final Optimizer[] OPTIMIZERS = new Optimizer[]{new RangeOptimizer()};
 
     private static final String FORBIDDEN_PREFIX = "x_talend_"; //$NON-NLS-1$
 
@@ -560,7 +563,11 @@ public class HibernateStorage implements Storage {
         SelectAnalyzer selectAnalysis = new SelectAnalyzer(storageRepository, storageClassLoader, session, callbacks, this);
         AbstractQueryHandler queryHandler = userQuery.accept(selectAnalysis);
         // Always normalize the query to ensure query has expected format.
-        return userQuery.normalize().accept(queryHandler);
+        Expression expression = userQuery.normalize();
+        for (Optimizer optimizer : OPTIMIZERS) {
+            optimizer.optimize((Select) expression);
+        }
+        return expression.accept(queryHandler);
     }
 
     private void assertPrepared() {

@@ -46,4 +46,23 @@ public class Field implements TypedExpression {
         }
         return type.getName();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Field)) {
+            return false;
+        }
+
+        Field field = (Field) o;
+
+        return !(fieldMetadata != null ? !fieldMetadata.equals(field.fieldMetadata) : field.fieldMetadata != null);
+    }
+
+    @Override
+    public int hashCode() {
+        return fieldMetadata != null ? fieldMetadata.hashCode() : 0;
+    }
 }

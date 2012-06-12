@@ -255,6 +255,15 @@ public abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults
         public String visit(Field field) {
             return getFieldName(field, mappingMetadataRepository);
         }
+
+        @Override
+        public String visit(Range range) {
+            Expression fieldExpression = range.getExpression();
+            if (!(fieldExpression instanceof Field)) {
+                throw new NotImplementedException("No range support for non-field.");
+            }
+            return getFieldName((Field) fieldExpression, mappingMetadataRepository);
+        }
     }
 
     protected static class FieldCondition {

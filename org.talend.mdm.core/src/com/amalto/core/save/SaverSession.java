@@ -26,7 +26,7 @@ public class SaverSession {
 
     private static final Map<String, SaverSource> saverSourcePerUser = new HashMap<String, SaverSource>();
 
-    private final SaverContextFactory contextFactory;
+    private final SaverContextFactory contextFactory = new SaverContextFactory();
 
     private final Map<String, Set<ItemPOJO>> itemsPerDataCluster = new HashMap<String, Set<ItemPOJO>>();
 
@@ -40,7 +40,6 @@ public class SaverSession {
 
     private SaverSession(SaverSource dataSource) {
         this.dataSource = dataSource;
-        contextFactory = new SaverContextFactory();
     }
 
     /**
@@ -103,6 +102,9 @@ public class SaverSession {
      */
     public void begin(String dataCluster, Committer committer) {
         committer.begin(dataCluster);
+        if (!itemsPerDataCluster.containsKey(dataCluster)) {
+            itemsPerDataCluster.put(dataCluster, new HashSet<ItemPOJO>());
+        }
     }
 
     /**

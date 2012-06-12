@@ -170,7 +170,11 @@ public class StagingAreaTest extends TestCase {
         Thread.currentThread().setContextClassLoader(contextClassLoader);
     }
 
-    public void test() throws Exception {
+    public void test() {
+        // Here only to prevent JUnit to complain about a test class with no unit test.
+    }
+
+    public void __testStaging() throws Exception {
         generateData(true);
 
         Select select = UserQueryBuilder.from(person).getSelect();
