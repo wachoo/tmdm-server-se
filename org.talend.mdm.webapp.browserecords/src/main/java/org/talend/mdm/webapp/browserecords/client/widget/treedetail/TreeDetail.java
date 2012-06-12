@@ -254,7 +254,9 @@ public class TreeDetail extends ContentPanel {
         } else {
             final BrowseRecordsServiceAsync itemService = getItemService();
             BrowseRecordsMessages msg = MessagesFactory.getMessages();
-            WaitBox.show(msg.load_title(), msg.load_message(), msg.load_progress());
+            
+            final MessageBox loadProgress = MessageBox.wait(msg.load_title(), msg.load_message(), msg.load_progress());
+
             itemService.getItemNodeModel(itemBean, viewBean.getBindingEntityModel(), Locale.getLanguage(),
                     new SessionAwareAsyncCallback<ItemNodeModel>() {
                         public void onSuccess(final ItemNodeModel node) {
@@ -265,12 +267,16 @@ public class TreeDetail extends ContentPanel {
                                         	if (visibleResults != null){
                                         		recrusiveSetItems(visibleResults, node);
                                         	}
-                                        	WaitBox.hide();
+                                        	loadProgress.close();
                                             renderTree(node, operation);
                                         }
                                     });
                         }
-
+                        
+                        protected void doOnFailure(Throwable caught) {
+                        	loadProgress.close();
+                        	super.doOnFailure(caught);
+                        }
                     });
         }
     }
