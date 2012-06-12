@@ -13,19 +13,14 @@
 package org.talend.mdm.webapp.browserecords.client.widget;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
-import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.base.client.util.CriteriaUtil;
-import org.talend.mdm.webapp.base.client.util.PostDataUtil;
-import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
@@ -36,7 +31,6 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
-import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
@@ -340,23 +334,14 @@ public class ItemsToolBar extends ToolBar {
 
             @Override
             public void componentSelected(MenuEvent ce) {
-                final MessageBox box = MessageBox.prompt(MessagesFactory.getMessages().path(), MessagesFactory.getMessages()
-                        .path_desc(), new Listener<MessageBoxEvent>() {
-
-                    public void handleEvent(MessageBoxEvent be) {
-                        if (be.getButtonClicked().getItemId().equals(Dialog.OK)) {
-                            final ItemsListPanel list = ItemsListPanel.getInstance();
-                            if (list.getGrid() != null) {
-                                PostDeleteAction postDeleteAction = new ListRefresh(new ContainerUpdate(
-                                        NoOpPostDeleteAction.INSTANCE));
-                                DeleteAction deleteAction = new LogicalDeleteAction(be.getValue());
-                                service.checkFKIntegrity(list.getGrid().getSelectionModel().getSelectedItems(),
-                                        new DeleteCallback(deleteAction, postDeleteAction, service));
-                            }
-                        }
-                    }
-                });
-                box.getTextBox().setValue("/"); //$NON-NLS-1$
+                final ItemsListPanel list = ItemsListPanel.getInstance();
+                if (list.getGrid() != null) {
+                    PostDeleteAction postDeleteAction = new ListRefresh(new ContainerUpdate(
+                            NoOpPostDeleteAction.INSTANCE));
+                    DeleteAction deleteAction = new LogicalDeleteAction("/"); //$NON-NLS-1$
+                    service.checkFKIntegrity(list.getGrid().getSelectionModel().getSelectedItems(),
+                            new DeleteCallback(deleteAction, postDeleteAction, service));
+                }
             }
         });
 
