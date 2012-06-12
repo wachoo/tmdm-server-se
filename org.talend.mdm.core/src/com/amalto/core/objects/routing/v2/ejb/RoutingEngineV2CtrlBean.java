@@ -380,10 +380,7 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject {
 		
 		if (routingRulesThatMatched.size() == 0) {
     	    String err = "Unable to find a routing rule for document "	+itemPOJOPK.getUniqueID();
-			if (LOGGING_EVENT.equals(itemPOJOPK.getConceptName()))
-				org.apache.log4j.Logger.getLogger(this.getClass()).info(err);
-			else
-				org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+    	    org.apache.log4j.Logger.getLogger(this.getClass()).info(err);
     	    //throw new XtentisException(err);
 			return new RoutingRulePOJOPK[0];
     	}
