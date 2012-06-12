@@ -200,8 +200,10 @@ public class StorageFullTextTest extends StorageTestCase {
 
         StorageResults results = storage.fetch(qb.getSelect());
         try {
+            assertEquals(1, results.getCount());
             for (DataRecord result : results) {
-                System.out.println("result = " + result);
+                assertEquals(1, result.getSetFields().size());
+                assertNotNull(result.get("Name"));
             }
         } finally {
             results.close();
