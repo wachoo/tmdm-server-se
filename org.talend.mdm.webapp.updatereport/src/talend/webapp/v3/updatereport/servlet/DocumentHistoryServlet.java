@@ -51,6 +51,7 @@ public class DocumentHistoryServlet extends AbstractDocumentHistoryServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Parameters parameters = getParameters(req);
+        resp.setCharacterEncoding("UTF-8"); //$NON-NLS-1$
         PrintWriter outputStream = resp.getWriter();
         Date historyDate = new Date(parameters.getDate());
 
