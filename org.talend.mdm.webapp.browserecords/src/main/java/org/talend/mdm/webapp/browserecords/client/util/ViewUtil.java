@@ -12,6 +12,9 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.util;
 
+import java.util.List;
+
+import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 
 /**
@@ -38,4 +41,26 @@ public class ViewUtil {
 
     }
 
+	public static ItemBaseModel getDefaultSmartViewModel(List<ItemBaseModel> list, String concept) {
+		String defSmartView = "Smart_view_" + concept; //$NON-NLS-1$
+		String defSmartViewWithLang = defSmartView + "_" + Locale.getLanguage(); //$NON-NLS-1$
+		ItemBaseModel model = null;
+		for (ItemBaseModel item : list) {
+			if (item.get("key").toString().toUpperCase()
+					.startsWith(defSmartView.toUpperCase())) {
+				if (item.get("key").toString().equalsIgnoreCase(defSmartView)) {
+					return item;
+				}
+
+				if (item.get("key").toString().equalsIgnoreCase(defSmartViewWithLang)) {
+					return item;
+				}
+
+				if (model == null) {
+					model = item;
+				}
+			}
+		}
+		return model;
+	}
 }

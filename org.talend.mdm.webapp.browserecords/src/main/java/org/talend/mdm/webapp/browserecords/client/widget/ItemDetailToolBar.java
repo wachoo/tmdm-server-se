@@ -28,6 +28,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
+import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.CloseTabPostDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.ContainerUpdate;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.DeleteAction;
@@ -42,6 +43,7 @@ import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -836,16 +838,12 @@ public class ItemDetailToolBar extends ToolBar {
 
             public void onSuccess(List<ItemBaseModel> list) {
                 smartViewList.add(list);
-                String smartView = "Smart_view_"; //$NON-NLS-1$
-                for (ItemBaseModel item : list) {
-                    if (item.get("key").equals(smartView + itemBean.getConcept()) //$NON-NLS-1$
-                            || item.get("key").equals( //$NON-NLS-1$
-                                    smartView + itemBean.getConcept() + "_" + Locale.getLanguage().toUpperCase())) { //$NON-NLS-1$
-                        smartViewCombo.setValue(item);
-                    }
+                smartViewList.sort("value", SortDir.ASC);
+                if(smartViewCombo.getValue() == null) {
+                	smartViewCombo.setValue(ViewUtil.getDefaultSmartViewModel(smartViewList.getModels(), itemBean.getConcept()));                
                 }
+                
             }
-
         });
         add(smartViewCombo);
     }
