@@ -86,12 +86,14 @@ class AttributeAccessor implements DOMAccessor {
     }
 
     public void delete() {
-        Node parentNode = parent.getNode();
-        Node attribute = getAttribute();
-        if (attribute != null) {
-            parentNode.getAttributes().removeNamedItemNS(attribute.getNamespaceURI(), attribute.getLocalName());
-        } else {
-            logger.warn("Attempt to delete the attribute '" + attributeName + "'that does not exist.");
+        if (exist()) {
+            Node parentNode = parent.getNode();
+            Node attribute = getAttribute();
+            if (attribute != null) {
+                parentNode.getAttributes().removeNamedItemNS(attribute.getNamespaceURI(), attribute.getLocalName());
+            } else {
+                logger.warn("Attempt to delete the attribute '" + attributeName + "'that does not exist.");
+            }
         }
     }
 

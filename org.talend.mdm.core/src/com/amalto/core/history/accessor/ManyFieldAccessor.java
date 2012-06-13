@@ -95,11 +95,13 @@ class ManyFieldAccessor implements DOMAccessor {
     }
 
     public void delete() {
-        Node node = getCollectionItemNode();
-        if (node == null) {
-            return; // Node has already been deleted.
+        if (exist()) {
+            Node node = getCollectionItemNode();
+            if (node == null) {
+                return; // Node has already been deleted.
+            }
+            node.getParentNode().removeChild(node);
         }
-        node.getParentNode().removeChild(node);
     }
 
     public boolean exist() {
