@@ -115,7 +115,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         forceKey = false;
 
         if (flattenType.getKeyFields().isEmpty()) {
-            flattenType.addField(new SimpleTypeFieldMetadata(flattenType, true, false, true, "X_TALEND_ID", new SoftTypeRef(enhancedRepository, "", "string"), Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            flattenType.addField(new SimpleTypeFieldMetadata(flattenType, true, false, true, "X_TALEND_ID", new SoftTypeRef(enhancedRepository, MetadataRepository.XSD_NAMESPACE, "string"), Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         }
 
         return flattenType;

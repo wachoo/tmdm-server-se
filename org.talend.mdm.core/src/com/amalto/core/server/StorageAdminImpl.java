@@ -15,6 +15,7 @@ package com.amalto.core.server;
 
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.datasource.DataSourceFactory;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
@@ -52,6 +53,11 @@ public class StorageAdminImpl implements StorageAdmin {
     }
 
     public Storage create(String revisionID, String dataModelName, String storageName, String dataSourceName) {
+        if (MDMConfiguration.getConfiguration().get(DataSourceFactory.DB_DATASOURCES) == null) {
+            LOGGER.warn("Configuration does not allow creation of SQL storage for '" + dataModelName + "'.");
+            return null;
+        }
+
         // No support for other revision then "HEAD".
         if (revisionID != null && !"HEAD".equals(revisionID)) {
             throw new NotImplementedException("No support for revisions such as '" + revisionID + "'");

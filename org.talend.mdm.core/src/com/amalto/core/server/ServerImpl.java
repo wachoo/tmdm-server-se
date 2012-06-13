@@ -20,6 +20,7 @@ import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.DataSourceFactory;
 import com.amalto.core.util.Util;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
@@ -31,8 +32,6 @@ import java.util.Map;
 class ServerImpl implements Server {
 
     private static final Logger LOGGER = Logger.getLogger(ServerImpl.class);
-
-    private static final Map<String, XSystemObjects> SYSTEM_OBJECTS = XSystemObjects.getXSystemObjects(XObjectType.DATA_MODEL);
 
     private final MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
 
@@ -74,6 +73,11 @@ class ServerImpl implements Server {
     }
 
     public void init() {
+        if(MDMConfiguration.getConfiguration().get(DataSourceFactory.DB_DATASOURCES) == null) {
+            LOGGER.warn("Server is not configured for SQL storage.");
+            return;
+        }
+
         try {
             LOGGER.info("Creating SQL storage for containers...");
             DataClusterCtrlLocal dataClusterControl = Util.getDataClusterCtrlLocal();

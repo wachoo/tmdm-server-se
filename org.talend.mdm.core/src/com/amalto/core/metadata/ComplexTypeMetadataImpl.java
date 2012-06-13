@@ -45,8 +45,6 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
 
     private MetadataRepository repository;
 
-    private List<FieldMetadata> allFields;
-
     private boolean isFrozen;
 
     public ComplexTypeMetadataImpl(String nameSpace, String name) {
@@ -269,7 +267,11 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
         // Freeze all fields.
         Collection<FieldMetadata> values = new LinkedList<FieldMetadata>(fieldMetadata.values());
         for (FieldMetadata value : values) {
-            fieldMetadata.put(value.getName(), value.freeze());
+            try {
+                fieldMetadata.put(value.getName(), value.freeze());
+            } catch (Exception e) {
+                throw new RuntimeException("Could not process field '" + value.getName() + "' in type '" + getName() + "'", e);
+            }
         }
 
         isFrozen = true;

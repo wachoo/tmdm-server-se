@@ -364,7 +364,7 @@ public class HibernateClassCreator extends DefaultMetadataVisitor<Void> {
 
             return null;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error during class field creation for field '" + metadata.getName() + "' in type '" + metadata.getContainingType().getName() + "'", e);
         }
     }
 

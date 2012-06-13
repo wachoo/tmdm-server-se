@@ -95,7 +95,11 @@ public class SoftFieldRef implements FieldMetadata {
     }
 
     public FieldMetadata copy(MetadataRepository repository) {
-        return new SoftFieldRef(repository, fieldName, containingType.copy(repository));
+        if (containingType == null) {
+            return new SoftFieldRef(repository, fieldName, containingField);
+        } else {
+            return new SoftFieldRef(repository, fieldName, containingType.copy(repository));
+        }
     }
 
     public List<String> getHideUsers() {
