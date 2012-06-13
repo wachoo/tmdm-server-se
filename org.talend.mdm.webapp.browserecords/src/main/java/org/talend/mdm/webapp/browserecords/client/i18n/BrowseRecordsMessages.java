@@ -416,4 +416,7 @@ public interface BrowseRecordsMessages extends Messages {
     String load_message();
 
     String load_progress();
+    
+    String invalid_data(String name);
+
 }
