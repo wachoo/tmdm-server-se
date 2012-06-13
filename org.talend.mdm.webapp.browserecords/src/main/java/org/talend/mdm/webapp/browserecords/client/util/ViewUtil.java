@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
+import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnElement;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeModel;
@@ -229,5 +230,28 @@ public class ViewUtil {
         if (css.contains("background-color")) //$NON-NLS-1$
             css = css.replaceAll("background-color", "background-image:none; background-color"); //$NON-NLS-1$ //$NON-NLS-2$
         return css;
+    }
+    
+    public static ItemBaseModel getDefaultSmartViewModel(List<ItemBaseModel> list, String concept) {
+        String defSmartView = "Smart_view_" + concept; //$NON-NLS-1$
+        String defSmartViewWithLang = defSmartView + "_" + Locale.getLanguage(); //$NON-NLS-1$
+        ItemBaseModel model = null;
+        for (ItemBaseModel item : list) {
+            if (item.get("key").toString().toUpperCase() //$NON-NLS-1$
+                    .startsWith(defSmartView.toUpperCase())) {
+                if (item.get("key").toString().equalsIgnoreCase(defSmartView)) { //$NON-NLS-1$
+                    return item;
+                }
+
+                if (item.get("key").toString().equalsIgnoreCase(defSmartViewWithLang)) { //$NON-NLS-1$
+                    return item;
+                }
+
+                if (model == null) {
+                    model = item;
+                }
+            }
+        }
+        return model;
     }
 }
