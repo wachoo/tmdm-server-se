@@ -58,8 +58,12 @@ public interface Accessor {
     void createAndSet(String value);
     
     /**
+     * <p>
      * Deletes the underlying XML element of this accessor (might be an element or an attribute). This method does not
      * remove all intermediate elements (i.e. path1/path2/path3 will only remove path3 and not path2 nor path1).
+     * </p>
+     * <p>Implementation note: if element does not exist (i.e. {@link #exist()} returns <code>false</code>), implementations
+     * <b>MUST</b> perform a no op.</p>
      */
     void delete();
 

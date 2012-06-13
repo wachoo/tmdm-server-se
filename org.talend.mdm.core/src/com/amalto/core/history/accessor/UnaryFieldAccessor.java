@@ -119,8 +119,10 @@ class UnaryFieldAccessor implements DOMAccessor {
     }
 
     public void delete() {
-        Element element = getElement();
-        element.getParentNode().removeChild(element);
+        if (exist()) {
+            Element element = getElement();
+            element.getParentNode().removeChild(element);
+        }
     }
 
     public boolean exist() {
