@@ -27,6 +27,7 @@ import org.dom4j.Node;
 import org.dom4j.QName;
 import org.talend.mdm.webapp.base.shared.ExpressionUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
 import com.amalto.webapp.core.util.XmlUtil;
@@ -67,7 +68,8 @@ public class DisplayRuleEngine {
         if (typePathes != null && typePathes.size() > 0) {
             for (String typePath : typePathes) {
                 if (typePath.startsWith("./") || typePath.startsWith("../")) { //$NON-NLS-1$//$NON-NLS-2$
-                    Node node = doc4j.selectSingleNode(bean.getXpath());
+                	String xpath = CommonUtil.typePathToXpath(bean.getTypePath());
+                    Node node = doc4j.selectSingleNode(xpath);
                     if (node != null) {
                         node = node.selectSingleNode(typePath);
                         if (node != null) {
@@ -120,7 +122,8 @@ public class DisplayRuleEngine {
         try {
             for (TypeModel model : orderTypes) {
                 if (model.getDefaultValueExpression() != null && model.getDefaultValueExpression().trim().length() > 0) {
-                    String xpath = model.getXpath();
+                    String typePath = model.getTypePath();
+                    String xpath = CommonUtil.typePathToXpath(typePath);
                     List nodes = dom4jDoc.selectNodes(xpath);
                     if (nodes != null) {
                         for (Object node : nodes) {
@@ -147,14 +150,13 @@ public class DisplayRuleEngine {
         return valueItems;
     }
 
-
     public List<VisibleRuleResult> execVisibleRule(Document dom4jDoc) {
 
         List<VisibleRuleResult> valueItems = new ArrayList<VisibleRuleResult>();
         try {
             for (TypeModel model : metaDatas.values()) {
                 if (model.getVisibleExpression() != null && model.getVisibleExpression().trim().length() > 0) {
-                    String xpath = model.getXpath();
+                    String xpath = CommonUtil.typePathToXpath(model.getTypePath());
                     List nodes = dom4jDoc.selectNodes(xpath);
                     if (nodes != null) {
                         for (Object node : nodes) {
