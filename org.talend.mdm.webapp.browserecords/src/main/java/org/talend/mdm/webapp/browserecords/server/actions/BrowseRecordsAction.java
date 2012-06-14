@@ -1657,14 +1657,16 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         org.w3c.dom.Element errorElement = (org.w3c.dom.Element) errorNode;
                         errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
                         org.w3c.dom.Node child = errorElement.getFirstChild();
-                        if (language == null)
-                            message = child.getTextContent();
-                        else {
-                            Matcher matcher = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL).matcher(child.getTextContent());//$NON-NLS-1$//$NON-NLS-2$
-                            if(matcher.matches())
-                            	message = matcher.replaceAll("$1");//$NON-NLS-1$
-                            else
-                            	message = child.getTextContent();
+                        if(child != null) {
+                        	if (language == null) {
+                                message = child.getTextContent();
+                            } else {
+                                Matcher matcher = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL).matcher(child.getTextContent());//$NON-NLS-1$//$NON-NLS-2$
+                                if(matcher.matches())
+                                	message = matcher.replaceAll("$1");//$NON-NLS-1$
+                                else
+                                	message = child.getTextContent();
+                            }
                         }
                     }
                 }
