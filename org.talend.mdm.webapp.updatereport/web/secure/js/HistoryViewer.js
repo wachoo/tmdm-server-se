@@ -15,11 +15,36 @@ var JOURNAL_NAME = {
 			
 };
 
+var MAIN_TITLE = {
+	'fr' : 'Visionneuse des changements de donn\u00E9es',
+	'en' : 'Data Changes Viewer'
+};
+
+var OPEN_RECORD = {
+	'fr' : 'Ouvrir l\'enregistrement',
+	'en' : 'Open Record'
+};
+
+var UPDATE_REPORT_DETAILS = {
+	'fr' : 'D\u00E9tail du rapport de mise \u00E0 jour',
+	'en' : 'Update report details'
+};
+
+var BEFORE = {
+	'fr' : 'Avant',
+	'en' : 'Before'
+};
+
+var AFTER = {
+	'fr' : 'Apr\u00E8s',
+	'en' : 'After'
+};
+
 Ext.extend(amalto.updatereport.HistoryViewer, Ext.Panel, {
 	initUIComponents : function() {
 	    Ext.apply(this, {
 			layout : 'border',
-			title : "Data Changes Viewer",
+			title : MAIN_TITLE[language],
 			id : panelId,
 			closable:true,
 			border : true,
@@ -28,7 +53,7 @@ Ext.extend(amalto.updatereport.HistoryViewer, Ext.Panel, {
 			    bodyStyle: 'padding:15px'
 			},
 			items:[{
-                    title:'Update report details',
+                    title:UPDATE_REPORT_DETAILS[language],
                     region: 'north',
                     cmargins: '0 5 0 0',
                     height: 200,
@@ -52,7 +77,7 @@ Ext.extend(amalto.updatereport.HistoryViewer, Ext.Panel, {
                     cellCls: 'history-viewer-changes',
                     id:1,
                     parentPanelId:panelId,
-                    title:'Before',
+                    title:BEFORE[language],
                     region: 'west',
                     width: '50%',
                     margins: '5 0 0 0',
@@ -73,7 +98,7 @@ Ext.extend(amalto.updatereport.HistoryViewer, Ext.Panel, {
                     width: '50%',
                     margins: '5 0 0 0',
                     parentPanelId:panelId,
-                    title:'After',
+                    title:AFTER[language],
                     ids:this.ids,
                     date:this.date,
                     key:this.key,
@@ -85,7 +110,7 @@ Ext.extend(amalto.updatereport.HistoryViewer, Ext.Panel, {
                 }
             ],
             tbar: ['->',{
-		        text : "Open Record",
+		        text : OPEN_RECORD[language],
 		        iconCls:'report_bt_openRecord',
 		        handler : function() {
 		        	DWREngine.setAsync(false);
