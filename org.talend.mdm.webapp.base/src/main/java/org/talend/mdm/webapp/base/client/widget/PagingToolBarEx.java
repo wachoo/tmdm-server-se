@@ -123,6 +123,16 @@ public class PagingToolBarEx extends PagingToolBar {
             return null;
         }
     };
+    
+    public void lastAfterCreate(){
+        int extra = totalLength % pageSize;
+        if (extra == 0){
+        	pages++;
+        	setActivePage(pages);
+        }else{
+        	last();
+        }
+    }
 
     class PagingToolBarExLayout extends ToolBarLayout {
 
