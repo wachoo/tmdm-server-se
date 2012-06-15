@@ -668,6 +668,15 @@ public class ItemsListPanel extends ContentPanel {
             if (gridUpdateLock) {
                 return;
             }
+            
+            ItemsDetailPanel detailItem = ItemsMainTabPanel.getInstance().getDefaultViewTabItem();
+        	if(detailItem != null) {
+        		if(detailItem.getCurrentItemPanel() != null) {
+        			if(item.getIds() == detailItem.getCurrentItemPanel().getItem().getIds())
+        				return;
+        		}
+        	}
+        	
             gridUpdateLock = true;
             Dispatcher.forwardEvent(BrowseRecordsEvents.ViewItem, item);
             gridUpdateLock = false;
