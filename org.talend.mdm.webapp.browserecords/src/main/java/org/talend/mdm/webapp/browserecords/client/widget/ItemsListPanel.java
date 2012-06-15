@@ -122,6 +122,8 @@ public class ItemsListPanel extends ContentPanel {
     private QueryModel currentQueryModel;
     
     private ItemBean createItemBean = null;
+    
+    private PagingLoadConfig pagingLoadConfig;
 
     BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
 
@@ -129,9 +131,10 @@ public class ItemsListPanel extends ContentPanel {
 
         @Override
         public void load(Object loadConfig, final AsyncCallback<PagingLoadResult<ItemBean>> callback) {
+            pagingLoadConfig = (PagingLoadConfig) loadConfig;
             final QueryModel qm = new QueryModel();
             ItemsToolBar.getInstance().setQueryModel(qm);
-            qm.setPagingLoadConfig(copyPgLoad((PagingLoadConfig) loadConfig));
+            qm.setPagingLoadConfig(copyPgLoad(pagingLoadConfig));
             int pageSize = pagingBar.getPageSize();
             qm.getPagingLoadConfig().setLimit(pageSize);
             qm.setLanguage(Locale.getLanguage());
@@ -765,15 +768,18 @@ public class ItemsListPanel extends ContentPanel {
                         String ids[] = {itemBean.getIds()};
                         service.getItemBeanById(itemBean.getConcept(), ids, Locale.getLanguage(), new AsyncCallback<ItemBean>() {
                             public void onSuccess(ItemBean result) {
-                                createItemBean = result;
-                                pagingBar.refresh();                                
+                                if (!"NONE".equals(pagingLoadConfig.getSortField())){  //$NON-NLS-1$
+                                    createItemBean = result;
+                                    pagingBar.refresh();
+                                } else {
+                                    createItemBean = result;
+                                    pagingBar.lastAfterCreate();
+                                }                                 
                             }
                             public void onFailure(Throwable exception) {
                                 pagingBar.last();
                             }
                         });
-                    }else{
-                        pagingBar.last();
                     }
                 }
                 return;

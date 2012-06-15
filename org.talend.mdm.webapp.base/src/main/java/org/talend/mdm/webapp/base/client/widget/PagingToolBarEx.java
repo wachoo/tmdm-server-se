@@ -99,6 +99,16 @@ public class PagingToolBarEx extends PagingToolBar {
         super.onResize(width, height);
         this.layout(true);
     }
+    
+    public void lastAfterCreate() {
+        int extra = totalLength % pageSize;
+        if (extra == 0) {
+            pages++;
+            setActivePage(pages);
+        } else {
+            last();
+        }
+    }
 
     private native void blur(Element el)/*-{
                                         el.blur();
