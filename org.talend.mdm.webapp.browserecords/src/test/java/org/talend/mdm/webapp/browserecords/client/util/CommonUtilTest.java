@@ -47,4 +47,14 @@ public class CommonUtilTest extends TestCase {
         assertEquals(CommonUtil.parseFileName(path3)[1], "jpg"); //$NON-NLS-1$
 
     }
+
+    public void testTypePathToXpath() {
+
+        String result = CommonUtil.typePathToXpath("Eda/typeEda/typeEDA:PointSoutirageRpt/crmaEda"); //$NON-NLS-1$
+        assertEquals("Eda/typeEda/typeEDA[@xsi:type='PointSoutirageRpt']/crmaEda", result); //$NON-NLS-1$
+
+        result = CommonUtil.typePathToXpath("Eda/typeEda/typeEDA:PointSoutirageRpt/crmaEda/qqq:www"); //$NON-NLS-1$
+        assertEquals("Eda/typeEda/typeEDA[@xsi:type='PointSoutirageRpt']/crmaEda/qqq[@xsi:type='www']", result); //$NON-NLS-1$
+
+    }
 }
