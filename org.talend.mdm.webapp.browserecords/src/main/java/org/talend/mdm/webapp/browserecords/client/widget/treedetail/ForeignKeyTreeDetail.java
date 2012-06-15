@@ -179,7 +179,7 @@ public class ForeignKeyTreeDetail extends ContentPanel {
         if (this.model == null && this.isCreate) {
             List<ItemNodeModel> models = CommonUtil.getDefaultTreeModel(
                     viewBean.getBindingEntityModel().getMetaDataTypes().get(viewBean.getBindingEntityModel().getConceptName()),
-                    Locale.getLanguage());
+                    Locale.getLanguage(), true);
             rootModel = models.get(0);
         } else
             rootModel = this.model;

@@ -163,7 +163,7 @@ public class TreeDetail extends ContentPanel {
                 	if("Clone".equals(event.getRelativeElement().getId())) {
                     	model = selectedModel.clone(true);
                     } else {
-                    	List<ItemNodeModel> modelList = CommonUtil.getDefaultTreeModel(typeModel, Locale.getLanguage());
+                    	List<ItemNodeModel> modelList = CommonUtil.getDefaultTreeModel(typeModel, Locale.getLanguage(), false);
                     	if(modelList.size() > 0)
                     		model = modelList.get(0);
                     }

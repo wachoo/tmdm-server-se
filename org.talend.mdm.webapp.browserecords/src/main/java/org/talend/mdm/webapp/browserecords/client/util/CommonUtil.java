@@ -145,7 +145,7 @@ public class CommonUtil {
         return root;
     }
 
-    public static List<ItemNodeModel> getDefaultTreeModel(TypeModel model, String language) {
+    public static List<ItemNodeModel> getDefaultTreeModel(TypeModel model, String language, boolean defaultValue) {
         List<ItemNodeModel> itemNodes = new ArrayList<ItemNodeModel>();
 
         if (model.getMinOccurs() > 1 && model.getMaxOccurs() > model.getMinOccurs()) {
@@ -166,13 +166,15 @@ public class CommonUtil {
                 node.setMandatory(true);
             }
             if (model.isSimpleType()) {
-                setDefaultValue(model, node);
+            	if(defaultValue) {
+            		setDefaultValue(model, node);
+            	}
             } else {
                 ComplexTypeModel complexModel = (ComplexTypeModel) model;
                 List<TypeModel> children = complexModel.getSubTypes();
                 List<ItemNodeModel> list = new ArrayList<ItemNodeModel>();
                 for (TypeModel typeModel : children) {
-                    list.addAll(getDefaultTreeModel(typeModel, language));
+                    list.addAll(getDefaultTreeModel(typeModel, language, defaultValue));
                 }
                 node.setChildNodes(list);
             }
