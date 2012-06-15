@@ -466,4 +466,27 @@ public class CommonUtil {
         String[] parsedResult = { shortFileName, fileExtensioName };
         return parsedResult;
     }
+
+    public static String typePathToXpath(String typePath) {
+        String[] paths = typePath.split("/"); //$NON-NLS-1$
+        StringBuffer result = new StringBuffer();
+        boolean isFirst = true;
+        for (String path : paths) {
+            String[] part = path.split(":"); //$NON-NLS-1$
+            String xpart;
+            if (part.length == 1) {
+                xpart = part[0];
+            } else {
+                xpart = part[0] + "[@xsi:type='" + part[1] + "']"; //$NON-NLS-1$ //$NON-NLS-2$
+            }
+            if (isFirst) {
+                result.append(xpart);
+                isFirst = false;
+            } else {
+                result.append("/" + xpart); //$NON-NLS-1$
+            }
+
+        }
+        return result.toString();
+    }
 }

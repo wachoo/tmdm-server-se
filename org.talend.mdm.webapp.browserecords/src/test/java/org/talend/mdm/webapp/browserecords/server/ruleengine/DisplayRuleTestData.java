@@ -31,23 +31,23 @@ public class DisplayRuleTestData {
         Map<String, TypeModel> metaDatas = new LinkedHashMap<String, TypeModel>();
 
         SimpleTypeModel subElementType = new SimpleTypeModel();
-        subElementType.setXpath("TestDefaultModel/subelement"); //$NON-NLS-1$
-        metaDatas.put(subElementType.getXpath(), subElementType);
+        subElementType.setTypePath("TestDefaultModel/subelement"); //$NON-NLS-1$
+        metaDatas.put(subElementType.getTypePath(), subElementType);
 
         SimpleTypeModel nameType = new SimpleTypeModel();
-        nameType.setXpath("TestDefaultModel/name"); //$NON-NLS-1$
+        nameType.setTypePath("TestDefaultModel/name"); //$NON-NLS-1$
         nameType.setDefaultValueExpression("'zhang'"); //$NON-NLS-1$
-        metaDatas.put(nameType.getXpath(), nameType);
+        metaDatas.put(nameType.getTypePath(), nameType);
 
         SimpleTypeModel ct_titleType = new SimpleTypeModel();
-        ct_titleType.setXpath("TestDefaultModel/cp/title"); //$NON-NLS-1$
+        ct_titleType.setTypePath("TestDefaultModel/cp/title"); //$NON-NLS-1$
         ct_titleType.setDefaultValueExpression("'hello'"); //$NON-NLS-1$
-        metaDatas.put(ct_titleType.getXpath(), ct_titleType);
+        metaDatas.put(ct_titleType.getTypePath(), ct_titleType);
 
         SimpleTypeModel cp_contentType = new SimpleTypeModel();
-        cp_contentType.setXpath("TestDefaultModel/cp/content"); //$NON-NLS-1$
+        cp_contentType.setTypePath("TestDefaultModel/cp/content"); //$NON-NLS-1$
         cp_contentType.setDefaultValueExpression("1+2"); //$NON-NLS-1$
-        metaDatas.put(cp_contentType.getXpath(), cp_contentType);
+        metaDatas.put(cp_contentType.getTypePath(), cp_contentType);
 
         return metaDatas;
     }
@@ -56,23 +56,23 @@ public class DisplayRuleTestData {
         Map<String, TypeModel> metaDatas = new LinkedHashMap<String, TypeModel>();
 
         SimpleTypeModel subelementType = new SimpleTypeModel();
-        subelementType.setXpath("TestDefaultModel/subelement"); //$NON-NLS-1$
-        metaDatas.put(subelementType.getXpath(), subelementType);
+        subelementType.setTypePath("TestDefaultModel/subelement"); //$NON-NLS-1$
+        metaDatas.put(subelementType.getTypePath(), subelementType);
 
         SimpleTypeModel nameType = new SimpleTypeModel();
-        nameType.setXpath("TestDefaultModel/name"); //$NON-NLS-1$
+        nameType.setTypePath("TestDefaultModel/name"); //$NON-NLS-1$
         nameType.setDefaultValueExpression("'zhang'"); //$NON-NLS-1$
-        metaDatas.put(nameType.getXpath(), nameType);
+        metaDatas.put(nameType.getTypePath(), nameType);
 
         SimpleTypeModel cp_titleType = new SimpleTypeModel();
-        cp_titleType.setXpath("TestDefaultModel/cp/title"); //$NON-NLS-1$
+        cp_titleType.setTypePath("TestDefaultModel/cp/title"); //$NON-NLS-1$
         cp_titleType.setDefaultValueExpression("fn:concat('hello', 'world!!!')"); //$NON-NLS-1$
-        metaDatas.put(cp_titleType.getXpath(), cp_titleType);
+        metaDatas.put(cp_titleType.getTypePath(), cp_titleType);
 
         SimpleTypeModel cp_contentType = new SimpleTypeModel();
-        cp_contentType.setXpath("TestDefaultModel/cp/content"); //$NON-NLS-1$
+        cp_contentType.setTypePath("TestDefaultModel/cp/content"); //$NON-NLS-1$
         cp_contentType.setDefaultValueExpression("fn:abs(-5) + fn:abs(-5)"); //$NON-NLS-1$
-        metaDatas.put(cp_contentType.getXpath(), cp_contentType);
+        metaDatas.put(cp_contentType.getTypePath(), cp_contentType);
 
         return metaDatas;
     }
@@ -81,23 +81,23 @@ public class DisplayRuleTestData {
         Map<String, TypeModel> metaDatas = new LinkedHashMap<String, TypeModel>();
 
         SimpleTypeModel subelementType = new SimpleTypeModel();
-        subelementType.setXpath("DefaultRuleWithFunctionAndXPath/subelement"); //$NON-NLS-1$
-        metaDatas.put(subelementType.getXpath(), subelementType);
+        subelementType.setTypePath("DefaultRuleWithFunctionAndXPath/subelement"); //$NON-NLS-1$
+        metaDatas.put(subelementType.getTypePath(), subelementType);
 
         SimpleTypeModel titleType = new SimpleTypeModel();
-        titleType.setXpath("DefaultRuleWithFunctionAndXPath/title"); //$NON-NLS-1$
+        titleType.setTypePath("DefaultRuleWithFunctionAndXPath/title"); //$NON-NLS-1$
         titleType.setDefaultValueExpression("fn:concat('detail name is [', ../detail/name,']')"); //$NON-NLS-1$
-        metaDatas.put(titleType.getXpath(), titleType);
+        metaDatas.put(titleType.getTypePath(), titleType);
 
         SimpleTypeModel detail_nameType = new SimpleTypeModel();
-        detail_nameType.setXpath("DefaultRuleWithFunctionAndXPath/detail/name"); //$NON-NLS-1$
+        detail_nameType.setTypePath("DefaultRuleWithFunctionAndXPath/detail/name"); //$NON-NLS-1$
         detail_nameType.setDefaultValueExpression("fn:concat('zhang ','yang')"); //$NON-NLS-1$
-        metaDatas.put(detail_nameType.getXpath(), detail_nameType);
+        metaDatas.put(detail_nameType.getTypePath(), detail_nameType);
 
         SimpleTypeModel detail_contentType = new SimpleTypeModel();
-        detail_contentType.setXpath("DefaultRuleWithFunctionAndXPath/detail/content"); //$NON-NLS-1$
+        detail_contentType.setTypePath("DefaultRuleWithFunctionAndXPath/detail/content"); //$NON-NLS-1$
         detail_contentType.setDefaultValueExpression("fn:concat('name is [',../name,string,'] title is [', /DefaultRuleWithFunctionAndXPath/title,']')"); //$NON-NLS-1$
-        metaDatas.put(detail_contentType.getXpath(), detail_contentType);
+        metaDatas.put(detail_contentType.getTypePath(), detail_contentType);
 
         return metaDatas;
     }
@@ -106,33 +106,33 @@ public class DisplayRuleTestData {
         Map<String, TypeModel> metaDatas = new LinkedHashMap<String, TypeModel>();
 
         SimpleTypeModel subelementType = new SimpleTypeModel();
-        subelementType.setXpath("TestBoolean/subelement"); //$NON-NLS-1$
-        metaDatas.put(subelementType.getXpath(), subelementType);
+        subelementType.setTypePath("TestBoolean/subelement"); //$NON-NLS-1$
+        metaDatas.put(subelementType.getTypePath(), subelementType);
 
         SimpleTypeModel nameType = new SimpleTypeModel();
-        nameType.setXpath("TestBoolean/name"); //$NON-NLS-1$
+        nameType.setTypePath("TestBoolean/name"); //$NON-NLS-1$
         nameType.setDefaultValueExpression("'zhang'"); //$NON-NLS-1$
-        metaDatas.put(nameType.getXpath(), nameType);
+        metaDatas.put(nameType.getTypePath(), nameType);
 
         SimpleTypeModel finishedType = new SimpleTypeModel();
-        finishedType.setXpath("TestBoolean/finished"); //$NON-NLS-1$
+        finishedType.setTypePath("TestBoolean/finished"); //$NON-NLS-1$
         finishedType.setDefaultValueExpression("fn:true()"); //$NON-NLS-1$
-        metaDatas.put(finishedType.getXpath(), finishedType);
+        metaDatas.put(finishedType.getTypePath(), finishedType);
 
         SimpleTypeModel finished1Type = new SimpleTypeModel();
-        finished1Type.setXpath("TestBoolean/finished1"); //$NON-NLS-1$
+        finished1Type.setTypePath("TestBoolean/finished1"); //$NON-NLS-1$
         finished1Type.setDefaultValueExpression("fn:false()"); //$NON-NLS-1$
-        metaDatas.put(finished1Type.getXpath(), finished1Type);
+        metaDatas.put(finished1Type.getTypePath(), finished1Type);
 
         SimpleTypeModel finished2Type = new SimpleTypeModel();
-        finished2Type.setXpath("TestBoolean/finished2"); //$NON-NLS-1$
+        finished2Type.setTypePath("TestBoolean/finished2"); //$NON-NLS-1$
         finished2Type.setDefaultValueExpression("1 != 2"); //$NON-NLS-1$
-        metaDatas.put(finished2Type.getXpath(), finished2Type);
+        metaDatas.put(finished2Type.getTypePath(), finished2Type);
 
         SimpleTypeModel finished3Type = new SimpleTypeModel();
-        finished3Type.setXpath("TestBoolean/finished3"); //$NON-NLS-1$
+        finished3Type.setTypePath("TestBoolean/finished3"); //$NON-NLS-1$
         finished3Type.setDefaultValueExpression("1 = 2"); //$NON-NLS-1$
-        metaDatas.put(finished3Type.getXpath(), finished3Type);
+        metaDatas.put(finished3Type.getTypePath(), finished3Type);
 
         return metaDatas;
     }
@@ -141,28 +141,28 @@ public class DisplayRuleTestData {
         Map<String, TypeModel> metaDatas = new LinkedHashMap<String, TypeModel>();
 
         SimpleTypeModel subelementType = new SimpleTypeModel();
-        subelementType.setXpath("TestEnumeration/subelement"); //$NON-NLS-1$
-        metaDatas.put(subelementType.getXpath(), subelementType);
+        subelementType.setTypePath("TestEnumeration/subelement"); //$NON-NLS-1$
+        metaDatas.put(subelementType.getTypePath(), subelementType);
 
         SimpleTypeModel nameType = new SimpleTypeModel();
-        nameType.setXpath("TestEnumeration/name"); //$NON-NLS-1$
+        nameType.setTypePath("TestEnumeration/name"); //$NON-NLS-1$
         nameType.setDefaultValueExpression("'zhang'"); //$NON-NLS-1$
-        metaDatas.put(nameType.getXpath(), nameType);
+        metaDatas.put(nameType.getTypePath(), nameType);
 
         SimpleTypeModel ageType = new SimpleTypeModel();
-        ageType.setXpath("TestEnumeration/age"); //$NON-NLS-1$
+        ageType.setTypePath("TestEnumeration/age"); //$NON-NLS-1$
         ageType.setDefaultValueExpression("'21-30'"); //$NON-NLS-1$
-        metaDatas.put(ageType.getXpath(), ageType);
+        metaDatas.put(ageType.getTypePath(), ageType);
 
         SimpleTypeModel favoriteType = new SimpleTypeModel();
-        favoriteType.setXpath("TestEnumeration/favorite"); //$NON-NLS-1$
+        favoriteType.setTypePath("TestEnumeration/favorite"); //$NON-NLS-1$
         favoriteType.setDefaultValueExpression("'Orange'"); //$NON-NLS-1$
-        metaDatas.put(favoriteType.getXpath(), favoriteType);
+        metaDatas.put(favoriteType.getTypePath(), favoriteType);
 
         SimpleTypeModel numType = new SimpleTypeModel();
-        numType.setXpath("TestEnumeration/num"); //$NON-NLS-1$
+        numType.setTypePath("TestEnumeration/num"); //$NON-NLS-1$
         numType.setDefaultValueExpression("6"); //$NON-NLS-1$
-        metaDatas.put(numType.getXpath(), numType);
+        metaDatas.put(numType.getTypePath(), numType);
 
         return metaDatas;
     }
@@ -171,26 +171,26 @@ public class DisplayRuleTestData {
         Map<String, TypeModel> metaDatas = new LinkedHashMap<String, TypeModel>();
 
         SimpleTypeModel subelementType = new SimpleTypeModel();
-        subelementType.setXpath("MultipleOccurence/subelement"); //$NON-NLS-1$
-        metaDatas.put(subelementType.getXpath(), subelementType);
+        subelementType.setTypePath("MultipleOccurence/subelement"); //$NON-NLS-1$
+        metaDatas.put(subelementType.getTypePath(), subelementType);
 
         SimpleTypeModel nameType = new SimpleTypeModel();
-        nameType.setXpath("MultipleOccurence/name"); //$NON-NLS-1$
-        metaDatas.put(nameType.getXpath(), nameType);
+        nameType.setTypePath("MultipleOccurence/name"); //$NON-NLS-1$
+        metaDatas.put(nameType.getTypePath(), nameType);
 
         SimpleTypeModel cp_titleType = new SimpleTypeModel();
-        cp_titleType.setXpath("MultipleOccurence/cp/title"); //$NON-NLS-1$
-        metaDatas.put(cp_titleType.getXpath(), cp_titleType);
+        cp_titleType.setTypePath("MultipleOccurence/cp/title"); //$NON-NLS-1$
+        metaDatas.put(cp_titleType.getTypePath(), cp_titleType);
 
         SimpleTypeModel cp_addressType = new SimpleTypeModel();
-        cp_addressType.setXpath("MultipleOccurence/cp/address"); //$NON-NLS-1$
+        cp_addressType.setTypePath("MultipleOccurence/cp/address"); //$NON-NLS-1$
         cp_addressType.setDefaultValueExpression("fn:concat('hello ','this is address')"); //$NON-NLS-1$
-        metaDatas.put(cp_addressType.getXpath(), cp_addressType);
+        metaDatas.put(cp_addressType.getTypePath(), cp_addressType);
 
         SimpleTypeModel telType = new SimpleTypeModel();
-        telType.setXpath("MultipleOccurence/tel"); //$NON-NLS-1$
+        telType.setTypePath("MultipleOccurence/tel"); //$NON-NLS-1$
         telType.setDefaultValueExpression("fn:concat('phone',': 1323234323')"); //$NON-NLS-1$
-        metaDatas.put(telType.getXpath(), telType);
+        metaDatas.put(telType.getTypePath(), telType);
 
         return metaDatas;
     }
@@ -199,31 +199,31 @@ public class DisplayRuleTestData {
         Map<String, TypeModel> metaDatas = new LinkedHashMap<String, TypeModel>();
 
         SimpleTypeModel subelementType = new SimpleTypeModel();
-        subelementType.setXpath("DefaultRuleForInheritance/subelement"); //$NON-NLS-1$
-        metaDatas.put(subelementType.getXpath(), subelementType);
+        subelementType.setTypePath("DefaultRuleForInheritance/subelement"); //$NON-NLS-1$
+        metaDatas.put(subelementType.getTypePath(), subelementType);
 
         SimpleTypeModel nameType = new SimpleTypeModel();
-        nameType.setXpath("DefaultRuleForInheritance/name"); //$NON-NLS-1$
+        nameType.setTypePath("DefaultRuleForInheritance/name"); //$NON-NLS-1$
         nameType.setDefaultValueExpression("fn:concat('zhang ','yang')"); //$NON-NLS-1$
-        metaDatas.put(nameType.getXpath(), nameType);
+        metaDatas.put(nameType.getTypePath(), nameType);
 
         SimpleTypeModel person_nameType = new SimpleTypeModel();
-        person_nameType.setXpath("DefaultRuleForInheritance/person/name"); //$NON-NLS-1$
-        metaDatas.put(person_nameType.getXpath(), person_nameType);
+        person_nameType.setTypePath("DefaultRuleForInheritance/person/name"); //$NON-NLS-1$
+        metaDatas.put(person_nameType.getTypePath(), person_nameType);
 
         SimpleTypeModel personNameType = new SimpleTypeModel();
-        personNameType.setXpath("DefaultRuleForInheritance/person/name"); //$NON-NLS-1$
-        metaDatas.put(personNameType.getXpath(), personNameType);
+        personNameType.setTypePath("DefaultRuleForInheritance/person/name"); //$NON-NLS-1$
+        metaDatas.put(personNameType.getTypePath(), personNameType);
 
         ComplexTypeModel person_StudentType = new ComplexTypeModel();
-        person_StudentType.setXpath("DefaultRuleForInheritance/person/score"); //$NON-NLS-1$
+        person_StudentType.setTypePath("DefaultRuleForInheritance/person/score"); //$NON-NLS-1$
         person_StudentType.setDefaultValueExpression("fn:concat(/DefaultRuleForInheritance/name,'''s score is 100')"); //$NON-NLS-1$
-        metaDatas.put(person_StudentType.getXpath(), person_StudentType);
+        metaDatas.put(person_StudentType.getTypePath(), person_StudentType);
 
         ComplexTypeModel person_TeacherType = new ComplexTypeModel();
-        person_TeacherType.setXpath("DefaultRuleForInheritance/person/salary"); //$NON-NLS-1$
+        person_TeacherType.setTypePath("DefaultRuleForInheritance/person/salary"); //$NON-NLS-1$
         person_TeacherType.setDefaultValueExpression("fn:concat(/DefaultRuleForInheritance/name,'''s salary is 1000')"); //$NON-NLS-1$
-        metaDatas.put(person_TeacherType.getXpath(), person_TeacherType);
+        metaDatas.put(person_TeacherType.getTypePath(), person_TeacherType);
 
         return metaDatas;
     }
@@ -232,26 +232,26 @@ public class DisplayRuleTestData {
         Map<String, TypeModel> metaDatas = new LinkedHashMap<String, TypeModel>();
 
         SimpleTypeModel subelementType = new SimpleTypeModel();
-        subelementType.setXpath("BasicVisibleRule/subelement"); //$NON-NLS-1$
-        metaDatas.put(subelementType.getXpath(), subelementType);
+        subelementType.setTypePath("BasicVisibleRule/subelement"); //$NON-NLS-1$
+        metaDatas.put(subelementType.getTypePath(), subelementType);
 
         SimpleTypeModel nameType = new SimpleTypeModel();
-        nameType.setXpath("BasicVisibleRule/name"); //$NON-NLS-1$
-        metaDatas.put(nameType.getXpath(), nameType);
+        nameType.setTypePath("BasicVisibleRule/name"); //$NON-NLS-1$
+        metaDatas.put(nameType.getTypePath(), nameType);
 
         SimpleTypeModel testfieldType = new SimpleTypeModel();
-        testfieldType.setXpath("BasicVisibleRule/testfield"); //$NON-NLS-1$
+        testfieldType.setTypePath("BasicVisibleRule/testfield"); //$NON-NLS-1$
         testfieldType.setVisibleExpression("1=1"); //$NON-NLS-1$
-        metaDatas.put(testfieldType.getXpath(), testfieldType);
+        metaDatas.put(testfieldType.getTypePath(), testfieldType);
 
         SimpleTypeModel cp_titleType = new SimpleTypeModel();
-        cp_titleType.setXpath("BasicVisibleRule/cp/title"); //$NON-NLS-1$
-        metaDatas.put(cp_titleType.getXpath(), cp_titleType);
+        cp_titleType.setTypePath("BasicVisibleRule/cp/title"); //$NON-NLS-1$
+        metaDatas.put(cp_titleType.getTypePath(), cp_titleType);
 
         SimpleTypeModel cp_addressType = new SimpleTypeModel();
-        cp_addressType.setXpath("BasicVisibleRule/cp/address"); //$NON-NLS-1$
+        cp_addressType.setTypePath("BasicVisibleRule/cp/address"); //$NON-NLS-1$
         cp_addressType.setVisibleExpression("1=2"); //$NON-NLS-1$
-        metaDatas.put(cp_addressType.getXpath(), cp_addressType);
+        metaDatas.put(cp_addressType.getTypePath(), cp_addressType);
 
         return metaDatas;
     }
@@ -260,27 +260,27 @@ public class DisplayRuleTestData {
         Map<String, TypeModel> metaDatas = new LinkedHashMap<String, TypeModel>();
 
         SimpleTypeModel subelementType = new SimpleTypeModel();
-        subelementType.setXpath("BasicVisibleRuleFunction/subelement"); //$NON-NLS-1$
-        metaDatas.put(subelementType.getXpath(), subelementType);
+        subelementType.setTypePath("BasicVisibleRuleFunction/subelement"); //$NON-NLS-1$
+        metaDatas.put(subelementType.getTypePath(), subelementType);
 
         SimpleTypeModel nameType = new SimpleTypeModel();
-        nameType.setXpath("BasicVisibleRuleFunction/name"); //$NON-NLS-1$
-        metaDatas.put(nameType.getXpath(), nameType);
+        nameType.setTypePath("BasicVisibleRuleFunction/name"); //$NON-NLS-1$
+        metaDatas.put(nameType.getTypePath(), nameType);
 
         SimpleTypeModel testfieldType = new SimpleTypeModel();
-        testfieldType.setXpath("BasicVisibleRuleFunction/testfield"); //$NON-NLS-1$
+        testfieldType.setTypePath("BasicVisibleRuleFunction/testfield"); //$NON-NLS-1$
         testfieldType.setVisibleExpression("fn:string-length('hello') > 10"); //$NON-NLS-1$
-        metaDatas.put(testfieldType.getXpath(), testfieldType);
+        metaDatas.put(testfieldType.getTypePath(), testfieldType);
 
         SimpleTypeModel cp_titleType = new SimpleTypeModel();
-        cp_titleType.setXpath("BasicVisibleRuleFunction/cp/title"); //$NON-NLS-1$
+        cp_titleType.setTypePath("BasicVisibleRuleFunction/cp/title"); //$NON-NLS-1$
         cp_titleType.setVisibleExpression("fn:ends-with('hello','h')"); //$NON-NLS-1$
-        metaDatas.put(cp_titleType.getXpath(), cp_titleType);
+        metaDatas.put(cp_titleType.getTypePath(), cp_titleType);
 
         SimpleTypeModel cp_addressType = new SimpleTypeModel();
-        cp_addressType.setXpath("BasicVisibleRuleFunction/cp/address"); //$NON-NLS-1$
+        cp_addressType.setTypePath("BasicVisibleRuleFunction/cp/address"); //$NON-NLS-1$
         cp_addressType.setVisibleExpression("fn:ends-with('hello','o')"); //$NON-NLS-1$
-        metaDatas.put(cp_addressType.getXpath(), cp_addressType);
+        metaDatas.put(cp_addressType.getTypePath(), cp_addressType);
 
         return metaDatas;
     }
@@ -289,27 +289,27 @@ public class DisplayRuleTestData {
         Map<String, TypeModel> metaDatas = new LinkedHashMap<String, TypeModel>();
 
         SimpleTypeModel subelementType = new SimpleTypeModel();
-        subelementType.setXpath("BasicVisibleRuleWithFunctionXPath/subelement"); //$NON-NLS-1$
-        metaDatas.put(subelementType.getXpath(), subelementType);
+        subelementType.setTypePath("BasicVisibleRuleWithFunctionXPath/subelement"); //$NON-NLS-1$
+        metaDatas.put(subelementType.getTypePath(), subelementType);
 
         SimpleTypeModel nameType = new SimpleTypeModel();
-        nameType.setXpath("BasicVisibleRuleWithFunctionXPath/name"); //$NON-NLS-1$
-        metaDatas.put(nameType.getXpath(), nameType);
+        nameType.setTypePath("BasicVisibleRuleWithFunctionXPath/name"); //$NON-NLS-1$
+        metaDatas.put(nameType.getTypePath(), nameType);
 
         SimpleTypeModel testfieldType = new SimpleTypeModel();
-        testfieldType.setXpath("BasicVisibleRuleWithFunctionXPath/testfield"); //$NON-NLS-1$
+        testfieldType.setTypePath("BasicVisibleRuleWithFunctionXPath/testfield"); //$NON-NLS-1$
         testfieldType.setVisibleExpression("fn:string-length(/BasicVisibleRuleWithFunctionXPath/name) > 3"); //$NON-NLS-1$
-        metaDatas.put(testfieldType.getXpath(), testfieldType);
+        metaDatas.put(testfieldType.getTypePath(), testfieldType);
 
         SimpleTypeModel cp_titleType = new SimpleTypeModel();
-        cp_titleType.setXpath("BasicVisibleRuleWithFunctionXPath/cp/title"); //$NON-NLS-1$
+        cp_titleType.setTypePath("BasicVisibleRuleWithFunctionXPath/cp/title"); //$NON-NLS-1$
         cp_titleType.setVisibleExpression("fn:string-length(/BasicVisibleRuleWithFunctionXPath/name) > 4"); //$NON-NLS-1$
-        metaDatas.put(cp_titleType.getXpath(), cp_titleType);
+        metaDatas.put(cp_titleType.getTypePath(), cp_titleType);
 
         SimpleTypeModel cp_addressType = new SimpleTypeModel();
-        cp_addressType.setXpath("BasicVisibleRuleWithFunctionXPath/cp/address"); //$NON-NLS-1$
+        cp_addressType.setTypePath("BasicVisibleRuleWithFunctionXPath/cp/address"); //$NON-NLS-1$
         cp_addressType.setVisibleExpression("fn:string-length(/BasicVisibleRuleWithFunctionXPath/name) > 5"); //$NON-NLS-1$
-        metaDatas.put(cp_addressType.getXpath(), cp_addressType);
+        metaDatas.put(cp_addressType.getTypePath(), cp_addressType);
 
         return metaDatas;
     }
@@ -318,31 +318,31 @@ public class DisplayRuleTestData {
         Map<String, TypeModel> metaDatas = new LinkedHashMap<String, TypeModel>();
 
         SimpleTypeModel subelementType = new SimpleTypeModel();
-        subelementType.setXpath("VisibleRuleBoolean/subelement"); //$NON-NLS-1$
-        metaDatas.put(subelementType.getXpath(), subelementType);
+        subelementType.setTypePath("VisibleRuleBoolean/subelement"); //$NON-NLS-1$
+        metaDatas.put(subelementType.getTypePath(), subelementType);
 
         SimpleTypeModel nameType = new SimpleTypeModel();
-        nameType.setXpath("VisibleRuleBoolean/name"); //$NON-NLS-1$
-        metaDatas.put(nameType.getXpath(), nameType);
+        nameType.setTypePath("VisibleRuleBoolean/name"); //$NON-NLS-1$
+        metaDatas.put(nameType.getTypePath(), nameType);
 
         SimpleTypeModel finishedType = new SimpleTypeModel();
-        finishedType.setXpath("VisibleRuleBoolean/finished"); //$NON-NLS-1$
+        finishedType.setTypePath("VisibleRuleBoolean/finished"); //$NON-NLS-1$
         finishedType.setVisibleExpression("fn:string-length('hello') > 10"); //$NON-NLS-1$
-        metaDatas.put(finishedType.getXpath(), finishedType);
+        metaDatas.put(finishedType.getTypePath(), finishedType);
 
         SimpleTypeModel cp_titleType = new SimpleTypeModel();
-        cp_titleType.setXpath("VisibleRuleBoolean/cp/title"); //$NON-NLS-1$
-        metaDatas.put(cp_titleType.getXpath(), cp_titleType);
+        cp_titleType.setTypePath("VisibleRuleBoolean/cp/title"); //$NON-NLS-1$
+        metaDatas.put(cp_titleType.getTypePath(), cp_titleType);
 
         SimpleTypeModel cp_finished1Type = new SimpleTypeModel();
-        cp_finished1Type.setXpath("VisibleRuleBoolean/cp/finished1"); //$NON-NLS-1$
+        cp_finished1Type.setTypePath("VisibleRuleBoolean/cp/finished1"); //$NON-NLS-1$
         cp_finished1Type.setVisibleExpression("fn:starts-with('hello','h')"); //$NON-NLS-1$
-        metaDatas.put(cp_finished1Type.getXpath(), cp_finished1Type);
+        metaDatas.put(cp_finished1Type.getTypePath(), cp_finished1Type);
 
         SimpleTypeModel cp_finished2Type = new SimpleTypeModel();
-        cp_finished2Type.setXpath("VisibleRuleBoolean/cp/finished2"); //$NON-NLS-1$
+        cp_finished2Type.setTypePath("VisibleRuleBoolean/cp/finished2"); //$NON-NLS-1$
         cp_finished2Type.setVisibleExpression("fn:starts-with('hello','o')"); //$NON-NLS-1$
-        metaDatas.put(cp_finished2Type.getXpath(), cp_finished2Type);
+        metaDatas.put(cp_finished2Type.getTypePath(), cp_finished2Type);
 
         return metaDatas;
     }
@@ -351,32 +351,32 @@ public class DisplayRuleTestData {
         Map<String, TypeModel> metaDatas = new LinkedHashMap<String, TypeModel>();
 
         SimpleTypeModel subelementType = new SimpleTypeModel();
-        subelementType.setXpath("VisibleRuleForInheritance/subelement"); //$NON-NLS-1$
-        metaDatas.put(subelementType.getXpath(), subelementType);
+        subelementType.setTypePath("VisibleRuleForInheritance/subelement"); //$NON-NLS-1$
+        metaDatas.put(subelementType.getTypePath(), subelementType);
 
         SimpleTypeModel nameType = new SimpleTypeModel();
-        nameType.setXpath("VisibleRuleForInheritance/name"); //$NON-NLS-1$
-        metaDatas.put(nameType.getXpath(), nameType);
+        nameType.setTypePath("VisibleRuleForInheritance/name"); //$NON-NLS-1$
+        metaDatas.put(nameType.getTypePath(), nameType);
 
         SimpleTypeModel testfieldType = new SimpleTypeModel();
-        testfieldType.setXpath("VisibleRuleForInheritance/testfield"); //$NON-NLS-1$
+        testfieldType.setTypePath("VisibleRuleForInheritance/testfield"); //$NON-NLS-1$
         testfieldType.setVisibleExpression("fn:string-length('hello')>3"); //$NON-NLS-1$
-        metaDatas.put(testfieldType.getXpath(), testfieldType);
+        metaDatas.put(testfieldType.getTypePath(), testfieldType);
 
         SimpleTypeModel person_nameType = new SimpleTypeModel();
-        person_nameType.setXpath("VisibleRuleForInheritance/person/name"); //$NON-NLS-1$
+        person_nameType.setTypePath("VisibleRuleForInheritance/person/name"); //$NON-NLS-1$
         person_nameType.setVisibleExpression("fn:string-length('hello world')>8"); //$NON-NLS-1$
-        metaDatas.put(person_nameType.getXpath(), person_nameType);
+        metaDatas.put(person_nameType.getTypePath(), person_nameType);
 
         ComplexTypeModel person_StudentType = new ComplexTypeModel();
-        person_StudentType.setXpath("VisibleRuleForInheritance/person/score"); //$NON-NLS-1$
+        person_StudentType.setTypePath("VisibleRuleForInheritance/person/score"); //$NON-NLS-1$
         person_StudentType.setVisibleExpression("fn:string-length('hello world')>15"); //$NON-NLS-1$
-        metaDatas.put(person_StudentType.getXpath(), person_StudentType);
+        metaDatas.put(person_StudentType.getTypePath(), person_StudentType);
 
         ComplexTypeModel person_TeacherType = new ComplexTypeModel();
-        person_TeacherType.setXpath("VisibleRuleForInheritance/person/salary"); //$NON-NLS-1$
+        person_TeacherType.setTypePath("VisibleRuleForInheritance/person/salary"); //$NON-NLS-1$
         person_TeacherType.setVisibleExpression("fn:string-length('hello world')>10"); //$NON-NLS-1$
-        metaDatas.put(person_TeacherType.getXpath(), person_TeacherType);
+        metaDatas.put(person_TeacherType.getTypePath(), person_TeacherType);
 
         return metaDatas;
     }
