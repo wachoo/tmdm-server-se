@@ -48,6 +48,7 @@ public class ComplexTypeModel extends TypeModel {
     public void addSubType(TypeModel subType) {
         if (this.subTypes != null) {
             this.subTypes.add(subType);
+            subType.setParentTypeModel(this);
         }
     }
 

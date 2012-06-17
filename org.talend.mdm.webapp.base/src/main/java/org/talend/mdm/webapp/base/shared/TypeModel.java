@@ -90,6 +90,8 @@ public abstract class TypeModel implements Serializable, IsSerializable {
     private boolean hasVisibleRule = false;
     
     private boolean autoExpand = false;
+    
+    private TypeModel parentTypeModel;
 
 	public TypeModel() {
         super();
@@ -374,8 +376,16 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 	public void setAutoExpand(boolean autoExpand) {
 		this.autoExpand = autoExpand;
 	}
+	
+    public TypeModel getParentTypeModel() {
+		return parentTypeModel;
+	}
 
-    public int[] getRange() {
+	public void setParentTypeModel(TypeModel parentTypeModel) {
+		this.parentTypeModel = parentTypeModel;
+	}
+
+	public int[] getRange() {
         int min = 0;
         int max = 0;
         if (getMinOccurs() <= 0) {

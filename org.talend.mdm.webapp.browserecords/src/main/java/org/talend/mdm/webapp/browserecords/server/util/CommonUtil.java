@@ -234,9 +234,10 @@ public class CommonUtil {
     }
 
     private static void applySimpleTypesDefaultValue(TypeModel nodeTypeModel, TypeModel parentModel, Element el) {
-
-        // if parent node is non-mandatory don't apply system default value
-        if (parentModel != null && parentModel instanceof ComplexTypeModel && parentModel.getMinOccurs() == 0)
+         
+        // if parent node is not root node, also is non-mandatory, don't apply system default value
+        if (parentModel != null && parentModel.getParentTypeModel()!=null
+        		&& parentModel instanceof ComplexTypeModel && parentModel.getMinOccurs() == 0)
             return;
 
         if (nodeTypeModel != null && el != null) {
