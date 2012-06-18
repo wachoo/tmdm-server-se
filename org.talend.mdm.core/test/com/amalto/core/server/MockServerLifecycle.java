@@ -12,11 +12,14 @@
 package com.amalto.core.server;
 
 import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.datasource.DataSourceFactory;
 import com.amalto.core.storage.hibernate.HibernateStorage;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 public class MockServerLifecycle implements ServerLifecycle {
 
     public Server createServer() {
+        MDMConfiguration.getConfiguration().setProperty(DataSourceFactory.DB_DATASOURCES, "mock_datasources.xml");
         return new MockServer();
     }
 
