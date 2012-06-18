@@ -47,6 +47,7 @@ import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.FacetEnum;
 
 import com.extjs.gxt.ui.client.Style.HideMode;
+import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
@@ -59,16 +60,14 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.DeferredCommand;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Widget;
 
 public class TreeDetailGridFieldCreator {
@@ -253,30 +252,9 @@ public class TreeDetailGridFieldCreator {
         field.addListener(Events.Attach, new Listener<FieldEvent>() {
 
             public void handleEvent(FieldEvent fe) {
-                field.getElement().getStyle().setMarginRight(16D, Unit.PX);
+                setErrorIcon(field);
                 validate(field, node);
             }
-        });
-
-        field.addListener(Events.Invalid, new Listener<FieldEvent>() {
-
-            public void handleEvent(FieldEvent be) {
-                final WidgetComponent errorIcon = getErrorIcon(field);
-                errorIcon.el().removeStyleName("x-hide-visibility"); //$NON-NLS-1$
-                errorIcon.setHideMode(HideMode.DISPLAY);
-                errorIcon.el().dom.getStyle().setProperty("position", "absolute"); //$NON-NLS-1$//$NON-NLS-2$
-
-                DeferredCommand.addCommand(new Command() {
-
-                    public void execute() {
-                        errorIcon.el().dom.getStyle().setMarginLeft(field.getWidth(), Unit.PX);
-                        errorIcon.el().dom.getStyle().setMarginTop(-18, Unit.PX);
-                        errorIcon.el().dom.getStyle().clearLeft();
-                        errorIcon.el().dom.getStyle().clearTop();
-                    }
-                });
-            }
-
         });
 
         field.addListener(Events.Blur, new Listener<FieldEvent>() {
@@ -296,7 +274,54 @@ public class TreeDetailGridFieldCreator {
         });
     }
 
-    private static native WidgetComponent getErrorIcon(Field<?> field)/*-{
+    private static void setErrorIcon(Field<?> field){
+        WidgetComponent errorIcon = _getErrorIcon(field);
+        if (errorIcon != null) {
+            errorIcon.removeFromParent();
+            Element errEl = errorIcon.getElement();
+            if (errEl != null) {
+                errEl.removeFromParent();
+            }
+        }
+
+        errorIcon = new WidgetComponent(field.getImages().getInvalid().createImage()) {
+
+            public void setElement(Element elem) {
+                _setEl(new El(elem) {
+
+                    public El alignTo(Element align, String pos, int[] offsets) {
+                        return this;
+                    }
+                });
+                super.setElement(elem);
+                if (!rendered) {
+                    setElementRender = true;
+                    render(null);
+                }
+            }
+
+            private native void _setEl(El elem)/*-{
+                    this.@com.extjs.gxt.ui.client.widget.Component::el = elem;
+            }-*/;
+        };
+        errorIcon.setStyleAttribute("display", "block"); //$NON-NLS-1$ //$NON-NLS-2$
+        errorIcon.setStyleAttribute("float", "right"); //$NON-NLS-1$ //$NON-NLS-2$
+        errorIcon.setStyleAttribute("position", "relative"); //$NON-NLS-1$ //$NON-NLS-2$
+        errorIcon.setStyleAttribute("left", "16px");//$NON-NLS-1$ //$NON-NLS-2$
+        errorIcon.setStyleAttribute("top", "-4px");//$NON-NLS-1$ //$NON-NLS-2$
+        errorIcon.setStyleAttribute("marginTop", "-18px");//$NON-NLS-1$ //$NON-NLS-2$
+        errorIcon.render(field.el().getParent().dom);
+        errorIcon.setHideMode(HideMode.VISIBILITY);
+        errorIcon.hide();
+
+        _setErrorIcon(field, errorIcon);
+    }
+    
+    private static native void _setErrorIcon(Field<?> field, WidgetComponent errorIcon)/*-{
+        field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon = errorIcon;
+    }-*/;
+    
+    private static native WidgetComponent _getErrorIcon(Field<?> field)/*-{
         return field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon;
     }-*/;
 

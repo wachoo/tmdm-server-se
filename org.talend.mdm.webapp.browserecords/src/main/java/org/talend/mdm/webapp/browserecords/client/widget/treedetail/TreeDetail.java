@@ -364,8 +364,8 @@ public class TreeDetail extends ContentPanel {
     }
 
     private void renderTree(ItemNodeModel rootModel, String operation) {
-
         multiManager = new MultiOccurrenceManager(viewBean.getBindingEntityModel().getMetaDataTypes(), this);
+        beginRender();
         root = buildGWTTree(rootModel, null, false, operation);
         multiManager.addMultiOccurrenceNode((DynamicTreeItem) root);
         multiManager.warningAllItems();
