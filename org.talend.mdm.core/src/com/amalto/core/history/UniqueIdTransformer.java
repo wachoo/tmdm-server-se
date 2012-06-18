@@ -70,16 +70,15 @@ public class UniqueIdTransformer implements DocumentTransformer {
         levels.push(0);
         {
             Element documentElement = document.getDocumentElement();
-            if (documentElement == null) {
-                throw new IllegalStateException("Record history is empty.");
+            if (documentElement != null) {
+                _addIds(document, documentElement, levels);
             }
-            _addIds(document, documentElement, levels);
         }
         levels.pop();
     }
 
-    private void _addIds(org.w3c.dom.Document document, Node node, Stack<Integer> levels) {
-        NamedNodeMap attributes = node.getAttributes();
+    private void _addIds(org.w3c.dom.Document document, Element element, Stack<Integer> levels) {
+        NamedNodeMap attributes = element.getAttributes();
         Attr id = document.createAttribute(ID_ATTRIBUTE_NAME);
 
         int thisElementId = levels.pop() + 1;
@@ -91,18 +90,16 @@ public class UniqueIdTransformer implements DocumentTransformer {
             }
         }
         String prefix = builder.toString().isEmpty() ? StringUtils.EMPTY : builder.toString() + '-';
-        id.setValue(prefix + node.getNodeName() + '-' + thisElementId);
+        id.setValue(prefix + element.getNodeName() + '-' + thisElementId);
         attributes.setNamedItem(id);
 
         levels.push(thisElementId);
         {
             levels.push(0);
-            NodeList children = node.getChildNodes();
+            NodeList children = element.getElementsByTagName("*"); //$NON-NLS-1$
             for (int i = 0; i < children.getLength(); i++) {
-                Node child = children.item(i);
-                if (child instanceof Element) {
-                    _addIds(document, child, levels);
-                }
+                Element child = (Element) children.item(i);
+                _addIds(document, child, levels);
             }
             levels.pop();
         }
