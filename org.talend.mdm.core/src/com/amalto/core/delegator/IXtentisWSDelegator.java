@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
@@ -4380,15 +4381,18 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
      */
     public WSAutoIncrement getAutoIncrement(WSAutoIncrement request) throws RemoteException {
         try {
+            XmlServerSLWrapperLocal xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
             if (request == null) {
-                String xml = Util.getXmlServerCtrlLocal().getDocumentAsString(null, XSystemObjects.DC_CONF.getName(),
+                String xml = xmlServerCtrlLocal.getDocumentAsString(null, XSystemObjects.DC_CONF.getName(),
                         "Auto_Increment");//$NON-NLS-1$
                 if (xml != null) {
                     return new WSAutoIncrement(xml);
                 }
             } else {
-                Util.getXmlServerCtrlLocal().putDocumentFromString(request.getAutoincrement(), "Auto_Increment",//$NON-NLS-1$
+                xmlServerCtrlLocal.start();
+                xmlServerCtrlLocal.putDocumentFromString(request.getAutoincrement(), "Auto_Increment",//$NON-NLS-1$
                         XSystemObjects.DC_CONF.getName(), null);
+                xmlServerCtrlLocal.commit();
                 return request;
             }
         } catch (XtentisException e) {
@@ -4404,21 +4408,26 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     public WSCategoryData getMDMCategory(WSCategoryData request) throws RemoteException {
 
         try {
+            XmlServerSLWrapperLocal xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
             if (request == null) {
                 // create and retrieve an empty treeObject Category from xdb in the case of request being null
 
-                String category = Util.getXmlServerCtrlLocal().getDocumentAsString(null, "CONF", "CONF.TREEOBJECT.CATEGORY");//$NON-NLS-1$ //$NON-NLS-2$
+                String category = xmlServerCtrlLocal.getDocumentAsString(null, "CONF", "CONF.TREEOBJECT.CATEGORY");//$NON-NLS-1$ //$NON-NLS-2$
                 if (category == null) {
                     String empty = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";//$NON-NLS-1$
                     empty += "<" + ICoreConstants.DEFAULT_CATEGORY_ROOT + "/>";//$NON-NLS-1$ //$NON-NLS-2$
-                    Util.getXmlServerCtrlLocal().putDocumentFromString(empty, "CONF.TREEOBJECT.CATEGORY", "CONF", "");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    xmlServerCtrlLocal.start();
+                    xmlServerCtrlLocal.putDocumentFromString(empty, "CONF.TREEOBJECT.CATEGORY", "CONF", "");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    xmlServerCtrlLocal.commit();
                     category = empty;
                 }
 
                 return new WSCategoryData(category);
             } else {
-                Util.getXmlServerCtrlLocal().putDocumentFromString(request.getCategorySchema(), "CONF.TREEOBJECT.CATEGORY",//$NON-NLS-1$
+                xmlServerCtrlLocal.start(); //$NON-NLS-1$
+                xmlServerCtrlLocal.putDocumentFromString(request.getCategorySchema(), "CONF.TREEOBJECT.CATEGORY",//$NON-NLS-1$
                         "CONF", null);//$NON-NLS-1$
+                xmlServerCtrlLocal.commit(); //$NON-NLS-1$
                 return request;
             }
 
@@ -4448,8 +4457,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             Document doc = null;
             Element jobElem = null, newOne = null;
             String xmlData = null;
+            XmlServerSLWrapperLocal xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
             try {
-                xmlData = Util.getXmlServerCtrlLocal().getDocumentAsString(null, MDMTISJOB, JOB);
+                xmlData = xmlServerCtrlLocal.getDocumentAsString(null, MDMTISJOB, JOB);
             } catch (Exception e) {
             }
             if (xmlData == null || xmlData.equals("")) {//$NON-NLS-1$
@@ -4466,7 +4476,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             newOne.setAttribute("version", job.getJobVersion());//$NON-NLS-1$
             jobElem.appendChild(newOne);
 
-            Util.getXmlServerCtrlLocal().putDocumentFromString(Util.nodeToString(doc.getDocumentElement()), JOB, MDMTISJOB, null);
+            xmlServerCtrlLocal.start();
+            xmlServerCtrlLocal.putDocumentFromString(Util.nodeToString(doc.getDocumentElement()), JOB, MDMTISJOB, null);
+            xmlServerCtrlLocal.commit();
             return new WSBoolean(true);
         } catch (Exception e) {
             e.printStackTrace();

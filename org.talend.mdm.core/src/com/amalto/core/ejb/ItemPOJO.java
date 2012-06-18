@@ -652,10 +652,14 @@ public class ItemPOJO implements Serializable {
             Marshaller.marshal(droppedItemPOJO, sw);
 
             // copy item content
+            server.start();
             long res = server.putDocumentFromString(sw.toString(), droppedItemPOJO.obtainDroppedItemPK().getUniquePK(),
-                    "MDMItemsTrash", null);
-            if (res == -1)
+                    "MDMItemsTrash", null); //$NON-NLS-1$
+            server.commit();
+            if (res == -1) {
+                server.rollback();
                 return null;
+            }
             // delete source item
 
             try {
@@ -667,7 +671,9 @@ public class ItemPOJO implements Serializable {
                     cachedPojo.remove(key);
                 } else {
                     String xmlstring = Util.nodeToString(sourceDoc);
+                    server.start();
                     server.putDocumentFromString(xmlstring, uniqueID, dataClusterName, revisionID);
+                    server.commit();
                     // update the cache
                     ItemCacheKey key = new ItemCacheKey(revisionID, uniqueID, dataClusterName);
                     cachedPojo.put(key, xmlstring);

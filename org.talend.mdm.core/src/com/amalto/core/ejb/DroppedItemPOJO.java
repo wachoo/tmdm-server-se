@@ -256,8 +256,9 @@ public class DroppedItemPOJO implements Serializable{
         	if(partPath.equals("/")){
         		
         		DroppedItemPOJO droppedItemPOJO=(DroppedItemPOJO) Unmarshaller.unmarshal(DroppedItemPOJO.class,new InputSource(new StringReader(getXmlDocument.toString())));
-        		server.putDocumentFromString(droppedItemPOJO.getProjection(), refItemPOJOPK.getUniqueID(), refItemPOJOPK.getDataClusterPOJOPK().getUniqueId(), sourceItemRevision);
-        		
+        		server.start(refItemPOJOPK.getDataClusterPOJOPK().getUniqueId());
+                server.putDocumentFromString(droppedItemPOJO.getProjection(), refItemPOJOPK.getUniqueID(), refItemPOJOPK.getDataClusterPOJOPK().getUniqueId(), sourceItemRevision);
+                server.commit(refItemPOJOPK.getDataClusterPOJOPK().getUniqueId());
         	}else{
         		Document partDom=Util.parse(getXmlDocument.toString());
         		String insertText=partDom.getFirstChild().getTextContent();
@@ -297,8 +298,9 @@ public class DroppedItemPOJO implements Serializable{
 					}
 				}
                 
-                //server.putDocumentFromDOM(targetDom.getDocumentElement(), refItemPOJOPK.getUniqueID(), refItemPOJOPK.getDataClusterPOJOPK().getUniqueId(), sourceItemRevision);
+                server.start(refItemPOJOPK.getDataClusterPOJOPK().getUniqueId());
                 server.putDocumentFromString(targetDomXml, refItemPOJOPK.getUniqueID(), refItemPOJOPK.getDataClusterPOJOPK().getUniqueId(), sourceItemRevision);//need set indent-number
+                server.commit(refItemPOJOPK.getDataClusterPOJOPK().getUniqueId());
         	}
         	//delete dropped item
         	long res = server.deleteDocument(
@@ -316,7 +318,9 @@ public class DroppedItemPOJO implements Serializable{
         					refItemPOJOPK.getUniqueID()
                     );
         		}else{
+                    server.start(refItemPOJOPK.getDataClusterPOJOPK().getUniqueId());
         			server.putDocumentFromString(bakDoc, refItemPOJOPK.getUniqueID(), refItemPOJOPK.getDataClusterPOJOPK().getUniqueId(), sourceItemRevision);
+                    server.commit(refItemPOJOPK.getDataClusterPOJOPK().getUniqueId());
         		}
         	}
         	

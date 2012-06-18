@@ -528,15 +528,18 @@ public abstract class ObjectPOJO implements Serializable{
     		Marshaller.marshal(this, sw);
            
             //store
-            if ( -1 ==  server.putDocumentFromString(
+            server.start();
+	    if ( -1 ==  server.putDocumentFromString(
                 	sw.toString(),
                 	getPK().getUniqueId(),
 					getCluster(this.getClass()),
 					revisionID
 				)) {
             	setLastError("Unable to store: check The XML Server Wrapper Logs");
+            	server.rollback();
             	return null;
             }
+            server.commit();
             	
             setLastError(""); //$NON-NLS-1$ 
             //update the cache
@@ -780,33 +783,35 @@ public abstract class ObjectPOJO implements Serializable{
     public static void putMarshaledObject(String revisionID, String objectName, String uniqueID, String xml) throws XtentisException{
        	try {
        		
-	    	//check if we are admin 
-	    	ILocalUser user = LocalUser.getLocalUser();
-	    	if (!user.getRoles().contains("administration")) { //$NON-NLS-1$ 
-	    		String err = "Only an user with the 'administration' role can call the synchronization methods";
-				LOG.error(err);
-				throw new XtentisException(err);
-	    	}
+            //check if we are admin 
+            ILocalUser user = LocalUser.getLocalUser();
+            if (!user.getRoles().contains("administration")) { //$NON-NLS-1$ 
+                   String err = "Only an user with the 'administration' role can call the synchronization methods";
+                   LOG.error(err);
+                   throw new XtentisException(err);
+            }
 	    		    	
             //get the xml server wrapper
             XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
-			String cluster= getCluster((Class<? extends ObjectPOJO>) getObjectClass(objectName));          
-			server.putDocumentFromString(
+            String cluster= getCluster((Class<? extends ObjectPOJO>) getObjectClass(objectName));          
+            server.start();
+            server.putDocumentFromString(
 				xml, 
 				uniqueID, 
 				cluster, 
 				revisionID
 			);
+            server.commit();
             ItemCacheKey key =new ItemCacheKey(revisionID,uniqueID, cluster);            
             cachedPojo.put(key, xml);
     	} catch (XtentisException e) {
-    		throw(e);
-	    } catch (Exception e) {
+            throw(e);
+    	} catch (Exception e) {
     	    String err = "Error creating/replacing the marshaled object '"+objectName+"' of id '"+uniqueID+"' in revision '"+(revisionID == null ? "[HEAD]": revisionID)+"'"
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    LOG.error(err,e);
     	    throw new XtentisException(err, e);
-	    } 
+    	} 
     }
     
 

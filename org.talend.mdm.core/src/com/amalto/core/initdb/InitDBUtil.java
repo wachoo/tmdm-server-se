@@ -1,6 +1,8 @@
 package com.amalto.core.initdb;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -143,30 +145,33 @@ public class InitDBUtil {
 		final String userClusterName = "PROVISIONING";
 		String query = "collection(\"" + userClusterName + "\")/ii/p/User/username";
 		try {
-			ArrayList<String> list = ConfigurationHelper.getServer().runQuery(null, userClusterName, query, null);
-			for (String user: list)
+		    XmlServerSLWrapperLocal server = ConfigurationHelper.getServer();
+		    ArrayList<String> list = server.runQuery(null, userClusterName, query, null);
+		    for (String user: list)
+		    {
+			NodeList users = Util.getNodeList(Util.parse(user), "/username");
+			for (int i = 0; i < users.getLength(); i++)
 			{
-				NodeList users = Util.getNodeList(Util.parse(user), "/username");
-				for (int i = 0; i < users.getLength(); i++)
+				String entry = users.item(i).getFirstChild().getNodeValue();
+				String uniqueID = userClusterName + ".User." + entry;
+				String userXml = server.getDocumentAsString(null, userClusterName, uniqueID);
+				String updateXml = new String(userXml);
+				for (Map.Entry<String, String> pair : ICoreConstants.rolesConvert.oldRoleToNewRoleMap.entrySet())
 				{
-					String entry = users.item(i).getFirstChild().getNodeValue();
-					String uniqueID = userClusterName + ".User." + entry;
-					String userXml = ConfigurationHelper.getServer().getDocumentAsString(null, userClusterName, uniqueID);
-					String updateXml = new String(userXml);
-					 for (Map.Entry<String, String> pair : ICoreConstants.rolesConvert.oldRoleToNewRoleMap.entrySet())
-					 {
-						 userXml = userXml.replaceAll(pair.getKey().toString(), pair.getValue().toString());
-					 }
-					 if(!updateXml.equals(userXml))
-					 {
-						 ConfigurationHelper.getServer().putDocumentFromString(userXml, uniqueID, userClusterName, null);
-					 }
+					userXml = userXml.replaceAll(pair.getKey().toString(), pair.getValue().toString());
+				}
+				if(!updateXml.equals(userXml)) {
+                			server.start();
+			   		server.putDocumentFromString(userXml, uniqueID, userClusterName, null);
+                        		server.commit();
 				}
 			}
+		    }
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Exception occurred while updating users roles", e);
 		}
 	}
+
 	private static void deleteScrapDB()
 	{
 		final String  scrapClusterName = "amaltoOBJECTSRole";

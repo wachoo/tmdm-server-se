@@ -12,6 +12,7 @@
 // ============================================================================
 package com.amalto.core.migration.tasks;
 
+import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -76,8 +77,10 @@ public class UpdateActionTypeWithNewTypeStrategy extends AbstractDataModelMigrat
                 Node elem = doc.importNode(Util.parse(newSchema).getDocumentElement(), true);
                 doc.getDocumentElement().replaceChild(elem, oldChild);
 
-                ConfigurationHelper.getServer().putDocumentFromString(Util.nodeToString(doc), getDataModel(), //$NON-NLS-1$
-                        cluster, null); //$NON-NLS-1$
+                XmlServerSLWrapperLocal server = ConfigurationHelper.getServer();
+                server.start();
+                server.putDocumentFromString(Util.nodeToString(doc), getDataModel(), cluster, null);
+                server.commit();
             }
 
         }

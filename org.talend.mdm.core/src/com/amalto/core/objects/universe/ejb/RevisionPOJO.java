@@ -199,7 +199,9 @@ public class RevisionPOJO implements Serializable{
             		server.createCluster(id, null);
             	}
             }
-            server.putDocumentFromString(this.toString(), REVISION_ENTRY, "Revision", revisionID);
+            server.start();
+            server.putDocumentFromString(this.toString(), REVISION_ENTRY, "Revision", revisionID); //$NON-NLS-1$
+            server.commit();
             if (server.getDocumentAsString(revisionID, clusterName,
 					REVISION_ENTRY) != null) {
 				server.deleteDocument(revisionID, clusterName, REVISION_ENTRY);
