@@ -219,11 +219,15 @@ public interface BrowseRecordsMessages extends Messages {
 
     String multiOccurrence_maximize(int value);
 
+    String multiOccurrence_minimize_title(int minOccurs, String nodeName);
+    
     String clone_title();
 
     String deepclone_title();
 
     String remove_title();
+    
+    String reset_value_title();
 
     String picture_field_title();
 

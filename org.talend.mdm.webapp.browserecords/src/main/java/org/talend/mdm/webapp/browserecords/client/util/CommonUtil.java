@@ -145,6 +145,52 @@ public class CommonUtil {
         return root;
     }
 
+    public static int getCountOfBrotherOfTheSameName(ItemNodeModel nodeModel) {
+        int count = 0;
+        String name = nodeModel.getName();
+        ItemNodeModel parentModel = (ItemNodeModel) nodeModel.getParent();
+        if (parentModel == null)
+            return 1;
+        for (int i = 0; i < parentModel.getChildCount(); i++) {
+            ItemNodeModel childModel = (ItemNodeModel) parentModel.getChild(i);
+            if (name.equals(childModel.getName())) {
+                count++;
+            }
+        }
+        return count;
+    }
+    public static boolean hasChildrenValue(ItemNodeModel parentModel) {
+        List<ModelData> childs = parentModel.getChildren();
+        if (childs != null && childs.size() > 0) {
+            for (int i = 0; i < childs.size(); i++) {
+                ItemNodeModel child = (ItemNodeModel) childs.get(i);
+                if (hasChildrenValue(child)) {
+                    return true;
+                } else {
+                    continue;
+                }
+            }
+        } else {
+            Serializable value = parentModel.getObjectValue();
+            if (value != null) {
+                if (value instanceof ForeignKeyBean) {
+                    ForeignKeyBean fkBean = (ForeignKeyBean) value;
+                    return fkBean.getId() != null && fkBean.getId().trim().length() > 0;
+                } else {
+                    return !"".equals(value); //$NON-NLS-1$
+                }
+            }
+        }
+        return false;
+    }
+
+    public static String getRealXpathWithoutLastIndex(ItemNodeModel nodeModel) {
+        return getRealXPath(nodeModel).replaceAll("\\[\\d+\\]$", ""); //$NON-NLS-1$//$NON-NLS-2$
+    }
+
+    public static String getRealXpathWithoutLastIndex(String realPath) {
+        return realPath.replaceAll("\\[\\d+\\]$", ""); //$NON-NLS-1$ //$NON-NLS-2$
+    }
     public static List<ItemNodeModel> getDefaultTreeModel(TypeModel model, String language, boolean defaultValue) {
         List<ItemNodeModel> itemNodes = new ArrayList<ItemNodeModel>();
 

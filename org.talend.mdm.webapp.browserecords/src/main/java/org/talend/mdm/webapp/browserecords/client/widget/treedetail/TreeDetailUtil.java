@@ -18,18 +18,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
-import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
-import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.BreadCrumbModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
-import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
-import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
-import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.BreadCrumb;
@@ -39,28 +34,18 @@ import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.TabItemListener;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
-import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
-import com.extjs.gxt.ui.client.mvc.AppEvent;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
@@ -73,102 +58,9 @@ public class TreeDetailUtil {
         return createWidget(itemNode, viewBean, fieldMap, h, null, itemsDetailPanel);
     }
 
-    public static Widget createWidget(final ItemNodeModel itemNode, final ViewBean viewBean, Map<String, Field<?>> fieldMap,
+    public static MultiOccurrenceChangeItem createWidget(final ItemNodeModel itemNode, final ViewBean viewBean, Map<String, Field<?>> fieldMap,
             ClickHandler h, String operation, final ItemsDetailPanel itemsDetailPanel) {
-
-        HorizontalPanel hp = new HorizontalPanel();
-        // create Field
-        String xPath = itemNode.getBindingPath();
-        String typePath = itemNode.getTypePath();
-        TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath);
-        String dynamicLabel = typeModel.getLabel(Locale.getLanguage());
-        HTML label = new HTML();
-        String html = itemNode.getLabel();
-
-        if (LabelUtil.isDynamicLabel(dynamicLabel)) {
-            if (itemNode.getDynamicLabel() != null && !"".equals(itemNode.getDynamicLabel())) { //$NON-NLS-1$
-                html = itemNode.getDynamicLabel();
-            } else {
-                html = LabelUtil.getNormalLabel(html);
-            }
-        }
-
-        if (itemNode.isKey() || typeModel.getMinOccurs() >= 1)
-            html = html + "<span style=\"color:red\"> *</span>"; //$NON-NLS-1$
-
-        if (null != itemNode.getDescription() && (itemNode.getDescription().trim().length() > 0) && xPath.indexOf("/") > -1) { //$NON-NLS-1$
-            html = html + "<img style='margin-left:16px;' src='/talendmdm/secure/img/genericUI/information_icon.png' title='" + LabelUtil.convertSpecialHTMLCharacter(itemNode.getDescription()) + "' />"; //$NON-NLS-1$ //$NON-NLS-2$         
-        }
-        label.setHTML(html);
-        hp.add(label);
-        if (typeModel.isSimpleType()
-                || (!typeModel.isSimpleType() && ((ComplexTypeModel) typeModel).getReusableComplexTypes().size() > 0)) {
-
-            if (typeModel.getType().equals(DataTypeConstants.AUTO_INCREMENT)
-                    && ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {
-                itemNode.setObjectValue(""); //$NON-NLS-1$
-            }
-
-            Field<?> field = TreeDetailGridFieldCreator.createField(itemNode, typeModel, Locale.getLanguage(), fieldMap,
-                    operation, itemsDetailPanel);
-            field.setWidth(200);
-            field.addListener(Events.Change, new Listener<FieldEvent>() {
-
-                public void handleEvent(FieldEvent be) {
-                    AppEvent app = new AppEvent(BrowseRecordsEvents.ExecuteVisibleRule);
-                    ItemNodeModel parent = CommonUtil.recrusiveRoot(itemNode);
-                    // maybe need other methods to get entire tree
-                    if (parent == null || parent.getChildCount() == 0) {
-                        return;
-                    }
-
-                    app.setData(parent);
-                    app.setData("viewBean", viewBean); //$NON-NLS-1$
-                    app.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);
-                    Dispatcher.forwardEvent(app);
-                }
-            });
-            hp.add(field);
-
-        }
-
-        if (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {
-            Image addNodeImg = new Image("/talendmdm/secure/img/genericUI/add.png"); //$NON-NLS-1$
-            addNodeImg.getElement().setId("Add"); //$NON-NLS-1$
-            addNodeImg.setTitle(MessagesFactory.getMessages().clone_title());
-            addNodeImg.getElement().getStyle().setMarginLeft(5D, Unit.PX);
-            addNodeImg.getElement().getStyle().setMarginTop(5D, Unit.PX);
-            if(!typeModel.isReadOnly())
-                addNodeImg.addClickHandler(h);
-            Image removeNodeImg = new Image("/talendmdm/secure/img/genericUI/delete.png"); //$NON-NLS-1$
-            removeNodeImg.getElement().setId("Remove"); //$NON-NLS-1$
-            removeNodeImg.setTitle(MessagesFactory.getMessages().remove_title());
-            removeNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
-            addNodeImg.getElement().getStyle().setMarginTop(5D, Unit.PX);
-            if(!typeModel.isReadOnly())
-                removeNodeImg.addClickHandler(h);
-
-            hp.add(addNodeImg);
-            hp.setCellVerticalAlignment(addNodeImg, VerticalPanel.ALIGN_BOTTOM);
-            hp.add(removeNodeImg);
-            hp.setCellVerticalAlignment(removeNodeImg, VerticalPanel.ALIGN_BOTTOM);
-            if (!typeModel.isSimpleType() && itemNode.getParent() != null) {
-                Image cloneNodeImg = new Image("/talendmdm/secure/img/genericUI/add-group.png"); //$NON-NLS-1$
-                cloneNodeImg.getElement().setId("Clone"); //$NON-NLS-1$
-                cloneNodeImg.setTitle(MessagesFactory.getMessages().deepclone_title());
-                cloneNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
-                if(!typeModel.isReadOnly())
-                    cloneNodeImg.addClickHandler(h);
-                hp.add(cloneNodeImg);
-                hp.setCellVerticalAlignment(cloneNodeImg, VerticalPanel.ALIGN_BOTTOM);
-            }
-        }
-
-        hp.setCellWidth(label, "200px"); //$NON-NLS-1$
-
-        hp.setVisible(typeModel.isVisible());
-
-        return hp;
+    	return new MultiOccurrenceChangeItem(itemNode, viewBean, fieldMap, operation, itemsDetailPanel);
     }
     
     public static void initItemsDetailPanelById(final String fromWhichApp, String ids, final String concept,
