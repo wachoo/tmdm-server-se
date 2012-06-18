@@ -125,6 +125,10 @@ public class PagingToolBarEx extends PagingToolBar {
     };
     
     public void lastAfterCreate(){
+    	if (totalLength == 0){
+    		refresh();
+    		return;
+    	}
         int extra = totalLength % pageSize;
         if (extra == 0){
         	pages++;
