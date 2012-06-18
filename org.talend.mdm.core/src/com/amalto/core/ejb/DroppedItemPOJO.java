@@ -256,9 +256,9 @@ public class DroppedItemPOJO implements Serializable{
         	if(partPath.equals("/")){
         		
         		DroppedItemPOJO droppedItemPOJO=(DroppedItemPOJO) Unmarshaller.unmarshal(DroppedItemPOJO.class,new InputSource(new StringReader(getXmlDocument.toString())));
-        		server.start(refItemPOJOPK.getDataClusterPOJOPK().getUniqueId());
+        		server.start();
                 server.putDocumentFromString(droppedItemPOJO.getProjection(), refItemPOJOPK.getUniqueID(), refItemPOJOPK.getDataClusterPOJOPK().getUniqueId(), sourceItemRevision);
-                server.commit(refItemPOJOPK.getDataClusterPOJOPK().getUniqueId());
+                server.commit();
         	}else{
         		Document partDom=Util.parse(getXmlDocument.toString());
         		String insertText=partDom.getFirstChild().getTextContent();
@@ -298,9 +298,9 @@ public class DroppedItemPOJO implements Serializable{
 					}
 				}
                 
-                server.start(refItemPOJOPK.getDataClusterPOJOPK().getUniqueId());
+                server.start();
                 server.putDocumentFromString(targetDomXml, refItemPOJOPK.getUniqueID(), refItemPOJOPK.getDataClusterPOJOPK().getUniqueId(), sourceItemRevision);//need set indent-number
-                server.commit(refItemPOJOPK.getDataClusterPOJOPK().getUniqueId());
+                server.commit();
         	}
         	//delete dropped item
         	long res = server.deleteDocument(
@@ -318,9 +318,9 @@ public class DroppedItemPOJO implements Serializable{
         					refItemPOJOPK.getUniqueID()
                     );
         		}else{
-                    server.start(refItemPOJOPK.getDataClusterPOJOPK().getUniqueId());
+                    server.start();
         			server.putDocumentFromString(bakDoc, refItemPOJOPK.getUniqueID(), refItemPOJOPK.getDataClusterPOJOPK().getUniqueId(), sourceItemRevision);
-                    server.commit(refItemPOJOPK.getDataClusterPOJOPK().getUniqueId());
+                    server.commit();
         		}
         	}
         	

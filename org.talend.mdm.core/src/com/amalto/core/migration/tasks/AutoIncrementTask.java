@@ -26,9 +26,9 @@ public class AutoIncrementTask extends AbstractMigrationTask {
 			p.storeToXML(bos, "","UTF-8");
 			String xmlString=bos.toString("UTF-8");
             XmlServerSLWrapperLocal xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
-            xmlServerCtrlLocal.start(XSystemObjects.DC_CONF.getName());
+            xmlServerCtrlLocal.start();
             xmlServerCtrlLocal.putDocumentFromString(xmlString, "Auto_Increment", XSystemObjects.DC_CONF.getName(), null);
-            xmlServerCtrlLocal.commit(XSystemObjects.DC_CONF.getName());
+            xmlServerCtrlLocal.commit();
 			//read from xml file
 			bos.close();
 			reader.close();
