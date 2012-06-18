@@ -16,6 +16,8 @@ import java.util.Map.Entry;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
+import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Document;
@@ -36,6 +38,8 @@ import com.amalto.core.util.XtentisException;
  *
  */
 public class InitDBUtil {
+	static Logger logger=Logger.getLogger(InitDBUtil.class);
+	
 	static HashMap<String, List<String>> initDB=new HashMap<String, List<String>>();
 	static HashMap<String, List<String>> initExtensionDB=new HashMap<String, List<String>>();
 	static boolean useExtension=false;
