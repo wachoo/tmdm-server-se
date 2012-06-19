@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,13 +59,13 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -343,6 +344,8 @@ public class TreeDetailGridFieldCreator {
                     break;
                 }
             }
+            
+        	autoFillValue4MandatoryBooleanField(flag, childs, fieldMap);
 
             for (int i = 0; i < childs.size(); i++) {
                 ItemNodeModel mandatoryNode = (ItemNodeModel) childs.get(i);
@@ -357,6 +360,30 @@ public class TreeDetailGridFieldCreator {
             setMandatory(field, node.isMandatory());
         }
     }
+
+	private static void autoFillValue4MandatoryBooleanField(boolean enable,List<ModelData> toUpdateNodes,Map<String, Field<?>> fieldMap) {
+		
+		if(toUpdateNodes==null)
+			return;
+		
+		if(enable){
+			
+			for (int i = 0; i < toUpdateNodes.size(); i++) {
+	            ItemNodeModel toUpdateNode = (ItemNodeModel) toUpdateNodes.get(i);
+	            Field<?> toUpdateField = fieldMap.get(toUpdateNode.getId().toString());
+	            
+	            if(toUpdateField instanceof BooleanField &&
+	            	  toUpdateNode.isMandatory() &&
+	            		  (toUpdateNode.getObjectValue()==null||"".equals(toUpdateNode.getObjectValue()))){
+	            	
+	            	toUpdateNode.setObjectValue((Serializable) DataTypeConstants.BOOLEAN.getDefaultValue());
+	            	
+	            }
+			}//end for
+			
+		}
+				
+	}
 
     @SuppressWarnings("rawtypes")
     private static void setMandatory(Field<?> field, boolean mandatory) {
