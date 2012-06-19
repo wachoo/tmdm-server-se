@@ -292,7 +292,7 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         event.setData(itemBean8);
         onSaveItem(event);
         assertEquals(store.getAt(0).get("name"), "Yello");
-        assertEquals(2, pagingBar.getTotalPages());
+        assertEquals(0, pagingBar.getTotalPages());
     }
 
     private void onSaveItem(final AppEvent event) {
