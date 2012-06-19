@@ -192,15 +192,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             String message = null;
             String errorCode = null;
             if (outputErrorMessage != null) {
-                Document doc = Util.parse(outputErrorMessage);
-                // TODO what if multiple error nodes ?
-                String xpath = "//report/message"; //$NON-NLS-1$
-                Node errorNode = Util.getNodeList(doc, xpath).item(0);
-                if (errorNode instanceof Element) {
-                    Element errorElement = (Element) errorNode;
-                    errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
-                    message = MultilanguageMessageParser.pickOutISOMessage(errorElement.getTextContent(), language);
-                }
+            	Map<String, String> processMap = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.handleProcessMessage(outputErrorMessage, language);
+            	errorCode = processMap.get("typeCode");
+            	message = processMap.get("message");
             }
 
             if (outputErrorMessage == null || "info".equals(errorCode)) { //$NON-NLS-1$                
@@ -1646,29 +1640,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 String outputErrorMessage = wsPutItemWithReport.getSource();
                 String errorCode = null;
                 if (outputErrorMessage != null) {
-                    org.w3c.dom.Document doc = com.amalto.webapp.core.util.Util.parse(outputErrorMessage);
-                    // TODO what if multiple error nodes ?
-                    String xpath = "//report/message"; //$NON-NLS-1$
-                    org.w3c.dom.NodeList checkList = com.amalto.webapp.core.util.Util.getNodeList(doc, xpath);
-                    org.w3c.dom.Node errorNode = null;
-                    if (checkList != null && checkList.getLength() > 0)
-                        errorNode = checkList.item(0);
-                    if (errorNode != null && errorNode instanceof org.w3c.dom.Element) {
-                        org.w3c.dom.Element errorElement = (org.w3c.dom.Element) errorNode;
-                        errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
-                        org.w3c.dom.Node child = errorElement.getFirstChild();
-                        if(child != null) {
-                        	if (language == null) {
-                                message = child.getTextContent();
-                            } else {
-                                Matcher matcher = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL).matcher(child.getTextContent());//$NON-NLS-1$//$NON-NLS-2$
-                                if(matcher.matches())
-                                	message = matcher.replaceAll("$1");//$NON-NLS-1$
-                                else
-                                	message = child.getTextContent();
-                            }
-                        }
-                    }
+                	Map<String, String> processMap = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.handleProcessMessage(outputErrorMessage, language);
+                	errorCode = processMap.get("typeCode");
+                	message = processMap.get("message");
                 }
 
                 if ("info".equals(errorCode)) { //$NON-NLS-1$

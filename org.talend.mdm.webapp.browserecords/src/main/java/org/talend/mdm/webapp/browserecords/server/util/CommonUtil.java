@@ -17,7 +17,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,12 +32,17 @@ import org.dom4j.DocumentHelper;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.server.util.XmlUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import com.amalto.webapp.core.util.Util;
 
 /**
  * DOC HSHU class global comment. Detailled comment
@@ -250,5 +257,27 @@ public class CommonUtil {
             }
 
         }
+    }
+    
+    public static Map<String, String> handleProcessMessage(String outputMessage, String language) throws Exception {
+    	Map<String, String> messageMap = new HashMap<String, String>();
+    	messageMap.put("typeCode", null);
+    	messageMap.put("message", null);
+    	
+    	Document doc = Util.parse(outputMessage);
+    	String xpath = "//report/message"; //$NON-NLS-1$
+    	NodeList checkList = Util.getNodeList(doc, xpath);
+    	if (checkList != null && checkList.getLength() > 0) {
+    		Node messageNode = checkList.item(0);
+    		if (messageNode instanceof Element) {
+    			Element messageElement = (Element) messageNode;
+    			messageMap.put("typeCode", messageElement.getAttribute("type")); //$NON-NLS-1$ //$NON-NLS-2$
+    			Node child = messageElement.getFirstChild();
+    			if (child != null)
+    				messageMap.put("message", MultilanguageMessageParser.pickOutISOMessage(child.getTextContent(), language));    			
+    		}
+    	}
+    	
+        return messageMap;
     }
 }
