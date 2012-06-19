@@ -330,8 +330,17 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator{
         	item.setPlanPK(null);
         	//used for binding data model
         	if(dataModelName!=null)item.setDataModelName(dataModelName);
-        	//Store
-            ItemPOJOPK pk = item.store();
+
+            //Store
+            XmlServerSLWrapperLocal xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
+            String dataClusterName = item.getDataClusterPOJOPK().getUniqueId();
+            xmlServerCtrlLocal.start();
+            ItemPOJOPK pk;
+            {
+                pk = item.store();
+            }
+            xmlServerCtrlLocal.commit();
+
             if (pk == null) throw new XtentisException("Could not put item "+Util.joinStrings(item.getItemIds(),".")+".Check the XML Server logs");
             
             return pk;
