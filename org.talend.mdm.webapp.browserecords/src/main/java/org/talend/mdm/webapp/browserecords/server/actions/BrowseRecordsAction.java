@@ -1330,6 +1330,44 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             throw new ServiceException(e.getLocalizedMessage());
         }
     }
+    
+    public Map<ViewBean, Map<String, List<String>>> getForeignKeyValues(String concept, String[] ids, String language) throws ServiceException {
+    	try{
+    		Map<ViewBean, Map<String, List<String>>> map = new HashMap<ViewBean, Map<String,List<String>>>();
+    		// 1. getView
+    		ViewBean viewBean = getView("Browse_items_" + concept, language);//$NON-NLS-1$
+    		Map<String, List<String>> fkValues = new HashMap<String, List<String>>();
+    		// 2. getItem
+    		WSItem wsItem = CommonUtil.getPort().getItem(
+                    new WSGetItem(new WSItemPK(new WSDataClusterPK(this.getCurrentDataCluster()), concept, ids)));
+    		org.dom4j.Document doc = org.talend.mdm.webapp.base.server.util.XmlUtil.parseText(wsItem.getContent());
+    		EntityModel entityModel = viewBean.getBindingEntityModel();
+    		Map<String, TypeModel> metaData = entityModel.getMetaDataTypes();
+    		// 3. getAllFKValues
+    		for (String key : metaData.keySet()){
+    			TypeModel typeModel = metaData.get(key);
+    			if(typeModel.getForeignkey() != null && typeModel.getForeignkey().trim().length() > 0){
+    				fkValues.put(typeModel.getXpath(), new ArrayList<String>());
+    				List<?> nodeList = doc.selectNodes(typeModel.getXpath());
+                    if (nodeList != null && nodeList.size() > 0) {
+                        for (int i = 0; i < nodeList.size(); i++) {
+                    		org.dom4j.Element current = (org.dom4j.Element) nodeList.get(i);
+                    		fkValues.get(typeModel.getXpath()).add(current.getText());
+                        }
+                    }
+    			}
+    		}
+    		// 4. construct map
+    		map.put(viewBean, fkValues);
+    		return map;
+    	}catch (ServiceException e) {
+            LOG.error(e.getMessage(), e);
+            throw e;
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
+    }
 
     public ItemNodeModel getItemNodeModel(ItemBean item, EntityModel entity, String language) throws ServiceException {
         try {
@@ -1362,7 +1400,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    public ItemNodeModel createDefaultItemNodeModel(ViewBean viewBean, Map<String, String> initDataMap, String language)
+    public ItemNodeModel createDefaultItemNodeModel(ViewBean viewBean, Map<String, List<String>> initDataMap, String language)
             throws ServiceException {
         String concept = viewBean.getBindingEntityModel().getConceptName();
 
@@ -1373,7 +1411,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             DisplayRuleEngine ruleEngine = new DisplayRuleEngine(metaDataTypes, concept);
 
             TypeModel typeModel = metaDataTypes.get(concept);
-            Document doc = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getSubXML(typeModel, null, language);
+            Document doc = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getSubXML(typeModel, null, initDataMap, language);
 
             org.dom4j.Document doc4j = XmlUtil.parseDocument(doc);
 
@@ -1382,9 +1420,15 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             if (initDataMap != null) {
                 Set<String> paths = initDataMap.keySet();
                 for (String path : paths) {
-                    org.dom4j.Node node = doc4j.selectSingleNode(path);
-                    if (node != null) {
-                        node.setText(initDataMap.get(path));
+					List<?> nodeList = doc4j.selectNodes(path);
+                    List<String> values = initDataMap.get(path);
+                    if (nodeList != null && nodeList.size() > 0 && values != null && values.size() > 0) {
+                    	for (int i = 0; i < nodeList.size(); i++) {
+                    		org.dom4j.Element current = (org.dom4j.Element) nodeList.get(i);
+                    		if (current != null)
+                    			current.setText(values.get(i));
+						}
+                        
                     }
                 }
             }
@@ -1417,7 +1461,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             org.dom4j.Document mainDoc = DocumentHelper.parseText(xml);
 
             org.dom4j.Document subDoc = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil
-                    .getSubXML(typeModel, realType, language));
+                    .getSubXML(typeModel, realType, null, language));
 
             org.dom4j.Document doc4j = org.talend.mdm.webapp.base.server.util.XmlUtil.mergeDoc(mainDoc, subDoc, contextPath);
 

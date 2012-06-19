@@ -18,6 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -171,12 +172,12 @@ public class CommonUtil {
         return null;            
     }
 
-    public static Document getSubXML(TypeModel typeModel, String realType, String language) throws ServiceException {
+    public static Document getSubXML(TypeModel typeModel, String realType, Map<String, List<String>> map, String language) throws ServiceException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document doc = builder.newDocument();
-            List<Element> list = _getDefaultXML(typeModel, null, realType, doc, language);
+            List<Element> list = _getDefaultXML(typeModel, null, realType, doc, map, language);
             Element root = list.get(0);
             doc.appendChild(root);
             return doc;
@@ -195,7 +196,7 @@ public class CommonUtil {
         return XmlUtil.parseDocument(doc);
     }
 
-    private static List<Element> _getDefaultXML(TypeModel model, TypeModel parentModel, String realType, Document doc,
+    private static List<Element> _getDefaultXML(TypeModel model, TypeModel parentModel, String realType, Document doc, Map<String, List<String>> map, 
             String language) {
         List<Element> itemNodes = new ArrayList<Element>();
         if (model.getMinOccurs() > 1) {
@@ -209,6 +210,15 @@ public class CommonUtil {
             applySimpleTypesDefaultValue(model, parentModel, el);
             itemNodes.add(el);
         }
+    	if (model.getForeignkey() != null && model.getForeignkey().trim().length() > 0){
+    		if (map != null && map.containsKey(model.getXpath()) && map.get(model.getXpath()).size() > 0) {
+    			for (int i = 0; i < (map.get(model.getXpath()).size() - itemNodes.size()); i++){
+    				Element el = doc.createElement(model.getName());
+                    applySimpleTypesDefaultValue(model, parentModel, el);
+                    itemNodes.add(el);
+    			}
+    		}
+    	}
         if (!model.isSimpleType()) {
             ComplexTypeModel complexModel = (ComplexTypeModel) model;
             ComplexTypeModel realTypeModel = complexModel.getRealType(realType);
@@ -223,7 +233,7 @@ public class CommonUtil {
                     node.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "xsi:type", realType); //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 for (TypeModel typeModel : children) {
-                    List<Element> els = _getDefaultXML(typeModel, model, realType, doc, language);
+                    List<Element> els = _getDefaultXML(typeModel, model, realType, doc, map, language);
                     for (Element el : els) {
                         node.appendChild(el);
                     }

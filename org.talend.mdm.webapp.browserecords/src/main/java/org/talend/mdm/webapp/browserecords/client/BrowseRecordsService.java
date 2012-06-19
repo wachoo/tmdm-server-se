@@ -97,7 +97,7 @@ public interface BrowseRecordsService extends RemoteService {
 
     ItemNodeModel getItemNodeModel(ItemBean item, EntityModel entity, String language) throws ServiceException;
 
-    ItemNodeModel createDefaultItemNodeModel(ViewBean viewBean, Map<String, String> initDataMap, String language) throws ServiceException;
+    ItemNodeModel createDefaultItemNodeModel(ViewBean viewBean, Map<String, List<String>> initDataMap, String language) throws ServiceException;
     
     ItemNodeModel createSubItemNodeModel(ViewBean viewBean, String xml, String typePath, String contextPath, String realType,String language) throws ServiceException;
 
@@ -128,5 +128,7 @@ public interface BrowseRecordsService extends RemoteService {
     boolean isItemModifiedByOthers(ItemBean itemBean) throws ServiceException;
 
     String formatValue(FormatModel model) throws ServiceException;
+    
+    Map<ViewBean, Map<String, List<String>>> getForeignKeyValues(String concept, String[] ids, String language) throws ServiceException;
 
 }

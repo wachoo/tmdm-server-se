@@ -43,7 +43,7 @@ public class ItemPanel extends ContentPanel {
 
     private String operation;
     
-    private Map<String, String> initDataMap;
+    private Map<String, List<String>> initDataMap;
 
     private boolean isForeignKeyPanel;
 
@@ -192,7 +192,7 @@ public class ItemPanel extends ContentPanel {
         this.initUI(null);
     }
 
-    public void initTreeDetail(ViewBean viewBean, ItemBean item, Map<String, String> initDataMap, String operation) {
+    public void initTreeDetail(ViewBean viewBean, ItemBean item, Map<String, List<String>> initDataMap, String operation) {
         this.initDataMap = initDataMap;
         initTreeDetail(viewBean, item, operation);
 
