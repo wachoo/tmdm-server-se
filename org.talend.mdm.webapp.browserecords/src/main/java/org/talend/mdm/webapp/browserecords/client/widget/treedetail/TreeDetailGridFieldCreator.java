@@ -60,13 +60,13 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -359,6 +359,8 @@ public class TreeDetailGridFieldCreator {
                 }
             }
 
+            autoFillValue4MandatoryBooleanField(flag, childs, fieldMap);
+
             for (int i = 0; i < childs.size(); i++) {
                 ItemNodeModel mandatoryNode = (ItemNodeModel) childs.get(i);
                 Field<?> updateField = fieldMap.get(mandatoryNode.getId().toString());
@@ -371,6 +373,30 @@ public class TreeDetailGridFieldCreator {
         } else {
             setMandatory(field, node.isMandatory());
         }
+    }
+
+    private static void autoFillValue4MandatoryBooleanField(boolean enable, List<ModelData> toUpdateNodes,
+            Map<String, Field<?>> fieldMap) {
+
+        if (toUpdateNodes == null)
+            return;
+
+        if (enable) {
+
+            for (int i = 0; i < toUpdateNodes.size(); i++) {
+                ItemNodeModel toUpdateNode = (ItemNodeModel) toUpdateNodes.get(i);
+                Field<?> toUpdateField = fieldMap.get(toUpdateNode.getId().toString());
+
+                if (toUpdateField instanceof BooleanField && toUpdateNode.isMandatory()
+                        && (toUpdateNode.getObjectValue() == null || "".equals(toUpdateNode.getObjectValue()))) {
+
+                    toUpdateNode.setObjectValue((Serializable) DataTypeConstants.BOOLEAN.getDefaultValue());
+
+                }
+            }// end for
+
+        }
+
     }
 
     private static TreeDetail getCurrentTreeDetail(Widget child) {
