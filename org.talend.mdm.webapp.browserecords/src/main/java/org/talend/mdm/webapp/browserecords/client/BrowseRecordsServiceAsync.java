@@ -122,9 +122,12 @@ public interface BrowseRecordsServiceAsync {
 
     void getEntityModel(String concept, String language, AsyncCallback<EntityModel> callback);
     
-    void createDefaultItemNodeModel(ViewBean viewBean, Map<String, String> initDataMap, String language, AsyncCallback<ItemNodeModel> callback);
+    void createDefaultItemNodeModel(ViewBean viewBean, Map<String, List<String>> initDataMap, String language, AsyncCallback<ItemNodeModel> callback);
 
     void createSubItemNodeModel(ViewBean viewBean, String xml, String typePath, String contextPath, String realType,
             String language, AsyncCallback<ItemNodeModel> callback);
+
+	void getForeignKeyValues(String concept, String[] ids, String language,
+			AsyncCallback<Map<ViewBean, Map<String, List<String>>>> callback);
 
 }

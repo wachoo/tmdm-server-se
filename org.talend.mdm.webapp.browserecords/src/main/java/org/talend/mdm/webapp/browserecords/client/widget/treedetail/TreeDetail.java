@@ -174,7 +174,7 @@ public class TreeDetail extends ContentPanel {
         initTree(viewBean, itemBean, null, null);
     }
 
-    public void initTree(final ViewBean viewBean, ItemBean itemBean, Map<String, String> initDataMap, final String operation) {
+    public void initTree(final ViewBean viewBean, ItemBean itemBean, Map<String, List<String>> initDataMap, final String operation) {
         this.viewBean = viewBean;
         if (itemBean == null) {
             buildPanel(operation, initDataMap);
@@ -208,7 +208,7 @@ public class TreeDetail extends ContentPanel {
         }
     }
 
-    private void buildPanel(final String operation, Map<String, String> initDataMap) {
+    private void buildPanel(final String operation, Map<String, List<String>> initDataMap) {
         getItemService().createDefaultItemNodeModel(viewBean, initDataMap, Locale.getLanguage(),
                 new SessionAwareAsyncCallback<ItemNodeModel>() {
             public void onSuccess(final ItemNodeModel result) {

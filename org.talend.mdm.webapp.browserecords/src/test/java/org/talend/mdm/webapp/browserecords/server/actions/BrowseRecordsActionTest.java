@@ -18,7 +18,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -29,7 +32,10 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit3.PowerMockSuite;
 import org.powermock.reflect.Whitebox;
 import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
+import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
@@ -39,17 +45,23 @@ import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.SchemaMockAgent;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
 import org.talend.mdm.webapp.browserecords.server.provider.SmartViewProvider;
+import org.talend.mdm.webapp.browserecords.server.ruleengine.DisplayRuleEngine;
+import org.talend.mdm.webapp.browserecords.server.util.DynamicLabelUtil;
 import org.talend.mdm.webapp.browserecords.server.util.SmartViewUtil;
 import org.talend.mdm.webapp.browserecords.server.util.TestData;
+import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.SmartViewDescriptions;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.amalto.core.util.Util;
+import com.amalto.webapp.core.util.XmlUtil;
+import com.amalto.webapp.util.webservices.WSItem;
 import com.amalto.webapp.util.webservices.WSStringArray;
 import com.amalto.webapp.util.webservices.WSView;
 import com.amalto.webapp.util.webservices.WSViewSearch;
@@ -421,15 +433,280 @@ public class BrowseRecordsActionTest extends TestCase {
         assertEquals("Contract/detail:ContractDetailSubType/subType:ContractDetailSubTypeTwo/description",
                 ((ItemNodeModel) newSubTypeModel.getChild(1)).getTypePath());
     }
+    
+    public void test_getForeignKeyValues() throws Exception {
+    	String[] ids = new String[]{"1"};
+    	String language = "en";
+    	Map<ViewBean, Map<String, List<String>>> map = mock_getForeignKeyValues("Product", ids, language);
+    	assertNotNull(map);
+    	ViewBean viewBean = map.keySet().iterator().next();
+    	Map<String, List<String>> fkValues = map.get(viewBean);
+    	assertNotNull(viewBean);
+    	assertNotNull(fkValues);
+    	assertEquals(16, viewBean.getBindingEntityModel().getMetaDataTypes().size());
+    	assertEquals(2, fkValues.size());
+    	List<String> families = fkValues.get("Product/Family");
+    	assertEquals(2, families.size());
+    	assertEquals("[1]", families.get(0));
+    	assertEquals("[2]", families.get(1));
+    	assertTrue(fkValues.get("Product/Parent").size() == 0);
+    }
+    
+    public void test_createDefaultItemNodeModel() throws Exception{
+    	String language = "en";
+        String concept = "Product";
+        String[] ids = new String[]{"1"};
+        Map<ViewBean, Map<String, List<String>>> map = mock_getForeignKeyValues(concept, ids, language);
+    	assertNotNull(map);
+    	ViewBean viewBean = map.keySet().iterator().next();
+        Map<String, List<String>> initDataMap = map.get(viewBean);
+        ItemNodeModel root = mock_createDefaultItemNodeModel(viewBean, initDataMap, language);
+        assertNotNull(root);
+        assertEquals(12, root.getChildren().size());
+        ItemNodeModel id = (ItemNodeModel) root.getChild(0);
+        assertEquals("", id.getObjectValue());
+        ItemNodeModel familyOne = (ItemNodeModel) root.getChild(7);
+        assertTrue(familyOne.getObjectValue() instanceof ForeignKeyBean);
+        assertEquals("[1]", ((ForeignKeyBean)familyOne.getObjectValue()).getId());
+        ItemNodeModel familyTwo = (ItemNodeModel) root.getChild(8);
+        assertTrue(familyTwo.getObjectValue() instanceof ForeignKeyBean);
+        assertEquals("[2]", ((ForeignKeyBean)familyTwo.getObjectValue()).getId());
+    }
+
+	public ItemNodeModel mock_createDefaultItemNodeModel(ViewBean viewBean,
+			Map<String, List<String>> initDataMap, String language)
+			throws ServiceException {
+		String concept = viewBean.getBindingEntityModel().getConceptName();
+
+		EntityModel entity = viewBean.getBindingEntityModel();
+		Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
+		ItemNodeModel itemModel = null;
+		try {
+			DisplayRuleEngine ruleEngine = new DisplayRuleEngine(metaDataTypes,
+					concept);
+
+			TypeModel typeModel = metaDataTypes.get(concept);
+			Document doc = org.talend.mdm.webapp.browserecords.server.util.CommonUtil
+					.getSubXML(typeModel, null, initDataMap, language);
+
+			org.dom4j.Document doc4j = XmlUtil.parseDocument(doc);
+
+			ruleEngine.execDefaultValueRule(doc4j);
+
+			if (initDataMap != null) {
+				Set<String> paths = initDataMap.keySet();
+				for (String path : paths) {
+					List<?> nodeList = doc4j.selectNodes(path);
+					List<String> values = initDataMap.get(path);
+					if (nodeList != null && nodeList.size() > 0
+							&& values != null && values.size() > 0) {
+						for (int i = 0; i < nodeList.size(); i++) {
+							org.dom4j.Element current = (org.dom4j.Element) nodeList
+									.get(i);
+							current.setText(values.get(i));
+						}
+
+					}
+				}
+			}
+
+			Document resultDoc = org.talend.mdm.webapp.base.server.util.XmlUtil
+					.parseDocument(doc4j);
+			Map<String, Integer> multiNodeIndex = new HashMap<String, Integer>();
+			StringBuffer foreignKeyDeleteMessage = new StringBuffer();
+			Element root = resultDoc.getDocumentElement();
+			itemModel = builderNode(multiNodeIndex, root, entity,
+					"", "", false, foreignKeyDeleteMessage, true, language); //$NON-NLS-1$ //$NON-NLS-2$
+			DynamicLabelUtil.getDynamicLabel(doc4j,
+					"", itemModel, metaDataTypes, language); //$NON-NLS-1$
+		} catch (ServiceException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new ServiceException(e.getMessage());
+		}
+		return itemModel;
+	}
+	/**
+	 * the code comes from org.talend.mdm.webapp.browserecords.server.actions.BrowseRecordsAction.builderNode(Map<String, Integer>, 
+	 * Element, EntityModel, String, String, boolean, StringBuffer, boolean, String)
+	 * <li> change findTypeModelByTypePath to DataModelHelper.findTypeModelByTypePath(metaDataTypes, typePath) 
+	 * <li> change getForeignKeyDesc to mock_getForeignKeyDesc
+	 */
+    private ItemNodeModel builderNode(Map<String, Integer> multiNodeIndex, Element el, EntityModel entity, String baseXpath,
+            String xpath, boolean isPolyType, StringBuffer foreignKeyDeleteMessage, boolean isCreate, String language)
+            throws Exception {
+        Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
+        String realType = el.getAttribute("xsi:type"); //$NON-NLS-1$
+        if (isPolyType) {
+            xpath += ("".equals(xpath) ? el.getNodeName() : "/" + el.getNodeName()); //$NON-NLS-1$//$NON-NLS-2$
+            if (realType != null && realType.trim().length() > 0) {
+                xpath += ":" + realType; //$NON-NLS-1$
+            }
+        } else {
+            xpath += ("".equals(xpath) ? el.getNodeName() : "/" + el.getNodeName()); //$NON-NLS-1$//$NON-NLS-2$
+        }
+        String typePath;
+        if ("".equals(baseXpath)) { //$NON-NLS-1$
+            typePath = xpath.replaceAll("\\[\\d+\\]", ""); //$NON-NLS-1$//$NON-NLS-2$
+        } else {
+            typePath = (baseXpath + "/" + xpath).replaceAll("\\[\\d+\\]", ""); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+        }
+        typePath = typePath.replaceAll(":" + realType + "$", ""); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+        ItemNodeModel nodeModel = new ItemNodeModel(el.getNodeName());
+
+        TypeModel model = DataModelHelper.findTypeModelByTypePath(metaDataTypes, typePath);
+        nodeModel.setTypePath(model.getTypePath());
+        nodeModel.setHasVisiblueRule(model.isHasVisibleRule());
+        String realXPath = xpath;
+        if (isPolyType) {
+            realXPath = realXPath.replaceAll(":\\w+", ""); //$NON-NLS-1$//$NON-NLS-2$
+        }
+
+        if (model.getMaxOccurs() > 1 || model.getMaxOccurs() == -1) {
+
+            Integer index = multiNodeIndex.get(realXPath);
+            if (index == null) {
+                nodeModel.setIndex(1);
+                multiNodeIndex.put(realXPath, new Integer(1));
+            } else {
+                nodeModel.setIndex(index + 1);
+                multiNodeIndex.put(realXPath, nodeModel.getIndex());
+            }
+        }
+
+        if (realType != null && realType.trim().length() > 0) {
+            nodeModel.setRealType(el.getAttribute("xsi:type")); //$NON-NLS-1$
+        }
+        nodeModel.setLabel(model.getLabel(language));
+        nodeModel.setDescription(model.getDescriptionMap().get(language));
+        nodeModel.setName(el.getNodeName());
+        if (model.getMinOccurs() == 1 && model.getMaxOccurs() == 1) {
+            nodeModel.setMandatory(true);
+        }
+        String foreignKey = model.getForeignkey();
+        if (foreignKey != null && foreignKey.trim().length() > 0) {
+            // set foreignKeyBean
+            model.setRetrieveFKinfos(true);
+            String modelType = el.getAttribute("tmdm:type"); //$NON-NLS-1$
+            if (modelType != null && modelType.trim().length() > 0)
+                nodeModel.setTypeName(modelType);
+            ForeignKeyBean fkBean = mock_getForeignKeyDesc(model, el.getTextContent(), true, modelType);
+            if (fkBean != null) {
+                String fkNotFoundMessage = fkBean.get("foreignKeyDeleteMessage"); //$NON-NLS-1$
+                if (fkNotFoundMessage != null) {// fix bug TMDM-2757
+                    if (foreignKeyDeleteMessage.indexOf(fkNotFoundMessage) == -1)
+                        foreignKeyDeleteMessage.append(fkNotFoundMessage + "\r\n"); //$NON-NLS-1$
+                    return nodeModel;
+                }
+                nodeModel.setObjectValue(fkBean);
+            }
+        } else if (model.isSimpleType()) {
+            nodeModel.setObjectValue(el.getTextContent());
+        }
+        if (isCreate && model.getDefaultValueExpression() != null && model.getDefaultValueExpression().trim().length() > 0) {
+            nodeModel.setChangeValue(true);
+        }
+
+        NodeList children = el.getChildNodes();
+        if (children != null && !model.isSimpleType()) {
+            List<TypeModel> childModels = null;
+            if (nodeModel.getRealType() != null && nodeModel.getRealType().trim().length() > 0) {
+                childModels = ((ComplexTypeModel) model).getRealType(nodeModel.getRealType()).getSubTypes();
+            } else {
+                childModels = ((ComplexTypeModel) model).getSubTypes();
+            }
+            for (TypeModel typeModel : childModels) { // display tree node according to the studio default configuration
+                boolean existNodeFlag = false;
+                for (int i = 0; i < children.getLength(); i++) {
+                    Node child = children.item(i);
+                    if (child.getNodeType() == Node.ELEMENT_NODE) {
+                        String tem_typePath;
+                        if (realType != null && realType.trim().length() > 0) {
+                            tem_typePath = typePath + ":" + realType + "/" + child.getNodeName(); //$NON-NLS-1$ //$NON-NLS-2$
+                        } else {
+                            tem_typePath = typePath + "/" + child.getNodeName(); //$NON-NLS-1$
+                        }
+
+                        if (typeModel.getTypePath().equals(tem_typePath)
+                                || (typeModel.getTypePathObject() != null
+                                        && typeModel.getTypePathObject().getAllAliasXpaths() != null && typeModel
+                                        .getTypePathObject().getAllAliasXpaths().contains(tem_typePath))) {
+                            ItemNodeModel childNode = builderNode(multiNodeIndex, (Element) child, entity, baseXpath, xpath,
+                                    isPolyType, foreignKeyDeleteMessage, isCreate, language);
+                            nodeModel.add(childNode);
+                            existNodeFlag = true;
+                            if (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {
+                                continue;
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (!existNodeFlag) { // add default tree node when the node has not been saved in DB.
+                    nodeModel.add(org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getDefaultTreeModel(typeModel,
+                            isCreate, language).get(0));
+                }
+            }
+
+        }
+        for (String key : entity.getKeys()) {
+            if (key.equals(realXPath))
+                nodeModel.setKey(true);
+        }
+        return nodeModel;
+
+    }
+
+    private ForeignKeyBean mock_getForeignKeyDesc(TypeModel model, String ids, boolean isNeedExceptionMessage, String modelType) throws Exception {
+    	ForeignKeyBean bean = new ForeignKeyBean();
+    	bean.setId(ids);
+    	return bean;
+    }
+    
+    private Map<ViewBean, Map<String, List<String>>> mock_getForeignKeyValues(String concept, String[] ids, String language) throws Exception {
+		Map<ViewBean, Map<String, List<String>>> map = new HashMap<ViewBean, Map<String,List<String>>>();
+		// 1. mock getView
+		ViewBean viewBean = getViewBean(concept, "ProductDemo.xsd"); 
+		Map<String, List<String>> fkValues = new HashMap<String, List<String>>();
+		// 2. mock getItem
+		WSItem wsItem = new WSItem();
+		wsItem.setContent(getXml("ProductDemo.xml"));
+		org.dom4j.Document doc = org.talend.mdm.webapp.base.server.util.XmlUtil.parseText(wsItem.getContent());
+		EntityModel entityModel = viewBean.getBindingEntityModel();
+		Map<String, TypeModel> metaData = entityModel.getMetaDataTypes();
+		// 3. getAllFKValues
+		for (String key : metaData.keySet()){
+			TypeModel typeModel = metaData.get(key);
+			if(typeModel.getForeignkey() != null && typeModel.getForeignkey().trim().length() > 0){
+				fkValues.put(typeModel.getXpath(), new ArrayList<String>());
+				List<?> nodeList = doc.selectNodes(typeModel.getXpath());
+                if (nodeList != null && nodeList.size() > 0) {
+                    for (int i = 0; i < nodeList.size(); i++) {
+                		org.dom4j.Element current = (org.dom4j.Element) nodeList.get(i);
+                		fkValues.get(typeModel.getXpath()).add(current.getText());
+                    }
+                }
+			}
+		}
+		// 4. construct map
+		map.put(viewBean, fkValues);
+		return map;
+    }
 
     private String getXml(String fileName) throws IOException {
         InputStream stream = BrowseRecordsActionTest.class.getResourceAsStream("../../" + fileName);
         return inputStream2String(stream);
     }
 
-    private ViewBean getViewBean(String concept, String fileName) throws IOException, SAXException {
+
+    private ViewBean getViewBean(String name, String fileName) throws IOException, SAXException {
+
         EntityModel entityModel = new EntityModel();
-        String datamodelName = concept;
+
+        String datamodelName = name;
+        String concept = name;
+
         String[] ids = { "" };
         String[] roles = { "Demo_Manager", "System_Admin", "authenticated", "administration" };
         InputStream stream = BrowseRecordsActionTest.class.getResourceAsStream("../../" + fileName);
@@ -438,8 +715,8 @@ public class BrowseRecordsActionTest extends TestCase {
         PowerMockito.mockStatic(Util.class);
         Mockito.when(Util.isEnterprise()).thenReturn(false);
         DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
-        DataModelHelper.parseSchema(datamodelName, concept, DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, entityModel,
-                Arrays.asList(roles));
+
+        DataModelHelper.parseSchema(datamodelName, concept, DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, entityModel, Arrays.asList(roles));
         ViewBean viewBean = new ViewBean();
         viewBean.setBindingEntityModel(entityModel);
         return viewBean;
