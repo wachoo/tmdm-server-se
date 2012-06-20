@@ -92,6 +92,7 @@ public class ImageUploadServlet extends HttpServlet {
 		String result=onUpload(request, response);
 		
 		response.setContentType("text/html");
+		response.setCharacterEncoding("UTF-8"); //$NON-NLS-1$
 		PrintWriter writer = response.getWriter();
         writer.write(result.toString());
         writer.close();

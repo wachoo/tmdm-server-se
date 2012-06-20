@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.inputfield;
 
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 
@@ -52,6 +53,8 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Image;
 
 public class PictureField extends TextField<String> {
+	
+	private static final int DEFAULT_IMAGE_SCALE_SIZE = 150;
 
     private static final String CONTEXT_PATH = GWT.getModuleBaseURL().replaceFirst(GWT.getModuleName() + "/", ""); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -70,7 +73,7 @@ public class PictureField extends TextField<String> {
     private EditWindow editWin = new EditWindow();
 
     private boolean readOnly;
-
+ 
     private Dialog dialog = new Dialog() {
 
         @Override
@@ -78,34 +81,9 @@ public class PictureField extends TextField<String> {
             super.onButtonPressed(button);
             if (button == getButtonBar().getItemByItemId(YES)) {
 
-                RequestBuilder reqBuilder = new RequestBuilder(RequestBuilder.GET,
-                        "/imageserver/secure/ImageDeleteServlet?uri=" + value);//$NON-NLS-1$
-
-                reqBuilder.setCallback(new RequestCallback() {
-
-                    public void onResponseReceived(Request request, Response response) {
-                        String json = response.getText();
-                        JSONObject jsObject = JSONParser.parse(json).isObject();
-                        JSONBoolean success = jsObject.get("success").isBoolean(); //$NON-NLS-1$
-                        JSONString message = jsObject.get("message").isString(); //$NON-NLS-1$
-                        boolean succeed = success.booleanValue();
-                        MessageBox.alert(succeed ? MessagesFactory.getMessages().message_success() : MessagesFactory
-                                .getMessages().message_fail(), message.stringValue(), null);
-                        if (succeed) {
-                            setValue(null);
-                        }
-                        dialog.hide();
-                    }
-
-                    public void onError(Request request, Throwable exception) {
-                        MessageBox.alert(MessagesFactory.getMessages().error_title(), exception.getMessage(), null);
-                    }
-                });
-                try {
-                    reqBuilder.send();
-                } catch (RequestException e) {
-                    MessageBox.alert("RequestException", e.getMessage(), null); //$NON-NLS-1$
-                }
+                // Only delete it from client side
+            	setValue(DataTypeConstants.PICTURE.getDefaultValue() == null ? null : (String) DataTypeConstants.PICTURE.getDefaultValue());// reset value when delete
+                dialog.hide();  
 
             } else if (button == getButtonBar().getItemByItemId(NO)) {
                 dialog.hide();
@@ -137,14 +115,15 @@ public class PictureField extends TextField<String> {
         image.addLoadHandler(new LoadHandler(){
             public void onLoad(LoadEvent event){
                 com.google.gwt.dom.client.Element element = event.getRelativeElement();
-                if (element == image.getElement()){
+                if (element == image.getElement() && !isInternalImageURL(image.getUrl())) {
                     int width = image.getWidth();
                     int height = image.getHeight();
+                    int size = DEFAULT_IMAGE_SCALE_SIZE;
                     if (width > 0 && width > height) {
-                        if (width > 150)
-                            image.setPixelSize(150, (int) (height * 150 / width));
-                    } else if (height > 150) {
-                        image.setPixelSize((int) (width * 150 / height), 150);
+                        if (width > size)
+                            image.setPixelSize(size, (int) (height * size / width));
+                    } else if (height > size) {
+                        image.setPixelSize((int) (width * size / height), size);
                     }
                 }
             }
@@ -185,8 +164,10 @@ public class PictureField extends TextField<String> {
 
     @Override
     public void setValue(String value) {
-    	if (value != null && value.equalsIgnoreCase("http://")) { //$NON-NLS-1$ 
-            return; 
+    	// external source
+        if (value != null && (value.toLowerCase().startsWith("http") || value.toLowerCase().startsWith("https"))) { //$NON-NLS-1$//$NON-NLS-2$
+            image.setUrl(value);
+            return;
         } 
     	
         String oldValue = this.value;
@@ -196,7 +177,7 @@ public class PictureField extends TextField<String> {
 
             if (!value.startsWith("/imageserver/")) //$NON-NLS-1$
                 this.value = "/imageserver/" + value; //$NON-NLS-1$
-            image.setUrl(this.value);
+            image.setUrl(scaleInternalUrl(this.value, DEFAULT_IMAGE_SCALE_SIZE));
 
         } else {
             image.setUrl(DefaultImage);
@@ -205,6 +186,20 @@ public class PictureField extends TextField<String> {
         if (isFireChangeEventOnSetValue()) {
             fireChangeEvent(oldValue, value);
         }
+    }
+    
+    private boolean isInternalImageURL(String url) {
+        if (url == null || url.trim().length() == 0)
+            return false;
+        return url.contains("/imageserver"); //$NON-NLS-1$
+    }
+    
+    private String scaleInternalUrl(String inputValue, int size) {
+
+        if (inputValue == null || inputValue.trim().length() == 0)
+            return inputValue;
+
+        return inputValue += "?width=" + size + "&height=" + size + "&preserveAspectRatio=true"; //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
     }
 
     @Override
