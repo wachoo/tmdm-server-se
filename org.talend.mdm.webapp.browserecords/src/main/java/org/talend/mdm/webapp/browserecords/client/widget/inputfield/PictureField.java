@@ -156,7 +156,7 @@ public class PictureField extends TextField<String> {
         image.addLoadHandler(new LoadHandler(){
             public void onLoad(LoadEvent event){
                 com.google.gwt.dom.client.Element element = event.getRelativeElement();
-                if (element == image.getElement() && isInternalImageURL(image.getUrl())) {
+                if (element == image.getElement() && !isInternalImageURL(image.getUrl())) {
                     int width = image.getWidth();
                     int height = image.getHeight();
                     int size = DEFAULT_IMAGE_SCALE_SIZE;
@@ -253,7 +253,7 @@ public class PictureField extends TextField<String> {
     private boolean isInternalImageURL(String url) {
         if (url == null || url.trim().length() == 0)
             return false;
-        return url.startsWith("/imageserver"); //$NON-NLS-1$
+        return url.contains("/imageserver"); //$NON-NLS-1$
     }
 
     private String scaleInternalUrl(String inputValue, int size) {
