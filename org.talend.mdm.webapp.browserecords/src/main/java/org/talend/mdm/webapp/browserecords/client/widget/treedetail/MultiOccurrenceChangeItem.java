@@ -121,7 +121,7 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
             addNodeImg = new Image("/talendmdm/secure/img/genericUI/add.png"); //$NON-NLS-1$
             addNodeImg.getElement().setId("Add"); //$NON-NLS-1$
             addNodeImg.setTitle(MessagesFactory.getMessages().clone_title());
-            addNodeImg.getElement().getStyle().setMarginLeft(5D, Unit.PX);
+            addNodeImg.getElement().getStyle().setMarginLeft(20D, Unit.PX);
             addNodeImg.getElement().getStyle().setMarginTop(5D, Unit.PX);
             if (!typeModel.isReadOnly())
                 addNodeImg.addClickHandler(handler);

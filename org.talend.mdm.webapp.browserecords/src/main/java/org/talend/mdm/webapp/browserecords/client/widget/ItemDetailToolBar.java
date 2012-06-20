@@ -149,13 +149,13 @@ public class ItemDetailToolBar extends ToolBar {
     private boolean openTab;
     
     public ItemDetailToolBar() {
-        
+        this.setBorders(false);
+        this.setLayout(new ToolBarExLayout());
     }
 
     public ItemDetailToolBar(ItemsDetailPanel itemsDetailPanel) {
+        this();
         this.itemsDetailPanel = itemsDetailPanel;
-        this.setBorders(false);
-        this.setLayout(new ToolBarExLayout());
     }
 
     public ItemDetailToolBar(ItemBean itemBean, String operation, ViewBean viewBean, ItemsDetailPanel itemsDetailPanel) {
@@ -163,7 +163,8 @@ public class ItemDetailToolBar extends ToolBar {
         this.itemBean = itemBean;
         this.operation = operation;
         this.viewBean = viewBean;
-        this.readOnly = viewBean.getBindingEntityModel().isReadOnly();
+        this.readOnly = viewBean.getBindingEntityModel().getMetaDataTypes()
+                .get(viewBean.getBindingEntityModel().getConceptName()).isReadOnly();
         initToolBar();
     }
 
@@ -174,7 +175,8 @@ public class ItemDetailToolBar extends ToolBar {
         this.operation = operation;
         this.viewBean = viewBean;
         this.openTab = openTab;
-        this.readOnly = viewBean.getBindingEntityModel().isReadOnly();
+        this.readOnly = viewBean.getBindingEntityModel().getMetaDataTypes()
+                .get(viewBean.getBindingEntityModel().getConceptName()).isReadOnly();
         initToolBar();
     }
 
@@ -185,7 +187,8 @@ public class ItemDetailToolBar extends ToolBar {
         this.operation = operation;
         this.isFkToolBar = isFkToolBar;
         this.viewBean = viewBean;
-        this.readOnly = viewBean.getBindingEntityModel().isReadOnly();
+        this.readOnly = viewBean.getBindingEntityModel().getMetaDataTypes()
+                .get(viewBean.getBindingEntityModel().getConceptName()).isReadOnly();
         initToolBar();
     }
 

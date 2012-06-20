@@ -52,8 +52,24 @@ public class ComplexTypeModel extends TypeModel {
         }
     }
 
+    public void setReadOnly(boolean readOnly) {
+        super.setReadOnly(readOnly);
+        for (ComplexTypeModel realType : reusableTypes) {
+            realType.setReadOnly(this.isReadOnly());
+        }
+    }
+
+    public void setParentTypeModel(TypeModel parentTypeModel) {
+        super.setParentTypeModel(parentTypeModel);
+        for (ComplexTypeModel realType : reusableTypes) {
+            realType.setParentTypeModel(parentTypeModel);
+        }
+    }
+
     public void addComplexReusableTypes(ComplexTypeModel reusableType) {
         reusableTypes.add(reusableType);
+        reusableType.setParentTypeModel(this.getParentTypeModel());
+        reusableType.setReadOnly(this.isReadOnly());
     }
 
     public List<ComplexTypeModel> getReusableComplexTypes() {

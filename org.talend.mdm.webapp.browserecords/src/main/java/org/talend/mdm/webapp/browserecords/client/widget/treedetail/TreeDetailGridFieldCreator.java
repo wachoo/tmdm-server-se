@@ -162,8 +162,9 @@ public class TreeDetailGridFieldCreator {
         field.setFieldLabel(dataType.getLabel(language));
         field.setName(dataType.getXpath());
         if (!dataType.getType().equals(DataTypeConstants.UUID) && !dataType.getType().equals(DataTypeConstants.AUTO_INCREMENT)) {
-            field.setReadOnly(dataType.isReadOnly());
-            field.setEnabled(!dataType.isReadOnly());
+            boolean readOnly = CommonUtil.isReadOnlyOnUI(dataType);
+            field.setReadOnly(readOnly);
+            field.setEnabled(!readOnly);
         }
 
         if (node.isKey() && hasValue && ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {
@@ -301,8 +302,8 @@ public class TreeDetailGridFieldCreator {
             }
 
             private native void _setEl(El elem)/*-{
-                    this.@com.extjs.gxt.ui.client.widget.Component::el = elem;
-            }-*/;
+        this.@com.extjs.gxt.ui.client.widget.Component::el = elem;
+    }-*/;
         };
         errorIcon.setStyleAttribute("display", "block"); //$NON-NLS-1$ //$NON-NLS-2$
         errorIcon.setStyleAttribute("float", "right"); //$NON-NLS-1$ //$NON-NLS-2$
