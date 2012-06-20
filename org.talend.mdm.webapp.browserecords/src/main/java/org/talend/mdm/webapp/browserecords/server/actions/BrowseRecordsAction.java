@@ -575,7 +575,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    private void dynamicAssembleByResultOrder(ItemBean itemBean, ViewBean viewBean, EntityModel entityModel) throws Exception {
+    public void dynamicAssembleByResultOrder(ItemBean itemBean, ViewBean viewBean, EntityModel entityModel) throws Exception {
         if (itemBean.getItemXml() != null) {
             Document docXml = Util.parse(itemBean.getItemXml());
             HashMap<String, Integer> countMap = new HashMap<String, Integer>();

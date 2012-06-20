@@ -17,11 +17,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import junit.framework.TestCase;
 
 import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
@@ -42,7 +44,21 @@ public class BrowseRecordsActionTest extends TestCase {
     private BrowseRecordsAction action = new BrowseRecordsAction();
 
     private String xml = "<Agency><Name>Newark</Name><Name>Newark1</Name><City>Newark</City><State>NJ</State><Zip>07107</Zip><Region>EAST</Region><MoreInfo>Map@@http://maps.google.com/maps?q=40.760667,-74.1879&amp;ll=40.760667,-74.1879&amp;z=9</MoreInfo><Id>NJ01</Id></Agency>"; //$NON-NLS-1$
-
+    
+    public void testDynamicAssembleByResultOrder() throws Exception{
+    	String xml = "<result><numeroContrat xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>5005007</numeroContrat><xsi:type xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>AP-RE</xsi:type></result>";
+    	ItemBean itemBean = new ItemBean();
+    	itemBean.setItemXml(xml);
+    	ViewBean viewBean = new ViewBean();
+    	viewBean.addViewableXpath("Contrat/numeroContrat");
+    	viewBean.addViewableXpath("Contrat/detailContrat/@xsi:type");
+    	EntityModel entityModel = new EntityModel();
+    	entityModel.setMetaDataTypes(new HashMap<String, TypeModel>());
+    	action.dynamicAssembleByResultOrder(itemBean, viewBean, entityModel);
+    	assertEquals("5005007",itemBean.get("Contrat/numeroContrat"));
+    	assertEquals("AP-RE",itemBean.get("Contrat/detailContrat/@xsi:type"));    	
+    }
+    
     public void testMultiOccurenceNode() throws Exception {
         String language = "en"; //$NON-NLS-1$
         ItemNodeModel model = action.getItemNodeModel(getItemBean(), TestData.getEntityModel(), language);
@@ -178,6 +194,8 @@ public class BrowseRecordsActionTest extends TestCase {
         assertEquals("Contract/detail:ContractDetailSubType/subType:ContractDetailSubTypeTwo/description",
                 ((ItemNodeModel) newSubTypeModel.getChild(1)).getTypePath());
     }
+    
+    
 
     private String getXml(String fileName) throws IOException {
         InputStream stream = BrowseRecordsActionTest.class.getResourceAsStream("../../../" + fileName);
@@ -210,5 +228,6 @@ public class BrowseRecordsActionTest extends TestCase {
             buffer.append(line);
         }
         return buffer.toString();
-    }
+    }   
+    
 }
