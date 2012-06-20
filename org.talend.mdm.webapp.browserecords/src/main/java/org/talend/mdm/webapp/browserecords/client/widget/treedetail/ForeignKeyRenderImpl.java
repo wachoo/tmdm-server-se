@@ -59,13 +59,13 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
             if (cp instanceof TreeDetail) {
                 TreeDetail treeDetail = (TreeDetail) cp;
                 fieldMap = treeDetail.getFieldMap();
-                root = (DynamicTreeItem) treeDetail.getTree().getItem(0);
+                root = (DynamicTreeItem) treeDetail.getRoot();
             } else {
                 ForeignKeyTreeDetail fkTreeDetail = (ForeignKeyTreeDetail) cp;
                 fieldMap = fkTreeDetail.getFieldMap();
                 root = (DynamicTreeItem) fkTreeDetail.getRoot();
             }
-            final ForeignKeyTablePanel fkPanel = new ForeignKeyTablePanel(concept + "_ForeignKeyTablePanel");
+            final ForeignKeyTablePanel fkPanel = new ForeignKeyTablePanel(concept + "_ForeignKeyTablePanel"); //$NON-NLS-1$
 
             ItemPanel itemPanel = new ItemPanel(pkViewBean, toolBar.getItemBean(), toolBar.getOperation(), fkPanel, root,
                     detailPanel, toolBar.isOpenTab());

@@ -759,6 +759,10 @@ public class TreeDetail extends ContentPanel {
         return (ItemNodeModel) root.getUserObject();
     }
 
+    public TreeItem getRoot(){
+    	return root;
+    }
+    
     public void setViewBean(ViewBean viewBean) {
         this.viewBean = viewBean;
     }
