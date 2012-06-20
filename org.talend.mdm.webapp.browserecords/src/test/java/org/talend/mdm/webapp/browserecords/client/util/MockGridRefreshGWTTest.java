@@ -527,12 +527,19 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
 
         }
 
-        public void createDefaultItemNodeModel(ViewBean viewBean, Map<String, String> initDataMap, String language, AsyncCallback<ItemNodeModel> callback) {
-
-        }
 
         public void createSubItemNodeModel(ViewBean viewBean, String xml, String typePath, String contextPath, String realType,
                 String language, AsyncCallback<ItemNodeModel> callback) {
+        }
+
+        public void createDefaultItemNodeModel(ViewBean viewBean, Map<String, List<String>> initDataMap, String language,
+                AsyncCallback<ItemNodeModel> callback) {
+
+        }
+
+        public void getForeignKeyValues(String concept, String[] ids, String language,
+                AsyncCallback<Map<ViewBean, Map<String, List<String>>>> callback) {
+
         }
 
     }
