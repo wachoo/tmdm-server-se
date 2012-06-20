@@ -2373,8 +2373,13 @@ public abstract class IXtentisRMIPort implements XtentisPort {
     }
 
     public WSItemPKArray putItemWithReportArray(WSPutItemWithReportArray wsPutItemWithReportArray) throws RemoteException {
-        // TODO Auto-generated method stub
-        return null;
+        WSPutItemWithReport[] items = wsPutItemWithReportArray.getWsPutItem();
+        WSItemPK pks[] = new WSItemPK[items.length];
+        for (int i = 0; i < items.length; ++i) {
+            pks[i] = putItemWithReport(items[i]);
+        }
+        
+        return new WSItemPKArray(pks);        
     }
 
     public WSCheckServiceConfigResponse checkServiceConfiguration(WSCheckServiceConfigRequest serviceName) throws RemoteException {
