@@ -261,8 +261,8 @@ public class CommonUtil {
     
     public static Map<String, String> handleProcessMessage(String outputMessage, String language) throws Exception {
     	Map<String, String> messageMap = new HashMap<String, String>();
-    	messageMap.put("typeCode", null);
-    	messageMap.put("message", null);
+    	messageMap.put("typeCode", null); //$NON-NLS-1$
+    	messageMap.put("message", null); //$NON-NLS-1$
     	
     	Document doc = Util.parse(outputMessage);
     	String xpath = "//report/message"; //$NON-NLS-1$
@@ -272,12 +272,17 @@ public class CommonUtil {
     		if (messageNode instanceof Element) {
     			Element messageElement = (Element) messageNode;
     			messageMap.put("typeCode", messageElement.getAttribute("type")); //$NON-NLS-1$ //$NON-NLS-2$
-    			Node child = messageElement.getFirstChild();
-    			if (child != null)
-    				messageMap.put("message", MultilanguageMessageParser.pickOutISOMessage(child.getTextContent(), language));    			
+    			NodeList childList = messageElement.getChildNodes();
+    			if(childList.getLength() == 1) {
+    				Node contentNode = childList.item(0);
+    				if(contentNode.getNodeType() == Node.TEXT_NODE) 
+    					messageMap.put("message", MultilanguageMessageParser.pickOutISOMessage(contentNode.getTextContent(), language)); //$NON-NLS-1$
+    				else if(contentNode.getNodeType() == Node.ELEMENT_NODE)
+    					if(contentNode.getChildNodes().getLength() == 1 && contentNode.getChildNodes().item(0).getNodeType() == Node.TEXT_NODE)
+    						messageMap.put("message", MultilanguageMessageParser.pickOutISOMessage(contentNode.getTextContent(), language)); //$NON-NLS-1$
+    			}
     		}
     	}
-    	
         return messageMap;
     }
 }

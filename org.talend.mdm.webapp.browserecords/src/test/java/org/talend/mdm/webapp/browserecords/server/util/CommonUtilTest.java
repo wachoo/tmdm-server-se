@@ -75,6 +75,19 @@ public class CommonUtilTest extends TestCase {
 		assertEquals("Test_Message", map.get("message"));
 		
 		map.clear();
+		outputMessage = "<report><message type=\"info\" ><subMessage></subMessage></message></report>";
+    	language = "en";
+    	try {
+			map = CommonUtil.handleProcessMessage(outputMessage, language);
+		} catch (Exception e) {
+			fail();
+		}
+		assertNotNull(map);
+		assertNotNull(map.get("typeCode"));
+		assertEquals("info", map.get("typeCode"));
+		assertNull(map.get("message"));
+		
+		map.clear();
 		outputMessage = "<report><message type=\"info\" ><subMessage>test_subMessage</subMessage></message></report>";
     	language = "en";
     	try {
@@ -89,12 +102,16 @@ public class CommonUtilTest extends TestCase {
 		assertEquals("test_subMessage", map.get("message"));
 		
 		map.clear();
-		outputMessage = "<report><message type=\"info\" ><subMessage><subsub>subsub<subsub></subMessage></message></report>";
+		outputMessage = "<report><message type=\"info\" ><subMessage><subsub>subsub</subsub></subMessage></message></report>";
     	language = "en";
     	try {
 			map = CommonUtil.handleProcessMessage(outputMessage, language);
 		} catch (Exception e) {
-			assertNotNull(e);
+			fail();
 		}
+		assertNotNull(map);
+		assertNotNull(map.get("typeCode"));
+		assertEquals("info", map.get("typeCode"));
+		assertNull(map.get("message"));
     }
 }
