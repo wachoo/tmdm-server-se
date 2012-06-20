@@ -95,7 +95,7 @@ public class Utils {
         ArrayList<String> imports = new ArrayList<String>();
         getJavascriptImportDetail(Menu.getRootMenu(), imports, 1, 1);
         // FIXME: This is a workaround for 4.2 only
-        complementItemsbrowser(imports);
+//        complementItemsbrowser(imports);
         completeThirdPartJS(imports);
         return imports;
     }
@@ -174,33 +174,7 @@ public class Utils {
         return i;
     }
 
-    private static void complementItemsbrowser(ArrayList<String> imports) {
-        boolean isItemsbrowserExist = false;
-        // boolean isItemsbrowser2Exist = false;
-        boolean isBrowserRecordExist = false;
         
-        // Index in imports where browserecords is, if it exists
-        int browseRecordsIndex = -1;
-
-        int importsSize = imports.size();
-        for (int i = 0; i < importsSize; ++i) {
-            String importsString = imports.get(i);
-            if (importsString.indexOf("src=\"/itemsbrowser/secure/js/ItemsBrowser.js\"") != -1)isItemsbrowserExist = true;//$NON-NLS-1$
-            //            if (importMenu.indexOf("src=\"/itemsbrowser2/secure/js/ItemsBrowser2.js\"") != -1)isItemsbrowser2Exist = true;//$NON-NLS-1$
-            if (importsString.indexOf("src=\"/browserecords/browserecords/browserecords.nocache.js\"") != -1) {
-                isBrowserRecordExist = true;//$NON-NLS-1$
-                browseRecordsIndex = i;
-            }
-        }
-        if (isBrowserRecordExist && !isItemsbrowserExist) {
-            // Insert imports before browserecords since browserecords uses JS objects in these imports
-            imports.add(browseRecordsIndex,
-                    "<script type=\"text/javascript\" src=\"/itemsbrowser/secure/js/ItemsBrowser.js\"></script>\n");//$NON-NLS-1$
-            imports.add(browseRecordsIndex,
-                    "<script type=\"text/javascript\" src=\"/itemsbrowser/secure/dwr/interface/ItemsBrowserInterface.js\"></script>\n");//$NON-NLS-1$
-        }
-    }
-
     private static void completeThirdPartJS(ArrayList<String> imports) {
         imports.add("<script type=\"text/javascript\" src=\"/talendmdm/secure/dwr/interface/WidgetInterface.js\"></script>\n");//$NON-NLS-1$
     }
