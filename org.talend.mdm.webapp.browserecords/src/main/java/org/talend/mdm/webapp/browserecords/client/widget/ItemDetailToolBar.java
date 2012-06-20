@@ -510,7 +510,7 @@ public class ItemDetailToolBar extends ToolBar {
             refreshTree(null, fkTree, root);
         } else {
             ItemPanel itemPanel = (ItemPanel) widget;
-            ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getTree().getItem(0).getUserObject();
+            ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getRootModel();
             refreshTree(itemPanel, null, root);
         }
     }
@@ -1029,7 +1029,7 @@ public class ItemDetailToolBar extends ToolBar {
      */
     public void refreshNodeStatus() {
         ItemPanel itemPanel = (ItemPanel) itemsDetailPanel.getFirstTabWidget();
-        ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getTree().getItem(0).getUserObject();
+        ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getRootModel();
         setChangeValue(root);
     }
 

@@ -166,7 +166,7 @@ public class TreeDetailUtil {
             if (itemPanel.getOperation().equals(ItemDetailToolBar.VIEW_OPERATION)
                     || itemPanel.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION)
                     || itemPanel.getOperation().equals(ItemDetailToolBar.DUPLICATE_OPERATION)) {
-                ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getTree().getItem(0).getUserObject();
+                ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getRootModel();
                 isChangeCurrentRecord = root != null ? TreeDetailUtil.isChangeValue(root) : false;
                 if (isChangeCurrentRecord) {
                     MessageBox msgBox = MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory
