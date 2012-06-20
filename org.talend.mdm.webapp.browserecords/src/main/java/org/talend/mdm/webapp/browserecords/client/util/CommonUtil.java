@@ -136,6 +136,7 @@ public class CommonUtil {
                     elValue = value.toString();
                 }
                 root.appendChild(doc.createTextNode(elValue));
+                return root;
             }
         }
 
@@ -150,7 +151,7 @@ public class CommonUtil {
         }
 
         List<ModelData> children = nodeModel.getChildren();
-        if (children != null) {
+        if (children != null && children.size() > 0) {
             for (ModelData child : children) {
                 Element el = _toXML(doc, (ItemNodeModel) child, viewBean, rootModel, isAll);
                 if (el != null) {
@@ -158,6 +159,9 @@ public class CommonUtil {
                 }
             }
             if (!isAll) {
+                if (childrenEl(root).size() == 0) {
+                    return null;
+                }
                 mergerChildrenWhenEmpty(root);
             }
         }
@@ -488,5 +492,18 @@ public class CommonUtil {
 
         }
         return result.toString();
+    }
+
+    public static boolean isReadOnlyOnUI(TypeModel typeModel) {
+        TypeModel currentType = typeModel;
+        boolean isReadOnly = false;
+        while (currentType != null) {
+            if (currentType.isReadOnly()) {
+                isReadOnly = true;
+                break;
+            }
+            currentType = currentType.getParentTypeModel();
+        }
+        return isReadOnly;
     }
 }
