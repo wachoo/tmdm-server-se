@@ -91,6 +91,9 @@ public class TreeDetail extends ContentPanel {
     private int renderedCounter = 0;
     
     private MessageBox progressBar;
+    
+    private List<RenderCompleteCallBack> renderCompleteCallBackList = new ArrayList<RenderCompleteCallBack>();
+
 
     // In case of custom layout, which displays some elements and not others,
     // we store the DynamicTreeItem corresponding to the displayed elements in
@@ -132,10 +135,15 @@ public class TreeDetail extends ContentPanel {
     		renderedCounter--;
     	}
     	if (renderedCounter == 0){
+    		Iterator<RenderCompleteCallBack> it = renderCompleteCallBackList.iterator();
+    		while(it.hasNext()) {
+    			it.next().onSuccess();
+    			it.remove();
+    		}
     		closeProgressBar();
     	}
     }
-
+    
     MultiOccurrenceManager multiManager;
 
     public DynamicTreeItem getSelectedItem() {
@@ -342,8 +350,12 @@ public class TreeDetail extends ContentPanel {
                     treeNode.add(child);
                 }
                 buildGWTTree(treeNode, selectedItem, false, null);
-                multiManager.addMultiOccurrenceNode(selectedItem);
-                multiManager.handleOptIcons();
+                renderCompleteCallBackList.add(new RenderCompleteCallBack() {
+					public void onSuccess() {
+						multiManager.addMultiOccurrenceNode(selectedItem);
+		                multiManager.handleOptIcons();				
+					}
+				});
             }
         });
         
@@ -404,9 +416,13 @@ public class TreeDetail extends ContentPanel {
     private void renderTree(ItemNodeModel rootModel, String operation) {
     	multiManager = new MultiOccurrenceManager(viewBean.getBindingEntityModel().getMetaDataTypes(), this);
     	beginRender();
-        root = buildGWTTree(rootModel, null, false, operation);
-        multiManager.addMultiOccurrenceNode((DynamicTreeItem) root);
-        multiManager.handleOptIcons();
+    	renderCompleteCallBackList.add(new RenderCompleteCallBack() {
+			public void onSuccess() {
+				multiManager.addMultiOccurrenceNode((DynamicTreeItem) root);
+		        multiManager.handleOptIcons();			
+			}
+		});
+        root = buildGWTTree(rootModel, null, false, operation);        
         isFirstKey = true;
         root.setState(true);
         root.getElement().setId("TreeDetail-root"); //$NON-NLS-1$
@@ -660,6 +676,10 @@ public class TreeDetail extends ContentPanel {
         public ItemNodeModel getItemNodeModel() {
             return itemNode;
         }
+    }
+    
+    interface RenderCompleteCallBack {
+    	void onSuccess();
     }
 
     private static BrowseRecordsServiceAsync getItemService() {

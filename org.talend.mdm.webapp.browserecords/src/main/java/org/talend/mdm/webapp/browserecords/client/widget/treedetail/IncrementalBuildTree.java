@@ -30,6 +30,8 @@ import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.IncrementalCommand;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TreeItem;
@@ -194,7 +196,12 @@ public class IncrementalBuildTree implements IncrementalCommand {
         		treeDetail.resetRenderCounter();
         		Log.info("render foreign key generate error:", e); //$NON-NLS-1$
         	} finally {
-        		treeDetail.endRender();
+        		DeferredCommand.addCommand(new Command() {
+					public void execute() {
+						treeDetail.endRender();
+					}
+				});
+        		
         	}
         	return false;
         }
