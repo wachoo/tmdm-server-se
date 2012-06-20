@@ -1,8 +1,6 @@
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
@@ -47,7 +45,7 @@ public class ForeignKeyUtil {
         Widget widget = itemsDetailPanel.getFirstTabWidget();
         final ItemNodeModel root;
         if (widget instanceof ItemPanel)
-            root = (ItemNodeModel) ((ItemPanel) widget).getTree().getTree().getItem(0).getUserObject();
+            root = (ItemNodeModel) ((ItemPanel) widget).getTree().getRootModel();
         else
             root = ((ForeignKeyTreeDetail) widget).getRootModel();
         if (isChangeValue(root)) {

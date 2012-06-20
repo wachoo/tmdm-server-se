@@ -59,7 +59,7 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
             if (cp instanceof TreeDetail) {
                 TreeDetail treeDetail = (TreeDetail) cp;
                 fieldMap = treeDetail.getFieldMap();
-                root = treeDetail.getTree().getItem(0);
+                root = treeDetail.getRoot();
             } else {
                 ForeignKeyTreeDetail fkTreeDetail = (ForeignKeyTreeDetail) cp;
                 fieldMap = fkTreeDetail.getFieldMap();
