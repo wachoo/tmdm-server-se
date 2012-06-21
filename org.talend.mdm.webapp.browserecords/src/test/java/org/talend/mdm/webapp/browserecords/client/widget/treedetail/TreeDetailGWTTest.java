@@ -1,6 +1,8 @@
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
@@ -15,7 +17,9 @@ import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.DOM;
@@ -242,6 +246,49 @@ public class TreeDetailGWTTest extends GWTTestCase {
     	assertEquals(msg.delete_item_progress(), progressBar.getProgressText());
     	progressBar.close();
     }
+    
+    public void testAutoFillValue4MandatoryBooleanField() {
+    	boolean enable=true;
+    	
+    	List<ModelData> toUpdateNodes=new ArrayList<ModelData>();
+    	ItemNodeModel root=new ItemNodeModel();
+    	root.set("id", 48);
+    	root.set("name", "testBoolean");
+    	ItemNodeModel node=new ItemNodeModel();
+    	node.set("id", 51);
+    	node.set("name", "complext");
+    	node.setParent(root);
+    	ItemNodeModel node1=new ItemNodeModel();
+    	node1.set("id", 52);
+    	node1.set("name", "b2");
+    	node1.setMandatory(true);
+    	node1.setParent(node);
+    	ItemNodeModel node2=new ItemNodeModel();
+    	node2.set("id", 53);
+    	node2.set("name", "e1");
+    	node2.setObjectValue("test");
+    	node2.setMandatory(true);
+    	node2.setParent(node);
+       	ItemNodeModel node3=new ItemNodeModel();
+    	node3.set("id", 54);
+    	node3.set("name", "b3");
+    	node3.setParent(node);
+    	
+    	toUpdateNodes.add(node1);
+    	toUpdateNodes.add(node2);
+    	toUpdateNodes.add(node3);
+    	
+    	Map<String, Field<?>> fieldMap=new HashMap<String, Field<?>>();
+    	fieldMap.put("49", new FormatTextField());
+    	fieldMap.put("52", new CheckBox());
+    	fieldMap.put("53", new FormatTextField());
+    	fieldMap.put("54", new CheckBox());
+    	
+    	assertNull(node1.getObjectValue());
+    	TreeDetailGridFieldCreator.autoFillValue4MandatoryBooleanField(enable, toUpdateNodes, fieldMap);
+    	assertEquals(false, node1.getObjectValue());
+
+	}
 
     public String getModuleName() {
         return "org.talend.mdm.webapp.browserecords.TestBrowseRecords";
