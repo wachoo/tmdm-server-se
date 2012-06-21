@@ -376,7 +376,7 @@ public class TreeDetailGridFieldCreator {
         }
     }
 
-    private static void autoFillValue4MandatoryBooleanField(boolean enable, List<ModelData> toUpdateNodes,
+    public static void autoFillValue4MandatoryBooleanField(boolean enable, List<ModelData> toUpdateNodes,
             Map<String, Field<?>> fieldMap) {
 
         if (toUpdateNodes == null)
@@ -388,7 +388,7 @@ public class TreeDetailGridFieldCreator {
                 ItemNodeModel toUpdateNode = (ItemNodeModel) toUpdateNodes.get(i);
                 Field<?> toUpdateField = fieldMap.get(toUpdateNode.getId().toString());
 
-                if (toUpdateField instanceof BooleanField && toUpdateNode.isMandatory()
+                if ((toUpdateField instanceof BooleanField || toUpdateField instanceof CheckBox) && toUpdateNode.isMandatory()
                         && (toUpdateNode.getObjectValue() == null || "".equals(toUpdateNode.getObjectValue()))) {
 
                     toUpdateNode.setObjectValue((Serializable) DataTypeConstants.BOOLEAN.getDefaultValue());
