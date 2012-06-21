@@ -70,8 +70,6 @@ public class PartialXQLPackage {
                 } else {
                     String pivotName = getPivotName(whereItem);
                     String replacedWhereItem = whereItem.replaceAll("\\$pivot\\d+/", "");//$NON-NLS-1$ //$NON-NLS-2$ 
-                    // remove spare ")"
-                    replacedWhereItem = replacedWhereItem.replaceAll("(\\w+\\(.*?\\))(\\)?)", "$1");//$NON-NLS-1$ //$NON-NLS-2$ 
                     if (pivotWhereMap.get(pivotName) == null) {
                         pivotWhereMap.put(pivotName, replacedWhereItem);
                     } else {
