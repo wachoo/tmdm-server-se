@@ -581,17 +581,17 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    private void dynamicAssembleByResultOrder(ItemBean itemBean, ViewBean viewBean, EntityModel entityModel) throws Exception {
+    public void dynamicAssembleByResultOrder(ItemBean itemBean, ViewBean viewBean, EntityModel entityModel) throws Exception {
         if (itemBean.getItemXml() != null) {
             Document docXml = Util.parse(itemBean.getItemXml());
             HashMap<String, Integer> countMap = new HashMap<String, Integer>();
             Namespace namespace = new Namespace("xsi", "http://www.w3.org/2001/XMLSchema-instance"); //$NON-NLS-1$//$NON-NLS-2$
             for (String path : viewBean.getViewableXpaths()) {
             	String leafPath = path.substring(path.lastIndexOf('/') + 1);
-            	if (leafPath.startsWith("@")){
-            		leafPath = leafPath.substring(leafPath.indexOf("@") + 1);
+            	if (leafPath.startsWith("@")){ //$NON-NLS-1$
+            		leafPath = leafPath.substring(leafPath.indexOf("@") + 1); //$NON-NLS-1$
             		org.dom4j.Document doc = org.talend.mdm.webapp.base.server.util.XmlUtil.parseText(itemBean.getItemXml());
-            		itemBean.set(path, doc.getRootElement().element(new QName(leafPath.indexOf(":") != -1 ? leafPath.split(":")[1] : leafPath, namespace, leafPath)).getText());
+            		itemBean.set(path, doc.getRootElement().element(new QName(leafPath.indexOf(":") != -1 ? leafPath.split(":")[1] : leafPath, namespace, leafPath)).getText()); //$NON-NLS-1$ //$NON-NLS-2$
             		continue;
             	}
             	

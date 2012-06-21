@@ -82,6 +82,20 @@ public class BrowseRecordsActionTest extends TestCase {
         return new PowerMockSuite("Unit tests for " + BrowseRecordsActionTest.class.getSimpleName(),
                 BrowseRecordsActionTest.class);
     }
+    
+    public void testDynamicAssembleByResultOrder() throws Exception{
+        String xml = "<result><numeroContrat xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>5005007</numeroContrat><xsi:type xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>AP-RE</xsi:type></result>";
+        ItemBean itemBean = new ItemBean();
+        itemBean.setItemXml(xml);
+        ViewBean viewBean = new ViewBean();
+        viewBean.addViewableXpath("Contrat/numeroContrat");
+        viewBean.addViewableXpath("Contrat/detailContrat/@xsi:type");
+        EntityModel entityModel = new EntityModel();
+        entityModel.setMetaDataTypes(new HashMap<String, TypeModel>());
+        action.dynamicAssembleByResultOrder(itemBean, viewBean, entityModel);
+        assertEquals("5005007",itemBean.get("Contrat/numeroContrat"));
+        assertEquals("AP-RE",itemBean.get("Contrat/detailContrat/@xsi:type"));      
+    }
 
     public void testMultiOccurenceNode() throws Exception {
         String language = "en"; //$NON-NLS-1$
