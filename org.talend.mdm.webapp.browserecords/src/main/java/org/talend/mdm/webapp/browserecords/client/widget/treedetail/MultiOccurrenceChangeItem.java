@@ -155,7 +155,7 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
     
     public void clearValue() {
         if (field != null) {
-            field.clear();
+            field.setValue(null);
         }
     }
 
