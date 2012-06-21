@@ -291,9 +291,6 @@ public class TreeDetailGridFieldCreator {
     	};
     	errorIcon.setStyleAttribute("display", "block"); //$NON-NLS-1$ //$NON-NLS-2$
     	errorIcon.setStyleAttribute("float", "right"); //$NON-NLS-1$ //$NON-NLS-2$
-    	errorIcon.setStyleAttribute("position", "relative"); //$NON-NLS-1$ //$NON-NLS-2$
-    	errorIcon.setStyleAttribute("left", "16px");//$NON-NLS-1$ //$NON-NLS-2$
-    	errorIcon.setStyleAttribute("top", "-4px");//$NON-NLS-1$ //$NON-NLS-2$
     	errorIcon.setStyleAttribute("marginTop", "-18px");//$NON-NLS-1$ //$NON-NLS-2$
     	errorIcon.render(field.el().getParent().dom);
         errorIcon.setHideMode(HideMode.VISIBILITY);
