@@ -22,8 +22,6 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.ComponentHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.google.gwt.dom.client.Style.Display;
-import com.google.gwt.dom.client.Style.Position;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
@@ -81,8 +79,16 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
     }
 
     protected void onRender(Element target, int index) {
-        El wrap = new El(DOM.createDiv());
-
+        El wrap = new El(DOM.createTable());
+        Element tbody = DOM.createTBody();
+        Element fktr = DOM.createTR();
+        tbody.appendChild(fktr);
+        Element tdInput = DOM.createTD();
+        Element tdIcon = DOM.createTD();
+        fktr.appendChild(tdInput);
+        fktr.appendChild(tdIcon);
+        
+        wrap.appendChild(tbody);
         wrap.addStyleName("x-form-field-wrap"); //$NON-NLS-1$
         wrap.addStyleName("x-form-file-wrap"); //$NON-NLS-1$
 
@@ -91,21 +97,9 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         input.addStyleName("x-form-file-text"); //$NON-NLS-1$
         input.setId(XDOM.getUniqueId());
         input.setEnabled(false);
-        input.dom.getStyle().setDisplay(Display.INLINE);
 
-        if (GXT.isIE && target.getTagName().equals("TD")) { //$NON-NLS-1$
-            input.setStyleAttribute("position", "static"); //$NON-NLS-1$  //$NON-NLS-2$
-        }
-
-        wrap.appendChild(input.dom);
-        input.setStyleAttribute("float", "left");//$NON-NLS-1$  //$NON-NLS-2$
+        tdInput.appendChild(input.dom);
         Element foreignDiv = DOM.createTable();
-        foreignDiv.getStyle().setDisplay(Display.INLINE);
-
-        // TMDM-4153: FK Icons display issue on main tab by using chrome browser
-        if (GXT.isChrome)
-            foreignDiv.getStyle().setPosition(Position.ABSOLUTE);
-
         Element tr = DOM.createTR();
         Element body = DOM.createTBody();
 
@@ -121,7 +115,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         tr.appendChild(cleanTD);
         tr.appendChild(relationTD);
 
-        wrap.appendChild(foreignDiv);
+        tdIcon.appendChild(foreignDiv);
         setElement(wrap.dom, target, index);
 
         selectTD.appendChild(selectFKBtn.getElement());

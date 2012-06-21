@@ -60,13 +60,13 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -302,14 +302,11 @@ public class TreeDetailGridFieldCreator {
             }
 
             private native void _setEl(El elem)/*-{
-        this.@com.extjs.gxt.ui.client.widget.Component::el = elem;
-    }-*/;
+                this.@com.extjs.gxt.ui.client.widget.Component::el = elem;
+            }-*/;
         };
         errorIcon.setStyleAttribute("display", "block"); //$NON-NLS-1$ //$NON-NLS-2$
         errorIcon.setStyleAttribute("float", "right"); //$NON-NLS-1$ //$NON-NLS-2$
-        errorIcon.setStyleAttribute("position", "relative"); //$NON-NLS-1$ //$NON-NLS-2$
-        errorIcon.setStyleAttribute("left", "16px");//$NON-NLS-1$ //$NON-NLS-2$
-        errorIcon.setStyleAttribute("top", "-4px");//$NON-NLS-1$ //$NON-NLS-2$
         errorIcon.setStyleAttribute("marginTop", "-18px");//$NON-NLS-1$ //$NON-NLS-2$
         errorIcon.render(field.el().getParent().dom);
         errorIcon.setHideMode(HideMode.VISIBILITY);
