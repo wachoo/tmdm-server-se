@@ -179,6 +179,7 @@ public class CommonUtil {
             Document doc = builder.newDocument();
             List<Element> list = _getDefaultXML(typeModel, null, realType, doc, map, language);
             Element root = list.get(0);
+            root.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance"); //$NON-NLS-1$//$NON-NLS-2$
             doc.appendChild(root);
             return doc;
         } catch (ParserConfigurationException e) {
