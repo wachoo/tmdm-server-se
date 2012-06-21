@@ -192,6 +192,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                     // Null values may happen if accessor is targeting an element that contains other elements
                     actions.add(new FieldUpdateAction(date, source, userName, path, oldValue == null ? StringUtils.EMPTY : oldValue, null, comparedField));
                 }
+                lastMatchPath = path;
             } else { // new accessor exist
                 lastMatchPath = path;
                 if (oldValue != null && !oldValue.equals(newAccessor.get())) {
