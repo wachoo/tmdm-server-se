@@ -935,11 +935,28 @@ public class DocumentSaveTest extends TestCase {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata3.xsd"));
 
-        SaverSource source = new TestSaverSource(repository, true, "test25_original.xml", "metadata3.xsd");
+        TestSaverSource source = new TestSaverSource(repository, true, "test25_original.xml", "metadata3.xsd");
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test25.xml");
         DocumentSaverContext context = session.getContextFactory().create("MDM", "Contract", "Source", recordXml, false, true, true, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+    }
+
+    public void test27() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata6.xsd"));
+
+        SaverSource source = new TestSaverSource(repository, true, "test27_original.xml", "metadata6.xsd");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test27.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "OM5", "BusinessFunction", recordXml, false, true, false, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
