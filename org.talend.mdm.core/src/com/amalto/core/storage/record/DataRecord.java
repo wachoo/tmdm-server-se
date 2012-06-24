@@ -69,6 +69,9 @@ public class DataRecord {
                 } else {
                     return current.fieldToValue.get(nextField);
                 }
+                if(current == null) {
+                    break;
+                }
             }
             return null; // Not found.
         } else {

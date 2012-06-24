@@ -99,16 +99,18 @@ public class DataRecordXmlWriter implements DataRecordWriter {
         public Void visit(SimpleTypeFieldMetadata simpleField) {
             try {
                 Object value = record.get(simpleField);
-                if (!simpleField.isMany()) {
-                    out.write("<" + simpleField.getName() + ">");
-                    handleSimpleValue(simpleField, value);
-                    out.write("</" + simpleField.getName() + ">");
-                } else {
-                    List valueAsList = (List) value;
-                    for (Object currentValue : valueAsList) {
+                if (value != null) {
+                    if (!simpleField.isMany()) {
                         out.write("<" + simpleField.getName() + ">");
-                        handleSimpleValue(simpleField, currentValue);
+                        handleSimpleValue(simpleField, value);
                         out.write("</" + simpleField.getName() + ">");
+                    } else {
+                        List valueAsList = (List) value;
+                        for (Object currentValue : valueAsList) {
+                            out.write("<" + simpleField.getName() + ">");
+                            handleSimpleValue(simpleField, currentValue);
+                            out.write("</" + simpleField.getName() + ">");
+                        }
                     }
                 }
                 return null;
@@ -121,16 +123,18 @@ public class DataRecordXmlWriter implements DataRecordWriter {
         public Void visit(EnumerationFieldMetadata enumField) {
             try {
                 Object value = record.get(enumField);
-                if (!enumField.isMany()) {
-                    out.write("<" + enumField.getName() + ">");
-                    handleSimpleValue(enumField, value);
-                    out.write("</" + enumField.getName() + ">");
-                } else {
-                    List valueAsList = (List) value;
-                    for (Object currentValue : valueAsList) {
+                if (value != null) {
+                    if (!enumField.isMany()) {
                         out.write("<" + enumField.getName() + ">");
-                        handleSimpleValue(enumField, currentValue);
+                        handleSimpleValue(enumField, value);
                         out.write("</" + enumField.getName() + ">");
+                    } else {
+                        List valueAsList = (List) value;
+                        for (Object currentValue : valueAsList) {
+                            out.write("<" + enumField.getName() + ">");
+                            handleSimpleValue(enumField, currentValue);
+                            out.write("</" + enumField.getName() + ">");
+                        }
                     }
                 }
                 return null;
@@ -140,6 +144,9 @@ public class DataRecordXmlWriter implements DataRecordWriter {
         }
 
         private void handleSimpleValue(FieldMetadata simpleField, Object value) throws IOException {
+            if(value == null) {
+                throw new IllegalArgumentException("Not supposed to write null values to XML.");
+            }
             if ("date".equals(simpleField.getType().getName())) {
                 synchronized (DateConstant.DATE_FORMAT) {
                     out.write((DateConstant.DATE_FORMAT).format(value));

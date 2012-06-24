@@ -53,13 +53,16 @@ public class GoodFieldTypeMapping extends TypeMapping {
                 }
                 ReferenceFieldMetadata referenceFieldMetadata = (ReferenceFieldMetadata) mappedDatabaseField;
                 if (!field.isMany()) {
-                    Wrapper object = createObject(contextClassLoader, session, referenceFieldMetadata.getReferencedType());
+                    Wrapper object = createObject(contextClassLoader, referenceFieldMetadata.getReferencedType());
                     wrapper.set(referenceFieldMetadata.getName(), _setValues(session, (DataRecord) record.get(field), object));
+                    session.persist(object);
                 } else {
                     List<DataRecord> dataRecords = (List<DataRecord>) record.get(field);
                     List<Object> objects = new LinkedList<Object>();
                     for (DataRecord dataRecord : dataRecords) {
-                        objects.add(_setValues(session, dataRecord, createObject(contextClassLoader, session, referenceFieldMetadata.getReferencedType())));
+                        Wrapper object = createObject(contextClassLoader, referenceFieldMetadata.getReferencedType());
+                        objects.add(_setValues(session, dataRecord, object));
+                        session.persist(object);
                     }
                     wrapper.set(referenceFieldMetadata.getName(), objects);
                 }
@@ -137,20 +140,23 @@ public class GoodFieldTypeMapping extends TypeMapping {
                     if (!userField.isMany()) {
                         DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
                         Wrapper wrapper = (Wrapper) from.get(field.getName());
-                        for (FieldMetadata keyField : mapping.getDatabase().getKeyFields()) {
-                            referencedRecord.set(mapping.getUser(keyField), wrapper.get(keyField.getName()));
-                        }
-                        to.set(userField, referencedRecord);
-                    } else {
-                        List<Wrapper> wrapperList = (List<Wrapper>) from.get(field.getName());
-                        for (Wrapper wrapper : wrapperList) {
-                            DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
+                        if (wrapper != null) {
                             for (FieldMetadata keyField : mapping.getDatabase().getKeyFields()) {
                                 referencedRecord.set(mapping.getUser(keyField), wrapper.get(keyField.getName()));
                             }
                             to.set(userField, referencedRecord);
                         }
-
+                    } else {
+                        List<Wrapper> wrapperList = (List<Wrapper>) from.get(field.getName());
+                        if (wrapperList != null) {
+                            for (Wrapper wrapper : wrapperList) {
+                                DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
+                                for (FieldMetadata keyField : mapping.getDatabase().getKeyFields()) {
+                                    referencedRecord.set(mapping.getUser(keyField), wrapper.get(keyField.getName()));
+                                }
+                                to.set(userField, referencedRecord);
+                            }
+                        }
                     }
                 } else {
                     to.set(userField, from.get(field.getName()));
@@ -160,12 +166,10 @@ public class GoodFieldTypeMapping extends TypeMapping {
         return to;
     }
 
-    private Wrapper createObject(ClassLoader storageClassLoader, Session session, ComplexTypeMetadata referencedType) {
+    private Wrapper createObject(ClassLoader storageClassLoader, ComplexTypeMetadata referencedType) {
         try {
             Class<? extends Wrapper> referencedClass = ((StorageClassLoader) storageClassLoader).getClassFromType(referencedType);
-            Wrapper wrapper = referencedClass.newInstance();
-            session.persist(wrapper);
-            return wrapper;
+            return referencedClass.newInstance();
         } catch (Exception e) {
             throw new RuntimeException("Could not create wrapper object for type '" + referencedType.getName() + "'", e);
         }

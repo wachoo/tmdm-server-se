@@ -35,9 +35,8 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     private TypeMapping handleField(FieldMetadata field) {
         SimpleTypeFieldMetadata newFlattenField;
-        ComplexTypeMetadata database = mapping.getDatabase();
-        newFlattenField = new SimpleTypeFieldMetadata(database, field.isKey(), field.isMany(), field.isMandatory(), "x_" + field.getName().toLowerCase(), field.getType(), field.getWriteUsers(), field.getHideUsers());
-        database.addField(newFlattenField);
+        newFlattenField = new SimpleTypeFieldMetadata(currentType.peek(), field.isKey(), field.isMany(), field.isMandatory(), "x_" + field.getName().toLowerCase(), field.getType(), field.getWriteUsers(), field.getHideUsers());
+        currentType.peek().addField(newFlattenField);
         mapping.map(field, newFlattenField);
         return null;
     }
@@ -52,7 +51,7 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         FieldMetadata foreignKeyInfoFieldCopy = referenceField.hasForeignKeyInfo() ? referenceField.getForeignKeyInfoField().copy(internalRepository) : null;
 
         ComplexTypeMetadata database = currentType.peek();
-        ReferenceFieldMetadata newFlattenField = new ReferenceFieldMetadata(database, referenceField.isKey(), referenceField.isMany(), referenceField.isMandatory(), name, referencedType, referencedFieldCopy, foreignKeyInfoFieldCopy, referenceField.isFKIntegrity(), referenceField.allowFKIntegrityOverride(), referenceField.getWriteUsers(), referenceField.getHideUsers());
+        ReferenceFieldMetadata newFlattenField = new ReferenceFieldMetadata(currentType.peek(), referenceField.isKey(), referenceField.isMany(), referenceField.isMandatory(), name, referencedType, referencedFieldCopy, foreignKeyInfoFieldCopy, referenceField.isFKIntegrity(), referenceField.allowFKIntegrityOverride(), referenceField.getWriteUsers(), referenceField.getHideUsers());
         database.addField(newFlattenField);
         mapping.map(referenceField, newFlattenField);
         return null;
@@ -60,7 +59,7 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     @Override
     public TypeMapping visit(ContainedComplexTypeMetadata containedType) {
-        String newTypeName = containedType.getContainerType().getName() + '_' + containedType.getName();
+        String newTypeName = (containedType.getContainerType().getName() + "_2_" + containedType.getName()).toUpperCase();
         ComplexTypeMetadata newInternalType = new ComplexTypeMetadataImpl(containedType.getNamespace(),
                 newTypeName,
                 containedType.getWriteUsers(),
@@ -89,7 +88,7 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     @Override
     public TypeMapping visit(ContainedTypeFieldMetadata containedField) {
-        String typeName = containedField.getContainingType().getName() + '_' + containedField.getContainedType().getName();
+        String typeName = (containedField.getContainingType().getName() + "_2_" + containedField.getContainedType().getName()).toUpperCase();
         SoftTypeRef typeRef = new SoftTypeRef(internalRepository,
                 containedField.getContainingType().getNamespace(),
                 typeName);
@@ -106,6 +105,7 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 false,
                 containedField.getWriteUsers(),
                 containedField.getHideUsers());
+        newFlattenField.setData("SQL_DELETE_CASCADE", "true");
 
         database.addField(newFlattenField);
         mapping.map(containedField, newFlattenField);

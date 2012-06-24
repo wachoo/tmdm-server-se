@@ -11,8 +11,7 @@
 
 package com.amalto.core.storage.record.metadata;
 
-import org.apache.commons.lang.StringUtils;
-
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -41,6 +40,6 @@ public class UnsupportedDataRecordMetadata implements DataRecordMetadata {
     }
 
     public Map<String, String> getRecordProperties() {
-        throw new UnsupportedOperationException();
+        return Collections.emptyMap();
     }
 }

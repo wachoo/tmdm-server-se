@@ -197,9 +197,11 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 propertyElement.getAttributes().setNamedItem(joinAttribute);
 
                 // cascade="true"
-                Attr cascade = document.createAttribute("cascade");
-                cascade.setValue("delete");
-                propertyElement.getAttributes().setNamedItem(cascade);
+                if (Boolean.parseBoolean(referenceField.<String>getData("SQL_DELETE_CASCADE"))) {
+                    Attr cascade = document.createAttribute("cascade");
+                    cascade.setValue("delete");
+                    propertyElement.getAttributes().setNamedItem(cascade);
+                }
 
                 Attr tableName = document.createAttribute("table");
                 tableName.setValue(shortString((referenceField.getContainingType().getName() + '_' + fieldName + '_' + referencedType.getName()).toUpperCase()));
