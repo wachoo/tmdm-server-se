@@ -446,7 +446,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         DataRecordWriter writer = new ItemPKCriteriaResultsWriter(type.getName(), itemPKResults, type);
         for (DataRecord result : results) {
             try {
-                writer.write(result, null);
+                writer.write(result, (OutputStream) null);
             } catch (IOException e) {
                 throw new XmlServerException(e);
             }

@@ -14,6 +14,8 @@ package com.amalto.core.metadata;
 import com.amalto.core.query.user.DateConstant;
 import com.amalto.core.query.user.DateTimeConstant;
 import com.amalto.core.query.user.TimeConstant;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.NotImplementedException;
 
 import java.math.BigDecimal;
@@ -42,8 +44,16 @@ public class MetadataUtils {
      * @param origin Point of entry in the metadata graph.
      * @param target Field to look for as end of path.
      * @return A path from type <code>origin</code> to field <code>target</code>. Returns empty stack if no path could be found.
+     * @throws IllegalArgumentException If either <code>origin</code> or <code>path</code> is null.
      */
     public static List<FieldMetadata> path(ComplexTypeMetadata origin, FieldMetadata target) {
+        if (origin == null) {
+            throw new IllegalArgumentException("Origin can not be null");
+        }
+        if (target == null) {
+            throw new IllegalArgumentException("Target field can not be null");
+        }
+
         Stack<FieldMetadata> stack = new Stack<FieldMetadata>();
         Set<TypeMetadata> processedTypes = new HashSet<TypeMetadata>();
         for (FieldMetadata fieldMetadata : origin.getFields()) {
@@ -83,10 +93,8 @@ public class MetadataUtils {
                         }
                     }
                 }
-            } else {
-                currentPath.pop();
             }
-
+            currentPath.pop();
         }
         return null;
     }
@@ -100,8 +108,9 @@ public class MetadataUtils {
      * @param field        A {@link FieldMetadata} that describes type information about the field.
      * @return A {@link Object} value that has correct type according to <code>field</code>. Returns <code>null</code> if
      *         field is instance of {@link ContainedTypeFieldMetadata} (this type of field isn't expected to have values).
-     * @throws RuntimeException Throws sub classes of {@link RuntimeException} if <code>dataAsString</code>  format does
-     *                          not match field's type.
+     *         Also returns <code>null</code> is parameter <code>dataAsString</code> is null.
+     * @throws RuntimeException         Throws sub classes of {@link RuntimeException} if <code>dataAsString</code>  format does
+     *                                  not match field's type.
      */
     public static Object convert(String dataAsString, FieldMetadata field) {
         if (field instanceof ReferenceFieldMetadata) {
@@ -129,24 +138,14 @@ public class MetadataUtils {
                 throw new IllegalArgumentException("Id '" + dataAsString + "' does not match expected format (no id found).");
             }
 
-            FieldMetadata referencedField = ((ReferenceFieldMetadata) field).getReferencedField();
-
-            if (referencedField instanceof CompoundFieldMetadata) {
-                FieldMetadata[] fields = ((CompoundFieldMetadata) referencedField).getFields();
-
-                if (fields.length != ids.size()) {
-                    throw new IllegalArgumentException("Id '" + dataAsString + "' does not match expected format (expected " + fields.length + " values but got " + ids.size() + ").");
-                }
-
-                List<Object> fkValues = new LinkedList<Object>();
-                int i = 0;
-                for (FieldMetadata currentCompoundField : fields) {
-                    fkValues.add(createSimpleValue(ids.get(i++), currentCompoundField));
-                }
-                return fkValues;
-            } else {
-                return createSimpleValue(ids.get(0), field);
+            ReferenceFieldMetadata referenceField = (ReferenceFieldMetadata) field;
+            DataRecord referencedRecord = new DataRecord(referenceField.getReferencedType(), UnsupportedDataRecordMetadata.INSTANCE);
+            Iterator<FieldMetadata> keyIterator = referenceField.getReferencedType().getKeyFields().iterator();
+            for (String id : ids) {
+                FieldMetadata nextKey = keyIterator.next();
+                referencedRecord.set(nextKey, convert(id, nextKey));
             }
+            return referencedRecord;
         } else {
             return createSimpleValue(dataAsString, field);
         }
@@ -245,9 +244,10 @@ public class MetadataUtils {
 
     /**
      * Returns the corresponding Java type for the {@link TypeMetadata} type.
+     *
      * @param metadata A {@link TypeMetadata} instance.
      * @return The name of Java class for the <code>metadata</code> argument. Returned string might directly be used for
-     * a {@link Class#forName(String)} call.
+     *         a {@link Class#forName(String)} call.
      */
     public static String getJavaType(TypeMetadata metadata) {
         // Move up the inheritance tree to find the "most generic" type (used when simple types inherits from XSD types,

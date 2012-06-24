@@ -11,16 +11,14 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.ContainedTypeFieldMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.TypeMetadata;
+import com.amalto.core.metadata.*;
 import com.amalto.core.query.user.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.hibernate.enhancement.HibernateClassCreator;
 import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.KeywordAnalyzer;
 import org.apache.lucene.queryParser.MultiFieldQueryParser;
 import org.apache.lucene.queryParser.ParseException;
@@ -51,7 +49,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
     private String revisionId;
 
     public FullTextQueryHandler(Storage storage,
-                                MappingMetadataRepository repository,
+                                MappingRepository repository,
                                 StorageClassLoader storageClassLoader,
                                 Session session,
                                 Select select,
@@ -163,11 +161,14 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                 @Override
                 public DataRecord next() {
                     DataRecord next = super.next();
-                    DataRecord nextRecord = new DataRecord(next.getType(), next.getRecordMetadata());
+                    ComplexTypeMetadata explicitProjectionType = new ComplexTypeMetadataImpl(StringUtils.EMPTY, ProjectionIterator.PROJECTION_TYPE);
+                    DataRecord nextRecord = new DataRecord(explicitProjectionType, UnsupportedDataRecordMetadata.INSTANCE);
                     for (TypedExpression selectedField : selectedFields) {
                         FieldMetadata field = ((Field) selectedField).getFieldMetadata();
+                        explicitProjectionType.addField(field);
                         nextRecord.set(field, next.get(field));
                     }
+                    explicitProjectionType.freeze();
                     return nextRecord;
                 }
             };
@@ -208,7 +209,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                                 }
                             } // TODO Support for contained types
                         }
-                        Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(HibernateClassCreator.PACKAGE_PREFIX + type.getName());
+                        Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(ClassCreator.PACKAGE_PREFIX + type.getName());
                         classes.add(clazz);
                     } else {
                         throw new NotImplementedException("No support for full text queries on simple types.");

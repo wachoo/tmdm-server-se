@@ -203,10 +203,6 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
             copy.registerKey(typeKeyField.copy(repository));
         }
 
-        if (isFrozen) {
-            copy.freeze();
-        }
-
         return copy;
     }
 
@@ -241,6 +237,10 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
         return schematron;
     }
 
+    public boolean hasField(String fieldName) {
+        return fieldMetadata.containsKey(fieldName);
+    }
+
     public TypeMetadata freeze() {
         if (isFrozen) {
             return this;
@@ -268,7 +268,11 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
         Collection<FieldMetadata> values = new LinkedList<FieldMetadata>(fieldMetadata.values());
         for (FieldMetadata value : values) {
             try {
-                fieldMetadata.put(value.getName(), value.freeze());
+                FieldMetadata frozenFieldDeclaration = value.freeze();
+                fieldMetadata.put(value.getName(), frozenFieldDeclaration);
+                if (keyFields.containsKey(value.getName()) && !frozenFieldDeclaration.isKey()) {
+                    frozenFieldDeclaration.promoteToKey();
+                }
             } catch (Exception e) {
                 throw new RuntimeException("Could not process field '" + value.getName() + "' in type '" + getName() + "'", e);
             }

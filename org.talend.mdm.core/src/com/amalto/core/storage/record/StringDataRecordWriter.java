@@ -12,7 +12,8 @@
 package com.amalto.core.storage.record;
 
 import com.amalto.core.metadata.*;
-import com.amalto.core.storage.hibernate.enhancement.TypeMapping;
+import com.amalto.core.storage.hibernate.TypeMapping;
+import org.apache.commons.lang.NotImplementedException;
 
 import java.io.*;
 import java.lang.reflect.Method;
@@ -44,8 +45,7 @@ public class StringDataRecordWriter implements DataRecordWriter {
 
     public void write(DataRecord record, OutputStream output) throws IOException {
         Writer out = new BufferedWriter(new OutputStreamWriter(output));
-        TypeMapping type = (TypeMapping) record.getType();
-        type.toFlatten();
+        ComplexTypeMetadata type = record.getType();
 
         Collection<FieldMetadata> fields = type.getFields();
         if (!hasProcessedColumnNames) {
@@ -65,6 +65,10 @@ public class StringDataRecordWriter implements DataRecordWriter {
             internalWrite(dataRecord, out);
         }
         out.flush();
+    }
+
+    public void write(DataRecord record, Writer writer) throws IOException {
+        throw new NotImplementedException();
     }
 
     private void internalWrite(final DataRecord record, final Writer out) throws IOException {

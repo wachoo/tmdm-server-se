@@ -4,7 +4,6 @@ import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.hibernate.enhancement.TypeMappingRepository;
 import com.amalto.core.storage.record.DataRecord;
 
 import java.util.Map;
@@ -43,7 +42,7 @@ public class MergeTask extends MetadataRepositoryTask {
 
         public void execute(DataRecord record) {
             Map<String,String> recordProperties = record.getRecordMetadata().getRecordProperties();
-            recordProperties.put(TypeMappingRepository.METADATA_STAGING_STATUS, StagingConstants.SUCCESS_MERGE_CLUSTERS);
+            recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.SUCCESS_MERGE_CLUSTERS);
             storage.update(record);
         }
 

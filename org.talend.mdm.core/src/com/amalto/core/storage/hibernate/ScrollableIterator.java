@@ -40,9 +40,9 @@ class ScrollableIterator extends CloseableIterator<DataRecord> {
 
     private final String dataClusterName;
 
-    private final MappingMetadataRepository storageRepository;
+    private final MappingRepository storageRepository;
 
-    public ScrollableIterator(MappingMetadataRepository storageRepository, StorageClassLoader storageClassLoader, String dataClusterName, String revisionId, ScrollableResults results, Set<EndOfResultsCallback> callbacks) {
+    public ScrollableIterator(MappingRepository storageRepository, StorageClassLoader storageClassLoader, String dataClusterName, String revisionId, ScrollableResults results, Set<EndOfResultsCallback> callbacks) {
         this.storageRepository = storageRepository;
         this.storageClassLoader = storageClassLoader;
         this.dataClusterName = dataClusterName;
@@ -78,10 +78,10 @@ class ScrollableIterator extends CloseableIterator<DataRecord> {
 
         ComplexTypeMetadata type = storageClassLoader.getTypeFromClass(next.getClass());
         ObjectDataRecordReader reader = getReader(type);
-        if (!(next instanceof HibernateClassWrapper)) {
-            throw new IllegalArgumentException("Result object is not an instance of " + HibernateClassWrapper.class.getName());
+        if (!(next instanceof Wrapper)) {
+            throw new IllegalArgumentException("Result object is not an instance of " + Wrapper.class.getName());
         }
-        return reader.read(dataClusterName, Long.valueOf(revisionId), storageRepository.getMapping(type), (HibernateClassWrapper) next);
+        return reader.read(dataClusterName, Long.valueOf(revisionId), storageRepository.getMapping(type), (Wrapper) next);
     }
 
     // Cache type readers
@@ -89,7 +89,7 @@ class ScrollableIterator extends CloseableIterator<DataRecord> {
         synchronized (typeToReader) {
             ObjectDataRecordReader reader = typeToReader.get(type);
             if (reader == null) {
-                reader = new ObjectDataRecordReader(type.getFields());
+                reader = new ObjectDataRecordReader();
                 typeToReader.put(type, reader);
             }
             return reader;

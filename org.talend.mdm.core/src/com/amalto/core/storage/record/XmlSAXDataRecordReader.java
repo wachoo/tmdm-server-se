@@ -13,9 +13,11 @@ package com.amalto.core.storage.record;
 
 import com.amalto.core.load.io.ResettableStringWriter;
 import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.ContainedTypeFieldMetadata;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
+import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.xml.sax.*;
 
 import java.util.Stack;
@@ -54,7 +56,7 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
 
         private final Stack<ComplexTypeMetadata> currentType = new Stack<ComplexTypeMetadata>();
 
-        private final DataRecord dataRecord;
+        private final Stack<DataRecord> dataRecordStack = new Stack<DataRecord>();
 
         private final ResettableStringWriter charactersBuffer = new ResettableStringWriter();
 
@@ -67,11 +69,13 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
         private boolean isReadingTimestamp = false;
 
         private boolean isReadingTaskId = false;
+        private final DataRecord dataRecord;
 
         public DataRecordContentHandler(ComplexTypeMetadata type) {
             mainType = type;
             field = null;
             dataRecord = new DataRecord(type, new DataRecordMetadataImpl(0, null));
+            dataRecordStack.push(dataRecord);
             hasMetUserElement = false;
         }
 
@@ -109,6 +113,11 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
                     throw new IllegalArgumentException("Type '" + lastType.getName() + "' does not own field '" + localName + "'");
                 }
                 if (field.getType() instanceof ComplexTypeMetadata) {
+                    if (field instanceof ContainedTypeFieldMetadata) {
+                        DataRecord containedRecord = new DataRecord(((ContainedTypeFieldMetadata) field).getContainedType(), UnsupportedDataRecordMetadata.INSTANCE);
+                        dataRecordStack.peek().set(field, containedRecord);
+                        dataRecordStack.push(containedRecord);
+                    }
                     currentType.push((ComplexTypeMetadata) field.getType());
                 }
             }
@@ -118,20 +127,21 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
             String value = charactersBuffer.reset();
             if (hasMetUserElement && field != null) {
                 if (!value.isEmpty()) {
-                    dataRecord.set(field, value.isEmpty() ? null : MetadataUtils.convert(value, field));
+                    dataRecordStack.peek().set(field, value.isEmpty() ? null : MetadataUtils.convert(value, field));
                 }
             } else {
                 if (isReadingTimestamp) {
-                    dataRecord.getRecordMetadata().setLastModificationTime(Long.parseLong(value));
+                    dataRecordStack.peek().getRecordMetadata().setLastModificationTime(Long.parseLong(value));
                     isReadingTimestamp = false;
                 } else if (isReadingTaskId) {
-                    dataRecord.getRecordMetadata().setTaskId(value.isEmpty() ? null : value);
+                    dataRecordStack.peek().getRecordMetadata().setTaskId(value.isEmpty() ? null : value);
                     isReadingTaskId = false;
                 }
             }
 
             if (!currentType.isEmpty() && localName.equals(currentType.peek().getName())) {
                 currentType.pop();
+                dataRecordStack.pop();
             }
         }
 

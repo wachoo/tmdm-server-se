@@ -11,7 +11,7 @@
 
 package com.amalto.core.storage.record;
 
-import com.amalto.core.storage.hibernate.enhancement.TypeMapping;
+import com.amalto.core.storage.hibernate.TypeMapping;
 
 /**
  *

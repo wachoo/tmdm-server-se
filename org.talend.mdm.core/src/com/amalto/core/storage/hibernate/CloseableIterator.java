@@ -17,5 +17,5 @@ import java.util.Iterator;
 /**
  *
  */
-public abstract class CloseableIterator<T> implements Iterator<T>, Closeable {
+abstract class CloseableIterator<T> implements Iterator<T>, Closeable {
 }

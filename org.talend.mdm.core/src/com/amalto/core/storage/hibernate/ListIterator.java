@@ -29,7 +29,7 @@ class ListIterator extends CloseableIterator<DataRecord> {
 
     private final static Map<ComplexTypeMetadata, ObjectDataRecordReader> typeToReader = new HashMap<ComplexTypeMetadata, ObjectDataRecordReader>();
 
-    private final MappingMetadataRepository storageRepository;
+    private final MappingRepository storageRepository;
 
     private final String dataClusterName;
 
@@ -41,7 +41,7 @@ class ListIterator extends CloseableIterator<DataRecord> {
 
     private final Set<EndOfResultsCallback> callbacks;
 
-    public ListIterator(MappingMetadataRepository storageRepository, StorageClassLoader storageClassLoader, String dataClusterName, String revisionId, Iterator iterator, Set<EndOfResultsCallback> callbacks) {
+    public ListIterator(MappingRepository storageRepository, StorageClassLoader storageClassLoader, String dataClusterName, String revisionId, Iterator iterator, Set<EndOfResultsCallback> callbacks) {
         this.storageRepository = storageRepository;
         this.dataClusterName = dataClusterName;
         this.storageClassLoader = storageClassLoader;
@@ -75,10 +75,10 @@ class ListIterator extends CloseableIterator<DataRecord> {
 
         ComplexTypeMetadata type = storageClassLoader.getTypeFromClass(next.getClass());
         ObjectDataRecordReader reader = getReader(type);
-        if (!(next instanceof HibernateClassWrapper)) {
-            throw new IllegalArgumentException("Result object is not an instance of " + HibernateClassWrapper.class.getName());
+        if (!(next instanceof Wrapper)) {
+            throw new IllegalArgumentException("Result object is not an instance of " + Wrapper.class.getName());
         }
-        return reader.read(dataClusterName, Long.parseLong(revisionId), storageRepository.getMapping(type), (HibernateClassWrapper) next);
+        return reader.read(dataClusterName, Long.parseLong(revisionId), storageRepository.getMapping(type), (Wrapper) next);
     }
 
     // Cache type readers
@@ -86,7 +86,7 @@ class ListIterator extends CloseableIterator<DataRecord> {
         synchronized (typeToReader) {
             ObjectDataRecordReader reader = typeToReader.get(type);
             if (reader == null) {
-                reader = new ObjectDataRecordReader(type.getFields());
+                reader = new ObjectDataRecordReader();
                 typeToReader.put(type, reader);
             }
             return reader;

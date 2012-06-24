@@ -170,6 +170,10 @@ public class SoftTypeRef implements ComplexTypeMetadata {
         return getTypeAsComplex().getSchematron();
     }
 
+    public boolean hasField(String fieldName) {
+        return getTypeAsComplex().hasField(fieldName);
+    }
+
     public void registerKey(FieldMetadata keyField) {
         getTypeAsComplex().registerKey(keyField);
     }

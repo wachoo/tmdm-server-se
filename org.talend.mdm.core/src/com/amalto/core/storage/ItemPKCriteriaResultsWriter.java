@@ -19,8 +19,10 @@ import com.amalto.core.storage.record.DataRecordWriter;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Writer;
 import java.util.List;
 
+// TODO Implementation is somewhat bad: does not use parameters to write results
 class ItemPKCriteriaResultsWriter implements DataRecordWriter {
 
     private final ResettableStringWriter writer;
@@ -39,6 +41,14 @@ class ItemPKCriteriaResultsWriter implements DataRecordWriter {
     }
 
     public void write(DataRecord record, OutputStream output) throws IOException {
+        doWrite(record);
+    }
+
+    public void write(DataRecord record, Writer writer) throws IOException {
+        doWrite(record);
+    }
+
+    private void doWrite(DataRecord record) {
         writer.write("<r>");
         {
             writer.write("<t>" + record.get("timestamp") + "</t>");

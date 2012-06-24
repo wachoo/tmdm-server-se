@@ -11,12 +11,10 @@
 
 package com.amalto.core.storage.record;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataUtils;
-import com.amalto.core.metadata.TypeMetadata;
+import com.amalto.core.metadata.*;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
+import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -104,6 +102,8 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
             DataRecord dataRecord = new DataRecord(type, metadata);
             dataRecord.setRevisionId(revisionId);
 
+            Stack<DataRecord> dataRecords = new Stack<DataRecord>();
+            dataRecords.push(dataRecord);
             int userXmlPayloadLevel = level;
             while (xmlEventReader.hasNext()) {
                 XMLEvent xmlEvent = xmlEventReader.nextEvent();
@@ -115,14 +115,20 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                             throw new IllegalStateException("Expected a complex type but got a " + typeMetadata.getClass().getName());
                         }
                         field = ((ComplexTypeMetadata) typeMetadata).getField(startElement.getName().getLocalPart());
-                        currentType.push(field.getType());
+                        TypeMetadata fieldType = field.getType();
+                        if (fieldType instanceof ContainedComplexTypeMetadata) {
+                            DataRecord containedDataRecord = new DataRecord((ComplexTypeMetadata) fieldType, UnsupportedDataRecordMetadata.INSTANCE);
+                            dataRecords.peek().set(field, containedDataRecord);
+                            dataRecords.push(containedDataRecord);
+                        }
+                        currentType.push(fieldType);
                     }
                     level++;
                 } else if (xmlEvent.isCharacters()) {
                     if (level >= userXmlPayloadLevel && field != null) {
                         Object value = MetadataUtils.convert(xmlEvent.asCharacters().getData(), field);
                         if (value != null) {
-                            dataRecord.set(field, value);
+                            dataRecords.peek().set(field, value);
                         }
                     }
                 } else if (xmlEvent.isEndElement()) {
@@ -131,11 +137,14 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                         break;
                     }
                     field = null;
+                    if (currentType.peek() instanceof ContainedComplexTypeMetadata) {
+                        dataRecords.pop();
+                    }
                     currentType.pop();
                     level--;
                 }
             }
-            return dataRecord;
+            return dataRecords.pop();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

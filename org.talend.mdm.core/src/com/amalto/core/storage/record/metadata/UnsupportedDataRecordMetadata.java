@@ -11,6 +11,8 @@
 
 package com.amalto.core.storage.record.metadata;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.Map;
 
 /**
@@ -25,19 +27,17 @@ public class UnsupportedDataRecordMetadata implements DataRecordMetadata {
     }
 
     public long getLastModificationTime() {
-        throw new UnsupportedOperationException();
+        return 0;
     }
 
     public void setLastModificationTime(long lastModificationTime) {
-        throw new UnsupportedOperationException();
     }
 
     public String getTaskId() {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     public void setTaskId(String taskId) {
-        throw new UnsupportedOperationException();
     }
 
     public Map<String, String> getRecordProperties() {

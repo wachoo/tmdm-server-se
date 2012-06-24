@@ -1,0 +1,98 @@
+/*
+ * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+ *
+ * This source code is available under agreement available at
+ * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+ *
+ * You should have received a copy of the agreement
+ * along with this program; if not, write to Talend SA
+ * 9 rue Pages 92150 Suresnes, France
+ */
+
+package com.amalto.core.storage.hibernate;
+
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.ContainedTypeFieldMetadata;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.ReferenceFieldMetadata;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
+import org.apache.commons.lang.NotImplementedException;
+import org.hibernate.Session;
+
+import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.util.*;
+
+/**
+ * Represents type mapping between data model as specified by the user and data model as used by hibernate storage.
+ */
+public abstract class TypeMapping {
+
+    protected final ComplexTypeMetadata database;
+
+    protected final ComplexTypeMetadata user;
+
+    protected final MappingRepository mappings;
+
+    private Map<String, FieldMetadata> userToDatabase = new HashMap<String, FieldMetadata>();
+
+    private Map<String, FieldMetadata> databaseToUser = new HashMap<String, FieldMetadata>();
+
+    private boolean isFrozen;
+
+    TypeMapping(ComplexTypeMetadata user, MappingRepository mappings) {
+        this(user, (ComplexTypeMetadata) user.copyShallow(), mappings);
+    }
+
+    TypeMapping(ComplexTypeMetadata user, ComplexTypeMetadata database, MappingRepository mappings) {
+        this.user = user;
+        this.database = database;
+        this.mappings = mappings;
+    }
+
+    void map(FieldMetadata user, FieldMetadata database) {
+        userToDatabase.put(user.getName(), database);
+        databaseToUser.put(database.getName(), user);
+    }
+
+    public ComplexTypeMetadata getDatabase() {
+        return database;
+    }
+
+    public ComplexTypeMetadata getUser() {
+        return user;
+    }
+
+    public FieldMetadata getDatabase(FieldMetadata from) {
+        return userToDatabase.get(from.getName());
+    }
+
+    public FieldMetadata getUser(FieldMetadata to) {
+        return databaseToUser.get(to.getName());
+    }
+
+    public void freeze() {
+        if (!isFrozen) {
+            try {
+                database.freeze();
+            } catch (Exception e) {
+                throw new RuntimeException("Could not process internal type '" + database.getName() + "'.", e);
+            }
+            try {
+                user.freeze();
+            } catch (Exception e) {
+                throw new RuntimeException("Could not process user type '" + user.getName() + "'.", e);
+            }
+            isFrozen = true;
+        }
+    }
+
+    public String getName() {
+        return database.getName();
+    }
+
+    public abstract void setValues(Session session, DataRecord from, Wrapper to);
+
+    public abstract DataRecord setValues(Wrapper from, DataRecord to);
+}

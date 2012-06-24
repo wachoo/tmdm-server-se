@@ -21,11 +21,9 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
-import com.amalto.core.storage.hibernate.enhancement.*;
 import com.amalto.core.storage.prepare.*;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordConverter;
-import com.amalto.core.storage.record.ObjectDataRecordConverter;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import net.sf.ehcache.CacheManager;
 import org.apache.commons.lang.NotImplementedException;
@@ -81,9 +79,11 @@ public class HibernateStorage implements Storage {
 
     private final StorageType storageType;
 
-    private TypeMappingRepository typeMappingRepository;
+    private MappingRepository mappingRepository;
 
-    private HibernateClassCreator hibernateClassCreator;
+    private InternalRepository typeMappingRepository;
+
+    private ClassCreator hibernateClassCreator;
 
     private StorageClassLoader storageClassLoader;
 
@@ -91,7 +91,7 @@ public class HibernateStorage implements Storage {
 
     private SessionFactory factory;
 
-    private MappingMetadataRepository storageRepository;
+    private MetadataRepository internalRepository;
 
     private Configuration configuration;
 
@@ -141,8 +141,8 @@ public class HibernateStorage implements Storage {
             case STAGING:
                 storageClassLoader = new StorageClassLoader(tableResolver, parent, storageName) {
                     @Override
-                    protected HibernateMappingGenerator getMappingGenerator(Document document, TableResolver resolver) {
-                        return new HibernateMappingGenerator(document, resolver, false);
+                    protected MappingGenerator getMappingGenerator(Document document, TableResolver resolver) {
+                        return new MappingGenerator(document, resolver, false);
                     }
                 };
                 break;
@@ -153,15 +153,6 @@ public class HibernateStorage implements Storage {
         }
 
         storageClassLoader.setDataSourceConfiguration(dataSource);
-
-        switch (storageType) {
-            case MASTER:
-                hibernateClassCreator = new HibernateClassCreator(storageClassLoader);
-                break;
-            case STAGING:
-                hibernateClassCreator = new HibernateClassCreator(storageClassLoader);
-                break;
-        }
 
         configuration = new Configuration();
         // Setting our own entity resolver allows to ensure the DTD found/used are what we expect (and not potentially ones
@@ -211,14 +202,25 @@ public class HibernateStorage implements Storage {
 
             // Mapping of data model types to RDBMS (i.e. 'flatten' representation of types).
             try {
-                storageRepository = repository.accept(getTypeEnhancer());
+                InternalRepository typeEnhancer = getTypeEnhancer();
+                internalRepository = repository.accept(typeEnhancer);
+                mappingRepository = typeEnhancer.getMappings();
             } catch (Exception e) {
                 throw new RuntimeException("Exception occurred during type mapping creation.", e);
             }
 
+            switch (storageType) {
+                case MASTER:
+                    hibernateClassCreator = new ClassCreator(storageClassLoader);
+                    break;
+                case STAGING:
+                    hibernateClassCreator = new ClassCreator(storageClassLoader);
+                    break;
+            }
+
             // Create Hibernate classes (after some modifications to the types).
             try {
-                storageRepository.accept(hibernateClassCreator);
+                internalRepository.accept(hibernateClassCreator);
             } catch (Exception e) {
                 throw new RuntimeException("Exception occurred during dynamic classes creation.", e);
             }
@@ -246,7 +248,7 @@ public class HibernateStorage implements Storage {
         }
     }
 
-    private TypeMappingRepository getTypeEnhancer() {
+    private InternalRepository getTypeEnhancer() {
         if (typeMappingRepository == null) {
             switch (storageType) {
                 case MASTER:
@@ -313,7 +315,7 @@ public class HibernateStorage implements Storage {
             Session session = factory.getCurrentSession();
             DataRecordConverter<Object> converter = new ObjectDataRecordConverter(storageClassLoader, session);
             for (DataRecord currentDataRecord : records) {
-                HibernateClassWrapper o = (HibernateClassWrapper) currentDataRecord.convert(converter, storageRepository.getMapping(currentDataRecord.getType()));
+                Wrapper o = (Wrapper) currentDataRecord.convert(converter, mappingRepository.getMapping(currentDataRecord.getType()));
                 o.timestamp(System.currentTimeMillis());
                 o.revision(currentDataRecord.getRevisionId());
 
@@ -321,7 +323,7 @@ public class HibernateStorage implements Storage {
                 DataRecordMetadata recordMetadata = currentDataRecord.getRecordMetadata();
                 Map<String, String> recordProperties = recordMetadata.getRecordProperties();
                 for (Map.Entry<String, String> currentProperty : recordProperties.entrySet()) {
-                    if (TypeMappingRepository.METADATA_TASK_ID.equals(currentProperty.getKey())) {
+                    if (METADATA_TASK_ID.equals(currentProperty.getKey())) {
                         o.taskId(currentProperty.getValue());
                     } else {
                         o.set(currentProperty.getKey(), currentProperty.getValue());
@@ -412,7 +414,7 @@ public class HibernateStorage implements Storage {
         FullTextSession fullTextSession = Search.getFullTextSession(factory.getCurrentSession());
         SearchFactory searchFactory = fullTextSession.getSearchFactory();
 
-        Collection<ComplexTypeMetadata> complexTypes = storageRepository.getUserComplexTypes();
+        Collection<ComplexTypeMetadata> complexTypes = internalRepository.getUserComplexTypes();
         Set<String> fields = new HashSet<String>();
         List<DirectoryProvider> directoryProviders = new LinkedList<DirectoryProvider>();
         for (ComplexTypeMetadata complexType : complexTypes) {
@@ -491,13 +493,14 @@ public class HibernateStorage implements Storage {
     }
 
     public void delete(Expression userQuery) {
-        assertPrepared();
-        Session session = factory.getCurrentSession();
+        ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
         try {
+            Thread.currentThread().setContextClassLoader(storageClassLoader);
+            Session session = factory.getCurrentSession();
+
             Iterable<DataRecord> records = internalFetch(session, userQuery, Collections.<EndOfResultsCallback>emptySet());
             for (DataRecord currentDataRecord : records) {
-                TypeMapping currentType = (TypeMapping) currentDataRecord.getType();
-                currentType.toUser();
+                ComplexTypeMetadata currentType = currentDataRecord.getType();
                 Class<?> clazz = storageClassLoader.getClassFromType(currentType);
 
                 Serializable idValue;
@@ -513,10 +516,16 @@ public class HibernateStorage implements Storage {
                 }
 
                 Object object = session.get(clazz, idValue);
-                session.delete(object);
+                if (object != null) {
+                    session.delete(object);
+                } else {
+                    LOGGER.warn("Instance of type '" + currentType.getName() + "' and ID '" + idValue.toString() + "' has already been deleted within same transaction.");
+                }
             }
         } catch (HibernateException e) {
             throw new RuntimeException(e);
+        } finally {
+            Thread.currentThread().setContextClassLoader(previousClassLoader);
         }
     }
 
@@ -560,7 +569,7 @@ public class HibernateStorage implements Storage {
     }
 
     private StorageResults internalFetch(Session session, Expression userQuery, Set<EndOfResultsCallback> callbacks) {
-        SelectAnalyzer selectAnalysis = new SelectAnalyzer(storageRepository, storageClassLoader, session, callbacks, this);
+        SelectAnalyzer selectAnalysis = new SelectAnalyzer(mappingRepository, storageClassLoader, session, callbacks, this);
         AbstractQueryHandler queryHandler = userQuery.accept(selectAnalysis);
         // Always normalize the query to ensure query has expected format.
         Expression expression = userQuery.normalize();
@@ -649,5 +658,11 @@ public class HibernateStorage implements Storage {
     @Override
     public String toString() {
         return storageName + '(' + storageType + ')';
+    }
+
+    public static enum TypeMappingStrategy {
+        FLAT,
+        GOOD_FIELD,
+        AUTO
     }
 }

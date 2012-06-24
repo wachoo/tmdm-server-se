@@ -13,7 +13,7 @@ package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.metadata.*;
 import com.amalto.core.query.user.*;
-import com.amalto.core.storage.hibernate.enhancement.TypeMappingRepository;
+import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.StringUtils;
@@ -28,7 +28,7 @@ import java.util.Set;
 
 class ProjectionIterator extends CloseableIterator<DataRecord> {
 
-    private static final String PROJECTION_TYPE = "$ExplicitProjection$";
+    public static final String PROJECTION_TYPE = "$ExplicitProjection$";
 
     private static final Logger LOGGER = Logger.getLogger(ProjectionIterator.class);
 
@@ -118,7 +118,7 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
                     @Override
                     public FieldMetadata visit(Timestamp timestamp) {
                         if (!isAlias) {
-                            return createField(Timestamp.TIMESTAMP_TYPE_NAME, TypeMappingRepository.METADATA_TIMESTAMP);
+                            return createField(Timestamp.TIMESTAMP_TYPE_NAME, Storage.METADATA_TIMESTAMP);
                         }
                         return null;
                     }
@@ -126,7 +126,7 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
                     @Override
                     public FieldMetadata visit(TaskId taskId) {
                         if (!isAlias) {
-                            return createField(TaskId.TASK_ID_TYPE_NAME, TypeMappingRepository.METADATA_TASK_ID);
+                            return createField(TaskId.TASK_ID_TYPE_NAME, Storage.METADATA_TASK_ID);
                         }
                         return null;
                     }
@@ -134,7 +134,7 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
                     @Override
                     public FieldMetadata visit(Revision revision) {
                         if (!isAlias) {
-                            return createField(Revision.REVISION_TYPE_NAME, TypeMappingRepository.METADATA_REVISION_ID);
+                            return createField(Revision.REVISION_TYPE_NAME, Storage.METADATA_REVISION_ID);
                         }
                         return null;
                     }
@@ -150,6 +150,7 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
                 explicitProjectionType.addField(field);
                 record.set(field, value);
             }
+            explicitProjectionType.freeze();
         } catch (Exception e) {
             notifyCallbacks();
             throw new RuntimeException(e);

@@ -40,7 +40,7 @@ public class SimpleTypeFieldMetadata implements FieldMetadata {
 
     public SimpleTypeFieldMetadata(ComplexTypeMetadata containingType, boolean isKey, boolean isMany, boolean isMandatory, String name, TypeMetadata fieldType, List<String> allowWriteUsers, List<String> hideUsers) {
         if (fieldType == null) {
-            throw new IllegalArgumentException("Type name cannot be null.");
+            throw new IllegalArgumentException("Field type cannot be null.");
         }
         if (isKey && !isMandatory) {
             throw new IllegalArgumentException("Key field must be mandatory (field '" + name + "' in type '" + containingType.getName() + "' is optional)");

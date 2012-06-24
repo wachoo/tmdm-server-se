@@ -79,7 +79,13 @@ public interface ComplexTypeMetadata extends TypeMetadata {
      * Returns an empty string if no schematron rule was specified for this type.
      */
     String getSchematron();
-    
+
+    /**
+     * @param fieldName A field name.
+     * @return <code>true</code> if type has a field named <code>fieldName</code>, <code>false</code> otherwise.
+     */
+    boolean hasField(String fieldName);
+
     enum DeleteType {
         /**
          * Logical delete (a.k.a. send to trash)

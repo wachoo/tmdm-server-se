@@ -278,7 +278,11 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                 DataRecordWriter writer = new DataRecordWriter() {
                     public void write(DataRecord record, OutputStream output) throws IOException {
                         Writer out = new BufferedWriter(new OutputStreamWriter(output));
-                        out.write("<result>\n");
+                        write(record, out);
+                    }
+
+                    public void write(DataRecord record, Writer writer) throws IOException {
+                        writer.write("<result>\n");
                         for (FieldMetadata fieldMetadata : record.getSetFields()) {
                             Object value = record.get(fieldMetadata);
                             Object valueAsString = String.valueOf(value);
@@ -286,11 +290,11 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                                 valueAsString = "[" + valueAsString + ']';
                             }
                             if (value != null) {
-                                out.append("\t<" + fieldMetadata.getName() + ">" + valueAsString + "</" + fieldMetadata.getName() + ">\n");
+                                writer.append("\t<").append(fieldMetadata.getName()).append(">").append(String.valueOf(valueAsString)).append("</").append(fieldMetadata.getName()).append(">\n");
                             }
                         }
-                        out.append("</result>");
-                        out.flush();
+                        writer.append("</result>");
+                        writer.flush();
                     }
                 };
 

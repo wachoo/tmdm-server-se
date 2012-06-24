@@ -116,6 +116,11 @@ public class ReferenceFieldMetadata extends MetadataExtensible implements FieldM
         } catch (Exception e) {
             throw new RuntimeException("Field '" + name + "' in type '" + containingType.getName() + "': referenced field is invalid.", e);
         }
+        try {
+            referencedType = (ComplexTypeMetadata) referencedType.freeze();
+        } catch (Exception e) {
+            throw new RuntimeException("Referenced type '" + referencedType.getName() + "' can't be found", e);
+        }
         return this;
     }
 
@@ -226,16 +231,10 @@ public class ReferenceFieldMetadata extends MetadataExtensible implements FieldM
     public int hashCode() {
         int result = (isKey ? 1 : 0);
         result = 31 * result + (isMany ? 1 : 0);
-        result = 31 * result + (referencedField != null ? referencedField.hashCode() : 0);
         result = 31 * result + (foreignKeyInfo != null ? foreignKeyInfo.hashCode() : 0);
         result = 31 * result + (allowFKIntegrityOverride ? 1 : 0);
         result = 31 * result + (isFKIntegrity ? 1 : 0);
-        result = 31 * result + (declaringType != null ? declaringType.hashCode() : 0);
-        result = 31 * result + (hideUsers != null ? hideUsers.hashCode() : 0);
-        result = 31 * result + (writeUsers != null ? writeUsers.hashCode() : 0);
         result = 31 * result + (isMandatory ? 1 : 0);
-        result = 31 * result + (referencedType != null ? referencedType.hashCode() : 0);
-        result = 31 * result + (containingType != null ? containingType.hashCode() : 0);
         result = 31 * result + (name != null ? name.hashCode() : 0);
         return result;
     }

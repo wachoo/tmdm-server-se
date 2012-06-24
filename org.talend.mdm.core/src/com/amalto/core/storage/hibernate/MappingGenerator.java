@@ -12,7 +12,6 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.metadata.*;
-import com.amalto.core.storage.hibernate.enhancement.HibernateClassCreator;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
@@ -21,13 +20,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.List;
 
-// TODO Refactor
-public class HibernateMappingGenerator extends DefaultMetadataVisitor<Element> {
+// TODO Refactor (+ NON-NLS)
+class MappingGenerator extends DefaultMetadataVisitor<Element> {
 
-    private static final Logger LOGGER = Logger.getLogger(HibernateMappingGenerator.class);
+    private static final Logger LOGGER = Logger.getLogger(MappingGenerator.class);
 
     private final Document document;
 
@@ -45,66 +43,31 @@ public class HibernateMappingGenerator extends DefaultMetadataVisitor<Element> {
 
     private boolean generateConstrains;
 
-    public HibernateMappingGenerator(Document document, TableResolver resolver) {
+    public MappingGenerator(Document document, TableResolver resolver) {
         this(document, resolver, true);
     }
 
-    public HibernateMappingGenerator(Document document, TableResolver resolver, boolean generateConstrains) {
+    public MappingGenerator(Document document, TableResolver resolver, boolean generateConstrains) {
         this.document = document;
         this.resolver = resolver;
         this.generateConstrains = generateConstrains;
     }
 
-    private static String shortString(String s, int threshold) {
-        if (s.length() < threshold) {
+    public static String shortString(String s) {
+        if (s.length() < 40) {
             return s;
         }
         char[] chars = s.toCharArray();
-        if (!s.contains("_")) { //$NON-NLS-1$
-            chars = ArrayUtils.add(chars, threshold / 2, '_');
-        }
+        return __shortString(chars, 40);
+    }
 
-        StringBuilder prefix = new StringBuilder();
-        BitSet bitSet = null;
-        int index = 0;
-        int reservedSpace = 1;
-        boolean isPrefix = true;
-        for (char currentChar : chars) {
-            switch (currentChar) {
-                case '_':
-                    if (isPrefix) {
-                        int rest = (int) Math.pow(10, threshold - prefix.length() - 1);
-                        reservedSpace = 0;
-                        while (rest > 2) {
-                            rest = rest >> 1;
-                            reservedSpace++;
-                        }
-                        bitSet = new BitSet(reservedSpace);
-                        isPrefix = false;
-                        if (prefix.length() > threshold - 1) {
-                            throw new IllegalArgumentException("Prefix is already too long to shorten the name.");
-                        }
-                    }
-                    break;
-                default:
-                    if (isPrefix) {
-                        prefix.append(currentChar);
-                    } else {
-                        bitSet.flip((index++ * currentChar) % reservedSpace);
-                    }
-                    break;
-            }
+    private static String __shortString(char[] chars, int threshold) {
+        if (chars.length < threshold) {
+            return new String(chars).replace('-', '_');
+        } else {
+            String s = new String(ArrayUtils.subarray(chars, 0, threshold / 2)) + new String(ArrayUtils.subarray(chars, threshold / 2, chars.length)).hashCode();
+            return __shortString(s.toCharArray(), threshold);
         }
-
-        if (bitSet == null) {
-            throw new IllegalStateException("Expected bit set to be initialized.");
-        }
-
-        String shortenString = prefix.toString() + '_' + String.valueOf(bitSet.hashCode());
-        if (shortenString.length() > threshold) {
-            throw new IllegalStateException("Expected string to be shorter than " + threshold + ".");
-        }
-        return shortenString;
     }
 
 
@@ -121,14 +84,14 @@ public class HibernateMappingGenerator extends DefaultMetadataVisitor<Element> {
         }
 
         String table = resolver.get(complexType);
-        String generatedClassName = HibernateClassCreator.PACKAGE_PREFIX + complexType.getName();
+        String generatedClassName = ClassCreator.PACKAGE_PREFIX + complexType.getName();
 
         Element classElement = document.createElement("class");
         Attr className = document.createAttribute("name");
         className.setValue(generatedClassName);
         classElement.getAttributes().setNamedItem(className);
         Attr classTable = document.createAttribute("table");
-        classTable.setValue(shortString(table, 30));
+        classTable.setValue(shortString(table));
         classElement.getAttributes().setNamedItem(classTable);
 
         // <cache usage="read-write" include="non-lazy"/>
@@ -233,14 +196,19 @@ public class HibernateMappingGenerator extends DefaultMetadataVisitor<Element> {
                 joinAttribute.setValue("select"); // Keep it "select" (Hibernate tends to duplicate results when using "fetch")
                 propertyElement.getAttributes().setNamedItem(joinAttribute);
 
+                // cascade="true"
+                Attr cascade = document.createAttribute("cascade");
+                cascade.setValue("delete");
+                propertyElement.getAttributes().setNamedItem(cascade);
+
                 Attr tableName = document.createAttribute("table");
-                tableName.setValue(shortString((referenceField.getContainingType().getName() + '_' + fieldName + '_' + referencedType.getName()).toUpperCase(), 30));
+                tableName.setValue(shortString((referenceField.getContainingType().getName() + '_' + fieldName + '_' + referencedType.getName()).toUpperCase()));
                 propertyElement.getAttributes().setNamedItem(tableName);
                 {
                     // <key column="foo_id"/>
                     Element key = document.createElement("key");
                     Attr elementColumn = document.createAttribute("column");
-                    elementColumn.setValue(shortString(referenceField.getName(), 30));
+                    elementColumn.setValue(shortString(referenceField.getName()));
                     key.getAttributes().setNamedItem(elementColumn);
                     propertyElement.appendChild(key);
 
@@ -268,7 +236,7 @@ public class HibernateMappingGenerator extends DefaultMetadataVisitor<Element> {
         Attr propertyName = document.createAttribute("name");
         propertyName.setValue(fieldName);
         Attr className = document.createAttribute("class");
-        className.setValue(HibernateClassCreator.PACKAGE_PREFIX + referencedField.getReferencedType().getName());
+        className.setValue(ClassCreator.PACKAGE_PREFIX + referencedField.getReferencedType().getName());
 
         // fetch="join" lazy="false"
         Attr lazy = document.createAttribute("lazy");
@@ -352,7 +320,7 @@ public class HibernateMappingGenerator extends DefaultMetadataVisitor<Element> {
         }
 
         Attr className = document.createAttribute("class");
-        className.setValue(HibernateClassCreator.PACKAGE_PREFIX + referencedField.getReferencedType().getName());
+        className.setValue(ClassCreator.PACKAGE_PREFIX + referencedField.getReferencedType().getName());
         manyToMany.getAttributes().setNamedItem(className);
 
         isDoingColumns = true;
@@ -378,7 +346,7 @@ public class HibernateMappingGenerator extends DefaultMetadataVisitor<Element> {
         if (isDoingColumns) {
             Element column = document.createElement("column");
             Attr columnName = document.createAttribute("name");
-            columnName.setValue(shortString(compositeKeyPrefix + "_" + fieldName, 30));
+            columnName.setValue(shortString(compositeKeyPrefix + "_" + fieldName));
             column.getAttributes().setNamedItem(columnName);
 
             Attr notNull = document.createAttribute("not-null");
@@ -394,13 +362,21 @@ public class HibernateMappingGenerator extends DefaultMetadataVisitor<Element> {
             Element idElement;
             if (!compositeId) {
                 idElement = document.createElement("id");
+                if ("UUID".equals(field.getType().getName())) {  //$NON-NLS-1$
+                    // <generator class="uuid.hex"/>
+                    Element generator = document.createElement("generator");
+                    Attr generatorClass = document.createAttribute("class");
+                    generatorClass.setValue("uuid.hex");
+                    generator.getAttributes().setNamedItem(generatorClass);
+                    idElement.appendChild(generator);
+                }
             } else {
                 idElement = document.createElement("key-property");
             }
             Attr idName = document.createAttribute("name");
             idName.setValue(fieldName);
             Attr columnName = document.createAttribute("column");
-            columnName.setValue(shortString(fieldName, 30));
+            columnName.setValue(shortString(fieldName));
 
             idElement.getAttributes().setNamedItem(idName);
             idElement.getAttributes().setNamedItem(columnName);
@@ -411,9 +387,7 @@ public class HibernateMappingGenerator extends DefaultMetadataVisitor<Element> {
                 Attr propertyName = document.createAttribute("name");
                 propertyName.setValue(fieldName);
                 Attr columnName = document.createAttribute("column");
-                columnName.setValue(shortString(fieldName, 30));
-                Attr elementType = document.createAttribute("type");
-                elementType.setValue(getFieldType(field));
+                columnName.setValue(shortString(fieldName));
 
                 // Not null
                 if (generateConstrains) {
@@ -440,7 +414,7 @@ public class HibernateMappingGenerator extends DefaultMetadataVisitor<Element> {
                 Attr name = document.createAttribute("name");
                 name.setValue(fieldName);
                 Attr tableName = document.createAttribute("table");
-                tableName.setValue(shortString((field.getContainingType().getName() + '_' + fieldName).toUpperCase(), 30));
+                tableName.setValue(shortString((field.getContainingType().getName() + '_' + fieldName).toUpperCase()));
 
                 // lazy="false"
                 Attr lazyAttribute = document.createAttribute("lazy");
@@ -456,6 +430,11 @@ public class HibernateMappingGenerator extends DefaultMetadataVisitor<Element> {
                 Attr fetchAttribute = document.createAttribute("fetch");
                 fetchAttribute.setValue("join");
                 listElement.getAttributes().setNamedItem(fetchAttribute);
+
+                // cascade="true"
+                Attr cascade = document.createAttribute("cascade");
+                cascade.setValue("delete");
+                listElement.getAttributes().setNamedItem(cascade);
 
                 Element key = document.createElement("key");
                 Attr column = document.createAttribute("column");

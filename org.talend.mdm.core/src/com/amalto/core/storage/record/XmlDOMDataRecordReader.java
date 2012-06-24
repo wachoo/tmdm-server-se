@@ -17,6 +17,7 @@ import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
+import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -67,7 +68,10 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
                 Element child = (Element) currentChild;
                 FieldMetadata field = type.getField(child.getTagName());
                 if (field.getType() instanceof ContainedComplexTypeMetadata) {
-                    _read(dataRecord, ((ComplexTypeMetadata) field.getType()), child);
+                    ComplexTypeMetadata containedType = (ComplexTypeMetadata) field.getType();
+                    DataRecord containedRecord = new DataRecord(containedType, UnsupportedDataRecordMetadata.INSTANCE);
+                    dataRecord.set(field, containedRecord);
+                    _read(containedRecord, containedType, child);
                 } else {
                     _read(dataRecord, type, child);
                 }

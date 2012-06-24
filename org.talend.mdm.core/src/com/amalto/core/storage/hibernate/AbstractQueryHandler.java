@@ -15,8 +15,6 @@ import com.amalto.core.metadata.*;
 import com.amalto.core.query.user.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.hibernate.enhancement.TypeMappingRepository;
-import com.amalto.core.storage.hibernate.enhancement.TypeMapping;
 import org.apache.commons.lang.NotImplementedException;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
@@ -30,7 +28,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-public abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
+abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
 
     static final Criterion NO_OP_CRITERION = new Criterion() {
         public String toSqlString(Criteria criteria, CriteriaQuery criteriaQuery) throws HibernateException {
@@ -48,7 +46,7 @@ public abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults
 
     final Session session;
 
-    final MappingMetadataRepository mappingMetadataRepository;
+    final MappingRepository mappingMetadataRepository;
 
     final FieldAdapter FIELD_VISITOR = new FieldAdapter();
 
@@ -65,7 +63,7 @@ public abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults
     final List<TypedExpression> selectedFields;
 
     AbstractQueryHandler(Storage storage,
-                         MappingMetadataRepository mappingMetadataRepository,
+                         MappingRepository mappingMetadataRepository,
                          StorageClassLoader storageClassLoader,
                          Session session,
                          Select select,
@@ -81,11 +79,11 @@ public abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults
         this.selectedFields = selectedFields;
     }
 
-    String getFieldName(Field field, MappingMetadataRepository repository) {
+    String getFieldName(Field field, MappingRepository repository) {
         return getFieldName(field.getFieldMetadata(), repository, true, true);
     }
 
-    String getFieldName(FieldMetadata fieldMetadata, MappingMetadataRepository repository, boolean includeTypeName, boolean resolveReferencedField) {
+    String getFieldName(FieldMetadata fieldMetadata, MappingRepository repository, boolean includeTypeName, boolean resolveReferencedField) {
         // Move up to the first complex type (contained type do not have any mapping).
         TypeMetadata containingType = fieldMetadata.getContainingType();
         while (containingType != null && containingType instanceof ContainedComplexTypeMetadata) {
@@ -101,13 +99,13 @@ public abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults
         }
 
         String fieldName;
-        FieldMetadata flattenField = mapping.getFlatten(fieldMetadata);
+        FieldMetadata flattenField = mapping.getDatabase(fieldMetadata);
         if (flattenField == null) {
             // This is an error case, every field should have their flatten field.
             throw new IllegalStateException("Could not find mapping for field '" + fieldMetadata.getName() + "' in type '" + mapping.getName() + "'");
         }
-        if (flattenField instanceof ReferenceFieldMetadata) { // Handle query on FK field
-            FieldMetadata referencedField = ((ReferenceFieldMetadata) flattenField).getReferencedField();
+        if (fieldMetadata instanceof ReferenceFieldMetadata) { // Handle query on FK field
+            FieldMetadata referencedField = ((ReferenceFieldMetadata) fieldMetadata).getReferencedField();
             if (!(referencedField instanceof CompoundFieldMetadata) && resolveReferencedField) {
                 // If asked to resolve referenced field (to return "country.id" instead of "country" -> useful for
                 // conditions on FKs).
@@ -233,22 +231,22 @@ public abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults
     class FieldAdapter extends VisitorAdapter<String> {
         @Override
         public String visit(Revision revision) {
-            return TypeMappingRepository.METADATA_REVISION_ID;
+            return Storage.METADATA_REVISION_ID;
         }
 
         @Override
         public String visit(com.amalto.core.query.user.Timestamp timestamp) {
-            return TypeMappingRepository.METADATA_TIMESTAMP;
+            return Storage.METADATA_TIMESTAMP;
         }
 
         @Override
         public String visit(TaskId taskId) {
-            return TypeMappingRepository.METADATA_TASK_ID;
+            return Storage.METADATA_TASK_ID;
         }
 
         @Override
         public String visit(StagingStatus stagingStatus) {
-            return TypeMappingRepository.METADATA_STAGING_STATUS;
+            return Storage.METADATA_STAGING_STATUS;
         }
 
         @Override

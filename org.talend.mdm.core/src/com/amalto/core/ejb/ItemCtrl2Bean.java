@@ -581,18 +581,22 @@ public class ItemCtrl2Bean implements SessionBean {
                 DataRecordWriter writer = new DataRecordWriter() {
                     public void write(DataRecord record, OutputStream output) throws IOException {
                         Writer out = new BufferedWriter(new OutputStreamWriter(output));
-                        out.write("<result>\n");
+                        write(record, out);
+                    }
+
+                    public void write(DataRecord record, Writer writer) throws IOException {
+                        writer.write("<result>\n");
                         for (FieldMetadata fieldMetadata : record.getSetFields()) {
                             Object value = record.get(fieldMetadata);
                             if (fieldMetadata.isKey()) {
-                                out.append("\t<i>" + value + "</i>\n");
+                                writer.append("\t<i>").append(String.valueOf(value)).append("</i>\n");
                             }
                             if (value != null) {
-                                out.append("\t<" + fieldMetadata.getName() + ">" + value + "</" + fieldMetadata.getName() + ">\n");
+                                writer.append("\t<").append(fieldMetadata.getName()).append(">").append(String.valueOf(value)).append("</").append(fieldMetadata.getName()).append(">\n");
                             }
                         }
-                        out.append("</result>");
-                        out.flush();
+                        writer.append("</result>");
+                        writer.flush();
                     }
                 };
 
@@ -1235,7 +1239,7 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * Get unordered items of a Concept using an optional where condition
-     * 
+     *
      * @param dataClusterPOJOPK The Data Cluster where to run the query
      * @param conceptName The name of the concept
      * @param whereItem The condition
@@ -1257,7 +1261,7 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * Get potentially ordered items of a Concept using an optional where condition
-     * 
+     *
      * @param dataClusterPOJOPK The Data Cluster where to run the query
      * @param conceptName The name of the concept
      * @param whereItem The condition

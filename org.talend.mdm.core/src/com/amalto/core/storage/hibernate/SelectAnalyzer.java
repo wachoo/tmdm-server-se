@@ -15,6 +15,7 @@ import com.amalto.core.query.user.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 
 import java.util.LinkedList;
@@ -23,9 +24,11 @@ import java.util.Set;
 
 class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
 
+    private static final Logger LOGGER = Logger.getLogger(SelectAnalyzer.class);
+
     private final List<TypedExpression> selectedFields = new LinkedList<TypedExpression>();
 
-    private final MappingMetadataRepository storageRepository;
+    private final MappingRepository storageRepository;
 
     private final StorageClassLoader storageClassLoader;
 
@@ -39,7 +42,7 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
 
     private boolean isOnlyId = false;
 
-    SelectAnalyzer(MappingMetadataRepository storageRepository, StorageClassLoader storageClassLoader, Session session, Set<EndOfResultsCallback> callbacks, Storage storage) {
+    SelectAnalyzer(MappingRepository storageRepository, StorageClassLoader storageClassLoader, Session session, Set<EndOfResultsCallback> callbacks, Storage storage) {
         this.storageRepository = storageRepository;
         this.storageClassLoader = storageClassLoader;
         this.session = session;
@@ -50,7 +53,7 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
     @Override
     public AbstractQueryHandler visit(Select select) {
         List<TypedExpression> selectedFields = select.getSelectedFields();
-        for (TypedExpression selectedField : selectedFields) {
+        for (Expression selectedField : selectedFields) {
             selectedField.accept(this);
         }
 
@@ -58,6 +61,9 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
         if (condition != null) {
             condition.accept(this);
             if (isOnlyId) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Using \"get by id\" strategy");
+                }
                 return new IdQueryHandler(storage, storageRepository, storageClassLoader, session, select, this.selectedFields, callbacks);
             }
         }
@@ -66,12 +72,18 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
             DataSource dataSource = storage.getDataSource();
             RDBMSDataSource rdbmsDataSource = (RDBMSDataSource) dataSource;
             if (rdbmsDataSource.supportFullText()) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Using \"full text query\" strategy");
+                }
                 return new FullTextQueryHandler(storage, storageRepository, storageClassLoader, session, select, this.selectedFields, callbacks);
             } else {
                 throw new IllegalArgumentException("Storage '" + storage.getName() + "' is not configured to support full text queries.");
             }
         }
 
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Using \"standard query\" strategy");
+        }
         return new StandardQueryHandler(storage, storageRepository, storageClassLoader, session, select, this.selectedFields, callbacks);
     }
 

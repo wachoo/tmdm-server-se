@@ -17,8 +17,6 @@ import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.TypedExpression;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.hibernate.enhancement.HibernateClassCreator;
-import com.amalto.core.storage.hibernate.enhancement.TypeMapping;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.ObjectDataRecordReader;
 import org.apache.commons.lang.NotImplementedException;
@@ -34,7 +32,7 @@ class IdQueryHandler extends AbstractQueryHandler {
     private Object object;
 
     public IdQueryHandler(Storage storage,
-                          MappingMetadataRepository mappingMetadataRepository,
+                          MappingRepository mappingMetadataRepository,
                           StorageClassLoader storageClassLoader,
                           Session session,
                           Select select,
@@ -56,9 +54,9 @@ class IdQueryHandler extends AbstractQueryHandler {
         
         ComplexTypeMetadata mainType = select.getTypes().get(0);
         String mainTypeName = mainType.getName();
-        String className = HibernateClassCreator.PACKAGE_PREFIX + mainTypeName;
+        String className = ClassCreator.PACKAGE_PREFIX + mainTypeName;
 
-        HibernateClassWrapper loadedObject = (HibernateClassWrapper) session.get(className, (Serializable) object);
+        Wrapper loadedObject = (Wrapper) session.get(className, (Serializable) object);
 
         if (loadedObject == null) {
             return new HibernateStorageResults(storage, select, new CloseableIterator<DataRecord>() {
@@ -97,11 +95,11 @@ class IdQueryHandler extends AbstractQueryHandler {
 
         private final String revisionId;
 
-        private final HibernateClassWrapper loadedObject;
+        private final Wrapper loadedObject;
 
         private boolean hasRead;
 
-        public DataRecordIterator(TypeMapping mainType, String revisionId, HibernateClassWrapper loadedObject) {
+        public DataRecordIterator(TypeMapping mainType, String revisionId, Wrapper loadedObject) {
             this.mainType = mainType;
             this.revisionId = revisionId;
             this.loadedObject = loadedObject;
@@ -113,8 +111,7 @@ class IdQueryHandler extends AbstractQueryHandler {
 
         public DataRecord next() {
             try {
-                mainType.toFlatten();
-                ObjectDataRecordReader reader = new ObjectDataRecordReader(mainType.getFields());
+                ObjectDataRecordReader reader = new ObjectDataRecordReader();
                 return reader.read(storage.getName(), Long.parseLong(revisionId), mainType, loadedObject);
             } finally {
                 hasRead = true;

@@ -12,6 +12,7 @@
 package com.amalto.core.storage.record;
 
 import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.storage.hibernate.TypeMapping;
 
 /**
  *
@@ -22,14 +23,13 @@ public interface DataRecordReader<T> {
      * Read an input (typed as <code>T</code>) and returns a {@link DataRecord} instance that has user type
      * {@link ComplexTypeMetadata}.
      *
-     * @param dataClusterName A valid data cluster name used to instantiate the {@link com.amalto.core.storage.record.DataRecord} instance.
+     *
+     * @param dataClusterName A valid data cluster name used to instantiate the {@link DataRecord} instance.
      * @param revisionId      Revision id of the <code>input</code> to read. This value is used to set the value of revision in
-     *                        {@link com.amalto.core.storage.record.DataRecord#getRevisionId()}.
-     * @param type            A {@link com.amalto.core.metadata.ComplexTypeMetadata} type that corresponds to an MDM entity type.
-     * @param input           An input (type may vary in implementations of this interface).   @return A {@link DataRecord} instance with fields filled with values of <code>input</code>. Fields names are the
+     *                        {@link DataRecord#getRevisionId()}.
+     *@param input           An input (type may vary in implementations of this interface).   @return A {@link com.amalto.core.storage.record.DataRecord} instance with fields filled with values of <code>input</code>. Fields names are the
      *                        ones defined in <code>type</code> argument. Implementations should not return null but throw exception in
-     *                        case of errors.
-     * @throws RuntimeException Might be thrown by implementations of this interface.
+     *                        case of errors.  @throws RuntimeException Might be thrown by implementations of this interface.
      * @return A {@link DataRecord} that contains all information read from <code>input</code>.
      */
     DataRecord read(String dataClusterName, long revisionId, ComplexTypeMetadata type, T input);

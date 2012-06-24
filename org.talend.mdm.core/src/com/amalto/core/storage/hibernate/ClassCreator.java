@@ -9,12 +9,10 @@
  * 9 rue Pages 92150 Suresnes, France
  */
 
-package com.amalto.core.storage.hibernate.enhancement;
+package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.metadata.*;
-import com.amalto.core.storage.hibernate.CompositeIdBridge;
-import com.amalto.core.storage.hibernate.HibernateClassWrapper;
-import com.amalto.core.storage.hibernate.StorageClassLoader;
+import com.amalto.core.storage.Storage;
 import javassist.*;
 import javassist.bytecode.AnnotationsAttribute;
 import javassist.bytecode.ClassFile;
@@ -28,7 +26,7 @@ import java.io.Serializable;
 import java.util.*;
 
 // TODO Refactor
-public class HibernateClassCreator extends DefaultMetadataVisitor<Void> {
+class ClassCreator extends DefaultMetadataVisitor<Void> {
 
     public static final String PACKAGE_PREFIX = "org.talend.mdm.storage.hibernate.";
 
@@ -46,7 +44,7 @@ public class HibernateClassCreator extends DefaultMetadataVisitor<Void> {
 
     private CtClass listType;
 
-    public HibernateClassCreator(StorageClassLoader storageClassLoader) {
+    public ClassCreator(StorageClassLoader storageClassLoader) {
         this.storageClassLoader = storageClassLoader;
         // Use a new ClassPool to prevent storing classes in default class pool.
         this.classPool = new ClassPool(ClassPool.getDefault());
@@ -91,7 +89,7 @@ public class HibernateClassCreator extends DefaultMetadataVisitor<Void> {
 
         try {
             CtClass newClass = classPool.makeClass(PACKAGE_PREFIX + typeName);
-            CtClass hibernateClassWrapper = classPool.get(HibernateClassWrapper.class.getName());
+            CtClass hibernateClassWrapper = classPool.get(Wrapper.class.getName());
             CtClass serializable = classPool.get(Serializable.class.getName());
             newClass.setInterfaces(new CtClass[]{hibernateClassWrapper, serializable});
             ClassFile classFile = newClass.getClassFile();
@@ -205,37 +203,68 @@ public class HibernateClassCreator extends DefaultMetadataVisitor<Void> {
             CtMethod setFieldsMethod = CtNewMethod.make(setFieldsMethodBody.toString(), newClass);
             newClass.addMethod(setFieldsMethod);
 
-            // Get time stamp method
-            CtMethod getTimeStamp = createFixedFieldGetter(newClass, UserTypeMappingRepository.METADATA_TIMESTAMP, "timestamp"); //$NON-NLS-1$
-            newClass.addMethod(getTimeStamp);
+            if (complexType.hasField(Storage.METADATA_TIMESTAMP)) {
+                // Get time stamp method
+                CtMethod getTimeStamp = createFixedFieldGetter(newClass, Storage.METADATA_TIMESTAMP, "timestamp"); //$NON-NLS-1$
+                newClass.addMethod(getTimeStamp);
+                // Set time stamp method
+                CtMethod setTimeStamp = createFixedSetter(newClass, Storage.METADATA_TIMESTAMP, "timestamp"); //$NON-NLS-1$
+                newClass.addMethod(setTimeStamp);
+            } else {
+                // Get time stamp method
+                CtMethod getTimeStamp = createConstantGetter(newClass, "timestamp"); //$NON-NLS-1$
+                newClass.addMethod(getTimeStamp);
+                // Set time stamp method
+                CtMethod setTimeStamp = createEmptySetter(newClass, "timestamp"); //$NON-NLS-1$
+                newClass.addMethod(setTimeStamp);
+            }
 
-            // Set time stamp method
-            CtMethod setTimeStamp = createFixedSetter(newClass, UserTypeMappingRepository.METADATA_TIMESTAMP, "timestamp"); //$NON-NLS-1$
-            newClass.addMethod(setTimeStamp);
+            if (complexType.hasField(Storage.METADATA_REVISION_ID)) {
+                // Get revision method
+                CtMethod getRevision = createFixedFieldGetter(newClass, Storage.METADATA_REVISION_ID, "revision"); //$NON-NLS-1$
+                newClass.addMethod(getRevision);
+                // Set revision method
+                CtMethod setRevision = createFixedSetter(newClass, Storage.METADATA_REVISION_ID, "revision"); //$NON-NLS-1$
+                newClass.addMethod(setRevision);
+            } else {
+                // Get revision method
+                CtMethod getRevision = createConstantGetter(newClass, "revision"); //$NON-NLS-1$
+                newClass.addMethod(getRevision);
+                // Set revision method
+                CtMethod setRevision = createEmptySetter(newClass, "revision"); //$NON-NLS-1$
+                newClass.addMethod(setRevision);
+            }
 
-            // Get revision method
-            CtMethod getRevision = createFixedFieldGetter(newClass, UserTypeMappingRepository.METADATA_REVISION_ID, "revision"); //$NON-NLS-1$
-            newClass.addMethod(getRevision);
-
-            // Set time stamp method
-            CtMethod setRevision = createFixedSetter(newClass, UserTypeMappingRepository.METADATA_REVISION_ID, "revision"); //$NON-NLS-1$
-            newClass.addMethod(setRevision);
-
-            // Get task id method
-            StringBuilder getTaskIdMethodBody = new StringBuilder();
-            getTaskIdMethodBody.append("public String taskId() {"); //$NON-NLS-1$
-            getTaskIdMethodBody.append("return (String) get" + UserTypeMappingRepository.METADATA_TASK_ID + "();"); //$NON-NLS-1$ //$NON-NLS-2$
-            getTaskIdMethodBody.append("}"); //$NON-NLS-1$
-            CtMethod getTaskId = CtNewMethod.make(getTaskIdMethodBody.toString(), newClass);
-            newClass.addMethod(getTaskId);
-
-            // Set task id method
-            StringBuilder setTaskIdMethodBody = new StringBuilder();
-            setTaskIdMethodBody.append("public void taskId(String value) {"); //$NON-NLS-1$
-            setTaskIdMethodBody.append("set" + UserTypeMappingRepository.METADATA_TASK_ID + "(value);"); //$NON-NLS-1$ //$NON-NLS-2$
-            setTaskIdMethodBody.append("}"); //$NON-NLS-1$
-            CtMethod setTaskId = CtNewMethod.make(setTaskIdMethodBody.toString(), newClass);
-            newClass.addMethod(setTaskId);
+            if (complexType.hasField(Storage.METADATA_TASK_ID)) {
+                // Get task id method
+                StringBuilder getTaskIdMethodBody = new StringBuilder();
+                getTaskIdMethodBody.append("public String taskId() {"); //$NON-NLS-1$
+                getTaskIdMethodBody.append("return (String) get" + Storage.METADATA_TASK_ID + "();"); //$NON-NLS-1$ //$NON-NLS-2$
+                getTaskIdMethodBody.append("}"); //$NON-NLS-1$
+                CtMethod getTaskId = CtNewMethod.make(getTaskIdMethodBody.toString(), newClass);
+                newClass.addMethod(getTaskId);
+                // Set task id method
+                StringBuilder setTaskIdMethodBody = new StringBuilder();
+                setTaskIdMethodBody.append("public void taskId(String value) {"); //$NON-NLS-1$
+                setTaskIdMethodBody.append("set" + Storage.METADATA_TASK_ID + "(value);"); //$NON-NLS-1$ //$NON-NLS-2$
+                setTaskIdMethodBody.append("}"); //$NON-NLS-1$
+                CtMethod setTaskId = CtNewMethod.make(setTaskIdMethodBody.toString(), newClass);
+                newClass.addMethod(setTaskId);
+            } else {
+                // Get task id method
+                StringBuilder getTaskIdMethodBody = new StringBuilder();
+                getTaskIdMethodBody.append("public String taskId() {"); //$NON-NLS-1$
+                getTaskIdMethodBody.append("return null;"); //$NON-NLS-1$
+                getTaskIdMethodBody.append("}"); //$NON-NLS-1$
+                CtMethod getTaskId = CtNewMethod.make(getTaskIdMethodBody.toString(), newClass);
+                newClass.addMethod(getTaskId);
+                // Set task id method
+                StringBuilder setTaskIdMethodBody = new StringBuilder();
+                setTaskIdMethodBody.append("public void taskId(String value) {"); //$NON-NLS-1$
+                setTaskIdMethodBody.append("}"); //$NON-NLS-1$
+                CtMethod setTaskId = CtNewMethod.make(setTaskIdMethodBody.toString(), newClass);
+                newClass.addMethod(setTaskId);
+            }
 
             Class compiledNewClass = classCreationStack.pop().toClass();
             storageClassLoader.register(complexType, compiledNewClass);
@@ -254,11 +283,26 @@ public class HibernateClassCreator extends DefaultMetadataVisitor<Void> {
         return CtNewMethod.make(setTimeStampMethodBody.toString(), newClass);
     }
 
+    private CtMethod createEmptySetter(CtClass newClass, String methodName) throws CannotCompileException {
+        StringBuilder setTimeStampMethodBody = new StringBuilder();
+        setTimeStampMethodBody.append("public void ").append(methodName).append("(long value) {"); //$NON-NLS-1$ //$NON-NLS-2$
+        setTimeStampMethodBody.append("}"); //$NON-NLS-1$
+        return CtNewMethod.make(setTimeStampMethodBody.toString(), newClass);
+    }
+
     private CtMethod createFixedFieldGetter(CtClass newClass, String fixedFieldName, String methodName) throws CannotCompileException {
         StringBuilder getTimeStampMethodBody = new StringBuilder();
         getTimeStampMethodBody.append("public long ").append(methodName).append("() {"); //$NON-NLS-1$ //$NON-NLS-2$
         getTimeStampMethodBody.append("Long longObject = get").append(fixedFieldName).append("();"); //$NON-NLS-1$ //$NON-NLS-2$
         getTimeStampMethodBody.append("return longObject == null ? 0 : longObject.longValue();"); //$NON-NLS-1$
+        getTimeStampMethodBody.append("}"); //$NON-NLS-1$
+        return CtNewMethod.make(getTimeStampMethodBody.toString(), newClass);
+    }
+
+    private CtMethod createConstantGetter(CtClass newClass, String methodName) throws CannotCompileException {
+        StringBuilder getTimeStampMethodBody = new StringBuilder();
+        getTimeStampMethodBody.append("public long ").append(methodName).append("() {"); //$NON-NLS-1$ //$NON-NLS-2$
+        getTimeStampMethodBody.append("return 0l;"); //$NON-NLS-1$
         getTimeStampMethodBody.append("}"); //$NON-NLS-1$
         return CtNewMethod.make(getTimeStampMethodBody.toString(), newClass);
     }
@@ -364,7 +408,7 @@ public class HibernateClassCreator extends DefaultMetadataVisitor<Void> {
 
             return null;
         } catch (Exception e) {
-            throw new RuntimeException("Error during class field creation for field '" + metadata.getName() + "' in type '" + metadata.getContainingType().getName() + "'", e);
+            throw new RuntimeException(e);
         }
     }
 

@@ -40,7 +40,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class StorageClassLoader extends ClassLoader {
+class StorageClassLoader extends ClassLoader {
 
     public static final String MAPPING_PUBLIC_ID = "-//Hibernate/Hibernate Mapping DTD 3.0//EN"; //$NON-NLS-1$
 
@@ -127,7 +127,7 @@ public class StorageClassLoader extends ClassLoader {
                 return null;
             }
         }
-        return super.getResource(name);    //To change body of overridden methods use File | Settings | File Templates.
+        return super.getResource(name);
     }
 
     @Override
@@ -150,7 +150,7 @@ public class StorageClassLoader extends ClassLoader {
         throw new IllegalArgumentException("Class '" + clazz.getName() + "' is not registered.");
     }
 
-    public Class<?> getClassFromType(ComplexTypeMetadata type) {
+    public Class<? extends Wrapper> getClassFromType(ComplexTypeMetadata type) {
         assertNotClosed();
         Class registeredClass = registeredClasses.get(type.getName());
         if (registeredClass != null) {
@@ -179,7 +179,7 @@ public class StorageClassLoader extends ClassLoader {
             documentBuilder.setEntityResolver(HibernateStorage.ENTITY_RESOLVER);
             Document document = documentBuilder.parse(this.getClass().getResourceAsStream(HIBERNATE_MAPPING_TEMPLATE));
 
-            HibernateMappingGenerator mappingGenerator = getMappingGenerator(document, resolver);
+            MappingGenerator mappingGenerator = getMappingGenerator(document, resolver);
             for (Map.Entry<String, Class> classNameToClass : registeredClasses.entrySet()) {
                 ComplexTypeMetadata typeMetadata = knownTypes.get(classNameToClass.getKey());
                 if (typeMetadata != null) {
@@ -198,8 +198,8 @@ public class StorageClassLoader extends ClassLoader {
         }
     }
 
-    protected HibernateMappingGenerator getMappingGenerator(Document document, TableResolver resolver) {
-        return new HibernateMappingGenerator(document, resolver);
+    protected MappingGenerator getMappingGenerator(Document document, TableResolver resolver) {
+        return new MappingGenerator(document, resolver);
     }
 
     private InputStream generateHibernateConfig() {

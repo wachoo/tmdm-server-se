@@ -13,8 +13,9 @@ package com.amalto.core.storage.record;
 
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.metadata.ReferenceFieldMetadata;
-import com.amalto.core.storage.hibernate.enhancement.TypeMapping;
+import com.amalto.core.storage.hibernate.TypeMapping;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 
 import java.util.*;
@@ -55,23 +56,49 @@ public class DataRecord {
     }
 
     public Object get(FieldMetadata field) {
-        Object o = fieldToValue.get(field);
-        if (o == null) {
-            return get(field.getName());
+        if (field.getContainingType() != this) {
+            Iterator<FieldMetadata> path = MetadataUtils.path(type, field).iterator();
+            if (!path.hasNext()) {
+                throw new IllegalArgumentException("Field '" + field.getName() + "' isn't reachable from type '" + type.getName() + "'");
+            }
+            DataRecord current = this;
+            while (path.hasNext()) {
+                FieldMetadata nextField = path.next();
+                if (path.hasNext()) {
+                    current = (DataRecord) current.fieldToValue.get(nextField);
+                } else {
+                    return current.fieldToValue.get(nextField);
+                }
+            }
+            return null; // Not found.
+        } else {
+            return fieldToValue.get(field);
         }
-        return o;
     }
 
     public Object get(String fieldName) {
-        for (Map.Entry<FieldMetadata, Object> entry : fieldToValue.entrySet()) {
-            if (entry.getKey().getName().equals(fieldName)) {
-                return entry.getValue();
+        StringTokenizer tokenizer = new StringTokenizer(fieldName, "/");
+        DataRecord current = this;
+        Object currentValue = null;
+        while (tokenizer.hasMoreTokens()) {
+            currentValue = current.get(current.getType().getField(tokenizer.nextToken()));
+            if (tokenizer.hasMoreTokens()) {
+                if (currentValue == null) {
+                    // Means record does not own field last call to "tokenizer.nextToken()" returned.
+                    return null;
+                } else {
+                    current = (DataRecord) currentValue;
+                }
             }
         }
-        return null;
+        return currentValue;
     }
 
     public void set(FieldMetadata field, Object o) {
+        if (field == null) {
+            throw new IllegalArgumentException("Field can not be null.");
+        }
+
         if (!field.isMany()) {
             fieldToValue.put(field, o);
         } else {

@@ -11,23 +11,14 @@
 
 package com.amalto.core.storage;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.ConsoleDumpMetadataVisitor;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.UserQueryDumpConsole;
 import com.amalto.core.storage.datasource.DataSource;
-import com.amalto.core.storage.hibernate.HibernateMappingGenerator;
-import com.amalto.core.storage.hibernate.StorageTableResolver;
 import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.util.Util;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.util.Collection;
 import java.util.Set;
 
 public class StorageErrorDump implements Storage {

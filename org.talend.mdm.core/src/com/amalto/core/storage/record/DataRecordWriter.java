@@ -13,6 +13,7 @@ package com.amalto.core.storage.record;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Writer;
 
 /**
  *
@@ -24,8 +25,10 @@ public interface DataRecordWriter {
      * @param record A {@link DataRecord} instance.
      * @param output A {@link OutputStream} instance.
      * @throws IOException In case of errors while writing to <code>output</code>.
-     * @see DataRecordReader#read(String, long, com.amalto.core.metadata.ComplexTypeMetadata, Object)
+     * @see DataRecordReader#read(String, long, com.amalto.core.storage.hibernate.TypeMapping, T)
      */
     public void write(DataRecord record, OutputStream output) throws IOException;
+
+    public void write(DataRecord record, Writer writer) throws IOException;
     
 }

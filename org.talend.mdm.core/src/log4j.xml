@@ -25,7 +25,7 @@
    | owebsite: http://jakarta.apache.org/log4j
  -->
 
-<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="false">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
     <!-- ============================== -->
     <!-- Append messages to the console -->
     <!-- ============================== -->
@@ -40,12 +40,27 @@
         </layout>
     </appender>
 
+    <appender name="rolling-file" class="org.apache.log4j.RollingFileAppender">
+        <param name="file" value="/tmp/hibernate.log"/>
+        <param name="MaxFileSize" value="5000KB"/>
+        <param name="Threshold" value="DEBUG"/>
+        <!-- Keep one backup file -->
+        <param name="MaxBackupIndex" value="4"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d [%t] %-5p %l - %m%n"/>
+        </layout>
+    </appender>
+
     <!-- ================ -->
     <!-- Limit categories -->
     <!-- ================ -->
 
     <category name="org.hibernate">
-        <priority value="DEBUG"/>
+        <priority value="INFO"/>
+    </category>
+
+    <category name="com.amalto.core.storage.hibernate">
+        <priority value="INFO"/>
     </category>
 
     <!-- ======================= -->
@@ -54,6 +69,7 @@
 
     <root>
         <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="rolling-file" />
     </root>
 
 </log4j:configuration>

@@ -12,16 +12,13 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.ContainedTypeFieldMetadata;
+import com.amalto.core.metadata.ContainedComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.*;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.hibernate.enhancement.HibernateClassCreator;
-import com.amalto.core.storage.hibernate.enhancement.TypeMapping;
-import com.amalto.core.storage.hibernate.enhancement.TypeMappingRepository;
 import com.amalto.core.storage.record.DataRecord;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
@@ -33,9 +30,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.*;
 import org.hibernate.sql.JoinFragment;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.hibernate.criterion.Restrictions.*;
 
@@ -55,8 +50,12 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     private final StandardQueryHandler.CriterionFieldCondition criterionFieldCondition;
 
+    private int aliasCount = 0;
+
+    private final Map<FieldMetadata, String> joinFieldsToAlias = new HashMap<FieldMetadata, String>();
+
     public StandardQueryHandler(Storage storage,
-                                MappingMetadataRepository mappingMetadataRepository,
+                                MappingRepository mappingMetadataRepository,
                                 StorageClassLoader storageClassLoader,
                                 Session session,
                                 Select select,
@@ -102,36 +101,6 @@ class StandardQueryHandler extends AbstractQueryHandler {
     public StorageResults visit(Join join) {
         FieldMetadata fieldMetadata = join.getRightField().getFieldMetadata();
 
-        // Select a path from mainType to the selected field (properties are '.' separated).
-        List<FieldMetadata> path = MetadataUtils.path(mainType, join.getLeftField().getFieldMetadata());
-        if (path.isEmpty()) {
-            // Empty path means no path then this is an error (all joined entities should be reachable from main type).
-            String destinationFieldName;
-            try {
-                destinationFieldName = fieldMetadata.getName();
-            } catch (Exception e) {
-                // Ignored
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Exception occurred during exception creation", e);
-                }
-                destinationFieldName = fieldMetadata.toString();
-            }
-            throw new IllegalArgumentException("Join to '" + destinationFieldName + "' (in type '"
-                    + fieldMetadata.getContainingType().getName() + "') is invalid since there is no path from '"
-                    + mainType.getName() + "' to this field.");
-        }
-        StringBuilder leftFieldName = new StringBuilder();
-        Iterator<FieldMetadata> pathIterator = path.iterator();
-        while (pathIterator.hasNext()) {
-            FieldMetadata nextField = pathIterator.next();
-            if (!(nextField instanceof ContainedTypeFieldMetadata)) {
-                leftFieldName.append(getFieldName(nextField, mappingMetadataRepository, false, false));
-                if (pathIterator.hasNext()) {
-                    leftFieldName.append('.');
-                }
-            }
-        }
-
         // Choose the right join type
         String rightTableName = fieldMetadata.getContainingType().getName();
         int joinType;
@@ -148,10 +117,55 @@ class StandardQueryHandler extends AbstractQueryHandler {
             default:
                 throw new NotImplementedException("No support for join type " + join.getJoinType());
         }
-        criteria.createAlias(leftFieldName.toString(), rightTableName, joinType);
 
-        // TODO One interesting improvement here: can add conditions on rightTable when defining join.
-
+        // Select a path from mainType to the selected field (properties are '.' separated).
+        TypeMapping mainTypeMapping = mappingMetadataRepository.getMapping(mainType);
+        ComplexTypeMetadata containingType = join.getLeftField().getFieldMetadata().getContainingType();
+        while (containingType instanceof ContainedComplexTypeMetadata) {
+            containingType = ((ContainedComplexTypeMetadata) containingType).getContainerType();
+        }
+        TypeMapping leftTypeMapping = mappingMetadataRepository.getMapping(containingType);
+        List<FieldMetadata> path = MetadataUtils.path(mainTypeMapping.getDatabase(), leftTypeMapping.getDatabase(join.getLeftField().getFieldMetadata()));
+        if (path.isEmpty()) {
+            // Empty path means no path then this is an error (all joined entities should be reachable from main type).
+            String destinationFieldName;
+            try {
+                destinationFieldName = fieldMetadata.getName();
+            } catch (Exception e) {
+                // Ignored
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Exception occurred during exception creation", e);
+                }
+                destinationFieldName = String.valueOf(fieldMetadata);
+            }
+            throw new IllegalArgumentException("Join to '" + destinationFieldName + "' (in type '"
+                    + fieldMetadata.getContainingType().getName() + "') is invalid since there is no path from '"
+                    + mainType.getName() + "' to this field.");
+        }
+        Iterator<FieldMetadata> pathIterator = path.iterator();
+        String previousAlias = mainType.getName();
+        while (pathIterator.hasNext()) {
+            FieldMetadata nextField = pathIterator.next();
+            String newAlias = "a" + aliasCount++;
+            // TODO One interesting improvement here: can add conditions on rightTable when defining join.
+            if (pathIterator.hasNext()) {
+                if (!joinFieldsToAlias.containsKey(nextField)) {
+                    criteria.createAlias(previousAlias + '.' + nextField.getName(), newAlias, joinType);
+                    joinFieldsToAlias.put(nextField, newAlias);
+                    previousAlias = newAlias;
+                } else {
+                    previousAlias = joinFieldsToAlias.get(nextField);
+                }
+            } else {
+                if (!joinFieldsToAlias.containsKey(nextField)) {
+                    criteria.createAlias(previousAlias + '.' + nextField.getName(), rightTableName, joinType);
+                    joinFieldsToAlias.put(nextField, rightTableName);
+                    previousAlias = rightTableName;
+                } else {
+                    previousAlias = joinFieldsToAlias.get(nextField);
+                }
+            }
+        }
         return null;
     }
 
@@ -163,19 +177,19 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(Revision revision) {
-        projectionList.add(Projections.property(TypeMappingRepository.METADATA_REVISION_ID));
+        projectionList.add(Projections.property(Storage.METADATA_REVISION_ID));
         return null;
     }
 
     @Override
     public StorageResults visit(Timestamp timestamp) {
-        projectionList.add(Projections.property(TypeMappingRepository.METADATA_TIMESTAMP));
+        projectionList.add(Projections.property(Storage.METADATA_TIMESTAMP));
         return null;
     }
 
     @Override
     public StorageResults visit(TaskId taskId) {
-        projectionList.add(Projections.property(TypeMappingRepository.METADATA_TASK_ID));
+        projectionList.add(Projections.property(Storage.METADATA_TASK_ID));
         return null;
     }
 
@@ -197,7 +211,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
     public StorageResults visit(Select select) {
         mainType = select.getTypes().get(0);
         String mainTypeName = mainType.getName();
-        String className = HibernateClassCreator.PACKAGE_PREFIX + mainTypeName;
+        String className = ClassCreator.PACKAGE_PREFIX + mainTypeName;
         criteria = session.createCriteria(className, mainTypeName);
         criteria.setReadOnly(true); // We are reading data, turns on ready only mode.
         revisionId = select.getRevisionId();
@@ -498,22 +512,22 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
         @Override
         public FieldCondition visit(Revision revision) {
-            return createInternalCriterion(TypeMappingRepository.METADATA_REVISION_ID);
+            return createInternalCriterion(Storage.METADATA_REVISION_ID);
         }
 
         @Override
         public FieldCondition visit(Timestamp timestamp) {
-            return createInternalCriterion(TypeMappingRepository.METADATA_TIMESTAMP);
+            return createInternalCriterion(Storage.METADATA_TIMESTAMP);
         }
 
         @Override
         public FieldCondition visit(TaskId taskId) {
-            return createInternalCriterion(TypeMappingRepository.METADATA_TASK_ID);
+            return createInternalCriterion(Storage.METADATA_TASK_ID);
         }
 
         @Override
         public FieldCondition visit(StagingStatus stagingStatus) {
-            return createInternalCriterion(TypeMappingRepository.METADATA_STAGING_STATUS);
+            return createInternalCriterion(Storage.METADATA_STAGING_STATUS);
         }
 
         @Override

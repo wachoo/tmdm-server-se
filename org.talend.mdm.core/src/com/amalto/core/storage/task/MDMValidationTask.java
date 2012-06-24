@@ -19,7 +19,6 @@ import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.save.context.SaverSource;
 import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.hibernate.enhancement.TypeMappingRepository;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
 
@@ -97,10 +96,10 @@ public class MDMValidationTask extends MetadataRepositoryTask implements Task {
             Map<String,String> recordProperties = record.getRecordMetadata().getRecordProperties();
             try {
                 saver.save(session, context);
-                recordProperties.put(TypeMappingRepository.METADATA_STAGING_STATUS, StagingConstants.SUCCESS_VALIDATE);
+                recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.SUCCESS_VALIDATE);
             } catch (Exception e) {
-                recordProperties.put(TypeMappingRepository.METADATA_STAGING_STATUS, StagingConstants.FAIL_VALIDATE_VALIDATION);
-                recordProperties.put(TypeMappingRepository.METADATA_STAGING_ERROR, e.getMessage());
+                recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.FAIL_VALIDATE_VALIDATION);
+                recordProperties.put(Storage.METADATA_STAGING_ERROR, e.getMessage());
             }
             storage.update(record);
         }

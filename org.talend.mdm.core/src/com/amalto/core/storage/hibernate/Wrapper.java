@@ -15,9 +15,9 @@ package com.amalto.core.storage.hibernate;
  * This interface exposes operation commonly used by MDM when creating/updating/reading objects from Hibernate.
  * Generated classes by MDM implements this interface.
  *
- * @see com.amalto.core.storage.hibernate.enhancement.HibernateClassCreator
+ * @see ClassCreator
  */
-public interface HibernateClassWrapper {
+public interface Wrapper {
 
     /**
      * Standard getter interface.

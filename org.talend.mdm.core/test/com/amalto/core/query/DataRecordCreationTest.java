@@ -94,14 +94,14 @@ public class DataRecordCreationTest extends TestCase {
         assertEquals("Pending", dataRecord.get("Status"));
         assertEquals("Pending", dataRecord.get(product.getField("Status")));
 
-        Object o = dataRecord.get(product.getField("Features/Sizes/Size"));
+        Object o = dataRecord.get("Features/Sizes/Size");
         assertTrue(o instanceof List);
         List list = (List) o;
         assertEquals(2, list.size());
         assertEquals("Small", list.get(0));
         assertEquals("Large", list.get(1));
 
-        o = dataRecord.get(product.getField("Features/Colors/Color"));
+        o = dataRecord.get("Features/Colors/Color");
         assertTrue(o instanceof List);
         list = (List) o;
         assertEquals(1, list.size());

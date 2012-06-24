@@ -12,7 +12,10 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.query.user.*;
+import com.amalto.core.query.user.Paging;
+import com.amalto.core.query.user.Select;
+import com.amalto.core.query.user.TypedExpression;
+import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
@@ -22,7 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-public class HibernateStorageResults implements StorageResults {
+class HibernateStorageResults implements StorageResults {
 
     private final int size;
 

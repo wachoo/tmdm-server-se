@@ -16,7 +16,7 @@ import com.amalto.core.metadata.FieldMetadata;
 
 import java.util.BitSet;
 
-public class StorageTableResolver implements TableResolver {
+class StorageTableResolver implements TableResolver {
 
     public static final TableResolver INSTANCE = new StorageTableResolver();
 

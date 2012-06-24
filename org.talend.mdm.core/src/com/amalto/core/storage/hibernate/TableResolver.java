@@ -17,7 +17,7 @@ import com.amalto.core.metadata.FieldMetadata;
 /**
  *
  */
-public interface TableResolver {
+interface TableResolver {
     String get(ComplexTypeMetadata type);
 
     String get(FieldMetadata field);

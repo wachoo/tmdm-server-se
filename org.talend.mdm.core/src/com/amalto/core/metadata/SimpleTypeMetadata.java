@@ -57,7 +57,11 @@ public class SimpleTypeMetadata implements TypeMetadata {
     }
 
     public TypeMetadata copy(MetadataRepository repository) {
-        return new SimpleTypeMetadata(nameSpace, name);
+        SimpleTypeMetadata copy = new SimpleTypeMetadata(nameSpace, name);
+        for (TypeMetadata superType : superTypes) {
+            copy.addSuperType(superType.copy(repository), repository);
+        }
+        return copy;
     }
 
     public TypeMetadata copyShallow() {
