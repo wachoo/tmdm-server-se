@@ -53,9 +53,8 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
     protected MetadataVisitor<TypeMapping> getTypeMappingCreator(TypeMetadata type, HibernateStorage.TypeMappingStrategy strategy) {
         switch (strategy) {
             case AUTO:
-                //throw new NotImplementedException("Not implemented support for automatic mapping selection.");
-                LOGGER.info(type.getName() + " -> Automatic selection not yet implemented. Doing default");
-                return new TypeMappingCreator(internalRepository, mappings);
+                HibernateStorage.TypeMappingStrategy actualStrategy = type.accept(new MappingStrategySelector());
+                return getTypeMappingCreator(type, actualStrategy);
             case FLAT:
                 LOGGER.info(type.getName() + " -> FLAT");
                 return new TypeMappingCreator(internalRepository, mappings);
@@ -104,5 +103,40 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
 
     public MetadataRepository visit(FieldMetadata fieldMetadata) {
         return internalRepository;
+    }
+
+    private static class MappingStrategySelector extends DefaultMetadataVisitor<HibernateStorage.TypeMappingStrategy> {
+
+        private int fieldCount = 0;
+
+        @Override
+        public HibernateStorage.TypeMappingStrategy visit(ComplexTypeMetadata complexType) {
+            fieldCount += complexType.getFields().size();
+            {
+                HibernateStorage.TypeMappingStrategy contentResult = super.visit(complexType);
+                if (contentResult == HibernateStorage.TypeMappingStrategy.GOOD_FIELD) {
+                    return contentResult;
+                }
+            }
+            if (fieldCount > 20) {
+                return HibernateStorage.TypeMappingStrategy.GOOD_FIELD;
+            } else {
+                return HibernateStorage.TypeMappingStrategy.FLAT;
+            }
+        }
+
+        @Override
+        public HibernateStorage.TypeMappingStrategy visit(ContainedComplexTypeMetadata containedType) {
+            fieldCount += containedType.getFields().size();
+            return super.visit(containedType);
+        }
+
+        @Override
+        public HibernateStorage.TypeMappingStrategy visit(ContainedTypeFieldMetadata containedField) {
+            if (containedField.isMany()) {
+                return HibernateStorage.TypeMappingStrategy.GOOD_FIELD;
+            }
+            return super.visit(containedField);
+        }
     }
 }

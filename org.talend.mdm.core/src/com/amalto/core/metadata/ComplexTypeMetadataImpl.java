@@ -125,7 +125,7 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
 
     public List<FieldMetadata> getFields() {
         if (!isFrozen) {
-            throw new IllegalStateException("Type '" + name + "' is not frozen.");
+            freeze();
         }
         return Collections.unmodifiableList(new LinkedList<FieldMetadata>(fieldMetadata.values()));
     }

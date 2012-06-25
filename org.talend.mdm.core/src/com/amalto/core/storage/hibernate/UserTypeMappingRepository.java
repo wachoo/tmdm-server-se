@@ -19,7 +19,7 @@ import java.util.Collections;
 class UserTypeMappingRepository extends InternalRepository {
 
     public UserTypeMappingRepository() {
-        super(HibernateStorage.TypeMappingStrategy.FLAT);
+        super(HibernateStorage.TypeMappingStrategy.AUTO);
     }
 
     public MetadataRepository visit(ComplexTypeMetadata complexType) {

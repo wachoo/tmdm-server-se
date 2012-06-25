@@ -80,9 +80,6 @@ public class StorageQueryTest extends StorageTestCase {
 
             }
             storage.commit();
-        } catch (Exception e) {
-            // Ignored
-            // TODO Remove this!
         } finally {
             storage.end();
         }

@@ -14,6 +14,8 @@ package com.amalto.core.storage.hibernate;
 import com.amalto.core.metadata.*;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 
 class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
@@ -24,7 +26,9 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     private final MappingRepository mappings;
 
-    private Stack<ComplexTypeMetadata> currentType = new Stack<ComplexTypeMetadata>();
+    private final Map<String, Integer> fieldNameCounter = new HashMap<String, Integer>();
+
+    private final Stack<ComplexTypeMetadata> currentType = new Stack<ComplexTypeMetadata>();
 
     private TypeMapping mapping;
 
@@ -35,10 +39,27 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     private TypeMapping handleField(FieldMetadata field) {
         SimpleTypeFieldMetadata newFlattenField;
-        newFlattenField = new SimpleTypeFieldMetadata(currentType.peek(), field.isKey(), field.isMany(), field.isMandatory(), "x_" + field.getName().toLowerCase(), field.getType(), field.getWriteUsers(), field.getHideUsers());
+        String name = getFieldName(field);
+        newFlattenField = new SimpleTypeFieldMetadata(currentType.peek(), field.isKey(), field.isMany(), field.isMandatory(), name, field.getType(), field.getWriteUsers(), field.getHideUsers());
         currentType.peek().addField(newFlattenField);
         mapping.map(field, newFlattenField);
         return null;
+    }
+
+    private String getFieldName(FieldMetadata field) {
+        int count;
+        if (!fieldNameCounter.containsKey(field.getName())) {
+            count = 0;
+            fieldNameCounter.put(field.getName(), count);
+        } else {
+            count = fieldNameCounter.get(field.getName());
+            fieldNameCounter.put(field.getName(), count + 1);
+        }
+        if (count > 0) {
+            return "x_" + field.getName().toLowerCase() + "_" + count;
+        } else {
+            return "x_" + field.getName().toLowerCase();
+        }
     }
 
     @Override
@@ -46,8 +67,7 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         String name = referenceField.getName();
         ComplexTypeMetadata referencedType = new SoftTypeRef(internalRepository, "", referenceField.getReferencedType().getName());
 
-        FieldMetadata referencedField = referenceField.getReferencedField();
-        FieldMetadata referencedFieldCopy = referencedField.copy(internalRepository);
+        FieldMetadata referencedFieldCopy = new SoftIdFieldRef(internalRepository, referencedType.getName());
         FieldMetadata foreignKeyInfoFieldCopy = referenceField.hasForeignKeyInfo() ? referenceField.getForeignKeyInfoField().copy(internalRepository) : null;
 
         ComplexTypeMetadata database = currentType.peek();
@@ -97,7 +117,7 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 false,
                 containedField.isMany(),
                 containedField.isMandatory(),
-                containedField.getName(),
+                getFieldName(containedField),
                 typeRef,
                 new SoftIdFieldRef(internalRepository, typeName),
                 null,

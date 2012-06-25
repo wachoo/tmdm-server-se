@@ -22,7 +22,9 @@ import org.hibernate.Session;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Represents type mapping between data model as specified by the user and data model as used by hibernate storage.
@@ -71,42 +73,40 @@ public class GoodFieldTypeMapping extends TypeMapping {
 
                 if (!field.isMany()) {
                     DataRecord referencedObject = (DataRecord) record.get(field);
-                    if (referencedObject == null) {
-                        throw new IllegalStateException("Field '" + field + "' does not have a value.");
-                    }
-                    List<FieldMetadata> keyFields = referencedObject.getType().getKeyFields();
-                    Object referenceId;
-                    if (keyFields.size() > 1) {
-                        List<Object> referenceIdList = new LinkedList<Object>();
-                        for (FieldMetadata keyField : keyFields) {
-                            referenceIdList.add(referencedObject.get(keyField));
-                        }
-                        referenceId = referenceIdList;
-                    } else {
-                        referenceId = referencedObject.get(keyFields.get(0));
-                    }
-                    wrapper.set(mappedDatabaseField.getName(), getReferencedObject(contextClassLoader, session, referenceFieldMetadata.getReferencedType(), referenceId));
-                } else {
-                    List<DataRecord> referencedObjectList = (List<DataRecord>) record.get(field);
-                    if (referencedObjectList == null) {
-                        throw new IllegalStateException("Field '" + field + "' does not have a value.");
-                    }
-                    List<Object> wrappers = new LinkedList<Object>();
-                    for (DataRecord dataRecord : referencedObjectList) {
-                        List<FieldMetadata> keyFields = dataRecord.getType().getKeyFields();
+                    if (referencedObject != null) {
+                        List<FieldMetadata> keyFields = referencedObject.getType().getKeyFields();
                         Object referenceId;
                         if (keyFields.size() > 1) {
                             List<Object> referenceIdList = new LinkedList<Object>();
                             for (FieldMetadata keyField : keyFields) {
-                                referenceIdList.add(dataRecord.get(keyField));
+                                referenceIdList.add(referencedObject.get(keyField));
                             }
                             referenceId = referenceIdList;
                         } else {
-                            referenceId = dataRecord.get(keyFields.get(0));
+                            referenceId = referencedObject.get(keyFields.get(0));
                         }
-                        wrappers.add(getReferencedObject(contextClassLoader, session, referenceFieldMetadata.getReferencedType(), referenceId));
+                        wrapper.set(mappedDatabaseField.getName(), getReferencedObject(contextClassLoader, session, referenceFieldMetadata.getReferencedType(), referenceId));
                     }
-                    wrapper.set(mappedDatabaseField.getName(), wrappers);
+                } else {
+                    List<DataRecord> referencedObjectList = (List<DataRecord>) record.get(field);
+                    if (referencedObjectList != null) {
+                        List<Object> wrappers = new LinkedList<Object>();
+                        for (DataRecord dataRecord : referencedObjectList) {
+                            List<FieldMetadata> keyFields = dataRecord.getType().getKeyFields();
+                            Object referenceId;
+                            if (keyFields.size() > 1) {
+                                List<Object> referenceIdList = new LinkedList<Object>();
+                                for (FieldMetadata keyField : keyFields) {
+                                    referenceIdList.add(dataRecord.get(keyField));
+                                }
+                                referenceId = referenceIdList;
+                            } else {
+                                referenceId = dataRecord.get(keyFields.get(0));
+                            }
+                            wrappers.add(getReferencedObject(contextClassLoader, session, referenceFieldMetadata.getReferencedType(), referenceId));
+                        }
+                        wrapper.set(mappedDatabaseField.getName(), wrappers);
+                    }
                 }
             } else {
                 wrapper.set(mappedDatabaseField.getName(), record.get(field));
