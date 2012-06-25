@@ -35,9 +35,9 @@ public abstract class TypeMapping {
 
     protected final MappingRepository mappings;
 
-    private Map<String, FieldMetadata> userToDatabase = new HashMap<String, FieldMetadata>();
+    private Map<FieldMetadata, FieldMetadata> userToDatabase = new HashMap<FieldMetadata, FieldMetadata>();
 
-    private Map<String, FieldMetadata> databaseToUser = new HashMap<String, FieldMetadata>();
+    private Map<FieldMetadata, FieldMetadata> databaseToUser = new HashMap<FieldMetadata, FieldMetadata>();
 
     private boolean isFrozen;
 
@@ -52,8 +52,8 @@ public abstract class TypeMapping {
     }
 
     void map(FieldMetadata user, FieldMetadata database) {
-        userToDatabase.put(user.getName(), database);
-        databaseToUser.put(database.getName(), user);
+        userToDatabase.put(user, database);
+        databaseToUser.put(database, user);
     }
 
     public ComplexTypeMetadata getDatabase() {
@@ -65,11 +65,11 @@ public abstract class TypeMapping {
     }
 
     public FieldMetadata getDatabase(FieldMetadata from) {
-        return userToDatabase.get(from.getName());
+        return userToDatabase.get(from);
     }
 
     public FieldMetadata getUser(FieldMetadata to) {
-        return databaseToUser.get(to.getName());
+        return databaseToUser.get(to);
     }
 
     public void freeze() {

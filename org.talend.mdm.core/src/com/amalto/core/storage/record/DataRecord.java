@@ -56,7 +56,7 @@ public class DataRecord {
     }
 
     public Object get(FieldMetadata field) {
-        if (field.getContainingType() != this) {
+        if (field.getContainingType() != this.getType()) {
             Iterator<FieldMetadata> path = MetadataUtils.path(type, field).iterator();
             if (!path.hasNext()) {
                 throw new IllegalArgumentException("Field '" + field.getName() + "' isn't reachable from type '" + type.getName() + "'");

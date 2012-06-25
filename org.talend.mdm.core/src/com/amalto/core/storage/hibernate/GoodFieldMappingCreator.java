@@ -47,19 +47,7 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     }
 
     private String getFieldName(FieldMetadata field) {
-        int count;
-        if (!fieldNameCounter.containsKey(field.getName())) {
-            count = 0;
-            fieldNameCounter.put(field.getName(), count);
-        } else {
-            count = fieldNameCounter.get(field.getName());
-            fieldNameCounter.put(field.getName(), count + 1);
-        }
-        if (count > 0) {
-            return "x_" + field.getName().toLowerCase() + "_" + count;
-        } else {
-            return "x_" + field.getName().toLowerCase();
-        }
+        return "x_" + field.getName().toLowerCase();
     }
 
     @Override

@@ -218,10 +218,6 @@ public class ReferenceFieldMetadata extends MetadataExtensible implements FieldM
             return false;
         if (hideUsers != null ? !hideUsers.equals(that.hideUsers) : that.hideUsers != null) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (referencedField != null ? !referencedField.equals(that.referencedField) : that.referencedField != null)
-            return false;
-        if (referencedType != null ? !referencedType.equals(that.referencedType) : that.referencedType != null)
-            return false;
         if (writeUsers != null ? !writeUsers.equals(that.writeUsers) : that.writeUsers != null) return false;
 
         return true;

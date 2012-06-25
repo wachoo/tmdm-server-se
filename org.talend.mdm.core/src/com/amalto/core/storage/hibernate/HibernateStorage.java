@@ -331,6 +331,8 @@ public class HibernateStorage implements Storage {
                 }
                 session.saveOrUpdate(o);
             }
+        } catch (PropertyValueException e) {
+            throw new RuntimeException("Invalid value in record to update.", e);
         } catch (NonUniqueObjectException e) {
             throw new RuntimeException("Attempted to update multiple times same record within same transaction.", e);
         } catch (HibernateException e) {
