@@ -191,15 +191,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             String message = null;
             String errorCode = null;
             if (outputErrorMessage != null) {
-                Document doc = Util.parse(outputErrorMessage);
-                // TODO what if multiple error nodes ?
-                String xpath = "//report/message"; //$NON-NLS-1$
-                Node errorNode = Util.getNodeList(doc, xpath).item(0);
-                if (errorNode instanceof Element) {
-                    Element errorElement = (Element) errorNode;
-                    errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
-                    message = MultilanguageMessageParser.pickOutISOMessage(errorElement.getTextContent(), language);
-                }
+                Map<String, String> processMap = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.handleProcessMessage(outputErrorMessage, language);
+                errorCode = processMap.get("typeCode"); //$NON-NLS-1$
+                message = processMap.get("message"); //$NON-NLS-1$
             }
 
             if (outputErrorMessage == null || "info".equals(errorCode)) { //$NON-NLS-1$                
