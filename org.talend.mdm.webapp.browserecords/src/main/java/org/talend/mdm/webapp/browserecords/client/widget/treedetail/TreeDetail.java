@@ -92,6 +92,8 @@ public class TreeDetail extends ContentPanel {
 
     private MessageBox progressBar;
 
+    private List<RenderCompleteCallBack> renderCompleteCallBackList = new ArrayList<RenderCompleteCallBack>();
+    
     public ForeignKeyRender getFkRender(){
     	return fkRender;
     }
@@ -127,10 +129,14 @@ public class TreeDetail extends ContentPanel {
     		renderedCounter--;
     	}
     	if (renderedCounter == 0){
+            Iterator<RenderCompleteCallBack> it = renderCompleteCallBackList.iterator();
+            while (it.hasNext()) {
+                it.next().onSuccess();
+                it.remove();
+            }
             closeProgressBar();
     	}
     }
-    
 
     MultiOccurrenceManager multiManager;
 
@@ -337,13 +343,16 @@ public class TreeDetail extends ContentPanel {
                 for (ModelData child : children) {
                     treeNode.add(child);
                 }
+                renderCompleteCallBackList.add(new RenderCompleteCallBack() {
+                    public void onSuccess() {
+                        multiManager.addMultiOccurrenceNode(selectedItem);
+                        multiManager.warningAllItems();
+                        multiManager.handleOptIcons();                        
+                    }
+                });
                 buildGWTTree(treeNode, selectedItem, false, null);
-                multiManager.addMultiOccurrenceNode(selectedItem);
-                multiManager.warningAllItems();
-                multiManager.handleOptIcons();
             }
         });
-        
     }
 
     public void onExecuteVisibleRule(List<VisibleRuleResult> visibleResults) {
@@ -366,10 +375,14 @@ public class TreeDetail extends ContentPanel {
     private void renderTree(ItemNodeModel rootModel, String operation) {
         multiManager = new MultiOccurrenceManager(viewBean.getBindingEntityModel().getMetaDataTypes(), this);
         beginRender();
+        renderCompleteCallBackList.add(new RenderCompleteCallBack() {
+            public void onSuccess() {
+                multiManager.addMultiOccurrenceNode((DynamicTreeItem) root);
+                multiManager.warningAllItems();
+                multiManager.handleOptIcons();
+            }
+        });
         root = buildGWTTree(rootModel, null, false, operation);
-        multiManager.addMultiOccurrenceNode((DynamicTreeItem) root);
-        multiManager.warningAllItems();
-        multiManager.handleOptIcons();
         isFirstKey = true;
         root.setState(true);
         if (root.getElement().getFirstChildElement() != null)
@@ -639,6 +652,10 @@ public class TreeDetail extends ContentPanel {
         }
     }
 
+    interface RenderCompleteCallBack {
+        void onSuccess();
+    }
+    
     private static BrowseRecordsServiceAsync getItemService() {
 
         BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
