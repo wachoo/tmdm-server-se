@@ -158,7 +158,7 @@ public class CommonUtilTest extends TestCase {
     	
     	SimpleTypeModel demandeDiffusionType = new SimpleTypeModel("demandeDiffusion", null);//$NON-NLS-1
     	demandeDiffusionType.setTypePath("Eda/demandeDiffusion");//$NON-NLS-1
-    	demandeDiffusionType.setVisibleExpression("../statutEda = \"Valid®¶e\"");//$NON-NLS-1
+    	demandeDiffusionType.setVisibleExpression("../statutEda = \"Valid√©e\"");//$NON-NLS-1
     	metaDataTypes.put(demandeDiffusionType.getTypePath(), demandeDiffusionType);
     	edaType.addSubType(demandeDiffusionType);
     	
@@ -193,7 +193,7 @@ public class CommonUtilTest extends TestCase {
 		
 		Node node = doc4j.selectSingleNode("Eda/statutEda[1]");
 		assertNotNull(node);
-		node.setText("Valid®¶e");//$NON-NLS-1
+		node.setText("Valid√©e");//$NON-NLS-1
 
 		visibleItems = ruleEngine.execVisibleRule(doc4j);
 		
