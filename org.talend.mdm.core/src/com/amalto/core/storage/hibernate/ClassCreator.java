@@ -397,13 +397,9 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
                         classIndexed.add(currentClass);
                     }
                 }
-                // Mark field as value to index
-                if (isIndexableField(metadata)) {
-                    Annotation fieldAnnotation = new Annotation(Field.class.getName(), cp);
-                    annotations.addAnnotation(fieldAnnotation);
-                } else {
-                    // TODO Support index on many fields / date fields / byte fields
-                }
+
+                SearchIndexHandler handler = getHandler(metadata);
+                handler.handle(annotations, cp);
             }
 
             return null;
@@ -412,18 +408,55 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
         }
     }
 
-    protected String getFieldType(FieldMetadata metadata) {
-        return MetadataUtils.getJavaType(metadata.getType());
-    }
-
-    private static boolean isIndexableField(FieldMetadata metadata) {
+    private SearchIndexHandler getHandler(FieldMetadata metadata) {
         boolean validType = !("date".equals(metadata.getType().getName()) //$NON-NLS-1$
                 || "dateTime".equals(metadata.getType().getName()) //$NON-NLS-1$
                 || "time".equals(metadata.getType().getName()) //$NON-NLS-1$
                 || "duration".equals(metadata.getType().getName()) //$NON-NLS-1$
                 || "byte".equals(metadata.getType().getName()) //$NON-NLS-1$
                 || "unsignedByte".equals(metadata.getType().getName()));//$NON-NLS-1$
-        return !metadata.isMany() && validType;
+        if (!metadata.isMany() && validType) {
+            return new BasicSearchIndexHandler();
+        } else if (!validType) {
+            return new ToStringIndexHandler();
+        } else { // metadata.isMany() returned true
+            return new ListFieldIndexHandler();
+        }
+    }
+
+    interface SearchIndexHandler {
+        void handle(AnnotationsAttribute annotations, ConstPool pool);
+    }
+
+    public class BasicSearchIndexHandler implements SearchIndexHandler {
+        public void handle(AnnotationsAttribute annotations, ConstPool pool) {
+            Annotation fieldAnnotation = new Annotation(Field.class.getName(), pool);
+            annotations.addAnnotation(fieldAnnotation);
+        }
+    }
+
+    public class ToStringIndexHandler implements SearchIndexHandler {
+        public void handle(AnnotationsAttribute annotations, ConstPool pool) {
+            Annotation fieldAnnotation = new Annotation(Field.class.getName(), pool);
+            Annotation fieldBridge = new Annotation(FieldBridge.class.getName(), pool);
+            fieldBridge.addMemberValue("impl", new ClassMemberValue(ToStringBridge.class.getName(), pool)); //$NON-NLS-1$
+            annotations.addAnnotation(fieldAnnotation);
+            annotations.addAnnotation(fieldBridge);
+        }
+    }
+
+    public class ListFieldIndexHandler implements SearchIndexHandler {
+        public void handle(AnnotationsAttribute annotations, ConstPool pool) {
+            Annotation fieldAnnotation = new Annotation(Field.class.getName(), pool);
+            Annotation fieldBridge = new Annotation(FieldBridge.class.getName(), pool);
+            fieldBridge.addMemberValue("impl", new ClassMemberValue(ListBridge.class.getName(), pool)); //$NON-NLS-1$
+            annotations.addAnnotation(fieldAnnotation);
+            annotations.addAnnotation(fieldBridge);
+        }
+    }
+
+    protected String getFieldType(FieldMetadata metadata) {
+        return MetadataUtils.getJavaType(metadata.getType());
     }
 
     private String getFieldName(FieldMetadata metadata) {

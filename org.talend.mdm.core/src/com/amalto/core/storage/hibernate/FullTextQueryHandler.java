@@ -197,23 +197,31 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         try {
             List<Class> classes = new LinkedList<Class>();
             List<String> fields = new LinkedList<String>();
-            for (TypeMetadata type : types) {
+            for (ComplexTypeMetadata type : types) {
                 try {
-                    if (type instanceof ComplexTypeMetadata) {
-                        for (FieldMetadata currentField : ((ComplexTypeMetadata) type).getFields()) {
-                            if (!(currentField instanceof ContainedTypeFieldMetadata)) {
-                                if (!currentField.isMany()) {
-                                    fields.add(getFieldName(currentField, mappingMetadataRepository, false, false));
-                                } else {
-                                    // TODO Support for search on many fields
-                                }
-                            } // TODO Support for contained types
+                    fields.addAll(type.accept(new DefaultMetadataVisitor<List<String>>() {
+                        List<String> fields = new LinkedList<String>();
+
+                        @Override
+                        public List<String> visit(ComplexTypeMetadata complexType) {
+                            super.visit(complexType);
+                            return fields;
                         }
-                        Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(ClassCreator.PACKAGE_PREFIX + type.getName());
-                        classes.add(clazz);
-                    } else {
-                        throw new NotImplementedException("No support for full text queries on simple types.");
-                    }
+
+                        @Override
+                        public List<String> visit(SimpleTypeFieldMetadata simpleField) {
+                            fields.add(getFieldName(simpleField, mappingMetadataRepository, false, false));
+                            return fields;
+                        }
+
+                        @Override
+                        public List<String> visit(EnumerationFieldMetadata enumField) {
+                            fields.add(getFieldName(enumField, mappingMetadataRepository, false, false));
+                            return fields;
+                        }
+                    }));
+                    Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(ClassCreator.PACKAGE_PREFIX + type.getName());
+                    classes.add(clazz);
                 } catch (ClassNotFoundException e) {
                     throw new IllegalArgumentException("Type '" + type.getName() + "' has no generated class in current class loader.");
                 }
@@ -224,7 +232,8 @@ class FullTextQueryHandler extends AbstractQueryHandler {
             StringBuilder queryBuffer = new StringBuilder();
             Iterator<String> fieldsIterator = fields.iterator();
             while (fieldsIterator.hasNext()) {
-                queryBuffer.append(fieldsIterator.next()).append(':').append(fullText.getValue()).append("*");
+                String next = fieldsIterator.next();
+                queryBuffer.append(next).append(':').append(fullText.getValue()).append("*");
                 if (fieldsIterator.hasNext()) {
                     queryBuffer.append(" OR ");
                 }

@@ -102,6 +102,8 @@ public class StorageFullTextTest extends StorageTestCase {
                 "        <Email>test@talend.com</Email>\n" +
                 "    </Contact>\n" +
                 "</Supplier>"));
+        allRecords.add(factory.read("MDM", 1, country, "<Country><id>1</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
+
         try {
             storage.begin();
             storage.update(allRecords);
@@ -127,6 +129,9 @@ public class StorageFullTextTest extends StorageTestCase {
             storage.delete(qb.getSelect());
 
             qb = from(supplier);
+            storage.delete(qb.getSelect());
+
+            qb = from(country);
             storage.delete(qb.getSelect());
         }
         storage.commit();
@@ -170,6 +175,30 @@ public class StorageFullTextTest extends StorageTestCase {
         UserQueryBuilder qb = from(supplier)
                 .and(product)
                 .where(fullText("Renault"));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testDateSearch() throws Exception {
+        UserQueryBuilder qb = from(country)
+                .where(fullText("2010-10-10"));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testCollectionSearch() throws Exception {
+        UserQueryBuilder qb = from(product)
+                .where(fullText("Blue"));
 
         StorageResults results = storage.fetch(qb.getSelect());
         try {
