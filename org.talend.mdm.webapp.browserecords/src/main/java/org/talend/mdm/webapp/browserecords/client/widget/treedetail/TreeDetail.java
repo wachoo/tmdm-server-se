@@ -36,6 +36,9 @@ import org.talend.mdm.webapp.browserecords.client.util.MultiOccurrenceManager;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ForeignKeyField;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatDateField;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatNumberField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextField;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
@@ -466,8 +469,15 @@ public class TreeDetail extends ContentPanel {
                     ((FormatTextField) field).setWidth(size > 200 ? size : 200);
                 else if (field instanceof SimpleComboBox)
                     ((SimpleComboBox<?>) field).setWidth(size > 200 ? size : 200);
+                else if (field instanceof FormatNumberField)
+                    ((FormatNumberField) field).setWidth(size > 200 ? size : 200);
+                else if (field instanceof FormatDateField)
+                    ((FormatDateField) field).setWidth(size > 200 ? size : 200);
+                else if (field instanceof ForeignKeyField)
+                    ((ForeignKeyField) field).setWidth(size > 200 ? size : 200);    
             }
         }
+        
         for (int i = 0; i < item.getChildCount(); i++) {
             TreeItem subItem = item.getChild(i);
             setFiledWidth(subItem, width, offset, level + 1);
