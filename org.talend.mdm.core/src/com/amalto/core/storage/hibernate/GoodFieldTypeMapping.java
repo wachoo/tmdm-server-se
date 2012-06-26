@@ -56,17 +56,22 @@ public class GoodFieldTypeMapping extends TypeMapping {
                 ReferenceFieldMetadata referenceFieldMetadata = (ReferenceFieldMetadata) mappedDatabaseField;
                 if (!field.isMany()) {
                     Wrapper object = createObject(contextClassLoader, referenceFieldMetadata.getReferencedType());
-                    wrapper.set(referenceFieldMetadata.getName(), _setValues(session, (DataRecord) record.get(field), object));
-                    session.persist(object);
-                } else {
-                    List<DataRecord> dataRecords = (List<DataRecord>) record.get(field);
-                    List<Object> objects = new LinkedList<Object>();
-                    for (DataRecord dataRecord : dataRecords) {
-                        Wrapper object = createObject(contextClassLoader, referenceFieldMetadata.getReferencedType());
-                        objects.add(_setValues(session, dataRecord, object));
+                    DataRecord containedRecord = (DataRecord) record.get(field);
+                    if (containedRecord != null) {
+                        wrapper.set(referenceFieldMetadata.getName(), _setValues(session, containedRecord, object));
                         session.persist(object);
                     }
-                    wrapper.set(referenceFieldMetadata.getName(), objects);
+                } else {
+                    List<DataRecord> dataRecords = (List<DataRecord>) record.get(field);
+                    if (dataRecords != null) {
+                        List<Object> objects = new LinkedList<Object>();
+                        for (DataRecord dataRecord : dataRecords) {
+                            Wrapper object = createObject(contextClassLoader, referenceFieldMetadata.getReferencedType());
+                            objects.add(_setValues(session, dataRecord, object));
+                            session.persist(object);
+                        }
+                        wrapper.set(referenceFieldMetadata.getName(), objects);
+                    }
                 }
             } else if (field instanceof ReferenceFieldMetadata) {
                 ReferenceFieldMetadata referenceFieldMetadata = (ReferenceFieldMetadata) mappedDatabaseField;

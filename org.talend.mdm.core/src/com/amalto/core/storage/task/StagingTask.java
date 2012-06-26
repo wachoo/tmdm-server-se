@@ -42,32 +42,26 @@ public class StagingTask implements Task {
                 // new DSCUpdaterTask(stagingStorage, destinationStorage, repository));
     }
 
-    @Override
     public String getId() {
         return id;
     }
 
-    @Override
     public double getRecordCount() {
         return 0;
     }
 
-    @Override
     public double getCurrentPerformance() {
         return 0;
     }
 
-    @Override
     public double getMinPerformance() {
         return 0;
     }
 
-    @Override
     public double getMaxPerformance() {
         return 0;
     }
 
-    @Override
     public void cancel() {
         synchronized (currentTaskMonitor) {
             isCancelled = true;
@@ -77,7 +71,6 @@ public class StagingTask implements Task {
         }
     }
 
-    @Override
     public void waitForCompletion() throws InterruptedException {
         while (!startLock.get()) {
             synchronized (startLock) {
@@ -91,7 +84,6 @@ public class StagingTask implements Task {
         }
     }
 
-    @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         synchronized (startLock) {
             startLock.set(true);

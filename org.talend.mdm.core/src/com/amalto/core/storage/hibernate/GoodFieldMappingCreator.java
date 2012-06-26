@@ -14,8 +14,6 @@ package com.amalto.core.storage.hibernate;
 import com.amalto.core.metadata.*;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Stack;
 
 class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
@@ -25,8 +23,6 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     private final MetadataRepository internalRepository;
 
     private final MappingRepository mappings;
-
-    private final Map<String, Integer> fieldNameCounter = new HashMap<String, Integer>();
 
     private final Stack<ComplexTypeMetadata> currentType = new Stack<ComplexTypeMetadata>();
 
@@ -59,7 +55,20 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         FieldMetadata foreignKeyInfoFieldCopy = referenceField.hasForeignKeyInfo() ? referenceField.getForeignKeyInfoField().copy(internalRepository) : null;
 
         ComplexTypeMetadata database = currentType.peek();
-        ReferenceFieldMetadata newFlattenField = new ReferenceFieldMetadata(currentType.peek(), referenceField.isKey(), referenceField.isMany(), referenceField.isMandatory(), name, referencedType, referencedFieldCopy, foreignKeyInfoFieldCopy, referenceField.isFKIntegrity(), referenceField.allowFKIntegrityOverride(), referenceField.getWriteUsers(), referenceField.getHideUsers());
+
+        boolean fkIntegrity = referenceField.isFKIntegrity() && (referenceField.getReferencedType() != mapping.getUser()); // Don't enforce FK integrity for references to itself.
+        ReferenceFieldMetadata newFlattenField = new ReferenceFieldMetadata(currentType.peek(),
+                referenceField.isKey(),
+                referenceField.isMany(),
+                referenceField.isMandatory(),
+                name,
+                referencedType,
+                referencedFieldCopy,
+                foreignKeyInfoFieldCopy,
+                fkIntegrity,
+                referenceField.allowFKIntegrityOverride(),
+                referenceField.getWriteUsers(),
+                referenceField.getHideUsers());
         database.addField(newFlattenField);
         mapping.map(referenceField, newFlattenField);
         return null;
@@ -109,7 +118,7 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 typeRef,
                 new SoftIdFieldRef(internalRepository, typeName),
                 null,
-                true,
+                false,  // No need to enforce FK in references to this technical objects.
                 false,
                 containedField.getWriteUsers(),
                 containedField.getHideUsers());

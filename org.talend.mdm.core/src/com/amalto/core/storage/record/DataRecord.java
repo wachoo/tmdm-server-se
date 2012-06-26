@@ -11,10 +11,7 @@
 
 package com.amalto.core.storage.record;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataUtils;
-import com.amalto.core.metadata.ReferenceFieldMetadata;
+import com.amalto.core.metadata.*;
 import com.amalto.core.storage.hibernate.TypeMapping;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 
@@ -59,18 +56,30 @@ public class DataRecord {
         if (field.getContainingType() != this.getType()) {
             Iterator<FieldMetadata> path = MetadataUtils.path(type, field).iterator();
             if (!path.hasNext()) {
+                if(fieldToValue.containsKey(field)) { // Support explicit projection type
+                    return fieldToValue.get(field);
+                }
                 throw new IllegalArgumentException("Field '" + field.getName() + "' isn't reachable from type '" + type.getName() + "'");
             }
             DataRecord current = this;
             while (path.hasNext()) {
                 FieldMetadata nextField = path.next();
-                if (path.hasNext()) {
-                    current = (DataRecord) current.fieldToValue.get(nextField);
-                } else {
-                    return current.fieldToValue.get(nextField);
+                Object nextObject = current.fieldToValue.get(nextField);
+                if (nextObject == null) {
+                    return null;
                 }
-                if(current == null) {
-                    break;
+                if (path.hasNext()) {
+                    if (!(nextObject instanceof DataRecord)) {
+                        if (!path.hasNext()) {
+                            return nextObject;
+                        } else {
+                            // TODO This is maybe (surely?) not what user expect, but there's no way to select the nth instance of a collection in API.
+                            nextObject = ((List) nextObject).get(0);
+                        }
+                    }
+                    current = (DataRecord) nextObject;
+                } else {
+                    return nextObject;
                 }
             }
             return null; // Not found.
@@ -106,7 +115,13 @@ public class DataRecord {
             fieldToValue.put(field, o);
         } else {
             List list = (List) fieldToValue.get(field);
-            if (!(field instanceof ReferenceFieldMetadata)) {
+            if (field instanceof ReferenceFieldMetadata || field instanceof ContainedTypeFieldMetadata) {  // fields that may contain data records.
+                if (list == null) {
+                    list = new LinkedList();
+                    fieldToValue.put(field, list);
+                }
+                list.add(o);
+            } else {
                 if (list == null && o instanceof List) {
                     fieldToValue.put(field, o);
                 } else {
@@ -116,12 +131,6 @@ public class DataRecord {
                     }
                     list.add(o);
                 }
-            } else {  // reference field
-                if (list == null) {
-                    list = new LinkedList();
-                    fieldToValue.put(field, list);
-                }
-                list.add(o);
             }
         }
     }

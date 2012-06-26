@@ -35,14 +35,16 @@ class FlatTypeMapping extends TypeMapping {
             Set<FieldMetadata> fields = from.getSetFields();
             for (FieldMetadata field : fields) {
                 Object value = from.get(field);
+                if (value == null) {
+                    continue;
+                }
+
                 FieldMetadata databaseField = getDatabase(field);
 
                 // "instance of" could be replaced by visitor on field... but is a bit too much for this simple step.
                 if (field instanceof SimpleTypeFieldMetadata || field instanceof EnumerationFieldMetadata) {
                     if (!field.isMany()) {
-                        if (value != null) {
-                            to.set(databaseField.getName(), value);
-                        }
+                        to.set(databaseField.getName(), value);
                     } else {
                         List list = (List) to.get(field.getName());
                         if (list == null) {

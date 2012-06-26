@@ -109,8 +109,8 @@ public class MetadataUtils {
      * @return A {@link Object} value that has correct type according to <code>field</code>. Returns <code>null</code> if
      *         field is instance of {@link ContainedTypeFieldMetadata} (this type of field isn't expected to have values).
      *         Also returns <code>null</code> is parameter <code>dataAsString</code> is null.
-     * @throws RuntimeException         Throws sub classes of {@link RuntimeException} if <code>dataAsString</code>  format does
-     *                                  not match field's type.
+     * @throws RuntimeException Throws sub classes of {@link RuntimeException} if <code>dataAsString</code>  format does
+     *                          not match field's type.
      */
     public static Object convert(String dataAsString, FieldMetadata field) {
         if (field instanceof ReferenceFieldMetadata) {
@@ -297,4 +297,132 @@ public class MetadataUtils {
             throw new NotImplementedException("No support for field typed as '" + type + "'");
         }
     }
+
+    /**
+     * Sorts type in inverse order of dependency (topological sort).
+     *
+     * @param repository The repository that contains types to sort.
+     * @return A sorted list of {@link ComplexTypeMetadata} types.
+     * @throws IllegalArgumentException If repository contains types that creates a cyclic dependency.
+     */
+    public synchronized static List<ComplexTypeMetadata> sortTypes(MetadataRepository repository) {
+        Collection<ComplexTypeMetadata> userDefinedTypes = repository.getUserComplexTypes();
+        final List<ComplexTypeMetadata> types = new ArrayList<ComplexTypeMetadata>(userDefinedTypes.size() + 1);
+
+        /*
+        * Compute additional data for topological sorting
+        */
+        // TODO This use n² in memory... which isn't so good
+        final byte[][] dependencyGraph = new byte[userDefinedTypes.size()][userDefinedTypes.size()];
+        for (final ComplexTypeMetadata type : userDefinedTypes) {
+            byte[] lineValue = new byte[userDefinedTypes.size()];
+            dependencyGraph[getId(type, types)] = lineValue;
+            type.accept(new DefaultMetadataVisitor<Void>() {
+                @Override
+                public Void visit(ReferenceFieldMetadata referenceField) {
+                    if (!type.equals(referenceField.getReferencedType()) && referenceField.isFKIntegrity()) { // Don't count a dependency to itself as a dependency.
+                        dependencyGraph[getId(type, types)][getId(referenceField.getReferencedType(), types)]++;
+                    }
+                    return null;
+                }
+            });
+        }
+
+        /*
+        * TOPOLOGICAL SORTING
+        * See "Kahn, A. B. (1962), "Topological sorting of large networks", Communications of the ACM"
+        */
+        List<ComplexTypeMetadata> sortedTypes = new LinkedList<ComplexTypeMetadata>();
+        Set<ComplexTypeMetadata> noIncomingEdges = new HashSet<ComplexTypeMetadata>();
+        int lineNumber = 0;
+        for (byte[] line : dependencyGraph) {
+            if (!hasIncomingEdges(line)) {
+                noIncomingEdges.add(getType(types, lineNumber));
+            }
+            lineNumber++;
+        }
+
+        while (!noIncomingEdges.isEmpty()) {
+            Iterator<ComplexTypeMetadata> iterator = noIncomingEdges.iterator();
+            ComplexTypeMetadata type = iterator.next();
+            iterator.remove();
+
+            sortedTypes.add(type);
+            int columnNumber = getId(type, types);
+            for (int i = 0; i < types.size(); i++) {
+                int edge = dependencyGraph[i][columnNumber];
+                if (edge > 0) {
+                    dependencyGraph[i][columnNumber] -= edge;
+
+                    if (!hasIncomingEdges(dependencyGraph[i])) {
+                        noIncomingEdges.add(getType(types, i));
+                    }
+                }
+            }
+        }
+
+        lineNumber = 0;
+        for (byte[] line : dependencyGraph) {
+            for (int column : line) {
+                if (column != 0) {
+                    int currentLineNumber = lineNumber;
+                    List<ComplexTypeMetadata> dependencyPath = new LinkedList<ComplexTypeMetadata>();
+                    do {
+                        ComplexTypeMetadata type = getType(types, currentLineNumber);
+                        if (!dependencyPath.contains(type)) {
+                            dependencyPath.add(type);
+                        } else {
+                            dependencyPath.add(type);
+                            break;
+                        }
+                        byte[] bytes = dependencyGraph[getId(type, types)];
+                        for (int currentByte = 0; currentByte < bytes.length; currentByte++) {
+                            if (bytes[currentByte] > 0) { // This gets the first unresolved dependency (but there might be more of them).
+                                currentLineNumber = currentByte;
+                                break;
+                            }
+                        }
+                    } while (currentLineNumber != column);
+
+                    StringBuilder pathAsString = new StringBuilder();
+                    Iterator<ComplexTypeMetadata> dependencyPathIterator = dependencyPath.iterator();
+                    while (dependencyPathIterator.hasNext()) {
+                        pathAsString.append(dependencyPathIterator.next().getName());
+                        if (dependencyPathIterator.hasNext()) {
+                            pathAsString.append(" -> ");
+                        }
+                    }
+                    throw new IllegalArgumentException("Data model has at least one circular dependency (Hint: " +  pathAsString + ")");
+                }
+            }
+            lineNumber++;
+        }
+
+        return sortedTypes;
+    }
+
+    private static ComplexTypeMetadata getType(List<ComplexTypeMetadata> types, int lineNumber) {
+        return types.get(lineNumber);
+    }
+
+    // internal method for sortTypes
+    private static boolean hasIncomingEdges(byte[] line) {
+        boolean hasIncomingEdge = false;
+        for (byte column : line) {
+            if (column > 0) {
+                hasIncomingEdge = true;
+                break;
+            }
+        }
+        return hasIncomingEdge;
+    }
+
+    // internal method for sortTypes
+    private static int getId(ComplexTypeMetadata type, List<ComplexTypeMetadata> types) {
+        if (!types.contains(type)) {
+            types.add(type);
+        }
+        return types.indexOf(type);
+    }
+
 }

@@ -1,9 +1,6 @@
 package com.amalto.core.storage.task;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.DefaultMetadataVisitor;
-import com.amalto.core.metadata.MetadataRepository;
-import com.amalto.core.metadata.ReferenceFieldMetadata;
+import com.amalto.core.metadata.*;
 import com.amalto.core.storage.Storage;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -15,8 +12,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  */
 abstract class MetadataRepositoryTask implements Task {
-
-    private final List<ComplexTypeMetadata> types = new LinkedList<ComplexTypeMetadata>();
 
     protected final Storage storage;
 
@@ -51,103 +46,7 @@ abstract class MetadataRepositoryTask implements Task {
         this.repository = repository;
     }
 
-    private static boolean hasIncomingEdges(byte[] line) {
-        boolean hasIncomingEdge = false;
-        for (byte column : line) {
-            if (column > 0) {
-                hasIncomingEdge = true;
-                break;
-            }
-        }
-        return hasIncomingEdge;
-    }
-
-    private int getId(ComplexTypeMetadata type) {
-        if (!types.contains(type)) {
-            types.add(type);
-        }
-        return types.indexOf(type);
-    }
-
-    private ComplexTypeMetadata getType(int id) {
-        return types.get(id);
-    }
-
     protected abstract Task createTypeTask(ComplexTypeMetadata type);
-
-    /**
-     * Sorts type in inverse order of dependency (topological sort).
-     *
-     * @param repository The repository that contains types to sort.
-     * @return A sorted list of {@link com.amalto.core.metadata.ComplexTypeMetadata} types.
-     */
-    protected List<ComplexTypeMetadata> sortTypes(MetadataRepository repository) {
-        Collection<ComplexTypeMetadata> userDefinedTypes = repository.getUserComplexTypes();
-
-        /*
-         * Compute additional data for topological sorting
-         */
-        // TODO This use n² in memory... which isn't so good
-        final byte[][] dependencyGraph = new byte[userDefinedTypes.size()][userDefinedTypes.size()];
-        for (final ComplexTypeMetadata type : userDefinedTypes) {
-            byte[] lineValue = new byte[userDefinedTypes.size()];
-            dependencyGraph[getId(type)] = lineValue;
-            type.accept(new DefaultMetadataVisitor<Void>() {
-                @Override
-                public Void visit(ReferenceFieldMetadata referenceField) {
-                    if (!type.equals(referenceField.getReferencedType())) { // Don't count a dependency to itself as a dependency.
-                        dependencyGraph[getId(type)][getId(referenceField.getReferencedType())]++;
-                    }
-                    return null;
-                }
-            });
-        }
-
-        /*
-         * TOPOLOGICAL SORTING
-         * See "Kahn, A. B. (1962), "Topological sorting of large networks", Communications of the ACM"
-         */
-        List<ComplexTypeMetadata> sortedTypes = new LinkedList<ComplexTypeMetadata>();
-        Set<ComplexTypeMetadata> noIncomingEdges = new HashSet<ComplexTypeMetadata>();
-        int lineNumber = 0;
-        for (byte[] line : dependencyGraph) {
-            if (!hasIncomingEdges(line)) {
-                noIncomingEdges.add(getType(lineNumber));
-            }
-            lineNumber++;
-        }
-
-        while (!noIncomingEdges.isEmpty()) {
-            Iterator<ComplexTypeMetadata> iterator = noIncomingEdges.iterator();
-            ComplexTypeMetadata type = iterator.next();
-            iterator.remove();
-
-            sortedTypes.add(type);
-            int columnNumber = getId(type);
-            for (int i = 0; i < types.size(); i++) {
-                int edge = dependencyGraph[i][columnNumber];
-                if (edge > 0) {
-                    dependencyGraph[i][columnNumber] -= edge;
-
-                    if (!hasIncomingEdges(dependencyGraph[i])) {
-                        noIncomingEdges.add(getType(i));
-                    }
-                }
-            }
-        }
-
-        lineNumber = 0;
-        for (byte[] line : dependencyGraph) {
-            for (int i : line) {
-                if (i != 0) {
-                    throw new IllegalArgumentException("Data model has at least one circular dependency (Hint: " + getType(lineNumber).getName() + " type)");
-                }
-            }
-            lineNumber++;
-        }
-
-        return sortedTypes;
-    }
 
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         synchronized (startLock) {
@@ -155,7 +54,7 @@ abstract class MetadataRepositoryTask implements Task {
             startLock.notifyAll();
         }
 
-        List<ComplexTypeMetadata> types = sortTypes(repository);
+        List<ComplexTypeMetadata> types = MetadataUtils.sortTypes(repository);
 
         for (ComplexTypeMetadata type : types) {
             Task task = createTypeTask(type);

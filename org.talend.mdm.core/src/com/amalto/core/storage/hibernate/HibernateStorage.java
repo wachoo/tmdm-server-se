@@ -191,6 +191,7 @@ public class HibernateStorage implements Storage {
 
         // No support for data models including inheritance AND for g* XSD simple types AND fields that start with X_TALEND_
         try {
+            MetadataUtils.sortTypes(repository); // Do a "sort" to ensure there's no cyclic dependency.
             repository.accept(METADATA_CHECKER);
         } catch (Exception e) {
             throw new RuntimeException("Exception occurred during unsupported features check.", e);
