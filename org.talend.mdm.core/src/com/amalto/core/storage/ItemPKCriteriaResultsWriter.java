@@ -52,7 +52,7 @@ class ItemPKCriteriaResultsWriter implements DataRecordWriter {
         writer.write("<r>");
         {
             writer.write("<t>" + record.get("timestamp") + "</t>");
-            writer.write("<taskId>" + record.get("taskId") + "</taskId>");
+            writer.write("<taskId>" + record.get("taskid") + "</taskId>");
             writer.write("<n>" + typeName + "</n>");
             writer.write("<ids>");
             List<FieldMetadata> keyFields = itemType.getKeyFields();

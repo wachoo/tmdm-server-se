@@ -727,16 +727,18 @@ public class ItemCtrl2Bean implements SessionBean {
 
                 long count = 0;
                 for (ComplexTypeMetadata type : types) {
-                    UserQueryBuilder qb = from(type)
-                            .select(alias(UserQueryBuilder.count(), "count"));
+                    if (!type.getKeyFields().isEmpty()) { // Don't try to count types that don't have any PK.
+                        UserQueryBuilder qb = from(type)
+                                .select(alias(UserQueryBuilder.count(), "count"));
 
-                    StorageResults countResult = storage.fetch(qb.getSelect());
-                    Iterator<DataRecord> resultsIterator = countResult.iterator();
-                    if (resultsIterator.hasNext()) {
-                        Object countObjectValue = resultsIterator.next().get("count");
-                        count += Long.parseLong(String.valueOf(countObjectValue));
-                    } else {
-                        throw new IllegalStateException("Count returned no result for type '" + type.getName() + "'.");
+                        StorageResults countResult = storage.fetch(qb.getSelect());
+                        Iterator<DataRecord> resultsIterator = countResult.iterator();
+                        if (resultsIterator.hasNext()) {
+                            Object countObjectValue = resultsIterator.next().get("count");
+                            count += Long.parseLong(String.valueOf(countObjectValue));
+                        } else {
+                            throw new IllegalStateException("Count returned no result for type '" + type.getName() + "'.");
+                        }
                     }
                 }
                 return count;

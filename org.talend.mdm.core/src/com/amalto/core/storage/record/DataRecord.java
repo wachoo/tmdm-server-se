@@ -56,8 +56,9 @@ public class DataRecord {
         if (field.getContainingType() != this.getType()) {
             Iterator<FieldMetadata> path = MetadataUtils.path(type, field).iterator();
             if (!path.hasNext()) {
-                if(fieldToValue.containsKey(field)) { // Support explicit projection type
-                    return fieldToValue.get(field);
+                Object value = get(field.getName());
+                if(value != null) { // Support explicit projection type fields
+                    return value;
                 }
                 throw new IllegalArgumentException("Field '" + field.getName() + "' isn't reachable from type '" + type.getName() + "'");
             }
