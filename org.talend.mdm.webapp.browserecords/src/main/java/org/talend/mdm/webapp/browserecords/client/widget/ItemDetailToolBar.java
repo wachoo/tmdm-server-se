@@ -61,7 +61,6 @@ import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ComponentHelper;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonGroup;
 import com.extjs.gxt.ui.client.widget.button.SplitButton;
@@ -877,14 +876,19 @@ public class ItemDetailToolBar extends ToolBar {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                if (smartViewCombo.getSelection() != null && smartViewCombo.getSelectionLength() > 0) {
-                    Window printWin = new Window();
-                    String url = "/itemsbrowser/secure/SmartViewServlet?ids=" + itemBean.getIds() //$NON-NLS-1$
-                            + "&concept=" + itemBean.getConcept() + "&language=" + Locale.getLanguage(); //$NON-NLS-1$ //$NON-NLS-2$
-                    url += "&name=" + smartViewCombo.getSelection().get(0).get("value"); //$NON-NLS-1$//$NON-NLS-2$
-                    printWin.setUrl(url);
-                    printWin.setHeading(MessagesFactory.getMessages().print_btn());
-                    printWin.show();
+                if (smartViewCombo.getSelection() != null && smartViewCombo.getSelection().size() > 0) {
+                    
+                    StringBuilder url = new StringBuilder();
+                    url.append("/itemsbrowser/secure/SmartViewServlet?ids=") //$NON-NLS-1$
+                       .append(itemBean.getIds())
+                       .append("&concept=") //$NON-NLS-1$
+                       .append(itemBean.getConcept())
+                       .append("&language=") //$NON-NLS-1$
+                       .append(Locale.getLanguage())
+                       .append("&name=") //$NON-NLS-1$
+                       .append(smartViewCombo.getSelection().get(0).get("value")); //$NON-NLS-1$
+      
+                    openWindow(url.toString());
                 }
             }
 
