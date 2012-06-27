@@ -91,8 +91,6 @@ public class HibernateStorage implements Storage {
 
     private SessionFactory factory;
 
-    private MetadataRepository internalRepository;
-
     private Configuration configuration;
 
     private RDBMSDataSource dataSource;
@@ -202,6 +200,7 @@ public class HibernateStorage implements Storage {
             Thread.currentThread().setContextClassLoader(storageClassLoader);
 
             // Mapping of data model types to RDBMS (i.e. 'flatten' representation of types).
+            MetadataRepository internalRepository;
             try {
                 InternalRepository typeEnhancer = getTypeEnhancer();
                 internalRepository = repository.accept(typeEnhancer);
@@ -210,10 +209,8 @@ public class HibernateStorage implements Storage {
                 throw new RuntimeException("Exception occurred during type mapping creation.", e);
             }
 
-            switch (storageType) {
+            switch (storageType) { // Master and Staging share same class creator.
                 case MASTER:
-                    hibernateClassCreator = new ClassCreator(storageClassLoader);
-                    break;
                 case STAGING:
                     hibernateClassCreator = new ClassCreator(storageClassLoader);
                     break;

@@ -58,7 +58,10 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
     @Override
     public Void visit(MetadataRepository repository) {
         try {
-            super.visit(repository);
+            List<ComplexTypeMetadata> sortedTypes = MetadataUtils.sortTypes(repository);
+            for (ComplexTypeMetadata sortedType : sortedTypes) {
+                sortedType.accept(this);
+            }
             return null;
         } finally {
             // Clean up processed types.
@@ -94,6 +97,19 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             newClass.setInterfaces(new CtClass[]{hibernateClassWrapper, serializable});
             ClassFile classFile = newClass.getClassFile();
             newClass.setModifiers(Modifier.PUBLIC);
+
+            // Adds super type
+            Collection<TypeMetadata> superTypes = complexType.getSuperTypes();
+            if (superTypes.size() > 1) {
+                throw new IllegalArgumentException("Cannot handle multiple inheritance (type '" + complexType.getName() + "' has " + superTypes.size() + " super types.");
+            }
+            Iterator<TypeMetadata> superTypesIterator = superTypes.iterator();
+            if (superTypesIterator.hasNext()) {
+                TypeMetadata superType = superTypesIterator.next();
+                if (superType instanceof ComplexTypeMetadata) {
+                    newClass.setSuperclass(classPool.get(PACKAGE_PREFIX + superType.getName()));
+                }
+            }
 
             // Mark new class as indexed for Hibernate search (full text) extensions.
             ConstPool cp = classFile.getConstPool();
@@ -379,22 +395,24 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
                 }
 
                 // Adds "DocumentId" annotation for Hibernate search
-                if (metadata.getContainingType().getKeyFields().size() == 1) {
-                    if (metadata.isKey()) {
-                        Annotation docIdAnnotation = new Annotation(DocumentId.class.getName(), cp);
-                        annotations.addAnnotation(docIdAnnotation);
-                    }
-                } else {
-                    if (!classIndexed.contains(currentClass)) {
-                        // @ProvidedId(bridge = @FieldBridge(impl = CompositeIdBridge.class))
-                        Annotation providedId = new Annotation(ProvidedId.class.getName(), cp);
-                        Annotation fieldBridge = new Annotation(FieldBridge.class.getName(), cp);
-                        fieldBridge.addMemberValue("impl", new ClassMemberValue(CompositeIdBridge.class.getName(), cp)); //$NON-NLS-1$
-                        providedId.addMemberValue("bridge", new AnnotationMemberValue(fieldBridge, cp)); //$NON-NLS-1$
+                if (metadata.getContainingType() == metadata.getDeclaringType()) { // Do this if key field is declared in containing type (DocumentId annotation is inherited).
+                    if (metadata.getContainingType().getKeyFields().size() == 1) {
+                        if (metadata.isKey()) {
+                            Annotation docIdAnnotation = new Annotation(DocumentId.class.getName(), cp);
+                            annotations.addAnnotation(docIdAnnotation);
+                        }
+                    } else {
+                        if (!classIndexed.contains(currentClass)) {
+                            // @ProvidedId(bridge = @FieldBridge(impl = CompositeIdBridge.class))
+                            Annotation providedId = new Annotation(ProvidedId.class.getName(), cp);
+                            Annotation fieldBridge = new Annotation(FieldBridge.class.getName(), cp);
+                            fieldBridge.addMemberValue("impl", new ClassMemberValue(CompositeIdBridge.class.getName(), cp)); //$NON-NLS-1$
+                            providedId.addMemberValue("bridge", new AnnotationMemberValue(fieldBridge, cp)); //$NON-NLS-1$
 
-                        AnnotationsAttribute attribute = (AnnotationsAttribute) currentClassFile.getAttribute(AnnotationsAttribute.visibleTag);
-                        attribute.addAnnotation(providedId);
-                        classIndexed.add(currentClass);
+                            AnnotationsAttribute attribute = (AnnotationsAttribute) currentClassFile.getAttribute(AnnotationsAttribute.visibleTag);
+                            attribute.addAnnotation(providedId);
+                            classIndexed.add(currentClass);
+                        }
                     }
                 }
 

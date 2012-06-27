@@ -250,8 +250,11 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
         if (!superTypes.isEmpty()) {
             Collection<FieldMetadata> thisTypeFields = new LinkedList<FieldMetadata>(fieldMetadata.values());
             fieldMetadata.clear();
-            for (TypeMetadata superType : superTypes) {
+            List<TypeMetadata> thisSuperTypes = new LinkedList<TypeMetadata>(superTypes);
+            superTypes.clear();
+            for (TypeMetadata superType : thisSuperTypes) {
                 superType = superType.freeze();
+                superTypes.add(superType);
                 if (superType instanceof ComplexTypeMetadata) {
                     List<FieldMetadata> superTypeFields = ((ComplexTypeMetadata) superType).getFields();
                     for (FieldMetadata superTypeField : superTypeFields) {
