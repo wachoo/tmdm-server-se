@@ -334,7 +334,7 @@ public class MainFramePanel extends Portal {
                         String strDesc = list.get(j + 1);
                         HTML processHtml = new HTML();
                         StringBuilder sb = new StringBuilder(
-                                "<span id=\"processes" + str + "\" style=\"padding-right:8px;cursor: pointer;\""); //$NON-NLS-1$ //$NON-NLS-2$
+                                "<span id=\"processes" + str + "\" style=\"padding-right:8px;cursor: pointer;\">"); //$NON-NLS-1$ //$NON-NLS-2$
                         sb.append("<IMG SRC=\"/talendmdm/secure/img/genericUI/runnable_bullet.png\"/>&nbsp;"); //$NON-NLS-1$
                         sb.append(strDesc.replace("Runnable#", "")); //$NON-NLS-1$ //$NON-NLS-2$
                         sb.append("</span>"); //$NON-NLS-1$
