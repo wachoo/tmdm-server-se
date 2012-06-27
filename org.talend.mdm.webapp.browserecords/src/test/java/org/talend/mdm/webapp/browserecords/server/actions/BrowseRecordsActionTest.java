@@ -540,6 +540,28 @@ public class BrowseRecordsActionTest extends TestCase {
 		}
 		return itemModel;
 	}
+	
+	public void test_getNodeValue() throws Exception {
+	    String conceptName = "TaxonomyCategory";
+	    String xml = "<TaxonomyCategory><Id>1</Id><ZthesId>1</ZthesId><CrcCode>1</CrcCode><TaxonomyCategory>1</TaxonomyCategory><X-BusinessType><Id>2</Id></X-BusinessType></TaxonomyCategory>";
+	    Document docXml = Util.parse(xml);
+	    String xpath = "TaxonomyCategory/Id";
+	    assertEquals("1", parsingNodeValue(docXml, xpath, conceptName));
+	    xpath = "TaxonomyCategory/X-BusinessType/Id";
+	    assertEquals("2", parsingNodeValue(docXml, xpath, conceptName));
+	}
+	
+	private String parsingNodeValue(Document docXml, String xpath, String conceptName) throws Exception {
+	    NodeList nodes = Util.getNodeList(docXml, xpath.replaceFirst(conceptName + "/", "./"));
+        if (nodes.getLength() > 0) {
+            if (nodes.item(0) instanceof Element) {
+                Element value = (Element) nodes.item(0);
+                return value.getTextContent();
+            }
+        }
+        return null;
+	}
+	
 	/**
 	 * the code comes from org.talend.mdm.webapp.browserecords.server.actions.BrowseRecordsAction.builderNode(Map<String, Integer>, 
 	 * Element, EntityModel, String, String, boolean, StringBuffer, boolean, String)
