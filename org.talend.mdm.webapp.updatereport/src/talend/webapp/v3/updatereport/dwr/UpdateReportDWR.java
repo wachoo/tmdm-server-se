@@ -23,7 +23,9 @@ import com.amalto.webapp.core.bean.ListRange;
 import com.amalto.webapp.core.json.JSONObject;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.Webapp;
+import com.amalto.webapp.util.webservices.WSBoolean;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
+import com.amalto.webapp.util.webservices.WSInt;
 import com.amalto.webapp.util.webservices.WSStringArray;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSWhereAnd;
@@ -224,9 +226,10 @@ public class UpdateReportDWR {
             listRange.setTotalSize(0);
             return listRange;
         }
-
+        WSBoolean isPagingAccurate = Util.getPort().isPagingAccurate(new WSInt(totalSize));
         listRange.setData(data);
         listRange.setTotalSize(totalSize);
+        listRange.setPagingAccurate(isPagingAccurate.is_true());
         return listRange;
     }
 

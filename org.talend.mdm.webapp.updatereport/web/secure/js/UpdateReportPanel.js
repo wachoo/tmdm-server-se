@@ -30,6 +30,18 @@ var searchCriteria;
 var searchStart;
 var searchLimit;
 
+amalto.updatereport.PagingToolbar = Ext.extend(Ext.PagingToolbar, {
+	updateInfo : function(){
+		if (amalto.updatereport.PagingToolbar.pagingAccurate){
+			this.displayMsg = amalto.updatereport.UpdateReportLocal.get("displayMsg");
+		} else {
+			this.displayMsg = amalto.updatereport.UpdateReportLocal.get("displayMsg~");
+		}
+		amalto.updatereport.PagingToolbar.superclass.updateInfo.call(this);
+	}
+});
+amalto.updatereport.PagingToolbar.pagingAccurate = true;
+
 Ext
 		.extend(
 				amalto.updatereport.UpdateReportPanel,
@@ -112,7 +124,9 @@ Ext
 						this.store1 = new Ext.data.Store({
 							proxy : new Ext.data.DWRProxy(
 									UpdateReportInterface.getUpdateReportList,
-									true),
+									true, function(listRange){
+										amalto.updatereport.PagingToolbar.pagingAccurate = listRange.pagingAccurate;
+									}),
 							reader : new Ext.data.ListRangeReader({
 								id : 'keys',
 								totalProperty : 'totalSize',
@@ -292,7 +306,7 @@ Ext
 											}
 										}
 									},
-									bbar : new Ext.PagingToolbar(
+									bbar : new amalto.updatereport.PagingToolbar(
 											{
 												id : "updateReportPagingToolbar",
 												displayMsg : amalto.updatereport.UpdateReportLocal
