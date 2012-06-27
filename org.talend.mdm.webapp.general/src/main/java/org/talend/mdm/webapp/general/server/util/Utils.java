@@ -41,7 +41,7 @@ public class Utils {
     private static final String GXT_PROPERTIES = "gxt.properties"; //$NON-NLS-1$
 
     private static final String EXCLUDING_PROPERTIES = "excluding.properties"; //$NON-NLS-1$
-    
+
     private static final String GXT_CSS_RESOURCES = "gxt_css_resource.xml";
 
     private static final String WELCOMECONTEXT = "welcomeportal", WELCOMEAPP = "WelcomePortal";//$NON-NLS-1$ //$NON-NLS-2$
@@ -86,16 +86,16 @@ public class Utils {
     }
 
     public static ArrayList<String> getCssImport() throws Exception {
-    	ArrayList<String> imports = new ArrayList<String>();
+        ArrayList<String> imports = new ArrayList<String>();
         getCssImportDetail(Menu.getRootMenu(), imports, 1, 1);
         return imports;
     }
-    
+
     public static ArrayList<String> getJavascriptImport() throws Exception {
         ArrayList<String> imports = new ArrayList<String>();
         getJavascriptImportDetail(Menu.getRootMenu(), imports, 1, 1);
         // FIXME: This is a workaround for 4.2 only
-//        complementItemsbrowser(imports);
+        // complementItemsbrowser(imports);
         completeThirdPartJS(imports);
         return imports;
     }
@@ -111,13 +111,13 @@ public class Utils {
                     continue;
                 }
                 GxtProjectModel gxtPro = gxtFactory.getGxtCss(subMenu.getContext(), subMenu.getApplication());
-                if (gxtPro != null){
-	        		List<String> csses = gxtPro.getCss_addresses();
-	        		if (csses != null){
-	        			for (String css : csses){
-	        				imports.add("<link rel='stylesheet' type='text/css' href='" + css + "'/>\n");
-	        			}
-	        		}
+                if (gxtPro != null) {
+                    List<String> csses = gxtPro.getCss_addresses();
+                    if (csses != null) {
+                        for (String css : csses) {
+                            imports.add("<link rel='stylesheet' type='text/css' href='" + css + "'/>\n");
+                        }
+                    }
                 }
                 i++;
             }
@@ -126,7 +126,7 @@ public class Utils {
         }
         return i;
     }
-    
+
     private static int getJavascriptImportDetail(Menu menu, List<String> imports, int level, int i) throws Exception {
         if (menu.getParent() == null) {
             // add welcome by default
@@ -175,9 +175,10 @@ public class Utils {
         return i;
     }
 
-
     private static void completeThirdPartJS(ArrayList<String> imports) {
-        imports.add("<script type=\"text/javascript\" src=\"/itemsbrowser/secure/js/ImprovedDWRProxy.js\"></script>\n");//$NON-NLS-1$ 
+        imports.add("<script type=\"text/javascript\" src=\"/itemsbrowser/secure/dwr/interface/ItemsBrowserInterface.js\"></script>\n");//$NON-NLS-1$
+        imports.add("<script type=\"text/javascript\" src=\"/itemsbrowser/secure/js/ImprovedDWRProxy.js\"></script>\n");//$NON-NLS-1$
+        imports.add("<script type=\"text/javascript\" src=\"/itemsbrowser/secure/js/SearchEntityPanel.js\"></script>\n");//$NON-NLS-1$
         imports.add("<script type=\"text/javascript\" src=\"/talendmdm/secure/dwr/interface/WidgetInterface.js\"></script>\n");//$NON-NLS-1$
     }
 
@@ -206,7 +207,7 @@ public class Utils {
                 "<script type=\"text/javascript\" src=\"/core/secure/ext.ux/DWRAction.js\"></script>\n" //$NON-NLS-1$
                 + "<script type=\"text/javascript\" src=\"/core/secure/ext.ux/DWRProxy.js\"></script>\n" //$NON-NLS-1$
                 + // "<script type=\"text/javascript\" src=\"/core/secure/ext.ux/DWRProxy.js\"></script>\n"+
-                  // utility class
+                // utility class
                 "<script type=\"text/javascript\" src=\"/core/secure/js/bgutil.js\"></script>\n" //$NON-NLS-1$
                 + // graph class
                 "<script type=\"text/javascript\" src=\"/core/secure/js/raphael-min.js\"></script>\n" //$NON-NLS-1$
@@ -236,21 +237,20 @@ public class Utils {
                     lang.setText(node.getTextContent());
                     String value = node.getAttributes().getNamedItem("value").getNodeValue(); //$NON-NLS-1$
                     lang.setValue(value);
-                    if (value.equals(selectedLang)){
+                    if (value.equals(selectedLang)) {
                         lang.setSelected(true);
-                    }                        
+                    }
                     languages.add(lang);
                 }
             }
         }
-        
-        if(selectedLang == null)
+
+        if (selectedLang == null)
             languages.get(0).setSelected(true);
         return languages;
     }
 
-    public static List<GroupItem> getGroupItems(String language) throws IOException, SAXException,
- ParserConfigurationException {
+    public static List<GroupItem> getGroupItems(String language) throws IOException, SAXException, ParserConfigurationException {
         InputStream is = Utils.class.getResourceAsStream("/MenuGroup.xml"); //$NON-NLS-1$
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
@@ -280,8 +280,8 @@ public class Utils {
                     giNew.setMenuItems(menuItems);
                     giList.add(giNew);
                 }
-                }
             }
+        }
 
         return giList;
     }
