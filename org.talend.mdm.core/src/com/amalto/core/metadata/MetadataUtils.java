@@ -299,13 +299,17 @@ public class MetadataUtils {
     }
 
     /**
-     * Sorts type in inverse order of dependency (topological sort).
+     * Sorts type in inverse order of dependency (topological sort). A dependency to <i>type</i> might be:
+     * <ul>
+     *     <li>FK reference to <i>type</i>.</li>
+     *     <li>Use of type as a super <i>type</i>.</li>
+     * </ul>
      *
      * @param repository The repository that contains types to sort.
      * @return A sorted list of {@link ComplexTypeMetadata} types.
      * @throws IllegalArgumentException If repository contains types that creates a cyclic dependency.
      */
-    public synchronized static List<ComplexTypeMetadata> sortTypes(MetadataRepository repository) {
+    public static List<ComplexTypeMetadata> sortTypes(MetadataRepository repository) {
         Collection<ComplexTypeMetadata> userDefinedTypes = repository.getUserComplexTypes();
         final List<ComplexTypeMetadata> types = new ArrayList<ComplexTypeMetadata>(userDefinedTypes.size() + 1);
 
@@ -318,6 +322,18 @@ public class MetadataUtils {
             byte[] lineValue = new byte[userDefinedTypes.size()];
             dependencyGraph[getId(type, types)] = lineValue;
             type.accept(new DefaultMetadataVisitor<Void>() {
+                @Override
+                public Void visit(ComplexTypeMetadata complexType) {
+                    Collection<TypeMetadata> superTypes = complexType.getSuperTypes();
+                    for (TypeMetadata superType : superTypes) {
+                        if (superType instanceof ComplexTypeMetadata) {
+                            dependencyGraph[getId(type, types)][getId(((ComplexTypeMetadata) superType), types)]++;
+                        }
+                    }
+                    super.visit(complexType);
+                    return null;
+                }
+
                 @Override
                 public Void visit(ReferenceFieldMetadata referenceField) {
                     if (!type.equals(referenceField.getReferencedType()) && referenceField.isFKIntegrity()) { // Don't count a dependency to itself as a dependency.
@@ -367,12 +383,13 @@ public class MetadataUtils {
                 if (column != 0) {
                     int currentLineNumber = lineNumber;
                     List<ComplexTypeMetadata> dependencyPath = new LinkedList<ComplexTypeMetadata>();
+                    // use dependency graph matrix to get cyclic dependency.
                     do {
                         ComplexTypeMetadata type = getType(types, currentLineNumber);
                         if (!dependencyPath.contains(type)) {
                             dependencyPath.add(type);
                         } else {
-                            dependencyPath.add(type);
+                            dependencyPath.add(type); // Include cycle start to get a better exception message.
                             break;
                         }
                         byte[] bytes = dependencyGraph[getId(type, types)];
