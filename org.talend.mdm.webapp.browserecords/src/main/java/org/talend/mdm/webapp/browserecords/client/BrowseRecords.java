@@ -74,6 +74,31 @@ public class BrowseRecords implements EntryPoint {
                 }
                 @org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil::initItemsDetailPanelById(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;Ljava/lang/Boolean;)(fromWhichApp, idstr, entity, new Boolean(false), new Boolean(false));
             };
+    
+            $wnd.amalto.itemsbrowser.ItemsBrowser.lineageItem = function (lineageEntities, ids, dataObject){
+                var tabPanel = $wnd.amalto.core.getTabPanel();
+        
+                var searchEntityPanel = tabPanel.getItem("searchEntityPanel");
+        
+                if (searchEntityPanel) {
+                    tabPanel.remove(searchEntityPanel);
+                    searchEntityPanel.destroy();
+                }
+        
+                searchEntityPanel = new $wnd.amalto.itemsbrowser.SearchEntityPanel({
+                            lineageEntities : lineageEntities,
+                            ids : ids,
+                            dataObject : dataObject,
+                            language : $wnd.language
+                        });
+        
+                tabPanel.add(searchEntityPanel);
+        
+                searchEntityPanel.show();
+                searchEntityPanel.doLayout();
+                searchEntityPanel.doSearchList();
+                $wnd.amalto.core.doLayout();
+            }
     }-*/;
 
     /**

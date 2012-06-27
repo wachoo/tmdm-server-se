@@ -176,7 +176,9 @@ public class Utils {
 
         
     private static void completeThirdPartJS(ArrayList<String> imports) {
-        imports.add("<script type=\"text/javascript\" src=\"/itemsbrowser/secure/js/ImprovedDWRProxy.js\"></script>\n");//$NON-NLS-1$ 
+        imports.add("<script type=\"text/javascript\" src=\"/itemsbrowser/secure/dwr/interface/ItemsBrowserInterface.js\"></script>\n");//$NON-NLS-1$
+        imports.add("<script type=\"text/javascript\" src=\"/itemsbrowser/secure/js/ImprovedDWRProxy.js\"></script>\n");//$NON-NLS-1$
+        imports.add("<script type=\"text/javascript\" src=\"/itemsbrowser/secure/js/SearchEntityPanel.js\"></script>\n");//$NON-NLS-1$ 
         imports.add("<script type=\"text/javascript\" src=\"/talendmdm/secure/dwr/interface/WidgetInterface.js\"></script>\n");//$NON-NLS-1$
     }
 
