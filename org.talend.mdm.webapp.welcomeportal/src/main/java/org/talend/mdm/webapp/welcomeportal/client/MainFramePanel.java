@@ -333,8 +333,10 @@ public class MainFramePanel extends Portal {
                         final String str = list.get(j);
                         String strDesc = list.get(j + 1);
                         HTML processHtml = new HTML();
-                        StringBuilder sb = new StringBuilder(
-                                "<span id=\"processes" + str + "\" style=\"padding-right:8px;cursor: pointer;\">"); //$NON-NLS-1$ //$NON-NLS-2$
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("<span id=\"processes"); //$NON-NLS-1$
+                        sb.append(str);
+                        sb.append("\" style=\"padding-right:8px;cursor: pointer;\">"); //$NON-NLS-1$
                         sb.append("<IMG SRC=\"/talendmdm/secure/img/genericUI/runnable_bullet.png\"/>&nbsp;"); //$NON-NLS-1$
                         sb.append(strDesc.replace("Runnable#", "")); //$NON-NLS-1$ //$NON-NLS-2$
                         sb.append("</span>"); //$NON-NLS-1$
@@ -407,14 +409,15 @@ public class MainFramePanel extends Portal {
                     public void componentSelected(IconButtonEvent ce) {
                         Portlet selectedPortlet = getPortletById(name + "Portlet"); //$NON-NLS-1$
                         if (selectedPortlet != null) {
-                            if (name.equals(WelcomePortal.START))
+                            if (name.equals(WelcomePortal.START)) {
                                 applyStartPortlet(selectedPortlet);
-                            else if (name.equals(WelcomePortal.ALERT))
+                            } else if (name.equals(WelcomePortal.ALERT)) {
                                 applyAlertPortlet(selectedPortlet);
-                            else if (name.equals(WelcomePortal.TASK))
+                            } else if (name.equals(WelcomePortal.TASK)) {
                                 applyTaskPortlet(selectedPortlet);
-                            else if (name.equals(WelcomePortal.PROCESS))
+                            } else if (name.equals(WelcomePortal.PROCESS)) {
                                 applyProcessPortlet(selectedPortlet);
+                            }
                         }
 
                     }
@@ -448,8 +451,9 @@ public class MainFramePanel extends Portal {
 
     private Portlet getPortletById(String itemId) {
         for (LayoutContainer container : this.getItems()) {
-            if (container.getItemByItemId(itemId) != null)
+            if (container.getItemByItemId(itemId) != null) {
                 return (Portlet) container.getItemByItemId(itemId);
+            }
         }
         return null;
     }
