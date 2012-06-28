@@ -37,6 +37,7 @@ amalto.updatereport.UpdateReportLocal=function(){
 				'emptyMsg':'No data to display',
 				'lines_per_page':'Number of lines per page',
 				'displayMsg':'Displaying items {0} - {1} of {2}',
+				'displayMsg~':'Displaying items {0} - {1} of ~{2}',
 				'export':'Export to Excel'
 			};
 
@@ -60,6 +61,7 @@ amalto.updatereport.UpdateReportLocal=function(){
 				'emptyMsg':'Aucune donnée',
 				'lines_per_page':'Nombre de lignes par page',
 				'displayMsg':'Affichage des enregistrements {0} - {1} sur {2}',
+				'displayMsg~':'Affichage des enregistrements {0} - {1} sur ~{2}',
 				'export':'Exporter vers Excel'
 			};
                  
