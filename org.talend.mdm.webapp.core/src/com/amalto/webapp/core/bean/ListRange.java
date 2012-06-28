@@ -13,21 +13,31 @@ public class ListRange implements Serializable {
 
 	private Object[] data;
 
-	private int totalSize;
+    private int totalSize;
 
-	public Object[] getData() {
-		return data;
-	}
+    private boolean isPagingAccurate;
 
-	public void setData(Object[] data) {
-		this.data = data;
-	}
+    public Object[] getData() {
+        return data;
+    }
 
-	public int getTotalSize() {
-		return totalSize;
-	}
+    public void setData(Object[] data) {
+        this.data = data;
+    }
 
-	public void setTotalSize(int totalSize) {
-		this.totalSize = totalSize;
-	}
+    public int getTotalSize() {
+        return totalSize;
+    }
+
+    public void setTotalSize(int totalSize) {
+        this.totalSize = totalSize;
+    }
+
+    public boolean isPagingAccurate() {
+        return isPagingAccurate;
+    }
+
+    public void setPagingAccurate(boolean isPagingAccurate) {
+        this.isPagingAccurate = isPagingAccurate;
+    }
 }

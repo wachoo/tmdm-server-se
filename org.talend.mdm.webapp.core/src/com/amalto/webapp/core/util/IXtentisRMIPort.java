@@ -12,11 +12,25 @@
 // ============================================================================
 package com.amalto.webapp.core.util;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-import java.util.*;
-import java.util.Map.Entry;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 import javax.naming.InitialContext;
 import javax.naming.NameClassPair;
@@ -32,11 +46,6 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
-import com.amalto.core.save.SaveException;
-import com.amalto.core.save.SaverHelper;
-import com.amalto.core.save.SaverSession;
-import com.amalto.core.save.context.BeforeSaving;
-import com.amalto.core.save.context.DocumentSaver;
 import org.apache.log4j.Logger;
 import org.jboss.security.Base64Encoder;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
@@ -86,6 +95,11 @@ import com.amalto.core.objects.transformers.v2.util.TransformerCallBack;
 import com.amalto.core.objects.transformers.v2.util.TransformerContext;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
+import com.amalto.core.save.SaveException;
+import com.amalto.core.save.SaverHelper;
+import com.amalto.core.save.SaverSession;
+import com.amalto.core.save.context.BeforeSaving;
+import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.Version;
@@ -2464,5 +2478,22 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             }
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
+    }
+
+    public WSBoolean isPagingAccurate(WSInt currentTotalSize) throws RemoteException {
+        List<String> noSupportAccurateDbs = Arrays.asList("qizx");//$NON-NLS-1$
+        Properties props = MDMConfiguration.getConfiguration();
+        String dbName = props.getProperty("xmldb.type");//$NON-NLS-1$
+        WSBoolean result = new WSBoolean(true);
+        if (noSupportAccurateDbs.contains(dbName)) {
+            String ecountsamplesize = props.getProperty("xmldb.qizx.ecountsamplesize"); //$NON-NLS-1$
+            if (ecountsamplesize != null && ecountsamplesize.trim().length() > 0) {
+                int size = Integer.parseInt(ecountsamplesize);
+                if (currentTotalSize.getValue() > size) {
+                    result.set_true(false);
+                }
+            }
+        }
+        return result;
     }
 }
