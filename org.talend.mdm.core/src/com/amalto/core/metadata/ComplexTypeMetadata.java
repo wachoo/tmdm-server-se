@@ -11,6 +11,7 @@
 
 package com.amalto.core.metadata;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -85,6 +86,16 @@ public interface ComplexTypeMetadata extends TypeMetadata {
      * @return <code>true</code> if type has a field named <code>fieldName</code>, <code>false</code> otherwise.
      */
     boolean hasField(String fieldName);
+
+    /**
+     * @return A collection of {@link ComplexTypeMetadata} that inherits from this type.
+     */
+    Collection<ComplexTypeMetadata> getSubTypes();
+
+    /**
+     * Registers a {@link ComplexTypeMetadata} type as a sub type of this type.
+     */
+    void registerSubType(ComplexTypeMetadata type);
 
     enum DeleteType {
         /**

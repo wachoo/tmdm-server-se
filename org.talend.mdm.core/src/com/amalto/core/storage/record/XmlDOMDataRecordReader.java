@@ -11,10 +11,7 @@
 
 package com.amalto.core.storage.record;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.ContainedComplexTypeMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.metadata.*;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
@@ -23,12 +20,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
+// TODO Support inheritance (TMDM-57)
 public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
 
     public XmlDOMDataRecordReader() {
     }
 
-    public DataRecord read(String dataClusterName, long revisionId, ComplexTypeMetadata type, Element element) {
+    public DataRecord read(String dataClusterName, long revisionId, MetadataRepository repository, ComplexTypeMetadata type, Element element) {
         long lastModificationTime = 0;
         String taskId = null;
 
@@ -78,7 +76,7 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
             } else if (currentChild instanceof Text && !tagName.equals(type.getName())) {
                 FieldMetadata field = type.getField(tagName);
                 String textContent = element.getFirstChild().getNodeValue();
-                dataRecord.set(field, MetadataUtils.convert(textContent, field));
+                dataRecord.set(field, MetadataUtils.convert(textContent, field, type));
             }
         }
     }

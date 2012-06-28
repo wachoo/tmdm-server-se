@@ -29,25 +29,45 @@
             <xsd:field xpath="id"/>
         </xsd:unique>
     </xsd:element>
-    <xsd:complexType name="B">
-        <xsd:all>
-            <xsd:element name="id" type="xsd:string"/>
-        </xsd:all>
-    </xsd:complexType>
-    <xsd:complexType name="C">
-        <xsd:complexContent>
-            <xsd:extension base="A">
-            </xsd:extension>
-        </xsd:complexContent>
-    </xsd:complexType>
+    <xsd:element name="D" type="D">
+        <xsd:unique name="D">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="id"/>
+        </xsd:unique>
+    </xsd:element>
     <xsd:complexType name="A">
         <xsd:all>
             <xsd:element maxOccurs="1" minOccurs="1" name="id" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="1" name="textA" type="xsd:string"/>
             <xsd:element maxOccurs="1" minOccurs="1" name="refB" type="xsd:string">
                 <xsd:annotation>
                     <xsd:appinfo source="X_ForeignKey">B/id</xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
         </xsd:all>
+    </xsd:complexType>
+    <xsd:complexType name="B">
+        <xsd:all>
+            <xsd:element name="id" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="1" name="textB" type="xsd:string"/>
+        </xsd:all>
+    </xsd:complexType>
+    <xsd:complexType name="C">
+        <xsd:complexContent>
+            <xsd:extension base="A">
+                <xsd:all>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="textC" type="xsd:string"/>
+                </xsd:all>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="D">
+        <xsd:complexContent>
+            <xsd:extension base="B">
+                <xsd:all>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="textD" type="xsd:string"/>
+                </xsd:all>
+            </xsd:extension>
+        </xsd:complexContent>
     </xsd:complexType>
 </xsd:schema>

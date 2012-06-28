@@ -12,17 +12,12 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.ContainedTypeFieldMetadata;
 import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.ReferenceFieldMetadata;
 import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
-import org.apache.commons.lang.NotImplementedException;
 import org.hibernate.Session;
 
-import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents type mapping between data model as specified by the user and data model as used by hibernate storage.
@@ -74,6 +69,7 @@ public abstract class TypeMapping {
 
     public void freeze() {
         if (!isFrozen) {
+            // Ensure mapped type are frozen.
             try {
                 database.freeze();
             } catch (Exception e) {
@@ -84,6 +80,19 @@ public abstract class TypeMapping {
             } catch (Exception e) {
                 throw new RuntimeException("Could not process user type '" + user.getName() + "'.", e);
             }
+
+            // Freeze field mappings.
+            Map<FieldMetadata, FieldMetadata> frozen = new HashMap<FieldMetadata, FieldMetadata>();
+            for (Map.Entry<FieldMetadata, FieldMetadata> entry : userToDatabase.entrySet()) {
+                frozen.put(entry.getKey().freeze(), entry.getValue().freeze());
+            }
+            userToDatabase = frozen;
+            frozen = new HashMap<FieldMetadata, FieldMetadata>();
+            for (Map.Entry<FieldMetadata, FieldMetadata> entry : databaseToUser.entrySet()) {
+                frozen.put(entry.getKey().freeze(), entry.getValue().freeze());
+            }
+            databaseToUser = frozen;
+
             isFrozen = true;
         }
     }

@@ -113,6 +113,10 @@ public class MetadataUtils {
      *                          not match field's type.
      */
     public static Object convert(String dataAsString, FieldMetadata field) {
+        return convert(dataAsString, field, field.getType());
+    }
+
+    public static Object convert(String dataAsString, FieldMetadata field, TypeMetadata actualType) {
         if (field instanceof ReferenceFieldMetadata) {
             char[] chars = dataAsString.toCharArray();
             List<String> ids = new LinkedList<String>();
@@ -137,108 +141,111 @@ public class MetadataUtils {
             if (ids.isEmpty()) {
                 throw new IllegalArgumentException("Id '" + dataAsString + "' does not match expected format (no id found).");
             }
+            if (!(actualType instanceof ComplexTypeMetadata)) {
+                throw new IllegalArgumentException("Type '" + actualType.getName() + "' was expected to be an entity type.");
+            }
 
-            ReferenceFieldMetadata referenceField = (ReferenceFieldMetadata) field;
-            DataRecord referencedRecord = new DataRecord(referenceField.getReferencedType(), UnsupportedDataRecordMetadata.INSTANCE);
-            Iterator<FieldMetadata> keyIterator = referenceField.getReferencedType().getKeyFields().iterator();
+            ComplexTypeMetadata actualComplexType = (ComplexTypeMetadata) actualType;
+            DataRecord referencedRecord = new DataRecord(actualComplexType, UnsupportedDataRecordMetadata.INSTANCE);
+            Iterator<FieldMetadata> keyIterator = actualComplexType.getKeyFields().iterator();
             for (String id : ids) {
                 FieldMetadata nextKey = keyIterator.next();
                 referencedRecord.set(nextKey, convert(id, nextKey));
             }
             return referencedRecord;
         } else {
-            return createSimpleValue(dataAsString, field);
+            String xmlData = dataAsString;
+            if (xmlData == null) {
+                return null;
+            }
+            xmlData = xmlData.trim();
+            if (xmlData.trim().isEmpty()) { // Empty string is considered as null value
+                return null;
+            }
+
+            TypeMetadata type = field.getType();
+            if (!(field instanceof ContainedTypeFieldMetadata)) {  // Contained (anonymous types) values can't have values
+                return convert(xmlData, type);
+            } else {
+                return null;
+            }
         }
     }
 
-    // Internal method for type instantiation.
-    private static Object createSimpleValue(String xmlData, FieldMetadata field) {
-        if (xmlData == null) {
-            return null;
-        }
-        xmlData = xmlData.trim();
-        if (xmlData.trim().isEmpty()) { // Empty string is considered as null value
-            return null;
-        }
-
-        TypeMetadata type = field.getType();
+    public static Object convert(String dataAsString, TypeMetadata type) {
         // Move up the inheritance tree to find the "most generic" type (used when simple types inherits from XSD types,
         // in this case, the XSD type is interesting, not the custom one).
         while (!type.getSuperTypes().isEmpty()) {
             type = type.getSuperTypes().iterator().next();
         }
 
-        if (!(field instanceof ContainedTypeFieldMetadata)) { // Don't set contained (anonymous types) values
-            if ("string".equals(type.getName())) { //$NON-NLS-1$
-                return xmlData;
-            } else if ("integer".equals(type.getName()) //$NON-NLS-1$
-                    || "positiveInteger".equals(type.getName()) //$NON-NLS-1$
-                    || "negativeInteger".equals(type.getName()) //$NON-NLS-1$
-                    || "nonNegativeInteger".equals(type.getName()) //$NON-NLS-1$
-                    || "nonPositiveInteger".equals(type.getName()) //$NON-NLS-1$
-                    || "int".equals(type.getName()) //$NON-NLS-1$
-                    || "unsignedInt".equals(type.getName())) { //$NON-NLS-1$
-                return Integer.parseInt(xmlData);
-            } else if ("date".equals(type.getName())) { //$NON-NLS-1$
-                // Be careful here: DateFormat is not thread safe
-                synchronized (DateConstant.DATE_FORMAT) {
-                    try {
-                        DateFormat dateFormat = DateConstant.DATE_FORMAT;
-                        Date date = dateFormat.parse(xmlData);
-                        return new Timestamp(date.getTime());
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
+        if ("string".equals(type.getName())) { //$NON-NLS-1$
+            return dataAsString;
+        } else if ("integer".equals(type.getName()) //$NON-NLS-1$
+                || "positiveInteger".equals(type.getName()) //$NON-NLS-1$
+                || "negativeInteger".equals(type.getName()) //$NON-NLS-1$
+                || "nonNegativeInteger".equals(type.getName()) //$NON-NLS-1$
+                || "nonPositiveInteger".equals(type.getName()) //$NON-NLS-1$
+                || "int".equals(type.getName()) //$NON-NLS-1$
+                || "unsignedInt".equals(type.getName())) { //$NON-NLS-1$
+            return Integer.parseInt(dataAsString);
+        } else if ("date".equals(type.getName())) { //$NON-NLS-1$
+            // Be careful here: DateFormat is not thread safe
+            synchronized (DateConstant.DATE_FORMAT) {
+                try {
+                    DateFormat dateFormat = DateConstant.DATE_FORMAT;
+                    Date date = dateFormat.parse(dataAsString);
+                    return new Timestamp(date.getTime());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
-            } else if ("dateTime".equals(type.getName())) { //$NON-NLS-1$
-                // Be careful here: DateFormat is not thread safe
-                synchronized (DateTimeConstant.DATE_FORMAT) {
-                    try {
-                        DateFormat dateFormat = DateTimeConstant.DATE_FORMAT;
-                        Date date = dateFormat.parse(xmlData);
-                        return new Timestamp(date.getTime());
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
+            }
+        } else if ("dateTime".equals(type.getName())) { //$NON-NLS-1$
+            // Be careful here: DateFormat is not thread safe
+            synchronized (DateTimeConstant.DATE_FORMAT) {
+                try {
+                    DateFormat dateFormat = DateTimeConstant.DATE_FORMAT;
+                    Date date = dateFormat.parse(dataAsString);
+                    return new Timestamp(date.getTime());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
-            } else if ("boolean".equals(type.getName())) { //$NON-NLS-1$
-                return Boolean.parseBoolean(xmlData);
-            } else if ("decimal".equals(type.getName())) { //$NON-NLS-1$
-                return new BigDecimal(xmlData);
-            } else if ("float".equals(type.getName())) { //$NON-NLS-1$
-                return Float.parseFloat(xmlData);
-            } else if ("long".equals(type.getName()) || "unsignedLong".equals(type.getName())) { //$NON-NLS-1$ //$NON-NLS-2$
-                return Long.parseLong(xmlData);
-            } else if ("anyURI".equals(type.getName())) { //$NON-NLS-1$
-                return xmlData;
-            } else if ("short".equals(type.getName()) || "unsignedShort".equals(type.getName())) { //$NON-NLS-1$ //$NON-NLS-2$
-                return Short.parseShort(xmlData);
-            } else if ("QName".equals(type.getName())) { //$NON-NLS-1$
-                return xmlData;
-            } else if ("base64Binary".equals(type.getName())) { //$NON-NLS-1$
-                return xmlData;
-            } else if ("hexBinary".equals(type.getName())) { //$NON-NLS-1$
-                return xmlData;
-            } else if ("byte".equals(type.getName()) || "unsignedByte".equals(type.getName())) { //$NON-NLS-1$ //$NON-NLS-2$
-                return Byte.parseByte(xmlData);
-            } else if ("double".equals(type.getName()) || "unsignedDouble".equals(type.getName())) { //$NON-NLS-1$ //$NON-NLS-2$
-                return Double.parseDouble(xmlData);
-            } else if ("duration".equals(type.getName()) || "time".equals(type.getName())) { //$NON-NLS-1$ //$NON-NLS-2$
-                // Be careful here: DateFormat is not thread safe
-                synchronized (TimeConstant.TIME_FORMAT) {
-                    try {
-                        DateFormat dateFormat = TimeConstant.TIME_FORMAT;
-                        Date date = dateFormat.parse(xmlData);
-                        return new Timestamp(date.getTime());
-                    } catch (ParseException e) {
-                        throw new RuntimeException(e);
-                    }
+            }
+        } else if ("boolean".equals(type.getName())) { //$NON-NLS-1$
+            return Boolean.parseBoolean(dataAsString);
+        } else if ("decimal".equals(type.getName())) { //$NON-NLS-1$
+            return new BigDecimal(dataAsString);
+        } else if ("float".equals(type.getName())) { //$NON-NLS-1$
+            return Float.parseFloat(dataAsString);
+        } else if ("long".equals(type.getName()) || "unsignedLong".equals(type.getName())) { //$NON-NLS-1$ //$NON-NLS-2$
+            return Long.parseLong(dataAsString);
+        } else if ("anyURI".equals(type.getName())) { //$NON-NLS-1$
+            return dataAsString;
+        } else if ("short".equals(type.getName()) || "unsignedShort".equals(type.getName())) { //$NON-NLS-1$ //$NON-NLS-2$
+            return Short.parseShort(dataAsString);
+        } else if ("QName".equals(type.getName())) { //$NON-NLS-1$
+            return dataAsString;
+        } else if ("base64Binary".equals(type.getName())) { //$NON-NLS-1$
+            return dataAsString;
+        } else if ("hexBinary".equals(type.getName())) { //$NON-NLS-1$
+            return dataAsString;
+        } else if ("byte".equals(type.getName()) || "unsignedByte".equals(type.getName())) { //$NON-NLS-1$ //$NON-NLS-2$
+            return Byte.parseByte(dataAsString);
+        } else if ("double".equals(type.getName()) || "unsignedDouble".equals(type.getName())) { //$NON-NLS-1$ //$NON-NLS-2$
+            return Double.parseDouble(dataAsString);
+        } else if ("duration".equals(type.getName()) || "time".equals(type.getName())) { //$NON-NLS-1$ //$NON-NLS-2$
+            // Be careful here: DateFormat is not thread safe
+            synchronized (TimeConstant.TIME_FORMAT) {
+                try {
+                    DateFormat dateFormat = TimeConstant.TIME_FORMAT;
+                    Date date = dateFormat.parse(dataAsString);
+                    return new Timestamp(date.getTime());
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
                 }
-            } else {
-                throw new NotImplementedException("No support for type '" + type.getName() + "'");
             }
         } else {
-            return null;
+            throw new NotImplementedException("No support for type '" + type.getName() + "'");
         }
     }
 
@@ -299,15 +306,25 @@ public class MetadataUtils {
     }
 
     /**
+     * <p>
      * Sorts type in inverse order of dependency (topological sort). A dependency to <i>type</i> might be:
      * <ul>
-     *     <li>FK reference to <i>type</i>.</li>
-     *     <li>Use of type as a super <i>type</i>.</li>
+     * <li>FK reference to <i>type</i> (sub types of <i>type</i> are all included as a dependency).</li>
+     * <li>Use of <i>type</i> as a super type.</li>
      * </ul>
+     * This method runs in linear time <i>O(n+p)</i> (<i>n</i> number of types and <i>p</i> number of dependencies
+     * between types). This method uses <i>n²</i> bytes in memory for processing (<i>n</i> still being the number of types
+     * in <code>repository</code>).
+     * </p>
+     * <p>
+     * This method is thread safe.
+     * </p>
      *
      * @param repository The repository that contains types to sort.
-     * @return A sorted list of {@link ComplexTypeMetadata} types.
-     * @throws IllegalArgumentException If repository contains types that creates a cyclic dependency.
+     * @return A sorted list of {@link ComplexTypeMetadata} types. First type of list is a type that has no dependency on
+     *         any other type of the list.
+     * @throws IllegalArgumentException If repository contains types that creates a cyclic dependency. Error message contains
+     *                                  information on where the cycle is.
      */
     public static List<ComplexTypeMetadata> sortTypes(MetadataRepository repository) {
         Collection<ComplexTypeMetadata> userDefinedTypes = repository.getUserComplexTypes();
@@ -316,7 +333,6 @@ public class MetadataUtils {
         /*
         * Compute additional data for topological sorting
         */
-        // TODO This use n² in memory... which isn't so good
         final byte[][] dependencyGraph = new byte[userDefinedTypes.size()][userDefinedTypes.size()];
         for (final ComplexTypeMetadata type : userDefinedTypes) {
             byte[] lineValue = new byte[userDefinedTypes.size()];
@@ -336,8 +352,13 @@ public class MetadataUtils {
 
                 @Override
                 public Void visit(ReferenceFieldMetadata referenceField) {
-                    if (!type.equals(referenceField.getReferencedType()) && referenceField.isFKIntegrity()) { // Don't count a dependency to itself as a dependency.
-                        dependencyGraph[getId(type, types)][getId(referenceField.getReferencedType(), types)]++;
+                    ComplexTypeMetadata referencedType = referenceField.getReferencedType();
+                    if (!type.equals(referencedType) && referenceField.isFKIntegrity()) { // Don't count a dependency to itself as a dependency.
+                        dependencyGraph[getId(type, types)][getId(referencedType, types)]++;
+                        // Implicitly include reference to sub types of referenced type.
+                        for (ComplexTypeMetadata subType : referencedType.getSubTypes()) {
+                            dependencyGraph[getId(type, types)][getId(subType, types)]++;
+                        }
                     }
                     return null;
                 }
@@ -380,7 +401,7 @@ public class MetadataUtils {
         lineNumber = 0;
         for (byte[] line : dependencyGraph) {
             for (int column : line) {
-                if (column != 0) {
+                if (column != 0) { // unresolved dependency (means there is a cycle somewhere).
                     int currentLineNumber = lineNumber;
                     List<ComplexTypeMetadata> dependencyPath = new LinkedList<ComplexTypeMetadata>();
                     // use dependency graph matrix to get cyclic dependency.
@@ -409,7 +430,7 @@ public class MetadataUtils {
                             pathAsString.append(" -> ");
                         }
                     }
-                    throw new IllegalArgumentException("Data model has at least one circular dependency (Hint: " +  pathAsString + ")");
+                    throw new IllegalArgumentException("Data model has at least one circular dependency (Hint: " + pathAsString + ")");
                 }
             }
             lineNumber++;

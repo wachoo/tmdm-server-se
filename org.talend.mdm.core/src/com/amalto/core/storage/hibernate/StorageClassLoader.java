@@ -60,7 +60,7 @@ class StorageClassLoader extends ClassLoader {
 
     private static final XPath pathFactory = XPathFactory.newInstance().newXPath();
 
-    private final Map<String, Class> registeredClasses = new TreeMap<String, Class>();
+    private final Map<String, Class<? extends Wrapper>> registeredClasses = new TreeMap<String, Class<? extends Wrapper>>();
 
     private final Map<String, ComplexTypeMetadata> knownTypes = new HashMap<String, ComplexTypeMetadata>();
 
@@ -142,7 +142,14 @@ class StorageClassLoader extends ClassLoader {
 
     public ComplexTypeMetadata getTypeFromClass(Class<?> clazz) {
         assertNotClosed();
-        for (Map.Entry<String, Class> typeMetadata : registeredClasses.entrySet()) {
+        // First pass: strict class name equality (don't use isAssignable).
+        for (Map.Entry<String, Class<? extends Wrapper>> typeMetadata : registeredClasses.entrySet()) {
+            if (typeMetadata.getValue().getName().equals(clazz.getName())) {
+                return knownTypes.get(typeMetadata.getKey());
+            }
+        }
+        // In case first pass didn't find anything, try isAssignable.
+        for (Map.Entry<String, Class<? extends Wrapper>> typeMetadata : registeredClasses.entrySet()) {
             if (typeMetadata.getValue().isAssignableFrom(clazz)) {
                 return knownTypes.get(typeMetadata.getKey());
             }
@@ -152,20 +159,20 @@ class StorageClassLoader extends ClassLoader {
 
     public Class<? extends Wrapper> getClassFromType(ComplexTypeMetadata type) {
         assertNotClosed();
-        Class registeredClass = registeredClasses.get(type.getName());
+        Class<? extends Wrapper> registeredClass = registeredClasses.get(type.getName());
         if (registeredClass != null) {
             return registeredClass;
         }
         throw new IllegalArgumentException("Type '" + type.getName() + "' is not registered.");
     }
 
-    public void register(ComplexTypeMetadata metadata, Class newClass) {
+    public void register(ComplexTypeMetadata metadata, Class<? extends Wrapper> newClass) {
         assertNotClosed();
         knownTypes.put(metadata.getName(), metadata);
         register(metadata.getName(), newClass);
     }
 
-    public void register(String typeName, Class newClass) {
+    public void register(String typeName, Class<? extends Wrapper> newClass) {
         assertNotClosed();
         registeredClasses.put(typeName, newClass);
     }
@@ -180,11 +187,13 @@ class StorageClassLoader extends ClassLoader {
             Document document = documentBuilder.parse(this.getClass().getResourceAsStream(HIBERNATE_MAPPING_TEMPLATE));
 
             MappingGenerator mappingGenerator = getMappingGenerator(document, resolver);
-            for (Map.Entry<String, Class> classNameToClass : registeredClasses.entrySet()) {
+            for (Map.Entry<String, Class<? extends Wrapper>> classNameToClass : registeredClasses.entrySet()) {
                 ComplexTypeMetadata typeMetadata = knownTypes.get(classNameToClass.getKey());
                 if (typeMetadata != null) {
                     Element classElement = typeMetadata.accept(mappingGenerator);
-                    document.getDocumentElement().appendChild(classElement);
+                    if (classElement != null) { // Class element might be null if mapping is not applicable for this type
+                        document.getDocumentElement().appendChild(classElement);
+                    }
                 }
             }
 

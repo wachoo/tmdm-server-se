@@ -34,8 +34,8 @@ public class StorageRecordCreationTest extends StorageTestCase {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
 
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
-        allRecords.add(factory.read("MDM", 1, country, "<Country><id>1000</id><name>France</name><creationDate>2010-05-10</creationDate><creationTime>2010-05-10T00:00:00</creationTime></Country>"));
-        allRecords.add(factory.read("MDM", 1, address, "<Address><Id>1000</Id><Street>Street1</Street><country>[1000]</country><ZipCode>10000</ZipCode><City>City1</City><enterprise>false</enterprise></Address>"));
+        allRecords.add(factory.read("MDM", 1, repository, country, "<Country><id>1000</id><name>France</name><creationDate>2010-05-10</creationDate><creationTime>2010-05-10T00:00:00</creationTime></Country>"));
+        allRecords.add(factory.read("MDM", 1, repository, address, "<Address><Id>1000</Id><Street>Street1</Street><country>[1000]</country><ZipCode>10000</ZipCode><City>City1</City><enterprise>false</enterprise></Address>"));
 
         try {
             storage.begin();
@@ -83,7 +83,7 @@ public class StorageRecordCreationTest extends StorageTestCase {
         }
 
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
-        DataRecord record = factory.read("MDM", 1, person, "<Person><id>1001</id><lastname>Dupond</lastname><middlename>David</middlename><firstname>Julien</firstname><age>10</age><score>10</score><addresses><address>[1000][false]</address></addresses><age>10</age><Status>Employee</Status></Person>");
+        DataRecord record = factory.read("MDM", 1, repository, person, "<Person><id>1001</id><lastname>Dupond</lastname><middlename>David</middlename><firstname>Julien</firstname><age>10</age><score>10</score><addresses><address>[1000][false]</address></addresses><age>10</age><Status>Employee</Status></Person>");
         storage.begin();
         try {
             storage.update(Collections.singletonList(record));
@@ -111,7 +111,7 @@ public class StorageRecordCreationTest extends StorageTestCase {
         }
 
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
-        DataRecord record = factory.read("MDM", 1, person, "<Person><id>1002</id><lastname>Dupond</lastname><middlename>David</middlename><firstname>Julien</firstname><age>10</age><score>10</score><addresses><address>[900][true]</address></addresses><age>10</age><Status>Employee</Status></Person>");
+        DataRecord record = factory.read("MDM", 1, repository, person, "<Person><id>1002</id><lastname>Dupond</lastname><middlename>David</middlename><firstname>Julien</firstname><age>10</age><score>10</score><addresses><address>[900][true]</address></addresses><age>10</age><Status>Employee</Status></Person>");
         storage.begin();
         storage.update(Collections.singletonList(record));
         try {
@@ -152,8 +152,8 @@ public class StorageRecordCreationTest extends StorageTestCase {
         }
 
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
-        DataRecord fail = factory.read("MDM", 1, person, "<Person><id>1002</id><lastname>Dupond</lastname><middlename>David</middlename><firstname>Julien</firstname><age>10</age><score>10</score><addresses><address>[900][false]</address></addresses><age>10</age><Status>Employee</Status></Person>");
-        DataRecord success = factory.read("MDM", 1, person, "<Person><id>1003</id><lastname>Dupond</lastname><middlename>David</middlename><firstname>Julien</firstname><age>10</age><score>10</score><addresses><address>[1000][true]</address></addresses><age>10</age><Status>Employee</Status></Person>");
+        DataRecord fail = factory.read("MDM", 1, repository, person, "<Person><id>1002</id><lastname>Dupond</lastname><middlename>David</middlename><firstname>Julien</firstname><age>10</age><score>10</score><addresses><address>[900][false]</address></addresses><age>10</age><Status>Employee</Status></Person>");
+        DataRecord success = factory.read("MDM", 1, repository, person, "<Person><id>1003</id><lastname>Dupond</lastname><middlename>David</middlename><firstname>Julien</firstname><age>10</age><score>10</score><addresses><address>[1000][true]</address></addresses><age>10</age><Status>Employee</Status></Person>");
         List<DataRecord> records = new LinkedList<DataRecord>();
         records.add(fail);
         records.add(success);
@@ -188,7 +188,7 @@ public class StorageRecordCreationTest extends StorageTestCase {
         ComplexTypeMetadata type = repository.getComplexType("EntityWithQuiteALongNameWithoutIncludingAnyUnderscore");
 
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
-        DataRecord record = factory.read("MDM", 1, type, "<EntityWithQuiteALongNameWithoutIncludingAnyUnderscore><Id>1003</Id></EntityWithQuiteALongNameWithoutIncludingAnyUnderscore>");
+        DataRecord record = factory.read("MDM", 1, repository, type, "<EntityWithQuiteALongNameWithoutIncludingAnyUnderscore><Id>1003</Id></EntityWithQuiteALongNameWithoutIncludingAnyUnderscore>");
         storage.begin();
         storage.update(record);
         storage.commit();

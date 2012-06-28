@@ -12,16 +12,14 @@
 package com.amalto.core.storage.record;
 
 import com.amalto.core.load.io.ResettableStringWriter;
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.ContainedTypeFieldMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.metadata.*;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.xml.sax.*;
 
 import java.util.Stack;
 
+// TODO Support inheritance (TMDM-57)
 public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecordReader.Input> {
 
     public static class Input {
@@ -34,7 +32,7 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
         }
     }
 
-    public DataRecord read(String dataClusterName, long revisionId, ComplexTypeMetadata type, Input input) {
+    public DataRecord read(String dataClusterName, long revisionId, MetadataRepository repository, ComplexTypeMetadata type, Input input) {
         try {
             InputSource inputSource = input.input;
             XMLReader xmlReader = input.reader;
@@ -127,7 +125,7 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
             String value = charactersBuffer.reset();
             if (hasMetUserElement && field != null) {
                 if (!value.isEmpty()) {
-                    dataRecordStack.peek().set(field, value.isEmpty() ? null : MetadataUtils.convert(value, field));
+                    dataRecordStack.peek().set(field, value.isEmpty() ? null : MetadataUtils.convert(value, field, currentType.peek()));
                 }
             } else {
                 if (isReadingTimestamp) {

@@ -146,7 +146,8 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         String typeName = getTypeName(uniqueID);
         long start = System.currentTimeMillis();
         {
-            DataRecord record = xmlStringReader.read(clusterName, parseRevisionId(revisionID), metadataRepositoryAdmin.get(clusterName).getComplexType(typeName), xmlString);
+            MetadataRepository repository = metadataRepositoryAdmin.get(clusterName);
+            DataRecord record = xmlStringReader.read(clusterName, parseRevisionId(revisionID), repository, repository.getComplexType(typeName), xmlString);
 
             Storage storage = storageAdmin.get(clusterName);
             try {
@@ -163,7 +164,8 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         long start = System.currentTimeMillis();
         {
             DataRecordReader<Element> reader = new XmlDOMDataRecordReader();
-            DataRecord record = reader.read(clusterName, parseRevisionId(revisionID), metadataRepositoryAdmin.get(clusterName).getComplexType(typeName), root);
+            MetadataRepository repository = metadataRepositoryAdmin.get(clusterName);
+            DataRecord record = reader.read(clusterName, parseRevisionId(revisionID), repository, repository.getComplexType(typeName), root);
             storageAdmin.get(clusterName).update(record);
         }
         return System.currentTimeMillis() - start;
@@ -184,7 +186,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             DataRecordReader<XmlSAXDataRecordReader.Input> reader = new XmlSAXDataRecordReader();
             XmlSAXDataRecordReader.Input readerInput = new XmlSAXDataRecordReader.Input(docReader, input);
             MetadataRepository repository = metadataRepositoryAdmin.get(dataClusterName);
-            DataRecord record = reader.read(dataClusterName, parseRevisionId(revisionId), repository.getComplexType(typeName), readerInput);
+            DataRecord record = reader.read(dataClusterName, parseRevisionId(revisionId), repository, repository.getComplexType(typeName), readerInput);
             Storage storage = storageAdmin.get(dataClusterName);
             if (storage == null) {
                 throw new XmlServerException("Data cluster '" + dataClusterName + "' does not exist.");

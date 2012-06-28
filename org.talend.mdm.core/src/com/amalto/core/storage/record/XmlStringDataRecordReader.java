@@ -16,12 +16,10 @@ import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.events.Characters;
-import javax.xml.stream.events.EndElement;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
+import javax.xml.stream.events.*;
 import java.io.StringReader;
 import java.util.Stack;
 
@@ -38,10 +36,10 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
         xmlInputFactory = XMLInputFactory.newInstance();
         xmlInputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
         xmlInputFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
-        xmlInputFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.FALSE);
+        xmlInputFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.TRUE);
     }
 
-    public DataRecord read(String dataClusterName, long revisionId, ComplexTypeMetadata type, String input) {
+    public DataRecord read(String dataClusterName, long revisionId, MetadataRepository repository, ComplexTypeMetadata type, String input) {
         if (type == null) {
             throw new IllegalArgumentException("Type can not be null");
         }
@@ -116,6 +114,14 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                         }
                         field = ((ComplexTypeMetadata) typeMetadata).getField(startElement.getName().getLocalPart());
                         TypeMetadata fieldType = field.getType();
+                        if (field instanceof ReferenceFieldMetadata) {
+                            Attribute actualType = startElement.getAttributeByName(new QName("http://www.talend.com/mdm", "type"));
+                            if (actualType != null) {
+                                fieldType = repository.getComplexType(actualType.getValue());
+                            } else {
+                                fieldType = ((ReferenceFieldMetadata) field).getReferencedType();
+                            }
+                        }
                         if (fieldType instanceof ContainedComplexTypeMetadata) {
                             DataRecord containedDataRecord = new DataRecord((ComplexTypeMetadata) fieldType, UnsupportedDataRecordMetadata.INSTANCE);
                             dataRecords.peek().set(field, containedDataRecord);
@@ -126,7 +132,7 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                     level++;
                 } else if (xmlEvent.isCharacters()) {
                     if (level >= userXmlPayloadLevel && field != null) {
-                        Object value = MetadataUtils.convert(xmlEvent.asCharacters().getData(), field);
+                        Object value = MetadataUtils.convert(xmlEvent.asCharacters().getData(), field, currentType.peek());
                         if (value != null) {
                             dataRecords.peek().set(field, value);
                         }

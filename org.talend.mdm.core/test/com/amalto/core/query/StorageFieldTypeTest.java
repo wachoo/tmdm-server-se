@@ -64,7 +64,7 @@ public class StorageFieldTypeTest extends StorageTestCase {
         }
 
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
-        allRecords.add(factory.read("MDM", 1, type, builder.toString()));
+        allRecords.add(factory.read("MDM", 1, repository, type, builder.toString()));
 
         try {
             storage.begin();

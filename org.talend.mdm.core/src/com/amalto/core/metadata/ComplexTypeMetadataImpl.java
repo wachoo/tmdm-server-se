@@ -43,6 +43,8 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
 
     private final List<String> physicalDelete;
 
+    private final Collection<ComplexTypeMetadata> subTypes = new HashSet<ComplexTypeMetadata>();
+
     private MetadataRepository repository;
 
     private boolean isFrozen;
@@ -241,6 +243,14 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
         return fieldMetadata.containsKey(fieldName);
     }
 
+    public Collection<ComplexTypeMetadata> getSubTypes() {
+        return subTypes;
+    }
+
+    public void registerSubType(ComplexTypeMetadata type) {
+        subTypes.add(type);
+    }
+
     public TypeMetadata freeze() {
         if (isFrozen) {
             return this;
@@ -256,6 +266,7 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
                 superType = superType.freeze();
                 superTypes.add(superType);
                 if (superType instanceof ComplexTypeMetadata) {
+                    ((ComplexTypeMetadata) superType).registerSubType(this);
                     List<FieldMetadata> superTypeFields = ((ComplexTypeMetadata) superType).getFields();
                     for (FieldMetadata superTypeField : superTypeFields) {
                         superTypeField.adopt(this, repository);
@@ -291,5 +302,12 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
         if (!(o instanceof ComplexTypeMetadata)) return false;
         ComplexTypeMetadata that = (ComplexTypeMetadata) o;
         return that.getName().equals(name) && that.getNamespace().equals(nameSpace);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name.hashCode();
+        result = 31 * result + nameSpace.hashCode();
+        return result;
     }
 }

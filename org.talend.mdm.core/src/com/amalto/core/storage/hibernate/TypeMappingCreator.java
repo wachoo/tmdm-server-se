@@ -63,8 +63,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
             newFlattenField = new ReferenceFieldMetadata(database, referenceField.isKey(), referenceField.isMany(), referenceField.isMandatory(), name, referencedType, referencedField, foreignKeyInfoField, referenceField.isFKIntegrity(), referenceField.allowFKIntegrityOverride(), referenceField.getWriteUsers(), referenceField.getHideUsers());
             database.addField(newFlattenField);
         } else {
-            ComplexTypeMetadata database = mappings.getMapping(referenceField.getDeclaringType()).getDatabase();
-            newFlattenField = database.getField(getColumnName(referenceField, true));
+            newFlattenField = new SoftFieldRef(internalRepository, getColumnName(referenceField, true), referenceField.getContainingType());
         }
         typeMapping.map(referenceField, newFlattenField);
         return typeMapping;
@@ -98,8 +97,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
             newFlattenField = new SimpleTypeFieldMetadata(database, isKey, simpleField.isMany(), simpleField.isMandatory(), getColumnName(simpleField, true), simpleField.getType(), simpleField.getWriteUsers(), simpleField.getHideUsers());
             database.addField(newFlattenField);
         } else {
-            ComplexTypeMetadata database = mappings.getMapping(simpleField.getDeclaringType()).getDatabase();
-            newFlattenField = database.getField(getColumnName(simpleField, true));
+            newFlattenField = new SoftFieldRef(internalRepository, getColumnName(simpleField, true), simpleField.getContainingType());
         }
         typeMapping.map(simpleField, newFlattenField);
         return typeMapping;
@@ -115,8 +113,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
             newFlattenField = new EnumerationFieldMetadata(database, isKey, enumField.isMany(), enumField.isMandatory(), getColumnName(enumField, true), enumField.getType(), enumField.getWriteUsers(), enumField.getHideUsers());
             database.addField(newFlattenField);
         } else {
-            ComplexTypeMetadata database = mappings.getMapping(enumField.getDeclaringType()).getDatabase();
-            newFlattenField = database.getField(getColumnName(enumField, true));
+            newFlattenField = new SoftFieldRef(internalRepository, getColumnName(enumField, true), enumField.getContainingType());
         }
         typeMapping.map(enumField, newFlattenField);
         return typeMapping;

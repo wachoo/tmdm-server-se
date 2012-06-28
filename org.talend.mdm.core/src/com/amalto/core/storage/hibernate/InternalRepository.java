@@ -53,7 +53,7 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
     protected MetadataVisitor<TypeMapping> getTypeMappingCreator(TypeMetadata type, HibernateStorage.TypeMappingStrategy strategy) {
         switch (strategy) {
             case AUTO:
-                HibernateStorage.TypeMappingStrategy actualStrategy = type.accept(new MappingStrategySelector());
+                HibernateStorage.TypeMappingStrategy actualStrategy = type.accept(new MappingStrategySelector(20));
                 return getTypeMappingCreator(type, actualStrategy);
             case FLAT:
                 LOGGER.info(type.getName() + " -> FLAT");
@@ -107,10 +107,20 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
 
     private static class MappingStrategySelector extends DefaultMetadataVisitor<HibernateStorage.TypeMappingStrategy> {
 
+        private final int fieldThreshold;
+
         private int fieldCount = 0;
+
+        private MappingStrategySelector(int fieldThreshold) {
+            this.fieldThreshold = fieldThreshold;
+        }
 
         @Override
         public HibernateStorage.TypeMappingStrategy visit(ComplexTypeMetadata complexType) {
+            if (!complexType.getSubTypes().isEmpty()) {
+                return HibernateStorage.TypeMappingStrategy.GOOD_FIELD;
+            }
+
             fieldCount += complexType.getFields().size();
             {
                 HibernateStorage.TypeMappingStrategy contentResult = super.visit(complexType);
@@ -118,7 +128,7 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
                     return contentResult;
                 }
             }
-            if (fieldCount > 20) {
+            if (fieldCount > fieldThreshold) {
                 return HibernateStorage.TypeMappingStrategy.GOOD_FIELD;
             } else {
                 return HibernateStorage.TypeMappingStrategy.FLAT;

@@ -82,6 +82,9 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
         if (complexType.getKeyFields().isEmpty()) {
             throw new IllegalArgumentException("Type '" + complexType.getName() + "' has no key.");
         }
+        if (!complexType.getSuperTypes().isEmpty()) {
+            return null;
+        }
 
         String table = resolver.get(complexType);
         String generatedClassName = ClassCreator.PACKAGE_PREFIX + complexType.getName();
@@ -143,6 +146,36 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 throw new IllegalArgumentException("Field type " + currentField.getClass().getName() + " is not supported.");
             }
             classElement.appendChild(child);
+        }
+
+        // Sub types
+        if (!complexType.getSubTypes().isEmpty()) {
+            /*
+            <union-subclass name="CreditCardPayment" table="CREDIT_PAYMENT">
+                   <property name="creditCardType" column="CCTYPE"/>
+                   ...
+               </union-subclass>
+            */
+            for (ComplexTypeMetadata subType : complexType.getSubTypes()) {
+                Element unionSubclass = document.createElement("union-subclass");
+                Attr name = document.createAttribute("name");
+                name.setValue(ClassCreator.PACKAGE_PREFIX + subType.getName());
+                unionSubclass.setAttributeNode(name);
+
+                Attr tableName = document.createAttribute("table");
+                tableName.setValue(shortString(resolver.get(subType)));
+                unionSubclass.setAttributeNode(tableName);
+
+                List<FieldMetadata> subTypeFields = subType.getFields();
+                for (FieldMetadata subTypeField : subTypeFields) {
+                    if (subTypeField.getDeclaringType() == subType
+                            && subTypeField instanceof SimpleTypeFieldMetadata
+                            && !subTypeField.getName().startsWith("x_talend")) {
+                        unionSubclass.appendChild(subTypeField.accept(this));
+                    }
+                }
+                classElement.appendChild(unionSubclass);
+            }
         }
 
         return classElement;

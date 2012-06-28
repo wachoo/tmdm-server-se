@@ -174,6 +174,14 @@ public class SoftTypeRef implements ComplexTypeMetadata {
         return getTypeAsComplex().hasField(fieldName);
     }
 
+    public Collection<ComplexTypeMetadata> getSubTypes() {
+        return getTypeAsComplex().getSubTypes();
+    }
+
+    public void registerSubType(ComplexTypeMetadata type) {
+        getTypeAsComplex().registerSubType(type);
+    }
+
     public void registerKey(FieldMetadata keyField) {
         getTypeAsComplex().registerKey(keyField);
     }

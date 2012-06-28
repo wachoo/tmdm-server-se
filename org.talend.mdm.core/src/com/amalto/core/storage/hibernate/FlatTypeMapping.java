@@ -55,14 +55,14 @@ class FlatTypeMapping extends TypeMapping {
                         }
                     }
                 } else if (field instanceof ReferenceFieldMetadata) {
-                    ReferenceFieldMetadata referenceFieldMetadata = (ReferenceFieldMetadata) field;
-                    TypeMetadata referencedType = referenceFieldMetadata.getReferencedType();
-
                     StorageClassLoader storageClassLoader = (StorageClassLoader) Thread.currentThread().getContextClassLoader();
-                    Class<?> referencedClass = storageClassLoader.findClass(referencedType.getName());
 
                     if (!field.isMany()) {
-                        Object referencedObject = createReferencedObject(session, (ComplexTypeMetadata) referencedType, referencedClass, value);
+                        DataRecord dataRecordValue = (DataRecord) value;
+                        TypeMetadata referencedType = dataRecordValue.getType();
+                        Class<?> referencedClass = storageClassLoader.findClass(referencedType.getName());
+
+                        Object referencedObject = createReferencedObject(session, (ComplexTypeMetadata) referencedType, referencedClass, dataRecordValue);
                         to.set(databaseField.getName(), referencedObject);
                     } else {
                         List list = (List) to.get(field.getName());
@@ -70,9 +70,10 @@ class FlatTypeMapping extends TypeMapping {
                             list = new LinkedList();
                             to.set(databaseField.getName(), list);
                         }
-
-                        List valueList = (List) value;
-                        for (Object current : valueList) {
+                        List<DataRecord> valueList = (List<DataRecord>) value;
+                        for (DataRecord current : valueList) {
+                            TypeMetadata referencedType = current.getType();
+                            Class<?> referencedClass = storageClassLoader.findClass(referencedType.getName());
                             list.add(createReferencedObject(session, (ComplexTypeMetadata) referencedType, referencedClass, current));
                         }
                     }
@@ -128,6 +129,7 @@ class FlatTypeMapping extends TypeMapping {
                     }
                 }
                 if (userField instanceof ContainedTypeFieldMetadata) {
+                    // TODO inheritance
                     if (!userField.isMany()) {
                         DataRecord containedDataRecord = new DataRecord((ComplexTypeMetadata) userField.getType(), UnsupportedDataRecordMetadata.INSTANCE);
                         to.set(userField, setValues(((Wrapper) from.get(field.getName())), containedDataRecord));
@@ -140,12 +142,11 @@ class FlatTypeMapping extends TypeMapping {
                         to.set(userField, containedDataRecords);
                     }
                 } else if (userField instanceof ReferenceFieldMetadata) {
-                    ReferenceFieldMetadata referenceFieldMetadata = (ReferenceFieldMetadata) userField;
-                    TypeMapping mapping = mappings.getMapping(referenceFieldMetadata.getReferencedType());
                     if (!userField.isMany()) {
-                        DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
                         Wrapper wrapper = (Wrapper) from.get(field.getName());
                         if (wrapper != null) {
+                            TypeMapping mapping = mappings.getMapping(contextClassLoader.getTypeFromClass(wrapper.getClass()));
+                            DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
                             for (FieldMetadata keyField : mapping.getDatabase().getKeyFields()) {
                                 referencedRecord.set(mapping.getUser(keyField), wrapper.get(keyField.getName()));
                             }
@@ -155,6 +156,7 @@ class FlatTypeMapping extends TypeMapping {
                         List<Wrapper> wrapperList = (List<Wrapper>) from.get(field.getName());
                         if (wrapperList != null) {
                             for (Wrapper wrapper : wrapperList) {
+                                TypeMapping mapping = mappings.getMapping(contextClassLoader.getTypeFromClass(wrapper.getClass()));
                                 DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
                                 for (FieldMetadata keyField : mapping.getDatabase().getKeyFields()) {
                                     referencedRecord.set(mapping.getUser(keyField), wrapper.get(keyField.getName()));
