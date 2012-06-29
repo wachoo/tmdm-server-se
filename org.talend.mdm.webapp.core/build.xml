@@ -82,7 +82,6 @@
 			<pathelement path="${tom.location}/org.talend.mdm.core/bin" />
 			<pathelement path="${tom.location}/talend.mdm.libraries/lib/log4j.jar" />
 			<pathelement path="${tom.location}/talend.mdm.libraries/lib/z.xsom.jar" />
-			<pathelement path="${tom.location}/talend.mdm.libraries/lib/jbossall-client.jar" />
 			<pathelement path="${tom.location}/org.talend.mdm.commmon/bin" />
 			<pathelement path="${tom.location}/org.talend.mdm.commons.core/bin" />
 		</path>
