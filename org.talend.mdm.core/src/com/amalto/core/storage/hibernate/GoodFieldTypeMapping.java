@@ -18,6 +18,7 @@ import com.amalto.core.metadata.ReferenceFieldMetadata;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
 
 import java.io.Serializable;
@@ -43,9 +44,9 @@ public class GoodFieldTypeMapping extends TypeMapping {
         _setValues(session, from, to);
     }
 
-    public Object _setValues(Session session, DataRecord record, Wrapper wrapper) {
+    public Object _setValues(Session session, DataRecord from, Wrapper to) {
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-        Set<FieldMetadata> fields = record.getSetFields();
+        Set<FieldMetadata> fields = from.getSetFields();
         for (FieldMetadata field : fields) {
             FieldMetadata mappedDatabaseField = getDatabase(field);
 
@@ -54,30 +55,31 @@ public class GoodFieldTypeMapping extends TypeMapping {
                     throw new IllegalStateException("Contained elements are expected to be mapped to reference.");
                 }
                 ReferenceFieldMetadata referenceFieldMetadata = (ReferenceFieldMetadata) mappedDatabaseField;
+                ComplexTypeMetadata referencedType = referenceFieldMetadata.getReferencedType();
                 if (!field.isMany()) {
-                    Wrapper object = createObject(contextClassLoader, referenceFieldMetadata.getReferencedType());
-                    DataRecord containedRecord = (DataRecord) record.get(field);
+                    DataRecord containedRecord = (DataRecord) from.get(field);
                     if (containedRecord != null) {
-                        wrapper.set(referenceFieldMetadata.getName(), _setValues(session, containedRecord, object));
+                        referencedType = getActualReferenceType(referencedType, containedRecord);
+                        Wrapper object = createObject(contextClassLoader, referencedType);
+                        to.set(referenceFieldMetadata.getName(), _setValues(session, containedRecord, object));
                         session.persist(object);
                     }
                 } else {
-                    List<DataRecord> dataRecords = (List<DataRecord>) record.get(field);
+                    List<DataRecord> dataRecords = (List<DataRecord>) from.get(field);
                     if (dataRecords != null) {
                         List<Object> objects = new LinkedList<Object>();
                         for (DataRecord dataRecord : dataRecords) {
-                            Wrapper object = createObject(contextClassLoader, referenceFieldMetadata.getReferencedType());
+                            referencedType = getActualReferenceType(referencedType, dataRecord);
+                            Wrapper object = createObject(contextClassLoader, referencedType);
                             objects.add(_setValues(session, dataRecord, object));
                             session.persist(object);
                         }
-                        wrapper.set(referenceFieldMetadata.getName(), objects);
+                        to.set(referenceFieldMetadata.getName(), objects);
                     }
                 }
             } else if (field instanceof ReferenceFieldMetadata) {
-                ReferenceFieldMetadata referenceFieldMetadata = (ReferenceFieldMetadata) mappedDatabaseField;
-
                 if (!field.isMany()) {
-                    DataRecord referencedObject = (DataRecord) record.get(field);
+                    DataRecord referencedObject = (DataRecord) from.get(field);
                     if (referencedObject != null) {
                         List<FieldMetadata> keyFields = referencedObject.getType().getKeyFields();
                         Object referenceId;
@@ -90,10 +92,10 @@ public class GoodFieldTypeMapping extends TypeMapping {
                         } else {
                             referenceId = referencedObject.get(keyFields.get(0));
                         }
-                        wrapper.set(mappedDatabaseField.getName(), getReferencedObject(contextClassLoader, session, referenceFieldMetadata.getReferencedType(), referenceId));
+                        to.set(mappedDatabaseField.getName(), getReferencedObject(contextClassLoader, session, mappings.getMapping(referencedObject.getType()).getDatabase(), referenceId));
                     }
                 } else {
-                    List<DataRecord> referencedObjectList = (List<DataRecord>) record.get(field);
+                    List<DataRecord> referencedObjectList = (List<DataRecord>) from.get(field);
                     if (referencedObjectList != null) {
                         List<Object> wrappers = new LinkedList<Object>();
                         for (DataRecord dataRecord : referencedObjectList) {
@@ -108,16 +110,32 @@ public class GoodFieldTypeMapping extends TypeMapping {
                             } else {
                                 referenceId = dataRecord.get(keyFields.get(0));
                             }
-                            wrappers.add(getReferencedObject(contextClassLoader, session, referenceFieldMetadata.getReferencedType(), referenceId));
+                            wrappers.add(getReferencedObject(contextClassLoader, session, dataRecord.getType(), referenceId));
                         }
-                        wrapper.set(mappedDatabaseField.getName(), wrappers);
+                        to.set(mappedDatabaseField.getName(), wrappers);
                     }
                 }
             } else {
-                wrapper.set(mappedDatabaseField.getName(), record.get(field));
+                to.set(mappedDatabaseField.getName(), from.get(field));
             }
         }
-        return wrapper;
+        return to;
+    }
+
+    // Returns actual reference type (in case in reference to hold contained record can have sub types).
+    // Not expected to be use for foreign keys, and also very specific to this mapping implementation.
+    private static ComplexTypeMetadata getActualReferenceType(ComplexTypeMetadata referencedType, DataRecord containedRecord) {
+        String concreteReferencedType = StringUtils.substringAfterLast(referencedType.getName(), "_");
+        if (!containedRecord.getType().getName().equalsIgnoreCase(concreteReferencedType)) {
+            String actualTypeName = StringUtils.substringBeforeLast(referencedType.getName(), "_") + "_" + containedRecord.getType().getName().toUpperCase();
+            for (ComplexTypeMetadata referencedTypeSubType : referencedType.getSubTypes()) {
+                if (actualTypeName.equals(referencedTypeSubType.getName())) {
+                    referencedType = referencedTypeSubType;
+                    break;
+                }
+            }
+        }
+        return referencedType;
     }
 
     public DataRecord setValues(Wrapper from, DataRecord to) {

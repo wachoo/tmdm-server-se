@@ -20,6 +20,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.ScrollableResults;
 
+import javax.xml.XMLConstants;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
@@ -98,7 +99,7 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
                     boolean isAlias = false;
 
                     private SimpleTypeFieldMetadata createField(String typeName, String fieldName) {
-                        SimpleTypeMetadata fieldType = new SimpleTypeMetadata(MetadataRepository.XSD_NAMESPACE, typeName);
+                        SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, typeName);
                         return new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, fieldName, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList());
                     }
 

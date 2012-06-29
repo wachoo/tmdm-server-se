@@ -74,4 +74,9 @@ public class ContainedComplexTypeRef extends ContainedComplexTypeMetadata {
     public boolean isAssignableFrom(TypeMetadata type) {
         return reference.isAssignableFrom(type);
     }
+
+    @Override
+    public Collection<ComplexTypeMetadata> getSubTypes() {
+        return reference.getSubTypes();
+    }
 }

@@ -47,6 +47,9 @@ public abstract class TypeMapping {
     }
 
     void map(FieldMetadata user, FieldMetadata database) {
+        if (isFrozen) {
+            throw new IllegalStateException("Mapping is frozen.");
+        }
         userToDatabase.put(user, database);
         databaseToUser.put(database, user);
     }

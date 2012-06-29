@@ -76,7 +76,15 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     @Override
     public TypeMapping visit(ContainedComplexTypeMetadata containedType) {
-        String newTypeName = (containedType.getContainerType().getName() + "_2_" + containedType.getName()).toUpperCase();
+        String databaseSuperType = handleContainedType(null, containedType.getContainerType().getName(), containedType);
+        for (ComplexTypeMetadata subType : containedType.getSubTypes()) {
+            handleContainedType(databaseSuperType, containedType.getContainerType().getName(), subType);
+        }
+        return null;
+    }
+
+    private String handleContainedType(String superTypeDatabaseName, String containerTypeName, ComplexTypeMetadata containedType) {
+        String newTypeName = (containerTypeName + "_2_" + containedType.getName()).toUpperCase();
         ComplexTypeMetadata newInternalType = new ComplexTypeMetadataImpl(containedType.getNamespace(),
                 newTypeName,
                 containedType.getWriteUsers(),
@@ -85,14 +93,18 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 containedType.getDenyDelete(ComplexTypeMetadata.DeleteType.PHYSICAL),
                 containedType.getDenyDelete(ComplexTypeMetadata.DeleteType.LOGICAL),
                 containedType.getSchematron());
-        newInternalType.addField(new SimpleTypeFieldMetadata(newInternalType,
-                true,
-                false,
-                true,
-                GENERATED_ID,
-                new SoftTypeRef(internalRepository, "", "UUID"),
-                containedType.getWriteUsers(),
-                containedType.getHideUsers()));
+        if (superTypeDatabaseName == null) {  // Generate a technical ID only if contained type does not have super type (subclasses will inherit it).
+            newInternalType.addField(new SimpleTypeFieldMetadata(newInternalType,
+                    true,
+                    false,
+                    true,
+                    GENERATED_ID,
+                    new SoftTypeRef(internalRepository, internalRepository.getUserNamespace(), "UUID"),
+                    containedType.getWriteUsers(),
+                    containedType.getHideUsers()));
+        } else {
+            newInternalType.addSuperType(new SoftTypeRef(internalRepository, newInternalType.getNamespace(), superTypeDatabaseName), internalRepository);
+        }
 
         internalRepository.addTypeMetadata(newInternalType);
         currentType.push(newInternalType);
@@ -100,14 +112,14 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
             super.visit(containedType);
         }
         currentType.pop();
-        return null;
+        return newTypeName;
     }
 
     @Override
     public TypeMapping visit(ContainedTypeFieldMetadata containedField) {
-        String typeName = (containedField.getContainingType().getName() + "_2_" + containedField.getContainedType().getName()).toUpperCase();
+        String typeName = (containedField.getDeclaringType().getName() + "_2_" + containedField.getContainedType().getName()).toUpperCase();
         SoftTypeRef typeRef = new SoftTypeRef(internalRepository,
-                containedField.getContainingType().getNamespace(),
+                containedField.getDeclaringType().getNamespace(),
                 typeName);
         ComplexTypeMetadata database = currentType.peek();
         ReferenceFieldMetadata newFlattenField = new ReferenceFieldMetadata(database,
@@ -118,7 +130,7 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 typeRef,
                 new SoftIdFieldRef(internalRepository, typeName),
                 null,
-                false,  // No need to enforce FK in references to this technical objects.
+                false,  // No need to enforce FK in references to these technical objects.
                 false,
                 containedField.getWriteUsers(),
                 containedField.getHideUsers());

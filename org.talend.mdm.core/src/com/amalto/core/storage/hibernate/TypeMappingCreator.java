@@ -13,6 +13,7 @@ package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.metadata.*;
 
+import javax.xml.XMLConstants;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -82,7 +83,13 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     public TypeMapping visit(ContainedTypeFieldMetadata containedField) {
         prefix.add(containedField.getName());
         {
-            containedField.getContainedType().accept(this);
+            ContainedComplexTypeMetadata containedType = containedField.getContainedType();
+            containedType.accept(this);
+            for (ComplexTypeMetadata subType : containedType.getSubTypes()) {
+                for (FieldMetadata subTypeField : subType.getFields()) {
+                    subTypeField.accept(this);
+                }
+            }
         }
         prefix.removeLast();
         return typeMapping;
@@ -140,7 +147,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
         if (typeMapping.getUser().getKeyFields().isEmpty()) {
             ComplexTypeMetadata database = typeMapping.getDatabase();
-            database.addField(new SimpleTypeFieldMetadata(database, true, false, true, "X_TALEND_ID", new SoftTypeRef(internalRepository, MetadataRepository.XSD_NAMESPACE, "string"), Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            database.addField(new SimpleTypeFieldMetadata(database, true, false, true, "X_TALEND_ID", new SoftTypeRef(internalRepository, XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"), Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         }
         return typeMapping;
     }

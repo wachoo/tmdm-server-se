@@ -28,8 +28,6 @@ import java.util.*;
  */
 public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
 
-    public static final String XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema"; //$NON-NLS-1$
-
     private final static List<XmlSchemaAnnotationProcessor> XML_ANNOTATIONS_PROCESSORS = Arrays.asList(new ForeignKeyProcessor(), new UserAccessProcessor(), new SchematronProcessor());
 
     private final static String USER_NAMESPACE = StringUtils.EMPTY;
@@ -104,7 +102,7 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
 
     public void load(InputStream inputStream) {
         if (inputStream == null) {
-            throw new IllegalArgumentException("Input stream is null.");
+            throw new IllegalArgumentException("Input stream can not be null.");
         }
 
         XmlSchemaCollection collection = new XmlSchemaCollection();
@@ -178,6 +176,12 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
     public void visitElement(XmlSchemaElement element) {
         if (currentTypeStack.isEmpty()) { // "top level" elements means new MDM entity type
             String typeName = element.getName();
+            if (allTypes.get(getUserNamespace()) != null) {
+                if (allTypes.get(getUserNamespace()).containsKey(typeName)) {
+                    // Ignore another definition (already processed).
+                    return;
+                }
+            }
 
             // Id fields
             Set<String> idFields = new HashSet<String>();
@@ -255,16 +259,18 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
         String typeName = type.getName();
         boolean isNonInstantiableType = currentTypeStack.isEmpty();
         if (isNonInstantiableType) {
+            if (allTypes.get(getUserNamespace()) != null) {
+                if (allTypes.get(getUserNamespace()).containsKey(typeName)) {
+                    // Ignore another definition of type (already processed).
+                    return;
+                }
+            }
             // There's no current 'entity' type being parsed, this is a complex type not to be used for entity but
             // might be referenced by others entities (for fields, inheritance...).
             ComplexTypeMetadata nonInstantiableType = new ComplexTypeMetadataImpl(targetNamespace, typeName);
             nonInstantiableTypes.put(typeName, nonInstantiableType);
             currentTypeStack.push(nonInstantiableType);
             typeMetadataKeyStack.push(Collections.<String>emptySet());
-        } else {
-            // Some types can refer to XSD complex type of an entity iso. the entity name. So keeps the inner type but
-            // as non-instantiable.
-            nonInstantiableTypes.put(typeName, currentTypeStack.peek());
         }
 
         XmlSchemaParticle contentTypeParticle = type.getParticle();
@@ -443,5 +449,9 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
     public void close() {
         allTypes.clear();
         nonInstantiableTypes.clear();
+    }
+
+    public Collection<ComplexTypeMetadata> getNonInstantiableTypes() {
+        return nonInstantiableTypes.values();
     }
 }

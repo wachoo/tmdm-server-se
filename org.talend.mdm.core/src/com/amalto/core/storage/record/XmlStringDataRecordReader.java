@@ -16,6 +16,7 @@ import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -101,6 +102,8 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
             dataRecord.setRevisionId(revisionId);
 
             Stack<DataRecord> dataRecords = new Stack<DataRecord>();
+            Stack<String> typeElements = new Stack<String>();
+            typeElements.push(type.getName());
             dataRecords.push(dataRecord);
             int userXmlPayloadLevel = level;
             while (xmlEventReader.hasNext()) {
@@ -123,9 +126,14 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                             }
                         }
                         if (fieldType instanceof ContainedComplexTypeMetadata) {
+                            Attribute actualType = startElement.getAttributeByName(new QName(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type"));
+                            if (actualType != null) {
+                                fieldType = repository.getNonInstantiableType(actualType.getValue());
+                            }
                             DataRecord containedDataRecord = new DataRecord((ComplexTypeMetadata) fieldType, UnsupportedDataRecordMetadata.INSTANCE);
                             dataRecords.peek().set(field, containedDataRecord);
                             dataRecords.push(containedDataRecord);
+                            typeElements.push(startElement.getName().getLocalPart());
                         }
                         currentType.push(fieldType);
                     }
@@ -139,18 +147,24 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                     }
                 } else if (xmlEvent.isEndElement()) {
                     EndElement endElement = xmlEvent.asEndElement();
-                    if (level == userXmlPayloadLevel && endElement.getName().getLocalPart().equals(type.getName())) {
+                    String endElementLocalPart = endElement.getName().getLocalPart();
+                    if (level == userXmlPayloadLevel && endElementLocalPart.equals(type.getName())) {
                         break;
                     }
                     field = null;
-                    if (currentType.peek() instanceof ContainedComplexTypeMetadata) {
+                    if (typeElements.peek().equals(endElementLocalPart)) {
+                        typeElements.pop();
                         dataRecords.pop();
                     }
                     currentType.pop();
                     level--;
                 }
             }
-            return dataRecords.pop();
+            DataRecord createdDataRecord = dataRecords.pop();
+            if (!dataRecords.empty()) {
+                throw new IllegalStateException("Data record remained in stack at end of creation.");
+            }
+            return createdDataRecord;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

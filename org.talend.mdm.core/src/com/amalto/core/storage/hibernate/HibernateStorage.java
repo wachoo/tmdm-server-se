@@ -590,14 +590,6 @@ public class HibernateStorage implements Storage {
 
     private static class MetadataChecker extends DefaultMetadataVisitor<Object> {
         @Override
-        public Object visit(ComplexTypeMetadata complexType) {
-            if (!complexType.getSuperTypes().isEmpty()) {
-                LOGGER.warn("Type '" + complexType.getName() + "' inherits from other type(s). Support for inheritance is limited.");
-            }
-            return super.visit(complexType);
-        }
-
-        @Override
         public Object visit(SimpleTypeFieldMetadata simpleField) {
             String simpleFieldTypeName = simpleField.getType().getName();
             if ("gYearMonth".equals(simpleFieldTypeName)  //$NON-NLS-1$

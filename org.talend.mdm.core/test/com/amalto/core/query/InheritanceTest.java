@@ -22,6 +22,7 @@ import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.DataRecordXmlWriter;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import junit.framework.TestCase;
 
@@ -68,8 +69,8 @@ public class InheritanceTest extends TestCase {
             List<DataRecord> allRecords = new LinkedList<DataRecord>();
             allRecords.add(factory.read("MDM", 1, repository, b, "<B><id>1</id><textB>TextB</textB></B>"));
             allRecords.add(factory.read("MDM", 1, repository, d, "<D><id>2</id><textB>TextBD</textB><textD>TextDD</textD></D>"));
-            allRecords.add(factory.read("MDM", 1, repository, a, "<A xmlns:tmdm=\"http://www.talend.com/mdm\"><id>1</id><refB tmdm:type=\"B\">[1]</refB><textA>TextA</textA></A>"));
-            allRecords.add(factory.read("MDM", 1, repository, c, "<C xmlns:tmdm=\"http://www.talend.com/mdm\"><id>2</id><refB tmdm:type=\"D\">[2]</refB><textA>TextAC</textA><textC>TextCC</textC></C>"));
+            allRecords.add(factory.read("MDM", 1, repository, a, "<A xmlns:tmdm=\"http://www.talend.com/mdm\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>1</id><refB tmdm:type=\"B\">[1]</refB><textA>TextA</textA><nestedB xsi:type=\"Nested\"><text>Text</text></nestedB></A>"));
+            allRecords.add(factory.read("MDM", 1, repository, c, "<C xmlns:tmdm=\"http://www.talend.com/mdm\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>2</id><refB tmdm:type=\"D\">[2]</refB><textA>TextAC</textA><nestedB xsi:type=\"SubNested\"><text>Text</text><subText>SubText</subText></nestedB><textC>TextCC</textC></C>"));
 
             try {
                 s.begin();
@@ -79,10 +80,11 @@ public class InheritanceTest extends TestCase {
                 s.end();
             }
 
-            UserQueryBuilder qb = UserQueryBuilder.from(a);
+            UserQueryBuilder qb = UserQueryBuilder.from(c);
             StorageResults results = s.fetch(qb.getSelect());
+            DataRecordXmlWriter writer = new DataRecordXmlWriter();
             for (DataRecord result : results) {
-                System.out.println("result = " + result);
+                writer.write(result, System.out);
             }
         } finally {
             s.close();

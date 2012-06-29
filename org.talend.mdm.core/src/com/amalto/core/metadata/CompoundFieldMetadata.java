@@ -11,6 +11,7 @@
 
 package com.amalto.core.metadata;
 
+import javax.xml.XMLConstants;
 import java.util.Arrays;
 import java.util.List;
 
@@ -45,7 +46,7 @@ public class CompoundFieldMetadata implements FieldMetadata {
          * Compound / Composite keys are always represented as strings the [id0][id1] format.
          * So this method can return "string" as type even if fields are not all string.
          */
-        return new SimpleTypeMetadata(MetadataRepository.XSD_NAMESPACE, "string"); //$NON-NLS-1$ // TODO Constant
+        return new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"); //$NON-NLS-1$ // TODO Constant
     }
 
     public ComplexTypeMetadata getContainingType() {

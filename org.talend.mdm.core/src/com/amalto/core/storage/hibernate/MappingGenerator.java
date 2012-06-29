@@ -168,9 +168,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
 
                 List<FieldMetadata> subTypeFields = subType.getFields();
                 for (FieldMetadata subTypeField : subTypeFields) {
-                    if (subTypeField.getDeclaringType() == subType
-                            && subTypeField instanceof SimpleTypeFieldMetadata
-                            && !subTypeField.getName().startsWith("x_talend")) {
+                    if (!complexType.hasField(subTypeField.getName()) && !subTypeField.isKey()) {
                         unionSubclass.appendChild(subTypeField.accept(this));
                     }
                 }

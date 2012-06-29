@@ -39,12 +39,13 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
         mappings = new MappingRepository();
         internalRepository = new MetadataRepository();
 
-        Collection<TypeMetadata> types = repository.getTypes();
-        for (TypeMetadata type : types) {
+        for (ComplexTypeMetadata nonInstantiableType : repository.getNonInstantiableTypes()) {
+            nonInstantiableType.accept(this);
+        }
+        for (TypeMetadata type : repository.getTypes()) {
             type.accept(this);
         }
-        Collection<TypeMapping> userComplexTypes = mappings.getAllTypeMappings();
-        for (TypeMapping typeMapping : userComplexTypes) {
+        for (TypeMapping typeMapping : mappings.getAllTypeMappings()) {
             typeMapping.freeze();
         }
         return internalRepository;
@@ -123,9 +124,13 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
 
             fieldCount += complexType.getFields().size();
             {
-                HibernateStorage.TypeMappingStrategy contentResult = super.visit(complexType);
-                if (contentResult == HibernateStorage.TypeMappingStrategy.GOOD_FIELD) {
-                    return contentResult;
+                HibernateStorage.TypeMappingStrategy contentResult;
+                Collection<FieldMetadata> fields = complexType.getFields();
+                for (FieldMetadata field : fields) {
+                    contentResult = field.accept(this);
+                    if (contentResult == HibernateStorage.TypeMappingStrategy.GOOD_FIELD) {
+                        return contentResult;
+                    }
                 }
             }
             if (fieldCount > fieldThreshold) {
@@ -143,7 +148,7 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
 
         @Override
         public HibernateStorage.TypeMappingStrategy visit(ContainedTypeFieldMetadata containedField) {
-            if (containedField.isMany()) {
+            if (!containedField.getContainedType().getSubTypes().isEmpty()) {
                 return HibernateStorage.TypeMappingStrategy.GOOD_FIELD;
             }
             return super.visit(containedField);

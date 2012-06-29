@@ -14,6 +14,7 @@ package com.amalto.core.storage.hibernate;
 import com.amalto.core.metadata.*;
 import com.amalto.core.storage.Storage;
 
+import javax.xml.XMLConstants;
 import java.util.Collections;
 
 class StagingTypeMappingRepository extends InternalRepository {
@@ -26,8 +27,8 @@ class StagingTypeMappingRepository extends InternalRepository {
 
         // Add MDM specific record specific metadata
         ComplexTypeMetadata database = typeMapping.getDatabase();
-        TypeMetadata longType = new SoftTypeRef(internalRepository, MetadataRepository.XSD_NAMESPACE, "long");
-        TypeMetadata stringType = new SoftTypeRef(internalRepository, MetadataRepository.XSD_NAMESPACE, "string");
+        TypeMetadata longType = new SoftTypeRef(internalRepository, XMLConstants.W3C_XML_SCHEMA_NS_URI, "long");
+        TypeMetadata stringType = new SoftTypeRef(internalRepository, XMLConstants.W3C_XML_SCHEMA_NS_URI, "string");
         database.addField(new SimpleTypeFieldMetadata(database, false, false, true, Storage.METADATA_TIMESTAMP, longType, Collections.<String>emptyList(), Collections.<String>emptyList()));
         database.addField(new SimpleTypeFieldMetadata(database, false, false, false, Storage.METADATA_TASK_ID, stringType, Collections.<String>emptyList(), Collections.<String>emptyList()));
         database.addField(new SimpleTypeFieldMetadata(database, false, false, false, Storage.METADATA_REVISION_ID, longType, Collections.<String>emptyList(), Collections.<String>emptyList()));
