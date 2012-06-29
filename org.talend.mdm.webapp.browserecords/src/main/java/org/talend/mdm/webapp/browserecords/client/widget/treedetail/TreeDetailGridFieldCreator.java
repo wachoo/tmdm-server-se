@@ -162,15 +162,15 @@ public class TreeDetailGridFieldCreator {
         field.setFieldLabel(dataType.getLabel(language));
         field.setName(dataType.getXpath());
         if (!dataType.getType().equals(DataTypeConstants.UUID) && !dataType.getType().equals(DataTypeConstants.AUTO_INCREMENT)) {
-            boolean readOnly = CommonUtil.isReadOnlyOnUI(dataType);
+            boolean readOnly = dataType.isReadOnly(); // CommonUtil.isReadOnlyOnUI(dataType);
             field.setReadOnly(readOnly);
             field.setEnabled(!readOnly);
         }
 
-        if (node.isKey() && hasValue && ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {
+        if (node.isKey() && ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {
             field.setEnabled(true);
             field.setReadOnly(false);
-        } else if (node.isKey() && hasValue && ItemDetailToolBar.CREATE_OPERATION.equals(operation)) {
+        } else if (node.isKey() && ItemDetailToolBar.CREATE_OPERATION.equals(operation)) {
             field.setEnabled(true);
             field.setReadOnly(false);
         } else if (node.isKey() && hasValue) {

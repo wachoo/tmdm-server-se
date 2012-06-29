@@ -121,8 +121,12 @@ public class CommonUtil {
         Element root = doc.createElement(nodeModel.getName());
         TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(nodeModel.getTypePath());
         if (!isAll) {
-            if (!typeModel.isVisible() || typeModel.isReadOnly()) {
-                return null;
+            if (nodeModel.getParent() != null) {
+                if (!nodeModel.isKey()) {
+                    if (!typeModel.isVisible()) {
+                        return null;
+                    }
+                }
             }
         }
         Serializable value = nodeModel.getObjectValue();
