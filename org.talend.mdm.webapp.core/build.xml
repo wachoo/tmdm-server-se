@@ -6,7 +6,7 @@
 	<property name="war" value="zz.20.webapp.core.war"/>	
 	<property name="jar" value="z.mdm.webapp.core.jar"/>	
 	
-	<property name="jboss.dir" value="c:/opt/jboss_tem"/>
+	<property name="jboss.dir" value="/home/pascal/dev/jboss/jboss-4.2.2.GA-mdm"/>
 	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
 	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
 	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
@@ -95,6 +95,7 @@
 			<pathelement path="target/test-classes" />
 			<path refid="compile.classpath" />
 			<pathelement path="${tom.location}/talend.mdm.libraries/lib/commons-logging.jar" />
+            <pathelement path="${tom.location}/talend.mdm.libraries/lib/jboss-j2ee.jar" />
 		</path>
 
 		<copy todir="${basedir}/target/test-classes" verbose="true">
