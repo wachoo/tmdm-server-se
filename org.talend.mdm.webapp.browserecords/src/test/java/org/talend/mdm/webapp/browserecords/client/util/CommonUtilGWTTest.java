@@ -47,7 +47,7 @@ public class CommonUtilGWTTest extends GWTTestCase {
         viewBean.setBindingEntityModel(entity);
         ItemNodeModel nodeModel = CommonUtilTestData.getItemNodeModel(ClientResourceData.getRecordD(), entity);
         String xml = CommonUtil.toXML(nodeModel, viewBean);
-        assertEquals(xml, "<Test xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><subelement>111</subelement><name>zhang</name></Test>"); //$NON-NLS-1$
+        assertEquals(xml, "<Test xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><subelement>111</subelement><name>zhang</name><age>25</age><memo>I'm zhang yang</memo></Test>"); //$NON-NLS-1$
     }
 
     public void testToXmlStringE() {

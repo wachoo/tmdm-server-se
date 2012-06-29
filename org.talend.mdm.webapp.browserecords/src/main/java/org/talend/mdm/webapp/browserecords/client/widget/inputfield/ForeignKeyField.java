@@ -11,8 +11,6 @@ import org.talend.mdm.webapp.browserecords.client.widget.ForeignKeyFieldList;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyListWindow;
-import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTreeDetail;
-import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail;
 
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.core.El;
@@ -20,7 +18,6 @@ import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.ComponentHelper;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -61,7 +58,6 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         fkWindow.setResizable(false);
         fkWindow.setModal(true);
         fkWindow.setBlinkModal(true);
-        fkButtonControl();
     }
 
     public ForeignKeyField(String foreignKey, List<String> foreignKeyInfo, ForeignKeyFieldList fkFieldList, ItemsDetailPanel itemsDetailPanel) {
@@ -232,14 +228,4 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         fkWindow.setHeading(MessagesFactory.getMessages().fk_RelatedRecord());
     }
 
-    private void fkButtonControl() {
-        ContentPanel cp = itemsDetailPanel.getTreeDetail();
-        if (cp instanceof TreeDetail) {
-            TreeDetail treeDetail = (TreeDetail) cp;
-            this.setReadOnly(treeDetail.getToolBar().isReadOnly());
-        } else {
-            ForeignKeyTreeDetail fkTreeDetail = (ForeignKeyTreeDetail) cp;
-            this.setReadOnly(fkTreeDetail.getToolBar().isReadOnly());
-        }
-    }
 }
