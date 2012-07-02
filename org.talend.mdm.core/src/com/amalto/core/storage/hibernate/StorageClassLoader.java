@@ -87,13 +87,36 @@ class StorageClassLoader extends ClassLoader {
             } else if (HIBERNATE_MAPPING.equals(name)) {
                 return generateHibernateMapping();
             } else if (EHCACHE_XML_CONFIG.equals(name)) {
-                return StorageClassLoader.class.getResourceAsStream(EHCACHE_XML_CONFIG);
+                return generateEhCacheConfig();
             }
         } catch (Exception e) {
             // Hibernate tends to hide errors when getResourceAsStream fails.
             Logger.getLogger(StorageClassLoader.class).error("Error during dynamic creation of configurations", e);
         }
         return super.getResourceAsStream(name);
+    }
+
+    private InputStream generateEhCacheConfig() {
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            factory.setExpandEntityReferences(false);
+            DocumentBuilder documentBuilder = factory.newDocumentBuilder();
+            Document document = documentBuilder.parse(this.getClass().getResourceAsStream(EHCACHE_XML_CONFIG));
+
+            // <diskStore path="java.io.tmpdir"/>
+            XPathExpression compile = pathFactory.compile("ehcache/diskStore"); //$NON-NLS-1$ //$NON-NLS-2$
+            Node node = (Node) compile.evaluate(document, XPathConstants.NODE);
+            node.getAttributes().getNamedItem("path").setNodeValue(dataSource.getCacheDirectory() + '/' + dataSource.getName());
+
+            OutputFormat format = new OutputFormat(document);
+            StringWriter stringOut = new StringWriter();
+            XMLSerializer serial = new XMLSerializer(stringOut, format);
+            serial.serialize(document);
+            return new ByteArrayInputStream(stringOut.toString().getBytes("UTF-8")); //$NON-NLS-1$
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void assertNotClosed() {
@@ -108,7 +131,7 @@ class StorageClassLoader extends ClassLoader {
         if (EHCACHE_XML_CONFIG.equals(name)) {
             try {
                 final ClassLoader classLoaderForLookup = this;
-                return new URL("file", "localhost", 0, EHCACHE_XML_CONFIG, new URLStreamHandler() { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                return new URL("http", "fakehost", 0, '/' + EHCACHE_XML_CONFIG, new URLStreamHandler() { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     @Override
                     protected URLConnection openConnection(URL u) throws IOException {
                         return new URLConnection(u) {
@@ -118,7 +141,7 @@ class StorageClassLoader extends ClassLoader {
 
                             @Override
                             public InputStream getInputStream() throws IOException {
-                                return classLoaderForLookup.getResourceAsStream(EHCACHE_XML_CONFIG); //$NON-NLS-1$
+                                return generateEhCacheConfig();
                             }
                         };
                     }
@@ -272,6 +295,23 @@ class StorageClassLoader extends ClassLoader {
             addProperty(document, sessionFactoryElement, "hibernate.search.default.exclusive_index_use", "false"); //$NON-NLS-1$ //$NON-NLS-2$
         }
 
+        if (dataSource.getCacheDirectory() != null && !dataSource.getCacheDirectory().isEmpty()) {
+            /*
+            <!-- Second level cache -->
+            <property name="hibernate.cache.use_second_level_cache">true</property>
+            <property name="hibernate.cache.provider_class">net.sf.ehcache.hibernate.EhCacheProvider</property>
+            <property name="hibernate.cache.use_query_cache">true</property>
+            <property name="net.sf.ehcache.configurationResourceName">ehcache.xml</property>
+             */
+            addProperty(document, sessionFactoryElement, "hibernate.cache.use_second_level_cache", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+            addProperty(document, sessionFactoryElement, "hibernate.cache.provider_class", "net.sf.ehcache.hibernate.EhCacheProvider"); //$NON-NLS-1$ //$NON-NLS-2$
+            addProperty(document, sessionFactoryElement, "hibernate.cache.use_query_cache", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+            addProperty(document, sessionFactoryElement, "net.sf.ehcache.configurationResourceName", "ehcache.xml"); //$NON-NLS-1$ //$NON-NLS-2$
+        } else {
+            LOGGER.debug("Hibernate configuration does not define second level cache extensions due to datasource configuration."); //$NON-NLS-1$
+            addProperty(document, sessionFactoryElement, "hibernate.cache.use_second_level_cache", "false"); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+
         // Order of elements highly matters and mapping shall be declared after <property/> and before <event/>.
         Element mapping = document.createElement("mapping"); //$NON-NLS-1$
         Attr resource = document.createAttribute("resource"); //$NON-NLS-1$
@@ -286,6 +326,7 @@ class StorageClassLoader extends ClassLoader {
         } else {
             LOGGER.debug("Hibernate configuration does not define full text extensions due to datasource configuration."); //$NON-NLS-1$
         }
+
         return document;
     }
 

@@ -19,6 +19,7 @@
             <connection-username>root</connection-username>
             <connection-password>toor</connection-password>
             <fulltext-index-directory>/var/lucene/indexes/DS2</fulltext-index-directory>
+            <cache-directory>/var/cache/DS2</cache-directory>
 
             <init>
                 <connection-url>jdbc:mysql://10.42.150.15:3306/</connection-url>

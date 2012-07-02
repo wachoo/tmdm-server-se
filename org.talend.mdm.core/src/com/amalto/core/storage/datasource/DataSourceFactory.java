@@ -12,6 +12,8 @@
 package com.amalto.core.storage.datasource;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -32,6 +34,8 @@ public class DataSourceFactory {
     public static final String DB_DATASOURCES = "db.datasources"; //$NON-NLS-1$
 
     private static final DataSourceFactory INSTANCE = new DataSourceFactory();
+
+    private static final Logger LOGGER = Logger.getLogger(DataSourceFactory.class);
 
     private static DocumentBuilderFactory factory;
 
@@ -90,6 +94,7 @@ public class DataSourceFactory {
         // 1- Try from file (direct lookup)
         File file = new File(dataSourcesFileName);
         if (file.exists()) {
+            LOGGER.info("Reading from datasource file at '" + file.getAbsolutePath() + "'.");
             try {
                 configurationAsStream = new FileInputStream(file);
             } catch (FileNotFoundException e) {
@@ -100,6 +105,7 @@ public class DataSourceFactory {
         // 1- Try from file (lookup from user.dir)
         if (configurationAsStream == null) {
             file = new File(System.getProperty("user.dir") + "/bin/" + dataSourcesFileName); //$NON-NLS-1$ //$NON-NLS-2$
+            LOGGER.info("Reading from datasource file at '" + file.getAbsolutePath() + "'.");
             if (file.exists()) {
                 try {
                     configurationAsStream = new FileInputStream(file);
@@ -114,9 +120,13 @@ public class DataSourceFactory {
             List<String> filePaths = Arrays.asList(dataSourcesFileName);
             Iterator<String> iterator = filePaths.iterator();
 
+            String currentFilePath = StringUtils.EMPTY;
             while (configurationAsStream == null && iterator.hasNext()) {
-                String currentFilePath = iterator.next();
+                currentFilePath = iterator.next();
                 configurationAsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(currentFilePath);
+            }
+            if(configurationAsStream != null) {
+                LOGGER.info("Reading from datasource file at '" + currentFilePath + "'.");
             }
         }
 
@@ -155,6 +165,7 @@ public class DataSourceFactory {
                     String userName = (String) evaluate(dataSource, xPath, "rdbms-configuration/connection-username", XPathConstants.STRING); //$NON-NLS-1$
                     String password = (String) evaluate(dataSource, xPath, "rdbms-configuration/connection-password", XPathConstants.STRING); //$NON-NLS-1$
                     String indexDirectory = (String) evaluate(dataSource, xPath, "rdbms-configuration/fulltext-index-directory", XPathConstants.STRING); //$NON-NLS-1$
+                    String cacheDirectory = (String) evaluate(dataSource, xPath, "rdbms-configuration/cache-directory", XPathConstants.STRING); //$NON-NLS-1$
                     String initConnectionURL = (String) evaluate(dataSource, xPath, "rdbms-configuration/init/connection-url", XPathConstants.STRING); //$NON-NLS-1$
                     String initUserName = (String) evaluate(dataSource, xPath, "rdbms-configuration/init/connection-username", XPathConstants.STRING); //$NON-NLS-1$
                     String initPassword = (String) evaluate(dataSource, xPath, "rdbms-configuration/init/connection-password", XPathConstants.STRING); //$NON-NLS-1$
@@ -166,6 +177,7 @@ public class DataSourceFactory {
                             userName,
                             password,
                             indexDirectory,
+                            cacheDirectory,
                             connectionURL,
                             databaseName,
                             initPassword,

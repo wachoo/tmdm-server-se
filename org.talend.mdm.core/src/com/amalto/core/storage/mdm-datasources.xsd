@@ -111,7 +111,8 @@
                     </xs:element>
                     <xs:element type="xs:string" name="connection-username" minOccurs="1" maxOccurs="1"/>
                     <xs:element type="xs:string" name="connection-password" minOccurs="1" maxOccurs="1"/>
-                    <xs:element type="xs:string" name="fulltext-index-directory" minOccurs="1" maxOccurs="1"/>
+                    <xs:element type="xs:string" name="fulltext-index-directory" minOccurs="0" maxOccurs="1"/>
+                    <xs:element type="xs:string" name="cache-directory" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="init" minOccurs="0" maxOccurs="1">
                         <xs:complexType>
                             <xs:sequence>

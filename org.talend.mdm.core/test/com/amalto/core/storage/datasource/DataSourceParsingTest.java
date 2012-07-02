@@ -57,6 +57,7 @@ public class DataSourceParsingTest extends TestCase {
         assertEquals(RDBMSDataSource.DataSourceDialect.MYSQL, rdbmsDataSource.getDialectName());
         assertEquals("com.mysql.jdbc.Driver", rdbmsDataSource.getDriverClassName());
         assertEquals("/var/lucene/indexes/DS2", rdbmsDataSource.getIndexDirectory());
+        assertEquals("/var/cache/DS2", rdbmsDataSource.getCacheDirectory());
         assertEquals("Test-0", rdbmsDataSource.getName());
         assertEquals("toor", rdbmsDataSource.getPassword());
         assertEquals("root", rdbmsDataSource.getUserName());
