@@ -13,7 +13,9 @@
 package org.talend.mdm.webapp.browserecords.client.widget;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
@@ -78,6 +80,17 @@ public class ItemsDetailPanel extends ContentPanel {
         this.setBodyBorder(false);
         this.setHeaderVisible(false);
         this.initPanel();
+    }
+    
+    public interface ForeignKeyHandler {
+
+        void onSelect();
+    }
+
+    private Map<ContentPanel, ForeignKeyHandler> fkHandlerMap = new HashMap<ContentPanel, ItemsDetailPanel.ForeignKeyHandler>();
+
+    public void addFkHandler(ContentPanel itemPanel, ForeignKeyHandler fkHandler) {
+        this.fkHandlerMap.put(itemPanel, fkHandler);
     }
 
     private void initPanel() {
@@ -347,6 +360,8 @@ public class ItemsDetailPanel extends ContentPanel {
             if (this.handlerRegistration != null) {
                 handlerRegistration.removeHandler();
             }
+            if (fkHandlerMap != null)
+                fkHandlerMap.clear();
 
             this.tabBar = new TabBar();
             // Tab selection listener for tab panel, change the content displayed and size it appropriately
@@ -364,6 +379,12 @@ public class ItemsDetailPanel extends ContentPanel {
 
                     newPanel.setHeight(ItemsDetailTabPanel.this.curTabContentInnerHeight);
                     newPanel.setWidth(ItemsDetailTabPanel.this.curTabContentInnerWidth);
+                    
+                    ForeignKeyHandler fkHandler = fkHandlerMap.get(newPanel);
+                    if (fkHandler != null) {
+                        fkHandler.onSelect();
+                        fkHandlerMap.remove(newPanel);
+                    }
                 }
             });
             this.tabBar.getElement().setId("ItemsDetailPanel-tabBar"); //$NON-NLS-1$

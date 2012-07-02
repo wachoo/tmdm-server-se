@@ -45,7 +45,6 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.state.StateManager;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -86,8 +85,6 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
     ToolBar toolBar = new ToolBar();
 
-    ToolBar firstToolBar = new ToolBar();
-
     HTML statusBar = new HTML();
 
     Button addFkButton = new Button(MessagesFactory.getMessages().add_btn(), AbstractImagePrototype.create(Icons.INSTANCE
@@ -124,10 +121,17 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
     Map<String, Field<?>> fieldMap;
     
     private ItemsDetailPanel itemsDetailPanel;
+    
+    private VerticalPanel bottomPanel = new VerticalPanel();
 
     public ForeignKeyTablePanel(String panelName) {
     	super();
-    	this.panelName = panelName;
+        this.setHeaderVisible(false);
+        this.setLayout(new FitLayout());
+        this.setAutoWidth(true);
+        this.setBodyBorder(false);
+        this.panelName = panelName;
+        initBaseComponent();
     }
 
     public ForeignKeyTablePanel(final EntityModel entityModel, ItemNodeModel parent, final List<ItemNodeModel> fkModels,
@@ -140,32 +144,43 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             ViewBean originalViewBean) {
         initContent(entityModel, parent, fkModels, fkTypeModel, fieldMap, itemsDetailPanel, originalViewBean);
     }
-
-    public void initContent(final EntityModel entityModel, ItemNodeModel parent, final List<ItemNodeModel> fkModels,
-            final TypeModel fkTypeModel, Map<String, Field<?>> fieldMap, ItemsDetailPanel itemsDetailPanel,
-            ViewBean originalViewBean) {
-        this.itemsDetailPanel = itemsDetailPanel;
-        this.setHeaderVisible(false);
-        this.setLayout(new FitLayout());
-        this.setAutoWidth(true);
-        this.setBodyBorder(false);
-        this.parent = parent;
-        this.entityModel = entityModel;
-        this.fkTypeModel = fkTypeModel;
-        this.fkModels = fkModels;
-        this.fieldMap = fieldMap;
-
+    
+    private void initBaseComponent() {
+        // topComponent
         toolBar.add(addFkButton);
         toolBar.add(new SeparatorToolItem());
         toolBar.add(removeFkButton);
         toolBar.add(new SeparatorToolItem());
         toolBar.add(createFkButton);
         toolBar.add(new SeparatorToolItem());
-        addListener();
-        LayoutContainer toolBarPanel = new LayoutContainer();
-        toolBarPanel.add(toolBar);
-        this.setTopComponent(toolBarPanel);
+        this.setTopComponent(toolBar);
+        // bottomComponent
+        bottomPanel.setWidth("100%"); //$NON-NLS-1$
+        statusBar.getElement().getStyle().setFontSize(12D, Unit.PX);
+        statusBar.setHeight("16px"); //$NON-NLS-1$
+        bottomPanel.add(statusBar);
+        if (StateManager.get().get(panelName) != null) {
+            PAGE_SIZE = Integer.valueOf(((Map<?, ?>) StateManager.get().get(panelName)).get("limit").toString()); //$NON-NLS-1$
+        }
+        pagingBar = new PagingToolBarEx(PAGE_SIZE);
+        pagingBar.setHideMode(HideMode.VISIBILITY);
+        pagingBar.getMessages().setDisplayMsg(MessagesFactory.getMessages().page_displaying_records());
+        bottomPanel.add(pagingBar);
+        this.setBottomComponent(new WidgetComponent(bottomPanel));
+    }
+    
+    public void initContent(final EntityModel entityModel, ItemNodeModel parent, final List<ItemNodeModel> fkModels,
+            final TypeModel fkTypeModel, Map<String, Field<?>> fieldMap, ItemsDetailPanel itemsDetailPanel,
+            ViewBean originalViewBean) {
+        this.itemsDetailPanel = itemsDetailPanel;
+        this.parent = parent;
+        this.entityModel = entityModel;
+        this.fkTypeModel = fkTypeModel;
+        this.fkModels = fkModels;
+        this.fieldMap = fieldMap;
 
+        addListener();
+        
         fkWindow.setForeignKeyInfos(fkTypeModel.getForeignkey(), fkTypeModel.getForeignKeyInfo());
         fkWindow.setSize(470, 340);
         fkWindow.setResizable(false);
@@ -309,23 +324,8 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         grid.setBorders(false);
         this.add(grid);
 
-        if (StateManager.get().get(panelName) != null){
-            PAGE_SIZE = Integer.valueOf(((Map<?, ?>) StateManager.get().get(panelName)).get("limit").toString()); //$NON-NLS-1$
-        }
-        pagingBar = new PagingToolBarEx(PAGE_SIZE);
-        pagingBar.setHideMode(HideMode.VISIBILITY);
-        pagingBar.getMessages().setDisplayMsg(MessagesFactory.getMessages().page_displaying_records());
         pagingBar.bind(loader);
         loader.setRemoteSort(true);
-
-        VerticalPanel vp = new VerticalPanel();
-        vp.setWidth("100%"); //$NON-NLS-1$
-        statusBar.getElement().getStyle().setFontSize(12D, Unit.PX);
-        statusBar.setHeight("16px"); //$NON-NLS-1$
-        vp.add(statusBar);
-        vp.add(pagingBar);
-
-        this.setBottomComponent(new WidgetComponent(vp));
 
         updateMandatory();
     }

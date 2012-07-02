@@ -5,20 +5,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel.ForeignKeyHandler;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextField;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.DOM;
 
@@ -242,6 +250,80 @@ public class TreeDetailGWTTest extends GWTTestCase {
         assertEquals(null, progressBar.getMessage());
         assertEquals(msg.delete_item_progress(), progressBar.getProgressText());
         progressBar.close();
+    }
+    
+    public void testForeignKeyLazyRender() {
+        final ItemsDetailPanel itemsDetailPanel = new ItemsDetailPanel();
+        // add PK tabPanel
+        ItemPanel pkTabPanel = new ItemPanel(itemsDetailPanel);
+        itemsDetailPanel.addTabItem("PKTab", pkTabPanel, ItemsDetailPanel.SINGLETON, "PK");
+        // add FK tabPanel (FK lazy render)
+        ItemPanel fkTabPanel = new ItemPanel(itemsDetailPanel);
+        // add ForeignKeyTablePanel
+        final ForeignKeyTablePanel fkPanel = new ForeignKeyTablePanel("FK Lazy render");
+        fkTabPanel.add(fkPanel, new RowData(1, 1));
+        itemsDetailPanel.addTabItem("FKTab", fkTabPanel, ItemsDetailPanel.MULTIPLE, "FK");
+        // lazy render FK
+        itemsDetailPanel.addFkHandler(fkTabPanel, new ForeignKeyHandler() {
+
+            public void onSelect() {
+                // render FK
+                EntityModel entityModel = new EntityModel();
+                entityModel.setKeys(new String[] { "ProductFamily" });
+                Map<String, TypeModel> metaDataTypes = new HashMap<String, TypeModel>();
+                metaDataTypes.put("ProductFamily", new ComplexTypeModel("ProductFamily", DataTypeConstants.STRING));
+                metaDataTypes.put("ProductFamily/Id", new SimpleTypeModel("Id", DataTypeConstants.STRING));
+                metaDataTypes.put("ProductFamily/Name", new SimpleTypeModel("Name", DataTypeConstants.STRING));
+                entityModel.setMetaDataTypes(metaDataTypes);
+                ItemNodeModel parent = new ItemNodeModel("Product");
+                List<ItemNodeModel> fkModels = new ArrayList<ItemNodeModel>();
+                TypeModel fkTypeModel = new SimpleTypeModel("Family", DataTypeConstants.STRING);
+                fkTypeModel.setForeignkey("ProductFamily/Id");
+                List<String> foreignKeyInfo = new ArrayList<String>();
+                foreignKeyInfo.add("ProductFamily/Name");
+                fkTypeModel.setForeignKeyInfo(foreignKeyInfo);
+                ItemNodeModel fkModel = new ItemNodeModel();
+                ForeignKeyBean fkBean = new ForeignKeyBean();
+                fkBean.setConceptName("ProductFamily");
+                Map<String, String> foreignKeyInfos = new HashMap<String, String>();
+                foreignKeyInfos.put("ProductFamily/Name", "TestFkLazyRender");
+                fkBean.setForeignKeyInfo(foreignKeyInfos);
+                fkBean.setId("1");
+                fkModel.setObjectValue(fkBean);
+                fkModels.add(fkModel);
+                Map<String, Field<?>> fieldMap = new HashMap<String, Field<?>>();
+                fkPanel.initContent(entityModel, parent, fkModels, fkTypeModel, fieldMap, itemsDetailPanel, null);
+                itemsDetailPanel.layout(true);
+            }
+        });
+        // before render FK
+        assertNotNull(fkPanel.getTopComponent());
+        assertNotNull(fkPanel.getBottomComponent());
+        assertEquals(0, fkPanel.getItemCount());
+        assertEquals(2, itemsDetailPanel.getTabCount());
+        // render FK
+        itemsDetailPanel.selectTabAtIndex(1);
+        // fkTable
+        assertEquals(1, fkPanel.getItemCount());
+        // fkTable is a grid
+        assertTrue(fkPanel.getItem(0) instanceof Grid);
+        Grid<?> grid = (Grid<?>) fkPanel.getItem(0);
+        // fire attach event
+        grid.fireEvent(Events.Attach);
+        // store include one record
+        assertEquals(1, grid.getStore().getCount());
+        // record is ItemNodeModel object
+        assertTrue(grid.getStore().getAt(0) instanceof ItemNodeModel);
+        ItemNodeModel fkNodeModel = (ItemNodeModel) grid.getStore().getAt(0);
+        // nodeModel's objectValue is ForeignKeyBean object
+        assertTrue(fkNodeModel.getObjectValue() instanceof ForeignKeyBean);
+        ForeignKeyBean fk = (ForeignKeyBean) fkNodeModel.getObjectValue();
+        // validate foreignKey info
+        assertEquals("1", fk.getId());
+        assertEquals("ProductFamily", fk.getConceptName());
+        assertEquals(1, fk.getForeignKeyInfo().size());
+        assertTrue(fk.getForeignKeyInfo().containsKey("ProductFamily/Name"));
+        assertTrue(fk.getForeignKeyInfo().containsValue("TestFkLazyRender"));
     }
 
     public void testAutoFillValue4MandatoryBooleanField() {
