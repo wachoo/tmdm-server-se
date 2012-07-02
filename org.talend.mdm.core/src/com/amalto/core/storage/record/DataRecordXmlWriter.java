@@ -15,7 +15,9 @@ import com.amalto.core.metadata.*;
 import com.amalto.core.query.user.DateConstant;
 import com.amalto.core.query.user.DateTimeConstant;
 import com.amalto.core.query.user.TimeConstant;
+import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 
+import javax.xml.XMLConstants;
 import java.io.*;
 import java.util.List;
 
@@ -55,13 +57,13 @@ public class DataRecordXmlWriter implements DataRecordWriter {
                 if (value != null) {
                     if (!referenceField.isMany()) {
                         DataRecord referencedRecord = (DataRecord) record.get(referenceField);
-                        out.write("<" + referenceField.getName() + ">");
+                        writeReferenceElement(referenceField, referencedRecord);
                         out.write(getFK(referencedRecord));
                         out.write("</" + referenceField.getName() + ">");
                     } else {
                         List<DataRecord> valueAsList = (List<DataRecord>) value;
                         for (DataRecord currentValue : valueAsList) {
-                            out.write("<" + referenceField.getName() + ">");
+                            writeReferenceElement(referenceField, currentValue);
                             out.write(getFK(currentValue));
                             out.write("</" + referenceField.getName() + ">");
                         }
@@ -73,25 +75,55 @@ public class DataRecordXmlWriter implements DataRecordWriter {
             }
         }
 
+        private void writeReferenceElement(ReferenceFieldMetadata referenceField, DataRecord currentValue) throws IOException {
+            if (currentValue.getType().equals(referenceField.getReferencedType())) {
+                out.write("<" + referenceField.getName() + ">");
+            } else {
+                out.write("<" + referenceField.getName() + " xmlns:tmdm=\"" + SkipAttributeDocumentBuilder.TALEND_NAMESPACE + "\" tmdm:type=\"" + currentValue.getType().getName() + "\">");
+            }
+        }
+
         @Override
         public Void visit(ContainedTypeFieldMetadata containedField) {
             try {
                 if (!containedField.isMany()) {
                     DataRecord containedRecord = (DataRecord) record.get(containedField);
                     if (containedRecord != null) {
-                        write(containedRecord, out);
+                        // TODO Limit new field printer instances
+                        DefaultMetadataVisitor<Void> fieldPrinter = new FieldPrinter(containedRecord, out);
+                        List<FieldMetadata> fields = containedRecord.getType().getFields();
+                        writeContainedField(containedField, containedRecord);
+                        for (FieldMetadata field : fields) {
+                            field.accept(fieldPrinter);
+                        }
+                        out.write("</" + containedField.getName() + ">");
                     }
                 } else {
                     List<DataRecord> recordList = (List<DataRecord>) record.get(containedField);
                     if (recordList != null) {
                         for (DataRecord dataRecord : recordList) {
-                            write(dataRecord, out);
+                            // TODO Limit new field printer instances
+                            DefaultMetadataVisitor<Void> fieldPrinter = new FieldPrinter(dataRecord, out);
+                            List<FieldMetadata> fields = dataRecord.getType().getFields();
+                            writeContainedField(containedField, dataRecord);
+                            for (FieldMetadata field : fields) {
+                                field.accept(fieldPrinter);
+                            }
+                            out.write("</" + containedField.getName() + ">");
                         }
                     }
                 }
                 return null;
             } catch (IOException e) {
                 throw new RuntimeException("Could not serialize XML for contained field '" + containedField.getName() + "' of type '" + containedField.getContainingType().getName() + "'.", e);
+            }
+        }
+
+        private void writeContainedField(ContainedTypeFieldMetadata containedField, DataRecord currentValue) throws IOException {
+            if (currentValue.getType().equals(containedField.getContainedType())) {
+                out.write("<" + containedField.getName() + ">");
+            } else {
+                out.write("<" + containedField.getName() + " xmlns:xsi=\"" + XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI + "\" xsi:type=\"" + currentValue.getType().getName() + "\">");
             }
         }
 
@@ -144,7 +176,7 @@ public class DataRecordXmlWriter implements DataRecordWriter {
         }
 
         private void handleSimpleValue(FieldMetadata simpleField, Object value) throws IOException {
-            if(value == null) {
+            if (value == null) {
                 throw new IllegalArgumentException("Not supposed to write null values to XML.");
             }
             if ("date".equals(simpleField.getType().getName())) {
@@ -159,7 +191,7 @@ public class DataRecordXmlWriter implements DataRecordWriter {
                 synchronized (TimeConstant.TIME_FORMAT) {
                     out.write((TimeConstant.TIME_FORMAT).format(value));
                 }
-            } else if(value != null) {
+            } else if (value != null) {
                 out.write(value.toString());
             }
         }

@@ -23,6 +23,7 @@ import org.hibernate.Session;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -147,23 +148,27 @@ public class GoodFieldTypeMapping extends TypeMapping {
             if (userField != null) {
                 if (userField instanceof ContainedTypeFieldMetadata) {
                     if (!userField.isMany()) {
-                        DataRecord containedDataRecord = new DataRecord((ComplexTypeMetadata) userField.getType(), UnsupportedDataRecordMetadata.INSTANCE);
-                        to.set(userField, setValues(((Wrapper) from.get(field.getName())), containedDataRecord));
-                    } else {
-                        List<DataRecord> containedDataRecords = new LinkedList<DataRecord>();
-                        List<Wrapper> wrapperList = (List<Wrapper>) from.get(field.getName());
-                        for (Wrapper wrapper : wrapperList) {
-                            containedDataRecords.add(setValues(wrapper, new DataRecord((ComplexTypeMetadata) userField.getType(), UnsupportedDataRecordMetadata.INSTANCE)));
+                        Wrapper value = (Wrapper) from.get(field.getName());
+                        if (value != null) {
+                            DataRecord containedDataRecord = new DataRecord(getActualContainedType(userField, value), UnsupportedDataRecordMetadata.INSTANCE);
+                            to.set(userField, setValues(value, containedDataRecord));
                         }
-                        to.set(userField, containedDataRecords);
+                    } else {
+                        List<Wrapper> wrapperList = (List<Wrapper>) from.get(field.getName());
+                        if (wrapperList != null) {
+                            List<DataRecord> containedDataRecords = new LinkedList<DataRecord>();
+                            for (Wrapper wrapper : wrapperList) {
+                                containedDataRecords.add(setValues(wrapper, new DataRecord(getActualContainedType(userField, wrapper), UnsupportedDataRecordMetadata.INSTANCE)));
+                            }
+                            to.set(userField, containedDataRecords);
+                        }
                     }
                 } else if (userField instanceof ReferenceFieldMetadata) {
-                    ReferenceFieldMetadata referenceFieldMetadata = (ReferenceFieldMetadata) userField;
-                    TypeMapping mapping = mappings.getMapping(referenceFieldMetadata.getReferencedType());
                     if (!userField.isMany()) {
-                        DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
                         Wrapper wrapper = (Wrapper) from.get(field.getName());
                         if (wrapper != null) {
+                            TypeMapping mapping = mappings.getMapping(contextClassLoader.getTypeFromClass(wrapper.getClass()));
+                            DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
                             for (FieldMetadata keyField : mapping.getDatabase().getKeyFields()) {
                                 referencedRecord.set(mapping.getUser(keyField), wrapper.get(keyField.getName()));
                             }
@@ -173,6 +178,7 @@ public class GoodFieldTypeMapping extends TypeMapping {
                         List<Wrapper> wrapperList = (List<Wrapper>) from.get(field.getName());
                         if (wrapperList != null) {
                             for (Wrapper wrapper : wrapperList) {
+                                TypeMapping mapping = mappings.getMapping(contextClassLoader.getTypeFromClass(wrapper.getClass()));
                                 DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
                                 for (FieldMetadata keyField : mapping.getDatabase().getKeyFields()) {
                                     referencedRecord.set(mapping.getUser(keyField), wrapper.get(keyField.getName()));
@@ -187,6 +193,24 @@ public class GoodFieldTypeMapping extends TypeMapping {
             }
         }
         return to;
+    }
+
+    // Returns actual contained type (in case in reference to hold contained record can have sub types).
+    // Not expected to be use for foreign keys, and also very specific to this mapping implementation.
+    private static ComplexTypeMetadata getActualContainedType(FieldMetadata userField, Wrapper value) {
+        String valueClassName = value.getClass().getName();
+        String actualValueType = StringUtils.substringAfterLast(valueClassName, "_");
+        if (actualValueType.equalsIgnoreCase(userField.getType().getName())) {
+            return (ComplexTypeMetadata) userField.getType();
+        } else {
+            Collection<ComplexTypeMetadata> subTypes = ((ComplexTypeMetadata) userField.getType()).getSubTypes();
+            for (ComplexTypeMetadata subType : subTypes) {
+                if (subType.getName().equalsIgnoreCase(actualValueType)) {
+                    return subType;
+                }
+            }
+        }
+        throw new IllegalStateException("Could not find actual type for value '" + String.valueOf(value) + "'");
     }
 
     private Wrapper createObject(ClassLoader storageClassLoader, ComplexTypeMetadata referencedType) {

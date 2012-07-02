@@ -12,6 +12,7 @@
 package com.amalto.core.storage.record;
 
 import com.amalto.core.metadata.*;
+import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
@@ -117,14 +118,16 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                         }
                         field = ((ComplexTypeMetadata) typeMetadata).getField(startElement.getName().getLocalPart());
                         TypeMetadata fieldType = field.getType();
+                        // Reads MDM type attribute for actual FK type
                         if (field instanceof ReferenceFieldMetadata) {
-                            Attribute actualType = startElement.getAttributeByName(new QName("http://www.talend.com/mdm", "type"));
+                            Attribute actualType = startElement.getAttributeByName(new QName(SkipAttributeDocumentBuilder.TALEND_NAMESPACE, "type"));
                             if (actualType != null) {
                                 fieldType = repository.getComplexType(actualType.getValue());
                             } else {
                                 fieldType = ((ReferenceFieldMetadata) field).getReferencedType();
                             }
                         }
+                        // Reads xsi:type for actual contained type.
                         if (fieldType instanceof ContainedComplexTypeMetadata) {
                             Attribute actualType = startElement.getAttributeByName(new QName(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type"));
                             if (actualType != null) {
