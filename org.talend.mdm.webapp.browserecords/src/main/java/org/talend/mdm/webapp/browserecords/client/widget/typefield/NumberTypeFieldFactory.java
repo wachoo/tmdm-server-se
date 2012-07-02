@@ -15,11 +15,10 @@ package org.talend.mdm.webapp.browserecords.client.widget.typefield;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.browserecords.client.model.OperatorConstants;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatNumberField;
-import org.talend.mdm.webapp.browserecords.client.widget.inputfield.SpinnerField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator.NumberFieldValidator;
 
 import com.extjs.gxt.ui.client.widget.form.Field;
-import com.google.gwt.i18n.client.NumberFormat;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 
 
 public class NumberTypeFieldFactory extends TypeFieldFactory {
@@ -94,24 +93,19 @@ public class NumberTypeFieldFactory extends TypeFieldFactory {
                 || baseType.equals(DataTypeConstants.INTEGER.getBaseTypeName())
                 || baseType.equals(DataTypeConstants.LONG.getBaseTypeName())
                 || baseType.equals(DataTypeConstants.SHORT.getBaseTypeName())) {
-            SpinnerField spinnerField = new SpinnerField();
-            spinnerField.setWidth(80);
-            spinnerField.setStepValue(Integer.valueOf(1));
-            spinnerField.setValue(Integer.valueOf(1));
-            spinnerField.setPropertyEditorType(Integer.class);
-            spinnerField.setFormat(NumberFormat.getFormat("0"));//$NON-NLS-1$
-            field = spinnerField;
+
+            TextField<String> textField = new TextField<String>();
+            textField.setWidth(80);
+            textField.setValue("*"); //$NON-NLS-1$
+            field = textField;
             source.setOperatorMap(OperatorConstants.numOperators);
         } else if (baseType.equals(DataTypeConstants.DOUBLE.getBaseTypeName())
                 || baseType.equals(DataTypeConstants.DECIMAL.getBaseTypeName())
                 || baseType.equals(DataTypeConstants.FLOAT.getBaseTypeName())) {
-            SpinnerField spinnerField = new SpinnerField();
-            spinnerField.setWidth(80);
-            spinnerField.setStepValue(.1d);
-            spinnerField.setValue(Double.valueOf(0));
-            spinnerField.setPropertyEditorType(Double.class);
-            spinnerField.setFormat(NumberFormat.getFormat("00.0"));//$NON-NLS-1$
-            field = spinnerField;
+            TextField<String> textField = new TextField<String>();
+            textField.setWidth(80);
+            textField.setValue("*"); //$NON-NLS-1$
+            field = textField;
             source.setOperatorMap(OperatorConstants.numOperators);
         } else {
             field = genTextSearchField();
