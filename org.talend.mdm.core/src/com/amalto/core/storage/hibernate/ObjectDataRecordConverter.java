@@ -53,7 +53,7 @@ public class ObjectDataRecordConverter implements DataRecordConverter<Object> {
 
     public static Serializable createCompositeId(ClassLoader classLoader, Class<?> clazz, List<Object> compositeIdValues) {
         try {
-            Class<?> idClass = classLoader.loadClass(clazz.getName() + "_ID");
+            Class<?> idClass = classLoader.loadClass(clazz.getName() + "_ID"); //$NON-NLS-1$
             Class[] parameterClasses = new Class[compositeIdValues.size()];
             int i = 0;
             for (Object o : compositeIdValues) {

@@ -103,7 +103,7 @@ public class StagingImpl implements Staging {
     }
 
     public Object invoke(String actionName, Object[] params, String[] signature) throws MBeanException, ReflectionException {
-        if ("createSubmitter".equals(actionName)) {
+        if ("createSubmitter".equals(actionName)) {  //$NON-NLS-1$
             try {
                 createSubmitter();
             } catch (Exception e) {
@@ -117,7 +117,7 @@ public class StagingImpl implements Staging {
     public MBeanInfo getMBeanInfo() {
         MBeanOperationInfo[] operations;
         try {
-            MBeanOperationInfo restartOperation = new MBeanOperationInfo("Create submitter", this.getClass().getMethod("createSubmitter"));
+            MBeanOperationInfo restartOperation = new MBeanOperationInfo("Create submitter", this.getClass().getMethod("createSubmitter")); //$NON-NLS-1$ //$NON-NLS-2$
             operations = new MBeanOperationInfo[]{restartOperation};
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);

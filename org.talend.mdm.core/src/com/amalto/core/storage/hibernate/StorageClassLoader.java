@@ -107,7 +107,7 @@ class StorageClassLoader extends ClassLoader {
             // <diskStore path="java.io.tmpdir"/>
             XPathExpression compile = pathFactory.compile("ehcache/diskStore"); //$NON-NLS-1$ //$NON-NLS-2$
             Node node = (Node) compile.evaluate(document, XPathConstants.NODE);
-            node.getAttributes().getNamedItem("path").setNodeValue(dataSource.getCacheDirectory() + '/' + dataSource.getName());
+            node.getAttributes().getNamedItem("path").setNodeValue(dataSource.getCacheDirectory() + '/' + dataSource.getName()); //$NON-NLS-1$
 
             OutputFormat format = new OutputFormat(document);
             StringWriter stringOut = new StringWriter();
@@ -230,7 +230,7 @@ class StorageClassLoader extends ClassLoader {
         }
     }
 
-    protected MappingGenerator getMappingGenerator(Document document, TableResolver resolver) {
+    MappingGenerator getMappingGenerator(Document document, TableResolver resolver) {
         return new MappingGenerator(document, resolver);
     }
 
@@ -331,13 +331,13 @@ class StorageClassLoader extends ClassLoader {
     }
 
     private static void addEvent(Document document, Node sessionFactoryElement, String eventType, String listenerClass) {
-        Element event = document.createElement("event");
-        Attr type = document.createAttribute("type");
+        Element event = document.createElement("event"); //$NON-NLS-1$
+        Attr type = document.createAttribute("type"); //$NON-NLS-1$
         type.setValue(eventType);
         event.getAttributes().setNamedItem(type);
         {
-            Element listener = document.createElement("listener");
-            Attr clazz = document.createAttribute("class");
+            Element listener = document.createElement("listener"); //$NON-NLS-1$
+            Attr clazz = document.createAttribute("class"); //$NON-NLS-1$
             clazz.setValue(listenerClass);
             listener.getAttributes().setNamedItem(clazz);
             event.appendChild(listener);
@@ -346,8 +346,8 @@ class StorageClassLoader extends ClassLoader {
     }
 
     private static void addProperty(Document document, Node sessionFactoryElement, String propertyName, String propertyValue) {
-        Element property = document.createElement("property");
-        Attr name = document.createAttribute("name");
+        Element property = document.createElement("property"); //$NON-NLS-1$
+        Attr name = document.createAttribute("name"); //$NON-NLS-1$
         name.setValue(propertyName);
         property.getAttributes().setNamedItem(name);
         property.appendChild(document.createTextNode(propertyValue));

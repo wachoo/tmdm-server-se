@@ -24,11 +24,11 @@ import java.util.Map;
  */
 public abstract class TypeMapping {
 
-    protected final ComplexTypeMetadata database;
+    private final ComplexTypeMetadata database;
 
-    protected final ComplexTypeMetadata user;
+    private final ComplexTypeMetadata user;
 
-    protected final MappingRepository mappings;
+    final MappingRepository mappings;
 
     private Map<FieldMetadata, FieldMetadata> userToDatabase = new HashMap<FieldMetadata, FieldMetadata>();
 
@@ -66,7 +66,7 @@ public abstract class TypeMapping {
         return userToDatabase.get(from);
     }
 
-    public FieldMetadata getUser(FieldMetadata to) {
+    FieldMetadata getUser(FieldMetadata to) {
         return databaseToUser.get(to);
     }
 

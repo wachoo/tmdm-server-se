@@ -48,7 +48,7 @@ public class MDMValidationTask extends MetadataRepositoryTask implements Task {
 
     @Override
     public String toString() {
-        return "CLUSTERS VALIDATION";
+        return "CLUSTERS VALIDATION"; //$NON-NLS-1$
     }
 
     @Override

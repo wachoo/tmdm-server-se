@@ -21,22 +21,22 @@ import java.util.List;
 
 class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
-    protected TypeMapping typeMapping;
-
     private final LinkedList<String> prefix = new LinkedList<String>();
 
     private final MetadataRepository internalRepository;
 
-    private boolean forceKey = false;
+    private final MappingRepository mappings;
 
-    private MappingRepository mappings;
+    private TypeMapping typeMapping;
+
+    private boolean forceKey = false;
 
     public TypeMappingCreator(MetadataRepository repository, MappingRepository mappings) {
         this.mappings = mappings;
         this.internalRepository = repository;
     }
 
-    protected String getColumnName(FieldMetadata field, boolean addPrefix) {
+    String getColumnName(FieldMetadata field, boolean addPrefix) {
         StringBuilder buffer = new StringBuilder();
         if (addPrefix) {
             for (String currentPrefix : prefix) {
@@ -48,7 +48,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         // upper case character. To prevent any error due to missing field, lower case the field name.
         // Note #2: Prefix everything with "x_" so there won't be any conflict with database internal type names.
         // Note #3: Having '-' character is bad for Java code generation, so replace it with '_'.
-        return "x_" + (buffer.toString().replace('-', '_') + name).toLowerCase();
+        return "x_" + (buffer.toString().replace('-', '_') + name).toLowerCase(); //$NON-NLS-1$
     }
 
     @Override
@@ -147,7 +147,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
         if (typeMapping.getUser().getKeyFields().isEmpty()) {
             ComplexTypeMetadata database = typeMapping.getDatabase();
-            database.addField(new SimpleTypeFieldMetadata(database, true, false, true, "X_TALEND_ID", new SoftTypeRef(internalRepository, XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"), Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            database.addField(new SimpleTypeFieldMetadata(database, true, false, true, "X_TALEND_ID", new SoftTypeRef(internalRepository, XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"), Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$ //$NON-NLS-2$
         }
         return typeMapping;
     }

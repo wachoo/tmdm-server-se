@@ -24,15 +24,15 @@ public interface DataRecordReader<T> {
      * {@link ComplexTypeMetadata}.
      *
      *
-     * @param dataClusterName A valid data cluster name used to instantiate the {@link com.amalto.core.storage.record.DataRecord} instance.
+     *
      * @param revisionId      Revision id of the <code>input</code> to read. This value is used to set the value of revision in
-     *                        {@link com.amalto.core.storage.record.DataRecord#getRevisionId()}.
+     *                        {@link DataRecord#getRevisionId()}.
      * @param repository      Repository to be used to resolve actual type in case in inheritance.
-     * @param input           An input (type may vary in implementations of this interface).   @return A {@link DataRecord} instance with fields filled with values of <code>input</code>. Fields names are the
+     * @param input           An input (type may vary in implementations of this interface).   @return A {@link com.amalto.core.storage.record.DataRecord} instance with fields filled with values of <code>input</code>. Fields names are the
      *                        ones defined in <code>type</code> argument. Implementations should not return null but throw exception in
      *                        case of errors.  @throws RuntimeException Might be thrown by implementations of this interface.
      * @return A {@link DataRecord} that contains all information read from <code>input</code>.
      */
-    DataRecord read(String dataClusterName, long revisionId, MetadataRepository repository, ComplexTypeMetadata type, T input);
+    DataRecord read(long revisionId, MetadataRepository repository, ComplexTypeMetadata type, T input);
 
 }

@@ -174,7 +174,7 @@ public class StorageIsolationTest extends TestCase {
 
                 storage.begin();
                 for (int i = 0; i < instanceNumber; i++) {
-                    DataRecord record = factory.read(storageName, 1, repository, type, "<" + typeName + "><Id>" + i + "</Id><field>" + valueText + "</field></" + typeName + ">");
+                    DataRecord record = factory.read(1, repository, type, "<" + typeName + "><Id>" + i + "</Id><field>" + valueText + "</field></" + typeName + ">");
                     storage.update(record);
                 }
                 storage.commit();

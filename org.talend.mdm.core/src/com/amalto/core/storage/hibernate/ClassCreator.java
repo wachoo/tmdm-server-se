@@ -28,7 +28,7 @@ import java.util.*;
 // TODO Refactor
 class ClassCreator extends DefaultMetadataVisitor<Void> {
 
-    public static final String PACKAGE_PREFIX = "org.talend.mdm.storage.hibernate.";
+    public static final String PACKAGE_PREFIX = "org.talend.mdm.storage.hibernate."; //$NON-NLS-1$
 
     private final StorageClassLoader storageClassLoader;
 
@@ -473,7 +473,7 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
         }
     }
 
-    protected String getFieldType(FieldMetadata metadata) {
+    String getFieldType(FieldMetadata metadata) {
         return MetadataUtils.getJavaType(metadata.getType());
     }
 

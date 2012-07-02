@@ -30,23 +30,17 @@ class ScrollableIterator extends CloseableIterator<DataRecord> {
 
     private final static Map<ComplexTypeMetadata, ObjectDataRecordReader> typeToReader = new HashMap<ComplexTypeMetadata, ObjectDataRecordReader>();
 
-    private final String revisionId;
-
     private final ScrollableResults results;
 
     private final Set<EndOfResultsCallback> callbacks;
 
     private final StorageClassLoader storageClassLoader;
 
-    private final String dataClusterName;
-
     private final MappingRepository storageRepository;
 
-    public ScrollableIterator(MappingRepository storageRepository, StorageClassLoader storageClassLoader, String dataClusterName, String revisionId, ScrollableResults results, Set<EndOfResultsCallback> callbacks) {
+    public ScrollableIterator(MappingRepository storageRepository, StorageClassLoader storageClassLoader, ScrollableResults results, Set<EndOfResultsCallback> callbacks) {
         this.storageRepository = storageRepository;
         this.storageClassLoader = storageClassLoader;
-        this.dataClusterName = dataClusterName;
-        this.revisionId = revisionId;
         this.results = results;
         this.callbacks = callbacks;
     }
@@ -81,7 +75,7 @@ class ScrollableIterator extends CloseableIterator<DataRecord> {
         if (!(next instanceof Wrapper)) {
             throw new IllegalArgumentException("Result object is not an instance of " + Wrapper.class.getName());
         }
-        return reader.read(dataClusterName, Long.valueOf(revisionId), storageRepository.getMapping(type), (Wrapper) next);
+        return reader.read(storageRepository.getMapping(type), (Wrapper) next);
     }
 
     // Cache type readers

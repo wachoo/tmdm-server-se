@@ -114,7 +114,7 @@ public class StringDataRecordWriter implements DataRecordWriter {
     private static Object getReferencedFieldValue(ReferenceFieldMetadata field, Object value) {
         FieldMetadata referencedField = field.getReferencedField();
         try {
-            Method getter = value.getClass().getMethod("get" + referencedField.getName());
+            Method getter = value.getClass().getMethod("get" + referencedField.getName()); //$NON-NLS-1$
             return getter.invoke(value);
         } catch (Exception e) {
             throw new RuntimeException(e);

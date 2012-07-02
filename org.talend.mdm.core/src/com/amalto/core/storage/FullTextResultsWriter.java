@@ -37,25 +37,25 @@ public class FullTextResultsWriter implements DataRecordWriter {
     public void write(DataRecord record, Writer writer) throws IOException {
         List<FieldMetadata> keyFields = record.getType().getKeyFields();
 
-        writer.write("<item>");
+        writer.write("<item>"); //$NON-NLS-1$
         {
             {
-                writer.write("<ids>");
+                writer.write("<ids>"); //$NON-NLS-1$
                 for (FieldMetadata keyField : keyFields) {
-                    writer.write("<id>" + record.get(keyField) + "</id>");
+                    writer.write("<id>" + record.get(keyField) + "</id>"); //$NON-NLS-1$ //$NON-NLS-2$
                 }
-                writer.write("</ids>");
+                writer.write("</ids>"); //$NON-NLS-1$
             }
             {
-                writer.write("<title>");
+                writer.write("<title>"); //$NON-NLS-1$
                 writer.write(record.getType().getName());
                 for (FieldMetadata keyField : keyFields) {
                     writer.write(" " + record.get(keyField));
                 }
-                writer.write("</title>");
+                writer.write("</title>"); //$NON-NLS-1$
             }
             {
-                writer.write("<text>");
+                writer.write("<text>"); //$NON-NLS-1$
                 String[] snippetWords = new String[3];
                 boolean hasMetKeyword = false;
                 for (FieldMetadata field : record.getSetFields()) {
@@ -64,7 +64,7 @@ public class FullTextResultsWriter implements DataRecordWriter {
                         if (recordFieldValue != null) {
                             String value = String.valueOf(recordFieldValue);
                             if (value.contains(keyword)) {
-                                snippetWords[1] = "<b>" + value + "</b>";
+                                snippetWords[1] = "<b>" + value + "</b>"; //$NON-NLS-1$ //$NON-NLS-2$
                                 hasMetKeyword = true;
                             } else {
                                 snippetWords[hasMetKeyword ? 0 : 2] = value;
@@ -77,18 +77,18 @@ public class FullTextResultsWriter implements DataRecordWriter {
                 }
                 StringBuilder builder = new StringBuilder();
                 for (String snippetWord : snippetWords) {
-                    builder.append(snippetWord).append(" ... ");
+                    builder.append(snippetWord).append(" ... "); //$NON-NLS-1$
                 }
                 writer.write(builder.toString());
-                writer.write("</text>");
+                writer.write("</text>"); //$NON-NLS-1$
             }
             {
-                writer.write("<typeName>");
+                writer.write("<typeName>"); //$NON-NLS-1$
                 writer.write(record.getType().getName());
-                writer.write("</typeName>");
+                writer.write("</typeName>"); //$NON-NLS-1$
             }
         }
-        writer.write("</item>");
+        writer.write("</item>"); //$NON-NLS-1$
         writer.flush();
     }
 }

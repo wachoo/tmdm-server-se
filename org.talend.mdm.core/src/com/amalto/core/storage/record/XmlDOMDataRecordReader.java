@@ -26,7 +26,7 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
     public XmlDOMDataRecordReader() {
     }
 
-    public DataRecord read(String dataClusterName, long revisionId, MetadataRepository repository, ComplexTypeMetadata type, Element element) {
+    public DataRecord read(long revisionId, MetadataRepository repository, ComplexTypeMetadata type, Element element) {
         long lastModificationTime = 0;
         String taskId = null;
 
@@ -46,7 +46,7 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
         DataRecord dataRecord = new DataRecord(type, metadata);
         dataRecord.setRevisionId(revisionId);
 
-        NodeList userPayloadElement = element.getElementsByTagName("p");
+        NodeList userPayloadElement = element.getElementsByTagName("p"); //$NON-NLS-1$
         Element singleUserPayloadElement = (Element) userPayloadElement.item(0);
         if (singleUserPayloadElement == null) {
             _read(dataRecord, type, element);

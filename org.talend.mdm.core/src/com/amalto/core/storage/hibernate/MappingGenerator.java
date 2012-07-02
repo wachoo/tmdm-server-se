@@ -41,7 +41,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
 
     private String compositeKeyPrefix;
 
-    private boolean generateConstrains;
+    private final boolean generateConstrains;
 
     public MappingGenerator(Document document, TableResolver resolver) {
         this(document, resolver, true);
@@ -53,7 +53,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
         this.generateConstrains = generateConstrains;
     }
 
-    public static String shortString(String s) {
+    private static String shortString(String s) {
         if (s.length() < 40) {
             return s;
         }
@@ -89,24 +89,24 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
         String table = resolver.get(complexType);
         String generatedClassName = ClassCreator.PACKAGE_PREFIX + complexType.getName();
 
-        Element classElement = document.createElement("class");
-        Attr className = document.createAttribute("name");
+        Element classElement = document.createElement("class"); //$NON-NLS-1$
+        Attr className = document.createAttribute("name");  //$NON-NLS-1$
         className.setValue(generatedClassName);
         classElement.getAttributes().setNamedItem(className);
-        Attr classTable = document.createAttribute("table");
+        Attr classTable = document.createAttribute("table"); //$NON-NLS-1$
         classTable.setValue(shortString(table));
         classElement.getAttributes().setNamedItem(classTable);
 
         // <cache usage="read-write" include="non-lazy"/>
-        Element cacheElement = document.createElement("cache");
-        Attr usageAttribute = document.createAttribute("usage");
-        usageAttribute.setValue("read-write");
+        Element cacheElement = document.createElement("cache"); //$NON-NLS-1$
+        Attr usageAttribute = document.createAttribute("usage"); //$NON-NLS-1$
+        usageAttribute.setValue("read-write"); //$NON-NLS-1$
         cacheElement.getAttributes().setNamedItem(usageAttribute);
-        Attr includeAttribute = document.createAttribute("include");
-        includeAttribute.setValue("non-lazy");
+        Attr includeAttribute = document.createAttribute("include"); //$NON-NLS-1$
+        includeAttribute.setValue("non-lazy"); //$NON-NLS-1$
         cacheElement.getAttributes().setNamedItem(includeAttribute);
-        Attr regionAttribute = document.createAttribute("region");
-        regionAttribute.setValue("region");
+        Attr regionAttribute = document.createAttribute("region"); //$NON-NLS-1$
+        regionAttribute.setValue("region"); //$NON-NLS-1$
         cacheElement.getAttributes().setNamedItem(regionAttribute);
         classElement.appendChild(cacheElement);
 
@@ -123,15 +123,15 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                     </composite-id>
              */
             compositeId = true;
-            idParentElement = document.createElement("composite-id");
+            idParentElement = document.createElement("composite-id"); //$NON-NLS-1$
             classElement.appendChild(idParentElement);
 
-            Attr classAttribute = document.createAttribute("class");
-            classAttribute.setValue(generatedClassName + "_ID");
+            Attr classAttribute = document.createAttribute("class"); //$NON-NLS-1$
+            classAttribute.setValue(generatedClassName + "_ID"); //$NON-NLS-1$
             idParentElement.getAttributes().setNamedItem(classAttribute);
 
-            Attr mappedAttribute = document.createAttribute("mapped");
-            mappedAttribute.setValue("true");
+            Attr mappedAttribute = document.createAttribute("mapped"); //$NON-NLS-1$
+            mappedAttribute.setValue("true"); //$NON-NLS-1$
             idParentElement.getAttributes().setNamedItem(mappedAttribute);
         }
 
@@ -152,17 +152,17 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
         if (!complexType.getSubTypes().isEmpty()) {
             /*
             <union-subclass name="CreditCardPayment" table="CREDIT_PAYMENT">
-                   <property name="creditCardType" column="CCTYPE"/>
+                   <property name="creditCardType" column=""/>
                    ...
                </union-subclass>
             */
             for (ComplexTypeMetadata subType : complexType.getSubTypes()) {
-                Element unionSubclass = document.createElement("union-subclass");
-                Attr name = document.createAttribute("name");
+                Element unionSubclass = document.createElement("union-subclass"); //$NON-NLS-1$
+                Attr name = document.createAttribute("name"); //$NON-NLS-1$
                 name.setValue(ClassCreator.PACKAGE_PREFIX + subType.getName());
                 unionSubclass.setAttributeNode(name);
 
-                Attr tableName = document.createAttribute("table");
+                Attr tableName = document.createAttribute("table"); //$NON-NLS-1$
                 tableName.setValue(shortString(resolver.get(subType)));
                 unionSubclass.setAttributeNode(tableName);
 
@@ -214,41 +214,41 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                      <many-to-many column="bar_id" class="Bar"/>
                   </list>
                  */
-                Element propertyElement = document.createElement("list");
-                Attr name = document.createAttribute("name");
+                Element propertyElement = document.createElement("list"); //$NON-NLS-1$
+                Attr name = document.createAttribute("name"); //$NON-NLS-1$
                 name.setValue(fieldName);
                 propertyElement.getAttributes().setNamedItem(name);
 
-                Attr lazy = document.createAttribute("lazy");
-                lazy.setValue("false");
+                Attr lazy = document.createAttribute("lazy"); //$NON-NLS-1$
+                lazy.setValue("false"); //$NON-NLS-1$
                 propertyElement.getAttributes().setNamedItem(lazy);
 
-                Attr joinAttribute = document.createAttribute("fetch");
+                Attr joinAttribute = document.createAttribute("fetch"); //$NON-NLS-1$
                 joinAttribute.setValue("select"); // Keep it "select" (Hibernate tends to duplicate results when using "fetch")
                 propertyElement.getAttributes().setNamedItem(joinAttribute);
 
                 // cascade="true"
-                if (Boolean.parseBoolean(referenceField.<String>getData("SQL_DELETE_CASCADE"))) {
-                    Attr cascade = document.createAttribute("cascade");
-                    cascade.setValue("delete");
+                if (Boolean.parseBoolean(referenceField.<String>getData("SQL_DELETE_CASCADE"))) { //$NON-NLS-1$
+                    Attr cascade = document.createAttribute("cascade"); //$NON-NLS-1$
+                    cascade.setValue("delete"); //$NON-NLS-1$
                     propertyElement.getAttributes().setNamedItem(cascade);
                 }
 
-                Attr tableName = document.createAttribute("table");
+                Attr tableName = document.createAttribute("table"); //$NON-NLS-1$
                 tableName.setValue(shortString((referenceField.getContainingType().getName() + '_' + fieldName + '_' + referencedType.getName()).toUpperCase()));
                 propertyElement.getAttributes().setNamedItem(tableName);
                 {
                     // <key column="foo_id"/>
-                    Element key = document.createElement("key");
-                    Attr elementColumn = document.createAttribute("column");
+                    Element key = document.createElement("key"); //$NON-NLS-1$
+                    Attr elementColumn = document.createAttribute("column"); //$NON-NLS-1$
                     elementColumn.setValue(shortString(referenceField.getName()));
                     key.getAttributes().setNamedItem(elementColumn);
                     propertyElement.appendChild(key);
 
                     // <index column="idx" />
-                    Element index = document.createElement("index");
-                    Attr indexColumn = document.createAttribute("column");
-                    indexColumn.setValue("pos");
+                    Element index = document.createElement("index"); //$NON-NLS-1$
+                    Attr indexColumn = document.createAttribute("column"); //$NON-NLS-1$
+                    indexColumn.setValue("pos"); //$NON-NLS-1$
                     index.getAttributes().setNamedItem(indexColumn);
                     propertyElement.appendChild(index);
 
@@ -265,50 +265,51 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
     }
 
     private Element newManyToOneElement(String fieldName, boolean enforceDataBaseIntegrity, ReferenceFieldMetadata referencedField) {
-        Element propertyElement = document.createElement("many-to-one");
-        Attr propertyName = document.createAttribute("name");
+        Element propertyElement = document.createElement("many-to-one"); //$NON-NLS-1$
+        Attr propertyName = document.createAttribute("name"); //$NON-NLS-1$
         propertyName.setValue(fieldName);
-        Attr className = document.createAttribute("class");
+        Attr className = document.createAttribute("class"); //$NON-NLS-1$
         className.setValue(ClassCreator.PACKAGE_PREFIX + referencedField.getReferencedType().getName());
 
         // fetch="join" lazy="false"
-        Attr lazy = document.createAttribute("lazy");
-        lazy.setValue("false");
+        Attr lazy = document.createAttribute("lazy"); //$NON-NLS-1$
+        lazy.setValue("false"); //$NON-NLS-1$
         propertyElement.getAttributes().setNamedItem(lazy);
 
-        Attr joinAttribute = document.createAttribute("fetch");
-        joinAttribute.setValue("join");
+        Attr joinAttribute = document.createAttribute("fetch"); //$NON-NLS-1$
+        joinAttribute.setValue("join"); //$NON-NLS-1$
         propertyElement.getAttributes().setNamedItem(joinAttribute);
 
         // Not null
         if (referencedField.isMandatory()) {
-            Attr notNull = document.createAttribute("not-null");
-            notNull.setValue("true");
+            Attr notNull = document.createAttribute("not-null"); //$NON-NLS-1$
+            notNull.setValue("true"); //$NON-NLS-1$
             propertyElement.getAttributes().setNamedItem(notNull);
         } else {
-            Attr notNull = document.createAttribute("not-null");
-            notNull.setValue("false");
+            Attr notNull = document.createAttribute("not-null"); //$NON-NLS-1$
+            notNull.setValue("false"); //$NON-NLS-1$
             propertyElement.getAttributes().setNamedItem(notNull);
         }
 
         // If data model authorizes fk integrity override, don't enforce database FK integrity.
         if (enforceDataBaseIntegrity) {
             // Ensure default settings for Hibernate are set (in case they change).
-            Attr notFound = document.createAttribute("not-found");
-            notFound.setValue("exception");
+            Attr notFound = document.createAttribute("not-found"); //$NON-NLS-1$
+            notFound.setValue("exception"); //$NON-NLS-1$
             propertyElement.getAttributes().setNamedItem(notFound);
         } else {
             // Disables all warning/errors from Hibernate.
-            Attr integrity = document.createAttribute("unique");
-            integrity.setValue("false");
+            Attr integrity = document.createAttribute("unique"); //$NON-NLS-1$
+            integrity.setValue("false"); //$NON-NLS-1$
             propertyElement.getAttributes().setNamedItem(integrity);
 
-            Attr foreignKey = document.createAttribute("foreign-key");
-            foreignKey.setValue("none");  // Disables foreign key generation for DDL.
+            Attr foreignKey = document.createAttribute("foreign-key"); //$NON-NLS-1$*
+            // Disables foreign key generation for DDL.
+            foreignKey.setValue("none");  //$NON-NLS-1$
             propertyElement.getAttributes().setNamedItem(foreignKey);
 
-            Attr notFound = document.createAttribute("not-found");
-            notFound.setValue("ignore");
+            Attr notFound = document.createAttribute("not-found"); //$NON-NLS-1$
+            notFound.setValue("ignore"); //$NON-NLS-1$
             propertyElement.getAttributes().setNamedItem(notFound);
         }
 
@@ -329,30 +330,31 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
 
     private Element newManyToManyElement(boolean enforceDataBaseIntegrity, ReferenceFieldMetadata referencedField) {
         // <many-to-many column="bar_id" class="Bar"/>
-        Element manyToMany = document.createElement("many-to-many");
+        Element manyToMany = document.createElement("many-to-many"); //$NON-NLS-1$
 
         // If data model authorizes fk integrity override, don't enforce database FK integrity.
         if (enforceDataBaseIntegrity) {
             // Ensure default settings for Hibernate are set (in case they change).
-            Attr notFound = document.createAttribute("not-found");
-            notFound.setValue("exception");
+            Attr notFound = document.createAttribute("not-found"); //$NON-NLS-1$
+            notFound.setValue("exception"); //$NON-NLS-1$
             manyToMany.getAttributes().setNamedItem(notFound);
         } else {
             // Disables all warning/errors from Hibernate.
-            Attr integrity = document.createAttribute("unique");
-            integrity.setValue("false");
+            Attr integrity = document.createAttribute("unique"); //$NON-NLS-1$
+            integrity.setValue("false"); //$NON-NLS-1$
             manyToMany.getAttributes().setNamedItem(integrity);
 
-            Attr foreignKey = document.createAttribute("foreign-key");
-            foreignKey.setValue("none");  // Disables foreign key generation for DDL.
+            Attr foreignKey = document.createAttribute("foreign-key"); //$NON-NLS-1$
+            // Disables foreign key generation for DDL.
+            foreignKey.setValue("none"); //$NON-NLS-1$
             manyToMany.getAttributes().setNamedItem(foreignKey);
 
-            Attr notFound = document.createAttribute("not-found");
-            notFound.setValue("ignore");
+            Attr notFound = document.createAttribute("not-found"); //$NON-NLS-1$
+            notFound.setValue("ignore"); //$NON-NLS-1$
             manyToMany.getAttributes().setNamedItem(notFound);
         }
 
-        Attr className = document.createAttribute("class");
+        Attr className = document.createAttribute("class"); //$NON-NLS-1$
         className.setValue(ClassCreator.PACKAGE_PREFIX + referencedField.getReferencedType().getName());
         manyToMany.getAttributes().setNamedItem(className);
 
@@ -377,12 +379,12 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
         String fieldName = resolver.get(field);
 
         if (isDoingColumns) {
-            Element column = document.createElement("column");
-            Attr columnName = document.createAttribute("name");
-            columnName.setValue(shortString(compositeKeyPrefix + "_" + fieldName));
+            Element column = document.createElement("column"); //$NON-NLS-1$
+            Attr columnName = document.createAttribute("name"); //$NON-NLS-1$
+            columnName.setValue(shortString(compositeKeyPrefix + "_" + fieldName)); //$NON-NLS-1$
             column.getAttributes().setNamedItem(columnName);
 
-            Attr notNull = document.createAttribute("not-null");
+            Attr notNull = document.createAttribute("not-null"); //$NON-NLS-1$
             notNull.setValue(String.valueOf(isColumnMandatory));
             column.getAttributes().setNamedItem(notNull);
 
@@ -394,21 +396,21 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
         if (field.isKey()) {
             Element idElement;
             if (!compositeId) {
-                idElement = document.createElement("id");
+                idElement = document.createElement("id"); //$NON-NLS-1$
                 if ("UUID".equals(field.getType().getName())) {  //$NON-NLS-1$
                     // <generator class="uuid.hex"/>
-                    Element generator = document.createElement("generator");
-                    Attr generatorClass = document.createAttribute("class");
-                    generatorClass.setValue("uuid.hex");
+                    Element generator = document.createElement("generator"); //$NON-NLS-1$
+                    Attr generatorClass = document.createAttribute("class"); //$NON-NLS-1$
+                    generatorClass.setValue("uuid.hex"); //$NON-NLS-1$
                     generator.getAttributes().setNamedItem(generatorClass);
                     idElement.appendChild(generator);
                 }
             } else {
-                idElement = document.createElement("key-property");
+                idElement = document.createElement("key-property"); //$NON-NLS-1$
             }
-            Attr idName = document.createAttribute("name");
+            Attr idName = document.createAttribute("name"); //$NON-NLS-1$
             idName.setValue(fieldName);
-            Attr columnName = document.createAttribute("column");
+            Attr columnName = document.createAttribute("column"); //$NON-NLS-1$
             columnName.setValue(shortString(fieldName));
 
             idElement.getAttributes().setNamedItem(idName);
@@ -416,26 +418,26 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
             return idElement;
         } else {
             if (!field.isMany()) {
-                Element propertyElement = document.createElement("property");
-                Attr propertyName = document.createAttribute("name");
+                Element propertyElement = document.createElement("property"); //$NON-NLS-1$
+                Attr propertyName = document.createAttribute("name"); //$NON-NLS-1$
                 propertyName.setValue(fieldName);
-                Attr columnName = document.createAttribute("column");
+                Attr columnName = document.createAttribute("column"); //$NON-NLS-1$
                 columnName.setValue(shortString(fieldName));
 
                 // Not null
                 if (generateConstrains) {
                     if (field.isMandatory()) {
-                        Attr notNull = document.createAttribute("not-null");
-                        notNull.setValue("true");
+                        Attr notNull = document.createAttribute("not-null"); //$NON-NLS-1$
+                        notNull.setValue("true"); //$NON-NLS-1$
                         propertyElement.getAttributes().setNamedItem(notNull);
                     } else {
-                        Attr notNull = document.createAttribute("not-null");
-                        notNull.setValue("false");
+                        Attr notNull = document.createAttribute("not-null"); //$NON-NLS-1$
+                        notNull.setValue("false"); //$NON-NLS-1$
                         propertyElement.getAttributes().setNamedItem(notNull);
                     }
                 } else {
-                    Attr notNull = document.createAttribute("not-null");
-                    notNull.setValue("false");
+                    Attr notNull = document.createAttribute("not-null"); //$NON-NLS-1$
+                    notNull.setValue("false"); //$NON-NLS-1$
                     propertyElement.getAttributes().setNamedItem(notNull);
                 }
 
@@ -443,43 +445,43 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 propertyElement.getAttributes().setNamedItem(columnName);
                 return propertyElement;
             } else {
-                Element listElement = document.createElement("list");
-                Attr name = document.createAttribute("name");
+                Element listElement = document.createElement("list"); //$NON-NLS-1$
+                Attr name = document.createAttribute("name"); //$NON-NLS-1$
                 name.setValue(fieldName);
-                Attr tableName = document.createAttribute("table");
+                Attr tableName = document.createAttribute("table"); //$NON-NLS-1$
                 tableName.setValue(shortString((field.getContainingType().getName() + '_' + fieldName).toUpperCase()));
 
                 // lazy="false"
-                Attr lazyAttribute = document.createAttribute("lazy");
-                lazyAttribute.setValue("false");
+                Attr lazyAttribute = document.createAttribute("lazy"); //$NON-NLS-1$
+                lazyAttribute.setValue("false"); //$NON-NLS-1$
                 listElement.getAttributes().setNamedItem(lazyAttribute);
 
                 // inverse="true"
-                Attr inverseAttribute = document.createAttribute("inverse");
-                inverseAttribute.setValue("true");
+                Attr inverseAttribute = document.createAttribute("inverse"); //$NON-NLS-1$
+                inverseAttribute.setValue("true"); //$NON-NLS-1$
                 listElement.getAttributes().setNamedItem(inverseAttribute);
 
                 // inverse="true"
-                Attr fetchAttribute = document.createAttribute("fetch");
-                fetchAttribute.setValue("join");
+                Attr fetchAttribute = document.createAttribute("fetch"); //$NON-NLS-1$
+                fetchAttribute.setValue("join"); //$NON-NLS-1$
                 listElement.getAttributes().setNamedItem(fetchAttribute);
 
                 // cascade="true"
-                Attr cascade = document.createAttribute("cascade");
-                cascade.setValue("delete");
+                Attr cascade = document.createAttribute("cascade"); //$NON-NLS-1$
+                cascade.setValue("delete"); //$NON-NLS-1$
                 listElement.getAttributes().setNamedItem(cascade);
 
-                Element key = document.createElement("key");
-                Attr column = document.createAttribute("column");
-                column.setValue("id");
+                Element key = document.createElement("key"); //$NON-NLS-1$
+                Attr column = document.createAttribute("column"); //$NON-NLS-1$
+                column.setValue("id"); //$NON-NLS-1$
                 key.getAttributes().setNamedItem(column);
 
                 // <element column="name" type="string"/>
-                Element element = document.createElement("element");
-                Attr elementColumn = document.createAttribute("column");
-                elementColumn.setValue("value");
+                Element element = document.createElement("element"); //$NON-NLS-1$
+                Attr elementColumn = document.createAttribute("column"); //$NON-NLS-1$
+                elementColumn.setValue("value"); //$NON-NLS-1$
                 element.getAttributes().setNamedItem(elementColumn);
-                Attr elementType = document.createAttribute("type");
+                Attr elementType = document.createAttribute("type"); //$NON-NLS-1$
                 elementType.setValue(getFieldType(field));
                 element.getAttributes().setNamedItem(elementType);
 
@@ -489,9 +491,9 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 }
 
                 // <index column="idx" />
-                Element index = document.createElement("index");
-                Attr indexColumn = document.createAttribute("column");
-                indexColumn.setValue("pos");
+                Element index = document.createElement("index"); //$NON-NLS-1$
+                Attr indexColumn = document.createAttribute("column"); //$NON-NLS-1$
+                indexColumn.setValue("pos"); //$NON-NLS-1$
                 index.getAttributes().setNamedItem(indexColumn);
 
                 listElement.getAttributes().setNamedItem(name);
@@ -503,7 +505,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
         }
     }
 
-    protected String getFieldType(FieldMetadata field) {
+    String getFieldType(FieldMetadata field) {
         return MetadataUtils.getJavaType(field.getType());
     }
 }

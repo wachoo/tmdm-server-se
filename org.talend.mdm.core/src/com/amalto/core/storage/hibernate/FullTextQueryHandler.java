@@ -124,9 +124,9 @@ class FullTextQueryHandler extends AbstractQueryHandler {
     private StorageResults createResults(List list) {
         CloseableIterator<DataRecord> iterator;
         if (selectedFields.isEmpty()) {
-            iterator = new ListIterator(mappingMetadataRepository, storageClassLoader, storageName, revisionId, list.iterator(), callbacks);
+            iterator = new ListIterator(mappingMetadataRepository, storageClassLoader, list.iterator(), callbacks);
         } else {
-            iterator = new ListIterator(mappingMetadataRepository, storageClassLoader, storageName, revisionId, list.iterator(), callbacks) {
+            iterator = new ListIterator(mappingMetadataRepository, storageClassLoader, list.iterator(), callbacks) {
                 @Override
                 public DataRecord next() {
                     DataRecord next = super.next();
@@ -147,15 +147,11 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         if (selectedFields.isEmpty()) {
             iterator = new ScrollableIterator(mappingMetadataRepository,
                     storageClassLoader,
-                    storageName,
-                    revisionId,
                     scrollableResults,
                     callbacks);
         } else {
             iterator = new ScrollableIterator(mappingMetadataRepository,
                     storageClassLoader,
-                    storageName,
-                    revisionId,
                     scrollableResults,
                     callbacks) {
                 @Override
@@ -200,7 +196,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
             for (ComplexTypeMetadata type : types) {
                 try {
                     fields.addAll(type.accept(new DefaultMetadataVisitor<List<String>>() {
-                        List<String> fields = new LinkedList<String>();
+                        final List<String> fields = new LinkedList<String>();
 
                         @Override
                         public List<String> visit(ComplexTypeMetadata complexType) {

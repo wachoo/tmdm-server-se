@@ -17,7 +17,7 @@ import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 
 public class ObjectDataRecordReader {
 
-    public DataRecord read(String dataClusterName, long revisionId, TypeMapping mapping, Wrapper input) {
+    public DataRecord read(TypeMapping mapping, Wrapper input) {
         DataRecordMetadataImpl recordMetadata = new DataRecordMetadataImpl(input.timestamp(), input.taskId());
         DataRecord record = new DataRecord(mapping.getUser(), recordMetadata);
         mapping.setValues(input, record);

@@ -11,7 +11,6 @@
 
 package com.amalto.core.storage;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.storage.datasource.DataSource;
@@ -29,11 +28,16 @@ public interface Storage {
      * This value is used to limit current state of implementation: there's no current support for multiple Storage instances
      * in MDM (but unit tests test this behavior).
      */
-    String DEFAULT_DATA_SOURCE_NAME = "RDBMS-1";
+    String DEFAULT_DATA_SOURCE_NAME = "RDBMS-1";  //$NON-NLS-1$
+
     String METADATA_TIMESTAMP = "x_talend_timestamp"; //$NON-NLS-1$
+
     String METADATA_TASK_ID = "x_talend_task_id"; //$NON-NLS-1$
+
     String METADATA_REVISION_ID = "x_talend_revision_id"; //$NON-NLS-1$
+
     String METADATA_STAGING_STATUS = "x_talend_staging_status"; //$NON-NLS-1$
+
     String METADATA_STAGING_ERROR = "x_talend_staging_error"; //$NON-NLS-1$
 
     /**
@@ -142,9 +146,13 @@ public interface Storage {
     void reindex();
 
     /**
-     * @param keyword
-     * @param suggestionSize
-     * @return
+     * Returns suggested keywords (words that match result in full text index) for the <code>keyword</code>. Returned
+     * results depend on {@link FullTextSuggestion}.
+     *
+     * @param keyword        A word to be used as input for this method (only one word).
+     * @param mode           {@link FullTextSuggestion} suggestion mode.
+     * @param suggestionSize Number of suggestions this method should return.
+     * @return A {@link Set} of <code>suggestionSize</code> keywords that matches results in full text index.
      */
     Set<String> getFullTextSuggestion(String keyword, FullTextSuggestion mode, int suggestionSize);
 

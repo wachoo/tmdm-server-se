@@ -20,7 +20,7 @@ public class MergeTask extends MetadataRepositoryTask {
 
     @Override
     public String toString() {
-        return "MERGE CLUSTERS";
+        return "MERGE CLUSTERS"; //$NON-NLS-1$
     }
 
     @Override
@@ -30,7 +30,7 @@ public class MergeTask extends MetadataRepositoryTask {
     }
 
     private static class MergeClosure implements Closure {
-        private Storage storage;
+        private final Storage storage;
 
         public MergeClosure(Storage storage) {
             this.storage = storage;

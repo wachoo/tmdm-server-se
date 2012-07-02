@@ -31,11 +31,11 @@ public class DataRecordXmlWriter implements DataRecordWriter {
     public void write(DataRecord record, Writer writer) throws IOException {
         DefaultMetadataVisitor<Void> fieldPrinter = new FieldPrinter(record, writer);
         List<FieldMetadata> fields = record.getType().getFields();
-        writer.write("<" + record.getType().getName() + ">");
+        writer.write("<" + record.getType().getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
         for (FieldMetadata field : fields) {
             field.accept(fieldPrinter);
         }
-        writer.write("</" + record.getType().getName() + ">");
+        writer.write("</" + record.getType().getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
         writer.flush();
     }
 
@@ -59,13 +59,13 @@ public class DataRecordXmlWriter implements DataRecordWriter {
                         DataRecord referencedRecord = (DataRecord) record.get(referenceField);
                         writeReferenceElement(referenceField, referencedRecord);
                         out.write(getFK(referencedRecord));
-                        out.write("</" + referenceField.getName() + ">");
+                        out.write("</" + referenceField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
                     } else {
                         List<DataRecord> valueAsList = (List<DataRecord>) value;
                         for (DataRecord currentValue : valueAsList) {
                             writeReferenceElement(referenceField, currentValue);
                             out.write(getFK(currentValue));
-                            out.write("</" + referenceField.getName() + ">");
+                            out.write("</" + referenceField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                     }
                 }
@@ -77,9 +77,9 @@ public class DataRecordXmlWriter implements DataRecordWriter {
 
         private void writeReferenceElement(ReferenceFieldMetadata referenceField, DataRecord currentValue) throws IOException {
             if (currentValue.getType().equals(referenceField.getReferencedType())) {
-                out.write("<" + referenceField.getName() + ">");
+                out.write("<" + referenceField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
             } else {
-                out.write("<" + referenceField.getName() + " xmlns:tmdm=\"" + SkipAttributeDocumentBuilder.TALEND_NAMESPACE + "\" tmdm:type=\"" + currentValue.getType().getName() + "\">");
+                out.write("<" + referenceField.getName() + " xmlns:tmdm=\"" + SkipAttributeDocumentBuilder.TALEND_NAMESPACE + "\" tmdm:type=\"" + currentValue.getType().getName() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             }
         }
 
@@ -96,7 +96,7 @@ public class DataRecordXmlWriter implements DataRecordWriter {
                         for (FieldMetadata field : fields) {
                             field.accept(fieldPrinter);
                         }
-                        out.write("</" + containedField.getName() + ">");
+                        out.write("</" + containedField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
                     }
                 } else {
                     List<DataRecord> recordList = (List<DataRecord>) record.get(containedField);
@@ -109,7 +109,7 @@ public class DataRecordXmlWriter implements DataRecordWriter {
                             for (FieldMetadata field : fields) {
                                 field.accept(fieldPrinter);
                             }
-                            out.write("</" + containedField.getName() + ">");
+                            out.write("</" + containedField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                     }
                 }
@@ -121,9 +121,9 @@ public class DataRecordXmlWriter implements DataRecordWriter {
 
         private void writeContainedField(ContainedTypeFieldMetadata containedField, DataRecord currentValue) throws IOException {
             if (currentValue.getType().equals(containedField.getContainedType())) {
-                out.write("<" + containedField.getName() + ">");
+                out.write("<" + containedField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
             } else {
-                out.write("<" + containedField.getName() + " xmlns:xsi=\"" + XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI + "\" xsi:type=\"" + currentValue.getType().getName() + "\">");
+                out.write("<" + containedField.getName() + " xmlns:xsi=\"" + XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI + "\" xsi:type=\"" + currentValue.getType().getName() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             }
         }
 
@@ -133,15 +133,15 @@ public class DataRecordXmlWriter implements DataRecordWriter {
                 Object value = record.get(simpleField);
                 if (value != null) {
                     if (!simpleField.isMany()) {
-                        out.write("<" + simpleField.getName() + ">");
+                        out.write("<" + simpleField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
                         handleSimpleValue(simpleField, value);
-                        out.write("</" + simpleField.getName() + ">");
+                        out.write("</" + simpleField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
                     } else {
                         List valueAsList = (List) value;
                         for (Object currentValue : valueAsList) {
-                            out.write("<" + simpleField.getName() + ">");
+                            out.write("<" + simpleField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
                             handleSimpleValue(simpleField, currentValue);
-                            out.write("</" + simpleField.getName() + ">");
+                            out.write("</" + simpleField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                     }
                 }
@@ -157,15 +157,15 @@ public class DataRecordXmlWriter implements DataRecordWriter {
                 Object value = record.get(enumField);
                 if (value != null) {
                     if (!enumField.isMany()) {
-                        out.write("<" + enumField.getName() + ">");
+                        out.write("<" + enumField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
                         handleSimpleValue(enumField, value);
-                        out.write("</" + enumField.getName() + ">");
+                        out.write("</" + enumField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
                     } else {
                         List valueAsList = (List) value;
                         for (Object currentValue : valueAsList) {
-                            out.write("<" + enumField.getName() + ">");
+                            out.write("<" + enumField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
                             handleSimpleValue(enumField, currentValue);
-                            out.write("</" + enumField.getName() + ">");
+                            out.write("</" + enumField.getName() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                     }
                 }
@@ -179,19 +179,19 @@ public class DataRecordXmlWriter implements DataRecordWriter {
             if (value == null) {
                 throw new IllegalArgumentException("Not supposed to write null values to XML.");
             }
-            if ("date".equals(simpleField.getType().getName())) {
+            if ("date".equals(simpleField.getType().getName())) { //$NON-NLS-1$
                 synchronized (DateConstant.DATE_FORMAT) {
                     out.write((DateConstant.DATE_FORMAT).format(value));
                 }
-            } else if ("dateTime".equals(simpleField.getType().getName())) {
+            } else if ("dateTime".equals(simpleField.getType().getName())) { //$NON-NLS-1$
                 synchronized (DateTimeConstant.DATE_FORMAT) {
                     out.write((DateTimeConstant.DATE_FORMAT).format(value));
                 }
-            } else if ("time".equals(simpleField.getType().getName())) {
+            } else if ("time".equals(simpleField.getType().getName())) { //$NON-NLS-1$
                 synchronized (TimeConstant.TIME_FORMAT) {
                     out.write((TimeConstant.TIME_FORMAT).format(value));
                 }
-            } else if (value != null) {
+            } else {
                 out.write(value.toString());
             }
         }

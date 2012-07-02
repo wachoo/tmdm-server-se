@@ -46,7 +46,7 @@ public class DataRecordCreationTest extends TestCase {
         }
 
         DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
-        DataRecord dataRecord = dataRecordReader.read("TestDataCluster", 1, repository, product, builder.toString());
+        DataRecord dataRecord = dataRecordReader.read(1, repository, product, builder.toString());
 
         performAsserts(product, dataRecord);
     }
@@ -62,7 +62,7 @@ public class DataRecordCreationTest extends TestCase {
 
         DataRecordReader<XmlSAXDataRecordReader.Input> dataRecordReader = new XmlSAXDataRecordReader();
         XmlSAXDataRecordReader.Input input = new XmlSAXDataRecordReader.Input(xmlReader, new InputSource(this.getClass().getResourceAsStream("DataRecordCreationTest.xml")));
-        DataRecord dataRecord = dataRecordReader.read("TestDataCluster", 1, repository, product, input);
+        DataRecord dataRecord = dataRecordReader.read(1, repository, product, input);
 
         performAsserts(product, dataRecord);
     }
@@ -76,7 +76,7 @@ public class DataRecordCreationTest extends TestCase {
 
         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(this.getClass().getResourceAsStream("DataRecordCreationTest.xml"));
         DataRecordReader<Element> dataRecordReader = new XmlDOMDataRecordReader();
-        DataRecord dataRecord = dataRecordReader.read("TestDataCluster", 1, repository, product, document.getDocumentElement());
+        DataRecord dataRecord = dataRecordReader.read(1, repository, product, document.getDocumentElement());
 
         performAsserts(product, dataRecord);
     }

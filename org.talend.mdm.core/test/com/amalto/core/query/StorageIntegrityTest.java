@@ -36,7 +36,7 @@ public class StorageIntegrityTest extends TestCase {
 
         try {
             DataRecordReader<String> factory = new XmlStringDataRecordReader();
-            DataRecord record = factory.read("MDM", 1, repository, type, "<Metadata3_Main_1><Id>1</Id><ref>[999]</ref></Metadata3_Main_1>");
+            DataRecord record = factory.read(1, repository, type, "<Metadata3_Main_1><Id>1</Id><ref>[999]</ref></Metadata3_Main_1>");
             storage.begin();
             storage.update(record);
             try {
@@ -59,7 +59,7 @@ public class StorageIntegrityTest extends TestCase {
 
         try {
             DataRecordReader<String> factory = new XmlStringDataRecordReader();
-            DataRecord record = factory.read("MDM", 1, repository, type, "<Metadata3_Main_2><Id>1</Id><ref>[999]</ref></Metadata3_Main_2>");
+            DataRecord record = factory.read(1, repository, type, "<Metadata3_Main_2><Id>1</Id><ref>[999]</ref></Metadata3_Main_2>");
             try {
                 storage.begin();
                 storage.update(record);
@@ -79,7 +79,7 @@ public class StorageIntegrityTest extends TestCase {
 
         try {
             DataRecordReader<String> factory = new XmlStringDataRecordReader();
-            DataRecord record = factory.read("MDM", 1, repository, type, "<Metadata3_Main_3><Id>1</Id><ref>[999]</ref><ref>[1000]</ref></Metadata3_Main_3>");
+            DataRecord record = factory.read(1, repository, type, "<Metadata3_Main_3><Id>1</Id><ref>[999]</ref><ref>[1000]</ref></Metadata3_Main_3>");
             storage.begin();
             storage.update(record);
             try {
@@ -102,7 +102,7 @@ public class StorageIntegrityTest extends TestCase {
 
         try {
             DataRecordReader<String> factory = new XmlStringDataRecordReader();
-            DataRecord record = factory.read("MDM", 1, repository, type, "<Metadata3_Main_4><Id>1</Id><ref>[999]</ref><ref>[1000]</ref></Metadata3_Main_4>");
+            DataRecord record = factory.read(1, repository, type, "<Metadata3_Main_4><Id>1</Id><ref>[999]</ref><ref>[1000]</ref></Metadata3_Main_4>");
             try {
                 storage.begin();
                 storage.update(record);
@@ -122,7 +122,7 @@ public class StorageIntegrityTest extends TestCase {
 
         try {
             DataRecordReader<String> factory = new XmlStringDataRecordReader();
-            DataRecord record = factory.read("MDM", 1, repository, type, "<Metadata3_Main_5><Id>1</Id><ref/></Metadata3_Main_5>");
+            DataRecord record = factory.read(1, repository, type, "<Metadata3_Main_5><Id>1</Id><ref/></Metadata3_Main_5>");
             storage.begin();
             try {
                 storage.update(record);
@@ -145,7 +145,7 @@ public class StorageIntegrityTest extends TestCase {
 
         try {
             DataRecordReader<String> factory = new XmlStringDataRecordReader();
-            DataRecord record = factory.read("MDM", 1, repository, type, "<Metadata3_Referenced_6><Id>1</Id><field/></Metadata3_Referenced_6>");
+            DataRecord record = factory.read(1, repository, type, "<Metadata3_Referenced_6><Id>1</Id><field/></Metadata3_Referenced_6>");
             storage.begin();
             try {
                 storage.update(record);
@@ -168,7 +168,7 @@ public class StorageIntegrityTest extends TestCase {
 
         try {
             DataRecordReader<String> factory = new XmlStringDataRecordReader();
-            DataRecord record = factory.read("MDM", 1, repository, type, "<Metadata3_Referenced_6><Id>1</Id><field/></Metadata3_Referenced_6>");
+            DataRecord record = factory.read(1, repository, type, "<Metadata3_Referenced_6><Id>1</Id><field/></Metadata3_Referenced_6>");
             storage.begin();
             try {
                 storage.update(record);
@@ -178,7 +178,7 @@ public class StorageIntegrityTest extends TestCase {
                 storage.rollback();
             }
 
-            record = factory.read("MDM", 1, repository, type, "<Metadata3_Referenced_6><Id>1</Id><field>Field Value</field></Metadata3_Referenced_6>");
+            record = factory.read(1, repository, type, "<Metadata3_Referenced_6><Id>1</Id><field>Field Value</field></Metadata3_Referenced_6>");
             storage.begin();
             storage.update(record);
             storage.commit();

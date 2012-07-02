@@ -70,10 +70,10 @@ public class DataSourceFactory {
         if (dataSource instanceof RDBMSDataSource) {
             RDBMSDataSource rdbmsDataSource = (RDBMSDataSource) dataSource;
             String connectionURL = rdbmsDataSource.getConnectionURL();
-            String processedConnectionURL = connectionURL.replace("${container}", container);
+            String processedConnectionURL = connectionURL.replace("${container}", container); //$NON-NLS-1$
             rdbmsDataSource.setConnectionURL(processedConnectionURL);
 
-            if ("${container}".equals(rdbmsDataSource.getDatabaseName())) {
+            if ("${container}".equals(rdbmsDataSource.getDatabaseName())) { //$NON-NLS-1$
                 rdbmsDataSource.setDatabaseName(container);
             }
         }

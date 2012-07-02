@@ -41,7 +41,7 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
         xmlInputFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.TRUE);
     }
 
-    public DataRecord read(String dataClusterName, long revisionId, MetadataRepository repository, ComplexTypeMetadata type, String input) {
+    public DataRecord read(long revisionId, MetadataRepository repository, ComplexTypeMetadata type, String input) {
         if (type == null) {
             throw new IllegalArgumentException("Type can not be null");
         }
@@ -68,9 +68,9 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                 if (event.isStartElement()) {
                     StartElement startElement = event.asStartElement();
                     if (!hasMetUserElement) {
-                        if ("t".equals(startElement.getName().getLocalPart())) {
+                        if ("t".equals(startElement.getName().getLocalPart())) { //$NON-NLS-1$
                             isReadingTimestamp = true;
-                        } else if ("taskId".equals(startElement.getName().getLocalPart())) {
+                        } else if ("taskId".equals(startElement.getName().getLocalPart())) {  //$NON-NLS-1$
                             isReadingTaskId = true;
                         }
                     }
@@ -120,7 +120,7 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                         TypeMetadata fieldType = field.getType();
                         // Reads MDM type attribute for actual FK type
                         if (field instanceof ReferenceFieldMetadata) {
-                            Attribute actualType = startElement.getAttributeByName(new QName(SkipAttributeDocumentBuilder.TALEND_NAMESPACE, "type"));
+                            Attribute actualType = startElement.getAttributeByName(new QName(SkipAttributeDocumentBuilder.TALEND_NAMESPACE, "type")); //$NON-NLS-1$
                             if (actualType != null) {
                                 fieldType = repository.getComplexType(actualType.getValue());
                             } else {
@@ -129,7 +129,7 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                         }
                         // Reads xsi:type for actual contained type.
                         if (fieldType instanceof ContainedComplexTypeMetadata) {
-                            Attribute actualType = startElement.getAttributeByName(new QName(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type"));
+                            Attribute actualType = startElement.getAttributeByName(new QName(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type")); //$NON-NLS-1$
                             if (actualType != null) {
                                 fieldType = repository.getNonInstantiableType(actualType.getValue());
                             }

@@ -36,8 +36,8 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
 
     static {
         LOGGER.warn("--- Using experimental storage ---");
-        String mdmInternalWrapperClass = (String) MDMConfiguration.getConfiguration().get("mdm.internal.wrapper");
-        String userWrapperClass = (String) MDMConfiguration.getConfiguration().get("user.wrapper");
+        String mdmInternalWrapperClass = (String) MDMConfiguration.getConfiguration().get("mdm.internal.wrapper"); //$NON-NLS-1$
+        String userWrapperClass = (String) MDMConfiguration.getConfiguration().get("user.wrapper");  //$NON-NLS-1$
         LOGGER.warn("MDM internal storage: " + mdmInternalWrapperClass);
         LOGGER.warn("User data storage: " + userWrapperClass);
         LOGGER.warn("--- Using experimental storage ---");
@@ -68,7 +68,7 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
         if (clusterName != null) {
             Map<String, XSystemObjects> xDataClustersMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
             return XSystemObjects.isXSystemObject(xDataClustersMap, XObjectType.DATA_CLUSTER, clusterName)
-                    || clusterName.startsWith("amalto") || "MDMDomainObjects".equals(clusterName);
+                    || clusterName.startsWith("amalto") || "MDMDomainObjects".equals(clusterName);  //$NON-NLS-1$ //$NON-NLS-2$
         } else {
             return true;
         }
@@ -209,17 +209,17 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
         return userStorageWrapper.deleteItems(conceptPatternsToRevisionID, conceptPatternsToClusterName, conceptName, whereItem);
     }
 
-    public long moveDocumentById(String sourceRevisionID, String sourceclusterName, String uniqueID, String targetRevisionID, String targetclusterName) throws XmlServerException {
-        if (isMDMInternal(sourceclusterName)) {
-            if (!isMDMInternal(targetclusterName)) {
-                throw new IllegalArgumentException("Cannot copy to user data cluster '" + targetclusterName + "'");
+    public long moveDocumentById(String sourceRevisionID, String sourceClusterName, String uniqueID, String targetRevisionID, String targetClusterName) throws XmlServerException {
+        if (isMDMInternal(sourceClusterName)) {
+            if (!isMDMInternal(targetClusterName)) {
+                throw new IllegalArgumentException("Cannot copy to user data cluster '" + targetClusterName + "'");
             }
-            return mdmInternalWrapper.moveDocumentById(sourceRevisionID, sourceclusterName, uniqueID, targetRevisionID, targetclusterName);
+            return mdmInternalWrapper.moveDocumentById(sourceRevisionID, sourceClusterName, uniqueID, targetRevisionID, targetClusterName);
         } else {
-            if (isMDMInternal(targetclusterName)) {
-                throw new IllegalArgumentException("Cannot copy to internal data cluster '" + targetclusterName + "'");
+            if (isMDMInternal(targetClusterName)) {
+                throw new IllegalArgumentException("Cannot copy to internal data cluster '" + targetClusterName + "'");
             }
-            return userStorageWrapper.moveDocumentById(sourceRevisionID, sourceclusterName, uniqueID, targetRevisionID, targetclusterName);
+            return userStorageWrapper.moveDocumentById(sourceRevisionID, sourceClusterName, uniqueID, targetRevisionID, targetClusterName);
         }
     }
 
@@ -235,24 +235,24 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
         return mdmInternalWrapper.getItemsQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start, limit);
     }
 
-    public String getItemsQuery(Map<String, String> conceptPatternsToRevisionID, Map<String, String> conceptPatternsToClusterName, String forceMainPivot, ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, long limit, boolean totalCountOnfirstRow, Map<String, ArrayList<String>> metaDataTypes) throws XmlServerException {
-        return mdmInternalWrapper.getItemsQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start, limit, totalCountOnfirstRow, metaDataTypes);
+    public String getItemsQuery(Map<String, String> conceptPatternsToRevisionID, Map<String, String> conceptPatternsToClusterName, String forceMainPivot, ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, long limit, boolean totalCountOnFirstRow, Map<String, ArrayList<String>> metaDataTypes) throws XmlServerException {
+        return mdmInternalWrapper.getItemsQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start, limit, totalCountOnFirstRow, metaDataTypes);
     }
 
     public String getXtentisObjectsQuery(HashMap<String, String> objectRootElementNameToRevisionID, HashMap<String, String> objectRootElementNameToClusterName, String mainObjectRootElementName, ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, int limit) throws XmlServerException {
         return mdmInternalWrapper.getXtentisObjectsQuery(objectRootElementNameToRevisionID, objectRootElementNameToClusterName, mainObjectRootElementName, viewableFullPaths, whereItem, orderBy, direction, start, limit);
     }
 
-    public String getXtentisObjectsQuery(LinkedHashMap<String, String> objectRootElementNameToRevisionID, LinkedHashMap<String, String> objectRootElementNameToClusterName, String mainObjectRootElementName, ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, long limit, boolean totalCountOnfirstRow) throws XmlServerException {
-        return mdmInternalWrapper.getXtentisObjectsQuery(objectRootElementNameToRevisionID, objectRootElementNameToClusterName, mainObjectRootElementName, viewableFullPaths, whereItem, orderBy, direction, start, limit, totalCountOnfirstRow);
+    public String getXtentisObjectsQuery(LinkedHashMap<String, String> objectRootElementNameToRevisionID, LinkedHashMap<String, String> objectRootElementNameToClusterName, String mainObjectRootElementName, ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, long limit, boolean totalCountOnFirstRow) throws XmlServerException {
+        return mdmInternalWrapper.getXtentisObjectsQuery(objectRootElementNameToRevisionID, objectRootElementNameToClusterName, mainObjectRootElementName, viewableFullPaths, whereItem, orderBy, direction, start, limit, totalCountOnFirstRow);
     }
 
     public String getPivotIndexQuery(String clusterName, String mainPivotName, LinkedHashMap<String, String[]> pivotWithKeys, LinkedHashMap<String, String> itemsRevisionIDs, String defaultRevisionID, String[] indexPaths, IWhereItem whereItem, String[] pivotDirections, String[] indexDirections, int start, int limit) throws XmlServerException {
         return mdmInternalWrapper.getPivotIndexQuery(clusterName, mainPivotName, pivotWithKeys, itemsRevisionIDs, defaultRevisionID, indexPaths, whereItem, pivotDirections, indexDirections, start, limit);
     }
 
-    public String getChildrenItemsQuery(String clusterName, String conceptName, String[] PKXpaths, String FKXpath, String labelXpath, String fatherPK, LinkedHashMap<String, String> itemsRevisionIDs, String defaultRevisionID, IWhereItem whereItem, int start, int limit) throws XmlServerException {
-        return mdmInternalWrapper.getChildrenItemsQuery(clusterName, conceptName, PKXpaths, FKXpath, labelXpath, fatherPK, itemsRevisionIDs, defaultRevisionID, whereItem, start, limit);
+    public String getChildrenItemsQuery(String clusterName, String conceptName, String[] PKXPaths, String FKXpath, String labelXpath, String fatherPK, LinkedHashMap<String, String> itemsRevisionIDs, String defaultRevisionID, IWhereItem whereItem, int start, int limit) throws XmlServerException {
+        return mdmInternalWrapper.getChildrenItemsQuery(clusterName, conceptName, PKXPaths, FKXpath, labelXpath, fatherPK, itemsRevisionIDs, defaultRevisionID, whereItem, start, limit);
     }
 
     public ArrayList<String> runQuery(String revisionID, String clusterName, String query, String[] parameters) throws XmlServerException {

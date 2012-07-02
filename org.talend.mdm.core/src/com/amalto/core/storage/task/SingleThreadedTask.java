@@ -17,7 +17,7 @@ import com.amalto.core.storage.Storage;
 /**
  *
  */
-public class SingleThreadedTask extends MultiThreadedTask {
+class SingleThreadedTask extends MultiThreadedTask {
     public SingleThreadedTask(String name, Storage storage, Expression expression, Closure closure) {
         super(name, storage, expression, 1, closure);
     }

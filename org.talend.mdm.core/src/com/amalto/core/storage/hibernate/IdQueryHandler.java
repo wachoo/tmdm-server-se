@@ -78,7 +78,7 @@ class IdQueryHandler extends AbstractQueryHandler {
             });
         } else {
             TypeMapping mapping = mappingMetadataRepository.getMapping(mainType);
-            return new HibernateStorageResults(storage, select, new DataRecordIterator(mapping, select.getRevisionId(), loadedObject));
+            return new HibernateStorageResults(storage, select, new DataRecordIterator(mapping, loadedObject));
         }
     }
 
@@ -93,15 +93,12 @@ class IdQueryHandler extends AbstractQueryHandler {
 
         private final TypeMapping mainType;
 
-        private final String revisionId;
-
         private final Wrapper loadedObject;
 
         private boolean hasRead;
 
-        public DataRecordIterator(TypeMapping mainType, String revisionId, Wrapper loadedObject) {
+        public DataRecordIterator(TypeMapping mainType, Wrapper loadedObject) {
             this.mainType = mainType;
-            this.revisionId = revisionId;
             this.loadedObject = loadedObject;
         }
 
@@ -112,7 +109,7 @@ class IdQueryHandler extends AbstractQueryHandler {
         public DataRecord next() {
             try {
                 ObjectDataRecordReader reader = new ObjectDataRecordReader();
-                return reader.read(storage.getName(), Long.parseLong(revisionId), mainType, loadedObject);
+                return reader.read(mainType, loadedObject);
             } finally {
                 hasRead = true;
             }

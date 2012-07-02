@@ -14,7 +14,7 @@ package com.amalto.core.storage.datasource;
 public class RDBMSDataSource implements DataSource {
 
     public static enum DataSourceDialect {
-        H2, ORACLE_10G, MYSQL, SQL_SERVER;
+        H2, ORACLE_10G, MYSQL, SQL_SERVER
     }
 
     private final String cacheDirectory;

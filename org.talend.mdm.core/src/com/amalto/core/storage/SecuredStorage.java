@@ -23,8 +23,6 @@ import java.util.Set;
 
 public class SecuredStorage implements Storage {
 
-    private static final Logger LOGGER = Logger.getLogger(SecuredStorage.class);
-
     private final Storage delegate;
 
     private final UserDelegator delegator;

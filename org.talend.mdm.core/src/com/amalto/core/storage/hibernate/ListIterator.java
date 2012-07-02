@@ -31,21 +31,15 @@ class ListIterator extends CloseableIterator<DataRecord> {
 
     private final MappingRepository storageRepository;
 
-    private final String dataClusterName;
-
     private final StorageClassLoader storageClassLoader;
-
-    private final String revisionId;
 
     private final Iterator iterator;
 
     private final Set<EndOfResultsCallback> callbacks;
 
-    public ListIterator(MappingRepository storageRepository, StorageClassLoader storageClassLoader, String dataClusterName, String revisionId, Iterator iterator, Set<EndOfResultsCallback> callbacks) {
+    public ListIterator(MappingRepository storageRepository, StorageClassLoader storageClassLoader, Iterator iterator, Set<EndOfResultsCallback> callbacks) {
         this.storageRepository = storageRepository;
-        this.dataClusterName = dataClusterName;
         this.storageClassLoader = storageClassLoader;
-        this.revisionId = revisionId;
         this.iterator = iterator;
         this.callbacks = callbacks;
     }
@@ -78,7 +72,7 @@ class ListIterator extends CloseableIterator<DataRecord> {
         if (!(next instanceof Wrapper)) {
             throw new IllegalArgumentException("Result object is not an instance of " + Wrapper.class.getName());
         }
-        return reader.read(dataClusterName, Long.parseLong(revisionId), storageRepository.getMapping(type), (Wrapper) next);
+        return reader.read(storageRepository.getMapping(type), (Wrapper) next);
     }
 
     // Cache type readers

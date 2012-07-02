@@ -26,7 +26,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class MultiThreadedTask implements Task {
 
-    private String name;
+    private final String name;
+
     private final Storage storage;
 
     private final Expression expression;

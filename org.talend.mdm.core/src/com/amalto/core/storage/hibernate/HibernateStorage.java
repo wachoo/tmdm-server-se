@@ -73,7 +73,7 @@ public class HibernateStorage implements Storage {
     private static final MetadataChecker METADATA_CHECKER = new MetadataChecker();
 
     // Default value is "true" (meaning the storage will try to create database if it doesn't exist).
-    private static final boolean autoPrepare = Boolean.valueOf(MDMConfiguration.getConfiguration().getProperty("db.autoPrepare", "true"));
+    private static final boolean autoPrepare = Boolean.valueOf(MDMConfiguration.getConfiguration().getProperty("db.autoPrepare", "true")); //$NON-NLS-1$ //$NON-NLS-2$
 
     private final String storageName;
 

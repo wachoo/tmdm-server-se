@@ -46,8 +46,6 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     private ComplexTypeMetadata mainType;
 
-    private String revisionId;
-
     private final StandardQueryHandler.CriterionFieldCondition criterionFieldCondition;
 
     private int aliasCount = 0;
@@ -73,8 +71,6 @@ class StandardQueryHandler extends AbstractQueryHandler {
         } else {
             iterator = new ListIterator(mappingMetadataRepository,
                     storageClassLoader,
-                    storageName,
-                    revisionId,
                     listIterator,
                     callbacks);
         }
@@ -89,8 +85,6 @@ class StandardQueryHandler extends AbstractQueryHandler {
         } else {
             iterator = new ScrollableIterator(mappingMetadataRepository,
                     storageClassLoader,
-                    storageName,
-                    revisionId,
                     scrollableResults,
                     callbacks);
         }
@@ -146,7 +140,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         String previousAlias = mainType.getName();
         while (pathIterator.hasNext()) {
             FieldMetadata nextField = pathIterator.next();
-            String newAlias = "a" + aliasCount++;
+            String newAlias = "a" + aliasCount++; //$NON-NLS-1$
             // TODO One interesting improvement here: can add conditions on rightTable when defining join.
             if (pathIterator.hasNext()) {
                 if (!joinFieldsToAlias.containsKey(nextField)) {
@@ -214,7 +208,6 @@ class StandardQueryHandler extends AbstractQueryHandler {
         String className = ClassCreator.PACKAGE_PREFIX + mainTypeName;
         criteria = session.createCriteria(className, mainTypeName);
         criteria.setReadOnly(true); // We are reading data, turns on ready only mode.
-        revisionId = select.getRevisionId();
 
         List<Join> joins = select.getJoins();
         for (Join join : joins) {
@@ -484,7 +477,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
             if (predicate == Predicate.EQUALS) {
                 return eq(fieldCondition.criterionFieldName, compareValue);
             } else if (predicate == Predicate.CONTAINS) {
-                return like(fieldCondition.criterionFieldName, "%" + compareValue + "%");
+                return like(fieldCondition.criterionFieldName, "%" + compareValue + "%"); //$NON-NLS-1$ //$NON-NLS-2$
             } else if (predicate == Predicate.GREATER_THAN) {
                 return gt(fieldCondition.criterionFieldName, compareValue);
             } else if (predicate == Predicate.LOWER_THAN) {
@@ -494,7 +487,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
             } else if (predicate == Predicate.LOWER_THAN_OR_EQUALS) {
                 return le(fieldCondition.criterionFieldName, compareValue);
             } else if (predicate == Predicate.STARTS_WITH) {
-                return like(fieldCondition.criterionFieldName, compareValue + "%");
+                return like(fieldCondition.criterionFieldName, compareValue + "%"); //$NON-NLS-1$
             } else {
                 throw new NotImplementedException("No support for predicate '" + predicate.getClass() + "'");
             }

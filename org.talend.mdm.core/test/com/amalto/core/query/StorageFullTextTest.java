@@ -35,7 +35,7 @@ public class StorageFullTextTest extends StorageTestCase {
     private void populateData() {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
-        allRecords.add(factory.read("MDM", 1, repository, product, "<Product>\n" +
+        allRecords.add(factory.read(1, repository, product, "<Product>\n" +
                 "    <Id>1</Id>\n" +
                 "    <Name>Product name</Name>\n" +
                 "    <ShortDescription>Short description word</ShortDescription>\n" +
@@ -55,7 +55,7 @@ public class StorageFullTextTest extends StorageTestCase {
                 "    <Status>Pending</Status>\n" +
                 "    <Supplier>[1]</Supplier>\n" +
                 "</Product>"));
-        allRecords.add(factory.read("MDM", 1, repository, product, "<Product>\n" +
+        allRecords.add(factory.read(1, repository, product, "<Product>\n" +
                 "    <Id>2</Id>\n" +
                 "    <Name>Renault car</Name>\n" +
                 "    <ShortDescription>A car</ShortDescription>\n" +
@@ -75,7 +75,7 @@ public class StorageFullTextTest extends StorageTestCase {
                 "    <Supplier>[2]</Supplier>\n" +
                 "    <Supplier>[1]</Supplier>\n" +
                 "</Product>"));
-        allRecords.add(factory.read("MDM", 1, repository, supplier, "<Supplier>\n" +
+        allRecords.add(factory.read(1, repository, supplier, "<Supplier>\n" +
                 "    <Id>1</Id>\n" +
                 "    <SupplierName>Renault</SupplierName>\n" +
                 "    <Contact>" +
@@ -84,7 +84,7 @@ public class StorageFullTextTest extends StorageTestCase {
                 "        <Email>test@test.org</Email>\n" +
                 "    </Contact>\n" +
                 "</Supplier>"));
-        allRecords.add(factory.read("MDM", 1, repository, supplier, "<Supplier>\n" +
+        allRecords.add(factory.read(1, repository, supplier, "<Supplier>\n" +
                 "    <Id>2</Id>\n" +
                 "    <SupplierName>Starbucks Talend</SupplierName>\n" +
                 "    <Contact>" +
@@ -93,7 +93,7 @@ public class StorageFullTextTest extends StorageTestCase {
                 "        <Email>test@testfactory.org</Email>\n" +
                 "    </Contact>\n" +
                 "</Supplier>"));
-        allRecords.add(factory.read("MDM", 1, repository, supplier, "<Supplier>\n" +
+        allRecords.add(factory.read(1, repository, supplier, "<Supplier>\n" +
                 "    <Id>3</Id>\n" +
                 "    <SupplierName>Talend</SupplierName>\n" +
                 "    <Contact>" +
@@ -102,7 +102,7 @@ public class StorageFullTextTest extends StorageTestCase {
                 "        <Email>test@talend.com</Email>\n" +
                 "    </Contact>\n" +
                 "</Supplier>"));
-        allRecords.add(factory.read("MDM", 1, repository, country, "<Country><id>1</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
+        allRecords.add(factory.read(1, repository, country, "<Country><id>1</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
 
         try {
             storage.begin();

@@ -32,7 +32,7 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
 
     static final Criterion NO_OP_CRITERION = new Criterion() {
         public String toSqlString(Criteria criteria, CriteriaQuery criteriaQuery) throws HibernateException {
-            return "1=1";
+            return "1=1"; //$NON-NLS-1$
         }
 
         public TypedValue[] getTypedValues(Criteria criteria, CriteriaQuery criteriaQuery) throws HibernateException {

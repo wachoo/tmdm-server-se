@@ -37,16 +37,16 @@ public class StorageQueryTest extends StorageTestCase {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
 
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
-        allRecords.add(factory.read("MDM", 1, repository, country, "<Country><id>1</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
-        allRecords.add(factory.read("MDM", 1, repository, country, "<Country><id>2</id><creationDate>2011-10-10</creationDate><creationTime>2011-10-10T01:01:01</creationTime><name>USA</name></Country>"));
-        allRecords.add(factory.read("MDM", 1, repository, address, "<Address><Id>1</Id><enterprise>false</enterprise><Street>Street1</Street><ZipCode>10000</ZipCode><City>City</City><country>[1]</country></Address>"));
-        allRecords.add(factory.read("MDM", 1, repository, address, "<Address><Id>1</Id><enterprise>true</enterprise><Street>Street1</Street><ZipCode>10000</ZipCode><City>City</City><country>[2]</country></Address>"));
-        allRecords.add(factory.read("MDM", 1, repository, address, "<Address><Id>2</Id><enterprise>true</enterprise><Street>Street2</Street><ZipCode>10000</ZipCode><City>City</City><country>[2]</country></Address>"));
-        allRecords.add(factory.read("MDM", 1, repository, address, "<Address><Id>3</Id><enterprise>false</enterprise><Street>Street3</Street><ZipCode>10000</ZipCode><City>City</City><country>[1]</country></Address>"));
-        allRecords.add(factory.read("MDM", 1, repository, address, "<Address><Id>4</Id><enterprise>false</enterprise><Street>Street3</Street><ZipCode>10000</ZipCode><City>City</City><OptionalCity>City2</OptionalCity><country>[1]</country></Address>"));
-        allRecords.add(factory.read("MDM", 1, repository, person, "<Person><id>1</id><score>130000.00</score><lastname>Dupond</lastname><middlename>John</middlename><firstname>Julien</firstname><addresses><address>[2][true]</address><address>[1][false]</address></addresses><age>10</age><Status>Employee</Status><Available>true</Available></Person>"));
-        allRecords.add(factory.read("MDM", 1, repository, person, "<Person><id>2</id><score>170000.00</score><lastname>Dupont</lastname><middlename>John</middlename><firstname>Robert-Julien</firstname><addresses><address>[1][false]</address><address>[2][true]</address></addresses><age>20</age><Status>Customer</Status><Available>false</Available></Person>"));
-        allRecords.add(factory.read("MDM", 1, repository, person, "<Person><id>3</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Juste</firstname><addresses><address>[3][false]</address><address>[1][false]</address></addresses><age>30</age><Status>Friend</Status></Person>"));
+        allRecords.add(factory.read(1, repository, country, "<Country><id>1</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
+        allRecords.add(factory.read(1, repository, country, "<Country><id>2</id><creationDate>2011-10-10</creationDate><creationTime>2011-10-10T01:01:01</creationTime><name>USA</name></Country>"));
+        allRecords.add(factory.read(1, repository, address, "<Address><Id>1</Id><enterprise>false</enterprise><Street>Street1</Street><ZipCode>10000</ZipCode><City>City</City><country>[1]</country></Address>"));
+        allRecords.add(factory.read(1, repository, address, "<Address><Id>1</Id><enterprise>true</enterprise><Street>Street1</Street><ZipCode>10000</ZipCode><City>City</City><country>[2]</country></Address>"));
+        allRecords.add(factory.read(1, repository, address, "<Address><Id>2</Id><enterprise>true</enterprise><Street>Street2</Street><ZipCode>10000</ZipCode><City>City</City><country>[2]</country></Address>"));
+        allRecords.add(factory.read(1, repository, address, "<Address><Id>3</Id><enterprise>false</enterprise><Street>Street3</Street><ZipCode>10000</ZipCode><City>City</City><country>[1]</country></Address>"));
+        allRecords.add(factory.read(1, repository, address, "<Address><Id>4</Id><enterprise>false</enterprise><Street>Street3</Street><ZipCode>10000</ZipCode><City>City</City><OptionalCity>City2</OptionalCity><country>[1]</country></Address>"));
+        allRecords.add(factory.read(1, repository, person, "<Person><id>1</id><score>130000.00</score><lastname>Dupond</lastname><middlename>John</middlename><firstname>Julien</firstname><addresses><address>[2][true]</address><address>[1][false]</address></addresses><age>10</age><Status>Employee</Status><Available>true</Available></Person>"));
+        allRecords.add(factory.read(1, repository, person, "<Person><id>2</id><score>170000.00</score><lastname>Dupont</lastname><middlename>John</middlename><firstname>Robert-Julien</firstname><addresses><address>[1][false]</address><address>[2][true]</address></addresses><age>20</age><Status>Customer</Status><Available>false</Available></Person>"));
+        allRecords.add(factory.read(1, repository, person, "<Person><id>3</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Juste</firstname><addresses><address>[3][false]</address><address>[1][false]</address></addresses><age>30</age><Status>Friend</Status></Person>"));
 
         try {
             storage.begin();
@@ -770,7 +770,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
-        DataRecord record = factory.read("MDM", 1, repository, person, "<Person><id>3</id><score>200000</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Juste</firstname><addresses><address>[3][false]</address><address>[1][false]</address></addresses><age>30</age><Status>Friend</Status></Person>");
+        DataRecord record = factory.read(1, repository, person, "<Person><id>3</id><score>200000</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Juste</firstname><addresses><address>[3][false]</address><address>[1][false]</address></addresses><age>30</age><Status>Friend</Status></Person>");
         try {
             storage.begin();
             storage.update(record);

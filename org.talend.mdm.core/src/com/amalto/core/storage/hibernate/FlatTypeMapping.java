@@ -222,7 +222,7 @@ class FlatTypeMapping extends TypeMapping {
         }
     }
 
-    public static Serializable createCompositeId(ClassLoader classLoader, Class<?> clazz, List<Object> compositeIdValues) {
+    private static Serializable createCompositeId(ClassLoader classLoader, Class<?> clazz, List<Object> compositeIdValues) {
         try {
             Class<?> idClass = classLoader.loadClass(clazz.getName() + "_ID");
             Class[] parameterClasses = new Class[compositeIdValues.size()];

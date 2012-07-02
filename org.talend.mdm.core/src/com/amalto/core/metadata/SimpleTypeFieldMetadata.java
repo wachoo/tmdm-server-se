@@ -74,7 +74,13 @@ public class SimpleTypeFieldMetadata implements FieldMetadata {
     }
 
     public void setContainingType(ComplexTypeMetadata typeMetadata) {
+        assertFrozen();
         this.containingType = typeMetadata;
+    }
+
+    public void setDeclaringType(TypeMetadata declaringType) {
+        assertFrozen();
+        this.declaringType = declaringType;
     }
 
     public FieldMetadata freeze() {
@@ -177,5 +183,11 @@ public class SimpleTypeFieldMetadata implements FieldMetadata {
         result = 31 * result + (isMandatory ? 1 : 0);
         result = 31 * result + (containingType != null ? containingType.hashCode() : 0);
         return result;
+    }
+
+    private void assertFrozen() {
+        if (isFrozen) {
+            throw new IllegalStateException("Field definition is frozen");
+        }
     }
 }

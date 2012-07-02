@@ -47,7 +47,7 @@ public class TaskSubmitter {
     }
 
     public void submit(Task task) {
-        JobDetail detail = new JobDetail(task.getId(), "group", Task.class);
+        JobDetail detail = new JobDetail(task.getId(), "group", Task.class); //$NON-NLS-1$
         try {
             scheduler.scheduleJob(detail, new TaskTrigger(task));
         } catch (SchedulerException e) {
@@ -56,7 +56,7 @@ public class TaskSubmitter {
     }
 
     public void submitAndWait(Task task) {
-        JobDetail detail = new JobDetail(task.getId(), "group", Task.class);
+        JobDetail detail = new JobDetail(task.getId(), "group", Task.class); //$NON-NLS-1$
         try {
             TaskTrigger taskTrigger = new TaskTrigger(task);
             scheduler.scheduleJob(detail, taskTrigger);
@@ -71,7 +71,7 @@ public class TaskSubmitter {
         private final Task task;
 
         public TaskTrigger(Task task) {
-            super(task.getId(), "group");
+            super(task.getId(), "group"); //$NON-NLS-1$
             this.task = task;
         }
 

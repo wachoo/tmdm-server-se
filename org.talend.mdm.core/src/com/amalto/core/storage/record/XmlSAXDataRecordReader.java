@@ -32,7 +32,7 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
         }
     }
 
-    public DataRecord read(String dataClusterName, long revisionId, MetadataRepository repository, ComplexTypeMetadata type, Input input) {
+    public DataRecord read(long revisionId, MetadataRepository repository, ComplexTypeMetadata type, Input input) {
         try {
             InputSource inputSource = input.input;
             XMLReader xmlReader = input.reader;

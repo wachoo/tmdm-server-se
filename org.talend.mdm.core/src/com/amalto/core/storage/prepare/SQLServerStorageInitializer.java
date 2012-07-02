@@ -26,7 +26,6 @@ class SQLServerStorageInitializer implements StorageInitializer {
     public boolean isInitialized(Storage storage) {
         try {
             RDBMSDataSource dataSource = getDataSource(storage);
-            //DriverManager.registerDriver((Driver) Class.forName(dataSource.getDriverClassName()).newInstance());
             Connection connection = DriverManager.getConnection(dataSource.getConnectionURL(), dataSource.getUserName(), dataSource.getPassword());
             connection.close();
             return true;
@@ -44,8 +43,8 @@ class SQLServerStorageInitializer implements StorageInitializer {
             try {
                 Statement statement = connection.createStatement();
                 try {
-                    statement.execute("USE master;");
-                    statement.execute("CREATE DATABASE " + dataSource.getDatabaseName() + ";");
+                    statement.execute("USE master;"); //$NON-NLS-1$
+                    statement.execute("CREATE DATABASE " + dataSource.getDatabaseName() + ";"); //$NON-NLS-1$ //$NON-NLS-2$
                 } catch (SQLException e) {
                     // Assumes database is already created.
                     LOGGER.debug("Exception occurred during CREATE DATABASE statement.", e);

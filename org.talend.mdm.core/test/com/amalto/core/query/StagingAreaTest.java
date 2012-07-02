@@ -96,7 +96,7 @@ public class StagingAreaTest extends TestCase {
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
 
         allRecords.clear();
-        allRecords.add(factory.read("MDM", 1, repository, person, newPerson(0, validData)));
+        allRecords.add(factory.read(1, repository, person, newPerson(0, validData)));
         try {
             origin.begin();
             origin.update(allRecords);
@@ -107,7 +107,7 @@ public class StagingAreaTest extends TestCase {
 
         allRecords.clear();
         for (int i = 0; i < COUNT; i++) {
-            allRecords.add(factory.read("MDM", 1, repository, country, newCountry(i, validData)));
+            allRecords.add(factory.read(1, repository, country, newCountry(i, validData)));
         }
         long time2 = System.currentTimeMillis();
         {
@@ -123,7 +123,7 @@ public class StagingAreaTest extends TestCase {
 
         allRecords.clear();
         for (int i = 0; i < COUNT; i++) {
-            allRecords.add(factory.read("MDM", 1, repository, address, newAddress(i, i % 2 != 0, validData)));
+            allRecords.add(factory.read(1, repository, address, newAddress(i, i % 2 != 0, validData)));
         }
         long time3 = System.currentTimeMillis();
         {
@@ -140,7 +140,7 @@ public class StagingAreaTest extends TestCase {
 
         allRecords.clear();
         for (int i = 0; i < COUNT; i++) {
-            allRecords.add(factory.read("MDM", 1, repository, person, newPerson(i, validData)));
+            allRecords.add(factory.read(1, repository, person, newPerson(i, validData)));
         }
         long time1 = System.currentTimeMillis();
         {
@@ -376,7 +376,7 @@ public class StagingAreaTest extends TestCase {
         public void save(ItemPOJO item, String revisionId) {
             try {
                 ComplexTypeMetadata complexType = repository.getComplexType(item.getProjection().getTagName());
-                DataRecord dataRecord = reader.read(storage.getName(), 1, repository, complexType, item.getProjection());
+                DataRecord dataRecord = reader.read(1, repository, complexType, item.getProjection());
                 DataRecordMetadata recordMetadata = dataRecord.getRecordMetadata();
                 recordMetadata.setLastModificationTime(item.getInsertionTime());
                 recordMetadata.setTaskId(item.getTaskId());

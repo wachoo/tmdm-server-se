@@ -49,19 +49,19 @@ class ItemPKCriteriaResultsWriter implements DataRecordWriter {
     }
 
     private void doWrite(DataRecord record) {
-        writer.write("<r>");
+        writer.write("<r>"); //$NON-NLS-1$
         {
-            writer.write("<t>" + record.get("timestamp") + "</t>");
-            writer.write("<taskId>" + record.get("taskid") + "</taskId>");
-            writer.write("<n>" + typeName + "</n>");
-            writer.write("<ids>");
+            writer.write("<t>" + record.get("timestamp") + "</t>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            writer.write("<taskId>" + record.get("taskid") + "</taskId>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            writer.write("<n>" + typeName + "</n>"); //$NON-NLS-1$ //$NON-NLS-2$
+            writer.write("<ids>"); //$NON-NLS-1$
             List<FieldMetadata> keyFields = itemType.getKeyFields();
             for (FieldMetadata keyField : keyFields) {
-                writer.write("<i>" + record.get(keyField) + "</i>");
+                writer.write("<i>" + record.get(keyField) + "</i>"); //$NON-NLS-1$ //$NON-NLS-2$
             }
-            writer.write("</ids>");
+            writer.write("</ids>"); //$NON-NLS-1$
         }
-        writer.write("</r>");
+        writer.write("</r>"); //$NON-NLS-1$
         itemPKResults.add(writer.toString());
 
         writer.reset();

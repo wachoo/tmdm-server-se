@@ -4,6 +4,7 @@ import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.context.SaverSource;
 import com.amalto.core.storage.Storage;
+import org.apache.log4j.Logger;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
@@ -16,6 +17,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  */
 public class StagingTask implements Task {
+
+    private static final Logger LOGGER = Logger.getLogger(StagingTask.class);
 
     private final TaskSubmitter taskSubmitter;
 
@@ -97,9 +100,9 @@ public class StagingTask implements Task {
                 }
                 currentTask = task;
             }
-            System.out.println("--> " + task.toString());
+            LOGGER.info("--> " + task.toString());
             taskSubmitter.submitAndWait(currentTask);
-            System.out.println("<-- DONE " + task.toString());
+            LOGGER.info("<-- DONE " + task.toString());
         }
 
         synchronized (executionLock) {

@@ -50,10 +50,12 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
 
     private static class DSCTaskClosure implements Closure {
 
-        private Storage origin;
+        private final Storage origin;
 
-        private XMLOutputFactory xmlOutputFactory;
+        private final XMLOutputFactory xmlOutputFactory;
+
         private XMLStreamWriter writer;
+
         private ResettableStringWriter output;
 
         public DSCTaskClosure(Storage origin, XMLOutputFactory xmlOutputFactory) {
@@ -61,12 +63,10 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
             this.xmlOutputFactory = xmlOutputFactory;
         }
 
-        @Override
         public void begin() {
             output = new ResettableStringWriter();
         }
 
-        @Override
         public void execute(DataRecord record) {
             String taskId = record.getRecordMetadata().getTaskId();
             Select select = from(record.getType()).where(eq(taskId(), taskId)).getSelect();
@@ -74,58 +74,58 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
             try {
                 writer = xmlOutputFactory.createXMLStreamWriter(output);
                 writer.writeStartDocument();
-                writer.writeStartElement("Tasks");
-                writer.writeStartElement("Task");
+                writer.writeStartElement("Tasks"); //$NON-NLS-1$
+                writer.writeStartElement("Task"); //$NON-NLS-1$
                 {
-                    writer.writeStartElement("taskName");
+                    writer.writeStartElement("taskName"); //$NON-NLS-1$
                     writer.writeCharacters(taskId);
                     writer.writeEndElement();
-                    writer.writeStartElement("taskType");
-                    writer.writeCharacters("1");
+                    writer.writeStartElement("taskType"); //$NON-NLS-1$
+                    writer.writeCharacters("1"); //$NON-NLS-1$
                     writer.writeEndElement();
-                    writer.writeStartElement("createdBy");
-                    writer.writeCharacters("Autonomous resolver");
+                    writer.writeStartElement("createdBy"); //$NON-NLS-1$
+                    writer.writeCharacters("Autonomous resolver"); //$NON-NLS-1$
                     writer.writeEndElement();
 
                     for (DataRecord originRecord : originRecords) {
-                        writer.writeStartElement("srcRecord");
+                        writer.writeStartElement("srcRecord"); //$NON-NLS-1$
                         {
                             // TODO Extra info (timestamp...)
-                            writer.writeStartElement("source");
-                            writer.writeCharacters("TODO"); // TODO
+                            writer.writeStartElement("source"); //$NON-NLS-1$
+                            writer.writeCharacters("TODO"); //$NON-NLS-1$ // TODO
                             writer.writeEndElement();
 
-                            writer.writeStartElement("score");
-                            writer.writeCharacters("1.0"); // TODO
+                            writer.writeStartElement("score"); //$NON-NLS-1$
+                            writer.writeCharacters("1.0"); //$NON-NLS-1$ // TODO
                             writer.writeEndElement();
 
-                            writer.writeStartElement("weights");
-                            writer.writeCharacters("10"); // TODO
+                            writer.writeStartElement("weights"); //$NON-NLS-1$
+                            writer.writeCharacters("10"); //$NON-NLS-1$ // TODO
                             writer.writeEndElement();
 
                             ComplexTypeMetadata originRecordType = originRecord.getType();
                             for (FieldMetadata field : originRecordType.getFields()) {
                                 Object value = originRecord.get(field);
                                 if (value != null) {
-                                    writer.writeStartElement("srcColumn");
+                                    writer.writeStartElement("srcColumn"); //$NON-NLS-1$
                                     {
-                                        writer.writeStartElement("colName");
+                                        writer.writeStartElement("colName"); //$NON-NLS-1$
                                         writer.writeCharacters(field.getName());
                                         writer.writeEndElement();
 
-                                        writer.writeStartElement("colValue");
+                                        writer.writeStartElement("colValue"); //$NON-NLS-1$
                                         writer.writeCharacters(String.valueOf(value));
                                         writer.writeEndElement();
 
-                                        writer.writeStartElement("colType");
+                                        writer.writeStartElement("colType"); //$NON-NLS-1$
                                         writer.writeCharacters(getFieldType(field));
                                         writer.writeEndElement();
 
-                                        writer.writeStartElement("colIskey");
+                                        writer.writeStartElement("colIskey"); //$NON-NLS-1$
                                         if (field.isKey()) {
-                                            writer.writeCharacters("1");
+                                            writer.writeCharacters("1"); //$NON-NLS-1$
                                         } else {
-                                            writer.writeCharacters("0");
+                                            writer.writeCharacters("0"); //$NON-NLS-1$
                                         }
                                         writer.writeEndElement();
                                     }
@@ -136,16 +136,16 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
                         writer.writeEndElement();
                     }
 
-                    writer.writeStartElement("tgtRecord");
+                    writer.writeStartElement("tgtRecord"); //$NON-NLS-1$
                     {
                         // TODO Extra info (timestamp...)
-                        writer.writeStartElement("resolvedBy");
-                        writer.writeCharacters("Autonomous resolver"); // TODO
+                        writer.writeStartElement("resolvedBy"); //$NON-NLS-1$
+                        writer.writeCharacters("Autonomous resolver"); //$NON-NLS-1$ // TODO
                         writer.writeEndElement();
 
-                        writer.writeStartElement("resolvedOn");
+                        writer.writeStartElement("resolvedOn"); //$NON-NLS-1$
                         Date modificationDate = new Date(record.getRecordMetadata().getLastModificationTime());
-                        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss"); //$NON-NLS-1$
                         writer.writeCharacters(dateFormat.format(modificationDate));
                         writer.writeEndElement();
 
@@ -153,25 +153,25 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
                         for (FieldMetadata field : originRecordType.getFields()) {
                             Object value = record.get(field);
                             if (value != null) {
-                                writer.writeStartElement("tgtColumn");
+                                writer.writeStartElement("tgtColumn"); //$NON-NLS-1$
                                 {
-                                    writer.writeStartElement("defColName");
+                                    writer.writeStartElement("defColName"); //$NON-NLS-1$
                                     writer.writeCharacters(field.getName());
                                     writer.writeEndElement();
 
-                                    writer.writeStartElement("defColValue");
+                                    writer.writeStartElement("defColValue"); //$NON-NLS-1$
                                     writer.writeCharacters(String.valueOf(value));
                                     writer.writeEndElement();
 
-                                    writer.writeStartElement("defColType");
+                                    writer.writeStartElement("defColType"); //$NON-NLS-1$
                                     writer.writeCharacters(getFieldType(field));
                                     writer.writeEndElement();
 
-                                    writer.writeStartElement("defColIskey");
+                                    writer.writeStartElement("defColIskey"); //$NON-NLS-1$
                                     if (field.isKey()) {
-                                        writer.writeCharacters("1");
+                                        writer.writeCharacters("1"); //$NON-NLS-1$
                                     } else {
-                                        writer.writeCharacters("0");
+                                        writer.writeCharacters("0"); //$NON-NLS-1$
                                     }
                                     writer.writeEndElement();
                                 }
@@ -187,13 +187,12 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
                     writer.writeEndDocument();
 
                     HttpState state = new HttpState();
-                    state.setCredentials(new AuthScope("localhost", 8080), new UsernamePasswordCredentials("administrator", "administrator"));
-                    // http://localhost:8080/org.talend.datastewardship-5.1.0-SNAPSHOT/dataloader
-                    HttpConnection connection = new HttpConnection("localhost", 8080);
+                    state.setCredentials(new AuthScope("localhost", 8080), new UsernamePasswordCredentials("administrator", "administrator")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    HttpConnection connection = new HttpConnection("localhost", 8080); //$NON-NLS-1$
                     connection.open();
-                    GetMethod get = new GetMethod("/org.talend.datastewardship-5.1.0-SNAPSHOT/dataloader");
+                    GetMethod get = new GetMethod("/org.talend.datastewardship-5.1.0-SNAPSHOT/dataloader"); //$NON-NLS-1$
                     get.setQueryString(new NameValuePair[]{
-                            new NameValuePair("INPUT_TASKS", output.toString())
+                            new NameValuePair("INPUT_TASKS", output.toString()) //$NON-NLS-1$
                     });
                     get.execute(state, connection);
                 } catch (Exception e) {
@@ -209,28 +208,26 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
 
         private String getFieldType(FieldMetadata field) {
             if(field instanceof ReferenceFieldMetadata) {
-                return "string";
+                return "string"; //$NON-NLS-1$
             }
 
             TypeMetadata currentType = field.getType();
             while(!XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(currentType.getNamespace())) {
                 currentType = currentType.getSuperTypes().iterator().next();
             }
-            if("dateTime".equals(currentType.getName())) {
-                return "date";
-            } else if("time".equals(currentType.getName())) {
-                return "date";
+            if("dateTime".equals(currentType.getName())) { //$NON-NLS-1$
+                return "date"; //$NON-NLS-1$
+            } else if("time".equals(currentType.getName())) { //$NON-NLS-1$
+                return "date"; //$NON-NLS-1$
             } else {
                 return currentType.getName();
             }
         }
 
-        @Override
         public void end() {
 
         }
 
-        @Override
         public Closure copy() {
             return new DSCTaskClosure(origin, xmlOutputFactory);
         }

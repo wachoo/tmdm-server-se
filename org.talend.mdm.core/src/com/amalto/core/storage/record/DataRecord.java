@@ -136,14 +136,6 @@ public class DataRecord {
         }
     }
 
-    public void set(String fieldName, Object o) {
-        for (Map.Entry<FieldMetadata, Object> entry : fieldToValue.entrySet()) {
-            if (entry.getKey().getName().equals(fieldName)) {
-                entry.setValue(o);
-            }
-        }
-    }
-
     public <T> T convert(DataRecordConverter<T> converter, TypeMapping mapping) {
         return converter.convert(this, mapping);
     }

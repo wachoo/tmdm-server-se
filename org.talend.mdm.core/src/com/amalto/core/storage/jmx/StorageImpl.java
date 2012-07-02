@@ -69,7 +69,7 @@ public class StorageImpl implements Storage {
     }
 
     public Object invoke(String actionName, Object[] params, String[] signature) throws MBeanException, ReflectionException {
-        if ("restart".equals(actionName)) {
+        if ("restart".equals(actionName)) { //$NON-NLS-1$
             try {
                 restart();
             } catch (Exception e) {
@@ -83,7 +83,7 @@ public class StorageImpl implements Storage {
     public MBeanInfo getMBeanInfo() {
         MBeanOperationInfo[] operations;
         try {
-            MBeanOperationInfo restartOperation = new MBeanOperationInfo("Restart", this.getClass().getMethod("restart"));
+            MBeanOperationInfo restartOperation = new MBeanOperationInfo("Restart", this.getClass().getMethod("restart")); //$NON-NLS-1$ //$NON-NLS-2$
             operations = new MBeanOperationInfo[]{restartOperation};
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);

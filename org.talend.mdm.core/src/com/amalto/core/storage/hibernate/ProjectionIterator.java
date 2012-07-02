@@ -29,7 +29,7 @@ import java.util.Set;
 
 class ProjectionIterator extends CloseableIterator<DataRecord> {
 
-    public static final String PROJECTION_TYPE = "$ExplicitProjection$";
+    public static final String PROJECTION_TYPE = "$ExplicitProjection$"; //$NON-NLS-1$
 
     private static final Logger LOGGER = Logger.getLogger(ProjectionIterator.class);
 

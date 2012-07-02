@@ -22,7 +22,7 @@ import java.io.IOException;
 
 public class FullTextIndexCleaner implements StorageCleaner {
 
-    public static final Logger LOGGER = Logger.getLogger(FullTextIndexCleaner.class);
+    private static final Logger LOGGER = Logger.getLogger(FullTextIndexCleaner.class);
 
     public void clean(Storage storage) {
         DataSource storageDataSource = storage.getDataSource();
@@ -31,16 +31,18 @@ public class FullTextIndexCleaner implements StorageCleaner {
         }
 
         RDBMSDataSource dataSource = (RDBMSDataSource) storageDataSource;
-        String dataSourceIndexDirectory = dataSource.getIndexDirectory();
-        File indexDirectory = new File(dataSourceIndexDirectory);
-        if (indexDirectory.exists()) {
-            try {
-                FileUtils.deleteDirectory(indexDirectory);
-            } catch (IOException e) {
-                throw new IllegalStateException("Could not successfully delete '" + indexDirectory.getAbsolutePath() + "'", e);
+        if (dataSource.supportFullText()) {
+            String dataSourceIndexDirectory = dataSource.getIndexDirectory();
+            File indexDirectory = new File(dataSourceIndexDirectory);
+            if (indexDirectory.exists()) {
+                try {
+                    FileUtils.deleteDirectory(indexDirectory);
+                } catch (IOException e) {
+                    throw new IllegalStateException("Could not successfully delete '" + indexDirectory.getAbsolutePath() + "'", e);
+                }
+            } else {
+                LOGGER.warn("Directory '" + dataSourceIndexDirectory + "' does not exist. No need to clean full text indexes.");
             }
-        } else {
-            LOGGER.warn("Directory '" + dataSourceIndexDirectory + "' does not exist. No need to clean full text indexes.");
         }
     }
 }

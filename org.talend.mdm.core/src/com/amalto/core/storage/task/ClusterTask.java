@@ -21,7 +21,7 @@ public class ClusterTask extends MetadataRepositoryTask {
 
     @Override
     public String toString() {
-        return "CLUSTER IDENTIFICATION";
+        return "CLUSTER IDENTIFICATION"; //$NON-NLS-1$
     }
 
     @Override
@@ -32,7 +32,7 @@ public class ClusterTask extends MetadataRepositoryTask {
 
     private static class ClusterClosure implements Closure {
 
-        private Storage storage;
+        private final Storage storage;
 
         public ClusterClosure(Storage storage) {
             this.storage = storage;
