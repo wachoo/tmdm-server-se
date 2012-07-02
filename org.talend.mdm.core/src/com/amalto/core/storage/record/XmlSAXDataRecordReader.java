@@ -19,7 +19,7 @@ import org.xml.sax.*;
 
 import java.util.Stack;
 
-// TODO Support inheritance (TMDM-57)
+// TODO Support inheritance + refactor
 public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecordReader.Input> {
 
     public static class Input {
@@ -54,6 +54,8 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
 
         private final Stack<ComplexTypeMetadata> currentType = new Stack<ComplexTypeMetadata>();
 
+        private final Stack<String> currentElement = new Stack<String>();
+
         private final Stack<DataRecord> dataRecordStack = new Stack<DataRecord>();
 
         private final ResettableStringWriter charactersBuffer = new ResettableStringWriter();
@@ -67,6 +69,7 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
         private boolean isReadingTimestamp = false;
 
         private boolean isReadingTaskId = false;
+
         private final DataRecord dataRecord;
 
         public DataRecordContentHandler(ComplexTypeMetadata type) {
@@ -110,13 +113,20 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
                 if (field == null) {
                     throw new IllegalArgumentException("Type '" + lastType.getName() + "' does not own field '" + localName + "'");
                 }
-                if (field.getType() instanceof ComplexTypeMetadata) {
+                if (field instanceof ReferenceFieldMetadata) {
+                    ComplexTypeMetadata referencedType = ((ReferenceFieldMetadata) field).getReferencedType();
+                    dataRecordStack.push(dataRecordStack.peek());
+                    currentElement.push(field.getName());
+                    currentType.push(referencedType);
+                    field = ((ReferenceFieldMetadata) field).getReferencedField();
+                } else if (field.getType() instanceof ComplexTypeMetadata) {
                     if (field instanceof ContainedTypeFieldMetadata) {
                         DataRecord containedRecord = new DataRecord(((ContainedTypeFieldMetadata) field).getContainedType(), UnsupportedDataRecordMetadata.INSTANCE);
                         dataRecordStack.peek().set(field, containedRecord);
                         dataRecordStack.push(containedRecord);
                     }
                     currentType.push((ComplexTypeMetadata) field.getType());
+                    currentElement.push(field.getName());
                 }
             }
         }
@@ -137,8 +147,9 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
                 }
             }
 
-            if (!currentType.isEmpty() && localName.equals(currentType.peek().getName())) {
+            if (!currentElement.isEmpty() && localName.equals(currentElement.peek())) {
                 currentType.pop();
+                currentElement.pop();
                 dataRecordStack.pop();
             }
         }
