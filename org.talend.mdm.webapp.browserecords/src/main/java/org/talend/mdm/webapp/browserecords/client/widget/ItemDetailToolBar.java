@@ -13,7 +13,9 @@
 package org.talend.mdm.webapp.browserecords.client.widget;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
@@ -28,6 +30,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
+import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.CloseTabPostDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.ContainerUpdate;
@@ -546,40 +549,56 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private void addRelationButton() {
-        service.getLineageEntity(itemBean.getConcept(), new SessionAwareAsyncCallback<List<String>>() {
-
-            public void onSuccess(List<String> list) {
-                if (list == null || list.size() == 0) {
-                    ItemDetailToolBar.this.addWorkFlosCombo();
-                    return;
-                }
-
-                final List<String> lineageList = list;
-                relationButton = new Button(MessagesFactory.getMessages().relations_btn());
-                relationButton.setId("relationButton"); //$NON-NLS-1$
-                relationButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.relations()));
-                relationButton.setToolTip(MessagesFactory.getMessages().relations_tooltip());
-                relationButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-                    @Override
-                    public void componentSelected(ButtonEvent ce) {
-                        StringBuilder entityStr = new StringBuilder();
-                        for (String str : lineageList)
-                            entityStr.append(str).append(","); //$NON-NLS-1$
-                        String arrStr = entityStr.toString().substring(0, entityStr.length() - 1);
-                        String ids = itemBean.getIds();
-                        if (ids == null || ids.trim() == "") //$NON-NLS-1$
-                            ids = ""; //$NON-NLS-1$
-                        initSearchEntityPanel(arrStr, ids, itemBean.getConcept());
+        @SuppressWarnings("unchecked")
+        final Map<String, List<String>> lineageEntityMap = (Map<String, List<String>>) BrowseRecords.getSession().get(
+                UserSession.CURRENT_LINEAGE_ENTITY_LIST);
+        if (lineageEntityMap != null && lineageEntityMap.containsKey(itemBean.getConcept()))
+            setRelation(lineageEntityMap.get(itemBean.getConcept()));
+        else
+            service.getLineageEntity(itemBean.getConcept(), new SessionAwareAsyncCallback<List<String>>() {
+        
+                public void onSuccess(List<String> list) {
+                    if (lineageEntityMap != null)
+                        lineageEntityMap.put(itemBean.getConcept(), list);
+                    else {
+                        Map<String, List<String>> map = new HashMap<String, List<String>>(1);
+                        map.put(itemBean.getConcept(), list);
+                        BrowseRecords.getSession().put(UserSession.CURRENT_LINEAGE_ENTITY_LIST, map);
                     }
-                });
-                ItemDetailToolBar.this.addSeparator();
-                add(relationButton);
-                ItemDetailToolBar.this.addWorkFlosCombo();
+                    setRelation(list);
+                }
+        
+            });
+    }
 
+    private void setRelation(List<String> list) {
+        if (list == null || list.size() == 0) {
+            ItemDetailToolBar.this.addWorkFlosCombo();
+            return;
+        }
+
+        final List<String> lineageList = list;
+        relationButton = new Button(MessagesFactory.getMessages().relations_btn());
+        relationButton.setId("relationButton"); //$NON-NLS-1$
+        relationButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.relations()));
+        relationButton.setToolTip(MessagesFactory.getMessages().relations_tooltip());
+        relationButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                StringBuilder entityStr = new StringBuilder();
+                for (String str : lineageList)
+                    entityStr.append(str).append(","); //$NON-NLS-1$
+                String arrStr = entityStr.toString().substring(0, entityStr.length() - 1);
+                String ids = itemBean.getIds();
+                if (ids == null || ids.trim() == "") //$NON-NLS-1$
+                    ids = ""; //$NON-NLS-1$
+                initSearchEntityPanel(arrStr, ids, itemBean.getConcept());
             }
-
         });
+        ItemDetailToolBar.this.addSeparator();
+        add(relationButton);
+        ItemDetailToolBar.this.addWorkFlosCombo();
     }
 
     private void addOpenTabButton(final boolean fromSmartView) {

@@ -21,12 +21,15 @@ import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
+import org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages;
+import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel.ForeignKeyHandler;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel.ItemDetailTabPanelContentHandle;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.DynamicTreeItem;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
@@ -34,6 +37,7 @@ import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.DOM;
@@ -52,7 +56,7 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
             final TypeModel fkTypeModel, final ItemDetailToolBar toolBar, final ViewBean pkViewBean, final ContentPanel cp,
             final ItemsDetailPanel detailPanel) {
         if (fkNodeModelList != null) {
-            String concept = fkTypeModel.getForeignkey().split("/")[0]; //$NON-NLS-1$
+            final String concept = fkTypeModel.getForeignkey().split("/")[0]; //$NON-NLS-1$
 
             final Map<String, Field<?>> fieldMap;
             DynamicTreeItem root;
@@ -67,7 +71,7 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
             }
             final ForeignKeyTablePanel fkPanel = new ForeignKeyTablePanel(concept + "_ForeignKeyTablePanel"); //$NON-NLS-1$
 
-            ItemPanel itemPanel = new ItemPanel(pkViewBean, toolBar.getItemBean(), toolBar.getOperation(), fkPanel, root,
+            final ItemPanel itemPanel = new ItemPanel(pkViewBean, toolBar.getItemBean(), toolBar.getOperation(), fkPanel, root,
                     detailPanel, toolBar.isOpenTab());
             itemPanel.getToolBar().setOutMost(toolBar.isOutMost());
             itemPanel.getToolBar().setHierarchyCall(toolBar.isHierarchyCall());
@@ -83,11 +87,25 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
             ItemDetailTabPanelContentHandle handle = detailPanel.addTabItem(xpathLabel, itemPanel, ItemsDetailPanel.MULTIPLE,
                     GWT.getModuleName() + DOM.createUniqueId());
             relationFk.put(parentModel, handle);
-            service.getEntityModel(concept, Locale.getLanguage(), new SessionAwareAsyncCallback<EntityModel>() {
+            // lazy render FK
+            detailPanel.addFkHandler(itemPanel, new ForeignKeyHandler() {
+                
+                public void onSelect() {
+                    BrowseRecordsMessages msg = MessagesFactory.getMessages();
+                    final MessageBox renderFkProgress = MessageBox.wait(msg.rendering_title(), msg.render_message(), msg.rendering_progress());
+                    service.getEntityModel(concept, Locale.getLanguage(), new SessionAwareAsyncCallback<EntityModel>() {
 
-                public void onSuccess(EntityModel entityModel) {
-                    fkPanel.initContent(entityModel, parentModel, fkNodeModelList, fkTypeModel, fieldMap, detailPanel, pkViewBean);
-                    fkPanel.layout(true);
+                        public void onSuccess(EntityModel entityModel) {
+                            fkPanel.initContent(entityModel, parentModel, fkNodeModelList, fkTypeModel, fieldMap, detailPanel, pkViewBean);
+                            itemPanel.layout(true);
+                            renderFkProgress.close();
+                        }
+                        
+                        protected void doOnFailure(Throwable caught) {
+                            renderFkProgress.close();
+                            super.doOnFailure(caught);
+                        }
+                    });
                 }
             });
         }

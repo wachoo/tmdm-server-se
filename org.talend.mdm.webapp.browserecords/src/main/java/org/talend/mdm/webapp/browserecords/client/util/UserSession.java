@@ -49,6 +49,8 @@ public class UserSession implements Serializable {
 
     private Map<String, Object> sessionMap = null;
 
+    public static final String CURRENT_LINEAGE_ENTITY_LIST = "currentLineageEntityList"; //$NON-NLS-1$
+
     public UserSession() {
         super();
         this.sessionMap = new HashMap<String, Object>();

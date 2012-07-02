@@ -288,6 +288,9 @@ public class BrowseRecordsController extends Controller {
                 // Init CURRENT_ENTITY_MODEL
                 BrowseRecords.getSession().put(UserSession.CURRENT_ENTITY_MODEL, viewbean.getBindingEntityModel());
 
+                // reset CURRENT_LINEAGE_ENTITY_LIST
+                BrowseRecords.getSession().put(UserSession.CURRENT_LINEAGE_ENTITY_LIST, null);
+
                 // forward
                 AppEvent ae = new AppEvent(event.getType(), viewbean);
                 forwardToView(view, ae);
