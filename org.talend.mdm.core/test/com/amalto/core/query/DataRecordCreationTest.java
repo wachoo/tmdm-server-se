@@ -22,6 +22,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -48,7 +49,28 @@ public class DataRecordCreationTest extends TestCase {
         DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
         DataRecord dataRecord = dataRecordReader.read(1, repository, product, builder.toString());
 
-        performAsserts(product, dataRecord);
+        performAsserts(dataRecord);
+    }
+
+    public void testCreationFromXMLStringWithInheritance() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(this.getClass().getResourceAsStream("metadata.xsd"));
+
+        ComplexTypeMetadata c = repository.getComplexType("C");
+        assertNotNull(c);
+
+        StringBuilder builder = new StringBuilder();
+        InputStream testResource = this.getClass().getResourceAsStream("DataRecordCreationTest2.xml");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
+        String current;
+        while ((current = reader.readLine()) != null) {
+            builder.append(current);
+        }
+
+        DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
+        DataRecord dataRecord = dataRecordReader.read(1, repository, c, builder.toString());
+
+        performInheritanceAsserts(dataRecord);
     }
 
     public void testCreationFromSAX() throws Exception {
@@ -64,8 +86,25 @@ public class DataRecordCreationTest extends TestCase {
         XmlSAXDataRecordReader.Input input = new XmlSAXDataRecordReader.Input(xmlReader, new InputSource(this.getClass().getResourceAsStream("DataRecordCreationTest.xml")));
         DataRecord dataRecord = dataRecordReader.read(1, repository, product, input);
 
-        performAsserts(product, dataRecord);
+        performAsserts(dataRecord);
     }
+
+    public void testCreationFromSAXWithInheritance() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(this.getClass().getResourceAsStream("metadata.xsd"));
+
+        ComplexTypeMetadata c = repository.getComplexType("C");
+        assertNotNull(c);
+
+        XMLReader xmlReader = XMLReaderFactory.createXMLReader();
+
+        DataRecordReader<XmlSAXDataRecordReader.Input> dataRecordReader = new XmlSAXDataRecordReader();
+        XmlSAXDataRecordReader.Input input = new XmlSAXDataRecordReader.Input(xmlReader, new InputSource(this.getClass().getResourceAsStream("DataRecordCreationTest2.xml")));
+        DataRecord dataRecord = dataRecordReader.read(1, repository, c, input);
+
+        performInheritanceAsserts(dataRecord);
+    }
+
 
     public void testCreationFromDOM() throws Exception {
         MetadataRepository repository = new MetadataRepository();
@@ -78,13 +117,31 @@ public class DataRecordCreationTest extends TestCase {
         DataRecordReader<Element> dataRecordReader = new XmlDOMDataRecordReader();
         DataRecord dataRecord = dataRecordReader.read(1, repository, product, document.getDocumentElement());
 
-        performAsserts(product, dataRecord);
+        performAsserts(dataRecord);
     }
 
-    private void performAsserts(ComplexTypeMetadata product, DataRecord dataRecord) {
+    public void testCreationFromDOMWithInheritance() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(this.getClass().getResourceAsStream("metadata.xsd"));
+
+        ComplexTypeMetadata c = repository.getComplexType("C");
+        assertNotNull(c);
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        DocumentBuilder documentBuilder = factory.newDocumentBuilder();
+        Document document = documentBuilder.parse(this.getClass().getResourceAsStream("DataRecordCreationTest2.xml"));
+        DataRecordReader<Element> dataRecordReader = new XmlDOMDataRecordReader();
+        DataRecord dataRecord = dataRecordReader.read(1, repository, c, document.getDocumentElement());
+
+        performInheritanceAsserts(dataRecord);
+    }
+
+    private void performAsserts(DataRecord dataRecord) {
         assertNotNull(dataRecord);
         assertEquals("Product", dataRecord.getType().getName());
 
+        ComplexTypeMetadata product = dataRecord.getType();
         assertEquals("1", dataRecord.get("Id"));
         assertEquals("1", dataRecord.get(product.getField("Id")));
         assertEquals("Test23", dataRecord.get("Name"));
@@ -95,6 +152,7 @@ public class DataRecordCreationTest extends TestCase {
         assertEquals("Pending", dataRecord.get(product.getField("Status")));
 
         Object o = dataRecord.get("Features/Sizes/Size");
+        assertNotNull(o);
         assertTrue(o instanceof List);
         List list = (List) o;
         assertEquals(2, list.size());
@@ -102,10 +160,25 @@ public class DataRecordCreationTest extends TestCase {
         assertEquals("Large", list.get(1));
 
         o = dataRecord.get("Features/Colors/Color");
+        assertNotNull(o);
         assertTrue(o instanceof List);
         list = (List) o;
         assertEquals(1, list.size());
         assertEquals("Blue", list.get(0));
+
+        o = dataRecord.get("Supplier");
+        assertNotNull(o);
+        assertTrue(o instanceof List);
+        assertEquals(1, ((List) o).size());
+        assertTrue(((DataRecord) ((List) o).get(0)) instanceof DataRecord);
+        assertEquals("Supplier", ((DataRecord) ((List) o).get(0)).getType().getName());
+        assertEquals("1", ((DataRecord) ((List) o).get(0)).get("Id"));
+
+        o = dataRecord.get("Family");
+        assertNotNull(o);
+        assertTrue(o instanceof DataRecord);
+        assertEquals("ProductFamily", ((DataRecord) o).getType().getName());
+        assertEquals("2", ((DataRecord) o).get("Id"));
 
         // Metadata asserts
         DataRecordMetadata metadata = dataRecord.getRecordMetadata();
@@ -116,5 +189,25 @@ public class DataRecordCreationTest extends TestCase {
         assertNotNull(metadata.getRecordProperties());
     }
 
+    private void performInheritanceAsserts(DataRecord dataRecord) {
+        assertNotNull(dataRecord);
+        assertEquals("C", dataRecord.getType().getName());
 
+        assertEquals("2", dataRecord.get("id"));
+        assertEquals("TextAC", dataRecord.get("textA"));
+        assertEquals("TextCC", dataRecord.get("textC"));
+
+        Object o = dataRecord.get("refB");
+        assertNotNull(o);
+        assertTrue(o instanceof DataRecord);
+        assertEquals("D", ((DataRecord) o).getType().getName());
+
+        o = dataRecord.get("nestedB");
+        assertNotNull(o);
+        assertTrue(o instanceof DataRecord);
+        assertEquals("SubNested", ((DataRecord) o).getType().getName());
+
+        assertEquals("Text", dataRecord.get("nestedB/text"));
+        assertEquals("SubText", dataRecord.get("nestedB/subText"));
+    }
 }

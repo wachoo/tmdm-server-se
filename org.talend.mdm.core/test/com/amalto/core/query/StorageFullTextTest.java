@@ -35,6 +35,14 @@ public class StorageFullTextTest extends StorageTestCase {
     private void populateData() {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
+        allRecords.add(factory.read(1, repository, productFamily, "<ProductFamily>\n" +
+                "    <Id>1</Id>\n" +
+                "    <Name>Product family #1</Name>\n" +
+                "</ProductFamily>"));
+        allRecords.add(factory.read(1, repository, productFamily, "<ProductFamily>\n" +
+                "    <Id>2</Id>\n" +
+                "    <Name>Product family #2</Name>\n" +
+                "</ProductFamily>"));
         allRecords.add(factory.read(1, repository, product, "<Product>\n" +
                 "    <Id>1</Id>\n" +
                 "    <Name>Product name</Name>\n" +
@@ -53,6 +61,7 @@ public class StorageFullTextTest extends StorageTestCase {
                 "        </Colors>\n" +
                 "    </Features>\n" +
                 "    <Status>Pending</Status>\n" +
+                "    <Family>[2]</Family>\n" +
                 "    <Supplier>[1]</Supplier>\n" +
                 "</Product>"));
         allRecords.add(factory.read(1, repository, product, "<Product>\n" +
@@ -71,6 +80,7 @@ public class StorageFullTextTest extends StorageTestCase {
                 "            <Color>Klein blue2</Color>\n" +
                 "        </Colors>\n" +
                 "    </Features>\n" +
+                "    <Family>[1]</Family>\n" +
                 "    <Status>Pending</Status>\n" +
                 "    <Supplier>[2]</Supplier>\n" +
                 "    <Supplier>[1]</Supplier>\n" +
@@ -110,11 +120,6 @@ public class StorageFullTextTest extends StorageTestCase {
             storage.commit();
         } catch (Exception e) {
             storage.rollback();
-            try {
-                tearDown();
-            } catch (Exception e1) {
-                // Ignored
-            }
             throw new RuntimeException(e);
         } finally {
             storage.end();
@@ -126,6 +131,9 @@ public class StorageFullTextTest extends StorageTestCase {
         storage.begin();
         {
             UserQueryBuilder qb = from(product);
+            storage.delete(qb.getSelect());
+
+            qb = from(productFamily);
             storage.delete(qb.getSelect());
 
             qb = from(supplier);

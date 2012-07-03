@@ -23,7 +23,7 @@
             </Features>
             <Availability/>
             <Price>30</Price>
-            <Family/>
+            <Family>[2]</Family>
             <Supplier>[1]</Supplier>
             <CreationDate/>
             <RemovalDate/>

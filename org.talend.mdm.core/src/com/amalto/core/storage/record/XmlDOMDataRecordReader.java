@@ -12,6 +12,7 @@
 package com.amalto.core.storage.record;
 
 import com.amalto.core.metadata.*;
+import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
@@ -20,7 +21,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
-// TODO Support inheritance (TMDM-57)
+import javax.xml.XMLConstants;
+
 public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
 
     public XmlDOMDataRecordReader() {
@@ -49,15 +51,15 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
         NodeList userPayloadElement = element.getElementsByTagName("p"); //$NON-NLS-1$
         Element singleUserPayloadElement = (Element) userPayloadElement.item(0);
         if (singleUserPayloadElement == null) {
-            _read(dataRecord, type, element);
+            _read(repository, dataRecord, type, element);
         } else {
-            _read(dataRecord, type, (Element) singleUserPayloadElement.getElementsByTagName(type.getName()).item(0));
+            _read(repository, dataRecord, type, (Element) singleUserPayloadElement.getElementsByTagName(type.getName()).item(0));
         }
 
         return dataRecord;
     }
 
-    private void _read(DataRecord dataRecord, ComplexTypeMetadata type, Element element) {
+    private void _read(MetadataRepository repository, DataRecord dataRecord, ComplexTypeMetadata type, Element element) {
         String tagName = element.getTagName();
         NodeList children = element.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
@@ -67,16 +69,31 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
                 FieldMetadata field = type.getField(child.getTagName());
                 if (field.getType() instanceof ContainedComplexTypeMetadata) {
                     ComplexTypeMetadata containedType = (ComplexTypeMetadata) field.getType();
+                    String xsiType = child.getAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type"); //$NON-NLS-1$
+                    if (!xsiType.isEmpty()) {
+                        containedType = (ComplexTypeMetadata) repository.getNonInstantiableType(xsiType);
+                    }
                     DataRecord containedRecord = new DataRecord(containedType, UnsupportedDataRecordMetadata.INSTANCE);
                     dataRecord.set(field, containedRecord);
-                    _read(containedRecord, containedType, child);
+                    _read(repository, containedRecord, containedType, child);
                 } else {
-                    _read(dataRecord, type, child);
+                    _read(repository, dataRecord, type, child);
                 }
             } else if (currentChild instanceof Text && !tagName.equals(type.getName())) {
-                FieldMetadata field = type.getField(tagName);
-                String textContent = element.getFirstChild().getNodeValue();
-                dataRecord.set(field, MetadataUtils.convert(textContent, field, type));
+                String textContent = element.getFirstChild().getNodeValue().trim();
+                if (!textContent.isEmpty()) {
+                    FieldMetadata field = type.getField(tagName);
+                    if (field instanceof ReferenceFieldMetadata) {
+                        ComplexTypeMetadata actualType = ((ReferenceFieldMetadata) field).getReferencedType();
+                        String mdmType = element.getAttributeNS(SkipAttributeDocumentBuilder.TALEND_NAMESPACE, "type"); //$NON-NLS-1$
+                        if (!mdmType.isEmpty()) {
+                            actualType = repository.getComplexType(mdmType);
+                        }
+                        dataRecord.set(field, MetadataUtils.convert(textContent, field, actualType));
+                    } else {
+                        dataRecord.set(field, MetadataUtils.convert(textContent, field, type));
+                    }
+                }
             }
         }
     }
