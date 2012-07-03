@@ -21,7 +21,6 @@ import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatNumber
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextAreaField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.PictureField;
-import org.talend.mdm.webapp.browserecords.client.widget.inputfield.SpinnerField;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.FacetEnum;
 
@@ -194,8 +193,8 @@ public class TypeFieldCreatorGWTTest extends GWTTestCase {
         context.setDataType(priceNodeModel);
         createdField = typeFieldCreator.createField();
         assertNotNull(createdField);
-        assertTrue(createdField instanceof SpinnerField);
-        assertEquals(createdField.getValue(), 0.0);
+        assertTrue(createdField instanceof TextField);
+        assertEquals(createdField.getValue(), "*");
         assertEquals(typeFieldSource.getOperatorMap(), OperatorConstants.numOperators);
 
         context.setDataType(pictureNodeModel);
