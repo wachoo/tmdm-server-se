@@ -19,7 +19,7 @@ import java.util.Stack;
 
 class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
-    private static final String GENERATED_ID = "x_talend_id";
+    private static final String GENERATED_ID = "x_talend_id";  //$NON-NLS-1$
 
     private final MetadataRepository internalRepository;
 
@@ -88,7 +88,7 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     }
 
     private String handleContainedType(String superTypeDatabaseName, String containerTypeName, ComplexTypeMetadata containedType) {
-        String newTypeName = (containerTypeName + "_2_" + containedType.getName()).toUpperCase(); //$NON-NLS-1$
+        String newTypeName = (containerTypeName.replace('-', '_') + "_2_" + containedType.getName().replace('-', '_')).toUpperCase(); //$NON-NLS-1$
         ComplexTypeMetadata newInternalType = new ComplexTypeMetadataImpl(containedType.getNamespace(),
                 newTypeName,
                 containedType.getWriteUsers(),
@@ -121,7 +121,7 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     @Override
     public TypeMapping visit(ContainedTypeFieldMetadata containedField) {
-        String typeName = (containedField.getDeclaringType().getName() + "_2_" + containedField.getContainedType().getName()).toUpperCase(); //$NON-NLS-1$
+        String typeName = (containedField.getDeclaringType().getName().replace('-', '_') + "_2_" + containedField.getContainedType().getName().replace('-', '_')).toUpperCase(); //$NON-NLS-1$
         SoftTypeRef typeRef = new SoftTypeRef(internalRepository,
                 containedField.getDeclaringType().getNamespace(),
                 typeName);
@@ -164,7 +164,7 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         currentType.push(database);
         {
             internalRepository.addTypeMetadata(database);
-            if (complexType.getKeyFields().isEmpty()) {
+            if (complexType.getKeyFields().isEmpty() && complexType.getSuperTypes().isEmpty()) { // Assumes super type will define an id.
                 database.addField(new SimpleTypeFieldMetadata(database, true, false, true, GENERATED_ID, new SoftTypeRef(internalRepository, StringUtils.EMPTY, "UUID"), Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
             }
             for (TypeMetadata superType : complexType.getSuperTypes()) {

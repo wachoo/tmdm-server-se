@@ -21,8 +21,6 @@ import java.util.*;
  */
 public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
 
-    private final String name;
-
     private final String nameSpace;
 
     private final List<String> allowWrite;
@@ -44,6 +42,8 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
     private final List<String> physicalDelete;
 
     private final Collection<ComplexTypeMetadata> subTypes = new HashSet<ComplexTypeMetadata>();
+
+    private String name;
 
     private MetadataRepository repository;
 
@@ -79,6 +79,13 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        if (isFrozen) {
+            throw new IllegalStateException("Cannot change name after type was frozen.");
+        }
+        this.name = name;
     }
 
     public String getNamespace() {

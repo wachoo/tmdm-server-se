@@ -83,6 +83,10 @@ public class SoftTypeRef implements ComplexTypeMetadata {
         return typeName;
     }
 
+    public void setName(String name) {
+        getType().setName(name);
+    }
+
     public String getNamespace() {
         return namespace;
     }

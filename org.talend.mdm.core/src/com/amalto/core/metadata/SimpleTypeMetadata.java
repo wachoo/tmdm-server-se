@@ -20,11 +20,13 @@ import java.util.List;
  */
 public class SimpleTypeMetadata implements TypeMetadata {
 
-    private final String name;
-
     private final String nameSpace;
 
     private final List<TypeMetadata> superTypes = new LinkedList<TypeMetadata>();
+
+    private String name;
+
+    private boolean isFrozen = false;
 
     public SimpleTypeMetadata(String nameSpace, String name) {
         if (name == null) {
@@ -41,6 +43,13 @@ public class SimpleTypeMetadata implements TypeMetadata {
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        if (isFrozen) {
+            throw new IllegalStateException("Cannot change name after type was frozen.");
+        }
+        this.name = name;
     }
 
     public String getNamespace() {
@@ -69,6 +78,7 @@ public class SimpleTypeMetadata implements TypeMetadata {
     }
 
     public TypeMetadata freeze() {
+        isFrozen = true;
         return this;
     }
 

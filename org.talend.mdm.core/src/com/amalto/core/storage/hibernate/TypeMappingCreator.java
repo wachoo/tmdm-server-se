@@ -145,7 +145,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
             typeMapping.getDatabase().addSuperType(new SoftTypeRef(internalRepository, superType.getNamespace(), superType.getName()), internalRepository);
         }
 
-        if (typeMapping.getUser().getKeyFields().isEmpty()) {
+        if (typeMapping.getUser().getKeyFields().isEmpty() && typeMapping.getUser().getSuperTypes().isEmpty()) { // Assumes super type defines key field.
             ComplexTypeMetadata database = typeMapping.getDatabase();
             database.addField(new SimpleTypeFieldMetadata(database, true, false, true, "X_TALEND_ID", new SoftTypeRef(internalRepository, XMLConstants.W3C_XML_SCHEMA_NS_URI, "string"), Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$ //$NON-NLS-2$
         }

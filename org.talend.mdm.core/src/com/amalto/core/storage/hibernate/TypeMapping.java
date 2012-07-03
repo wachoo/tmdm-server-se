@@ -38,6 +38,8 @@ public abstract class TypeMapping {
 
     TypeMapping(ComplexTypeMetadata user, MappingRepository mappings) {
         this(user, (ComplexTypeMetadata) user.copyShallow(), mappings);
+        // Make sure internal type (database) does not have any '-' that blocks Java classes generation.
+        database.setName(database.getName().replace('-', '_'));
     }
 
     TypeMapping(ComplexTypeMetadata user, ComplexTypeMetadata database, MappingRepository mappings) {

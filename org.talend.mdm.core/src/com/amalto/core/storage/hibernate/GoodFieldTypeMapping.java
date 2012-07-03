@@ -34,11 +34,7 @@ import java.util.Set;
 public class GoodFieldTypeMapping extends TypeMapping {
 
     public GoodFieldTypeMapping(ComplexTypeMetadata user, MappingRepository mappings) {
-        this(user, (ComplexTypeMetadata) user.copyShallow(), mappings);
-    }
-
-    private GoodFieldTypeMapping(ComplexTypeMetadata user, ComplexTypeMetadata database, MappingRepository mappings) {
-        super(user, database, mappings);
+        super(user, mappings);
     }
 
     public void setValues(Session session, DataRecord from, Wrapper to) {

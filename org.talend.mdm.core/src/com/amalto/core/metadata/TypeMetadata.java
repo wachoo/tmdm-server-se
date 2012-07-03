@@ -12,13 +12,12 @@
 package com.amalto.core.metadata;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Representation of a type in MDM. Types can either be:
  * <ul>
- *     <li>Simple: such as string, double... and usually represented as {@link SimpleTypeMetadata}</li>.
- *     <li>Complex: for user defined entity types and usually represented as {@link ComplexTypeMetadata}</li>.
+ * <li>Simple: such as string, double... and usually represented as {@link SimpleTypeMetadata}</li>.
+ * <li>Complex: for user defined entity types and usually represented as {@link ComplexTypeMetadata}</li>.
  * </ul>
  */
 public interface TypeMetadata extends MetadataVisitable {
@@ -44,6 +43,11 @@ public interface TypeMetadata extends MetadataVisitable {
      * @return Type's name as it can be used for the {@link MetadataRepository#getType(String, String)} method.
      */
     String getName();
+
+    /**
+     * Change type name (be careful if this type was already registered to a {@link MetadataRepository} instance).
+     */
+    void setName(String name);
 
     /**
      * @return Type's namespace as it can be used for the {@link MetadataRepository#getType(String, String)} method.
@@ -82,6 +86,7 @@ public interface TypeMetadata extends MetadataVisitable {
     /**
      * Mark type as unmodifiable and resolves all information (fields, super type) that <b>must</b> be present in {@link MetadataRepository}
      * when this method is called.
+     *
      * @return A {@link TypeMetadata} that can't be modified afterwards.
      */
     TypeMetadata freeze();
