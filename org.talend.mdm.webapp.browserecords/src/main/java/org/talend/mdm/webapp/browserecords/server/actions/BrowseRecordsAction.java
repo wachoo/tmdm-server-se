@@ -507,12 +507,19 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                             } else if (value[1].equalsIgnoreCase("DATETIME")) { //$NON-NLS-1$
                                 sdf = new SimpleDateFormat(dateTimeFormat, java.util.Locale.ENGLISH);
                             }
-                            Date date = sdf.parse(dateText.trim());
-                            itemBean.getOriginalMap().put(key, date);
-                            Calendar calendar = Calendar.getInstance();
-                            calendar.setTime(date);
-                            String formatValue = com.amalto.webapp.core.util.Util.formatDate(value[0], calendar);
-                            itemBean.getFormateMap().put(key, formatValue);
+                            
+                            try {
+                                Date date = sdf.parse(dateText.trim());
+                                itemBean.getOriginalMap().put(key, date);
+                                Calendar calendar = Calendar.getInstance();
+                                calendar.setTime(date);
+                                String formatValue = com.amalto.webapp.core.util.Util.formatDate(value[0], calendar);
+                                itemBean.getFormateMap().put(key, formatValue); 
+                            }
+                            catch (Exception e) {
+                                itemBean.getOriginalMap().remove(key);
+                                itemBean.getFormateMap().remove(key);
+                            }
                         }
                     }
                 }            
@@ -830,13 +837,20 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         } else if (value[1].equalsIgnoreCase("DATETIME")) { //$NON-NLS-1$
                             sdf = new SimpleDateFormat(dateTimeFormat, java.util.Locale.ENGLISH);
                         }
-                        Date date = sdf.parse(dateText.trim());
-                        originalMap.put(key, date);
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.setTime(date);
-                        String formatValue = com.amalto.webapp.core.util.Util.formatDate(value[0], calendar);
-                        formateValueMap.put(key, formatValue);
-                        Util.getNodeList(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")).item(0).setTextContent(formatValue); //$NON-NLS-1$ //$NON-NLS-2$
+                        
+                        try {
+                            Date date = sdf.parse(dateText.trim());
+                            originalMap.put(key, date);
+                            Calendar calendar = Calendar.getInstance();
+                            calendar.setTime(date);
+                            String formatValue = com.amalto.webapp.core.util.Util.formatDate(value[0], calendar);
+                            formateValueMap.put(key, formatValue);
+                            Util.getNodeList(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")).item(0).setTextContent(formatValue); //$NON-NLS-1$ //$NON-NLS-2$
+                        }
+                        catch (Exception e) {
+                            originalMap.remove(key);
+                            formateValueMap.remove(key);
+                        }
                     }
                 }
             }
