@@ -534,7 +534,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             throw new ServiceException(e.getLocalizedMessage());
         }
     }
-
+    /**
+     * This method should be only set primaryKey info and description on entity
+     * @param itemBean
+     * @param entityModel
+     * @param language
+     * @throws Exception
+     */
     private void dynamicAssemble(ItemBean itemBean, EntityModel entityModel, String language) throws Exception {
         if (itemBean.getItemXml() != null) {
             Document docXml = Util.parse(itemBean.getItemXml());
@@ -552,7 +558,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
 
                 if (typeModel.isSimpleType()) {
-                    NodeList nodes = Util.getNodeList(docXml, path.substring(path.lastIndexOf('/') + 1));
+                    // It should getValue by XPath but not element name(ItemBean's map object is only used by ItemsListPanel)
+                    NodeList nodes = Util.getNodeList(docXml, typeModel.getXpath().replaceFirst(entityModel.getConceptName() + "/", "./")); //$NON-NLS-1$//$NON-NLS-2$
                     if (nodes.getLength() > 0) {
                         if (nodes.item(0) instanceof Element) {
                             Element value = (Element) nodes.item(0);

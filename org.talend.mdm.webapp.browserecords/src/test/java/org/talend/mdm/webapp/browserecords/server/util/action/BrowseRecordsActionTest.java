@@ -33,8 +33,12 @@ import org.talend.mdm.webapp.browserecords.server.bizhelpers.SchemaMockAgent;
 import org.talend.mdm.webapp.browserecords.server.util.TestData;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.amalto.webapp.core.util.Util;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 
@@ -195,7 +199,26 @@ public class BrowseRecordsActionTest extends TestCase {
                 ((ItemNodeModel) newSubTypeModel.getChild(1)).getTypePath());
     }
     
+    public void test_getNodeValue() throws Exception {
+        String conceptName = "TaxonomyCategory";
+        String xml = "<TaxonomyCategory><Id>1</Id><ZthesId>1</ZthesId><CrcCode>1</CrcCode><TaxonomyCategory>1</TaxonomyCategory><X-BusinessType><Id>2</Id></X-BusinessType></TaxonomyCategory>";
+        Document docXml = Util.parse(xml);
+        String xpath = "TaxonomyCategory/Id";
+        assertEquals("1", parsingNodeValue(docXml, xpath, conceptName));
+        xpath = "TaxonomyCategory/X-BusinessType/Id";
+        assertEquals("2", parsingNodeValue(docXml, xpath, conceptName));
+    }
     
+    private String parsingNodeValue(Document docXml, String xpath, String conceptName) throws Exception {
+        NodeList nodes = Util.getNodeList(docXml, xpath.replaceFirst(conceptName + "/", "./"));
+        if (nodes.getLength() > 0) {
+            if (nodes.item(0) instanceof Element) {
+                Element value = (Element) nodes.item(0);
+                return value.getTextContent();
+            }
+        }
+        return null;
+    }
 
     private String getXml(String fileName) throws IOException {
         InputStream stream = BrowseRecordsActionTest.class.getResourceAsStream("../../../" + fileName);
