@@ -23,4 +23,22 @@ public class WSGetView {
     public void setWsViewPK(com.amalto.webapp.util.webservices.WSViewPK wsViewPK) {
         this.wsViewPK = wsViewPK;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (super.equals(obj))
+            return true;
+        if (obj == null)
+            return false;
+        if (obj instanceof WSGetView) {
+            WSGetView another = (WSGetView) obj;
+            if (wsViewPK != null) {
+                return wsViewPK.equals(another.getWsViewPK());
+            } else {
+                return wsViewPK == another.getWsViewPK();
+            }
+        } else {
+            return false;
+        }
+    }
 }

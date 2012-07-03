@@ -23,4 +23,22 @@ public class WSViewPK {
     public void setPk(java.lang.String pk) {
         this.pk = pk;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (super.equals(obj))
+            return true;
+        if (obj == null)
+            return false;
+        if (obj instanceof WSViewPK) {
+            WSViewPK another = (WSViewPK) obj;
+            if (pk != null) {
+                return pk.equals(another.getPk());
+            } else {
+                return pk == another.getPk();
+            }
+        } else {
+            return false;
+        }
+    }
 }
