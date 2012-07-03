@@ -82,7 +82,7 @@ public class PictureField extends TextField<String> {
             if (button == getButtonBar().getItemByItemId(YES)) {
 
                 // Only delete it from client side
-            	setValue(DataTypeConstants.PICTURE.getDefaultValue() == null ? null : (String) DataTypeConstants.PICTURE.getDefaultValue());// reset value when delete
+            	setValue(null);// reset value when delete
                 dialog.hide();  
 
             } else if (button == getButtonBar().getItemByItemId(NO)) {
@@ -97,6 +97,7 @@ public class PictureField extends TextField<String> {
         regJs(addHandler);
 
         dialog.setHeading(MessagesFactory.getMessages().confirm_title());
+        dialog.addText(MessagesFactory.getMessages().confirm_delete_img());
         dialog.setModal(true);
         dialog.setBlinkModal(true);
         dialog.setButtons(Dialog.YESNO);

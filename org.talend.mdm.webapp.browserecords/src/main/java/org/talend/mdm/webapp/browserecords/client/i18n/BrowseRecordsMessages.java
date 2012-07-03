@@ -24,6 +24,8 @@ public interface BrowseRecordsMessages extends Messages {
     String error_title();
 
     String confirm_title();
+    
+    String confirm_delete_img();
 
     String warning_title();
 
