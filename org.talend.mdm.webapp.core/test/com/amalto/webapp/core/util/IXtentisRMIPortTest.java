@@ -13,6 +13,7 @@
 package com.amalto.webapp.core.util;
 
 import java.lang.reflect.Field;
+import java.rmi.RemoteException;
 import java.util.Properties;
 
 import junit.framework.TestCase;
@@ -21,9 +22,26 @@ import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import com.amalto.webapp.util.webservices.WSBoolean;
 import com.amalto.webapp.util.webservices.WSInt;
+import com.amalto.webapp.util.webservices.WSPing;
+import com.amalto.webapp.util.webservices.WSString;
 import com.amalto.webapp.util.webservices.XtentisPort;
 
+@SuppressWarnings("nls")
 public class IXtentisRMIPortTest extends TestCase {
+
+    private XtentisPort port;
+
+    @Override
+    protected void setUp() throws Exception {
+        port = new XtentisRMIMockPort();
+        super.setUp();
+    }
+
+    public void testPing() throws RemoteException {
+        String message = "Hello World! ";
+        WSString echoMsg = port.ping(new WSPing(message));
+        assertEquals(message, echoMsg.getValue());
+    }
 
     public void testIsPagingAccurate() throws Exception {
 
@@ -34,7 +52,6 @@ public class IXtentisRMIPortTest extends TestCase {
         field.set(null, props);
 
         // if no config
-        XtentisPort port = new XtentisPortTestBean();
         WSBoolean pagingAccurate = port.isPagingAccurate(new WSInt(100));
         assertEquals(true, pagingAccurate.is_true());
 
