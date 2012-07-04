@@ -13,9 +13,9 @@
 
 package com.amalto.core.server;
 
+import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -25,8 +25,10 @@ public interface MetadataRepositoryAdmin {
     /**
      * Returns a {@link MetadataRepository} instance for the MDM data model. If data model exists but no {@link MetadataRepository}
      * has been built for this data model, this method implicitly creates a new {@link MetadataRepository}.
+     *
      * @param metadataRepositoryId A non-null data model name.
-     * @return The {@link MetadataRepository} instance for the data model named <code>metadataRepositoryId</code>.
+     * @return The {@link MetadataRepository} instance for the data model named <code>metadataRepositoryId</code> or <code>null</code>
+     *         if data model doesn't exist.
      * @throws IllegalArgumentException If data model name is null.
      */
     MetadataRepository get(String metadataRepositoryId);
@@ -34,6 +36,7 @@ public interface MetadataRepositoryAdmin {
     /**
      * Removes the {@link MetadataRepository} instance registered for the data model named <code>metadataRepositoryId</code>.
      * If no metadata was built for <code>metadataRepositoryId</code>, this method is a no op.
+     *
      * @param metadataRepositoryId A non-null data model name.
      * @throws IllegalArgumentException If data model name is null.
      */
@@ -42,6 +45,7 @@ public interface MetadataRepositoryAdmin {
     /**
      * Forces to refresh {@link MetadataRepository} associated with <code>metadataRepositoryId</code> with data model schema
      * stored in MDM.
+     *
      * @param metadataRepositoryId A non-null data model name.
      * @throws IllegalArgumentException If data model name is null.
      */
@@ -50,10 +54,16 @@ public interface MetadataRepositoryAdmin {
     /**
      * @param metadataRepositoryId A non-null data model name.
      * @return <code>true</code> if a {@link MetadataRepository} instance has already been instantiated for the data model
-     * <code>metadataRepositoryId</code>, <code>false</code> otherwise.
+     *         <code>metadataRepositoryId</code>, <code>false</code> otherwise.
      * @throws IllegalArgumentException If data model name is null.
      */
     boolean exist(String metadataRepositoryId);
+
+    /**
+     * @param dataModelName A non-null data model name.
+     * @return A {@link Set} of {@link FieldMetadata} that are likely to be used for search and sort.
+     */
+    Set<FieldMetadata> getIndexedFields(String dataModelName);
 
     /**
      * Releases all resources used by this {@link MetadataRepositoryAdmin}.

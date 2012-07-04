@@ -423,7 +423,18 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 propertyName.setValue(fieldName);
                 Attr columnName = document.createAttribute("column"); //$NON-NLS-1$
                 columnName.setValue(shortString(fieldName));
-
+                if (resolver.isIndexed(field)) { // Create indexes for fields that should be indexed.
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Creating index for field '" + field.getName() + "'.");
+                    }
+                    Attr indexName = document.createAttribute("index"); //$NON-NLS-1$
+                    indexName.setValue(shortString(fieldName) + "_index"); //$NON-NLS-1$
+                    propertyElement.getAttributes().setNamedItem(indexName);
+                } else {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("*Not* creating index for field '" + field.getName() + "'.");
+                    }
+                }
                 // Not null
                 if (generateConstrains) {
                     if (field.isMandatory()) {

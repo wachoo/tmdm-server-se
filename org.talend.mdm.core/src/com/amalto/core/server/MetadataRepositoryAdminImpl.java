@@ -13,10 +13,15 @@
 
 package com.amalto.core.server;
 
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocal;
+import com.amalto.core.objects.view.ejb.ViewPOJO;
+import com.amalto.core.objects.view.ejb.ViewPOJOPK;
+import com.amalto.core.objects.view.ejb.local.ViewCtrlLocal;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import org.apache.commons.lang.StringUtils;
@@ -24,9 +29,7 @@ import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import java.io.ByteArrayInputStream;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
 
@@ -54,6 +57,39 @@ class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
         synchronized (metadataRepository) {
             for (String repositoryId : metadataRepository.keySet()) {
                 remove(repositoryId);
+            }
+        }
+    }
+
+    public Set<FieldMetadata> getIndexedFields(String dataModelName) {
+        synchronized (metadataRepository) {
+            try {
+                MetadataRepository repository = get(dataModelName);
+                ViewCtrlLocal viewCtrlLocal = Util.getViewCtrlLocal();
+                Set<FieldMetadata> indexedFields = new HashSet<FieldMetadata>();
+                for (ComplexTypeMetadata userType : repository.getUserComplexTypes()) {
+                    ViewPOJOPK pk = new ViewPOJOPK("Browse_items_" + userType.getName()); //$NON-NLS-1$
+                    ViewPOJO view = viewCtrlLocal.existsView(pk);
+                    if (view != null) {
+                        ArrayList<String> searchableElements = view.getSearchableBusinessElements().getList();
+                        for (String searchableElement : searchableElements) {
+                            String fieldName = StringUtils.substringAfter(searchableElement, "/"); //$NON-NLS-1$
+                            if (userType.hasField(fieldName)) {
+                                indexedFields.add(userType.getField(fieldName));
+                            }
+                        }
+                        ArrayList<String> viewableElements = view.getViewableBusinessElements().getList();
+                        for (String viewableElement : viewableElements) {
+                            String fieldName = StringUtils.substringAfter(viewableElement, "/"); //$NON-NLS-1$
+                            if (userType.hasField(fieldName)) {
+                                indexedFields.add(userType.getField(fieldName));
+                            }
+                        }
+                    }
+                }
+                return indexedFields;
+            } catch (Exception e) {
+                throw new RuntimeException("Could not get indexed fields.", e);
             }
         }
     }

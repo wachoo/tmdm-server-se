@@ -9,19 +9,18 @@
  * 9 rue Pages 92150 Suresnes, France
  */
 
-package com.amalto.core.storage.hibernate;
-
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.FieldMetadata;
+package com.amalto.core.storage;
 
 /**
- *
+ * Describes what type ({@link #MASTER} or {@link #STAGING}) a SQL storage is.
  */
-interface TableResolver {
-    String get(ComplexTypeMetadata type);
-
-    String get(FieldMetadata field);
-
-    boolean isIndexed(FieldMetadata field);
-
+public enum StorageType {
+    /**
+     * Indicates storage stores validated data (master data).
+     */
+    MASTER,
+    /**
+     * Indicates storage stores unvalidated data.
+     */
+    STAGING
 }

@@ -12,6 +12,7 @@
 package com.amalto.core.query;
 
 import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.server.MockServerLifecycle;
@@ -24,6 +25,7 @@ import com.amalto.core.storage.record.DataRecordReader;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import junit.framework.TestCase;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -111,7 +113,7 @@ public class StorageIsolationTest extends TestCase {
                 System.out.println("Chaos monkey for " + storageName + " sleeping for " + millis + " ms.");
                 Thread.sleep(millis);
                 System.out.println("Chaos monkey for " + storageName + " is reinitializing storage!");
-                storage.prepare(repository, true, true);
+                storage.prepare(repository, Collections.<FieldMetadata>emptySet(), true, true);
                 System.out.println("Chaos monkey for " + storageName + " has finished storage reinitialization.");
                 isSuccess = true;
             } catch (Exception e) {

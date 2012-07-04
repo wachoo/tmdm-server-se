@@ -13,18 +13,16 @@
 
 package com.amalto.core.server;
 
+import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSourceFactory;
-import com.amalto.core.storage.hibernate.HibernateStorage;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class StorageAdminImpl implements StorageAdmin {
 
@@ -69,7 +67,7 @@ public class StorageAdminImpl implements StorageAdmin {
         }
 
         try {
-            Storage masterDataModelStorage = internalCreateStorage(dataModelName, storageName, dataSourceName, HibernateStorage.StorageType.MASTER);
+            Storage masterDataModelStorage = internalCreateStorage(dataModelName, storageName, dataSourceName, StorageType.MASTER);
             storages.put(storageName, masterDataModelStorage);
 
             // Creation of staging storage is disabled for now
@@ -82,7 +80,7 @@ public class StorageAdminImpl implements StorageAdmin {
         }
     }
 
-    private Storage internalCreateStorage(String dataModelName, String storageName, String dataSourceName, HibernateStorage.StorageType storageType) {
+    private Storage internalCreateStorage(String dataModelName, String storageName, String dataSourceName, StorageType storageType) {
         Storage dataModelStorage = ServerContext.INSTANCE.getLifecycle().createStorage(storageName, dataSourceName, storageType);
         dataModelStorage.init(dataSourceName);
 
@@ -92,7 +90,8 @@ public class StorageAdminImpl implements StorageAdmin {
             throw new UnsupportedOperationException("Data model '" + dataModelName + "' must exist before container '" + storageName + "' can be created.");
         }
         MetadataRepository metadataRepository = metadataRepositoryAdmin.get(dataModelName);
-        dataModelStorage.prepare(metadataRepository, hasDataModel, autoClean);
+        Set<FieldMetadata> indexedFields = metadataRepositoryAdmin.getIndexedFields(dataModelName);
+        dataModelStorage.prepare(metadataRepository, indexedFields, hasDataModel, autoClean);
         return dataModelStorage;
     }
 

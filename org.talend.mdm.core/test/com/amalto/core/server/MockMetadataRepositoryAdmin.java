@@ -11,12 +11,15 @@
 
 package com.amalto.core.server;
 
+import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import org.apache.log4j.Logger;
 
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 class MockMetadataRepositoryAdmin implements MetadataRepositoryAdmin {
     public static final Logger LOGGER = Logger.getLogger(MockMetadataRepositoryAdmin.class);
@@ -52,6 +55,10 @@ class MockMetadataRepositoryAdmin implements MetadataRepositoryAdmin {
     }
 
     public void close() {
+    }
+
+    public Set<FieldMetadata> getIndexedFields(String dataModelName) {
+        return Collections.emptySet();
     }
 
     public boolean exist(String metadataRepositoryId) {

@@ -11,6 +11,8 @@
 
 package com.amalto.core.storage.jmx;
 
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
@@ -18,6 +20,8 @@ import com.amalto.core.server.StorageAdmin;
 import org.jboss.logging.Logger;
 
 import javax.management.*;
+import java.util.Collections;
+import java.util.Set;
 
 public class StorageImpl implements Storage {
 
@@ -35,7 +39,9 @@ public class StorageImpl implements Storage {
         MetadataRepositoryAdmin repositoryAdmin = server.getMetadataRepositoryAdmin();
 
         try {
-            storageAdmin.get(storageName).prepare(repositoryAdmin.get(storageName), true, true);
+            MetadataRepository repository = repositoryAdmin.get(storageName);
+            Set<FieldMetadata> indexedFields = repositoryAdmin.getIndexedFields(storageName);
+            storageAdmin.get(storageName).prepare(repository, indexedFields, true, true);
         } catch (Exception e) {
             LOGGER.error("Exception occurred during restart.", e);
             throw new RuntimeException(e);

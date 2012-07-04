@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage.hibernate;
 
+import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.query.user.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.datasource.DataSource;
@@ -40,7 +41,7 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
 
     private boolean isFullText = false;
 
-    private boolean isOnlyId = false;
+    private boolean isOnlyId = true;
 
     SelectAnalyzer(MappingRepository storageRepository, StorageClassLoader storageClassLoader, Session session, Set<EndOfResultsCallback> callbacks, Storage storage) {
         this.storageRepository = storageRepository;
@@ -60,6 +61,8 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
         Condition condition = select.getCondition();
         if (condition != null) {
             condition.accept(this);
+        }
+        if (!select.isProjection() && condition != null) {
             if (isOnlyId) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Using \"get by id\" strategy");
@@ -89,6 +92,7 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
 
     @Override
     public AbstractQueryHandler visit(Isa isa) {
+        isOnlyId = false;
         return null;
     }
 
@@ -145,9 +149,16 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
 
     @Override
     public AbstractQueryHandler visit(Compare condition) {
+        condition.getLeft().accept(this);
         if (isOnlyId) {
             isOnlyId = condition.getPredicate() == Predicate.EQUALS;
         }
+        return null;
+    }
+
+    @Override
+    public AbstractQueryHandler visit(Revision revision) {
+        isOnlyId = false;
         return null;
     }
 
@@ -164,6 +175,7 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
 
     @Override
     public AbstractQueryHandler visit(FullText fullText) {
+        isOnlyId = false;
         isFullText = true;
         return null;
     }
@@ -177,6 +189,10 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
     public AbstractQueryHandler visit(Field field) {
         if (!field.getFieldMetadata().isKey()) {
             isOnlyId = false;
+        } else {
+            List<FieldMetadata> keyFields = field.getFieldMetadata().getContainingType().getKeyFields();
+            // TODO Support composite keys
+            isOnlyId = keyFields.size() == 1 && keyFields.get(0).equals(field.getFieldMetadata());
         }
         selectedFields.add(field);
         return null;

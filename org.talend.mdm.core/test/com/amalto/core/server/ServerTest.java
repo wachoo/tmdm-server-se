@@ -14,11 +14,14 @@
 package com.amalto.core.server;
 
 import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import junit.framework.TestCase;
+
+import java.util.Collections;
 
 public class ServerTest extends TestCase {
 
@@ -70,7 +73,7 @@ public class ServerTest extends TestCase {
         assertNotNull(storageAdmin);
         Storage storage = storageAdmin.create(null, metadataRepositoryId, "Storage", "H2-DS1");
 
-        storage.prepare(metadataRepository, true, true);
+        storage.prepare(metadataRepository, Collections.<FieldMetadata>emptySet(), true, true);
     }
 
     public void testStorageReindex() throws Exception {

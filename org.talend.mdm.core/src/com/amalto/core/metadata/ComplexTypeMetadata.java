@@ -34,7 +34,8 @@ public interface ComplexTypeMetadata extends TypeMetadata {
     /**
      * @param fieldName A field name.
      * @return The {@link FieldMetadata} for the given <code>fieldName</code>.
-     * @throws IllegalArgumentException If the field is not declared in type or type's super types.
+     * @throws IllegalArgumentException If the field is not declared in type or type's super types or if <code>fieldName</code>
+     *                                  is null or empty.
      */
     FieldMetadata getField(String fieldName);
 
@@ -77,7 +78,7 @@ public interface ComplexTypeMetadata extends TypeMetadata {
 
     /**
      * @return Schematron validation rules for this type ready for immediate use (no need to un-escape XML characters).
-     * Returns an empty string if no schematron rule was specified for this type.
+     *         Returns an empty string if no schematron rule was specified for this type.
      */
     String getSchematron();
 

@@ -12,6 +12,7 @@
 package com.amalto.core.server;
 
 import com.amalto.commons.core.datamodel.synchronization.DMUpdateEvent;
+import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.storage.Storage;
 import org.apache.log4j.Logger;
@@ -24,7 +25,9 @@ import javax.ejb.MessageDrivenContext;
 import javax.jms.*;
 import javax.naming.InitialContext;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -91,7 +94,8 @@ public class DataModelUpdateMDB implements MessageDrivenBean, MessageListener {
                             Storage storage = storageAdmin.get(updatedDataModelName);
                             if (storage != null) {
                                 // Storage already exists so update it.
-                                storage.prepare(repository, true, false);
+                                Set<FieldMetadata> indexedFields = metadataRepositoryAdmin.getIndexedFields(updatedDataModelName);
+                                storage.prepare(repository, indexedFields, true, false);
                             } else {
                                 LOGGER.warn("No SQL storage defined for data model '" + updatedDataModelName + "'. No SQL storage to update.");
                             }

@@ -64,17 +64,16 @@ class StorageClassLoader extends ClassLoader {
 
     private final Map<String, ComplexTypeMetadata> knownTypes = new HashMap<String, ComplexTypeMetadata>();
 
-    private final TableResolver resolver;
-
     private final String storageName;
 
     private RDBMSDataSource dataSource;
 
     private boolean isClosed;
 
-    public StorageClassLoader(TableResolver resolver, ClassLoader parent, String storageName) {
+    private TableResolver resolver;
+
+    public StorageClassLoader(ClassLoader parent, String storageName) {
         super(parent);
-        this.resolver = resolver;
         this.storageName = storageName;
     }
 
@@ -201,6 +200,10 @@ class StorageClassLoader extends ClassLoader {
     }
 
     private InputStream generateHibernateMapping() {
+        if (resolver == null) {
+            throw new IllegalStateException("Expected table resolver to be set before this method is called.");
+        }
+
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setNamespaceAware(true);
@@ -366,6 +369,10 @@ class StorageClassLoader extends ClassLoader {
             throw new IllegalArgumentException("Expected an instance of " + RDBMSDataSource.class.getName() + " but was " + dataSource);
         }
         this.dataSource = (RDBMSDataSource) dataSource;
+    }
+
+    public void setTableResolver(TableResolver resolver) {
+        this.resolver = resolver;
     }
 
     public void close() {

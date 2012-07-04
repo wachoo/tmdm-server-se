@@ -17,7 +17,6 @@ import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.query.user.*;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.record.DataRecord;
-import org.apache.log4j.Logger;
 
 import java.util.Set;
 
@@ -53,8 +52,8 @@ public class SecuredStorage implements Storage {
         delegate.init(dataSourceName);
     }
 
-    public void prepare(MetadataRepository repository, boolean force, boolean dropExistingData) {
-        delegate.prepare(repository, force, dropExistingData);
+    public void prepare(MetadataRepository repository, Set<FieldMetadata> indexedFields, boolean force, boolean dropExistingData) {
+        delegate.prepare(repository, indexedFields, force, dropExistingData);
     }
 
     public void prepare(MetadataRepository repository, boolean dropExistingData) {

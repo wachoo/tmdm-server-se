@@ -25,6 +25,7 @@ import com.amalto.core.server.MockServerLifecycle;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.*;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
@@ -82,13 +83,13 @@ public class StagingAreaTest extends TestCase {
         address = repository.getComplexType("Address");
         country = repository.getComplexType("Country");
 
-        origin = new HibernateStorage("Origin", HibernateStorage.StorageType.STAGING);
-        destination = new HibernateStorage("Destination", HibernateStorage.StorageType.MASTER);
+        origin = new HibernateStorage("Origin", StorageType.STAGING);
+        destination = new HibernateStorage("Destination", StorageType.MASTER);
 
         origin.init("H2-Staging-DS1");
-        origin.prepare(repository, true, true);
+        origin.prepare(repository, Collections.<FieldMetadata>emptySet(), true, true);
         destination.init("H2-Master-DS2");
-        destination.prepare(repository, true, true);
+        destination.prepare(repository, Collections.<FieldMetadata>emptySet(), true, true);
     }
 
     private void generateData(boolean validData) {

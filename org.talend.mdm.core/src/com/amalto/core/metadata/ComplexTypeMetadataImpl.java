@@ -97,6 +97,10 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
     }
 
     public FieldMetadata getField(String fieldName) {
+        if (fieldName == null || fieldName.isEmpty()) {
+            throw new IllegalArgumentException("Field name can not be null nor empty.");
+        }
+
         StringTokenizer tokenizer = new StringTokenizer(fieldName, "/");
         String firstFieldName = tokenizer.nextToken();
         FieldMetadata currentField = fieldMetadata.get(firstFieldName);

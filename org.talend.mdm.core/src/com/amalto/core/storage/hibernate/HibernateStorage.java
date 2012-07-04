@@ -19,6 +19,7 @@ import com.amalto.core.query.user.Select;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import com.amalto.core.storage.prepare.*;
@@ -47,20 +48,6 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 public class HibernateStorage implements Storage {
-
-    /**
-     * Describes what type ({@link #MASTER} or {@link #STAGING}) a SQL storage is.
-     */
-    public static enum StorageType {
-        /**
-         * Indicates storage stores validated data (master data).
-         */
-        MASTER,
-        /**
-         * Indicates storage stores unvalidated data.
-         */
-        STAGING
-    }
 
     public static final HibernateStorage.LocalEntityResolver ENTITY_RESOLVER = new HibernateStorage.LocalEntityResolver();
 
@@ -130,27 +117,9 @@ public class HibernateStorage implements Storage {
     }
 
     private void internalInit() {
-        TableResolver tableResolver = StorageTableResolver.INSTANCE;
-        ClassLoader parent = HibernateStorage.class.getClassLoader();
-        switch (storageType) {
-            case MASTER:
-                storageClassLoader = new StorageClassLoader(tableResolver, parent, storageName);
-                break;
-            case STAGING:
-                storageClassLoader = new StorageClassLoader(tableResolver, parent, storageName) {
-                    @Override
-                    protected MappingGenerator getMappingGenerator(Document document, TableResolver resolver) {
-                        return new MappingGenerator(document, resolver, false);
-                    }
-                };
-                break;
-        }
-
         if (!dataSource.supportFullText()) {
             LOGGER.warn("Storage '" + storageName + "' is not configured to support full text queries.");
         }
-
-        storageClassLoader.setDataSourceConfiguration(dataSource);
 
         configuration = new Configuration();
         // Setting our own entity resolver allows to ensure the DTD found/used are what we expect (and not potentially ones
@@ -158,7 +127,7 @@ public class HibernateStorage implements Storage {
         configuration.setEntityResolver(ENTITY_RESOLVER);
     }
 
-    public synchronized void prepare(MetadataRepository repository, boolean force, boolean dropExistingData) {
+    public synchronized void prepare(MetadataRepository repository, Set<FieldMetadata> indexedFields, boolean force, boolean dropExistingData) {
         if (!force && isPrepared) {
             return; // No op operation
         }
@@ -195,6 +164,22 @@ public class HibernateStorage implements Storage {
             throw new RuntimeException("Exception occurred during unsupported features check.", e);
         }
 
+        ClassLoader parent = HibernateStorage.class.getClassLoader();
+        switch (storageType) {
+            case MASTER:
+                storageClassLoader = new StorageClassLoader(parent, storageName);
+                break;
+            case STAGING:
+                storageClassLoader = new StorageClassLoader(parent, storageName) {
+                    @Override
+                    protected MappingGenerator getMappingGenerator(Document document, TableResolver resolver) {
+                        return new MappingGenerator(document, resolver, false);
+                    }
+                };
+                break;
+        }
+        storageClassLoader.setDataSourceConfiguration(dataSource);
+
         ClassLoader contextClassLoader = HibernateStorage.class.getClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(storageClassLoader);
@@ -209,7 +194,17 @@ public class HibernateStorage implements Storage {
                 throw new RuntimeException("Exception occurred during type mapping creation.", e);
             }
 
-            switch (storageType) { // Master and Staging share same class creator.
+            // Set MDM type to database resolver.
+            Set<FieldMetadata> databaseIndexedFields = new HashSet<FieldMetadata>();
+            for (FieldMetadata indexedField : indexedFields) {
+                TypeMapping mapping = mappingRepository.getMapping(indexedField.getContainingType());
+                databaseIndexedFields.add(mapping.getDatabase(indexedField));
+            }
+            TableResolver tableResolver = new StorageTableResolver(databaseIndexedFields);
+            storageClassLoader.setTableResolver(tableResolver);
+
+            // Master and Staging share same class creator.
+            switch (storageType) {
                 case MASTER:
                 case STAGING:
                     hibernateClassCreator = new ClassCreator(storageClassLoader);
@@ -264,7 +259,7 @@ public class HibernateStorage implements Storage {
 
     public synchronized void prepare(MetadataRepository repository, boolean dropExistingData) {
         if (!isPrepared) {
-            prepare(repository, false, dropExistingData);
+            prepare(repository, Collections.<FieldMetadata>emptySet(), false, dropExistingData);
         }
     }
 
@@ -351,7 +346,9 @@ public class HibernateStorage implements Storage {
         assertPrepared();
         Session session = factory.getCurrentSession();
         Transaction transaction = session.getTransaction();
-        LOGGER.info("[" + this + "] Transaction #" + transaction.hashCode() + " -> Commit " + session.getStatistics().getEntityCount() + " record(s).");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("[" + this + "] Transaction #" + transaction.hashCode() + " -> Commit " + session.getStatistics().getEntityCount() + " record(s).");
+        }
         if (!transaction.isActive()) {
             throw new IllegalStateException("Can not commit transaction, no transaction is active.");
         }
@@ -622,7 +619,7 @@ public class HibernateStorage implements Storage {
         }
 
         private static void assertField(FieldMetadata field) {
-            if (field.getName().startsWith(FORBIDDEN_PREFIX)) {
+            if (field.getName().toLowerCase().startsWith(FORBIDDEN_PREFIX)) {
                 throw new IllegalArgumentException("Field '" + field.getName() + "' of type '" + field.getContainingType().getName() + "' is not allowed to start with " + FORBIDDEN_PREFIX);
             }
         }

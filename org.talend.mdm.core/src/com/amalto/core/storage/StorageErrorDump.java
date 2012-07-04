@@ -12,6 +12,7 @@
 package com.amalto.core.storage;
 
 import com.amalto.core.metadata.ConsoleDumpMetadataVisitor;
+import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.UserQueryDumpConsole;
@@ -48,9 +49,9 @@ public class StorageErrorDump implements Storage {
         throw new RuntimeException(e);
     }
 
-    public void prepare(MetadataRepository repository, boolean force, boolean dropExistingData) {
+    public void prepare(MetadataRepository repository, Set<FieldMetadata> indexedFields, boolean force, boolean dropExistingData) {
         try {
-            delegate.prepare(repository, force, dropExistingData);
+            delegate.prepare(repository, indexedFields, force, dropExistingData);
         } catch (Exception e) {
             handlePrepareError(repository, force, e);
         }

@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage;
 
+import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.storage.datasource.DataSource;
@@ -52,15 +53,17 @@ public interface Storage {
      * Prepare storage to handle types located in {@link MetadataRepository}.
      *
      * @param repository       A initialized {@link com.amalto.core.metadata.MetadataRepository} instance.
+     * @param indexedFields    A {@link Set} of {@link FieldMetadata} that need to be indexed. It is up to the implementation
+     *                         to decide whether this information should be used or not. Callers of this method expects
+     *                         implementation to take all necessary actions to allow quick search on the fields in <code>indexedFields</code>.
      * @param force            <code>true</code> will force the storage to prepare event if {@link #prepare(com.amalto.core.metadata.MetadataRepository, boolean)}
      *                         has already been called. <code>false</code> will be a "no op" operation if storage is already
      *                         prepared.
      * @param dropExistingData if <code>true</code>, storage preparation will drop all data that may previously exist.
-     *                         Use this parameter with caution since recovery is not supported.
-     * @see {@link MetadataRepository#load(java.io.InputStream)}
+     *                         Use this parameter with caution since recovery is not supported.   @see {@link MetadataRepository#load(java.io.InputStream)}
      * @see #prepare(com.amalto.core.metadata.MetadataRepository, boolean)
      */
-    void prepare(MetadataRepository repository, boolean force, boolean dropExistingData);
+    void prepare(MetadataRepository repository, Set<FieldMetadata> indexedFields, boolean force, boolean dropExistingData);
 
     /**
      * Prepare storage to handle types located in {@link MetadataRepository}.

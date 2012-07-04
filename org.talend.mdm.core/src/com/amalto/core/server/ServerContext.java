@@ -18,6 +18,7 @@ import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.storage.SecuredStorage;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageErrorDump;
+import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.jmx.StagingImpl;
 import com.amalto.core.storage.jmx.StorageImpl;
@@ -89,7 +90,7 @@ public class ServerContext {
             metadataRepositoryAdmin.close();
         }
 
-        public Storage createStorage(String storageName, String dataSourceName, HibernateStorage.StorageType storageType) {
+        public Storage createStorage(String storageName, String dataSourceName, StorageType storageType) {
             Storage storage = new HibernateStorage(storageName, storageType);
             storage = new SecuredStorage(storage, new SecuredStorage.UserDelegator() {
                 public boolean hide(FieldMetadata field) {
@@ -168,7 +169,7 @@ public class ServerContext {
             delegate.destroyMetadataRepositoryAdmin(metadataRepositoryAdmin);
         }
 
-        public Storage createStorage(String storageName, String dataSourceName, HibernateStorage.StorageType storageType) {
+        public Storage createStorage(String storageName, String dataSourceName, StorageType storageType) {
             Storage storage = delegate.createStorage(storageName, dataSourceName, storageType);
 
             try {

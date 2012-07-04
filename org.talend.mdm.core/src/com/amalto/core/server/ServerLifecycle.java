@@ -14,7 +14,7 @@
 package com.amalto.core.server;
 
 import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.hibernate.HibernateStorage;
+import com.amalto.core.storage.StorageType;
 
 /**
  *
@@ -33,7 +33,7 @@ public interface ServerLifecycle {
 
     void destroyMetadataRepositoryAdmin(MetadataRepositoryAdmin metadataRepositoryAdmin);
 
-    Storage createStorage(String storageName, String dataSourceName, HibernateStorage.StorageType storageType);
+    Storage createStorage(String storageName, String dataSourceName, StorageType storageType);
 
     void destroyStorage(Storage storage);
 }

@@ -21,6 +21,8 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import junit.framework.TestCase;
 
+import java.util.Collections;
+
 public class StorageTestCase extends TestCase {
 
     protected static final Storage storage;
@@ -64,7 +66,7 @@ public class StorageTestCase extends TestCase {
         supplier = repository.getComplexType("Supplier");
 
         storage.init(DATABASE + "-Default");
-        storage.prepare(repository, true);
+        storage.prepare(repository, Collections.singleton(person.getField("firstname")), true, true);
         System.out.println("Storage prepared.");
     }
 

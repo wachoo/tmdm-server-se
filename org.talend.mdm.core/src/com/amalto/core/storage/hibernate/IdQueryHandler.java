@@ -44,10 +44,11 @@ class IdQueryHandler extends AbstractQueryHandler {
     @Override
     public StorageResults visit(Select select) {
         if (select.isProjection()) {
+            // TODO MSQL-61
             throw new NotImplementedException("No support for projection in select by ID");
         }
         if (select.getCondition() == null) {
-            throw new IllegalArgumentException("Select clause is expected a condition.");
+            throw new IllegalArgumentException("Select clause is expecting a condition.");
         }
 
         select.getCondition().accept(this);

@@ -14,13 +14,14 @@ package com.amalto.core.storage.hibernate;
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
 
-import java.util.BitSet;
+import java.util.Set;
 
 class StorageTableResolver implements TableResolver {
 
-    public static final TableResolver INSTANCE = new StorageTableResolver();
+    private final Set<FieldMetadata> indexedFields;
 
-    private StorageTableResolver() {
+    public StorageTableResolver(Set<FieldMetadata> indexedFields) {
+        this.indexedFields = indexedFields;
     }
 
     public String get(ComplexTypeMetadata type) {
@@ -29,5 +30,9 @@ class StorageTableResolver implements TableResolver {
 
     public String get(FieldMetadata field) {
         return field.getName();
+    }
+
+    public boolean isIndexed(FieldMetadata field) {
+        return indexedFields.contains(field);
     }
 }

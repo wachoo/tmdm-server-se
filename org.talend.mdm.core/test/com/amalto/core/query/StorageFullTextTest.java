@@ -13,6 +13,7 @@
 
 package com.amalto.core.query;
 
+import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.query.user.OrderBy;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.storage.FullTextResultsWriter;
@@ -25,6 +26,7 @@ import com.amalto.core.storage.record.DataRecordWriter;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -319,7 +321,7 @@ public class StorageFullTextTest extends StorageTestCase {
         Storage storage = new HibernateStorage("noFullText");
         try {
             storage.init("RDBMS-1-NO-FT");
-            storage.prepare(repository, false, false);
+            storage.prepare(repository, Collections.<FieldMetadata>emptySet(), false, false);
             UserQueryBuilder qb = from(product).where(fullText("Test"));
 
             try {
