@@ -12,11 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.server.util;
 
-import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +27,6 @@ import org.apache.log4j.Logger;
 import org.dom4j.DocumentHelper;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
-import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.server.util.XmlUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
@@ -71,7 +66,8 @@ public class CommonUtil {
                 node.setMandatory(true);
             }
             if (model.isSimpleType()) {
-                setDefaultValue(model, node, isCreate);
+                if (isCreate)
+                    node.setChangeValue(true);
             } else {
                 ComplexTypeModel complexModel = (ComplexTypeModel) model;
                 List<TypeModel> children = complexModel.getSubTypes();
@@ -90,63 +86,6 @@ public class CommonUtil {
         return itemNodes;
     }
 
-    private static void setDefaultValue(TypeModel model, ItemNodeModel node, boolean isCreate) {
-
-        if (model.getDefaultValueExpression() != null && model.getDefaultValueExpression().trim().length() > 0) {
-            if (!"".equals(model.getForeignkey()) && model.getForeignkey() != null) { //$NON-NLS-1$
-                ForeignKeyBean foreignKeyBean = new ForeignKeyBean();
-                foreignKeyBean.setId(model.getDefaultValue());
-                foreignKeyBean.setForeignKeyPath(model.getForeignkey());
-                node.setObjectValue(foreignKeyBean);
-            } else {
-                node.setObjectValue(model.getDefaultValue());
-            }
-            if (isCreate)
-                node.setChangeValue(true);
-        } else {
-            if (model.getType().getTypeName().equals(DataTypeConstants.BOOLEAN.getTypeName())) {
-                node.setObjectValue((Serializable) DataTypeConstants.BOOLEAN.getDefaultValue());
-            } else if (model.getType().getTypeName().equals(DataTypeConstants.DATETIME.getTypeName())) {
-                DateFormat df = new SimpleDateFormat("yyyy-MM-dd"); //$NON-NLS-1$
-                DateFormat tf = new SimpleDateFormat("HH:mm:ss"); //$NON-NLS-1$
-                String dateStr = df.format((Date) DataTypeConstants.DATETIME.getDefaultValue());
-                String timeStr = tf.format((Date) DataTypeConstants.DATETIME.getDefaultValue());
-                node.setObjectValue(dateStr + "T" + timeStr); //$NON-NLS-1$
-            } else if (model.getType().getTypeName().equals(DataTypeConstants.DECIMAL.getTypeName())) {
-                node.setObjectValue((Serializable) DataTypeConstants.DECIMAL.getDefaultValue());
-            } else if (model.getType().getTypeName().equals(DataTypeConstants.DOUBLE.getTypeName())) {
-                node.setObjectValue((Serializable) DataTypeConstants.DOUBLE.getDefaultValue());
-            } else if (model.getType().getTypeName().equals(DataTypeConstants.FLOAT.getTypeName())) {
-                node.setObjectValue((Serializable) DataTypeConstants.FLOAT.getDefaultValue());
-            } else if (model.getType().getTypeName().equals(DataTypeConstants.INT.getTypeName())) {
-                node.setObjectValue((Serializable) DataTypeConstants.INT.getDefaultValue());
-            } else if (model.getType().getTypeName().equals(DataTypeConstants.INTEGER.getTypeName())) {
-                node.setObjectValue((Serializable) DataTypeConstants.INTEGER.getDefaultValue());
-            } else if (model.getType().getTypeName().equals(DataTypeConstants.LONG.getTypeName())) {
-                node.setObjectValue((Serializable) DataTypeConstants.LONG.getDefaultValue());
-            } else if (model.getType().getTypeName().equals(DataTypeConstants.SHORT.getTypeName())) {
-                node.setObjectValue((Serializable) DataTypeConstants.SHORT.getDefaultValue());
-            } else if (model.getType().getTypeName().equals(DataTypeConstants.STRING.getTypeName())) {
-                if (model.getForeignkey() != null && model.getForeignkey().trim().length() > 0) {
-                    ForeignKeyBean foreignKeyBean = new ForeignKeyBean();
-                    foreignKeyBean.setId(""); //$NON-NLS-1$
-                    foreignKeyBean.setForeignKeyPath(model.getForeignkey());
-                    node.setObjectValue(foreignKeyBean);
-                } else {
-                    node.setObjectValue((Serializable) DataTypeConstants.STRING.getDefaultValue());
-                }
-            } else if (model.getType().getTypeName().equals(DataTypeConstants.UUID.getTypeName())) {
-                node.setObjectValue((Serializable) DataTypeConstants.UUID.getDefaultValue());
-            } else if (model.getType().getTypeName().equals(DataTypeConstants.AUTO_INCREMENT.getTypeName())) {
-                node.setObjectValue((Serializable) DataTypeConstants.AUTO_INCREMENT.getDefaultValue());
-            } else if (model.getType().getTypeName().equals(DataTypeConstants.PICTURE.getTypeName())) {
-                node.setObjectValue((Serializable) DataTypeConstants.PICTURE.getDefaultValue());
-            } else if (model.getType().getTypeName().equals(DataTypeConstants.URL.getTypeName())) {
-                node.setObjectValue((Serializable) DataTypeConstants.URL.getDefaultValue());
-            }
-        }
-    }
-    
     public static int getFKFormatType(String str){
         if(str == null)
             return 0;
