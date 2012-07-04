@@ -134,8 +134,47 @@ public class StorageQueryTest extends StorageTestCase {
             for (DataRecord result : results) {
                 assertNotNull(result.get(keyField));
             }
-        } catch (Throwable t) {
-            t.printStackTrace();
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testSelectById() throws Exception {
+        List<FieldMetadata> keyFields = person.getKeyFields();
+        assertEquals(1, keyFields.size());
+        FieldMetadata keyField = keyFields.get(0);
+
+        UserQueryBuilder qb = from(person)
+                .where(eq(person.getField("id"), "1"));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result.get(keyField));
+            }
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testSelectByIdWithProjection() throws Exception {
+        List<FieldMetadata> keyFields = person.getKeyFields();
+        assertEquals(1, keyFields.size());
+        FieldMetadata keyField = keyFields.get(0);
+
+        UserQueryBuilder qb = from(person)
+                .select(person.getField("id"))
+                .where(eq(person.getField("id"), "1"));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result.get(keyField));
+            }
         } finally {
             results.close();
         }

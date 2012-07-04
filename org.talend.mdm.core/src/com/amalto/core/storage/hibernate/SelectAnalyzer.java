@@ -41,7 +41,9 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
 
     private boolean isFullText = false;
 
-    private boolean isOnlyId = true;
+    private boolean isOnlyId = false;
+
+    private boolean isCheckingProjection;
 
     SelectAnalyzer(MappingRepository storageRepository, StorageClassLoader storageClassLoader, Session session, Set<EndOfResultsCallback> callbacks, Storage storage) {
         this.storageRepository = storageRepository;
@@ -54,15 +56,19 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
     @Override
     public AbstractQueryHandler visit(Select select) {
         List<TypedExpression> selectedFields = select.getSelectedFields();
-        for (Expression selectedField : selectedFields) {
-            selectedField.accept(this);
+        isCheckingProjection = true;
+        {
+            for (Expression selectedField : selectedFields) {
+                selectedField.accept(this);
+            }
         }
+        isCheckingProjection = false;
 
         Condition condition = select.getCondition();
         if (condition != null) {
             condition.accept(this);
         }
-        if (!select.isProjection() && condition != null) {
+        if (condition != null) {
             if (isOnlyId) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Using \"get by id\" strategy");
@@ -182,17 +188,20 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
 
     @Override
     public AbstractQueryHandler visit(Range range) {
+        isOnlyId = false;
         return null;
     }
 
     @Override
     public AbstractQueryHandler visit(Field field) {
-        if (!field.getFieldMetadata().isKey()) {
-            isOnlyId = false;
-        } else {
-            List<FieldMetadata> keyFields = field.getFieldMetadata().getContainingType().getKeyFields();
-            // TODO Support composite keys
-            isOnlyId = keyFields.size() == 1 && keyFields.get(0).equals(field.getFieldMetadata());
+        if (!isCheckingProjection) {
+            if (!field.getFieldMetadata().isKey()) {
+                isOnlyId = false;
+            } else {
+                List<FieldMetadata> keyFields = field.getFieldMetadata().getContainingType().getKeyFields();
+                // TODO Support composite keys
+                isOnlyId = keyFields.size() == 1 && keyFields.get(0).equals(field.getFieldMetadata());
+            }
         }
         selectedFields.add(field);
         return null;

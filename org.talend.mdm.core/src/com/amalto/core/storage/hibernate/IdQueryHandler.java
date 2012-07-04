@@ -12,18 +12,18 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.query.user.Compare;
-import com.amalto.core.query.user.Select;
-import com.amalto.core.query.user.TypedExpression;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.query.user.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.ObjectDataRecordReader;
-import org.apache.commons.lang.NotImplementedException;
 import org.hibernate.Session;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -43,16 +43,12 @@ class IdQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(Select select) {
-        if (select.isProjection()) {
-            // TODO MSQL-61
-            throw new NotImplementedException("No support for projection in select by ID");
-        }
         if (select.getCondition() == null) {
             throw new IllegalArgumentException("Select clause is expecting a condition.");
         }
 
         select.getCondition().accept(this);
-        
+
         ComplexTypeMetadata mainType = select.getTypes().get(0);
         String mainTypeName = mainType.getName();
         String className = ClassCreator.PACKAGE_PREFIX + mainTypeName;
@@ -60,7 +56,7 @@ class IdQueryHandler extends AbstractQueryHandler {
         Wrapper loadedObject = (Wrapper) session.get(className, (Serializable) object);
 
         if (loadedObject == null) {
-            return new HibernateStorageResults(storage, select, new CloseableIterator<DataRecord>() {
+            CloseableIterator<DataRecord> iterator = new CloseableIterator<DataRecord>() {
                 public boolean hasNext() {
                     return false;
                 }
@@ -76,10 +72,50 @@ class IdQueryHandler extends AbstractQueryHandler {
                 public void close() throws IOException {
                     // Nothing to do.
                 }
-            });
+            };
+            return new HibernateStorageResults(storage, select, iterator) {
+                @Override
+                public int getCount() {
+                    return 0;
+                }
+            };
         } else {
-            TypeMapping mapping = mappingMetadataRepository.getMapping(mainType);
-            return new HibernateStorageResults(storage, select, new DataRecordIterator(mapping, loadedObject));
+            Iterator objectIterator = Collections.singleton(loadedObject).iterator();
+            CloseableIterator<DataRecord> iterator;
+            if (!select.isProjection()) {
+                iterator = new ListIterator(mappingMetadataRepository, storageClassLoader, objectIterator, callbacks);
+            } else {
+                iterator = new ListIterator(mappingMetadataRepository, storageClassLoader, objectIterator, callbacks) {
+                    @Override
+                    public DataRecord next() {
+                        DataRecord next = super.next();
+                        DataRecord nextRecord = new DataRecord(next.getType(), next.getRecordMetadata());
+                        for (TypedExpression selectedField : selectedFields) {
+                            FieldMetadata field = selectedField.accept(new VisitorAdapter<FieldMetadata>() {
+                                @Override
+                                public FieldMetadata visit(Field field) {
+                                    return field.getFieldMetadata();
+                                }
+
+                                @Override
+                                public FieldMetadata visit(Alias alias) {
+                                    return alias.getTypedExpression().accept(this);
+                                }
+                            });
+                            if (field != null) {
+                                nextRecord.set(field, next.get(field));
+                            }
+                        }
+                        return nextRecord;
+                    }
+                };
+            }
+            return new HibernateStorageResults(storage, select, iterator) {
+                @Override
+                public int getCount() {
+                    return 1;
+                }
+            };
         }
     }
 
