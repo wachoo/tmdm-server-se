@@ -136,8 +136,8 @@ public class WhereCondition implements IWhereItem, Serializable {
     public void setRightValueOrPath(String rightValueOrPath) {
         // Quoted values (either simple or double) are considered as literal values
         // TODO To be refactored to support true literal/Xpath differentiation
-        if ((rightValueOrPath.startsWith("\"") && rightValueOrPath.endsWith("\"")) //$NON-NLS-1$ //$NON-NLS-2$
-                || (rightValueOrPath.startsWith("'") && rightValueOrPath.endsWith("'"))) { //$NON-NLS-1$ //$NON-NLS-2$
+        if (rightValueOrPath.length() > 1 && ((rightValueOrPath.startsWith("\"") && rightValueOrPath.endsWith("\"")) //$NON-NLS-1$ //$NON-NLS-2$
+                || (rightValueOrPath.startsWith("'") && rightValueOrPath.endsWith("'")))) { //$NON-NLS-1$ //$NON-NLS-2$
             isRightValueXPath = false;
             rightValueOrPath = rightValueOrPath.substring(1, rightValueOrPath.length() - 1);
             // Escape any potential '\' character

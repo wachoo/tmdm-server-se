@@ -290,7 +290,9 @@ public class ForeignKeyListWindow extends Window {
                 if (be.getKeyCode() == KeyCodes.KEY_LEFT || be.getKeyCode() == KeyCodes.KEY_RIGHT) {
                     return;
                 }
-                loader.load(0, pageSize);
+                if (CommonUtil.validateSearchValue(entityModel.getMetaDataTypes(), getFilterValue())) {
+                    loader.load(0, pageSize);
+                }
             }
         });
         filter.setWidth(WINDOW_WIDTH - 80);
