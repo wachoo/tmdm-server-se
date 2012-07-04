@@ -23,6 +23,8 @@ import org.talend.mdm.webapp.base.shared.TypeModel;
  */
 public class ComplexTypeModel extends TypeModel {
 
+    private int orderValue;
+
     private List<TypeModel> subTypes = new ArrayList<TypeModel>();
 
     private List<ComplexTypeModel> reusableTypes = new ArrayList<ComplexTypeModel>();
@@ -36,6 +38,14 @@ public class ComplexTypeModel extends TypeModel {
 
     public ComplexTypeModel(String name, DataType dataType) {
         super(name, dataType);
+    }
+
+    public int getOrderValue() {
+        return orderValue;
+    }
+
+    public void setOrderValue(int orderValue) {
+        this.orderValue = orderValue;
     }
 
     public List<TypeModel> getSubTypes() {

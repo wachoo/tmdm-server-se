@@ -289,6 +289,13 @@ public class DataModelHelper {
                                 DataTypeCreator.getDataType(reusableType.getName(), baseTypeName));
                         reusableComplexType.setPolymorphism(true);
                         reusableComplexType.setLabelMap(reusableType.getLabelMap());
+                        int orderValue;
+                        try {
+                            orderValue = Integer.parseInt(reusableType.getOrderValue());
+                        } catch (NumberFormatException nfe) {
+                            orderValue = 0;
+                        }
+                        reusableComplexType.setOrderValue(orderValue);
                         XSModelGroup group = reusableType.getXsParticle().getTerm().asModelGroup();
                         if (group != null) {
                             XSParticle[] subParticles = group.getChildren();
