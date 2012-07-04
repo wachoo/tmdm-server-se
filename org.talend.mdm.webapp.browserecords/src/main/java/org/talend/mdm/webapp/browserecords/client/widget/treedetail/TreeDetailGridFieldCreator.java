@@ -13,6 +13,8 @@
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,6 +114,12 @@ public class TreeDetailGridFieldCreator {
 
             // final ComplexTypeModel complexTypeModel = (ComplexTypeModel) dataType;
             List<ComplexTypeModel> reusableTypes = ((ComplexTypeModel) dataType).getReusableComplexTypes();
+            Collections.sort(reusableTypes, new Comparator<ComplexTypeModel>() {
+
+                public int compare(ComplexTypeModel o1, ComplexTypeModel o2) {
+                    return o1.getOrderValue() - o2.getOrderValue();
+                }
+            });
             ListStore<ComboBoxModel> comboxStore = new ListStore<ComboBoxModel>();
             comboxField.setStore(comboxStore);
             for (int i = 0; i < reusableTypes.size(); i++) {
@@ -302,8 +310,8 @@ public class TreeDetailGridFieldCreator {
             }
 
             private native void _setEl(El elem)/*-{
-                this.@com.extjs.gxt.ui.client.widget.Component::el = elem;
-            }-*/;
+        this.@com.extjs.gxt.ui.client.widget.Component::el = elem;
+    }-*/;
         };
         errorIcon.setStyleAttribute("display", "block"); //$NON-NLS-1$ //$NON-NLS-2$
         errorIcon.setStyleAttribute("float", "right"); //$NON-NLS-1$ //$NON-NLS-2$
