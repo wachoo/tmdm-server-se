@@ -230,6 +230,11 @@ class StandardQueryHandler extends AbstractQueryHandler {
         if (condition != null) {
             boolean hasActualCondition = condition.accept(new VisitorAdapter<Boolean>() {
                 @Override
+                public Boolean visit(Isa isa) {
+                    return true;
+                }
+
+                @Override
                 public Boolean visit(Condition condition) {
                     return condition != UserQueryHelper.NO_OP_CONDITION;
                 }
@@ -303,9 +308,11 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(Paging paging) {
-        criteria.setFirstResult(paging.getStart());
-        criteria.setFetchSize(JDBC_FETCH_SIZE);
-        criteria.setMaxResults(paging.getLimit());
+        if (paging.getLimit() < Integer.MAX_VALUE) {
+            criteria.setFirstResult(paging.getStart());
+            criteria.setFetchSize(JDBC_FETCH_SIZE);
+            criteria.setMaxResults(paging.getLimit());
+        }
         return null;
     }
 
@@ -334,6 +341,12 @@ class StandardQueryHandler extends AbstractQueryHandler {
     @Override
     public StorageResults visit(UnaryLogicOperator condition) {
         criteria.add(condition.accept(CRITERION_VISITOR));
+        return null;
+    }
+
+    @Override
+    public StorageResults visit(Isa isa) {
+        criteria.add(isa.accept(CRITERION_VISITOR));
         return null;
     }
 
@@ -400,6 +413,13 @@ class StandardQueryHandler extends AbstractQueryHandler {
             } else {
                 throw new NotImplementedException("No support for predicate '" + predicate + "'");
             }
+        }
+
+        @Override
+        public Criterion visit(Isa isa) {
+            FieldCondition fieldCondition = isa.getExpression().accept(new CriterionFieldCondition());
+            String classProperty = fieldCondition.criterionFieldName.isEmpty() ? "class" : StringUtils.substringBeforeLast(fieldCondition.criterionFieldName, ".") + ".class";
+            return Restrictions.eq(classProperty, storageClassLoader.getClassFromType(isa.getType()));
         }
 
         @Override
@@ -521,6 +541,18 @@ class StandardQueryHandler extends AbstractQueryHandler {
         @Override
         public FieldCondition visit(StagingStatus stagingStatus) {
             return createInternalCriterion(Storage.METADATA_STAGING_STATUS);
+        }
+
+        @Override
+        public FieldCondition visit(Expression expression) {
+            if (expression instanceof ComplexTypeExpression) {
+                FieldCondition fieldCondition = new FieldCondition();
+                fieldCondition.isMany = false;
+                fieldCondition.criterionFieldName = StringUtils.EMPTY;
+                return fieldCondition;
+            } else {
+                return super.visit(expression);
+            }
         }
 
         @Override

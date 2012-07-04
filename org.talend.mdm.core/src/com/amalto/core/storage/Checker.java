@@ -28,6 +28,11 @@ class Checker extends VisitorAdapter<Boolean> {
     }
 
     @Override
+    public Boolean visit(Expression expression) {
+        return true;
+    }
+
+    @Override
     public Boolean visit(Id id) {
         return !delegator.hide(id.getType());
     }

@@ -41,6 +41,11 @@ public class RangeOptimizer extends Optimizer {
         }
 
         @Override
+        public Condition visit(Isa isa) {
+            return isa;
+        }
+
+        @Override
         public Condition visit(UnaryLogicOperator condition) {
             return condition;
         }

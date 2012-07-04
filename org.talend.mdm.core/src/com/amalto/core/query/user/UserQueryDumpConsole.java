@@ -485,6 +485,17 @@ public class UserQueryDumpConsole implements Visitor<Void> {
         return null;
     }
 
+    public Void visit(Isa isa) {
+        print("[IS A]");
+        increaseIndent();
+        {
+            print("Value -> " + isa.getExpression().accept(this));
+            print("Type -> " + isa.getType().getName());
+        }
+        decreaseIndent();
+        return null;
+    }
+
     public Void visit(OrderBy orderBy) {
         print("[ORDER BY]");
         increaseIndent();

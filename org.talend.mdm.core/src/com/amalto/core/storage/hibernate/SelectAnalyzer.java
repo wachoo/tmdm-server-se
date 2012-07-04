@@ -88,6 +88,11 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
     }
 
     @Override
+    public AbstractQueryHandler visit(Isa isa) {
+        return null;
+    }
+
+    @Override
     public AbstractQueryHandler visit(IsEmpty isEmpty) {
         return null;
     }

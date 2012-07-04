@@ -113,6 +113,17 @@ public class InheritanceTest extends StorageTestCase {
         }
     }
 
+    public void testQueryWithInstanceCheck() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(b)
+                .isa(d);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
     public void testDefaultFKType() throws Exception {
         UserQueryBuilder qb = UserQueryBuilder.from(a);
         StorageResults results = storage.fetch(qb.getSelect());

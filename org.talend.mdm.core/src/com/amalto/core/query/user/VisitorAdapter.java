@@ -170,4 +170,8 @@ public class VisitorAdapter<T> implements Visitor<T> {
     public T visit(FullText fullText) {
         throw new NotImplementedException();
     }
+
+    public T visit(Isa isa) {
+        throw new NotImplementedException();
+    }
 }

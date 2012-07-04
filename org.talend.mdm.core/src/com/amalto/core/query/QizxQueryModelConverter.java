@@ -165,6 +165,10 @@ public class QizxQueryModelConverter implements Visitor<Expression> {
         throw new NotImplementedException("Support for full text query to be implemented");
     }
 
+    public Expression visit(Isa isa) {
+        throw new NotImplementedException("Support for 'is a' to be implemented");
+    }
+
     public Expression visit(Predicate.Contains contains) {
         throw new NotImplementedException("No support for '" + contains + "'");
     }

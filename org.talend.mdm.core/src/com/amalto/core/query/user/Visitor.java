@@ -100,4 +100,5 @@ public interface Visitor<T> {
 
     T visit(FullText fullText);
 
+    T visit(Isa isa);
 }

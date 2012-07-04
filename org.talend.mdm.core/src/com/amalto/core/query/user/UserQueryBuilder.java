@@ -110,6 +110,18 @@ public class UserQueryBuilder {
         }
     }
 
+    public static Condition isa(FieldMetadata field, ComplexTypeMetadata type) {
+        return new Isa(new Field(field), type);
+    }
+
+    public UserQueryBuilder isa(ComplexTypeMetadata type) {
+        if (select == null || select.getTypes().isEmpty()) {
+            throw new IllegalStateException("No type is currently selected.");
+        }
+        where(new Isa(new ComplexTypeExpression(select.getTypes().get(0)), type));
+        return this;
+    }
+
     private static Expression createConstant(TypedExpression expression, String constant) {
         String fieldTypeName = expression.getTypeName();
         if ("integer".equals(fieldTypeName)  //$NON-NLS-1$

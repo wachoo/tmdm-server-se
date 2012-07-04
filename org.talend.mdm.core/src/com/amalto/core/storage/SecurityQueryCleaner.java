@@ -62,6 +62,20 @@ class SecurityQueryCleaner extends VisitorAdapter<Expression> {
     }
 
     @Override
+    public Expression visit(Expression expression) {
+        return expression;
+    }
+
+    @Override
+    public Expression visit(Isa isa) {
+        if(!isa.getExpression().accept(checker)) {
+            return UserQueryHelper.NO_OP_CONDITION;
+        } else {
+            return isa;
+        }
+    }
+
+    @Override
     public Expression visit(NotIsEmpty notIsEmpty) {
         if (!notIsEmpty.getField().accept(checker)) {
             return UserQueryHelper.NO_OP_CONDITION;
