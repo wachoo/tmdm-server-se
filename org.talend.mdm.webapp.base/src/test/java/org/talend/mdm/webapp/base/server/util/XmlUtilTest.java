@@ -4,6 +4,7 @@ import java.io.InputStream;
 
 import junit.framework.TestCase;
 
+import org.dom4j.Document;
 import org.dom4j.Element;
 
 @SuppressWarnings("nls")
@@ -17,4 +18,18 @@ public class XmlUtilTest extends TestCase {
         assertTrue(panel.asXML().indexOf("mdmform:Panel") != -1);
     }
 
+    public void testCompleteXMLByXPath() {
+        String xmlStr = "<ProductFamily><Id>5</Id><Name>Puma</Name></ProductFamily>";
+        String xPath = "ProductFamily/FamilySet";
+        Document doc = null;
+        try {
+            doc = XmlUtil.parseText(xmlStr);
+        } catch (Exception e) {
+            fail();
+        }
+        XmlUtil.completeXMLByXPath(doc, xPath);
+        assertNotNull(doc);
+        assertNotNull(doc.asXML());
+        assertTrue(doc.asXML().contains("FamilySet"));
+    }
 }
