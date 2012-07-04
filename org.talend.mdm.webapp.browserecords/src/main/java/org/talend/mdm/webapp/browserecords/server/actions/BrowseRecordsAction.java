@@ -1759,10 +1759,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             for (String xpath : changedNodes.keySet()) {
                 String value = changedNodes.get(xpath);
-                org.dom4j.Node node = doc.selectSingleNode(xpath);
-                if (node != null) {
-                    node.setText(value);
+                if (doc.selectSingleNode(xpath) == null) {
+                    org.talend.mdm.webapp.base.server.util.XmlUtil.completeXMLByXPath(doc, xpath);
                 }
+                doc.selectSingleNode(xpath).setText(value);
             }
 
             return saveItem(concept, ids, doc.asXML(), false, language).getDescription();

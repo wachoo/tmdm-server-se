@@ -22,6 +22,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -391,4 +393,27 @@ public final class XmlUtil {
         return root.selectNodes(xpath);
     }
 
+    public static void completeXMLByXPath(Document doc, String xPath) {
+        if (!xPath.startsWith("/")) //$NON-NLS-1$
+            xPath = "/" + xPath; //$NON-NLS-1$
+        String[] nodeList = xPath.split("/"); //$NON-NLS-1$
+        String tmpPath = nodeList[0];
+        Element element = null;
+        for (int i = 1; i < nodeList.length; i++) {
+            tmpPath = tmpPath + "/" + nodeList[i]; //$NON-NLS-1$            
+                        
+            if(doc.selectSingleNode(tmpPath) != null){
+                element = (Element) doc.selectSingleNode(tmpPath);
+                continue;
+            }
+            
+            Pattern pattern = Pattern.compile("(.+)(\\[.+\\])"); //$NON-NLS-1$
+            Matcher matcher = pattern.matcher(nodeList[i]);
+            if(!matcher.matches()) {
+                element = element.addElement(nodeList[i]);
+            } else {
+                element = element.addElement(matcher.group(1));
+            }                
+        }
+    }   
 }
