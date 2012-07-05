@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
@@ -143,7 +144,6 @@ public class CommonUtil {
                 return root;
             }
         }
-
 
         if (nodeModel.getRealType() != null) {
             root.setAttribute("xsi:type", nodeModel.getRealType()); //$NON-NLS-1$
@@ -398,7 +398,6 @@ public class CommonUtil {
         return root;
     }
 
-
     public static boolean isSimpleCriteria(String criteria) {
         if (criteria.indexOf(" AND ") == -1 && criteria.indexOf(" OR ") == -1) { //$NON-NLS-1$//$NON-NLS-2$
             return true;
@@ -406,41 +405,41 @@ public class CommonUtil {
 
         return false;
     }
-    
-    public static boolean validateSearchValue(Map<String, TypeModel> metaDataTypeMap,String value) {
+
+    public static boolean validateSearchValue(Map<String, TypeModel> metaDataTypeMap, String value) {
         if (!value.contains("/")) //$NON-NLS-1$
         {
             return true;
-        }else if (isString(value)){
+        } else if (isString(value)) {
             return true;
-        }else if (isPath(metaDataTypeMap,value)){
+        } else if (isPath(metaDataTypeMap, value)) {
             return true;
-        }else{
+        } else {
             return false;
-        }       
+        }
     }
-    
-    private static boolean isString(String value){
-        if (((value.startsWith("'") && value.endsWith("'")) || (value.startsWith("\"") && value.endsWith("\"")))){ //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+
+    private static boolean isString(String value) {
+        if (((value.startsWith("'") && value.endsWith("'")) || (value.startsWith("\"") && value.endsWith("\"")))) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             return true;
-        }else{
+        } else {
             return false;
-        }        
+        }
     }
-    
-    private static boolean isPath(Map<String, TypeModel> metaDataTypeMap,String value){
+
+    private static boolean isPath(Map<String, TypeModel> metaDataTypeMap, String value) {
         if (!value.endsWith("/")) //$NON-NLS-1$
         {
             value = (value.startsWith("/") ? value.substring(1) : value); //$NON-NLS-1$
-            if (metaDataTypeMap.get(value) != null){
+            if (metaDataTypeMap.get(value) != null) {
                 return true;
-            }else{
+            } else {
                 return false;
             }
-        }else{
+        } else {
             return false;
-        }        
-    }   
+        }
+    }
 
     /**
      * Parsed a file name to a String array, the first object is the short file name, the second one is extension name
@@ -509,5 +508,40 @@ public class CommonUtil {
             currentType = currentType.getParentTypeModel();
         }
         return isReadOnly;
+    }
+
+    public static String[] extractIDs(ItemNodeModel model) {
+
+        List<String> keys = new Vector<String>();
+
+        if (model != null) {
+            List<ModelData> modelChildren = model.getChildren();
+
+            if (modelChildren != null) {
+
+                for (ModelData data : modelChildren) {
+
+                    if (data instanceof ItemNodeModel) {
+
+                        ItemNodeModel childModel = (ItemNodeModel) data;
+                        if (childModel.isKey()) {
+
+                            Object val = childModel.getObjectValue();
+                            if (val != null) {
+
+                                String valString = val.toString();
+                                if (valString != null && !valString.isEmpty()) {
+                                    keys.add(valString);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        String[] keyArray = keys.toArray(new String[] {});
+
+        return keyArray;
     }
 }
