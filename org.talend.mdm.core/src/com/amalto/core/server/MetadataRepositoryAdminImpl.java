@@ -120,9 +120,12 @@ class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
                     DataModelPOJOPK pk = new DataModelPOJOPK(metadataRepositoryId);
                     DataModelPOJO dataModel;
                     try {
-                        dataModel = dataModelControl.getDataModel(pk);
+                        dataModel = dataModelControl.existsDataModel(pk);
                     } catch (XtentisException e) {
                         throw new RuntimeException(e);
+                    }
+                    if (dataModel == null) {
+                        return null; // Expected per interface documentation (if not found, return null).
                     }
                     String schemaAsString = dataModel.getSchema();
 

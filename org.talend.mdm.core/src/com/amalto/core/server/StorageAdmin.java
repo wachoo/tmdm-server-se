@@ -14,7 +14,6 @@
 package com.amalto.core.server;
 
 import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.hibernate.HibernateStorage;
 
 /**
  *
@@ -28,7 +27,7 @@ public interface StorageAdmin {
 
     void deleteAll(String revisionID);
 
-    Storage create(String revisionID, String dataModelName, String storageName, String dataSourceName);
+    Storage create(String dataModelName, String storageName, String dataSourceName);
 
     boolean exist(String revision, String cluster);
 
@@ -38,7 +37,7 @@ public interface StorageAdmin {
      *
      * @param storageName A {@link com.amalto.core.storage.Storage} name.
      * @return A previously created {@link Storage} or <code>null</code> if no storage was previously created.
-     * @see #create(String, String, String, String)
+     * @see #create(String, String, String)
      */
     Storage get(String storageName);
 }

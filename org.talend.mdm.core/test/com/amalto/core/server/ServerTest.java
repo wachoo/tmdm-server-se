@@ -45,7 +45,7 @@ public class ServerTest extends TestCase {
 
         StorageAdmin storageAdmin = server.getStorageAdmin();
         assertNotNull(storageAdmin);
-        Storage storage = storageAdmin.create(null, metadataRepositoryId, "Storage", "H2-DS1");
+        Storage storage = storageAdmin.create(metadataRepositoryId, "Storage", "H2-DS1");
 
         ComplexTypeMetadata person = metadataRepository.getComplexType("Person");
         assertNotNull(person);
@@ -71,7 +71,7 @@ public class ServerTest extends TestCase {
 
         StorageAdmin storageAdmin = server.getStorageAdmin();
         assertNotNull(storageAdmin);
-        Storage storage = storageAdmin.create(null, metadataRepositoryId, "Storage", "H2-DS1");
+        Storage storage = storageAdmin.create(metadataRepositoryId, "Storage", "H2-DS1");
 
         storage.prepare(metadataRepository, Collections.<FieldMetadata>emptySet(), true, true);
     }
@@ -86,7 +86,7 @@ public class ServerTest extends TestCase {
 
         StorageAdmin storageAdmin = server.getStorageAdmin();
         assertNotNull(storageAdmin);
-        Storage storage = storageAdmin.create(null, metadataRepositoryId, "Storage", "H2-DS1");
+        Storage storage = storageAdmin.create(metadataRepositoryId, "Storage", "H2-DS1");
 
         storage.reindex();
     }
@@ -116,7 +116,7 @@ public class ServerTest extends TestCase {
         StorageAdmin storageAdmin = server.getStorageAdmin();
         assertNotNull(storageAdmin);
         try {
-            storageAdmin.create(null, "dataModelNameThatFailsFirstTime", "Storage", "H2-DS1");
+            storageAdmin.create("dataModelNameThatFailsFirstTime", "Storage", "H2-DS1");
             fail("Expected exception because data model does not exist.");
         } catch (Exception e) {
             // Expected
@@ -124,7 +124,7 @@ public class ServerTest extends TestCase {
 
         Storage storage = null;
         try {
-            storage = storageAdmin.create(null, "dataModelNameThatFailsFirstTime", "Storage", "H2-DS1");
+            storage = storageAdmin.create("dataModelNameThatFailsFirstTime", "Storage", "H2-DS1");
             fail();
         } catch (Exception e) {
             if (storage != null) {

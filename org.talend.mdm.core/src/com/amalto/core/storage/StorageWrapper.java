@@ -11,7 +11,6 @@
 
 package com.amalto.core.storage;
 
-import com.amalto.core.load.io.ResettableStringWriter;
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
@@ -120,7 +119,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     public long createCluster(String revisionID, String clusterName) throws XmlServerException {
         long start = System.currentTimeMillis();
         {
-            storageAdmin.create(revisionID, clusterName, clusterName, Storage.DEFAULT_DATA_SOURCE_NAME);
+            storageAdmin.create(clusterName, clusterName, Storage.DEFAULT_DATA_SOURCE_NAME);
         }
         return System.currentTimeMillis() - start;
     }

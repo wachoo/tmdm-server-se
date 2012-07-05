@@ -88,7 +88,7 @@ class ServerImpl implements Server {
             for (DataClusterPOJOPK container : allContainers) {
                 if (!xDataClustersMap.containsKey(container.getUniqueId())) {
                     try {
-                        serverStorageAdmin.create(null, container.getUniqueId(), container.getUniqueId(), Storage.DEFAULT_DATA_SOURCE_NAME);
+                        serverStorageAdmin.create(container.getUniqueId(), container.getUniqueId(), Storage.DEFAULT_DATA_SOURCE_NAME);
                         LOGGER.info("Created SQL storage for container '" + container.getUniqueId() + "'.");
                     } catch (Exception e) {
                         LOGGER.error("Could not create SQL storage for container '" + container.getUniqueId() + "'.", e);
