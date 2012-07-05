@@ -422,4 +422,6 @@ public interface BrowseRecordsMessages extends Messages {
     String of_word();
 
     String display_items();
+    
+    String record_exists();
 }

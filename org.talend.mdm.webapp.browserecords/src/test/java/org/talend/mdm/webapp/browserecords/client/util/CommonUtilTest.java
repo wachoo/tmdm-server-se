@@ -281,4 +281,38 @@ public class CommonUtilTest extends TestCase {
         rootNode = list.get(0);
         assertFalse(TreeDetailUtil.isChangeValue(rootNode));
     }
+    
+    public void testExtractIDs()
+    {
+        ItemNodeModel model = new ItemNodeModel(); 
+        
+        ItemNodeModel child = new ItemNodeModel();
+        child.setKey(true);
+        child.setObjectValue("1");
+        model.add(child);
+
+        child = new ItemNodeModel();
+        child.setKey(false);
+        child.setObjectValue("2");
+        model.add(child);
+
+        child = new ItemNodeModel();
+        child.setKey(true);
+        child.setObjectValue("3");
+        model.add(child);
+        
+        child = new ItemNodeModel();
+        child.setKey(false);
+        child.setObjectValue("4");
+        model.add(child);
+        
+        String[] keys = CommonUtil.extractIDs(model);
+        assertTrue(keys.length == 2);
+        assertTrue(keys[0].equals("1"));
+        assertTrue(keys[1].equals("3"));
+        
+        model = new ItemNodeModel();
+        keys = CommonUtil.extractIDs(model);
+        assertTrue(keys.length == 0);
+    }
 }
