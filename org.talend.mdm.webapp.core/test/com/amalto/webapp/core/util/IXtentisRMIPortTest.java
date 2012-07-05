@@ -41,396 +41,398 @@ public class IXtentisRMIPortTest extends TestCase {
             ++putItemWithReportCallCount;
             putItemWithReportHistory.add(wsPutItemWithReport);
             
-            return null;
+            throw new RemoteException("Not supported exception! ");
         }
-        
+
         public WSConceptRevisionMap getConceptsInDataClusterWithRevisions(
                 WSGetConceptsInDataClusterWithRevisions wsGetConceptsInDataClusterWithRevisions) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSItemPK updateItemMetadata(WSUpdateMetadataItem wsUpdateMetadataItem) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSItemPK partialPutItem(WSPartialPutItem wsPartialPutItem) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSItemPKArray updateItemArrayMetadata(WSUpdateItemArrayMetadata wsUpdateItemArrayMetadata) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSItemPK putItemWithCustomReport(WSPutItemWithCustomReport wsPutItemWithCustomReport) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSRole getRole(WSGetRole wsGetRole) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSBoolean existsRole(WSExistsRole wsExistsRole) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSRolePKArray getRolePKs(WSGetRolePKs regex) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSRolePK putRole(WSPutRole wsRole) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSRolePK deleteRole(WSDeleteRole wsRoleDelete) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSStringArray getObjectsForRoles(WSGetObjectsForRoles wsRoleDelete) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSBackgroundJobPK versioningCommitItems(WSVersioningCommitItems wsVersioningCommitItems) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSBoolean versioningRestoreItemByRevision(WSVersioningRestoreItemByRevision wsVersioningRestoreItemByRevision)
                 throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSVersioningItemHistory versioningGetItemHistory(WSVersioningGetItemHistory wsVersioningGetItemHistory)
                 throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSVersioningItemsVersions versioningGetItemsVersions(WSVersioningGetItemsVersions wsVersioningGetItemsVersions)
                 throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSString versioningGetItemContent(WSVersioningGetItemContent wsVersioningGetItemContent) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSVersioningObjectsVersions versioningGetObjectsVersions(
                 WSVersioningGetObjectsVersions wsVersioningGetObjectsVersions) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSVersioningUniverseVersions versioningGetUniverseVersions(
                 WSVersioningGetUniverseVersions wsVersioningGetUniverseVersions) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSVersioningSystemConfiguration getVersioningSystemConfiguration(
                 WSGetVersioningSystemConfiguration wsGetVersioningSystemConfiguration) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSString putVersioningSystemConfiguration(WSPutVersioningSystemConfiguration wsPutVersioningSystemConfiguration)
                 throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSVersioningInfo versioningGetInfo(WSVersioningGetInfo wsVersioningGetInfo) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSBackgroundJobPK versioningTagObjects(WSVersioningTagObjects wsVersioningTagObjects) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSBackgroundJobPK versioningTagUniverse(WSVersioningTagUniverse wsVersioningTagUniverse) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSBackgroundJobPK versioningTagItems(WSVersioningTagItems wsVersioningTagItems) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSBackgroundJobPK versioningRestoreObjects(WSVersioningRestoreObjects wsVersioningRestoreObjects)
                 throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSBackgroundJobPK versioningRestoreUniverse(WSVersioningRestoreUniverse wsVersioningRestoreUniverse)
                 throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSBackgroundJobPK versioningRestoreItems(WSVersioningRestoreItems wsVersioningRestoreItems) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSUniverse getUniverse(WSGetUniverse wsGetUniverse) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSBoolean existsUniverse(WSExistsUniverse wsExistsUniverse) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSUniversePKArray getUniversePKs(WSGetUniversePKs regex) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSUniversePKArray getUniverseByRevision(WSGetUniverseByRevision wsUniverseByRevision) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSUniversePK putUniverse(WSPutUniverse wsUniverse) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSUniversePK deleteUniverse(WSDeleteUniverse wsUniverseDelete) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSStringArray getObjectsForUniverses(WSGetObjectsForUniverses regex) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSUniverse getCurrentUniverse(WSGetCurrentUniverse wsGetCurrentUniverse) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSSynchronizationPlan getSynchronizationPlan(WSGetSynchronizationPlan wsGetSynchronizationPlan)
                 throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSBoolean existsSynchronizationPlan(WSExistsSynchronizationPlan wsExistsSynchronizationPlan)
                 throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSSynchronizationPlanPKArray getSynchronizationPlanPKs(WSGetSynchronizationPlanPKs regex) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSSynchronizationPlanPK putSynchronizationPlan(WSPutSynchronizationPlan wsSynchronizationPlan)
                 throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSSynchronizationPlanPK deleteSynchronizationPlan(WSDeleteSynchronizationPlan wsSynchronizationPlanDelete)
                 throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSStringArray getObjectsForSynchronizationPlans(WSGetObjectsForSynchronizationPlans regex) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSStringArray getSynchronizationPlanObjectsAlgorithms(WSGetSynchronizationPlanObjectsAlgorithms regex)
                 throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSStringArray getSynchronizationPlanItemsAlgorithms(WSGetSynchronizationPlanItemsAlgorithms regex)
                 throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSSynchronizationPlanStatus synchronizationPlanAction(WSSynchronizationPlanAction wsSynchronizationPlanAction)
                 throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSStringArray synchronizationGetUnsynchronizedObjectsIDs(
                 WSSynchronizationGetUnsynchronizedObjectsIDs wsSynchronizationGetUnsynchronizedObjectsIDs) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSString synchronizationGetObjectXML(WSSynchronizationGetObjectXML wsSynchronizationGetObjectXML)
                 throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSString synchronizationPutObjectXML(WSSynchronizationPutObjectXML wsSynchronizationPutObjectXML)
                 throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSItemPKArray synchronizationGetUnsynchronizedItemPKs(
                 WSSynchronizationGetUnsynchronizedItemPKs wsSynchronizationGetUnsynchronizedItemPKs) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSString synchronizationGetItemXML(WSSynchronizationGetItemXML wsSynchronizationGetItemXML) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSItemPK synchronizationPutItemXML(WSSynchronizationPutItemXML wsSynchronizationPutItemXML) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSSynchronizationItem getSynchronizationItem(WSGetSynchronizationItem wsGetSynchronizationItem)
                 throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSBoolean existsSynchronizationItem(WSExistsSynchronizationItem wsExistsSynchronizationItem)
                 throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSSynchronizationItemPKArray getSynchronizationItemPKs(WSGetSynchronizationItemPKs regex) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSSynchronizationItemPK putSynchronizationItem(WSPutSynchronizationItem wsSynchronizationItem)
                 throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSSynchronizationItemPK deleteSynchronizationItem(WSDeleteSynchronizationItem wsSynchronizationItemDelete)
                 throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSSynchronizationItem resolveSynchronizationItem(WSResolveSynchronizationItem wsResolveSynchronizationItem)
                 throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSWorkflowProcessDefinitionUUIDArray workflowGetProcessDefinitions(
                 WSWorkflowGetProcessDefinitions wsworkflowProcessDefinitions) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSWorkflowProcessDefinitionUUID workflowDeploy(WSWorkflowDeploy wsWorkflowDeploy) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSBoolean workflowUnDeploy(WSWorkflowUnDeploy wsWorkflowUnDeploy) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSProcessTaskInstanceArray workflowGetTaskList(WSWorkflowGetTaskList uuid) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSProcessInstanceArray workflowGetProcessInstances(WSWorkflowGetProcessInstances uuid) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSBoolean workflowDeleteProcessInstances(WSWorkflowDeleteProcessInstancesRequest deleteWolkflowRequest)
                 throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSBoolean workflowUnassignTask(WSUnassignTask task) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSBoolean workflowAssignTask(WSAssignTask task) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSBoolean workflowSetTaskPriority(WSSetTaskPriority task) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSBoolean workflowSuspendTask(WSSuspendTask task) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSBoolean workflowStartProcessInstance(WSStartProcessInstance task) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSMDMJobArray getMDMJob(WSMDMNULL mdmJobRequest) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSBoolean putMDMJob(WSPUTMDMJob putMDMJobRequest) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSBoolean deleteMDMJob(WSDELMDMJob deleteMDMJobRequest) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public WSAutoIncrement getAutoIncrement(WSAutoIncrement wsAutoIncrementRequest) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
 
         public List<String> globalSearch(String dataCluster, String keyword, int start, int end) throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+            
+            throw new RemoteException("Not supported exception! ");
         }
+        
+        
         
     }
 }
