@@ -528,7 +528,6 @@ public class ItemCtrl2Bean implements SessionBean {
             }
 
             Server server = ServerContext.INSTANCE.get();
-            MetadataRepository repository = server.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
             Storage storage = server.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId());
 
             if (storage == null) {
@@ -550,7 +549,7 @@ public class ItemCtrl2Bean implements SessionBean {
 
                 return xmlServer.runQuery(null, null, query, null);
             } else {
-
+                MetadataRepository repository = server.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
                 // TODO Other viewable types
                 // TODO Fields
                 String typeName = viewablePaths.get(0).split("/")[0];
@@ -695,26 +694,26 @@ public class ItemCtrl2Bean implements SessionBean {
             Storage storage = mdmServer.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId());
 
             if (storage == null) {
-            // get the universe and revision ID
-            UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
-            if (universe == null) {
-                String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-                LOGGER.error(err);
-                throw new XtentisException(err);
-            }
+                // get the universe and revision ID
+                UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
+                if (universe == null) {
+                    String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
+                    LOGGER.error(err);
+                    throw new XtentisException(err);
+                }
 
-            // build the patterns to revision ID map
-            LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(
-                    universe.getItemsRevisionIDs());
-            if (universe.getDefaultItemRevisionID() != null)
-                conceptPatternsToRevisionID.put(".*", universe.getDefaultItemRevisionID());
+                // build the patterns to revision ID map
+                LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(
+                        universe.getItemsRevisionIDs());
+                if (universe.getDefaultItemRevisionID() != null)
+                    conceptPatternsToRevisionID.put(".*", universe.getDefaultItemRevisionID());
 
-            // build the patterns to cluster map - only one cluster at this stage
-            LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
-            conceptPatternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId());
+                // build the patterns to cluster map - only one cluster at this stage
+                LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
+                conceptPatternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId());
 
-            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
-            return server.countItems(conceptPatternsToRevisionID, conceptPatternsToClusterName, conceptName, whereItem);
+                XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+                return server.countItems(conceptPatternsToRevisionID, conceptPatternsToClusterName, conceptName, whereItem);
             } else {
                 MetadataRepository repository = mdmServer.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
 
@@ -1093,76 +1092,77 @@ public class ItemCtrl2Bean implements SessionBean {
             TreeMap<String, String> concepts = new TreeMap<String, String>();
 
             Server mdmServer = ServerContext.INSTANCE.get();
-            MetadataRepository repository = mdmServer.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
+            Storage storage = mdmServer.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId());
 
-            if (repository == null) {
-            ILocalUser user = LocalUser.getLocalUser();
-            boolean authorized = false;
+            if (storage == null) {
+                ILocalUser user = LocalUser.getLocalUser();
+                boolean authorized = false;
                 if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
-                authorized = true;
-            } else if (user.userCanRead(DataClusterPOJO.class, dataClusterPOJOPK.getUniqueId())) {
-                authorized = true;
-            }
-            if (!authorized) {
-                throw new RemoteException("Unauthorized read access on data cluster " + dataClusterPOJOPK.getUniqueId()
-                        + " by user " + user.getUsername());
-            }
+                    authorized = true;
+                } else if (user.userCanRead(DataClusterPOJO.class, dataClusterPOJOPK.getUniqueId())) {
+                    authorized = true;
+                }
+                if (!authorized) {
+                    throw new RemoteException("Unauthorized read access on data cluster " + dataClusterPOJOPK.getUniqueId()
+                            + " by user " + user.getUsername());
+                }
 
-            // This should be moved to ItemCtrl
-            // get the universe
-            if (universe == null)
-                universe = user.getUniverse();
+                // This should be moved to ItemCtrl
+                // get the universe
+                if (universe == null)
+                    universe = user.getUniverse();
 
-            // make sure we do not check a revision twice
-            Set<String> revisionsChecked = new HashSet<String>();
+                // make sure we do not check a revision twice
+                Set<String> revisionsChecked = new HashSet<String>();
 
-            // First go through every revision
+                // First go through every revision
                 String query;
-            Set<String> patterns = universe.getItemsRevisionIDs().keySet();
-            for (String pattern : patterns) {
-                String revisionID = universe.getConceptRevisionID(pattern);
+                Set<String> patterns = universe.getItemsRevisionIDs().keySet();
+                for (String pattern : patterns) {
+                    String revisionID = universe.getConceptRevisionID(pattern);
+                    String revisionKey = (revisionID == null) || "".equals(revisionID) ? "__$DEFAULT$__" : revisionID;
+                    if (revisionsChecked.contains(revisionKey)) {
+                        continue;
+                    } else {
+                        revisionsChecked.add(revisionKey);
+                    }
+                    // fetch all the concepts
+                    String collectionpath = CommonUtil.getPath(revisionID, dataClusterPOJOPK.getUniqueId());
+                    query = "distinct-values(collection(\"" + collectionpath + "\")/ii/n/text())";
+                    if (EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
+                        query = "for $pivot0 in collection(\"" + collectionpath + "\")/ii/n/text()return <result>{$pivot0}</result>";
+                    }
+                    ArrayList<String> conceptsFound = runQuery(revisionID, dataClusterPOJOPK, query, null);
+                    // validate the concepts found
+                    for (String concept : conceptsFound) {
+                        if (concept.matches(pattern) && (concepts.get(concept) == null)) {
+                            concepts.put(concept, revisionID == null ? "" : revisionID);
+                        }
+                    }
+                }
+
+                // Then validate the concepts found in the default revision
+                String revisionID = universe.getDefaultItemRevisionID();
                 String revisionKey = (revisionID == null) || "".equals(revisionID) ? "__$DEFAULT$__" : revisionID;
-                if (revisionsChecked.contains(revisionKey)) {
-                    continue;
-                } else {
-                    revisionsChecked.add(revisionKey);
-                }
-                // fetch all the concepts
-                String collectionpath = CommonUtil.getPath(revisionID, dataClusterPOJOPK.getUniqueId());
-                query = "distinct-values(collection(\"" + collectionpath + "\")/ii/n/text())";
-                if (EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
-                    query = "for $pivot0 in collection(\"" + collectionpath + "\")/ii/n/text()return <result>{$pivot0}</result>";
-                }
-                ArrayList<String> conceptsFound = runQuery(revisionID, dataClusterPOJOPK, query, null);
-                // validate the concepts found
-                for (String concept : conceptsFound) {
-                    if (concept.matches(pattern) && (concepts.get(concept) == null)) {
-                        concepts.put(concept, revisionID == null ? "" : revisionID);
+
+                if (!revisionsChecked.contains(revisionKey)) {
+                    // fetch all the concepts
+                    String collectionpath = CommonUtil.getPath(revisionID, dataClusterPOJOPK.getUniqueId());
+                    query = "distinct-values(collection(\"" + collectionpath + "\")/ii/n/text())";
+                    if (EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
+                        query = "for $pivot0 in collection(\"" + collectionpath + "\")/ii/n/text()return <result>{$pivot0}</result>";
+                    }
+
+                    ArrayList<String> conceptsFound = runQuery(revisionID, dataClusterPOJOPK, query, null);
+                    // validate the concepts found
+                    for (String concept : conceptsFound) {
+                        if (concepts.get(concept) == null) {
+                            concepts.put(concept, revisionID == null ? "" : revisionID);
+                        }
                     }
                 }
-            }
-
-            // Then validate the concepts found in the default revision
-            String revisionID = universe.getDefaultItemRevisionID();
-            String revisionKey = (revisionID == null) || "".equals(revisionID) ? "__$DEFAULT$__" : revisionID;
-
-            if (!revisionsChecked.contains(revisionKey)) {
-                // fetch all the concepts
-                String collectionpath = CommonUtil.getPath(revisionID, dataClusterPOJOPK.getUniqueId());
-                query = "distinct-values(collection(\"" + collectionpath + "\")/ii/n/text())";
-                if (EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
-                    query = "for $pivot0 in collection(\"" + collectionpath + "\")/ii/n/text()return <result>{$pivot0}</result>";
-                }
-
-                ArrayList<String> conceptsFound = runQuery(revisionID, dataClusterPOJOPK, query, null);
-                // validate the concepts found
-                for (String concept : conceptsFound) {
-                    if (concepts.get(concept) == null) {
-                        concepts.put(concept, revisionID == null ? "" : revisionID);
-                    }
-                }
-            }
             } else {
+                MetadataRepository repository = mdmServer.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
                 Collection<ComplexTypeMetadata> types = repository.getUserComplexTypes();
                 for (ComplexTypeMetadata type : types) {
                     concepts.put(type.getName(), "");

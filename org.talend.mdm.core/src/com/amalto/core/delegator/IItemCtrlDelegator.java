@@ -233,10 +233,10 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
             }
 
             Server server = ServerContext.INSTANCE.get();
-            MetadataRepository repository = server.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
             Storage storage = server.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId());
 
             if (storage != null) {
+                MetadataRepository repository = server.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
                 // Build query (find 'main' type)
                 String typeName = ((String) view.getSearchableBusinessElements().getList().get(0)).split("/")[0];
                 ComplexTypeMetadata type = repository.getComplexType(typeName);
@@ -457,10 +457,10 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                                       boolean totalCountOnFirstRow) throws XtentisException {
 
         Server server = ServerContext.INSTANCE.get();
-        MetadataRepository repository = server.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
         Storage storage = server.getStorageAdmin().get(dataClusterPOJOPK.getUniqueId());
 
         if (storage != null) {
+            MetadataRepository repository = server.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
             ComplexTypeMetadata type = repository.getComplexType(conceptName);
             UserQueryBuilder qb = UserQueryBuilder.from(type);
 
