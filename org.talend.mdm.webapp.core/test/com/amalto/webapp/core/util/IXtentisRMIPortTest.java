@@ -41,7 +41,7 @@ public class IXtentisRMIPortTest extends TestCase {
             ++putItemWithReportCallCount;
             putItemWithReportHistory.add(wsPutItemWithReport);
             
-            throw new RemoteException("Not supported exception! ");
+            return null;
         }
 
         public WSConceptRevisionMap getConceptsInDataClusterWithRevisions(
