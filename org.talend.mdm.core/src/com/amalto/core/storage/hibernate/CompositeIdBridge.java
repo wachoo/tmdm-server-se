@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage.hibernate;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.document.Document;
 import org.hibernate.search.bridge.LuceneOptions;
 import org.hibernate.search.bridge.TwoWayFieldBridge;
@@ -22,6 +23,9 @@ public class CompositeIdBridge implements TwoWayFieldBridge {
     }
 
     public String objectToString(Object object) {
+        if (object == null) {
+            return StringUtils.EMPTY;
+        }
         return object.toString();
     }
 

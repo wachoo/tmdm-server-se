@@ -56,6 +56,9 @@ class IdQueryHandler extends AbstractQueryHandler {
         Wrapper loadedObject = (Wrapper) session.get(className, (Serializable) object);
 
         if (loadedObject == null) {
+            for (EndOfResultsCallback callback : callbacks) {
+                callback.onEndOfResults();
+            }
             CloseableIterator<DataRecord> iterator = new CloseableIterator<DataRecord>() {
                 public boolean hasNext() {
                     return false;
@@ -106,6 +109,9 @@ class IdQueryHandler extends AbstractQueryHandler {
                                 nextRecord.set(field, next.get(field));
                             }
                         }
+                        for (EndOfResultsCallback callback : callbacks) {
+                            callback.onEndOfResults();
+                        }
                         return nextRecord;
                     }
                 };
@@ -119,44 +125,9 @@ class IdQueryHandler extends AbstractQueryHandler {
         }
     }
 
-
     @Override
     public StorageResults visit(Compare condition) {
         object = condition.getRight().accept(VALUE_ADAPTER);
         return null;
-    }
-
-    private class DataRecordIterator extends CloseableIterator<DataRecord> {
-
-        private final TypeMapping mainType;
-
-        private final Wrapper loadedObject;
-
-        private boolean hasRead;
-
-        public DataRecordIterator(TypeMapping mainType, Wrapper loadedObject) {
-            this.mainType = mainType;
-            this.loadedObject = loadedObject;
-        }
-
-        public boolean hasNext() {
-            return !hasRead;
-        }
-
-        public DataRecord next() {
-            try {
-                ObjectDataRecordReader reader = new ObjectDataRecordReader();
-                return reader.read(mainType, loadedObject);
-            } finally {
-                hasRead = true;
-            }
-        }
-
-        public void remove() {
-        }
-
-        public void close() throws IOException {
-            hasRead = true;
-        }
     }
 }

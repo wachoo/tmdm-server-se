@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage.hibernate;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.document.Document;
 import org.hibernate.search.bridge.LuceneOptions;
 import org.hibernate.search.bridge.TwoWayFieldBridge;
@@ -29,6 +30,9 @@ public class ListBridge implements TwoWayFieldBridge {
     }
 
     private String getValueFromObject(List object) {
+        if (object == null) {
+            return StringUtils.EMPTY;
+        }
         Iterator valuesIterator = object.iterator();
         StringBuilder builder = new StringBuilder();
         while (valuesIterator.hasNext()) {
