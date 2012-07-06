@@ -72,11 +72,11 @@ public class DateTimeTypeFieldFactory extends TypeFieldFactory {
      * @return
      */
     public Field<?> createFormatDateField(boolean isDateTime){
-        final FormatDateField dateField = new FormatDateField(context.getNode());
+        final FormatDateField dateField = new FormatDateField();
         if (!isEmpty(displayformatPattern)) {               
             dateField.setFormatPattern(displayformatPattern);
-            dateField.setShowFormateValue(true);
         }
+        dateField.setDateTime(isDateTime);
         dateField.setPropertyEditor(new DateTimePropertyEditor(isDateTime ? DateUtil.formatDateTimePattern : DateUtil.datePattern));
 
         if (context.isWithValue() && hasValue()) {
@@ -84,10 +84,6 @@ public class DateTimeTypeFieldFactory extends TypeFieldFactory {
         		// It will be better to call dateField.getPropertyEditor().convertStringValue(value);
         		Date d = DateUtil.convertStringToDate(isDateTime ? DateUtil.dateTimePattern : DateUtil.datePattern, getValue().toString());
         		dateField.setValue(hasValue() ? d : null);
-        		dateField.setDate(d);
-        		if (!isEmpty(displayformatPattern)) {
-                    dateField.setFormatedValue();
-                }
         	} catch (Exception e) {
             	String label = context.getNode().getDynamicLabel() != null && context.getNode().getDynamicLabel().trim().length() > 0 ? 
             			context.getNode().getDynamicLabel() : LabelUtil.getNormalLabel(context.getNode().getLabel());

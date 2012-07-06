@@ -239,8 +239,6 @@ public class TreeDetailGridFieldCreator {
                         node.setObjectValue((Serializable) fe.getValue());
                     }
                 }
-                if (fe.getField() instanceof FormatDateField)
-                    ((FormatDateField) field).setFormatedValue();
 
                 node.setChangeValue(true);
 

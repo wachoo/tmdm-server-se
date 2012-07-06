@@ -51,8 +51,7 @@ public class DateFieldCellEditor extends CellEditor {
         return v;
     }-*/;
 
-    private native Date getDate()/*-{
-        var field = this.@org.talend.mdm.webapp.browserecords.client.widget.inputfield.celleditor.DateFieldCellEditor::field;
-        return field.@org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatDateField::date;
-    }-*/;
+    private Date getDate() {
+        return field.getValue();
+    }
 }

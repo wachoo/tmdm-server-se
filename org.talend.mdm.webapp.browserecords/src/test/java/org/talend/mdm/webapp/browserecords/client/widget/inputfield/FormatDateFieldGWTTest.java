@@ -14,7 +14,6 @@ package org.talend.mdm.webapp.browserecords.client.widget.inputfield;
 
 import java.util.Date;
 
-import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.DateUtil;
 
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
@@ -26,9 +25,8 @@ public class FormatDateFieldGWTTest extends GWTTestCase{
     public void testCompareDateAndString() {
 		
 		// 1. Date (value = "2012-05-08", date = 2012-05-08)
-		ItemNodeModel node = new ItemNodeModel("date");
 		String value = "2012-05-08";
-		FormatDateField dateField = new FormatDateField(node);
+        FormatDateField dateField = new FormatDateField();
 		dateField.setPropertyEditor(new DateTimePropertyEditor(DateUtil.datePattern));
 		Date date = DateUtil.convertStringToDate(value.toString());
 		assertEquals(false, compareDateAndString(dateField.getPropertyEditor(), date, value));
@@ -41,7 +39,7 @@ public class FormatDateFieldGWTTest extends GWTTestCase{
 		value = "2012-05-08T00:00:00";
 		dateField.setPropertyEditor(new DateTimePropertyEditor(DateUtil.formatDateTimePattern));
 		date = DateUtil.convertStringToDate(DateUtil.dateTimePattern,value.toString());
-		dateField.setDate(date);
+        dateField.setValue(date);
 		assertEquals(false, compareDateAndString(dateField.getPropertyEditor(), date, value));
 		
 		// 4. DateTime (value = "2012-05-09T00:00:00", date = 2012-05-08T00:00:00)
