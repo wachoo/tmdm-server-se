@@ -814,7 +814,126 @@ public abstract class ObjectPOJO implements Serializable{
     	    throw new XtentisException(err, e);
 	    } 
     }
-    
+
+    /**
+     * Get the records for which the user is authorized and matching certain conditions
+     * 
+     * @param objectClass The class of the XtentisObject
+     * @param idsPaths The full path (starting with the object element root name) of the ids
+     * @param whereItem The condition
+     * @param orderBy An option full path to order by
+     * @param direction The direction if orderBy is not <code>null</code>. One of
+     * {@link IXmlServerSLWrapper#ORDER_ASCENDING}, {@link IXmlServerSLWrapper#ORDER_DESCENDING}
+     * @param start The first item index (starts at zero)
+     * @param limit The maximum number of items to return
+     * @param withTotalCount If true, return total search count as first result.
+     * @return The list of results
+     * @throws XtentisException
+     */
+    public static ArrayList<ObjectPOJOPK> findPKsByCriteriaWithPaging(Class<? extends ObjectPOJO> objectClass,
+            String[] idsPaths, IWhereItem whereItem, String orderBy, String direction, int start, int limit,
+            boolean withTotalCount) throws XtentisException {
+        try {
+            int numItems = 0;
+            // check if we are admin
+            boolean isAdmin = false;
+            ILocalUser user = LocalUser.getLocalUser();
+            if (MDMConfiguration.getAdminUser().equals(user.getUsername())
+                    || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
+                isAdmin = true;
+            } else if (user.isAdmin(objectClass)) {
+                isAdmin = true;
+            }
+
+            // get the universe and revision ID
+            UniversePOJO universe = user.getUniverse();
+            if (universe == null) {
+                String err = "ERROR: no Universe set for user '" + user.getUsername() + "'"; //$NON-NLS-1$//$NON-NLS-2$
+                LOG.error(err);
+                throw new XtentisException(err);
+            }
+
+            // Root Elements Names to revision IDs and clusterNames
+            HashMap<String, String> objectRootElementNameToRevisionID = new HashMap<String, String>();
+            HashMap<String, String> objectRootElementNameToClusterName = new HashMap<String, String>();
+            Set<String> objectNames = getObjectsNames2RootNamesMap().keySet();
+            for (Iterator<String> iterator = objectNames.iterator(); iterator.hasNext();) {
+                String objectName = iterator.next();
+                String rootElementName = getObjectRootElementName(objectName);
+                objectRootElementNameToRevisionID.put(rootElementName, universe.getXtentisObjectsRevisionIDs().get(objectName));
+                objectRootElementNameToClusterName.put(rootElementName,
+                        getCluster((Class<? extends ObjectPOJO>) getObjectClass(objectName)));
+            }
+
+            // get the xml server wrapper
+            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+
+            // get the query
+            String query = server.getXtentisObjectsQuery(objectRootElementNameToRevisionID, objectRootElementNameToClusterName,
+                    getObjectRootElementName(getObjectName(objectClass)), new ArrayList<String>(Arrays.asList(idsPaths)),
+                    whereItem, orderBy, direction, 0, -1);
+
+            // run the query
+            Collection<String> res = server.runQuery(null, null, query, null, start, limit, withTotalCount);
+
+            // Log
+            if (LOG.isTraceEnabled())
+                LOG.trace("findAllPKsByCriteriaWithPaging() QUERY\n" + query + "\nResults size: " + res.size()); //$NON-NLS-1$  //$NON-NLS-2$ 
+
+            // no result --> we are done
+            if (res == null)
+                return new ArrayList<ObjectPOJOPK>();
+
+            ArrayList<ObjectPOJOPK> list = new ArrayList<ObjectPOJOPK>();
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            XPath xPath = XPathFactory.newInstance().newXPath();
+            boolean firstRecord = true;
+            for (Iterator<String> iterator = res.iterator(); iterator.hasNext();) {
+                String string = iterator.next();
+                // rebuild IDs
+                Document doc = builder.parse(new InputSource(new StringReader(string)));
+                String[] ids = new String[idsPaths.length];
+                if (withTotalCount && firstRecord) {
+                    firstRecord = false;
+                    ids = new String[1];
+                    ids[0] = doc.getDocumentElement().getTextContent();
+                } else {
+                    for (int i = 0; i < ids.length; i++) {
+                        ids[i] = xPath.evaluate("/*/*[" + (i + 1) + "]/text()", doc); //$NON-NLS-1$  //$NON-NLS-2$ 
+                    }
+                }
+                // get ObjectPOJOPK
+                ObjectPOJOPK pk = new ObjectPOJOPK(ids);
+
+                // check authorizations
+                boolean authorized = false;
+                if (isAdmin) {
+                    authorized = true;
+                } else if (user.userCanRead(objectClass, pk.getUniqueId())) {
+                    authorized = true;
+                }
+                if (authorized) {
+                    list.add(pk);
+                    numItems++;
+                }
+            }
+
+            if (BAMLogger.log)
+                BAMLogger
+                        .log("DATA MANAGER", user.getUsername(), "find all by criteria", objectClass, new ObjectPOJOPK(numItems + " Items"), numItems > 0); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+            return list;
+
+        } catch (XtentisException e) {
+            throw (e);
+        } catch (Exception e) {
+            String err = "Unable to find all the Object identifiers Using Criteria for object " + getObjectName(objectClass) //$NON-NLS-1$
+                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage(); //$NON-NLS-1$ //$NON-NLS-2$
+            LOG.error(err, e);
+            throw new XtentisException(err, e);
+        }
+
+    }
 
     /**
      * Find all Keys of an object for which the user is authorized and matching certain conditions
@@ -840,111 +959,7 @@ public abstract class ObjectPOJO implements Serializable{
     	String orderBy,
     	String direction
     ) throws XtentisException {
-       	try {
-       		int numItems = 0;
-       		
-	    	//check if we are admin 
-	    	boolean isAdmin = false;
-	    	ILocalUser user = LocalUser.getLocalUser();
-            if (MDMConfiguration.getAdminUser().equals(user.getUsername())
-                    || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { //$NON-NLS-1$ 
-	    		isAdmin = true;
-	    	} else if (user.isAdmin(objectClass)) {
-	    		isAdmin = true;
-	    	}
-	    	
-	    	//get the universe and revision ID
-	    	UniversePOJO universe = user.getUniverse();
-	    	if (universe == null) {
-	    		String err = "ERROR: no Universe set for user '"+user.getUsername()+"'";
-	    		LOG.error(err);
-	    		throw new XtentisException(err);
-	    	}
-	    	
-	    	//Root Elements Names to revision IDs and clusterNames
-	    	HashMap<String, String> objectRootElementNameToRevisionID = new HashMap<String, String>();
-	    	HashMap<String, String> objectRootElementNameToClusterName = new HashMap<String, String>();
-	    	Set<String> objectNames = getObjectsNames2RootNamesMap().keySet();
-	    	for (Iterator<String> iterator = objectNames.iterator(); iterator.hasNext(); ) {
-				String objectName = iterator.next();
-				String rootElementName = getObjectRootElementName(objectName); 
-				objectRootElementNameToRevisionID.put(
-					rootElementName,
-					universe.getXtentisObjectsRevisionIDs().get(objectName)
-				);
-				objectRootElementNameToClusterName.put(
-					rootElementName,
-					getCluster((Class<? extends ObjectPOJO>) getObjectClass(objectName))
-				);
-			}
-	    	
-            //get the xml server wrapper
-            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
-			
-			//get the query
-			String query = server.getXtentisObjectsQuery(
-				objectRootElementNameToRevisionID, 
-				objectRootElementNameToClusterName, 
-				getObjectRootElementName(getObjectName(objectClass)), 
-				new ArrayList<String>(Arrays.asList(idsPaths)), 
-				whereItem, 
-				orderBy, 
-				direction, 
-				0, 
-				-1
-			);
-           
-			//run the query
-			Collection<String> res = server.runQuery(null, null, query, null);
-			
-			//Log
-			if(LOG.isTraceEnabled())
-			    LOG.trace("findAllPKsByCriteria() QUERY\n"+query+"\nResults size: "+res.size()); //$NON-NLS-1$  //$NON-NLS-2$ 
-			
-			//no result --> we are done
-			if (res==null) return new ArrayList<ObjectPOJOPK>(); 
-			
-			ArrayList<ObjectPOJOPK> list = new ArrayList<ObjectPOJOPK>();
-			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			XPath xPath = XPathFactory.newInstance().newXPath();
-			
-            for (Iterator<String> iterator = res.iterator(); iterator.hasNext(); ) {
-				String string = iterator.next();
-				//rebuild IDs
-				Document doc = builder.parse(new InputSource(new StringReader(string)));
-				String[] ids = new String[idsPaths.length];
-				for (int i = 0; i < ids.length; i++) {
-					ids[i] = xPath.evaluate("/*/*["+(i+1)+"]/text()", doc); //$NON-NLS-1$  //$NON-NLS-2$ 
-				}
-				//get ObjectPOJOPK
-				ObjectPOJOPK pk = new ObjectPOJOPK(ids);
-
-				//check authorizations
-				boolean authorized=false;
-				if (isAdmin) {
-        			authorized = true;
-        		} else if (user.userCanRead(objectClass, pk.getUniqueId())) {
-    	    		authorized = true;
-    	    	}
-        		if (authorized) {
-        			list.add(pk);
-        			numItems++;
-        		}
-			}
-            
-            if(BAMLogger.log)
-                BAMLogger.log("DATA MANAGER", user.getUsername(), "find all by criteria", objectClass, new ObjectPOJOPK(numItems+" Items"),numItems>0); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	    	
-	    	return list;
-	    	
-    	} catch (XtentisException e) {
-    		throw(e);
-	    } catch (Exception e) {
-    	    String err = "Unable to find all the Object identifiers Using Criteria for object "+ getObjectName(objectClass)
-    	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    LOG.error(err,e);
-    	    throw new XtentisException(err, e);
-	    } 
+        return findPKsByCriteriaWithPaging(objectClass, idsPaths, whereItem, orderBy, direction, 0, Integer.MAX_VALUE, false);
     }
     
     /**

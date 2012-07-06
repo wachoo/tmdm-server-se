@@ -682,6 +682,117 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
 
     }
     
+    /**
+     * Retrieve all RoutingOrder PKs by CriteriaWithPaging
+     * 
+     * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method
+     */
+    public Collection<AbstractRoutingOrderV2POJOPK> getRoutingOrderPKsByCriteriaWithPaging(
+            Class<? extends AbstractRoutingOrderV2POJO> routingOrderV2POJOClass, String anyFieldContains, String name,
+            long timeCreatedMin, long timeCreatedMax, long timeScheduledMin, long timeScheduledMax, long timeLastRunStartedMin,
+            long timeLastRunStartedMax, long timeLastRunCompletedMin, long timeLastRunCompletedMax, String itemConceptContains,
+            String itemIDsContain, String serviceJNDIContains, String serviceParametersContains, String messageContains,
+            int start, int limit, boolean withTotalCount) throws XtentisException {
+
+        String pojoName = ObjectPOJO.getObjectRootElementName(ObjectPOJO.getObjectName(routingOrderV2POJOClass));
+
+        org.apache.log4j.Logger.getLogger(this.getClass()).debug(
+                "getRoutingOrderPKsByCriteriaWithPaging() " + routingOrderV2POJOClass + "  " //$NON-NLS-1$ //$NON-NLS-2$
+                        + ObjectPOJO.getObjectName(routingOrderV2POJOClass) + "  " + pojoName); //$NON-NLS-1$
+
+        WhereAnd wAnd = new WhereAnd();
+
+        if ((anyFieldContains != null) && (!"*".equals(anyFieldContains))) { //$NON-NLS-1$
+            wAnd.add(new WhereCondition(pojoName + "//*", WhereCondition.CONTAINS, anyFieldContains, WhereCondition.PRE_NONE, //$NON-NLS-1$
+                    false));
+        }
+
+        if ((name != null) && (!"*".equals(name))) { //$NON-NLS-1$
+            wAnd.add(new WhereCondition(pojoName + "/name", WhereCondition.CONTAINS, name, WhereCondition.PRE_NONE, false)); //$NON-NLS-1$
+        }
+
+        if (timeCreatedMin > 0) {
+            wAnd.add(new WhereCondition(pojoName + "/@time-created", WhereCondition.GREATER_THAN_OR_EQUAL, "" + timeCreatedMin, //$NON-NLS-1$ //$NON-NLS-2$
+                    WhereCondition.PRE_NONE, false));
+        }
+        if (timeCreatedMax > 0) {
+            wAnd.add(new WhereCondition(pojoName + "/@time-created", WhereCondition.LOWER_THAN_OR_EQUAL, "" + timeCreatedMax, //$NON-NLS-1$ //$NON-NLS-2$
+                    WhereCondition.PRE_NONE, false));
+        }
+
+        if (timeScheduledMin > 0) {
+            wAnd.add(new WhereCondition(pojoName + "/@time-scheduled", WhereCondition.GREATER_THAN_OR_EQUAL, "" //$NON-NLS-1$//$NON-NLS-2$
+                    + timeScheduledMin, WhereCondition.PRE_NONE, false));
+        }
+        if (timeScheduledMax > 0) {
+            wAnd.add(new WhereCondition(pojoName + "/@time-scheduled", WhereCondition.LOWER_THAN_OR_EQUAL, "" + timeScheduledMax, //$NON-NLS-1$ //$NON-NLS-2$
+                    WhereCondition.PRE_NONE, false));
+        }
+
+        if (timeLastRunStartedMin > 0) {
+            wAnd.add(new WhereCondition(pojoName + "/@time-last-run-started", WhereCondition.GREATER_THAN_OR_EQUAL, "" //$NON-NLS-1$//$NON-NLS-2$
+                    + timeLastRunStartedMin, WhereCondition.PRE_NONE, false));
+        }
+        if (timeLastRunStartedMax > 0) {
+            wAnd.add(new WhereCondition(pojoName + "/@time-last-run-started", WhereCondition.LOWER_THAN_OR_EQUAL, "" //$NON-NLS-1$//$NON-NLS-2$
+                    + timeLastRunStartedMax, WhereCondition.PRE_NONE, false));
+        }
+
+        if (timeLastRunCompletedMin > 0) {
+            wAnd.add(new WhereCondition(pojoName + "/@time-last-run-completed", WhereCondition.GREATER_THAN_OR_EQUAL, "" //$NON-NLS-1$//$NON-NLS-2$
+                    + timeLastRunCompletedMin, WhereCondition.PRE_NONE, false));
+        }
+        if (timeLastRunCompletedMax > 0) {
+            wAnd.add(new WhereCondition(pojoName + "/@time-last-run-completed", WhereCondition.LOWER_THAN_OR_EQUAL, "" //$NON-NLS-1$ //$NON-NLS-2$
+                    + timeLastRunCompletedMax, WhereCondition.PRE_NONE, false));
+        }
+
+        if ((itemConceptContains != null) && (!"*".equals(itemConceptContains))) { //$NON-NLS-1$
+            wAnd.add(new WhereCondition(pojoName + "/item-pOJOPK/concept-name", WhereCondition.CONTAINS, itemConceptContains, //$NON-NLS-1$
+                    WhereCondition.PRE_AND, false));
+        }
+
+        if ((itemIDsContain != null) && (!"*".equals(itemIDsContain))) { //$NON-NLS-1$
+            wAnd.add(new WhereCondition(pojoName + "/item-pOJOPK/ids", WhereCondition.CONTAINS, itemIDsContain, //$NON-NLS-1$
+                    WhereCondition.PRE_AND, false));
+        }
+
+        if ((serviceJNDIContains != null) && (!"*".equals(serviceJNDIContains))) { //$NON-NLS-1$
+            wAnd.add(new WhereCondition(pojoName + "/service-jNDI", WhereCondition.CONTAINS, serviceJNDIContains.contains("/") //$NON-NLS-1$ //$NON-NLS-2$
+                    || serviceJNDIContains.startsWith("*") ? serviceJNDIContains : serviceJNDIContains, WhereCondition.PRE_AND, //$NON-NLS-1$
+                    false));
+        }
+
+        if ((serviceParametersContains != null) && (!"*".equals(serviceParametersContains))) { //$NON-NLS-1$
+            wAnd.add(new WhereCondition(pojoName + "/service-parameters", WhereCondition.CONTAINS, serviceParametersContains, //$NON-NLS-1$
+                    WhereCondition.PRE_AND, false));
+        }
+
+        if ((messageContains != null) && (!"*".equals(messageContains))) { //$NON-NLS-1$
+            wAnd.add(new WhereCondition(pojoName + "/message", WhereCondition.CONTAINS, messageContains, WhereCondition.PRE_AND, //$NON-NLS-1$
+                    false));
+        }
+
+        ArrayList<AbstractRoutingOrderV2POJOPK> list = new ArrayList<AbstractRoutingOrderV2POJOPK>();
+
+        Collection<ObjectPOJOPK> col = ObjectPOJO.findPKsByCriteriaWithPaging(routingOrderV2POJOClass, new String[] {
+                pojoName + "/name", pojoName + "/@status" }, wAnd.getSize() == 0 ? null : wAnd, null, null, start, limit, withTotalCount);//$NON-NLS-1$ //$NON-NLS-2$
+
+        for (Iterator<ObjectPOJOPK> iterator = col.iterator(); iterator.hasNext();) {
+            ObjectPOJOPK objectPOJOPK = iterator.next();
+            if (routingOrderV2POJOClass.equals(ActiveRoutingOrderV2POJO.class))
+                list.add(new ActiveRoutingOrderV2POJOPK(objectPOJOPK.getIds()[0]));
+            else if (routingOrderV2POJOClass.equals(CompletedRoutingOrderV2POJO.class))
+                list.add(new CompletedRoutingOrderV2POJOPK(objectPOJOPK.getIds()[0]));
+            else if (routingOrderV2POJOClass.equals(FailedRoutingOrderV2POJO.class))
+                list.add(new FailedRoutingOrderV2POJOPK(objectPOJOPK.getIds()[0]));
+        }
+
+        return list;
+    }
     
     /**
 	 * Retrieve all RoutingOrder PKs by Criteria
@@ -703,199 +814,12 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
         String itemIDsContain,
         String serviceJNDIContains,
         String serviceParametersContains,
-        String messageContains
-    ) throws XtentisException {
-    	
-    	String pojoName=ObjectPOJO.getObjectRootElementName(ObjectPOJO.getObjectName(routingOrderV2POJOClass));
-    	
-    	org.apache.log4j.Logger.getLogger(this.getClass()).debug("getRoutingOrderPKsByCriteria() "
-    		+routingOrderV2POJOClass+"  "+ObjectPOJO.getObjectName(routingOrderV2POJOClass)+"  "+pojoName);
-   	
-//        if (routingOrderV2POJOClass.equals(ActiveRoutingOrderV2POJO.class) ) 
-//        	pojoName = "active-routing-order-v2-pOJO";
-//      	else if (routingOrderV2POJOClass.equals(CompletedRoutingOrderV2POJO.class) )
-//       		pojoName = "completed-routing-order-v2-pOJO";
-//      	else if (routingOrderV2POJOClass.equals(FailedRoutingOrderV2POJO.class) )
-//           	pojoName = "failed-routing-order-v2-pOJO";
-//      	else {
-//       		String err = "Unknwon Routing Order Class: "+routingOrderV2POJOClass;
-//           	org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-//           	throw new XtentisException(err);
-//        }
-
-         	
-     	WhereAnd wAnd = new WhereAnd();
-     	
-        if((anyFieldContains!=null) && (!"*".equals(anyFieldContains))) {
-        	wAnd.add(new WhereCondition(
-        			pojoName+"//*",
-        			WhereCondition.CONTAINS,
-        			anyFieldContains,
-        			WhereCondition.PRE_NONE,
-        			false
-        	));
-        }
-     	
-        if((name!=null) && (!"*".equals(name))) {
-        	wAnd.add(new WhereCondition(
-        			pojoName+"/name",
-        			WhereCondition.CONTAINS,
-        			name,
-        			WhereCondition.PRE_NONE,
-        			false
-        	));
-        }
-
-        if(timeCreatedMin>0) {
-        	wAnd.add(new WhereCondition(
-        			pojoName+"/@time-created",
-        			WhereCondition.GREATER_THAN_OR_EQUAL,
-        			""+timeCreatedMin,
-        			WhereCondition.PRE_NONE,
-        			false
-        	));
-        }
-        if(timeCreatedMax>0) {
-        	wAnd.add(new WhereCondition(
-        			pojoName+"/@time-created",
-        			WhereCondition.LOWER_THAN_OR_EQUAL,
-        			""+timeCreatedMax,
-        			WhereCondition.PRE_NONE,
-        			false
-        	));
-        }
-
-        if(timeScheduledMin>0) {
-        	wAnd.add(new WhereCondition(
-        			pojoName+"/@time-scheduled",
-        			WhereCondition.GREATER_THAN_OR_EQUAL,
-        			""+timeScheduledMin,
-        			WhereCondition.PRE_NONE,
-        			false
-        	));
-        }
-        if(timeScheduledMax>0) {
-        	wAnd.add(new WhereCondition(
-        			pojoName+"/@time-scheduled",
-        			WhereCondition.LOWER_THAN_OR_EQUAL,
-        			""+timeScheduledMax,
-        			WhereCondition.PRE_NONE,
-        			false
-        	));
-        }
-
-        if(timeLastRunStartedMin>0) {
-        	wAnd.add(new WhereCondition(
-        			pojoName+"/@time-last-run-started",
-        			WhereCondition.GREATER_THAN_OR_EQUAL,
-        			""+timeLastRunStartedMin,
-        			WhereCondition.PRE_NONE,
-        			false
-        	));
-        }
-        if(timeLastRunStartedMax>0) {
-        	wAnd.add(new WhereCondition(
-        			pojoName+"/@time-last-run-started",
-        			WhereCondition.LOWER_THAN_OR_EQUAL,
-        			""+timeLastRunStartedMax,
-        			WhereCondition.PRE_NONE,
-        			false
-        	));
-        }
-        
-        if(timeLastRunCompletedMin>0) {
-        	wAnd.add(new WhereCondition(
-        			pojoName+"/@time-last-run-completed",
-        			WhereCondition.GREATER_THAN_OR_EQUAL,
-        			""+timeLastRunCompletedMin,
-        			WhereCondition.PRE_NONE,
-        			false
-        	));
-        }
-        if(timeLastRunCompletedMax>0) {
-        	wAnd.add(new WhereCondition(
-        			pojoName+"/@time-last-run-completed",
-        			WhereCondition.LOWER_THAN_OR_EQUAL,
-        			""+timeLastRunCompletedMax,
-        			WhereCondition.PRE_NONE,
-        			false
-        	));
-        }
-        
-        if((itemConceptContains!=null) && (!"*".equals(itemConceptContains))) {
-        	wAnd.add(new WhereCondition(
-        			pojoName+"/item-pOJOPK/concept-name",
-        			WhereCondition.CONTAINS,
-        			itemConceptContains,
-        			WhereCondition.PRE_AND,
-        			false
-        	));
-        }
-        
-        if((itemIDsContain!=null) && (!"*".equals(itemIDsContain))) {
-        	wAnd.add(new WhereCondition(
-        			pojoName+"/item-pOJOPK/ids",
-        			WhereCondition.CONTAINS,
-        			itemIDsContain,
-        			WhereCondition.PRE_AND,
-        			false
-        	));
-        }
-        
-        if((serviceJNDIContains!=null) && (!"*".equals(serviceJNDIContains))) {
-        	wAnd.add(new WhereCondition(
-        			pojoName+"/service-jNDI",
-        			WhereCondition.CONTAINS,
-        			serviceJNDIContains.contains("/") || serviceJNDIContains.startsWith("*") ? serviceJNDIContains : serviceJNDIContains,
-        			WhereCondition.PRE_AND,
-        			false
-        	));
-        }
-        
-        if((serviceParametersContains!=null) && (!"*".equals(serviceParametersContains))) {
-        	wAnd.add(new WhereCondition(
-        			pojoName+"/service-parameters",
-        			WhereCondition.CONTAINS,
-        			serviceParametersContains,
-        			WhereCondition.PRE_AND,
-        			false
-        	));
-        }
-     	
-        if((messageContains!=null) && (!"*".equals(messageContains))) {
-        	wAnd.add(new WhereCondition(
-        			pojoName+"/message",
-        			WhereCondition.CONTAINS,
-        			messageContains,
-        			WhereCondition.PRE_AND,
-        			false
-        	));
-        }
-        
-        ArrayList<AbstractRoutingOrderV2POJOPK> list = new ArrayList<AbstractRoutingOrderV2POJOPK>();
-        
-        Collection<ObjectPOJOPK> col = ObjectPOJO.findAllPKsByCriteria(
-        	routingOrderV2POJOClass, 
-        	new String[]{pojoName+"/name",pojoName+"/@status"},
-        	wAnd.getSize() == 0 ? null : wAnd,
-    		null,
-    		null
-        );
-        
-        for (Iterator<ObjectPOJOPK> iterator = col.iterator(); iterator.hasNext(); ) {
-			ObjectPOJOPK objectPOJOPK = iterator.next();
-	        if (routingOrderV2POJOClass.equals(ActiveRoutingOrderV2POJO.class) ) 
-	        	list.add(new ActiveRoutingOrderV2POJOPK(objectPOJOPK.getIds()[0]));
-	      	else if (routingOrderV2POJOClass.equals(CompletedRoutingOrderV2POJO.class) )
-	       		list.add(new CompletedRoutingOrderV2POJOPK(objectPOJOPK.getIds()[0]));
-	      	else if (routingOrderV2POJOClass.equals(FailedRoutingOrderV2POJO.class) )
-	      		list.add(new FailedRoutingOrderV2POJOPK(objectPOJOPK.getIds()[0]));
-		}
-         
-        return list;
-
-         
-     }
+        String messageContains) throws XtentisException {
+            return getRoutingOrderPKsByCriteriaWithPaging(routingOrderV2POJOClass, anyFieldContains, name, timeCreatedMin,
+                    timeCreatedMax, timeScheduledMin, timeScheduledMax, timeLastRunStartedMin, timeLastRunStartedMax,
+                    timeLastRunCompletedMin, timeLastRunCompletedMax, itemConceptContains, itemIDsContain, serviceJNDIContains,
+                    serviceParametersContains, messageContains, 0, Integer.MAX_VALUE, false);
+    }
     
 
     

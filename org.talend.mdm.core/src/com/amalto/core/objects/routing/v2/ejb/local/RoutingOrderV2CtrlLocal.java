@@ -3,6 +3,8 @@
  */
 package com.amalto.core.objects.routing.v2.ejb.local;
 
+import com.amalto.core.util.XtentisException;
+
 /**
  * Local interface for RoutingOrderV2Ctrl.
  * @xdoclet-generated
@@ -103,6 +105,12 @@ public interface RoutingOrderV2CtrlLocal
     */
    public java.util.Collection getAllRoutingOrderPKs( java.lang.String regex ) throws com.amalto.core.util.XtentisException;
 
+   /**
+    * Retrieve all RoutingOrder PKs by CriteriaWithPaging
+    * @throws XtentisException
+    */
+   public java.util.Collection getRoutingOrderPKsByCriteriaWithPaging( java.lang.Class routingOrderV2POJOClass,java.lang.String anyFieldContains,java.lang.String name,long timeCreatedMin,long timeCreatedMax,long timeScheduledMin,long timeScheduledMax,long timeLastRunStartedMin,long timeLastRunStartedMax,long timeLastRunCompletedMin,long timeLastRunCompletedMax,java.lang.String itemConceptContains,java.lang.String itemIDsContain,java.lang.String serviceJNDIContains,java.lang.String serviceParametersContains,java.lang.String messageContains,int start,int limit,boolean withTotalCount ) throws com.amalto.core.util.XtentisException;
+   
    /**
     * Retrieve all RoutingOrder PKs by Criteria
     * @throws XtentisException
