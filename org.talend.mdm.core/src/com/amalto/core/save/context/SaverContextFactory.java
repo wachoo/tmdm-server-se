@@ -16,6 +16,7 @@ import com.amalto.core.history.MutableDocument;
 import com.amalto.core.load.action.LoadAction;
 import com.amalto.core.save.DOMDocument;
 import com.amalto.core.save.DocumentSaverContext;
+import com.amalto.core.save.PartialUpdateSaverContext;
 import com.amalto.core.save.ReportDocumentSaverContext;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.util.XSDKey;
@@ -152,7 +153,7 @@ public class SaverContextFactory {
 
         // Choose right context implementation
         DocumentSaverContext context;
-        if (dataCluster.startsWith(SYSTEM_CONTAINER_PREFIX) || XSystemObjects.isXSystemObject(SYSTEM_DATA_CLUSTERS, XObjectType.DATA_CLUSTER, dataCluster)) { //$NON-NLS-1$
+        if (dataCluster.startsWith(SYSTEM_CONTAINER_PREFIX) || XSystemObjects.isXSystemObject(SYSTEM_DATA_CLUSTERS, XObjectType.DATA_CLUSTER, dataCluster)) {
             context = new SystemContext(dataCluster, dataModelName, userDocument);
         } else {
             context = new UserContext(dataCluster, dataModelName, userDocument, isReplace, validate, updateReport, invokeBeforeSaving);
@@ -163,5 +164,40 @@ public class SaverContextFactory {
         } else {
             return context;
         }
+    }
+
+    /**
+     * Creates a {@link DocumentSaverContext} to save a unique record in MDM, with update report/before saving options.
+     * This method is dedicated to partial update (with the <code>overwrite</code> parameter).
+     *
+     * @param dataCluster        Data container name (must exist).
+     * @param dataModelName      Data model name (must exist).
+     * @param changeSource       Source of change (for update report). Common values includes 'genericUI'...
+     * @param documentStream     A stream that contains one XML document.
+     * @param validate           <code>true</code> to validate XML document before saving it, <code>false</code> otherwise.
+     * @param updateReport       <code>true</code> to generate an update report, <code>false</code> otherwise.
+     * @param invokeBeforeSaving <code>true</code> to invoke any existing before saving process, <code>false</code> otherwise.
+     * @param overwrite          <code>false</code> will preserve all collections values in original document (new values
+     *                           will be added at the end of the collection). <code>true</code> will overwrite all previous
+     *                           values with the collection values in <code>documentStream</code>.
+     * @return A context configured to save a record in MDM.
+     */
+    public DocumentSaverContext createPartialUpdate(String dataCluster,
+                                                    String dataModelName,
+                                                    String changeSource,
+                                                    InputStream documentStream,
+                                                    boolean validate,
+                                                    boolean updateReport,
+                                                    boolean invokeBeforeSaving,
+                                                    boolean overwrite) {
+        DocumentSaverContext context = create(dataCluster,
+                dataModelName,
+                changeSource,
+                documentStream,
+                false, // Never do a "replace" when doing a partial update.
+                validate,
+                updateReport,
+                invokeBeforeSaving);
+        return PartialUpdateSaverContext.decorate(context, overwrite);
     }
 }

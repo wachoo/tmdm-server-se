@@ -15,6 +15,7 @@ import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.save.DocumentSaverContext;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -50,6 +51,8 @@ class UserContext implements DocumentSaverContext {
     private boolean isCreate;
 
     private boolean hasMetAutoIncrement;
+
+    private String taskId = StringUtils.EMPTY;
 
     UserContext(String dataCluster, String dataModel, MutableDocument userDocument, boolean isReplace, boolean validate, boolean updateReport, boolean invokeBeforeSaving) {
         this.userDocument = userDocument;
@@ -151,6 +154,28 @@ class UserContext implements DocumentSaverContext {
 
     public void setHasMetAutoIncrement(boolean hasMetAutoIncrement) {
         this.hasMetAutoIncrement = hasMetAutoIncrement;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public boolean preserveOldCollectionValues() {
+        return false;
+    }
+
+    public MutableDocument getUpdateReportDocument() {
+        // See ReportDocumentSaverContext.decorate() if you wish this context to support update report creation.
+        throw new UnsupportedOperationException("No supported in this implementation.");
+    }
+
+    public void setUpdateReportDocument(MutableDocument updateReportDocument) {
+        // See ReportDocumentSaverContext.decorate() if you wish this context to support update report creation.
+        throw new UnsupportedOperationException("No supported in this implementation.");
     }
 
     public String[] getId() {

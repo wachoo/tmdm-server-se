@@ -18,33 +18,19 @@ import com.amalto.core.save.context.DocumentSaver;
 
 import java.util.List;
 
-public class ReportDocumentSaverContext implements DocumentSaverContext {
+public class PartialUpdateSaverContext implements DocumentSaverContext {
 
     private final DocumentSaverContext delegate;
 
-    private final String changeSource;
+    private final boolean overwrite;
 
-    private MutableDocument updateReportDocument;
-
-    private ReportDocumentSaverContext(DocumentSaverContext delegate, String changeSource) {
+    private PartialUpdateSaverContext(DocumentSaverContext delegate, boolean overwrite) {
         this.delegate = delegate;
-        this.changeSource = changeSource;
+        this.overwrite = overwrite;
     }
 
-    public static ReportDocumentSaverContext decorate(DocumentSaverContext context, String changeSource) {
-        return new ReportDocumentSaverContext(context, changeSource);
-    }
-
-    public MutableDocument getUpdateReportDocument() {
-        return updateReportDocument;
-    }
-
-    public void setUpdateReportDocument(MutableDocument updateReportDocument) {
-        this.updateReportDocument = updateReportDocument;
-    }
-
-    public String getChangeSource() {
-        return changeSource;
+    public static PartialUpdateSaverContext decorate(DocumentSaverContext context, boolean overwrite) {
+        return new PartialUpdateSaverContext(context, overwrite);
     }
 
     public DocumentSaver createSaver() {
@@ -136,7 +122,15 @@ public class ReportDocumentSaverContext implements DocumentSaverContext {
     }
 
     public boolean preserveOldCollectionValues() {
-        return delegate.preserveOldCollectionValues();
+        return !overwrite;
+    }
+
+    public MutableDocument getUpdateReportDocument() {
+        return delegate.getUpdateReportDocument();
+    }
+
+    public void setUpdateReportDocument(MutableDocument updateReportDocument) {
+        delegate.setUpdateReportDocument(updateReportDocument);
     }
 
     public String[] getId() {
