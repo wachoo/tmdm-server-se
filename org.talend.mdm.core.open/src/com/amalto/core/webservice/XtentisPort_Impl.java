@@ -727,6 +727,12 @@ public class XtentisPort_Impl implements com.amalto.core.webservice.XtentisPort,
         com.amalto.core.webservice.WSRoutingOrderV2Array _retVal = null;
         return _retVal;
     }
+    public com.amalto.core.webservice.WSRoutingOrderV2Array getRoutingOrderV2ByCriteriaWithPaging(com.amalto.core.webservice.WSGetRoutingOrderV2ByCriteriaWithPaging wsGetRoutingOrderV2ByCriteriaWithPaging) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSRoutingOrderV2Array _retVal = null;
+        return _retVal;
+    }
     public com.amalto.core.webservice.WSRoutingRulePKArray routeItemV2(com.amalto.core.webservice.WSRouteItemV2 wsRouteItem) throws 
          java.rmi.RemoteException {
         
