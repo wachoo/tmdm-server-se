@@ -4,7 +4,7 @@
  */
 package com.amalto.core.objects.routing.v2.ejb.remote;
 
-import java.util.*;
+import java.util.Observable;
 
 /**
  * This class is remote adapter to RoutingOrderV2Ctrl. It provides convenient way to access
@@ -190,6 +190,16 @@ public class RoutingOrderV2CtrlRemote extends Observable
 
       return retval;
 
+   }
+   
+   public java.util.Collection getRoutingOrderPKsByCriteriaWithPaging ( java.lang.Class routingOrderV2POJOClass,java.lang.String anyFieldContains,java.lang.String name,long timeCreatedMin,long timeCreatedMax,long timeScheduledMin,long timeScheduledMax,long timeLastRunStartedMin,long timeLastRunStartedMax,long timeLastRunCompletedMin,long timeLastRunCompletedMax,java.lang.String itemConceptContains,java.lang.String itemIDsContain,java.lang.String serviceJNDIContains,java.lang.String serviceParametersContains,java.lang.String messageContains,int start,int limit,boolean withTotalCount )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+        java.util.Collection retval;
+       retval =  getSession().getRoutingOrderPKsByCriteriaWithPaging( routingOrderV2POJOClass,anyFieldContains,name,timeCreatedMin,timeCreatedMax,timeScheduledMin,timeScheduledMax,timeLastRunStartedMin,timeLastRunStartedMax,timeLastRunCompletedMin,timeLastRunCompletedMax,itemConceptContains,itemIDsContain,serviceJNDIContains,serviceParametersContains,messageContains,start,limit,withTotalCount );
+
+      return retval;
+       
    }
 
    public java.util.Collection getRoutingOrderPKsByCriteria ( java.lang.Class routingOrderV2POJOClass,java.lang.String anyFieldContains,java.lang.String name,long timeCreatedMin,long timeCreatedMax,long timeScheduledMin,long timeScheduledMax,long timeLastRunStartedMin,long timeLastRunStartedMax,long timeLastRunCompletedMin,long timeLastRunCompletedMax,java.lang.String itemConceptContains,java.lang.String itemIDsContain,java.lang.String serviceJNDIContains,java.lang.String serviceParametersContains,java.lang.String messageContains )

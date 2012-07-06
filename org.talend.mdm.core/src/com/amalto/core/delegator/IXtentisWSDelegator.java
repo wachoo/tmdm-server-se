@@ -12,10 +12,28 @@
 // ============================================================================
 package com.amalto.core.delegator;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.SortedSet;
 import java.util.regex.Pattern;
 
 import javax.ejb.EJBException;
@@ -30,11 +48,6 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
-import com.amalto.core.save.SaveException;
-import com.amalto.core.save.SaverHelper;
-import com.amalto.core.save.context.DocumentSaver;
-import com.amalto.core.save.SaverSession;
 import org.apache.log4j.Logger;
 import org.jboss.security.Base64Encoder;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
@@ -60,6 +73,7 @@ import com.amalto.core.ejb.TransformerPOJOPK;
 import com.amalto.core.ejb.UpdateReportItemPOJO;
 import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.ejb.local.TransformerCtrlLocal;
+import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.migration.MigrationRepository;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK;
@@ -101,6 +115,10 @@ import com.amalto.core.objects.transformers.v2.util.TypedContent;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
+import com.amalto.core.save.SaveException;
+import com.amalto.core.save.SaverHelper;
+import com.amalto.core.save.SaverSession;
+import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.util.ArrayListHolder;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.TransformerPluginContext;
@@ -3975,6 +3993,37 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    protected Collection<AbstractRoutingOrderV2POJOPK> getRoutingOrdersByCriteriaWithPaging(
+            WSRoutingOrderV2SearchCriteriaWithPaging criteria) throws Exception {
+        try {
+            RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
+            Class<? extends AbstractRoutingOrderV2POJO> clazz = null;
+            if (criteria.getStatus().equals(WSRoutingOrderV2Status.ACTIVE)) {
+                clazz = ActiveRoutingOrderV2POJO.class;
+            } else if (criteria.getStatus().equals(WSRoutingOrderV2Status.COMPLETED)) {
+                clazz = CompletedRoutingOrderV2POJO.class;
+            } else if (criteria.getStatus().equals(WSRoutingOrderV2Status.FAILED)) {
+                clazz = FailedRoutingOrderV2POJO.class;
+            }
+            Collection<AbstractRoutingOrderV2POJOPK> pks = ctrl.getRoutingOrderPKsByCriteriaWithPaging(clazz,
+                    criteria.getAnyFieldContains(), criteria.getNameContains(), criteria.getTimeCreatedMin(),
+                    criteria.getTimeCreatedMax(), criteria.getTimeScheduledMin(), criteria.getTimeScheduledMax(),
+                    criteria.getTimeLastRunStartedMin(), criteria.getTimeLastRunStartedMax(),
+                    criteria.getTimeLastRunCompletedMin(), criteria.getTimeLastRunCompletedMax(),
+                    criteria.getItemPKConceptContains(), criteria.getItemPKIDFieldsContain(), criteria.getServiceJNDIContains(),
+                    criteria.getServiceParametersContain(), criteria.getMessageContain(), criteria.getSkip(),
+                    criteria.getMaxItems(), criteria.getTotalCountOnFirstResult());
+
+            return pks;
+        } catch (Exception e) {
+            if (LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
+            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
+        }
+    }
+
     /**
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
@@ -4017,6 +4066,46 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     .getWsSearchCriteria());
             for (Iterator<AbstractRoutingOrderV2POJOPK> iterator = pks.iterator(); iterator.hasNext();) {
                 AbstractRoutingOrderV2POJOPK abstractRoutingOrderV2POJOPK = iterator.next();
+                list.add(POJO2WS(ctrl.getRoutingOrder(abstractRoutingOrderV2POJOPK)));
+            }
+            wsPKArray.setWsRoutingOrder(list.toArray(new WSRoutingOrderV2[list.size()]));
+            return wsPKArray;
+        } catch (Exception e) {
+            if (LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
+            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
+        }
+    }
+
+    /**
+     * @ejb.interface-method view-type = "service-endpoint"
+     * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
+     */
+    public WSRoutingOrderV2Array getRoutingOrderV2ByCriteriaWithPaging(
+            WSGetRoutingOrderV2ByCriteriaWithPaging wsGetRoutingOrderV2ByCriteriaWithPaging)
+            throws RemoteException {
+        try {
+            RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
+            WSRoutingOrderV2Array wsPKArray = new WSRoutingOrderV2Array();
+            ArrayList<WSRoutingOrderV2> list = new ArrayList<WSRoutingOrderV2>();
+            // fetch results
+            Collection<AbstractRoutingOrderV2POJOPK> pks = getRoutingOrdersByCriteriaWithPaging(wsGetRoutingOrderV2ByCriteriaWithPaging
+                    .getWsSearchCriteriaWithPaging());
+            boolean withTotalCount = wsGetRoutingOrderV2ByCriteriaWithPaging.getWsSearchCriteriaWithPaging()
+                    .getTotalCountOnFirstResult();
+            boolean firstRecord = true;
+            for (Iterator<AbstractRoutingOrderV2POJOPK> iterator = pks.iterator(); iterator.hasNext();) {
+                AbstractRoutingOrderV2POJOPK abstractRoutingOrderV2POJOPK = iterator.next();
+                if (withTotalCount && firstRecord) {
+                    firstRecord = false;
+                    WSRoutingOrderV2 wsRoutingOrderV2 = new WSRoutingOrderV2();
+                    // record totalCount
+                    wsRoutingOrderV2.setName(abstractRoutingOrderV2POJOPK.getName());
+                    list.add(wsRoutingOrderV2);
+                    continue;
+                }
                 list.add(POJO2WS(ctrl.getRoutingOrder(abstractRoutingOrderV2POJOPK)));
             }
             wsPKArray.setWsRoutingOrder(list.toArray(new WSRoutingOrderV2[list.size()]));
