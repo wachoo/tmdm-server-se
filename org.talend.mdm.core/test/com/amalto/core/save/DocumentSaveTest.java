@@ -167,6 +167,28 @@ public class DocumentSaveTest extends TestCase {
         assertNotSame("100", saver.getSavedId()[0]);
     }
 
+    public void testReplaceWithUUIDOverwrite() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+
+        SaverSource source = new TestSaverSource(repository, true, "test23_original.xml", "metadata1.xsd");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test23.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, true, true, true);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("100", evaluate(committedElement, "/Agency/Id")); // Id is expected to be overwritten in case of creation
+        assertEquals("http://www.newSite2.org", evaluate(committedElement, "/Agency/Information/MoreInfo[2]")); // Id is expected to be overwritten in case of creation
+        assertEquals(1, saver.getSavedId().length);
+        assertEquals("100", saver.getSavedId()[0]);
+    }
+
     public void testCreateWithAutoIncrementOverwrite() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
