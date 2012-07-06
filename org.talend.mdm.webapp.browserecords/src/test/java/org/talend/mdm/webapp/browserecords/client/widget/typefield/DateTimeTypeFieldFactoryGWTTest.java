@@ -23,75 +23,72 @@ import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.ui.RootPanel;
 
 @SuppressWarnings("nls")
-public class DateTimeTypeFieldFactoryGWTTest extends GWTTestCase{
-	
-	public void testCreateFormatDateField() {
-		
-		// 1. TypeModel DataType = DataTypeConstants.DATE, value is valid
-		boolean isDateTime = false;
-		TypeModel typeModel = new SimpleTypeModel("date", DataTypeConstants.DATE);
-		TypeFieldCreateContext context = new TypeFieldCreateContext(typeModel);
-		context.setWithValue(true);
-		context.setNode(getItemNodeModel("date", "2012-06-13", "date"));
-		DateTimeTypeFieldFactory dateTimeTypeFieldFactory = new DateTimeTypeFieldFactory(new TypeFieldSource(TypeFieldSource.FORM_INPUT), context);
-		Field<?> field = dateTimeTypeFieldFactory.createFormatDateField(isDateTime);
-		RootPanel.get().add(field);
-		assertTrue(field instanceof FormatDateField);
-		FormatDateField dateField = (FormatDateField) field;
-		assertNotNull(dateField.getValue());
-		assertEquals("2012-06-13", dateField.getPropertyEditor().getStringValue(dateField.getValue()));
-		assertEquals(true, dateField.isValid());
-		
-		// 2. TypeModel DataType = DataTypeConstants.DATE, value is invalid
-		context.setNode(getItemNodeModel("date", "2012/06/13", "date"));
-		dateTimeTypeFieldFactory = new DateTimeTypeFieldFactory(new TypeFieldSource(TypeFieldSource.FORM_INPUT), context);
-		field = dateTimeTypeFieldFactory.createFormatDateField(isDateTime);
-		RootPanel.get().add(field);
-		assertTrue(field instanceof FormatDateField);
-		dateField = (FormatDateField) field;
-		assertNull(dateField.getValue());
-		dateField.setRawValue(dateTimeTypeFieldFactory.getValue().toString());
-		assertEquals("2012/06/13", dateField.getRawValue());
-		assertEquals(false, dateField.isValid());
-		
-		// 3. TypeModel DataType = DataTypeConstants.DATETIME, value is valid
-		isDateTime = true;
-		typeModel = new SimpleTypeModel("dateTime", DataTypeConstants.DATETIME);
-		context = new TypeFieldCreateContext(typeModel);
-		context.setWithValue(true);
-		context.setNode(getItemNodeModel("dateTime", "2012-06-13T10:08:08", "dateTime"));
-		dateTimeTypeFieldFactory = new DateTimeTypeFieldFactory(new TypeFieldSource(TypeFieldSource.FORM_INPUT), context);
-		field = dateTimeTypeFieldFactory.createFormatDateField(isDateTime);
-		RootPanel.get().add(field);
-		assertTrue(field instanceof FormatDateField);
-		dateField = (FormatDateField) field;
-		assertNotNull(dateField.getValue());
-		assertEquals("2012-06-13T10:08:08", dateField.getPropertyEditor().getStringValue(dateField.getValue()));
-		assertEquals(true, dateField.isValid());
-		
-		// 4. TypeModel DataType = DataTypeConstants.DATETIME, value is invalid
-		isDateTime = true;
-		context.setNode(getItemNodeModel("dateTime", "2012/06/13T10:08:08", "dateTime"));
-		dateTimeTypeFieldFactory = new DateTimeTypeFieldFactory(new TypeFieldSource(TypeFieldSource.FORM_INPUT), context);
-		field = dateTimeTypeFieldFactory.createFormatDateField(isDateTime);
-		RootPanel.get().add(field);
-		assertTrue(field instanceof FormatDateField);
-		dateField = (FormatDateField) field;
-		assertNull(dateField.getValue());
-		dateField.setRawValue(dateTimeTypeFieldFactory.getValue().toString());
-		assertEquals("2012/06/13T10:08:08", dateField.getRawValue());
-		assertEquals(false, dateField.isValid());
-		
-	}
-	
-	private ItemNodeModel getItemNodeModel(String name, String value, String label){
-		ItemNodeModel node = new ItemNodeModel(name);
-		node.setObjectValue(value);
-		node.setLabel(label);
-		return node;
-	}
-	
-	public String getModuleName() {
+public class DateTimeTypeFieldFactoryGWTTest extends GWTTestCase {
+
+    public void testCreateFormatDateField() {
+
+        // 1. TypeModel DataType = DataTypeConstants.DATE, value is valid
+        boolean isDateTime = false;
+        TypeModel typeModel = new SimpleTypeModel("date", DataTypeConstants.DATE);
+        TypeFieldCreateContext context = new TypeFieldCreateContext(typeModel);
+        context.setWithValue(true);
+        context.setNode(getItemNodeModel("date", "2012-06-13", "date"));
+        DateTimeTypeFieldFactory dateTimeTypeFieldFactory = new DateTimeTypeFieldFactory(new TypeFieldSource(
+                TypeFieldSource.FORM_INPUT), context);
+        Field<?> field = dateTimeTypeFieldFactory.createFormatDateField(isDateTime);
+        RootPanel.get().add(field);
+        assertTrue(field instanceof FormatDateField);
+        FormatDateField dateField = (FormatDateField) field;
+        assertNotNull(dateField.getValue());
+        assertEquals("2012-06-13", dateField.getPropertyEditor().getStringValue(dateField.getValue()));
+        assertEquals(true, dateField.isValid());
+
+        // 2. TypeModel DataType = DataTypeConstants.DATE, value is invalid
+        context.setNode(getItemNodeModel("date", "2012/06/13", "date"));
+        dateTimeTypeFieldFactory = new DateTimeTypeFieldFactory(new TypeFieldSource(TypeFieldSource.FORM_INPUT), context);
+        field = dateTimeTypeFieldFactory.createFormatDateField(isDateTime);
+        RootPanel.get().add(field);
+        assertTrue(field instanceof FormatDateField);
+        dateField = (FormatDateField) field;
+        assertNull(dateField.getValue());
+        assertEquals(true, dateField.isValid());
+
+        // 3. TypeModel DataType = DataTypeConstants.DATETIME, value is valid
+        isDateTime = true;
+        typeModel = new SimpleTypeModel("dateTime", DataTypeConstants.DATETIME);
+        context = new TypeFieldCreateContext(typeModel);
+        context.setWithValue(true);
+        context.setNode(getItemNodeModel("dateTime", "2012-06-13T10:08:08", "dateTime"));
+        dateTimeTypeFieldFactory = new DateTimeTypeFieldFactory(new TypeFieldSource(TypeFieldSource.FORM_INPUT), context);
+        field = dateTimeTypeFieldFactory.createFormatDateField(isDateTime);
+        RootPanel.get().add(field);
+        assertTrue(field instanceof FormatDateField);
+        dateField = (FormatDateField) field;
+        assertNotNull(dateField.getValue());
+        assertEquals("2012-06-13T10:08:08", dateField.getPropertyEditor().getStringValue(dateField.getValue()));
+        assertEquals(true, dateField.isValid());
+
+        // 4. TypeModel DataType = DataTypeConstants.DATETIME, value is invalid
+        isDateTime = true;
+        context.setNode(getItemNodeModel("dateTime", "2012/06/13T10:08:08", "dateTime"));
+        dateTimeTypeFieldFactory = new DateTimeTypeFieldFactory(new TypeFieldSource(TypeFieldSource.FORM_INPUT), context);
+        field = dateTimeTypeFieldFactory.createFormatDateField(isDateTime);
+        RootPanel.get().add(field);
+        assertTrue(field instanceof FormatDateField);
+        dateField = (FormatDateField) field;
+        assertNull(dateField.getValue());
+        assertEquals(true, dateField.isValid());
+
+    }
+
+    private ItemNodeModel getItemNodeModel(String name, String value, String label) {
+        ItemNodeModel node = new ItemNodeModel(name);
+        node.setObjectValue(value);
+        node.setLabel(label);
+        return node;
+    }
+
+    public String getModuleName() {
         return "org.talend.mdm.webapp.browserecords.TestBrowseRecords";
     }
 }

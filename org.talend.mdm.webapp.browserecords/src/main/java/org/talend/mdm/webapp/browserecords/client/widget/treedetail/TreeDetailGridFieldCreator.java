@@ -152,7 +152,8 @@ public class TreeDetailGridFieldCreator {
             context.setLanguage(language);
             TypeFieldCreator typeFieldCreator = new TypeFieldCreator(new TypeFieldSource(TypeFieldSource.FORM_INPUT), context);
             Map<String, TypeFieldStyle> sytles = new HashMap<String, TypeFieldStyle>();
-            sytles.put(TypeFieldStyle.ATTRI_WIDTH, new TypeFieldStyle(TypeFieldStyle.ATTRI_WIDTH, "400", TypeFieldStyle.SCOPE_BUILTIN_TYPEFIELD)); //$NON-NLS-1$
+            sytles.put(TypeFieldStyle.ATTRI_WIDTH, new TypeFieldStyle(TypeFieldStyle.ATTRI_WIDTH,
+                    "400", TypeFieldStyle.SCOPE_BUILTIN_TYPEFIELD)); //$NON-NLS-1$
             field = typeFieldCreator.createFieldWithValueAndUpdateStyle(node, sytles);
         }
 
@@ -209,7 +210,7 @@ public class TreeDetailGridFieldCreator {
     }
 
     private static void addFieldListener(final Field<?> field, final ItemNodeModel node, final Map<String, Field<?>> fieldMap) {
-    	field.setFireChangeEventOnSetValue(true);
+        field.setFireChangeEventOnSetValue(true);
         field.addListener(Events.Change, new Listener<FieldEvent>() {
 
             @SuppressWarnings("rawtypes")
@@ -219,16 +220,14 @@ public class TreeDetailGridFieldCreator {
                 } else if (fe.getField() instanceof CheckBox) {
                     node.setObjectValue(fe.getValue().toString());
                 } else {
-                	if (fe.getField() instanceof ComboBox) {
+                    if (fe.getField() instanceof ComboBox) {
                         SimpleComboValue value = (SimpleComboValue) fe.getValue();
                         node.setObjectValue((Serializable) (value == null ? null : value.getValue()));
                     } else {
                         node.setObjectValue((Serializable) fe.getValue());
                     }
                 }
-                if (fe.getField() instanceof FormatDateField)
-                    ((FormatDateField) field).setFormatedValue();
-                
+
                 node.setChangeValue(true);
 
                 validate(fe.getField(), node);
@@ -240,7 +239,7 @@ public class TreeDetailGridFieldCreator {
         field.addListener(Events.Attach, new Listener<FieldEvent>() {
 
             public void handleEvent(FieldEvent fe) {
-            	setErrorIcon(field);
+                setErrorIcon(field);
                 validate(field, node);
             }
         });
@@ -262,49 +261,52 @@ public class TreeDetailGridFieldCreator {
         });
     }
 
-    private static void setErrorIcon(Field<?> field){
-    	WidgetComponent errorIcon = _getErrorIcon(field);
-    	if (errorIcon != null){
-    		errorIcon.removeFromParent();
-    		Element errEl = errorIcon.getElement();
-    		if (errEl != null){
-    			errEl.removeFromParent();
-    		}
-    	}
-    	
-    	errorIcon = new WidgetComponent(field.getImages().getInvalid().createImage()){
-			public void setElement(Element elem) {
-			    _setEl(new El(elem){
-			    	public El alignTo(Element align, String pos, int[] offsets) {
-			    		return this;
-			    	}
-			    });
-			    super.setElement(elem);
-			    if (!rendered) {
-			      setElementRender = true;
-			      render(null);
-			    }
-			}
-			private native void _setEl(El elem)/*-{
-				this.@com.extjs.gxt.ui.client.widget.Component::el = elem;
-			}-*/;
-    	};
-    	errorIcon.setStyleAttribute("display", "block"); //$NON-NLS-1$ //$NON-NLS-2$
-    	errorIcon.setStyleAttribute("float", "right"); //$NON-NLS-1$ //$NON-NLS-2$
-    	errorIcon.setStyleAttribute("marginTop", "-18px");//$NON-NLS-1$ //$NON-NLS-2$
-    	errorIcon.render(field.el().getParent().dom);
+    private static void setErrorIcon(Field<?> field) {
+        WidgetComponent errorIcon = _getErrorIcon(field);
+        if (errorIcon != null) {
+            errorIcon.removeFromParent();
+            Element errEl = errorIcon.getElement();
+            if (errEl != null) {
+                errEl.removeFromParent();
+            }
+        }
+
+        errorIcon = new WidgetComponent(field.getImages().getInvalid().createImage()) {
+
+            public void setElement(Element elem) {
+                _setEl(new El(elem) {
+
+                    public El alignTo(Element align, String pos, int[] offsets) {
+                        return this;
+                    }
+                });
+                super.setElement(elem);
+                if (!rendered) {
+                    setElementRender = true;
+                    render(null);
+                }
+            }
+
+            private native void _setEl(El elem)/*-{
+        this.@com.extjs.gxt.ui.client.widget.Component::el = elem;
+    }-*/;
+        };
+        errorIcon.setStyleAttribute("display", "block"); //$NON-NLS-1$ //$NON-NLS-2$
+        errorIcon.setStyleAttribute("float", "right"); //$NON-NLS-1$ //$NON-NLS-2$
+        errorIcon.setStyleAttribute("marginTop", "-18px");//$NON-NLS-1$ //$NON-NLS-2$
+        errorIcon.render(field.el().getParent().dom);
         errorIcon.setHideMode(HideMode.VISIBILITY);
         errorIcon.hide();
 
         _setErrorIcon(field, errorIcon);
     }
-    
+
     private static native void _setErrorIcon(Field<?> field, WidgetComponent errorIcon)/*-{
-    	field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon = errorIcon;
+        field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon = errorIcon;
     }-*/;
-    
+
     private static native WidgetComponent _getErrorIcon(Field<?> field)/*-{
-    	return field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon;
+        return field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon;
     }-*/;
 
     private static void buildFacets(TypeModel typeModel, Widget w) {
@@ -340,8 +342,8 @@ public class TreeDetailGridFieldCreator {
                     break;
                 }
             }
-            
-        	autoFillValue4MandatoryBooleanField(flag, childs, fieldMap);
+
+            autoFillValue4MandatoryBooleanField(flag, childs, fieldMap);
 
             for (int i = 0; i < childs.size(); i++) {
                 ItemNodeModel mandatoryNode = (ItemNodeModel) childs.get(i);
@@ -357,29 +359,29 @@ public class TreeDetailGridFieldCreator {
         }
     }
 
-	public static void autoFillValue4MandatoryBooleanField(boolean enable,List<ModelData> toUpdateNodes,Map<String, Field<?>> fieldMap) {
-		
-		if(toUpdateNodes==null)
-			return;
-		
-		if(enable){
-			
-			for (int i = 0; i < toUpdateNodes.size(); i++) {
-	            ItemNodeModel toUpdateNode = (ItemNodeModel) toUpdateNodes.get(i);
-	            Field<?> toUpdateField = fieldMap.get(toUpdateNode.getId().toString());
-	            
-	            if((toUpdateField instanceof BooleanField || toUpdateField instanceof CheckBox)&&
-	            	  toUpdateNode.isMandatory() &&
-	            		  (toUpdateNode.getObjectValue()==null||"".equals(toUpdateNode.getObjectValue()))){
-	            	
-	            	toUpdateNode.setObjectValue((Serializable) DataTypeConstants.BOOLEAN.getDefaultValue());
-	            	
-	            }
-			}//end for
-			
-		}
-				
-	}
+    public static void autoFillValue4MandatoryBooleanField(boolean enable, List<ModelData> toUpdateNodes,
+            Map<String, Field<?>> fieldMap) {
+
+        if (toUpdateNodes == null)
+            return;
+
+        if (enable) {
+
+            for (int i = 0; i < toUpdateNodes.size(); i++) {
+                ItemNodeModel toUpdateNode = (ItemNodeModel) toUpdateNodes.get(i);
+                Field<?> toUpdateField = fieldMap.get(toUpdateNode.getId().toString());
+
+                if ((toUpdateField instanceof BooleanField || toUpdateField instanceof CheckBox) && toUpdateNode.isMandatory()
+                        && (toUpdateNode.getObjectValue() == null || "".equals(toUpdateNode.getObjectValue()))) {
+
+                    toUpdateNode.setObjectValue((Serializable) DataTypeConstants.BOOLEAN.getDefaultValue());
+
+                }
+            }// end for
+
+        }
+
+    }
 
     @SuppressWarnings("rawtypes")
     private static void setMandatory(Field<?> field, boolean mandatory) {

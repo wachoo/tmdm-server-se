@@ -28,7 +28,6 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 
-
 public class DateTimeTypeFieldFactory extends TypeFieldFactory {
 
     public DateTimeTypeFieldFactory() {
@@ -50,9 +49,9 @@ public class DateTimeTypeFieldFactory extends TypeFieldFactory {
         Field<?> field = null;
 
         if (DataTypeConstants.DATE.getTypeName().equals(baseType)) {
-        	field = createFormatDateField(false);
+            field = createFormatDateField(false);
         } else if (DataTypeConstants.DATETIME.getTypeName().equals(baseType)) {
-        	field = createFormatDateField(true);
+            field = createFormatDateField(true);
         } else if (DataTypeConstants.DURATION.getTypeName().equals(baseType)
                 || DataTypeConstants.TIME.getTypeName().equals(baseType)
                 || DataTypeConstants.GYEARMONTH.getTypeName().equals(baseType)
@@ -65,44 +64,46 @@ public class DateTimeTypeFieldFactory extends TypeFieldFactory {
 
         return field;
     }
-    
+
     /**
      * Create a FormatDateField according to isDateTime parameter
+     * 
      * @param isDateTime
      * @return
      */
-    public Field<?> createFormatDateField(boolean isDateTime){
-        final FormatDateField dateField = new FormatDateField(context.getNode());
-        if (!isEmpty(displayformatPattern)) {               
+    public Field<?> createFormatDateField(boolean isDateTime) {
+        final FormatDateField dateField = new FormatDateField();
+        if (!isEmpty(displayformatPattern)) {
             dateField.setFormatPattern(displayformatPattern);
-            dateField.setShowFormateValue(true);
         }
-        dateField.setPropertyEditor(new DateTimePropertyEditor(isDateTime ? DateUtil.formatDateTimePattern : DateUtil.datePattern));
 
+        dateField.setDateTime(isDateTime);
+        dateField
+                .setPropertyEditor(new DateTimePropertyEditor(isDateTime ? DateUtil.formatDateTimePattern : DateUtil.datePattern));
         if (context.isWithValue() && hasValue()) {
-        	try {
-        		// It will be better to call dateField.getPropertyEditor().convertStringValue(value);
-        		Date d = DateUtil.convertStringToDate(isDateTime ? DateUtil.dateTimePattern : DateUtil.datePattern, getValue().toString());
-        		dateField.setValue(hasValue() ? d : null);
-        		dateField.setDate(d);
-        		if (!isEmpty(displayformatPattern)) {
-                    dateField.setFormatedValue();
-                }
-        	} catch (Exception e) {
-            	String label = context.getNode().getDynamicLabel() != null && context.getNode().getDynamicLabel().trim().length() > 0 ? 
-            			context.getNode().getDynamicLabel() : LabelUtil.getNormalLabel(context.getNode().getLabel());
-            	DeferredCommand.addCommand(new Command(){
-                	public void execute() {
-                		dateField.setRawValue(getValue().toString());
-                		dateField.validate();
-                	}
-            	});
-            	MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages().invalid_data(label), null);
-			}
+            try {
+                // It will be better to call dateField.getPropertyEditor().convertStringValue(value);
+                Date d = DateUtil.convertStringToDate(isDateTime ? DateUtil.dateTimePattern : DateUtil.datePattern, getValue()
+                        .toString());
+                dateField.setValue(hasValue() ? d : null);
+            } catch (Exception e) {
+                String label = context.getNode().getDynamicLabel() != null
+                        && context.getNode().getDynamicLabel().trim().length() > 0 ? context.getNode().getDynamicLabel()
+                        : LabelUtil.getNormalLabel(context.getNode().getLabel());
+                DeferredCommand.addCommand(new Command() {
+
+                    public void execute() {
+                        dateField.setRawValue(getValue().toString());
+                        dateField.validate();
+                    }
+                });
+                MessageBox.alert(MessagesFactory.getMessages().warning_title(),
+                        MessagesFactory.getMessages().invalid_data(label), null);
+            }
         }
         return dateField;
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -137,6 +138,5 @@ public class DateTimeTypeFieldFactory extends TypeFieldFactory {
     public void updateStyle(Field<?> field) {
         updateBuiltInTypeFiledsStyle(field);
     }
-
 
 }
