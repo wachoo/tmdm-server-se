@@ -55,12 +55,12 @@ public class SkipAttributeDocumentBuilder extends DocumentBuilder {
 
     @Override
     public boolean isNamespaceAware() {
-        return false;
+        return documentBuilder.isNamespaceAware();
     }
 
     @Override
     public boolean isValidating() {
-        return false;
+        return documentBuilder.isValidating();
     }
 
     @Override
