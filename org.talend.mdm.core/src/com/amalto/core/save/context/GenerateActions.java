@@ -11,7 +11,6 @@
 
 package com.amalto.core.save.context;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,7 +55,7 @@ class GenerateActions implements DocumentSaver {
         List<Action> actions;
         MetadataRepository metadataRepository = saverSource.getMetadataRepository(context.getDataModelName());
         // Generate field update actions for UUID and AutoIncrement elements.
-        UpdateActionCreator updateActions = new UpdateActionCreator(databaseDocument, userDocument, source, userName, metadataRepository);
+        UpdateActionCreator updateActions = new UpdateActionCreator(databaseDocument, userDocument, context.preserveOldCollectionValues(), source, userName, metadataRepository);
         if (context.isCreate()) {
             CreateActions createActions = new CreateActions(userDocument, date, source, userName, context.getDataCluster(), universe, saverSource);
             Action createAction = new OverrideCreateAction(date, source, userName, userDocument, context.getType());
@@ -98,7 +97,7 @@ class GenerateActions implements DocumentSaver {
             return false;
         }
         for (Action action : actions) {
-            if (!(action instanceof UpdateActionCreator.TouchAction)) {
+            if (!(action instanceof TouchAction)) {
                 return true;
             }
         }

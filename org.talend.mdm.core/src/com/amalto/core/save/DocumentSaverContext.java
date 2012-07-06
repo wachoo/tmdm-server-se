@@ -30,7 +30,7 @@ public interface DocumentSaverContext {
 
     /**
      * @return The document as it is present (or not) in database. If document does not exist in database, an empty
-     * DOM document is returned (<b>not</b> <code>null</code>).
+     *         DOM document is returned (<b>not</b> <code>null</code>).
      */
     MutableDocument getDatabaseDocument();
 
@@ -46,6 +46,7 @@ public interface DocumentSaverContext {
 
     /**
      * Changes document provided by user
+     *
      * @param document New user provided document
      */
     void setUserDocument(MutableDocument document);
@@ -57,6 +58,7 @@ public interface DocumentSaverContext {
 
     /**
      * Set actions performed by the user.
+     *
      * @param actions A list of {@link Action} to be performed.
      */
     void setActions(List<Action> actions);
@@ -73,6 +75,7 @@ public interface DocumentSaverContext {
 
     /**
      * Set the id of the soon-to-be-saved document.
+     *
      * @param id Id of the document.
      */
     void setId(String[] id);
@@ -119,4 +122,15 @@ public interface DocumentSaverContext {
     void setTaskId(String taskId);
 
     String getTaskId();
+
+    /**
+     * @return <code>true</code> if all values in collections of {@link #getDatabaseDocument()} must be preserved. In
+     *         case {@link #getUserDocument()} provides different values for the collection, these values won't replace
+     *         the existing ones but be added at the end of the collection.
+     */
+    boolean preserveOldCollectionValues();
+
+    MutableDocument getUpdateReportDocument();
+
+    void setUpdateReportDocument(MutableDocument updateReportDocument);
 }

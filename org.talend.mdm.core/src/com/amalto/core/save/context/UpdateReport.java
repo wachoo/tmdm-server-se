@@ -20,7 +20,6 @@ import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.save.DocumentSaverContext;
-import com.amalto.core.save.ReportDocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import org.w3c.dom.Document;
 
@@ -42,10 +41,6 @@ class UpdateReport implements DocumentSaver {
     }
 
     public void save(SaverSession session, DocumentSaverContext context) {
-        if (!(context instanceof ReportDocumentSaverContext)) {
-            throw new IllegalArgumentException("Context is expected to allow update report creation.");
-        }
-
         MutableDocument databaseDocument = context.getDatabaseDocument();
 
         UpdateReportDocument updateReportDocument;
@@ -87,7 +82,7 @@ class UpdateReport implements DocumentSaver {
         }
         updateReportDocument.disableRecordFieldChange();
 
-        ((ReportDocumentSaverContext) context).setUpdateReportDocument(updateReportDocument);
+        context.setUpdateReportDocument(updateReportDocument);
         // Save update report
         saveUpdateReport(updateReportDocument, session.getSaverSource(), session);
 

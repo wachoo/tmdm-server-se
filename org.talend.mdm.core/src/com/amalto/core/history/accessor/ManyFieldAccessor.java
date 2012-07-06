@@ -190,7 +190,12 @@ class ManyFieldAccessor implements DOMAccessor {
         if (!exist()) {
             return 0;
         }
-        return getCollectionItemNode().getElementsByTagName("*").getLength(); //$NON-NLS-1$
+        Node parentNode = getCollectionItemNode().getParentNode();
+        if (parentNode instanceof Element) {
+            return ((Element) parentNode).getElementsByTagName(fieldName).getLength();
+        } else {
+            return 0;
+        }
     }
 
     public String getActualType() {

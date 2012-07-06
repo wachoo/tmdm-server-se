@@ -129,14 +129,24 @@ class SystemContext implements DocumentSaverContext {
     public void setHasMetAutoIncrement(boolean hasMetAutoIncrement) {
     }
 
-    @Override
     public void setTaskId(String taskId) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
     public String getTaskId() {
         return null;
+    }
+
+    public boolean preserveOldCollectionValues() {
+        return false;
+    }
+
+    public MutableDocument getUpdateReportDocument() {
+        throw new UnsupportedOperationException("No supported in this implementation.");
+    }
+
+    public void setUpdateReportDocument(MutableDocument updateReportDocument) {
+        throw new UnsupportedOperationException("No supported in this implementation.");
     }
 
     public String[] getId() {

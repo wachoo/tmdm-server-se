@@ -40,11 +40,16 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     private final Closure compareClosure;
 
+    private final boolean preserveCollectionOldValues;
+
     private final Set<String> touchedPaths = new HashSet<String>();
+
+    private final Map<FieldMetadata, Integer> originalFieldToLastIndex = new HashMap<FieldMetadata, Integer>();
 
     private String lastMatchPath;
 
-    public UpdateActionCreator(MutableDocument originalDocument, MutableDocument newDocument, String source, String userName, MetadataRepository repository) {
+    public UpdateActionCreator(MutableDocument originalDocument, MutableDocument newDocument, boolean preserveCollectionOldValues, String source, String userName, MetadataRepository repository) {
+        this.preserveCollectionOldValues = preserveCollectionOldValues;
         this.originalDocument = originalDocument;
         this.newDocument = newDocument;
         this.repository = repository;
@@ -123,7 +128,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 leftAccessor = originalDocument.createAccessor(currentPath);
                 rightAccessor = newDocument.createAccessor(currentPath);
                 if (!rightAccessor.exist()) {
-                    // TODO If new list does not exist, it means element was omitted in new version (legacy behavior).
+                    // If new list does not exist, it means element was omitted in new version (legacy behavior).
                     return;
                 }
             } finally {
@@ -164,7 +169,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 // No op
             } else { // new accessor exist
                 generateNoOp(lastMatchPath);
-                if (newAccessor.get() != null && !newAccessor.get().isEmpty()) { // TODO Empty accessor means no op to ensure legacy behavior
+                if (newAccessor.get() != null && !newAccessor.get().isEmpty()) { // Empty accessor means no op to ensure legacy behavior
                     actions.add(new FieldUpdateAction(date, source, userName, path, StringUtils.EMPTY, newAccessor.get(), comparedField));
                     generateNoOp(path);
                 } else {
@@ -182,7 +187,21 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
             } else { // new accessor exist
                 lastMatchPath = path;
                 if (oldValue != null && !oldValue.equals(newAccessor.get())) {
-                    actions.add(new FieldUpdateAction(date, source, userName, path, oldValue, newAccessor.get(), comparedField));
+                    if (comparedField.isMany() && preserveCollectionOldValues) {
+                        // Append at the end of the collection
+                        if (!originalFieldToLastIndex.containsKey(comparedField)) {
+                            originalFieldToLastIndex.put(comparedField, originalAccessor.size() + 1);
+                        }
+                        String previousPathElement = this.path.pop();
+                        int newIndex = originalFieldToLastIndex.get(comparedField);
+                        this.path.push(comparedField.getName() + "[" + (newIndex + 1) + "]");
+                        actions.add(new FieldUpdateAction(date, source, userName, getPath(), StringUtils.EMPTY, newAccessor.get(), comparedField));
+                        this.path.pop();
+                        this.path.push(previousPathElement);
+                        originalFieldToLastIndex.put(comparedField, newIndex + 1);
+                    } else {
+                        actions.add(new FieldUpdateAction(date, source, userName, path, oldValue, newAccessor.get(), comparedField));
+                    }
                 } else if (oldValue == null && newAccessor.get() != null) {
                     actions.add(new FieldUpdateAction(date, source, userName, path, oldValue, newAccessor.get(), comparedField));
                 }
@@ -195,68 +214,6 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
         if (!touchedPaths.contains(path) && path != null) {
             touchedPaths.add(path);
             actions.add(new TouchAction(path, date, source, userName));
-        }
-    }
-
-    public static class TouchAction implements Action {
-
-        private final String path;
-
-        private final Date date;
-
-        private final String source;
-
-        private final String userName;
-
-        private TouchAction(String path, Date date, String source, String userName) {
-            this.path = path;
-            this.date = date;
-            this.source = source;
-            this.userName = userName;
-        }
-
-        public MutableDocument perform(MutableDocument document) {
-            document.createAccessor(path).touch();
-            return document;
-        }
-
-        public MutableDocument undo(MutableDocument document) {
-            return document;
-        }
-
-        public MutableDocument addModificationMark(MutableDocument document) {
-            return document;
-        }
-
-        public MutableDocument removeModificationMark(MutableDocument document) {
-            return document;
-        }
-
-        public Date getDate() {
-            return date;
-        }
-
-        public String getSource() {
-            return source;
-        }
-
-        public String getUserName() {
-            return userName;
-        }
-
-        public boolean isAllowed(Set<String> roles) {
-            return true;
-        }
-
-        public String getDetails() {
-            return "Accessing value"; //$NON-NLS-1$
-        }
-
-        @Override
-        public String toString() {
-            return "TouchAction{" + //$NON-NLS-1$
-                    "path='" + path + '\'' + //$NON-NLS-1$
-                    '}';
         }
     }
 

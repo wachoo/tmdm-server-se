@@ -156,14 +156,26 @@ class UserContext implements DocumentSaverContext {
         this.hasMetAutoIncrement = hasMetAutoIncrement;
     }
 
-    @Override
     public void setTaskId(String taskId) {
         this.taskId = taskId;
     }
 
-    @Override
     public String getTaskId() {
         return taskId;
+    }
+
+    public boolean preserveOldCollectionValues() {
+        return false;
+    }
+
+    public MutableDocument getUpdateReportDocument() {
+        // See ReportDocumentSaverContext.decorate() if you wish this context to support update report creation.
+        throw new UnsupportedOperationException("No supported in this implementation.");
+    }
+
+    public void setUpdateReportDocument(MutableDocument updateReportDocument) {
+        // See ReportDocumentSaverContext.decorate() if you wish this context to support update report creation.
+        throw new UnsupportedOperationException("No supported in this implementation.");
     }
 
     public String[] getId() {

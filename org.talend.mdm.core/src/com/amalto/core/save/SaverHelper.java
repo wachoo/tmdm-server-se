@@ -13,6 +13,7 @@ package com.amalto.core.save;
 
 import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.save.context.SaverContextFactory;
+import com.amalto.core.webservice.WSPartialPutItem;
 import com.amalto.core.webservice.WSPutItem;
 
 import java.io.ByteArrayInputStream;
@@ -66,6 +67,22 @@ public class SaverHelper {
                 true, // Always validate
                 true, // Always generate an update report
                 beforeSaving);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        return saver;
+    }
+
+    public static DocumentSaver saveItem(WSPartialPutItem partialPutItem,
+                                         SaverSession session) throws UnsupportedEncodingException {
+        SaverContextFactory contextFactory = session.getContextFactory();
+        DocumentSaverContext context = contextFactory.createPartialUpdate(partialPutItem.getDatacluster(),
+                partialPutItem.getDatamodel(),
+                "genericUI", // Source is only actually used if isReport() returns true.
+                new ByteArrayInputStream(partialPutItem.getXml().getBytes("UTF-8")), //$NON-NLS-1$
+                true,
+                partialPutItem.isReport(),
+                true,
+                partialPutItem.getOverwrite());
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         return saver;
