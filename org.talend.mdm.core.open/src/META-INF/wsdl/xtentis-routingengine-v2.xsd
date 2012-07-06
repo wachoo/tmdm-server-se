@@ -106,6 +106,31 @@
     </xsd:complexType>
     <xsd:element name="WSRoutingOrderV2SearchCriteria" type = "tns:WSRoutingOrderV2SearchCriteria"/>
     
+    <xsd:complexType name="WSRoutingOrderV2SearchCriteriaWithPaging">
+        <xsd:sequence>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="status" type="tns:WSRoutingOrderV2Status"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="anyFieldContains" type="xsd:string"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="nameContains" type="xsd:string"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="timeCreatedMin" type="xsd:long"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="timeCreatedMax" type="xsd:long"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="timeScheduledMin" type="xsd:long"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="timeScheduledMax" type="xsd:long"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="timeLastRunStartedMin" type="xsd:long"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="timeLastRunStartedMax" type="xsd:long"/>            
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="timeLastRunCompletedMin" type="xsd:long"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="timeLastRunCompletedMax" type="xsd:long"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="itemPKConceptContains" type="xsd:string"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="itemPKIDFieldsContain" type="xsd:string"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="serviceJNDIContains" type="xsd:string"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="serviceParametersContain" type="xsd:string"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="messageContain" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="1"  nillable="false" name="skip"  type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="1"  nillable="false" name="maxItems"  type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="0"  nillable="false" name="totalCountOnFirstResult"  type="xsd:boolean"/>
+        </xsd:sequence>		
+    </xsd:complexType>
+    <xsd:element name="WSRoutingOrderV2SearchCriteriaWithPaging" type="tns:WSRoutingOrderV2SearchCriteriaWithPaging"/>
+    
     <xsd:complexType name="WSGetRoutingOrderV2PKsByCriteria">
         <xsd:sequence>
             <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsSearchCriteria" type="tns:WSRoutingOrderV2SearchCriteria"/>
@@ -119,6 +144,13 @@
         </xsd:sequence>
     </xsd:complexType>
     <xsd:element name="WSGetRoutingOrderV2sByCriteria" type = "tns:WSGetRoutingOrderV2sByCriteria"/>
+    
+    <xsd:complexType name="WSGetRoutingOrderV2ByCriteriaWithPaging">
+        <xsd:sequence>
+            <xsd:element maxOccurs="1" minOccurs="1"  nillable="false" name="wsSearchCriteriaWithPaging" type="tns:WSRoutingOrderV2SearchCriteriaWithPaging"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:element name="WSGetRoutingOrderV2ByCriteriaWithPaging" type="tns:WSGetRoutingOrderV2ByCriteriaWithPaging"/>
     
     <xsd:complexType name="WSExecuteRoutingOrderV2Synchronously">
         <xsd:sequence>

@@ -219,6 +219,87 @@
     </variable-mapping>
   </java-xml-type-mapping>
   <java-xml-type-mapping>
+    <java-type>com.amalto.core.webservice.WSRoutingOrderV2SearchCriteriaWithPaging</java-type>
+    <root-type-qname xmlns:typeNS="urn-com-amalto-xtentis-webservice">typeNS:WSRoutingOrderV2SearchCriteriaWithPaging</root-type-qname>
+    <qname-scope>complexType</qname-scope>
+    <variable-mapping>
+      <java-variable-name>status</java-variable-name>
+      <xml-element-name>status</xml-element-name>
+    </variable-mapping>
+    <variable-mapping>
+      <java-variable-name>anyFieldContains</java-variable-name>
+      <xml-element-name>anyFieldContains</xml-element-name>
+    </variable-mapping>
+    <variable-mapping>
+      <java-variable-name>nameContains</java-variable-name>
+      <xml-element-name>nameContains</xml-element-name>
+    </variable-mapping>
+    <variable-mapping>
+      <java-variable-name>timeCreatedMin</java-variable-name>
+      <xml-element-name>timeCreatedMin</xml-element-name>
+    </variable-mapping>
+    <variable-mapping>
+      <java-variable-name>timeCreatedMax</java-variable-name>
+      <xml-element-name>timeCreatedMax</xml-element-name>
+    </variable-mapping>
+    <variable-mapping>
+      <java-variable-name>timeScheduledMin</java-variable-name>
+      <xml-element-name>timeScheduledMin</xml-element-name>
+    </variable-mapping>
+    <variable-mapping>
+      <java-variable-name>timeScheduledMax</java-variable-name>
+      <xml-element-name>timeScheduledMax</xml-element-name>
+    </variable-mapping>
+    <variable-mapping>
+      <java-variable-name>timeLastRunStartedMin</java-variable-name>
+      <xml-element-name>timeLastRunStartedMin</xml-element-name>
+    </variable-mapping>
+    <variable-mapping>
+      <java-variable-name>timeLastRunStartedMax</java-variable-name>
+      <xml-element-name>timeLastRunStartedMax</xml-element-name>
+    </variable-mapping>
+    <variable-mapping>
+      <java-variable-name>timeLastRunCompletedMin</java-variable-name>
+      <xml-element-name>timeLastRunCompletedMin</xml-element-name>
+    </variable-mapping>
+    <variable-mapping>
+      <java-variable-name>timeLastRunCompletedMax</java-variable-name>
+      <xml-element-name>timeLastRunCompletedMax</xml-element-name>
+    </variable-mapping>
+    <variable-mapping>
+      <java-variable-name>itemPKConceptContains</java-variable-name>
+      <xml-element-name>itemPKConceptContains</xml-element-name>
+    </variable-mapping>
+    <variable-mapping>
+      <java-variable-name>itemPKIDFieldsContain</java-variable-name>
+      <xml-element-name>itemPKIDFieldsContain</xml-element-name>
+    </variable-mapping>
+    <variable-mapping>
+      <java-variable-name>serviceJNDIContains</java-variable-name>
+      <xml-element-name>serviceJNDIContains</xml-element-name>
+    </variable-mapping>
+    <variable-mapping>
+      <java-variable-name>serviceParametersContain</java-variable-name>
+      <xml-element-name>serviceParametersContain</xml-element-name>
+    </variable-mapping>
+    <variable-mapping>
+      <java-variable-name>messageContain</java-variable-name>
+      <xml-element-name>messageContain</xml-element-name>
+    </variable-mapping>
+    <variable-mapping>
+      <java-variable-name>skip</java-variable-name>
+      <xml-element-name>skip</xml-element-name>
+    </variable-mapping>
+    <variable-mapping>
+      <java-variable-name>maxItems</java-variable-name>
+      <xml-element-name>maxItems</xml-element-name>
+    </variable-mapping>
+    <variable-mapping>
+      <java-variable-name>totalCountOnFirstResult</java-variable-name>
+      <xml-element-name>totalCountOnFirstResult</xml-element-name>
+    </variable-mapping>
+  </java-xml-type-mapping>
+  <java-xml-type-mapping>
     <java-type>com.amalto.core.webservice.WSWhereOr</java-type>
     <root-type-qname xmlns:typeNS="urn-com-amalto-xtentis-webservice">typeNS:WSWhereOr</root-type-qname>
     <qname-scope>complexType</qname-scope>
@@ -1897,6 +1978,15 @@
     <variable-mapping>
       <java-variable-name>wsSearchCriteria</java-variable-name>
       <xml-element-name>wsSearchCriteria</xml-element-name>
+    </variable-mapping>
+  </java-xml-type-mapping>
+  <java-xml-type-mapping>
+    <java-type>com.amalto.core.webservice.WSGetRoutingOrderV2ByCriteriaWithPaging</java-type>
+    <root-type-qname xmlns:typeNS="urn-com-amalto-xtentis-webservice">typeNS:WSGetRoutingOrderV2ByCriteriaWithPaging</root-type-qname>
+    <qname-scope>complexType</qname-scope>
+    <variable-mapping>
+      <java-variable-name>wsSearchCriteriaWithPaging</java-variable-name>
+      <xml-element-name>wsSearchCriteriaWithPaging</xml-element-name>
     </variable-mapping>
   </java-xml-type-mapping>
   <java-xml-type-mapping>
@@ -5722,6 +5812,24 @@
       <wsdl-return-value-mapping>
         <method-return-value>com.amalto.core.webservice.WSRoutingOrderV2Array</method-return-value>
         <wsdl-message xmlns:wsdlMsgNS="urn-com-amalto-xtentis-webservice">wsdlMsgNS:getRoutingOrderV2sByCriteriaResponse</wsdl-message>
+        <wsdl-message-part-name>wsRoutingOrderArray</wsdl-message-part-name>
+      </wsdl-return-value-mapping>
+    </service-endpoint-method-mapping>
+    <service-endpoint-method-mapping>
+      <java-method-name>getRoutingOrderV2ByCriteriaWithPaging</java-method-name>
+      <wsdl-operation>getRoutingOrderV2ByCriteriaWithPaging</wsdl-operation>
+      <method-param-parts-mapping>
+        <param-position>0</param-position>
+        <param-type>com.amalto.core.webservice.WSGetRoutingOrderV2ByCriteriaWithPaging</param-type>
+        <wsdl-message-mapping>
+          <wsdl-message xmlns:wsdlMsgNS="urn-com-amalto-xtentis-webservice">wsdlMsgNS:getRoutingOrderV2ByCriteriaWithPagingRequest</wsdl-message>
+          <wsdl-message-part-name>wsGetRoutingOrderV2ByCriteriaWithPaging</wsdl-message-part-name>
+          <parameter-mode>IN</parameter-mode>
+        </wsdl-message-mapping>
+      </method-param-parts-mapping>
+      <wsdl-return-value-mapping>
+        <method-return-value>com.amalto.core.webservice.WSRoutingOrderV2Array</method-return-value>
+        <wsdl-message xmlns:wsdlMsgNS="urn-com-amalto-xtentis-webservice">wsdlMsgNS:getRoutingOrderV2ByCriteriaWithPagingResponse</wsdl-message>
         <wsdl-message-part-name>wsRoutingOrderArray</wsdl-message-part-name>
       </wsdl-return-value-mapping>
     </service-endpoint-method-mapping>
