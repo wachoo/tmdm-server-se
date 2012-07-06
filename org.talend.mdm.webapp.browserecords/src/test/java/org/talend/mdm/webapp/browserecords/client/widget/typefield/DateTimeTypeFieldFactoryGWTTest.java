@@ -50,9 +50,7 @@ public class DateTimeTypeFieldFactoryGWTTest extends GWTTestCase{
 		assertTrue(field instanceof FormatDateField);
 		dateField = (FormatDateField) field;
 		assertNull(dateField.getValue());
-		dateField.setRawValue(dateTimeTypeFieldFactory.getValue().toString());
-		assertEquals("2012/06/13", dateField.getRawValue());
-		assertEquals(false, dateField.isValid());
+        assertEquals(true, dateField.isValid());
 		
 		// 3. TypeModel DataType = DataTypeConstants.DATETIME, value is valid
 		isDateTime = true;
@@ -78,9 +76,7 @@ public class DateTimeTypeFieldFactoryGWTTest extends GWTTestCase{
 		assertTrue(field instanceof FormatDateField);
 		dateField = (FormatDateField) field;
 		assertNull(dateField.getValue());
-		dateField.setRawValue(dateTimeTypeFieldFactory.getValue().toString());
-		assertEquals("2012/06/13T10:08:08", dateField.getRawValue());
-		assertEquals(false, dateField.isValid());
+        assertEquals(true, dateField.isValid());
 		
 	}
 	
