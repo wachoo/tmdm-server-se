@@ -96,7 +96,8 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 containedType.getHideUsers(),
                 containedType.getDenyDelete(ComplexTypeMetadata.DeleteType.PHYSICAL),
                 containedType.getDenyDelete(ComplexTypeMetadata.DeleteType.LOGICAL),
-                containedType.getSchematron());
+                containedType.getSchematron(),
+                false);
         if (superTypeDatabaseName == null) {  // Generate a technical ID only if contained type does not have super type (subclasses will inherit it).
             newInternalType.addField(new SimpleTypeFieldMetadata(newInternalType,
                     true,

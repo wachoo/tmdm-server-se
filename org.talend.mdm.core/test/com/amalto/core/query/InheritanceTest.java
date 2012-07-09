@@ -65,6 +65,8 @@ public class InheritanceTest extends StorageTestCase {
         String[] expectedOrder = {"EntityWithQuiteALongNameWithoutIncludingAnyUnderscore",
                 "ProductFamily",
                 "TypeA",
+                "Nested",
+                "SubNested",
                 "Country",
                 "Address",
                 "Person",

@@ -1,12 +1,16 @@
 package com.amalto.core.storage.task;
 
-import com.amalto.core.metadata.*;
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.storage.Storage;
 import org.apache.log4j.Logger;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -57,31 +61,31 @@ abstract class MetadataRepositoryTask implements Task {
             startLock.notifyAll();
         }
 
-        List<ComplexTypeMetadata> types = MetadataUtils.sortTypes(repository);
-
-        for (ComplexTypeMetadata type : types) {
-            Task task = createTypeTask(type);
-            tasks.add(task);
-        }
-
-        startTime = System.currentTimeMillis();
-        for (Task task : tasks) {
-            synchronized (currentTypeTaskMonitor) {
-                currentTypeTask = task;
+        try {
+            List<ComplexTypeMetadata> types = MetadataUtils.sortTypes(repository);
+            for (ComplexTypeMetadata type : types) {
+                Task task = createTypeTask(type);
+                tasks.add(task);
             }
-            if (!isCancelled) {
-                LOGGER.info("--> Executing " + task + "...");
-                task.execute(jobExecutionContext);
-                recordCount += task.getRecordCount();
-                LOGGER.info("<-- Executed (" + task.getRecordCount() + " record validated @ " + getCurrentPerformance() + " doc/s)");
+            startTime = System.currentTimeMillis();
+            for (Task task : tasks) {
+                synchronized (currentTypeTaskMonitor) {
+                    currentTypeTask = task;
+                }
+                if (!isCancelled) {
+                    LOGGER.info("--> Executing " + task + "...");
+                    task.execute(jobExecutionContext);
+                    recordCount += task.getRecordCount();
+                    LOGGER.info("<-- Executed (" + task.getRecordCount() + " record validated @ " + getCurrentPerformance() + " doc/s)");
+                }
             }
-        }
-        endTime = System.currentTimeMillis();
-        LOGGER.info("Staging migration done @" + getCurrentPerformance() + " doc/s.");
-
-        synchronized (executionLock) {
-            executionLock.set(true);
-            executionLock.notifyAll();
+            endTime = System.currentTimeMillis();
+            LOGGER.info("Staging migration done @" + getCurrentPerformance() + " doc/s.");
+        } finally {
+            synchronized (executionLock) {
+                executionLock.set(true);
+                executionLock.notifyAll();
+            }
         }
     }
 

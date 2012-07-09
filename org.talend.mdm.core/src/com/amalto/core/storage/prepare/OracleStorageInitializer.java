@@ -56,7 +56,7 @@ class OracleStorageInitializer implements StorageInitializer {
             } finally {
                 connection.close();
             }
-            LOGGER.info("Oracle database " + dataSource.getDatabaseName() + " has been prepared.");
+            LOGGER.info("Oracle database " + dataSource.getUserName() + " has been prepared.");
         } catch (Exception e) {
             throw new RuntimeException("Exception occurred during initialization of Oracle database", e);
         }

@@ -31,7 +31,7 @@ import static com.amalto.core.query.user.UserQueryBuilder.eq;
 import static com.amalto.core.query.user.UserQueryBuilder.from;
 import static com.amalto.core.query.user.UserStagingQueryBuilder.status;
 
-public class MDMValidationTask extends MetadataRepositoryTask implements Task {
+public class MDMValidationTask extends MetadataRepositoryTask {
 
     private final SaverSource source;
 

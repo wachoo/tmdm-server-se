@@ -172,7 +172,7 @@ public class MetadataUtils {
         }
     }
 
-    public static Object convert(String dataAsString, TypeMetadata type) {
+    private static Object convert(String dataAsString, TypeMetadata type) {
         // Move up the inheritance tree to find the "most generic" type (used when simple types inherits from XSD types,
         // in this case, the XSD type is interesting, not the custom one).
         while (!type.getSuperTypes().isEmpty()) {

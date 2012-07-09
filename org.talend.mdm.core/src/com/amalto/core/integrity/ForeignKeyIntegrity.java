@@ -82,8 +82,7 @@ class ForeignKeyIntegrity extends DefaultMetadataVisitor<Set<ReferenceFieldMetad
 
     @Override
     public Set<ReferenceFieldMetadata> visit(ComplexTypeMetadata metadata) {
-
-        if (!checkedTypes.contains(metadata)) {
+        if (!checkedTypes.contains(metadata) && metadata.isInstantiable()) {
             checkedTypes.add(metadata);
             currentPosition.push(metadata.getName());
             Set<ReferenceFieldMetadata> result = super.visit(metadata);

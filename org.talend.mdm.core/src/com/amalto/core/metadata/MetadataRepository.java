@@ -38,8 +38,6 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
 
     private final Stack<ComplexTypeMetadata> currentTypeStack = new Stack<ComplexTypeMetadata>();
 
-    private final Map<String, ComplexTypeMetadata> nonInstantiableTypes = new HashMap<String, ComplexTypeMetadata>();
-
     private String targetNamespace;
 
     public TypeMetadata getType(String name) {
@@ -56,10 +54,6 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
         } catch (ClassCastException e) {
             throw new IllegalArgumentException("Type named '" + typeName + "' is not a complex type.");
         }
-    }
-
-    public TypeMetadata getNonInstantiableType(String name) {
-        return nonInstantiableTypes.get(name);
     }
 
     public TypeMetadata getType(String nameSpace, String name) {
@@ -96,10 +90,6 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
         return allTypes;
     }
 
-    public Collection<TypeMetadata> getTypes(String namespace) {
-        return this.allTypes.get(namespace).values();
-    }
-
     public void load(InputStream inputStream) {
         if (inputStream == null) {
             throw new IllegalArgumentException("Input stream can not be null.");
@@ -112,9 +102,6 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
 
         // "Freeze" all types (a consequence of this will be validation of all reference fields).
         for (ComplexTypeMetadata type : getUserComplexTypes()) {
-            type.freeze();
-        }
-        for (ComplexTypeMetadata type : nonInstantiableTypes.values()) {
             type.freeze();
         }
     }
@@ -229,7 +216,8 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
                             state.getHide(),
                             state.getDenyPhysicalDelete(),
                             state.getDenyLogicalDelete(),
-                            state.getSchematron());
+                            state.getSchematron(),
+                            true);
                     addTypeMetadata(type);
                 }
                 currentTypeStack.push(type);
@@ -267,8 +255,8 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
             }
             // There's no current 'entity' type being parsed, this is a complex type not to be used for entity but
             // might be referenced by others entities (for fields, inheritance...).
-            ComplexTypeMetadata nonInstantiableType = new ComplexTypeMetadataImpl(targetNamespace, typeName);
-            nonInstantiableTypes.put(typeName, nonInstantiableType);
+            ComplexTypeMetadata nonInstantiableType = new ComplexTypeMetadataImpl(targetNamespace, typeName, false);
+            addTypeMetadata(nonInstantiableType);
             currentTypeStack.push(nonInstantiableType);
             typeMetadataKeyStack.push(Collections.<String>emptySet());
         }
@@ -448,10 +436,5 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
 
     public void close() {
         allTypes.clear();
-        nonInstantiableTypes.clear();
-    }
-
-    public Collection<ComplexTypeMetadata> getNonInstantiableTypes() {
-        return nonInstantiableTypes.values();
     }
 }

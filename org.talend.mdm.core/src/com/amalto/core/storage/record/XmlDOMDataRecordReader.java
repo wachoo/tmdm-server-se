@@ -71,7 +71,7 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
                     ComplexTypeMetadata containedType = (ComplexTypeMetadata) field.getType();
                     String xsiType = child.getAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type"); //$NON-NLS-1$
                     if (!xsiType.isEmpty()) {
-                        containedType = (ComplexTypeMetadata) repository.getNonInstantiableType(xsiType);
+                        containedType = repository.getComplexType(xsiType);
                     }
                     DataRecord containedRecord = new DataRecord(containedType, UnsupportedDataRecordMetadata.INSTANCE);
                     dataRecord.set(field, containedRecord);

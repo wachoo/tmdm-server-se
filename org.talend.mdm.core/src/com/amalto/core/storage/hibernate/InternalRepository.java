@@ -39,9 +39,6 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
         mappings = new MappingRepository();
         internalRepository = new MetadataRepository();
 
-        for (ComplexTypeMetadata nonInstantiableType : repository.getNonInstantiableTypes()) {
-            nonInstantiableType.accept(this);
-        }
         for (TypeMetadata type : repository.getTypes()) {
             type.accept(this);
         }

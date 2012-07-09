@@ -36,7 +36,12 @@ public class LBPAMTestCase extends TestCase {
         resourceAsStream = LBPAMTestCase.class.getResourceAsStream("lbpam.xsd");
     }
 
-    public void test() throws Exception {
+    public void testModel() throws Exception {
+        // Here so JUnit does not complain about a test case with no test.
+    }
+
+    // Disables this test in build (takes lot of time & memory).
+    public void __test() throws Exception {
         System.out.println("Setting up MDM server environment...");
         ServerContext.INSTANCE.get(new MockServerLifecycle());
         System.out.println("MDM server environment set.");

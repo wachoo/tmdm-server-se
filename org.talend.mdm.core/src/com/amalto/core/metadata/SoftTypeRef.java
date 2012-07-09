@@ -42,7 +42,7 @@ public class SoftTypeRef implements ComplexTypeMetadata {
         this.fieldRef = null;
     }
 
-    public SoftTypeRef(MetadataRepository repository, FieldMetadata fieldRef) {
+    private SoftTypeRef(MetadataRepository repository, FieldMetadata fieldRef) {
         if (fieldRef == null) {
             throw new IllegalArgumentException("Field reference cannot be null.");
         }
@@ -55,9 +55,6 @@ public class SoftTypeRef implements ComplexTypeMetadata {
     private TypeMetadata getType() {
         if (typeName != null) {
             TypeMetadata type = repository.getType(namespace, typeName);
-            if (type == null) {
-                type = repository.getNonInstantiableType(typeName);
-            }
             if (type == null) {
                 throw new IllegalArgumentException("Type '" + typeName + "' (namespace: '" + namespace + "') is not present in type repository.");
             }
@@ -144,6 +141,10 @@ public class SoftTypeRef implements ComplexTypeMetadata {
     @Override
     public boolean equals(Object obj) {
         return obj instanceof TypeMetadata && getType().equals(obj);
+    }
+
+    public boolean isInstantiable() {
+        return getTypeAsComplex().isInstantiable();
     }
 
     public List<FieldMetadata> getKeyFields() {

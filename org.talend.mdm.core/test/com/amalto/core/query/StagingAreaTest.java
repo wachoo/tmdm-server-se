@@ -29,7 +29,10 @@ import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.*;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
-import com.amalto.core.storage.task.*;
+import com.amalto.core.storage.task.StagingConstants;
+import com.amalto.core.storage.task.StagingTask;
+import com.amalto.core.storage.task.Task;
+import com.amalto.core.storage.task.TaskSubmitter;
 import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.XtentisException;
 import junit.framework.TestCase;
@@ -44,9 +47,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import static com.amalto.core.query.user.UserQueryBuilder.eq;
-import static com.amalto.core.query.user.UserQueryBuilder.isEmpty;
-import static com.amalto.core.query.user.UserQueryBuilder.taskId;
+import static com.amalto.core.query.user.UserQueryBuilder.*;
 import static com.amalto.core.query.user.UserStagingQueryBuilder.status;
 
 public class StagingAreaTest extends TestCase {
@@ -110,50 +111,37 @@ public class StagingAreaTest extends TestCase {
         for (int i = 0; i < COUNT; i++) {
             allRecords.add(factory.read(1, repository, country, newCountry(i, validData)));
         }
-        long time2 = System.currentTimeMillis();
-        {
-            try {
-                origin.begin();
-                origin.update(allRecords);
-                origin.commit();
-            } finally {
-                origin.end();
-            }
+        try {
+            origin.begin();
+            origin.update(allRecords);
+            origin.commit();
+        } finally {
+            origin.end();
         }
-        System.out.println("Perf (country): " + COUNT / ((System.currentTimeMillis() - time2) / 1000f) + " doc/s.");
 
         allRecords.clear();
         for (int i = 0; i < COUNT; i++) {
             allRecords.add(factory.read(1, repository, address, newAddress(i, i % 2 != 0, validData)));
         }
-        long time3 = System.currentTimeMillis();
-        {
-            try {
-                origin.begin();
-                origin.update(allRecords);
-                origin.commit();
-            } finally {
-                origin.end();
-            }
+        try {
+            origin.begin();
+            origin.update(allRecords);
+            origin.commit();
+        } finally {
+            origin.end();
         }
-        System.out.println("Perf (address): " + COUNT / ((System.currentTimeMillis() - time3) / 1000f) + " doc/s" +
-                ".");
 
         allRecords.clear();
         for (int i = 0; i < COUNT; i++) {
             allRecords.add(factory.read(1, repository, person, newPerson(i, validData)));
         }
-        long time1 = System.currentTimeMillis();
-        {
-            try {
-                origin.begin();
-                origin.update(allRecords);
-                origin.commit();
-            } finally {
-                origin.end();
-            }
+        try {
+            origin.begin();
+            origin.update(allRecords);
+            origin.commit();
+        } finally {
+            origin.end();
         }
-        System.out.println("Perf (person): " + COUNT / ((System.currentTimeMillis() - time1) / 1000f) + " doc/s.");
     }
 
     @Override
@@ -171,11 +159,7 @@ public class StagingAreaTest extends TestCase {
         Thread.currentThread().setContextClassLoader(contextClassLoader);
     }
 
-    public void test() {
-        // Here only to prevent JUnit to complain about a test class with no unit test.
-    }
-
-    public void __testStaging() throws Exception {
+    public void testStaging() throws Exception {
         generateData(true);
 
         Select select = UserQueryBuilder.from(person).getSelect();
@@ -198,7 +182,7 @@ public class StagingAreaTest extends TestCase {
         assertEquals(COUNT, origin.fetch(UserQueryBuilder.from(person).where(eq(status(), StagingConstants.SUCCESS_VALIDATE)).getSelect()).getCount());
     }
 
-    public void __testCancel() throws Exception {
+    public void testCancel() throws Exception {
         generateData(true);
 
         Select select = UserQueryBuilder.from(person).getSelect();
@@ -224,7 +208,7 @@ public class StagingAreaTest extends TestCase {
         assertEquals(0, origin.fetch(UserQueryBuilder.from(person).where(eq(status(), StagingConstants.SUCCESS_VALIDATE)).getSelect()).getCount());
     }
 
-    public void __testWithValidationErrors() throws Exception {
+    public void testWithValidationErrors() throws Exception {
         generateData(false);
 
         Select select = UserQueryBuilder.from(person).getSelect();
@@ -393,7 +377,7 @@ public class StagingAreaTest extends TestCase {
     }
 
     private String newAddress(int id1, boolean id2, boolean validData) {
-        if(validData) {
+        if (validData) {
             return "<Address><Id>" + id1 + "</Id><enterprise>" + id2 + "</enterprise><Street>Street1</Street><ZipCode>10000</ZipCode><City>City</City><country>[" + id1 + "]</country></Address>";
         } else {
             return "<Address><Id>" + id1 + "</Id><enterprise>" + id2 + "</enterprise><Street>Street1</Street><ZipCode>test</ZipCode><City>City</City><country>[-1]</country></Address>";
@@ -401,7 +385,7 @@ public class StagingAreaTest extends TestCase {
     }
 
     private String newCountry(int id, boolean validData) {
-        if(validData) {
+        if (validData) {
             return "<Country><id>" + id + "</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>";
         } else {
             return "<Country><id>" + id + "</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>";

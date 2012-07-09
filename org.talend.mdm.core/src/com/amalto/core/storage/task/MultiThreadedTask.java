@@ -54,10 +54,6 @@ public class MultiThreadedTask implements Task {
 
     private long taskStartTime;
 
-    public MultiThreadedTask(String name, Storage storage, Expression expression, Closure closure) {
-        this(name, storage, expression, 3, closure);
-    }
-
     public MultiThreadedTask(String name, Storage storage, Expression expression, int threadNumber, Closure closure) {
         this.name = name;
         this.storage = storage;
@@ -71,28 +67,29 @@ public class MultiThreadedTask implements Task {
             startLock.notifyAll();
         }
 
-        taskStartTime = System.currentTimeMillis();
-        StorageResults records = storage.fetch(expression);
-
-        closure.begin();
-        for (DataRecord record : records) {
-            // Exit if cancelled.
-            if (isCancelled.get()) {
-                break;
+        try {
+            taskStartTime = System.currentTimeMillis();
+            StorageResults records = storage.fetch(expression);
+            closure.begin();
+            for (DataRecord record : records) {
+                // Exit if cancelled.
+                if (isCancelled.get()) {
+                    break;
+                }
+                try {
+                    closure.execute(record);
+                    success++;
+                } catch (Exception e) {
+                    fail++;
+                }
+                count++;
             }
-            try {
-                closure.execute(record);
-                success++;
-            } catch (Exception e) {
-                fail++;
+            closure.end();
+        } finally {
+            synchronized (executionLock) {
+                executionLock.set(true);
+                executionLock.notifyAll();
             }
-            count++;
-        }
-        closure.end();
-
-        synchronized (executionLock) {
-            executionLock.set(true);
-            executionLock.notifyAll();
         }
     }
 

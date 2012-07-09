@@ -42,7 +42,7 @@ public class StagingTask implements Task {
         tasks = Arrays.asList(new ClusterTask(stagingStorage, repository),
                 new MergeTask(stagingStorage, repository),
                 new MDMValidationTask(stagingStorage, destinationStorage, repository, source, committer));
-                // new DSCUpdaterTask(stagingStorage, destinationStorage, repository));
+        // new DSCUpdaterTask(stagingStorage, destinationStorage, repository));
     }
 
     public String getId() {
@@ -93,21 +93,23 @@ public class StagingTask implements Task {
             startLock.notifyAll();
         }
 
-        for (MetadataRepositoryTask task : tasks) {
-            synchronized (currentTaskMonitor) {
-                if(isCancelled) {
-                    break;
+        try {
+            for (MetadataRepositoryTask task : tasks) {
+                synchronized (currentTaskMonitor) {
+                    if (isCancelled) {
+                        break;
+                    }
+                    currentTask = task;
                 }
-                currentTask = task;
+                LOGGER.info("--> " + task.toString());
+                taskSubmitter.submitAndWait(currentTask);
+                LOGGER.info("<-- DONE " + task.toString());
             }
-            LOGGER.info("--> " + task.toString());
-            taskSubmitter.submitAndWait(currentTask);
-            LOGGER.info("<-- DONE " + task.toString());
-        }
-
-        synchronized (executionLock) {
-            executionLock.set(true);
-            executionLock.notifyAll();
+        } finally {
+            synchronized (executionLock) {
+                executionLock.set(true);
+                executionLock.notifyAll();
+            }
         }
     }
 }

@@ -81,7 +81,7 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
     public DataRecord next() {
         DataRecord record;
         try {
-            final ComplexTypeMetadata explicitProjectionType = new ComplexTypeMetadataImpl(StringUtils.EMPTY, PROJECTION_TYPE);
+            final ComplexTypeMetadata explicitProjectionType = new ComplexTypeMetadataImpl(StringUtils.EMPTY, PROJECTION_TYPE, false);
             record = new DataRecord(explicitProjectionType, UnsupportedDataRecordMetadata.INSTANCE);
             Object[] values;
 

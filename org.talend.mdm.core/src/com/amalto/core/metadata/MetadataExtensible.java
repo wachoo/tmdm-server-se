@@ -13,11 +13,11 @@ package com.amalto.core.metadata;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MetadataExtensible {
+class MetadataExtensible {
 
     private Map<String, Object> dataMap;
 
-    protected MetadataExtensible() {
+    MetadataExtensible() {
     }
 
     /**
@@ -26,9 +26,19 @@ public class MetadataExtensible {
      * @param key the name of the property
      * @param data the new value for the property
      */
-    public void setData(String key, Object data) {
+    public synchronized void setData(String key, Object data) {
         if (dataMap == null) {
-            dataMap = new HashMap<String, Object>();
+            dataMap = new HashMap<String, Object>() {
+                private static final int THRESHOLD = 10;
+
+                @Override
+                public Object put(String s, Object o) {
+                    if(size() > THRESHOLD) {
+                        throw new IllegalStateException("Map is not aimed to contain more than " + THRESHOLD + " elements.");
+                    }
+                    return super.put(s, o);
+                }
+            };
         }
         dataMap.put(key, data);
     }

@@ -43,17 +43,19 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
 
     private final Collection<ComplexTypeMetadata> subTypes = new HashSet<ComplexTypeMetadata>();
 
+    private final boolean isInstantiable;
+
     private String name;
 
     private MetadataRepository repository;
 
     private boolean isFrozen;
 
-    public ComplexTypeMetadataImpl(String nameSpace, String name) {
-        this(nameSpace, name, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), StringUtils.EMPTY);
+    public ComplexTypeMetadataImpl(String nameSpace, String name, boolean instantiable) {
+        this(nameSpace, name, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), StringUtils.EMPTY, instantiable);
     }
 
-    public ComplexTypeMetadataImpl(String nameSpace, String name, List<String> allowWrite, List<String> denyCreate, List<String> hideUsers, List<String> physicalDelete, List<String> logicalDelete, String schematron) {
+    public ComplexTypeMetadataImpl(String nameSpace, String name, List<String> allowWrite, List<String> denyCreate, List<String> hideUsers, List<String> physicalDelete, List<String> logicalDelete, String schematron, boolean instantiable) {
         this.name = name;
         this.nameSpace = nameSpace;
         this.allowWrite = allowWrite;
@@ -62,6 +64,7 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
         this.physicalDelete = physicalDelete;
         this.logicalDelete = logicalDelete;
         this.schematron = schematron;
+        this.isInstantiable = instantiable;
     }
 
 
@@ -132,6 +135,10 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
         return currentField;
     }
 
+    public boolean isInstantiable() {
+        return isInstantiable;
+    }
+
     public List<FieldMetadata> getKeyFields() {
         return new ArrayList<FieldMetadata>(keyFields.values());
     }
@@ -200,7 +207,15 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
             return registeredCopy;
         }
 
-        ComplexTypeMetadataImpl copy = new ComplexTypeMetadataImpl(getNamespace(), getName(), allowWrite, denyCreate, hideUsers, physicalDelete, logicalDelete, schematron);
+        ComplexTypeMetadataImpl copy = new ComplexTypeMetadataImpl(getNamespace(),
+                getName(),
+                allowWrite,
+                denyCreate,
+                hideUsers,
+                physicalDelete,
+                logicalDelete,
+                schematron,
+                isInstantiable);
         repository.addTypeMetadata(copy);
 
         List<FieldMetadata> fields = getFields();
@@ -220,7 +235,15 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
     }
 
     public TypeMetadata copyShallow() {
-        return new ComplexTypeMetadataImpl(getNamespace(), getName(), allowWrite, denyCreate, hideUsers, physicalDelete, logicalDelete, schematron);
+        return new ComplexTypeMetadataImpl(getNamespace(),
+                getName(),
+                allowWrite,
+                denyCreate,
+                hideUsers,
+                physicalDelete,
+                logicalDelete,
+                schematron,
+                isInstantiable);
     }
 
     public List<String> getWriteUsers() {

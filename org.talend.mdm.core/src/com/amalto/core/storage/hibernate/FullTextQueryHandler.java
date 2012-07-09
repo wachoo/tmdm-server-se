@@ -157,7 +157,9 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                 @Override
                 public DataRecord next() {
                     DataRecord next = super.next();
-                    ComplexTypeMetadata explicitProjectionType = new ComplexTypeMetadataImpl(StringUtils.EMPTY, ProjectionIterator.PROJECTION_TYPE);
+                    ComplexTypeMetadata explicitProjectionType = new ComplexTypeMetadataImpl(StringUtils.EMPTY,
+                            ProjectionIterator.PROJECTION_TYPE,
+                            false);
                     DataRecord nextRecord = new DataRecord(explicitProjectionType, UnsupportedDataRecordMetadata.INSTANCE);
                     for (TypedExpression selectedField : selectedFields) {
                         FieldMetadata field = ((Field) selectedField).getFieldMetadata();
