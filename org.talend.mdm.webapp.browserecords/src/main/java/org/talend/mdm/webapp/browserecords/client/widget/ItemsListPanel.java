@@ -109,6 +109,8 @@ public class ItemsListPanel extends ContentPanel {
 
     private boolean isCreate = false;
 
+    private boolean isCheckbox;
+
     public boolean isCreate() {
         return isCreate;
     }
@@ -309,11 +311,29 @@ public class ItemsListPanel extends ContentPanel {
             grid.setAutoExpandColumn(cm.getColumn(0).getHeader());
         }
 
+        grid.addListener(Events.HeaderClick, new Listener<GridEvent<?>>() {
+
+            public void handleEvent(GridEvent<?> be) {
+                if (be.getColIndex() == 0) {
+                    ItemsListPanel.this.isCheckbox = true;
+                } else {
+                    ItemsListPanel.this.isCheckbox = false;
+                }
+            }
+
+        });
+        
         grid.addListener(Events.OnMouseOver, new Listener<GridEvent<ItemBean>>() {
 
             public void handleEvent(GridEvent<ItemBean> ge) {
                 int rowIndex = ge.getRowIndex();
                 if (rowIndex != -1) {
+                    if (ge.getColIndex() == 0) {
+                        ItemsListPanel.this.isCheckbox = true;
+                    } else {
+                        ItemsListPanel.this.isCheckbox = false;
+                    }
+
                     ItemBean item = grid.getStore().getAt(rowIndex);
                     grid.getView().getRow(item).getStyle().setCursor(Style.Cursor.POINTER);
                 }
@@ -668,15 +688,12 @@ public class ItemsListPanel extends ContentPanel {
             if (gridUpdateLock) {
                 return;
             }
-            
-            ItemsDetailPanel detailItem = ItemsMainTabPanel.getInstance().getDefaultViewTabItem();
-        	if(detailItem != null) {
-        		if(detailItem.getCurrentItemPanel() != null) {
-        			if(item.getIds() == detailItem.getCurrentItemPanel().getItem().getIds())
-        				return;
-        		}
-        	}
-        	
+
+            if (ItemsMainTabPanel.getInstance().getDefaultViewTabItem() != null) {
+                if (ItemsListPanel.this.isCheckbox)
+                    return;
+            }
+
             gridUpdateLock = true;
             Dispatcher.forwardEvent(BrowseRecordsEvents.ViewItem, item);
             gridUpdateLock = false;
