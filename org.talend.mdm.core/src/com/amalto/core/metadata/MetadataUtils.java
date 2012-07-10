@@ -301,7 +301,7 @@ public class MetadataUtils {
         } else if ("double".equals(type)) { //$NON-NLS-1$
             return "java.lang.Double"; //$NON-NLS-1$
         } else {
-            throw new NotImplementedException("No support for field typed as '" + type + "'");
+            throw new UnsupportedOperationException("No support for field typed as '" + type + "'");
         }
     }
 

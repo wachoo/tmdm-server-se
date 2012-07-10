@@ -23,10 +23,7 @@ import org.hibernate.Session;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Represents type mapping between data model as specified by the user and data model as used by hibernate storage.
@@ -46,6 +43,9 @@ public class GoodFieldTypeMapping extends TypeMapping {
         Set<FieldMetadata> fields = from.getSetFields();
         for (FieldMetadata field : fields) {
             FieldMetadata mappedDatabaseField = getDatabase(field);
+            if(mappedDatabaseField == null) {
+                throw new IllegalStateException("Field '" + field.getName() + "' was expected to have a database mapping");
+            }
 
             if (field instanceof ContainedTypeFieldMetadata) {
                 if (!(mappedDatabaseField instanceof ReferenceFieldMetadata)) {
@@ -195,7 +195,7 @@ public class GoodFieldTypeMapping extends TypeMapping {
     // Not expected to be use for foreign keys, and also very specific to this mapping implementation.
     private static ComplexTypeMetadata getActualContainedType(FieldMetadata userField, Wrapper value) {
         String valueClassName = value.getClass().getName();
-        String actualValueType = StringUtils.substringAfterLast(valueClassName, "_"); //$NON-NLS-1$
+        String actualValueType = StringUtils.substringAfterLast(valueClassName, "2_"); //$NON-NLS-1$
         if (actualValueType.equalsIgnoreCase(userField.getType().getName())) {
             return (ComplexTypeMetadata) userField.getType();
         } else {

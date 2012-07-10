@@ -125,6 +125,9 @@ public class Select implements Expression {
                 }
             }
         }
+        if (selectedFields.isEmpty()) {
+            isProjection = false;
+        }
         return this;
     }
 

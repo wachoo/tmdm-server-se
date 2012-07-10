@@ -379,7 +379,8 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
             if (qName != null) {
                 TypeMetadata metadata = getType(qName.getNamespaceURI(), qName.getLocalPart());
                 if (metadata != null) {
-                    fieldType = new SoftTypeRef(this, metadata.getNamespace(), metadata.getName());
+                    referencedType = new ContainedComplexTypeRef(currentTypeStack.peek(), targetNamespace, element.getName(), new SoftTypeRef(this, targetNamespace, schemaType.getName()));
+                    isContained = true;
                 } else {
                     if (schemaType instanceof XmlSchemaComplexType) {
                         referencedType = new ContainedComplexTypeRef(currentTypeStack.peek(), targetNamespace, element.getName(), new SoftTypeRef(this, targetNamespace, schemaType.getName()));
@@ -393,6 +394,7 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
                 }
             } else { // Ref & anonymous complex type
                 isReference = false;
+                isContained = true;
                 QName refName = element.getRefName();
                 if (schemaType != null) {
                     referencedType = new ContainedComplexTypeMetadata(currentTypeStack.peek(), targetNamespace, element.getName());
