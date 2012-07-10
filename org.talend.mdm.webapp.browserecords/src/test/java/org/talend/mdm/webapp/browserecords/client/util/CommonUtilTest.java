@@ -260,4 +260,43 @@ public class CommonUtilTest extends TestCase {
         rootNode = list.get(0);
         assertFalse(TreeDetailUtil.isChangeValue(rootNode));
     }
+
+    public void testDefaultItemNodeValue() {
+
+        String language = "en";
+        boolean isCreate = true;
+
+        ComplexTypeModel typeModel = new ComplexTypeModel("root", DataTypeConstants.STRING);
+        typeModel.addDescription(language, "root");
+
+        TypeModel idModel = new SimpleTypeModel("id", DataTypeConstants.LONG);
+        typeModel.addSubType(idModel);
+
+        TypeModel nameModel = new SimpleTypeModel("name", DataTypeConstants.STRING);
+        nameModel.addDescription(language, "name");
+        typeModel.addSubType(nameModel);
+
+        TypeModel ageModel = new SimpleTypeModel("age", DataTypeConstants.INTEGER);
+        typeModel.addSubType(ageModel);
+
+        TypeModel dobModel = new SimpleTypeModel("DOB", DataTypeConstants.DATETIME);
+        typeModel.addSubType(dobModel);
+
+        TypeModel isActiveModel = new SimpleTypeModel("isActive", DataTypeConstants.BOOLEAN);
+        typeModel.addSubType(isActiveModel);
+
+        List<ItemNodeModel> list = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getDefaultTreeModel(typeModel,
+                isCreate,
+                language);
+        
+        assertNotNull(list);
+        assertTrue(list.size() > 0);
+
+        List<ModelData> children = list.get(0).getChildren();
+        for (ModelData modelData : children) {
+            ItemNodeModel itemNodeModel = (ItemNodeModel) modelData;
+            assertNull(itemNodeModel.getObjectValue());
+        }
+
+    }
 }
