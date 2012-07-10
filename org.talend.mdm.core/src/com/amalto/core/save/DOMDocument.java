@@ -80,6 +80,7 @@ public class DOMDocument implements MutableDocument {
     public String exportToString() {
         try {
             OutputFormat format = new OutputFormat(domDocument);
+            format.setOmitXMLDeclaration(true);
             StringWriter stringOut = new StringWriter();
             XMLSerializer serial = new XMLSerializer(stringOut, format);
             serial.serialize(domDocument);
