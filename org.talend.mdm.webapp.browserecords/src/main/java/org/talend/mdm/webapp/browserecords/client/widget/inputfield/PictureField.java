@@ -249,11 +249,12 @@ public class PictureField extends TextField<String> {
             fireChangeEvent(oldValue, value);
         }
     }
-
+    
     private boolean isInternalImageURL(String url) {
         if (url == null || url.trim().length() == 0)
             return false;
-        return url.contains("/imageserver"); //$NON-NLS-1$
+        
+        return CommonUtil.getHost(url).equals(com.google.gwt.user.client.Window.Location.getHost());        
     }
 
     private String scaleInternalUrl(String inputValue, int size) {

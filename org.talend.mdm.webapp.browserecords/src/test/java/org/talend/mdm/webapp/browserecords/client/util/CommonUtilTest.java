@@ -49,6 +49,16 @@ public class CommonUtilTest extends TestCase {
         assertFalse(CommonUtil.validateSearchValue(xpathMap, "\"a/b"));    //$NON-NLS-1$
         assertTrue(CommonUtil.validateSearchValue(xpathMap, "aaa")); //$NON-NLS-1$
     }
+    
+    public void testGetHost() {
+        assertTrue(CommonUtil.getHost("http://www.foo.com/aaa").equals("www.foo.com"));
+        assertTrue(CommonUtil.getHost("https://www.foo.com/aaa").equals("www.foo.com"));
+        assertTrue(CommonUtil.getHost("www.foo.com/aaa").equals("www.foo.com"));
+        assertTrue(CommonUtil.getHost("www.foo.com").equals("www.foo.com"));
+        assertTrue(CommonUtil.getHost("www.foo.com:8080").equals("www.foo.com:8080"));
+        assertTrue(CommonUtil.getHost("foo.com/aaa").equals("foo.com"));
+        assertTrue(CommonUtil.getHost("http://foo.com/aaa/bbb?aa=a").equals("foo.com"));        
+    }
 
     /**
      * DOC Starkey Comment method "testParseFileName".

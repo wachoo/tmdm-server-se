@@ -29,6 +29,16 @@ public class CommonUtil {
 
     public static final String XMLNS_TMDM_VALUE = "http://www.talend.com/mdm"; //$NON-NLS-1$
 
+    
+    private static final String BEFORE_DOMAIN = "\\b((https?|ftp)://)"; //$NON-NLS-1$
+    private static final String PATH = "(/[-a-z0-9A-Z_:@&?=+,.!/~*'%#$]*)*"; //$NON-NLS-1$
+
+    
+    public static String getHost(String url) {
+        String host = url.replaceAll(BEFORE_DOMAIN, "").replaceAll(PATH, ""); //$NON-NLS-1$ //$NON-NLS-2$
+        return host;
+    }
+
     public static String getXpathSuffix(String xpath) {
         return xpath.substring(xpath.lastIndexOf('/') + 1);
     }
