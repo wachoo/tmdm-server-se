@@ -18,7 +18,6 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 /**
  * Wraps a physical delete operation.
  */
-// Implementation package visibility for class is intended: no need to see this class outside of package
 public class PhysicalDeleteAction implements DeleteAction {
 
     public void delete(final List<ItemBean> items, BrowseRecordsServiceAsync service, boolean override,
@@ -30,9 +29,9 @@ public class PhysicalDeleteAction implements DeleteAction {
             public void onSuccess(List<String> msgs) {
                 progressBar.close();
                 if (msgs != null) {
-                    StringBuffer sb = new StringBuffer();
+                    StringBuilder sb = new StringBuilder();
                     for (String msg : msgs) {
-                        sb.append(MultilanguageMessageParser.pickOutISOMessage(msg) + "\n"); //$NON-NLS-1$
+                        sb.append(MultilanguageMessageParser.pickOutISOMessage(msg)).append("\n"); //$NON-NLS-1$
                     }
                     String msg = sb.toString().trim();
                     if (msg.length() > 0) {
