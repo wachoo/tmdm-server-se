@@ -299,6 +299,24 @@ public interface XmlServerSLWrapper
     */
    public java.lang.String getXtentisObjectsQuery( java.util.HashMap objectRootElementNameToRevisionID,java.util.HashMap objectRootElementNameToClusterName,java.lang.String mainObjectRootElementName,java.util.ArrayList viewableObjectElements,com.amalto.xmlserver.interfaces.IWhereItem whereItem,java.lang.String orderBy,java.lang.String direction,int start,int limit )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+   
+   /**
+    * Builds a query in the native language of the DB (for instance XQuery) based on conditions
+    * @param objectRootElementNameToRevisionID A map that gives the revision ID of an Object XML Root Element Name
+    * @param objectRootElementNameToClusterName An ordered map that gives the cluster name of an Object XML Root Element Name
+    * @param viewableObjectElements The full XPath (starting with the Object root element name) of the elements and their sub elements that constitute the top elements of the returned documents
+    * @param mainObjectRootElementName An optional object type that will serve as the main pivot<br/> If not specified, the pivots will be in ordered of those in the viewableObjectElements
+    * @param whereItem The condition to apply
+    * @param orderBy The path of the element to order by. <code>null</code> to avoid ordering
+    * @param direction If orderBy is not <code>null</code>, the direction. One of
+    * @param start The index of the first element to return (start at 0)
+    * @param limit The index of the last element to search. A negative value or {@value Integer#MAX_VALUE} means no limit
+    * @param withTotalCount whether get totalCount
+    * @return the XQuery in the native language of the database
+    * @throws com.amalto.core.util.XtentisException
+    */
+   public java.lang.String getXtentisObjectsQuery( java.util.LinkedHashMap objectRootElementNameToRevisionID,java.util.LinkedHashMap objectRootElementNameToClusterName,java.lang.String mainObjectRootElementName,java.util.ArrayList viewableObjectElements,com.amalto.xmlserver.interfaces.IWhereItem whereItem,java.lang.String orderBy,java.lang.String direction,int start,int limit,boolean withTotalCount )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**
     * Builds an Items query in the native language of the DB (for instance XQuery) based on conditions
