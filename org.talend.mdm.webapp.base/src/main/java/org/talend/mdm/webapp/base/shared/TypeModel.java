@@ -74,7 +74,7 @@ public abstract class TypeModel implements Serializable, IsSerializable {
     private boolean denyLogicalDeletable = false;
 
     private boolean denyPhysicalDeleteable = false;
-    
+
     private boolean polymorphism;
 
     private ArrayList<SubTypeBean> reusableTypes;
@@ -88,12 +88,12 @@ public abstract class TypeModel implements Serializable, IsSerializable {
     private String defaultValue;
 
     private boolean hasVisibleRule = false;
-    
+
     private boolean autoExpand = false;
-    
+
     private TypeModel parentTypeModel;
 
-	public TypeModel() {
+    public TypeModel() {
         super();
     }
 
@@ -312,7 +312,7 @@ public abstract class TypeModel implements Serializable, IsSerializable {
     public void setDenyPhysicalDeleteable(boolean denyPhysicalDeleteable) {
         this.denyPhysicalDeleteable = denyPhysicalDeleteable;
     }
-    
+
     public boolean isHasVisibleRule() {
         return hasVisibleRule;
     }
@@ -370,22 +370,22 @@ public abstract class TypeModel implements Serializable, IsSerializable {
     }
 
     public boolean isAutoExpand() {
-		return autoExpand;
-	}
+        return autoExpand;
+    }
 
-	public void setAutoExpand(boolean autoExpand) {
-		this.autoExpand = autoExpand;
-	}
-	
+    public void setAutoExpand(boolean autoExpand) {
+        this.autoExpand = autoExpand;
+    }
+
     public TypeModel getParentTypeModel() {
-		return parentTypeModel;
-	}
+        return parentTypeModel;
+    }
 
-	public void setParentTypeModel(TypeModel parentTypeModel) {
-		this.parentTypeModel = parentTypeModel;
-	}
+    public void setParentTypeModel(TypeModel parentTypeModel) {
+        this.parentTypeModel = parentTypeModel;
+    }
 
-	public int[] getRange() {
+    public int[] getRange() {
         int min = 0;
         int max = 0;
         if (getMinOccurs() <= 0) {
@@ -416,4 +416,45 @@ public abstract class TypeModel implements Serializable, IsSerializable {
     public abstract boolean isSimpleType();
 
     public abstract boolean hasEnumeration();
+
+    protected String nullSafe(Object input, String emptyValue) {
+        return input == null ? emptyValue : input.toString();
+    }
+
+    protected String nullSafe(Object input) {
+        return nullSafe(input, "null"); //$NON-NLS-1$
+    }
+
+    @Override
+    public String toString() {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(" ") //$NON-NLS-1$
+                .append(this.getClass().getSimpleName())
+                .append(" [name=").append(nullSafe(name)).append(", type=").append(nullSafe(type)) //$NON-NLS-1$ //$NON-NLS-2$
+                .append(", xpath=").append(nullSafe(xpath)).append(", typePath=").append(nullSafe(typePath)) //$NON-NLS-1$ //$NON-NLS-2$
+                .append(", labelMap=").append(nullSafe(labelMap)).append(", descriptionMap=").append(nullSafe(descriptionMap)) //$NON-NLS-1$ //$NON-NLS-2$
+                .append(", minOccurs=").append(nullSafe(minOccurs)).append(", maxOccurs=").append(nullSafe(maxOccurs)) //$NON-NLS-1$ //$NON-NLS-2$
+                .append(", nillable=").append(nullSafe(nillable)).append(", readOnly=").append(nullSafe(readOnly)) //$NON-NLS-1$//$NON-NLS-2$
+                .append(", visible=").append(nullSafe(visible)).append(", denyCreatable=").append(nullSafe(denyCreatable)) //$NON-NLS-1$//$NON-NLS-2$
+                .append(", denyLogicalDeletable=").append(nullSafe(denyLogicalDeletable)).append(", denyPhysicalDeleteable=") //$NON-NLS-1$//$NON-NLS-2$
+                .append(nullSafe(denyPhysicalDeleteable))
+                .append(", facetErrorMsgs=").append(nullSafe(facetErrorMsgs)) //$NON-NLS-1$
+                .append(", displayFomats=").append(nullSafe(displayFomats)).append(", autoExpand=").append(nullSafe(autoExpand)) //$NON-NLS-1$//$NON-NLS-2$
+                .append(", primaryKeyInfo=").append(nullSafe(primaryKeyInfo)).append(", retrieveFKinfos=") //$NON-NLS-1$//$NON-NLS-2$
+                .append(nullSafe(retrieveFKinfos))
+                .append(", foreignkey=").append(nullSafe(foreignkey)) //$NON-NLS-1$
+                .append(", notSeparateFk=").append(nullSafe(notSeparateFk)).append(", foreignKeyInfo=") //$NON-NLS-1$//$NON-NLS-2$
+                .append(nullSafe(foreignKeyInfo)).append(", fkFilter=").append(nullSafe(fkFilter)).append(", isAbstract=") //$NON-NLS-1$//$NON-NLS-2$
+                .append(nullSafe(isAbstract)).append(", polymorphism=").append(nullSafe(polymorphism)).append(", defaultValue=") //$NON-NLS-1$//$NON-NLS-2$
+                .append(nullSafe(defaultValue))
+                .append(", defaultValueExpression=").append(nullSafe(defaultValueExpression)) //$NON-NLS-1$
+                .append(", hasVisibleRule=").append(nullSafe(hasVisibleRule)).append(", visibleExpression=") //$NON-NLS-1$//$NON-NLS-2$
+                .append(nullSafe(visibleExpression))
+                .append(", parentTypeModel=").append(parentTypeModel == null ? "null" : parentTypeModel.getTypePath()).append("]"); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+
+        return sb.toString();
+
+    }
+
 }
