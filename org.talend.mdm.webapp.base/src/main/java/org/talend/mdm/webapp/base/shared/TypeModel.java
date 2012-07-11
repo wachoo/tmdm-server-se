@@ -430,7 +430,7 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
         StringBuilder sb = new StringBuilder();
         sb.append(" ") //$NON-NLS-1$
-                .append(this.getClass().getSimpleName())
+                .append(this.getClass().getName())
                 .append(" [name=").append(nullSafe(name)).append(", type=").append(nullSafe(type)) //$NON-NLS-1$ //$NON-NLS-2$
                 .append(", xpath=").append(nullSafe(xpath)).append(", typePath=").append(nullSafe(typePath)) //$NON-NLS-1$ //$NON-NLS-2$
                 .append(", labelMap=").append(nullSafe(labelMap)).append(", descriptionMap=").append(nullSafe(descriptionMap)) //$NON-NLS-1$ //$NON-NLS-2$
