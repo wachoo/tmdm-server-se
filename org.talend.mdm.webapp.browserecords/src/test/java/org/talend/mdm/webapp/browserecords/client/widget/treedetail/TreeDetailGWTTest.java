@@ -2,6 +2,7 @@ package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -270,7 +271,7 @@ public class TreeDetailGWTTest extends GWTTestCase {
                 // render FK
                 EntityModel entityModel = new EntityModel();
                 entityModel.setKeys(new String[] { "ProductFamily" });
-                Map<String, TypeModel> metaDataTypes = new HashMap<String, TypeModel>();
+                LinkedHashMap<String, TypeModel> metaDataTypes = new LinkedHashMap<String, TypeModel>();
                 metaDataTypes.put("ProductFamily", new ComplexTypeModel("ProductFamily", DataTypeConstants.STRING));
                 metaDataTypes.put("ProductFamily/Id", new SimpleTypeModel("Id", DataTypeConstants.STRING));
                 metaDataTypes.put("ProductFamily/Name", new SimpleTypeModel("Name", DataTypeConstants.STRING));

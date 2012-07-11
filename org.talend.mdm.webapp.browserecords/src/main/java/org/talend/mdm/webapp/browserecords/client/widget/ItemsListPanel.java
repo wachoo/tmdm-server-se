@@ -32,6 +32,8 @@ import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
+import org.talend.mdm.webapp.browserecords.client.handler.ItemTreeHandler;
+import org.talend.mdm.webapp.browserecords.client.handler.ItemTreeHandlingStatus;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
@@ -39,7 +41,6 @@ import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.RecordsPagingConfig;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
-import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.DateUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
@@ -460,7 +461,7 @@ public class ItemsListPanel extends ContentPanel {
                     model = fkDetail.getRootModel();
                 }
                 ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
-                String xml = CommonUtil.toXML(model, viewBean);
+                String xml = (new ItemTreeHandler(model, viewBean, ItemTreeHandlingStatus.ToSave)).serializeItem();
 
                 service.updateItem(itemBean.getConcept(), itemBean.getIds(), changedField, xml, Locale.getLanguage(),
                         new SessionAwareAsyncCallback<String>() {

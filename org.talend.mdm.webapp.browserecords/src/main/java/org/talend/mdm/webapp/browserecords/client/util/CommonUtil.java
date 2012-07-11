@@ -3,10 +3,8 @@ package org.talend.mdm.webapp.browserecords.client.util;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Vector;
 
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
@@ -14,26 +12,14 @@ import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
-import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.google.gwt.xml.client.Document;
-import com.google.gwt.xml.client.Element;
-import com.google.gwt.xml.client.Node;
-import com.google.gwt.xml.client.NodeList;
-import com.google.gwt.xml.client.XMLParser;
 
 public class CommonUtil {
-
-    public static final String XMLNS_TMDM = "xmlns:tmdm"; //$NON-NLS-1$
-
-    public static final String XMLNS_TMDM_VALUE = "http://www.talend.com/mdm"; //$NON-NLS-1$
-
     
     private static final String BEFORE_DOMAIN = "\\b((https?|ftp)://)"; //$NON-NLS-1$
     private static final String PATH = "(/[-a-z0-9A-Z_:@&?=+,.!/~*'%#$]*)*"; //$NON-NLS-1$
 
-    
     public static String getHost(String url) {
         String host = url.replaceAll(BEFORE_DOMAIN, "").replaceAll(PATH, ""); //$NON-NLS-1$ //$NON-NLS-2$
         return host;
@@ -112,75 +98,7 @@ public class CommonUtil {
         return nodeModel.getName();
     }
 
-    public static String toXML(ItemNodeModel nodeModel, ViewBean viewBean) {
-        return toXML(nodeModel, viewBean, false);
-    }
 
-    public static String toXML(ItemNodeModel nodeModel, ViewBean viewBean, boolean isAll) {
-        if (nodeModel == null)
-            return null;
-        Document doc = XMLParser.createDocument();
-        Element root = _toXML(doc, nodeModel, viewBean, nodeModel, isAll);
-        if (nodeModel.get(XMLNS_TMDM) != null)
-            root.setAttribute(XMLNS_TMDM, XMLNS_TMDM_VALUE);
-        root.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance"); //$NON-NLS-1$//$NON-NLS-2$
-        doc.appendChild(root);
-        return doc.toString();
-    }
-
-    private static Element _toXML(Document doc, ItemNodeModel nodeModel, ViewBean viewBean, ItemNodeModel rootModel, boolean isAll) {
-        Element root = doc.createElement(nodeModel.getName());
-        TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(nodeModel.getTypePath());
-        if (!isAll) {
-            if (nodeModel.getParent() != null) {
-                if (!nodeModel.isKey()) {
-                    if (!typeModel.isVisible()) {
-                        return null;
-                    }
-                }
-            }
-        }
-        Serializable value = nodeModel.getObjectValue();
-
-        if (typeModel.isSimpleType()) {
-            if (value != null && nodeModel.getParent() != null) {
-                String elValue = null;
-                if (value instanceof ForeignKeyBean) {
-                    elValue = ((ForeignKeyBean) value).getId();
-                } else {
-                    elValue = value.toString();
-                }
-                root.appendChild(doc.createTextNode(elValue));
-                return root;
-            }
-        }
-
-        if (nodeModel.getRealType() != null) {
-            root.setAttribute("xsi:type", nodeModel.getRealType()); //$NON-NLS-1$
-        }
-
-        if (nodeModel.getTypeName() != null) {
-            root.setAttribute("tmdm:type", nodeModel.getTypeName()); //$NON-NLS-1$
-            rootModel.set(XMLNS_TMDM, XMLNS_TMDM_VALUE);
-        }
-
-        List<ModelData> children = nodeModel.getChildren();
-        if (children != null && children.size() > 0) {
-            for (ModelData child : children) {
-                Element el = _toXML(doc, (ItemNodeModel) child, viewBean, rootModel, isAll);
-                if (el != null) {
-                    root.appendChild(el);
-                }
-            }
-            if (!isAll) {
-                if (childrenEl(root).size() == 0) {
-                    return null;
-                }
-                mergerChildrenWhenEmpty(root);
-            }
-        }
-        return root;
-    }
 
     public static int getCountOfBrotherOfTheSameName(ItemNodeModel nodeModel) {
         int count = 0;
@@ -230,75 +148,6 @@ public class CommonUtil {
         return realPath.replaceAll("\\[\\d+\\]$", ""); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
-    private static void mergerChildrenWhenEmpty(Element el) {
-        Map<String, List<Element>> childrenGroup = childrenElGroup(el);
-        Set<String> keySet = childrenGroup.keySet();
-        for (String key : keySet) {
-            List<Element> group = childrenGroup.get(key);
-            if (isEmptyValueEls(group)) {
-                removeRedundantChildren(group);
-            }
-        }
-    }
-
-    private static void removeRedundantChildren(List<Element> childrenEl) {
-        for (int i = 1; i < childrenEl.size(); i++) {
-            Element el = childrenEl.get(i);
-            el.getParentNode().removeChild(el);
-        }
-    }
-
-    private static boolean isEmptyValueEls(List<Element> els) {
-        for (Element el : els) {
-            if (!isEmptyValueEl(el)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static boolean isEmptyValueEl(Element el) {
-        List<Element> childrenEl = childrenEl(el);
-        if (childrenEl.size() == 0) {
-            Node node = el.getFirstChild();
-            return node == null || node.getNodeValue() == null || node.getNodeValue().trim().length() == 0;
-        }
-
-        for (Element childEl : childrenEl) {
-            if (!isEmptyValueEl(childEl)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static List<Element> childrenEl(Element el) {
-        List<Element> els = new ArrayList<Element>();
-        NodeList childNodes = el.getChildNodes();
-        if (childNodes != null) {
-            for (int i = 0; i < childNodes.getLength(); i++) {
-                Node child = childNodes.item(i);
-                if (child.getNodeType() == Node.ELEMENT_NODE) {
-                    els.add((Element) child);
-                }
-            }
-        }
-        return els;
-    }
-
-    private static Map<String, List<Element>> childrenElGroup(Element el) {
-        Map<String, List<Element>> childrenGroup = new LinkedHashMap<String, List<Element>>();
-        List<Element> childrenEl = childrenEl(el);
-        for (Element childEl : childrenEl) {
-            List<Element> group = childrenGroup.get(childEl.getNodeName());
-            if (group == null) {
-                group = new ArrayList<Element>();
-                childrenGroup.put(childEl.getNodeName(), group);
-            }
-            group.add(childEl);
-        }
-        return childrenGroup;
-    }
 
     public static List<ItemNodeModel> getDefaultTreeModel(TypeModel model, String language) {
         List<ItemNodeModel> itemNodes = new ArrayList<ItemNodeModel>();

@@ -18,7 +18,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -83,7 +82,7 @@ public class TestData {
     }
 
     public static EntityModel getEntityModel() {
-        Map<String, TypeModel> metadata = new LinkedHashMap<String, TypeModel>();
+        LinkedHashMap<String, TypeModel> metadata = new LinkedHashMap<String, TypeModel>();
         DataTypeCustomized agency = new DataTypeCustomized("AgencyType", "anyType");
         ComplexTypeModel complexModel = new ComplexTypeModel("Agency", agency);
         complexModel.getLabelMap().put("en", "D* Agence");

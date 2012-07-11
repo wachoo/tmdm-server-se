@@ -21,6 +21,8 @@ import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
+import org.talend.mdm.webapp.browserecords.client.handler.ItemTreeHandler;
+import org.talend.mdm.webapp.browserecords.client.handler.ItemTreeHandlingStatus;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyDrawer;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
@@ -59,9 +61,9 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -450,7 +452,7 @@ public class ForeignKeyListWindow extends Window {
         if (this.foreignKeyFilter != null && this.foreignKeyFilter.trim().length() > 0) {
             ItemPanel itemPanel = (ItemPanel) detailPanel.getFirstTabWidget();
             ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getRootModel();
-            xml = CommonUtil.toXML(root, itemPanel.getViewBean());
+            xml = (new ItemTreeHandler(root, itemPanel.getViewBean(), ItemTreeHandlingStatus.InUse)).serializeItem();
         }
         if (xPath != null)
             this.currentXpath = xPath;
