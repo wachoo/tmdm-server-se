@@ -52,8 +52,6 @@ class UserContext implements DocumentSaverContext {
 
     private boolean hasMetAutoIncrement;
 
-    private String taskId = StringUtils.EMPTY;
-
     UserContext(String dataCluster, String dataModel, MutableDocument userDocument, boolean isReplace, boolean validate, boolean updateReport, boolean invokeBeforeSaving) {
         this.userDocument = userDocument;
         this.dataCluster = dataCluster;
@@ -154,14 +152,6 @@ class UserContext implements DocumentSaverContext {
 
     public void setHasMetAutoIncrement(boolean hasMetAutoIncrement) {
         this.hasMetAutoIncrement = hasMetAutoIncrement;
-    }
-
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
-    }
-
-    public String getTaskId() {
-        return taskId;
     }
 
     public boolean preserveOldCollectionValues() {

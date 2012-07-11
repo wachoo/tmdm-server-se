@@ -129,14 +129,6 @@ class SystemContext implements DocumentSaverContext {
     public void setHasMetAutoIncrement(boolean hasMetAutoIncrement) {
     }
 
-    public void setTaskId(String taskId) {
-        throw new UnsupportedOperationException();
-    }
-
-    public String getTaskId() {
-        return null;
-    }
-
     public boolean preserveOldCollectionValues() {
         return false;
     }

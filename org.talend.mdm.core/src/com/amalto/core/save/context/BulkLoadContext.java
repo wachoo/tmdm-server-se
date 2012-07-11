@@ -127,14 +127,6 @@ class BulkLoadContext implements DocumentSaverContext {
         throw new UnsupportedOperationException();
     }
 
-    public void setTaskId(String taskId) {
-        throw new UnsupportedOperationException();
-    }
-
-    public String getTaskId() {
-        throw new UnsupportedOperationException();
-    }
-
     public boolean preserveOldCollectionValues() {
         return false;
     }
