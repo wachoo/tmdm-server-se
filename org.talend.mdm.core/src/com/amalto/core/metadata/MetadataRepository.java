@@ -408,7 +408,8 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
                     typeMetadataKeyStack.pop();
                     currentTypeStack.pop();
                 } else if (refName != null) {
-                    fieldType = new SoftTypeRef(this, refName.getNamespaceURI(), refName.getLocalPart());
+                    referencedType = new ContainedComplexTypeRef(currentTypeStack.peek(), targetNamespace, element.getName(), new SoftTypeRef(this, refName.getNamespaceURI(), refName.getLocalPart()));
+                    fieldType = referencedType;
                 } else {
                     throw new NotImplementedException();
                 }
