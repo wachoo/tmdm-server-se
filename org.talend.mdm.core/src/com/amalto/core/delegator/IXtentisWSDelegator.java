@@ -3860,7 +3860,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     criteria.getTimeLastRunCompletedMin(), criteria.getTimeLastRunCompletedMax(),
                     criteria.getItemPKConceptContains(), criteria.getItemPKIDFieldsContain(), criteria.getServiceJNDIContains(),
                     criteria.getServiceParametersContain(), criteria.getMessageContain(), criteria.getSkip(),
-                    criteria.getMaxItems(), criteria.getTotalCountOnFirstResult());
+                    criteria.getMaxItems(), criteria.getTotalCountOnFirstResult().booleanValue());
 
             return pks;
         } catch (Exception e) {
@@ -3949,8 +3949,15 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 if (withTotalCount && firstRecord) {
                     firstRecord = false;
                     WSRoutingOrderV2 wsRoutingOrderV2 = new WSRoutingOrderV2();
-                    // record totalCount
+                    // record totalCount and wsRoutingOrderV2 need to initialize attribute value
                     wsRoutingOrderV2.setName(abstractRoutingOrderV2POJOPK.getName());
+                    wsRoutingOrderV2.setBindingUniverseName("");
+                    wsRoutingOrderV2.setBindingUserToken("");
+                    wsRoutingOrderV2.setMessage("");
+                    wsRoutingOrderV2.setServiceJNDI("");
+                    wsRoutingOrderV2.setServiceParameters("");
+                    wsRoutingOrderV2.setStatus(WSRoutingOrderV2Status.COMPLETED);
+                    wsRoutingOrderV2.setWsItemPK(new WSItemPK(new WSDataClusterPK(""), "", new String[0]));
                     list.add(wsRoutingOrderV2);
                     continue;
                 }

@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -854,8 +855,8 @@ public abstract class ObjectPOJO implements Serializable{
             }
 
             // Root Elements Names to revision IDs and clusterNames
-            HashMap<String, String> objectRootElementNameToRevisionID = new HashMap<String, String>();
-            HashMap<String, String> objectRootElementNameToClusterName = new HashMap<String, String>();
+            LinkedHashMap<String, String> objectRootElementNameToRevisionID = new LinkedHashMap<String, String>();
+            LinkedHashMap<String, String> objectRootElementNameToClusterName = new LinkedHashMap<String, String>();
             Set<String> objectNames = getObjectsNames2RootNamesMap().keySet();
             for (Iterator<String> iterator = objectNames.iterator(); iterator.hasNext();) {
                 String objectName = iterator.next();
@@ -871,10 +872,10 @@ public abstract class ObjectPOJO implements Serializable{
             // get the query
             String query = server.getXtentisObjectsQuery(objectRootElementNameToRevisionID, objectRootElementNameToClusterName,
                     getObjectRootElementName(getObjectName(objectClass)), new ArrayList<String>(Arrays.asList(idsPaths)),
-                    whereItem, orderBy, direction, 0, -1);
+                    whereItem, orderBy, direction, start, limit, withTotalCount);
 
             // run the query
-            Collection<String> res = server.runQuery(null, null, query, null, start, limit, withTotalCount);
+            Collection<String> res = server.runQuery(null, null, query, null);
 
             // Log
             if (LOG.isTraceEnabled())

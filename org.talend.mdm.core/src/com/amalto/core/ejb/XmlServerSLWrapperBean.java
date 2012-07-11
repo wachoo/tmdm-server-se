@@ -31,6 +31,8 @@ import javax.ejb.SessionContext;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
 
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
@@ -43,8 +45,6 @@ import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.WhereLogicOperator;
 import com.amalto.xmlserver.interfaces.WhereOr;
 import com.amalto.xmlserver.interfaces.XmlServerException;
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
 
 /**
  * All applications must call the methods of this wrapper only They never
@@ -832,7 +832,43 @@ public class XmlServerSLWrapperBean implements SessionBean {
             throw new XtentisException("Unable to get the Xtentis Objects Query ", e);
         }
     }
-    
+
+    /**
+     * Builds a query in the native language of the DB (for instance XQuery) based on conditions
+     * 
+     * @param objectRootElementNameToRevisionID A map that gives the revision ID of an Object XML Root Element Name
+     * @param objectRootElementNameToClusterName An ordered map that gives the cluster name of an Object XML Root
+     * Element Name
+     * @param viewableObjectElements The full XPath (starting with the Object root element name) of the elements and
+     * their sub elements that constitute the top elements of the returned documents
+     * @param mainObjectRootElementName An optional object type that will serve as the main pivot<br/>
+     * If not specified, the pivots will be in ordered of those in the viewableObjectElements
+     * @param whereItem The condition to apply
+     * @param orderBy The path of the element to order by. <code>null</code> to avoid ordering
+     * @param direction If orderBy is not <code>null</code>, the direction. One of
+     * @param start The index of the first element to return (start at 0)
+     * @param limit The index of the last element to search. A negative value or {@value Integer#MAX_VALUE} means no
+     * limit
+     * @param withTotalCount whether get totalCount
+     * @return the XQuery in the native language of the database
+     * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method
+     */
+    public String getXtentisObjectsQuery(LinkedHashMap<String, String> objectRootElementNameToRevisionID,
+            LinkedHashMap<String, String> objectRootElementNameToClusterName, String mainObjectRootElementName,
+            ArrayList<String> viewableObjectElements, IWhereItem whereItem, String orderBy, String direction, int start,
+            int limit, boolean withTotalCount) throws XtentisException {
+        try {
+            return server.getXtentisObjectsQuery(objectRootElementNameToRevisionID, objectRootElementNameToClusterName,
+                    mainObjectRootElementName, viewableObjectElements, whereItem, orderBy, direction, start, limit,
+                    withTotalCount);
+        } catch (XmlServerException e) {
+            throw new XtentisException("Unable to get the Xtentis Objects Query ", e);
+        }
+    }
+
     /**
      * Builds an Items query in the native language of the DB (for instance XQuery) based on conditions
      * @param conceptPatternsToRevisionID

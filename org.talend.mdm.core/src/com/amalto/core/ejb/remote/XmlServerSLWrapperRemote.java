@@ -324,6 +324,16 @@ public class XmlServerSLWrapperRemote extends Observable
       return retval;
 
    }
+   
+   public java.lang.String getXtentisObjectsQuery ( java.util.LinkedHashMap objectRootElementNameToRevisionID,java.util.LinkedHashMap objectRootElementNameToClusterName,java.lang.String mainObjectRootElementName,java.util.ArrayList viewableObjectElements,com.amalto.xmlserver.interfaces.IWhereItem whereItem,java.lang.String orderBy,java.lang.String direction,int start,int limit,boolean withTotalCount )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+        java.lang.String retval;
+       retval =  getSession().getXtentisObjectsQuery( objectRootElementNameToRevisionID,objectRootElementNameToClusterName,mainObjectRootElementName,viewableObjectElements,whereItem,orderBy,direction,start,limit,withTotalCount );
+
+   return retval;
+
+   }
 
    public java.lang.String getItemsQuery ( java.util.LinkedHashMap conceptPatternsToRevisionID,java.util.LinkedHashMap conceptPatternsToClusterName,java.lang.String forceMainPivot,java.util.ArrayList viewableFullPaths,com.amalto.xmlserver.interfaces.IWhereItem whereItem,java.lang.String orderBy,java.lang.String direction,int start,int limit,int spellThreshold )
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
