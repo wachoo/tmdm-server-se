@@ -3860,7 +3860,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     criteria.getTimeLastRunCompletedMin(), criteria.getTimeLastRunCompletedMax(),
                     criteria.getItemPKConceptContains(), criteria.getItemPKIDFieldsContain(), criteria.getServiceJNDIContains(),
                     criteria.getServiceParametersContain(), criteria.getMessageContain(), criteria.getSkip(),
-                    criteria.getMaxItems(), criteria.getTotalCountOnFirstResult().booleanValue());
+                    criteria.getMaxItems(), criteria.getTotalCountOnFirstResult());
 
             return pks;
         } catch (Exception e) {
@@ -3868,7 +3868,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
+            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
         }
     }
 
@@ -3970,7 +3970,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
+            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
         }
     }
 
