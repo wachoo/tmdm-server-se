@@ -452,7 +452,7 @@ public class ForeignKeyListWindow extends Window {
         if (this.foreignKeyFilter != null && this.foreignKeyFilter.trim().length() > 0) {
             ItemPanel itemPanel = (ItemPanel) detailPanel.getFirstTabWidget();
             ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getRootModel();
-            xml = (new ItemTreeHandler(root, itemPanel.getViewBean(), ItemTreeHandlingStatus.InUse)).serializeItem();
+            xml = (new ItemTreeHandler(root, itemPanel.getViewBean(), ItemTreeHandlingStatus.BeforeLoad)).serializeItem();
         }
         if (xPath != null)
             this.currentXpath = xPath;
