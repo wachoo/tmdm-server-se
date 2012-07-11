@@ -113,14 +113,6 @@ public class PartialUpdateSaverContext implements DocumentSaverContext {
         delegate.setHasMetAutoIncrement(hasMetAutoIncrement);
     }
 
-    public void setTaskId(String taskId) {
-        delegate.setTaskId(taskId);
-    }
-
-    public String getTaskId() {
-        return delegate.getTaskId();
-    }
-
     public boolean preserveOldCollectionValues() {
         return !overwrite;
     }

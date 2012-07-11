@@ -127,14 +127,6 @@ public class ReportDocumentSaverContext implements DocumentSaverContext {
         delegate.setHasMetAutoIncrement(hasMetAutoIncrement);
     }
 
-    public void setTaskId(String taskId) {
-        delegate.setTaskId(taskId);
-    }
-
-    public String getTaskId() {
-        return delegate.getTaskId();
-    }
-
     public boolean preserveOldCollectionValues() {
         return delegate.preserveOldCollectionValues();
     }
