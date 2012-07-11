@@ -21,12 +21,13 @@ import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
+import org.talend.mdm.webapp.browserecords.client.handler.ItemTreeHandler;
+import org.talend.mdm.webapp.browserecords.client.handler.ItemTreeHandlingStatus;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
-import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
@@ -126,7 +127,9 @@ public class BrowseRecordsController extends Controller {
         final MessageBox progressBar = MessageBox.wait(MessagesFactory.getMessages().save_progress_bar_title(), MessagesFactory
                 .getMessages().save_progress_bar_message(), MessagesFactory.getMessages().please_wait());
 
-        service.saveItem(viewBean, itemBean.getIds(), CommonUtil.toXML(model, viewBean), isCreate, Locale.getLanguage(),
+        service.saveItem(viewBean, itemBean.getIds(),
+                (new ItemTreeHandler(model, viewBean, ItemTreeHandlingStatus.ToSave)).serializeItem(), isCreate,
+                Locale.getLanguage(),
                 new SessionAwareAsyncCallback<ItemResult>() {
 
                     @Override
@@ -313,7 +316,8 @@ public class BrowseRecordsController extends Controller {
             EntityModel entityModel = (EntityModel) BrowseRecords.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
             entityModel.getMetaDataTypes();
 
-            service.executeVisibleRule(viewBean, CommonUtil.toXML(model, viewBean, true),
+            service.executeVisibleRule(viewBean,
+                    (new ItemTreeHandler(model, viewBean, ItemTreeHandlingStatus.InUse)).serializeItem(),
                     new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
 
                         public void onSuccess(List<VisibleRuleResult> arg0) {

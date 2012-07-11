@@ -1138,6 +1138,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             header.setDatamodel(getCurrentDataModel());
             header.setStandAloneMode(BaseConfiguration.isStandalone());
             header.setAutoTextAreaLength(BrowseRecordsConfiguration.getAutoTextAreaLength());
+            header.setKeepSilenceForPermissionExceptionWhenSave(BrowseRecordsConfiguration
+                    .keepSilenceForPermissionExceptionWhenSave());
             return header;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);

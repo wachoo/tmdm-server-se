@@ -2,7 +2,11 @@ package org.talend.mdm.webapp.browserecords.client.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+
+import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -152,7 +156,7 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
 
     private String _toString(String pre) {
         StringBuffer sb = new StringBuffer();
-        sb.append(pre + getName());
+        sb.append(pre + getName() + ":" + (getObjectValue() == null ? "null" : getObjectValue().toString())); //$NON-NLS-1$ //$NON-NLS-2$
         if (getRealType() != null && getRealType().trim().length() > 0) {
             sb.append("  xsi:" + getRealType()); //$NON-NLS-1$
         }
@@ -278,6 +282,45 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
         if (withValue)
             clonedModel.setObjectValue(getObjectValue());
         return clonedModel;
+    }
+
+    public void sort(EntityModel entityModel) {
+        sort(this, entityModel, false);
+    }
+
+    public void sort(EntityModel entityModel, boolean firstLevelOnly) {
+        sort(this, entityModel, firstLevelOnly);
+    }
+
+    private void sort(ItemNodeModel nodeModel, final EntityModel entityModel, boolean firstLevelOnly) {
+
+        if (entityModel == null || !entityModel.hasMetaDataType())
+            return;
+
+        List<ModelData> children = nodeModel.getChildren();
+        if (children != null && children.size() > 0) {
+            
+            // sort children node
+            Collections.sort(children, new Comparator<ModelData>() {
+
+                public int compare(ModelData o1, ModelData o2) {
+                    if (o1 == null || o2 == null)
+                        return 0;
+
+                    int index1 = entityModel.getIndexOfMetaDataType(((ItemNodeModel) o1).getTypePath());
+                    int index2 = entityModel.getIndexOfMetaDataType(((ItemNodeModel) o2).getTypePath());
+                    return index1 - index2;
+                }
+            });
+            
+            if(!firstLevelOnly){
+                for (ModelData modelData : children) {
+                    ItemNodeModel childNodeModel = (ItemNodeModel) modelData;
+                    sort(childNodeModel, entityModel, firstLevelOnly);
+                }
+            }
+            
+        }
     }
 
 }

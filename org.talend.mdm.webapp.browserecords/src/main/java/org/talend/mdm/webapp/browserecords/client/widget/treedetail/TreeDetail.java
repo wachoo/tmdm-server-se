@@ -24,6 +24,8 @@ import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
+import org.talend.mdm.webapp.browserecords.client.handler.ItemTreeHandler;
+import org.talend.mdm.webapp.browserecords.client.handler.ItemTreeHandlingStatus;
 import org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
@@ -196,7 +198,7 @@ public class TreeDetail extends ContentPanel {
 
                         public void onSuccess(final ItemNodeModel node) {
 
-                            itemService.executeVisibleRule(viewBean, CommonUtil.toXML(node, TreeDetail.this.viewBean, true),
+                            itemService.executeVisibleRule(viewBean, (new ItemTreeHandler(node, TreeDetail.this.viewBean, ItemTreeHandlingStatus.InUse)).serializeItem(),
                                     new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
 
                                         public void onSuccess(List<VisibleRuleResult> visibleResults) {
@@ -221,7 +223,8 @@ public class TreeDetail extends ContentPanel {
         getItemService().createDefaultItemNodeModel(viewBean, initDataMap, Locale.getLanguage(),
                 new SessionAwareAsyncCallback<ItemNodeModel>() {
             public void onSuccess(final ItemNodeModel result) {
-                getItemService().executeVisibleRule(viewBean, CommonUtil.toXML(result, viewBean, true),
+                        getItemService().executeVisibleRule(viewBean,
+                                (new ItemTreeHandler(result, viewBean, ItemTreeHandlingStatus.InUse)).serializeItem(),
                 new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
 
                     public void onSuccess(List<VisibleRuleResult> visibleResults) {
@@ -335,7 +338,7 @@ public class TreeDetail extends ContentPanel {
         typePath = typePath.replaceAll(":" + treeNode.getRealType() + "$", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         ItemNodeModel rootNode = (ItemNodeModel) root.getUserObject();
         treeNode.removeAll();
-        String xml = CommonUtil.toXML(rootNode, viewBean);
+        String xml = (new ItemTreeHandler(rootNode, viewBean, ItemTreeHandlingStatus.InUse)).serializeItem();
 
         getItemService().createSubItemNodeModel(viewBean, xml, typePath, contextPath, treeNode.getRealType(), UrlUtil.getLanguage(),
                 new SessionAwareAsyncCallback<ItemNodeModel>() {
@@ -688,7 +691,10 @@ public class TreeDetail extends ContentPanel {
                         itemsDetailPanel.clearChildrenContent();
 
                         if (node.isHasVisiblueRule()) {
-                            getItemService().executeVisibleRule(viewBean, CommonUtil.toXML(node, TreeDetail.this.viewBean, true),
+                            getItemService().executeVisibleRule(
+                                    viewBean,
+                                    (new ItemTreeHandler(node, TreeDetail.this.viewBean, ItemTreeHandlingStatus.InUse))
+                                            .serializeItem(),
                                     new SessionAwareAsyncCallback<List<VisibleRuleResult>>() {
 
                                         public void onSuccess(List<VisibleRuleResult> visibleResults) {

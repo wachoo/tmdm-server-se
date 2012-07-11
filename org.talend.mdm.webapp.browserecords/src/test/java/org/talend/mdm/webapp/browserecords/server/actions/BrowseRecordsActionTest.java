@@ -19,6 +19,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -91,7 +92,7 @@ public class BrowseRecordsActionTest extends TestCase {
         viewBean.addViewableXpath("Contrat/numeroContrat");
         viewBean.addViewableXpath("Contrat/detailContrat/@xsi:type");
         EntityModel entityModel = new EntityModel();
-        entityModel.setMetaDataTypes(new HashMap<String, TypeModel>());
+        entityModel.setMetaDataTypes(new LinkedHashMap<String, TypeModel>());
         action.dynamicAssembleByResultOrder(itemBean, viewBean, entityModel);
         assertEquals("5005007",itemBean.get("Contrat/numeroContrat"));
         assertEquals("AP-RE",itemBean.get("Contrat/detailContrat/@xsi:type"));      

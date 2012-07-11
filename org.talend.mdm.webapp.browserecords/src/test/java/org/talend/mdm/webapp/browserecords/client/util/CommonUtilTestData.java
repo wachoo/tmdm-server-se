@@ -1,5 +1,8 @@
 package org.talend.mdm.webapp.browserecords.client.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
@@ -12,12 +15,14 @@ import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
 
+@SuppressWarnings("nls")
 public class CommonUtilTestData {
 
     public static EntityModel getEntityModel(String modelXml) {
         Element root = XMLParser.parse(modelXml).getDocumentElement();
         EntityModel entity = new EntityModel();
-        entity.setConceptName(root.getAttribute("concept")); //$NON-NLS-1$
+        List<String> ids = new ArrayList<String>();
+        entity.setConceptName(root.getAttribute("concept"));
 
         NodeList childNodes = root.getChildNodes();
         if (childNodes != null) {
@@ -25,30 +30,46 @@ public class CommonUtilTestData {
                 Node child = childNodes.item(i);
                 if (child.getNodeType() == Node.ELEMENT_NODE) {
                     Element childEl = (Element) child;
-                    boolean isSimple = Boolean.parseBoolean(childEl.getAttribute("isSimple")); //$NON-NLS-1$
-                    boolean isFk = Boolean.parseBoolean(childEl.getAttribute("isFk")); //$NON-NLS-1$
-                    boolean isReadOnly = Boolean.parseBoolean(childEl.getAttribute("isReadOnly")); //$NON-NLS-1$
-                    boolean isVisible = Boolean.parseBoolean(childEl.getAttribute("isVisible")); //$NON-NLS-1$
-                    String typePath = childEl.getAttribute("typePath"); //$NON-NLS-1$
+                    boolean isSimple = childEl.getAttribute("isSimple") == null ? true : Boolean.parseBoolean(childEl
+                            .getAttribute("isSimple"));
+                    boolean isPk = childEl.getAttribute("isKey") == null ? false : Boolean.parseBoolean(childEl
+                            .getAttribute("isKey"));
+                    boolean isFk = childEl.getAttribute("isFk") == null ? false : Boolean.parseBoolean(childEl
+                            .getAttribute("isFk"));
+                    boolean isReadOnly = childEl.getAttribute("isReadOnly") == null ? false : Boolean.parseBoolean(childEl
+                            .getAttribute("isReadOnly"));
+                    boolean isVisible = childEl.getAttribute("isVisible") == null ? true : Boolean.parseBoolean(childEl
+                            .getAttribute("isVisible"));
+                    int minOccurs = childEl.getAttribute("minOccurs") == null ? 0 : Integer.parseInt(childEl
+                            .getAttribute("minOccurs"));
+                    int maxOccurs = childEl.getAttribute("maxOccurs") == null ? 1 : Integer.parseInt(childEl
+                            .getAttribute("maxOccurs"));
+                    String typePath = childEl.getAttribute("typePath");
                     TypeModel tm = null;
-                    if (isSimple){
+                    if (isSimple) {
                         SimpleTypeModel stm = new SimpleTypeModel();
-                        stm.setForeignkey(isFk ? "fk/fk" : null); //$NON-NLS-1$
-                        stm.setXpath(typePath.replaceAll(":\\w+", ""));  //$NON-NLS-1$//$NON-NLS-2$
+                        stm.setForeignkey(isFk ? "fk/fk" : null);
+                        stm.setXpath(typePath.replaceAll(":\\w+", ""));
                         tm = stm;
                     } else {
                         ComplexTypeModel ctm = new ComplexTypeModel();
-                        ctm.setXpath(typePath.replaceAll(":\\w+", ""));  //$NON-NLS-1$//$NON-NLS-2$
+                        ctm.setXpath(typePath.replaceAll(":\\w+", ""));
                         tm = ctm;
                     }
+
+                    if (isPk)
+                        ids.add(typePath);
                     tm.setReadOnly(isReadOnly);
                     tm.setVisible(isVisible);
                     tm.setTypePath(typePath);
+                    tm.setMinOccurs(minOccurs);
+                    tm.setMaxOccurs(maxOccurs);
                     entity.getMetaDataTypes().put(typePath, tm);
                 }
             }
         }
-
+        if (ids.size() > 0)
+            entity.setKeys(ids.toArray(new String[ids.size()]));
 
         return entity;
     }
@@ -62,11 +83,14 @@ public class CommonUtilTestData {
         ItemNodeModel node = new ItemNodeModel(el.getNodeName());
         node.setTypePath(getElTypePath(el));
         TypeModel tm = entityModel.getMetaDataTypes().get(node.getTypePath());
+        if (tm == null)
+            throw new RuntimeException(node.getTypePath() + " does not exist! ");
         if (tm.isSimpleType()) {
             if (tm.getForeignkey() != null && tm.getForeignkey().trim().length() > 0) {
-                if (el.getNodeValue() != null && el.getNodeValue().trim().length() > 0) {
+                if (el.getFirstChild().getNodeType() == Node.TEXT_NODE && el.getFirstChild().getNodeValue() != null
+                        && el.getFirstChild().getNodeValue().trim().length() > 0) {
                     ForeignKeyBean fkBean = new ForeignKeyBean();
-                    fkBean.setId(el.getNodeValue());
+                    fkBean.setId(el.getFirstChild().getNodeValue());
                     node.setObjectValue(fkBean);
                 } else {
                     node.setObjectValue(null);
@@ -77,6 +101,13 @@ public class CommonUtilTestData {
                 } else {
                     node.setObjectValue(null);
                 }
+            }
+        }
+
+        if (entityModel.getKeys() != null) {
+            for (String key : entityModel.getKeys()) {
+                if (key.equals(node.getTypePath()))
+                    node.setKey(true);
             }
         }
 
@@ -91,11 +122,12 @@ public class CommonUtilTestData {
                 }
             }
         }
+
         return node;
     }
 
     private static String getElTypePath(Element el) {
-        String typePath = ""; //$NON-NLS-1$
+        String typePath = "";
         Node current = el;
         boolean isFirst = true;
         while (current != null && current instanceof Element) {
@@ -103,7 +135,7 @@ public class CommonUtilTestData {
                 typePath = getElTypeName((Element) current) + typePath;
                 isFirst = false;
             } else {
-                typePath = getElTypeName((Element) current) + "/" + typePath; //$NON-NLS-1$    
+                typePath = getElTypeName((Element) current) + "/" + typePath;
             }
             current = current.getParentNode();
         }
@@ -111,9 +143,9 @@ public class CommonUtilTestData {
     }
 
     private static String getElTypeName(Element el) {
-        String type = el.getAttribute("xsi:type"); //$NON-NLS-1$
+        String type = el.getAttribute("xsi:type");
         if (type != null && type.trim().length() > 0) {
-            return el.getNodeName() + ":" + type; //$NON-NLS-1$
+            return el.getNodeName() + ":" + type;
         }
         return el.getNodeName();
     }

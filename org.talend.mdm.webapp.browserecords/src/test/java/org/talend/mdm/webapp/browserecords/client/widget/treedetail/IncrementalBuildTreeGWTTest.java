@@ -14,6 +14,7 @@ package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -91,7 +92,7 @@ public class IncrementalBuildTreeGWTTest extends GWTTestCase {
     private ViewBean getViewBean() {
         ViewBean viewBean = new ViewBean();
         EntityModel bindingEntityModel = new EntityModel();
-        Map<String, TypeModel> metaDataTypes = new HashMap<String, TypeModel>();
+        LinkedHashMap<String, TypeModel> metaDataTypes = new LinkedHashMap<String, TypeModel>();
 
         ComplexTypeModel testType = new ComplexTypeModel("Test", DataTypeCreator.getDataType("Test", "anyType")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         testType.setTypePath("Test"); //$NON-NLS-1$

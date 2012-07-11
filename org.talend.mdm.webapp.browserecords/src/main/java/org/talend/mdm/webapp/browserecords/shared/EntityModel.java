@@ -12,7 +12,11 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.shared;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,23 +25,16 @@ import org.talend.mdm.webapp.base.shared.TypeModel;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-/**
- * DOC HSHU class global comment. Detailled comment
- */
 public class EntityModel implements IsSerializable {
 
     private String conceptName;
 
     private String[] keys;
 
-    private Map<String, TypeModel> metaDataTypes;//TODO: Change to SortedMap
+    private LinkedHashMap<String, TypeModel> metaDataTypes;//It must be an ordered collection
 
-
-    /**
-     * DOC HSHU EntityModel constructor comment.
-     */
     public EntityModel() {
-        this.metaDataTypes = new LinkedHashMap<String, TypeModel>();//Can I use linked hashMap?
+        this.metaDataTypes = new LinkedHashMap<String, TypeModel>();
     }
 
     public String getConceptName() {
@@ -71,8 +68,74 @@ public class EntityModel implements IsSerializable {
         return metaDataTypes;
     }
 
-    public void setMetaDataTypes(Map<String, TypeModel> metaDataTypes) {
+    public void setMetaDataTypes(LinkedHashMap<String, TypeModel> metaDataTypes) {
         this.metaDataTypes = metaDataTypes;
     }
+
+    public boolean addMetaDataType(String typePath, TypeModel typeModel) {
+
+        if (metaDataTypes == null)
+            return false;
+
+        metaDataTypes.put(typePath, typeModel);
+        return true;
+
+    }
+
+    public int getIndexOfMetaDataType(String typePath) {
+
+        if (metaDataTypes == null || typePath == null)
+            return -1;
+
+        List<String> keys = new ArrayList<String>(metaDataTypes.keySet());
+        for (int i = 0; i < keys.size(); i++) {
+            String key = keys.get(i);
+            if (typePath.equals(key))
+                return i;
+        }
+
+        return -1;
+
+    }
+
+    public TypeModel getTypeModel(String typePath) {
+
+        if (metaDataTypes == null || typePath == null)
+            return null;
+
+        return metaDataTypes.get(typePath);
+
+    }
+
+    public Iterator<String> iterateMetaDataTypes() {
+        if (metaDataTypes == null)
+            return null;
+
+        return metaDataTypes.keySet().iterator();
+    }
+
+    public boolean hasMetaDataType() {
+
+        if (metaDataTypes == null || metaDataTypes.size() == 0)
+            return false;
+
+        return true;
+
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("EntityModel [conceptName=").append(conceptName).append(", keys=").append(Arrays.toString(keys)).append("]"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+        if (metaDataTypes != null && metaDataTypes.size() > 0) {
+            sb.append("\n"); //$NON-NLS-1$
+            for (String typePath : metaDataTypes.keySet()) {
+                sb.append(typePath).append(":").append(metaDataTypes.get(typePath)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+
+        }
+        return sb.toString();
+    }
+
 
 }

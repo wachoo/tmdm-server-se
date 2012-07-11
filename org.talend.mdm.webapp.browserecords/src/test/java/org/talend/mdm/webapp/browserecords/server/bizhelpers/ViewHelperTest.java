@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.browserecords.server.bizhelpers;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -93,7 +94,7 @@ public class ViewHelperTest extends TestCase {
         entityModel.setConceptName("ProductFamily");
         String[] keys = {"1"};
         entityModel.setKeys(keys);
-        Map<String, TypeModel> metaDataTypes = new HashMap<String, TypeModel>();
+        LinkedHashMap<String, TypeModel> metaDataTypes = new LinkedHashMap<String, TypeModel>();
         ComplexTypeModel family = new ComplexTypeModel();
         
         SimpleTypeModel id = new SimpleTypeModel("id",new DataTypeCustomized("",""));
