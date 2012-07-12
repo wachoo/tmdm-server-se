@@ -310,9 +310,9 @@ public class ItemsListPanel extends ContentPanel {
         });
         grid.addPlugin(re);
         grid.addPlugin(sm);
-        grid.setAriaIgnore(true);
-        grid.setAriaDescribedBy("abcdefg");//$NON-NLS-1$
-        grid.setAriaLabelledBy(this.getHeader().getId() + "-label");//$NON-NLS-1$
+
+        grid.getAriaSupport().setDescribedBy("abcdefg"); //$NON-NLS-1$
+        grid.getAriaSupport().setLabelledBy(this.getHeader().getId() + "-label");//$NON-NLS-1$
 
         gridContainer.add(grid);
         gridContainer.setHeight(this.getHeight() - toolBar.getHeight() - toolBar.getAdvancedPanel().getHeight());
