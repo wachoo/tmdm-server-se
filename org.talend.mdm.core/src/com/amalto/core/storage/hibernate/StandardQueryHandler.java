@@ -11,10 +11,7 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.ContainedComplexTypeMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.metadata.*;
 import com.amalto.core.query.user.*;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.storage.Storage;
@@ -23,10 +20,7 @@ import com.amalto.core.storage.record.DataRecord;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.Criteria;
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
-import org.hibernate.Session;
+import org.hibernate.*;
 import org.hibernate.criterion.*;
 import org.hibernate.sql.JoinFragment;
 
@@ -51,6 +45,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
     private int aliasCount = 0;
 
     private final Map<FieldMetadata, String> joinFieldsToAlias = new HashMap<FieldMetadata, String>();
+
+    private List<ComplexTypeMetadata> selectedTypes;
 
     public StandardQueryHandler(Storage storage,
                                 MappingRepository mappingMetadataRepository,
@@ -189,8 +185,38 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(Field field) {
-        projectionList.add(Projections.property(getFieldName(field, mappingMetadataRepository)));
+        ComplexTypeMetadata containingType = field.getFieldMetadata().getContainingType();
+        if (!selectedTypes.contains(containingType)) {
+            TypeMapping mapping = mappingMetadataRepository.getMapping(selectedTypes.get(0));
+            FieldMetadata database = mapping.getDatabase(field.getFieldMetadata());
+            String alias = getAlias(mapping, database);
+            if (database instanceof ReferenceFieldMetadata) { // Automatically selects referenced ID in case of FK.
+                projectionList.add(Projections.property(alias + '.' + ((ReferenceFieldMetadata) database).getReferencedField().getName()));
+            } else {
+                projectionList.add(Projections.property(alias + '.' + database.getName()));
+            }
+        } else {
+            projectionList.add(Projections.property(getFieldName(field, mappingMetadataRepository)));
+        }
         return null;
+    }
+
+    private String getAlias(TypeMapping mapping, FieldMetadata databaseField) {
+        ComplexTypeMetadata mainType = mapping.getDatabase();
+        String previousAlias = mainType.getName();
+        String alias;
+        for (FieldMetadata next : MetadataUtils.path(mainType, databaseField)) {
+            if (next instanceof ReferenceFieldMetadata) {
+                alias = joinFieldsToAlias.get(next);
+                if (alias == null) {
+                    alias = "a" + aliasCount++;
+                    joinFieldsToAlias.put(next, alias); //$NON-NLS-1$
+                    criteria.createAlias(previousAlias + '.' + next.getName(), alias, CriteriaSpecification.INNER_JOIN);
+                }
+                previousAlias = alias;
+            }
+        }
+        return previousAlias;
     }
 
     @Override
@@ -203,7 +229,11 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(Select select) {
-        mainType = select.getTypes().get(0);
+        selectedTypes = select.getTypes();
+        if (selectedTypes.isEmpty()) {
+            throw new IllegalArgumentException("Select clause is expected to select at least one entity type.");
+        }
+        mainType = selectedTypes.get(0);
         String mainTypeName = mainType.getName();
         String className = ClassCreator.PACKAGE_PREFIX + mainTypeName;
         criteria = session.createCriteria(className, mainTypeName);
@@ -318,7 +348,19 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(OrderBy orderBy) {
-        String fieldName = getFieldName(orderBy.getField(), mappingMetadataRepository);
+        Field field = orderBy.getField();
+
+        String fieldName;
+        ComplexTypeMetadata containingType = field.getFieldMetadata().getContainingType();
+        if (!selectedTypes.contains(containingType)) {
+            TypeMapping mapping = mappingMetadataRepository.getMapping(selectedTypes.get(0));
+            FieldMetadata database = mapping.getDatabase(field.getFieldMetadata());
+            String alias = getAlias(mapping, database);
+            fieldName = alias + '.' + database.getName();
+        } else {
+            fieldName = getFieldName(field, mappingMetadataRepository);
+        }
+
         OrderBy.Direction direction = orderBy.getDirection();
         switch (direction) {
             case ASC:

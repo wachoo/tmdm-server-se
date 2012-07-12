@@ -99,24 +99,14 @@ public class StagingAreaTest extends TestCase {
         destination = new HibernateStorage("Destination", StorageType.MASTER);
 
         origin.init("H2-Staging-DS1");
-        origin.prepare(repository, Collections.<FieldMetadata> emptySet(), true, true);
+        origin.prepare(repository, true);
         destination.init("H2-Master-DS2");
-        destination.prepare(repository, Collections.<FieldMetadata> emptySet(), true, true);
+        destination.prepare(repository, true);
     }
 
     private void generateData(boolean validData) {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
-
-        allRecords.clear();
-        allRecords.add(factory.read(1, repository, person, newPerson(0, validData)));
-        try {
-            origin.begin();
-            origin.update(allRecords);
-            origin.commit();
-        } finally {
-            origin.end();
-        }
 
         allRecords.clear();
         for (int i = 0; i < COUNT; i++) {

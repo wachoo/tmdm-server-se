@@ -312,15 +312,11 @@ public class HibernateStorage implements Storage {
                 o.timestamp(System.currentTimeMillis());
                 o.revision(currentDataRecord.getRevisionId());
 
-                // TODO Improve this
                 DataRecordMetadata recordMetadata = currentDataRecord.getRecordMetadata();
+                o.taskId(recordMetadata.getTaskId());
                 Map<String, String> recordProperties = recordMetadata.getRecordProperties();
                 for (Map.Entry<String, String> currentProperty : recordProperties.entrySet()) {
-                    if (METADATA_TASK_ID.equals(currentProperty.getKey())) {
-                        o.taskId(currentProperty.getValue());
-                    } else {
-                        o.set(currentProperty.getKey(), currentProperty.getValue());
-                    }
+                    o.set(currentProperty.getKey(), currentProperty.getValue());
                 }
                 session.saveOrUpdate(o);
             }

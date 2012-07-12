@@ -89,29 +89,31 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     private String handleContainedType(String superTypeDatabaseName, String containerTypeName, ComplexTypeMetadata containedType) {
         String newTypeName = (containerTypeName.replace('-', '_') + "_2_" + containedType.getName().replace('-', '_')).toUpperCase(); //$NON-NLS-1$
-        ComplexTypeMetadata newInternalType = new ComplexTypeMetadataImpl(containedType.getNamespace(),
-                newTypeName,
-                containedType.getWriteUsers(),
-                containedType.getDenyCreate(),
-                containedType.getHideUsers(),
-                containedType.getDenyDelete(ComplexTypeMetadata.DeleteType.PHYSICAL),
-                containedType.getDenyDelete(ComplexTypeMetadata.DeleteType.LOGICAL),
-                containedType.getSchematron(),
-                false);
-        if (superTypeDatabaseName == null) {  // Generate a technical ID only if contained type does not have super type (subclasses will inherit it).
-            newInternalType.addField(new SimpleTypeFieldMetadata(newInternalType,
-                    true,
-                    false,
-                    true,
-                    GENERATED_ID,
-                    new SoftTypeRef(internalRepository, internalRepository.getUserNamespace(), "UUID"), //$NON-NLS-1$
+        ComplexTypeMetadata newInternalType = internalRepository.getComplexType(newTypeName);
+        if (newInternalType == null) {
+            newInternalType = new ComplexTypeMetadataImpl(containedType.getNamespace(),
+                    newTypeName,
                     containedType.getWriteUsers(),
-                    containedType.getHideUsers()));
-        } else {
-            newInternalType.addSuperType(new SoftTypeRef(internalRepository, newInternalType.getNamespace(), superTypeDatabaseName), internalRepository);
+                    containedType.getDenyCreate(),
+                    containedType.getHideUsers(),
+                    containedType.getDenyDelete(ComplexTypeMetadata.DeleteType.PHYSICAL),
+                    containedType.getDenyDelete(ComplexTypeMetadata.DeleteType.LOGICAL),
+                    containedType.getSchematron(),
+                    false);
+            if (superTypeDatabaseName == null) {  // Generate a technical ID only if contained type does not have super type (subclasses will inherit it).
+                newInternalType.addField(new SimpleTypeFieldMetadata(newInternalType,
+                        true,
+                        false,
+                        true,
+                        GENERATED_ID,
+                        new SoftTypeRef(internalRepository, internalRepository.getUserNamespace(), "UUID"), //$NON-NLS-1$
+                        containedType.getWriteUsers(),
+                        containedType.getHideUsers()));
+            } else {
+                newInternalType.addSuperType(new SoftTypeRef(internalRepository, newInternalType.getNamespace(), superTypeDatabaseName), internalRepository);
+            }
+            internalRepository.addTypeMetadata(newInternalType);
         }
-
-        internalRepository.addTypeMetadata(newInternalType);
         currentType.push(newInternalType);
         {
             super.visit(containedType);

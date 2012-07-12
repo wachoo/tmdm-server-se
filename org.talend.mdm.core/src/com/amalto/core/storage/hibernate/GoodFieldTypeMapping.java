@@ -57,19 +57,29 @@ public class GoodFieldTypeMapping extends TypeMapping {
                     DataRecord containedRecord = (DataRecord) from.get(field);
                     if (containedRecord != null) {
                         referencedType = getActualReferenceType(referencedType, containedRecord);
-                        Wrapper object = createObject(contextClassLoader, referencedType);
+                        Wrapper existingValue = (Wrapper) to.get(referenceFieldMetadata.getName());
+                        Wrapper object = existingValue == null ? createObject(contextClassLoader, referencedType) : existingValue;
                         to.set(referenceFieldMetadata.getName(), _setValues(session, containedRecord, object));
-                        session.persist(object);
+                        if (existingValue == null) {
+                            session.persist(object);
+                        }
                     }
                 } else {
                     List<DataRecord> dataRecords = (List<DataRecord>) from.get(field);
                     if (dataRecords != null) {
-                        List<Object> objects = new LinkedList<Object>();
+                        List<Wrapper> existingValue = (List<Wrapper>) to.get(getDatabase(field).getName());
+                        List<Wrapper> objects = existingValue == null ? new ArrayList<Wrapper>(dataRecords.size()) : existingValue;
+                        int i = 0;
                         for (DataRecord dataRecord : dataRecords) {
                             referencedType = getActualReferenceType(referencedType, dataRecord);
-                            Wrapper object = createObject(contextClassLoader, referencedType);
-                            objects.add(_setValues(session, dataRecord, object));
-                            session.persist(object);
+                            if (i < objects.size() && objects.get(i) != null) {
+                                objects.set(i, (Wrapper) _setValues(session, dataRecord, objects.get(i)));
+                            } else {
+                                Wrapper object = createObject(contextClassLoader, referencedType);
+                                objects.add((Wrapper) _setValues(session, dataRecord, object));
+                                session.persist(object);
+                            }
+                            i++;
                         }
                         to.set(referenceFieldMetadata.getName(), objects);
                     }
@@ -152,11 +162,9 @@ public class GoodFieldTypeMapping extends TypeMapping {
                     } else {
                         List<Wrapper> wrapperList = (List<Wrapper>) from.get(field.getName());
                         if (wrapperList != null) {
-                            List<DataRecord> containedDataRecords = new LinkedList<DataRecord>();
                             for (Wrapper wrapper : wrapperList) {
-                                containedDataRecords.add(setValues(wrapper, new DataRecord(getActualContainedType(userField, wrapper), UnsupportedDataRecordMetadata.INSTANCE)));
+                                to.set(userField, setValues(wrapper, new DataRecord(getActualContainedType(userField, wrapper), UnsupportedDataRecordMetadata.INSTANCE)));
                             }
-                            to.set(userField, containedDataRecords);
                         }
                     }
                 } else if (userField instanceof ReferenceFieldMetadata) {

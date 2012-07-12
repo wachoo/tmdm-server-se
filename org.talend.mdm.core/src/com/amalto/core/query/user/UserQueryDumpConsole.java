@@ -242,20 +242,35 @@ public class UserQueryDumpConsole implements Visitor<Void> {
             field.getFieldMetadata().accept(new DefaultMetadataVisitor<Void>() {
                 @Override
                 public Void visit(ReferenceFieldMetadata referenceField) {
-                    print(referenceField.getContainingType().getName() + "/" + referenceField.getName());
+                    print(getFieldPath(referenceField));
                     return null;
                 }
 
                 @Override
                 public Void visit(SimpleTypeFieldMetadata simpleField) {
-                    print(simpleField.getContainingType().getName() + "/" + simpleField.getName());
+                    print(getFieldPath(simpleField));
                     return null;
                 }
 
                 @Override
                 public Void visit(EnumerationFieldMetadata enumField) {
-                    print(enumField.getContainingType().getName() + "/" + enumField.getName());
+                    print(getFieldPath(enumField));
                     return null;
+                }
+
+                private String getFieldPath(FieldMetadata field) {
+                    StringBuilder path = new StringBuilder();
+                    ComplexTypeMetadata containingType = field.getContainingType();
+                    while (containingType != null) {
+                        path.insert(0, containingType.getName() + '/');
+                        if (containingType instanceof ContainedComplexTypeMetadata) {
+                            containingType = ((ContainedComplexTypeMetadata) containingType).getContainerType();
+                        } else {
+                            containingType = null;
+                        }
+                    }
+                    path.append(field.getName());
+                    return path.toString();
                 }
             });
         }

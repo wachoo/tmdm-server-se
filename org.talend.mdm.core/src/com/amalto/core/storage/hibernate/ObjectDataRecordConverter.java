@@ -14,12 +14,12 @@ package com.amalto.core.storage.hibernate;
 import com.amalto.core.metadata.*;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordConverter;
-import org.apache.commons.lang.NotImplementedException;
+import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Session;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ObjectDataRecordConverter implements DataRecordConverter<Object> {
@@ -43,7 +43,25 @@ public class ObjectDataRecordConverter implements DataRecordConverter<Object> {
 
         try {
             Class<?> mainInstanceClass = storageClassLoader.findClass(dataRecord.getType().getName());
-            Wrapper mainInstance = (Wrapper) mainInstanceClass.newInstance();
+            // Try to load existing instance (if any).
+            Wrapper mainInstance;
+            try {
+                if (dataRecord.getType().getKeyFields().size() == 1) {
+                    mainInstance = (Wrapper) session.get(mainInstanceClass, (Serializable) dataRecord.get(dataRecord.getType().getKeyFields().get(0)));
+                } else {
+                    List<Object> compositeIdValues = new ArrayList<Object>(dataRecord.getType().getKeyFields().size());
+                    for (FieldMetadata keyField : dataRecord.getType().getKeyFields()) {
+                        compositeIdValues.add(dataRecord.get(keyField));
+                    }
+                    mainInstance = (Wrapper) session.get(mainInstanceClass, createCompositeId(storageClassLoader, mainInstanceClass, compositeIdValues));
+                }
+            } catch (ObjectNotFoundException e) {
+                mainInstance = null;
+            }
+            // Instance does not exist, so create it.
+            if(mainInstance == null) {
+                mainInstance = (Wrapper) mainInstanceClass.newInstance();
+            }
             mapping.setValues(session, dataRecord, mainInstance);
             return mainInstance;
         } catch (Exception e) {

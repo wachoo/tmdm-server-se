@@ -31,7 +31,7 @@ public class MetadataUtils {
 
     /**
      * <p>
-     * Find a path (not necessarily the shortest) from type <code>origin</code> to field <code>target</code>.
+     * Find <b>a</b> path (<b>not necessarily the shortest</b>) from type <code>origin</code> to field <code>target</code>.
      * </p>
      * <p>
      * Method is expected to run in linear time (but uses recursion, so not-so-good performance is to expect), depending on:

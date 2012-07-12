@@ -140,12 +140,19 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
         @Override
         public HibernateStorage.TypeMappingStrategy visit(ContainedComplexTypeMetadata containedType) {
             fieldCount += containedType.getFields().size();
-            return super.visit(containedType);
+            Collection<FieldMetadata> fields = containedType.getFields();
+            for (FieldMetadata field : fields) {
+                HibernateStorage.TypeMappingStrategy result = field.accept(this);
+                if (result == HibernateStorage.TypeMappingStrategy.GOOD_FIELD) {
+                    return result;
+                }
+            }
+            return HibernateStorage.TypeMappingStrategy.FLAT;
         }
 
         @Override
         public HibernateStorage.TypeMappingStrategy visit(ContainedTypeFieldMetadata containedField) {
-            if (!containedField.getContainedType().getSubTypes().isEmpty()) {
+            if (containedField.isMany() || !containedField.getContainedType().getSubTypes().isEmpty()) {
                 return HibernateStorage.TypeMappingStrategy.GOOD_FIELD;
             }
             return super.visit(containedField);

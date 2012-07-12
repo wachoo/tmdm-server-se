@@ -230,7 +230,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 // cascade="true"
                 if (Boolean.parseBoolean(referenceField.<String>getData("SQL_DELETE_CASCADE"))) { //$NON-NLS-1$
                     Attr cascade = document.createAttribute("cascade"); //$NON-NLS-1$
-                    cascade.setValue("delete"); //$NON-NLS-1$
+                    cascade.setValue("save-update, delete"); //$NON-NLS-1$
                     propertyElement.getAttributes().setNamedItem(cascade);
                 }
 

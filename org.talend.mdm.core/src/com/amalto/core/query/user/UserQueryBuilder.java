@@ -307,6 +307,10 @@ public class UserQueryBuilder {
 
         Field leftUserField = new Field(leftField);
         Field rightUserField = new Field(rightField);
+        // Implicit select joined type if it isn't already selected
+        if (!select.getTypes().contains(rightField.getContainingType())) {
+            select.addType(rightField.getContainingType());
+        }
 
         select.addJoin(new Join(leftUserField, rightUserField, JoinType.INNER));
         return this;
