@@ -217,8 +217,8 @@ public class TypeFieldCreatorGWTTest extends GWTTestCase {
         return sb.toString();
     }
 
-    private native String getWidthFromField(Field field)/*-{
-        return field.@com.extjs.gxt.ui.client.widget.form.Field::width;
+    private native String getWidthFromField(Field<?> field)/*-{
+        return field.@com.extjs.gxt.ui.client.widget.BoxComponent::width;
     }-*/;
 
 }
