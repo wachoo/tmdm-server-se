@@ -48,7 +48,7 @@ public class WorkSpaceGWTTest extends GWTTestCase {
 
     @Override
     public String getModuleName() {
-        return "org.talend.mdm.webapp.general.General";
+        return "org.talend.mdm.webapp.general.TestGeneral";
     }
 
 }
