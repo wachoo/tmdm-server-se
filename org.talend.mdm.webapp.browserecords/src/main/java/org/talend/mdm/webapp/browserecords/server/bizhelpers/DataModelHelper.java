@@ -34,7 +34,6 @@ import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.base.shared.TypePath;
 import org.talend.mdm.webapp.browserecords.client.creator.DataTypeCreator;
-import org.talend.mdm.webapp.browserecords.server.displayrule.DisplayRulesUtil;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.w3c.dom.Element;
@@ -465,7 +464,6 @@ public class DataModelHelper {
                         } else if ("X_Visible_Rule".equals(appinfoSource)) { //$NON-NLS-1$
                             typeModel.setHasVisibleRule(true);
                             typeModel.setVisibleExpression(appinfoSourceValue);
-                            DisplayRulesUtil.getVisibleRules().put(typeModel.getXpath(), appinfoSourceValue);
                         } else if ("X_AutoExpand".equals(appinfoSource)) { //$NON-NLS-1$
                             String v = annotList.item(k).getFirstChild().getNodeValue();
 
