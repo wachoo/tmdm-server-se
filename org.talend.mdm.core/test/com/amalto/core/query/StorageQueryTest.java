@@ -13,6 +13,14 @@
 
 package com.amalto.core.query;
 
+import static com.amalto.core.query.user.UserQueryBuilder.*;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.query.user.OrderBy;
 import com.amalto.core.query.user.UserQueryBuilder;
@@ -23,30 +31,73 @@ import com.amalto.core.storage.record.DataRecordXmlWriter;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
-import static com.amalto.core.query.user.UserQueryBuilder.*;
-
+@SuppressWarnings("nls")
 public class StorageQueryTest extends StorageTestCase {
 
     private void populateData() {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
 
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
-        allRecords.add(factory.read(1, repository, country, "<Country><id>1</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
-        allRecords.add(factory.read(1, repository, country, "<Country><id>2</id><creationDate>2011-10-10</creationDate><creationTime>2011-10-10T01:01:01</creationTime><name>USA</name></Country>"));
-        allRecords.add(factory.read(1, repository, address, "<Address><Id>1</Id><enterprise>false</enterprise><Street>Street1</Street><ZipCode>10000</ZipCode><City>City</City><country>[1]</country></Address>"));
-        allRecords.add(factory.read(1, repository, address, "<Address><Id>1</Id><enterprise>true</enterprise><Street>Street1</Street><ZipCode>10000</ZipCode><City>City</City><country>[2]</country></Address>"));
-        allRecords.add(factory.read(1, repository, address, "<Address><Id>2</Id><enterprise>true</enterprise><Street>Street2</Street><ZipCode>10000</ZipCode><City>City</City><country>[2]</country></Address>"));
-        allRecords.add(factory.read(1, repository, address, "<Address><Id>3</Id><enterprise>false</enterprise><Street>Street3</Street><ZipCode>10000</ZipCode><City>City</City><country>[1]</country></Address>"));
-        allRecords.add(factory.read(1, repository, address, "<Address><Id>4</Id><enterprise>false</enterprise><Street>Street3</Street><ZipCode>10000</ZipCode><City>City</City><OptionalCity>City2</OptionalCity><country>[1]</country></Address>"));
-        allRecords.add(factory.read(1, repository, person, "<Person><id>1</id><score>130000.00</score><lastname>Dupond</lastname><middlename>John</middlename><firstname>Julien</firstname><addresses><address>[2][true]</address><address>[1][false]</address></addresses><age>10</age><Status>Employee</Status><Available>true</Available></Person>"));
-        allRecords.add(factory.read(1, repository, person, "<Person><id>2</id><score>170000.00</score><lastname>Dupont</lastname><middlename>John</middlename><firstname>Robert-Julien</firstname><addresses><address>[1][false]</address><address>[2][true]</address></addresses><age>20</age><Status>Customer</Status><Available>false</Available></Person>"));
-        allRecords.add(factory.read(1, repository, person, "<Person><id>3</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Juste</firstname><addresses><address>[3][false]</address><address>[1][false]</address></addresses><age>30</age><Status>Friend</Status></Person>"));
+        allRecords
+                .add(factory
+                        .read(1,
+                                repository,
+                                country,
+                                "<Country><id>1</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
+        allRecords
+                .add(factory
+                        .read(1,
+                                repository,
+                                country,
+                                "<Country><id>2</id><creationDate>2011-10-10</creationDate><creationTime>2011-10-10T01:01:01</creationTime><name>USA</name></Country>"));
+        allRecords
+                .add(factory
+                        .read(1,
+                                repository,
+                                address,
+                                "<Address><Id>1</Id><enterprise>false</enterprise><Street>Street1</Street><ZipCode>10000</ZipCode><City>City</City><country>[1]</country></Address>"));
+        allRecords
+                .add(factory
+                        .read(1,
+                                repository,
+                                address,
+                                "<Address><Id>1</Id><enterprise>true</enterprise><Street>Street1</Street><ZipCode>10000</ZipCode><City>City</City><country>[2]</country></Address>"));
+        allRecords
+                .add(factory
+                        .read(1,
+                                repository,
+                                address,
+                                "<Address><Id>2</Id><enterprise>true</enterprise><Street>Street2</Street><ZipCode>10000</ZipCode><City>City</City><country>[2]</country></Address>"));
+        allRecords
+                .add(factory
+                        .read(1,
+                                repository,
+                                address,
+                                "<Address><Id>3</Id><enterprise>false</enterprise><Street>Street3</Street><ZipCode>10000</ZipCode><City>City</City><country>[1]</country></Address>"));
+        allRecords
+                .add(factory
+                        .read(1,
+                                repository,
+                                address,
+                                "<Address><Id>4</Id><enterprise>false</enterprise><Street>Street3</Street><ZipCode>10000</ZipCode><City>City</City><OptionalCity>City2</OptionalCity><country>[1]</country></Address>"));
+        allRecords
+                .add(factory
+                        .read(1,
+                                repository,
+                                person,
+                                "<Person><id>1</id><score>130000.00</score><lastname>Dupond</lastname><middlename>John</middlename><firstname>Julien</firstname><addresses><address>[2][true]</address><address>[1][false]</address></addresses><age>10</age><Status>Employee</Status><Available>true</Available></Person>"));
+        allRecords
+                .add(factory
+                        .read(1,
+                                repository,
+                                person,
+                                "<Person><id>2</id><score>170000.00</score><lastname>Dupont</lastname><middlename>John</middlename><firstname>Robert-Julien</firstname><addresses><address>[1][false]</address><address>[2][true]</address></addresses><age>20</age><Status>Customer</Status><Available>false</Available></Person>"));
+        allRecords
+                .add(factory
+                        .read(1,
+                                repository,
+                                person,
+                                "<Person><id>3</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Juste</firstname><addresses><address>[3][false]</address><address>[1][false]</address></addresses><age>30</age><Status>Friend</Status></Person>"));
 
         try {
             storage.begin();
@@ -86,18 +137,17 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testXmlSerialization() {
-        UserQueryBuilder qb = from(person)
-                .where(eq(person.getField("id"), "1"));
+        UserQueryBuilder qb = from(person).where(eq(person.getField("id"), "1"));
 
         StorageResults results = storage.fetch(qb.getSelect());
         DataRecordXmlWriter writer = new DataRecordXmlWriter();
         try {
-            String expectedXml = "<Person><id>1</id><firstname>Julien</firstname><middlename>John</middlename><lastname>" +
-                    "Dupond</lastname><age>10</age><score>130000.00</score><Available>true</Available><addresses><address>[2][true]</address><address>" +
-                    "[1][false]</address></addresses><Status>Employee</Status></Person>";
-            String expectedXml2 = "<Person><id>1</id><firstname>Julien</firstname><middlename>John</middlename><lastname>" +
-                    "Dupond</lastname><age>10</age><score>130000</score><Available>true</Available><addresses><address>[2][true]</address><address>" +
-                    "[1][false]</address></addresses><Status>Employee</Status></Person>";
+            String expectedXml = "<Person><id>1</id><firstname>Julien</firstname><middlename>John</middlename><lastname>"
+                    + "Dupond</lastname><age>10</age><score>130000.00</score><Available>true</Available><addresses><address>[2][true]</address><address>"
+                    + "[1][false]</address></addresses><Status>Employee</Status></Person>";
+            String expectedXml2 = "<Person><id>1</id><firstname>Julien</firstname><middlename>John</middlename><lastname>"
+                    + "Dupond</lastname><age>10</age><score>130000</score><Available>true</Available><addresses><address>[2][true]</address><address>"
+                    + "[1][false]</address></addresses><Status>Employee</Status></Person>";
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             for (DataRecord result : results) {
                 try {
@@ -124,8 +174,7 @@ public class StorageQueryTest extends StorageTestCase {
         assertEquals(1, keyFields.size());
         FieldMetadata keyField = keyFields.get(0);
 
-        UserQueryBuilder qb = from(person)
-                .select(person.getField("id"));
+        UserQueryBuilder qb = from(person).select(person.getField("id"));
 
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -144,8 +193,7 @@ public class StorageQueryTest extends StorageTestCase {
         assertEquals(1, keyFields.size());
         FieldMetadata keyField = keyFields.get(0);
 
-        UserQueryBuilder qb = from(person)
-                .where(eq(person.getField("id"), "1"));
+        UserQueryBuilder qb = from(person).where(eq(person.getField("id"), "1"));
 
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -164,9 +212,7 @@ public class StorageQueryTest extends StorageTestCase {
         assertEquals(1, keyFields.size());
         FieldMetadata keyField = keyFields.get(0);
 
-        UserQueryBuilder qb = from(person)
-                .select(person.getField("id"))
-                .where(eq(person.getField("id"), "1"));
+        UserQueryBuilder qb = from(person).select(person.getField("id")).where(eq(person.getField("id"), "1"));
 
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -183,9 +229,8 @@ public class StorageQueryTest extends StorageTestCase {
     public void testOrderByASC() throws Exception {
         // Test ASC direction
         FieldMetadata personLastName = person.getField("lastname");
-        UserQueryBuilder qb = from(person)
-                .orderBy(personLastName, OrderBy.Direction.ASC);
-        String[] ascExpectedValues = {"Dupond", "Dupont", "Leblanc"};
+        UserQueryBuilder qb = from(person).orderBy(personLastName, OrderBy.Direction.ASC);
+        String[] ascExpectedValues = { "Dupond", "Dupont", "Leblanc" };
 
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -204,9 +249,8 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testOrderByDESC() throws Exception {
         FieldMetadata personLastName = person.getField("lastname");
-        UserQueryBuilder qb = from(person)
-                .orderBy(personLastName, OrderBy.Direction.DESC);
-        String[] descExpectedValues = {"Leblanc", "Dupont", "Dupond"};
+        UserQueryBuilder qb = from(person).orderBy(personLastName, OrderBy.Direction.DESC);
+        String[] descExpectedValues = { "Leblanc", "Dupont", "Dupond" };
 
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -244,8 +288,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testEqualsCondition() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .where(eq(person.getField("lastname"), "Dupond"));
+        UserQueryBuilder qb = from(person).where(eq(person.getField("lastname"), "Dupond"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getSize());
@@ -254,8 +297,7 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
 
-        qb = from(address)
-                .where(eq(address.getField("Street"), "Street1"));
+        qb = from(address).where(eq(address.getField("Street"), "Street1"));
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getSize());
@@ -266,8 +308,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testEqualsDateCondition() throws Exception {
-        UserQueryBuilder qb = from(country)
-                .where(eq(country.getField("creationDate"), "2010-10-10"));
+        UserQueryBuilder qb = from(country).where(eq(country.getField("creationDate"), "2010-10-10"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getSize());
@@ -278,8 +319,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testEqualsTimeCondition() throws Exception {
-        UserQueryBuilder qb = from(country)
-                .where(eq(country.getField("creationTime"), "2010-10-10T00:00:01"));
+        UserQueryBuilder qb = from(country).where(eq(country.getField("creationTime"), "2010-10-10T00:00:01"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getSize());
@@ -290,8 +330,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testEqualsBooleanCondition() throws Exception {
-        UserQueryBuilder qb = from(address)
-                .where(eq(address.getField("enterprise"), "true"));
+        UserQueryBuilder qb = from(address).where(eq(address.getField("enterprise"), "true"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getSize());
@@ -300,8 +339,7 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
 
-        qb = from(address)
-                .where(eq(address.getField("enterprise"), "false"));
+        qb = from(address).where(eq(address.getField("enterprise"), "false"));
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(3, results.getSize());
@@ -312,8 +350,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testNotEqualsCondition() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .where(neq(person.getField("lastname"), "Dupond"));
+        UserQueryBuilder qb = from(person).where(neq(person.getField("lastname"), "Dupond"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getSize());
@@ -324,8 +361,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testGreaterThanCondition() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .where(gt(person.getField("age"), "10"));
+        UserQueryBuilder qb = from(person).where(gt(person.getField("age"), "10"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getSize());
@@ -336,8 +372,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testGreaterThanDateCondition() throws Exception {
-        UserQueryBuilder qb = from(country)
-                .where(gt(country.getField("creationDate"), "2000-01-01"));
+        UserQueryBuilder qb = from(country).where(gt(country.getField("creationDate"), "2000-01-01"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getSize());
@@ -348,8 +383,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testGreaterThanTimeCondition() throws Exception {
-        UserQueryBuilder qb = from(country)
-                .where(gt(country.getField("creationTime"), "2000-01-01T00:00:00"));
+        UserQueryBuilder qb = from(country).where(gt(country.getField("creationTime"), "2000-01-01T00:00:00"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getSize());
@@ -360,8 +394,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testGreaterThanDecimalCondition() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .where(gt(person.getField("score"), "100000"));
+        UserQueryBuilder qb = from(person).where(gt(person.getField("score"), "100000"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(3, results.getSize());
@@ -372,8 +405,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testLessThanCondition() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .where(lt(person.getField("age"), "20"));
+        UserQueryBuilder qb = from(person).where(lt(person.getField("age"), "20"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getSize());
@@ -384,8 +416,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testLessThanDateCondition() throws Exception {
-        UserQueryBuilder qb = from(country)
-                .where(lt(country.getField("creationDate"), "2020-01-01"));
+        UserQueryBuilder qb = from(country).where(lt(country.getField("creationDate"), "2020-01-01"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getSize());
@@ -396,8 +427,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testLessThanTimeCondition() throws Exception {
-        UserQueryBuilder qb = from(country)
-                .where(lt(country.getField("creationTime"), "2020-01-01T00:00:00"));
+        UserQueryBuilder qb = from(country).where(lt(country.getField("creationTime"), "2020-01-01T00:00:00"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getSize());
@@ -408,8 +438,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testLessThanDecimalCondition() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .where(lt(person.getField("score"), "1000000"));
+        UserQueryBuilder qb = from(person).where(lt(person.getField("score"), "1000000"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(3, results.getSize());
@@ -420,8 +449,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testGreaterThanEqualsCondition() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .where(gte(person.getField("age"), "10"));
+        UserQueryBuilder qb = from(person).where(gte(person.getField("age"), "10"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(3, results.getSize());
@@ -432,9 +460,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testIntervalCondition() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .where(gte(person.getField("age"), "10"))
-                .where(lte(person.getField("age"), "30"));
+        UserQueryBuilder qb = from(person).where(gte(person.getField("age"), "10")).where(lte(person.getField("age"), "30"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(3, results.getSize());
@@ -445,8 +471,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testGreaterThanEqualsDateCondition() throws Exception {
-        UserQueryBuilder qb = from(country)
-                .where(gte(country.getField("creationDate"), "2011-10-10"));
+        UserQueryBuilder qb = from(country).where(gte(country.getField("creationDate"), "2011-10-10"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getSize());
@@ -457,8 +482,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testGreaterThanEqualsTimeCondition() throws Exception {
-        UserQueryBuilder qb = from(country)
-                .where(gte(country.getField("creationTime"), "2011-10-10T00:00:00"));
+        UserQueryBuilder qb = from(country).where(gte(country.getField("creationTime"), "2011-10-10T00:00:00"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getSize());
@@ -469,8 +493,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testGreaterThanEqualsDecimalCondition() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .where(gte(person.getField("score"), "170000"));
+        UserQueryBuilder qb = from(person).where(gte(person.getField("score"), "170000"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getSize());
@@ -481,8 +504,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testLessThanEqualsCondition() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .where(lte(person.getField("age"), "20"));
+        UserQueryBuilder qb = from(person).where(lte(person.getField("age"), "20"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getSize());
@@ -493,8 +515,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testLessThanEqualsDateCondition() throws Exception {
-        UserQueryBuilder qb = from(country)
-                .where(lte(country.getField("creationDate"), "2010-10-10"));
+        UserQueryBuilder qb = from(country).where(lte(country.getField("creationDate"), "2010-10-10"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getSize());
@@ -505,8 +526,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testLessThanEqualsTimeCondition() throws Exception {
-        UserQueryBuilder qb = from(country)
-                .where(lte(country.getField("creationTime"), "2010-10-10T00:00:01"));
+        UserQueryBuilder qb = from(country).where(lte(country.getField("creationTime"), "2010-10-10T00:00:01"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getSize());
@@ -517,8 +537,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testLessThanEqualsDecimalCondition() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .where(lte(person.getField("score"), "170000"));
+        UserQueryBuilder qb = from(person).where(lte(person.getField("score"), "170000"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getSize());
@@ -529,8 +548,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testStartsWithCondition() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .where(startsWith(person.getField("firstname"), "Ju"));
+        UserQueryBuilder qb = from(person).where(startsWith(person.getField("firstname"), "Ju"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getSize());
@@ -541,8 +559,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testContainsCondition() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .where(contains(person.getField("lastname"), "Dupo"));
+        UserQueryBuilder qb = from(person).where(contains(person.getField("lastname"), "Dupo"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getSize());
@@ -551,8 +568,7 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
 
-        qb = from(address)
-                .where(contains(address.getField("Street"), "Street"));
+        qb = from(address).where(contains(address.getField("Street"), "Street"));
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(5, results.getSize());
@@ -563,8 +579,8 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testConditionOr() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .where(or(eq(person.getField("lastname"), "Dupond"), eq(person.getField("firstname"), "Robert-Julien")));
+        UserQueryBuilder qb = from(person).where(
+                or(eq(person.getField("lastname"), "Dupond"), eq(person.getField("firstname"), "Robert-Julien")));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getSize());
@@ -575,8 +591,8 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testConditionAnd() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .where(and(eq(person.getField("lastname"), "Dupond"), eq(person.getField("firstname"), "Robert-Damien")));
+        UserQueryBuilder qb = from(person).where(
+                and(eq(person.getField("lastname"), "Dupond"), eq(person.getField("firstname"), "Robert-Damien")));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(0, results.getSize());
@@ -586,9 +602,8 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         // Wheres are equivalent to "and" statements
-        qb = from(person)
-                .where(eq(person.getField("lastname"), "Dupond"))
-                .where(eq(person.getField("firstname"), "Robert-Damien"));
+        qb = from(person).where(eq(person.getField("lastname"), "Dupond")).where(
+                eq(person.getField("firstname"), "Robert-Damien"));
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(0, results.getSize());
@@ -599,8 +614,8 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testConditionNot() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .where(and(eq(person.getField("lastname"), "Dupond"), not(eq(person.getField("firstname"), "Robert"))));
+        UserQueryBuilder qb = from(person).where(
+                and(eq(person.getField("lastname"), "Dupond"), not(eq(person.getField("firstname"), "Robert"))));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getSize());
@@ -610,9 +625,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         // Equivalent to the previous query (chained wheres are "and")
-        qb = from(person)
-                .where(eq(person.getField("lastname"), "Dupond"))
-                .where(not(eq(person.getField("firstname"), "Robert")));
+        qb = from(person).where(eq(person.getField("lastname"), "Dupond")).where(not(eq(person.getField("firstname"), "Robert")));
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getSize());
@@ -623,9 +636,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testJoinQuery() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .select(person.getField("firstname"))
-                .select(address.getField("Street"))
+        UserQueryBuilder qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
                 .join(person.getField("addresses/address"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -637,9 +648,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testJoinQueryUsingSingleParameterJoin() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .select(person.getField("firstname"))
-                .select(address.getField("Street"))
+        UserQueryBuilder qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
                 .join(person.getField("addresses/address"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -651,11 +660,8 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testJoinQueryWithCondition() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .select(person.getField("firstname"))
-                .select(address.getField("Street"))
-                .join(person.getField("addresses/address"))
-                .where(eq(person.getField("lastname"), "Dupond"));
+        UserQueryBuilder qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
+                .join(person.getField("addresses/address")).where(eq(person.getField("lastname"), "Dupond"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getSize());
@@ -666,11 +672,8 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testJoinQueryWithConditionAnd() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .select(person.getField("firstname"))
-                .select(address.getField("Street"))
-                .join(person.getField("addresses/address"))
-                .where(eq(person.getField("lastname"), "Dupond"))
+        UserQueryBuilder qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
+                .join(person.getField("addresses/address")).where(eq(person.getField("lastname"), "Dupond"))
                 .where(eq(person.getField("firstname"), "Julien"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -682,9 +685,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testJoinQueryWithConditionNot() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .select(person.getField("firstname"))
-                .select(address.getField("Street"))
+        UserQueryBuilder qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
                 .join(person.getField("addresses/address"))
                 .where(and(eq(person.getField("lastname"), "Dupond"), not(eq(person.getField("firstname"), "Julien"))));
         StorageResults results = storage.fetch(qb.getSelect());
@@ -697,11 +698,8 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testDoubleJoinQuery() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .select(person.getField("firstname"))
-                .select(address.getField("Street"))
-                .select(country.getField("name"))
-                .join(person.getField("addresses/address"))
+        UserQueryBuilder qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
+                .select(country.getField("name")).join(person.getField("addresses/address"))
                 .join(address.getField("country"), country.getField("id"));
         StorageResults results = storage.fetch(qb.getSelect());
 
@@ -714,13 +712,9 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testDoubleJoinQueryWithCondition() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .select(person.getField("firstname"))
-                .select(address.getField("Street"))
-                .select(country.getField("name"))
-                .join(person.getField("addresses/address"))
-                .join(address.getField("country"), country.getField("id"))
-                .where(eq(person.getField("lastname"), "Dupond"));
+        UserQueryBuilder qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
+                .select(country.getField("name")).join(person.getField("addresses/address"))
+                .join(address.getField("country"), country.getField("id")).where(eq(person.getField("lastname"), "Dupond"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getSize());
@@ -731,8 +725,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testPaging() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .limit(1);
+        UserQueryBuilder qb = from(person).limit(1);
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getSize());
@@ -742,8 +735,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         //
-        qb = from(person)
-                .limit(-1);
+        qb = from(person).limit(-1);
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(3, results.getSize());
@@ -753,9 +745,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         //
-        qb = from(person)
-                .limit(1)
-                .start(1);
+        qb = from(person).limit(1).start(1);
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getSize());
@@ -765,9 +755,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         // TODO This an error, no? (start at 4, only 3 instances).
-        qb = from(person)
-                .limit(1)
-                .start(4);
+        qb = from(person).limit(1).start(4);
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getSize());
@@ -778,8 +766,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testEnumeration() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .where(eq(person.getField("Status"), "Friend"));
+        UserQueryBuilder qb = from(person).where(eq(person.getField("Status"), "Friend"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
@@ -789,8 +776,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testTimestamp() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .where(eq(person.getField("Status"), "Friend"));
+        UserQueryBuilder qb = from(person).where(eq(person.getField("Status"), "Friend"));
         StorageResults results = storage.fetch(qb.getSelect());
 
         long lastModificationTime1;
@@ -809,7 +795,11 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
-        DataRecord record = factory.read(1, repository, person, "<Person><id>3</id><score>200000</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Juste</firstname><addresses><address>[3][false]</address><address>[1][false]</address></addresses><age>30</age><Status>Friend</Status></Person>");
+        DataRecord record = factory
+                .read(1,
+                        repository,
+                        person,
+                        "<Person><id>3</id><score>200000</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Juste</firstname><addresses><address>[3][false]</address><address>[1][false]</address></addresses><age>30</age><Status>Friend</Status></Person>");
         try {
             storage.begin();
             storage.update(record);
@@ -818,8 +808,7 @@ public class StorageQueryTest extends StorageTestCase {
             storage.end();
         }
 
-        qb = from(person)
-                .where(eq(person.getField("Status"), "Friend"));
+        qb = from(person).where(eq(person.getField("Status"), "Friend"));
         results = storage.fetch(qb.getSelect());
         long lastModificationTime2;
         try {
@@ -843,13 +832,8 @@ public class StorageQueryTest extends StorageTestCase {
     public void testAliases() throws Exception {
         long endTime = System.currentTimeMillis() + 60000;
 
-        UserQueryBuilder qb = from(person)
-                .select(alias(timestamp(), "timestamp"))
-                .select(alias(taskId(), "taskid"))
-                .selectId(person)
-                .where(gte(timestamp(), "0"))
-                .where(lte(timestamp(), String.valueOf(endTime)))
-                .limit(20)
+        UserQueryBuilder qb = from(person).select(alias(timestamp(), "timestamp")).select(alias(taskId(), "taskid"))
+                .selectId(person).where(gte(timestamp(), "0")).where(lte(timestamp(), String.valueOf(endTime))).limit(20)
                 .start(0);
 
         StorageResults results = storage.fetch(qb.getSelect());
@@ -865,12 +849,8 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testRevision() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .select(alias(revision(), "revision"))
-                .selectId(person)
-                .where(gte(revision(), "1"))
-                .limit(20)
-                .start(0);
+        UserQueryBuilder qb = from(person).select(alias(revision(), "revision")).selectId(person).where(gte(revision(), "1"))
+                .limit(20).start(0);
 
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -884,9 +864,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testFKSearch() throws Exception {
-        UserQueryBuilder qb = from(address)
-                .selectId(address)
-                .where(eq(address.getField("country"), "[1]"));
+        UserQueryBuilder qb = from(address).selectId(address).where(eq(address.getField("country"), "[1]"));
 
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -897,9 +875,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testEmptyOrNull() throws Exception {
-        UserQueryBuilder qb = from(address)
-                .selectId(address)
-                .where(emptyOrNull(address.getField("City")));
+        UserQueryBuilder qb = from(address).selectId(address).where(emptyOrNull(address.getField("City")));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(0, results.getCount());
@@ -908,9 +884,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         //
-        qb = from(address)
-                .selectId(address)
-                .where(emptyOrNull(address.getField("OptionalCity")));
+        qb = from(address).selectId(address).where(emptyOrNull(address.getField("OptionalCity")));
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(4, results.getCount());
@@ -919,9 +893,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         //
-        qb = from(address)
-                .selectId(address)
-                .where(not(emptyOrNull(address.getField("OptionalCity"))));
+        qb = from(address).selectId(address).where(not(emptyOrNull(address.getField("OptionalCity"))));
         results = storage.fetch(qb.getSelect().normalize());
         try {
             assertEquals(1, results.getCount());
@@ -931,9 +903,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testIsEmptyOrNullOnNonString() throws Exception {
-        UserQueryBuilder qb = from(address)
-                .selectId(address)
-                .where(emptyOrNull(address.getField("enterprise")));
+        UserQueryBuilder qb = from(address).selectId(address).where(emptyOrNull(address.getField("enterprise")));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(0, results.getCount());
@@ -942,9 +912,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         //
-        qb = from(address)
-                .selectId(address)
-                .where(not(emptyOrNull(address.getField("enterprise"))));
+        qb = from(address).selectId(address).where(not(emptyOrNull(address.getField("enterprise"))));
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(5, results.getCount());
@@ -953,9 +921,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         //
-        qb = from(country)
-                .selectId(country)
-                .where(emptyOrNull(country.getField("creationDate")));
+        qb = from(country).selectId(country).where(emptyOrNull(country.getField("creationDate")));
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(0, results.getCount());
@@ -965,9 +931,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testBoolean() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .selectId(person)
-                .where(eq(person.getField("Available"), "false"));
+        UserQueryBuilder qb = from(person).selectId(person).where(eq(person.getField("Available"), "false"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getCount());
@@ -977,9 +941,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testInterFieldCondition() throws Exception {
-        UserQueryBuilder qb = from(person)
-                .selectId(person)
-                .where(lte(person.getField("id"), person.getField("score")));
+        UserQueryBuilder qb = from(person).selectId(person).where(lte(person.getField("id"), person.getField("score")));
 
         try {
             storage.fetch(qb.getSelect());

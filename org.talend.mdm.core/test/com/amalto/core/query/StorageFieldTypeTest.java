@@ -1,15 +1,26 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.query;
+
+import static com.amalto.core.query.user.UserQueryBuilder.*;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.apache.commons.lang.NotImplementedException;
 
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryHelper;
@@ -20,18 +31,8 @@ import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
-import org.apache.commons.lang.NotImplementedException;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-
-import static com.amalto.core.query.user.UserQueryBuilder.*;
-
+@SuppressWarnings("nls")
 public class StorageFieldTypeTest extends StorageTestCase {
 
     enum Type {
@@ -248,8 +249,7 @@ public class StorageFieldTypeTest extends StorageTestCase {
     }
 
     private void testSimpleQuery(String typeName) {
-        UserQueryBuilder qb = from(type)
-                .select(type.getField(typeName));
+        UserQueryBuilder qb = from(type).select(type.getField(typeName));
         StorageResults results = storage.fetch(qb.getSelect());
         assertNotNull(results);
         try {
@@ -260,36 +260,35 @@ public class StorageFieldTypeTest extends StorageTestCase {
     }
 
     private void testSimpleSearch(String typeName, Type valueType) {
-        UserQueryBuilder qb = from(type)
-                .select(type.getField(typeName));
+        UserQueryBuilder qb = from(type).select(type.getField(typeName));
 
         switch (valueType) {
-            case NEGATIVE_NUMERIC:
-                qb = qb.where(gt(type.getField(typeName), "-50"));
-                break;
-            case NUMERIC:
-                qb = qb.where(gt(type.getField(typeName), "0"));
-                break;
-            case STRING:
-                qb = qb.where(contains(type.getField(typeName), ""));
-                break;
-            case BOOLEAN:
-                qb = qb.where(eq(type.getField(typeName), "true"));
-                break;
-            case DATE:
-                qb = qb.where(gt(type.getField(typeName), "1970-01-01"));
-                break;
-            case DURATION:
-                qb = qb.where(gt(type.getField(typeName), "00:00:00"));
-                break;
-            case BINARY:
-                qb = qb.where(contains(type.getField(typeName), ""));
-                break;
-            case DATETIME:
-                qb = qb.where(gt(type.getField(typeName), "1970-01-01T00:00:00"));
-                break;
-            default:
-                throw new NotImplementedException();
+        case NEGATIVE_NUMERIC:
+            qb = qb.where(gt(type.getField(typeName), "-50"));
+            break;
+        case NUMERIC:
+            qb = qb.where(gt(type.getField(typeName), "0"));
+            break;
+        case STRING:
+            qb = qb.where(contains(type.getField(typeName), ""));
+            break;
+        case BOOLEAN:
+            qb = qb.where(eq(type.getField(typeName), "true"));
+            break;
+        case DATE:
+            qb = qb.where(gt(type.getField(typeName), "1970-01-01"));
+            break;
+        case DURATION:
+            qb = qb.where(gt(type.getField(typeName), "00:00:00"));
+            break;
+        case BINARY:
+            qb = qb.where(contains(type.getField(typeName), ""));
+            break;
+        case DATETIME:
+            qb = qb.where(gt(type.getField(typeName), "1970-01-01T00:00:00"));
+            break;
+        default:
+            throw new NotImplementedException();
         }
 
         StorageResults results = storage.fetch(qb.getSelect());
@@ -307,32 +306,40 @@ public class StorageFieldTypeTest extends StorageTestCase {
 
         String fieldName = type.getName() + "/" + typeName;
         switch (valueType) {
-            case NEGATIVE_NUMERIC:
-                item = new WhereAnd(Arrays.<IWhereItem>asList(new WhereCondition(fieldName, WhereCondition.GREATER_THAN, "-50", WhereCondition.NO_OPERATOR)));
-                break;
-            case NUMERIC:
-                item = new WhereAnd(Arrays.<IWhereItem>asList(new WhereCondition(fieldName, WhereCondition.GREATER_THAN, "0", WhereCondition.NO_OPERATOR)));
-                break;
-            case STRING:
-                item = new WhereAnd(Arrays.<IWhereItem>asList(new WhereCondition(fieldName, WhereCondition.CONTAINS, "", WhereCondition.NO_OPERATOR)));
-                break;
-            case BOOLEAN:
-                item = new WhereAnd(Arrays.<IWhereItem>asList(new WhereCondition(fieldName, WhereCondition.EQUALS, "TRUE", WhereCondition.NO_OPERATOR)));
-                break;
-            case DATE:
-                item = new WhereAnd(Arrays.<IWhereItem>asList(new WhereCondition(fieldName, WhereCondition.GREATER_THAN, "1970-01-01", WhereCondition.NO_OPERATOR)));
-                break;
-            case DURATION:
-                item = new WhereAnd(Arrays.<IWhereItem>asList(new WhereCondition(fieldName, WhereCondition.GREATER_THAN, "00:00:00", WhereCondition.NO_OPERATOR)));
-                break;
-            case BINARY:
-                item = new WhereAnd(Arrays.<IWhereItem>asList(new WhereCondition(fieldName, WhereCondition.CONTAINS, "", WhereCondition.NO_OPERATOR)));
-                break;
-            case DATETIME:
-                item = new WhereAnd(Arrays.<IWhereItem>asList(new WhereCondition(fieldName, WhereCondition.GREATER_THAN, "1970-01-01T00:00:00", WhereCondition.NO_OPERATOR)));
-                break;
-            default:
-                throw new NotImplementedException();
+        case NEGATIVE_NUMERIC:
+            item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.GREATER_THAN, "-50",
+                    WhereCondition.NO_OPERATOR)));
+            break;
+        case NUMERIC:
+            item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.GREATER_THAN, "0",
+                    WhereCondition.NO_OPERATOR)));
+            break;
+        case STRING:
+            item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.CONTAINS, "",
+                    WhereCondition.NO_OPERATOR)));
+            break;
+        case BOOLEAN:
+            item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.EQUALS, "TRUE",
+                    WhereCondition.NO_OPERATOR)));
+            break;
+        case DATE:
+            item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.GREATER_THAN,
+                    "1970-01-01", WhereCondition.NO_OPERATOR)));
+            break;
+        case DURATION:
+            item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.GREATER_THAN, "00:00:00",
+                    WhereCondition.NO_OPERATOR)));
+            break;
+        case BINARY:
+            item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.CONTAINS, "",
+                    WhereCondition.NO_OPERATOR)));
+            break;
+        case DATETIME:
+            item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.GREATER_THAN,
+                    "1970-01-01T00:00:00", WhereCondition.NO_OPERATOR)));
+            break;
+        default:
+            throw new NotImplementedException();
         }
         qb = qb.where(UserQueryHelper.buildCondition(qb, item, repository));
 

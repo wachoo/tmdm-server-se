@@ -56,11 +56,11 @@
     <!-- ================ -->
 
     <category name="org.hibernate">
-        <priority value="INFO"/>
+        <priority value="ERROR"/>
     </category>
 
     <category name="com.amalto.core.storage.hibernate">
-        <priority value="INFO"/>
+        <priority value="ERROR"/>
     </category>
 
     <!-- ======================= -->
@@ -68,8 +68,9 @@
     <!-- ======================= -->
 
     <root>
+        <level value="ERROR" />
         <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="rolling-file" />
+        <!-- <appender-ref ref="rolling-file" />  -->
     </root>
 
 </log4j:configuration>

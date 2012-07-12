@@ -1,15 +1,16 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.query;
+
+import junit.framework.TestCase;
 
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.MetadataRepository;
@@ -20,9 +21,8 @@ import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
-import junit.framework.TestCase;
 
-
+@SuppressWarnings("nls")
 public class StorageIntegrityTest extends TestCase {
 
     public StorageIntegrityTest() {
@@ -36,7 +36,8 @@ public class StorageIntegrityTest extends TestCase {
 
         try {
             DataRecordReader<String> factory = new XmlStringDataRecordReader();
-            DataRecord record = factory.read(1, repository, type, "<Metadata3_Main_1><Id>1</Id><ref>[999]</ref></Metadata3_Main_1>");
+            DataRecord record = factory.read(1, repository, type,
+                    "<Metadata3_Main_1><Id>1</Id><ref>[999]</ref></Metadata3_Main_1>");
             storage.begin();
             storage.update(record);
             try {
@@ -59,7 +60,8 @@ public class StorageIntegrityTest extends TestCase {
 
         try {
             DataRecordReader<String> factory = new XmlStringDataRecordReader();
-            DataRecord record = factory.read(1, repository, type, "<Metadata3_Main_2><Id>1</Id><ref>[999]</ref></Metadata3_Main_2>");
+            DataRecord record = factory.read(1, repository, type,
+                    "<Metadata3_Main_2><Id>1</Id><ref>[999]</ref></Metadata3_Main_2>");
             try {
                 storage.begin();
                 storage.update(record);
@@ -79,7 +81,8 @@ public class StorageIntegrityTest extends TestCase {
 
         try {
             DataRecordReader<String> factory = new XmlStringDataRecordReader();
-            DataRecord record = factory.read(1, repository, type, "<Metadata3_Main_3><Id>1</Id><ref>[999]</ref><ref>[1000]</ref></Metadata3_Main_3>");
+            DataRecord record = factory.read(1, repository, type,
+                    "<Metadata3_Main_3><Id>1</Id><ref>[999]</ref><ref>[1000]</ref></Metadata3_Main_3>");
             storage.begin();
             storage.update(record);
             try {
@@ -102,7 +105,8 @@ public class StorageIntegrityTest extends TestCase {
 
         try {
             DataRecordReader<String> factory = new XmlStringDataRecordReader();
-            DataRecord record = factory.read(1, repository, type, "<Metadata3_Main_4><Id>1</Id><ref>[999]</ref><ref>[1000]</ref></Metadata3_Main_4>");
+            DataRecord record = factory.read(1, repository, type,
+                    "<Metadata3_Main_4><Id>1</Id><ref>[999]</ref><ref>[1000]</ref></Metadata3_Main_4>");
             try {
                 storage.begin();
                 storage.update(record);
@@ -145,7 +149,8 @@ public class StorageIntegrityTest extends TestCase {
 
         try {
             DataRecordReader<String> factory = new XmlStringDataRecordReader();
-            DataRecord record = factory.read(1, repository, type, "<Metadata3_Referenced_6><Id>1</Id><field/></Metadata3_Referenced_6>");
+            DataRecord record = factory.read(1, repository, type,
+                    "<Metadata3_Referenced_6><Id>1</Id><field/></Metadata3_Referenced_6>");
             storage.begin();
             try {
                 storage.update(record);
@@ -168,7 +173,8 @@ public class StorageIntegrityTest extends TestCase {
 
         try {
             DataRecordReader<String> factory = new XmlStringDataRecordReader();
-            DataRecord record = factory.read(1, repository, type, "<Metadata3_Referenced_6><Id>1</Id><field/></Metadata3_Referenced_6>");
+            DataRecord record = factory.read(1, repository, type,
+                    "<Metadata3_Referenced_6><Id>1</Id><field/></Metadata3_Referenced_6>");
             storage.begin();
             try {
                 storage.update(record);
@@ -178,7 +184,8 @@ public class StorageIntegrityTest extends TestCase {
                 storage.rollback();
             }
 
-            record = factory.read(1, repository, type, "<Metadata3_Referenced_6><Id>1</Id><field>Field Value</field></Metadata3_Referenced_6>");
+            record = factory.read(1, repository, type,
+                    "<Metadata3_Referenced_6><Id>1</Id><field>Field Value</field></Metadata3_Referenced_6>");
             storage.begin();
             storage.update(record);
             storage.commit();

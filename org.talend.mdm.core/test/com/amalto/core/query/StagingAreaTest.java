@@ -1,15 +1,31 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.query;
+
+import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserStagingQueryBuilder.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import junit.framework.TestCase;
+
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.ICoreConstants;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.history.MutableDocument;
@@ -27,7 +43,12 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.hibernate.HibernateStorage;
-import com.amalto.core.storage.record.*;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.DataRecordWriter;
+import com.amalto.core.storage.record.DataRecordXmlWriter;
+import com.amalto.core.storage.record.XmlDOMDataRecordReader;
+import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.task.StagingConstants;
 import com.amalto.core.storage.task.StagingTask;
@@ -35,22 +56,11 @@ import com.amalto.core.storage.task.Task;
 import com.amalto.core.storage.task.TaskSubmitter;
 import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.XtentisException;
-import junit.framework.TestCase;
-import org.talend.mdm.commmon.util.core.ICoreConstants;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
-import static com.amalto.core.query.user.UserQueryBuilder.*;
-import static com.amalto.core.query.user.UserStagingQueryBuilder.status;
-
+@SuppressWarnings("nls")
 public class StagingAreaTest extends TestCase {
+
+    private static Logger LOG = Logger.getLogger(StagingAreaTest.class);
 
     private static final int COUNT = 50;
 
@@ -65,6 +75,7 @@ public class StagingAreaTest extends TestCase {
     private ComplexTypeMetadata address;
 
     private ComplexTypeMetadata country;
+
     private ClassLoader contextClassLoader;
 
     @Override
@@ -73,9 +84,9 @@ public class StagingAreaTest extends TestCase {
 
         contextClassLoader = Thread.currentThread().getContextClassLoader();
 
-        System.out.println("Setting up MDM server environment...");
+        LOG.info("Setting up MDM server environment...");
         ServerContext.INSTANCE.get(new MockServerLifecycle());
-        System.out.println("MDM server environment set.");
+        LOG.info("MDM server environment set.");
 
         repository = new MetadataRepository();
         repository.load(StorageQueryTest.class.getResourceAsStream("metadata.xsd"));
@@ -88,9 +99,9 @@ public class StagingAreaTest extends TestCase {
         destination = new HibernateStorage("Destination", StorageType.MASTER);
 
         origin.init("H2-Staging-DS1");
-        origin.prepare(repository, Collections.<FieldMetadata>emptySet(), true, true);
+        origin.prepare(repository, Collections.<FieldMetadata> emptySet(), true, true);
         destination.init("H2-Master-DS2");
-        destination.prepare(repository, Collections.<FieldMetadata>emptySet(), true, true);
+        destination.prepare(repository, Collections.<FieldMetadata> emptySet(), true, true);
     }
 
     private void generateData(boolean validData) {
@@ -150,10 +161,12 @@ public class StagingAreaTest extends TestCase {
         try {
             destination.close();
         } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
         }
         try {
             origin.close();
         } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
         }
 
         Thread.currentThread().setContextClassLoader(contextClassLoader);
@@ -179,7 +192,9 @@ public class StagingAreaTest extends TestCase {
         assertEquals(COUNT, destination.fetch(UserQueryBuilder.from(country).getSelect()).getCount());
         assertEquals(COUNT, destination.fetch(UserQueryBuilder.from(address).getSelect()).getCount());
         assertEquals(COUNT, origin.fetch(UserQueryBuilder.from(person).getSelect()).getCount());
-        assertEquals(COUNT, origin.fetch(UserQueryBuilder.from(person).where(eq(status(), StagingConstants.SUCCESS_VALIDATE)).getSelect()).getCount());
+        assertEquals(COUNT,
+                origin.fetch(UserQueryBuilder.from(person).where(eq(status(), StagingConstants.SUCCESS_VALIDATE)).getSelect())
+                        .getCount());
     }
 
     public void testCancel() throws Exception {
@@ -205,7 +220,9 @@ public class StagingAreaTest extends TestCase {
         assertEquals(0, destination.fetch(UserQueryBuilder.from(country).getSelect()).getCount());
         assertEquals(0, destination.fetch(UserQueryBuilder.from(address).getSelect()).getCount());
         assertEquals(COUNT, origin.fetch(UserQueryBuilder.from(person).getSelect()).getCount());
-        assertEquals(0, origin.fetch(UserQueryBuilder.from(person).where(eq(status(), StagingConstants.SUCCESS_VALIDATE)).getSelect()).getCount());
+        assertEquals(0,
+                origin.fetch(UserQueryBuilder.from(person).where(eq(status(), StagingConstants.SUCCESS_VALIDATE)).getSelect())
+                        .getCount());
     }
 
     public void testWithValidationErrors() throws Exception {
@@ -228,7 +245,11 @@ public class StagingAreaTest extends TestCase {
         assertEquals(COUNT, destination.fetch(UserQueryBuilder.from(country).getSelect()).getCount());
         assertEquals(0, destination.fetch(UserQueryBuilder.from(address).getSelect()).getCount());
         assertEquals(COUNT, origin.fetch(UserQueryBuilder.from(person).getSelect()).getCount());
-        assertEquals(COUNT, origin.fetch(UserQueryBuilder.from(person).where(eq(status(), StagingConstants.FAIL_VALIDATE_VALIDATION)).getSelect()).getCount());
+        assertEquals(
+                COUNT,
+                origin.fetch(
+                        UserQueryBuilder.from(person).where(eq(status(), StagingConstants.FAIL_VALIDATE_VALIDATION)).getSelect())
+                        .getCount());
     }
 
     private static class TestSaverSource implements SaverSource {
@@ -245,6 +266,7 @@ public class StagingAreaTest extends TestCase {
             this.fileName = fileName;
         }
 
+        @Override
         public InputStream get(String dataClusterName, String typeName, String revisionId, String[] key) {
             Select select = selectById(typeName, key);
             StorageResults dataRecords = storage.fetch(select);
@@ -276,6 +298,7 @@ public class StagingAreaTest extends TestCase {
             return qb.getSelect();
         }
 
+        @Override
         public boolean exist(String dataCluster, String typeName, String revisionId, String[] key) {
             Select select = selectById(typeName, key);
             StorageResults dataRecords = storage.fetch(select);
@@ -286,53 +309,67 @@ public class StagingAreaTest extends TestCase {
             }
         }
 
+        @Override
         public MetadataRepository getMetadataRepository(String dataModelName) {
             return repository;
         }
 
+        @Override
         public InputStream getSchema(String dataModelName) {
             return StorageQueryTest.class.getResourceAsStream(fileName);
         }
 
+        @Override
         public String getUniverse() {
             return storage.getName();
         }
 
+        @Override
         public OutputReport invokeBeforeSaving(DocumentSaverContext context, MutableDocument updateReportDocument) {
             return null;
         }
 
+        @Override
         public Set<String> getCurrentUserRoles() {
             return Collections.singleton(ICoreConstants.ADMIN_PERMISSION);
         }
 
+        @Override
         public String getUserName() {
             return ICoreConstants.ADMIN_PERMISSION;
         }
 
+        @Override
         public boolean existCluster(String revisionID, String dataClusterName) {
             return true;
         }
 
+        @Override
         public String getConceptRevisionID(String typeName) {
             return "HEAD";
         }
 
+        @Override
         public void resetLocalUsers() {
         }
 
+        @Override
         public void initAutoIncrement() {
         }
 
+        @Override
         public void routeItem(String dataCluster, String typeName, String[] id) {
         }
 
+        @Override
         public void invalidateTypeCache(String dataModelName) {
         }
 
+        @Override
         public void saveAutoIncrement() {
         }
 
+        @Override
         public String nextAutoIncrementId(String universe, String dataCluster, String conceptName) {
             return "0";
         }
@@ -349,15 +386,18 @@ public class StagingAreaTest extends TestCase {
             reader = new XmlDOMDataRecordReader();
         }
 
+        @Override
         public void begin(String dataCluster) {
             storage.begin();
         }
 
+        @Override
         public void commit(String dataCluster) {
             storage.commit();
             storage.end();
         }
 
+        @Override
         public void save(ItemPOJO item, String revisionId) {
             try {
                 ComplexTypeMetadata complexType = repository.getComplexType(item.getProjection().getTagName());
@@ -371,6 +411,7 @@ public class StagingAreaTest extends TestCase {
             }
         }
 
+        @Override
         public void rollback(String dataCluster) {
             storage.rollback();
         }
@@ -378,25 +419,47 @@ public class StagingAreaTest extends TestCase {
 
     private String newAddress(int id1, boolean id2, boolean validData) {
         if (validData) {
-            return "<Address><Id>" + id1 + "</Id><enterprise>" + id2 + "</enterprise><Street>Street1</Street><ZipCode>10000</ZipCode><City>City</City><country>[" + id1 + "]</country></Address>";
+            return "<Address><Id>" + id1 + "</Id><enterprise>" + id2
+                    + "</enterprise><Street>Street1</Street><ZipCode>10000</ZipCode><City>City</City><country>[" + id1
+                    + "]</country></Address>";
         } else {
-            return "<Address><Id>" + id1 + "</Id><enterprise>" + id2 + "</enterprise><Street>Street1</Street><ZipCode>test</ZipCode><City>City</City><country>[-1]</country></Address>";
+            return "<Address><Id>"
+                    + id1
+                    + "</Id><enterprise>"
+                    + id2
+                    + "</enterprise><Street>Street1</Street><ZipCode>test</ZipCode><City>City</City><country>[-1]</country></Address>";
         }
     }
 
     private String newCountry(int id, boolean validData) {
         if (validData) {
-            return "<Country><id>" + id + "</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>";
+            return "<Country><id>"
+                    + id
+                    + "</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>";
         } else {
-            return "<Country><id>" + id + "</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>";
+            return "<Country><id>"
+                    + id
+                    + "</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>";
         }
     }
 
     private String newPerson(int id, boolean validData) {
         if (validData) {
-            return "<Person><id>" + id + "</id><score>130000.00</score><lastname>Dupond</lastname><middlename>John</middlename><firstname>Julien</firstname><addresses><address>[" + id + "][" + String.valueOf(id % 2 != 0) + "]</address><address>[1][false]</address></addresses><age>10</age><Status>Employee</Status><Available>true</Available></Person>";
+            return "<Person><id>"
+                    + id
+                    + "</id><score>130000.00</score><lastname>Dupond</lastname><middlename>John</middlename><firstname>Julien</firstname><addresses><address>["
+                    + id
+                    + "]["
+                    + String.valueOf(id % 2 != 0)
+                    + "]</address><address>[1][false]</address></addresses><age>10</age><Status>Employee</Status><Available>true</Available></Person>";
         } else {
-            return "<Person><id>" + id + "</id><score>130000.00</score><lastname>Dupond</lastname><middlename>John</middlename><firstname>Julien</firstname><addresses><address>[" + id + "][" + String.valueOf(id % 2 == 0) + "]</address><address>[1][false]</address></addresses><age>10</age><Status>Employee</Status><Available>true</Available></Person>";
+            return "<Person><id>"
+                    + id
+                    + "</id><score>130000.00</score><lastname>Dupond</lastname><middlename>John</middlename><firstname>Julien</firstname><addresses><address>["
+                    + id
+                    + "]["
+                    + String.valueOf(id % 2 == 0)
+                    + "]</address><address>[1][false]</address></addresses><age>10</age><Status>Employee</Status><Available>true</Available></Person>";
         }
     }
 }

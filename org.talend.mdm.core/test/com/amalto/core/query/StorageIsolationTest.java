@@ -1,15 +1,23 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.query;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+
+import junit.framework.TestCase;
+
+import org.apache.log4j.Logger;
 
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
@@ -23,21 +31,18 @@ import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
-import junit.framework.TestCase;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-
-
+@SuppressWarnings("nls")
 public class StorageIsolationTest extends TestCase {
+
+    private static Logger LOG = Logger.getLogger(StorageIsolationTest.class);
+
     private final Map<String, Storage> nameToStorage = new HashMap<String, Storage>();
 
     static {
-        System.out.println("Setting up MDM server environment...");
+        LOG.info("Setting up MDM server environment...");
         ServerContext.INSTANCE.get(new MockServerLifecycle());
-        System.out.println("MDM server environment set.");
+        LOG.info("MDM server environment set.");
     }
 
     public void testNothing() throws Exception {
@@ -53,10 +58,12 @@ public class StorageIsolationTest extends TestCase {
         ComplexTypeMetadata type2 = repository2.getComplexType("StorageIsolationTest1");
         assertNotSame(type1, type2);
 
-        MainTestRunnable runnable1 = new MainTestRunnable(repository1, StorageTestCase.DATABASE + "-DS1", "MDM1", "StorageIsolationTest1", 300, "ValueMDM1", "ValueMDM2");
+        MainTestRunnable runnable1 = new MainTestRunnable(repository1, StorageTestCase.DATABASE + "-DS1", "MDM1",
+                "StorageIsolationTest1", 300, "ValueMDM1", "ValueMDM2");
         Thread t1 = new Thread(runnable1);
 
-        MainTestRunnable runnable2 = new MainTestRunnable(repository2, StorageTestCase.DATABASE + "-DS2", "MDM2", "StorageIsolationTest1", 500, "ValueMDM2", "ValueMDM1");
+        MainTestRunnable runnable2 = new MainTestRunnable(repository2, StorageTestCase.DATABASE + "-DS2", "MDM2",
+                "StorageIsolationTest1", 500, "ValueMDM2", "ValueMDM1");
         Thread t2 = new Thread(runnable2);
 
         t1.start();
@@ -64,8 +71,8 @@ public class StorageIsolationTest extends TestCase {
         t1.join();
         t2.join();
 
-        System.out.println("Run1: " + runnable1.getActualInstanceNumber());
-        System.out.println("Run2: " + runnable2.getActualInstanceNumber());
+        LOG.info("Run1: " + runnable1.getActualInstanceNumber());
+        LOG.info("Run2: " + runnable2.getActualInstanceNumber());
 
         assertEquals(300, runnable1.getActualInstanceNumber());
         assertEquals(500, runnable2.getActualInstanceNumber());
@@ -106,15 +113,16 @@ public class StorageIsolationTest extends TestCase {
             this.storageName = storageName;
         }
 
+        @Override
         public void run() {
             Storage storage = createStorage(storageName);
             try {
                 int millis = new Random().nextInt(1000);
-                System.out.println("Chaos monkey for " + storageName + " sleeping for " + millis + " ms.");
+                LOG.info("Chaos monkey for " + storageName + " sleeping for " + millis + " ms.");
                 Thread.sleep(millis);
-                System.out.println("Chaos monkey for " + storageName + " is reinitializing storage!");
-                storage.prepare(repository, Collections.<FieldMetadata>emptySet(), true, true);
-                System.out.println("Chaos monkey for " + storageName + " has finished storage reinitialization.");
+                LOG.info("Chaos monkey for " + storageName + " is reinitializing storage!");
+                storage.prepare(repository, Collections.<FieldMetadata> emptySet(), true, true);
+                LOG.info("Chaos monkey for " + storageName + " has finished storage reinitialization.");
                 isSuccess = true;
             } catch (Exception e) {
                 isSuccess = false;
@@ -141,14 +149,15 @@ public class StorageIsolationTest extends TestCase {
         private final String valueText;
 
         private final String valueNotToBeFound;
-        
+
         private int actualInstanceNumber;
-        
+
         private int actualFullTextResults;
 
         private final ChaosMonkeyRunnable chaosMonkey;
 
-        private MainTestRunnable(MetadataRepository repository, String dataSourceName, String storageName, String typeName, int instanceNumber, String valueText, String valueNotToBeFound) {
+        private MainTestRunnable(MetadataRepository repository, String dataSourceName, String storageName, String typeName,
+                int instanceNumber, String valueText, String valueNotToBeFound) {
             this.repository = repository;
             this.dataSourceName = dataSourceName;
             this.storageName = storageName;
@@ -159,13 +168,14 @@ public class StorageIsolationTest extends TestCase {
             chaosMonkey = new ChaosMonkeyRunnable(repository, storageName);
         }
 
+        @Override
         public void run() {
             ComplexTypeMetadata type = repository.getComplexType(typeName);
             Storage storage = createStorage(storageName);
-            System.out.println("Main test for " + storageName + " initialization...");
+            LOG.info("Main test for " + storageName + " initialization...");
             storage.init(dataSourceName);
             storage.prepare(repository, false);
-            System.out.println("Main test for " + storageName + "  initialization done.");
+            LOG.info("Main test for " + storageName + "  initialization done.");
 
             Thread cmt1 = new Thread(chaosMonkey);
             cmt1.start();
@@ -176,7 +186,8 @@ public class StorageIsolationTest extends TestCase {
 
                 storage.begin();
                 for (int i = 0; i < instanceNumber; i++) {
-                    DataRecord record = factory.read(1, repository, type, "<" + typeName + "><Id>" + i + "</Id><field>" + valueText + "</field></" + typeName + ">");
+                    DataRecord record = factory.read(1, repository, type, "<" + typeName + "><Id>" + i + "</Id><field>"
+                            + valueText + "</field></" + typeName + ">");
                     storage.update(record);
                 }
                 storage.commit();
@@ -197,7 +208,7 @@ public class StorageIsolationTest extends TestCase {
                     results.close();
                 }
                 storage.close();
-                System.out.println("Main test for " + storageName + " closed storage.");
+                LOG.info("Main test for " + storageName + " closed storage.");
             }
         }
 

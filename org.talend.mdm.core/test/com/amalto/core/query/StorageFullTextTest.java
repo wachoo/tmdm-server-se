@@ -13,6 +13,15 @@
 
 package com.amalto.core.query;
 
+import static com.amalto.core.query.user.UserQueryBuilder.*;
+
+import java.io.ByteArrayOutputStream;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.apache.log4j.Logger;
+
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.query.user.OrderBy;
 import com.amalto.core.query.user.UserQueryBuilder;
@@ -25,96 +34,52 @@ import com.amalto.core.storage.record.DataRecordReader;
 import com.amalto.core.storage.record.DataRecordWriter;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
 
-import java.io.ByteArrayOutputStream;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
-import static com.amalto.core.query.user.UserQueryBuilder.*;
-
+@SuppressWarnings("nls")
 public class StorageFullTextTest extends StorageTestCase {
+
+    private static Logger LOG = Logger.getLogger(StorageFullTextTest.class);
 
     private void populateData() {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
-        allRecords.add(factory.read(1, repository, productFamily, "<ProductFamily>\n" +
-                "    <Id>1</Id>\n" +
-                "    <Name>Product family #1</Name>\n" +
-                "</ProductFamily>"));
-        allRecords.add(factory.read(1, repository, productFamily, "<ProductFamily>\n" +
-                "    <Id>2</Id>\n" +
-                "    <Name>Product family #2</Name>\n" +
-                "</ProductFamily>"));
-        allRecords.add(factory.read(1, repository, product, "<Product>\n" +
-                "    <Id>1</Id>\n" +
-                "    <Name>Product name</Name>\n" +
-                "    <ShortDescription>Short description word</ShortDescription>\n" +
-                "    <LongDescription>Long description</LongDescription>\n" +
-                "    <Price>10</Price>\n" +
-                "    <Features>\n" +
-                "        <Sizes>\n" +
-                "            <Size>Small</Size>\n" +
-                "            <Size>Medium</Size>\n" +
-                "            <Size>Large</Size>\n" +
-                "        </Sizes>\n" +
-                "        <Colors>\n" +
-                "            <Color>Blue</Color>\n" +
-                "            <Color>Red</Color>\n" +
-                "        </Colors>\n" +
-                "    </Features>\n" +
-                "    <Status>Pending</Status>\n" +
-                "    <Family>[2]</Family>\n" +
-                "    <Supplier>[1]</Supplier>\n" +
-                "</Product>"));
-        allRecords.add(factory.read(1, repository, product, "<Product>\n" +
-                "    <Id>2</Id>\n" +
-                "    <Name>Renault car</Name>\n" +
-                "    <ShortDescription>A car</ShortDescription>\n" +
-                "    <LongDescription>Long description 2</LongDescription>\n" +
-                "    <Price>10</Price>\n" +
-                "    <Features>\n" +
-                "        <Sizes>\n" +
-                "            <Size>Large</Size>\n" +
-                "        </Sizes>\n" +
-                "        <Colors>\n" +
-                "            <Color>Blue 2</Color>\n" +
-                "            <Color>Blue 1</Color>\n" +
-                "            <Color>Klein blue2</Color>\n" +
-                "        </Colors>\n" +
-                "    </Features>\n" +
-                "    <Family>[1]</Family>\n" +
-                "    <Status>Pending</Status>\n" +
-                "    <Supplier>[2]</Supplier>\n" +
-                "    <Supplier>[1]</Supplier>\n" +
-                "</Product>"));
-        allRecords.add(factory.read(1, repository, supplier, "<Supplier>\n" +
-                "    <Id>1</Id>\n" +
-                "    <SupplierName>Renault</SupplierName>\n" +
-                "    <Contact>" +
-                "        <Name>Jean Voiture</Name>\n" +
-                "        <Phone>33123456789</Phone>\n" +
-                "        <Email>test@test.org</Email>\n" +
-                "    </Contact>\n" +
-                "</Supplier>"));
-        allRecords.add(factory.read(1, repository, supplier, "<Supplier>\n" +
-                "    <Id>2</Id>\n" +
-                "    <SupplierName>Starbucks Talend</SupplierName>\n" +
-                "    <Contact>" +
-                "        <Name>Jean Cafe</Name>\n" +
-                "        <Phone>33234567890</Phone>\n" +
-                "        <Email>test@testfactory.org</Email>\n" +
-                "    </Contact>\n" +
-                "</Supplier>"));
-        allRecords.add(factory.read(1, repository, supplier, "<Supplier>\n" +
-                "    <Id>3</Id>\n" +
-                "    <SupplierName>Talend</SupplierName>\n" +
-                "    <Contact>" +
-                "        <Name>Jean Paul</Name>\n" +
-                "        <Phone>33234567890</Phone>\n" +
-                "        <Email>test@talend.com</Email>\n" +
-                "    </Contact>\n" +
-                "</Supplier>"));
-        allRecords.add(factory.read(1, repository, country, "<Country><id>1</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
+        allRecords.add(factory.read(1, repository, productFamily, "<ProductFamily>\n" + "    <Id>1</Id>\n"
+                + "    <Name>Product family #1</Name>\n" + "</ProductFamily>"));
+        allRecords.add(factory.read(1, repository, productFamily, "<ProductFamily>\n" + "    <Id>2</Id>\n"
+                + "    <Name>Product family #2</Name>\n" + "</ProductFamily>"));
+        allRecords.add(factory.read(1, repository, product, "<Product>\n" + "    <Id>1</Id>\n"
+                + "    <Name>Product name</Name>\n" + "    <ShortDescription>Short description word</ShortDescription>\n"
+                + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
+                + "        <Sizes>\n" + "            <Size>Small</Size>\n" + "            <Size>Medium</Size>\n"
+                + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
+                + "            <Color>Blue</Color>\n" + "            <Color>Red</Color>\n" + "        </Colors>\n"
+                + "    </Features>\n" + "    <Status>Pending</Status>\n" + "    <Family>[2]</Family>\n"
+                + "    <Supplier>[1]</Supplier>\n" + "</Product>"));
+        allRecords.add(factory.read(1, repository, product, "<Product>\n" + "    <Id>2</Id>\n" + "    <Name>Renault car</Name>\n"
+                + "    <ShortDescription>A car</ShortDescription>\n"
+                + "    <LongDescription>Long description 2</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
+                + "        <Sizes>\n" + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
+                + "            <Color>Blue 2</Color>\n" + "            <Color>Blue 1</Color>\n"
+                + "            <Color>Klein blue2</Color>\n" + "        </Colors>\n" + "    </Features>\n"
+                + "    <Family>[1]</Family>\n" + "    <Status>Pending</Status>\n" + "    <Supplier>[2]</Supplier>\n"
+                + "    <Supplier>[1]</Supplier>\n" + "</Product>"));
+        allRecords.add(factory.read(1, repository, supplier, "<Supplier>\n" + "    <Id>1</Id>\n"
+                + "    <SupplierName>Renault</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Voiture</Name>\n"
+                + "        <Phone>33123456789</Phone>\n" + "        <Email>test@test.org</Email>\n" + "    </Contact>\n"
+                + "</Supplier>"));
+        allRecords.add(factory.read(1, repository, supplier, "<Supplier>\n" + "    <Id>2</Id>\n"
+                + "    <SupplierName>Starbucks Talend</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Cafe</Name>\n"
+                + "        <Phone>33234567890</Phone>\n" + "        <Email>test@testfactory.org</Email>\n" + "    </Contact>\n"
+                + "</Supplier>"));
+        allRecords.add(factory.read(1, repository, supplier, "<Supplier>\n" + "    <Id>3</Id>\n"
+                + "    <SupplierName>Talend</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Paul</Name>\n"
+                + "        <Phone>33234567890</Phone>\n" + "        <Email>test@talend.com</Email>\n" + "    </Contact>\n"
+                + "</Supplier>"));
+        allRecords
+                .add(factory
+                        .read(1,
+                                repository,
+                                country,
+                                "<Country><id>1</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
 
         try {
             storage.begin();
@@ -154,13 +119,12 @@ public class StorageFullTextTest extends StorageTestCase {
     }
 
     public void testSimpleSearch() throws Exception {
-        UserQueryBuilder qb = from(supplier)
-                .where(fullText("Renault"));
+        UserQueryBuilder qb = from(supplier).where(fullText("Renault"));
 
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             for (DataRecord result : results) {
-                System.out.println("result = " + result);
+                LOG.info("result = " + result);
             }
             assertEquals(1, results.getCount());
         } finally {
@@ -169,9 +133,7 @@ public class StorageFullTextTest extends StorageTestCase {
     }
 
     public void testSimpleSearchOrderBy() throws Exception {
-        UserQueryBuilder qb = from(supplier)
-                .where(fullText("Talend"))
-                .orderBy(supplier.getField("Id"), OrderBy.Direction.ASC);
+        UserQueryBuilder qb = from(supplier).where(fullText("Talend")).orderBy(supplier.getField("Id"), OrderBy.Direction.ASC);
 
         try {
             storage.fetch(qb.getSelect());
@@ -182,9 +144,7 @@ public class StorageFullTextTest extends StorageTestCase {
     }
 
     public void testMultipleTypesSearch() throws Exception {
-        UserQueryBuilder qb = from(supplier)
-                .and(product)
-                .where(fullText("Renault"));
+        UserQueryBuilder qb = from(supplier).and(product).where(fullText("Renault"));
 
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -195,8 +155,7 @@ public class StorageFullTextTest extends StorageTestCase {
     }
 
     public void testDateSearch() throws Exception {
-        UserQueryBuilder qb = from(country)
-                .where(fullText("2010-10-10"));
+        UserQueryBuilder qb = from(country).where(fullText("2010-10-10"));
 
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -207,8 +166,7 @@ public class StorageFullTextTest extends StorageTestCase {
     }
 
     public void testCollectionSearch() throws Exception {
-        UserQueryBuilder qb = from(product)
-                .where(fullText("Blue"));
+        UserQueryBuilder qb = from(product).where(fullText("Blue"));
 
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -219,9 +177,8 @@ public class StorageFullTextTest extends StorageTestCase {
     }
 
     public void testSimpleSearchWithCondition() throws Exception {
-        UserQueryBuilder qb = from(supplier)
-                .where(fullText("Renault"))
-                .where(eq(supplier.getField("Contact/Name"), "Jean Voiture"));
+        UserQueryBuilder qb = from(supplier).where(fullText("Renault")).where(
+                eq(supplier.getField("Contact/Name"), "Jean Voiture"));
 
         // TODO Cannot filter full text search results.
         try {
@@ -233,9 +190,7 @@ public class StorageFullTextTest extends StorageTestCase {
     }
 
     public void testSimpleSearchWithProjection() throws Exception {
-        UserQueryBuilder qb = from(supplier)
-                .select(supplier.getField("Contact/Name"))
-                .where(fullText("Renault"));
+        UserQueryBuilder qb = from(supplier).select(supplier.getField("Contact/Name")).where(fullText("Renault"));
 
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -250,9 +205,7 @@ public class StorageFullTextTest extends StorageTestCase {
     }
 
     public void testMultipleTypesSearchWithCondition() throws Exception {
-        UserQueryBuilder qb = from(supplier)
-                .and(product)
-                .where(fullText("Renault"))
+        UserQueryBuilder qb = from(supplier).and(product).where(fullText("Renault"))
                 .where(eq(supplier.getField("Contact/Name"), "Jean Voiture"));
 
         try {
@@ -283,9 +236,8 @@ public class StorageFullTextTest extends StorageTestCase {
     }
 
     public void testCollectionCondition() throws Exception {
-        UserQueryBuilder qb = from(product)
-                .select(product.getField("Id"))
-                .where(eq(product.getField("Features/Sizes/Size"), "XL"));
+        UserQueryBuilder qb = from(product).select(product.getField("Id")).where(
+                eq(product.getField("Features/Sizes/Size"), "XL"));
 
         try {
             storage.fetch(qb.getSelect());
@@ -296,8 +248,7 @@ public class StorageFullTextTest extends StorageTestCase {
     }
 
     public void testFullTextResultsFormat() throws Exception {
-        UserQueryBuilder qb = from(product)
-                .where(fullText("Renault"));
+        UserQueryBuilder qb = from(product).where(fullText("Renault"));
 
         StorageResults results = null;
         try {
@@ -321,7 +272,7 @@ public class StorageFullTextTest extends StorageTestCase {
         Storage storage = new HibernateStorage("noFullText");
         try {
             storage.init("RDBMS-1-NO-FT");
-            storage.prepare(repository, Collections.<FieldMetadata>emptySet(), false, false);
+            storage.prepare(repository, Collections.<FieldMetadata> emptySet(), false, false);
             UserQueryBuilder qb = from(product).where(fullText("Test"));
 
             try {

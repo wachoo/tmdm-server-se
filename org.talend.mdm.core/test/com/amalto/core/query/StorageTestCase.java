@@ -1,15 +1,20 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.query;
+
+import java.util.Collections;
+
+import junit.framework.TestCase;
+
+import org.apache.log4j.Logger;
 
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
@@ -19,11 +24,11 @@ import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.SecuredStorage;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.hibernate.HibernateStorage;
-import junit.framework.TestCase;
 
-import java.util.Collections;
-
+@SuppressWarnings("nls")
 public class StorageTestCase extends TestCase {
+
+    private static Logger LOG = Logger.getLogger(StorageTestCase.class);
 
     protected static final Storage storage;
 
@@ -48,11 +53,11 @@ public class StorageTestCase extends TestCase {
     public static final String DATABASE = "H2";
 
     static {
-        System.out.println("Setting up MDM server environment...");
+        LOG.info("Setting up MDM server environment...");
         ServerContext.INSTANCE.get(new MockServerLifecycle());
-        System.out.println("MDM server environment set.");
+        LOG.info("MDM server environment set.");
 
-        System.out.println("Preparing storage for tests...");
+        LOG.info("Preparing storage for tests...");
         storage = new SecuredStorage(new HibernateStorage("MDM"), userSecurity);
         repository = new MetadataRepository();
         repository.load(StorageQueryTest.class.getResourceAsStream("metadata.xsd"));
@@ -67,7 +72,7 @@ public class StorageTestCase extends TestCase {
 
         storage.init(DATABASE + "-Default");
         storage.prepare(repository, Collections.singleton(person.getField("firstname")), true, true);
-        System.out.println("Storage prepared.");
+        LOG.info("Storage prepared.");
     }
 
     public void test() throws Exception {
@@ -82,10 +87,12 @@ public class StorageTestCase extends TestCase {
             isActive = active;
         }
 
+        @Override
         public boolean hide(FieldMetadata field) {
             return isActive && field.getHideUsers().contains("System_Users");
         }
 
+        @Override
         public boolean hide(ComplexTypeMetadata type) {
             return isActive && type.getHideUsers().contains("System_Users");
         }

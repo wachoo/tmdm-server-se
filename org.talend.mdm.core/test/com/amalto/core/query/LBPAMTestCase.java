@@ -1,25 +1,14 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.query;
-
-import com.amalto.core.metadata.*;
-import com.amalto.core.server.MockServerLifecycle;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.hibernate.HibernateStorage;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
-import junit.framework.TestCase;
-import org.apache.commons.lang.NotImplementedException;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -28,7 +17,32 @@ import java.util.Collection;
 import java.util.Random;
 import java.util.Stack;
 
+import junit.framework.TestCase;
+
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.log4j.Logger;
+
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.ContainedTypeFieldMetadata;
+import com.amalto.core.metadata.DefaultMetadataVisitor;
+import com.amalto.core.metadata.EnumerationFieldMetadata;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.metadata.ReferenceFieldMetadata;
+import com.amalto.core.metadata.SimpleTypeFieldMetadata;
+import com.amalto.core.metadata.TypeMetadata;
+import com.amalto.core.server.MockServerLifecycle;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.hibernate.HibernateStorage;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
+
+@SuppressWarnings("nls")
 public class LBPAMTestCase extends TestCase {
+
+    private static Logger LOG = Logger.getLogger(LBPAMTestCase.class);
 
     private final InputStream resourceAsStream;
 
@@ -42,18 +56,18 @@ public class LBPAMTestCase extends TestCase {
 
     // Disables this test in build (takes lot of time & memory).
     public void __test() throws Exception {
-        System.out.println("Setting up MDM server environment...");
+        LOG.info("Setting up MDM server environment...");
         ServerContext.INSTANCE.get(new MockServerLifecycle());
-        System.out.println("MDM server environment set.");
+        LOG.info("MDM server environment set.");
 
-        System.out.println("Preparing storage for tests...");
+        LOG.info("Preparing storage for tests...");
         Storage storage = new HibernateStorage("MDM");
         MetadataRepository repository = new MetadataRepository();
         repository.load(resourceAsStream);
 
         storage.init(StorageTestCase.DATABASE + "-Default");
         storage.prepare(repository, false);
-        System.out.println("Storage prepared.");
+        LOG.info("Storage prepared.");
 
         Collection<ComplexTypeMetadata> types = MetadataUtils.sortTypes(repository);
         try {
@@ -127,7 +141,8 @@ public class LBPAMTestCase extends TestCase {
                 return "1";
             }
 
-            // Move up the inheritance tree to find the "most generic" type (used when simple types inherits from XSD types,
+            // Move up the inheritance tree to find the "most generic" type (used when simple types inherits from XSD
+            // types,
             // in this case, the XSD type is interesting, not the custom one).
             TypeMetadata type = field.getType();
             while (!type.getSuperTypes().isEmpty()) {
@@ -138,12 +153,9 @@ public class LBPAMTestCase extends TestCase {
             if (!(field instanceof ContainedTypeFieldMetadata)) { // Don't set contained (anonymous types) values
                 if ("string".equals(type.getName())) {
                     return "" + random.nextLong();
-                } else if ("integer".equals(type.getName())
-                        || "positiveInteger".equals(type.getName())
-                        || "negativeInteger".equals(type.getName())
-                        || "nonNegativeInteger".equals(type.getName())
-                        || "nonPositiveInteger".equals(type.getName())
-                        || "int".equals(type.getName())
+                } else if ("integer".equals(type.getName()) || "positiveInteger".equals(type.getName())
+                        || "negativeInteger".equals(type.getName()) || "nonNegativeInteger".equals(type.getName())
+                        || "nonPositiveInteger".equals(type.getName()) || "int".equals(type.getName())
                         || "unsignedInt".equals(type.getName())) {
                     return random.nextInt();
                 } else if ("date".equals(type.getName())) {

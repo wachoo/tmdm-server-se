@@ -1,34 +1,41 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.query;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.MetadataRepository;
-import com.amalto.core.storage.record.*;
-import com.amalto.core.storage.record.metadata.DataRecordMetadata;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.List;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import junit.framework.TestCase;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.List;
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.XmlDOMDataRecordReader;
+import com.amalto.core.storage.record.XmlSAXDataRecordReader;
+import com.amalto.core.storage.record.XmlStringDataRecordReader;
+import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 
+@SuppressWarnings("nls")
 public class DataRecordCreationTest extends TestCase {
 
     public void testCreationFromXMLString() throws Exception {
@@ -83,7 +90,8 @@ public class DataRecordCreationTest extends TestCase {
         XMLReader xmlReader = XMLReaderFactory.createXMLReader();
 
         DataRecordReader<XmlSAXDataRecordReader.Input> dataRecordReader = new XmlSAXDataRecordReader();
-        XmlSAXDataRecordReader.Input input = new XmlSAXDataRecordReader.Input(xmlReader, new InputSource(this.getClass().getResourceAsStream("DataRecordCreationTest.xml")));
+        XmlSAXDataRecordReader.Input input = new XmlSAXDataRecordReader.Input(xmlReader, new InputSource(this.getClass()
+                .getResourceAsStream("DataRecordCreationTest.xml")));
         DataRecord dataRecord = dataRecordReader.read(1, repository, product, input);
 
         performAsserts(dataRecord);
@@ -99,12 +107,12 @@ public class DataRecordCreationTest extends TestCase {
         XMLReader xmlReader = XMLReaderFactory.createXMLReader();
 
         DataRecordReader<XmlSAXDataRecordReader.Input> dataRecordReader = new XmlSAXDataRecordReader();
-        XmlSAXDataRecordReader.Input input = new XmlSAXDataRecordReader.Input(xmlReader, new InputSource(this.getClass().getResourceAsStream("DataRecordCreationTest2.xml")));
+        XmlSAXDataRecordReader.Input input = new XmlSAXDataRecordReader.Input(xmlReader, new InputSource(this.getClass()
+                .getResourceAsStream("DataRecordCreationTest2.xml")));
         DataRecord dataRecord = dataRecordReader.read(1, repository, c, input);
 
         performInheritanceAsserts(dataRecord);
     }
-
 
     public void testCreationFromDOM() throws Exception {
         MetadataRepository repository = new MetadataRepository();
@@ -113,7 +121,8 @@ public class DataRecordCreationTest extends TestCase {
         ComplexTypeMetadata product = repository.getComplexType("Product");
         assertNotNull(product);
 
-        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(this.getClass().getResourceAsStream("DataRecordCreationTest.xml"));
+        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+                .parse(this.getClass().getResourceAsStream("DataRecordCreationTest.xml"));
         DataRecordReader<Element> dataRecordReader = new XmlDOMDataRecordReader();
         DataRecord dataRecord = dataRecordReader.read(1, repository, product, document.getDocumentElement());
 

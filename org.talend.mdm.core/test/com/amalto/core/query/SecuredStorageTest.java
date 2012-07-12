@@ -1,15 +1,19 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.query;
+
+import static com.amalto.core.query.user.UserQueryBuilder.*;
+
+import java.util.LinkedList;
+import java.util.List;
 
 import com.amalto.core.query.user.OrderBy;
 import com.amalto.core.query.user.UserQueryBuilder;
@@ -19,20 +23,31 @@ import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import static com.amalto.core.query.user.UserQueryBuilder.*;
-
+@SuppressWarnings("nls")
 public class SecuredStorageTest extends StorageTestCase {
 
     private void populateData() {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
 
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
-        allRecords.add(factory.read(1, repository, person, "<Person><id>1</id><score>130000</score><lastname>Dupond</lastname><middlename>John</middlename><firstname>Julien</firstname><age>10</age><Status>Employee</Status><Available>true</Available></Person>"));
-        allRecords.add(factory.read(1, repository, person, "<Person><id>2</id><score>170000</score><lastname>Dupont</lastname><middlename>John</middlename><firstname>Robert-Julien</firstname><age>20</age><Status>Customer</Status><Available>false</Available></Person>"));
-        allRecords.add(factory.read(1, repository, person, "<Person><id>3</id><score>200000</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Juste</firstname><age>30</age><Status>Friend</Status></Person>"));
+        allRecords
+                .add(factory
+                        .read(1,
+                                repository,
+                                person,
+                                "<Person><id>1</id><score>130000</score><lastname>Dupond</lastname><middlename>John</middlename><firstname>Julien</firstname><age>10</age><Status>Employee</Status><Available>true</Available></Person>"));
+        allRecords
+                .add(factory
+                        .read(1,
+                                repository,
+                                person,
+                                "<Person><id>2</id><score>170000</score><lastname>Dupont</lastname><middlename>John</middlename><firstname>Robert-Julien</firstname><age>20</age><Status>Customer</Status><Available>false</Available></Person>"));
+        allRecords
+                .add(factory
+                        .read(1,
+                                repository,
+                                person,
+                                "<Person><id>3</id><score>200000</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Juste</firstname><age>30</age><Status>Friend</Status></Person>"));
 
         try {
             storage.begin();
@@ -69,9 +84,7 @@ public class SecuredStorageTest extends StorageTestCase {
     public void testUnsecuredField() throws Exception {
         assertTrue(storage instanceof SecuredStorage);
 
-        UserQueryBuilder qb = from(person)
-                .selectId(person)
-                .select(person.getField("firstname"));
+        UserQueryBuilder qb = from(person).selectId(person).select(person.getField("firstname"));
 
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -90,9 +103,7 @@ public class SecuredStorageTest extends StorageTestCase {
 
         // With security inactive
         assertTrue(userSecurity.isActive);
-        UserQueryBuilder qb = from(person)
-                .selectId(person)
-                .select(person.getField("firstname"))
+        UserQueryBuilder qb = from(person).selectId(person).select(person.getField("firstname"))
                 .select(person.getField("Status"));
 
         StorageResults results = storage.fetch(qb.getSelect());
@@ -105,10 +116,7 @@ public class SecuredStorageTest extends StorageTestCase {
         // With security inactive
         userSecurity.setActive(false);
         assertFalse(userSecurity.isActive);
-        qb = from(person)
-                .selectId(person)
-                .select(person.getField("firstname"))
-                .select(person.getField("Status"));
+        qb = from(person).selectId(person).select(person.getField("firstname")).select(person.getField("Status"));
 
         results = storage.fetch(qb.getSelect());
         try {
@@ -123,9 +131,7 @@ public class SecuredStorageTest extends StorageTestCase {
 
         // With security active
         assertTrue(userSecurity.isActive);
-        UserQueryBuilder qb = from(person)
-                .selectId(person)
-                .select(person.getField("firstname"))
+        UserQueryBuilder qb = from(person).selectId(person).select(person.getField("firstname"))
                 .where(eq(person.getField("Status"), "Customer"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -141,10 +147,7 @@ public class SecuredStorageTest extends StorageTestCase {
         // With security inactive
         userSecurity.setActive(false);
         assertFalse(userSecurity.isActive);
-        qb = from(person)
-                .selectId(person)
-                .select(person.getField("firstname"))
-                .where(eq(person.getField("Status"), "Customer"));
+        qb = from(person).selectId(person).select(person.getField("firstname")).where(eq(person.getField("Status"), "Customer"));
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
@@ -162,9 +165,7 @@ public class SecuredStorageTest extends StorageTestCase {
 
         // With security active
         assertTrue(userSecurity.isActive);
-        UserQueryBuilder qb = from(person)
-                .selectId(person)
-                .select(person.getField("firstname"))
+        UserQueryBuilder qb = from(person).selectId(person).select(person.getField("firstname"))
                 .where(and(eq(person.getField("Status"), "Customer"), eq(person.getField("middlename"), "John")));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -180,9 +181,7 @@ public class SecuredStorageTest extends StorageTestCase {
         // With security inactive
         userSecurity.setActive(false);
         assertFalse(userSecurity.isActive);
-        qb = from(person)
-                .selectId(person)
-                .select(person.getField("firstname"))
+        qb = from(person).selectId(person).select(person.getField("firstname"))
                 .where(and(eq(person.getField("Status"), "Customer"), eq(person.getField("middlename"), "John")));
         results = storage.fetch(qb.getSelect());
         try {
@@ -201,9 +200,7 @@ public class SecuredStorageTest extends StorageTestCase {
 
         // With security active
         assertTrue(userSecurity.isActive);
-        UserQueryBuilder qb = from(person)
-                .selectId(person)
-                .select(person.getField("firstname"))
+        UserQueryBuilder qb = from(person).selectId(person).select(person.getField("firstname"))
                 .orderBy(person.getField("Status"), OrderBy.Direction.DESC);
 
         String[] firstNames = new String[3];
@@ -223,9 +220,7 @@ public class SecuredStorageTest extends StorageTestCase {
         // With security active
         userSecurity.setActive(false);
         assertFalse(userSecurity.isActive);
-        qb = from(person)
-                .selectId(person)
-                .select(person.getField("firstname"))
+        qb = from(person).selectId(person).select(person.getField("firstname"))
                 .orderBy(person.getField("Status"), OrderBy.Direction.ASC);
 
         results = storage.fetch(qb.getSelect());
@@ -243,6 +238,5 @@ public class SecuredStorageTest extends StorageTestCase {
             results.close();
         }
     }
-
 
 }

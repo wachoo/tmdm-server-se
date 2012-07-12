@@ -1,15 +1,17 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.query;
+
+import java.util.LinkedList;
+import java.util.List;
 
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.MetadataUtils;
@@ -19,9 +21,7 @@ import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
 
-import java.util.LinkedList;
-import java.util.List;
-
+@SuppressWarnings("nls")
 public class InheritanceTest extends StorageTestCase {
 
     private ComplexTypeMetadata a;
@@ -37,8 +37,18 @@ public class InheritanceTest extends StorageTestCase {
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
         allRecords.add(factory.read(1, repository, b, "<B><id>1</id><textB>TextB</textB></B>"));
         allRecords.add(factory.read(1, repository, d, "<D><id>2</id><textB>TextBD</textB><textD>TextDD</textD></D>"));
-        allRecords.add(factory.read(1, repository, a, "<A xmlns:tmdm=\"http://www.talend.com/mdm\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>1</id><refB tmdm:type=\"B\">[1]</refB><textA>TextA</textA><nestedB xsi:type=\"Nested\"><text>Text</text></nestedB></A>"));
-        allRecords.add(factory.read(1, repository, c, "<C xmlns:tmdm=\"http://www.talend.com/mdm\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>2</id><refB tmdm:type=\"D\">[2]</refB><textA>TextAC</textA><nestedB xsi:type=\"SubNested\"><text>Text</text><subText>SubText</subText></nestedB><textC>TextCC</textC></C>"));
+        allRecords
+                .add(factory
+                        .read(1,
+                                repository,
+                                a,
+                                "<A xmlns:tmdm=\"http://www.talend.com/mdm\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>1</id><refB tmdm:type=\"B\">[1]</refB><textA>TextA</textA><nestedB xsi:type=\"Nested\"><text>Text</text></nestedB></A>"));
+        allRecords
+                .add(factory
+                        .read(1,
+                                repository,
+                                c,
+                                "<C xmlns:tmdm=\"http://www.talend.com/mdm\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>2</id><refB tmdm:type=\"D\">[2]</refB><textA>TextAC</textA><nestedB xsi:type=\"SubNested\"><text>Text</text><subText>SubText</subText></nestedB><textC>TextCC</textC></C>"));
 
         try {
             storage.begin();
@@ -62,17 +72,8 @@ public class InheritanceTest extends StorageTestCase {
 
     public void testTypeOrdering() throws Exception {
         List<ComplexTypeMetadata> sortedList = MetadataUtils.sortTypes(repository);
-        String[] expectedOrder = {"EntityWithQuiteALongNameWithoutIncludingAnyUnderscore",
-                "ProductFamily",
-                "TypeA",
-                "Nested",
-                "SubNested",
-                "Country",
-                "Address",
-                "Person",
-                "Supplier",
-                "Product",
-                "B", "D", "A", "C"};
+        String[] expectedOrder = { "EntityWithQuiteALongNameWithoutIncludingAnyUnderscore", "ProductFamily", "TypeA", "Nested",
+                "SubNested", "Country", "Address", "Person", "Supplier", "Product", "B", "D", "A", "C" };
         int i = 0;
         for (ComplexTypeMetadata sortedType : sortedList) {
             assertEquals(expectedOrder[i++], sortedType.getName());
@@ -116,8 +117,7 @@ public class InheritanceTest extends StorageTestCase {
     }
 
     public void testQueryWithInstanceCheck() throws Exception {
-        UserQueryBuilder qb = UserQueryBuilder.from(b)
-                .isa(d);
+        UserQueryBuilder qb = UserQueryBuilder.from(b).isa(d);
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
@@ -195,10 +195,7 @@ public class InheritanceTest extends StorageTestCase {
     }
 
     public void testJoin() throws Exception {
-        UserQueryBuilder qb = UserQueryBuilder.from(c)
-                .and(b)
-                .select(c.getField("textC"))
-                .select(b.getField("textB"))
+        UserQueryBuilder qb = UserQueryBuilder.from(c).and(b).select(c.getField("textC")).select(b.getField("textB"))
                 .join(c.getField("refB"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -213,10 +210,7 @@ public class InheritanceTest extends StorageTestCase {
     }
 
     public void testJoinWithInheritance() throws Exception {
-        UserQueryBuilder qb = UserQueryBuilder.from(a)
-                .and(b)
-                .select(a.getField("textA"))
-                .select(b.getField("textB"))
+        UserQueryBuilder qb = UserQueryBuilder.from(a).and(b).select(a.getField("textA")).select(b.getField("textB"))
                 .join(a.getField("refB"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
