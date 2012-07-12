@@ -12,10 +12,11 @@ import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.MultiOccurrenceChangeItem;
-import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail;
-import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailGridFieldCreator;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.MultiOccurrenceChangeItem.AddRemoveHandler;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.DynamicTreeItem;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.GhostTreeItem;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailGridFieldCreator;
 
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -42,18 +43,24 @@ public class MultiOccurrenceManager {
 
         ItemNodeModel nodeModel = item.getItemNodeModel();
         TypeModel typeModel = metaDataTypes.get(nodeModel.getTypePath());
-        if (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {
-            String xpath = CommonUtil.getRealXpathWithoutLastIndex(nodeModel);
-            List<DynamicTreeItem> multiNodes = multiOccurrence.get(xpath);
-            if (multiNodes == null) {
-                multiNodes = new ArrayList<DynamicTreeItem>();
-                multiOccurrence.put(xpath, multiNodes);
+        boolean isLazyLoading = !typeModel.isAutoExpand() && nodeModel.getParent() != null && nodeModel.getChildCount() > 0 && 
+            item.getChild(0) instanceof GhostTreeItem;
+        if (typeModel.isAutoExpand() || isLazyLoading) {
+            if (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {
+                String xpath = CommonUtil.getRealXpathWithoutLastIndex(nodeModel);
+                List<DynamicTreeItem> multiNodes = multiOccurrence.get(xpath);
+                if (multiNodes == null) {
+                    multiNodes = new ArrayList<DynamicTreeItem>();
+                    multiOccurrence.put(xpath, multiNodes);
+                }
+                setAddRemoveEvent(item);
+                int index = getIndexOfMultiItem(item);
+                multiNodes.add(index, item);
             }
-            setAddRemoveEvent(item);
-            int index = getIndexOfMultiItem(item);
-            multiNodes.add(index, item);
         }
 
+        if (isLazyLoading)
+            return;
         for (int i = 0; i < item.getChildCount(); i++) {
             DynamicTreeItem childItem = (DynamicTreeItem) item.getChild(i);
             addMultiOccurrenceNode(childItem);
@@ -360,13 +367,21 @@ public class MultiOccurrenceManager {
 
     private void handleClearNodeValue(final DynamicTreeItem selectedItem) {
         ItemNodeModel nodeModel = selectedItem.getItemNodeModel();
-        if (nodeModel.isLeaf()) {
-            MultiOccurrenceChangeItem itemWidget = (MultiOccurrenceChangeItem) selectedItem.getWidget();
-            itemWidget.clearValue();
+        // Clear all the leaf node's value when the current node isAutoExpand = false and children have not been
+        // rendered
+        TypeModel typeModel = metaDataTypes.get(nodeModel.getTypePath());
+        if (!typeModel.isAutoExpand() && nodeModel.getChildCount() > 0 && selectedItem.getChild(0) instanceof GhostTreeItem)
+            nodeModel.clearNodeValue();
+        else {
+            if (nodeModel.isLeaf()) {
+                MultiOccurrenceChangeItem itemWidget = (MultiOccurrenceChangeItem) selectedItem.getWidget();
+                itemWidget.clearValue();
+            }
+            for (int i = 0; i < selectedItem.getChildCount(); i++) {
+                handleClearNodeValue((DynamicTreeItem) selectedItem.getChild(i));
+            }
         }
-        for (int i = 0; i < selectedItem.getChildCount(); i++) {
-            handleClearNodeValue((DynamicTreeItem) selectedItem.getChild(i));
-        }
+
     }
 
 }

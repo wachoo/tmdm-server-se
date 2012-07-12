@@ -293,4 +293,37 @@ public class ClientResourceData {
         modelG.append("</models>");
         return modelG.toString();
     }
+
+    public static String getRecordH() {
+        StringBuffer recordH = new StringBuffer();
+        recordH.append("<Test>"); //$NON-NLS-1$
+        recordH.append("<id>1</id>"); //$NON-NLS-1$
+        recordH.append("<name>test</name>"); //$NON-NLS-1$
+        recordH.append("<cp>"); //$NON-NLS-1$
+        recordH.append("<title>Hello</title>"); //$NON-NLS-1$
+        recordH.append("<address>Beijing</address>"); //$NON-NLS-1$
+        recordH.append("<fk>North Five Loop</fk>"); //$NON-NLS-1$
+        recordH.append("<cpChild>"); //$NON-NLS-1$
+        recordH.append("<tel>13800000000</tel>"); //$NON-NLS-1$
+        recordH.append("</cpChild>"); //$NON-NLS-1$
+        recordH.append("</cp>"); //$NON-NLS-1$
+        recordH.append("</Test>"); //$NON-NLS-1$
+        return recordH.toString();
+    }
+
+    public static String getModelH() {
+        StringBuffer modelH = new StringBuffer();
+        modelH.append("<models concept=\"Test\">"); //$NON-NLS-1$
+        modelH.append("<model isSimple=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test\"/>"); //$NON-NLS-1$
+        modelH.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/id\"/>"); //$NON-NLS-1$
+        modelH.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/name\"/>"); //$NON-NLS-1$
+        modelH.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/cp\"/>"); //$NON-NLS-1$
+        modelH.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/cp/title\"/>"); //$NON-NLS-1$
+        modelH.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/cp/address\"/>"); //$NON-NLS-1$
+        modelH.append("<model isSimple=\"true\" isFk=\"true\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/cp/fk\"/>"); //$NON-NLS-1$
+        modelH.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/cp/cpChild\"/>"); //$NON-NLS-1$
+        modelH.append("<model isSimple=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Test/cp/cpChild/tel\"/>"); //$NON-NLS-1$
+        modelH.append("</models>"); //$NON-NLS-1$
+        return modelH.toString();
+    }
 }

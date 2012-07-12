@@ -240,15 +240,11 @@ public class TreeDetail extends ContentPanel {
 
     private boolean isFirstKey = true;
 
-    public DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue,
-            String operation) {
+    public DynamicTreeItem buildGWTTree(final ItemNodeModel itemNode, DynamicTreeItem item, final boolean withDefaultValue,
+            final String operation) {
         if (item == null) {
             item = new DynamicTreeItem();
             item.setItemNodeModel(itemNode);
-            String itemRealType = itemNode.getRealType();
-            if (itemRealType != null && itemRealType.trim().length() > 0) {
-                item.setState(true);
-            }
             if (ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {
                 if (itemNode.isKey()) {
                     if (isFirstKey) {
@@ -264,24 +260,65 @@ public class TreeDetail extends ContentPanel {
         }
 
         List<ModelData> itemNodeChildren = itemNode.getChildren();
-
+        TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(itemNode.getTypePath());
+        boolean isAutoExpand = typeModel.isAutoExpand();
         if (itemNodeChildren != null && itemNodeChildren.size() > 0) {
-            IncrementalBuildTree incCommand = new IncrementalBuildTree(this, itemNode, viewBean, withDefaultValue, operation,
-                    item);
-            if (itemNode.getParent() == null) {
-                addCommand(incCommand, true);
-            } else {
-                addCommand(incCommand, false);
+            if (isAutoExpand || itemNode.getParent() == null)
+                renderChildren(itemNode, item, withDefaultValue, operation);
+            else {
+                List<TypeModel> typeModels = ((ComplexTypeModel) typeModel).getSubTypes();
+                if (itemNode.getRealType() != null)
+                    typeModels = ((ComplexTypeModel) typeModel).getRealType(itemNode.getRealType()).getSubTypes();
+                boolean isOnlyExistFkDisplayedIntoTab = true;
+                for (TypeModel childTypeModel : typeModels) {
+                    if (childTypeModel.getForeignkey() == null
+                            || childTypeModel.getForeignkey().trim().length() == 0
+                            || (childTypeModel.getForeignkey() != null && childTypeModel.getForeignkey().trim().length() > 0 && childTypeModel
+                                    .isNotSeparateFk())) {
+                        isOnlyExistFkDisplayedIntoTab = false;
+                        break;
+                    }
+                }
+                if (isOnlyExistFkDisplayedIntoTab) {
+                    renderChildren(itemNode, item, withDefaultValue, operation);
+                } else {
+                    item.addItem(new GhostTreeItem());
+                    final DynamicTreeItem parentItem = item;
+                    item.setAutoExpandHandler(new AutoExpandHandler() {
+
+                        public void autoExpand() {
+                            BrowseRecordsMessages msg = MessagesFactory.getMessages();
+                            progressBar = MessageBox.wait(msg.rendering_title(), msg.render_message(), msg.rendering_progress());
+                            renderChildren(itemNode, parentItem, withDefaultValue, operation);
+                            renderCompleteCallBackList.add(new RenderCompleteCallBack() {
+
+                                public void onSuccess() {
+                                    multiManager.addMultiOccurrenceNode(parentItem);
+                                    multiManager.warningAllItems();
+                                    multiManager.handleOptIcons();
+                                }
+                            });
+                        }
+                    });
+                }
+
             }
-
-            item.getElement().getStyle().setPaddingLeft(3.0, Unit.PX);
         }
-
         item.setUserObject(itemNode);
         item.setVisible(itemNode.isVisible());
-        item.setState(viewBean.getBindingEntityModel().getMetaDataTypes().get(itemNode.getTypePath()).isAutoExpand());
+        item.setState(isAutoExpand);
+        item.getElement().getStyle().setPaddingLeft(3.0, Unit.PX);
 
         return item;
+    }
+
+    private void renderChildren(ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue, String operation) {
+        IncrementalBuildTree incCommand = new IncrementalBuildTree(this, itemNode, viewBean, withDefaultValue, operation, item);
+        if (itemNode.getParent() == null) {
+            addCommand(incCommand, true);
+        } else {
+            addCommand(incCommand, false);
+        }
     }
 
     public static void addCommand(IncrementalBuildTree command, boolean sync) {
@@ -316,7 +353,7 @@ public class TreeDetail extends ContentPanel {
         return false;
     }
 
-    public void onUpdatePolymorphism(ComplexTypeModel typeModel) {
+    public void onUpdatePolymorphism(final ComplexTypeModel typeModel) {
         // DynamicTreeItem item = (DynamicTreeItem) tree.getSelectedItem();
         if (selectedItem == null) {
             return;
@@ -343,21 +380,23 @@ public class TreeDetail extends ContentPanel {
         getItemService().createSubItemNodeModel(viewBean, xml, typePath, contextPath, treeNode.getRealType(), UrlUtil.getLanguage(),
                 new SessionAwareAsyncCallback<ItemNodeModel>() {
 
+                    public void onSuccess(ItemNodeModel result) {
+                        ModelData[] children = result.getChildren().toArray(new ModelData[0]);
+                        for (ModelData child : children) {
+                            treeNode.add(child);
+                        }
+                        if (typeModel.isAutoExpand()) {
+                            renderCompleteCallBackList.add(new RenderCompleteCallBack() {
 
-            public void onSuccess(ItemNodeModel result) {
-                ModelData[] children = result.getChildren().toArray(new ModelData[0]);
-                for (ModelData child : children) {
-                    treeNode.add(child);
-                }
-                renderCompleteCallBackList.add(new RenderCompleteCallBack() {
-                    public void onSuccess() {
-                        multiManager.addMultiOccurrenceNode(selectedItem);
-                        multiManager.warningAllItems();
-                        multiManager.handleOptIcons();                        
+                                public void onSuccess() {
+                                    multiManager.addMultiOccurrenceNode(selectedItem);
+                                    multiManager.warningAllItems();
+                                    multiManager.handleOptIcons();
+                                }
+                            });
+                        }
+                        buildGWTTree(treeNode, selectedItem, false, null);
                     }
-                });
-                buildGWTTree(treeNode, selectedItem, false, null);
-            }
         });
     }
 
@@ -558,9 +597,18 @@ public class TreeDetail extends ContentPanel {
         }
     }
 
+    interface AutoExpandHandler {
+        void autoExpand();
+    }
+
+    public class GhostTreeItem extends DynamicTreeItem {
+    }
+
     public static class DynamicTreeItem extends TreeItem {
 
         private ItemNodeModel itemNode;
+
+        private AutoExpandHandler autoExpandHandler;
 
         public DynamicTreeItem() {
             super();
@@ -569,6 +617,10 @@ public class TreeDetail extends ContentPanel {
             }
             this.getElement().getStyle().setPaddingTop(0D, Unit.PX);
             this.getElement().getStyle().setPaddingBottom(0D, Unit.PX);
+        }
+        
+        public void setAutoExpandHandler(AutoExpandHandler autoExpandHandler){
+            this.autoExpandHandler = autoExpandHandler;
         }
 
         private native Element getContentElement()/*-{
@@ -638,6 +690,12 @@ public class TreeDetail extends ContentPanel {
                     fireTreeStateChanged(this.getTree(), this, open);
                 }
             }
+            if (open && autoExpandHandler != null) {
+                this.removeItems();
+                autoExpandHandler.autoExpand();
+                autoExpandHandler = null;
+            }
+
         }
 
         private native boolean getOpen()/*-{

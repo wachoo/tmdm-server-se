@@ -8,15 +8,20 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.base.shared.FacetModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.client.creator.DataTypeCreator;
 import org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel.ForeignKeyHandler;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextField;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.DynamicTreeItem;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.GhostTreeItem;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
@@ -325,6 +330,117 @@ public class TreeDetailGWTTest extends GWTTestCase {
         assertEquals(1, fk.getForeignKeyInfo().size());
         assertTrue(fk.getForeignKeyInfo().containsKey("ProductFamily/Name"));
         assertTrue(fk.getForeignKeyInfo().containsValue("TestFkLazyRender"));
+    }
+
+    /**
+     * Test Model Structure: <br>
+     * Root<br>
+     *    |_id<br>
+     *    |_name<br>
+     *    |_cp(autoExpand=false)<br>
+     *       |_title<br>
+     *       |_content<br>
+     */
+    public void testNodeLazyLoading() {
+        ViewBean viewBean = getViewBean();
+        TreeDetail treeDetail = new TreeDetail(new ItemsDetailPanel());
+        treeDetail.setViewBean(viewBean);
+        ItemNodeModel rootNode = builderItemNode();
+        DynamicTreeItem item = treeDetail.buildGWTTree(rootNode, null, false, ItemDetailToolBar.VIEW_OPERATION);
+        // validate result
+        assertNotNull(item);
+        assertEquals(3, item.getChildCount());
+        // cp node lazy loading
+        DynamicTreeItem cpItem = (DynamicTreeItem) item.getChild(2);
+        assertNotNull(cpItem);
+        assertEquals(1, cpItem.getChildCount());
+        assertTrue(cpItem.getChild(0) instanceof GhostTreeItem);
+        // render cp node
+        cpItem.setState(true);
+        assertEquals(2, cpItem.getChildCount());
+        assertTrue(((ItemNodeModel) cpItem.getChild(0).getUserObject()).getName().equals("title"));
+        assertTrue(((ItemNodeModel) cpItem.getChild(1).getUserObject()).getName().equals("content"));
+    }
+
+    private ViewBean getViewBean() {
+        ViewBean viewBean = new ViewBean();
+        EntityModel bindingEntityModel = new EntityModel();
+        LinkedHashMap<String, TypeModel> metaDataTypes = new LinkedHashMap<String, TypeModel>();
+
+        ComplexTypeModel testType = new ComplexTypeModel("Root", DataTypeCreator.getDataType("Root", "anyType"));
+        testType.setTypePath("Root");
+        testType.addLabel("en", "root");
+        metaDataTypes.put(testType.getTypePath(), testType);
+
+        SimpleTypeModel idType = new SimpleTypeModel("id", DataTypeCreator.getDataType("string", "anyType"));
+        idType.setTypePath("Root/id");
+        idType.addLabel("en", "pk");
+        idType.setFacets(new ArrayList<FacetModel>());
+        metaDataTypes.put(idType.getTypePath(), idType);
+
+        SimpleTypeModel nameType = new SimpleTypeModel("name", DataTypeCreator.getDataType("string", "anyType"));
+        nameType.setTypePath("Root/name");
+        nameType.addLabel("en", "name");
+        nameType.setFacets(new ArrayList<FacetModel>());
+        metaDataTypes.put(nameType.getTypePath(), nameType);
+
+        ComplexTypeModel cpType = new ComplexTypeModel("cp", DataTypeCreator.getDataType("CP", "anyType"));
+        cpType.setTypePath("Root/cp");
+        cpType.addLabel("en", "complex type");
+        cpType.setAutoExpand(false);
+        metaDataTypes.put(cpType.getTypePath(), cpType);
+
+        testType.addSubType(idType);
+        testType.addSubType(nameType);
+        testType.addSubType(cpType);
+
+        SimpleTypeModel cp_titleType = new SimpleTypeModel("title", DataTypeCreator.getDataType("string", "anyType"));
+        cp_titleType.setTypePath("Root/cp/title");
+        cp_titleType.addLabel("en", "title");
+        cp_titleType.setFacets(new ArrayList<FacetModel>());
+        metaDataTypes.put(cp_titleType.getTypePath(), cp_titleType);
+
+        SimpleTypeModel cp_contentType = new SimpleTypeModel("content", DataTypeCreator.getDataType("string", "anyType"));
+        cp_contentType.setTypePath("Root/cp/content");
+        cp_contentType.addLabel("en", "contnet info");
+        cp_contentType.setFacets(new ArrayList<FacetModel>());
+        metaDataTypes.put(cp_contentType.getTypePath(), cp_contentType);
+
+        cpType.addSubType(cp_titleType);
+        cpType.addSubType(cp_contentType);
+
+        bindingEntityModel.setMetaDataTypes(metaDataTypes);
+        viewBean.setBindingEntityModel(bindingEntityModel);
+
+        return viewBean;
+    }
+
+    private ItemNodeModel builderItemNode() {
+        ItemNodeModel testNode = new ItemNodeModel("Root");
+        testNode.setTypePath("Root");
+
+        ItemNodeModel idNode = new ItemNodeModel("id");
+        idNode.setTypePath("Root/id");
+        idNode.setKey(true);
+        testNode.add(idNode);
+
+        ItemNodeModel nameNode = new ItemNodeModel("name");
+        nameNode.setTypePath("Root/name");
+        testNode.add(nameNode);
+
+        ItemNodeModel cpNode = new ItemNodeModel("cp");
+        cpNode.setTypePath("Root/cp");
+        testNode.add(cpNode);
+
+        ItemNodeModel cpTitleNode = new ItemNodeModel("title");
+        cpTitleNode.setTypePath("Root/cp/title");
+        cpNode.add(cpTitleNode);
+
+        ItemNodeModel cpContentNode = new ItemNodeModel("content");
+        cpContentNode.setTypePath("Root/cp/content");
+        cpNode.add(cpContentNode);
+
+        return testNode;
     }
 
     public void testAutoFillValue4MandatoryBooleanField() {
