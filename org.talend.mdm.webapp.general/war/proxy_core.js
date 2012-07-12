@@ -418,5 +418,12 @@ amalto.core = function () {
  
 YAHOO.util.Event.on(window, 'load', amalto.core.init);
 
+if (Ext.isIE && document.documentMode >= 9){
+	Ext.Element.prototype.getAttributeNS = function(ns, name){
+        var d = this.dom;
+        return d.getAttributeNS(ns, name) || d.getAttribute(ns+":"+name) || d.getAttribute(name) || d[name];
+    }
+}
+
 
 
