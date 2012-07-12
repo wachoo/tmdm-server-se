@@ -20,6 +20,8 @@ import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsGWTTest;
+import org.talend.mdm.webapp.browserecords.client.handler.ItemTreeHandler;
+import org.talend.mdm.webapp.browserecords.client.handler.ItemTreeHandlingStatus;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatDateField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatNumberField;
@@ -27,6 +29,8 @@ import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextFi
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailGridFieldCreator;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
+import org.talend.mdm.webapp.browserecords.shared.EntityModel;
+import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
@@ -247,5 +251,24 @@ public class ItemNodeModelGWTTest extends BrowseRecordsGWTTest {
         currentXpath = "Product/Features/parent";
         assertEquals("Product", currentXpath.split("/")[0]);
 
+    }
+
+    public void testClearNodeValue() {
+        ViewBean viewBean = new ViewBean();
+        EntityModel entity = CommonUtilTestData.getEntityModel(ClientResourceData.getModelH());
+        viewBean.setBindingEntityModel(entity);
+        ItemNodeModel nodeModel = CommonUtilTestData.getItemNodeModel(ClientResourceData.getRecordH(), entity);
+        ItemTreeHandler itemHandler = new ItemTreeHandler(nodeModel, viewBean, ItemTreeHandlingStatus.ToSave);
+        String xml = itemHandler.serializeItem();
+        assertEquals(
+                "<Test xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>1</id><name>test</name><cp><title>Hello</title><address>Beijing</address><fk>North Five Loop</fk><cpChild><tel>13800000000</tel></cpChild></cp></Test>", xml); //$NON-NLS-1$
+        ItemNodeModel cpModel = (ItemNodeModel) nodeModel.getChild(2);
+        assertEquals("cp", cpModel.getName());
+        // Clear cpModel all of leaf nodes value
+        cpModel.clearNodeValue();
+        itemHandler = new ItemTreeHandler(nodeModel, viewBean, ItemTreeHandlingStatus.ToSave);
+        xml = itemHandler.serializeItem();
+        assertEquals(
+                "<Test xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>1</id><name>test</name><cp><title/><address/><fk/><cpChild><tel/></cpChild></cp></Test>", xml); //$NON-NLS-1$
     }
 }

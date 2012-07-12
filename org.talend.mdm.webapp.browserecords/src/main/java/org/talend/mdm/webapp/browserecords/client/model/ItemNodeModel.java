@@ -323,4 +323,16 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
         }
     }
 
+    public void clearNodeValue() {
+        if (this.isLeaf()) {
+            Serializable value = getObjectValue();
+            if (value != null)
+                setObjectValue(null);
+        }
+        for (ModelData model : this.getChildren()) {
+            ItemNodeModel node = (ItemNodeModel) model;
+            node.clearNodeValue();
+        }
+    }
+
 }
