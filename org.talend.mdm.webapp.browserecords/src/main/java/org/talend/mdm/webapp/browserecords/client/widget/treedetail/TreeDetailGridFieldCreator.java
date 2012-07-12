@@ -169,21 +169,20 @@ public class TreeDetailGridFieldCreator {
 
         field.setFieldLabel(dataType.getLabel(language));
         field.setName(dataType.getXpath());
-        if (!dataType.getType().equals(DataTypeConstants.UUID) && !dataType.getType().equals(DataTypeConstants.AUTO_INCREMENT)) {
-            boolean readOnly = dataType.isReadOnly(); // CommonUtil.isReadOnlyOnUI(dataType);
-            field.setReadOnly(readOnly);
-            field.setEnabled(!readOnly);
-        }
-
-        if (node.isKey() && ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {
-            field.setEnabled(true);
-            field.setReadOnly(false);
-        } else if (node.isKey() && ItemDetailToolBar.CREATE_OPERATION.equals(operation)) {
-            field.setEnabled(true);
-            field.setReadOnly(false);
-        } else if (node.isKey() && hasValue) {
-            field.setEnabled(false);
+        if (dataType.getType().equals(DataTypeConstants.UUID) || dataType.getType().equals(DataTypeConstants.AUTO_INCREMENT)) {
             field.setReadOnly(true);
+            field.setEnabled(false);
+        } else {
+            if (node.isKey() && ItemDetailToolBar.DUPLICATE_OPERATION.equals(operation)) {
+                field.setEnabled(true);
+                field.setReadOnly(false);
+            } else if (node.isKey() && ItemDetailToolBar.CREATE_OPERATION.equals(operation)) {
+                field.setEnabled(true);
+                field.setReadOnly(false);
+            } else if (node.isKey() && hasValue) {
+                field.setEnabled(false);
+                field.setReadOnly(true);
+            }
         }
 
         // facet set
