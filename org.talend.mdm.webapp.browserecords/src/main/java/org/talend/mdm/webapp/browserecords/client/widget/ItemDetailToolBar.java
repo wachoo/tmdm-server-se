@@ -635,78 +635,94 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private void addWorkFlosCombo() {
-        service.getRunnableProcessList(itemBean.getConcept(), Locale.getLanguage(),
-                new SessionAwareAsyncCallback<List<ItemBaseModel>>() {
+        @SuppressWarnings("unchecked")
+        final Map<String, List<ItemBaseModel>> runnableProcessListMap = (Map<String, List<ItemBaseModel>>) BrowseRecords
+                .getSession().get(UserSession.CURRENT_RUNNABLE_PROCESS_LIST);
+        if (runnableProcessListMap != null && runnableProcessListMap.containsKey(itemBean.getConcept()))
+            setWorkFlowCombo(runnableProcessListMap.get(itemBean.getConcept()));
+        else
+            service.getRunnableProcessList(itemBean.getConcept(), Locale.getLanguage(),
+                    new SessionAwareAsyncCallback<List<ItemBaseModel>>() {
 
-                    public void onSuccess(List<ItemBaseModel> processList) {
-                        add(new FillToolItem());
-                        ListStore<ItemBaseModel> workFlowList = new ListStore<ItemBaseModel>();
-                        workFlowList.add(processList);
-                        if (workFlowCombo == null) {
-                            workFlowCombo = new ComboBox<ItemBaseModel>();
-                            workFlowCombo.setId("workFlowCombo"); //$NON-NLS-1$
-                            workFlowCombo.setStore(workFlowList);
-                            workFlowCombo.setDisplayField("value");//$NON-NLS-1$
-                            workFlowCombo.setValueField("key");//$NON-NLS-1$
-                            workFlowCombo.setTypeAhead(true);
-                            workFlowCombo.setTriggerAction(TriggerAction.ALL);
-                            workFlowCombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
-
-                                @Override
-                                public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
-                                    selectItem = se.getSelectedItem();
-                                }
-                            });
+                        public void onSuccess(List<ItemBaseModel> processList) {
+                            if (runnableProcessListMap != null)
+                                runnableProcessListMap.put(itemBean.getConcept(), processList);
+                            else {
+                                Map<String, List<ItemBaseModel>> map = new HashMap<String, List<ItemBaseModel>>(1);
+                                map.put(itemBean.getConcept(), processList);
+                                BrowseRecords.getSession().put(UserSession.CURRENT_RUNNABLE_PROCESS_LIST, map);
+                            }
+                            setWorkFlowCombo(processList);
                         }
-                        add(workFlowCombo);
-                        if (launchProcessButton == null) {
-                            launchProcessButton = new Button();
-                            launchProcessButton.setId("launchProcessButton"); //$NON-NLS-1$
-                            launchProcessButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.launch_process()));
-                            launchProcessButton.setToolTip(MessagesFactory.getMessages().launch_process_tooltip());
-                            launchProcessButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+                    });
+    }
 
-                                @Override
-                                public void componentSelected(ButtonEvent ce) {
-                                    if (selectItem == null) {
-                                        MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory
-                                                .getMessages().process_select(), null);
-                                        return;
-                                    }
-                                    final MessageBox waitBar = MessageBox.wait(MessagesFactory.getMessages()
-                                            .process_progress_bar_title(), MessagesFactory.getMessages()
-                                            .process_progress_bar_message(), MessagesFactory.getMessages()
-                                            .process_progress_bar_title() + "..."); //$NON-NLS-1$
-                                    String[] ids = itemBean.getIds().split("@"); //$NON-NLS-1$
+    private void setWorkFlowCombo(List<ItemBaseModel> processList) {
+        add(new FillToolItem());
+        ListStore<ItemBaseModel> workFlowList = new ListStore<ItemBaseModel>();
+        workFlowList.add(processList);
+        if (workFlowCombo == null) {
+            workFlowCombo = new ComboBox<ItemBaseModel>();
+            workFlowCombo.setId("workFlowCombo"); //$NON-NLS-1$
+            workFlowCombo.setStore(workFlowList);
+            workFlowCombo.setDisplayField("value");//$NON-NLS-1$
+            workFlowCombo.setValueField("key");//$NON-NLS-1$
+            workFlowCombo.setTypeAhead(true);
+            workFlowCombo.setTriggerAction(TriggerAction.ALL);
+            workFlowCombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
 
-                                    service.processItem(itemBean.getConcept(), ids,
-                                            (String) selectItem.get("key"), new SessionAwareAsyncCallback<String>() { //$NON-NLS-1$
+                @Override
+                public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
+                    selectItem = se.getSelectedItem();
+                }
+            });
+        }
+        add(workFlowCombo);
+        if (launchProcessButton == null) {
+            launchProcessButton = new Button();
+            launchProcessButton.setId("launchProcessButton"); //$NON-NLS-1$
+            launchProcessButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.launch_process()));
+            launchProcessButton.setToolTip(MessagesFactory.getMessages().launch_process_tooltip());
+            launchProcessButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
-                                                public void onSuccess(final String urlResult) {
-                                                    waitBar.close();
-                                                    MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory
-                                                            .getMessages().process_done(), new Listener<MessageBoxEvent>() {
-
-                                                        public void handleEvent(MessageBoxEvent be) {
-                                                            if (urlResult != null && urlResult.length() > 0) {
-                                                                openWindow(urlResult);
-                                                            }
-                                                        }
-                                                    });
-                                                }
-
-                                                @Override
-                                                protected void doOnFailure(Throwable caught) {
-                                                    waitBar.close();
-                                                    super.doOnFailure(caught);
-                                                }
-                                            });
-                                }
-                            });
-                        }
-                        add(launchProcessButton);
+                @Override
+                public void componentSelected(ButtonEvent ce) {
+                    if (selectItem == null) {
+                        MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                                .process_select(), null);
+                        return;
                     }
-                });
+                    final MessageBox waitBar = MessageBox.wait(MessagesFactory.getMessages().process_progress_bar_title(),
+                            MessagesFactory.getMessages().process_progress_bar_message(), MessagesFactory.getMessages()
+                                    .process_progress_bar_title() + "..."); //$NON-NLS-1$
+                    String[] ids = itemBean.getIds().split("@"); //$NON-NLS-1$
+
+                    service.processItem(itemBean.getConcept(), ids,
+                            (String) selectItem.get("key"), new SessionAwareAsyncCallback<String>() { //$NON-NLS-1$
+
+                                public void onSuccess(final String urlResult) {
+                                    waitBar.close();
+                                    MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
+                                            .process_done(), new Listener<MessageBoxEvent>() {
+
+                                        public void handleEvent(MessageBoxEvent be) {
+                                            if (urlResult != null && urlResult.length() > 0) {
+                                                openWindow(urlResult);
+                                            }
+                                        }
+                                    });
+                                }
+
+                                @Override
+                                protected void doOnFailure(Throwable caught) {
+                                    waitBar.close();
+                                    super.doOnFailure(caught);
+                                }
+                            });
+                }
+            });
+        }
+        add(launchProcessButton);
     }
 
     private void addPersonalViewButton() {

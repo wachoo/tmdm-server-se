@@ -51,6 +51,8 @@ public class UserSession implements Serializable {
 
     public static final String CURRENT_LINEAGE_ENTITY_LIST = "currentLineageEntityList"; //$NON-NLS-1$
 
+    public static final String CURRENT_RUNNABLE_PROCESS_LIST = "currentRunnableProcessList"; //$NON-NLS-1$
+
     public UserSession() {
         super();
         this.sessionMap = new HashMap<String, Object>();
