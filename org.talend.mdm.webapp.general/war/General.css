@@ -152,3 +152,11 @@ div .sub-body{
 .ext-ie9 .x-form-trigger-arrow, .ext-ie9 .x-form-date-trigger{
     margin-top: -1px;
 }
+
+.ext-ie8 .x-edit-grid .x-grid-editor  .x-form-field-wrap  input.x-form-field{
+	margin-top: 3px;
+}
+
+.ext-ie9 .x-edit-grid .x-grid-editor  .x-form-field-wrap  input.x-form-field{
+	margin-top: 3px;
+}
