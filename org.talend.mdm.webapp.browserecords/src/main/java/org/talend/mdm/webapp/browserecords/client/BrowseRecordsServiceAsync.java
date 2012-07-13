@@ -129,5 +129,7 @@ public interface BrowseRecordsServiceAsync {
 
 	void getForeignKeyValues(String concept, String[] ids, String language,
 			AsyncCallback<Map<ViewBean, Map<String, List<String>>>> callback);
+	
+	void isExistId(String concept, String[] ids, String language,AsyncCallback<Boolean> callback);
 
 }

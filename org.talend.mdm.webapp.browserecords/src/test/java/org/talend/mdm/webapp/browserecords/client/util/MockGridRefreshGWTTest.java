@@ -541,6 +541,10 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
                 AsyncCallback<Map<ViewBean, Map<String, List<String>>>> callback) {
 
         }
+        
+        public void isExistId(String concept, String[] ids, String language,AsyncCallback<Boolean> callback){
+            
+        }
 
     }
 
