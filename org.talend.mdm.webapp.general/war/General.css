@@ -145,3 +145,10 @@ div .sub-body{
 .ext-ie8 .x-menu-item-icon{
     left: 3px !important;
 }
+.ext-ie8 .x-form-trigger-arrow, .ext-ie8 .x-form-date-trigger{
+    margin-top: -1px;
+}
+	
+.ext-ie9 .x-form-trigger-arrow, .ext-ie9 .x-form-date-trigger{
+    margin-top: -1px;
+}
