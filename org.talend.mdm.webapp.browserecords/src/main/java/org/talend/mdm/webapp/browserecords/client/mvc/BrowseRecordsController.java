@@ -294,6 +294,9 @@ public class BrowseRecordsController extends Controller {
                 // reset CURRENT_LINEAGE_ENTITY_LIST
                 BrowseRecords.getSession().put(UserSession.CURRENT_LINEAGE_ENTITY_LIST, null);
 
+                // reset CURRENT_RUNNABLE_PROCESS_LIST
+                BrowseRecords.getSession().put(UserSession.CURRENT_RUNNABLE_PROCESS_LIST, null);
+
                 // forward
                 AppEvent ae = new AppEvent(event.getType(), viewbean);
                 forwardToView(view, ae);
