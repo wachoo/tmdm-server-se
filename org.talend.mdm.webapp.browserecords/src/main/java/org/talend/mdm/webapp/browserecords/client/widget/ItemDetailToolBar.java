@@ -953,23 +953,23 @@ public class ItemDetailToolBar extends ToolBar {
             ItemNodeModel model = (ItemNodeModel) itemPanel.getTree().getRootModel();
             String[] keyArray = CommonUtil.extractIDs(model);
 
-            service.getItemBeanById(this.itemBean.getConcept(), keyArray, Locale.getLanguage(), new AsyncCallback<ItemBean>() {
+            service.isExistId(this.itemBean.getConcept(), keyArray, Locale.getLanguage(), new SessionAwareAsyncCallback<Boolean>() {
 
-                public void onSuccess(ItemBean result) {
-                    MessageBox
-                            .confirm(MessagesFactory.getMessages().confirm_title(),
-                                    MessagesFactory.getMessages().record_exists(), new Listener<MessageBoxEvent>() {
+                public void onSuccess(Boolean flag) {
+                    if (flag){
+                        MessageBox
+                        .confirm(MessagesFactory.getMessages().confirm_title(),
+                                MessagesFactory.getMessages().record_exists(), new Listener<MessageBoxEvent>() {
 
-                                        public void handleEvent(MessageBoxEvent be) {
-                                            if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
-                                                saveItem(isClose);
-                                            }
+                                    public void handleEvent(MessageBoxEvent be) {
+                                        if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
+                                            saveItem(isClose);
                                         }
-                                    }).getDialog().setWidth(400);
-                }
-
-                public void onFailure(Throwable arg0) {
-                    saveItem(isClose);
+                                    }
+                                }).getDialog().setWidth(400);
+                    }else{
+                        saveItem(isClose);
+                    }
                 }
             });
 

@@ -2222,6 +2222,16 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             throw new ServiceException(MESSAGES.getMessage(locale, "parse_model_error")); //$NON-NLS-1$
         }
     }
+    
+    public boolean isExistId(String concept, String[] ids, String language) throws ServiceException {      
+        try {
+            WSBoolean wsBoolean = CommonUtil.getPort().existsItem(new WSExistsItem(new WSItemPK(new WSDataClusterPK(this.getCurrentDataCluster()), concept, ids)));
+            return wsBoolean.is_true();
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
+    }
 
     public List<VisibleRuleResult> executeVisibleRule(ViewBean viewBean, String xml) throws ServiceException {
         try {

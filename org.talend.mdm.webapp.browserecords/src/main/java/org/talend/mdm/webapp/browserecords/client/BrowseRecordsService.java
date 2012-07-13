@@ -130,5 +130,7 @@ public interface BrowseRecordsService extends RemoteService {
     String formatValue(FormatModel model) throws ServiceException;
     
     Map<ViewBean, Map<String, List<String>>> getForeignKeyValues(String concept, String[] ids, String language) throws ServiceException;
+    
+    boolean isExistId(String concept, String[] ids, String language) throws ServiceException;
 
 }
