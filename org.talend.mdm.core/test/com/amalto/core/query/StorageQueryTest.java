@@ -17,9 +17,7 @@ import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.query.user.OrderBy;
@@ -98,7 +96,18 @@ public class StorageQueryTest extends StorageTestCase {
                                 repository,
                                 person,
                                 "<Person><id>3</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Juste</firstname><addresses><address>[3][false]</address><address>[1][false]</address></addresses><age>30</age><Status>Friend</Status></Person>"));
-
+        allRecords
+                        .add(factory
+                                .read(1,
+                                        repository,
+                                        a,
+                                        "<A><id>1</id><textA>TextA</textA><nestedB><text>Text</text></nestedB></A>"));
+        allRecords
+                        .add(factory
+                                .read(1,
+                                        repository,
+                                        a,
+                                        "<A><id>2</id><textA>TextA</textA><nestedB><text>Text</text></nestedB><refA>[1]</refA></A>"));
         try {
             storage.begin();
             storage.update(allRecords);
@@ -941,13 +950,35 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testInterFieldCondition() throws Exception {
-        UserQueryBuilder qb = from(person).selectId(person).where(lte(person.getField("id"), person.getField("score")));
-
+        UserQueryBuilder qb = from(person)
+                .selectId(person)
+                .where(lte(person.getField("id"), person.getField("score")));
+        StorageResults results = storage.fetch(qb.getSelect());
         try {
-            storage.fetch(qb.getSelect());
-            fail("Not yet implemented");
-        } catch (Exception e) {
-            // Expected
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testRecursiveQuery() throws Exception {
+        UserQueryBuilder qb = from(a)
+                .selectId(a)
+                .select(a.getField("refA"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            Set<String> expectedValues = new HashSet<String>();
+            expectedValues.add(null);
+            expectedValues.add("1");
+            assertEquals(2, results.getCount());
+            for (DataRecord result : results) {
+                Object value = result.get("refA");
+                boolean wasRemoved = expectedValues.remove(value);
+                assertTrue(wasRemoved);
+            }
+            assertEquals(0, expectedValues.size());
+        } finally {
+            results.close();
         }
     }
 }

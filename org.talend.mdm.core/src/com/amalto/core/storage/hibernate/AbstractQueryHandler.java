@@ -40,7 +40,7 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
         }
     };
 
-    static final ValueAdapter VALUE_ADAPTER = new ValueAdapter();
+    final ValueAdapter VALUE_ADAPTER = new ValueAdapter();
 
     static final int JDBC_FETCH_SIZE = 20;
 
@@ -129,7 +129,7 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
         return null;
     }
 
-    static class ValueAdapter extends VisitorAdapter<Object> {
+    class ValueAdapter extends VisitorAdapter<Object> {
 
         @Override
         public Object visit(Id id) {
@@ -224,6 +224,7 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
 
         @Override
         public Object visit(Field field) {
+            // If this happens, it is very likely wrong visitor was used (see FIELD_VISITOR).
             throw new UnsupportedOperationException("Can not compare to an other field value.");
         }
     }
@@ -268,5 +269,7 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
         boolean isMany;
 
         String criterionFieldName;
+
+        boolean isProperty;
     }
 }

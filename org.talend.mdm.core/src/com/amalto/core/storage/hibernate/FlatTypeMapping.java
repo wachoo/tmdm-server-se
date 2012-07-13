@@ -39,6 +39,7 @@ class FlatTypeMapping extends TypeMapping {
                     continue;
                 }
 
+                // Note: database field might be null (would mean this field can be safely ignored in this mapping).
                 FieldMetadata databaseField = getDatabase(field);
 
                 // "instance of" could be replaced by visitor on field... but is a bit too much for this simple step.

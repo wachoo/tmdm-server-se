@@ -696,12 +696,18 @@
         <xsd:sequence>
             <xsd:element maxOccurs="1" minOccurs="1" name="id" type="xsd:string"/>
             <xsd:element maxOccurs="1" minOccurs="1" name="textA" type="xsd:string"/>
-            <xsd:element maxOccurs="1" minOccurs="1" name="refB" type="xsd:string">
+            <xsd:element maxOccurs="1" minOccurs="0" name="refB" type="xsd:string">
                 <xsd:annotation>
                     <xsd:appinfo source="X_ForeignKey">B/id</xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
             <xsd:element maxOccurs="1" minOccurs="1" name="nestedB" type="Nested"/>
+            <xsd:element maxOccurs="1" minOccurs="0" name="refA" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_ForeignKey">A/id</xsd:appinfo>
+                    <xsd:appinfo source="X_FKIntegrity">false</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="B">

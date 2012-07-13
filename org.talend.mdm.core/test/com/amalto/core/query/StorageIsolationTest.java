@@ -10,34 +10,25 @@
 
 package com.amalto.core.query;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-
-import junit.framework.TestCase;
-
-import org.apache.log4j.Logger;
-
 import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.server.MockServerLifecycle;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
+import junit.framework.TestCase;
+import org.apache.log4j.Logger;
 
 @SuppressWarnings("nls")
 public class StorageIsolationTest extends TestCase {
 
     private static Logger LOG = Logger.getLogger(StorageIsolationTest.class);
-
-    private final Map<String, Storage> nameToStorage = new HashMap<String, Storage>();
 
     static {
         LOG.info("Setting up MDM server environment...");
@@ -45,11 +36,7 @@ public class StorageIsolationTest extends TestCase {
         LOG.info("MDM server environment set.");
     }
 
-    public void testNothing() throws Exception {
-        // TODO Test fails in build, fix this.
-    }
-
-    public void __test1() throws Exception {
+    public void test1() throws Exception {
         MetadataRepository repository1 = prepareMetadata("StorageIsolationTest_1.xsd");
         MetadataRepository repository2 = prepareMetadata("StorageIsolationTest_2.xsd");
         assertNotSame(repository1, repository2);
@@ -58,12 +45,17 @@ public class StorageIsolationTest extends TestCase {
         ComplexTypeMetadata type2 = repository2.getComplexType("StorageIsolationTest1");
         assertNotSame(type1, type2);
 
-        MainTestRunnable runnable1 = new MainTestRunnable(repository1, StorageTestCase.DATABASE + "-DS1", "MDM1",
-                "StorageIsolationTest1", 300, "ValueMDM1", "ValueMDM2");
+        Storage s1 = new HibernateStorage("MDM1", StorageType.MASTER);
+        s1.init(StorageTestCase.DATABASE + "-DS1");
+        s1.prepare(repository1, true);
+        Storage s2 = new HibernateStorage("MDM2", StorageType.MASTER);
+        s2.init(StorageTestCase.DATABASE + "-DS2");
+        s2.prepare(repository2, true);
+
+        MainTestRunnable runnable1 = new MainTestRunnable(repository1, s1, "StorageIsolationTest1", 300, "ValueMDM1", "ValueMDM2");
         Thread t1 = new Thread(runnable1);
 
-        MainTestRunnable runnable2 = new MainTestRunnable(repository2, StorageTestCase.DATABASE + "-DS2", "MDM2",
-                "StorageIsolationTest1", 500, "ValueMDM2", "ValueMDM1");
+        MainTestRunnable runnable2 = new MainTestRunnable(repository2, s2, "StorageIsolationTest1", 500, "ValueMDM2", "ValueMDM1");
         Thread t2 = new Thread(runnable2);
 
         t1.start();
@@ -78,8 +70,6 @@ public class StorageIsolationTest extends TestCase {
         assertEquals(500, runnable2.getActualInstanceNumber());
         assertEquals(0, runnable1.getActualFullTextResults());
         assertEquals(0, runnable2.getActualFullTextResults());
-        assertTrue(runnable1.getChaosMonkey().isSuccess());
-        assertTrue(runnable2.getChaosMonkey().isSuccess());
     }
 
     private MetadataRepository prepareMetadata(String dataModelFile) {
@@ -88,59 +78,9 @@ public class StorageIsolationTest extends TestCase {
         return repository;
     }
 
-    private Storage createStorage(String storageName) {
-        synchronized (nameToStorage) {
-            if (nameToStorage.containsKey(storageName)) {
-                return nameToStorage.get(storageName);
-            } else {
-                Storage storage = new HibernateStorage(storageName);
-                nameToStorage.put(storageName, storage);
-                return storage;
-            }
-        }
-    }
-
-    private class ChaosMonkeyRunnable implements Runnable {
-
-        private final MetadataRepository repository;
-
-        private final String storageName;
-
-        private boolean isSuccess = true;
-
-        private ChaosMonkeyRunnable(MetadataRepository repository, String storageName) {
-            this.repository = repository;
-            this.storageName = storageName;
-        }
-
-        @Override
-        public void run() {
-            Storage storage = createStorage(storageName);
-            try {
-                int millis = new Random().nextInt(1000);
-                LOG.info("Chaos monkey for " + storageName + " sleeping for " + millis + " ms.");
-                Thread.sleep(millis);
-                LOG.info("Chaos monkey for " + storageName + " is reinitializing storage!");
-                storage.prepare(repository, Collections.<FieldMetadata> emptySet(), true, true);
-                LOG.info("Chaos monkey for " + storageName + " has finished storage reinitialization.");
-                isSuccess = true;
-            } catch (Exception e) {
-                isSuccess = false;
-            }
-        }
-
-        public boolean isSuccess() {
-            return isSuccess;
-        }
-    }
-
     private class MainTestRunnable implements Runnable {
 
         private final MetadataRepository repository;
-
-        private final String dataSourceName;
-
-        private final String storageName;
 
         private final String typeName;
 
@@ -154,36 +94,22 @@ public class StorageIsolationTest extends TestCase {
 
         private int actualFullTextResults;
 
-        private final ChaosMonkeyRunnable chaosMonkey;
+        private final Storage storage;
 
-        private MainTestRunnable(MetadataRepository repository, String dataSourceName, String storageName, String typeName,
-                int instanceNumber, String valueText, String valueNotToBeFound) {
+        private MainTestRunnable(MetadataRepository repository, Storage storage, String typeName, int instanceNumber, String valueText, String valueNotToBeFound) {
             this.repository = repository;
-            this.dataSourceName = dataSourceName;
-            this.storageName = storageName;
+            this.storage = storage;
             this.typeName = typeName;
             this.instanceNumber = instanceNumber;
             this.valueText = valueText;
             this.valueNotToBeFound = valueNotToBeFound;
-            chaosMonkey = new ChaosMonkeyRunnable(repository, storageName);
         }
 
         @Override
         public void run() {
             ComplexTypeMetadata type = repository.getComplexType(typeName);
-            Storage storage = createStorage(storageName);
-            LOG.info("Main test for " + storageName + " initialization...");
-            storage.init(dataSourceName);
-            storage.prepare(repository, false);
-            LOG.info("Main test for " + storageName + "  initialization done.");
-
-            Thread cmt1 = new Thread(chaosMonkey);
-            cmt1.start();
-
-            StorageResults results = null;
             try {
                 DataRecordReader<String> factory = new XmlStringDataRecordReader();
-
                 storage.begin();
                 for (int i = 0; i < instanceNumber; i++) {
                     DataRecord record = factory.read(1, repository, type, "<" + typeName + "><Id>" + i + "</Id><field>"
@@ -194,21 +120,25 @@ public class StorageIsolationTest extends TestCase {
                 storage.end();
 
                 UserQueryBuilder qb = UserQueryBuilder.from(type).select(type.getField("field"));
-                results = storage.fetch(qb.getSelect());
-                actualInstanceNumber = results.getCount();
+                StorageResults results = storage.fetch(qb.getSelect());
+                try {
+                    actualInstanceNumber = results.getCount();
+                } finally {
+                    results.close();
+                }
 
                 qb = UserQueryBuilder.from(type).where(UserQueryBuilder.fullText(valueNotToBeFound));
                 results = storage.fetch(qb.getSelect());
-                actualFullTextResults = results.getCount();
+                try {
+                    actualFullTextResults = results.getCount();
+                } finally {
+                    results.close();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
                 actualInstanceNumber = -1;
             } finally {
-                if (results != null) {
-                    results.close();
-                }
                 storage.close();
-                LOG.info("Main test for " + storageName + " closed storage.");
             }
         }
 
@@ -218,10 +148,6 @@ public class StorageIsolationTest extends TestCase {
 
         public int getActualFullTextResults() {
             return actualFullTextResults;
-        }
-
-        public ChaosMonkeyRunnable getChaosMonkey() {
-            return chaosMonkey;
         }
     }
 }

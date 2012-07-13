@@ -24,14 +24,6 @@ import com.amalto.core.storage.record.XmlStringDataRecordReader;
 @SuppressWarnings("nls")
 public class InheritanceTest extends StorageTestCase {
 
-    private ComplexTypeMetadata a;
-
-    private ComplexTypeMetadata b;
-
-    private ComplexTypeMetadata c;
-
-    private ComplexTypeMetadata d;
-
     private void populateData() {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
@@ -61,11 +53,6 @@ public class InheritanceTest extends StorageTestCase {
 
     @Override
     public void setUp() throws Exception {
-        a = repository.getComplexType("A");
-        b = repository.getComplexType("B");
-        c = repository.getComplexType("C");
-        d = repository.getComplexType("D");
-
         populateData();
         userSecurity.setActive(false); // Not testing security here
     }

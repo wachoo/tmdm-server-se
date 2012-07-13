@@ -10,12 +10,6 @@
 
 package com.amalto.core.query;
 
-import java.util.Collections;
-
-import junit.framework.TestCase;
-
-import org.apache.log4j.Logger;
-
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
@@ -24,6 +18,10 @@ import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.SecuredStorage;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.hibernate.HibernateStorage;
+import junit.framework.TestCase;
+import org.apache.log4j.Logger;
+
+import java.util.Collections;
 
 @SuppressWarnings("nls")
 public class StorageTestCase extends TestCase {
@@ -48,6 +46,14 @@ public class StorageTestCase extends TestCase {
 
     protected static final ComplexTypeMetadata country;
 
+    protected static final ComplexTypeMetadata a;
+
+    protected static final ComplexTypeMetadata b;
+
+    protected static final ComplexTypeMetadata c;
+
+    protected static final ComplexTypeMetadata d;
+
     protected static TestUserDelegator userSecurity = new TestUserDelegator();
 
     public static final String DATABASE = "H2";
@@ -69,6 +75,10 @@ public class StorageTestCase extends TestCase {
         product = repository.getComplexType("Product");
         productFamily = repository.getComplexType("ProductFamily");
         supplier = repository.getComplexType("Supplier");
+        a = repository.getComplexType("A");
+        b = repository.getComplexType("B");
+        c = repository.getComplexType("C");
+        d = repository.getComplexType("D");
 
         storage.init(DATABASE + "-Default");
         storage.prepare(repository, Collections.singleton(person.getField("firstname")), true, true);
