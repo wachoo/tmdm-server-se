@@ -96,6 +96,7 @@ public class GeneralAction implements GeneralService {
     public ActionBean getAction() throws ServiceException {
         try {
             ActionBean action = new ActionBean();
+            Configuration.setGwtConfigurationContext(configurationContext);
             action.setClusters(getClusters());
             action.setModels(getModels());
             Configuration configuration = Configuration.getInstance(configurationContext);
