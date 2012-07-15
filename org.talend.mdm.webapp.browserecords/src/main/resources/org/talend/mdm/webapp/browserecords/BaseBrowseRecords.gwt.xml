@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module>
-	<inherits name="org.talend.mdm.webapp.base.BASE" />
-	<!-- If you meet complie error for GWT Test Classes in your IDE, you could uncomment it -->
-    <!-- <inherits name="com.google.gwt.junit.JUnit"/> -->
+ <inherits name="org.talend.mdm.webapp.base.BASE" />
 
-	<!-- Specify the paths for translatable code -->
-	<source path='client'/>
-	<source path='shared' />
-	<source path='model' />
+ <!-- Specify the paths for translatable code -->
+ <source path='client' />
+ <source path='shared' />
+ <source path='model' />
 
-	<stylesheet src='../resources/css/resources.css' />
+ <stylesheet src='../resources/css/resources.css' />
 
 </module>
