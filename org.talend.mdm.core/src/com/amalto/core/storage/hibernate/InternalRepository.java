@@ -118,6 +118,9 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
             if (!complexType.getSubTypes().isEmpty()) {
                 return HibernateStorage.TypeMappingStrategy.GOOD_FIELD;
             }
+            if(!complexType.isInstantiable()) {
+                return HibernateStorage.TypeMappingStrategy.GOOD_FIELD;
+            }
 
             fieldCount += complexType.getFields().size();
             {

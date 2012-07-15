@@ -52,7 +52,7 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     @Override
     public TypeMapping visit(ReferenceFieldMetadata referenceField) {
-        String name = referenceField.getName();
+        String name = getFieldName(referenceField);
         ComplexTypeMetadata referencedType = new SoftTypeRef(internalRepository, StringUtils.EMPTY, referenceField.getReferencedType().getName());
 
         FieldMetadata referencedFieldCopy = new SoftIdFieldRef(internalRepository, referencedType.getName());
@@ -80,70 +80,69 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     @Override
     public TypeMapping visit(ContainedComplexTypeMetadata containedType) {
-        String databaseSuperType = handleContainedType(null, containedType.getContainerType().getName(), containedType);
+        String typeName = containedType.getName().replace('-', '_');
+        String databaseSuperType = createContainedType(typeName, null, containedType);
         for (ComplexTypeMetadata subType : containedType.getSubTypes()) {
-            handleContainedType(databaseSuperType, containedType.getContainerType().getName(), subType);
+            createContainedType(subType.getName().replace('-', '_'), databaseSuperType, subType);
         }
         return null;
     }
 
-    private String handleContainedType(String superTypeDatabaseName, String containerTypeName, ComplexTypeMetadata containedType) {
-        String newTypeName = (containerTypeName.replace('-', '_') + "_2_" + containedType.getName().replace('-', '_')).toUpperCase(); //$NON-NLS-1$
-        ComplexTypeMetadata newInternalType = internalRepository.getComplexType(newTypeName);
-        if (newInternalType == null) {
-            newInternalType = new ComplexTypeMetadataImpl(containedType.getNamespace(),
-                    newTypeName,
-                    containedType.getWriteUsers(),
-                    containedType.getDenyCreate(),
-                    containedType.getHideUsers(),
-                    containedType.getDenyDelete(ComplexTypeMetadata.DeleteType.PHYSICAL),
-                    containedType.getDenyDelete(ComplexTypeMetadata.DeleteType.LOGICAL),
-                    containedType.getSchematron(),
+    private String createContainedType(String typeName, String superTypeName, ComplexTypeMetadata originalContainedType) {
+        ComplexTypeMetadata internalContainedType = (ComplexTypeMetadata) internalRepository.getType(typeName);
+        if (internalContainedType == null) {
+            internalContainedType = new ComplexTypeMetadataImpl(originalContainedType.getNamespace(),
+                    typeName,
+                    originalContainedType.getWriteUsers(),
+                    originalContainedType.getDenyCreate(),
+                    originalContainedType.getHideUsers(),
+                    originalContainedType.getDenyDelete(ComplexTypeMetadata.DeleteType.PHYSICAL),
+                    originalContainedType.getDenyDelete(ComplexTypeMetadata.DeleteType.LOGICAL),
+                    originalContainedType.getSchematron(),
                     false);
-            if (superTypeDatabaseName == null) {  // Generate a technical ID only if contained type does not have super type (subclasses will inherit it).
-                newInternalType.addField(new SimpleTypeFieldMetadata(newInternalType,
+            if (superTypeName == null) {  // Generate a technical ID only if contained type does not have super type (subclasses will inherit it).
+                internalContainedType.addField(new SimpleTypeFieldMetadata(internalContainedType,
                         true,
                         false,
                         true,
                         GENERATED_ID,
                         new SoftTypeRef(internalRepository, internalRepository.getUserNamespace(), "UUID"), //$NON-NLS-1$
-                        containedType.getWriteUsers(),
-                        containedType.getHideUsers()));
+                        originalContainedType.getWriteUsers(),
+                        originalContainedType.getHideUsers()));
             } else {
-                newInternalType.addSuperType(new SoftTypeRef(internalRepository, newInternalType.getNamespace(), superTypeDatabaseName), internalRepository);
+                internalContainedType.addSuperType(new SoftTypeRef(internalRepository, internalContainedType.getNamespace(), superTypeName), internalRepository);
             }
-            internalRepository.addTypeMetadata(newInternalType);
+            internalRepository.addTypeMetadata(internalContainedType);
         }
-        currentType.push(newInternalType);
+        currentType.push(internalContainedType);
         {
-            super.visit(containedType);
+            super.visit(originalContainedType);
         }
         currentType.pop();
-        return newTypeName;
+        return typeName;
     }
 
     @Override
     public TypeMapping visit(ContainedTypeFieldMetadata containedField) {
-        String typeName = (containedField.getDeclaringType().getName().replace('-', '_') + "_2_" + containedField.getContainedType().getName().replace('-', '_')).toUpperCase(); //$NON-NLS-1$
+        String fieldName = getFieldName(containedField);
+        String containedTypeName = containedField.getContainedType().getName();
         SoftTypeRef typeRef = new SoftTypeRef(internalRepository,
                 containedField.getDeclaringType().getNamespace(),
-                typeName);
-        ComplexTypeMetadata database = currentType.peek();
-        ReferenceFieldMetadata newFlattenField = new ReferenceFieldMetadata(database,
+                containedTypeName);
+        ReferenceFieldMetadata newFlattenField = new ReferenceFieldMetadata(currentType.peek(),
                 false,
                 containedField.isMany(),
                 containedField.isMandatory(),
-                getFieldName(containedField),
+                fieldName,
                 typeRef,
-                new SoftIdFieldRef(internalRepository, typeName),
+                new SoftIdFieldRef(internalRepository, containedTypeName),
                 null,
                 false,  // No need to enforce FK in references to these technical objects.
                 false,
                 containedField.getWriteUsers(),
                 containedField.getHideUsers());
         newFlattenField.setData("SQL_DELETE_CASCADE", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-
-        database.addField(newFlattenField);
+        currentType.peek().addField(newFlattenField);
         mapping.map(containedField, newFlattenField);
         containedField.getContainedType().accept(this);
         return null;

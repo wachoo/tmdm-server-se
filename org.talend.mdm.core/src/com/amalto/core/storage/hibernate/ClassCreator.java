@@ -330,7 +330,7 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
 
             referenceField.getReferencedType().accept(this); // Visit referenced type in case it hasn't been created.
             CtClass fieldType = classPool.get(PACKAGE_PREFIX + referenceField.getReferencedType().getName());
-            addNewField(getFieldName(referenceField), referenceField.isMany(), fieldType, currentClass);
+            addNewField(referenceField.getName(), referenceField.isMany(), fieldType, currentClass);
 
             return super.visit(referenceField);
         } catch (Exception e) {
@@ -384,7 +384,7 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             ClassFile currentClassFile = currentClass.getClassFile();
             CtClass fieldType = classPool.get(getFieldType(metadata));
 
-            CtField field = addNewField(getFieldName(metadata), metadata.isMany(), fieldType, currentClass);
+            CtField field = addNewField(metadata.getName(), metadata.isMany(), fieldType, currentClass);
 
             if (!currentClass.getName().endsWith("_ID")) { //$NON-NLS-1$
                 ConstPool cp = currentClassFile.getConstPool();
@@ -476,23 +476,4 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
     String getFieldType(FieldMetadata metadata) {
         return MetadataUtils.getJavaType(metadata.getType());
     }
-
-    private String getFieldName(FieldMetadata metadata) {
-        StringBuilder buffer = new StringBuilder();
-        Iterator<String> prefixIterator = fieldPrefix.iterator();
-        while (prefixIterator.hasNext()) {
-            buffer.append(prefixIterator.next());
-            if (prefixIterator.hasNext()) {
-                buffer.append('_');
-            }
-        }
-        String name;
-        if (buffer.length() > 0) {
-            name = buffer.toString() + '_' + metadata.getName();
-        } else {
-            name = metadata.getName();
-        }
-        return name;
-    }
-
 }

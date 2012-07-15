@@ -18,7 +18,6 @@ import com.amalto.core.metadata.ReferenceFieldMetadata;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
 
 import java.io.Serializable;
@@ -56,7 +55,7 @@ public class GoodFieldTypeMapping extends TypeMapping {
                 if (!field.isMany()) {
                     DataRecord containedRecord = (DataRecord) from.get(field);
                     if (containedRecord != null) {
-                        referencedType = getActualReferenceType(referencedType, containedRecord);
+                        referencedType = containedRecord.getType();
                         Wrapper existingValue = (Wrapper) to.get(referenceFieldMetadata.getName());
                         Wrapper object = existingValue == null ? createObject(contextClassLoader, referencedType) : existingValue;
                         to.set(referenceFieldMetadata.getName(), _setValues(session, containedRecord, object));
@@ -132,9 +131,9 @@ public class GoodFieldTypeMapping extends TypeMapping {
     // Returns actual reference type (in case in reference to hold contained record can have sub types).
     // Not expected to be use for foreign keys, and also very specific to this mapping implementation.
     private static ComplexTypeMetadata getActualReferenceType(ComplexTypeMetadata referencedType, DataRecord containedRecord) {
-        String concreteReferencedType = StringUtils.substringAfterLast(referencedType.getName(), "_"); //$NON-NLS-1$
+        String concreteReferencedType = referencedType.getName();
         if (!containedRecord.getType().getName().equalsIgnoreCase(concreteReferencedType)) {
-            String actualTypeName = StringUtils.substringBeforeLast(referencedType.getName(), "_") + "_" + containedRecord.getType().getName().toUpperCase(); //$NON-NLS-1$ //$NON-NLS-2$
+            String actualTypeName = referencedType.getName();
             for (ComplexTypeMetadata referencedTypeSubType : referencedType.getSubTypes()) {
                 if (actualTypeName.equals(referencedTypeSubType.getName())) {
                     referencedType = referencedTypeSubType;
@@ -202,8 +201,7 @@ public class GoodFieldTypeMapping extends TypeMapping {
     // Returns actual contained type (in case in reference to hold contained record can have sub types).
     // Not expected to be use for foreign keys, and also very specific to this mapping implementation.
     private static ComplexTypeMetadata getActualContainedType(FieldMetadata userField, Wrapper value) {
-        String valueClassName = value.getClass().getName();
-        String actualValueType = StringUtils.substringAfterLast(valueClassName, "2_"); //$NON-NLS-1$
+        String actualValueType = value.getClass().getSimpleName();
         if (actualValueType.equalsIgnoreCase(userField.getType().getName())) {
             return (ComplexTypeMetadata) userField.getType();
         } else {
@@ -214,7 +212,7 @@ public class GoodFieldTypeMapping extends TypeMapping {
                 }
             }
         }
-        throw new IllegalStateException("Could not find actual type for value '" + String.valueOf(value) + "'");
+        throw new IllegalStateException("Could value type from class '" + String.valueOf(value) + "' and for field '" + userField.getName() + "'.");
     }
 
     private Wrapper createObject(ClassLoader storageClassLoader, ComplexTypeMetadata referencedType) {
