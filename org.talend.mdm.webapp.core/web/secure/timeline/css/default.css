@@ -14,6 +14,7 @@ body {
     quotes: "\201C" "\201E" "\2018" "\2019";
 }
 
+/*
 @media screen {
     body {
         background-image: url(../images/stata.jpg);
@@ -22,7 +23,7 @@ body {
         background-attachment: scroll;
     }
 }
-
+*/
 a:link {
 	color: #222;
 }
