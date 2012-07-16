@@ -81,7 +81,7 @@ public class SaverHelper {
                 new ByteArrayInputStream(partialPutItem.getXml().getBytes("UTF-8")), //$NON-NLS-1$
                 true,
                 partialPutItem.isReport(),
-                true,
+                false, // partial update did not support before saving in first implementation, do the same here.
                 partialPutItem.getOverwrite());
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
