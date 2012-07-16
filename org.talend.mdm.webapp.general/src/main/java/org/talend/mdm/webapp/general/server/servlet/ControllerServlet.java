@@ -92,7 +92,7 @@ public class ControllerServlet extends HttpServlet {
         html.append("<head>\n");
         html.append("<title>Talend MDM</title>\n");
         html.append("<meta id='gwt:property' name='gwt:property' content='locale=").append(language).append("'>\n");
-        html.append("<link rel='stylesheet' type='text/css' href='/general/resources/css/gxt-all.css'/>\n");
+        html.append("<link rel='stylesheet' type='text/css' href='/core/secure/gxt/resources/css/gxt-all.css'/>\n");
         List<String> cssImports = Utils.getCssImport();
         for (String css : cssImports){
         	html.append(css);
