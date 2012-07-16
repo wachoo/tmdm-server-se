@@ -14,16 +14,6 @@ body {
     quotes: "\201C" "\201E" "\2018" "\2019";
 }
 
-/*
-@media screen {
-    body {
-        background-image: url(../images/stata.jpg);
-        background-position: left bottom;
-        background-repeat: no-repeat;
-        background-attachment: scroll;
-    }
-}
-*/
 a:link {
 	color: #222;
 }
@@ -155,15 +145,6 @@ img {
     margin: 0px;
 }
 
-#path li {
-    display: inline;
-    padding-left: 13px;
-    padding-right: 3px;
-    background-image: url(../images/arrow.gif);
-    background-repeat: no-repeat;
-    background-position: 1px 5px;
-}
-
 #path span {
     font-weight: bold;
 }
@@ -250,16 +231,6 @@ img {
 	text-align: center; 
 	font-size: 130%; 
 	font-weight: bold; 
-}
-
-#body #slideshow {
-    border: 1px solid #ccc;
-    background-image: url(../images/body_back.gif);
-    background-position: top left;
-    background-repeat: repeat-x;
-    margin-left: 30px;
-    margin-right: 250px;
-    height: 14em;
 }
 
 #body #slideshow .item {
