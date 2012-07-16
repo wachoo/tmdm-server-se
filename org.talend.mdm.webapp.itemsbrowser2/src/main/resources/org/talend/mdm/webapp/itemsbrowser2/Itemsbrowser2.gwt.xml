@@ -11,7 +11,7 @@
  <source path='model' />
 
  <!-- FIXME: This is a workaround for 4.2 only -->
- <stylesheet src='../resources/css/gxt-all.css' />
+ <stylesheet src='/core/secure/gxt/resources/css/gxt-all.css' />
  <stylesheet src='/core/secure/ext-2.2/resources/css/ext-all.css' />
  <stylesheet src='../Itemsbrowser2.css' />
 
