@@ -228,4 +228,27 @@ public class ItemTreeHandlerGWTTest extends GWTTestCase {
 
     }
 
+    /**
+     * Test Model Structure:<br>
+     * Product<br>
+     *     |_Id<br>
+     *     |_Name<br>
+     *     |_Family(0...1)<br>   
+     *     |_Stores(ComplexType)<br>
+     *         |_Store(0...Many)
+     */
+    public void testSerializeItemWhenSaveForRepeatingElementWithoutSiblings() {
+
+        ViewBean viewBean = new ViewBean();
+        EntityModel entity = CommonUtilTestData.getEntityModel(ClientResourceData.getModelProductWithStore());
+        viewBean.setBindingEntityModel(entity);
+
+        ItemNodeModel nodeModel = CommonUtilTestData.getItemNodeModel(ClientResourceData.getRecordProductWithStore(), entity);
+        ItemTreeHandler itemHandler = new ItemTreeHandler(nodeModel, viewBean, ItemTreeHandlingStatus.ToSave);
+        String expectedXml = "<Product xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id>2000</Id><Name>Talend Golf Shirt</Name><Family>[1]</Family><Stores><Store>[1]</Store><Store>[2]</Store><Store>[3]</Store></Stores></Product>";
+        String actualXml = itemHandler.serializeItem();
+        assertEquals(expectedXml, actualXml);
+
+    }
+
 }

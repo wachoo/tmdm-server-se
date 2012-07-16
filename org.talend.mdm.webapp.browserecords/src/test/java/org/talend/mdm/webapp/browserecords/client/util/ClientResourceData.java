@@ -326,4 +326,32 @@ public class ClientResourceData {
         modelH.append("</models>"); //$NON-NLS-1$
         return modelH.toString();
     }
+
+    public static String getRecordProductWithStore() {
+        StringBuffer record = new StringBuffer();
+        record.append("<Product>");
+        record.append("<Id>2000</Id>");
+        record.append("<Name>Talend Golf Shirt</Name>");
+        record.append("<Family>[1]</Family>");
+        record.append("<Stores>");
+        record.append("<Store>[1]</Store>");
+        record.append("<Store>[2]</Store>");
+        record.append("<Store>[3]</Store>");
+        record.append("</Stores>");
+        record.append("</Product>");
+        return record.toString();
+    }
+
+    public static String getModelProductWithStore() {
+        StringBuffer model = new StringBuffer();
+        model.append("<models concept=\"Product\">");
+        model.append("  <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"Product\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Product/Id\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Product/Name\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"true\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Family\"/>");
+        model.append("  <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Stores\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"-1\" typePath=\"Product/Stores/Store\"/>");
+        model.append("</models>");
+        return model.toString();
+    }
 }
