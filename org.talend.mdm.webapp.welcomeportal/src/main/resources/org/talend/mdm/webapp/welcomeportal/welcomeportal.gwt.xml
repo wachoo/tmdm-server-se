@@ -9,7 +9,6 @@
  <source path='client' />
  <source path='shared' />
 
- <stylesheet src='/core/secure/gxt/resources/css/gxt-all.css' />
  <stylesheet src='../WelcomePortal.css' />
 
 </module>
