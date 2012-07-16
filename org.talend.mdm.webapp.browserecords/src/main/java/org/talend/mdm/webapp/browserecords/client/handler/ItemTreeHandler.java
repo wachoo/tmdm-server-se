@@ -214,9 +214,9 @@ public class ItemTreeHandler implements IsSerializable {
                                         if (myChildEl.getNodeName().equals(el.getNodeName()) && isEmptyValueEl(myChildEl))
                                             root.removeChild(myChildEl);// clean up empty node
                                     }
-                                    // append non-empty el
-                                    root.appendChild(el);
                                 }
+                                // append non-empty el
+                                root.appendChild(el);
                             }
 
                         } else {
