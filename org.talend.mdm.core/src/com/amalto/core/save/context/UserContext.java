@@ -15,6 +15,7 @@ import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.save.DocumentSaverContext;
+import com.amalto.core.save.UserAction;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.LinkedList;
@@ -34,7 +35,7 @@ class UserContext implements DocumentSaverContext {
 
     private final boolean updateReport;
 
-    private final boolean isReplace;
+    private UserAction userAction;
 
     private ComplexTypeMetadata type;
 
@@ -48,20 +49,18 @@ class UserContext implements DocumentSaverContext {
 
     private MutableDocument dataBaseValidationDocument;
 
-    private boolean isCreate;
-
     private boolean hasMetAutoIncrement;
 
     private String taskId = StringUtils.EMPTY;
 
-    UserContext(String dataCluster, String dataModel, MutableDocument userDocument, boolean isReplace, boolean validate, boolean updateReport, boolean invokeBeforeSaving) {
+    UserContext(String dataCluster, String dataModel, MutableDocument userDocument, UserAction userAction, boolean validate, boolean updateReport, boolean invokeBeforeSaving) {
         this.userDocument = userDocument;
         this.dataCluster = dataCluster;
         this.dataModel = dataModel;
+        this.userAction = userAction;
         this.validate = validate;
         this.invokeBeforeSaving = invokeBeforeSaving;
         this.updateReport = updateReport;
-        this.isReplace = isReplace;
     }
 
     public DocumentSaver createSaver() {
@@ -136,18 +135,6 @@ class UserContext implements DocumentSaverContext {
         this.type = type;
     }
 
-    public boolean isReplace() {
-        return isReplace;
-    }
-
-    public boolean isCreate() {
-        return isCreate;
-    }
-
-    public void setCreate(boolean isCreate) {
-        this.isCreate = isCreate;
-    }
-
     public boolean hasMetAutoIncrement() {
         return hasMetAutoIncrement;
     }
@@ -176,6 +163,26 @@ class UserContext implements DocumentSaverContext {
     public void setUpdateReportDocument(MutableDocument updateReportDocument) {
         // See ReportDocumentSaverContext.decorate() if you wish this context to support update report creation.
         throw new UnsupportedOperationException("No supported in this implementation.");
+    }
+
+    @Override
+    public UserAction getUserAction() {
+        return userAction;
+    }
+
+    @Override
+    public void setUserAction(UserAction userAction) {
+        this.userAction = userAction;
+    }
+
+    @Override
+    public String getPartialUpdatePivot() {
+        return StringUtils.EMPTY;
+    }
+
+    @Override
+    public String getPartialUpdateKey() {
+        return StringUtils.EMPTY;
     }
 
     public String[] getId() {

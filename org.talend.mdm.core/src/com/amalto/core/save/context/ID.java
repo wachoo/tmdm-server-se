@@ -18,6 +18,7 @@ import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.save.DOMDocument;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
+import com.amalto.core.save.UserAction;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
@@ -131,7 +132,7 @@ class ID implements DocumentSaver {
             }
         } else {
             // Throw an exception if trying to update a document that does not exist.
-            if (!context.isReplace()) { // Is update
+            if (context.getUserAction() == UserAction.UPDATE) { // Is update
                 StringBuilder builder = new StringBuilder();
                 for (String idElement : xmlDocumentId) {
                     builder.append('[').append(idElement).append(']');
@@ -140,7 +141,7 @@ class ID implements DocumentSaver {
             }
 
             // Creation... so mark context
-            context.setCreate(true);
+            context.setUserAction(UserAction.CREATE);
             context.setDatabaseDocument(new DOMDocument(documentBuilder.newDocument()));
             context.setDatabaseValidationDocument(new DOMDocument(documentBuilder.newDocument()));
         }

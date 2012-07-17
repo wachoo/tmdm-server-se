@@ -11,17 +11,16 @@
 
 package com.amalto.core.save;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.save.context.DefaultSaverSource;
 import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.save.context.SaverSource;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class SaverSession {
 
@@ -123,15 +122,16 @@ public class SaverSession {
      * @param committer A {@link Committer} committer to use when committing transactions on underlying storage.
      */
     public void end(Committer committer) {
-        
-        boolean needResetAutoIncrement=false;
-        
+        SaverSource saverSource = getSaverSource();
+        boolean needResetAutoIncrement = false;
+
         for (Map.Entry<String, Set<ItemPOJO>> currentTransaction : itemsPerDataCluster.entrySet()) {
             String dataCluster = currentTransaction.getKey();
             begin(dataCluster, committer);
             for (ItemPOJO currentItemToCommit : currentTransaction.getValue()) {
-                if (!needResetAutoIncrement)
-                    needResetAutoIncrement = isAutoIncrementUpdate(currentItemToCommit);
+                if (!needResetAutoIncrement) {
+                    needResetAutoIncrement = isAutoIncrementItem(currentItemToCommit);
+                }
                 committer.save(currentItemToCommit, currentItemToCommit.getDataModelRevision()); // TODO Use data model revision for revision id?
             }
             committer.commit(dataCluster);
@@ -140,7 +140,6 @@ public class SaverSession {
         // If any change was made to data cluster "UpdateReport", route committed update reports.
         Set<ItemPOJO> updateReport = itemsPerDataCluster.get("UpdateReport"); //$NON-NLS-1$
         if (updateReport != null) {
-            SaverSource saverSource = getSaverSource();
             for (ItemPOJO updateReportPOJO : updateReport) {
                 saverSource.routeItem(updateReportPOJO.getDataClusterPOJOPK().getUniqueId(), updateReportPOJO.getConceptName(), updateReportPOJO.getItemIds());
             }
@@ -148,33 +147,37 @@ public class SaverSession {
 
         // reset the AutoIncrement
         if (needResetAutoIncrement) {
-            getSaverSource().initAutoIncrement();
+            saverSource.initAutoIncrement();
         }
 
         // Save current state of autoincrement when save is completed.
         if (hasMetAutoIncrement) {
             // TMDM-3964 : Auto-Increment Id can not be saved immediately to DB
             String dataCluster = XSystemObjects.DC_CONF.getName();
-            begin(dataCluster, committer);
-            SaverSource saverSource = getSaverSource();
-            saverSource.saveAutoIncrement();
-            committer.commit(dataCluster);
+            committer.begin(dataCluster);
+            try {
+                saverSource.saveAutoIncrement();
+                committer.commit(dataCluster);
+            } catch (Exception e) {
+                committer.rollback(dataCluster);
+                throw new RuntimeException("Could not save auto increment counter state.", e);
+            }
         }
     }
 
     /**
      * To check whether this item's concept model is "AutoIncrement" or not
-     * 
-     * @param item
-     * @return boolean
+     *
+     * @param item The item to be checked.
+     * @return <code>true</code> if item is an AutoIncrement document, <code>false</code> otherwise.
      */
-    private boolean isAutoIncrementUpdate(ItemPOJO item) {
-        if (item == null || item.getDataModelName() == null || item.getConceptName() == null)
+    private static boolean isAutoIncrementItem(ItemPOJO item) {
+        if (item == null || item.getDataModelName() == null || item.getConceptName() == null) {
             return false;
-        if (item.getDataModelName().equals(XSystemObjects.DC_CONF.getName())
-                && item.getConceptName().equals(AUTO_INCREMENT_TYPE_NAME))
+        } else if (item.getDataModelName().equals(XSystemObjects.DC_CONF.getName())
+                && item.getConceptName().equals(AUTO_INCREMENT_TYPE_NAME)) {
             return true;
-
+        }
         return false;
     }
 

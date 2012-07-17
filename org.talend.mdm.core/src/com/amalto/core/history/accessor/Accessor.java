@@ -14,7 +14,7 @@ package com.amalto.core.history.accessor;
 /**
  *
  */
-public interface Accessor {
+public interface Accessor extends Comparable<Accessor> {
 
     /**
      * Set a value in the document. The full path of elements <b>must</b> exist (this can be ensured via a call

@@ -15,6 +15,7 @@ import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.save.context.DocumentSaver;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
 
@@ -41,6 +42,26 @@ public class ReportDocumentSaverContext implements DocumentSaverContext {
 
     public void setUpdateReportDocument(MutableDocument updateReportDocument) {
         this.updateReportDocument = updateReportDocument;
+    }
+
+    @Override
+    public UserAction getUserAction() {
+        return delegate.getUserAction();
+    }
+
+    @Override
+    public void setUserAction(UserAction userAction) {
+        delegate.setUserAction(userAction);
+    }
+
+    @Override
+    public String getPartialUpdatePivot() {
+        return StringUtils.EMPTY;
+    }
+
+    @Override
+    public String getPartialUpdateKey() {
+        return StringUtils.EMPTY;
     }
 
     public String getChangeSource() {
@@ -105,18 +126,6 @@ public class ReportDocumentSaverContext implements DocumentSaverContext {
 
     public void setType(ComplexTypeMetadata type) {
         delegate.setType(type);
-    }
-
-    public boolean isReplace() {
-        return delegate.isReplace();
-    }
-
-    public boolean isCreate() {
-        return delegate.isCreate();
-    }
-
-    public void setCreate(boolean isCreate) {
-        delegate.setCreate(isCreate);
     }
 
     public boolean hasMetAutoIncrement() {

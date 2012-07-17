@@ -33,7 +33,7 @@
     <!-- =================================
           target: all              
          ================================= -->
-    <target name="all" depends="version,junit,package,undeploy,deploy">
+    <target name="all" depends="version,package,undeploy,deploy">
         <!-- <eclipse.refreshLocal resource="${basedir}"/> -->
     </target>
 

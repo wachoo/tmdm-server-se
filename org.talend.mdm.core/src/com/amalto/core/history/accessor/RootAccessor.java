@@ -76,4 +76,15 @@ class RootAccessor implements DOMAccessor {
     public String getActualType() {
         throw new NotImplementedException("Override document type at root element.");
     }
+
+    @Override
+    public int compareTo(Accessor accessor) {
+        if (exist() != accessor.exist()) {
+            return -1;
+        }
+        if (exist() && (accessor instanceof RootAccessor)) {
+            return getNode().equals(((RootAccessor) accessor).getNode()) ? 0 : -1;
+        }
+        return -1;
+    }
 }

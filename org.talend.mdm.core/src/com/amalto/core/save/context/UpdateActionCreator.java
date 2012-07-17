@@ -22,25 +22,25 @@ import java.util.*;
 
 class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
-    private final Stack<String> path = new Stack<String>();
+    protected final Stack<String> path = new Stack<String>();
 
-    private final List<Action> actions = new LinkedList<Action>();
+    protected final List<Action> actions = new LinkedList<Action>();
 
-    private final Date date;
+    protected final Date date;
 
-    private final String source;
+    protected final String source;
 
-    private final String userName;
+    protected final String userName;
 
-    private final MutableDocument originalDocument;
+    protected final MutableDocument originalDocument;
 
-    private final MutableDocument newDocument;
+    protected final MutableDocument newDocument;
 
-    private final MetadataRepository repository;
+    protected final MetadataRepository repository;
 
-    private final Closure compareClosure;
+    protected Closure closure = new CompareClosure();
 
-    private final boolean preserveCollectionOldValues;
+    protected final boolean preserveCollectionOldValues;
 
     private final Set<String> touchedPaths = new HashSet<String>();
 
@@ -56,11 +56,6 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
         date = new Date(System.currentTimeMillis());
         this.source = source;
         this.userName = userName;
-        compareClosure = new Closure() {
-            public void execute(FieldMetadata field) {
-                compare(field);
-            }
-        };
     }
 
     @Override
@@ -79,20 +74,24 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     @Override
     public List<Action> visit(ReferenceFieldMetadata referenceField) {
-        handleField(referenceField, compareClosure);
+        handleField(referenceField, getClosure());
         return actions;
     }
 
     @Override
     public List<Action> visit(SimpleTypeFieldMetadata simpleField) {
-        handleField(simpleField, compareClosure);
+        handleField(simpleField, getClosure());
         return actions;
     }
 
     @Override
     public List<Action> visit(EnumerationFieldMetadata enumField) {
-        handleField(enumField, compareClosure);
+        handleField(enumField, getClosure());
         return actions;
+    }
+
+    protected Closure getClosure() {
+        return closure;
     }
 
     /**
@@ -102,7 +101,15 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
         void execute(FieldMetadata field);
     }
 
-    private String getPath() {
+    String getLeftPath() {
+        return computePath(path);
+    }
+
+    String getRightPath() {
+        return computePath(path);
+    }
+
+    private String computePath(Stack<String> path) {
         if (path.isEmpty()) {
             throw new IllegalStateException();
         } else {
@@ -118,10 +125,10 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
         }
     }
 
-    private void handleField(FieldMetadata field, Closure closure) {
+    protected void handleField(FieldMetadata field, Closure closure) {
         path.add(field.getName());
         if (field.isMany()) {
-            String currentPath = getPath();
+            String currentPath = getLeftPath();
             Accessor leftAccessor;
             Accessor rightAccessor;
             try {
@@ -145,7 +152,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 path.pop();
             }
             path.add(field.getName() + '[' + max + ']');
-            lastMatchPath = getPath();
+            lastMatchPath = getLeftPath();
             path.pop();
         } else {
             closure.execute(field);
@@ -153,14 +160,14 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
         }
     }
 
-    private void compare(FieldMetadata comparedField) {
+    protected void compare(FieldMetadata comparedField) {
         if (comparedField.isKey()) {
             // Can't update a key: don't even try to compare the field (but update lastMatchPath in case next compared
             // element is right after key field).
-            lastMatchPath = getPath();
+            lastMatchPath = getLeftPath();
             return;
         }
-        String path = getPath();
+        String path = getLeftPath();
         Accessor originalAccessor = originalDocument.createAccessor(path);
         Accessor newAccessor = newDocument.createAccessor(path);
 
@@ -178,14 +185,13 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
             }
         } else { // original accessor exist
             String oldValue = originalAccessor.get();
+            lastMatchPath = path;
             if (!newAccessor.exist()) {
                 if (comparedField.isMany()) {
                     // Null values may happen if accessor is targeting an element that contains other elements
                     actions.add(new FieldUpdateAction(date, source, userName, path, oldValue == null ? StringUtils.EMPTY : oldValue, null, comparedField));
                 }
-                lastMatchPath = path;
             } else { // new accessor exist
-                lastMatchPath = path;
                 if (oldValue != null && !oldValue.equals(newAccessor.get())) {
                     if (comparedField.isMany() && preserveCollectionOldValues) {
                         // Append at the end of the collection
@@ -195,7 +201,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                         String previousPathElement = this.path.pop();
                         int newIndex = originalFieldToLastIndex.get(comparedField);
                         this.path.push(comparedField.getName() + "[" + (newIndex + 1) + "]");
-                        actions.add(new FieldUpdateAction(date, source, userName, getPath(), StringUtils.EMPTY, newAccessor.get(), comparedField));
+                        actions.add(new FieldUpdateAction(date, source, userName, getLeftPath(), StringUtils.EMPTY, newAccessor.get(), comparedField));
                         this.path.pop();
                         this.path.push(previousPathElement);
                         originalFieldToLastIndex.put(comparedField, newIndex + 1);
@@ -209,7 +215,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
         }
     }
 
-    private void generateNoOp(String path) {
+    protected void generateNoOp(String path) {
         // TODO Do only this if type is a sequence (useless if type isn't ordered).
         if (!touchedPaths.contains(path) && path != null) {
             touchedPaths.add(path);
@@ -229,9 +235,8 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
             compare(field);
 
-            String currentPath = getPath();
-            Accessor leftAccessor = originalDocument.createAccessor(currentPath);
-            Accessor rightAccessor = newDocument.createAccessor(currentPath);
+            Accessor leftAccessor = originalDocument.createAccessor(getLeftPath());
+            Accessor rightAccessor = newDocument.createAccessor(getRightPath());
             if (rightAccessor.exist()) {
                 String newType = rightAccessor.getActualType();
                 String previousType = StringUtils.EMPTY;
@@ -251,13 +256,19 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                         throw new IllegalArgumentException("Type '" + field.getType().getName() + "' is not assignable from type '" + newTypeMetadata.getName() + "'");
                     }
 
-                    actions.add(new ChangeTypeAction(date, source, userName, currentPath, previousTypeMetadata, newTypeMetadata));
+                    actions.add(new ChangeTypeAction(date, source, userName, getLeftPath(), previousTypeMetadata, newTypeMetadata));
                     type = newTypeMetadata;
                 }
             }
 
             type.accept(UpdateActionCreator.this);
-            lastMatchPath = currentPath;
+            lastMatchPath = getLeftPath();
+        }
+    }
+
+    private class CompareClosure implements Closure {
+        public void execute(FieldMetadata field) {
+            compare(field);
         }
     }
 }

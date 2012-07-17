@@ -11,18 +11,11 @@
 
 package com.amalto.core.history.accessor;
 
-import javax.xml.XMLConstants;
-
-import org.apache.commons.lang.StringUtils;
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
-
 import com.amalto.core.history.MutableDocument;
+import org.apache.commons.lang.StringUtils;
+import org.w3c.dom.*;
+
+import javax.xml.XMLConstants;
 
 /**
  *
@@ -205,5 +198,16 @@ class ManyFieldAccessor implements DOMAccessor {
         } else {
             return type.getValue();
         }
+    }
+
+    @Override
+    public int compareTo(Accessor accessor) {
+        if (exist() != accessor.exist()) {
+            return -1;
+        }
+        if (exist()) {
+            return get().equals(accessor.get()) ? 0 : -1;
+        }
+        return -1;
     }
 }

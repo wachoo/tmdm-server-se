@@ -11,12 +11,6 @@
 
 package com.amalto.core.save.context;
 
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.metadata.ComplexTypeMetadata;
@@ -24,6 +18,13 @@ import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.ReportDocumentSaverContext;
 import com.amalto.core.save.SaverSession;
+import com.amalto.core.save.UserAction;
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 class GenerateActions implements DocumentSaver {
 
@@ -56,33 +57,51 @@ class GenerateActions implements DocumentSaver {
         MetadataRepository metadataRepository = saverSource.getMetadataRepository(context.getDataModelName());
         // Generate field update actions for UUID and AutoIncrement elements.
         UpdateActionCreator updateActions = new UpdateActionCreator(databaseDocument, userDocument, context.preserveOldCollectionValues(), source, userName, metadataRepository);
-        if (context.isCreate()) {
-            CreateActions createActions = new CreateActions(userDocument, date, source, userName, context.getDataCluster(), universe, saverSource);
-            Action createAction = new OverrideCreateAction(date, source, userName, userDocument, context.getType());
-            // Builds action list (be sure to include actual creation as first action).
-            actions = new LinkedList<Action>();
-            actions.add(createAction);
-            actions.addAll(type.accept(createActions));
-            actions.addAll(type.accept(updateActions));
-            context.setHasMetAutoIncrement(createActions.hasMetAutoIncrement());
-            List<String> idValues = createActions.getIdValues();
-            // TODO This does not guarantee key values are in correct order with key fields (for cases where ID is composed of mixed AUTO_INCREMENT and user fields).
-            // Join ids read from XML document and generated ID values.
-            String[] joinIds = new String[context.getId().length + idValues.size()];
-            System.arraycopy(context.getId(), 0, joinIds, 0, context.getId().length);
-            System.arraycopy(idValues.toArray(new String[idValues.size()]), 0, joinIds, context.getId().length, idValues.size());
-            context.setId(joinIds);
-        } else {
-            if (!context.isReplace()) { // "Is update"
+        UserAction userAction = context.getUserAction();
+        switch (userAction) {
+            case CREATE:
+                CreateActions createActions = new CreateActions(userDocument, date, source, userName, context.getDataCluster(), universe, saverSource);
+                Action createAction = new OverrideCreateAction(date, source, userName, userDocument, context.getType());
+                // Builds action list (be sure to include actual creation as first action).
+                actions = new LinkedList<Action>();
+                actions.add(createAction);
+                actions.addAll(type.accept(createActions));
+                actions.addAll(type.accept(updateActions));
+                context.setHasMetAutoIncrement(createActions.hasMetAutoIncrement());
+                List<String> idValues = createActions.getIdValues();
+                // TODO This does not guarantee key values are in correct order with key fields (for cases where ID is composed of mixed AUTO_INCREMENT and user fields).
+                // Join ids read from XML document and generated ID values.
+                String[] joinIds = new String[context.getId().length + idValues.size()];
+                System.arraycopy(context.getId(), 0, joinIds, 0, context.getId().length);
+                System.arraycopy(idValues.toArray(new String[idValues.size()]), 0, joinIds, context.getId().length, idValues.size());
+                context.setId(joinIds);
+                break;
+            case UPDATE:
                 // get updated paths
                 actions = type.accept(updateActions);
-            } else { // "Is replace" (similar to creation but without clean up of empty elements).
+                break;
+            case REPLACE:
+                // "Is replace" (similar to creation but without clean up of empty elements).
                 // Builds action list (be sure to include actual creation as first action).
                 actions = new LinkedList<Action>();
                 Action replaceAction = new OverrideReplaceAction(date, source, userName, userDocument, context.getType());
                 actions.add(replaceAction);
                 actions.addAll(type.accept(updateActions));
-            }
+                break;
+            case PARTIAL_UPDATE:
+                actions = new LinkedList<Action>();
+                PartialUpdateActionCreator partialUpdateActionCreator = new PartialUpdateActionCreator(databaseDocument,
+                        userDocument,
+                        context.preserveOldCollectionValues(),
+                        context.getPartialUpdatePivot(),
+                        context.getPartialUpdateKey(),
+                        source,
+                        userName,
+                        metadataRepository);
+                actions.addAll(type.accept(partialUpdateActionCreator));
+                break;
+            default:
+                throw new NotImplementedException("Support for '" + userAction + "'.");
         }
         context.setActions(actions);
 

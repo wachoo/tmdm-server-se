@@ -14,7 +14,10 @@ package com.amalto.core.history.accessor;
 import com.amalto.core.history.MutableDocument;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.w3c.dom.*;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -181,5 +184,16 @@ class AttributeAccessor implements DOMAccessor {
 
     public String getActualType() {
         throw new UnsupportedOperationException("Attributes can't override their type.");
+    }
+
+    @Override
+    public int compareTo(Accessor accessor) {
+        if (exist() != accessor.exist()) {
+            return -1;
+        }
+        if (exist()) {
+            return get().equals(accessor.get()) ? 0 : -1;
+        }
+        return -1;
     }
 }

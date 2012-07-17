@@ -103,18 +103,6 @@ public interface DocumentSaverContext {
 
     void setType(ComplexTypeMetadata type);
 
-    /**
-     * @return <code>true</code> if calling code wish to replace record instead of updating it, <code>false</code> otherwise.
-     */
-    boolean isReplace();
-
-    /**
-     * @return <code>true</code> if document is being created.
-     */
-    boolean isCreate();
-
-    void setCreate(boolean isCreate);
-
     boolean hasMetAutoIncrement();
 
     void setHasMetAutoIncrement(boolean hasMetAutoIncrement);
@@ -133,4 +121,12 @@ public interface DocumentSaverContext {
     MutableDocument getUpdateReportDocument();
 
     void setUpdateReportDocument(MutableDocument updateReportDocument);
+
+    UserAction getUserAction();
+
+    void setUserAction(UserAction userAction);
+
+    String getPartialUpdatePivot();
+
+    String getPartialUpdateKey();
 }

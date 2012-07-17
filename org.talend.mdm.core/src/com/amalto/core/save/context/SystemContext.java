@@ -15,6 +15,8 @@ import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.save.DocumentSaverContext;
+import com.amalto.core.save.UserAction;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -38,8 +40,6 @@ class SystemContext implements DocumentSaverContext {
     private MutableDocument databaseValidationDocument;
 
     private ComplexTypeMetadata type;
-
-    private boolean isCreate;
 
     public SystemContext(String dataCluster, String dataModelName, MutableDocument document) {
         this.dataCluster = dataCluster;
@@ -109,19 +109,6 @@ class SystemContext implements DocumentSaverContext {
         this.type = type;
     }
 
-    public boolean isReplace() {
-        // System documents are always replaced.
-        return true;
-    }
-
-    public boolean isCreate() {
-        return isCreate;
-    }
-
-    public void setCreate(boolean isCreate) {
-        this.isCreate = isCreate;
-    }
-
     public boolean hasMetAutoIncrement() {
         return false;
     }
@@ -147,6 +134,26 @@ class SystemContext implements DocumentSaverContext {
 
     public void setUpdateReportDocument(MutableDocument updateReportDocument) {
         throw new UnsupportedOperationException("No supported in this implementation.");
+    }
+
+    @Override
+    public UserAction getUserAction() {
+        return UserAction.REPLACE; // System documents are always replaced.
+    }
+
+    @Override
+    public void setUserAction(UserAction userAction) {
+        // Only REPLACE for this context.
+    }
+
+    @Override
+    public String getPartialUpdatePivot() {
+        return StringUtils.EMPTY;
+    }
+
+    @Override
+    public String getPartialUpdateKey() {
+        return StringUtils.EMPTY;
     }
 
     public String[] getId() {

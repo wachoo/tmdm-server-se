@@ -15,6 +15,7 @@ import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
+import com.amalto.core.save.UserAction;
 import org.apache.log4j.Logger;
 
 import java.util.Date;
@@ -79,7 +80,8 @@ class Security implements DocumentSaver {
                 actions.removeAll(failedActions);
 
                 // Revert all unauthorized actions in case of replace or create.
-                if (context.isReplace() || context.isCreate()) {
+                if (context.getUserAction() == UserAction.CREATE
+                                || context.getUserAction() == UserAction.REPLACE) {
                     LOGGER.warn("Following operation(s) are being ignored for replace/create: " + builder);
                     for (Action failedAction : failedActions) {
                         actions.add(new ReverseAction(failedAction));

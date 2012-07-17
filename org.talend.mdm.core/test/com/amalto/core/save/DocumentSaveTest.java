@@ -291,7 +291,7 @@ public class DocumentSaveTest extends TestCase {
                 "        <MoreInfo>http://www.mynewsite.fr</MoreInfo>\n" +
                 "    </Information>\n" +
                 "</Agency>\n").getBytes("UTF-8"));
-        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "DStar", "Source", partialUpdateContent, true, true, false, false);
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "DStar", "Source", partialUpdateContent, true, true, "/", "/", false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -317,7 +317,7 @@ public class DocumentSaveTest extends TestCase {
                 "        <MoreInfo>http://www.mynewsite.fr</MoreInfo>\n" +
                 "    </Information>\n" +
                 "</Agency>\n").getBytes("UTF-8"));
-        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "DStar", "Source", partialUpdateContent, true, true, false, true);
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "DStar", "Source", partialUpdateContent, true, true, "/", "/", true);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -372,7 +372,7 @@ public class DocumentSaveTest extends TestCase {
 
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
-        SaverSource source = new TestSaverSource(repository, true, "test1_original.xml", "metadata1.xsd");
+        TestSaverSource source = new TestSaverSource(repository, true, "test1_original.xml", "metadata1.xsd");
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
         DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, false, true, true,
@@ -382,12 +382,12 @@ public class DocumentSaveTest extends TestCase {
         MockCommitter committer = new MockCommitter();
         session.end(committer);
 
-        assertFalse(((TestSaverSource) source).hasCalledInitAutoIncrement);
+        assertFalse(source.hasCalledInitAutoIncrement);
 
         repository.load(DocumentSaveTest.class.getResourceAsStream("CONF.xsd"));
 
         source = new TestSaverSource(repository, true, "test_conf_original.xml", "CONF.xsd");
-        ((TestSaverSource) source).setUserName("admin");
+        source.setUserName("admin");
 
         session = SaverSession.newSession(source);
         recordXml = DocumentSaveTest.class.getResourceAsStream("test_conf.xml");
@@ -401,7 +401,7 @@ public class DocumentSaveTest extends TestCase {
         assertEquals(
                 "<AutoIncrement><id>AutoIncrement</id><entry><key>[HEAD].CoreTestsContainer.auto_increment.auto_increment</key><value>1</value></entry><entry><key>[HEAD].Product.ProductFamily.Id</key><value>30</value></entry><entry><key>[HEAD].CoreTestsContainer.auto_increment1.auto_increment1</key><value>1</value></entry></AutoIncrement>",
                 Util.nodeToString(committedElement));
-        assertTrue(((TestSaverSource) source).hasCalledInitAutoIncrement);
+        assertTrue(source.hasCalledInitAutoIncrement);
 
     }
 
@@ -1083,6 +1083,39 @@ public class DocumentSaveTest extends TestCase {
         session.end(committer);
 
         assertTrue(committer.hasSaved());
+    }
+
+    public void test28() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test28_original.xml", "metadata7.xsd");
+        source.setUserName("admin");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test28.xml");
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM",
+                "Test28",
+                "admin",
+                recordXml,
+                true,
+                true,
+                "/Organisation/Contacts/Contact", // Loop (Pivot)
+                "SpecialisationContactType/NatureLocalisationFk", // Key
+                true);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("40-142", evaluate(committedElement, "/Organisation/Contacts/Contact[1]/SpecialisationContactType/AdressePostale/CodePostal"));
+        assertEquals("Test", evaluate(committedElement, "/Organisation/Contacts/Contact[1]/SpecialisationContactType/AdressePostale/Ville"));
+        assertEquals("Test", evaluate(committedElement, "/Organisation/Contacts/Contact[1]/SpecialisationContactType/AdressePostale/Region"));
+        assertEquals("40-143", evaluate(committedElement, "/Organisation/Contacts/Contact[2]/SpecialisationContactType/AdressePostale/CodePostal"));
+        assertEquals("Katowice1", evaluate(committedElement, "/Organisation/Contacts/Contact[2]/SpecialisationContactType/AdressePostale/Ville"));
+        assertEquals("Slaskie1", evaluate(committedElement, "/Organisation/Contacts/Contact[2]/SpecialisationContactType/AdressePostale/Region"));
     }
 
     private static class MockCommitter implements SaverSession.Committer {

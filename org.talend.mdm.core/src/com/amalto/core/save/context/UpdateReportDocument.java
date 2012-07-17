@@ -210,6 +210,14 @@ class UpdateReportDocument extends DOMDocument {
         public String getActualType() {
             return StringUtils.EMPTY;
         }
+
+        @Override
+        public int compareTo(Accessor accessor) {
+            if (exist() != accessor.exist()) {
+                return -1;
+            }
+            return accessor instanceof FieldChangeRecorder ? 0 : -1;
+        }
     }
 
     private static class NoOpAccessor implements Accessor {
@@ -248,6 +256,17 @@ class UpdateReportDocument extends DOMDocument {
 
         public String getActualType() {
             return StringUtils.EMPTY;
+        }
+
+        @Override
+        public int compareTo(Accessor accessor) {
+            if (exist() != accessor.exist()) {
+                return -1;
+            }
+            if (exist()) {
+                return get().equals(accessor.get()) ? 0 : -1;
+            }
+            return -1;
         }
     }
 }
