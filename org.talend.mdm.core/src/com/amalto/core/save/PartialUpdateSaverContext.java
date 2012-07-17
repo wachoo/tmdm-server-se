@@ -15,6 +15,7 @@ import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.save.context.DocumentSaver;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
 
@@ -24,13 +25,32 @@ public class PartialUpdateSaverContext implements DocumentSaverContext {
 
     private final boolean overwrite;
 
-    private PartialUpdateSaverContext(DocumentSaverContext delegate, boolean overwrite) {
+    private UserAction userAction;
+
+    private String pivot;
+
+    private final String key;
+
+    private PartialUpdateSaverContext(DocumentSaverContext delegate, String pivot, String key, boolean overwrite, UserAction userAction) {
         this.delegate = delegate;
+        this.pivot = pivot;
+        this.key = key;
         this.overwrite = overwrite;
+        this.userAction = userAction;
     }
 
-    public static PartialUpdateSaverContext decorate(DocumentSaverContext context, boolean overwrite) {
-        return new PartialUpdateSaverContext(context, overwrite);
+    public static DocumentSaverContext decorate(DocumentSaverContext context, String pivot, String key, boolean overwrite) {
+        if (pivot == null) {
+            throw new IllegalArgumentException("Pivot argument can not be null.");
+        }
+        if (key == null) {
+            throw new IllegalArgumentException("Key argument can not be null.");
+        }
+        if (pivot.length() > 1) {
+            return new PartialUpdateSaverContext(context, pivot, key, overwrite, UserAction.PARTIAL_UPDATE);
+        } else {
+            return new PartialUpdateSaverContext(context, pivot, key, overwrite, UserAction.UPDATE);
+        }
     }
 
     public DocumentSaver createSaver() {
@@ -78,6 +98,8 @@ public class PartialUpdateSaverContext implements DocumentSaverContext {
     }
 
     public void setDatabaseDocument(MutableDocument databaseDocument) {
+        String localName = databaseDocument.asDOM().getDocumentElement().getLocalName();
+        pivot = StringUtils.substringAfter(pivot, localName + '/');
         delegate.setDatabaseDocument(databaseDocument);
     }
 
@@ -91,18 +113,6 @@ public class PartialUpdateSaverContext implements DocumentSaverContext {
 
     public void setType(ComplexTypeMetadata type) {
         delegate.setType(type);
-    }
-
-    public boolean isReplace() {
-        return delegate.isReplace();
-    }
-
-    public boolean isCreate() {
-        return delegate.isCreate();
-    }
-
-    public void setCreate(boolean isCreate) {
-        delegate.setCreate(isCreate);
     }
 
     public boolean hasMetAutoIncrement() {
@@ -123,6 +133,26 @@ public class PartialUpdateSaverContext implements DocumentSaverContext {
 
     public void setUpdateReportDocument(MutableDocument updateReportDocument) {
         delegate.setUpdateReportDocument(updateReportDocument);
+    }
+
+    @Override
+    public UserAction getUserAction() {
+        return userAction;
+    }
+
+    @Override
+    public void setUserAction(UserAction userAction) {
+        this.userAction = userAction;
+    }
+
+    @Override
+    public String getPartialUpdatePivot() {
+        return pivot;
+    }
+
+    @Override
+    public String getPartialUpdateKey() {
+        return key;
     }
 
     public String[] getId() {

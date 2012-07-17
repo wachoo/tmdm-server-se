@@ -17,7 +17,9 @@ import com.amalto.core.history.MutableDocument;
 import com.amalto.core.load.action.LoadAction;
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.save.DocumentSaverContext;
+import com.amalto.core.save.UserAction;
 import com.amalto.core.util.XSDKey;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.InputStream;
 import java.util.List;
@@ -29,8 +31,6 @@ class BulkLoadContext implements DocumentSaverContext {
     private final String dataModelName;
 
     private final BulkLoadSaver bulkLoadSaver;
-
-    private boolean isCreate;
 
     public BulkLoadContext(String dataCluster, String dataModelName, XSDKey keyMetadata, InputStream documentStream, LoadAction loadAction, XmlServerSLWrapperLocal server) {
         this.dataCluster = dataCluster;
@@ -106,19 +106,6 @@ class BulkLoadContext implements DocumentSaverContext {
         throw new UnsupportedOperationException();
     }
 
-    public boolean isReplace() {
-        // Bulk load always replace.
-        return true;
-    }
-
-    public boolean isCreate() {
-        return isCreate;
-    }
-
-    public void setCreate(boolean isCreate) {
-        this.isCreate = isCreate;
-    }
-
     public boolean hasMetAutoIncrement() {
         throw new UnsupportedOperationException();
     }
@@ -139,4 +126,23 @@ class BulkLoadContext implements DocumentSaverContext {
         throw new UnsupportedOperationException("No supported in this implementation.");
     }
 
+    @Override
+    public UserAction getUserAction() {
+        return UserAction.REPLACE;
+    }
+
+    @Override
+    public void setUserAction(UserAction userAction) {
+        // Only REPLACE for this context.
+    }
+
+    @Override
+    public String getPartialUpdatePivot() {
+        return StringUtils.EMPTY;
+    }
+
+    @Override
+    public String getPartialUpdateKey() {
+        return StringUtils.EMPTY;
+    }
 }

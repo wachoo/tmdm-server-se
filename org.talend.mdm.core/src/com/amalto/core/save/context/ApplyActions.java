@@ -15,6 +15,7 @@ import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
+import com.amalto.core.save.UserAction;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import org.w3c.dom.*;
 
@@ -38,7 +39,7 @@ class ApplyActions implements DocumentSaver {
         clean(databaseDocument.asDOM().getDocumentElement(), EmptyElementCleaner.INSTANCE);
         clean(validationDocument.asDOM().getDocumentElement(), EmptyElementCleaner.INSTANCE);
 
-        if (context.isCreate() || context.isReplace()) {
+        if (context.getUserAction() == UserAction.CREATE || context.getUserAction() == UserAction.REPLACE) {
             // See TMDM-4038
             clean(validationDocument.asDOM().getDocumentElement(), TechnicalAttributeCleaner.INSTANCE);
         }

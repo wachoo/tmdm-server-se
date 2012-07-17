@@ -38,12 +38,8 @@ public class BeforeSaving implements DocumentSaver {
     }
 
     public void save(SaverSession session, DocumentSaverContext context) {
-        if (!(context instanceof ReportDocumentSaverContext)) {
-            throw new IllegalArgumentException("Context is expected to contain an update report.");
-        }
-
         // Invoke the beforeSaving
-        MutableDocument updateReportDocument = ((ReportDocumentSaverContext) context).getUpdateReportDocument();
+        MutableDocument updateReportDocument = context.getUpdateReportDocument();
         if (updateReportDocument == null) {
             throw new IllegalStateException("Update report is missing.");
         }

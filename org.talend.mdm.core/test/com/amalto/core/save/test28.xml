@@ -1,0 +1,19 @@
+<Organisation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <IdOrganisation>1</IdOrganisation>
+    <Nom>Cegelec Katowice</Nom>
+    <StatutOrganisationFk>[1]</StatutOrganisationFk>
+    <TypeOrganisationFk>[5]</TypeOrganisationFk>
+    <Contacts>
+        <Contact>
+            <StatutContactFk>[2]</StatutContactFk>
+            <SpecialisationContactType xsi:type="SpecialisationContactNatureLocalisation">
+                <NatureLocalisationFk>[6]</NatureLocalisationFk>
+                <AdressePostale>
+                    <CodePostal>40-143</CodePostal>
+                    <Ville>Katowice1</Ville>
+                    <Region>Slaskie1</Region>
+                </AdressePostale>
+            </SpecialisationContactType>
+        </Contact>
+    </Contacts>
+</Organisation>
