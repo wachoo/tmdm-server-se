@@ -168,6 +168,8 @@ public class ForeignKeyListWindow extends Window {
         String value = filter.getRawValue();
         if (value == null || value.trim().length() == 0) {
             value = ".*"; //$NON-NLS-1$
+        }else{
+            value = "'" + filter.getRawValue() + "'"; //$NON-NLS-1$ //$NON-NLS-2$
         }
         return value;
     }
@@ -296,9 +298,7 @@ public class ForeignKeyListWindow extends Window {
                 if (be.getKeyCode() == KeyCodes.KEY_LEFT || be.getKeyCode() == KeyCodes.KEY_RIGHT) {
                     return;
                 }
-                if (CommonUtil.validateSearchValue(entityModel.getMetaDataTypes(), getFilterValue())) {
-                    loader.load(0, pageSize);
-                }
+                loader.load(0, pageSize);
             }
         });
         filter.setWidth(WINDOW_WIDTH - 80);
