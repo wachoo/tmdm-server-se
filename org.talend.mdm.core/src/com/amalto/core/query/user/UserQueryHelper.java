@@ -61,6 +61,7 @@ public class UserQueryHelper {
             }
             return currentOr;
         } else if (whereItem instanceof WhereCondition) {
+            // TODO Generate where items for inter-field conditions.
             WhereCondition whereCondition = (WhereCondition) whereItem;
             String operator = whereCondition.getOperator();
             String value = whereCondition.getRightValueOrPath();

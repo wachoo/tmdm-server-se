@@ -240,10 +240,15 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 {
                     // <key column="foo_id"/>
                     Element key = document.createElement("key"); //$NON-NLS-1$
-                    Attr elementColumn = document.createAttribute("column"); //$NON-NLS-1$
-                    elementColumn.setValue(shortString(referenceField.getName()));
-                    key.getAttributes().setNamedItem(elementColumn);
                     propertyElement.appendChild(key);
+                    for (FieldMetadata keyField : referenceField.getContainingType().getKeyFields()) {
+                        Element elementColumn = document.createElement("column"); //$NON-NLS-1$
+                        Attr columnName = document.createAttribute("name"); //$NON-NLS-1$
+                        columnName.setValue(keyField.getName());
+                        elementColumn.getAttributes().setNamedItem(columnName);
+                        key.appendChild(elementColumn);
+                    }
+
 
                     // <index column="idx" />
                     Element index = document.createElement("index"); //$NON-NLS-1$

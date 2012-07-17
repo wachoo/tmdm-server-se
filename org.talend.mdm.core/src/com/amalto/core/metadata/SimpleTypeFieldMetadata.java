@@ -89,8 +89,6 @@ public class SimpleTypeFieldMetadata implements FieldMetadata {
         }
         isFrozen = true;
         fieldType = fieldType.freeze();
-        declaringType = declaringType.freeze();
-        containingType = (ComplexTypeMetadata) containingType.freeze();
         return this;
     }
 

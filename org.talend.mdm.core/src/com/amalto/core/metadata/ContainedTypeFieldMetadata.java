@@ -77,8 +77,6 @@ public class ContainedTypeFieldMetadata implements FieldMetadata {
         }
         isFrozen = true;
         fieldType = (ContainedComplexTypeMetadata) fieldType.freeze();
-        declaringType = declaringType.freeze();
-        containingType = (ComplexTypeMetadata) containingType.freeze();
         return this;
     }
 

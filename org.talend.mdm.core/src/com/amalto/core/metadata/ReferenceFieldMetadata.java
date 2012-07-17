@@ -102,8 +102,6 @@ public class ReferenceFieldMetadata extends MetadataExtensible implements FieldM
             return this;
         }
         isFrozen = true;
-        declaringType = declaringType.freeze();
-        containingType = (ComplexTypeMetadata) containingType.freeze();
         if (foreignKeyInfo != null) {
             try {
                 foreignKeyInfo = foreignKeyInfo.freeze();
@@ -119,7 +117,7 @@ public class ReferenceFieldMetadata extends MetadataExtensible implements FieldM
         try {
             referencedType = (ComplexTypeMetadata) referencedType.freeze();
         } catch (Exception e) {
-            throw new RuntimeException("Referenced type '" + referencedType.getName() + "' can't be found", e);
+            throw new RuntimeException("Referenced type '" + referencedType.getName() + "' is invalid", e);
         }
         return this;
     }
