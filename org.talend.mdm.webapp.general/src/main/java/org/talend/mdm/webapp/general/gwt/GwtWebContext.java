@@ -54,7 +54,7 @@ public class GwtWebContext {
         return servlet;
     }
 
-    public HttpSession getClientConfigurationSession() {
+    public HttpSession getDefaultConfigurationSession() {
         ServletContext context = this.servlet.getServletContext();
         if (context != null) {
             ServletContext generalAppContext = context.getContext(GENERALCONTEXT);

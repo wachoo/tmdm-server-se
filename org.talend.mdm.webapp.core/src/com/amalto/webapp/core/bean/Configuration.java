@@ -51,7 +51,7 @@ public class Configuration {
 
         public HttpSession getSession();
 
-        public HttpSession getClientConfigurationSession();
+        public HttpSession getDefaultConfigurationSession();
     }
 
     private static class DWRConfigurationContext implements ConfigurationContext {
@@ -64,11 +64,11 @@ public class Configuration {
             if (ctx != null)
                 session = ctx.getSession();
             else if (gwtConfigurationContext != null)
-                session = gwtConfigurationContext.getClientConfigurationSession();
+                session = gwtConfigurationContext.getDefaultConfigurationSession();
             return session;
         }
 
-        public HttpSession getClientConfigurationSession() {
+        public HttpSession getDefaultConfigurationSession() {
             return null;
         }
     }
