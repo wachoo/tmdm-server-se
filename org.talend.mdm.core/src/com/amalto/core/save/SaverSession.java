@@ -23,7 +23,16 @@ import com.amalto.core.save.context.DefaultSaverSource;
 import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.save.context.SaverSource;
 
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+
+import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.save.context.DefaultSaverSource;
+import com.amalto.core.save.context.SaverContextFactory;
+import com.amalto.core.save.context.SaverSource;
+
 public class SaverSession {
+
+    private static final String AUTO_INCREMENT_TYPE_NAME = "AutoIncrement"; //$NON-NLS-1$
 
     private static final Map<String, SaverSource> saverSourcePerUser = new HashMap<String, SaverSource>();
 
@@ -119,10 +128,15 @@ public class SaverSession {
      * @param committer A {@link Committer} committer to use when committing transactions on underlying storage.
      */
     public void end(Committer committer) {
+        
+        boolean needResetAutoIncrement=false;
+        
         for (Map.Entry<String, Set<ItemPOJO>> currentTransaction : itemsPerDataCluster.entrySet()) {
             String dataCluster = currentTransaction.getKey();
             begin(dataCluster, committer);
             for (ItemPOJO currentItemToCommit : currentTransaction.getValue()) {
+                if (!needResetAutoIncrement)
+                    needResetAutoIncrement = isAutoIncrementUpdate(currentItemToCommit);
                 committer.save(currentItemToCommit, currentItemToCommit.getDataModelRevision()); // TODO Use data model revision for revision id?
             }
             committer.commit(dataCluster);
@@ -137,6 +151,11 @@ public class SaverSession {
             }
         }
 
+        // reset the AutoIncrement
+        if (needResetAutoIncrement) {
+            getSaverSource().initAutoIncrement();
+        }
+
         // Save current state of autoincrement when save is completed.
         if (hasMetAutoIncrement) {
             // TMDM-3964 : Auto-Increment Id can not be saved immediately to DB
@@ -146,6 +165,22 @@ public class SaverSession {
             saverSource.saveAutoIncrement();
             committer.commit(dataCluster);
         }
+    }
+
+    /**
+     * To check whether this item's concept model is "AutoIncrement" or not
+     * 
+     * @param item
+     * @return boolean
+     */
+    private boolean isAutoIncrementUpdate(ItemPOJO item) {
+        if (item == null || item.getDataModelName() == null || item.getConceptName() == null)
+            return false;
+        if (item.getDataModelName().equals(XSystemObjects.DC_CONF.getName())
+                && item.getConceptName().equals(AUTO_INCREMENT_TYPE_NAME))
+            return true;
+
+        return false;
     }
 
     /**

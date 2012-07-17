@@ -10,9 +10,14 @@
 
 package com.amalto.core.save;
 
-import java.io.InputStream;
 import java.io.ByteArrayInputStream;
-import java.util.*;
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
@@ -37,6 +42,7 @@ import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.schema.validation.Validator;
 import com.amalto.core.schema.validation.XmlSchemaValidator;
 import com.amalto.core.util.OutputReport;
+import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 
 @SuppressWarnings("nls")
@@ -383,6 +389,43 @@ public class DocumentSaveTest extends TestCase {
         } catch (Exception e) {
             // Expected
         }
+    }
+
+    public void testUpdateConf() throws Exception {
+
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        SaverSource source = new TestSaverSource(repository, true, "test1_original.xml", "metadata1.xsd");
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, false, true, true,
+                false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertFalse(((TestSaverSource) source).hasCalledInitAutoIncrement);
+
+        repository.load(DocumentSaveTest.class.getResourceAsStream("CONF.xsd"));
+
+        source = new TestSaverSource(repository, true, "test_conf_original.xml", "CONF.xsd");
+        ((TestSaverSource) source).setUserName("admin");
+
+        session = SaverSession.newSession(source);
+        recordXml = DocumentSaveTest.class.getResourceAsStream("test_conf.xml");
+        context = session.getContextFactory().create("MDM", "CONF", false, recordXml);
+        saver = context.createSaver();
+        saver.save(session, context);
+        committer = new MockCommitter();
+        session.end(committer);
+
+        Element committedElement = committer.getCommittedElement();
+        assertEquals(
+                "<AutoIncrement><id>AutoIncrement</id><entry><key>[HEAD].CoreTestsContainer.auto_increment.auto_increment</key><value>1</value></entry><entry><key>[HEAD].Product.ProductFamily.Id</key><value>30</value></entry><entry><key>[HEAD].CoreTestsContainer.auto_increment1.auto_increment1</key><value>1</value></entry></AutoIncrement>",
+                Util.nodeToString(committedElement));
+        assertTrue(((TestSaverSource) source).hasCalledInitAutoIncrement);
+
     }
 
     public void testWithClone() throws Exception {
@@ -1132,6 +1175,8 @@ public class DocumentSaveTest extends TestCase {
 
         private boolean hasSavedAutoIncrement;
 
+        private boolean hasCalledInitAutoIncrement;
+
         private int currentId = 0;
 
         public TestSaverSource(MetadataRepository repository, boolean exist, String originalDocumentFileName, String schemaFileName) {
@@ -1197,6 +1242,7 @@ public class DocumentSaveTest extends TestCase {
         }
 
         public void initAutoIncrement() {
+            hasCalledInitAutoIncrement = true;
         }
 
         public void routeItem(String dataCluster, String typeName, String[] id) {
@@ -1212,6 +1258,10 @@ public class DocumentSaveTest extends TestCase {
 
         public String nextAutoIncrementId(String universe, String dataCluster, String conceptName) {
             return String.valueOf(currentId++);
+        }
+
+        public boolean hasCalledInitAutoIncrement() {
+            return hasCalledInitAutoIncrement;
         }
 
         public boolean hasSavedAutoIncrement() {

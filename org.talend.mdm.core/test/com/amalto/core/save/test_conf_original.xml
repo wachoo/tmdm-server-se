@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<ii>
+ <c>CONF</c>
+ <n>AutoIncrement</n>
+ <dmn>CONF</dmn>
+ <i>AutoIncrement</i>
+ <t>1342505070488</t>
+ <p>
+  <AutoIncrement>
+   <id>AutoIncrement</id>
+   <entry>
+    <key>[HEAD].CoreTestsContainer.auto_increment.auto_increment</key>
+    <value>1</value>
+   </entry>
+   <entry>
+    <key>[HEAD].Product.ProductFamily.Id</key>
+    <value>24</value>
+   </entry>
+   <entry>
+    <key>[HEAD].CoreTestsContainer.auto_increment1.auto_increment1</key>
+    <value>1</value>
+   </entry>
+  </AutoIncrement>
+ </p>
+</ii>
