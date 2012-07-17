@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.PropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -35,12 +36,14 @@ import com.google.gwt.user.client.ui.Image;
 /**
  * DOC chliu  class global comment. Detailled comment
  */
-public class UrlField extends TextField<String> {
+public class UrlField extends Field<String> {
 
     protected El wrap = new El(DOM.createSpan());
 
     protected El input = new El(DOM.createAnchor());
-    
+
+    private boolean allowBlank = true;
+
     protected Image editImage = new Image(Icons.INSTANCE.add_element());
     
     private EditWindow editWin = new EditWindow();
@@ -72,6 +75,14 @@ public class UrlField extends TextField<String> {
         setValue(value);
     }
 
+    public boolean isAllowBlank() {
+        return allowBlank;
+    }
+
+    public void setAllowBlank(boolean allowBlank) {
+        this.allowBlank = allowBlank;
+    }
+
     protected void onRender(Element target, int index) {
         input.setId(XDOM.getUniqueId());
         input.makePositionable();
@@ -80,13 +91,23 @@ public class UrlField extends TextField<String> {
         input.dom.getStyle().setMarginRight(5, Unit.PX);
         wrap.dom.appendChild(input.dom);
         wrap.dom.appendChild(handler);
-
         setElement(wrap.dom, target, index);
 
-        super.onRender(target, index);
+        if (!allowBlank) {
+            if (this.getValue() == null || "".equals(this.getValue())) { //$NON-NLS-1$
+                wrap.addStyleName("x-form-invalid"); //$NON-NLS-1$
+            } else {
+                wrap.removeStyleName("x-form-invalid"); //$NON-NLS-1$
+            }
+        }
     }
 
-    private void handlerClick() {
+    @Override
+    protected El getInputEl() {
+        return input != null ? input : el();
+    }
+
+    void handlerClick() {
         if(!readOnly){
             editWin.setValue(getValue());
             editWin.show();
@@ -102,11 +123,21 @@ public class UrlField extends TextField<String> {
 
     public void setValue(String value) {
         super.setValue(value);
-        if (value != null){
+        if (value != null && !"".equals(value)) { //$NON-NLS-1$
             String[] addr = value.split("@@");//$NON-NLS-1$
             if (addr.length == 2){
                 input.dom.setInnerText(addr[0]);
                 input.dom.setAttribute("href", addr[1]);//$NON-NLS-1$
+            }
+        } else {
+            input.dom.setInnerText(""); //$NON-NLS-1$
+            input.dom.removeAttribute("href"); //$NON-NLS-1$
+        }
+        if (rendered && !allowBlank) {
+            if (this.getValue() == null || "".equals(this.getValue())) { //$NON-NLS-1$
+                wrap.addStyleName("x-form-invalid"); //$NON-NLS-1$
+            } else {
+                wrap.removeStyleName("x-form-invalid"); //$NON-NLS-1$
             }
         }
     }
@@ -119,6 +150,9 @@ public class UrlField extends TextField<String> {
                 Button button = ce.getButton();
                 if (button == saveButton) {
                     String value = firstName.getValue() + "@@" + url.getValue();//$NON-NLS-1$
+                    if (value.equals("null@@null")) { //$NON-NLS-1$
+                        value = ""; //$NON-NLS-1$
+                    }
                     UrlField.this.setValue(value);
                     UrlField.this.editWin.hide();
                 } else {

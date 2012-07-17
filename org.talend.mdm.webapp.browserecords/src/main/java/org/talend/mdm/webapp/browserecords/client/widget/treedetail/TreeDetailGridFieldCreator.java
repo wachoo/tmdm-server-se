@@ -40,6 +40,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ForeignKeyFi
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatDateField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatNumberField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextField;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.UrlField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator.TextFieldValidator;
 import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldCreateContext;
 import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldCreator;
@@ -425,6 +426,8 @@ public class TreeDetailGridFieldCreator {
             ((DateField) field).setAllowBlank(!mandatory);
         } else if (field instanceof TextField) {
             ((TextField) field).setAllowBlank(!mandatory);
+        } else if (field instanceof UrlField) {
+            ((UrlField) field).setAllowBlank(!mandatory);
         }
     }
 
