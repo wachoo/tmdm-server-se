@@ -50,6 +50,8 @@ public class Configuration {
     public interface ConfigurationContext {
 
         public HttpSession getSession();
+
+        public HttpSession getClientConfigurationSession();
     }
 
     private static class DWRConfigurationContext implements ConfigurationContext {
@@ -62,8 +64,12 @@ public class Configuration {
             if (ctx != null)
                 session = ctx.getSession();
             else if (gwtConfigurationContext != null)
-                session = gwtConfigurationContext.getSession();
+                session = gwtConfigurationContext.getClientConfigurationSession();
             return session;
+        }
+
+        public HttpSession getClientConfigurationSession() {
+            return null;
         }
     }
 
