@@ -28,4 +28,12 @@ public class GWTConfigurationContext implements ConfigurationContext {
             session = null;
         return session;
     }
+
+    public HttpSession getClientConfigurationSession() {
+        GwtWebContext ctx = GwtWebContextFactory.get();
+        if (ctx != null)
+            return ctx.getClientConfigurationSession();
+        return null;
+    }
+
 }
