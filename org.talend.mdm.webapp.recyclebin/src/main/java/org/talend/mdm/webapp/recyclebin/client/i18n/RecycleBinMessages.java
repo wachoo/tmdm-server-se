@@ -56,4 +56,18 @@ public interface RecycleBinMessages extends Messages {
     String restore_no_permissions();
     
     String delete_no_permissions();
+    
+    String restoreSelected();
+    
+    String restoreSelectedConfirm();
+    
+    String restoreSelectedError(int count, String ids);
+    
+    String restoreSelectedOverwriteConfirm(String id);
+    
+    String deleteSelected();
+
+    String deleteSelectedConfirm();
+    
+    String deleteSelectedError(int count, String ids);
 }

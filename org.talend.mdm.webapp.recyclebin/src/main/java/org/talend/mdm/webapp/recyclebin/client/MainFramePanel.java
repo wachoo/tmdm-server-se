@@ -14,6 +14,7 @@ package org.talend.mdm.webapp.recyclebin.client;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +30,7 @@ import org.talend.mdm.webapp.recyclebin.shared.NoPermissionException;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
@@ -51,12 +53,15 @@ import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -67,6 +72,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Image;
 
 /**
@@ -88,6 +94,18 @@ public class MainFramePanel extends ContentPanel {
 
     private final Map<String, String> CONCEPT_MODEL_MAP = new HashMap<String, String>();
 
+    private int outstandingRestoreCallCount = 0;
+
+    private int outstandingRestoreCallFailCount = 0;
+
+    private List<ItemsTrashItem> outstandingRestoreCallFailRecords = new LinkedList<ItemsTrashItem>();
+
+    private int outstandingDeleteCallCount = 0;
+
+    private int outstandingDeleteCallFailCount = 0;
+
+    private List<ItemsTrashItem> outstandingDeleteCallFailRecords = new LinkedList<ItemsTrashItem>();
+
     private static final int COLUMN_WIDTH = 100;
 
     private MainFramePanel() {
@@ -100,6 +118,9 @@ public class MainFramePanel extends ContentPanel {
 
     private void initGrid() {
         List<ColumnConfig> ccList = new ArrayList<ColumnConfig>();
+        CheckBoxSelectionModel<ItemsTrashItem> sm = new CheckBoxSelectionModel<ItemsTrashItem>();
+        sm.setSelectionMode(SelectionMode.MULTI);
+        ccList.add(sm.getColumn());
         ColumnConfig colPK = new ColumnConfig();
         colPK.setId("itemPK");//$NON-NLS-1$
         colPK.setWidth(COLUMN_WIDTH);
@@ -349,6 +370,8 @@ public class MainFramePanel extends ContentPanel {
                 loader.load(config);
             }
         });
+        grid.setSelectionModel(sm);
+        grid.addPlugin(sm);
         this.setBottomComponent(pagetoolBar);
         add(grid);
     }
@@ -384,7 +407,250 @@ public class MainFramePanel extends ContentPanel {
             }
         });
         bar.add(btn);
+
+        bar.add(new SeparatorToolItem());
+        final Button restoreSelectedBtn = new Button(MessagesFactory.getMessages().restoreSelected());
+        restoreSelectedBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.restore()));
+        restoreSelectedBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                MessageBox.confirm(BaseMessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
+                        .restoreSelectedConfirm(), new Listener<MessageBoxEvent>() {
+
+                    public void handleEvent(MessageBoxEvent be) {
+
+                        if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                            restoreSelected();
+                        }
+                    }
+                });
+            }
+
+        });
+        bar.add(restoreSelectedBtn);
+
+        bar.add(new SeparatorToolItem());
+        final Button deleteSelectedBtn = new Button(MessagesFactory.getMessages().deleteSelected());
+        deleteSelectedBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.delete()));
+        deleteSelectedBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                MessageBox.confirm(BaseMessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
+                        .deleteSelectedConfirm(), new Listener<MessageBoxEvent>() {
+
+                    public void handleEvent(MessageBoxEvent be) {
+
+                        if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                            deleteSelected();
+                        }
+                    }
+                });
+            }
+
+        });
+        bar.add(deleteSelectedBtn);
+
         this.setTopComponent(bar);
+    }
+
+    public void restoreSelected() {
+        if (grid != null) {
+            GridSelectionModel<ItemsTrashItem> sm = grid.getSelectionModel();
+
+            if (sm != null) {
+                List<ItemsTrashItem> selectedRecords = sm.getSelectedItems();
+
+                if (selectedRecords != null && selectedRecords.size() > 0) {
+
+                    for (final ItemsTrashItem r : selectedRecords) {
+
+                        ++outstandingRestoreCallCount;
+
+                        service.checkConflict(r.get("itemPK").toString(), r //$NON-NLS-1$
+                                .get("conceptName").toString(), r.get("ids").toString(), //$NON-NLS-1$ //$NON-NLS-2$
+                                new AsyncCallback<Boolean>() {
+
+                                    public void onSuccess(Boolean result) {
+                                        if (result) {
+                                            MessageBox.confirm(BaseMessagesFactory.getMessages().confirm_title(), MessagesFactory
+                                                    .getMessages().restoreSelectedOverwriteConfirm(r.get("ids").toString()), //$NON-NLS-1$
+                                                    new Listener<MessageBoxEvent>() {
+
+                                                        public void handleEvent(MessageBoxEvent be) {
+                                                            if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                                                restoreSelectedItem(r);
+                                                            } else {
+                                                                restoreSelectedCheckFinished(r, false);
+                                                            }
+                                                        }
+                                                    });
+                                        } else {
+                                            restoreSelectedItem(r);
+                                        }
+                                    }
+
+                                    public void onFailure(Throwable arg0) {
+                                        restoreSelectedCheckFinished(r, false);
+                                    }
+                                });
+                    }
+                }
+            }
+        }
+    }
+
+    public void restoreSelectedItem(final ItemsTrashItem r) {
+        String conceptName = r.get("conceptName").toString(); //$NON-NLS-1$
+        String modelName = CONCEPT_MODEL_MAP.get(conceptName);
+        service.recoverDroppedItem(r.get("itemPK").toString(), r.get("partPath").toString(),//$NON-NLS-1$//$NON-NLS-2$
+                r.get("revisionId") == null ? null : r.get("revisionId").toString(), //$NON-NLS-1$ //$NON-NLS-2$
+                conceptName, modelName, r.get("ids").toString(),//$NON-NLS-1$
+                new AsyncCallback<Void>() {
+
+                    public void onSuccess(Void arg0) {
+                        restoreSelectedCheckFinished(r, true);
+                    }
+
+                    public void onFailure(Throwable caught) {
+                        restoreSelectedCheckFinished(r, false);
+                    }
+                });
+    }
+
+    public void restoreSelectedCheckFinished(ItemsTrashItem r, boolean success) {
+        --outstandingRestoreCallCount;
+
+        if (!success) {
+            ++outstandingRestoreCallFailCount;
+            outstandingRestoreCallFailRecords.add(r);
+        }
+
+        if (success && grid != null && grid.getStore() != null) {
+            grid.getStore().remove(r);
+        }
+
+        if (outstandingRestoreCallCount == 0) {
+            pagetoolBar.refresh();
+
+            if (outstandingRestoreCallFailCount > 0) {
+                StringBuffer buf = new StringBuffer();
+                boolean loopBegin = true;
+                for (ItemsTrashItem item : outstandingRestoreCallFailRecords) {
+                    buf.append((loopBegin ? " " : ", ") + item.get("ids")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    loopBegin = false;
+                }
+                MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                        .restoreSelectedError(outstandingRestoreCallFailCount, buf.toString()), null);
+
+                outstandingRestoreCallFailCount = 0;
+                outstandingRestoreCallFailRecords.clear();
+            }
+
+            refreshBrowseRecordsGrid();
+        }
+    }
+
+    public void deleteSelected() {
+        if (grid != null) {
+            GridSelectionModel<ItemsTrashItem> sm = grid.getSelectionModel();
+
+            if (sm != null) {
+                List<ItemsTrashItem> selectedRecords = sm.getSelectedItems();
+
+                if (selectedRecords != null && selectedRecords.size() > 0) {
+
+                    for (final ItemsTrashItem r : selectedRecords) {
+
+                        ++outstandingDeleteCallCount;
+
+                        service.isEntityPhysicalDeletable(
+                                r.get("conceptName").toString(), new SessionAwareAsyncCallback<Boolean>() {//$NON-NLS-1$
+
+                                    protected void doOnFailure(Throwable caught) {
+                                        deleteSelectedCheckFinished(r, false);
+                                    }
+
+                                    public void onSuccess(Boolean result) {
+                                        if (r.get("projection") != null && !r.get("projection").equals("")) {//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                                            String[] picArray = r.get("projection").toString().split(//$NON-NLS-1$
+                                                    "/imageserver/");//$NON-NLS-1$
+                                            for (int i = 1; i < picArray.length; i++) {
+                                                String array = picArray[i];
+                                                if (!array.isEmpty()) {
+                                                    String uri = array.substring(0, array.indexOf("?"));//$NON-NLS-1$
+
+                                                    RequestBuilder builder = new RequestBuilder(RequestBuilder.POST,
+                                                            "/imageserver/secure/ImageDeleteServlet?uri=" + uri);//$NON-NLS-1$
+                                                    builder.setCallback(new RequestCallback() {
+
+                                                        public void onResponseReceived(Request request, Response response) {
+                                                        }
+
+                                                        public void onError(Request request, Throwable e) {
+                                                        }
+                                                    });
+
+                                                    try {
+                                                        builder.send();
+                                                    } catch (RequestException e) {
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        service.removeDroppedItem(r.get("itemPK").toString(), r.get("partPath").toString(),//$NON-NLS-1$//$NON-NLS-2$
+                                                r.get("revisionId") == null ? null : r.get("revisionId").toString(), r //$NON-NLS-1$//$NON-NLS-2$
+                                                        .get("conceptName").toString(), r.get("ids").toString(),//$NON-NLS-1$//$NON-NLS-2$
+                                                new SessionAwareAsyncCallback<String>() {
+
+                                                    public void onSuccess(String msg) {
+                                                        deleteSelectedCheckFinished(r, true);
+                                                    }
+
+                                                    @Override
+                                                    protected void doOnFailure(Throwable caught) {
+                                                        deleteSelectedCheckFinished(r, false);
+                                                    }
+                                                });
+                                    }
+                                });
+                    }
+                }
+            }
+        }
+    }
+
+    public void deleteSelectedCheckFinished(ItemsTrashItem r, boolean success) {
+        --outstandingDeleteCallCount;
+
+        if (!success) {
+            ++outstandingDeleteCallFailCount;
+            outstandingDeleteCallFailRecords.add(r);
+        }
+
+        if (success && grid != null && grid.getStore() != null) {
+            grid.getStore().remove(r);
+        }
+
+        if (outstandingDeleteCallCount == 0) {
+            pagetoolBar.refresh();
+
+            if (outstandingDeleteCallFailCount > 0) {
+                StringBuffer buf = new StringBuffer();
+                boolean loopBegin = true;
+                for (ItemsTrashItem item : outstandingDeleteCallFailRecords) {
+                    buf.append((loopBegin ? " " : ", ") + item.get("ids")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    loopBegin = false;
+                }
+                MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                        .deleteSelectedError(outstandingDeleteCallFailCount, buf.toString()), null);
+
+                outstandingDeleteCallFailCount = 0;
+                outstandingDeleteCallFailRecords.clear();
+            }
+        }
     }
 
     private void deleteItem(final BaseModelData model) {
