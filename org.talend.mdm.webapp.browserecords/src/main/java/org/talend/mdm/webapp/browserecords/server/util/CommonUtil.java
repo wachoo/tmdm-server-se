@@ -158,7 +158,8 @@ public class CommonUtil {
         }
     	if (model.getForeignkey() != null && model.getForeignkey().trim().length() > 0){
     		if (map != null && map.containsKey(model.getXpath()) && map.get(model.getXpath()).size() > 0) {
-    			for (int i = 0; i < (map.get(model.getXpath()).size() - itemNodes.size()); i++){
+                int count = map.get(model.getXpath()).size() - itemNodes.size();
+                for (int i = 0; i < count; i++) {
     				Element el = doc.createElement(model.getName());
                     applySimpleTypesDefaultValue(model, parentModel, el);
                     itemNodes.add(el);

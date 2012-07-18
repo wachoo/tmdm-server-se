@@ -59,6 +59,8 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.logical.shared.SelectionEvent;
@@ -279,11 +281,18 @@ public class TreeDetail extends ContentPanel {
                         break;
                     }
                 }
+                final DynamicTreeItem parentItem = item;
                 if (isOnlyExistFkDisplayedIntoTab) {
-                    renderChildren(itemNode, item, withDefaultValue, operation);
+                    parentItem.getElement().setPropertyBoolean("EmptyFkContainer", true); //$NON-NLS-1$
+                    Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+                        
+                        public void execute() {
+                            renderChildren(itemNode, parentItem, withDefaultValue, operation);
+                        }
+                    });
+                    
                 } else {
                     item.addItem(new GhostTreeItem());
-                    final DynamicTreeItem parentItem = item;
                     item.setAutoExpandHandler(new AutoExpandHandler() {
 
                         public void autoExpand() {
