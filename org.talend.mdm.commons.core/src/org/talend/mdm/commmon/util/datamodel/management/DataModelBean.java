@@ -72,6 +72,18 @@ public class DataModelBean {
         return businessConceptMap;
     }
 
+    public BusinessConcept getBusinessConcept(String conceptName) {
+        if (businessConcepts == null || businessConcepts.size() == 0)
+            return null;
+        
+        for (BusinessConcept bizConcept : businessConcepts) {
+            if(bizConcept!=null&&bizConcept.getName()!=null&&bizConcept.getName().equals(conceptName))
+                return bizConcept;
+        }
+
+        return null;
+    }
+
     /**
      * DOC HSHU Comment method "dump".
      */

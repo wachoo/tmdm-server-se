@@ -87,6 +87,7 @@ import org.apache.xerces.jaxp.DocumentBuilderFactoryImpl;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 import org.talend.mdm.commmon.util.core.ITransformerConstants;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
+import org.talend.mdm.commmon.util.datamodel.management.SchemaManager;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -150,6 +151,7 @@ import com.amalto.core.objects.transformers.v2.util.TypedContent;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.view.ejb.local.ViewCtrlLocal;
 import com.amalto.core.objects.view.ejb.local.ViewCtrlLocalHome;
+import com.amalto.core.schema.manage.SchemaCoreAgent;
 import com.amalto.core.webservice.WSMDMJob;
 import com.amalto.core.webservice.WSVersion;
 import com.amalto.xmlserver.interfaces.IWhereItem;
@@ -3285,7 +3287,7 @@ public class Util {
         return ret;
     }
 
-    public static void getView(ArrayList<String> views, IWhereItem whereItem) {
+    public static void getView(Set<String> views, IWhereItem whereItem) {
         if (whereItem instanceof WhereLogicOperator) {
             Collection<IWhereItem> subItems = ((WhereLogicOperator) whereItem).getItems();
             if (subItems.size() == 1) {
@@ -3296,13 +3298,11 @@ public class Util {
                 IWhereItem item = iter.next();
                 getView(views, item);
             }
-        }
-        if (whereItem instanceof WhereCondition) {
+        } else if (whereItem instanceof WhereCondition) {
             WhereCondition whereCondition = (WhereCondition) whereItem;
             views.add(whereCondition.getLeftPath());
-
         }
-
+        // FIXME do we to consider CustomWhereCondition
     }
 
     public static Map<String, XSElementDecl> getConceptMap(DataModelPOJO dataModelPOJO) throws Exception {
@@ -3384,7 +3384,10 @@ public class Util {
     }
 
     public static String getUserDataModel() throws Exception {
-        Element item = getLoginProvisioningFromDB();
+        return getUserDataModel(getLoginProvisioningFromDB());
+    }
+    
+    public static String getUserDataModel(Element item) throws Exception {
         NodeList nodeList = Util.getNodeList(item, "//property");
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
@@ -3397,51 +3400,48 @@ public class Util {
         return null;
     }
 
-    // FIXME: this method is very ugly
-    public static Map<String, ArrayList<String>> getMetaDataTypes(IWhereItem whereItem) throws Exception {
-        if (getLoginProvisioningFromDB() == null)
+    public static Map<String, ArrayList<String>> getMetaDataTypes(IWhereItem whereItem)
+            throws Exception {
+        return getMetaDataTypes(whereItem, null);
+    }
+
+    // FIXME: Seems it is useless to set an ArrayList for each xpath
+    public static Map<String, ArrayList<String>> getMetaDataTypes(IWhereItem whereItem, SchemaManager schemaManager)
+            throws Exception {
+        HashMap<String, ArrayList<String>> metaDataTypes = new HashMap<String, ArrayList<String>>();
+
+        if (whereItem == null)
             return null;
 
-        if (null != whereItem) {
-            ArrayList<String> views = new ArrayList<String>();
-            Util.getView(views, whereItem);
-            Set<String> concepts = new HashSet<String>();
-            for (String v : views) {
-                concepts.add(v.split("/")[0]);
-            }
-            String userDM = getUserDataModel();
-            if (userDM == null)
-                return null;
+        // Get concepts from where conditions
+        Set<String> searchPaths = new HashSet<String>();
+        Util.getView(searchPaths, whereItem);
 
-            DataModelPOJO datamodelPojo = Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(userDM));
-            Map<String, XSElementDecl> xsdMap = getConceptMap(datamodelPojo.getSchema());
-            HashMap<String, ArrayList<String>> metaDataTypes = new HashMap<String, ArrayList<String>>();
-            for (String concept : concepts) {
-                if (concept != null && concept.length() > 0) {
-                    HashMap<String, ArrayList<String>> types = new HashMap<String, ArrayList<String>>();
-
-                    XSElementDecl el = xsdMap.get(concept);
-
-                    for (String view : views) {
-                        ArrayList<String> dataTypesHolder = new ArrayList<String>();
-                        String[] pathSlices = view.split("/");
-                        XSElementDecl node = parseMetaDataTypes(el, pathSlices[0], dataTypesHolder, true);
-                        if (pathSlices.length > 1) {
-                            for (int i = 1; i < pathSlices.length; i++) {
-                                node = parseMetaDataTypes(node, pathSlices[i], dataTypesHolder, true);
-                            }
-                        }
-                        if (dataTypesHolder.size() > 0) {
-                            types.put(view, dataTypesHolder);
-                        }
-                    }
-                    metaDataTypes.putAll(types);
-                }
-            }
-            return metaDataTypes;
+        Set<String> concepts = new HashSet<String>();
+        for (String searchPath : searchPaths) {
+            concepts.add(searchPath.split("/")[0]);
         }
-        return null;
+
+        // Travel concepts to parse metadata types
+        for (String conceptName : concepts) {
+            if (schemaManager == null)
+                schemaManager = SchemaCoreAgent.getInstance();
+            BusinessConcept bizConcept=schemaManager.getBusinessConceptForCurrentUser(conceptName); 
+            if (bizConcept == null)
+                break;
+            bizConcept.load();
+            Map<String, String> xpathTypeMap = bizConcept.getXpathTypeMap();
+            for (String xpath : xpathTypeMap.keySet()) {
+                String elType = xpathTypeMap.get(xpath);
+                ArrayList<String> elTypeWrapper=new ArrayList<String>(){};
+                elTypeWrapper.add(elType);
+                metaDataTypes.put(xpath, elTypeWrapper);
+            }
+        }    
+
+        return metaDataTypes;
     }
+
 
     /**
      * fix the web conditions.

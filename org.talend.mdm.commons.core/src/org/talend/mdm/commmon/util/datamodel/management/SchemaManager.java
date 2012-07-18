@@ -84,6 +84,10 @@ public abstract class SchemaManager {
         return dataModelBean;
     }
 
+    public BusinessConcept getBusinessConceptForCurrentUser(String conceptName) throws Exception {
+        throw new RuntimeException("Not supported! "); //$NON-NLS-1$
+    }
+
     private void iterateDatamodel(XSSchemaSet result, DataModelBean dataModelBean) {
         // iterate each XSSchema object. XSSchema is a per-namespace schema.
         Iterator itr = result.iterateSchema();
@@ -138,7 +142,7 @@ public abstract class SchemaManager {
     }
 
     /**
-     * DOC HSHU Comment method "getBusinessConcept".
+     * Get Business Concept
      * 
      * @param conceptName
      * @param dataModelID

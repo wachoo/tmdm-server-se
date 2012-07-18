@@ -23,12 +23,14 @@ import org.talend.mdm.commmon.util.datamodel.management.DataModelBean;
 import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
 import org.talend.mdm.commmon.util.datamodel.management.SchemaManager;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
+import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 
 /**
@@ -120,6 +122,37 @@ public class SchemaCoreAgent extends SchemaManager {
 
         }
         return dataModelBean;
+    }
+
+    /**
+     * Get business concept for current user".
+     * 
+     * @param conceptName
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public BusinessConcept getBusinessConceptForCurrentUser(String conceptName) throws Exception {
+        return super.getBusinessConcept(conceptName, getUserDatamodelID());
+    }
+
+    private DataModelID getUserDatamodelID() throws Exception {
+
+        String userXml = LocalUser.getLocalUser().getUserXML();
+        Element userEl = null;
+        if (userXml != null)
+            userEl = Util.parse(userXml).getDocumentElement();
+        else
+            userEl = Util.getLoginProvisioningFromDB();
+
+        String dataModel = Util.getUserDataModel(userEl);
+
+        String revision = LocalUser.getLocalUser().getUniverse().getName();
+        if (revision != null && (revision.equals("[HEAD]") || revision.equals("HEAD") || revision.equals(""))) //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+            revision = null;
+        DataModelID userDataModelID = new DataModelID(dataModel, revision);
+
+        return userDataModelID;
     }
 
     /**

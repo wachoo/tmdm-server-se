@@ -22,9 +22,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.sun.xml.xsom.XSComplexType;
 import com.sun.xml.xsom.XSElementDecl;
 import com.sun.xml.xsom.XSModelGroup;
 import com.sun.xml.xsom.XSParticle;
+import com.sun.xml.xsom.XSSimpleType;
+import com.sun.xml.xsom.impl.RestrictionSimpleTypeImpl;
 
 /**
  * DOC HSHU class global comment. Detailled comment
@@ -42,6 +45,8 @@ public class BusinessConcept {
     public static final String APPINFO_X_VISIBLE_RULE = "X_Visible_Rule"; //$NON-NLS-1$
 
     public static final String APPINFO_X_FOREIGNKEY = "X_ForeignKey"; //$NON-NLS-1$
+
+    private static final String TYPE_PREFIX = "xsd:"; //$NON-NLS-1$
 
     private XSElementDecl e;
 
@@ -63,10 +68,17 @@ public class BusinessConcept {
 
     private Map<String, ReusableType> subReuseTypeMap;
 
+    private Map<String, String> xpathTypeMap;
+
     // TODO: translate it from technique to business logic
     // annotations{label,access rules,foreign keys,workflow,schematron,lookup fields...}
     // restrictions
     // enumeration
+
+
+    public BusinessConcept() {
+
+    }
 
     public BusinessConcept(XSElementDecl e) {
         super();
@@ -83,6 +95,10 @@ public class BusinessConcept {
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getCorrespondTypeName() {
@@ -155,6 +171,7 @@ public class BusinessConcept {
         foreignKeyMap = new HashMap<String, String>();
         inheritanceForeignKeyMap = new HashMap<String, String>();
         subReuseTypeMap = new HashMap<String, ReusableType>();
+        xpathTypeMap = new HashMap<String, String>();
     }
 
     public Map<String, String> getDefaultValueRulesMap() {
@@ -167,6 +184,14 @@ public class BusinessConcept {
 
     public Map<String, String> getForeignKeyMap() {
         return foreignKeyMap;
+    }
+
+    public Map<String, String> getXpathTypeMap() {
+        return xpathTypeMap;
+    }
+
+    public void setXpathTypeMap(Map<String, String> xpathTypeMap) {
+        this.xpathTypeMap = xpathTypeMap;
     }
 
     private void setSubReuseType(String typeName, String currentXPath) {
@@ -202,6 +227,9 @@ public class BusinessConcept {
      */
     private void travelXSElement(XSElementDecl e, String currentXPath) {
         if (e != null) {
+            //set base type
+            setTypeMap(e, currentXPath);
+            // parse annotation
             parseAnnotation(currentXPath, e);
 
             if (e.getType().isComplexType()) {
@@ -219,6 +247,38 @@ public class BusinessConcept {
             }
 
         }
+    }
+
+    /**
+     * Set TypeMap
+     * 
+     * @param e
+     * @param currentXPath
+     */
+    private void setTypeMap(XSElementDecl e, String currentXPath) {
+        if (e != null && currentXPath != null) {
+
+            if (currentXPath.startsWith("/")) //$NON-NLS-1$
+                currentXPath = currentXPath.substring(1);
+
+            if (e.getType() == null) {
+                xpathTypeMap.put(currentXPath, ReusableType.UNKNOWN_TYPE);
+            }else{
+                if (e.getType() instanceof XSComplexType) {
+                    xpathTypeMap.put(currentXPath, ReusableType.COMPLEX_TYPE);
+                } else if (e.getType() instanceof XSSimpleType) {
+                    if (isDerivedSimpleType(e)) {
+                        xpathTypeMap.put(currentXPath, TYPE_PREFIX + e.getType().getBaseType().getName());
+                    } else {
+                        xpathTypeMap.put(currentXPath, TYPE_PREFIX + e.getType().getName());
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean isDerivedSimpleType(XSElementDecl e) {
+        return e.getType().getBaseType() instanceof RestrictionSimpleTypeImpl;
     }
 
     private void travelParticle(XSParticle xsParticle, String currentXPath) {
