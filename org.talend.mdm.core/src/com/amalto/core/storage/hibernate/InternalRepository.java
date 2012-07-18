@@ -54,10 +54,14 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
                 HibernateStorage.TypeMappingStrategy actualStrategy = type.accept(new MappingStrategySelector(20));
                 return getTypeMappingCreator(type, actualStrategy);
             case FLAT:
-                LOGGER.info(type.getName() + " -> FLAT");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(type.getName() + " -> FLAT");
+                }
                 return new TypeMappingCreator(internalRepository, mappings);
-            case GOOD_FIELD:
-                LOGGER.info(type.getName() + " -> GOOD_FIELD");
+            case SCATTERED:
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(type.getName() + " -> SCATTERED");
+                }
                 return new GoodFieldMappingCreator(internalRepository, mappings);
             default:
                 throw new IllegalArgumentException("Strategy '" + this.strategy + "' is not supported.");
@@ -116,10 +120,10 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
         @Override
         public HibernateStorage.TypeMappingStrategy visit(ComplexTypeMetadata complexType) {
             if (!complexType.getSubTypes().isEmpty()) {
-                return HibernateStorage.TypeMappingStrategy.GOOD_FIELD;
+                return HibernateStorage.TypeMappingStrategy.SCATTERED;
             }
             if(!complexType.isInstantiable()) {
-                return HibernateStorage.TypeMappingStrategy.GOOD_FIELD;
+                return HibernateStorage.TypeMappingStrategy.SCATTERED;
             }
 
             fieldCount += complexType.getFields().size();
@@ -128,13 +132,13 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
                 Collection<FieldMetadata> fields = complexType.getFields();
                 for (FieldMetadata field : fields) {
                     contentResult = field.accept(this);
-                    if (contentResult == HibernateStorage.TypeMappingStrategy.GOOD_FIELD) {
+                    if (contentResult == HibernateStorage.TypeMappingStrategy.SCATTERED) {
                         return contentResult;
                     }
                 }
             }
             if (fieldCount > fieldThreshold) {
-                return HibernateStorage.TypeMappingStrategy.GOOD_FIELD;
+                return HibernateStorage.TypeMappingStrategy.SCATTERED;
             } else {
                 return HibernateStorage.TypeMappingStrategy.FLAT;
             }
@@ -146,7 +150,7 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
             Collection<FieldMetadata> fields = containedType.getFields();
             for (FieldMetadata field : fields) {
                 HibernateStorage.TypeMappingStrategy result = field.accept(this);
-                if (result == HibernateStorage.TypeMappingStrategy.GOOD_FIELD) {
+                if (result == HibernateStorage.TypeMappingStrategy.SCATTERED) {
                     return result;
                 }
             }
@@ -156,7 +160,7 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
         @Override
         public HibernateStorage.TypeMappingStrategy visit(ContainedTypeFieldMetadata containedField) {
             if (containedField.isMany() || !containedField.getContainedType().getSubTypes().isEmpty()) {
-                return HibernateStorage.TypeMappingStrategy.GOOD_FIELD;
+                return HibernateStorage.TypeMappingStrategy.SCATTERED;
             }
             return super.visit(containedField);
         }

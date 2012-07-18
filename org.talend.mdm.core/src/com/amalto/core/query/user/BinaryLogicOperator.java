@@ -27,7 +27,14 @@ public class BinaryLogicOperator extends Condition {
     }
 
     public Expression normalize() {
-        return this;
+        // If right or left is a no op condition, simplify a bit the query.
+        if (right == UserQueryHelper.NO_OP_CONDITION) {
+            return left.normalize();
+        } else if (left == UserQueryHelper.NO_OP_CONDITION) {
+            return right.normalize();
+        } else {
+            return this;
+        }
     }
 
     public <T> T accept(Visitor<T> visitor) {

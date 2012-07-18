@@ -13,21 +13,20 @@
 
 package com.amalto.core.query;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.*;
-
 import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.query.user.OrderBy;
-import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.query.user.*;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.*;
+
+import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 @SuppressWarnings("nls")
 public class StorageQueryTest extends StorageTestCase {
@@ -97,17 +96,17 @@ public class StorageQueryTest extends StorageTestCase {
                                 person,
                                 "<Person><id>3</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Juste</firstname><addresses><address>[3][false]</address><address>[1][false]</address></addresses><age>30</age><Status>Friend</Status></Person>"));
         allRecords
-                        .add(factory
-                                .read(1,
-                                        repository,
-                                        a,
-                                        "<A><id>1</id><textA>TextA</textA><nestedB><text>Text</text></nestedB></A>"));
+                .add(factory
+                        .read(1,
+                                repository,
+                                a,
+                                "<A><id>1</id><textA>TextA</textA><nestedB><text>Text</text></nestedB></A>"));
         allRecords
-                        .add(factory
-                                .read(1,
-                                        repository,
-                                        a,
-                                        "<A><id>2</id><textA>TextA</textA><nestedB><text>Text</text></nestedB><refA>[1]</refA></A>"));
+                .add(factory
+                        .read(1,
+                                repository,
+                                a,
+                                "<A><id>2</id><textA>TextA</textA><nestedB><text>Text</text></nestedB><refA>[1]</refA></A>"));
         try {
             storage.begin();
             storage.update(allRecords);
@@ -239,7 +238,7 @@ public class StorageQueryTest extends StorageTestCase {
         // Test ASC direction
         FieldMetadata personLastName = person.getField("lastname");
         UserQueryBuilder qb = from(person).orderBy(personLastName, OrderBy.Direction.ASC);
-        String[] ascExpectedValues = { "Dupond", "Dupont", "Leblanc" };
+        String[] ascExpectedValues = {"Dupond", "Dupont", "Leblanc"};
 
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -259,7 +258,7 @@ public class StorageQueryTest extends StorageTestCase {
     public void testOrderByDESC() throws Exception {
         FieldMetadata personLastName = person.getField("lastname");
         UserQueryBuilder qb = from(person).orderBy(personLastName, OrderBy.Direction.DESC);
-        String[] descExpectedValues = { "Leblanc", "Dupont", "Dupond" };
+        String[] descExpectedValues = {"Leblanc", "Dupont", "Dupond"};
 
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -654,6 +653,56 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
+    }
+
+    public void testJoinQueryWithId() throws Exception {
+        UserQueryBuilder qb = from(person)
+                .select(person.getField("firstname"))
+                .select(address.getField("Street"))
+                .where(and(eq(person.getField("id"), "1"), UserQueryHelper.NO_OP_CONDITION))
+                .join(person.getField("addresses/address"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = from(person)
+                .select(person.getField("firstname"))
+                .select(address.getField("Street"))
+                .where(and(UserQueryHelper.NO_OP_CONDITION, eq(person.getField("id"), "1")))
+                .join(person.getField("addresses/address"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testJoinQueryNormalize() throws Exception {
+        UserQueryBuilder qb = from(person)
+                .select(person.getField("firstname"))
+                .select(address.getField("Street"))
+                .where(and(eq(person.getField("id"), "1"), UserQueryHelper.NO_OP_CONDITION))
+                .join(person.getField("addresses/address"));
+        Select select = qb.getSelect();
+        assertTrue(select.getCondition() instanceof BinaryLogicOperator);
+        Select normalizedSelect = (Select) select.normalize(); // Binary condition can be simplified because right is NO_OP_CONDITION
+        assertTrue(normalizedSelect.getCondition() instanceof Compare);
+
+        qb = from(person)
+                .select(person.getField("firstname"))
+                .select(address.getField("Street"))
+                .where(and(UserQueryHelper.NO_OP_CONDITION, eq(person.getField("id"), "1")))
+                .join(person.getField("addresses/address"));
+        select = qb.getSelect();
+        assertTrue(select.getCondition() instanceof BinaryLogicOperator);
+        normalizedSelect = (Select) select.normalize(); // Binary condition can be simplified because right is NO_OP_CONDITION
+        assertTrue(normalizedSelect.getCondition() instanceof Compare);
     }
 
     public void testJoinQueryUsingSingleParameterJoin() throws Exception {

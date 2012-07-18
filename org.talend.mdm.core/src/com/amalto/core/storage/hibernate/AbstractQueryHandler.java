@@ -163,6 +163,16 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
         }
 
         @Override
+        public Object visit(Condition condition) {
+            return null;
+        }
+
+        @Override
+        public Object visit(Compare condition) {
+            return condition.getRight().accept(this);
+        }
+
+        @Override
         public Object visit(StringConstant constant) {
             return constant.getValue();
         }

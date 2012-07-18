@@ -15,6 +15,7 @@ import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.SimpleTypeFieldMetadata;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordWriter;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -56,7 +57,7 @@ public class FullTextResultsWriter implements DataRecordWriter {
             }
             {
                 writer.write("<text>"); //$NON-NLS-1$
-                String[] snippetWords = new String[3];
+                String[] snippetWords = new String[] {StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY}; // Prevent "null" values in results
                 boolean hasMetKeyword = false;
                 for (FieldMetadata field : record.getSetFields()) {
                     if (field instanceof SimpleTypeFieldMetadata) {

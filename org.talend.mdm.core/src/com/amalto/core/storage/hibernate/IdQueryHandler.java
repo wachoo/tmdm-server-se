@@ -17,7 +17,6 @@ import com.amalto.core.query.user.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.ObjectDataRecordReader;
 import org.hibernate.Session;
 
 import java.io.IOException;
@@ -29,7 +28,7 @@ import java.util.Set;
 
 class IdQueryHandler extends AbstractQueryHandler {
 
-    private Object object;
+    private Object idValue;
 
     public IdQueryHandler(Storage storage,
                           MappingRepository mappingMetadataRepository,
@@ -48,12 +47,15 @@ class IdQueryHandler extends AbstractQueryHandler {
         }
 
         select.getCondition().accept(this);
+        if (idValue == null) {
+            throw new IllegalStateException("Expected condition to contain id to use for instance lookup.");
+        }
 
         ComplexTypeMetadata mainType = select.getTypes().get(0);
         String mainTypeName = mainType.getName();
         String className = ClassCreator.PACKAGE_PREFIX + mainTypeName;
 
-        Wrapper loadedObject = (Wrapper) session.get(className, (Serializable) object);
+        Wrapper loadedObject = (Wrapper) session.get(className, (Serializable) idValue);
 
         if (loadedObject == null) {
             for (EndOfResultsCallback callback : callbacks) {
@@ -126,8 +128,34 @@ class IdQueryHandler extends AbstractQueryHandler {
     }
 
     @Override
+    public StorageResults visit(Condition condition) {
+        return null;
+    }
+
+    @Override
+    public StorageResults visit(UnaryLogicOperator condition) {
+        if (idValue == null) {
+            idValue = condition.getCondition().accept(VALUE_ADAPTER);
+        }
+        return null;
+    }
+
+    @Override
+    public StorageResults visit(BinaryLogicOperator condition) {
+        if (idValue == null) { // try left
+            idValue = condition.getLeft().accept(VALUE_ADAPTER);
+        }
+        if (idValue == null) { // ...then right
+            idValue = condition.getRight().accept(VALUE_ADAPTER);
+        }
+        return null;
+    }
+
+    @Override
     public StorageResults visit(Compare condition) {
-        object = condition.getRight().accept(VALUE_ADAPTER);
+        if (idValue == null) {
+            idValue = condition.getRight().accept(VALUE_ADAPTER);
+        }
         return null;
     }
 }

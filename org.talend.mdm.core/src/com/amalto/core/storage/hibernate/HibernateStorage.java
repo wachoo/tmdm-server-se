@@ -647,7 +647,7 @@ public class HibernateStorage implements Storage {
 
     public static enum TypeMappingStrategy {
         FLAT,
-        GOOD_FIELD,
+        SCATTERED,
         AUTO
     }
 }

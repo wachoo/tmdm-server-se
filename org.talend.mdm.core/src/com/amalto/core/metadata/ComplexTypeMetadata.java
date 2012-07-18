@@ -39,15 +39,15 @@ public interface ComplexTypeMetadata extends TypeMetadata {
     void registerKey(FieldMetadata keyField);
 
     /**
-     * @param fieldName A field name.
+     * @param fieldName A field name. Field name is case sensitive.
      * @return The {@link FieldMetadata} for the given <code>fieldName</code>.
      * @throws IllegalArgumentException If the field is not declared in type or type's super types or if <code>fieldName</code>
-     *                                  is null or empty.
+     *                                  is null or empty. Field name lookup is case sensitive.
      */
     FieldMetadata getField(String fieldName);
 
     /**
-     * Returns a <b>READ ONLY</b> collection of fields. For adding super type see {@link ComplexTypeMetadata#addField(FieldMetadata)}}
+     * Returns a <b>READ ONLY</b> collection of fields. For adding super type see {@link ComplexTypeMetadata#addField(FieldMetadata)}.
      *
      * @return A collection of super types.
      */
@@ -58,7 +58,8 @@ public interface ComplexTypeMetadata extends TypeMetadata {
      * <code>true</code>, there's no need to call {@link #registerKey(FieldMetadata)}.
      *
      * @param fieldMetadata A new field to add to this type.
-     * @throws IllegalArgumentException If <code>fieldMetadata</code> is <code>null</code>.
+     * @throws IllegalArgumentException If <code>fieldMetadata</code> is <code>null</code> or is type is frozen.
+     * @see #freeze()
      */
     void addField(FieldMetadata fieldMetadata);
 
