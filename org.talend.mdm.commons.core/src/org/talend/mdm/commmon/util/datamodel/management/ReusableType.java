@@ -33,6 +33,9 @@ import com.sun.xml.xsom.XSType;
  */
 public class ReusableType {
 
+    public static final String UNKNOWN_TYPE = "unknown"; //$NON-NLS-1$
+    public static final String COMPLEX_TYPE = "complex type"; //$NON-NLS-1$
+
     private XSType xsType;
 
     private String name;
