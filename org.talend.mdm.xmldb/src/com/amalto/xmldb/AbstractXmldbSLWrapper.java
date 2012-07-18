@@ -177,7 +177,7 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
                     .append(conceptName).append(" "); //$NON-NLS-1$
 
             // where
-            xqWhere.append("where (1=1)"); //$NON-NLS-1$
+            xqWhere.append("where (1=1) "); //$NON-NLS-1$
 
             if (FKXpath != null) {
                 fatherPK = (fatherPK == null ? "" : StringEscapeUtils.escapeXml(fatherPK)); //$NON-NLS-1$
@@ -223,9 +223,14 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
             }
             xqReturn.append("</result-key>"); //$NON-NLS-1$
 
-            xqReturn.append("<result-label>"); //$NON-NLS-1$
-            xqReturn.append("{$").append(labelXpath).append("/text()}"); //$NON-NLS-1$ //$NON-NLS-2$
-            xqReturn.append("</result-label>"); //$NON-NLS-1$
+            if(labelXpath!=null){
+                String[] toDisplayXpaths = labelXpath.split(","); //$NON-NLS-1$
+                for (String toDisplayXpath : toDisplayXpaths) {
+                    xqReturn.append("<result-label>"); //$NON-NLS-1$
+                    xqReturn.append("{$").append(toDisplayXpath.trim()).append("/text()}"); //$NON-NLS-1$ //$NON-NLS-2$
+                    xqReturn.append("</result-label>"); //$NON-NLS-1$
+                }
+            }
 
             xqReturn.append("</result>  "); //$NON-NLS-1$
 
