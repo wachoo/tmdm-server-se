@@ -459,15 +459,18 @@ public class BrowseRecordsActionTest extends TestCase {
     	assertNotNull(viewBean);
     	assertNotNull(fkValues);
     	assertEquals(16, viewBean.getBindingEntityModel().getMetaDataTypes().size());
-    	assertEquals(2, fkValues.size());
+        assertEquals(2, fkValues.size());
     	List<String> families = fkValues.get("Product/Family");
-    	assertEquals(2, families.size());
+        assertEquals(5, families.size());
     	assertEquals("[1]", families.get(0));
     	assertEquals("[2]", families.get(1));
+        assertEquals("[3]", families.get(2));
+        assertEquals("[4]", families.get(3));
+        assertEquals("[5]", families.get(4));
     	assertTrue(fkValues.get("Product/Parent").size() == 0);
     }
     
-    public void test_createDefaultItemNodeModel() throws Exception{
+    public void test_createDefaultItemNodeModel() throws Exception {
     	String language = "en";
         String concept = "Product";
         String[] ids = new String[]{"1"};
@@ -477,7 +480,7 @@ public class BrowseRecordsActionTest extends TestCase {
         Map<String, List<String>> initDataMap = map.get(viewBean);
         ItemNodeModel root = mock_createDefaultItemNodeModel(viewBean, initDataMap, language);
         assertNotNull(root);
-        assertEquals(12, root.getChildren().size());
+        assertEquals(15, root.getChildren().size());
         ItemNodeModel id = (ItemNodeModel) root.getChild(0);
         assertEquals("", id.getObjectValue());
         ItemNodeModel familyOne = (ItemNodeModel) root.getChild(7);
@@ -486,6 +489,15 @@ public class BrowseRecordsActionTest extends TestCase {
         ItemNodeModel familyTwo = (ItemNodeModel) root.getChild(8);
         assertTrue(familyTwo.getObjectValue() instanceof ForeignKeyBean);
         assertEquals("[2]", ((ForeignKeyBean)familyTwo.getObjectValue()).getId());
+        ItemNodeModel familyThree = (ItemNodeModel) root.getChild(9);
+        assertTrue(familyThree.getObjectValue() instanceof ForeignKeyBean);
+        assertEquals("[3]", ((ForeignKeyBean) familyThree.getObjectValue()).getId());
+        ItemNodeModel familyFour = (ItemNodeModel) root.getChild(10);
+        assertTrue(familyFour.getObjectValue() instanceof ForeignKeyBean);
+        assertEquals("[4]", ((ForeignKeyBean) familyFour.getObjectValue()).getId());
+        ItemNodeModel familyFive = (ItemNodeModel) root.getChild(11);
+        assertTrue(familyFive.getObjectValue() instanceof ForeignKeyBean);
+        assertEquals("[5]", ((ForeignKeyBean) familyFive.getObjectValue()).getId());
     }
 
 	public ItemNodeModel mock_createDefaultItemNodeModel(ViewBean viewBean,

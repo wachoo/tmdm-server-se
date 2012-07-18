@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 	<xsd:import namespace="http://www.w3.org/2001/XMLSchema"/>
 	<xsd:element name="Product">
@@ -204,7 +205,7 @@
 						</xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
-				<xsd:element maxOccurs="2" minOccurs="0" name="Family" type="xsd:string">
+				<xsd:element maxOccurs="5" minOccurs="0" name="Family" type="xsd:string">
 					<xsd:annotation>
 						<xsd:appinfo source="X_ForeignKey">ProductFamily/Id</xsd:appinfo>
 						<xsd:appinfo source="X_Label_EN">Family</xsd:appinfo>
