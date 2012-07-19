@@ -59,17 +59,12 @@ public class BusinessConceptTest extends TestCase {
 
     }
 
-    private String loadDataModelSchema(String fileName) {
+    private String loadDataModelSchema(String fileName) throws IOException {
         if (fileName == null)
             return null;
 
-        String output = null;
         InputStream stream = getClass().getResourceAsStream(fileName);
-        try {
-            output = convertStreamToString(stream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String output = convertStreamToString(stream);
 
         return output;
     }
