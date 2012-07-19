@@ -3389,12 +3389,14 @@ public class Util {
     
     public static String getUserDataModel(Element item) throws Exception {
         NodeList nodeList = Util.getNodeList(item, "//property");
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Node node = nodeList.item(i);
-            if ("model".equals(Util.getFirstTextNode(node, "name"))) {
-                // configuration.setCluster(Util.getNodeList(node, "value").item(0).getTextContent());
-                Node fchild = Util.getNodeList(node, "value").item(0).getFirstChild();
-                return fchild.getNodeValue();
+        if (nodeList != null) {
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Node node = nodeList.item(i);
+                if ("model".equals(Util.getFirstTextNode(node, "name"))) {
+                    // configuration.setCluster(Util.getNodeList(node, "value").item(0).getTextContent());
+                    Node fchild = Util.getNodeList(node, "value").item(0).getFirstChild();
+                    return fchild.getNodeValue();
+                }
             }
         }
         return null;
