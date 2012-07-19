@@ -1,0 +1,31 @@
+<!--
+  ~ Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at
+  ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+  ~
+  ~ You should have received a copy of the agreement
+  ~ along with this program; if not, write to Talend SA
+  ~ 9 rue Pages 92150 Suresnes, France
+  -->
+  
+<ii>
+	<c>Product</c>
+	<n>ThirdEntity</n>
+	<dmn>Test</dmn>
+	<i>321</i>
+	<t>1342521961921</t>
+	<taskId/>
+	<p> 
+		<ThirdEntity>
+			<key>321</key>
+			<name>123</name>
+			<mandatoryDetails>
+				<mandatory1>123</mandatory1>
+				<optional2>123</optional2>
+				<optionalUbounded3>123</optionalUbounded3>
+				<mandatoryUbounded4>123</mandatoryUbounded4>
+			</mandatoryDetails>
+		</ThirdEntity>
+	</p>
+</ii>

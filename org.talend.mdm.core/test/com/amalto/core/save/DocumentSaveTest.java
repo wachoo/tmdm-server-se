@@ -1140,6 +1140,29 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("Katowice1", evaluate(committedElement, "/Organisation/Contacts/Contact[2]/SpecialisationContactType/AdressePostale/Ville"));
         assertEquals("Slaskie1", evaluate(committedElement, "/Organisation/Contacts/Contact[2]/SpecialisationContactType/AdressePostale/Region"));
     }
+    
+    public void test29() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        // there's a small change in this model that differs from QA: ThirdEntity is a xsd:sequence (not a xsd:all)
+        // so order of elements will be tested during XSD validation.
+        repository.load(DocumentSaveTest.class.getResourceAsStream("CoreTestsModel.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test29_original.xml", "CoreTestsModel.xsd");
+        source.setUserName("admin");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test29.xml");
+        DocumentSaverContext context = session.getContextFactory().create("Product", "Test", "Source", recordXml, false, true, false, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("Test", evaluate(committedElement, "/ThirdEntity/optionalDetails/mandatory1"));
+        assertEquals("123", evaluate(committedElement, "/ThirdEntity/mandatoryDetails/mandatoryUbounded4"));
+    }
 
     private static class MockCommitter implements SaverSession.Committer {
 
