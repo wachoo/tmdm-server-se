@@ -62,6 +62,7 @@ public class UserQueryHelper {
             return currentOr;
         } else if (whereItem instanceof WhereCondition) {
             // TODO Generate where items for inter-field conditions.
+            // TODO Support request on Id ("../../i")
             WhereCondition whereCondition = (WhereCondition) whereItem;
             String operator = whereCondition.getOperator();
             String value = whereCondition.getRightValueOrPath();
@@ -69,10 +70,15 @@ public class UserQueryHelper {
             if (WhereCondition.FULLTEXTSEARCH.equals(operator)) {
                 return UserQueryBuilder.fullText(value);
             }
+            TypedExpression field;
             String leftPath = whereCondition.getLeftPath();
-            String typeName = leftPath.substring(0, leftPath.indexOf('/')); //$NON-NLS-1$
-            String fieldName = StringUtils.substringAfter(leftPath, "/"); //$NON-NLS-1$
-            FieldMetadata field = getField(repository, typeName, fieldName);
+            if ("../../t".equals(leftPath)) {
+                field = UserQueryBuilder.timestamp();
+            } else {
+                String typeName = leftPath.substring(0, leftPath.indexOf('/')); //$NON-NLS-1$
+                String fieldName = StringUtils.substringAfter(leftPath, "/"); //$NON-NLS-1$
+                field = getField(repository, typeName, fieldName);
+            }
             if (WhereCondition.CONTAINS.equals(operator)
                     || WhereCondition.STRICTCONTAINS.equals(operator)) {
                 return UserQueryBuilder.contains(field, value);
@@ -103,7 +109,7 @@ public class UserQueryHelper {
         }
     }
 
-    private static FieldMetadata getField(MetadataRepository repository, String typeName, String fieldName) {
+    private static TypedExpression getField(MetadataRepository repository, String typeName, String fieldName) {
         ComplexTypeMetadata complexType = repository.getComplexType(typeName);
         if (complexType == null) {
             throw new IllegalArgumentException("Type '" + typeName + "' does not exist.");
@@ -112,7 +118,7 @@ public class UserQueryHelper {
         if (field == null) {
             throw new IllegalArgumentException("Field '" + fieldName + "' does not exist in type '" + typeName + "'.");
         }
-        return field;
+        return new Field(field);
     }
 
     private static class NoOpCondition extends Condition {

@@ -21,6 +21,9 @@ import com.amalto.core.storage.record.DataRecordReader;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
+import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.WhereAnd;
+import com.amalto.xmlserver.interfaces.WhereCondition;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -1029,5 +1032,15 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
+    }
+
+    public void testTimeStampQuery() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(person);
+        String fieldName = "../../t";
+        IWhereItem item = new WhereAnd(Arrays.<IWhereItem>asList(new WhereCondition(fieldName, WhereCondition.GREATER_THAN, "1000", WhereCondition.NO_OPERATOR)));
+        qb = qb.where(UserQueryHelper.buildCondition(qb, item, repository));
+        Condition condition = qb.getSelect().getCondition();
+        assertTrue(condition instanceof Compare);
+        assertTrue(((Compare) condition).getLeft() instanceof Timestamp);
     }
 }

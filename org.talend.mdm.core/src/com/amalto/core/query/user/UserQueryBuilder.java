@@ -48,6 +48,11 @@ public class UserQueryBuilder {
         return new Compare(userField, Predicate.STARTS_WITH, createConstant(userField, constant));
     }
 
+    public static Condition startsWith(TypedExpression field, String constant) {
+        assertValueConditionArguments(field, constant);
+        return new Compare(field, Predicate.STARTS_WITH, createConstant(field, constant));
+    }
+
     public static Condition gt(FieldMetadata field, String constant) {
         assertValueConditionArguments(field, constant);
         Field userField = new Field(field);
@@ -169,6 +174,16 @@ public class UserQueryBuilder {
         }
     }
 
+    public static Condition emptyOrNull(TypedExpression field) {
+        assertNullField(field);
+        // Only do a isEmpty operator if field type is string, for all other known cases, isNull is enough.
+        if ("string".equals(field.getTypeName())) {
+            return new BinaryLogicOperator(isEmpty(field), Predicate.OR, isNull(field));
+        } else {
+            return isNull(field);
+        }
+    }
+
     public static Condition isEmpty(FieldMetadata field) {
         assertNullField(field);
         return new IsEmpty(new Field(field));
@@ -190,6 +205,11 @@ public class UserQueryBuilder {
     }
 
     public static Condition neq(FieldMetadata field, String constant) {
+        assertValueConditionArguments(field, constant);
+        return new UnaryLogicOperator(eq(field, constant), Predicate.NOT);
+    }
+
+    public static Condition neq(TypedExpression field, String constant) {
         assertValueConditionArguments(field, constant);
         return new UnaryLogicOperator(eq(field, constant), Predicate.NOT);
     }
@@ -276,6 +296,13 @@ public class UserQueryBuilder {
         Field userField = new Field(field);
         select.setOrderBy(new OrderBy(userField, direction));
         return this;
+    }
+
+    public UserQueryBuilder join(TypedExpression leftField, FieldMetadata rightField) {
+        if (!(leftField instanceof Field)) {
+            throw new IllegalArgumentException("Can not perform join on a non-user field (was " + leftField.getClass().getName() + ")");
+        }
+        return join(((Field) leftField).getFieldMetadata(), rightField);
     }
 
     /**
@@ -430,5 +457,8 @@ public class UserQueryBuilder {
         return new Compare(userField, Predicate.CONTAINS, new StringConstant(value));
     }
 
-
+    public static Condition contains(TypedExpression field, String value) {
+        assertValueConditionArguments(field, value);
+        return new Compare(field, Predicate.CONTAINS, new StringConstant(value));
+    }
 }
