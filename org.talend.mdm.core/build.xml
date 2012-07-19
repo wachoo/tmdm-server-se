@@ -14,7 +14,7 @@
 
     <property name="version.props" value="product_version.properties"/>
 
-    <property name="jboss.dir" value="/opt/jboss/jboss-4.2.2.GA"/>
+    <property name="jboss.dir" value="/home/pascal/dev/jboss/jboss-4.2.2.GA-mdm/"/>
     <property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
     <property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
     <property name="jboss.lib.dir" value="${jboss.instance.dir}/lib"/>
@@ -27,8 +27,7 @@
     <property name="conf.template" value="mdm.conf.template"/>
     <property name="svn.revision" value="36233"/>
 
-    <property name="tom.location" value="${basedir}/../../tom"/>
-    <property name="tem.location" value="${basedir}/../../tem"/>
+    <property name="tom.location" value="${basedir}/.."/>
 
     <!-- =================================
           target: all              
@@ -131,7 +130,6 @@
             <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.castor-1.0.5-xml.jar"/>
             <pathelement path="${tom.location}/talend.mdm.libraries/lib/commons-logging.jar"/>
             <pathelement path="${tom.location}/talend.mdm.libraries/lib/jboss-j2ee.jar"/>
-            <pathelement path="${tem.location}/org.talend.mdm.ext.service.schedule/libs/quartz-1.6.0.jar"/>
             <path refid="base.classpath"/>
         </path>
 
@@ -149,7 +147,6 @@
                     path="${tom.location}/org.talend.mdm.xmldb/lib-1.4/common/z.exist.1.4-xmlrpc-common-3.1.2.jar"/>
 
             <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.xsom.jar"/>
-            <pathelement path="${tem.location}/org.talend.mdm.webapp.workflow.tasks/libs/trang.jar"/>
         </path>
 
         <copy todir="${basedir}/target/test-classes" verbose="true">
