@@ -61,6 +61,18 @@ public class DataModelBean {
         return reusableTypeMap;
     }
     
+    public ReusableType getReusableType(String typeName) {
+        if (reusableTypes == null || reusableTypes.size() == 0 || typeName == null)
+            return null;
+
+        for (ReusableType reuseableType : reusableTypes) {
+            if (reuseableType != null && reuseableType.getName() != null && reuseableType.getName().equals(typeName))
+                return reuseableType;
+        }
+
+        return null;
+    }
+
     public Map<String, BusinessConcept> getBusinessConceptMap() {
         Map<String, BusinessConcept> businessConceptMap = new HashMap<String, BusinessConcept>();
         if (businessConcepts == null)
@@ -73,7 +85,7 @@ public class DataModelBean {
     }
 
     public BusinessConcept getBusinessConcept(String conceptName) {
-        if (businessConcepts == null || businessConcepts.size() == 0)
+        if (businessConcepts == null || businessConcepts.size() == 0 || conceptName == null)
             return null;
         
         for (BusinessConcept bizConcept : businessConcepts) {

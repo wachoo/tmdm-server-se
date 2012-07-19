@@ -1,103 +1,113 @@
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.browserecords.client.model.ComboBoxModel;
+import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.junit.client.GWTTestCase;
 
-
+@SuppressWarnings("nls")
 public class SortSubTypesTest extends GWTTestCase {
 
     public void testSortSubTypes() {
-        List<ComplexTypeModel> reusableTypes = new ArrayList<ComplexTypeModel>();
+        ComplexTypeModel dataType = new ComplexTypeModel("typeEDA", DataTypeConstants.STRING);
 
-        ComplexTypeModel typeEDA = new ComplexTypeModel("typeEDA", null); //$NON-NLS-1$
+        ComplexTypeModel typeEDA = new ComplexTypeModel("typeEDA", null);
         typeEDA.setOrderValue(0);
-        reusableTypes.add(typeEDA);
+        dataType.addComplexReusableTypes(typeEDA);
 
-        ComplexTypeModel balit = new ComplexTypeModel("Balit", null); //$NON-NLS-1$
+        ComplexTypeModel balit = new ComplexTypeModel("Balit", null); 
         balit.setOrderValue(1);
-        reusableTypes.add(balit);
+        dataType.addComplexReusableTypes(balit);
 
-        ComplexTypeModel pointEchange = new ComplexTypeModel("PointEchange", null); //$NON-NLS-1$
+        ComplexTypeModel pointEchange = new ComplexTypeModel("PointEchange", null); 
         pointEchange.setOrderValue(3);
-        reusableTypes.add(pointEchange);
+        dataType.addComplexReusableTypes(pointEchange);
 
-        ComplexTypeModel secoursMutuelGrt = new ComplexTypeModel("SecoursMutuelGrt", null); //$NON-NLS-1$
+        ComplexTypeModel secoursMutuelGrt = new ComplexTypeModel("SecoursMutuelGrt", null); 
         secoursMutuelGrt.setOrderValue(2);
-        reusableTypes.add(secoursMutuelGrt);
+        dataType.addComplexReusableTypes(secoursMutuelGrt);
 
-        ComplexTypeModel pointSoutirageJumeleRpd = new ComplexTypeModel("PointSoutirageJumeleRpd", null); //$NON-NLS-1$
+        ComplexTypeModel pointSoutirageJumeleRpd = new ComplexTypeModel("PointSoutirageJumeleRpd", null); 
         pointSoutirageJumeleRpd.setOrderValue(9);
-        reusableTypes.add(pointSoutirageJumeleRpd);
+        dataType.addComplexReusableTypes(pointSoutirageJumeleRpd);
 
-        ComplexTypeModel pointSoutirageRpt = new ComplexTypeModel("PointSoutirageRpt", null); //$NON-NLS-1$
+        ComplexTypeModel pointSoutirageRpt = new ComplexTypeModel("PointSoutirageRpt", null); 
         pointSoutirageRpt.setOrderValue(4);
-        reusableTypes.add(pointSoutirageRpt);
+        dataType.addComplexReusableTypes(pointSoutirageRpt);
 
-        ComplexTypeModel pointInjectionRptRpd = new ComplexTypeModel("PointInjectionRptRpd", null); //$NON-NLS-1$
+        ComplexTypeModel pointInjectionRptRpd = new ComplexTypeModel("PointInjectionRptRpd", null); 
         pointInjectionRptRpd.setOrderValue(13);
-        reusableTypes.add(pointInjectionRptRpd);
+        dataType.addComplexReusableTypes(pointInjectionRptRpd);
 
-        ComplexTypeModel pointSoutirageRpd = new ComplexTypeModel("PointSoutirageRpd", null); //$NON-NLS-1$
+        ComplexTypeModel pointSoutirageRpd = new ComplexTypeModel("PointSoutirageRpd", null); 
         pointSoutirageRpd.setOrderValue(5);
-        reusableTypes.add(pointSoutirageRpd);
+        dataType.addComplexReusableTypes(pointSoutirageRpd);
 
-        ComplexTypeModel pointSoutirageProfile = new ComplexTypeModel("PointSoutirageProfile", null); //$NON-NLS-1$
+        ComplexTypeModel pointSoutirageProfile = new ComplexTypeModel("PointSoutirageProfile", null); 
         pointSoutirageProfile.setOrderValue(7);
-        reusableTypes.add(pointSoutirageProfile);
+        dataType.addComplexReusableTypes(pointSoutirageProfile);
 
-        ComplexTypeModel pointInjectionRpt = new ComplexTypeModel("PointInjectionRpt", null); //$NON-NLS-1$
+        ComplexTypeModel pointInjectionRpt = new ComplexTypeModel("PointInjectionRpt", null); 
         pointInjectionRpt.setOrderValue(11);
-        reusableTypes.add(pointInjectionRpt);
+        dataType.addComplexReusableTypes(pointInjectionRpt);
 
-        ComplexTypeModel pointInjectionRpd = new ComplexTypeModel("PointInjectionRpd", null); //$NON-NLS-1$
+        ComplexTypeModel pointInjectionRpd = new ComplexTypeModel("PointInjectionRpd", null); 
         pointInjectionRpd.setOrderValue(12);
-        reusableTypes.add(pointInjectionRpd);
+        dataType.addComplexReusableTypes(pointInjectionRpd);
 
-        ComplexTypeModel pointSoutirageJumeleRpt = new ComplexTypeModel("PointSoutirageJumeleRpt", null); //$NON-NLS-1$
+        ComplexTypeModel pointSoutirageJumeleRpt = new ComplexTypeModel("PointSoutirageJumeleRpt", null); 
         pointSoutirageJumeleRpt.setOrderValue(8);
-        reusableTypes.add(pointSoutirageJumeleRpt);
+        dataType.addComplexReusableTypes(pointSoutirageJumeleRpt);
 
-        ComplexTypeModel pointSoutirageRptRpd = new ComplexTypeModel("PointSoutirageRptRpd", null); //$NON-NLS-1$
+        ComplexTypeModel pointSoutirageRptRpd = new ComplexTypeModel("PointSoutirageRptRpd", null); 
         pointSoutirageRptRpd.setOrderValue(6);
-        reusableTypes.add(pointSoutirageRptRpd);
+        dataType.addComplexReusableTypes(pointSoutirageRptRpd);
 
-        ComplexTypeModel pointSoutirageJumeleRptRpd = new ComplexTypeModel("PointSoutirageJumeleRptRpd", null); //$NON-NLS-1$
+        ComplexTypeModel pointSoutirageJumeleRptRpd = new ComplexTypeModel("PointSoutirageJumeleRptRpd", null); 
         pointSoutirageJumeleRptRpd.setOrderValue(10);
-        reusableTypes.add(pointSoutirageJumeleRptRpd);
-        
-        int originalSize = reusableTypes.size();
+        dataType.addComplexReusableTypes(pointSoutirageJumeleRptRpd);
 
-        Collections.sort(reusableTypes, new Comparator<ComplexTypeModel>() {
-            public int compare(ComplexTypeModel o1, ComplexTypeModel o2) {
-                return o1.getOrderValue() - o2.getOrderValue();
-            }
-        });
+        ItemNodeModel node = new ItemNodeModel();
+        node.setRealType("Eda/typesEda/typeEDA");
+        Map<String, String> labelMap=new HashMap<String, String>();
+        labelMap.put("en", "typeEDA");
+        dataType.setLabelMap(labelMap);
+        Field field = TreeDetailGridFieldCreator.createField(node, dataType, "en", new HashMap<String, Field<?>>(), null,
+                null);
 
+        assertNotNull(field);
+        assertTrue(field instanceof ComboBoxField);
+
+        ComboBoxField<ComboBoxModel> comboxField = (ComboBoxField<ComboBoxModel>) field;
+        ListStore<ComboBoxModel> reusableTypes = comboxField.getStore();
         assertNotNull(reusableTypes);
-        assertEquals(originalSize, reusableTypes.size());
-        assertEquals("typeEDA", reusableTypes.get(0).getName()); //$NON-NLS-1$
-        assertEquals("Balit", reusableTypes.get(1).getName()); //$NON-NLS-1$
-        assertEquals("SecoursMutuelGrt", reusableTypes.get(2).getName()); //$NON-NLS-1$
-        assertEquals("PointEchange", reusableTypes.get(3).getName()); //$NON-NLS-1$
-        assertEquals("PointSoutirageRpt", reusableTypes.get(4).getName()); //$NON-NLS-1$
-        assertEquals("PointSoutirageRpd", reusableTypes.get(5).getName()); //$NON-NLS-1$
-        assertEquals("PointSoutirageRptRpd", reusableTypes.get(6).getName()); //$NON-NLS-1$
-        assertEquals("PointSoutirageProfile", reusableTypes.get(7).getName()); //$NON-NLS-1$
-        assertEquals("PointSoutirageJumeleRpt", reusableTypes.get(8).getName()); //$NON-NLS-1$
-        assertEquals("PointSoutirageJumeleRpd", reusableTypes.get(9).getName()); //$NON-NLS-1$
-        assertEquals("PointSoutirageJumeleRptRpd", reusableTypes.get(10).getName()); //$NON-NLS-1$
-        assertEquals("PointInjectionRpt", reusableTypes.get(11).getName()); //$NON-NLS-1$
-        assertEquals("PointInjectionRpd", reusableTypes.get(12).getName()); //$NON-NLS-1$
-        assertEquals("PointInjectionRptRpd", reusableTypes.get(13).getName()); //$NON-NLS-1$
+
+        assertEquals("typeEDA", ((ComplexTypeModel) reusableTypes.getAt(0).get("reusableType")).getName());
+        assertEquals("Balit", ((ComplexTypeModel) reusableTypes.getAt(1).get("reusableType")).getName());
+        assertEquals("SecoursMutuelGrt", ((ComplexTypeModel) reusableTypes.getAt(2).get("reusableType")).getName());
+        assertEquals("PointEchange", ((ComplexTypeModel) reusableTypes.getAt(3).get("reusableType")).getName());
+        assertEquals("PointSoutirageRpt", ((ComplexTypeModel) reusableTypes.getAt(4).get("reusableType")).getName());
+        assertEquals("PointSoutirageRpd", ((ComplexTypeModel) reusableTypes.getAt(5).get("reusableType")).getName());
+        assertEquals("PointSoutirageRptRpd", ((ComplexTypeModel) reusableTypes.getAt(6).get("reusableType")).getName());
+        assertEquals("PointSoutirageProfile", ((ComplexTypeModel) reusableTypes.getAt(7).get("reusableType")).getName());
+        assertEquals("PointSoutirageJumeleRpt", ((ComplexTypeModel) reusableTypes.getAt(8).get("reusableType")).getName());
+        assertEquals("PointSoutirageJumeleRpd", ((ComplexTypeModel) reusableTypes.getAt(9).get("reusableType")).getName());
+        assertEquals("PointSoutirageJumeleRptRpd", ((ComplexTypeModel) reusableTypes.getAt(10).get("reusableType")).getName());
+        assertEquals("PointInjectionRpt", ((ComplexTypeModel) reusableTypes.getAt(11).get("reusableType")).getName());
+        assertEquals("PointInjectionRpd", ((ComplexTypeModel) reusableTypes.getAt(12).get("reusableType")).getName());
+        assertEquals("PointInjectionRptRpd", ((ComplexTypeModel) reusableTypes.getAt(13).get("reusableType")).getName());
+
     }
 
     public String getModuleName() {
-        return "org.talend.mdm.webapp.browserecords.TestBrowseRecords"; //$NON-NLS-1$
+        return "org.talend.mdm.webapp.browserecords.TestBrowseRecords"; 
     }
 }
