@@ -14,7 +14,7 @@ package org.talend.mdm.commmon.util.datamodel.management;
 
 
 @SuppressWarnings("nls")
-public class ReusableTypeTest extends BaseSchemaManagerTest {
+public class ReusableTypeTest extends SchemaManagerAbstractTest {
 
     public void testParseReusableType() throws Exception {
         SchemaManager schemaManager = new SchemaAgentTestMock();

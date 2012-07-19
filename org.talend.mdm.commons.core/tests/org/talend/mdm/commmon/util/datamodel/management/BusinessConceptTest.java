@@ -15,7 +15,7 @@ package org.talend.mdm.commmon.util.datamodel.management;
 import java.util.Map;
 
 @SuppressWarnings("nls")
-public class BusinessConceptTest extends BaseSchemaManagerTest {
+public class BusinessConceptTest extends SchemaManagerAbstractTest {
 
     public void testParseBusinessConcept() throws Exception {
         SchemaManager schemaManager = new SchemaAgentTestMock();

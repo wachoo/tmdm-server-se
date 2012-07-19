@@ -23,7 +23,7 @@ import java.io.Writer;
 import junit.framework.TestCase;
 
 @SuppressWarnings("nls")
-public class BaseSchemaManagerTest extends TestCase {
+public class SchemaManagerAbstractTest extends TestCase {
 
     protected String loadDataModelSchema(String fileName) throws IOException {
         if (fileName == null)
