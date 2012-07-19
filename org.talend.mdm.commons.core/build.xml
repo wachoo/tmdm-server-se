@@ -148,6 +148,7 @@
 
             <batchtest fork="yes" todir="target/test-reports">
                 <fileset dir="target/test-classes">
+                    <exclude name="**/*AbstractTest.class"/>
                     <include name="**/*Test.class" />
                     <include name="**/*TestCase.class" />
                 </fileset>
