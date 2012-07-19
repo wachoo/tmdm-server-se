@@ -32,10 +32,7 @@ import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 class FullTextQueryHandler extends AbstractQueryHandler {
@@ -45,8 +42,6 @@ class FullTextQueryHandler extends AbstractQueryHandler {
     private List<ComplexTypeMetadata> types;
 
     private int pageSize;
-
-    private String revisionId;
 
     public FullTextQueryHandler(Storage storage,
                                 MappingRepository repository,
@@ -64,7 +59,6 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         if (!joins.isEmpty()) {
             throw new IllegalArgumentException("Cannot perform join clause(s) when doing full text search.");
         }
-        revisionId = select.getRevisionId();
 
         Condition condition = select.getCondition();
         if (condition == null) {
@@ -133,7 +127,11 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                     DataRecord nextRecord = new DataRecord(next.getType(), next.getRecordMetadata());
                     for (TypedExpression selectedField : selectedFields) {
                         FieldMetadata field = ((Field) selectedField).getFieldMetadata();
-                        nextRecord.set(field, next.get(field));
+                        if (field instanceof ReferenceFieldMetadata) {
+                            nextRecord.set(field, getReferencedId(next, (ReferenceFieldMetadata) field));
+                        } else {
+                            nextRecord.set(field, next.get(field));
+                        }
                     }
                     return nextRecord;
                 }
@@ -164,7 +162,11 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                     for (TypedExpression selectedField : selectedFields) {
                         FieldMetadata field = ((Field) selectedField).getFieldMetadata();
                         explicitProjectionType.addField(field);
-                        nextRecord.set(field, next.get(field));
+                        if (field instanceof ReferenceFieldMetadata) {
+                            nextRecord.set(field, getReferencedId(next, (ReferenceFieldMetadata) field));
+                        } else {
+                            nextRecord.set(field, next.get(field));
+                        }
                     }
                     explicitProjectionType.freeze();
                     return nextRecord;
@@ -173,6 +175,20 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         }
 
         return new FullTextStorageResults(pageSize, query.getResultSize(), iterator);
+    }
+
+    private static Object getReferencedId(DataRecord next, ReferenceFieldMetadata field) {
+        DataRecord record = (DataRecord) next.get(field);
+        List<FieldMetadata> keyFields = record.getType().getKeyFields();
+        if (keyFields.size() == 1) {
+            return record.get(keyFields.get(0));
+        } else {
+            List<Object> compositeKeyValues = new ArrayList<Object>(keyFields.size());
+            for (FieldMetadata keyField : keyFields) {
+                compositeKeyValues.add(record.get(keyField));
+            }
+            return compositeKeyValues;
+        }
     }
 
     @Override

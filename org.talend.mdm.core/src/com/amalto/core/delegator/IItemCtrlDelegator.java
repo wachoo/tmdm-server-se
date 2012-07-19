@@ -7,7 +7,6 @@ import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
-import com.amalto.core.metadata.ReferenceFieldMetadata;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.role.ejb.RolePOJO;
@@ -25,6 +24,7 @@ import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordWriter;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
+import com.amalto.core.storage.record.ViewSearchResultsWriter;
 import com.amalto.core.util.*;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
@@ -275,28 +275,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                 StorageResults results = storage.fetch(qb.getSelect());
                 ArrayList<String> resultsAsString = new ArrayList<String>();
                 resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>");
-                DataRecordWriter writer = new DataRecordWriter() {
-                    public void write(DataRecord record, OutputStream output) throws IOException {
-                        Writer out = new BufferedWriter(new OutputStreamWriter(output));
-                        write(record, out);
-                    }
-
-                    public void write(DataRecord record, Writer writer) throws IOException {
-                        writer.write("<result>\n");
-                        for (FieldMetadata fieldMetadata : record.getSetFields()) {
-                            Object value = record.get(fieldMetadata);
-                            Object valueAsString = String.valueOf(value);
-                            if (fieldMetadata instanceof ReferenceFieldMetadata) {
-                                valueAsString = "[" + valueAsString + ']';
-                            }
-                            if (value != null) {
-                                writer.append("\t<").append(fieldMetadata.getName()).append(">").append(String.valueOf(valueAsString)).append("</").append(fieldMetadata.getName()).append(">\n");
-                            }
-                        }
-                        writer.append("</result>");
-                        writer.flush();
-                    }
-                };
+                DataRecordWriter writer = new ViewSearchResultsWriter();
 
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
                 for (DataRecord result : results) {
@@ -646,4 +625,5 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
         logger.debug(query);
         return server.runQuery(null, null, query, null, start, limit, false);
     }
+
 }

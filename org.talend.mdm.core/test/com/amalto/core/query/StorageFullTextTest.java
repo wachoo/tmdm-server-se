@@ -13,15 +13,6 @@
 
 package com.amalto.core.query;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
-
-import java.io.ByteArrayOutputStream;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.apache.log4j.Logger;
-
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.query.user.OrderBy;
 import com.amalto.core.query.user.UserQueryBuilder;
@@ -29,10 +20,16 @@ import com.amalto.core.storage.FullTextResultsWriter;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.hibernate.HibernateStorage;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.DataRecordReader;
-import com.amalto.core.storage.record.DataRecordWriter;
-import com.amalto.core.storage.record.XmlStringDataRecordReader;
+import com.amalto.core.storage.record.*;
+import org.apache.log4j.Logger;
+
+import java.io.ByteArrayOutputStream;
+import java.io.StringWriter;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
+import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 @SuppressWarnings("nls")
 public class StorageFullTextTest extends StorageTestCase {
@@ -199,6 +196,27 @@ public class StorageFullTextTest extends StorageTestCase {
                 assertEquals(1, result.getSetFields().size());
                 assertNotNull(result.get("Name"));
             }
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testFKSearchWithProjection() throws Exception {
+        UserQueryBuilder qb = from(product)
+                .select(product.getField("Family"))
+                .where(fullText("car"));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            ViewSearchResultsWriter writer = new ViewSearchResultsWriter();
+            StringWriter resultWriter = new StringWriter();
+            for (DataRecord result : results) {
+                writer.write(result, resultWriter);
+            }
+            assertEquals("<result>\n" +
+                    "\t<Family>[1]</Family>\n" +
+                    "</result>", resultWriter.toString());
         } finally {
             results.close();
         }
