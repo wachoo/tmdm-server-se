@@ -11,9 +11,7 @@
     <property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy" />
     <property name="jboss.instance.lib" value="${jboss.instance.dir}/lib" />
     
-    <property name="tem.location" value="${basedir}/../../tem"/>
-    <property name="tom.location" value="${tem.location}"/>
-
+    <property name="tom.location" value="${basedir}/.." />
 
     <!-- =================================
           target: all
