@@ -138,14 +138,22 @@ public class SchemaCoreAgent extends SchemaManager {
 
     private DataModelID getUserDatamodelID() throws Exception {
 
-        String userXml = LocalUser.getLocalUser().getUserXML();
-        Element userEl = null;
-        if (userXml != null)
-            userEl = Util.parse(userXml).getDocumentElement();
-        else
-            userEl = Util.getLoginProvisioningFromDB();
+        String dataModel = null;
 
-        String dataModel = Util.getUserDataModel(userEl);
+        // try to load from LocalUser
+        String userXml = LocalUser.getLocalUser().getUserXML();
+        if (userXml != null) {
+            Element userEl = Util.parse(userXml).getDocumentElement();
+            dataModel = Util.getUserDataModel(userEl);
+        }
+
+        // if fail, load it from db directly
+        if (dataModel == null)
+            dataModel = Util.getUserDataModel(Util.getLoginProvisioningFromDB());
+
+        // if still fail, throw exception
+        if (dataModel == null)
+            throw new RuntimeException("User datamodel not found! "); //$NON-NLS-1$
 
         String revision = LocalUser.getLocalUser().getUniverse().getName();
         if (revision != null && (revision.equals("[HEAD]") || revision.equals("HEAD") || revision.equals(""))) //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$

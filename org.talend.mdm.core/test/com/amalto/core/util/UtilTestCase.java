@@ -245,6 +245,20 @@ public class UtilTestCase extends TestCase {
         assertEquals("xsd:string", metaDataTypes.get("BusinessType/ZthesId").get(0));
     }
 
+    public void testGetUserDataModel() throws Exception {
+        String userXml = "<User><username>user</username><password>ee11cbb19052e40b07aac0ca060c23ee</password><givenname>Default</givenname><familyname>User</familyname><company>Company</company><id>null</id><realemail>user@company.com</realemail><viewrealemail>no</viewrealemail><registrationdate>1342699860823</registrationdate><lastvisitdate>0</lastvisitdate><enabled>yes</enabled><homepage>Home</homepage><roles><role>OM5_Admin</role><role>System_Interactive</role></roles><properties><property><name>cluster</name><value>OM5Container</value></property><property><name>model</name><value>OM5</value></property></properties></User>";
+        Element userEl = Util.parse(userXml).getDocumentElement();
+        String dataModel = Util.getUserDataModel(userEl);
+
+        assertEquals("OM5", dataModel);
+
+        userXml = "<User><username>user</username><password>ee11cbb19052e40b07aac0ca060c23ee</password><givenname>Default</givenname><familyname>User</familyname><company>Company</company><id>null</id><realemail>user@company.com</realemail><viewrealemail>no</viewrealemail><registrationdate>1342699860823</registrationdate><lastvisitdate>0</lastvisitdate><enabled>yes</enabled><homepage>Home</homepage><roles><role>OM5_Admin</role><role>System_Interactive</role></roles></User>";
+        userEl = Util.parse(userXml).getDocumentElement();
+        dataModel = Util.getUserDataModel(userEl);
+
+        assertNull(dataModel);
+    }
+
     class SchemaTestAgent extends SchemaManager {
 
         public SchemaTestAgent() {
