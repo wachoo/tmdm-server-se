@@ -152,7 +152,6 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 path.pop();
             }
             path.add(field.getName() + '[' + max + ']');
-            lastMatchPath = getLeftPath();
             path.pop();
         } else {
             closure.execute(field);
