@@ -191,7 +191,7 @@ public class ReusableType {
     }
 
     public String getOrderValue() {
-        return orderValue;
+        return orderValue == null ? null : orderValue.trim();
     }
 
     public Map<String, String> getLabelMap() {

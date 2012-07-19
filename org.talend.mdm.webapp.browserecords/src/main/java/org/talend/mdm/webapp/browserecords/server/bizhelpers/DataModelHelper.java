@@ -72,9 +72,6 @@ public class DataModelHelper {
 
     private static Map<String, List<String>> aliasXpathMap = new HashMap<String, List<String>>();
 
-    // FIXME: had better use POJO rather than static method
-    public static boolean alwaysEnterprise = false;
-
     public static void overrideSchemaManager(SchemaAbstractWebAgent _schemaManager) {
         schemaManager = _schemaManager;
     }
@@ -289,6 +286,8 @@ public class DataModelHelper {
                         reusableComplexType.setPolymorphism(true);
                         reusableComplexType.setLabelMap(reusableType.getLabelMap());
                         int orderValue;
+                        if (reusableType.getOrderValue() == null)
+                            orderValue = 0;
                         try {
                             orderValue = Integer.parseInt(reusableType.getOrderValue());
                         } catch (NumberFormatException nfe) {

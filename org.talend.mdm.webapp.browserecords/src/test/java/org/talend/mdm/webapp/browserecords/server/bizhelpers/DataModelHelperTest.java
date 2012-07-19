@@ -130,7 +130,6 @@ public class DataModelHelperTest extends TestCase {
         InputStream stream = getClass().getResourceAsStream("RTE.xsd");
         String xsd = inputStream2String(stream);
 
-        DataModelHelper.alwaysEnterprise = true;
         DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
         DataModelHelper.parseSchema(datamodelName, concept, DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, entityModel,
                 Arrays.asList(roles));
@@ -207,6 +206,41 @@ public class DataModelHelperTest extends TestCase {
         assertTrue(metaDataTypes.get("Contract/detail:ContractDetailSubTypeOne/code").isSimpleType());
         assertTrue(metaDataTypes.get("Contract/detail:ContractDetailSubTypeOne/subType").isSimpleType());
         assertTrue(metaDataTypes.get("Contract/detail:ContractDetailSubTypeOne/subTypeOne").isSimpleType());        
+    }
+
+    public void testParseTypeOrder() throws Exception {
+
+        EntityModel entityModel = new EntityModel();
+        String datamodelName = "Contract";
+        String concept = "Contract";
+        String[] ids = { "" };
+        String[] roles = { "Demo_Manager", "System_Admin", "authenticated", "administration" };
+        InputStream stream = getClass().getResourceAsStream("RTE.xsd");
+        String xsd = inputStream2String(stream);
+
+        PowerMockito.mockStatic(Util.class);
+        Mockito.when(Util.isEnterprise()).thenReturn(false);
+
+        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
+        DataModelHelper.parseSchema("RTE", "Eda", DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, entityModel,
+                Arrays.asList(roles));
+        Map<String, TypeModel> metaDataTypes = entityModel.getMetaDataTypes();
+        for (String typePath : metaDataTypes.keySet()) {
+            if (typePath.equals("Eda/typesEda/typeEDA")) {
+                TypeModel typeModel = metaDataTypes.get(typePath);
+                List<ComplexTypeModel> reusableTypes=((ComplexTypeModel) typeModel).getReusableComplexTypes();
+                assertTrue(reusableTypes.size() > 0);
+                for (ComplexTypeModel myTypeModel : reusableTypes) {
+                    if (myTypeModel.getName().equals("typeEDA"))
+                        assertEquals(0, myTypeModel.getOrderValue());
+                    else if (myTypeModel.getName().equals("PointEchange"))
+                        assertEquals(3, myTypeModel.getOrderValue());
+                    else if (myTypeModel.getName().equals("PointInjectionRptRpd"))
+                        assertEquals(13, myTypeModel.getOrderValue());
+                }
+            }
+        }
+
     }
 
     private String inputStream2String(InputStream is) {
