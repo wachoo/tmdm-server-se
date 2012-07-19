@@ -111,7 +111,6 @@
 
         <path id="base.classpath">
             <pathelement path="bin" />
-            <pathelement path="${tom.location}/org.talend.mdm.commons.core/bin" />
             <pathelement path="${tom.location}/talend.mdm.libraries/deploy/lib/z.relaxngDatatype.jar" />
             <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.xsom.jar" />
             <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.commons-lang-2.1.jar" />
