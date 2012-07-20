@@ -145,7 +145,7 @@ public class MainFramePanel extends Portal {
                 FieldSet set = (FieldSet) start.getItemByItemId(WelcomePortal.START + "Set"); //$NON-NLS-1$                
                 set.removeAll();
                 StringBuilder sb1 = new StringBuilder(
-                        "<span id=\"ItemsBrowser\" style=\"padding-right:8px;cursor: pointer; width:150;\" title=\"" + MessagesFactory.getMessages().browse_items() + "\""); //$NON-NLS-1$ //$NON-NLS-2$
+                        "<span id=\"ItemsBrowser\" style=\"padding-right:8px;cursor: pointer; width:150;\" title=\"" + MessagesFactory.getMessages().browse_items() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
                 sb1.append("<IMG SRC=\"/talendmdm/secure/img/menu/browse.png\"/>&nbsp;"); //$NON-NLS-1$
                 sb1.append(id);
                 sb1.append("</span>"); //$NON-NLS-1$
@@ -159,7 +159,7 @@ public class MainFramePanel extends Portal {
                 });
                 set.add(browseHtml);
                 StringBuilder sb2 = new StringBuilder(
-                        "<span id=\"Journal\" style=\"padding-right:8px;cursor: pointer; width:150;\" title=\"" + MessagesFactory.getMessages().journal() + "\""); //$NON-NLS-1$ //$NON-NLS-2$
+                        "<span id=\"Journal\" style=\"padding-right:8px;cursor: pointer; width:150;\" title=\"" + MessagesFactory.getMessages().journal() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
                 sb2.append("<IMG SRC=\"/talendmdm/secure/img/menu/updatereport.png\"/>&nbsp;"); //$NON-NLS-1$
                 sb2.append(MessagesFactory.getMessages().journal());
                 sb2.append("</span>"); //$NON-NLS-1$
@@ -205,7 +205,7 @@ public class MainFramePanel extends Portal {
         set.removeAll();
         final HTML alertHtml = new HTML();
         final StringBuilder sb = new StringBuilder(
-                "<span id=\"licenseAlert\" style=\"padding-right:8px;cursor: pointer;\" title=\"" + MessagesFactory.getMessages().alerts_title() + "\""); //$NON-NLS-1$ //$NON-NLS-2$
+                "<span id=\"licenseAlert\" style=\"padding-right:8px;cursor: pointer;\" title=\"" + MessagesFactory.getMessages().alerts_title() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
 
         service.getAlertMsg(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<String>() {
 
@@ -270,7 +270,7 @@ public class MainFramePanel extends Portal {
         set.removeAll();
         final HTML taskHtml = new HTML();
         final StringBuilder sb = new StringBuilder(
-                "<span id=\"workflowtasks\" style=\"padding-right:8px;cursor: pointer;\" title=\"" + MessagesFactory.getMessages().tasks_title() + "\""); //$NON-NLS-1$ //$NON-NLS-2$
+                "<span id=\"workflowtasks\" style=\"padding-right:8px;cursor: pointer;\" title=\"" + MessagesFactory.getMessages().tasks_title() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
         service.getTaskMsg(new SessionAwareAsyncCallback<Integer>() {
 
             public void onSuccess(Integer num) {
@@ -455,11 +455,11 @@ public class MainFramePanel extends Portal {
     }
 
     private native void openWindow(String url)/*-{
-        window.open(url);
+		window.open(url);
     }-*/;
 
     private native void initUI(String context, String application)/*-{
-        var initFunction = $wnd.amalto[context][application].init;
-        setTimeout(initFunction, '50');
+		var initFunction = $wnd.amalto[context][application].init;
+		setTimeout(initFunction, '50');
     }-*/;
 }
