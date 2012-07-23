@@ -7,6 +7,7 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -53,7 +54,7 @@ public class ForeignKeyRowEditor extends RowEditor<ItemNodeModel> {
             String ids = fkBean.getId().replaceAll("\\[", "").replaceAll("\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
             service.updateItem(
                     fkTypeModel.getForeignkey().split("/")[0], ids, fkBean.getForeignKeyInfo(), null, Locale.getLanguage(), //$NON-NLS-1$
-                    new SessionAwareAsyncCallback<String>() {
+                    new SessionAwareAsyncCallback<ItemResult>() {
 
                 @Override
                 protected void doOnFailure(Throwable caught) {
@@ -77,7 +78,7 @@ public class ForeignKeyRowEditor extends RowEditor<ItemNodeModel> {
 
                 }
 
-                public void onSuccess(String result) {
+                public void onSuccess(ItemResult result) {
                     Record record;
                     Store<ItemNodeModel> store = grid.getStore();
                     if (store != null) {
@@ -91,7 +92,7 @@ public class ForeignKeyRowEditor extends RowEditor<ItemNodeModel> {
                     }
                     // TODO refreshForm(itemBean);
                     MessageBox.alert(MessagesFactory.getMessages().info_title(),
-                            Locale.getExceptionMessageByLanguage(Locale.getLanguage(), result), null);
+                            Locale.getExceptionMessageByLanguage(Locale.getLanguage(), result.getDescription()), null);
                 }
             });
         }

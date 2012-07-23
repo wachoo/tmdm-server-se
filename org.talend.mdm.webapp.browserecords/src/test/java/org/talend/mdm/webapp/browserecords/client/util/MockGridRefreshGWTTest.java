@@ -34,6 +34,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.Restriction;
+import org.talend.mdm.webapp.browserecords.client.model.UpdateItemModel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
@@ -515,7 +516,12 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
 
         }
 
-        public void updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, String language, AsyncCallback<String> callback) {
+        public void updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, String language,
+                AsyncCallback<ItemResult> callback) {
+
+        }
+
+        public void updateItems(List<UpdateItemModel> updateItems, String language, AsyncCallback<List<ItemResult>> callback) {
 
         }
 

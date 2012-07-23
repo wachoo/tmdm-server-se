@@ -29,6 +29,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.Restriction;
+import org.talend.mdm.webapp.browserecords.client.model.UpdateItemModel;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
@@ -107,7 +108,10 @@ public interface BrowseRecordsService extends RemoteService {
 
     ItemResult saveItem(String concept, String ids, String xml, boolean isCreate, String language) throws ServiceException;
 
-    String updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, String language) throws ServiceException;
+    ItemResult updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, String language)
+            throws ServiceException;
+
+    List<ItemResult> updateItems(List<UpdateItemModel> updateItems, String language) throws ServiceException;
 
     ColumnTreeLayoutModel getColumnTreeLayout(String concept) throws ServiceException;
 
