@@ -150,6 +150,9 @@ public abstract class SchemaManager {
      * @throws Exception
      */
     public BusinessConcept getBusinessConcept(String conceptName, DataModelID dataModelID) throws Exception {
+        if (conceptName == null || dataModelID == null)
+            return null;
+
         BusinessConcept targetBusinessConcept = null;
         DataModelBean dataModelBean = getFromPool(dataModelID);
         List<BusinessConcept> businessConcepts = dataModelBean.getBusinessConcepts();

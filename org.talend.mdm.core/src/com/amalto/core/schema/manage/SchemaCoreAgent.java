@@ -140,20 +140,25 @@ public class SchemaCoreAgent extends SchemaManager {
 
         String dataModel = null;
 
+        /* FIXME: userXml is not up to date
         // try to load from LocalUser
         String userXml = LocalUser.getLocalUser().getUserXML();
         if (userXml != null) {
             Element userEl = Util.parse(userXml).getDocumentElement();
             dataModel = Util.getUserDataModel(userEl);
         }
+        */
+        
+        // load it from db directly
+        Element userProvision = Util.getLoginProvisioningFromDB();
+        if (userProvision != null) {
+            dataModel = Util.getUserDataModel(userProvision);
+        }
 
-        // if fail, load it from db directly
+        // if still fail, return null (keep silence)
         if (dataModel == null)
-            dataModel = Util.getUserDataModel(Util.getLoginProvisioningFromDB());
-
-        // if still fail, throw exception
-        if (dataModel == null)
-            throw new RuntimeException("User datamodel not found! "); //$NON-NLS-1$
+            //throw new RuntimeException("User datamodel not found! "); //$NON-NLS-1$
+            return null;
 
         String revision = LocalUser.getLocalUser().getUniverse().getName();
         if (revision != null && (revision.equals("[HEAD]") || revision.equals("HEAD") || revision.equals(""))) //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
