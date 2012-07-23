@@ -37,6 +37,7 @@ import org.talend.mdm.webapp.browserecords.client.handler.ItemTreeHandlingStatus
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.RecordsPagingConfig;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
@@ -464,7 +465,7 @@ public class ItemsListPanel extends ContentPanel {
                 String xml = (new ItemTreeHandler(model, viewBean, ItemTreeHandlingStatus.ToSave)).serializeItem();
 
                 service.updateItem(itemBean.getConcept(), itemBean.getIds(), changedField, xml, Locale.getLanguage(),
-                        new SessionAwareAsyncCallback<String>() {
+                        new SessionAwareAsyncCallback<ItemResult>() {
 
                             @Override
                             protected void doOnFailure(Throwable caught) {
@@ -489,7 +490,7 @@ public class ItemsListPanel extends ContentPanel {
                                 }
                             }
 
-                            public void onSuccess(String result) {
+                            public void onSuccess(ItemResult result) {
                                 Record record;
                                 Store<ItemBean> store = grid.getStore();
                                 if (store != null) {
@@ -502,7 +503,7 @@ public class ItemsListPanel extends ContentPanel {
                                     record.commit(false);
                                 }
                                 MessageBox.alert(MessagesFactory.getMessages().info_title(),
-                                        MultilanguageMessageParser.pickOutISOMessage(result), null);
+                                        MultilanguageMessageParser.pickOutISOMessage(result.getDescription()), null);
                                 // refreshForm(itemBean)
                                 if (itemBean != null) {
                                     if (gridUpdateLock) {

@@ -75,6 +75,7 @@ import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.RecordsPagingConfig;
 import org.talend.mdm.webapp.browserecords.client.model.Restriction;
 import org.talend.mdm.webapp.browserecords.client.model.SearchTemplate;
+import org.talend.mdm.webapp.browserecords.client.model.UpdateItemModel;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ItemHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.RoleHelper;
@@ -1743,7 +1744,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return saveItem(concept, ids, xml, isCreate, language);
     }
 
-    public String updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, String language)
+    public ItemResult updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, String language)
             throws ServiceException {
         try {
             org.dom4j.Document doc;
@@ -1767,11 +1768,23 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 doc.selectSingleNode(xpath).setText(value);
             }
 
-            return saveItem(concept, ids, doc.asXML(), false, language).getDescription();
+            return saveItem(concept, ids, doc.asXML(), false, language);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
         }
+    }
+
+    public List<ItemResult> updateItems(List<UpdateItemModel> updateItems, String language) throws ServiceException {
+        List<ItemResult> resultes = new ArrayList<ItemResult>();
+        for (UpdateItemModel item : updateItems){
+            try {
+                resultes.add(updateItem(item.getConcept(), item.getIds(), item.getChangedNodes(), null, language));
+            } catch (Exception e) {
+                LOG.error(e.getMessage(), e);
+            }
+        }
+        return resultes;
     }
 
     public ColumnTreeLayoutModel getColumnTreeLayout(String concept) throws ServiceException {

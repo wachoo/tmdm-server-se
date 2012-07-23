@@ -28,6 +28,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.Restriction;
+import org.talend.mdm.webapp.browserecords.client.model.UpdateItemModel;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
@@ -116,7 +117,10 @@ public interface BrowseRecordsServiceAsync {
 
     void isItemModifiedByOthers(ItemBean itemBean, AsyncCallback<Boolean> callback);
 
-    void updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, String language, AsyncCallback<String> callback);
+    void updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, String language,
+            AsyncCallback<ItemResult> callback);
+
+    void updateItems(List<UpdateItemModel> updateItems, String language, AsyncCallback<List<ItemResult>> callback);
 
     void formatValue(FormatModel model, AsyncCallback<String> callback);
 
