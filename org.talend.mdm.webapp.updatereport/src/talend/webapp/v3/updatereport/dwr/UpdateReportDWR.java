@@ -63,7 +63,7 @@ public class UpdateReportDWR {
         ListRange listRange = new ListRange();
 
         if (limit == 0) {
-            limit = 20;
+            limit = Integer.MAX_VALUE;
         }
         WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(XSystemObjects.DC_UPDATE_PREPORT.getName());
         String conceptName = "Update";// Hard Code //$NON-NLS-1$         
