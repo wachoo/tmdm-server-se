@@ -9,7 +9,4 @@
  <source path='client' />
  <source path='model' />
 
- <stylesheet src="../General.css" />
- <stylesheet src="../General-menus.css" />
-
 </module>

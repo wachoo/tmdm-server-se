@@ -1,3 +1,12 @@
+#MDMGeneral .promptMsg, #MDMGeneral .gwt-HTML{
+    line-height :  normal;
+    font-family : tahoma, verdana, helvetica;
+    font-size : 12px;
+    font-style : normal;
+    font-variant : normal;
+    font-weight : normal;
+    font-stretch : normal;
+}
 .logout-btn{
 	width:auto;
 	position: absolute;
