@@ -54,13 +54,15 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
     @Override
     public List<Action> visit(ComplexTypeMetadata complexType) {
         Accessor accessor = newDocument.createAccessor(pivot);
-        for (int i = 1; i <= accessor.size(); i++) {
-            String path = pivot + '[' + i + ']';
-            Accessor keyAccessor = newDocument.createAccessor(path + '/' + key);
-            if (!keyAccessor.exist()) {
-                throw new IllegalStateException("Path '" + path + '/' + key + "' does not exist in user document.");
+        if (!key.isEmpty()) {
+            for (int i = 1; i <= accessor.size(); i++) {
+                String path = pivot + '[' + i + ']';
+                Accessor keyAccessor = newDocument.createAccessor(path + '/' + key);
+                if (!keyAccessor.exist()) {
+                    throw new IllegalStateException("Path '" + path + '/' + key + "' does not exist in user document.");
+                }
+                keyValueToPath.put(keyAccessor.get(), path);
             }
-            keyValueToPath.put(keyAccessor.get(), path);
         }
         return super.visit(complexType);
     }

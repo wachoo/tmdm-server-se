@@ -41,12 +41,12 @@ public class PartialUpdateSaverContext implements DocumentSaverContext {
 
     public static DocumentSaverContext decorate(DocumentSaverContext context, String pivot, String key, boolean overwrite) {
         if (pivot == null) {
-            throw new IllegalArgumentException("Pivot argument can not be null.");
+            pivot = StringUtils.EMPTY;
         }
         if (key == null) {
-            throw new IllegalArgumentException("Key argument can not be null.");
+            key = StringUtils.EMPTY;
         }
-        if (pivot.length() > 1) {
+        if (pivot.length() > 1 && key.length() > 1) {
             return new PartialUpdateSaverContext(context, pivot, key, overwrite, UserAction.PARTIAL_UPDATE);
         } else {
             return new PartialUpdateSaverContext(context, pivot, key, overwrite, UserAction.UPDATE);

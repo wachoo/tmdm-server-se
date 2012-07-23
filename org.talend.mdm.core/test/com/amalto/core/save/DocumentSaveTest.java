@@ -10,29 +10,6 @@
 
 package com.amalto.core.save;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
-import javax.xml.XMLConstants;
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
-import junit.framework.TestCase;
-
-import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.metadata.MetadataRepository;
@@ -44,6 +21,21 @@ import com.amalto.core.schema.validation.XmlSchemaValidator;
 import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
+import junit.framework.TestCase;
+import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import javax.xml.XMLConstants;
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.*;
 
 @SuppressWarnings("nls")
 public class DocumentSaveTest extends TestCase {
@@ -291,7 +283,7 @@ public class DocumentSaveTest extends TestCase {
                 "        <MoreInfo>http://www.mynewsite.fr</MoreInfo>\n" +
                 "    </Information>\n" +
                 "</Agency>\n").getBytes("UTF-8"));
-        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "DStar", "Source", partialUpdateContent, true, true, "/", "/", false);
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "DStar", "Source", partialUpdateContent, true, true, "/Agency/Information/MoreInfo", "", false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         MockCommitter committer = new MockCommitter();
@@ -299,9 +291,7 @@ public class DocumentSaveTest extends TestCase {
 
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
-        assertEquals("http://www.site.fr", evaluate(committedElement, "/Agency/Information/MoreInfo[1]"));
-        assertEquals("http://www.mynewsite.fr", evaluate(committedElement, "/Agency/Information/MoreInfo[2]"));
-        assertEquals("", evaluate(committedElement, "/Agency/Information/MoreInfo[3]"));
+        assertEquals("http://www.mynewsite.fr", evaluate(committedElement, "/Agency/Information/MoreInfo[1]"));
     }
 
     public void testPartialUpdateWithOverwrite() throws Exception {
@@ -756,6 +746,58 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("", evaluate(committedElement, "/Product/Features/Colors/Color[3]"));
     }
 
+    public void testProductPartialUpdate() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test11_original.xml", "metadata1.xsd");
+        source.setUserName("admin");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream partialUpdateContent = new ByteArrayInputStream(("<Product>\n" +
+                "    <Id>1</Id>\n" +
+                "    <Features>\n" +
+                "        <Colors>" +
+                "           <Color>Light Pink</Color>\n" +
+                "        </Colors>\n" +
+                "    </Features>\n" +
+                "</Product>\n").getBytes("UTF-8"));
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "DStar", "Source", partialUpdateContent, true, true, "/Product/Features/Colors/Color", "", false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        assertEquals("Light Pink", evaluate(committer.getCommittedElement(), "/Product/Features/Colors/Color[4]"));
+    }
+
+    public void testProductPartialUpdate2() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test26_original.xml", "metadata1.xsd");
+        source.setUserName("admin");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream partialUpdateContent = new ByteArrayInputStream(("<Product>\n" +
+                "    <Id>1</Id>\n" +
+                "    <Features>\n" +
+                "        <Colors>" +
+                "           <Color>Light Pink</Color>\n" +
+                "        </Colors>\n" +
+                "    </Features>\n" +
+                "</Product>\n").getBytes("UTF-8"));
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "DStar", "Source", partialUpdateContent, true, true, "/Product/Features/Colors/Color", "", false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        assertEquals("Light Pink", evaluate(committer.getCommittedElement(), "/Product/Features/Colors/Color[1]"));
+    }
+
     public void testInheritance() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata2.xsd"));
@@ -1117,7 +1159,7 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("Katowice1", evaluate(committedElement, "/Organisation/Contacts/Contact[2]/SpecialisationContactType/AdressePostale/Ville"));
         assertEquals("Slaskie1", evaluate(committedElement, "/Organisation/Contacts/Contact[2]/SpecialisationContactType/AdressePostale/Region"));
     }
-    
+
     public void test29() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         // there's a small change in this model that differs from QA: ThirdEntity is a xsd:sequence (not a xsd:all)
