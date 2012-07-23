@@ -158,12 +158,11 @@ class ChangeTypeAction implements Action {
         public Set<String> visit(ContainedTypeFieldMetadata containedField) {
             pathPrefix.push(containedField.getName());
             {
-                try {
-                    type.getField(containedField.getName());
+                if (type.hasField(containedField.getName())) {
                     type = containedField.getContainedType();
                     super.visit(containedField);
                     type = containedField.getContainingType();
-                } catch (Exception e) {
+                } else {
                     paths.add(containedField.getName());
                 }
             }
