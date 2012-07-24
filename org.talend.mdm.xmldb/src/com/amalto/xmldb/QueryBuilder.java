@@ -12,6 +12,26 @@
 // ============================================================================
 package com.amalto.xmldb;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.CommonUtil;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+
 import com.amalto.commons.core.utils.XPathUtils;
 import com.amalto.commons.core.utils.xpath.ri.Compiler;
 import com.amalto.commons.core.utils.xpath.ri.compiler.Expression;
@@ -20,19 +40,12 @@ import com.amalto.commons.core.utils.xpath.ri.compiler.Path;
 import com.amalto.commons.core.utils.xpath.ri.compiler.Step;
 import com.amalto.xmldb.util.PartialXQLPackage;
 import com.amalto.xmldb.util.QueryBuilderContext;
-import com.amalto.xmlserver.interfaces.*;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.core.CommonUtil;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.amalto.xmlserver.interfaces.CustomWhereCondition;
+import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.ItemPKCriteria;
+import com.amalto.xmlserver.interfaces.WhereCondition;
+import com.amalto.xmlserver.interfaces.WhereLogicOperator;
+import com.amalto.xmlserver.interfaces.XmlServerException;
 
 /**
  * An XML DB Implementation of the wrapper that works with eXist Open
@@ -389,6 +402,19 @@ public abstract class QueryBuilder {
             if (wc.getRightValueOrPath() != null && wc.isRightValueXPath()) { //$NON-NLS-1$
                 encoded = XPathUtils.factor(wc.getRightValueOrPath(), pivots).toString();
                 isXpathFunction = true;
+            }
+
+            // For the case isNumber and use the format like "78D"...
+            if (wc.getRightValueOrPath() != null && !isXpathFunction && isNum) {
+                String rightValue=wc.getRightValueOrPath().trim();
+                if (rightValue.endsWith("d") || rightValue.endsWith("D") || rightValue.endsWith("f") || rightValue.endsWith("F")) {//$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    try {
+                        double parsedNumber = Double.parseDouble(wc.getRightValueOrPath().trim());
+                        encoded = String.valueOf(parsedNumber);
+                    } catch (Exception e) {
+                        // Ignored. Just for safe, I do not believe this will happen
+                    }
+                }
             }
 
             StringBuilder where = new StringBuilder();
