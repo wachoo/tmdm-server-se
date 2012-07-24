@@ -44,8 +44,9 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.ErrorEvent;
+import com.google.gwt.event.dom.client.ErrorHandler;
 import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.json.client.JSONBoolean;
@@ -61,9 +62,7 @@ public class PictureField extends TextField<String> {
 
     private static final int DEFAULT_IMAGE_SCALE_SIZE = 150;
 
-    private static final String CONTEXT_PATH = GWT.getModuleBaseURL().replaceFirst(GWT.getModuleName() + "/", ""); //$NON-NLS-1$ //$NON-NLS-2$
-    
-    private static final String DefaultImage = CONTEXT_PATH + "resources/images/talend/no_image.png"; //$NON-NLS-1$
+    private static final String DefaultImage = "/core/secure/gxt/resources/images/talend/no_image.png"; //$NON-NLS-1$
 
     protected El wrap = new El(DOM.createSpan());
 
@@ -151,7 +150,13 @@ public class PictureField extends TextField<String> {
                 return PictureField.this.value;
             }
         };
-        
+
+        image.addErrorHandler(new ErrorHandler() {
+
+            public void onError(ErrorEvent event) {
+                image.setUrl(DefaultImage);
+            }
+        });
 
         image.addLoadHandler(new LoadHandler(){
             public void onLoad(LoadEvent event){
