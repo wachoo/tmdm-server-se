@@ -87,8 +87,10 @@ public class TypeFieldCreator implements IsSerializable {
         DataType dataType = context.getDataType().getType();
         String baseType = context.getDataType().getType().getBaseTypeName();
 
-        if (dataType.equals(DataTypeConstants.PICTURE)
-            || dataType.equals(DataTypeConstants.URL)) {
+        if (dataType.equals(DataTypeConstants.UUID) 
+              || dataType.equals(DataTypeConstants.AUTO_INCREMENT)
+              || dataType.equals(DataTypeConstants.PICTURE)
+              || dataType.equals(DataTypeConstants.URL)) {
 
             fieldFactory = new CustomTypeFieldFactory(source, context);
 
@@ -107,9 +109,7 @@ public class TypeFieldCreator implements IsSerializable {
                || DataTypeConstants.ENTITIES.getTypeName().equals(baseType)
                || DataTypeConstants.ANYURI.getTypeName().equals(baseType)
                || DataTypeConstants.QNAME.getTypeName().equals(baseType)
-               || DataTypeConstants.NOTATION.getTypeName().equals(baseType)
-               || dataType.equals(DataTypeConstants.AUTO_INCREMENT)
-               || dataType.equals(DataTypeConstants.UUID)){
+               || DataTypeConstants.NOTATION.getTypeName().equals(baseType)) {
 
             fieldFactory = new TextTypeFieldFactory(source, context);
         
