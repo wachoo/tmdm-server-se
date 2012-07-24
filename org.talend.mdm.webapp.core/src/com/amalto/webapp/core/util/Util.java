@@ -101,10 +101,15 @@ import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSGetBusinessConceptKey;
 import com.amalto.webapp.util.webservices.WSGetItem;
 import com.amalto.webapp.util.webservices.WSGetItemsByCustomFKFilters;
+import com.amalto.webapp.util.webservices.WSGetRole;
 import com.amalto.webapp.util.webservices.WSGetUniverse;
 import com.amalto.webapp.util.webservices.WSItem;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSPutItem;
+import com.amalto.webapp.util.webservices.WSRole;
+import com.amalto.webapp.util.webservices.WSRolePK;
+import com.amalto.webapp.util.webservices.WSRoleSpecification;
+import com.amalto.webapp.util.webservices.WSRoleSpecificationInstance;
 import com.amalto.webapp.util.webservices.WSRouteItemV2;
 import com.amalto.webapp.util.webservices.WSStringArray;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
@@ -1990,5 +1995,24 @@ public class Util {
             if (roleSet.contains(role))
                 return false;
         return true;
+    }
+    
+    public static Set<String> getAuthViewListByRole(List<String> rolePKList) throws Exception {
+        Set<String> set = new HashSet<String>();
+        for(String rolePK : rolePKList) {
+            WSRole wsRole = Util.getPort().getRole(new WSGetRole(new WSRolePK(rolePK)));
+            WSRoleSpecification[] specifications = wsRole.getSpecification();
+            if (specifications != null) {
+                for(WSRoleSpecification spec : specifications) {
+                    if(spec.getObjectType().equals("View")) { //$NON-NLS-1$
+                        WSRoleSpecificationInstance[] instance = spec.getInstance();
+                        for(WSRoleSpecificationInstance ins : instance) {
+                            set.add(ins.getInstanceName());
+                        }
+                    }
+                }
+            }
+        }     
+        return set;
     }
 }
