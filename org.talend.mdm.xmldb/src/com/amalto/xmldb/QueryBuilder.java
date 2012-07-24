@@ -408,12 +408,7 @@ public abstract class QueryBuilder {
             if (wc.getRightValueOrPath() != null && !isXpathFunction && isNum) {
                 String rightValue=wc.getRightValueOrPath().trim();
                 if (rightValue.endsWith("d") || rightValue.endsWith("D") || rightValue.endsWith("f") || rightValue.endsWith("F")) {//$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-                    try {
-                        double parsedNumber = Double.parseDouble(wc.getRightValueOrPath().trim());
-                        encoded = String.valueOf(parsedNumber);
-                    } catch (Exception e) {
-                        // Ignored. Just for safe, I do not believe this will happen
-                    }
+                    encoded = rightValue.substring(0, rightValue.length() - 1);// substring more safe than double.parse
                 }
             }
 
