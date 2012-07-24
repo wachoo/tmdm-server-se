@@ -117,7 +117,7 @@ public class QueryBuilderTest extends TestCase {
         whereItem.add(new WhereCondition("Product/Price", WhereCondition.LOWER_THAN, "80d", WhereCondition.PRE_NONE, false));
         types = Arrays.asList("xsd:decimal");
         metaDataTypes.put("Product/Price", new ArrayList<String>(types));
-        expected = "( matches($pivot0/../*, \"MyString.*\" ,\"i\") ) and ($pivot0/Price < 80.0)";
+        expected = "( matches($pivot0/../*, \"MyString.*\" ,\"i\") ) and ($pivot0/Price < 80)";
 
         queryBuilder.setUseNumberFunction(false);
         actual = queryBuilder.buildWhere(pivots, whereItem, metaDataTypes);
