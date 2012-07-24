@@ -12,7 +12,13 @@
 // ============================================================================
 package com.amalto.xmldb;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -46,7 +52,7 @@ public class QueryBuilderTest extends TestCase {
         String expected = "let $element := $pivot0/CriteriaName return if (not(empty($element))) then $element else <CriteriaName/>";
         String actual = queryBuilder.getXQueryReturn(viewableFullPaths, pivotsMap, totalCountOnfirstRow);
         assertEquals(expected, actual);
-        
+
         //
         viewableFullPaths.clear();
         viewableFullPaths.add("Country/label");
@@ -98,12 +104,22 @@ public class QueryBuilderTest extends TestCase {
 
         actual = queryBuilder.buildWhere(pivots, whereItem, metaDataTypes);
         assertEquals(expected, actual);
-        
+
         whereItem = new WhereAnd();
         whereItem.add(new WhereCondition("Product/../*", WhereCondition.CONTAINS, "MyString", WhereCondition.PRE_NONE, false));
         metaDataTypes.clear();
         expected = " matches($pivot0/../*, \"MyString.*\" ,\"i\") ";
 
+        actual = queryBuilder.buildWhere(pivots, whereItem, metaDataTypes);
+        assertEquals(expected, actual);
+
+        // case for double number
+        whereItem.add(new WhereCondition("Product/Price", WhereCondition.LOWER_THAN, "80d", WhereCondition.PRE_NONE, false));
+        types = Arrays.asList("xsd:decimal");
+        metaDataTypes.put("Product/Price", new ArrayList<String>(types));
+        expected = "( matches($pivot0/../*, \"MyString.*\" ,\"i\") ) and ($pivot0/Price < 80.0)";
+
+        queryBuilder.setUseNumberFunction(false);
         actual = queryBuilder.buildWhere(pivots, whereItem, metaDataTypes);
         assertEquals(expected, actual);
     }
@@ -120,7 +136,8 @@ public class QueryBuilderTest extends TestCase {
         String expected = "let $_page_ :=\n";
         expected += "for $pivot0 in subsequence($_leres0_,1,10) return <result>{<Id>{string($pivot0/Id)}</Id>}</result>\n";
         expected += "return (<totalCount>{count($_leres0_)}</totalCount>, $_page_)";
-        String actual = queryBuilder.getPagingString(withTotalCountOnFirstRow, partialXQLPackage, start, limit, rawQuery, Collections.<String>emptyList());
+        String actual = queryBuilder.getPagingString(withTotalCountOnFirstRow, partialXQLPackage, start, limit, rawQuery,
+                Collections.<String> emptyList());
         assertEquals(expected, actual);
     }
 
@@ -163,7 +180,7 @@ public class QueryBuilderTest extends TestCase {
                 forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start, limit, withTotalCountOnFirstRow,
                 metaDataTypes);
         assertEquals(expected, actual);
-        
+
         //
         isItemQuery = true;
         objectRootElementNamesToRevisionID.clear();
@@ -235,8 +252,8 @@ public class QueryBuilderTest extends TestCase {
                 forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start, limit, withTotalCountOnFirstRow,
                 metaDataTypes);
         assertEquals(expected, actual);
-        
-        //Using composite FK
+
+        // Using composite FK
         objectRootElementNamesToRevisionID.clear();
         objectRootElementNamesToClusterName.clear();
         objectRootElementNamesToClusterName.put(".*", "DStar");
@@ -246,15 +263,17 @@ public class QueryBuilderTest extends TestCase {
         viewableFullPaths.add("Agent/AgencyFK");
         viewableFullPaths.add("Agency/Name");
         whereItem = new WhereAnd();
-        ((WhereAnd)whereItem).add(new WhereCondition("Agent/AgencyFK", WhereCondition.JOINS, "Agency/Id1", WhereCondition.PRE_NONE, false));
-        ((WhereAnd)whereItem).add(new WhereCondition("Agent/AgencyFK", WhereCondition.JOINS, "Agency/Id2", WhereCondition.PRE_NONE, false));
+        ((WhereAnd) whereItem).add(new WhereCondition("Agent/AgencyFK", WhereCondition.JOINS, "Agency/Id1",
+                WhereCondition.PRE_NONE, false));
+        ((WhereAnd) whereItem).add(new WhereCondition("Agent/AgencyFK", WhereCondition.JOINS, "Agency/Id2",
+                WhereCondition.PRE_NONE, false));
         orderBy = null;
         direction = null;
         start = 0;
         limit = 10;
         withTotalCountOnFirstRow = true;
         metaDataTypes = null;
-        
+
         expected = "let $_leres0_ := collection(\"/DStar\")//p/Agent \n";
         expected += "let $_leres1_ := collection(\"/DStar\")//p/Agency \n";
         expected += "let $_page_ :=\n";
@@ -292,8 +311,8 @@ public class QueryBuilderTest extends TestCase {
         expected += "return (<totalCount>{count($allres)}</totalCount>, $res)";
         String actual = queryBuilder.buildPKsByCriteriaQuery(criteria);
         assertEquals(expected, actual);
- 
-        //compound keywords
+
+        // compound keywords
         criteria.setRevisionId(null);
         criteria.setClusterName("DStar");
         criteria.setConceptName("Agent");
@@ -312,8 +331,8 @@ public class QueryBuilderTest extends TestCase {
         expected += "return (<totalCount>{count($allres)}</totalCount>, $res)";
         actual = queryBuilder.buildPKsByCriteriaQuery(criteria);
         assertEquals(expected, actual);
-        
-        //compound keywords on composite FK
+
+        // compound keywords on composite FK
         criteria = new ItemPKCriteria();
         criteria.setRevisionId(null);
         criteria.setClusterName("DStar");
@@ -357,6 +376,7 @@ public class QueryBuilderTest extends TestCase {
     }
 
     private static class TestQueryBuilder extends QueryBuilder {
+
         private boolean useNumberFunction = false;
 
         @Override
