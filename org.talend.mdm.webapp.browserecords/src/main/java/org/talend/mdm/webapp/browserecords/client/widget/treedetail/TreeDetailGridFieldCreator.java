@@ -183,6 +183,10 @@ public class TreeDetailGridFieldCreator {
             } else if (node.isKey() && hasValue) {
                 field.setEnabled(false);
                 field.setReadOnly(true);
+            } else {
+                boolean readOnly = dataType.isReadOnly();
+                field.setReadOnly(readOnly);
+                field.setEnabled(!readOnly);
             }
         }
 
@@ -332,8 +336,10 @@ public class TreeDetailGridFieldCreator {
     private static void buildFacets(TypeModel typeModel, Widget w) {
         if (typeModel instanceof SimpleTypeModel) {
             List<FacetModel> facets = ((SimpleTypeModel) typeModel).getFacets();
-            for (FacetModel facet : facets) {
-                FacetEnum.setFacetValue(facet.getName(), w, facet.getValue());
+            if (facets != null) {
+                for (FacetModel facet : facets) {
+                    FacetEnum.setFacetValue(facet.getName(), w, facet.getValue());
+                }
             }
         }
     }
