@@ -439,9 +439,9 @@ public class ForeignKeyIntegrityTest extends TestCase {
 
     /**
      * SocieteCliente -ref(1)-> Contrat
-     * 
+     * <p/>
      * The reference field "contrat" is defined under a contained complex type "contrats"
-     * 
+     *
      * @throws Exception
      */
     public void testModel17() throws Exception {
@@ -457,7 +457,7 @@ public class ForeignKeyIntegrityTest extends TestCase {
 
         String dataCluster = "DataCluster";
         String typeName = "Contrat";
-        String[] ids = { "1" };
+        String[] ids = {"1"};
 
         FKIntegrityChecker integrityChecker = FKIntegrityChecker.getInstance();
         IntegrityCheckDataSourceMock dataSource = new IntegrityCheckDataSourceMock(repository);
@@ -466,6 +466,33 @@ public class ForeignKeyIntegrityTest extends TestCase {
         assertEquals(FKIntegrityCheckResult.FORBIDDEN, policy);
     }
 
+    /**
+     * A -ref(1)-> A
+     *
+     * @throws Exception
+     */
+    public void test18() throws Exception {
+        MetadataRepository repository = getMetadataRepository("model18.xsd");
+
+        ComplexTypeMetadata typeA = repository.getComplexType("A");
+        FieldMetadata field = typeA.getField("refA");
+        assertEquals(ReferenceFieldMetadata.class, field.getClass());
+        ReferenceFieldMetadata referenceFieldMetadata = (ReferenceFieldMetadata) field;
+        assertTrue(referenceFieldMetadata.isFKIntegrity());
+        assertFalse(referenceFieldMetadata.allowFKIntegrityOverride());
+
+        Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "A");
+        assertEquals(1, references.size());
+
+        IntegrityCheckDataSourceMock dataSource = new IntegrityCheckDataSourceMock(repository);
+        FKIntegrityChecker integrityChecker = FKIntegrityChecker.getInstance();
+        String dataCluster = "DataCluster";
+        String typeName = "A";
+        String[] ids = {"1"};
+        assertFalse(integrityChecker.allowDelete(dataCluster, typeName, ids, false, dataSource));
+        FKIntegrityCheckResult policy = integrityChecker.getFKIntegrityPolicy(dataCluster, typeName, ids, dataSource);
+        assertEquals(FKIntegrityCheckResult.FORBIDDEN, policy);
+    }
 
     public void testEmptyTypeName() throws Exception {
 
@@ -475,7 +502,7 @@ public class ForeignKeyIntegrityTest extends TestCase {
         ReferenceFieldMetadata referencedField = references.iterator().next();
 
         String dataCluster = "DataCluster";
-        String[] ids = { "1" };
+        String[] ids = {"1"};
         FKIntegrityCheckDataSource dataSource = new DefaultCheckDataSource();
 
         // Check the anonymous type and leave the type name empty
