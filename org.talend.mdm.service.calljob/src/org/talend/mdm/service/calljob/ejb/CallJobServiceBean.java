@@ -25,16 +25,6 @@ import javax.ejb.SessionBean;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.ejb.ServiceCtrlBean;
-import com.amalto.core.ejb.local.ItemCtrl2Local;
-import com.amalto.core.jobox.JobContainer;
-import com.amalto.core.jobox.JobInvokeConfig;
-import com.amalto.core.jobox.component.MDMJobInvoker;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.util.Util;
-import com.amalto.core.util.XtentisException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
@@ -45,6 +35,17 @@ import org.talend.mdm.service.calljob.webservices.Args;
 import org.talend.mdm.service.calljob.webservices.WSxml;
 import org.talend.mdm.service.calljob.webservices.WSxmlService;
 import org.w3c.dom.Element;
+
+import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.ejb.ServiceCtrlBean;
+import com.amalto.core.ejb.local.ItemCtrl2Local;
+import com.amalto.core.jobox.JobContainer;
+import com.amalto.core.jobox.JobInvokeConfig;
+import com.amalto.core.jobox.component.MDMJobInvoker;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.util.Util;
+import com.amalto.core.util.XtentisException;
 
 /**
  * @author achen
@@ -316,16 +317,20 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
             ItemCtrl2Local itemCtrl2Local = Util.getItemCtrl2Local();
             ItemPOJO pojo = itemCtrl2Local.getItem(itemPK);
             String updateReportXml = pojo.getProjectionAsString();
+            
             Element root = Util.parse(updateReportXml).getDocumentElement();
-            String concept = Util.getFirstTextNode(root, "Concept");
-            String key = Util.getFirstTextNode(root, "Key");
-            String[] ids = key.split("\\.");
-            String clusterPK = Util.getFirstTextNode(root, "DataCluster");
+            String concept = Util.getFirstTextNode(root, "Concept");//$NON-NLS-1$ 
+            String key = Util.getFirstTextNode(root, "Key");//$NON-NLS-1$ 
+            String[] ids = key.split("\\.");//$NON-NLS-1$ 
+            String clusterPK = Util.getFirstTextNode(root, "DataCluster");//$NON-NLS-1$ 
             ItemPOJOPK itemPk = new ItemPOJOPK(new DataClusterPOJOPK(clusterPK), concept, ids);
+            
+            String itemXml = "";//$NON-NLS-1$ 
+            if (itemCtrl2Local.existsItem(itemPk) != null) {
+                ItemPOJO itempojo = itemCtrl2Local.getItem(itemPk);
+                itemXml = itempojo.getProjectionAsString();
+            }
 
-            ItemPOJO itempojo = itemCtrl2Local.getItem(itemPk);
-
-            String itemXml = itempojo.getProjectionAsString();
             value = Util.mergeExchangeData(itemXml, updateReportXml);
         } catch (Exception e) {
             throw new XtentisException(e);
