@@ -405,10 +405,21 @@ public abstract class QueryBuilder {
             }
 
             // For the case isNumber and use the format like "78D"...
-            if (wc.getRightValueOrPath() != null && !isXpathFunction && isNum) {
+            if (wc.getRightValueOrPath() != null && wc.getRightValueOrPath().trim().length()>0 && !isXpathFunction && isNum) {
                 String rightValue=wc.getRightValueOrPath().trim();
-                if (rightValue.endsWith("d") || rightValue.endsWith("D") || rightValue.endsWith("f") || rightValue.endsWith("F")) {//$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-                    encoded = rightValue.substring(0, rightValue.length() - 1);// substring more safe than double.parse
+                try {
+                    String parsedValue;
+                    double doubleValue = Double.parseDouble(rightValue);
+                    // if the value is 123.0, cut the float value to 123
+                    if(doubleValue - Math.floor(doubleValue) == 0){
+                        parsedValue=String.valueOf((int)doubleValue);
+                    }else{
+                        parsedValue=String.valueOf(doubleValue);
+                    }
+                    encoded = parsedValue;
+                } catch (Exception e) {
+                    // Ignored. If isNum condition matches, I do not think this will happen
+                    // Just for safe
                 }
             }
 
