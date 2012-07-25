@@ -160,8 +160,14 @@ public class ItemTreeHandlerGWTTest extends GWTTestCase {
 
         ItemNodeModel nodeModel = CommonUtilTestData.getItemNodeModel(ClientResourceData.getRecordContract1(), entity);
         ItemTreeHandler itemHandler = new ItemTreeHandler(nodeModel, viewBean, ItemTreeHandlingStatus.ToSave);
+
         String expectedXml = "<Contract xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>001</id><description>VIP Customer</description><partyNotes><firstPartyNote>First party agree</firstPartyNote></partyNotes></Contract>";
         String actualXml = itemHandler.serializeItem();
+        assertEquals(expectedXml, actualXml);
+
+        itemHandler.setReadOnlyForSimpleTypeOnly(false);
+        expectedXml = "<Contract xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>001</id><description>VIP Customer</description></Contract>";
+        actualXml = itemHandler.serializeItem();
         assertEquals(expectedXml, actualXml);
 
         // keep silence
