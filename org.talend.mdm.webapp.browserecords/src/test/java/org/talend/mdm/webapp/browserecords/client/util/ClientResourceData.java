@@ -41,6 +41,24 @@ public class ClientResourceData {
         return record.toString();
     }
 
+    public static String getRecordProduct3() {
+        StringBuffer record = new StringBuffer();
+        record.append("<Product>");
+        record.append("<Id>1</Id>");
+        record.append("<Name>Test product 1</Name>");
+        record.append("<Price>10</Price>");
+        record.append("<Features> ");
+        record.append("<Sizes> ");
+        record.append("<Size>Large</Size> ");
+        record.append("</Sizes> ");
+        record.append("</Features> ");
+        record.append("<OnlineStore>@@http://</OnlineStore>");
+        record.append("<Availability>false</Availability>");
+        record.append("<Picture>http://www.talendforge.org/img/style/talendforge.jpg</Picture>");
+        record.append("</Product>");
+        return record.toString();
+    }
+
     public static String getModelProduct() {
         StringBuffer model = new StringBuffer();
         model.append("<models concept=\"Product\">");
@@ -48,7 +66,7 @@ public class ClientResourceData {
         model.append("  <model isSimple=\"true\" isKey=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Product/Id\"/>");
         model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Product/Name\"/>");
         model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"false\"  minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Product/Description\"/>");
-        model.append("  <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Features\"/>");
+        model.append("  <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"false\"  minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Features\"/>");
         model.append("     <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Features/Sizes\"/>");
         model.append("        <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"-1\" typePath=\"Product/Features/Sizes/Size\"/>");
         model.append("     <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Product/Features/Colors\"/>");
