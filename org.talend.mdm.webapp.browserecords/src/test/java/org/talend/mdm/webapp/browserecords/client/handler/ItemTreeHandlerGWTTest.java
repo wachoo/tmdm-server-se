@@ -94,7 +94,7 @@ public class ItemTreeHandlerGWTTest extends GWTTestCase {
         EntityModel entity = CommonUtilTestData.getEntityModel(ClientResourceData.getModelProduct());
         viewBean.setBindingEntityModel(entity);
 
-        ItemNodeModel nodeModel = CommonUtilTestData.getItemNodeModel(ClientResourceData.getRecordProduct1(), entity);
+        ItemNodeModel nodeModel = CommonUtilTestData.getItemNodeModel(ClientResourceData.getRecordProduct3(), entity);
 
         ItemTreeHandler itemHandler = new ItemTreeHandler(nodeModel, viewBean, ItemTreeHandlingStatus.BeforeLoad);
         String actualXml = itemHandler.serializeItem();
@@ -109,6 +109,11 @@ public class ItemTreeHandlerGWTTest extends GWTTestCase {
         itemHandler = new ItemTreeHandler(nodeModel, viewBean, ItemTreeHandlingStatus.ToSave);
         actualXml = itemHandler.serializeItem();
         assertTrue(!actualXml.contains("<Description>"));
+        assertTrue(actualXml.contains("<Size>Large</Size>"));
+
+        itemHandler.setSimpleTypeOnly(false);
+        actualXml = itemHandler.serializeItem();
+        assertTrue(!actualXml.contains("<Size>Large</Size>"));
 
     }
 
@@ -165,7 +170,7 @@ public class ItemTreeHandlerGWTTest extends GWTTestCase {
         String actualXml = itemHandler.serializeItem();
         assertEquals(expectedXml, actualXml);
 
-        itemHandler.setReadOnlyForSimpleTypeOnly(false);
+        itemHandler.setSimpleTypeOnly(false);
         expectedXml = "<Contract xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>001</id><description>VIP Customer</description></Contract>";
         actualXml = itemHandler.serializeItem();
         assertEquals(expectedXml, actualXml);
