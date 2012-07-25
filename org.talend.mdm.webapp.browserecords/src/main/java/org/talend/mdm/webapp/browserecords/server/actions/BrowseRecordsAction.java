@@ -1095,30 +1095,16 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
             }
             Map<String, String> viewMap = getMapSortedByValue(views);
+
+            Util.filterAuthViews(viewMap);
+
             List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
-            
-            if(!Webapp.INSTANCE.isEnterpriseVersion()) {
-                for (String key : viewMap.keySet()) {
-                    ItemBaseModel bm = new ItemBaseModel();
-                    bm.set("name", viewMap.get(key));//$NON-NLS-1$
-                    bm.set("value", key);//$NON-NLS-1$
-                    list.add(bm);
-                }
-            } else {
-                List<String> roleList = RoleHelper.getUserRoles();
-                roleList.remove("authenticated"); //$NON-NLS-1$
-                roleList.remove("administration"); //$NON-NLS-1$
-                Set<String> viewSet = Util.getAuthViewListByRole(roleList);
-                for (String key : viewMap.keySet()) {
-                    if(!viewSet.contains(".*") && !viewSet.contains(key)) //$NON-NLS-1$
-                        continue;
-                    ItemBaseModel bm = new ItemBaseModel();
-                    bm.set("name", viewMap.get(key));//$NON-NLS-1$
-                    bm.set("value", key);//$NON-NLS-1$
-                    list.add(bm);
-                }
+            for (String key : viewMap.keySet()) {
+                ItemBaseModel bm = new ItemBaseModel();
+                bm.set("name", viewMap.get(key));//$NON-NLS-1$
+                bm.set("value", key);//$NON-NLS-1$
+                list.add(bm);
             }
-            
             return list;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);

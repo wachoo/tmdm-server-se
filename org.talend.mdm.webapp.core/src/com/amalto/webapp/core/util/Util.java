@@ -41,6 +41,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -81,10 +82,12 @@ import org.xml.sax.InputSource;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
+import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.XtentisException;
 import com.amalto.webapp.core.bean.Configuration;
@@ -101,15 +104,10 @@ import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSGetBusinessConceptKey;
 import com.amalto.webapp.util.webservices.WSGetItem;
 import com.amalto.webapp.util.webservices.WSGetItemsByCustomFKFilters;
-import com.amalto.webapp.util.webservices.WSGetRole;
 import com.amalto.webapp.util.webservices.WSGetUniverse;
 import com.amalto.webapp.util.webservices.WSItem;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSPutItem;
-import com.amalto.webapp.util.webservices.WSRole;
-import com.amalto.webapp.util.webservices.WSRolePK;
-import com.amalto.webapp.util.webservices.WSRoleSpecification;
-import com.amalto.webapp.util.webservices.WSRoleSpecificationInstance;
 import com.amalto.webapp.util.webservices.WSRouteItemV2;
 import com.amalto.webapp.util.webservices.WSStringArray;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
@@ -1997,22 +1995,17 @@ public class Util {
         return true;
     }
     
-    public static Set<String> getAuthViewListByRole(List<String> rolePKList) throws Exception {
-        Set<String> set = new HashSet<String>();
-        for(String rolePK : rolePKList) {
-            WSRole wsRole = Util.getPort().getRole(new WSGetRole(new WSRolePK(rolePK)));
-            WSRoleSpecification[] specifications = wsRole.getSpecification();
-            if (specifications != null) {
-                for(WSRoleSpecification spec : specifications) {
-                    if(spec.getObjectType().equals("View")) { //$NON-NLS-1$
-                        WSRoleSpecificationInstance[] instance = spec.getInstance();
-                        for(WSRoleSpecificationInstance ins : instance) {
-                            set.add(ins.getInstanceName());
-                        }
-                    }
-                }
+    public static void filterAuthViews(Map<String, String> viewMap) throws Exception {
+        if(viewMap==null||viewMap.size()==0)
+            return;
+
+        if (Webapp.INSTANCE.isEnterpriseVersion()) {
+            for (String viewInstanceId : viewMap.keySet()) {
+                ILocalUser localUser = LocalUser.getLocalUser();
+                if (!localUser.userCanWrite(ViewPOJO.class, viewInstanceId)
+                        && !localUser.userCanRead(ViewPOJO.class, viewInstanceId))
+                    viewMap.remove(viewInstanceId);
             }
-        }     
-        return set;
+        }
     }
 }
