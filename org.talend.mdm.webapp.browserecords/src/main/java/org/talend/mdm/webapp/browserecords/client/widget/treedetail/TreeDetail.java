@@ -58,6 +58,7 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
@@ -516,8 +517,8 @@ public class TreeDetail extends ContentPanel {
             if (hp.getWidgetCount() > 1) {
                 Widget field = hp.getWidget(1);
                 int size = width - (offset + 19 * level);
-                if (field instanceof FormatTextField)
-                    ((FormatTextField) field).setWidth(size > 200 ? size : 200);
+                if (field instanceof TextField)
+                    ((TextField<?>) field).setWidth(size > 200 ? size : 200);
                 else if (field instanceof SimpleComboBox)
                     ((SimpleComboBox<?>) field).setWidth(size > 200 ? size : 200);
                 else if (field instanceof FormatNumberField)
