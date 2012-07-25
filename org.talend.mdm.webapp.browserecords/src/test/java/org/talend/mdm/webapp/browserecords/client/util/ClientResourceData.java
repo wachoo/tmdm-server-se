@@ -108,7 +108,7 @@ public class ClientResourceData {
         model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Contract/description\"/>");
         model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"true\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Contract/owner\"/>");
         model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"true\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"Contract/effectiveDate\"/>");
-        model.append("  <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Contract/partyNotes\"/>");
+        model.append("  <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"true\" isVisible=\"true\"  minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Contract/partyNotes\"/>");
         model.append("     <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Contract/partyNotes/firstPartyNote\"/>");
         model.append("     <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"true\" isVisible=\"true\" minOccurs=\"0\"  maxOccurs=\"1\" typePath=\"Contract/partyNotes/secondPartyNote\"/>");
         model.append("</models>");

@@ -45,6 +45,8 @@ public class ItemTreeHandler implements IsSerializable {
 
     private boolean keepSilenceForPermissionException = false;
 
+    private boolean readOnlyForSimpleTypeOnly = true;
+
     @Deprecated
     public ItemTreeHandler() {
 
@@ -82,6 +84,14 @@ public class ItemTreeHandler implements IsSerializable {
         if (BrowseRecords.getSession() != null && BrowseRecords.getSession().getAppHeader() != null)
             keepSilenceForPermissionException = BrowseRecords.getSession().getAppHeader()
                     .isKeepSilenceForPermissionExceptionWhenSave();
+    }
+
+    public boolean isReadOnlyForSimpleTypeOnly() {
+        return readOnlyForSimpleTypeOnly;
+    }
+
+    public void setReadOnlyForSimpleTypeOnly(boolean readOnlyForSimpleTypeOnly) {
+        this.readOnlyForSimpleTypeOnly = readOnlyForSimpleTypeOnly;
     }
 
     public EntityModel getEntityModel() {
@@ -153,7 +163,13 @@ public class ItemTreeHandler implements IsSerializable {
                         return null;
                     }
                     if (!isKeepSilenceForPermissionException() && currentTypeModel.isReadOnly()) {
-                        return null;
+                        if (readOnlyForSimpleTypeOnly) {
+                            if (currentTypeModel.isSimpleType()) {
+                                return null;
+                            }
+                        } else {
+                            return null;
+                        }
                     }
                 }
             }
