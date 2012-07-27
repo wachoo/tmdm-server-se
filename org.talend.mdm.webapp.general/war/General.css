@@ -142,3 +142,9 @@ div .sub-body{
 .ext-ie9 .x-edit-grid .x-grid-editor  .x-form-field-wrap  input.x-form-field{
 	margin-top: 3px;
 }
+/*compatible adjust extjs css*/
+.extpj .x-form-text {
+    height: 20px!important;
+    padding-top: 0px!important;
+    padding-bottom: 0px!important;
+}
