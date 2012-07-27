@@ -47,40 +47,53 @@ public class TaskSubmitter {
     }
 
     public void submit(Task task) {
+        SimpleTrigger trigger = new SimpleTrigger(task.getId(), "group");
+        submit(task, trigger);
+    }
+
+    public void submitAndWait(Task task) {
+        SimpleTrigger trigger = new SimpleTrigger(task.getId(), "group");
+        submit(task, trigger);
+        try {
+            task.waitForCompletion();
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Exception occurred during wait for task's end.", e);
+        }
+    }
+
+    public void submit(Task task, Trigger trigger) {
         JobDetail detail = new JobDetail(task.getId(), "group", Task.class); //$NON-NLS-1$
         try {
-            scheduler.scheduleJob(detail, new TaskTrigger(task));
+            scheduler.scheduleJob(detail, TaskTrigger.decorate(trigger, task));
         } catch (SchedulerException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void submitAndWait(Task task) {
+    public void submit(TaskExecutor executor) {
+        Task task = executor.getTask();
+        Trigger trigger = executor.getTrigger();
         JobDetail detail = new JobDetail(task.getId(), "group", Task.class); //$NON-NLS-1$
         try {
-            TaskTrigger taskTrigger = new TaskTrigger(task);
-            scheduler.scheduleJob(detail, taskTrigger);
-            taskTrigger.waitForCompletion();
-        } catch (Exception e) {
+            scheduler.scheduleJob(detail, TaskTrigger.decorate(trigger, task));
+        } catch (SchedulerException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static class TaskTrigger extends SimpleTrigger {
-
-        private final Task task;
-
-        public TaskTrigger(Task task) {
-            super(task.getId(), "group"); //$NON-NLS-1$
-            this.task = task;
+    public void submitAndWait(TaskExecutor executor) {
+        Task task = executor.getTask();
+        Trigger trigger = executor.getTrigger();
+        JobDetail detail = new JobDetail(task.getId(), "group", Task.class); //$NON-NLS-1$
+        try {
+            scheduler.scheduleJob(detail, TaskTrigger.decorate(trigger, task));
+        } catch (SchedulerException e) {
+            throw new RuntimeException(e);
         }
-
-        public Task getTask() {
-            return task;
-        }
-
-        public void waitForCompletion() throws InterruptedException {
+        try {
             task.waitForCompletion();
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Exception occurred during wait for task's end.", e);
         }
     }
 }

@@ -19,7 +19,7 @@ import com.amalto.core.storage.Storage;
  *
  */
 public interface StorageAdmin {
-    String STAGING_PREFIX = "#STAGING";
+    String STAGING_SUFFIX = "#STAGING";
 
     String[] getAll(String revisionID);
 

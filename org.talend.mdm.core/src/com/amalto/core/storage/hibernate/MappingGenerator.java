@@ -457,6 +457,12 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                     propertyElement.getAttributes().setNamedItem(notNull);
                 }
 
+                if ("base64Binary".equals(field.getType().getName())) { //$NON-NLS-1$
+                    Attr elementType = document.createAttribute("type"); //$NON-NLS-1$
+                    elementType.setValue("text"); //$NON-NLS-1$
+                    propertyElement.getAttributes().setNamedItem(elementType);
+                }
+
                 propertyElement.getAttributes().setNamedItem(propertyName);
                 propertyElement.getAttributes().setNamedItem(columnName);
                 return propertyElement;
@@ -498,7 +504,11 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 elementColumn.setValue("value"); //$NON-NLS-1$
                 element.getAttributes().setNamedItem(elementColumn);
                 Attr elementType = document.createAttribute("type"); //$NON-NLS-1$
-                elementType.setValue(getFieldType(field));
+                if ("base64Binary".equals(field.getType().getName())) {
+                    elementType.setValue("text"); //$NON-NLS-1$
+                } else {
+                    elementType.setValue(getFieldType(field));
+                }
                 element.getAttributes().setNamedItem(elementType);
 
                 // Not null

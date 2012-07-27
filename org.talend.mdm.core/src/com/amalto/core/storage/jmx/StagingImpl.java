@@ -65,11 +65,12 @@ public class StagingImpl implements Staging {
     public void createSubmitter() {
         try {
             Server server = ServerContext.INSTANCE.get();
-            MetadataRepository repository = server.getMetadataRepositoryAdmin().get(storageName);
-            Storage origin = server.getStorageAdmin().get(storageName + StorageAdmin.STAGING_PREFIX);
+            MetadataRepository userRepository = server.getMetadataRepositoryAdmin().get(storageName);
+            MetadataRepository stagingRepository = server.getMetadataRepositoryAdmin().get(storageName + StorageAdmin.STAGING_SUFFIX);
+            Storage origin = server.getStorageAdmin().get(storageName + StorageAdmin.STAGING_SUFFIX);
             Storage destination = server.getStorageAdmin().get(storageName);
 
-            Task task = new StagingTask(TaskSubmitter.getInstance(), origin, repository, source, committer, destination);
+            Task task = new StagingTask(TaskSubmitter.getInstance(), origin, stagingRepository, userRepository, source, committer, destination, "TODO");
 
             ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
             try {

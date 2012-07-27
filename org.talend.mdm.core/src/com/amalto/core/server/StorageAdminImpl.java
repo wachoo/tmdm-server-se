@@ -62,12 +62,9 @@ public class StorageAdminImpl implements StorageAdmin {
 
         try {
             Storage masterDataModelStorage = internalCreateStorage(dataModelName, storageName, dataSourceName, StorageType.MASTER);
+            Storage stagingDataModelStorage = internalCreateStorage(dataModelName, storageName, dataSourceName, StorageType.STAGING);
             storages.put(storageName, masterDataModelStorage);
-
-            // Creation of staging storage is disabled for now
-            // Storage stagingDataModelStorage = internalCreateStorage(dataModelName, storageName, dataSourceName, HibernateStorage.StorageType.STAGING);
-            // storages.put(storageName + STAGING_PREFIX, stagingDataModelStorage);
-
+            storages.put(storageName + STAGING_SUFFIX, stagingDataModelStorage);
             return masterDataModelStorage;
         } catch (Exception e) {
             throw new RuntimeException("Data cluster creation error for data model", e);

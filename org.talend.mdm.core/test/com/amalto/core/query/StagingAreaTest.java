@@ -10,23 +10,6 @@
 
 package com.amalto.core.query;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
-import static com.amalto.core.query.user.UserStagingQueryBuilder.*;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
-import junit.framework.TestCase;
-
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.core.ICoreConstants;
-
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.metadata.ComplexTypeMetadata;
@@ -38,24 +21,31 @@ import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.context.SaverSource;
 import com.amalto.core.server.MockServerLifecycle;
+import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.hibernate.HibernateStorage;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.DataRecordReader;
-import com.amalto.core.storage.record.DataRecordWriter;
-import com.amalto.core.storage.record.DataRecordXmlWriter;
-import com.amalto.core.storage.record.XmlDOMDataRecordReader;
-import com.amalto.core.storage.record.XmlStringDataRecordReader;
+import com.amalto.core.storage.record.*;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
-import com.amalto.core.storage.task.StagingConstants;
-import com.amalto.core.storage.task.StagingTask;
-import com.amalto.core.storage.task.Task;
-import com.amalto.core.storage.task.TaskSubmitter;
+import com.amalto.core.storage.task.*;
 import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.XtentisException;
+import junit.framework.TestCase;
+import org.apache.log4j.Logger;
+import org.quartz.SimpleTrigger;
+import org.quartz.Trigger;
+import org.talend.mdm.commmon.util.core.ICoreConstants;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+
+import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserStagingQueryBuilder.status;
 
 @SuppressWarnings("nls")
 public class StagingAreaTest extends TestCase {
@@ -71,6 +61,8 @@ public class StagingAreaTest extends TestCase {
     private ComplexTypeMetadata person;
 
     private MetadataRepository repository;
+
+    private MetadataRepository stagingRepository;
 
     private ComplexTypeMetadata address;
 
@@ -91,6 +83,10 @@ public class StagingAreaTest extends TestCase {
         repository = new MetadataRepository();
         repository.load(StorageQueryTest.class.getResourceAsStream("metadata.xsd"));
 
+        stagingRepository = new MetadataRepository();
+        stagingRepository.load(Server.class.getResourceAsStream("stagingInternalTypes.xsd"));
+        stagingRepository.load(StorageQueryTest.class.getResourceAsStream("metadata.xsd"));
+
         person = repository.getComplexType("Person");
         address = repository.getComplexType("Address");
         country = repository.getComplexType("Country");
@@ -99,7 +95,7 @@ public class StagingAreaTest extends TestCase {
         destination = new HibernateStorage("Destination", StorageType.MASTER);
 
         origin.init("H2-Staging-DS1");
-        origin.prepare(repository, true);
+        origin.prepare(stagingRepository, true);
         destination.init("H2-Master-DS2");
         destination.prepare(repository, true);
     }
@@ -174,7 +170,13 @@ public class StagingAreaTest extends TestCase {
 
         SaverSource source = new TestSaverSource(destination, repository, "metadata.xsd");
         SaverSession.Committer committer = new TestCommitter(destination);
-        Task stagingTask = new StagingTask(TaskSubmitter.getInstance(), origin, repository, source, committer, destination);
+        StagingConfiguration config = new StagingConfiguration(origin, stagingRepository, repository, source, committer, destination);
+        TaskExecutor stagingTask = TaskFactory.createStagingTask(config, new TaskFactory.ExecutionConfiguration() {
+            @Override
+            public Trigger createTrigger() {
+                return new SimpleTrigger(String.valueOf(System.currentTimeMillis()), "group");
+            }
+        });
         TaskSubmitter.getInstance().submitAndWait(stagingTask);
 
         assertEquals(0, destination.fetch(selectEmptyTaskId).getCount());
@@ -185,6 +187,14 @@ public class StagingAreaTest extends TestCase {
         assertEquals(COUNT,
                 origin.fetch(UserQueryBuilder.from(person).where(eq(status(), StagingConstants.SUCCESS_VALIDATE)).getSelect())
                         .getCount());
+
+        UserQueryBuilder qb = UserQueryBuilder.from(stagingRepository.getComplexType("TALEND_TASK_EXECUTION"));
+        StorageResults results = origin.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
     }
 
     public void testCancel() throws Exception {
@@ -199,7 +209,7 @@ public class StagingAreaTest extends TestCase {
 
         SaverSource source = new TestSaverSource(destination, repository, "metadata.xsd");
         SaverSession.Committer committer = new TestCommitter(destination);
-        Task stagingTask = new StagingTask(TaskSubmitter.getInstance(), origin, repository, source, committer, destination);
+        Task stagingTask = new StagingTask(TaskSubmitter.getInstance(), origin, stagingRepository, repository, source, committer, destination, UUID.randomUUID().toString());
         TaskSubmitter.getInstance().submit(stagingTask);
 
         Thread.sleep(200);
@@ -227,7 +237,7 @@ public class StagingAreaTest extends TestCase {
 
         SaverSource source = new TestSaverSource(destination, repository, "metadata.xsd");
         SaverSession.Committer committer = new TestCommitter(destination);
-        Task stagingTask = new StagingTask(TaskSubmitter.getInstance(), origin, repository, source, committer, destination);
+        Task stagingTask = new StagingTask(TaskSubmitter.getInstance(), origin, stagingRepository, repository, source, committer, destination, UUID.randomUUID().toString());
         TaskSubmitter.getInstance().submitAndWait(stagingTask);
 
         assertEquals(0, destination.fetch(selectEmptyTaskId).getCount());

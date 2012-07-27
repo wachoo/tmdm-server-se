@@ -30,9 +30,9 @@ public abstract class TypeMapping {
 
     final MappingRepository mappings;
 
-    private Map<FieldMetadata, FieldMetadata> userToDatabase = new HashMap<FieldMetadata, FieldMetadata>();
+    private Map<String, FieldMetadata> userToDatabase = new HashMap<String, FieldMetadata>();
 
-    private Map<FieldMetadata, FieldMetadata> databaseToUser = new HashMap<FieldMetadata, FieldMetadata>();
+    private Map<String, FieldMetadata> databaseToUser = new HashMap<String, FieldMetadata>();
 
     private boolean isFrozen;
 
@@ -52,8 +52,8 @@ public abstract class TypeMapping {
         if (isFrozen) {
             throw new IllegalStateException("Mapping is frozen.");
         }
-        userToDatabase.put(user, database);
-        databaseToUser.put(database, user);
+        userToDatabase.put(user.getName(), database);
+        databaseToUser.put(database.getName(), user);
     }
 
     public ComplexTypeMetadata getDatabase() {
@@ -65,11 +65,11 @@ public abstract class TypeMapping {
     }
 
     public FieldMetadata getDatabase(FieldMetadata from) {
-        return userToDatabase.get(from);
+        return userToDatabase.get(from.getName());
     }
 
     FieldMetadata getUser(FieldMetadata to) {
-        return databaseToUser.get(to);
+        return databaseToUser.get(to.getName());
     }
 
     public void freeze() {
@@ -87,14 +87,14 @@ public abstract class TypeMapping {
             }
 
             // Freeze field mappings.
-            Map<FieldMetadata, FieldMetadata> frozen = new HashMap<FieldMetadata, FieldMetadata>();
-            for (Map.Entry<FieldMetadata, FieldMetadata> entry : userToDatabase.entrySet()) {
-                frozen.put(entry.getKey().freeze(), entry.getValue().freeze());
+            Map<String, FieldMetadata> frozen = new HashMap<String, FieldMetadata>();
+            for (Map.Entry<String, FieldMetadata> entry : userToDatabase.entrySet()) {
+                frozen.put(entry.getKey(), entry.getValue().freeze());
             }
             userToDatabase = frozen;
-            frozen = new HashMap<FieldMetadata, FieldMetadata>();
-            for (Map.Entry<FieldMetadata, FieldMetadata> entry : databaseToUser.entrySet()) {
-                frozen.put(entry.getKey().freeze(), entry.getValue().freeze());
+            frozen = new HashMap<String, FieldMetadata>();
+            for (Map.Entry<String, FieldMetadata> entry : databaseToUser.entrySet()) {
+                frozen.put(entry.getKey(), entry.getValue().freeze());
             }
             databaseToUser = frozen;
 

@@ -107,7 +107,7 @@ class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
     }
 
     public MetadataRepository get(String metadataRepositoryId) {
-        if (metadataRepositoryId.endsWith(StorageAdmin.STAGING_PREFIX)) {
+        if (metadataRepositoryId.endsWith(StorageAdmin.STAGING_SUFFIX)) {
             metadataRepositoryId = StringUtils.substringBeforeLast(metadataRepositoryId, "#");
         }
 
@@ -130,6 +130,9 @@ class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
                     String schemaAsString = dataModel.getSchema();
 
                     repository = new MetadataRepository();
+                    if (metadataRepositoryId.endsWith(StorageAdmin.STAGING_SUFFIX)) {  // Loads additional types for staging area.
+                        repository.load(MetadataRepositoryAdminImpl.class.getResourceAsStream("stagingInternalTypes.xsd"));
+                    }
                     repository.load(new ByteArrayInputStream(schemaAsString.getBytes("UTF-8")));
                     metadataRepository.put(metadataRepositoryId, repository);
                 } catch (Exception e) {
