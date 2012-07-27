@@ -16,8 +16,10 @@ import junit.framework.TestCase;
 import java.io.InputStream;
 
 /**
- *
+ * Schema parsing <br>
+ * <li>add Chinese and Japanese language label testCase
  */
+@SuppressWarnings("nls")
 public class MetadataRepositoryTest extends TestCase {
 
     ConsoleDumpMetadataVisitor visitor = new ConsoleDumpMetadataVisitor();
@@ -93,6 +95,13 @@ public class MetadataRepositoryTest extends TestCase {
         InputStream stream = getClass().getResourceAsStream("schema9.xsd");
         repository.load(stream);
         // repository.accept(visitor);
+    }
+    
+    public void test12() {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("schema12.xsd");
+        repository.load(stream);
+        assertTrue(repository.getTypes().size() > 0);
     }
 
 }
