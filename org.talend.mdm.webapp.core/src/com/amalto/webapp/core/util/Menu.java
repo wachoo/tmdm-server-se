@@ -264,7 +264,8 @@ public class Menu {
 	
 	
 	
-	private static Menu wsMenu2Menu(HashMap<String, Menu> index,WSMenuEntry entry,Menu parent, String parentID, int position) throws XtentisWebappException{
+    public static Menu wsMenu2Menu(HashMap<String, Menu> index, WSMenuEntry entry, Menu parent, String parentID, int position)
+            throws XtentisWebappException {
 		try {
 			Menu menu = new Menu();
 			menu.setApplication(entry.getApplication());
@@ -275,7 +276,7 @@ public class Menu {
 			HashMap<String, String> labels = new HashMap<String, String>();
 			if (descriptions!=null) {
 				for (int i = 0; i < descriptions.length; i++) {
-					labels.put(descriptions[i].getLanguage(), descriptions[i].getLabel());
+                    labels.put(descriptions[i].getLanguage().toLowerCase(), descriptions[i].getLabel());
 				}
 			}
 			menu.setLabels(labels);
