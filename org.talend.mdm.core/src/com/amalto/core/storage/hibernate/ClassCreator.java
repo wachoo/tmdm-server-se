@@ -25,7 +25,6 @@ import org.hibernate.search.annotations.*;
 import java.io.Serializable;
 import java.util.*;
 
-// TODO Refactor
 class ClassCreator extends DefaultMetadataVisitor<Void> {
 
     public static final String PACKAGE_PREFIX = "org.talend.mdm.storage.hibernate."; //$NON-NLS-1$
@@ -35,8 +34,6 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
     private final Stack<CtClass> classCreationStack = new Stack<CtClass>();
 
     private final Set<String> processedTypes = new HashSet<String>();
-
-    private final LinkedList<String> fieldPrefix = new LinkedList<String>();
 
     private final Set<CtClass> classIndexed = new HashSet<CtClass>();
 
@@ -71,12 +68,10 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
 
     @Override
     public Void visit(ContainedComplexTypeMetadata containedType) {
-        fieldPrefix.add(containedType.getName());
         List<FieldMetadata> fields = containedType.getFields();
         for (FieldMetadata field : fields) {
             field.accept(this);
         }
-        fieldPrefix.removeLast();
         return null;
     }
 
@@ -137,7 +132,7 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
                 Iterator<FieldMetadata> keyFieldIterator = keyFields.iterator();
                 while (keyFieldIterator.hasNext()) {
                     FieldMetadata currentKeyField = keyFieldIterator.next();
-                    initConstructorBody.append(getFieldType(currentKeyField)).append(' ').append(currentKeyField.getName());
+                    initConstructorBody.append(MetadataUtils.getJavaType(currentKeyField.getType())).append(' ').append(currentKeyField.getName());
                     if (keyFieldIterator.hasNext()) {
                         initConstructorBody.append(", "); //$NON-NLS-1$
                     }
@@ -340,13 +335,8 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
 
     @Override
     public Void visit(ContainedTypeFieldMetadata containedField) {
-        fieldPrefix.add(containedField.getName());
-        {
-            TypeMetadata containedType = containedField.getContainedType();
-            containedType.accept(this);
-        }
-        fieldPrefix.removeLast();
-
+        TypeMetadata containedType = containedField.getContainedType();
+        containedType.accept(this);
         return null;
     }
 
@@ -382,7 +372,7 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
         try {
             CtClass currentClass = classCreationStack.peek();
             ClassFile currentClassFile = currentClass.getClassFile();
-            CtClass fieldType = classPool.get(getFieldType(metadata));
+            CtClass fieldType = classPool.get(MetadataUtils.getJavaType(metadata.getType()));
 
             CtField field = addNewField(metadata.getName(), metadata.isMany(), fieldType, currentClass);
 
@@ -471,9 +461,5 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             annotations.addAnnotation(fieldAnnotation);
             annotations.addAnnotation(fieldBridge);
         }
-    }
-
-    String getFieldType(FieldMetadata metadata) {
-        return MetadataUtils.getJavaType(metadata.getType());
     }
 }

@@ -24,9 +24,15 @@ import com.amalto.core.storage.record.DataRecord;
 public interface StorageResults extends Iterable<DataRecord> {
 
     /**
-     * @return Returns how many {@link DataRecord} are in results. This is likely to be the "limit" value passed to the
+     * <p>
+     * @return Returns how many {@link DataRecord} are in results. This is the "limit" value passed to the
      * paging of the user query. This means this method may return {@link Integer#MAX_VALUE} if no page size was specified
      * in query.
+     * </p>
+     * <p>
+     * This method returns the page size so even if the query returns no result, this method may return a positive
+     * value (> 0).
+     * </p>
      * @see com.amalto.core.query.user.Paging
      * @see #getCount()
      */

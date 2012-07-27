@@ -130,7 +130,10 @@ class FlatTypeMapping extends TypeMapping {
                     }
                 }
                 if (userField instanceof ContainedTypeFieldMetadata) {
-                    // TODO inheritance
+                    // This mapping is not supposed to handle such cases.
+                    if(!((ContainedTypeFieldMetadata) userField).getContainedType().getSubTypes().isEmpty()) {
+                        throw new IllegalArgumentException("This mapping does not support contained types with inheritance.");
+                    }
                     if (!userField.isMany()) {
                         DataRecord containedDataRecord = new DataRecord((ComplexTypeMetadata) userField.getType(), UnsupportedDataRecordMetadata.INSTANCE);
                         to.set(userField, setValues(((Wrapper) from.get(field.getName())), containedDataRecord));

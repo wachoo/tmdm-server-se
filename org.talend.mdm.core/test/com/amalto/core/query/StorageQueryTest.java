@@ -791,6 +791,9 @@ public class StorageQueryTest extends StorageTestCase {
         try {
             assertEquals(1, results.getSize());
             assertEquals(3, results.getCount());
+            for (DataRecord result : results) {
+                System.out.println(result.get("id"));
+            }
         } finally {
             results.close();
         }
@@ -815,12 +818,12 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
 
-        // TODO This an error, no? (start at 4, only 3 instances).
         qb = from(person).limit(1).start(4);
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getSize());
             assertEquals(3, results.getCount());
+            assertFalse(results.iterator().hasNext());
         } finally {
             results.close();
         }
@@ -1019,7 +1022,7 @@ public class StorageQueryTest extends StorageTestCase {
                 .select(a.getField("refA"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
-            Set<String> expectedValues = new HashSet<String>();
+            Set<Object> expectedValues = new HashSet<Object>();
             expectedValues.add(null);
             expectedValues.add("1");
             assertEquals(2, results.getCount());

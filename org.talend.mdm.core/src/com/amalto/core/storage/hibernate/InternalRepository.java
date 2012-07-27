@@ -12,7 +12,6 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.metadata.*;
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 
 import java.util.Collection;
@@ -96,10 +95,6 @@ abstract class InternalRepository implements MetadataVisitor<MetadataRepository>
     }
 
     public MetadataRepository visit(ContainedTypeFieldMetadata containedField) {
-        if (containedField.isMany()) {
-            // TODO Implement this
-            throw new NotImplementedException("No support for many property with anonymous type.");
-        }
         return internalRepository;
     }
 
