@@ -1725,7 +1725,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     // Return before saving process error message as exception for web ui.
                     throw new ServiceException(beforeSavingMessage);
                 } else {
-                    err = MESSAGES.getMessage(locale, "save_process_validation_failure"); //$NON-NLS-1$
+                    String detailErrorMessage=MESSAGES.getMessage(locale, "save_process_validation_error_unknown"); //$NON-NLS-1$
+                    if(cause.getCause()!=null&&cause.getCause().getLocalizedMessage()!=null&&cause.getCause().getLocalizedMessage().trim().length()>0)
+                        detailErrorMessage=cause.getCause().getLocalizedMessage();
+                    err = MESSAGES.getMessage(locale, "save_process_validation_failure", detailErrorMessage); //$NON-NLS-1$
                 }
             } else if (Util.causeIs(e, CVCException.class)) {
                 err = MESSAGES.getMessage(locale, "save_fail_cvc_exception", concept); //$NON-NLS-1$
