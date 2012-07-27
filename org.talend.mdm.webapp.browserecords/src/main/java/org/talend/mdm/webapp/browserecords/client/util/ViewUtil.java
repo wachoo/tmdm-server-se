@@ -204,7 +204,10 @@ public class ViewUtil {
      * where the valid flag is normally set for fields that are displayed.
      */
     private static void setValidFlags(DynamicTreeItem dynamicTreeItem, Set<TreeItem> customLayoutDisplayedElements) {
-        dynamicTreeItem.getItemNodeModel().setValid(true);
+        ItemNodeModel nodeModel = dynamicTreeItem.getItemNodeModel();        
+        if (nodeModel != null) {
+            nodeModel.setValid(true);
+        }
         int childCount = dynamicTreeItem.getChildCount();
         for (int i = 0; i < childCount; ++i) {
             TreeItem child = dynamicTreeItem.getChild(i);
