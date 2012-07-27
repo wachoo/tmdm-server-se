@@ -62,6 +62,8 @@ import org.xml.sax.SAXException;
 
 import com.amalto.core.util.Util;
 import com.amalto.webapp.core.util.XmlUtil;
+import com.amalto.webapp.util.webservices.WSBoolean;
+import com.amalto.webapp.util.webservices.WSInt;
 import com.amalto.webapp.util.webservices.WSItem;
 import com.amalto.webapp.util.webservices.WSStringArray;
 import com.amalto.webapp.util.webservices.WSView;
@@ -238,6 +240,7 @@ public class BrowseRecordsActionTest extends TestCase {
         WSStringArray wsStringArray = new WSStringArray(results);
         Mockito.when(org.talend.mdm.webapp.base.server.util.CommonUtil.getPort()).thenReturn(port);
         Mockito.when(port.viewSearch(Mockito.any(WSViewSearch.class))).thenReturn(wsStringArray);
+        Mockito.when(port.isPagingAccurate(Mockito.any(WSInt.class))).thenReturn(new WSBoolean(true));
         // Mock get SmartViewDescriptions
         PowerMockito.mockStatic(SmartViewUtil.class);
         SmartViewDescriptions svd = PowerMockito.mock(SmartViewDescriptions.class);
