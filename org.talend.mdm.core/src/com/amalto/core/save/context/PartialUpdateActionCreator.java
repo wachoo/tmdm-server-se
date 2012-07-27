@@ -135,12 +135,17 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                     Accessor originalKeyAccessor = originalDocument.createAccessor(getLeftPath() + '/' + key);
                     String newDocumentPath = keyValueToPath.get(originalKeyAccessor.get());
                     if (newDocumentPath == null) {
-                        return;
-                    }
-                    StringTokenizer pathIterator = new StringTokenizer(newDocumentPath, "/");
-                    rightPath.clear();
-                    while (pathIterator.hasMoreTokens()) {
-                        rightPath.add(pathIterator.nextToken());
+                        if (!preserveCollectionOldValues) {
+                            return;
+                        } else {
+                            rightPath.push(field.getName() + '[' + i + ']');
+                        }
+                    } else {
+                        StringTokenizer pathIterator = new StringTokenizer(newDocumentPath, "/");
+                        rightPath.clear();
+                        while (pathIterator.hasMoreTokens()) {
+                            rightPath.add(pathIterator.nextToken());
+                        }
                     }
                 } else {
                     rightPath.add(field.getName() + '[' + i + ']');
@@ -192,28 +197,22 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
             String oldValue = originalAccessor.get();
             lastMatchPath = leftPath;
             if (!newAccessor.exist()) {
-                if (comparedField.isMany()) {
+                if (comparedField.isMany() && !preserveCollectionOldValues) {
                     // Null values may happen if accessor is targeting an element that contains other elements
                     actions.add(new FieldUpdateAction(date, source, userName, leftPath, oldValue == null ? StringUtils.EMPTY : oldValue, null, comparedField));
                 }
             } else { // new accessor exist
-                if (oldValue != null && !oldValue.equals(newAccessor.get())) {
-                    if (comparedField.isMany() && preserveCollectionOldValues) {
-                        // Append at the end of the collection
-                        if (!originalFieldToLastIndex.containsKey(comparedField)) {
-                            originalFieldToLastIndex.put(comparedField, originalAccessor.size() + 1);
-                        }
-                        String previousPathElement = this.path.pop();
-                        int newIndex = originalFieldToLastIndex.get(comparedField);
-                        this.leftPath.push(comparedField.getName() + "[" + (newIndex + 1) + "]");
-                        actions.add(new FieldUpdateAction(date, source, userName, leftPath, StringUtils.EMPTY, newAccessor.get(), comparedField));
-                        this.leftPath.pop();
-                        this.leftPath.push(previousPathElement);
-                        originalFieldToLastIndex.put(comparedField, newIndex + 1);
-                    } else {
-                        actions.add(new FieldUpdateAction(date, source, userName, leftPath, oldValue, newAccessor.get(), comparedField));
+                if (comparedField.isMany() && preserveCollectionOldValues) {
+                    // Append at the end of the collection
+                    if (!originalFieldToLastIndex.containsKey(comparedField)) {
+                        originalFieldToLastIndex.put(comparedField, originalAccessor.size());
                     }
-                } else if (oldValue == null && newAccessor.get() != null) {
+                    this.leftPath.pop();
+                    int newIndex = originalFieldToLastIndex.get(comparedField);
+                    this.leftPath.push(comparedField.getName() + "[" + (newIndex + 1) + "]");
+                    actions.add(new FieldUpdateAction(date, source, userName, getLeftPath(), StringUtils.EMPTY, newAccessor.get(), comparedField));
+                    originalFieldToLastIndex.put(comparedField, newIndex + 1);
+                } else if (oldValue != null && !oldValue.equals(newAccessor.get())) {
                     actions.add(new FieldUpdateAction(date, source, userName, leftPath, oldValue, newAccessor.get(), comparedField));
                 }
             }
