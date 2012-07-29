@@ -16,8 +16,12 @@ import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
+import org.apache.commons.codec.binary.Base64;
 import org.quartz.Trigger;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.UUID;
 
 public class TaskFactory {
@@ -45,17 +49,14 @@ public class TaskFactory {
         try {
             DataRecord taskDefinition = new DataRecord(taskDefinitionType, UnsupportedDataRecordMetadata.INSTANCE);
             taskDefinition.set(taskDefinitionType.getField("id"), taskDefinitionId);
-            // TODO Base64
-            /*
             try {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 ObjectOutputStream oos = new ObjectOutputStream(bos);
                 oos.writeObject(trigger);
-                taskDefinition.set(taskDefinitionType.getField("trigger"), Base64.encode(bos.toByteArray()));
+                taskDefinition.set(taskDefinitionType.getField("trigger"), new String(Base64.encodeBase64(bos.toByteArray())));
             } catch (IOException e) {
                 throw new RuntimeException("Could not save trigger", e);
             }
-            */
             taskDefinition.set(taskDefinitionType.getField("completed"), false);
             taskDefinition.set(taskDefinitionType.getField("type"), TaskType.STAGING.name());
 

@@ -44,5 +44,6 @@
 	<classpathentry kind="lib" path="lib/axiom-impl-1.2.7.jar"/>
 	<classpathentry kind="lib" path="lib/jettison-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/jsr311-api-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-codec-1.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
