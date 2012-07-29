@@ -26,19 +26,20 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.DataSourceFactory;
 import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.task.*;
+import com.amalto.core.storage.task.StagingTask;
+import com.amalto.core.storage.task.Task;
+import com.amalto.core.storage.task.TaskSubmitter;
+import com.amalto.core.storage.task.TaskType;
 import com.amalto.core.util.Util;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
-import org.apache.xml.security.utils.Base64;
+import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import javax.management.MBeanServer;
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
 import java.lang.management.ManagementFactory;
 import java.util.Collection;
 import java.util.Map;
@@ -114,11 +115,14 @@ class ServerImpl implements Server {
                         UserQueryBuilder qb = from(definedTaskType).where(eq(definedTaskType.getField("completed"), "false")); //$NON-NLS-1$ //$NON-NLS-2$
                         for (DataRecord definedTask : staging.fetch(qb.getSelect())) {
                             String encodedTrigger = (String) definedTask.get("trigger"); //$NON-NLS-1$
+                            // TODO Base64!
                             if (encodedTrigger != null && !encodedTrigger.trim().isEmpty()) {
-                                // TODO Base64!
+                                /*
                                 ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64.decode(encodedTrigger));
                                 ObjectInputStream ois = new ObjectInputStream(inputStream);
                                 Trigger trigger = (Trigger) ois.readObject();
+                                */
+                                Trigger trigger = new SimpleTrigger("myStagingTask", "group");
                                 Task task = createTask(definedTask, staging, user, stagingRepository, userRepository);
                                 try {
                                     TaskSubmitter.getInstance().submit(task, trigger);
