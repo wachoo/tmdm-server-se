@@ -120,9 +120,9 @@ public class MultipleCriteriaPanel extends SimplePanel {
         list = new ListStore<ItemBaseModel>();
         ItemBaseModel field = null;
 
-        for (String curOper : OperatorConstants.groupOperators) {
+        for (String curOper : OperatorConstants.groupOperators.keySet()) {
             field = new ItemBaseModel();
-            field.set("name", curOper); //$NON-NLS-1$
+            field.set("name", OperatorConstants.groupOperators.get(curOper)); //$NON-NLS-1$
             field.set("value", curOper); //$NON-NLS-1$
             list.add(field);
         }

@@ -424,4 +424,8 @@ public interface BrowseRecordsMessages extends Messages {
     String display_items();
     
     String record_exists();
+
+    String criteria_AND();
+
+    String criteria_OR();
 }

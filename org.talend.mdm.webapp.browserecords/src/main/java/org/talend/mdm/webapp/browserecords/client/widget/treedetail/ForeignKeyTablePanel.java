@@ -14,7 +14,6 @@ import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
-import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKeyRowEditor;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
@@ -234,7 +233,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             if (fkInfo.equals(fkTypeModel.getForeignkey()))
                 continue;
             final ColumnConfig column = new ColumnConfig("objectValue", //$NON-NLS-1$
-                    CommonUtil.getElementFromXpath(fkInfo), COLUMN_WIDTH);
+                    entityModel.getTypeModel(fkInfo).getLabel(Locale.getLanguage()), COLUMN_WIDTH); // using the label to display table header
             column.setRenderer(new GridCellRenderer<ItemNodeModel>() {
 
                 public Object render(ItemNodeModel model, String property, ColumnData config, int rowIndex, int colIndex,
@@ -340,13 +339,16 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
     }
 
     private String convertKeys(String[] keys){
-        if (keys.length == 1)
-            return CommonUtil.getElementFromXpath(keys[0]);
+        if (keys.length == 1) {
+            // using the label to display table header
+            return entityModel.getTypeModel(keys[0]).getLabel(Locale.getLanguage());
+        }
         StringBuffer sb = new StringBuffer();
         for(int i = 0; i< keys.length; i++){
             if(i != 0)
                 sb.append("-"); //$NON-NLS-1$
-            sb.append(CommonUtil.getElementFromXpath(keys[i]));
+            // using the label to display table header
+            sb.append(entityModel.getTypeModel(keys[i]).getLabel(Locale.getLanguage()));
         }
         return sb.toString();
     }

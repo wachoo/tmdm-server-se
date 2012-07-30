@@ -210,13 +210,14 @@ public class BrowseRecordsView extends View {
         } else {
             // Open in default tab in ItemsMainTabPanel, which may or may not already exist
 
+            String itemDisplayLabel = itemLabel != null && itemLabel.trim().length() > 0 ? itemLabel : itemConcept;
             TabItem defaultTabItem = itemsMainTabPanel.getItemByItemId(DEFAULT_ITEMVIEW);
 
             if (defaultTabItem != null) {
                 // Default tab exists in ItemsMainTabPanel
                 // Reuse the default tab
 
-                defaultTabItem.setText(itemConcept + " " + itemIds); //$NON-NLS-1$
+                defaultTabItem.setText(itemDisplayLabel + " " + itemIds); //$NON-NLS-1$
 
                 ItemsDetailPanel itemsDetailPanel = (ItemsDetailPanel) defaultTabItem.getItemByItemId(DEFAULT_ITEMVIEW);
 
@@ -226,7 +227,7 @@ public class BrowseRecordsView extends View {
 
                     defaultTabItem.removeAll();
                     defaultTabItem.add(this.buildNewItemsDetailPanel(viewBean, item, operation, DEFAULT_ITEMVIEW, itemPkInfoList,
-                            itemDescription, itemLabel != null ? itemLabel : itemConcept, breads));
+                            itemDescription, itemDisplayLabel, breads));
                 } else {
                     // ItemsDetailPanel exists in default tab of ItemsMainTabPanel
                     // Reuse the ItemsDetailPanel
@@ -235,8 +236,7 @@ public class BrowseRecordsView extends View {
                     itemsDetailPanel.initBanner(itemPkInfoList, itemDescription);
 
                     ItemPanel itemPanel = new ItemPanel(viewBean, item, operation, itemsDetailPanel, true);
-                    itemsDetailPanel.addTabItem(itemLabel != null ? itemLabel : itemConcept, itemPanel,
-                            ItemsDetailPanel.SINGLETON, DEFAULT_ITEMVIEW);
+                    itemsDetailPanel.addTabItem(itemDisplayLabel, itemPanel, ItemsDetailPanel.SINGLETON, DEFAULT_ITEMVIEW);
 
                     itemsDetailPanel.initBreadCrumb(new BreadCrumb(breads, itemsDetailPanel));
                 }
@@ -245,17 +245,16 @@ public class BrowseRecordsView extends View {
             } else {
                 // Default tab does not exist in ItemsMainTabPanel, create it
 
-                TabItem tabItem = this.buildNewItemsMainTabPanelTabItem(itemConcept, itemIds, this.buildNewItemsDetailPanel(
-                        viewBean, item, operation, DEFAULT_ITEMVIEW, itemPkInfoList, itemDescription,
-                        itemLabel != null ? itemLabel : itemConcept, breads));
+                TabItem tabItem = this.buildNewItemsMainTabPanelTabItem(itemDisplayLabel, itemIds, this.buildNewItemsDetailPanel(
+                        viewBean, item, operation, DEFAULT_ITEMVIEW, itemPkInfoList, itemDescription, itemDisplayLabel, breads));
                 itemsMainTabPanel.insert(tabItem, 0);
                 itemsMainTabPanel.setSelection(tabItem);
             }
         }
     }
 
-    private TabItem buildNewItemsMainTabPanelTabItem(String itemConcept, String itemIds, ItemsDetailPanel itemsDetailPanel) {
-        TabItem tabItem = new TabItem(itemConcept + " " + itemIds); //$NON-NLS-1$
+    private TabItem buildNewItemsMainTabPanelTabItem(String itemLabel, String itemIds, ItemsDetailPanel itemsDetailPanel) {
+        TabItem tabItem = new TabItem(itemLabel + " " + itemIds); //$NON-NLS-1$
         tabItem.setId(DEFAULT_ITEMVIEW);
         tabItem.setClosable(true);
         tabItem.setLayout(new FitLayout());

@@ -13,9 +13,7 @@
 package org.talend.mdm.webapp.browserecords.client.model;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
@@ -32,7 +30,7 @@ public class OperatorConstants implements Serializable, IsSerializable {
      */
     private static final long serialVersionUID = 1L;
 
-    public static List<String> groupOperators = Arrays.asList(new String[] { "AND", "OR" }); //$NON-NLS-1$ //$NON-NLS-2$
+    public static Map<String, String> groupOperators = new LinkedHashMap<String, String>();
 
     public static Map<String, String> fullOperators = new LinkedHashMap<String, String>();
     
@@ -51,6 +49,8 @@ public class OperatorConstants implements Serializable, IsSerializable {
     public static Map<String, String> stringOperators = new LinkedHashMap<String, String>();
 
     static {
+        groupOperators.put("AND", MessagesFactory.getMessages().criteria_AND()); //$NON-NLS-1$
+        groupOperators.put("OR", MessagesFactory.getMessages().criteria_OR()); //$NON-NLS-1$
 
         fullOperators.put("EQUALS", MessagesFactory.getMessages().criteria_EQUALS()); //$NON-NLS-1$
         fullOperators.put("CONTAINS", MessagesFactory.getMessages().criteria_CONTAINS()); //$NON-NLS-1$
