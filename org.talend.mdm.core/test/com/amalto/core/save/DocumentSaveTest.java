@@ -890,6 +890,32 @@ public class DocumentSaveTest extends TestCase {
         assertTrue(committer.hasSaved());
     }
 
+    public void testBeforeSavingWithWrongAlterRecord() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+
+        //
+        boolean isOK = true;
+        boolean newOutput = true;
+        boolean wrongRecord = true;
+        SaverSource source = new AlterRecordTestSaverSource(repository, false, "test1_original.xml", isOK, newOutput, wrongRecord);
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, true, true, true);
+        DocumentSaver saver = context.createSaver();
+        try {
+            saver.save(session, context);
+            fail("Expected an exception (alter record returned a document typed with different entity).");
+        } catch (Exception e) {
+            // Expected
+        }
+        assertEquals("", saver.getBeforeSavingMessage());
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+        assertFalse(committer.hasSaved());
+    }
+
     public void testCreatePerformance() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
@@ -1419,11 +1445,19 @@ public class DocumentSaveTest extends TestCase {
 
         private final boolean newOutput;
 
+        private boolean wrongNewRecord;
+
         public AlterRecordTestSaverSource(MetadataRepository repository, boolean exist, String fileName, boolean OK,
                                           boolean newOutput) {
+            this(repository, exist, fileName, OK, newOutput, false);
+        }
+
+        public AlterRecordTestSaverSource(MetadataRepository repository, boolean exist, String fileName, boolean OK,
+                                          boolean newOutput, boolean wrongNewRecord) {
             super(repository, exist, fileName, "metadata1.xsd");
             this.OK = OK;
             this.newOutput = newOutput;
+            this.wrongNewRecord = wrongNewRecord;
         }
 
         @Override
@@ -1436,7 +1470,11 @@ public class DocumentSaveTest extends TestCase {
             OutputReport report = new OutputReport(message, item);
 
             if (newOutput) {
-                item = "<exchange><item>" + "<Agency><Id>1</Id><Name>beforeSaving_Agency</Name></Agency></item></exchange>";
+                if (!wrongNewRecord) {
+                    item = "<exchange><item>" + "<Agency><Id>1</Id><Name>beforeSaving_Agency</Name></Agency></item></exchange>";
+                } else {
+                    item = "<exchange><item>" + "<ThisIsWrongOnPurpose></ThisIsWrongOnPurpose></item></exchange>";
+                }
                 report.setItem(item);
             }
             return report;
