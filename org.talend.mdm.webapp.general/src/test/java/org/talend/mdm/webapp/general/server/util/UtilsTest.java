@@ -23,7 +23,7 @@ public class UtilsTest extends TestCase {
 
     public void testGetLanguages() throws Exception {
         List<LanguageBean> langs = Utils.getLanguages("en");
-        assertEquals(2, langs.size());
+        assertTrue(langs.size() > 0);
         
         LanguageBean lang = langs.get(0);
         assertEquals("en", lang.getValue());
