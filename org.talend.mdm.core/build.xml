@@ -99,6 +99,9 @@
             <fileset dir="${basedir}/src" includes="**/**.xml"/>
         </copy>
         <copy todir="${basedir}/bin/" verbose="true" overwrite="true">
+            <fileset dir="${basedir}/src" includes="**/**.xsd"/>
+        </copy>
+        <copy todir="${basedir}/bin/" verbose="true" overwrite="true">
             <fileset dir="${basedir}/src" includes="**/**.dtd"/>
         </copy>
 
