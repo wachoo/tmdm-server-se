@@ -83,6 +83,7 @@ public class BorderLayoutContainer extends Viewport {
         westData.setMaxSize(300);
         westData.setSplit(true);
         westData.setCollapsible(true);
+        westData.setFloatable(false);
         westData.setMargins(new Margins(0, 5, 0, 0));
 
         BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
