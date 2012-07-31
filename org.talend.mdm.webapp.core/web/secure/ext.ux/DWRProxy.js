@@ -5,9 +5,10 @@
  * http://extjs.com/forum/showthread.php?t=5586
  **************************************************************************************/
 
-Ext.data.DWRProxy = function(dwrCall, pagingAndSort){
+Ext.data.DWRProxy = function(dwrCall, pagingAndSort, dwrCallback){
   Ext.data.DWRProxy.superclass.constructor.call(this);
   this.dwrCall = dwrCall;
+  this.dwrCallback = dwrCallback;
   //this.args = args;
 	this.pagingAndSort = (pagingAndSort!=undefined ? pagingAndSort : true);
 };
@@ -44,6 +45,9 @@ Ext.extend(Ext.data.DWRProxy, Ext.data.DataProxy, {
   loadResponse : function(listRange, reader, callback, scope, arg) {
     var result;
     try {
+      if (typeof this.dwrCallback == "function"){
+          this.dwrCallback(listRange);
+      }
       result = reader.read(listRange);
     } catch(e) {
       this.fireEvent("loadexception", this, null, response, e);
