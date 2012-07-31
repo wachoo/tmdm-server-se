@@ -214,8 +214,8 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
 	 
 	    initTriggerAppearance : function(){ 
     	 var ts = this.trigger.select('.x-form-trigger', true);
-    	 ts.elements[0].setStyle("height", "20px");
-    	 ts.elements[1].setStyle("height", "20px");
+    	 ts.elements[0].setStyle("height", "21px");
+    	 ts.elements[1].setStyle("height", "21px");
     	 ts.elements[0].dom.setAttribute("align","absmiddle");
     	 ts.elements[1].dom.setAttribute("align","absmiddle");
     	 if(this.showDeleteButton == false)
