@@ -20,7 +20,7 @@ import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.Util;
 import com.sun.org.apache.xpath.internal.XPathAPI;
 import org.apache.commons.lang.StringUtils;
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
