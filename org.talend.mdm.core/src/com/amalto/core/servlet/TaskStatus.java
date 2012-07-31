@@ -11,17 +11,78 @@
 
 package com.amalto.core.servlet;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name = "status")
+@XmlRootElement(name = "task")
 public class TaskStatus {
-    private String name;
 
-    public String getName() {
-        return name;
+    private String id;
+
+    private String dataContainer;
+
+    private String executionType;
+
+    private String timeInterval;
+
+    private String nextRunDate;
+
+    public TaskStatus() {
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public TaskStatus(String id, String dataContainer, String executionType, String timeInterval, String nextRunDate) {
+        this.id = id;
+        this.dataContainer = dataContainer;
+        this.executionType = executionType;
+        this.timeInterval = timeInterval;
+        this.nextRunDate = nextRunDate;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getType() {
+        return "STAGING";
+    }
+
+    @XmlElement(name = "data_container")
+    public String getDataContainer() {
+        return dataContainer;
+    }
+
+    @XmlElement(name = "execution_type")
+    public String getExecutionType() {
+        return executionType;
+    }
+
+    @XmlElement(name = "time_interval")
+    public String getTimeInterval() {
+        return timeInterval;
+    }
+
+    @XmlElement(name = "next_run_date")
+    public String getNextRunDate() {
+        return nextRunDate;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setDataContainer(String dataContainer) {
+        this.dataContainer = dataContainer;
+    }
+
+    public void setExecutionType(String executionType) {
+        this.executionType = executionType;
+    }
+
+    public void setTimeInterval(String timeInterval) {
+        this.timeInterval = timeInterval;
+    }
+
+    public void setNextRunDate(String nextRunDate) {
+        this.nextRunDate = nextRunDate;
     }
 }
