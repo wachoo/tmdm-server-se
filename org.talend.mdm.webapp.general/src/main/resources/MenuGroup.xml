@@ -3,7 +3,6 @@
  <groupitem en="Home" fr="Accueil">
   <item>welcomeportal.WelcomePortal</item>
   <item>browserecords.BrowseRecords</item>
-  <item>stagingarea.Stagingarea</item>
  </groupitem>
  
  <groupitem en="Browse" fr="Consultation">
@@ -14,7 +13,8 @@
   <item>recyclebin.RecycleBin</item>
  </groupitem>
  
-  <groupitem en="Govern" fr="Gouvernance">
+ <groupitem en="Govern" fr="Gouvernance">
+  <item>stagingarea.Stagingarea</item>
   <item>datastewardship.Datastewardship</item>
   <item>workflowtasks.WorkflowTasks</item>
   <item>crossreference.CrossReference</item>
