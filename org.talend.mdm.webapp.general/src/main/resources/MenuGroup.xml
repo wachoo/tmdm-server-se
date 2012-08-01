@@ -3,6 +3,7 @@
  <groupitem en="Home" fr="Accueil">
   <item>welcomeportal.WelcomePortal</item>
   <item>browserecords.BrowseRecords</item>
+  <item>stagingarea.Stagingarea</item>
  </groupitem>
  
  <groupitem en="Browse" fr="Consultation">
