@@ -430,14 +430,18 @@ public class ItemDetailToolBar extends ToolBar {
                     panel.initBanner(itemBean.getPkInfoList(), itemBean.getDescription());
                     panel.clearBreadCrumb();
 
+                    ItemBean duplicateItemBean = new ItemBean(itemBean.getConcept(), itemBean.getIds(), itemBean.getItemXml());
+                    duplicateItemBean.copy(itemBean);
+                    duplicateItemBean.setIds(""); //$NON-NLS-1$
+                    
                     if (!isOutMost) {
-                        ItemPanel itemPanel = new ItemPanel(viewBean, itemBean, ItemDetailToolBar.DUPLICATE_OPERATION, panel);
+                        ItemPanel itemPanel = new ItemPanel(viewBean, duplicateItemBean, ItemDetailToolBar.DUPLICATE_OPERATION, panel);
                         itemPanel.getToolBar().setFkToolBar(isFkToolBar);
                         itemPanel.getToolBar().setHierarchyCall(isHierarchyCall);
                         panel.addTabItem(title, itemPanel, ItemsDetailPanel.SINGLETON, title);
-                        ItemsMainTabPanel.getInstance().addMainTabItem(title, panel, itemBean.getConcept());
+                        ItemsMainTabPanel.getInstance().addMainTabItem(title, panel, duplicateItemBean.getConcept());
                     } else {
-                        TreeDetailUtil.initItemsDetailPanelByItemPanel(viewBean, itemBean, isFkToolBar, isHierarchyCall);
+                        TreeDetailUtil.initItemsDetailPanelByItemPanel(viewBean, duplicateItemBean, isFkToolBar, isHierarchyCall);
                     }
 
                     if (!isOutMost && !isFkToolBar) {
