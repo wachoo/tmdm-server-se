@@ -148,3 +148,11 @@ div .sub-body{
     padding-top: 0px!important;
     padding-bottom: 0px!important;
 }
+
+.ext-chrome .extpj .x-form-field-wrap .x-form-trigger {
+    height: 21px;
+}
+
+.ext-safari .extpj .x-form-field-wrap .x-form-trigger {
+    height: 21px;
+}
