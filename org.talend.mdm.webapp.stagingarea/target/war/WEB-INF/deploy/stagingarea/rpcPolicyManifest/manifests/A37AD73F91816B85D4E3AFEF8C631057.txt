@@ -1,2 +1,0 @@
-serviceClass: org.talend.mdm.webapp.stagingarea.client.StagingareaService
-path: B594D7459E24FE9784F9EC37E4A4A91C.gwt.rpc
