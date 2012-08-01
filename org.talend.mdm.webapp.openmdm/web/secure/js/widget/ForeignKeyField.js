@@ -199,6 +199,12 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
 		 }
 	}, 
 	
+    afterRender : function(){
+		if (Ext.isIE && document.documentMode < 8){
+			Ext.form.TwinTriggerField.superclass.afterRender.call(this);
+		}
+    },
+	
     onKeyPress : function(e){
 		this.value = "";
     },
