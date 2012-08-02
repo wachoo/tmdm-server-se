@@ -10,6 +10,15 @@ h1 {
   text-align: center;
 }
 
+.labelStyle{
+  font-family : tahoma,arial,helvetica,sans-serif;
+  font-size : 11px;
+  font-style : normal;
+  font-variant : normal;
+  font-weight : normal;
+  font-stretch : normal;
+}
+
 .sendButton {
   display: block;
   font-size: 16pt;
