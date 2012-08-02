@@ -294,7 +294,7 @@ class StorageClassLoader extends ClassLoader {
             addProperty(document, sessionFactoryElement, "hibernate.search.default.directory_provider", "org.hibernate.search.store.FSMasterDirectoryProvider"); //$NON-NLS-1$ //$NON-NLS-2$
             addProperty(document, sessionFactoryElement, "hibernate.search.default.indexBase", indexBase + '/' + storageName); //$NON-NLS-1$
             addProperty(document, sessionFactoryElement, "hibernate.search.default.sourceBase", indexBase + '/' + storageName); //$NON-NLS-1$
-            addProperty(document, sessionFactoryElement, "hibernate.search.default.source", indexBase); //$NON-NLS-1$
+            addProperty(document, sessionFactoryElement, "hibernate.search.default.source", ""); //$NON-NLS-1$ //$NON-NLS-2$
             addProperty(document, sessionFactoryElement, "hibernate.search.default.exclusive_index_use", "false"); //$NON-NLS-1$ //$NON-NLS-2$
         }
 
