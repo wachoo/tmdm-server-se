@@ -9,42 +9,11 @@ amalto.updatereport.HistoryViewer = function(config) {
 
 var panelId = "datachangesviewer";
 
-var JOURNAL_NAME = {
-	'fr' : 'Journal->',
-	'en' : 'Journal->'
-			
-};
-
-var MAIN_TITLE = {
-	'fr' : 'Visionneuse des changements de donn\u00E9es',
-	'en' : 'Data Changes Viewer'
-};
-
-var OPEN_RECORD = {
-	'fr' : 'Ouvrir l\'enregistrement',
-	'en' : 'Open Record'
-};
-
-var UPDATE_REPORT_DETAILS = {
-	'fr' : 'D\u00E9tail du rapport de mise \u00E0 jour',
-	'en' : 'Update report details'
-};
-
-var BEFORE = {
-	'fr' : 'Avant',
-	'en' : 'Before'
-};
-
-var AFTER = {
-	'fr' : 'Apr\u00E8s',
-	'en' : 'After'
-};
-
 Ext.extend(amalto.updatereport.HistoryViewer, Ext.Panel, {
 	initUIComponents : function() {
 	    Ext.apply(this, {
 			layout : 'border',
-			title : MAIN_TITLE[language],
+			title : amalto.updatereport.bundle.getMsg('MAIN_TITLE'),
 			id : panelId,
 			closable:true,
 			border : true,
@@ -53,7 +22,7 @@ Ext.extend(amalto.updatereport.HistoryViewer, Ext.Panel, {
 			    bodyStyle: 'padding:15px'
 			},
 			items:[{
-                    title:UPDATE_REPORT_DETAILS[language],
+                    title:amalto.updatereport.bundle.getMsg('UPDATE_REPORT_DETAILS'),
                     region: 'north',
                     cmargins: '0 5 0 0',
                     height: 200,
@@ -77,7 +46,7 @@ Ext.extend(amalto.updatereport.HistoryViewer, Ext.Panel, {
                     cellCls: 'history-viewer-changes',
                     id:1,
                     parentPanelId:panelId,
-                    title:BEFORE[language],
+                    title:amalto.updatereport.bundle.getMsg('BEFORE'),
                     region: 'west',
                     width: '50%',
                     margins: '5 0 0 0',
@@ -98,7 +67,7 @@ Ext.extend(amalto.updatereport.HistoryViewer, Ext.Panel, {
                     width: '50%',
                     margins: '5 0 0 0',
                     parentPanelId:panelId,
-                    title:AFTER[language],
+                    title:amalto.updatereport.bundle.getMsg('AFTER'),
                     ids:this.ids,
                     date:this.date,
                     key:this.key,
@@ -110,7 +79,7 @@ Ext.extend(amalto.updatereport.HistoryViewer, Ext.Panel, {
                 }
             ],
             tbar: ['->',{
-		        text : OPEN_RECORD[language],
+		        text : amalto.updatereport.bundle.getMsg('OPEN_RECORD'),
 		        iconCls:'report_bt_openRecord',
 		        handler : function() {
 		        	DWREngine.setAsync(false);
@@ -121,7 +90,7 @@ Ext.extend(amalto.updatereport.HistoryViewer, Ext.Panel, {
 		        	});
 
 		        	if(result) {
-		        		amalto.itemsbrowser.ItemsBrowser.editItemDetails(JOURNAL_NAME[language], this.key.split('\.'), this.concept, function(){});
+		        		amalto.itemsbrowser.ItemsBrowser.editItemDetails(amalto.updatereport.bundle.getMsg('JOURNAL_NAME'), this.key.split('\.'), this.concept, function(){});
 		        	}
 		        	else {
 		        		Ext.MessageBox.alert("Error", "Please select the corresponding Data Container and Data Model.");

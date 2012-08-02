@@ -185,6 +185,8 @@ public abstract class GenericControllerServlet extends HttpServlet {
 	    "<script type=\"text/javascript\" src=\"/core/secure/ext.ux/editablecolumntree/ColumnNodeUI.js\"></script>\n"+
 	    "<script type=\"text/javascript\" src=\"/core/secure/ext.ux/editablecolumntree/treeSerializer.js\"></script>\n"+
 	    "<link rel=\"stylesheet\" type=\"text/css\" href=\"/core/secure/ext.ux/editablecolumntree/editable-column-tree.css\" />\n"+
+	    "<script type=\"text/javascript\" src=\"/core/secure/ext.ux/i18n/PropertyReader.js\"></script>\n"+
+	    "<script type=\"text/javascript\" src=\"/core/secure/ext.ux/i18n/Bundle.js\"></script>\n"+
 	    "<script type=\"text/javascript\" src=\"/core/secure/ext.ux/MultiSelectTreePanel.js\"></script>\n"+
 		//Firefox3 Fixes
 		"<link rel=\"stylesheet\" type=\"text/css\" href=\"/core/secure/css/firefox3-fix.css\" />\n" +

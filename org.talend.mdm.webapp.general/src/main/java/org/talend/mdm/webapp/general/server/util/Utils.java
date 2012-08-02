@@ -196,6 +196,8 @@ public class Utils {
                 + "<script type=\"text/javascript\" src=\"/core/secure/ext.ux/editablecolumntree/treeSerializer.js\"></script>\n" //$NON-NLS-1$
                 + "<link rel=\"stylesheet\" type=\"text/css\" href=\"/core/secure/ext.ux/editablecolumntree/editable-column-tree.css\" />\n" //$NON-NLS-1$
                 + "<script type=\"text/javascript\" src=\"/core/secure/ext.ux/MultiSelectTreePanel.js\"></script>\n" //$NON-NLS-1$
+                + "<script type=\"text/javascript\" src=\"/core/secure/ext.ux/i18n/PropertyReader.js\"></script>\n" //$NON-NLS-1$
+                + "<script type=\"text/javascript\" src=\"/core/secure/ext.ux/i18n/Bundle.js\"></script>\n" //$NON-NLS-1$
                 + // Firefox3 Fixes
                 "<link rel=\"stylesheet\" type=\"text/css\" href=\"/core/secure/css/firefox3-fix.css\" />\n" //$NON-NLS-1$
                 + // CORE

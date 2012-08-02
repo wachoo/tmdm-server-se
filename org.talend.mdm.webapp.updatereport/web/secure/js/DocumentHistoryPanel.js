@@ -5,13 +5,6 @@ amalto.updatereport.DocumentHistoryPanel = function(config) {
 	amalto.updatereport.DocumentHistoryPanel.superclass.constructor.call(this);
 };
 
-
-
-var RESTORE = {
-		'fr' : 'Restaurer',
-		'en' : 'Restore'
-	};
-
 Ext.extend(amalto.updatereport.DocumentHistoryPanel, Ext.Panel, {
     initUIComponents : function() {
 	    Ext.apply(this, {
@@ -24,7 +17,7 @@ Ext.extend(amalto.updatereport.DocumentHistoryPanel, Ext.Panel, {
 			cls: 'document-history-panel',
 			items: [{
 			        xtype: 'button',
-			        text: RESTORE[language],
+			        text: amalto.updatereport.bundle.getMsg('RESTORE'),
                     date:this.date,
                     key:this.key,
                     concept:this.concept,

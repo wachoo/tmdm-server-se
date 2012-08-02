@@ -7,8 +7,6 @@ amalto.updatereport.UpdateReportPanel = function(config) {
 	Ext.applyIf(this, config);
 	this.initUIComponents();
 	amalto.updatereport.UpdateReportPanel.superclass.constructor.call(this);
-	loadResource("/updatereport/secure/js/UpdateReportLocal.js",
-			"amalto.updatereport.UpdateReportLocal");
 	loadResource("/updatereport/secure/js/UpdateReportTimeLinePanel.js", "");
 };
 
@@ -18,14 +16,6 @@ Ext.override(Ext.menu.Menu, {
     }
 }); 
 
-var GRID_TITLE = {
-	'fr' : 'Résultats',
-	'en' : 'Results'
-};
-var TIMELINE_TITLE = {
-	'fr' : 'Défilement',
-	'en' : 'Timeline'
-};
 var searchCriteria;
 var searchStart;
 var searchLimit;
@@ -33,9 +23,9 @@ var searchLimit;
 amalto.updatereport.PagingToolbar = Ext.extend(Ext.PagingToolbar, {
 	updateInfo : function(){
 		if (amalto.updatereport.PagingToolbar.pagingAccurate){
-			this.displayMsg = amalto.updatereport.UpdateReportLocal.get("displayMsg");
+			this.displayMsg = amalto.updatereport.bundle.getMsg("displayMsg");
 		} else {
-			this.displayMsg = amalto.updatereport.UpdateReportLocal.get("displayMsg~");
+			this.displayMsg = amalto.updatereport.bundle.getMsg("displayMsg~");
 		}
 		amalto.updatereport.PagingToolbar.superclass.updateInfo.call(this);
 	}
@@ -150,7 +140,7 @@ Ext
 						this.timelinePanel = new Ext.Panel(
 								{
 									id : "timelinePanel",
-									title : TIMELINE_TITLE[language],
+									title : amalto.updatereport.bundle.getMsg('TIMELINE_TITLE'),
 									iconCls : "report_table_timeline",
 									autoScroll : true,
 									titleCollapse : true,
@@ -176,7 +166,7 @@ Ext
 						this.gridPanel1 = new Ext.grid.GridPanel(
 								{
 									id : "updateReportGridPanel",
-									title : GRID_TITLE[language],
+									title : amalto.updatereport.bundle.getMsg('GRID_TITLE'),
 									iconCls : "report_tab_table",
 									store : this.store1,
 									border : false,
@@ -187,64 +177,64 @@ Ext
 									columns : [
 											{
 												hidden : false,
-												header : amalto.updatereport.UpdateReportLocal
-														.get("dataCluster"),
+												header : amalto.updatereport.bundle
+														.getMsg("dataCluster"),
 												dataIndex : "dataCluster",
 												sortable : true
 											},
 											{
 												hidden : false,
-												header : amalto.updatereport.UpdateReportLocal
-														.get("dataModel"),
+												header : amalto.updatereport.bundle
+														.getMsg("dataModel"),
 												dataIndex : "dataModel",
 												sortable : true
 											},
 											{
 												hidden : false,
-												header : amalto.updatereport.UpdateReportLocal
-														.get("concept"),
+												header : amalto.updatereport.bundle
+														.getMsg("concept"),
 												dataIndex : "concept",
 												sortable : true
 											},
 											{
 												hidden : false,
-												header : amalto.updatereport.UpdateReportLocal
-														.get("key"),
+												header : amalto.updatereport.bundle
+														.getMsg("key"),
 												dataIndex : "key",
 												sortable : true
 											},
 											{
 												hidden : false,
-												header : amalto.updatereport.UpdateReportLocal
-														.get("revisionID"),
+												header : amalto.updatereport.bundle
+														.getMsg("revisionID"),
 												dataIndex : "revisionID",
 												sortable : true
 											},
 											{
 												hidden : false,
-												header : amalto.updatereport.UpdateReportLocal
-														.get("operationType"),
+												header : amalto.updatereport.bundle
+														.getMsg("operationType"),
 												dataIndex : "operationType",
 												sortable : true
 											},
 											{
 												hidden : false,
-												header : amalto.updatereport.UpdateReportLocal
-														.get("timeInMillis"),
+												header : amalto.updatereport.bundle
+														.getMsg("timeInMillis"),
 												dataIndex : "timeInMillis",
 												sortable : true
 											},
 											{
 												hidden : false,
-												header : amalto.updatereport.UpdateReportLocal
-														.get("source"),
+												header : amalto.updatereport.bundle
+														.getMsg("source"),
 												dataIndex : "source",
 												sortable : true
 											},
 											{
 												hidden : false,
-												header : amalto.updatereport.UpdateReportLocal
-														.get("userName"),
+												header : amalto.updatereport.bundle
+														.getMsg("userName"),
 												dataIndex : "userName",
 												sortable : true
 											} ],
@@ -309,19 +299,19 @@ Ext
 									bbar : new amalto.updatereport.PagingToolbar(
 											{
 												id : "updateReportPagingToolbar",
-												displayMsg : amalto.updatereport.UpdateReportLocal
-														.get("displayMsg"),
+												displayMsg : amalto.updatereport.bundle
+														.getMsg("displayMsg"),
 												displayInfo : true,
 												store : this.store1,
 												xtype : "paging",
-												emptyMsg : amalto.updatereport.UpdateReportLocal
-														.get("emptyMsg"),
+												emptyMsg : amalto.updatereport.bundle
+														.getMsg("emptyMsg"),
 												pageSize : parseInt(this.getCookie('updateReportPaging_pageSize')),
 												items : [
 														new Ext.Toolbar.Separator(),
 														new Ext.Toolbar.TextItem(
-																amalto.updatereport.UpdateReportLocal
-																		.get("lines_per_page")
+																amalto.updatereport.bundle
+																		.getMsg("lines_per_page")
 																		+ " : "),
 														new Ext.form.NumberField(
 																{
@@ -456,8 +446,8 @@ Ext
 										{
 											layout : "border",
 
-											title : amalto.updatereport.UpdateReportLocal
-													.get("title"),
+											title : amalto.updatereport.bundle
+													.getMsg("title"),
 											items : [
 													{
 														frame : false,
@@ -465,8 +455,8 @@ Ext
 														layout : "fit",
 														split : false,
 														collapsible : true,
-														title : amalto.updatereport.UpdateReportLocal
-																.get("searchPanel_tile"),
+														title : amalto.updatereport.bundle
+																.getMsg("searchPanel_tile"),
 														border : false,
 														items : [ {
 															height : 30,
@@ -478,8 +468,8 @@ Ext
 																		items : [
 																				{
 																					name : "concept",
-																					fieldLabel : amalto.updatereport.UpdateReportLocal
-																							.get("concept"),
+																					fieldLabel : amalto.updatereport.bundle
+																							.getMsg("concept"),
 																					xtype : "textfield",
 																					listeners : {
 																						'specialkey' : function(
@@ -500,8 +490,8 @@ Ext
 																					// "Select
 																					// a
 																					// source...",
-																					fieldLabel : amalto.updatereport.UpdateReportLocal
-																							.get("source"),
+																					fieldLabel : amalto.updatereport.bundle
+																							.getMsg("source"),
 																					xtype : "combo",
 																					store : this.sourceStore,
 																					displayField : 'text',
@@ -524,12 +514,12 @@ Ext
 																				{
 																					id : "startDate",
 																					name : "startDate",
-																					fieldLabel : amalto.updatereport.UpdateReportLocal
-																							.get("start_date"),
+																					fieldLabel : amalto.updatereport.bundle
+																							.getMsg("start_date"),
 																					xtype : "datefield",
 																					format : "Y-m-d H:i:s",
 																					width : 150,
-																					invalidText: amalto.updatereport.UpdateReportLocal.get("Error_Date_Field"),
+																					invalidText: amalto.updatereport.bundle.getMsg("Error_Date_Field"),
 																					readOnly : false,
 																					listeners : {
 																						'specialkey' : function(
@@ -556,8 +546,8 @@ Ext
 																		items : [
 																				{
 																					name : "key",
-																					fieldLabel : amalto.updatereport.UpdateReportLocal
-																							.get("key"),
+																					fieldLabel : amalto.updatereport.bundle
+																							.getMsg("key"),
 																					xtype : "textfield",
 																					listeners : {
 																						'specialkey' : function(
@@ -578,8 +568,8 @@ Ext
 																					// "Select
 																					// a
 																					// type...",
-																					fieldLabel : amalto.updatereport.UpdateReportLocal
-																							.get("operationType"),
+																					fieldLabel : amalto.updatereport.bundle
+																							.getMsg("operationType"),
 																					xtype : "combo",
 																					store : this.operationTypeStore,
 																					displayField : 'text',
@@ -602,12 +592,12 @@ Ext
 																				{
 																					id : "endDate",
 																					name : "endDate",
-																					fieldLabel : amalto.updatereport.UpdateReportLocal
-																							.get("end_date"),
+																					fieldLabel : amalto.updatereport.bundle
+																							.getMsg("end_date"),
 																					xtype : "datefield",
 																					format : "Y-m-d H:i:s",
 																					width : 150,
-																					invalidText: amalto.updatereport.UpdateReportLocal.get("Error_Date_Field"),
+																					invalidText: amalto.updatereport.bundle.getMsg("Error_Date_Field"),
 																					readOnly : false,
 																					listeners : {
 																						'specialkey' : function(
@@ -643,8 +633,8 @@ Ext
 																						event);
 																	}
 																			.createDelegate(this),
-																	text : amalto.updatereport.UpdateReportLocal
-																			.get("reset")
+																	text : amalto.updatereport.bundle
+																			.getMsg("reset")
 																},
 																{
 																	handler : function(
@@ -656,8 +646,8 @@ Ext
 																						event);
 																	}
 																			.createDelegate(this),
-																	text : amalto.updatereport.UpdateReportLocal
-																			.get("search")
+																	text : amalto.updatereport.bundle
+																			.getMsg("search")
 																},
 																{
 																	handler : function() {
@@ -669,8 +659,8 @@ Ext
 																				+ language;
 																	}
 																			.createDelegate(this),
-																	text : amalto.updatereport.UpdateReportLocal
-																			.get("export")
+																	text : amalto.updatereport.bundle
+																			.getMsg("export")
 																} ]
 													}, this.tabPanel8 ],
 											id : "UpdateReportPanel",

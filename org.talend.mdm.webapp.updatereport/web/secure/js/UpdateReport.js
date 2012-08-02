@@ -7,7 +7,6 @@
 amalto.namespace("amalto.updatereport");
 
 amalto.updatereport.UpdateReport = function () {	
-	loadResource("/updatereport/secure/js/UpdateReportLocal.js", "amalto.updatereport.UpdateReportLocal" );	
 	
     loadResource("/updatereport/secure/js/UpdateReportPanel.js", "");
     
@@ -26,13 +25,13 @@ amalto.updatereport.UpdateReport = function () {
     var updateReportPanel;
     
     function initUI(){
+
     	var isFirstTime=false;
 		var tabPanel = amalto.core.getTabPanel();
 		updateReportPanel = tabPanel.getItem('UpdateReportPanel');
-		
+
 		if(updateReportPanel == undefined){
 			isFirstTime=true;
-			amalto.updatereport.UpdateReportLocal.init();
 			updateReportPanel=new amalto.updatereport.UpdateReportPanel();			
 			tabPanel.add(updateReportPanel);
 		}
@@ -40,28 +39,36 @@ amalto.updatereport.UpdateReport = function () {
         updateReportPanel.show();
 		updateReportPanel.doLayout();
 		amalto.core.doLayout();
+		
 		return isFirstTime;
+		
     };
 	
 	function browseUpdateReport(){
-		//init UI
-		initUI();
-		// init data
-		updateReportPanel.initListData();
-		
+		amalto.updatereport.bundle = new Ext.i18n.Bundle({bundle:'UpdateReport', path:'/updatereport/secure/resources', lang:language});
+		amalto.updatereport.bundle.onReady(function(){
+			// init UI
+			initUI();
+			// init data
+			updateReportPanel.initListData();
+		});
 	};
 	
 	function browseUpdateReportWithSearchCriteria(dataObject, ids, itemsBroswer){
-		var isFirstTime=initUI();
-		//set search criteria
-		updateReportPanel.setSearchCriteria(dataObject,ids,"","","","");
-		// load data
-		if(isFirstTime){
-			updateReportPanel.initListData(itemsBroswer);
-		}else{
-			updateReportPanel.doSearchList(itemsBroswer);
-		}
-		
+		if(amalto.updatereport.bundle == undefined)
+			amalto.updatereport.bundle = new Ext.i18n.Bundle({bundle:'UpdateReport', path:'/updatereport/secure/resources', lang:language});
+	    
+		amalto.updatereport.bundle.onReady(function(){
+			var isFirstTime=initUI();
+			// set search criteria
+			updateReportPanel.setSearchCriteria(dataObject,ids,"","","","");
+			// load data
+			if(isFirstTime){
+				updateReportPanel.initListData(itemsBroswer);
+			}else{
+				updateReportPanel.doSearchList(itemsBroswer);
+			}
+		});
 	}
 
 
