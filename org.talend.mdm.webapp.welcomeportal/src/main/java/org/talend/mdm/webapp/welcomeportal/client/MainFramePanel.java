@@ -205,7 +205,7 @@ public class MainFramePanel extends Portal {
         set.removeAll();
         final HTML alertHtml = new HTML();
         final StringBuilder sb = new StringBuilder(
-                "<span id=\"licenseAlert\" style=\"padding-right:8px;cursor: pointer;\" title=\"" + MessagesFactory.getMessages().alerts_title() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
+                "<span id=\"licenseAlert\" style=\"padding-right:8px;cursor: pointer;\" class=\"labelStyle\" title=\"" + MessagesFactory.getMessages().alerts_title() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
 
         service.getAlertMsg(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<String>() {
 
@@ -270,7 +270,7 @@ public class MainFramePanel extends Portal {
         set.removeAll();
         final HTML taskHtml = new HTML();
         final StringBuilder sb = new StringBuilder(
-                "<span id=\"workflowtasks\" style=\"padding-right:8px;cursor: pointer;\" title=\"" + MessagesFactory.getMessages().tasks_title() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
+                "<span id=\"workflowtasks\" style=\"padding-right:8px;cursor: pointer;\" class=\"labelStyle\" title=\"" + MessagesFactory.getMessages().tasks_title() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
         service.getTaskMsg(new SessionAwareAsyncCallback<Integer>() {
 
             public void onSuccess(Integer num) {
@@ -336,7 +336,7 @@ public class MainFramePanel extends Portal {
                         StringBuilder sb = new StringBuilder();
                         sb.append("<span id=\"processes"); //$NON-NLS-1$
                         sb.append(str);
-                        sb.append("\" style=\"padding-right:8px;cursor: pointer;\">"); //$NON-NLS-1$
+                        sb.append("\" style=\"padding-right:8px;cursor: pointer;\" class=\"labelStyle\">"); //$NON-NLS-1$
                         sb.append("<IMG SRC=\"/talendmdm/secure/img/genericUI/runnable_bullet.png\"/>&nbsp;"); //$NON-NLS-1$
                         sb.append(strDesc.replace("Runnable#", "")); //$NON-NLS-1$ //$NON-NLS-2$
                         sb.append("</span>"); //$NON-NLS-1$
@@ -459,11 +459,11 @@ public class MainFramePanel extends Portal {
     }
 
     private native void openWindow(String url)/*-{
-		window.open(url);
+        window.open(url);
     }-*/;
 
     private native void initUI(String context, String application)/*-{
-		var initFunction = $wnd.amalto[context][application].init;
-		setTimeout(initFunction, '50');
+        var initFunction = $wnd.amalto[context][application].init;
+        setTimeout(initFunction, '50');
     }-*/;
 }
