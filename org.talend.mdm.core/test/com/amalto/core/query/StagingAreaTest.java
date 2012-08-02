@@ -34,8 +34,6 @@ import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.XtentisException;
 import junit.framework.TestCase;
 import org.apache.log4j.Logger;
-import org.quartz.SimpleTrigger;
-import org.quartz.Trigger;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 
 import java.io.ByteArrayInputStream;
@@ -171,12 +169,7 @@ public class StagingAreaTest extends TestCase {
         SaverSource source = new TestSaverSource(destination, repository, "metadata.xsd");
         SaverSession.Committer committer = new TestCommitter(destination);
         StagingConfiguration config = new StagingConfiguration(origin, stagingRepository, repository, source, committer, destination);
-        TaskExecutor stagingTask = TaskFactory.createStagingTask(config, new TaskFactory.ExecutionConfiguration() {
-            @Override
-            public Trigger createTrigger() {
-                return new SimpleTrigger(String.valueOf(System.currentTimeMillis()), "group");
-            }
-        });
+        Task stagingTask = TaskFactory.createStagingTask(config);
         TaskSubmitter.getInstance().submitAndWait(stagingTask);
 
         assertEquals(0, destination.fetch(selectEmptyTaskId).getCount());
@@ -209,7 +202,7 @@ public class StagingAreaTest extends TestCase {
 
         SaverSource source = new TestSaverSource(destination, repository, "metadata.xsd");
         SaverSession.Committer committer = new TestCommitter(destination);
-        Task stagingTask = new StagingTask(TaskSubmitter.getInstance(), origin, stagingRepository, repository, source, committer, destination, UUID.randomUUID().toString());
+        Task stagingTask = new StagingTask(TaskSubmitter.getInstance(), origin, stagingRepository, repository, source, committer, destination);
         TaskSubmitter.getInstance().submit(stagingTask);
 
         Thread.sleep(200);
@@ -237,7 +230,7 @@ public class StagingAreaTest extends TestCase {
 
         SaverSource source = new TestSaverSource(destination, repository, "metadata.xsd");
         SaverSession.Committer committer = new TestCommitter(destination);
-        Task stagingTask = new StagingTask(TaskSubmitter.getInstance(), origin, stagingRepository, repository, source, committer, destination, UUID.randomUUID().toString());
+        Task stagingTask = new StagingTask(TaskSubmitter.getInstance(), origin, stagingRepository, repository, source, committer, destination);
         TaskSubmitter.getInstance().submitAndWait(stagingTask);
 
         assertEquals(0, destination.fetch(selectEmptyTaskId).getCount());

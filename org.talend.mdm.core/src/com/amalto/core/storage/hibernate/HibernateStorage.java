@@ -308,7 +308,8 @@ public class HibernateStorage implements Storage {
             Session session = factory.getCurrentSession();
             DataRecordConverter<Object> converter = new ObjectDataRecordConverter(storageClassLoader, session);
             for (DataRecord currentDataRecord : records) {
-                Wrapper o = (Wrapper) currentDataRecord.convert(converter, mappingRepository.getMapping(currentDataRecord.getType()));
+                TypeMapping mapping = mappingRepository.getMapping(currentDataRecord.getType());
+                Wrapper o = (Wrapper) currentDataRecord.convert(converter, mapping);
                 o.timestamp(System.currentTimeMillis());
                 o.revision(currentDataRecord.getRevisionId());
 
@@ -316,7 +317,15 @@ public class HibernateStorage implements Storage {
                 o.taskId(recordMetadata.getTaskId());
                 Map<String, String> recordProperties = recordMetadata.getRecordProperties();
                 for (Map.Entry<String, String> currentProperty : recordProperties.entrySet()) {
-                    o.set(currentProperty.getKey(), currentProperty.getValue());
+                    String key = currentProperty.getKey();
+                    String value = currentProperty.getValue();
+                    ComplexTypeMetadata database = mapping.getDatabase();
+                    if (database.hasField(key)) {
+                        Object convertedValue = MetadataUtils.convert(value, database.getField(key));
+                        o.set(key, convertedValue);
+                    } else {
+                        throw new IllegalArgumentException("Can not store value '" + key + "' because there is no database field '" + key + "' in type '" + mapping.getName() + "'");
+                    }
                 }
                 session.saveOrUpdate(o);
             }
@@ -324,8 +333,8 @@ public class HibernateStorage implements Storage {
             throw new RuntimeException("Invalid value in record to update.", e);
         } catch (NonUniqueObjectException e) {
             throw new RuntimeException("Attempted to update multiple times same record within same transaction.", e);
-        } catch (HibernateException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new RuntimeException("Exception occurred during update.", e);
         } finally {
             Thread.currentThread().setContextClassLoader(previousClassLoader);
         }

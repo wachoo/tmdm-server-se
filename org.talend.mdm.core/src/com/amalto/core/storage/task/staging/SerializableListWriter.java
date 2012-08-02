@@ -9,7 +9,7 @@
  * 9 rue Pages 92150 Suresnes, France
  */
 
-package com.amalto.core.servlet;
+package com.amalto.core.storage.task.staging;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -22,26 +22,25 @@ import java.io.OutputStreamWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Iterator;
-import java.util.List;
 
 @javax.ws.rs.ext.Provider
-public class StringListWriter implements MessageBodyWriter<List> {
+public class SerializableListWriter implements MessageBodyWriter<SerializableList> {
 
     @Override
     public boolean isWriteable(Class<?> aClass, Type type, Annotation[] annotations, MediaType mediaType) {
-        return List.class.isAssignableFrom(aClass)
+        return SerializableList.class.isAssignableFrom(aClass)
                 && (mediaType.equals(MediaType.TEXT_PLAIN_TYPE) |
                 mediaType.equals(MediaType.TEXT_XML_TYPE) |
                 mediaType.equals(MediaType.APPLICATION_JSON_TYPE));
     }
 
     @Override
-    public long getSize(List strings, Class<?> aClass, Type type, Annotation[] annotations, MediaType mediaType) {
+    public long getSize(SerializableList strings, Class<?> aClass, Type type, Annotation[] annotations, MediaType mediaType) {
         return strings.size();
     }
 
     @Override
-    public void writeTo(List strings, Class<?> aClass, Type type, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> stringObjectMultivaluedMap, OutputStream outputStream) throws IOException, WebApplicationException {
+    public void writeTo(SerializableList strings, Class<?> aClass, Type type, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> stringObjectMultivaluedMap, OutputStream outputStream) throws IOException, WebApplicationException {
         if (mediaType.equals(MediaType.TEXT_PLAIN_TYPE)) {
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(outputStream));
             for (Object string : strings) {
@@ -51,17 +50,17 @@ public class StringListWriter implements MessageBodyWriter<List> {
             bw.flush();
         } else if (mediaType.equals(MediaType.TEXT_XML_TYPE)) {
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(outputStream));
-            bw.write("<values>");
+            bw.write("<" + strings.getRootElement() + ">");
             for (Object string : strings) {
-                bw.write("<value>");
+                bw.write("<" + strings.getItemElement() + ">");
                 bw.write(String.valueOf(string));
-                bw.write("</value>");
+                bw.write("</" + strings.getItemElement() + ">");
             }
-            bw.write("</values>");
+            bw.write("</" + strings.getRootElement() + ">");
             bw.flush();
         } else if (mediaType.equals(MediaType.APPLICATION_JSON_TYPE)) {
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(outputStream));
-            bw.write("{values:[");
+            bw.write("{" + strings.getRootElement() + ":[");
             Iterator iterator = strings.iterator();
             while (iterator.hasNext()) {
                 bw.write('\"' + String.valueOf(iterator.next()) + '\"');

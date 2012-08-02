@@ -11,32 +11,15 @@
 
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <xsd:import namespace="http://www.w3.org/2001/XMLSchema"/>
-    <xsd:element name="TALEND_TASK_DEFINITION">
-        <xsd:complexType>
-            <xsd:all maxOccurs="1" minOccurs="1">
-                <xsd:element maxOccurs="1" minOccurs="1" name="id" type="xsd:string"/>
-                <xsd:element maxOccurs="1" minOccurs="1" name="trigger" type="xsd:base64Binary"/>
-                <xsd:element maxOccurs="1" minOccurs="1" name="completed" type="xsd:boolean"/>
-                <xsd:element maxOccurs="1" minOccurs="1" name="type" type="xsd:string"/>
-            </xsd:all>
-        </xsd:complexType>
-        <xsd:unique name="TALEND_TASK_DEFINITION">
-            <xsd:selector xpath="."/>
-            <xsd:field xpath="id"/>
-        </xsd:unique>
-    </xsd:element>
     <xsd:element name="TALEND_TASK_EXECUTION">
         <xsd:complexType>
             <xsd:all maxOccurs="1" minOccurs="1">
                 <xsd:element maxOccurs="1" minOccurs="1" name="id" type="xsd:string"/>
-                <xsd:element maxOccurs="1" minOccurs="0" name="task_id" type="xsd:string">
-                    <xsd:annotation>
-                        <xsd:appinfo source="X_ForeignKey">TALEND_TASK_DEFINITION/id</xsd:appinfo>
-                    </xsd:annotation>
-                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="type" type="xsd:string"/>
                 <xsd:element maxOccurs="1" minOccurs="1" name="start_time" type="xsd:dateTime"/>
                 <xsd:element maxOccurs="1" minOccurs="1" name="end_time" type="xsd:dateTime"/>
                 <xsd:element maxOccurs="1" minOccurs="1" name="record_count" type="xsd:decimal"/>
+                <xsd:element maxOccurs="1" minOccurs="1" name="completed" type="xsd:boolean"/>
             </xsd:all>
         </xsd:complexType>
         <xsd:unique name="TALEND_TASK_EXECUTION">

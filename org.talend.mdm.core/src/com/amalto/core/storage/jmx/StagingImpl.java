@@ -70,7 +70,7 @@ public class StagingImpl implements Staging {
             Storage origin = server.getStorageAdmin().get(storageName + StorageAdmin.STAGING_SUFFIX);
             Storage destination = server.getStorageAdmin().get(storageName);
 
-            Task task = new StagingTask(TaskSubmitter.getInstance(), origin, stagingRepository, userRepository, source, committer, destination, "TODO");
+            Task task = new StagingTask(TaskSubmitter.getInstance(), origin, stagingRepository, userRepository, source, committer, destination);
 
             ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
             try {

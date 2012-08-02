@@ -43,10 +43,6 @@ public class StagingTask implements Task {
 
     private final ComplexTypeMetadata executionType;
 
-    private final ComplexTypeMetadata definitionType;
-
-    private final String taskDefinitionId;
-
     private MetadataRepositoryTask currentTask;
 
     private double recordCount;
@@ -61,14 +57,11 @@ public class StagingTask implements Task {
                        MetadataRepository userRepository,
                        SaverSource source,
                        SaverSession.Committer committer,
-                       Storage destinationStorage,
-                       String taskDefinitionId) {
+                       Storage destinationStorage) {
         this.taskSubmitter = taskSubmitter;
         this.stagingStorage = stagingStorage;
         this.executionId = UUID.randomUUID().toString();
-        this.taskDefinitionId = taskDefinitionId;
         this.executionType = stagingRepository.getComplexType("TALEND_TASK_EXECUTION");
-        this.definitionType = stagingRepository.getComplexType("TALEND_TASK_DEFINITION");
         tasks = Arrays.asList(new ClusterTask(stagingStorage, userRepository),
                 new MergeTask(stagingStorage, userRepository),
                 new MDMValidationTask(stagingStorage, destinationStorage, userRepository, source, committer));
@@ -124,9 +117,6 @@ public class StagingTask implements Task {
         }
 
         try {
-            if (definitionType == null) {
-                throw new IllegalStateException("Can not find internal type information for task definition.");
-            }
             if (executionType == null) {
                 throw new IllegalStateException("Can not find internal type information for execution logging.");
             }
@@ -135,9 +125,6 @@ public class StagingTask implements Task {
             stagingStorage.begin();
             {
                 execution.set(executionType.getField("id"), executionId);
-                DataRecord taskDefinition = new DataRecord(definitionType, UnsupportedDataRecordMetadata.INSTANCE);
-                taskDefinition.set(definitionType.getField("id"), taskDefinitionId);
-                execution.set(executionType.getField("task_id"), taskDefinition);
                 startTime = System.currentTimeMillis();
                 execution.set(executionType.getField("start_time"), new Timestamp(startTime));
                 stagingStorage.update(execution);

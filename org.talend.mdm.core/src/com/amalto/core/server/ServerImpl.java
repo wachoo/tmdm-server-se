@@ -146,7 +146,7 @@ class ServerImpl implements Server {
                 TaskSubmitter taskSubmitter = TaskSubmitter.getInstance();
                 SaverSource source = new DefaultSaverSource();
                 SaverSession.Committer committer = new DefaultCommitter();
-                return new StagingTask(taskSubmitter, staging, stagingRepository, userRepository, source, committer, destination, "TODO");
+                return new StagingTask(taskSubmitter, staging, stagingRepository, userRepository, source, committer, destination);
             default:
                 throw new NotImplementedException("No support for task type '" + taskType + "'.");
         }

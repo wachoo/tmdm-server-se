@@ -10,8 +10,7 @@ import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.amalto.core.query.user.UserQueryBuilder.from;
-import static com.amalto.core.query.user.UserQueryBuilder.isEmpty;
+import static com.amalto.core.query.user.UserQueryBuilder.*;
 import static com.amalto.core.query.user.UserStagingQueryBuilder.status;
 
 public class ClusterTask extends MetadataRepositoryTask {
@@ -27,7 +26,7 @@ public class ClusterTask extends MetadataRepositoryTask {
 
     @Override
     protected Task createTypeTask(ComplexTypeMetadata type) {
-        Select query = from(type).where(isEmpty(status())).getSelect();
+        Select query = from(type).where(or(eq(status(), "0"), isNull(status()))).getSelect();
         return new SingleThreadedTask(type.getName(), storage, query, new ClusterClosure(storage));
     }
 

@@ -9,10 +9,11 @@
  * 9 rue Pages 92150 Suresnes, France
  */
 
-package com.amalto.core.servlet;
+package com.amalto.core.storage.task.staging;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Date;
 
 @XmlRootElement(name = "task")
 public class TaskStatus {
@@ -25,12 +26,12 @@ public class TaskStatus {
 
     private String timeInterval;
 
-    private String nextRunDate;
+    private Date nextRunDate;
 
     public TaskStatus() {
     }
 
-    public TaskStatus(String id, String dataContainer, String executionType, String timeInterval, String nextRunDate) {
+    public TaskStatus(String id, String dataContainer, String executionType, String timeInterval, Date nextRunDate) {
         this.id = id;
         this.dataContainer = dataContainer;
         this.executionType = executionType;
@@ -62,7 +63,7 @@ public class TaskStatus {
     }
 
     @XmlElement(name = "next_run_date")
-    public String getNextRunDate() {
+    public Date getNextRunDate() {
         return nextRunDate;
     }
 
@@ -82,7 +83,7 @@ public class TaskStatus {
         this.timeInterval = timeInterval;
     }
 
-    public void setNextRunDate(String nextRunDate) {
+    public void setNextRunDate(Date nextRunDate) {
         this.nextRunDate = nextRunDate;
     }
 }

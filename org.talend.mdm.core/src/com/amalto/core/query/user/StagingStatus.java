@@ -13,7 +13,7 @@ package com.amalto.core.query.user;
 
 public class StagingStatus implements TypedExpression {
 
-    public static final String STATING_STATUS_TYPE_NAME = "string";
+    public static final String STATING_STATUS_TYPE_NAME = "int";
 
     public String getTypeName() {
         return STATING_STATUS_TYPE_NAME;

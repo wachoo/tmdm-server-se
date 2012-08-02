@@ -9,42 +9,37 @@
  * 9 rue Pages 92150 Suresnes, France
  */
 
-package com.amalto.core.servlet;
+package com.amalto.core.storage.task.staging;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Date;
 
 @XmlRootElement(name = "execution")
-public class ExecutionStatus {
+public class ExecutionStatistics {
 
     private String id;
 
-    private int processedRecords;
+    private Date startDate;
 
-    private String startDate;
+    private Date endDate;
 
-    private String endDate;
     private String runningTime;
 
-    private int recordLeft;
+    private int totalRecords;
 
-    private double performance;
+    private double processedRecords;
 
-    public ExecutionStatus() {
+    private int invalidRecords;
+
+    public ExecutionStatistics() {
     }
 
-    public ExecutionStatus(String id, int processedRecords, String startDate, String endDate, String runningTime, int recordLeft, double performance) {
-        this.id = id;
+    public ExecutionStatistics(String uuid, int processedRecords, Date startDate, Date endDate) {
+        this.id = uuid;
         this.processedRecords = processedRecords;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.runningTime = runningTime;
-        this.recordLeft = recordLeft;
-        this.performance = performance;
-    }
-
-    public ExecutionStatus(String id) {
-        this.id = id;
     }
 
     @XmlElement(name = "id")
@@ -57,33 +52,33 @@ public class ExecutionStatus {
     }
 
     @XmlElement(name = "processed_records")
-    public int getProcessedRecords() {
+    public double getProcessedRecords() {
         return processedRecords;
     }
 
-    public void setProcessedRecords(int processedRecords) {
+    public void setProcessedRecords(double processedRecords) {
         this.processedRecords = processedRecords;
     }
 
     @XmlElement(name = "start_date")
-    public String getStartDate() {
+    public Date getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(String startDate) {
+    public void setStartDate(Date startDate) {
         this.startDate = startDate;
     }
 
     @XmlElement(name = "end_date")
-    public String getEndDate() {
+    public Date getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(String endDate) {
+    public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
 
-    @XmlElement(name = "elapsed_time")
+    @XmlElement(name = "running_time")
     public String getRunningTime() {
         return runningTime;
     }
@@ -92,21 +87,21 @@ public class ExecutionStatus {
         this.runningTime = runningTime;
     }
 
-    @XmlElement(name = "record_left")
-    public int getRecordLeft() {
-        return recordLeft;
+    @XmlElement(name = "total_record")
+    public int getTotalRecords() {
+        return totalRecords;
     }
 
-    public void setRecordLeft(int recordLeft) {
-        this.recordLeft = recordLeft;
+    public void setTotalRecords(int totalRecords) {
+        this.totalRecords = totalRecords;
     }
 
-    @XmlElement(name = "performance")
-    public double getPerformance() {
-        return performance;
+    @XmlElement(name = "invalid_records")
+    public int getInvalidRecords() {
+        return invalidRecords;
     }
 
-    public void setPerformance(double performance) {
-        this.performance = performance;
+    public void setInvalidRecords(int invalidRecords) {
+        this.invalidRecords = invalidRecords;
     }
 }
