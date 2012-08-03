@@ -1,0 +1,34 @@
+package org.talend.mdm.webapp.stagingarea.client.rest;
+
+import com.extjs.gxt.ui.client.data.DataProxy;
+import com.extjs.gxt.ui.client.data.DataReader;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
+public abstract class RestDataProxy<D> implements DataProxy<D> {
+
+    public void load(final DataReader<D> reader, final Object loadConfig, final AsyncCallback<D> callback) {
+        load(loadConfig, new AsyncCallback<D>() {
+
+            public void onFailure(Throwable caught) {
+                callback.onFailure(caught);
+            }
+
+            @SuppressWarnings("unchecked")
+            public void onSuccess(Object result) {
+                try {
+                    D data = null;
+                    if (reader != null) {
+                        data = reader.read(loadConfig, result);
+                    } else {
+                        data = (D) result;
+                    }
+                    callback.onSuccess(data);
+                } catch (Exception e) {
+                    callback.onFailure(e);
+                }
+            }
+        });
+    }
+
+    protected abstract void load(Object loadConfig, AsyncCallback<D> callback);
+}

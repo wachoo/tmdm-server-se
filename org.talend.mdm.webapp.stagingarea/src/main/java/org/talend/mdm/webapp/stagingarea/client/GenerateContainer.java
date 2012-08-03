@@ -14,9 +14,8 @@ package org.talend.mdm.webapp.stagingarea.client;
 
 import org.talend.mdm.webapp.stagingarea.client.i18n.MessagesFactory;
 
-import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.google.gwt.user.client.Window;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
 
 public class GenerateContainer {
@@ -28,16 +27,8 @@ public class GenerateContainer {
             instance.removeFromParent();
         }
 
-        instance = new ContentPanel() {
-
-            @Override
-            public void onAttach() {
-                monitorWindowResize = true;
-                Window.enableScrolling(true);
-                super.onAttach();
-                GXT.hideLoadingPanel("loading");//$NON-NLS-1$
-            }
-        };
+        instance = new ContentPanel();
+        instance.setLayout(new FitLayout());
         instance.setId(Stagingarea.STAGINGAREA_ID);
         instance.setHeading(MessagesFactory.getMessages().stagingarea_title());
     }
