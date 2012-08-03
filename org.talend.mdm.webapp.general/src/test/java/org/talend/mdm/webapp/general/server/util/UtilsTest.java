@@ -32,7 +32,7 @@ public class UtilsTest extends TestCase {
 
         lang = langs.get(1);
         assertEquals("fr", lang.getValue());
-        assertEquals("Francais", lang.getText());
+        assertEquals("Français", lang.getText());
         assertFalse(lang.isSelected());
     }
 }
