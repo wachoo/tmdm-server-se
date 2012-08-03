@@ -9,7 +9,6 @@
  <welcome-file-list>
   <welcome-file>Stagingarea.html</welcome-file>
  </welcome-file-list>
- <welcome-file-list>
 
   <!-- Security -->
   @{dev.mode.excluded.start}
