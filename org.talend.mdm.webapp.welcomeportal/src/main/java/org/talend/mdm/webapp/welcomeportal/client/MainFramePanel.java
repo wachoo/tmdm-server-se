@@ -147,7 +147,7 @@ public class MainFramePanel extends Portal {
                 StringBuilder sb1 = new StringBuilder(
                         "<span id=\"ItemsBrowser\" style=\"padding-right:8px;cursor: pointer; width:150;\" class=\"labelStyle\" title=\"" + MessagesFactory.getMessages().browse_items() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
                 sb1.append("<IMG SRC=\"/talendmdm/secure/img/menu/browse.png\"/>&nbsp;"); //$NON-NLS-1$
-                sb1.append(id);
+                sb1.append(MessagesFactory.getMessages().browse_items());
                 sb1.append("</span>"); //$NON-NLS-1$
                 HTML browseHtml = new HTML(sb1.toString());
                 browseHtml.addClickHandler(new ClickHandler() {
@@ -459,11 +459,11 @@ public class MainFramePanel extends Portal {
     }
 
     private native void openWindow(String url)/*-{
-        window.open(url);
+		window.open(url);
     }-*/;
 
     private native void initUI(String context, String application)/*-{
-        var initFunction = $wnd.amalto[context][application].init;
-        setTimeout(initFunction, '50');
+		var initFunction = $wnd.amalto[context][application].init;
+		setTimeout(initFunction, '50');
     }-*/;
 }

@@ -115,7 +115,7 @@ public class BrandingBar extends ContentPanel {
     }
 
     private native void setHref(String href)/*-{
-        $wnd.location.href = href;
+		$wnd.location.href = href;
     }-*/;
 
     private void buildBar() {
@@ -152,6 +152,8 @@ public class BrandingBar extends ContentPanel {
 
         languageBox.getElement().setId("languageSelect"); //$NON-NLS-1$
         languageBox.setStyleName("language-box"); //$NON-NLS-1$
+        // Enforce height
+        languageBox.setHeight("20px"); //$NON-NLS-1$
 
         hp.add(languageBox);
         hp.setCellVerticalAlignment(languageBox, HasVerticalAlignment.ALIGN_MIDDLE);
