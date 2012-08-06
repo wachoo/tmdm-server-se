@@ -3,7 +3,9 @@
 	
   <inherits name="org.talend.mdm.webapp.base.BASE" />
   <inherits name="com.extjs.gxt.charts.Chart" />
-  
+  <inherits name="org.restlet.Restlet"/>
+  <inherits name="org.restlet.JSON"/>
+  <inherits name="org.restlet.XML"/>
   <!-- Specify the app entry point class.                         -->
   <entry-point class='org.talend.mdm.webapp.stagingarea.client.Stagingarea'/>
 
