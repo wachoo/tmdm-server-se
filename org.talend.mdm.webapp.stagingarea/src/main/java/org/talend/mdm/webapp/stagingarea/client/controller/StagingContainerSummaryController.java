@@ -12,13 +12,38 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingarea.client.controller;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.stagingarea.client.model.StagingContainerModel;
+import org.talend.mdm.webapp.stagingarea.client.rest.RestServiceHandler;
 import org.talend.mdm.webapp.stagingarea.client.view.StagingContainerSummaryView;
 
 public class StagingContainerSummaryController extends AbstractController {
 
-    private StagingContainerSummaryView stagingContainerSummaryView;
+    RestServiceHandler handler = new RestServiceHandler();
 
-    public StagingContainerSummaryController(StagingContainerSummaryView stagingContainerSummaryView) {
-        this.stagingContainerSummaryView = stagingContainerSummaryView;
+    private StagingContainerSummaryView view;
+
+
+    public StagingContainerSummaryController(StagingContainerSummaryView view) {
+        this.view = view;
     }
+
+    public void refreshView() {
+        handler.getStagingContainerSummary("TestDataContainer", "TestDataModel", new SessionAwareAsyncCallback<StagingContainerModel>() { //$NON-NLS-1$ //$NON-NLS-2$
+
+            public void onSuccess(StagingContainerModel result) {
+                view.refresh(result);
+            }
+        });
+    }
+
+    public void startValidation() {
+        handler.runValidationTask("TestDataContainer", "TestDataModel", null, new SessionAwareAsyncCallback<String>() { //$NON-NLS-1$ //$NON-NLS-2$
+
+            public void onSuccess(String result) {
+                ControllerContainer.get().getCurrentValidationController().refreshView();
+            }
+        });
+    }
+
 }

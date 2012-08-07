@@ -12,31 +12,26 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingarea.client.view;
 
+import org.talend.mdm.webapp.stagingarea.client.model.StagingContainerModel;
+
 import com.extjs.gxt.charts.client.Chart;
-import com.extjs.gxt.charts.client.event.ChartEvent;
-import com.extjs.gxt.charts.client.event.ChartListener;
 import com.extjs.gxt.charts.client.model.ChartModel;
 import com.extjs.gxt.charts.client.model.Legend;
 import com.extjs.gxt.charts.client.model.Legend.Position;
 import com.extjs.gxt.charts.client.model.charts.PieChart;
-import com.extjs.gxt.ui.client.widget.HorizontalPanel;
-import com.extjs.gxt.ui.client.widget.Info;
-import com.extjs.gxt.ui.client.widget.Label;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayout;
+import com.extjs.gxt.ui.client.widget.layout.VBoxLayoutData;
 
 
 
 public class StagingContainerSummaryView extends AbstractView {
 
-    private HorizontalPanel topPanel;
+    private StagingContainerModel model;
 
-    private HorizontalPanel bottomPanel;
-
-    private Label stagingAreaLabel;
-
-    private Label dataContainerLabel;
-
-    private Label dataModelLabel;
+    private Button startValidate;
 
     private static final String Chart_Url = "/core/secure/gxt/resources/chart/open-flash-chart.swf"; //$NON-NLS-1$
 
@@ -44,63 +39,65 @@ public class StagingContainerSummaryView extends AbstractView {
 
     @Override
     protected void initComponents() {
-        topPanel = new HorizontalPanel();
-        bottomPanel = new HorizontalPanel();
-        stagingAreaLabel = new Label("Staging Area"); //$NON-NLS-1$
-        dataContainerLabel = new Label("data_container"); //$NON-NLS-1$
-        dataModelLabel = new Label("data_model"); //$NON-NLS-1$
         chart = new Chart(Chart_Url);
+        chart.setBorders(true);
+        chart.setChartModel(getPieChartData());
+        chart.setSize(500, 180);
+        chart.setBorders(false);
+
+        startValidate = new Button("Start Validation"); //$NON-NLS-1$
+
+        mainPanel.setHeight(220);
+        mainPanel.setBodyBorder(false);
     }
 
     @Override
     protected void registerEvent() {
-        // TODO Auto-generated method stub
+        startValidate.addSelectionListener(new SelectionListener<ButtonEvent>() {
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+
+            }
+        });
     }
 
     @Override
     protected void initLayout() {
         mainPanel.setLayout(new VBoxLayout());
-
-        mainPanel.add(topPanel);
-        mainPanel.add(bottomPanel);
-
-        topPanel.add(stagingAreaLabel);
-        topPanel.add(dataContainerLabel);
-        topPanel.add(dataModelLabel);
-
-        chart.setBorders(true);
-        chart.setChartModel(getPieChartData());
-        chart.setSize(400, 200);
-        bottomPanel.add(chart);
+        mainPanel.add(chart);
+        mainPanel.add(startValidate, new VBoxLayoutData(0, 0, 0, 400));
     }
 
     private ChartModel getPieChartData() {
-        ChartModel cm = new ChartModel("Sales by Region", "font-size: 14px; font-family: Verdana; text-align: center;");
-        cm.setBackgroundColour("#fffff5");
+        ChartModel cm = new ChartModel("STAGING AREA &lt;data_container&gt;", //$NON-NLS-1$
+                "font-size: 14px; font-family: Verdana; text-align: center;"); //$NON-NLS-1$
+        cm.setBackgroundColour("#FFFFFF"); //$NON-NLS-1$
         Legend lg = new Legend(Position.RIGHT, true);
         lg.setPadding(1);
         cm.setLegend(lg);
 
-        PieChart pie = new PieChart();
-        pie.setAlpha(0.5f);
-        pie.setNoLabels(true);
-        pie.setTooltip("#label# $#val#M<br>#percent#");
-        pie.setColours("#ff0000", "#00aa00", "#0000ff", "#ff9900", "#ff00ff");
-        pie.addSlices(new PieChart.Slice(100, "AU", "Australia"));
-        pie.addSlices(new PieChart.Slice(200, "US", "USA"));
-        pie.addSlices(new PieChart.Slice(150, "JP", "Japan"));
-        pie.addSlices(new PieChart.Slice(120, "DE", "Germany"));
-        pie.addSlices(new PieChart.Slice(60, "UK", "United Kingdom"));
-        pie.addChartListener(listener);
+        if (model != null) {
 
-        cm.addChartConfig(pie);
+            int waiting = model.getWaitingValidationRecords();
+            int valid = model.getValidRecords();
+            int invalid = model.getInvalidRecords();
+
+            PieChart pie = new PieChart();
+            pie.setAlpha(1.0f);
+            pie.setNoLabels(true);
+            pie.setTooltip("#label# record #val#<br>#percent#"); //$NON-NLS-1$
+            pie.setColours("#0000ff", "#ff0000", "#00aa00"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            pie.addSlices(new PieChart.Slice(waiting, "Waiting", "Waiting for validation <" + waiting + "> records")); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+            pie.addSlices(new PieChart.Slice(invalid, "Invalid", "Invalid: <" + invalid + "> records open invalid records...")); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+            pie.addSlices(new PieChart.Slice(valid, "Valid", "Valid: <" + valid + "> records")); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+
+            cm.addChartConfig(pie);
+        }
         return cm;
     }
     
-    private ChartListener listener = new ChartListener() {
-        
-        public void chartClick(ChartEvent ce) {  
-          Info.display("Chart Clicked", "You selected {0}.", "" + ce.getValue());  
-        }  
-    };
+    public void refresh(StagingContainerModel model) {
+        this.model = model;
+        chart.setChartModel(getPieChartData());
+    }
 }

@@ -31,6 +31,7 @@ public class GenerateContainer {
         instance.setLayout(new FitLayout());
         instance.setId(Stagingarea.STAGINGAREA_ID);
         instance.setHeading(MessagesFactory.getMessages().stagingarea_title());
+        instance.setHeaderVisible(false);
     }
 
     public static ContentPanel getContentPanel() {

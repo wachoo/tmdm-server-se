@@ -49,6 +49,8 @@ public class StagingareaMainPanel extends AbstractView {
         currentValidationView = new CurrentValidationView();
         previousExecutionValidationView = new PreviousExecutionView();
         ControllerContainer.initController(summaryView, currentValidationView, previousExecutionValidationView);
+        ControllerContainer.get().getSummaryController().refreshView();
+        ControllerContainer.get().getCurrentValidationController().refreshView();
     }
 
     @Override
@@ -57,5 +59,6 @@ public class StagingareaMainPanel extends AbstractView {
         mainPanel.add(wrapFieldSet(summaryView, "Status"), new RowData(1, -1, new Margins(4))); //$NON-NLS-1$
         mainPanel.add(wrapFieldSet(currentValidationView, "Current Validation"), new RowData(1, -1, new Margins(0, 4, 0, 4))); //$NON-NLS-1$
         mainPanel.add(wrapFieldSet(previousExecutionValidationView, "Previous Validation(s)"), new RowData(1, 1, new Margins(4))); //$NON-NLS-1$
+        mainPanel.setBodyBorder(false);
     }
 }
