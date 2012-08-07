@@ -31,7 +31,7 @@ public class StagingAreaValidationModel extends BaseModelData implements IsSeria
     }
 
     public int getProcessedRecords() {
-        return get("processed_records"); //$NON-NLS-1$
+        return get("processed_records") == null ? 0 : ((Integer) get("processed_records")).intValue(); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     public void setProcessedRecords(int processedRecords) {
@@ -39,7 +39,7 @@ public class StagingAreaValidationModel extends BaseModelData implements IsSeria
     }
 
     public int getInvalidRecords() {
-        return get("invalid_records"); //$NON-NLS-1$
+        return get("invalid_records") == null ? 0 : ((Integer) get("invalid_records")).intValue(); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     public void setInvalidRecords(int invalidRecords) {
@@ -47,7 +47,7 @@ public class StagingAreaValidationModel extends BaseModelData implements IsSeria
     }
 
     public int getTotalRecord() {
-        return get("total_record"); //$NON-NLS-1$
+        return get("total_record") == null ? 0 : ((Integer) get("total_record")).intValue(); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     public void setTotalRecord(int totalRecord) {
