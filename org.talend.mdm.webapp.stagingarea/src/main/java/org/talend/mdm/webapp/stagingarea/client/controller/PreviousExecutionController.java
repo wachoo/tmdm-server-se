@@ -12,13 +12,13 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingarea.client.controller;
 
-import org.talend.mdm.webapp.stagingarea.client.view.StagingContainerSummaryView;
+import org.talend.mdm.webapp.stagingarea.client.view.PreviousExecutionView;
 
-public class StagingContainerSummaryController extends AbstractController {
+public class PreviousExecutionController extends AbstractController {
 
-    private StagingContainerSummaryView stagingContainerSummaryView;
+    PreviousExecutionView view;
 
-    public StagingContainerSummaryController(StagingContainerSummaryView stagingContainerSummaryView) {
-        this.stagingContainerSummaryView = stagingContainerSummaryView;
+    public PreviousExecutionController(PreviousExecutionView view) {
+        this.view = view;
     }
 }

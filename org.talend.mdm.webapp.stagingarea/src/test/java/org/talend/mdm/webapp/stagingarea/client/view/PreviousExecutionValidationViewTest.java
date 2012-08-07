@@ -13,15 +13,8 @@
 package org.talend.mdm.webapp.stagingarea.client.view;
 
 import com.google.gwt.junit.client.GWTTestCase;
-import com.google.gwt.user.client.ui.RootPanel;
 
 public class PreviousExecutionValidationViewTest extends GWTTestCase {
-
-    public void testA() {
-        PreviousExecutionValidationView view = new PreviousExecutionValidationView();
-
-        RootPanel.get().add(view);
-    }
 
     public String getModuleName() {
         return "org.talend.mdm.webapp.stagingarea.Stagingarea"; //$NON-NLS-1$

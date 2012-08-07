@@ -12,9 +12,10 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingarea.client;
 
+import org.talend.mdm.webapp.stagingarea.client.controller.ControllerContainer;
 import org.talend.mdm.webapp.stagingarea.client.view.AbstractView;
 import org.talend.mdm.webapp.stagingarea.client.view.CurrentValidationView;
-import org.talend.mdm.webapp.stagingarea.client.view.PreviousExecutionValidationView;
+import org.talend.mdm.webapp.stagingarea.client.view.PreviousExecutionView;
 import org.talend.mdm.webapp.stagingarea.client.view.StagingContainerSummaryView;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -31,7 +32,7 @@ public class StagingareaMainPanel extends AbstractView {
 
     private CurrentValidationView currentValidationView;
 
-    private PreviousExecutionValidationView previousExecutionValidationView;
+    private PreviousExecutionView previousExecutionValidationView;
 
     private FieldSet wrapFieldSet(BoxComponent comp, String caption){
         FieldSet fieldSet = new FieldSet();
@@ -46,7 +47,8 @@ public class StagingareaMainPanel extends AbstractView {
         super.initComponents();
         summaryView = new StagingContainerSummaryView();
         currentValidationView = new CurrentValidationView();
-        previousExecutionValidationView = new PreviousExecutionValidationView();
+        previousExecutionValidationView = new PreviousExecutionView();
+        ControllerContainer.initController(summaryView, currentValidationView, previousExecutionValidationView);
     }
 
     @Override

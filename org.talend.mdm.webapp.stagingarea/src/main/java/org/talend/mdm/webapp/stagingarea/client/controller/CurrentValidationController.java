@@ -12,7 +12,56 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingarea.client.controller;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.stagingarea.client.model.StagingAreaExecutionModel;
+import org.talend.mdm.webapp.stagingarea.client.rest.RestServiceHandler;
+import org.talend.mdm.webapp.stagingarea.client.view.CurrentValidationView;
+
+import com.google.gwt.user.client.Timer;
+
 
 public class CurrentValidationController extends AbstractController {
 
+    RestServiceHandler handler = new RestServiceHandler();
+
+    private CurrentValidationView view;
+
+    private String stagingId;
+
+    private Timer timer;
+
+    public CurrentValidationController(CurrentValidationView view) {
+        this.view = view;
+        timer = new Timer() {
+
+            @Override
+            public void run() {
+                refreshView();
+            }
+        };
+    }
+
+    public void autoRefresh(boolean auto) {
+        if (stagingId != null) {
+            if (auto) {
+                timer.scheduleRepeating(1000);
+            } else {
+                timer.cancel();
+            }
+        }
+    }
+
+    public void refreshView() {
+
+        handler.getStagingAreaExecution("", stagingId, new SessionAwareAsyncCallback<StagingAreaExecutionModel>() {
+            public void onSuccess(StagingAreaExecutionModel result) {
+                view.refresh(result);
+            }
+        });
+    }
+
+    public void setStagingId(String stagingId) {
+        this.stagingId = stagingId;
+        refreshView();
+    }
 }
