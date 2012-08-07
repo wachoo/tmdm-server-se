@@ -13,14 +13,14 @@
 package org.talend.mdm.webapp.stagingarea.client.view;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.stagingarea.client.model.StagingAreaExecutionModel;
 import org.talend.mdm.webapp.stagingarea.client.rest.RestDataProxy;
 import org.talend.mdm.webapp.stagingarea.client.rest.RestServiceHandler;
 
-import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
+import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.DataProxy;
 import com.extjs.gxt.ui.client.data.ModelKeyProvider;
@@ -41,7 +41,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class PreviousExecutionView extends AbstractView {
 
-    private static final int PAGE_SIZE = 10;
+    private static final int PAGE_SIZE = 1;
     
     private PagingToolBar taskPagingBar;
 
@@ -71,14 +71,11 @@ public class PreviousExecutionView extends AbstractView {
         columns.add(endDateColumn);
         ColumnConfig processRecordsColumn = new ColumnConfig("processed_records", "Process Records", 100); //$NON-NLS-1$//$NON-NLS-2$
         columns.add(processRecordsColumn);
-        ColumnConfig invalidRecordsColumn = new ColumnConfig("performance", "performance", 100); //$NON-NLS-1$//$NON-NLS-2$
+        ColumnConfig invalidRecordsColumn = new ColumnConfig("invalid_records", "Invalid Records", 100); //$NON-NLS-1$//$NON-NLS-2$
         columns.add(invalidRecordsColumn);
 
-        ColumnConfig recordLeftColumn = new ColumnConfig("record_left", "Record Left", 100); //$NON-NLS-1$//$NON-NLS-2$
+        ColumnConfig recordLeftColumn = new ColumnConfig("total_record", "Total Record", 100); //$NON-NLS-1$//$NON-NLS-2$
         columns.add(recordLeftColumn);
-
-        ColumnConfig elapsedTimeColumn = new ColumnConfig("elapsed_time", "Elapsed Time", 100); //$NON-NLS-1$//$NON-NLS-2$
-        columns.add(elapsedTimeColumn);
 
         taskColumnModel =  new ColumnModel(columns);
     }
@@ -87,22 +84,20 @@ public class PreviousExecutionView extends AbstractView {
         proxy = new RestDataProxy<PagingLoadResult<StagingAreaExecutionModel>>() {
 
             protected void load(Object loadConfig, final AsyncCallback<PagingLoadResult<StagingAreaExecutionModel>> callback) {
-                final BasePagingLoadConfig pagingLoadConfig = (BasePagingLoadConfig) loadConfig;
-                final Date beforeDate = beforeDateField.getValue();
+                // final BasePagingLoadConfig pagingLoadConfig = (BasePagingLoadConfig) loadConfig;
+                // final Date beforeDate = beforeDateField.getValue();
 
                 RestServiceHandler handler = new RestServiceHandler();
 
-                // handler.getStagingAreaExecutionsWithPaging(dataContainer, start, pageSize, callback)
-                //                
-                // handler.getStagingAreaExecutionModelsWithPagingByBeforeDate(pagingLoadConfig.getOffset(),
-                // pagingLoadConfig
-                // .getLimit(), beforeDate,
-                // new SessionAwareAsyncCallback<BasePagingLoadResult<StagingAreaExecutionModel>>() {
-                //
-                // public void onSuccess(BasePagingLoadResult<StagingAreaExecutionModel> result) {
-                // callback.onSuccess(result);
-                // }
-                // });
+                handler.getStagingAreaExecutionsWithPaging("TestDataContainer", 1, 1, //$NON-NLS-1$
+                        new SessionAwareAsyncCallback<List<StagingAreaExecutionModel>>() {
+
+                            public void onSuccess(List<StagingAreaExecutionModel> result) {
+                                BasePagingLoadResult<StagingAreaExecutionModel> pagingResult = new BasePagingLoadResult<StagingAreaExecutionModel>(
+                                        result, 0, 1);
+                                callback.onSuccess(pagingResult);
+                            }
+                        });
             }
         };
 
