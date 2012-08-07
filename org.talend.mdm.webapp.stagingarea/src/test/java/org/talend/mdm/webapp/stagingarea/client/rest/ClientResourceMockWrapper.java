@@ -70,7 +70,7 @@ public class ClientResourceMockWrapper extends ClientResourceWrapper {
             response.setEntity(representation);
 
         } else if (method.equals(Method.GET)
-                && uri.matches("^.+/datamanager/services/tasks/staging/TestDataContainer/execs/(\\?start=1&size=10)?$")) {
+                && uri.matches("^.+/datamanager/services/tasks/staging/TestDataContainer/execs/(\\?start=1&size=10&before=2012-12-12)?$")) {
 
             String messageXml = "<executions><execution>fa011993-648f-48b3-9e4d-9c71de82f91a</execution><execution>4ad4e1c7-7769-45c1-90ad-16b54aa0262b</execution></executions>";
             DomRepresentation representation = new DomRepresentation(MediaType.TEXT_XML, XMLParser.parse(messageXml));

@@ -27,6 +27,7 @@ import org.talend.mdm.webapp.stagingarea.client.model.StagingAreaValidationModel
 import org.talend.mdm.webapp.stagingarea.client.model.StagingContainerModel;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 
@@ -37,6 +38,8 @@ public class RestServiceHandler {
     public static final String BASE_URL = (GWT.isScript() ? GWT.getHostPageBaseURL().replaceAll("/general/secure", "") : //$NON-NLS-1$ //$NON-NLS-2$
             GWT.getHostPageBaseURL().replaceAll(GWT.getModuleName() + SEPARATE, "")) //$NON-NLS-1$
             + "datamanager/services/tasks/staging"; //$NON-NLS-1$
+
+    public static final DateTimeFormat DEFAULT_DATE_FORMAT = DateTimeFormat.getFormat("yyyy-MM-dd");//$NON-NLS-1$
 
     private ClientResourceWrapper client;
 
@@ -174,11 +177,20 @@ public class RestServiceHandler {
      * @param pageSize
      * @param callback
      */
-    public void getStagingAreaExecutionsWithPaging(final String dataContainer, int start, int pageSize,
+    public void getStagingAreaExecutionsWithPaging(final String dataContainer, int start, int pageSize, Date before,
             final SessionAwareAsyncCallback<List<StagingAreaExecutionModel>> callback) {
+        
+        // build URI
+        StringBuilder uri = new StringBuilder(BASE_URL + SEPARATE + dataContainer + "/execs/");//$NON-NLS-1$ //$NON-NLS-2$
+        StringBuilder parameters=new StringBuilder();
+        if(start!=-1&&pageSize!=-1)
+            parameters.append("start=").append(start).append("&size=").append(pageSize);//$NON-NLS-1$ //$NON-NLS-2$
+        if(before!=null)
+            parameters.append("&before=").append(DEFAULT_DATE_FORMAT.format(before));//$NON-NLS-1$
+        if (parameters.length() > 0)
+            uri.append("?").append(parameters.toString());//$NON-NLS-1$
 
-        String url = BASE_URL + "/" + dataContainer + "/execs/?start=" + start + "&size=" + pageSize; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-        client.init(Method.GET, url);
+        client.init(Method.GET, uri.toString());
         client.setCallback(new ResourceCallbackHandler() {
 
             public void process(Request request, Response response) {
@@ -323,43 +335,6 @@ public class RestServiceHandler {
 
         callbackHandler.process(null, null);
 
-    }
-
-    // TODO Rest API not supported
-    /**
-     * DOC hshu Comment method "searchStagingAreaExecutionsWithPaging".
-     * 
-     * @param dataContainer
-     * @param criteria
-     * @param start
-     * @param pageSize
-     * @param callback
-     */
-    public void searchStagingAreaExecutionsWithPaging(final String dataContainer, StagingAreaExecutionModel criteria, int start,
-            int pageSize,
-            final SessionAwareAsyncCallback<List<StagingAreaExecutionModel>> callback) {
-
-        ResourceCallbackHandler callbackHandler = new ResourceCallbackHandler() {
-
-            public void process(Request request, Response response) {
-                try {
-                    List<StagingAreaExecutionModel> models = new ArrayList<StagingAreaExecutionModel>();
-                    // Mock model
-                    StagingAreaExecutionModel model = new StagingAreaExecutionModel();
-                    model.setId("1ad084c1-5f70-4b89-aeef-613e7e44f911"); //$NON-NLS-1$
-                    model.setTotalRecord(2500);
-                    model.setProcessedRecords(500);
-                    model.setInvalidRecords(250);
-                    model.setEndDate(new Date());
-                    models.add(model);
-                    callback.onSuccess(models);
-                } catch (Exception e) {
-                    callback.onFailure(e);
-                }
-            }
-        };
-
-        callbackHandler.process(null, null);
     }
 
 }
