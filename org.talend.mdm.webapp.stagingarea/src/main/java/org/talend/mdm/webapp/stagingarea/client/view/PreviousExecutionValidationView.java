@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.webapp.stagingarea.client.view;
 
 import java.util.ArrayList;
@@ -28,7 +40,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-public class PreviousValidationView extends AbstractView {
+public class PreviousExecutionValidationView extends AbstractView {
 
     private static final int PAGE_SIZE = 10;
     
@@ -97,23 +109,27 @@ public class PreviousValidationView extends AbstractView {
         });
     }
 
-    protected void initView() {
-
+    @Override
+    protected void initComponents() {
+        super.initComponents();
         buildColumns();
         buildDataSource();
-
         beforeDateLabel = new Label("Display Before"); //$NON-NLS-1$
         beforeDateField = new DateField();
         searchButton = new Button("Search"); //$NON-NLS-1$
         bar = new ToolBar();
+        taskPagingBar = new PagingToolBar(PAGE_SIZE);
+        taskGrid = new Grid<StagingAreaExecutionModel>(taskStore, taskColumnModel);
 
+    }
+
+    @Override
+    protected void initLayout() {
         bar.add(beforeDateLabel);
         bar.add(beforeDateField);
         bar.add(searchButton);
 
-        taskPagingBar = new PagingToolBar(PAGE_SIZE);
         taskPagingBar.bind(loader);
-        taskGrid = new Grid<StagingAreaExecutionModel>(taskStore, taskColumnModel);
 
         taskGrid.setStateful(true);
         taskGrid.setStateId("grid"); //$NON-NLS-1$
@@ -128,7 +144,7 @@ public class PreviousValidationView extends AbstractView {
         mainPanel.setBottomComponent(taskPagingBar);
     }
 
-    protected void initEvent() {
+    protected void registerEvent() {
         searchButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             public void componentSelected(ButtonEvent ce) {

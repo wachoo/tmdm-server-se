@@ -10,25 +10,15 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.stagingarea.client.view;
+package org.talend.mdm.webapp.stagingarea.client.controller;
 
+import org.talend.mdm.webapp.stagingarea.client.view.PreviousExecutionValidationView;
 
+public class PreviousExecutionValidationController extends AbstractController {
 
-public class CurrentValidationView extends AbstractView {
+    PreviousExecutionValidationView view;
 
-    @Override
-    protected void initComponents() {
-
+    public PreviousExecutionValidationController(PreviousExecutionValidationView view) {
+        this.view = view;
     }
-
-    @Override
-    protected void registerEvent() {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    protected void initLayout() {
-        // TODO Auto-generated method stub
-    }
-
 }

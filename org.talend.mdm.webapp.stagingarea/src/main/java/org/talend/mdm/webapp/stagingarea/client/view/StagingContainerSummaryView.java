@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.webapp.stagingarea.client.view;
 
 import com.extjs.gxt.charts.client.Chart;
@@ -14,7 +26,7 @@ import com.extjs.gxt.ui.client.widget.layout.VBoxLayout;
 
 
 
-public class StatusView extends AbstractView {
+public class StagingContainerSummaryView extends AbstractView {
 
     private HorizontalPanel topPanel;
 
@@ -41,12 +53,12 @@ public class StatusView extends AbstractView {
     }
 
     @Override
-    protected void initEvent() {
+    protected void registerEvent() {
         // TODO Auto-generated method stub
     }
 
     @Override
-    protected void initView() {
+    protected void initLayout() {
         mainPanel.setLayout(new VBoxLayout());
 
         mainPanel.add(topPanel);

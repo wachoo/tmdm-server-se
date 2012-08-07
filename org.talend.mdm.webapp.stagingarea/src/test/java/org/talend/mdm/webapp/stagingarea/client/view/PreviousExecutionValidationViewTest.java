@@ -12,23 +12,18 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingarea.client.view;
 
+import com.google.gwt.junit.client.GWTTestCase;
+import com.google.gwt.user.client.ui.RootPanel;
 
+public class PreviousExecutionValidationViewTest extends GWTTestCase {
 
-public class CurrentValidationView extends AbstractView {
+    public void testA() {
+        PreviousExecutionValidationView view = new PreviousExecutionValidationView();
 
-    @Override
-    protected void initComponents() {
-
+        RootPanel.get().add(view);
     }
 
-    @Override
-    protected void registerEvent() {
-        // TODO Auto-generated method stub
+    public String getModuleName() {
+        return "org.talend.mdm.webapp.stagingarea.Stagingarea"; //$NON-NLS-1$
     }
-
-    @Override
-    protected void initLayout() {
-        // TODO Auto-generated method stub
-    }
-
 }

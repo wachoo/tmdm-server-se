@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.webapp.stagingarea.client;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -6,6 +18,7 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
 
 /**
@@ -24,7 +37,7 @@ public class Stagingarea implements EntryPoint {
         } else {
             GenerateContainer.generateContentPanel();
             ContentPanel contentPanel = GenerateContainer.getContentPanel();
-            contentPanel.setSize(800, 600);
+            contentPanel.setSize(Window.getClientWidth(), Window.getClientHeight());
             StagingareaMainPanel mainPanel = new StagingareaMainPanel();
             contentPanel.add(mainPanel);
             RootPanel.get().add(contentPanel);
@@ -95,6 +108,7 @@ public class Stagingarea implements EntryPoint {
     public void renderContent(final String contentId) {
         onModuleRender();
         RootPanel panel = RootPanel.get(contentId);
+        GenerateContainer.getContentPanel().setSize(panel.getOffsetWidth(), panel.getOffsetHeight());
         panel.add(GenerateContainer.getContentPanel());
     }
 

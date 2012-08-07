@@ -10,25 +10,9 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.stagingarea.client.view;
+package org.talend.mdm.webapp.stagingarea.client.controller;
 
 
-
-public class CurrentValidationView extends AbstractView {
-
-    @Override
-    protected void initComponents() {
-
-    }
-
-    @Override
-    protected void registerEvent() {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    protected void initLayout() {
-        // TODO Auto-generated method stub
-    }
+public class StagingContainerSummaryController extends AbstractController {
 
 }
