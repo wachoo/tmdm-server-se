@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.stagingarea.client.rest;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.restlet.client.Request;
@@ -302,6 +303,63 @@ public class RestServiceHandler {
         });
         client.request();
 
+    }
+    
+    // TODO Rest API not supported
+    // FIXME also could add a parameter "withTotalCount" within "getStagingAreaExecutions"
+    public void countStagingAreaExecutions(final String dataContainer, StagingAreaExecutionModel criteria,
+            final SessionAwareAsyncCallback<Integer> callback) {
+        
+        ResourceCallbackHandler callbackHandler=new ResourceCallbackHandler() {
+
+            public void process(Request request, Response response) {
+                try {
+                    callback.onSuccess(new Integer(20000));
+                } catch (Exception e) {
+                    callback.onFailure(e);
+                }
+            }
+        };
+
+        callbackHandler.process(null, null);
+
+    }
+
+    // TODO Rest API not supported
+    /**
+     * DOC hshu Comment method "searchStagingAreaExecutionsWithPaging".
+     * 
+     * @param dataContainer
+     * @param criteria
+     * @param start
+     * @param pageSize
+     * @param callback
+     */
+    public void searchStagingAreaExecutionsWithPaging(final String dataContainer, StagingAreaExecutionModel criteria, int start,
+            int pageSize,
+            final SessionAwareAsyncCallback<List<StagingAreaExecutionModel>> callback) {
+
+        ResourceCallbackHandler callbackHandler = new ResourceCallbackHandler() {
+
+            public void process(Request request, Response response) {
+                try {
+                    List<StagingAreaExecutionModel> models = new ArrayList<StagingAreaExecutionModel>();
+                    // Mock model
+                    StagingAreaExecutionModel model = new StagingAreaExecutionModel();
+                    model.setId("1ad084c1-5f70-4b89-aeef-613e7e44f911"); //$NON-NLS-1$
+                    model.setTotalRecord(2500);
+                    model.setProcessedRecords(500);
+                    model.setInvalidRecords(250);
+                    model.setEndDate(new Date());
+                    models.add(model);
+                    callback.onSuccess(models);
+                } catch (Exception e) {
+                    callback.onFailure(e);
+                }
+            }
+        };
+
+        callbackHandler.process(null, null);
     }
 
 }
