@@ -62,7 +62,7 @@ public class FakeData {
         for (StagingAreaExecutionModel task : tasks) {
             if (beforeDate == null) {
                 results.add(task);
-            } else if (task.getStart_date().before(beforeDate)) {
+            } else if (task.getStartDate().before(beforeDate)) {
                 results.add(task);
             }
         }

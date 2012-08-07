@@ -1,0 +1,79 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
+package org.talend.mdm.webapp.stagingarea.client.rest;
+
+import org.restlet.client.Request;
+import org.restlet.client.Response;
+import org.restlet.client.Uniform;
+import org.restlet.client.data.MediaType;
+import org.restlet.client.data.Method;
+import org.restlet.client.resource.ClientResource;
+
+public class ClientResourceWrapper {
+
+    private static final MediaType DEFAULT_MEDIA_TYPE = MediaType.TEXT_XML;
+
+    protected ClientResource client;
+
+    protected Method method;
+
+    protected String uri;
+
+    private Object postEntity;
+
+    public ClientResourceWrapper() {
+
+    }
+
+    public ClientResourceWrapper(Method method, String uri) {
+        init(method, uri);
+    }
+
+    public void init(Method method, String uri) {
+        this.method = method;
+        this.uri = uri;
+        client = new ClientResource(method, uri);
+    }
+
+    public void setCallback(final ResourceCallbackHandler callbackHandler) {
+        client.setOnResponse(new Uniform() {
+
+            public void handle(Request request, Response response) {
+                callbackHandler.process(request, response);
+            }
+        });
+    }
+
+    public void setPostEntity(Object postEntity) {
+        this.postEntity = postEntity;
+    }
+
+    public void request() {
+        request(null);
+    }
+
+    public void request(MediaType mediaType) {
+        if (mediaType == null)
+            mediaType = DEFAULT_MEDIA_TYPE;
+
+        if (method.equals(Method.GET))
+            client.get(mediaType);
+        else if (method.equals(Method.POST))
+            client.post(postEntity, mediaType);
+        else if (method.equals(Method.DELETE))
+            client.delete(mediaType);
+
+        // TODO: to support more HTTP methods
+    }
+
+}

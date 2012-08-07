@@ -21,67 +21,67 @@ public class StagingContainerModel implements IsSerializable, Serializable {
 
     private static final long serialVersionUID = -9135215288938203541L;
 
-    private String data_container;
+    private String dataContainer;
 
-    private String data_model;
+    private String dataModel;
 
-    private int invalid_records;
+    private int invalidRecords;
 
-    private int total_records;
+    private int totalRecords;
 
-    private int valid_records;
+    private int validRecords;
 
-    private int waiting_validation_records;
+    private int waitingValidationRecords;
     
     public StagingContainerModel() {
         super();
     }
 
-    public String getData_container() {
-        return data_container;
+    public String getDataContainer() {
+        return dataContainer;
     }
 
-    public void setData_container(String data_container) {
-        this.data_container = data_container;
+    public void setDataContainer(String dataContainer) {
+        this.dataContainer = dataContainer;
     }
 
-    public String getData_model() {
-        return data_model;
+    public String getDataModel() {
+        return dataModel;
     }
 
-    public void setData_model(String data_model) {
-        this.data_model = data_model;
+    public void setDataModel(String dataModel) {
+        this.dataModel = dataModel;
     }
 
-    public int getInvalid_records() {
-        return invalid_records;
+    public int getInvalidRecords() {
+        return invalidRecords;
     }
 
-    public void setInvalid_records(int invalid_records) {
-        this.invalid_records = invalid_records;
+    public void setInvalidRecords(int invalidRecords) {
+        this.invalidRecords = invalidRecords;
     }
 
-    public int getTotal_records() {
-        return total_records;
+    public int getTotalRecords() {
+        return totalRecords;
     }
 
-    public void setTotal_records(int total_records) {
-        this.total_records = total_records;
+    public void setTotalRecords(int totalRecords) {
+        this.totalRecords = totalRecords;
     }
 
-    public int getValid_records() {
-        return valid_records;
+    public int getValidRecords() {
+        return validRecords;
     }
 
-    public void setValid_records(int valid_records) {
-        this.valid_records = valid_records;
+    public void setValidRecords(int validRecords) {
+        this.validRecords = validRecords;
     }
 
-    public int getWaiting_validation_records() {
-        return waiting_validation_records;
+    public int getWaitingValidationRecords() {
+        return waitingValidationRecords;
     }
 
-    public void setWaiting_validation_records(int waiting_validation_records) {
-        this.waiting_validation_records = waiting_validation_records;
+    public void setWaitingValidationRecords(int waitingValidationRecords) {
+        this.waitingValidationRecords = waitingValidationRecords;
     }
 }
