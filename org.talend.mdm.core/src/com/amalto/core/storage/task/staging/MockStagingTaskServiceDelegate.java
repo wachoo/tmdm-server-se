@@ -11,9 +11,14 @@
 
 package com.amalto.core.storage.task.staging;
 
-import org.apache.commons.lang.math.RandomUtils;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
-import java.util.*;
+import org.apache.commons.lang.math.RandomUtils;
 
 public class MockStagingTaskServiceDelegate implements StagingTaskServiceDelegate {
 
@@ -82,7 +87,7 @@ public class MockStagingTaskServiceDelegate implements StagingTaskServiceDelegat
         } else {
             to = start + size > previousExecutions.size() ? size : start + size;
         }
-        return (new ArrayList<String>(previousExecutions.keySet())).subList(start - 1, to);
+        return (new ArrayList<String>(previousExecutions.keySet())).subList(start - 1, Math.min(to, previousExecutions.size()));
     }
 
     @Override
