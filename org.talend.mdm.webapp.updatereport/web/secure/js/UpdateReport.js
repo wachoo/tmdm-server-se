@@ -55,9 +55,7 @@ amalto.updatereport.UpdateReport = function () {
 	};
 	
 	function browseUpdateReportWithSearchCriteria(dataObject, ids, itemsBroswer){
-		if(amalto.updatereport.bundle == undefined)
-			amalto.updatereport.bundle = new Ext.i18n.Bundle({bundle:'UpdateReport', path:'/updatereport/secure/resources', lang:language});
-	    
+	    amalto.updatereport.bundle = new Ext.i18n.Bundle({bundle:'UpdateReport', path:'/updatereport/secure/resources', lang:language});
 		amalto.updatereport.bundle.onReady(function(){
 			var isFirstTime=initUI();
 			// set search criteria
