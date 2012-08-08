@@ -35,6 +35,13 @@ import com.google.gwt.user.client.ui.Grid;
 
 public class CurrentValidationView extends AbstractView {
 
+    public enum Status {
+        None,
+        HasValidation
+    };
+
+    private Status status;
+
     private static final long SECOND = 1000L;
     
     private static final long MINITE = SECOND * 60;
@@ -43,13 +50,11 @@ public class CurrentValidationView extends AbstractView {
     
     private static final long DAY = HOUR * 24;
 
-    private CardLayout cardLayout = new CardLayout();
+    private CardLayout cardLayout;
 
-    private FormPanel formPanel = new FormPanel();
+    private FormPanel formPanel;
 
-    private ContentPanel defaultMessagePanel = new ContentPanel();
-
-    private StagingAreaValidationModel stagingAreaValidationModel;
+    private ContentPanel defaultMessagePanel;
 
     private Label autoRefeshLabel;
 
@@ -82,6 +87,16 @@ public class CurrentValidationView extends AbstractView {
         etaField.setReadOnly(true);
         etaField.setFieldLabel("ETA"); //$NON-NLS-1$
         progressBar = new ProgressBar();
+
+        formPanel = new FormPanel();
+        formPanel.setHeaderVisible(false);
+        formPanel.setBodyBorder(false);
+
+        defaultMessagePanel = new ContentPanel();
+        defaultMessagePanel.setLayout(new CenterLayout());
+        defaultMessagePanel.setBodyBorder(false);
+        defaultMessagePanel.setHeaderVisible(false);
+        defaultMessagePanel.add(new Label("No validation is being performed, please click on \"Start validation\"")); //$NON-NLS-1$
     }
 
     @Override
@@ -97,14 +112,14 @@ public class CurrentValidationView extends AbstractView {
 
     @Override
     protected void initLayout() {
-
+        cardLayout = new CardLayout();
         mainPanel.setLayout(cardLayout);
 
         Grid rowGrid = new Grid(1, 2);
         rowGrid.setWidget(0, 0, autoRefeshLabel);
         rowGrid.setWidget(0, 1, toggle);
-        formPanel.add(rowGrid);
 
+        formPanel.add(rowGrid);
         formPanel.add(startDateField);
         formPanel.add(recordToProcessField);
         formPanel.add(invalidField);
@@ -114,20 +129,15 @@ public class CurrentValidationView extends AbstractView {
         formPanel.add(progressBar, progressData);
         progressBar.setWidth("100%"); //$NON-NLS-1$
 
-        mainPanel.add(formPanel);
-
-        defaultMessagePanel.setLayout(new CenterLayout());
-        defaultMessagePanel.add(new Label("No validation is being performed, please click on \"Start validation\"")); //$NON-NLS-1$
-
         mainPanel.add(defaultMessagePanel);
-
+        mainPanel.add(formPanel);
         mainPanel.setHeight(180);
         mainPanel.setBodyBorder(false);
+
+        setStatus(Status.None);
     }
 
-    @SuppressWarnings("deprecation")
     public void refresh(StagingAreaValidationModel stagingAreaValidationModel) {
-        this.stagingAreaValidationModel = stagingAreaValidationModel;
         cardLayout.setActiveItem(formPanel);
         startDateField.setValue(stagingAreaValidationModel.getStartDate());
         recordToProcessField.setValue(stagingAreaValidationModel.getProcessedRecords());
@@ -165,7 +175,16 @@ public class CurrentValidationView extends AbstractView {
         progressBar.updateProgress(percentage, "process " + process + "/ total " + total + ""); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
     }
 
-    public void showDefaultMessage() {
-        cardLayout.setActiveItem(defaultMessagePanel);
+    public void setStatus(Status status) {
+        this.status = status;
+        if (status == Status.None) {
+            cardLayout.setActiveItem(defaultMessagePanel);
+        } else {
+            cardLayout.setActiveItem(formPanel);
+        }
+    }
+
+    public Status getStatus() {
+        return status;
     }
 }

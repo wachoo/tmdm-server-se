@@ -12,8 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingarea.client.controller;
 
-import java.util.Date;
-
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.stagingarea.client.model.StagingAreaValidationModel;
 import org.talend.mdm.webapp.stagingarea.client.rest.RestServiceHandler;
@@ -59,23 +57,12 @@ public class CurrentValidationController extends AbstractController {
 
                     public void onSuccess(StagingAreaValidationModel result) {
                         if (result != null) {
+                            view.setStatus(CurrentValidationView.Status.HasValidation);
                             view.refresh(result);
                         } else {
-                            view.showDefaultMessage();
+                            view.setStatus(CurrentValidationView.Status.None);
                         }
                     }
                 });
-        StagingAreaValidationModel result = new StagingAreaValidationModel();
-        Date d = new Date(112, 7, 7);
-
-        result.setStartDate(d);
-        result.setTotalRecord(1000);
-        result.setProcessedRecords(500);
-        view.refresh(result);
-    }
-
-    public void setStagingId(String stagingId) {
-        this.stagingId = stagingId;
-        refreshView();
     }
 }
