@@ -69,8 +69,7 @@ public class XmlSchemaValidator implements Validator {
 
         String errors = errorHandler.getErrors();
         if (!errors.isEmpty()) {
-            String err = "The item " + element.getLocalName() + " did not validate against the model: \n" + errors; //$NON-NLS-1$ //$NON-NLS-2$
-            throw new ValidateException(err);
+            throw new ValidateException(errors);
         }
 
         next.validate(element);
