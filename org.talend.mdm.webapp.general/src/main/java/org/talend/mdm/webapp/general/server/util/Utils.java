@@ -180,6 +180,7 @@ public class Utils {
         imports.add("<script type=\"text/javascript\" src=\"/itemsbrowser/secure/js/ImprovedDWRProxy.js\"></script>\n");//$NON-NLS-1$
         imports.add("<script type=\"text/javascript\" src=\"/itemsbrowser/secure/js/SearchEntityPanel.js\"></script>\n");//$NON-NLS-1$ 
         imports.add("<script type=\"text/javascript\" src=\"/talendmdm/secure/dwr/interface/WidgetInterface.js\"></script>\n");//$NON-NLS-1$
+        imports.add("<script language=\"javascript\" src=\"/core/secure/gxt/resources/flash/swfobject.js\"></script>"); //$NON-NLS-1$
     }
 
     public static String getCommonImport() {
