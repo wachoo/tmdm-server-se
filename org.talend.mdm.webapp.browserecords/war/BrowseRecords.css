@@ -20,8 +20,8 @@
 a{
 	cursor: pointer;
 	font-family: tahoma,verdana,helvetica;
-	font-size: 13px;
-    font-weight: bold;
+	font-size: 12px;
+    font-weight: normal;
     line-height: 16px;
     text-align:	left;
 	color: #2D5593 !important;
