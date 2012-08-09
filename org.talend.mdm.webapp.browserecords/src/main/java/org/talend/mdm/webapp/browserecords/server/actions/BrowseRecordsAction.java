@@ -49,7 +49,6 @@ import org.apache.log4j.Logger;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Namespace;
 import org.dom4j.QName;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -1144,7 +1143,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             header.setAutoTextAreaLength(BrowseRecordsConfiguration.getAutoTextAreaLength());
             header.setKeepSilenceForPermissionExceptionWhenSave(BrowseRecordsConfiguration
                     .keepSilenceForPermissionExceptionWhenSave());
-            header.setAutoValidate(Boolean.valueOf(MDMConfiguration.getConfiguration().get("auto.validation.flag").toString())); //$NON-NLS-1$
+            header.setAutoValidate(BrowseRecordsConfiguration.isAutoValidate());
             return header;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
