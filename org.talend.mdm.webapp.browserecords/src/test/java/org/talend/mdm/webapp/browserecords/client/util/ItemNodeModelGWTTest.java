@@ -19,6 +19,7 @@ import java.util.Map;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsGWTTest;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatDateField;
@@ -26,8 +27,10 @@ import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatNumber
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextField;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailGridFieldCreator;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil;
+import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -53,6 +56,14 @@ public class ItemNodeModelGWTTest extends BrowseRecordsGWTTest {
 
     private boolean mandatory;
 
+    @Override
+    protected void gwtSetUp() throws Exception {
+    	super.gwtSetUp();
+    	UserSession session = new UserSession();
+    	session.put(UserSession.APP_HEADER, new AppHeader());
+    	Registry.register(BrowseRecords.USER_SESSION, session);
+    }
+    
     public void testClone() {
 
         ItemNodeModel nodeModel = new ItemNodeModel(name);

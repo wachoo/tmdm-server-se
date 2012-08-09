@@ -26,6 +26,8 @@ public class AppHeader implements IsSerializable {
     private boolean isStandAloneMode = false;
 
     private int autoTextAreaLength;
+    
+    private boolean isAutoValidate = true;
 
     /**
      * DOC HSHU AppHeader constructor comment.
@@ -71,4 +73,11 @@ public class AppHeader implements IsSerializable {
         return "AppHeader [datamodel=" + datamodel + ", datacluster=" + datacluster + "]";//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$  
     }
 
+	public boolean isAutoValidate() {
+		return isAutoValidate;
+	}
+
+	public void setAutoValidate(boolean isAutoValidate) {
+		this.isAutoValidate = isAutoValidate;
+	}
 }
