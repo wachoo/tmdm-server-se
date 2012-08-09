@@ -4,11 +4,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.model.ComboBoxModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
+import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.junit.client.GWTTestCase;
@@ -16,6 +20,14 @@ import com.google.gwt.junit.client.GWTTestCase;
 @SuppressWarnings("nls")
 public class SortSubTypesTest extends GWTTestCase {
 
+    @Override
+    protected void gwtSetUp() throws Exception {
+        super.gwtSetUp();
+        UserSession session = new UserSession();
+        session.put(UserSession.APP_HEADER, new AppHeader());
+        Registry.register(BrowseRecords.USER_SESSION, session);
+    }
+    
     public void testSortSubTypes() {
         ComplexTypeModel dataType = new ComplexTypeModel("typeEDA", DataTypeConstants.STRING);
 

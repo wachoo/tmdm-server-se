@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.browserecords.client.widget.inputfield;
 
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
@@ -211,16 +212,17 @@ public class PictureField extends TextField<String> {
 
     @Override
     public void setValue(String value) {
-
         if (isMandatory) {
-            if (value != null && value.length() != 0) {
-                this.setAllowBlank(true);
-                super.setValue(value);
-                this.validate();
-            } else {
-                this.setAllowBlank(false);
-                super.setValue(""); //$NON-NLS-1$
-                this.validate();
+            if(BrowseRecords.getSession().getAppHeader().isAutoValidate()) {
+                if (value != null && value.length() != 0) {
+                    this.setAllowBlank(true);
+                    super.setValue(value);
+                    this.validate();
+                } else {
+                    this.setAllowBlank(false);
+                    super.setValue(""); //$NON-NLS-1$
+                    this.validate();
+                }
             }
         }
      

@@ -11,10 +11,12 @@ import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.shared.FacetModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.creator.DataTypeCreator;
 import org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
@@ -22,10 +24,12 @@ import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel.Foreig
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextField;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.DynamicTreeItem;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.GhostTreeItem;
+import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -39,6 +43,14 @@ import com.google.gwt.user.client.DOM;
 @SuppressWarnings("nls")
 public class TreeDetailGWTTest extends GWTTestCase {
 
+    @Override
+    protected void gwtSetUp() throws Exception {
+        super.gwtSetUp();
+        UserSession session = new UserSession();
+        session.put(UserSession.APP_HEADER, new AppHeader());
+        Registry.register(BrowseRecords.USER_SESSION, session);
+    }
+    
     public void testValidateNode(){
         Map<String, Field<?>> fieldMap = new HashMap<String, Field<?>>();
         EntityModel entity = new EntityModel();

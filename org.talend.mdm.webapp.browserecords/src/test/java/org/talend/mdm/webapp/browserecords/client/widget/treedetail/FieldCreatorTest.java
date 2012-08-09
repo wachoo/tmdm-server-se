@@ -16,16 +16,28 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.creator.DataTypeCreator;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
+import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.junit.client.GWTTestCase;
 
 public class FieldCreatorTest extends GWTTestCase {
 
+    @Override
+    protected void gwtSetUp() throws Exception {
+        super.gwtSetUp();
+        UserSession session = new UserSession();
+        session.put(UserSession.APP_HEADER, new AppHeader());
+        Registry.register(BrowseRecords.USER_SESSION, session);
+    }
+    
     public void testFieldReadOnly() {
         
         ComplexTypeModel product = new ComplexTypeModel();

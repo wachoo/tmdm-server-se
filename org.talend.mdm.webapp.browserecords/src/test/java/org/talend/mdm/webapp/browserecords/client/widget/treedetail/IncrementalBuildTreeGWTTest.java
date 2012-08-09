@@ -21,15 +21,19 @@ import java.util.Map;
 import org.talend.mdm.webapp.base.shared.FacetModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.creator.DataTypeCreator;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.DynamicTreeItem;
+import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
+import com.extjs.gxt.ui.client.Registry;
 import com.google.gwt.junit.client.GWTTestCase;
 
 public class IncrementalBuildTreeGWTTest extends GWTTestCase {
@@ -53,6 +57,10 @@ public class IncrementalBuildTreeGWTTest extends GWTTestCase {
         foreignKeyParentMap = new HashMap<TypeModel, ItemNodeModel>();
         foreighKeyMap = new HashMap<TypeModel, List<ItemNodeModel>>();
         initJsEnv();
+        
+        UserSession session = new UserSession();
+        session.put(UserSession.APP_HEADER, new AppHeader());
+        Registry.register(BrowseRecords.USER_SESSION, session);
     }
 
     private native void initJsEnv()/*-{
