@@ -70,5 +70,14 @@ public class BrowseRecordsConfiguration {
 
         return Boolean.parseBoolean(keepSilence);
     }
+    
+    public static boolean isAutoValidate() {
+        String autoValidate = getPropertyValue("auto.validation.flag");//$NON-NLS-1$
+
+        if (autoValidate == null || autoValidate.trim().length() == 0)
+            return true;
+
+        return Boolean.parseBoolean(autoValidate);
+    }
 
 }
