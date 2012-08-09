@@ -29,7 +29,7 @@ public class RestServiceHandlerTest extends GWTTestCase {
     @Override
     protected void gwtSetUp() throws Exception {
         super.gwtSetUp();
-        handler = new RestServiceHandler();
+        handler = RestServiceHandler.get();
         handler.setClient(new ClientResourceMockWrapper());
     }
 

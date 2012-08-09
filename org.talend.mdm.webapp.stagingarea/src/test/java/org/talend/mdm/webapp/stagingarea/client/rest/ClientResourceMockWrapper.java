@@ -16,8 +16,9 @@ import org.restlet.client.Response;
 import org.restlet.client.data.MediaType;
 import org.restlet.client.data.Method;
 import org.restlet.client.data.Status;
+import org.restlet.client.engine.io.StringInputStream;
 import org.restlet.client.ext.xml.DomRepresentation;
-import org.restlet.client.representation.StringRepresentation;
+import org.restlet.client.representation.InputRepresentation;
 
 import com.google.gwt.xml.client.XMLParser;
 
@@ -110,7 +111,8 @@ public class ClientResourceMockWrapper extends ClientResourceWrapper {
         } else if (method.equals(Method.POST)
                 && uri.matches("^.+/datamanager/services/tasks/staging/TestDataContainer/\\?model=TestDataModel$")) {
             String message = "1ad084c1-5f70-4b89-aeef-613e7e44f134";
-            StringRepresentation representation = new StringRepresentation(message);
+            StringInputStream stringStream = new StringInputStream(message);
+            InputRepresentation representation = new InputRepresentation(stringStream);
             response.setEntity(representation);
         } else if (method.equals(Method.DELETE)
                 && uri.matches("^.+/datamanager/services/tasks/staging/TestDataContainer/execs/current$")) {
