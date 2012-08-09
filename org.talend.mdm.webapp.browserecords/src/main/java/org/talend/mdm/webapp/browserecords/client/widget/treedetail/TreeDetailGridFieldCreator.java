@@ -24,6 +24,7 @@ import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.shared.FacetModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ComboBoxModel;
@@ -98,7 +99,8 @@ public class TreeDetailGridFieldCreator {
             SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
             comboBox.setFireChangeEventOnSetValue(true);
             if (dataType.getMinOccurs() == 1 && dataType.getMaxOccurs() == 1)
-                comboBox.setAllowBlank(false);
+                if(BrowseRecords.getSession().getAppHeader().isAutoValidate())
+                    comboBox.setAllowBlank(false);
             comboBox.setEditable(false);
             comboBox.setForceSelection(true);
             comboBox.setTriggerAction(TriggerAction.ALL);
@@ -424,6 +426,8 @@ public class TreeDetailGridFieldCreator {
 
     @SuppressWarnings("rawtypes")
     private static void setMandatory(Field<?> field, boolean mandatory) {
+        if(!BrowseRecords.getSession().getAppHeader().isAutoValidate())
+            return;
         if (field instanceof NumberField) {
             ((NumberField) field).setAllowBlank(!mandatory);
         } else if (field instanceof BooleanField) {
@@ -438,6 +442,8 @@ public class TreeDetailGridFieldCreator {
     }
 
     private static void validate(Field<?> field, ItemNodeModel node) {
+        if(!BrowseRecords.getSession().getAppHeader().isAutoValidate())
+            return;
         node.setValid(field.isValid());
     }
 }

@@ -26,6 +26,8 @@ public class AppHeader implements IsSerializable {
     private boolean isStandAloneMode = false;
 
     private int autoTextAreaLength;
+    
+    private boolean isAutoValidate = true;
 
     private boolean keepSilenceForPermissionExceptionWhenSave;
 
@@ -79,6 +81,15 @@ public class AppHeader implements IsSerializable {
     @Override
     public String toString() {
         return "AppHeader [datamodel=" + datamodel + ", datacluster=" + datacluster + "]";//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$  
+    }
+
+    
+    public boolean isAutoValidate() {
+        return isAutoValidate;
+    }
+
+    public void setAutoValidate(boolean isAutoValidate) {
+        this.isAutoValidate = isAutoValidate;
     }
 
 }
