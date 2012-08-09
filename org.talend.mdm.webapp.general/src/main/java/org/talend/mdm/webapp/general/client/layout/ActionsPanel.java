@@ -1,5 +1,6 @@
 package org.talend.mdm.webapp.general.client.layout;
 
+import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
 import org.talend.mdm.webapp.general.client.mvc.GeneralEvent;
 import org.talend.mdm.webapp.general.model.ActionBean;
@@ -97,6 +98,8 @@ public class ActionsPanel extends ContentPanel {
             dataModelBox.setValue(model);
         }
 
+        UserContextUtil.setDataContainer(action.getCurrentCluster());
+        UserContextUtil.setDataModel(action.getCurrentModel());
     }
 
     public String getDataCluster() {
