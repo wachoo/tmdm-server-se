@@ -10,13 +10,9 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.stagingarea.client;
+package org.talend.mdm.webapp.stagingarea.client.view;
 
 import org.talend.mdm.webapp.stagingarea.client.controller.ControllerContainer;
-import org.talend.mdm.webapp.stagingarea.client.view.AbstractView;
-import org.talend.mdm.webapp.stagingarea.client.view.CurrentValidationView;
-import org.talend.mdm.webapp.stagingarea.client.view.PreviousExecutionView;
-import org.talend.mdm.webapp.stagingarea.client.view.StagingContainerSummaryView;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.util.Margins;
@@ -26,13 +22,17 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
-public class StagingareaMainPanel extends AbstractView {
+public class StagingareaMainView extends AbstractView {
     
     private StagingContainerSummaryView summaryView;
 
     private CurrentValidationView currentValidationView;
 
     private PreviousExecutionView previousExecutionValidationView;
+
+    public StagingareaMainView() {
+        super();
+    }
 
     private FieldSet wrapFieldSet(BoxComponent comp, String caption){
         FieldSet fieldSet = new FieldSet();
@@ -48,7 +48,8 @@ public class StagingareaMainPanel extends AbstractView {
         summaryView = new StagingContainerSummaryView();
         currentValidationView = new CurrentValidationView();
         previousExecutionValidationView = new PreviousExecutionView();
-        ControllerContainer.initController(summaryView, currentValidationView, previousExecutionValidationView);
+
+        ControllerContainer.initController(this, summaryView, currentValidationView, previousExecutionValidationView);
         ControllerContainer.get().getSummaryController().refreshView();
         ControllerContainer.get().getCurrentValidationController().refreshView();
     }
@@ -59,6 +60,11 @@ public class StagingareaMainPanel extends AbstractView {
         mainPanel.add(wrapFieldSet(summaryView, "Status"), new RowData(1, -1, new Margins(4))); //$NON-NLS-1$
         mainPanel.add(wrapFieldSet(currentValidationView, "Current Validation"), new RowData(1, -1, new Margins(0, 4, 0, 4))); //$NON-NLS-1$
         mainPanel.add(wrapFieldSet(previousExecutionValidationView, "Previous Validation(s)"), new RowData(1, 1, new Margins(4))); //$NON-NLS-1$
+        mainPanel.setStyleAttribute("font-size", "12px"); //$NON-NLS-1$//$NON-NLS-2$
         mainPanel.setBodyBorder(false);
+    }
+
+    public void doLayout() {
+        mainPanel.layout(true);
     }
 }

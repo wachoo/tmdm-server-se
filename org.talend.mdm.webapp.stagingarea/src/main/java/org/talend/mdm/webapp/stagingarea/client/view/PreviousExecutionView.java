@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingarea.client.model.StagingAreaExecutionModel;
 import org.talend.mdm.webapp.stagingarea.client.rest.RestDataProxy;
 import org.talend.mdm.webapp.stagingarea.client.rest.RestServiceHandler;
@@ -88,9 +89,7 @@ public class PreviousExecutionView extends AbstractView {
                 // final BasePagingLoadConfig pagingLoadConfig = (BasePagingLoadConfig) loadConfig;
                 final Date beforeDate = beforeDateField.getValue();
 
-                RestServiceHandler handler = new RestServiceHandler();
-
-                handler.getStagingAreaExecutionsWithPaging("TestDataContainer", 1, 1, beforeDate, //$NON-NLS-1$
+                RestServiceHandler.get().getStagingAreaExecutionsWithPaging(UserContextUtil.getDataContainer(), 1, 1, beforeDate,
                         new SessionAwareAsyncCallback<List<StagingAreaExecutionModel>>() {
 
                             public void onSuccess(List<StagingAreaExecutionModel> result) {

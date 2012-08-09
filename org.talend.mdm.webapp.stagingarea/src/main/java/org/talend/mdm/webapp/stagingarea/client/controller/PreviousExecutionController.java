@@ -16,7 +16,7 @@ import org.talend.mdm.webapp.stagingarea.client.view.PreviousExecutionView;
 
 public class PreviousExecutionController extends AbstractController {
 
-    PreviousExecutionView view;
+    private PreviousExecutionView view;
 
     public PreviousExecutionController(PreviousExecutionView view) {
         this.view = view;

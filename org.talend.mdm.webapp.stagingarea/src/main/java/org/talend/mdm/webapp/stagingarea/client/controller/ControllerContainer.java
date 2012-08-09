@@ -15,8 +15,11 @@ package org.talend.mdm.webapp.stagingarea.client.controller;
 import org.talend.mdm.webapp.stagingarea.client.view.CurrentValidationView;
 import org.talend.mdm.webapp.stagingarea.client.view.PreviousExecutionView;
 import org.talend.mdm.webapp.stagingarea.client.view.StagingContainerSummaryView;
+import org.talend.mdm.webapp.stagingarea.client.view.StagingareaMainView;
 
 public class ControllerContainer {
+
+    private static StagingareaMainController stagingareaMainController;
 
     private static StagingContainerSummaryController stagingContainerSummaryController;
 
@@ -26,10 +29,28 @@ public class ControllerContainer {
 
     private static ControllerContainer instance;
 
-    public static void initController(StagingContainerSummaryView summaryView, CurrentValidationView currentView,
+    public static void initController(StagingareaMainView mainView, StagingContainerSummaryView summaryView,
+            CurrentValidationView currentView,
             PreviousExecutionView previousView) {
+        setStagingareaMainView(mainView);
+        setStagingContainerSummaryView(summaryView);
+        setCurrentValidationView(currentView);
+        setPreviousExecutionView(previousView);
+    }
+
+    public static void setStagingareaMainView(StagingareaMainView mainView) {
+        stagingareaMainController = new StagingareaMainController(mainView);
+    }
+
+    public static void setStagingContainerSummaryView(StagingContainerSummaryView summaryView) {
         stagingContainerSummaryController = new StagingContainerSummaryController(summaryView);
+    }
+
+    public static void setCurrentValidationView(CurrentValidationView currentView) {
         currentValidationController = new CurrentValidationController(currentView);
+    }
+
+    public static void setPreviousExecutionView(PreviousExecutionView previousView) {
         previousExecutionController = new PreviousExecutionController(previousView);
     }
 
@@ -42,6 +63,10 @@ public class ControllerContainer {
             instance = new ControllerContainer();
         }
         return instance;
+    }
+
+    public StagingareaMainController getStagingareaMainController() {
+        return stagingareaMainController;
     }
 
     public StagingContainerSummaryController getSummaryController() {

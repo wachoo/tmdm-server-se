@@ -12,7 +12,12 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingarea.client;
 
+import org.talend.mdm.webapp.base.client.util.UserContextUtil;
+import org.talend.mdm.webapp.stagingarea.client.view.StagingContainerSummaryView;
+import org.talend.mdm.webapp.stagingarea.client.view.StagingareaMainView;
+
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.charts.client.Chart;
 import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.google.gwt.core.client.EntryPoint;
@@ -35,11 +40,12 @@ public class Stagingarea implements EntryPoint {
             registerPubService();
             Log.setUncaughtExceptionHandler();
         } else {
+            UserContextUtil.setDataContainer("TestDataContainer"); //$NON-NLS-1$
+            UserContextUtil.setDataModel("TestDataModel"); //$NON-NLS-1$
             GenerateContainer.generateContentPanel();
             ContentPanel contentPanel = GenerateContainer.getContentPanel();
             contentPanel.setSize(Window.getClientWidth(), Window.getClientHeight());
-            StagingareaMainPanel mainPanel = new StagingareaMainPanel();
-            contentPanel.add(mainPanel);
+            onModuleRender();
             RootPanel.get().add(contentPanel);
         }
     }
@@ -118,7 +124,12 @@ public class Stagingarea implements EntryPoint {
 
     private void onModuleRender() {
         ContentPanel contentPanel = GenerateContainer.getContentPanel();
-        StagingareaMainPanel mainPanel = new StagingareaMainPanel();
+        Chart chart = new Chart(StagingContainerSummaryView.Chart_Url);
+        chart.setBorders(true);
+        chart.setSize(300, 200);
+        chart.setBorders(false);
+        StagingContainerSummaryView.setChart(chart);
+        StagingareaMainView mainPanel = new StagingareaMainView();
         contentPanel.add(mainPanel);
     }
 

@@ -20,7 +20,7 @@ import org.restlet.client.Request;
 import org.restlet.client.Response;
 import org.restlet.client.data.Method;
 import org.restlet.client.ext.xml.DomRepresentation;
-import org.restlet.client.representation.StringRepresentation;
+import org.restlet.client.representation.InputRepresentation;
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.stagingarea.client.model.StagingAreaExecutionModel;
 import org.talend.mdm.webapp.stagingarea.client.model.StagingAreaValidationModel;
@@ -43,8 +43,17 @@ public class RestServiceHandler {
 
     private ClientResourceWrapper client;
 
-    public RestServiceHandler() {
+    private static RestServiceHandler handler;
+
+    private RestServiceHandler() {
         client = new ClientResourceWrapper();
+    }
+
+    public static RestServiceHandler get() {
+        if (handler == null) {
+            handler = new RestServiceHandler();
+        }
+        return handler;
     }
 
     public void setClient(ClientResourceWrapper client) {
@@ -280,7 +289,7 @@ public class RestServiceHandler {
                 try {
                     String taskId = null;
                     if (response.getEntity() != null) {
-                        StringRepresentation rep = (StringRepresentation) response.getEntity();
+                        InputRepresentation rep = (InputRepresentation) response.getEntity();
                         taskId = rep.getText();
                     }
                     callback.onSuccess(taskId);

@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.stagingarea.client.controller;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingarea.client.model.StagingAreaValidationModel;
 import org.talend.mdm.webapp.stagingarea.client.rest.RestServiceHandler;
 import org.talend.mdm.webapp.stagingarea.client.view.CurrentValidationView;
@@ -22,11 +23,7 @@ import com.google.gwt.user.client.Timer;
 
 public class CurrentValidationController extends AbstractController {
 
-    RestServiceHandler handler = new RestServiceHandler();
-
     private CurrentValidationView view;
-
-    private String stagingId;
 
     private Timer timer;
 
@@ -42,27 +39,44 @@ public class CurrentValidationController extends AbstractController {
     }
 
     public void autoRefresh(boolean auto) {
-        if (stagingId != null) {
-            if (auto) {
-                timer.scheduleRepeating(1000);
-            } else {
-                timer.cancel();
-            }
+        if (auto) {
+            timer.scheduleRepeating(1000);
+        } else {
+            timer.cancel();
         }
     }
 
     public void refreshView() {
-
-        handler.getValidationTaskStatus("TestDataContainer", new SessionAwareAsyncCallback<StagingAreaValidationModel>() { //$NON-NLS-1$
-
+        RestServiceHandler.get().getValidationTaskStatus(UserContextUtil.getDataContainer(),
+                new SessionAwareAsyncCallback<StagingAreaValidationModel>() {
                     public void onSuccess(StagingAreaValidationModel result) {
                         if (result != null) {
+                            ControllerContainer.get().getSummaryController().setEnabledStartValidation(false);
                             view.setStatus(CurrentValidationView.Status.HasValidation);
                             view.refresh(result);
                         } else {
+                            ControllerContainer.get().getSummaryController().setEnabledStartValidation(true);
                             view.setStatus(CurrentValidationView.Status.None);
                         }
                     }
+
+                    @Override
+                    protected void doOnFailure(Throwable caught) {
+                        ControllerContainer.get().getSummaryController().setEnabledStartValidation(true);
+                        view.setStatus(CurrentValidationView.Status.None);
+                    }
                 });
+    }
+
+    public void cancelValidation() {
+        RestServiceHandler.get().cancelValidationTask(UserContextUtil.getDataContainer(),
+                new SessionAwareAsyncCallback<Boolean>() {
+            public void onSuccess(Boolean result) {
+                if (result){
+                    view.setStatus(CurrentValidationView.Status.None);
+                    ControllerContainer.get().getSummaryController().setEnabledStartValidation(true);
+                }
+            }
+        });
     }
 }

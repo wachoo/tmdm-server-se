@@ -14,22 +14,32 @@ package org.talend.mdm.webapp.stagingarea.client.view;
 
 import java.util.Date;
 
+import org.talend.mdm.webapp.stagingarea.client.controller.ControllerContainer;
 import org.talend.mdm.webapp.stagingarea.client.model.StagingAreaValidationModel;
 
+import com.extjs.gxt.ui.client.Style.VerticalAlignment;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Label;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.ProgressBar;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
-import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.extjs.gxt.ui.client.widget.layout.TableData;
+import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.user.client.ui.Grid;
 
 
@@ -40,7 +50,7 @@ public class CurrentValidationView extends AbstractView {
         HasValidation
     };
 
-    private Status status;
+    private Status status = Status.None;
 
     private static final long SECOND = 1000L;
     
@@ -50,13 +60,17 @@ public class CurrentValidationView extends AbstractView {
     
     private static final long DAY = HOUR * 24;
 
+    private Button cancelButton;
+
     private CardLayout cardLayout;
+
+    private ContentPanel contentPanel;
 
     private FormPanel formPanel;
 
     private ContentPanel defaultMessagePanel;
 
-    private Label autoRefeshLabel;
+    private LabelField autoRefeshLabel;
 
     private ToggleButton toggle;
     
@@ -72,23 +86,38 @@ public class CurrentValidationView extends AbstractView {
 
     @Override
     protected void initComponents() {
-        autoRefeshLabel = new Label("Auto refresh"); //$NON-NLS-1$
+        autoRefeshLabel = new LabelField("Auto refresh: "); //$NON-NLS-1$
+        autoRefeshLabel.setWidth(100);
         toggle = new ToggleButton("OFF"); //$NON-NLS-1$
+        toggle.setWidth(210);
         startDateField = new DateField();
-        startDateField.setEnabled(false);
+        startDateField.setReadOnly(true);
         startDateField.setFieldLabel("Start Date"); //$NON-NLS-1$
         recordToProcessField = new NumberField();
-        recordToProcessField.setEnabled(false);
+        recordToProcessField.setReadOnly(true);
         recordToProcessField.setFieldLabel("Record to process"); //$NON-NLS-1$
         invalidField = new NumberField();
-        invalidField.setEnabled(false);
+        invalidField.setReadOnly(true);
         invalidField.setFieldLabel("Invalid record"); //$NON-NLS-1$
         etaField = new TextField<String>();
         etaField.setReadOnly(true);
         etaField.setFieldLabel("ETA"); //$NON-NLS-1$
         progressBar = new ProgressBar();
+        progressBar.setWidth("100%"); //$NON-NLS-1$
+        progressBar.setStyleAttribute("margin-right", "50px"); //$NON-NLS-1$//$NON-NLS-2$
+        cancelButton = new Button("Cancel"); //$NON-NLS-1$
+        cancelButton.setStyleAttribute("margin-top", "10px"); //$NON-NLS-1$//$NON-NLS-2$
+        cancelButton.setSize(200, 30);
+
+        contentPanel = new ContentPanel();
+        contentPanel.setHeaderVisible(false);
+        contentPanel.setBodyBorder(false);
+        TableLayout contentLayout = new TableLayout(2);
+        contentLayout.setWidth("100%"); //$NON-NLS-1$
+        contentPanel.setLayout(contentLayout);
 
         formPanel = new FormPanel();
+        formPanel.setLabelWidth(100);
         formPanel.setHeaderVisible(false);
         formPanel.setBodyBorder(false);
 
@@ -101,11 +130,23 @@ public class CurrentValidationView extends AbstractView {
 
     @Override
     protected void registerEvent() {
-        toggle.addSelectionListener(new SelectionListener<ButtonEvent>() {
+        toggle.addListener(Events.Toggle, new Listener<BaseEvent>() {
 
+            public void handleEvent(BaseEvent be) {
+                toggle.setText(toggle.isPressed() ? "ON" : "OFF"); //$NON-NLS-1$//$NON-NLS-2$
+                ControllerContainer.get().getCurrentValidationController().autoRefresh(toggle.isPressed());
+            }
+        });
+        cancelButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
             @Override
             public void componentSelected(ButtonEvent ce) {
-                toggle.setText(toggle.isPressed() ? "ON" : "OFF"); //$NON-NLS-1$//$NON-NLS-2$
+                MessageBox.confirm("Please confirm action", "Are you sure you want to cancel current validation?", new Listener<MessageBoxEvent>() {  //$NON-NLS-1$//$NON-NLS-2$
+                    public void handleEvent(MessageBoxEvent be) {
+                        if (be.getButtonClicked().getItemId().equals(Dialog.YES)){
+                            ControllerContainer.get().getCurrentValidationController().cancelValidation();
+                        }
+                    }
+                });
             }
         });
     }
@@ -124,17 +165,22 @@ public class CurrentValidationView extends AbstractView {
         formPanel.add(recordToProcessField);
         formPanel.add(invalidField);
         formPanel.add(etaField);
-        FormData progressData = new FormData();
-        progressData.setMargins(new Margins(3));
-        formPanel.add(progressBar, progressData);
-        progressBar.setWidth("100%"); //$NON-NLS-1$
 
+        TableData fpData = new TableData();
+        fpData.setWidth("400px"); //$NON-NLS-1$
+        contentPanel.add(formPanel, fpData);
+
+        TableData cb = new TableData();
+        cb.setVerticalAlign(VerticalAlignment.TOP);
+        contentPanel.add(cancelButton, cb);
+        TableData progressData = new TableData();
+        progressData.setColspan(2);
+        contentPanel.add(progressBar, progressData);
+
+        mainPanel.add(new Label());
         mainPanel.add(defaultMessagePanel);
-        mainPanel.add(formPanel);
-        mainPanel.setHeight(180);
+        mainPanel.add(contentPanel);
         mainPanel.setBodyBorder(false);
-
-        setStatus(Status.None);
     }
 
     public void refresh(StagingAreaValidationModel stagingAreaValidationModel) {
@@ -175,16 +221,34 @@ public class CurrentValidationView extends AbstractView {
         progressBar.updateProgress(percentage, "process " + process + "/ total " + total + ""); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
     }
 
+
     public void setStatus(Status status) {
-        this.status = status;
+
         if (status == Status.None) {
+            toggle.toggle(false);
+            startDateField.clear();
+            recordToProcessField.clear();
+            invalidField.clear();
+            etaField.clear();
+            progressBar.reset();
+            mainPanel.setHeight(50);
             cardLayout.setActiveItem(defaultMessagePanel);
         } else {
-            cardLayout.setActiveItem(formPanel);
+            mainPanel.setHeight(190);
+            cardLayout.setActiveItem(contentPanel);
+        }
+        if (this.status != status) {
+            this.status = status;
+            ControllerContainer.get().getStagingareaMainController().doLayout();
         }
     }
 
     public Status getStatus() {
         return status;
+    }
+
+    protected void onDetach() {
+        super.onDetach();
+        ControllerContainer.get().getCurrentValidationController().autoRefresh(false);
     }
 }

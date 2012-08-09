@@ -13,13 +13,13 @@
 package org.talend.mdm.webapp.stagingarea.client.controller;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.model.UserContextModel;
+import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingarea.client.model.StagingContainerModel;
 import org.talend.mdm.webapp.stagingarea.client.rest.RestServiceHandler;
 import org.talend.mdm.webapp.stagingarea.client.view.StagingContainerSummaryView;
 
 public class StagingContainerSummaryController extends AbstractController {
-
-    RestServiceHandler handler = new RestServiceHandler();
 
     private StagingContainerSummaryView view;
 
@@ -29,7 +29,9 @@ public class StagingContainerSummaryController extends AbstractController {
     }
 
     public void refreshView() {
-        handler.getStagingContainerSummary("TestDataContainer", "TestDataModel", new SessionAwareAsyncCallback<StagingContainerModel>() { //$NON-NLS-1$ //$NON-NLS-2$
+        UserContextModel ucx = UserContextUtil.getUserContext();
+        RestServiceHandler.get().getStagingContainerSummary(ucx.getDataContainer(), ucx.getDataModel(),
+                new SessionAwareAsyncCallback<StagingContainerModel>() {
 
             public void onSuccess(StagingContainerModel result) {
                 view.refresh(result);
@@ -38,12 +40,20 @@ public class StagingContainerSummaryController extends AbstractController {
     }
 
     public void startValidation() {
-        handler.runValidationTask("TestDataContainer", "TestDataModel", null, new SessionAwareAsyncCallback<String>() { //$NON-NLS-1$ //$NON-NLS-2$
-
+        UserContextModel ucx = UserContextUtil.getUserContext();
+        RestServiceHandler.get().runValidationTask(ucx.getDataContainer(), ucx.getDataModel(), null,
+                new SessionAwareAsyncCallback<String>() {
             public void onSuccess(String result) {
                 ControllerContainer.get().getCurrentValidationController().refreshView();
             }
         });
     }
 
+    public void setEnabledStartValidation(boolean enabled) {
+        if (enabled) {
+            view.enabledStartValidation();
+        } else {
+            view.disabledStartValidation();
+        }
+    }
 }
