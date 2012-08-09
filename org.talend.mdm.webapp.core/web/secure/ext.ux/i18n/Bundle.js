@@ -23,6 +23,7 @@ Ext.i18n.Bundle = function(config){
 	this.method = config.method || 'GET';
 
 	var url = this.buildURL(this.language);
+	this.defaultUrl = this.buildURL("");
 	
     Ext.i18n.Bundle.superclass.constructor.call(this, {
     	autoLoad: true,
@@ -41,7 +42,8 @@ Ext.extend(Ext.i18n.Bundle, Ext.data.Store,{
 	path: null,
 	listeners:{
 		loadexception: function(proxy, options, response) {
-			Ext.MessageBox.alert("Error", this.bundle+"_"+this.language+".properties File not found, please add it in resources folder.");
+			this.proxy = this.createProxy(this.defaultUrl);
+			this.load();
 		}
 		},
 	/**
