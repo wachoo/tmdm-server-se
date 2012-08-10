@@ -17,6 +17,7 @@ import java.util.List;
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.Cookies;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
+import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.general.client.General;
 import org.talend.mdm.webapp.general.client.GeneralServiceAsync;
 import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
@@ -125,8 +126,8 @@ public class GeneralController extends Controller {
     }
 
     private void switchClusterAndModel(AppEvent event) {
-        String dataCluster = ActionsPanel.getInstance().getDataCluster();
-        String dataModel = ActionsPanel.getInstance().getDataModel();
+        final String dataCluster = ActionsPanel.getInstance().getDataCluster();
+        final String dataModel = ActionsPanel.getInstance().getDataModel();
         service.setClusterAndModel(dataCluster, dataModel, new SessionAwareAsyncCallback<Void>() {
 
             @Override
@@ -136,6 +137,8 @@ public class GeneralController extends Controller {
 
             public void onSuccess(Void result) {
                 MessageBox.alert(MessageFactory.getMessages().status(), MessageFactory.getMessages().status_msg_success(), null);
+                UserContextUtil.setDataContainer(dataCluster);
+                UserContextUtil.setDataModel(dataModel);
                 WorkSpace.getInstance().clearTabs();
                 WorkSpace.getInstance().loadApp(GeneralView.WELCOMECONTEXT, GeneralView.WELCOMEAPP);
             }
