@@ -84,6 +84,8 @@ public class CurrentValidationView extends AbstractView {
 
     private ProgressBar progressBar;
 
+    private StagingAreaValidationModel currentValidationModel;
+
     @Override
     protected void initComponents() {
         autoRefeshLabel = new LabelField(messages.auto_refresh());
@@ -183,6 +185,7 @@ public class CurrentValidationView extends AbstractView {
 
     public void refresh(StagingAreaValidationModel stagingAreaValidationModel) {
         cardLayout.setActiveItem(formPanel);
+        currentValidationModel = stagingAreaValidationModel;
         startDateField.setValue(stagingAreaValidationModel.getStartDate());
         recordToProcessField.setValue(stagingAreaValidationModel.getProcessedRecords());
         invalidField.setValue(stagingAreaValidationModel.getInvalidRecords());
@@ -239,5 +242,17 @@ public class CurrentValidationView extends AbstractView {
 
     public Status getStatus() {
         return status;
+    }
+
+    public DateField getStartDateField() {
+        return startDateField;
+    }
+
+    public Button getCancelButton() {
+        return cancelButton;
+    }
+
+    public StagingAreaValidationModel getCurrentValidationModel() {
+        return currentValidationModel;
     }
 }

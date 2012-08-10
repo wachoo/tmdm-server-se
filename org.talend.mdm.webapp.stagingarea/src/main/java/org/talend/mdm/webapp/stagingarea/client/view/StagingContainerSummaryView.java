@@ -178,4 +178,9 @@ public class StagingContainerSummaryView extends AbstractView {
     public void enabledStartValidation() {
         startValidate.setEnabled(true);
     }
+
+    public Button getStartValidateButton() {
+        return startValidate;
+    }
+
 }
