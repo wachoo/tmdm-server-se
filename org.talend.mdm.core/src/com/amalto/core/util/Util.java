@@ -2566,10 +2566,12 @@ public class Util {
                 while ((Boolean) context.get(RUNNING)) {
                     Thread.sleep(100);
                 }
-                String message = null;
+                // TODO process no plug-in issue
+                String message = "<report><message type=\"error\"/></report> "; //$NON-NLS-1$;
                 String item = null;
-                // Scan the entries - in priority, take the content of the 'output_error_message' entry,
+                // Scan the entries - in priority, taka the content of the 'output_error_message' entry,
                 for (Entry<String, TypedContent> entry : context.getPipelineClone().entrySet()) {
+
                     if (ITransformerConstants.VARIABLE_OUTPUT_OF_BEFORESAVINGTRANFORMER.equals(entry.getKey())) {
                         message = new String(entry.getValue().getContentBytes(), "UTF-8"); //$NON-NLS-1$                        
                     }
