@@ -88,8 +88,8 @@ public class CurrentValidationView extends AbstractView {
 
     @Override
     protected void initComponents() {
-        autoRefeshLabel = new LabelField(messages.auto_refresh());
-        autoRefeshLabel.setWidth(100);
+        autoRefeshLabel = new LabelField(messages.auto_refresh() + ":"); //$NON-NLS-1$
+        autoRefeshLabel.setWidth(120);
         toggle = new ToggleButton(messages.off());
         toggle.setWidth(210);
         startDateField = new DateField();
@@ -117,7 +117,7 @@ public class CurrentValidationView extends AbstractView {
         contentPanel.setLayout(contentLayout);
 
         formPanel = new FormPanel();
-        formPanel.setLabelWidth(100);
+        formPanel.setLabelWidth(120);
         formPanel.setHeaderVisible(false);
         formPanel.setBodyBorder(false);
 

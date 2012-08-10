@@ -190,7 +190,7 @@ public class RestServiceHandler {
             final SessionAwareAsyncCallback<List<StagingAreaExecutionModel>> callback) {
         
         // build URI
-        StringBuilder uri = new StringBuilder(BASE_URL + SEPARATE + dataContainer + "/execs/");//$NON-NLS-1$ //$NON-NLS-2$
+        StringBuilder uri = new StringBuilder(BASE_URL + SEPARATE + dataContainer + "/execs/");//$NON-NLS-1$
         StringBuilder parameters=new StringBuilder();
         if(start!=-1&&pageSize!=-1)
             parameters.append("start=").append(start).append("&size=").append(pageSize);//$NON-NLS-1$ //$NON-NLS-2$
