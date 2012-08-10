@@ -404,7 +404,7 @@ public class Util {
                 String err = "The item " + element.getLocalName() + " did not validate against the model: \n" + errors + "\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         + xmlString; // .substring(0, Math.min(100, xmlString.length()));
                 LOG.debug(err);
-                throw new CVCException(err);
+                throw new CVCException(errors);
             }
         }
 
