@@ -54,16 +54,16 @@ public class StagingContainerSummaryViewTest extends GWTTestCase {
 
         HTMLPanel detailPanel = getDetailPanel(view);
         Element titleEl = detailPanel.getElementById(StagingContainerSummaryView.STAGING_AREA_TITLE);
-        assertEquals("<b>10000</b> records in staging area:", titleEl.getInnerHTML());
+        assertTrue(titleEl.getInnerHTML().contains("<b>10000</b>"));
 
         Element waitingEl = detailPanel.getElementById(StagingContainerSummaryView.STAGING_AREA_WAITING);
-        assertEquals("Waiting for validation: <b>1000</b> records", waitingEl.getInnerHTML());
+        assertTrue(waitingEl.getInnerHTML().contains("<b>1000</b>"));
 
         Element invalidEl = detailPanel.getElementById(StagingContainerSummaryView.STAGING_AREA_INVALID);
-        assertEquals("Invalid: <b>1000</b> records <a style=\"color:red\" href=\"#\">open invalid records...</a>", invalidEl.getInnerHTML());
+        assertTrue(invalidEl.getInnerHTML().contains("<b>1000</b>"));
 
         Element validEl = detailPanel.getElementById(StagingContainerSummaryView.STAGING_AREA_VALID);
-        assertEquals("Valid: <b>8000</b> records", validEl.getInnerHTML());
+        assertTrue(validEl.getInnerHTML().contains("<b>8000</b>"));
 
     }
 

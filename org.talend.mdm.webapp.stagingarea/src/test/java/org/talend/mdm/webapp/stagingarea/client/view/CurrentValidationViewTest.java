@@ -38,12 +38,14 @@ public class CurrentValidationViewTest extends GWTTestCase {
 
         StagingContainerSummaryView summaryView = new StagingContainerSummaryView();
         CurrentValidationView view = new CurrentValidationView();
+        StagingareaMainView mainView = new StagingareaMainView();
+
         ControllerContainer.setCurrentValidationView(view);
         ControllerContainer.setStagingContainerSummaryView(summaryView);
+        ControllerContainer.setStagingareaMainView(mainView);
 
         RootPanel.get().add(summaryView);
         RootPanel.get().add(view);
-
         ControllerContainer.get().getSummaryController().refreshView();
         ControllerContainer.get().getCurrentValidationController().refreshView();
 

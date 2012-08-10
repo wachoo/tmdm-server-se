@@ -14,7 +14,7 @@ package org.talend.mdm.webapp.stagingarea.client.view;
 
 import org.talend.mdm.webapp.stagingarea.client.controller.ControllerContainer;
 
-import com.extjs.gxt.ui.client.Style.Orientation;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.BoxComponent;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
@@ -45,6 +45,10 @@ public class StagingareaMainView extends AbstractView {
     @Override
     protected void initComponents() {
         super.initComponents();
+        mainPanel.setBodyBorder(false);
+        mainPanel.setScrollMode(Scroll.AUTOY);
+        mainPanel.setStyleAttribute("font-size", "12px"); //$NON-NLS-1$//$NON-NLS-2$
+        mainPanel.setStyleAttribute("margin", "3px"); //$NON-NLS-1$//$NON-NLS-2$
         summaryView = new StagingContainerSummaryView();
         currentValidationView = new CurrentValidationView();
         previousExecutionValidationView = new PreviousExecutionView();
@@ -56,12 +60,10 @@ public class StagingareaMainView extends AbstractView {
 
     @Override
     protected void initLayout() {
-        mainPanel.setLayout(new RowLayout(Orientation.VERTICAL));
-        mainPanel.add(wrapFieldSet(summaryView, "Status"), new RowData(1, -1, new Margins(4))); //$NON-NLS-1$
-        mainPanel.add(wrapFieldSet(currentValidationView, "Current Validation"), new RowData(1, -1, new Margins(0, 4, 0, 4))); //$NON-NLS-1$
-        mainPanel.add(wrapFieldSet(previousExecutionValidationView, "Previous Validation(s)"), new RowData(1, 1, new Margins(4))); //$NON-NLS-1$
-        mainPanel.setStyleAttribute("font-size", "12px"); //$NON-NLS-1$//$NON-NLS-2$
-        mainPanel.setBodyBorder(false);
+        mainPanel.setLayout(new RowLayout());
+        mainPanel.add(wrapFieldSet(summaryView, messages.status()), new RowData(1, -1, new Margins(0, 23, 0, 0)));
+        mainPanel.add(wrapFieldSet(currentValidationView, messages.current_validation()), new RowData(1, -1,  new Margins(0, 23, 0, 0)));
+        mainPanel.add(wrapFieldSet(previousExecutionValidationView, messages.previous_validation()), new RowData(1, -1,  new Margins(0, 23, 0, 0)));
     }
 
     public void doLayout() {

@@ -18,6 +18,7 @@ import org.talend.mdm.webapp.stagingarea.client.model.StagingAreaValidationModel
 import org.talend.mdm.webapp.stagingarea.client.rest.RestServiceHandler;
 import org.talend.mdm.webapp.stagingarea.client.view.CurrentValidationView;
 
+import com.google.gwt.dom.client.Document;
 import com.google.gwt.user.client.Timer;
 
 
@@ -27,14 +28,18 @@ public class CurrentValidationController extends AbstractController {
 
     private Timer timer;
 
-    public CurrentValidationController(CurrentValidationView view) {
+    public CurrentValidationController(final CurrentValidationView view) {
         setBindingView(view);
         this.view = (CurrentValidationView) bindingView;
         timer = new Timer() {
 
             @Override
             public void run() {
-                refreshView();
+                if (Document.get().isOrHasChild(view.getElement())) {
+                    refreshView();
+                } else {
+                    this.cancel();
+                }
             }
         };
     }

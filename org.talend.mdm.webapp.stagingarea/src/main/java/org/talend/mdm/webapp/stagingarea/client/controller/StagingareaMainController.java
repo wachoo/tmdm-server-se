@@ -24,7 +24,4 @@ public class StagingareaMainController extends AbstractController {
         this.view = (StagingareaMainView) bindingView;
     }
 
-    public void doLayout() {
-        view.doLayout();
-    }
 }

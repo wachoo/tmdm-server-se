@@ -67,16 +67,16 @@ public class PreviousExecutionView extends AbstractView {
 
     private void buildColumns() {
         List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
-        ColumnConfig startDateColumn = new ColumnConfig("start_date", "Start Date", 100); //$NON-NLS-1$ //$NON-NLS-2$
+        ColumnConfig startDateColumn = new ColumnConfig("start_date", messages.start_date(), 100); //$NON-NLS-1$
         columns.add(startDateColumn);
-        ColumnConfig endDateColumn = new ColumnConfig("end_date", "End Date", 100); //$NON-NLS-1$ //$NON-NLS-2$
+        ColumnConfig endDateColumn = new ColumnConfig("end_date", messages.end_date(), 100); //$NON-NLS-1$
         columns.add(endDateColumn);
-        ColumnConfig processRecordsColumn = new ColumnConfig("processed_records", "Process Records", 100); //$NON-NLS-1$//$NON-NLS-2$
+        ColumnConfig processRecordsColumn = new ColumnConfig("processed_records", messages.process_records(), 100); //$NON-NLS-1$
         columns.add(processRecordsColumn);
-        ColumnConfig invalidRecordsColumn = new ColumnConfig("invalid_records", "Invalid Records", 100); //$NON-NLS-1$//$NON-NLS-2$
+        ColumnConfig invalidRecordsColumn = new ColumnConfig("invalid_records", messages.invalid_records(), 100); //$NON-NLS-1$
         columns.add(invalidRecordsColumn);
 
-        ColumnConfig recordLeftColumn = new ColumnConfig("total_record", "Total Record", 100); //$NON-NLS-1$//$NON-NLS-2$
+        ColumnConfig recordLeftColumn = new ColumnConfig("total_record", messages.total_record(), 100); //$NON-NLS-1$
         columns.add(recordLeftColumn);
 
         taskColumnModel =  new ColumnModel(columns);
@@ -117,13 +117,14 @@ public class PreviousExecutionView extends AbstractView {
         super.initComponents();
         buildColumns();
         buildDataSource();
-        beforeDateLabel = new Label("Display Before"); //$NON-NLS-1$
+        beforeDateLabel = new Label(messages.display_before());
         beforeDateField = new DateField();
-        searchButton = new Button("Search"); //$NON-NLS-1$
+        searchButton = new Button(messages.search());
         bar = new ToolBar();
         taskPagingBar = new PagingToolBar(PAGE_SIZE);
         taskGrid = new Grid<StagingAreaExecutionModel>(taskStore, taskColumnModel);
 
+        mainPanel.setHeight(300);
     }
 
     @Override

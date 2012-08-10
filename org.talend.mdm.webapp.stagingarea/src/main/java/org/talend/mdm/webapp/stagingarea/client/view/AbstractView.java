@@ -12,6 +12,9 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingarea.client.view;
 
+import org.talend.mdm.webapp.stagingarea.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.stagingarea.client.i18n.StagingareaMessages;
+
 import com.extjs.gxt.ui.client.widget.Composite;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 
@@ -19,7 +22,10 @@ public abstract class AbstractView extends Composite {
 
     protected final ContentPanel mainPanel;
 
+    protected final StagingareaMessages messages;
+
     public AbstractView() {
+        messages = MessagesFactory.getMessages();
         mainPanel = new ContentPanel();
         mainPanel.setHeaderVisible(false);
 

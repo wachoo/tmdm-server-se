@@ -86,26 +86,24 @@ public class CurrentValidationView extends AbstractView {
 
     @Override
     protected void initComponents() {
-        autoRefeshLabel = new LabelField("Auto refresh: "); //$NON-NLS-1$
+        autoRefeshLabel = new LabelField(messages.auto_refresh());
         autoRefeshLabel.setWidth(100);
-        toggle = new ToggleButton("OFF"); //$NON-NLS-1$
+        toggle = new ToggleButton(messages.off());
         toggle.setWidth(210);
         startDateField = new DateField();
         startDateField.setReadOnly(true);
-        startDateField.setFieldLabel("Start Date"); //$NON-NLS-1$
+        startDateField.setFieldLabel(messages.start_date());
         recordToProcessField = new NumberField();
         recordToProcessField.setReadOnly(true);
-        recordToProcessField.setFieldLabel("Record to process"); //$NON-NLS-1$
+        recordToProcessField.setFieldLabel(messages.record_to_process());
         invalidField = new NumberField();
         invalidField.setReadOnly(true);
-        invalidField.setFieldLabel("Invalid record"); //$NON-NLS-1$
+        invalidField.setFieldLabel(messages.invalid_record());
         etaField = new TextField<String>();
         etaField.setReadOnly(true);
-        etaField.setFieldLabel("ETA"); //$NON-NLS-1$
+        etaField.setFieldLabel(messages.eta());
         progressBar = new ProgressBar();
-        progressBar.setWidth("100%"); //$NON-NLS-1$
-        progressBar.setStyleAttribute("margin-right", "50px"); //$NON-NLS-1$//$NON-NLS-2$
-        cancelButton = new Button("Cancel"); //$NON-NLS-1$
+        cancelButton = new Button(messages.cancel());
         cancelButton.setStyleAttribute("margin-top", "10px"); //$NON-NLS-1$//$NON-NLS-2$
         cancelButton.setSize(200, 30);
 
@@ -125,7 +123,7 @@ public class CurrentValidationView extends AbstractView {
         defaultMessagePanel.setLayout(new CenterLayout());
         defaultMessagePanel.setBodyBorder(false);
         defaultMessagePanel.setHeaderVisible(false);
-        defaultMessagePanel.add(new Label("No validation is being performed, please click on \"Start validation\"")); //$NON-NLS-1$
+        defaultMessagePanel.add(new Label(messages.no_validation()));
     }
 
     @Override
@@ -133,14 +131,14 @@ public class CurrentValidationView extends AbstractView {
         toggle.addListener(Events.Toggle, new Listener<BaseEvent>() {
 
             public void handleEvent(BaseEvent be) {
-                toggle.setText(toggle.isPressed() ? "ON" : "OFF"); //$NON-NLS-1$//$NON-NLS-2$
+                toggle.setText(toggle.isPressed() ? messages.on() : messages.off());
                 ControllerContainer.get().getCurrentValidationController().autoRefresh(toggle.isPressed());
             }
         });
         cancelButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
             @Override
             public void componentSelected(ButtonEvent ce) {
-                MessageBox.confirm("Please confirm action", "Are you sure you want to cancel current validation?", new Listener<MessageBoxEvent>() {  //$NON-NLS-1$//$NON-NLS-2$
+                MessageBox.confirm(messages.please_confirm(), messages.confirm_message(), new Listener<MessageBoxEvent>() {
                     public void handleEvent(MessageBoxEvent be) {
                         if (be.getButtonClicked().getItemId().equals(Dialog.YES)){
                             ControllerContainer.get().getCurrentValidationController().cancelValidation();
@@ -192,9 +190,9 @@ public class CurrentValidationView extends AbstractView {
         Date startDate = stagingAreaValidationModel.getStartDate();
         Date currentDate = new Date();
 
-        int process = stagingAreaValidationModel.getProcessedRecords();
-        int total = stagingAreaValidationModel.getTotalRecord();
-        double percentage =  process * 1.0D / total;
+        final int process = stagingAreaValidationModel.getProcessedRecords();
+        final int total = stagingAreaValidationModel.getTotalRecord();
+        final double percentage = process * 1.0D / total;
         long costTime = currentDate.getTime() - startDate.getTime();
         long etaTime = (long) (costTime / percentage) - costTime;
 
@@ -217,8 +215,7 @@ public class CurrentValidationView extends AbstractView {
             buffer.append(second + "s"); //$NON-NLS-1$
         }
         etaField.setValue(buffer.toString());
-        
-        progressBar.updateProgress(percentage, "process " + process + "/ total " + total + ""); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+        progressBar.updateProgress(percentage, messages.percentage(process, total));
     }
 
 
@@ -231,24 +228,16 @@ public class CurrentValidationView extends AbstractView {
             invalidField.clear();
             etaField.clear();
             progressBar.reset();
-            mainPanel.setHeight(50);
+            mainPanel.setHeight(30);
             cardLayout.setActiveItem(defaultMessagePanel);
         } else {
             mainPanel.setHeight(190);
             cardLayout.setActiveItem(contentPanel);
         }
-        if (this.status != status) {
-            this.status = status;
-            ControllerContainer.get().getStagingareaMainController().doLayout();
-        }
+        this.status = status;
     }
 
     public Status getStatus() {
         return status;
-    }
-
-    protected void onDetach() {
-        super.onDetach();
-        ControllerContainer.get().getCurrentValidationController().autoRefresh(false);
     }
 }

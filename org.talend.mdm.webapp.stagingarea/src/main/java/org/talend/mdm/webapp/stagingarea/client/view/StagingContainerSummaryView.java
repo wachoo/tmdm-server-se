@@ -63,9 +63,9 @@ public class StagingContainerSummaryView extends AbstractView {
 
     @Override
     protected void initComponents() {
-
         UserContextModel cux = UserContextUtil.getUserContext();
-        summaryTitle = new Label("STAGING AREA &lt;" + cux.getDataContainer() + "&gt; &lt;" + cux.getDataModel() + "&gt;"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        summaryTitle = new Label(messages.staging_area_title()
+                + " &lt;" + cux.getDataContainer() + "&gt; &lt;" + cux.getDataModel() + "&gt;"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         StringBuffer buffer = new StringBuffer();
         buffer.append("<div style='margin-bottom:10px; font-size:16px;' id='" + STAGING_AREA_TITLE + "'></div>"); //$NON-NLS-1$ //$NON-NLS-2$
         buffer.append("<div style='margin-left:20px; color:#0000ff; margin-bottom:5px;' id='" + STAGING_AREA_WAITING + "'></div>"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -76,7 +76,7 @@ public class StagingContainerSummaryView extends AbstractView {
 
         detailPanel.setSize("300px", "80px"); //$NON-NLS-1$//$NON-NLS-2$
 
-        startValidate = new Button("Start Validation"); //$NON-NLS-1$
+        startValidate = new Button(messages.start_validation());
         startValidate.setSize(200, 30);
         startValidate.setEnabled(false);
 
@@ -131,9 +131,9 @@ public class StagingContainerSummaryView extends AbstractView {
             pie.setNoLabels(false);
             pie.setTooltip("#label# record #val#<br>#percent#"); //$NON-NLS-1$
             pie.setColours("#0000ff", "#ff0000", "#00aa00"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            pie.addSlices(new PieChart.Slice(waiting, "Waiting")); //$NON-NLS-1$
-            pie.addSlices(new PieChart.Slice(invalid, "Invalid")); //$NON-NLS-1$
-            pie.addSlices(new PieChart.Slice(valid, "Valid")); //$NON-NLS-1$
+            pie.addSlices(new PieChart.Slice(waiting, messages.waiting()));
+            pie.addSlices(new PieChart.Slice(invalid, messages.invalid()));
+            pie.addSlices(new PieChart.Slice(valid, messages.valid()));
             cm.addChartConfig(pie);
         }
         return cm;
@@ -146,16 +146,16 @@ public class StagingContainerSummaryView extends AbstractView {
             int invalid = stagingContainerModel.getInvalidRecords();
 
             Element titleEl = detailPanel.getElementById(STAGING_AREA_TITLE);
-            titleEl.setInnerHTML("<b>" + stagingContainerModel.getTotalRecords() + "</b> records in staging area:"); //$NON-NLS-1$ //$NON-NLS-2$
+            titleEl.setInnerHTML(messages.total_desc("<b>" + stagingContainerModel.getTotalRecords() + "</b>")); //$NON-NLS-1$ //$NON-NLS-2$
 
             Element waitingEl = detailPanel.getElementById(STAGING_AREA_WAITING);
-            waitingEl.setInnerHTML("Waiting for validation: <b>" + waiting + "</b> records"); //$NON-NLS-1$ //$NON-NLS-2$
+            waitingEl.setInnerHTML(messages.waiting_desc("<b>" + waiting + "</b>")); //$NON-NLS-1$ //$NON-NLS-2$
 
             Element invalidEl = detailPanel.getElementById(STAGING_AREA_INVALID);
-            invalidEl.setInnerHTML("Invalid: <b>" + invalid + "</b> records <a style=\"color:red\" href=\"#\">open invalid records...</a>"); //$NON-NLS-1$ //$NON-NLS-2$
+            invalidEl.setInnerHTML(messages.invalid_desc("<b>" + invalid + "</b>") + " <a style=\"color:red\" href=\"#\">" + messages.open_invalid_record() + "</a>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
             Element validEl = detailPanel.getElementById(STAGING_AREA_VALID);
-            validEl.setInnerHTML("Valid: <b>" + valid + "</b> records"); //$NON-NLS-1$ //$NON-NLS-2$
+            validEl.setInnerHTML(messages.valid_desc("<b>" + valid + "</b>")); //$NON-NLS-1$ //$NON-NLS-2$
         }
     }
 
