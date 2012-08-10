@@ -796,7 +796,6 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         } catch (ValidateException e) {
             throw new RemoteException(e.getLocalizedMessage(), e);
         } catch (Exception e) {
-            String prefix = "Unable to create/update the item : ";
             String err = e.getMessage();
             // simplify the error message
             if (("Reporting").equals(wsPutItem.getWsDataModelPK().getPk())) {
@@ -804,7 +803,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                     err = "At least one filter must be defined";
                 }
             }
-            throw new RemoteException(prefix + err);
+            throw new RemoteException(err, e);
         } finally {
             // exist auto_increment, it need save the unused auto_increment id
             if(saveFailure && !wsPutItem.getIsUpdate())
