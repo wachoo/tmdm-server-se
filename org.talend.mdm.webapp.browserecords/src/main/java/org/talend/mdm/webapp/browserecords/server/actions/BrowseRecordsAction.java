@@ -522,7 +522,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                             }
                         }
                     }
-                }            
+                }       
             }
 
             // dynamic Assemble
@@ -1702,7 +1702,15 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 err = MESSAGES.getMessage(locale, "save_success_but_exist_exception", //$NON-NLS-1$
                         concept + "." + ids, e.getLocalizedMessage()); //$NON-NLS-1$
             } else if (Util.causeIs(e, CVCException.class)) {
-                err = MESSAGES.getMessage(locale, "save_fail_cvc_exception", concept); //$NON-NLS-1$
+                Throwable cvcException = e;
+                while (cvcException != null) {
+                    if (cvcException instanceof CVCException) {
+                        break;
+                    }
+                    cvcException = cvcException.getCause();
+                }
+                String errmsg = cvcException == null ? e.getLocalizedMessage() : cvcException.getMessage();
+                err = MESSAGES.getMessage(locale, "save_fail_cvc_exception", concept, errmsg); //$NON-NLS-1$
             } else if (Util.causeIs(e, ValidateException.class)) {
                 err = MESSAGES.getMessage(locale, "save_validationrule_fail", concept + "." + ids, //$NON-NLS-1$//$NON-NLS-2$
                         Util.getExceptionMessage(e.getLocalizedMessage(), language));
