@@ -35,6 +35,17 @@ public class PatchTool {
             return;
         }
 
+        File toDelpoyFile = null;
+        if ((args[0].lastIndexOf("/") == args[0].length() - 1) || (args[0].lastIndexOf("\\") == args[0].length() - 1)) //$NON-NLS-1$ //$NON-NLS-2$
+            toDelpoyFile = new File(args[0] + "todeploy"); //$NON-NLS-1$
+        else
+            toDelpoyFile = new File(args[0] + "/todeploy"); //$NON-NLS-1$
+
+        if(!toDelpoyFile.exists()) {
+            System.out.println("The folder " + toDelpoyFile.getAbsolutePath() + " does not exist"); //$NON-NLS-1$ //$NON-NLS-2$
+            return;
+        }
+
         System.out.println("Create a temp Folder..."); //$NON-NLS-1$
         File file = new File(tempDir);
         file.mkdir();
@@ -56,12 +67,6 @@ public class PatchTool {
         process.destroy();
 
         System.out.println("Replace the file....."); //$NON-NLS-1$
-        File toDelpoyFile = null;
-        if ((args[0].lastIndexOf("/") == args[0].length() - 1) || (args[0].lastIndexOf("\\") == args[0].length() - 1)) //$NON-NLS-1$ //$NON-NLS-2$
-            toDelpoyFile = new File(args[0] + "todeploy"); //$NON-NLS-1$
-        else
-            toDelpoyFile = new File(args[0] + "/todeploy"); //$NON-NLS-1$
-
         File[] files = toDelpoyFile.listFiles();
         for (File fromFile : files) {
             File toFile = null;
