@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="PatchTool" default="all">
+
+	<property name="version.props" value="version.properties" />
+
+	<property name="jboss.dir" value="F:\MDM_Installation\Talend-MDMServer-r88560-V5.2.0NB\jboss-4.2.2.GA\" />
+	<property name="jboss.bin.dir" value="${jboss.dir}/bin" />
+	<property name="jboss.instance.dir" value="${jboss.dir}/server/default" />
+	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy" />
+	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib" />
+
+	<property name="jar" value="patchtool.jar" />
+	<property name="tom.location" value="${basedir}/.." />
+
+
+	<!-- ================================= 
+          target: all              
+         ================================= -->
+	<target name="all" depends="version,package,undeploy,deploy">
+		<!--eclipse.refreshLocal resource="${basedir}"/-->
+	</target>
+
+	<target name="version" description="Maintain build.date property">
+		<buildnumber file="${version.props}" />
+		<propertyfile file="${version.props}">
+			<entry key="build.date" type="date" value="now" />
+		</propertyfile>
+	</target>
+
+	<target name="package">
+		<jar destfile="${jar}">
+			<zipfileset dir=".">
+				<include name="RELEASE.NOTES" />
+			</zipfileset>
+			<zipfileset dir=".">
+				<include name="version.properties" />
+			</zipfileset>
+			<zipfileset dir="bin" includes="**/*.class" />
+			<zipfileset dir="bin" includes="**/*.properties" />
+		</jar>
+	</target>
+
+	<target name="undeploy" description="remove packages">
+		<delete failonerror="false">
+			<fileset dir="${jboss.bin.dir}/tools/patchtool" includes="**/*" />
+		</delete>
+	</target>
+
+	<target name="deploy">
+		<echo>Deploying ${jar} and scripts</echo>
+		<copy file="${jar}" tofile="${jboss.bin.dir}/tools/patchtool/${jar}" />
+		<copy todir="${jboss.bin.dir}/tools/patchtool" overwrite="true">
+			<fileset dir="scripts" />
+		</copy>
+	</target>
+
+</project>
