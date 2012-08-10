@@ -95,9 +95,16 @@ public class PatchTool {
         reader.close();
         packageProcess.destroy();
 
-        System.out.println("Move new tem.ear to deploy folder"); //$NON-NLS-1$
+        System.out.println("Backup the original ear"); //$NON-NLS-1$
         String[] arr = userDir.split("bin"); //$NON-NLS-1$
         File deployFile = new File(arr[0] + "server/default/deploy/tem.ear"); //$NON-NLS-1$
+        File backupFile = new File(userDir + "/backup"); //$NON-NLS-1$
+        if(!backupFile.exists())
+            backupFile.mkdir();
+        moveFile(deployFile, new File(userDir + "/backup/tem.ear")); //$NON-NLS-1$
+        System.out.println("The original ear has been backup to " + backupFile.getAbsolutePath()); //$NON-NLS-1$
+        
+        System.out.println("Move new tem.ear to deploy folder"); //$NON-NLS-1$
         moveFile(new File(tempDir + "/tem.ear"), deployFile); //$NON-NLS-1$
         System.out.println("Move Successfully!"); //$NON-NLS-1$
         cleanup(file);
