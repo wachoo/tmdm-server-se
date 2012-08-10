@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.patchtool;
 
 import java.io.BufferedReader;
@@ -11,12 +23,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PatchTool {
-    
+
     private static String userDir = System.getProperty("user.dir"); //$NON-NLS-1$
 
     private static String tempDir = userDir + "/temp"; //$NON-NLS-1$
-        
+
     public static void main(String[] args) throws Exception {
+
+        if (args.length == 0) {
+            System.out.println("Invalid command"); //$NON-NLS-1$
+            return;
+        }
 
         System.out.println("Create a temp Folder..."); //$NON-NLS-1$
         File file = new File(tempDir);
@@ -30,42 +47,36 @@ public class PatchTool {
         String line = null;
         while ((line = reader.readLine()) != null) {
             System.out.println(line);
-            if(!line.contains(":")) //$NON-NLS-1$
+            if (!line.contains(":")) //$NON-NLS-1$
                 list.add(line.substring(line.lastIndexOf(" "), line.length()).trim()); //$NON-NLS-1$
         }
         process.waitFor();
         is.close();
         reader.close();
         process.destroy();
-        
-        if(args.length == 0) {
-            System.out.println("Invalid command"); //$NON-NLS-1$
-            cleanup(file);
-            file.delete();
-            return;
-        }
-            
-        System.out.println("Replace the file.....");  //$NON-NLS-1$
-        for(String fileName : args){
-            File fromFile = null;
-            if(fileName.contains("/") || fileName.contains("\\"))  //$NON-NLS-1$//$NON-NLS-2$
-                fromFile = new File(fileName.trim());
-            else
-                fromFile = new File(userDir + "/" + fileName.trim()); //$NON-NLS-1$
-            
+
+        System.out.println("Replace the file....."); //$NON-NLS-1$
+        File toDelpoyFile = null;
+        if ((args[0].lastIndexOf("/") == args[0].length() - 1) || (args[0].lastIndexOf("\\") == args[0].length() - 1)) //$NON-NLS-1$ //$NON-NLS-2$
+            toDelpoyFile = new File(args[0] + "todeploy"); //$NON-NLS-1$
+        else
+            toDelpoyFile = new File(args[0] + "/todeploy"); //$NON-NLS-1$
+
+        File[] files = toDelpoyFile.listFiles();
+        for (File fromFile : files) {
             File toFile = null;
-            for(String str : list) {
-                if(str.contains(fileName.trim())) {
+            for (String str : list) {
+                if (str.contains(fromFile.getName().trim())) {
                     toFile = new File(tempDir + "/" + str); //$NON-NLS-1$
                     break;
                 }
             }
-            
-            if(toFile == null)
-                toFile = new File(tempDir + "/" + fileName); //$NON-NLS-1$
+
+            if (toFile == null)
+                toFile = new File(tempDir + "/" + fromFile.getName()); //$NON-NLS-1$
             moveFile(fromFile, toFile);
         }
-        
+
         System.out.println("Re-Package tem.ear"); //$NON-NLS-1$
         Process packageProcess = Runtime.getRuntime().exec("jar cvf tem.ear ./*", null, file); //$NON-NLS-1$
         is = packageProcess.getInputStream();
@@ -78,7 +89,7 @@ public class PatchTool {
         is.close();
         reader.close();
         packageProcess.destroy();
-        
+
         System.out.println("Move new tem.ear to deploy folder"); //$NON-NLS-1$
         String[] arr = userDir.split("bin"); //$NON-NLS-1$
         File deployFile = new File(arr[0] + "server/default/deploy/tem.ear"); //$NON-NLS-1$
@@ -87,14 +98,14 @@ public class PatchTool {
         cleanup(file);
         file.delete();
     }
-    
+
     private static void moveFile(File fromFile, File toFile) throws IOException {
-        if(toFile.exists()) {
+        if (toFile.exists()) {
             toFile.delete();
         }
-        
+
         FileInputStream in = new FileInputStream(fromFile);
-        FileOutputStream out=new FileOutputStream(toFile);
+        FileOutputStream out = new FileOutputStream(toFile);
         byte[] buffer = new byte[4096];
         while (true) {
             int index = in.read(buffer);
@@ -102,13 +113,13 @@ public class PatchTool {
                 in.close();
                 out.flush();
                 out.close();
-                break;               
+                break;
             } else {
                 out.write(buffer, 0, index);
             }
-        }      
+        }
     }
-    
+
     private static void cleanup(File f) {
         File[] files = f.listFiles();
         for (File file : files) {
