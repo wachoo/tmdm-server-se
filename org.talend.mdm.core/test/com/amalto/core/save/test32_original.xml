@@ -1,0 +1,57 @@
+<!--
+  ~ Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at
+  ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+  ~
+  ~ You should have received a copy of the agreement
+  ~ along with this program; if not, write to Talend SA
+  ~ 9 rue Pages 92150 Suresnes, France
+  -->
+
+<ii>
+    <c>Product</c>
+    <n>ThirdEntity</n>
+    <dmn>Test</dmn>
+    <i>321</i>
+    <t>1342521961921</t>
+    <taskId/>
+    <p>
+        <Organisation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <IdOrganisation>68232</IdOrganisation>
+            <Nom>Sondagens Rodio</Nom>
+            <StatutOrganisationFk>[1]</StatutOrganisationFk>
+            <TypeOrganisationFk>[5]</TypeOrganisationFk>
+            <Contacts>
+                <Contact>
+                    <StatutContactFk>[2]</StatutContactFk>
+                    <SpecialisationContactType xsi:type="SpecialisationContactNatureLocalisation">
+                        <NatureLocalisationFk>[5]</NatureLocalisationFk>
+                        <AdressePostale>
+                            <Adresse1>Apartado 112 - Abrunheira</Adresse1>
+                            <Adresse2>Apartado 112 - Abrunheira</Adresse2>
+                            <CodePostal>2710-034</CodePostal>
+                            <Ville>Sintra</Ville>
+                            <Region>Lisboa</Region>
+                            <PaysFk>[PT]</PaysFk>
+                        </AdressePostale>
+                    </SpecialisationContactType>
+                </Contact>
+                <Contact>
+                    <StatutContactFk>[2]</StatutContactFk>
+                    <SpecialisationContactType xsi:type="SpecialisationContactNatureLocalisation">
+                        <NatureLocalisationFk>[6]</NatureLocalisationFk>
+                        <AdressePostale>
+                            <Adresse1>Apartado 111 - Abrunheira</Adresse1>
+                            <Adresse2>Apartado 111 - Abrunheira</Adresse2>
+                            <CodePostal>2710-035</CodePostal>
+                            <Ville>Sintra</Ville>
+                            <Region>Lisboa</Region>
+                            <PaysFk>[PT]</PaysFk>
+                        </AdressePostale>
+                    </SpecialisationContactType>
+                </Contact>
+            </Contacts>
+        </Organisation>
+    </p>
+</ii>

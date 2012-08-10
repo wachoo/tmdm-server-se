@@ -46,7 +46,7 @@ public class PartialUpdateSaverContext implements DocumentSaverContext {
         if (key == null) {
             throw new IllegalArgumentException("Key argument can not be null.");
         }
-        if (pivot.length() > 1) {
+        if (pivot.length() > 1 && key.length() > 1) {
             return new PartialUpdateSaverContext(context, pivot, key, overwrite, UserAction.PARTIAL_UPDATE);
         } else {
             return new PartialUpdateSaverContext(context, pivot, key, overwrite, UserAction.UPDATE);
