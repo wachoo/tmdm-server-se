@@ -12,7 +12,20 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingarea.client.controller;
 
+import org.talend.mdm.webapp.stagingarea.client.view.AbstractView;
+
 
 public abstract class AbstractController {
+
+    protected AbstractView bindingView;
+
+    public AbstractView getBindingView() {
+        return bindingView;
+    }
+
+    public void setBindingView(AbstractView bindingView) {
+        this.bindingView = bindingView;
+    }
+
 
 }

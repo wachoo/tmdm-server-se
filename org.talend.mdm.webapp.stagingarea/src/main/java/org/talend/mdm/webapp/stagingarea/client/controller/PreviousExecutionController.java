@@ -19,6 +19,7 @@ public class PreviousExecutionController extends AbstractController {
     private PreviousExecutionView view;
 
     public PreviousExecutionController(PreviousExecutionView view) {
-        this.view = view;
+        setBindingView(view);
+        this.view = (PreviousExecutionView) bindingView;
     }
 }

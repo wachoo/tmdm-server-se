@@ -20,7 +20,8 @@ public class StagingareaMainController extends AbstractController {
     private StagingareaMainView view;
 
     public StagingareaMainController(StagingareaMainView view) {
-        this.view = view;
+        setBindingView(view);
+        this.view = (StagingareaMainView) bindingView;
     }
 
     public void doLayout() {

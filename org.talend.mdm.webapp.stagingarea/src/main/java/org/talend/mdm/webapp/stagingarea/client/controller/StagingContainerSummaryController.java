@@ -25,7 +25,8 @@ public class StagingContainerSummaryController extends AbstractController {
 
 
     public StagingContainerSummaryController(StagingContainerSummaryView view) {
-        this.view = view;
+        setBindingView(view);
+        this.view = (StagingContainerSummaryView) bindingView;
     }
 
     public void refreshView() {

@@ -28,7 +28,8 @@ public class CurrentValidationController extends AbstractController {
     private Timer timer;
 
     public CurrentValidationController(CurrentValidationView view) {
-        this.view = view;
+        setBindingView(view);
+        this.view = (CurrentValidationView) bindingView;
         timer = new Timer() {
 
             @Override
