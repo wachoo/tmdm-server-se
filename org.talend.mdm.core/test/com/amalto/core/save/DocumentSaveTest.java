@@ -1297,6 +1297,83 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("", evaluate(committer.getCommittedElement(), "/Societe/Contacts/Contact[2]"));
     }
 
+    public void test32() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        // there's a small change in this model that differs from QA: ThirdEntity is a xsd:sequence (not a xsd:all)
+        // so order of elements will be tested during XSD validation.
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test32_original.xml", "metadata7.xsd");
+        source.setUserName("admin");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test32.xml");
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "Test32", "admin", recordXml, true,
+                true, "/Organisation/Contacts/Contact", "SpecialisationContactType/NatureLocalisationFk", false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        assertEquals(
+                "[5]",
+                evaluate(committer.getCommittedElement(),
+                        "/Organisation/Contacts/Contact[1]/SpecialisationContactType/NatureLocalisationFk"));
+        assertEquals(
+                "[6]",
+                evaluate(committer.getCommittedElement(),
+                        "/Organisation/Contacts/Contact[2]/SpecialisationContactType/NatureLocalisationFk"));
+        assertEquals(
+                "[6]",
+                evaluate(committer.getCommittedElement(),
+                        "/Organisation/Contacts/Contact[3]/SpecialisationContactType/NatureLocalisationFk"));
+    }
+
+    public void testProductPartialUpdate() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test11_original.xml", "metadata1.xsd");
+        source.setUserName("admin");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream partialUpdateContent = new ByteArrayInputStream(("<Product>\n" + "    <Id>1</Id>\n" + "    <Features>\n"
+                + "        <Colors>" + "           <Color>Light Pink</Color>\n" + "        </Colors>\n" + "    </Features>\n"
+                + "</Product>\n").getBytes("UTF-8"));
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "DStar", "Source",
+                partialUpdateContent, true, true, "/Product/Features/Colors/Color", "", false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        assertEquals("Light Pink", evaluate(committer.getCommittedElement(), "/Product/Features/Colors/Color[4]"));
+    }
+
+    public void testProductPartialUpdate2() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test26_original.xml", "metadata1.xsd");
+        source.setUserName("admin");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream partialUpdateContent = new ByteArrayInputStream(("<Product>\n" + "    <Id>1</Id>\n" + "    <Features>\n"
+                + "        <Colors>" + "           <Color>Light Pink</Color>\n" + "        </Colors>\n" + "    </Features>\n"
+                + "</Product>\n").getBytes("UTF-8"));
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "DStar", "Source",
+                partialUpdateContent, true, true, "/Product/Features/Colors/Color", "", false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        assertEquals("Light Pink", evaluate(committer.getCommittedElement(), "/Product/Features/Colors/Color[1]"));
+    }
+
     private static class MockCommitter implements SaverSession.Committer {
 
         private Element committedElement;
