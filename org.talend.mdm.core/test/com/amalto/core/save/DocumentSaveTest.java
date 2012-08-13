@@ -1374,6 +1374,39 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("Light Pink", evaluate(committer.getCommittedElement(), "/Product/Features/Colors/Color[1]"));
     }
 
+    public void test33() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        // there's a small change in this model that differs from QA: ThirdEntity is a xsd:sequence (not a xsd:all)
+        // so order of elements will be tested during XSD validation.
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test33_original.xml", "metadata7.xsd");
+        source.setUserName("admin");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test33.xml");
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "Test33", "admin", recordXml, true,
+                true, "/Societe/Contacts/Contact", "SpecialisationContactType/NatureLocalisationFk", false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        assertEquals(
+                "[1]",
+                evaluate(committer.getCommittedElement(),
+                        "/Societe/Contacts/Contact[1]/SpecialisationContactType/NatureTelephoneFk"));
+        assertEquals(
+                "[1]",
+                evaluate(committer.getCommittedElement(),
+                        "/Societe/Contacts/Contact[2]/SpecialisationContactType/NatureTelephoneFk"));
+        assertEquals(
+                "[3]",
+                evaluate(committer.getCommittedElement(),
+                        "/Societe/Contacts/Contact[3]/SpecialisationContactType/NatureLocalisationFk"));
+    }
+
     private static class MockCommitter implements SaverSession.Committer {
 
         private Element committedElement;
