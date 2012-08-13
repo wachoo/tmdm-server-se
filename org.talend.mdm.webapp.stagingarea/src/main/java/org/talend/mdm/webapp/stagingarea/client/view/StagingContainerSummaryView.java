@@ -14,7 +14,9 @@ package org.talend.mdm.webapp.stagingarea.client.view;
 
 import org.talend.mdm.webapp.base.client.model.UserContextModel;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
+import org.talend.mdm.webapp.stagingarea.client.Stagingarea;
 import org.talend.mdm.webapp.stagingarea.client.controller.ControllerContainer;
+import org.talend.mdm.webapp.stagingarea.client.model.ContextModel;
 import org.talend.mdm.webapp.stagingarea.client.model.StagingContainerModel;
 
 import com.extjs.gxt.charts.client.Chart;
@@ -30,7 +32,9 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTMLPanel;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
 
 
@@ -51,7 +55,19 @@ public class StagingContainerSummaryView extends AbstractView {
 
     private Button startValidate;
 
-    private Label summaryTitle;
+    private Grid titleGrid;
+
+    private Label titleLabel;
+
+    private Label containerLabel;
+
+    private ListBox containers;
+
+    private Label modelLabel;
+
+    private ListBox dataModels;
+
+    private Button updateContainerAndModel;
 
     private static Widget chart;
 
@@ -61,11 +77,48 @@ public class StagingContainerSummaryView extends AbstractView {
 
     private HTMLPanel detailPanel;
 
+    public String getContainer() {
+        if (containers.getSelectedIndex() != -1) {
+            return containers.getItemText(containers.getSelectedIndex());
+        }
+        return null;
+    }
+
+    public String getDataModel() {
+        if (dataModels.getSelectedIndex() != -1) {
+            return dataModels.getItemText(dataModels.getSelectedIndex());
+        }
+        return null;
+    }
+
     @Override
     protected void initComponents() {
-        UserContextModel cux = UserContextUtil.getUserContext();
-        summaryTitle = new Label(messages.staging_area_title()
-                + " &lt;" + cux.getDataContainer() + "&gt; &lt;" + cux.getDataModel() + "&gt;"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        UserContextModel ucx = UserContextUtil.getUserContext();
+        ContextModel contextModel = Stagingarea.getContextModel();
+        titleLabel = new Label(messages.staging_area_title());
+        titleLabel.setStyleAttribute("margin-right", "20px"); //$NON-NLS-1$//$NON-NLS-2$
+        containerLabel = new Label("Data Container:"); //$NON-NLS-1$
+        containers = new ListBox();
+        for (String c : contextModel.getDataContainer()) {
+            containers.addItem(c);
+            if (ucx.getDataContainer().equals(c)) {
+                containers.setSelectedIndex(containers.getItemCount() - 1);
+            }
+        }
+        modelLabel = new Label("Data Model:"); //$NON-NLS-1$
+        dataModels = new ListBox();
+        for (String m : contextModel.getDataModels()) {
+            dataModels.addItem(m);
+            if (ucx.getDataModel().equals(m)) {
+                dataModels.setSelectedIndex(dataModels.getItemCount() - 1);
+            }
+        }
+
+        updateContainerAndModel = new Button("update");
+        // updateContainerAndModel.setIcon(icon)
+
+        titleGrid = new Grid(1, 6);
+
         StringBuffer buffer = new StringBuffer();
         buffer.append("<div style='margin-bottom:10px; font-size:16px;' id='" + STAGING_AREA_TITLE + "'></div>"); //$NON-NLS-1$ //$NON-NLS-2$
         buffer.append("<div style='margin-left:20px; color:#0000ff; margin-bottom:5px;' id='" + STAGING_AREA_WAITING + "'></div>"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -92,6 +145,13 @@ public class StagingContainerSummaryView extends AbstractView {
                 ControllerContainer.get().getSummaryController().startValidation();
             }
         });
+
+        updateContainerAndModel.addSelectionListener(new SelectionListener<ButtonEvent>() {
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                ControllerContainer.get().getSummaryController().refreshView();
+            }
+        });
     }
 
     @Override
@@ -100,7 +160,15 @@ public class StagingContainerSummaryView extends AbstractView {
         TableData titleData = new TableData();
         titleData.setColspan(2);
         titleData.setRowspan(1);
-        mainPanel.add(summaryTitle, titleData);
+
+        titleGrid.setWidget(0, 0, titleLabel);
+        titleGrid.setWidget(0, 1, containerLabel);
+        titleGrid.setWidget(0, 2, containers);
+        titleGrid.setWidget(0, 3, modelLabel);
+        titleGrid.setWidget(0, 4, dataModels);
+        titleGrid.setWidget(0, 5, updateContainerAndModel);
+
+        mainPanel.add(titleGrid, titleData);
         TableData chartData = new TableData();
         chartData.setColspan(1);
         chartData.setRowspan(2);
@@ -181,6 +249,11 @@ public class StagingContainerSummaryView extends AbstractView {
 
     public Button getStartValidateButton() {
         return startValidate;
+    }
+
+    protected void onAttach() {
+        super.onAttach();
+        ControllerContainer.get().getSummaryController().refreshView();
     }
 
 }

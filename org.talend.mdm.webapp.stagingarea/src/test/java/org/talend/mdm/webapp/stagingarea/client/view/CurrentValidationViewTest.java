@@ -12,8 +12,11 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingarea.client.view;
 
+import java.util.Arrays;
+
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingarea.client.controller.ControllerContainer;
+import org.talend.mdm.webapp.stagingarea.client.model.ContextModel;
 import org.talend.mdm.webapp.stagingarea.client.rest.RestServiceHandler;
 
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -27,7 +30,17 @@ public class CurrentValidationViewTest extends GWTTestCase {
     protected void gwtSetUp() throws Exception {
         super.gwtSetUp();
         RestServiceHandler.get().setClient(new ResourceMockWrapper());
+
+        ContextModel cm = new ContextModel();
+        cm.setDataContainer(Arrays.asList("Product", "TestDataContainer", "DStar"));
+        cm.setDataModels(Arrays.asList("Product", "TestDataModel", "DStar"));
+        cm.setRefreshIntervals(1000);
+        setContextModel(cm);
     }
+
+    public native void setContextModel(ContextModel cm)/*-{
+        @org.talend.mdm.webapp.stagingarea.client.Stagingarea::contextModel = cm;
+    }-*/;
 
     public void testCurrentValidationView() {
         UserContextUtil.setDataContainer("TestDataContainer");
@@ -47,7 +60,6 @@ public class CurrentValidationViewTest extends GWTTestCase {
         RootPanel.get().add(summaryView);
         RootPanel.get().add(view);
         ControllerContainer.get().getSummaryController().refreshView();
-        ControllerContainer.get().getCurrentValidationController().refreshView();
 
         assertEquals(CurrentValidationView.Status.None, view.getStatus());
 

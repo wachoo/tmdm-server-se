@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.stagingarea.client.view;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.talend.mdm.webapp.stagingarea.client.controller.ControllerContainer;
@@ -102,11 +103,15 @@ public class PreviousExecutionView extends AbstractView {
         mainPanel.setBottomComponent(taskPagingBar);
     }
 
+    public Date getBeforeDate() {
+        return beforeDateField.getValue();
+    }
+
     protected void registerEvent() {
         searchButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             public void componentSelected(ButtonEvent ce) {
-                ControllerContainer.get().getPreviousExecutionController().searchByBeforeDate(beforeDateField.getValue());
+                ControllerContainer.get().getPreviousExecutionController().searchByBeforeDate();
             }
         });
     }

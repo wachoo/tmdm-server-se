@@ -12,7 +12,9 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingarea.client;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
+import org.talend.mdm.webapp.stagingarea.client.model.ContextModel;
 import org.talend.mdm.webapp.stagingarea.client.view.StagingContainerSummaryView;
 import org.talend.mdm.webapp.stagingarea.client.view.StagingareaMainView;
 
@@ -34,19 +36,34 @@ public class Stagingarea implements EntryPoint {
 
     public static final String STAGINGAREA_ID = "Stagingarea"; //$NON-NLS-1$
 
+    public static StagingAreaServiceAsync service;
+
+    private static ContextModel contextModel;
+
+    public static ContextModel getContextModel() {
+        return contextModel;
+    }
+
     public void onModuleLoad() {
+        service = GWT.create(StagingAreaService.class);
         if (GWT.isScript()) {
             XDOM.setAutoIdPrefix(GWT.getModuleName() + "-" + XDOM.getAutoIdPrefix()); //$NON-NLS-1$
             registerPubService();
             Log.setUncaughtExceptionHandler();
         } else {
-            UserContextUtil.setDataContainer("TestDataContainer"); //$NON-NLS-1$
-            UserContextUtil.setDataModel("TestDataModel"); //$NON-NLS-1$
-            GenerateContainer.generateContentPanel();
-            ContentPanel contentPanel = GenerateContainer.getContentPanel();
-            contentPanel.setSize(Window.getClientWidth(), Window.getClientHeight());
-            onModuleRender();
-            RootPanel.get().add(contentPanel);
+            service.getContextModel(new SessionAwareAsyncCallback<ContextModel>() {
+
+                public void onSuccess(ContextModel contextModel) {
+                    Stagingarea.contextModel = contextModel;
+                    UserContextUtil.setDataContainer("TestDataContainer"); //$NON-NLS-1$
+                    UserContextUtil.setDataModel("TestDataModel"); //$NON-NLS-1$
+                    GenerateContainer.generateContentPanel();
+                    ContentPanel contentPanel = GenerateContainer.getContentPanel();
+                    contentPanel.setSize(Window.getClientWidth(), Window.getClientHeight());
+                    onModuleRender();
+                    RootPanel.get().add(contentPanel);
+                }
+            });
         }
     }
 
@@ -112,10 +129,16 @@ public class Stagingarea implements EntryPoint {
     }-*/;
 
     public void renderContent(final String contentId) {
-        onModuleRender();
-        RootPanel panel = RootPanel.get(contentId);
-        GenerateContainer.getContentPanel().setSize(panel.getOffsetWidth(), panel.getOffsetHeight());
-        panel.add(GenerateContainer.getContentPanel());
+        service.getContextModel(new SessionAwareAsyncCallback<ContextModel>() {
+
+            public void onSuccess(ContextModel contextModel) {
+                Stagingarea.contextModel = contextModel;
+                onModuleRender();
+                RootPanel panel = RootPanel.get(contentId);
+                GenerateContainer.getContentPanel().setSize(panel.getOffsetWidth(), panel.getOffsetHeight());
+                panel.add(GenerateContainer.getContentPanel());
+            }
+        });
     }
 
     public void initUI() {
@@ -123,7 +146,7 @@ public class Stagingarea implements EntryPoint {
     }
 
     private void onModuleRender() {
-        ContentPanel contentPanel = GenerateContainer.getContentPanel();
+        final ContentPanel contentPanel = GenerateContainer.getContentPanel();
         Chart chart = new Chart(StagingContainerSummaryView.Chart_Url);
         chart.setBorders(true);
         chart.setSize(300, 200);
@@ -132,5 +155,4 @@ public class Stagingarea implements EntryPoint {
         StagingareaMainView mainPanel = new StagingareaMainView();
         contentPanel.add(mainPanel);
     }
-
 }

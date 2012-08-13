@@ -13,7 +13,7 @@
 package org.talend.mdm.webapp.stagingarea.client.controller;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
-import org.talend.mdm.webapp.base.client.util.UserContextUtil;
+import org.talend.mdm.webapp.stagingarea.client.Stagingarea;
 import org.talend.mdm.webapp.stagingarea.client.model.StagingAreaValidationModel;
 import org.talend.mdm.webapp.stagingarea.client.rest.RestServiceHandler;
 import org.talend.mdm.webapp.stagingarea.client.view.CurrentValidationView;
@@ -26,6 +26,8 @@ public class CurrentValidationController extends AbstractController {
 
     private CurrentValidationView view;
 
+    private String dataContainer;
+
     private Timer timer;
 
     public CurrentValidationController(final CurrentValidationView view) {
@@ -36,7 +38,7 @@ public class CurrentValidationController extends AbstractController {
             @Override
             public void run() {
                 if (Document.get().isOrHasChild(view.getElement())) {
-                    refreshView();
+                    refreshView(dataContainer);
                 } else {
                     this.cancel();
                 }
@@ -46,14 +48,15 @@ public class CurrentValidationController extends AbstractController {
 
     public void autoRefresh(boolean auto) {
         if (auto) {
-            timer.scheduleRepeating(1000);
+            timer.scheduleRepeating(Stagingarea.getContextModel().getRefreshIntervals());
         } else {
             timer.cancel();
         }
     }
 
-    public void refreshView() {
-        RestServiceHandler.get().getValidationTaskStatus(UserContextUtil.getDataContainer(),
+    public void refreshView(String dataContainer) {
+        this.dataContainer = dataContainer;
+        RestServiceHandler.get().getValidationTaskStatus(dataContainer,
                 new SessionAwareAsyncCallback<StagingAreaValidationModel>() {
                     public void onSuccess(StagingAreaValidationModel result) {
                         if (result != null) {
@@ -75,7 +78,7 @@ public class CurrentValidationController extends AbstractController {
     }
 
     public void cancelValidation() {
-        RestServiceHandler.get().cancelValidationTask(UserContextUtil.getDataContainer(),
+        RestServiceHandler.get().cancelValidationTask(dataContainer,
                 new SessionAwareAsyncCallback<Boolean>() {
             public void onSuccess(Boolean result) {
                 if (result){

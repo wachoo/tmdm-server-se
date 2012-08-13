@@ -52,10 +52,7 @@ public class StagingareaMainView extends AbstractView {
         summaryView = new StagingContainerSummaryView();
         currentValidationView = new CurrentValidationView();
         previousExecutionValidationView = new PreviousExecutionView();
-
         ControllerContainer.initController(this, summaryView, currentValidationView, previousExecutionValidationView);
-        ControllerContainer.get().getSummaryController().refreshView();
-        ControllerContainer.get().getCurrentValidationController().refreshView();
     }
 
     @Override

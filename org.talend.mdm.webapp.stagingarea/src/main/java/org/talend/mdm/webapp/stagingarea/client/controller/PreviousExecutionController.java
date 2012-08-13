@@ -16,7 +16,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
-import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingarea.client.model.StagingAreaExecutionModel;
 import org.talend.mdm.webapp.stagingarea.client.rest.RestDataProxy;
 import org.talend.mdm.webapp.stagingarea.client.rest.RestServiceHandler;
@@ -39,6 +38,8 @@ public class PreviousExecutionController extends AbstractController {
 
     private static ListStore<StagingAreaExecutionModel> taskStore;
 
+    private static String dataContainer;
+
     private PreviousExecutionView view;
 
     private static Date beforeDate;
@@ -48,11 +49,11 @@ public class PreviousExecutionController extends AbstractController {
 
             protected void load(Object loadConfig, final AsyncCallback<PagingLoadResult<StagingAreaExecutionModel>> callback) {
                 final PagingLoadConfig config = (PagingLoadConfig) loadConfig;
-                RestServiceHandler.get().countStagingAreaExecutions(UserContextUtil.getDataContainer(), null,
+                RestServiceHandler.get().countStagingAreaExecutions(dataContainer, null,
                         new SessionAwareAsyncCallback<Integer>() {
 
                             public void onSuccess(final Integer total) {
-                                RestServiceHandler.get().getStagingAreaExecutionsWithPaging(UserContextUtil.getDataContainer(),
+                                RestServiceHandler.get().getStagingAreaExecutionsWithPaging(dataContainer,
                                         config.getOffset() + 1, config.getLimit(), beforeDate,
                                         new SessionAwareAsyncCallback<List<StagingAreaExecutionModel>>() {
                                             public void onSuccess(List<StagingAreaExecutionModel> result) {
@@ -77,8 +78,8 @@ public class PreviousExecutionController extends AbstractController {
         this.view = (PreviousExecutionView) bindingView;
     }
 
-    public void searchByBeforeDate(Date beforeDate) {
-        PreviousExecutionController.beforeDate = beforeDate;
+    public void searchByBeforeDate() {
+        PreviousExecutionController.beforeDate = view.getBeforeDate();
         loader.load();
     }
 
@@ -96,4 +97,10 @@ public class PreviousExecutionController extends AbstractController {
         });
         return taskStore;
     }
+
+    public void setDataContainer(String dataContainer) {
+        this.dataContainer = dataContainer;
+        searchByBeforeDate();
+    }
+
 }

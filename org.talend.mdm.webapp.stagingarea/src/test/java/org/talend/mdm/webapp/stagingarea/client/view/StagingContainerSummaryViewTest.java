@@ -12,8 +12,11 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingarea.client.view;
 
+import java.util.Arrays;
+
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingarea.client.controller.ControllerContainer;
+import org.talend.mdm.webapp.stagingarea.client.model.ContextModel;
 import org.talend.mdm.webapp.stagingarea.client.model.StagingContainerModel;
 import org.talend.mdm.webapp.stagingarea.client.rest.RestServiceHandler;
 
@@ -30,7 +33,17 @@ public class StagingContainerSummaryViewTest extends GWTTestCase {
     protected void gwtSetUp() throws Exception {
         super.gwtSetUp();
         RestServiceHandler.get().setClient(new ResourceMockWrapper());
+
+        ContextModel cm = new ContextModel();
+        cm.setDataContainer(Arrays.asList("Product", "TestDataContainer", "DStar"));
+        cm.setDataModels(Arrays.asList("Product", "TestDataModel", "DStar"));
+        cm.setRefreshIntervals(1000);
+        setContextModel(cm);
     }
+
+    public native void setContextModel(ContextModel cm)/*-{
+        @org.talend.mdm.webapp.stagingarea.client.Stagingarea::contextModel = cm;
+    }-*/;
 
     public void testStagingContainerSummaryView() {
         UserContextUtil.setDataContainer("TestDataContainer");
