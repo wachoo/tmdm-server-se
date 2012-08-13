@@ -1,12 +1,11 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.save.context;
@@ -15,30 +14,29 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.UUID;
+
+import org.apache.commons.lang.StringUtils;
+import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.action.FieldUpdateAction;
-import com.amalto.core.metadata.*;
-import org.apache.commons.lang.StringUtils;
-import org.talend.mdm.commmon.util.core.EUUIDCustomType;
-
-import com.amalto.core.history.Action;
-import com.amalto.core.history.action.FieldUpdateAction;
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.ContainedTypeFieldMetadata;
 import com.amalto.core.metadata.DefaultMetadataVisitor;
 import com.amalto.core.metadata.EnumerationFieldMetadata;
+import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.ReferenceFieldMetadata;
 import com.amalto.core.metadata.SimpleTypeFieldMetadata;
 
 /**
- * Generate actions on creation (like setting UUID and AUTO_INCREMENT fields that <b>are not</b> part of the saved entity
- * type).
- *
+ * Generate actions on creation (like setting UUID and AUTO_INCREMENT fields that <b>are not</b> part of the saved
+ * entity type).
+ * 
  * @see ID for code that sets ID values.
  */
 class CreateActions extends DefaultMetadataVisitor<List<Action>> {
@@ -67,7 +65,10 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
 
     private String rootTypeName = null;
 
-    CreateActions(MutableDocument document, Date date, String source, String userName, String dataCluster, String universe, SaverSource saverSource) {
+    private Map<String, String> hasAutoIncrementFieldMap;
+
+    CreateActions(MutableDocument document, Date date, String source, String userName, String dataCluster, String universe,
+            SaverSource saverSource, Map<String, String> hasAutoIncrementFieldMap) {
         this.document = document;
         this.date = date;
         this.source = source;
@@ -75,6 +76,7 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
         this.dataCluster = dataCluster;
         this.universe = universe;
         this.saverSource = saverSource;
+        this.hasAutoIncrementFieldMap = hasAutoIncrementFieldMap;
     }
 
     private String getPath() {
@@ -135,7 +137,7 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
     @Override
     public List<Action> visit(FieldMetadata fieldMetadata) {
         handleField(fieldMetadata);
-        return super.visit(fieldMetadata);    //To change body of overridden methods use File | Settings | File Templates.
+        return super.visit(fieldMetadata); // To change body of overridden methods use File | Settings | File Templates.
     }
 
     @Override
@@ -147,13 +149,19 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
     private void handleField(FieldMetadata simpleField) {
         path.push(simpleField.getName());
         {
-            // Handle UUID and AutoIncrement elements (this code also ensures any previous value is overwritten, see TMDM-3900).
+            // Handle UUID and AutoIncrement elements (this code also ensures any previous value is overwritten, see
+            // TMDM-3900).
             // Note #2: This code generate values even for non-mandatory fields (but this is expected behavior).
             String currentPath = getPath();
             if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(simpleField.getType().getName())) {
                 String conceptName = rootTypeName + "." + getPath().replaceAll("/", "."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                String autoIncrementValue = saverSource.nextAutoIncrementId(universe, dataCluster, conceptName);
-                actions.add(new FieldUpdateAction(date, source, userName, currentPath, StringUtils.EMPTY, autoIncrementValue, simpleField));
+                String autoIncrementValue = hasAutoIncrementFieldMap.get(conceptName);
+                if (autoIncrementValue == null) {
+                    autoIncrementValue = saverSource.nextAutoIncrementId(universe, dataCluster, conceptName);
+                    hasAutoIncrementFieldMap.put(conceptName, autoIncrementValue);
+                }
+                actions.add(new FieldUpdateAction(date, source, userName, currentPath, StringUtils.EMPTY, autoIncrementValue,
+                        simpleField));
                 if (simpleField.isKey()) {
                     idValues.add(autoIncrementValue);
                 }
@@ -168,7 +176,8 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
                 if (simpleField.isKey()) {
                     Accessor accessor = document.createAccessor(currentPath);
                     if (!accessor.exist()) {
-                        throw new IllegalStateException("Document was expected to contain id information at '" + currentPath + "'");
+                        throw new IllegalStateException("Document was expected to contain id information at '" + currentPath
+                                + "'");
                     }
                     idValues.add(accessor.get());
                 }

@@ -930,7 +930,7 @@ public class DocumentSaveTest extends TestCase {
         assertTrue(source.hasSavedAutoIncrement());
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
-        assertEquals(evaluate(committedElement, "/ProductFamily/Id"), "1");
+        assertEquals("0", evaluate(committedElement, "/ProductFamily/Id"));
     }
 
     public void testCreatePerformance() throws Exception {

@@ -1,22 +1,22 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.save;
+
+import java.util.List;
+import java.util.Map;
 
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.save.context.DocumentSaver;
-
-import java.util.List;
 
 /**
  * A context holding information about the save of a <b>single</b> record in MDM.
@@ -29,8 +29,8 @@ public interface DocumentSaverContext {
     DocumentSaver createSaver();
 
     /**
-     * @return The document as it is present (or not) in database. If document does not exist in database, an empty
-     *         DOM document is returned (<b>not</b> <code>null</code>).
+     * @return The document as it is present (or not) in database. If document does not exist in database, an empty DOM
+     * document is returned (<b>not</b> <code>null</code>).
      */
     MutableDocument getDatabaseDocument();
 
@@ -109,8 +109,8 @@ public interface DocumentSaverContext {
 
     /**
      * @return <code>true</code> if all values in collections of {@link #getDatabaseDocument()} must be preserved. In
-     *         case {@link #getUserDocument()} provides different values for the collection, these values won't replace
-     *         the existing ones but be added at the end of the collection.
+     * case {@link #getUserDocument()} provides different values for the collection, these values won't replace the
+     * existing ones but be added at the end of the collection.
      */
     boolean preserveOldCollectionValues();
 
@@ -125,4 +125,6 @@ public interface DocumentSaverContext {
     String getPartialUpdatePivot();
 
     String getPartialUpdateKey();
+
+    Map<String, String> getHasAutoIncrementFieldMap();
 }
