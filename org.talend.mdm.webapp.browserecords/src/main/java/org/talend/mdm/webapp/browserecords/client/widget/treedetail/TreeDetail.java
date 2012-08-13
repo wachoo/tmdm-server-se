@@ -37,7 +37,10 @@ import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.MultiOccurrenceManager;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatNumberField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextField;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.PictureField;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.UrlField;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
@@ -51,6 +54,7 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
@@ -819,4 +823,47 @@ public class TreeDetail extends ContentPanel {
         return itemsDetailPanel;
     }
 
+	public void makeWarnning(TreeItem item) {
+		ItemNodeModel itemNodeModel = ((DynamicTreeItem) item).getItemNodeModel();
+		if(!isRoot(itemNodeModel)) {
+			ItemNodeModel parent = (ItemNodeModel)itemNodeModel.getParent();
+			if(parent.isMandatory() || isRoot(parent)) {
+				if (itemNodeModel.isMandatory()) {
+					if (item.getWidget() instanceof HorizontalPanel) {
+						HorizontalPanel hp = (HorizontalPanel) item.getWidget();
+						if (hp.getWidgetCount() > 1) {
+							Widget field = hp.getWidget(1);
+
+							if (field instanceof PictureField) {
+								if(((PictureField) field).getImageURL().equals(PictureField.DefaultImage)){
+									((Field<?>) field).markInvalid(null);
+								}
+									
+							} else if (field instanceof FormatTextField
+									|| field instanceof FormatNumberField
+									|| field instanceof SimpleComboBox
+									|| field instanceof CheckBox
+									|| field instanceof UrlField) {
+								if (((Field<?>) field).getValue() == null
+										|| ((Field<?>) field).getValue().equals("")) {
+									((Field<?>) field).markInvalid(null);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		for (int i = 0; i < item.getChildCount(); i++) {
+			TreeItem subItem = item.getChild(i);
+			makeWarnning(subItem);
+		}
+	}
+	
+	private boolean isRoot(ItemNodeModel itemNodeModel){
+		if(itemNodeModel.getParent() != null)
+			return false;
+		return true;
+	}
 }

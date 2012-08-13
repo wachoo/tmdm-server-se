@@ -38,6 +38,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.integrity.LogicalDelete
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.NoOpPostDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.PostDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTreeDetail;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -61,7 +62,6 @@ import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ComponentHelper;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonGroup;
 import com.extjs.gxt.ui.client.widget.button.SplitButton;
@@ -315,8 +315,11 @@ public class ItemDetailToolBar extends ToolBar {
                 @Override
                 public void componentSelected(ButtonEvent ce) {
                     Widget widget = itemsDetailPanel.getFirstTabWidget();
-                    ItemPanel itemPanel = (ItemPanel) widget;
-                    ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getRootModel();
+                    TreeDetail treeDetail = ((ItemPanel) widget).getTree();
+					if (!BrowseRecords.getSession().getAppHeader().isAutoValidate()) {
+						treeDetail.makeWarnning(treeDetail.getRoot());
+					}
+                    ItemNodeModel root = treeDetail.getRootModel();
                     if (operation.equalsIgnoreCase(ItemDetailToolBar.CREATE_OPERATION)
                             || operation.equalsIgnoreCase(ItemDetailToolBar.DUPLICATE_OPERATION)
                             || TreeDetailUtil.isChangeValue(root)) {
@@ -342,8 +345,12 @@ public class ItemDetailToolBar extends ToolBar {
                 @Override
                 public void componentSelected(ButtonEvent ce) {
                     Widget widget = itemsDetailPanel.getFirstTabWidget();
-                    ItemPanel itemPanel = (ItemPanel) widget;
-                    ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getRootModel();
+                    TreeDetail treeDetail = ((ItemPanel) widget).getTree();
+					if (!BrowseRecords.getSession().getAppHeader().isAutoValidate()) {
+						treeDetail.makeWarnning(treeDetail.getRoot());
+					}
+					
+                    ItemNodeModel root = treeDetail.getRootModel();
                     if (operation.equalsIgnoreCase(ItemDetailToolBar.CREATE_OPERATION)
                             || operation.equalsIgnoreCase(ItemDetailToolBar.DUPLICATE_OPERATION)
                             || TreeDetailUtil.isChangeValue(root)) {

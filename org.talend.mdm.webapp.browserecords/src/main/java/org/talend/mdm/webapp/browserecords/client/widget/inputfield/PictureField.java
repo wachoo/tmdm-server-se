@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.inputfield;
 
-import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 
@@ -39,11 +38,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -58,7 +52,7 @@ public class PictureField extends TextField<String> {
 
     private static final String CONTEXT_PATH = GWT.getModuleBaseURL().replaceFirst(GWT.getModuleName() + "/", ""); //$NON-NLS-1$ //$NON-NLS-2$
 
-    private static final String DefaultImage = CONTEXT_PATH + "resources/images/talend/no_image.png"; //$NON-NLS-1$
+    public static final String DefaultImage = CONTEXT_PATH + "resources/images/talend/no_image.png"; //$NON-NLS-1$
 
     protected El wrap = new El(DOM.createSpan());
 
@@ -187,6 +181,10 @@ public class PictureField extends TextField<String> {
         if (isFireChangeEventOnSetValue()) {
             fireChangeEvent(oldValue, value);
         }
+    }
+    
+    public String getImageURL(){
+    	return image.getUrl();    	
     }
     
     private boolean isInternalImageURL(String url) {
