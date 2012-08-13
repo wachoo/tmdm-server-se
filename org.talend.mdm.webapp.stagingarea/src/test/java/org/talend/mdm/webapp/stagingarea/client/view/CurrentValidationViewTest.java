@@ -12,14 +12,13 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingarea.client.view;
 
-import java.util.Arrays;
-
-import org.talend.mdm.webapp.base.client.util.UserContextUtil;
+import org.talend.mdm.webapp.stagingarea.client.TestUtil;
 import org.talend.mdm.webapp.stagingarea.client.controller.ControllerContainer;
-import org.talend.mdm.webapp.stagingarea.client.model.ContextModel;
-import org.talend.mdm.webapp.stagingarea.client.rest.RestServiceHandler;
 
-import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.DateField;
+import com.extjs.gxt.ui.client.widget.form.NumberField;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.ui.RootPanel;
 
@@ -29,41 +28,69 @@ public class CurrentValidationViewTest extends GWTTestCase {
     @Override
     protected void gwtSetUp() throws Exception {
         super.gwtSetUp();
-        RestServiceHandler.get().setClient(new ResourceMockWrapper());
-
-        ContextModel cm = new ContextModel();
-        cm.setDataContainer(Arrays.asList("Product", "TestDataContainer", "DStar"));
-        cm.setDataModels(Arrays.asList("Product", "TestDataModel", "DStar"));
-        cm.setRefreshIntervals(1000);
-        setContextModel(cm);
+        TestUtil.initRestServices(new ResourceMockWrapper());
+        TestUtil.initUserContext("TestDataContainer", "TestDataModel");
     }
 
-    public native void setContextModel(ContextModel cm)/*-{
-        @org.talend.mdm.webapp.stagingarea.client.Stagingarea::contextModel = cm;
-    }-*/;
+    public void testCurrentValidationPanelAfterStartValidation() {
+        TestUtil.initContainer();
+        StagingContainerSummaryView summaryView = (StagingContainerSummaryView) ControllerContainer.get().getSummaryController()
+                .getBindingView();
+        CurrentValidationView currentView = (CurrentValidationView) ControllerContainer.get().getCurrentValidationController()
+                .getBindingView();
 
-    public void testCurrentValidationView() {
-        UserContextUtil.setDataContainer("TestDataContainer");
-        UserContextUtil.setDataModel("TestDataModel");
-
-        Button chart = new Button("chart");
-        StagingContainerSummaryView.setChart(chart);
-
-        StagingContainerSummaryView summaryView = new StagingContainerSummaryView();
-        CurrentValidationView view = new CurrentValidationView();
-        StagingareaMainView mainView = new StagingareaMainView();
-
-        ControllerContainer.setCurrentValidationView(view);
-        ControllerContainer.setStagingContainerSummaryView(summaryView);
-        ControllerContainer.setStagingareaMainView(mainView);
+        assertEquals(false, summaryView.getStartValidateButton().isEnabled());
+        assertNull(currentView.getActivePanel());
 
         RootPanel.get().add(summaryView);
-        RootPanel.get().add(view);
-        ControllerContainer.get().getSummaryController().refreshView();
+        RootPanel.get().add(currentView);
 
-        assertEquals(CurrentValidationView.Status.None, view.getStatus());
+        assertEquals(true, summaryView.getStartValidateButton().isEnabled());
+        assertEquals(currentView.getDefaultMessagePanel(), currentView.getActivePanel());
 
+        ControllerContainer.get().getSummaryController().startValidation();
+        assertEquals(false, summaryView.getStartValidateButton().isEnabled());
+        assertEquals(true, currentView.getCancelButton().isEnabled());
+        assertEquals(currentView.getContentPanel(), currentView.getActivePanel());
     }
+
+    public void testCurrentValidationFieldValuesAfterStartValidation() {
+        TestUtil.initContainer();
+        StagingContainerSummaryView summaryView = (StagingContainerSummaryView) ControllerContainer.get().getSummaryController()
+                .getBindingView();
+        CurrentValidationView currentView = (CurrentValidationView) ControllerContainer.get().getCurrentValidationController()
+                .getBindingView();
+
+        RootPanel.get().add(summaryView);
+        RootPanel.get().add(currentView);
+
+        ControllerContainer.get().getSummaryController().startValidation();
+        assertEquals(currentView.getContentPanel(), currentView.getActivePanel());
+
+        String pattern = "yyyy-MM-dd";
+        String startDate = DateTimeFormat.getFormat(pattern).format(getStartDateField(currentView).getValue());
+
+        assertEquals("2012-08-09", startDate);
+        assertEquals(10.0, getRecordToProcessField(currentView).getValue());
+        assertEquals(5D, getInvalidField(currentView).getValue());
+    }
+
+    public native DateField getStartDateField(CurrentValidationView currentView)/*-{
+        return currentView.@org.talend.mdm.webapp.stagingarea.client.view.CurrentValidationView::startDateField;
+    }-*/;
+
+    public native NumberField getRecordToProcessField(CurrentValidationView currentView)/*-{
+        return currentView.@org.talend.mdm.webapp.stagingarea.client.view.CurrentValidationView::recordToProcessField;
+    }-*/;
+
+    public native NumberField getInvalidField(CurrentValidationView currentView)/*-{
+        return currentView.@org.talend.mdm.webapp.stagingarea.client.view.CurrentValidationView::invalidField;
+    }-*/;
+
+    public native TextField<String> getEtaField(CurrentValidationView currentView)/*-{
+        return currentView.@org.talend.mdm.webapp.stagingarea.client.view.CurrentValidationView::etaField;
+    }-*/;
+
     @Override
     public String getModuleName() {
         return "org.talend.mdm.webapp.stagingarea.Stagingarea"; //$NON-NLS-1$

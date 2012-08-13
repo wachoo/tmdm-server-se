@@ -184,7 +184,6 @@ public class CurrentValidationView extends AbstractView {
     }
 
     public void refresh(StagingAreaValidationModel stagingAreaValidationModel) {
-        cardLayout.setActiveItem(formPanel);
         currentValidationModel = stagingAreaValidationModel;
         startDateField.setValue(stagingAreaValidationModel.getStartDate());
         recordToProcessField.setValue(stagingAreaValidationModel.getProcessedRecords());
@@ -246,6 +245,18 @@ public class CurrentValidationView extends AbstractView {
 
     public DateField getStartDateField() {
         return startDateField;
+    }
+
+    public ContentPanel getDefaultMessagePanel() {
+        return defaultMessagePanel;
+    }
+
+    public ContentPanel getContentPanel() {
+        return contentPanel;
+    }
+
+    public ContentPanel getActivePanel() {
+        return (ContentPanel) cardLayout.getActiveItem();
     }
 
     public Button getCancelButton() {
