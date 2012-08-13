@@ -63,7 +63,7 @@ class GenerateActions implements DocumentSaver {
         switch (userAction) {
         case CREATE:
             CreateActions createActions = new CreateActions(userDocument, date, source, userName, context.getDataCluster(),
-                    universe, saverSource, context.getHasAutoIncrementFieldMap());
+                    universe, saverSource, context.getAutoIncrementFieldMap());
             Action createAction = new OverrideCreateAction(date, source, userName, userDocument, context.getType());
             // Builds action list (be sure to include actual creation as first action).
             actions = new LinkedList<Action>();
@@ -72,7 +72,8 @@ class GenerateActions implements DocumentSaver {
             actions.addAll(type.accept(updateActions));
             context.setHasMetAutoIncrement(createActions.hasMetAutoIncrement());
             List<String> idValues = createActions.getIdValues();
-            // TODO This does not guarantee key values are in correct order with key fields (for cases where ID is composed of mixed AUTO_INCREMENT and user fields).
+            // TODO This does not guarantee key values are in correct order with key fields (for cases where ID is
+            // composed of mixed AUTO_INCREMENT and user fields).
             // Join ids read from XML document and generated ID values.
             String[] joinIds = new String[context.getId().length + idValues.size()];
             System.arraycopy(context.getId(), 0, joinIds, 0, context.getId().length);
@@ -94,13 +95,8 @@ class GenerateActions implements DocumentSaver {
         case PARTIAL_UPDATE:
             actions = new LinkedList<Action>();
             PartialUpdateActionCreator partialUpdateActionCreator = new PartialUpdateActionCreator(databaseDocument,
-                    userDocument,
-                    context.preserveOldCollectionValues(),
-                    context.getPartialUpdatePivot(),
-                    context.getPartialUpdateKey(),
-                    source,
-                    userName,
-                    metadataRepository);
+                    userDocument, context.preserveOldCollectionValues(), context.getPartialUpdatePivot(),
+                    context.getPartialUpdateKey(), source, userName, metadataRepository);
             actions.addAll(type.accept(partialUpdateActionCreator));
             break;
         default:

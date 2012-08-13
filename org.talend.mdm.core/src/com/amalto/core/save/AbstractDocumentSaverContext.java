@@ -20,7 +20,7 @@ import java.util.Map;
  */
 public abstract class AbstractDocumentSaverContext implements DocumentSaverContext {
 
-    private Map<String, String> hasAutoIncrementFieldMap = new HashMap<String, String>();
+    private Map<String, String> autoIncrementFieldMap = new HashMap<String, String>();
 
     /**
      * Getter for hasAutoIncrementField.
@@ -28,8 +28,8 @@ public abstract class AbstractDocumentSaverContext implements DocumentSaverConte
      * @return the hasAutoIncrementField
      */
     @Override
-    public Map<String, String> getHasAutoIncrementFieldMap() {
-        return hasAutoIncrementFieldMap;
+    public Map<String, String> getAutoIncrementFieldMap() {
+        return autoIncrementFieldMap;
     }
 
 }
