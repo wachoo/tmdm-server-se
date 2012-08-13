@@ -1653,7 +1653,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     public ItemResult saveItem(String concept, String ids, String xml, boolean isCreate, String language) throws ServiceException {
+        Locale defaultLocale = Locale.getDefault();
         Locale locale = new Locale(language);
+        Locale.setDefault(locale);
+        
         WSItemPK wsi = null;
         try {
             // if update, check the item is modified by others?
@@ -1702,15 +1705,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 err = MESSAGES.getMessage(locale, "save_success_but_exist_exception", //$NON-NLS-1$
                         concept + "." + ids, e.getLocalizedMessage()); //$NON-NLS-1$
             } else if (Util.causeIs(e, CVCException.class)) {
-                Throwable cvcException = e;
-                while (cvcException != null) {
-                    if (cvcException instanceof CVCException) {
-                        break;
-                    }
-                    cvcException = cvcException.getCause();
+                Throwable cvc = e.getCause();
+                while (cvc != null && !(cvc instanceof CVCException)) {
+                    cvc = cvc.getCause();
                 }
-                String errmsg = cvcException == null ? e.getLocalizedMessage() : cvcException.getMessage();
-                err = MESSAGES.getMessage(locale, "save_fail_cvc_exception", concept, errmsg); //$NON-NLS-1$
+                String cause = cvc == null ? "" : cvc.getMessage(); //$NON-NLS-1$
+
+                err = MESSAGES.getMessage(locale, "save_validationrule_fail", concept, cause); //$NON-NLS-1$
             } else if (Util.causeIs(e, ValidateException.class)) {
                 err = MESSAGES.getMessage(locale, "save_validationrule_fail", concept + "." + ids, //$NON-NLS-1$//$NON-NLS-2$
                         Util.getExceptionMessage(e.getLocalizedMessage(), language));
@@ -1721,6 +1722,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 err = MESSAGES.getMessage(locale, "save_fail", concept + "." + ids, e.getLocalizedMessage()); //$NON-NLS-1$ //$NON-NLS-2$
             }
             return new ItemResult(ItemResult.FAILURE, err);
+        }
+        finally {
+            Locale.setDefault(defaultLocale);
         }
     }
 
