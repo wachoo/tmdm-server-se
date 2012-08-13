@@ -1,15 +1,18 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage;
+
+import java.util.Set;
+
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
@@ -17,19 +20,16 @@ import com.amalto.core.query.user.Expression;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.record.DataRecord;
 
-import java.util.Set;
-
 /**
  *
  */
 public interface Storage {
 
     /**
-     * TODO This is temporary value!
-     * This value is used to limit current state of implementation: there's no current support for multiple Storage instances
-     * in MDM (but unit tests test this behavior).
+     * TODO This is temporary value! This value is used to limit current state of implementation: there's no current
+     * support for multiple Storage instances in MDM (but unit tests test this behavior).
      */
-    String DEFAULT_DATA_SOURCE_NAME = "RDBMS-1";  //$NON-NLS-1$
+    String DEFAULT_DATA_SOURCE_NAME = MDMConfiguration.getConfiguration().getProperty("db.default.datasource"); //$NON-NLS-1$
 
     String METADATA_TIMESTAMP = "x_talend_timestamp"; //$NON-NLS-1$
 
@@ -46,43 +46,45 @@ public interface Storage {
     /**
      * Early initialization (i.e. might create pools): performs all actions that do not need to know what kind of types
      * this storage should take care of (usually stateless components).
-     *
+     * 
      * @param dataSourceName The name of the <i>data source</i> to be used by the storage.
      */
     void init(String dataSourceName);
 
     /**
      * Prepare storage to handle types located in {@link MetadataRepository}.
-     *
-     * @param repository       A initialized {@link com.amalto.core.metadata.MetadataRepository} instance.
-     * @param indexedFields    A {@link Set} of {@link FieldMetadata} that need to be indexed. It is up to the implementation
-     *                         to decide whether this information should be used or not. Callers of this method expects
-     *                         implementation to take all necessary actions to allow quick search on the fields in <code>indexedFields</code>.
-     * @param force            <code>true</code> will force the storage to prepare event if {@link #prepare(com.amalto.core.metadata.MetadataRepository, boolean)}
-     *                         has already been called. <code>false</code> will be a "no op" operation if storage is already
-     *                         prepared.
+     * 
+     * @param repository A initialized {@link com.amalto.core.metadata.MetadataRepository} instance.
+     * @param indexedFields A {@link Set} of {@link FieldMetadata} that need to be indexed. It is up to the
+     * implementation to decide whether this information should be used or not. Callers of this method expects
+     * implementation to take all necessary actions to allow quick search on the fields in <code>indexedFields</code>.
+     * @param force <code>true</code> will force the storage to prepare event if
+     * {@link #prepare(com.amalto.core.metadata.MetadataRepository, boolean)} has already been called.
+     * <code>false</code> will be a "no op" operation if storage is already prepared.
      * @param dropExistingData if <code>true</code>, storage preparation will drop all data that may previously exist.
-     *                         Use this parameter with caution since recovery is not supported.   @see {@link MetadataRepository#load(java.io.InputStream)}
+     * Use this parameter with caution since recovery is not supported. @see
+     * {@link MetadataRepository#load(java.io.InputStream)}
      * @see #prepare(com.amalto.core.metadata.MetadataRepository, boolean)
      */
     void prepare(MetadataRepository repository, Set<FieldMetadata> indexedFields, boolean force, boolean dropExistingData);
 
     /**
      * Prepare storage to handle types located in {@link MetadataRepository}.
-     *
-     * @param repository       A initialized {@link com.amalto.core.metadata.MetadataRepository} instance.
+     * 
+     * @param repository A initialized {@link com.amalto.core.metadata.MetadataRepository} instance.
      * @param dropExistingData if <code>true</code>, storage preparation will drop all data that may previously exist.
-     *                         Use this parameter with caution since recovery is not supported.
+     * Use this parameter with caution since recovery is not supported.
      * @see {@link MetadataRepository#load(java.io.InputStream)}
      */
     void prepare(MetadataRepository repository, boolean dropExistingData);
 
     /**
-     * Returns all records that match the {@link Expression}. The <code>expression</code> should be a valid {@link com.amalto.core.query.user.Select}.
-     *
+     * Returns all records that match the {@link Expression}. The <code>expression</code> should be a valid
+     * {@link com.amalto.core.query.user.Select}.
+     * 
      * @param userQuery A {@link com.amalto.core.query.user.Select} instance.
-     * @return A {@link Iterable} instance to navigate through query results. This iterable class also provides ways to get
-     *         how many records are returned and how many matched query in database.
+     * @return A {@link Iterable} instance to navigate through query results. This iterable class also provides ways to
+     * get how many records are returned and how many matched query in database.
      * @see com.amalto.core.query.user.UserQueryBuilder
      */
     StorageResults fetch(Expression userQuery);
@@ -90,7 +92,7 @@ public interface Storage {
     /**
      * Updates storage with a new or existing record. Record might already exist, storage implementation (or underlying
      * storage framework) will decide whether this is new record or old one.
-     *
+     * 
      * @param record Record to be created or updated.
      */
     void update(DataRecord record);
@@ -98,14 +100,15 @@ public interface Storage {
     /**
      * Updates storage with new or existing records. Records might already exist, storage implementation (or underlying
      * storage framework) will decide whether this is all new records or old ones.
-     *
+     * 
      * @param records Records to be created or updated.
      */
     void update(Iterable<DataRecord> records);
 
     /**
-     * Deletes all records that match the {@link Expression}. The <code>userQuery</code> should be a valid {@link com.amalto.core.query.user.Select}.
-     *
+     * Deletes all records that match the {@link Expression}. The <code>userQuery</code> should be a valid
+     * {@link com.amalto.core.query.user.Select}.
+     * 
      * @param userQuery A {@link com.amalto.core.query.user.Select} instance.
      * @see com.amalto.core.query.user.UserQueryBuilder
      */
@@ -121,7 +124,7 @@ public interface Storage {
      * Starts a transaction for current thread. If a previous call to this method has been made without calling any end
      * of transaction method (e.g. {@link #commit()}), calling this method has no effect.
      * </p>
-     *
+     * 
      * @throws IllegalStateException If a transaction was already started for the current thread.
      * @see #commit()
      * @see #rollback()
@@ -153,9 +156,9 @@ public interface Storage {
     /**
      * Returns suggested keywords (words that match result in full text index) for the <code>keyword</code>. Returned
      * results depend on {@link FullTextSuggestion}.
-     *
-     * @param keyword        A word to be used as input for this method (only one word).
-     * @param mode           {@link FullTextSuggestion} suggestion mode.
+     * 
+     * @param keyword A word to be used as input for this method (only one word).
+     * @param mode {@link FullTextSuggestion} suggestion mode.
      * @param suggestionSize Number of suggestions this method should return.
      * @return A {@link Set} of <code>suggestionSize</code> keywords that matches results in full text index.
      */
