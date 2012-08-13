@@ -65,10 +65,10 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
 
     private String rootTypeName = null;
 
-    private Map<String, String> hasAutoIncrementFieldMap;
+    private Map<String, String> autoIncrementFieldMap;
 
     CreateActions(MutableDocument document, Date date, String source, String userName, String dataCluster, String universe,
-            SaverSource saverSource, Map<String, String> hasAutoIncrementFieldMap) {
+            SaverSource saverSource, Map<String, String> autoIncrementFieldMap) {
         this.document = document;
         this.date = date;
         this.source = source;
@@ -76,7 +76,7 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
         this.dataCluster = dataCluster;
         this.universe = universe;
         this.saverSource = saverSource;
-        this.hasAutoIncrementFieldMap = hasAutoIncrementFieldMap;
+        this.autoIncrementFieldMap = autoIncrementFieldMap;
     }
 
     private String getPath() {
@@ -155,10 +155,10 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
             String currentPath = getPath();
             if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(simpleField.getType().getName())) {
                 String conceptName = rootTypeName + "." + getPath().replaceAll("/", "."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                String autoIncrementValue = hasAutoIncrementFieldMap.get(conceptName);
+                String autoIncrementValue = autoIncrementFieldMap.get(conceptName);
                 if (autoIncrementValue == null) {
                     autoIncrementValue = saverSource.nextAutoIncrementId(universe, dataCluster, conceptName);
-                    hasAutoIncrementFieldMap.put(conceptName, autoIncrementValue);
+                    autoIncrementFieldMap.put(conceptName, autoIncrementValue);
                 }
                 actions.add(new FieldUpdateAction(date, source, userName, currentPath, StringUtils.EMPTY, autoIncrementValue,
                         simpleField));
