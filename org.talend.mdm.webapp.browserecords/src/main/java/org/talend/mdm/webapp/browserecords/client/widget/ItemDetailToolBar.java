@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
@@ -43,6 +42,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.integrity.LogicalDelete
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.NoOpPostDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.PostDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTreeDetail;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -81,8 +81,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -310,8 +308,11 @@ public class ItemDetailToolBar extends ToolBar {
                 @Override
                 public void componentSelected(ButtonEvent ce) {
                     Widget widget = itemsDetailPanel.getFirstTabWidget();
-                    ItemPanel itemPanel = (ItemPanel) widget;
-                    ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getRootModel();
+                    TreeDetail treeDetail = ((ItemPanel) widget).getTree();
+                    if (!BrowseRecords.getSession().getAppHeader().isAutoValidate()) {
+                        treeDetail.makeWarnning(treeDetail.getRoot());
+                    }
+                    ItemNodeModel root = treeDetail.getRootModel();
                     if (operation.equalsIgnoreCase(ItemDetailToolBar.CREATE_OPERATION)
                             || operation.equalsIgnoreCase(ItemDetailToolBar.DUPLICATE_OPERATION)
                             || TreeDetailUtil.isChangeValue(root)) {
@@ -338,8 +339,11 @@ public class ItemDetailToolBar extends ToolBar {
                 @Override
                 public void componentSelected(ButtonEvent ce) {
                     Widget widget = itemsDetailPanel.getFirstTabWidget();
-                    ItemPanel itemPanel = (ItemPanel) widget;
-                    ItemNodeModel root = (ItemNodeModel) itemPanel.getTree().getRootModel();
+                    TreeDetail treeDetail = ((ItemPanel) widget).getTree();
+                    if (!BrowseRecords.getSession().getAppHeader().isAutoValidate()) {
+                        treeDetail.makeWarnning(treeDetail.getRoot());
+                    }
+                    ItemNodeModel root = treeDetail.getRootModel();
                     if (operation.equalsIgnoreCase(ItemDetailToolBar.CREATE_OPERATION)
                             || operation.equalsIgnoreCase(ItemDetailToolBar.DUPLICATE_OPERATION)
                             || TreeDetailUtil.isChangeValue(root)) {
