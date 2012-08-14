@@ -459,11 +459,12 @@ public class MainFramePanel extends Portal {
     }
 
     private native void openWindow(String url)/*-{
-		window.open(url);
+        window.open(url);
     }-*/;
 
     private native void initUI(String context, String application)/*-{
-		var initFunction = $wnd.amalto[context][application].init;
-		setTimeout(initFunction, '50');
+        $wnd.setTimeout(function(){
+        $wnd.amalto[context][application].init();
+        }, 50);
     }-*/;
 }
