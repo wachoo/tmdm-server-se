@@ -71,6 +71,8 @@ public class StagingContainerSummaryView extends AbstractView {
 
     private static Widget chart;
 
+    private UserContextModel ucx;
+
     public static void setChart(Widget chart) {
         StagingContainerSummaryView.chart = chart;
     }
@@ -93,7 +95,7 @@ public class StagingContainerSummaryView extends AbstractView {
 
     @Override
     protected void initComponents() {
-        UserContextModel ucx = UserContextUtil.getUserContext();
+        ucx = UserContextUtil.getUserContext();
         ContextModel contextModel = Stagingarea.getContextModel();
         titleLabel = new Label(messages.staging_area_title());
         titleLabel.setStyleAttribute("margin-right", "20px"); //$NON-NLS-1$//$NON-NLS-2$
@@ -220,12 +222,29 @@ public class StagingContainerSummaryView extends AbstractView {
             waitingEl.setInnerHTML(messages.waiting_desc("<b>" + waiting + "</b>")); //$NON-NLS-1$ //$NON-NLS-2$
 
             Element invalidEl = detailPanel.getElementById(STAGING_AREA_INVALID);
-            invalidEl.setInnerHTML(messages.invalid_desc("<b>" + invalid + "</b>") + " <a style=\"color:red\" href=\"#\">" + messages.open_invalid_record() + "</a>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            invalidEl.setInnerHTML(messages.invalid_desc("<b>" + invalid + "</b>") + " <b><span id=\"open_invalid_record\" style=\"color:red; text-decoration:underline; cursor:pointer;\">" + messages.open_invalid_record() + "</span><b>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
+            Element openEl = detailPanel.getElementById("open_invalid_record"); //$NON-NLS-1$
+            addClickForOpenInvalidRecord(ucx.getDataContainer(), ucx.getDataModel(), openEl);
+            
             Element validEl = detailPanel.getElementById(STAGING_AREA_VALID);
             validEl.setInnerHTML(messages.valid_desc("<b>" + valid + "</b>")); //$NON-NLS-1$ //$NON-NLS-2$
         }
     }
+    
+    private native void addClickForOpenInvalidRecord(String container, String dataModel, Element el)/*-{
+        el.onclick = function(){
+            if ($wnd.amalto.browserecords && $wnd.amalto.browserecords.BrowseRecords){
+                var stagingArea = {
+                    dataContainer: "#STAGING",
+                    dataModel: dataModel,
+                    criteria: "Product/Id EQUALS *",
+                    from: " from Staging area"
+                };
+                $wnd.amalto.browserecords.BrowseRecords.init(stagingArea);
+            }
+        };
+    }-*/;
 
     public void refresh(StagingContainerModel stagingContainerModel) {
         this.stagingContainerModel = stagingContainerModel;
