@@ -150,11 +150,18 @@ public class Util {
      *********************************************************************/
 
     public static XtentisPort getPort() throws XtentisWebappException {
-        AjaxSubject as;
+        XtentisPort port = null;
+        AjaxSubject as = null;
         try {
             as = Util.getAjaxSubject();
         } catch (Exception e) {
-            throw new XtentisWebappException("Unable to access the logged user data"); //$NON-NLS-1$
+            port = getRMIEndPoint();// Web core already tied to the same jboss server as mdm.core
+            if (port != null)
+                return port;
+            else {// Normally this case won't happen
+                Logger.getLogger(Util.class).error("Unable to access the logged user data: " + e.getLocalizedMessage(), e);//$NON-NLS-1$
+                throw new XtentisWebappException("Server Error occured. See server log for details. "); //$NON-NLS-1$
+            }
         }
         if (as == null)
             throw new XtentisWebappException("Session Expired"); //$NON-NLS-1$
