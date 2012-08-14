@@ -64,7 +64,7 @@ public class PictureField extends TextField<String> {
 
     private static final String CONTEXT_PATH = GWT.getModuleBaseURL().replaceFirst(GWT.getModuleName() + "/", ""); //$NON-NLS-1$ //$NON-NLS-2$
     
-    private static final String DefaultImage = CONTEXT_PATH + "resources/images/talend/no_image.png"; //$NON-NLS-1$
+    public static final String DefaultImage = CONTEXT_PATH + "resources/images/talend/no_image.png"; //$NON-NLS-1$
 
     protected El wrap = new El(DOM.createSpan());
 
@@ -250,6 +250,10 @@ public class PictureField extends TextField<String> {
         if (isFireChangeEventOnSetValue()) {
             fireChangeEvent(oldValue, value);
         }
+    }
+    
+    public String getImageURL(){
+        return image.getUrl();      
     }
     
     private boolean isInternalImageURL(String url) {
