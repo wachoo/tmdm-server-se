@@ -63,7 +63,7 @@ public class PictureField extends TextField<String> {
 
     private static final int DEFAULT_IMAGE_SCALE_SIZE = 150;
 
-    private static final String DefaultImage = "/core/secure/gxt/resources/images/talend/no_image.png"; //$NON-NLS-1$
+    public static final String DefaultImage = "/core/secure/gxt/resources/images/talend/no_image.png"; //$NON-NLS-1$
 
     protected El wrap = new El(DOM.createSpan());
 
@@ -255,6 +255,10 @@ public class PictureField extends TextField<String> {
         if (isFireChangeEventOnSetValue()) {
             fireChangeEvent(oldValue, value);
         }
+    }
+    
+    public String getImageURL(){
+        return image.getUrl();      
     }
     
     private boolean isInternalImageURL(String url) {
