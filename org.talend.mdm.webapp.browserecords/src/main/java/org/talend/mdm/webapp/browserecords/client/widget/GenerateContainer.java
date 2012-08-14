@@ -42,10 +42,14 @@ public class GenerateContainer {
         instance.setHeaderVisible(false);
         instance.setBorders(false);
         instance.setId(BrowseRecords.BROWSERECORD_ID);
-        instance.setHeading(MessagesFactory.getMessages().browse_record_title());
+        instance.setHeading(defaultTitle());
     }
 
     public static ContentPanel getContentPanel() {
         return instance;
+    }
+
+    public static String defaultTitle() {
+        return MessagesFactory.getMessages().browse_record_title();
     }
 }

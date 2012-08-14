@@ -54,51 +54,57 @@ public class BrowseRecords implements EntryPoint {
 
     private RootPanel panel;
 
+    private static JavaScriptObject stagingArea;
+
+    public static JavaScriptObject getStagingArea() {
+        return stagingArea;
+    }
+
     public native void regItemDetails()/*-{
-            $wnd.amalto = $wnd.amalto || {};
-            $wnd.amalto.itemsbrowser = $wnd.amalto.itemsbrowser || {};
-            $wnd.amalto.itemsbrowser.ItemsBrowser = $wnd.amalto.itemsbrowser.ItemsBrowser || {};
-            $wnd.amalto.itemsbrowser.ItemsBrowser.editItemDetails = function(fromWhichApp, ids, entity, callback){
-                var checkArgs = true;
-                checkArgs = checkArgs && (arguments.length >= 3);
-                checkArgs = checkArgs && (typeof fromWhichApp === "string");
-                checkArgs = checkArgs && (ids.length >= 1);
-                checkArgs = checkArgs && (typeof entity === "string");
-                if (!checkArgs){
-                    throw {message: "argument format error!"};
-                }
-            
-                var idstr;
-                if(ids.length == 1){
-                    idstr = ids[0];
-                }
-                @org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil::initItemsDetailPanelById(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;Ljava/lang/Boolean;)(fromWhichApp, idstr, entity, new Boolean(false), new Boolean(false));
-            };
-    
-            $wnd.amalto.itemsbrowser.ItemsBrowser.lineageItem = function (lineageEntities, ids, dataObject){
-                var tabPanel = $wnd.amalto.core.getTabPanel();
-        
-                var searchEntityPanel = tabPanel.getItem("searchEntityPanel");
-        
-                if (searchEntityPanel) {
-                    tabPanel.remove(searchEntityPanel);
-                    searchEntityPanel.destroy();
-                }
-        
-                searchEntityPanel = new $wnd.amalto.itemsbrowser.SearchEntityPanel({
-                            lineageEntities : lineageEntities,
-                            ids : ids,
-                            dataObject : dataObject,
-                            language : $wnd.language
-                        });
-        
-                tabPanel.add(searchEntityPanel);
-        
-                searchEntityPanel.show();
-                searchEntityPanel.doLayout();
-                searchEntityPanel.doSearchList();
-                $wnd.amalto.core.doLayout();
+        $wnd.amalto = $wnd.amalto || {};
+        $wnd.amalto.itemsbrowser = $wnd.amalto.itemsbrowser || {};
+        $wnd.amalto.itemsbrowser.ItemsBrowser = $wnd.amalto.itemsbrowser.ItemsBrowser || {};
+        $wnd.amalto.itemsbrowser.ItemsBrowser.editItemDetails = function(fromWhichApp, ids, entity, callback){
+            var checkArgs = true;
+            checkArgs = checkArgs && (arguments.length >= 3);
+            checkArgs = checkArgs && (typeof fromWhichApp === "string");
+            checkArgs = checkArgs && (ids.length >= 1);
+            checkArgs = checkArgs && (typeof entity === "string");
+            if (!checkArgs){
+                throw {message: "argument format error!"};
             }
+
+            var idstr;
+            if(ids.length == 1){
+                idstr = ids[0];
+            }
+            @org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil::initItemsDetailPanelById(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;Ljava/lang/Boolean;)(fromWhichApp, idstr, entity, new Boolean(false), new Boolean(false));
+        };
+
+        $wnd.amalto.itemsbrowser.ItemsBrowser.lineageItem = function (lineageEntities, ids, dataObject){
+            var tabPanel = $wnd.amalto.core.getTabPanel();
+
+            var searchEntityPanel = tabPanel.getItem("searchEntityPanel");
+
+            if (searchEntityPanel) {
+                tabPanel.remove(searchEntityPanel);
+                searchEntityPanel.destroy();
+            }
+
+            searchEntityPanel = new $wnd.amalto.itemsbrowser.SearchEntityPanel({
+                        lineageEntities : lineageEntities,
+                        ids : ids,
+                        dataObject : dataObject,
+                        language : $wnd.language
+                    });
+
+            tabPanel.add(searchEntityPanel);
+
+            searchEntityPanel.show();
+            searchEntityPanel.doLayout();
+            searchEntityPanel.doSearchList();
+            $wnd.amalto.core.doLayout();
+        }
     }-*/;
 
     /**
@@ -223,40 +229,50 @@ public class BrowseRecords implements EntryPoint {
         $wnd.amalto.browserecords = {};
         $wnd.amalto.browserecords.BrowseRecords = function(){
 
-        function initUI(){
-            instance.@org.talend.mdm.webapp.browserecords.client.BrowseRecords::initUI()();               
+        function initUI(stagingarea){
+        instance.@org.talend.mdm.webapp.browserecords.client.BrowseRecords::initUI(Lcom/google/gwt/core/client/JavaScriptObject;)(stagingarea);
         }
 
         function showTreeDetailPanel(concept, ids){
-            instance.@org.talend.mdm.webapp.browserecords.client.BrowseRecords::showTreeDetailPanel(Ljava/lang/String;Ljava/lang/String;)(concept, ids);
+        instance.@org.talend.mdm.webapp.browserecords.client.BrowseRecords::showTreeDetailPanel(Ljava/lang/String;Ljava/lang/String;)(concept, ids);
         }
 
         function refreshGrid(){
-            var tabPanel = $wnd.amalto.core.getTabPanel();
-            var panel = tabPanel.getItem("Browse Records");         
-            if (panel != undefined){
-                tabPanel.setSelection(panel.getItemId());
-            }
-            instance.@org.talend.mdm.webapp.browserecords.client.BrowseRecords::refreshGrid()();
+        var tabPanel = $wnd.amalto.core.getTabPanel();
+        var panel = tabPanel.getItem("Browse Records");         
+        if (panel != undefined){
+        tabPanel.setSelection(panel.getItemId());
+        }
+        instance.@org.talend.mdm.webapp.browserecords.client.BrowseRecords::refreshGrid()();
         } 
 
         return {
-        init : function(){initUI();},
+        init : function(stagingarea){initUI(stagingarea);},
         showTreeDetailPanel : function(concept, ids){showTreeDetailPanel(concept, ids);},
         refreshGrid : function(){refreshGrid();}
         }
         }();
     }-*/;
 
-    private native void _initUI()/*-{
+    private native void _initUI(JavaScriptObject stagingarea)/*-{
         var tabPanel = $wnd.amalto.core.getTabPanel();
-        var panel = tabPanel.getItem("Browse Records");         
+
+        var panel = tabPanel.getItem("Browse Records");
         if (panel == undefined){
         @org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer::generateContentPanel()();
         panel = this.@org.talend.mdm.webapp.browserecords.client.BrowseRecords::createPanel()();
         tabPanel.add(panel);        
         }
         tabPanel.setSelection(panel.getItemId());
+
+        var defaultTitle = @org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer::defaultTitle()();
+        if (stagingarea){
+        @org.talend.mdm.webapp.browserecords.client.BrowseRecords::stagingArea = stagingarea;
+        $wnd.amalto.core.getTabPanel().updateCurrentTabText(stagingarea.from + defaultTitle);
+        } else {
+        @org.talend.mdm.webapp.browserecords.client.BrowseRecords::stagingArea = null;
+        $wnd.amalto.core.getTabPanel().updateCurrentTabText(defaultTitle);
+        }
     }-*/;
 
     native JavaScriptObject createPanel()/*-{
@@ -301,8 +317,8 @@ public class BrowseRecords implements EntryPoint {
         onModuleRender();
     }
 
-    public void initUI() {
-        _initUI();
+    public void initUI(JavaScriptObject stagingarea) {
+        _initUI(stagingarea);
     }
 
     private void onModuleRender() {

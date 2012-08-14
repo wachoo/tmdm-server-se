@@ -91,6 +91,7 @@ import com.extjs.gxt.ui.client.widget.grid.RowEditor;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
@@ -153,7 +154,12 @@ public class ItemsListPanel extends ContentPanel {
                     MessageBox.alert(MessagesFactory.getMessages().search_field_error_title(), MessagesFactory.getMessages().search_field_error_info(qm.getErrorValue()), null); 
                     callback.onSuccess(new BasePagingLoadResult<ItemBean>(new ArrayList<ItemBean>(), 0, 0));
                     return;
-                }                    
+                }
+                if (BrowseRecords.getStagingArea() != null) {
+                    JavaScriptObject stagingArea = BrowseRecords.getStagingArea();
+                    qm.setDataClusterPK(getDataContainer(stagingArea));
+                    qm.setCriteria(getCriteria(stagingArea));
+                }
                 Parser.parse(qm.getCriteria());
             } catch (ParserException e) {
                 MessageBox.alert(MessagesFactory.getMessages().error_title(), e.getMessage(), null);
@@ -182,6 +188,14 @@ public class ItemsListPanel extends ContentPanel {
             });
         }
     };
+
+    private native String getDataContainer(JavaScriptObject stagingAreaConfig)/*-{
+        return stagingAreaConfig.dataContainer;
+    }-*/;
+
+    private native String getCriteria(JavaScriptObject stagingAreaConfig)/*-{
+        return stagingAreaConfig.criteria;
+    }-*/;
 
     private RecordsPagingConfig copyPgLoad(PagingLoadConfig pconfig) {
         RecordsPagingConfig rpConfig = new RecordsPagingConfig();
