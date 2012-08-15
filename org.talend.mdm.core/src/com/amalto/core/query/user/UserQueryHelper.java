@@ -97,7 +97,10 @@ public class UserQueryHelper {
             } else if (WhereCondition.STARTSWITH.equals(operator)) {
                 return UserQueryBuilder.startsWith(field, value);
             } else if (WhereCondition.JOINS.equals(operator)) {
-                queryBuilder.join(field, ((ReferenceFieldMetadata) field).getReferencedField());
+                if(field instanceof Field)
+                    queryBuilder.join(field, ((ReferenceFieldMetadata) ((Field) field).getFieldMetadata()).getReferencedField());
+                else
+                    queryBuilder.join(field, ((ReferenceFieldMetadata) field).getReferencedField());
                 return NO_OP_CONDITION;
             } else if (WhereCondition.EMPTY_NULL.equals(operator)) {
                 return UserQueryBuilder.emptyOrNull(field);
