@@ -83,11 +83,13 @@ public class UrlField extends Field<String> {
         this.allowBlank = allowBlank;
     }
 
+    @Override
     protected void onRender(Element target, int index) {
         input.setId(XDOM.getUniqueId());
         input.makePositionable();
 
-        input.dom.setAttribute("target", "_blank");//$NON-NLS-1$ //$NON-NLS-2$
+        input.dom.setAttribute("target", "_blank");//$NON-NLS-1$ //$NON-NLS-2$  
+        input.dom.setClassName("urlStyle"); //$NON-NLS-1$
         input.dom.getStyle().setMarginRight(5, Unit.PX);
         wrap.dom.appendChild(input.dom);
         wrap.dom.appendChild(handler);
@@ -108,24 +110,25 @@ public class UrlField extends Field<String> {
     }
 
     void handlerClick() {
-        if(!readOnly){
+        if (!readOnly) {
             editWin.setValue(getValue());
             editWin.show();
-        }     
+        }
     }
 
     private native void regJs(Element el)/*-{
-        var instance = this;
-        el.onclick = function(){
-        instance.@org.talend.mdm.webapp.browserecords.client.widget.inputfield.UrlField::handlerClick()();
-        };
+		var instance = this;
+		el.onclick = function() {
+			instance.@org.talend.mdm.webapp.browserecords.client.widget.inputfield.UrlField::handlerClick()();
+		};
     }-*/;
 
+    @Override
     public void setValue(String value) {
         super.setValue(value);
         if (value != null && !"".equals(value)) { //$NON-NLS-1$
             String[] addr = value.split("@@");//$NON-NLS-1$
-            if (addr.length == 2){
+            if (addr.length == 2) {
                 input.dom.setInnerText(addr[0]);
                 input.dom.setAttribute("href", addr[1]);//$NON-NLS-1$
             }
@@ -146,6 +149,7 @@ public class UrlField extends Field<String> {
 
         SelectionListener<ButtonEvent> listener = new SelectionListener<ButtonEvent>() {
 
+            @Override
             public void componentSelected(ButtonEvent ce) {
                 Button button = ce.getButton();
                 if (button == saveButton) {
@@ -191,9 +195,9 @@ public class UrlField extends Field<String> {
         }
 
         public void setValue(String value) {
-            if (value != null){
+            if (value != null) {
                 String[] addr = value.split("@@");//$NON-NLS-1$
-                if (addr.length == 2){
+                if (addr.length == 2) {
                     firstName.setValue(addr[0]);
                     url.setValue(addr[1]);
                 }
@@ -201,11 +205,13 @@ public class UrlField extends Field<String> {
         }
     }
 
+    @Override
     public void setReadOnly(boolean readOnly) {
         super.setReadOnly(readOnly);
         this.readOnly = readOnly;
     }
-    
+
+    @Override
     public void setEnabled(boolean enabled) {
         editImage.setVisible(enabled);
     }
