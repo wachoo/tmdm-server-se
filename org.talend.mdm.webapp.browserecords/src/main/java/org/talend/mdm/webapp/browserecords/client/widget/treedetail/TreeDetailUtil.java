@@ -82,7 +82,7 @@ public class TreeDetailUtil {
 
     public static void initItemsDetailPanelById(final String fromWhichApp, String ids, final String concept,
             final Boolean isFkToolBar, final Boolean isHierarchyCall, final String operation) {
-        String[] idArr = ids.split(","); //$NON-NLS-1$
+        String[] idArr = ids.split("\\."); //$NON-NLS-1$
         final ItemsDetailPanel panel = new ItemsDetailPanel();
         final BrowseRecordsServiceAsync brService = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
         brService.getItemBeanById(concept, idArr, Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBean>() {
