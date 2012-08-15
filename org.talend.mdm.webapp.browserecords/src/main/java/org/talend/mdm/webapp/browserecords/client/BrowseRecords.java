@@ -74,10 +74,7 @@ public class BrowseRecords implements EntryPoint {
                 throw {message: "argument format error!"};
             }
 
-            var idstr;
-            if(ids.length == 1){
-                idstr = ids[0];
-            }
+            var idstr = ids.join(".");
             @org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil::initItemsDetailPanelById(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;Ljava/lang/Boolean;)(fromWhichApp, idstr, entity, new Boolean(false), new Boolean(false));
         };
 
@@ -266,6 +263,7 @@ public class BrowseRecords implements EntryPoint {
         tabPanel.setSelection(panel.getItemId());
 
         var defaultTitle = @org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer::defaultTitle()();
+        $wnd.alert(stagingarea);
         if (stagingarea){
         @org.talend.mdm.webapp.browserecords.client.BrowseRecords::stagingArea = stagingarea;
         $wnd.amalto.core.getTabPanel().updateCurrentTabText(stagingarea.from + defaultTitle);
