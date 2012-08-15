@@ -83,9 +83,9 @@ class UnaryFieldAccessor implements DOMAccessor {
 
     public String get() {
         Element element = getElement();
-        // TMDM-4391 Partial Update - Can't add more than 2 nodes(see DocumentSaveTest.test33)
+        // TMDM-4391 Partial Update - Can't add more than 2 nodes(see DocumentSaveTest.test32)
         if (element == null)
-            return StringUtils.EMPTY;
+            return null;
         Node textChild = element.getFirstChild();
         if (textChild != null) {
             if (textChild instanceof Text)
