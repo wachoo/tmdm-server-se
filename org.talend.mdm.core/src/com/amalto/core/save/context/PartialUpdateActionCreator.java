@@ -140,6 +140,13 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                 leftPath.add(field.getName() + '[' + i + ']');
                 if (inPivot) {
                     Accessor originalKeyAccessor = originalDocument.createAccessor(getLeftPath() + '/' + key);
+                    // TMDM-4391 Partial Update - Can't add the correct nodes(see DocumentSaveTest.test33 and DocumentSaveTest.test34)
+                    if (originalKeyAccessor.get() == null && originalFieldToLastIndex.size() > 0){
+                        rightPath.push(field.getName() + '[' + i + ']');
+                        rightPath.pop();
+                        leftPath.pop();
+                        continue;
+                    }
                     String newDocumentPath = keyValueToPath.get(originalKeyAccessor.get());
                     if (newDocumentPath == null) {
                         if (!preserveCollectionOldValues) {
