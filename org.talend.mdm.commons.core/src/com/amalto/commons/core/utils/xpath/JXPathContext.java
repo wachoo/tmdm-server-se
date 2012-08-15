@@ -20,7 +20,11 @@ import java.text.DecimalFormatSymbols;
 import java.util.HashMap;
 import java.util.Locale;
 
-import sun.security.pkcs11.wrapper.Functions;
+import org.apache.commons.jxpath.FunctionLibrary;
+import org.apache.commons.jxpath.Functions;
+import org.apache.commons.jxpath.JXPathBeanInfo;
+import org.apache.commons.jxpath.JXPathIntrospector;
+
 
 /**
  * JXPathContext  provides APIs for the traversal of graphs of JavaBeans using
