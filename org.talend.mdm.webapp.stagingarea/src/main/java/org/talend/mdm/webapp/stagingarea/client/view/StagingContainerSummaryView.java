@@ -184,28 +184,26 @@ public class StagingContainerSummaryView extends AbstractView {
 
             Element invalidEl = detailPanel.getElementById(STAGING_AREA_INVALID);
             invalidEl.setInnerHTML(messages.invalid_desc("<b>" + invalid + "</b>") + " <b><span id=\"open_invalid_record\" style=\"color:red; text-decoration:underline; cursor:pointer;\">" + messages.open_invalid_record() + "</span><b>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            Element open_invalid_record = detailPanel.getElementById("open_invalid_record"); //$NON-NLS-1$
+            addClickForOpenInvalidRecord(ucx.getDataContainer(), ucx.getDataModel(), open_invalid_record);
 
-            Element openEl = detailPanel.getElementById("open_invalid_record"); //$NON-NLS-1$
-            addClickForOpenInvalidRecord(ucx.getDataContainer(), ucx.getDataModel(), openEl);
-            
             Element validEl = detailPanel.getElementById(STAGING_AREA_VALID);
             validEl.setInnerHTML(messages.valid_desc("<b>" + valid + "</b>")); //$NON-NLS-1$ //$NON-NLS-2$
         }
     }
-    
+
     private native void addClickForOpenInvalidRecord(String container, String dataModel, Element el)/*-{
+        var instance = this;
         el.onclick = function(){
-            if ($wnd.amalto.browserecords && $wnd.amalto.browserecords.BrowseRecords){
-                var stagingArea = {
-                    dataContainer: "#STAGING",
-                    dataModel: dataModel,
-                    criteria: "Product/Id EQUALS *",
-                    from: " from Staging area"
-                };
-                $wnd.amalto.browserecords.BrowseRecords.init(stagingArea);
-            }
+        instance.@org.talend.mdm.webapp.stagingarea.client.view.StagingContainerSummaryView::onOpenInvalidRecord()();
         };
     }-*/;
+
+    void onOpenInvalidRecord() {
+        ControllerContainer.get().getSummaryController().openInvalidRecordToBrowseRecord(messages.stagingarea_title() + "->", //$NON-NLS-1$
+                ucx.getDataContainer(),
+                ucx.getDataModel());
+    }
 
     public void refresh(StagingContainerModel stagingContainerModel) {
         this.stagingContainerModel = stagingContainerModel;

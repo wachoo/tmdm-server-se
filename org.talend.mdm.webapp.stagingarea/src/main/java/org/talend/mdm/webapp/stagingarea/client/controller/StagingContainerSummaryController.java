@@ -52,6 +52,18 @@ public class StagingContainerSummaryController extends AbstractController {
         });
     }
 
+    public native void openInvalidRecordToBrowseRecord(String fromTitle, String container, String dataModel)/*-{
+        if ($wnd.amalto.browserecords && $wnd.amalto.browserecords.BrowseRecords){
+            var stagingArea = {
+                dataContainer: "#STAGING",
+                dataModel: dataModel,
+                criteria: "Product/Id EQUALS *",
+                from: fromTitle
+            };
+            $wnd.amalto.browserecords.BrowseRecords.init(stagingArea);
+        }
+    }-*/;
+
     public void setEnabledStartValidation(boolean enabled) {
         if (enabled) {
             view.enabledStartValidation();
