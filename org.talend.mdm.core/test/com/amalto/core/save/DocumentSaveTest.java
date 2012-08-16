@@ -1444,6 +1444,35 @@ public class DocumentSaveTest extends TestCase {
                         "/Societe/Contacts/Contact[4]/SpecialisationContactType/NatureLocalisationFk"));
     }
 
+    public void test35() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        // there's a small change in this model that differs from QA: ThirdEntity is a xsd:sequence (not a xsd:all)
+        // so order of elements will be tested during XSD validation.
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test35_original.xml", "metadata7.xsd");
+        source.setUserName("admin");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test35.xml");
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "Test35", "admin", recordXml, true,
+                true, "/Organisation/Contacts/Contact", "SpecialisationContactType/NatureLocalisationFk", true);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        assertEquals(
+                "[5]",
+                evaluate(committer.getCommittedElement(),
+                        "/Organisation/Contacts/Contact[1]/SpecialisationContactType/NatureLocalisationFk"));
+        assertEquals(
+                "Apartado 111 - Abrunheira",
+                evaluate(committer.getCommittedElement(),
+                        "/Organisation/Contacts/Contact[1]/SpecialisationContactType/AdressePostale/Adresse1"));
+    }
+
     private static class MockCommitter implements SaverSession.Committer {
 
         private Element committedElement;

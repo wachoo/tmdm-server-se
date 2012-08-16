@@ -149,10 +149,14 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                     }
                     String newDocumentPath = keyValueToPath.get(originalKeyAccessor.get());
                     if (newDocumentPath == null) {
-                        if (!preserveCollectionOldValues) {
-                            return;
-                        } else {
+                        // TMDM-4391 Partial Update - Can't overwrite or add the correct nodes(see DocumentSaveTest.test32 and test35)
+                        if (preserveCollectionOldValues && i == 1 && originalFieldToLastIndex.size() == 0) {
                             rightPath.push(field.getName() + '[' + i + ']');
+                        } else { 
+                            rightPath.push(field.getName() + '[' + i + ']');
+                            rightPath.pop();
+                            leftPath.pop();
+                            continue;
                         }
                     } else {
                         StringTokenizer pathIterator = new StringTokenizer(newDocumentPath, "/");
