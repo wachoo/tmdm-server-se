@@ -17,19 +17,13 @@
   top:0px;
 }
 
-.x-menu-list .x-menu-list-item .x-menu-item {
-	cursor: pointer;
-	font-size: 12px;
-    font-weight: normal;
-    color: #2D5593 !important;
-}
-
 .urlStyle {
 	cursor: pointer;
     font-family: tahoma,verdana,helvetica;
     font-size: 13px;
     font-weight: bold;
     line-height: 16px;
+    font-style: normal;
     text-align: left;
     color: #2D5593 !important;
 }
