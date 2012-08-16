@@ -86,9 +86,7 @@ public class ViewUtil {
 
                     String typePath = node.getTypePath();
                     TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(typePath);
-                    if (typeModel.getForeignkey() != null) {
-                        continue;
-                    }
+
                     if (("/" + xpath).equals(ce.getxPath())) { //$NON-NLS-1$
                         iter.remove();
                         treeRootNode.addItem(child);
