@@ -401,8 +401,6 @@ public class TreeDetailGridFieldCreator {
     }
 
     private static void validate(Field<?> field, ItemNodeModel node) {
-    	if(!BrowseRecords.getSession().getAppHeader().isAutoValidate()) 
-    		return; 
         node.setValid(field.isValid());
     }
 }

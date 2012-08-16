@@ -47,7 +47,7 @@ public class FormatNumberField extends NumberField {
     }
 
     @Override
-    protected boolean validateValue(String value) {
+    public boolean validateValue(String value) {
         if (value.equals(this.getDiplayValue())) {
             return true;
         } else {

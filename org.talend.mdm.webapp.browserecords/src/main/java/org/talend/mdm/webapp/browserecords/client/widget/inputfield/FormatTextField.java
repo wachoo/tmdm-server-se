@@ -51,7 +51,7 @@ public class FormatTextField extends TextField<String> {
     }
 
     @Override
-    protected boolean validateValue(String value) {
+    public boolean validateValue(String value) {
         if (value.equals(this.getDiplayValue())) {
             this.fireEvent(Events.Change);
             return true;

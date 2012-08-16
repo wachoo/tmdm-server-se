@@ -1,5 +1,6 @@
 package org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator;
 
+import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.shared.FacetEnum;
 
@@ -11,6 +12,8 @@ public class NumberFieldValidator implements Validator {
 
     private static NumberFieldValidator instance;
     
+    private boolean validateFlag = true;
+    
     public static NumberFieldValidator getInstance(){
         if (instance == null){
             instance = new NumberFieldValidator();
@@ -18,9 +21,13 @@ public class NumberFieldValidator implements Validator {
         return instance;
     }
     
-    private NumberFieldValidator(){}
+    private NumberFieldValidator(){
+    	validateFlag = BrowseRecords.getSession().getAppHeader().isAutoValidate();
+    }
     
     public String validate(Field<?> field, String value) {
+    	if(!validateFlag)
+            return null;
         String defaultMessage = "";//$NON-NLS-1$ 
         boolean succeed = true;
         String totalDigits = field.getData(FacetEnum.TOTAL_DIGITS.getFacetName());
@@ -79,6 +86,9 @@ public class NumberFieldValidator implements Validator {
             }
         }
         
+        if(!BrowseRecords.getSession().getAppHeader().isAutoValidate())
+            validateFlag = false;
+        
         if (!succeed){
             String error = field.getData("facetErrorMsgs");//$NON-NLS-1$
             if (error == null || error.equals("")){//$NON-NLS-1$
@@ -87,5 +97,13 @@ public class NumberFieldValidator implements Validator {
             return error;
         }
         return null;
+    }
+    
+    public boolean isValidateFlag() {
+        return validateFlag;
+    }
+    
+    public void setValidateFlag(boolean validateFlag) {
+        this.validateFlag = validateFlag;
     }
 }
