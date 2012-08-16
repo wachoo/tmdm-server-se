@@ -97,7 +97,7 @@ public class StagingContainerSummaryView extends AbstractView {
 
         detailPanel = new HTMLPanel(buffer.toString());
 
-        detailPanel.setSize("300px", "80px"); //$NON-NLS-1$//$NON-NLS-2$
+        detailPanel.setSize("400px", "80px"); //$NON-NLS-1$//$NON-NLS-2$
 
         startValidate = new Button(messages.start_validation());
         startValidate.setSize(200, 30);
@@ -141,7 +141,7 @@ public class StagingContainerSummaryView extends AbstractView {
         detailData.setRowspan(1);
         mainPanel.add(detailPanel, detailData);
         TableData startData = new TableData();
-        startData.setHorizontalAlign(HorizontalAlignment.RIGHT);
+        startData.setHorizontalAlign(HorizontalAlignment.CENTER);
         mainPanel.add(startValidate, startData);
     }
 
