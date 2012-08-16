@@ -263,7 +263,6 @@ public class BrowseRecords implements EntryPoint {
         tabPanel.setSelection(panel.getItemId());
 
         var defaultTitle = @org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer::defaultTitle()();
-        $wnd.alert(stagingarea);
         if (stagingarea){
         @org.talend.mdm.webapp.browserecords.client.BrowseRecords::stagingArea = stagingarea;
         $wnd.amalto.core.getTabPanel().updateCurrentTabText(stagingarea.from + defaultTitle);
