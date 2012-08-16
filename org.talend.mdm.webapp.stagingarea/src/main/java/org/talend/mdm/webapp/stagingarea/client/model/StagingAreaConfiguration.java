@@ -13,22 +13,14 @@
 package org.talend.mdm.webapp.stagingarea.client.model;
 
 import java.io.Serializable;
-import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-/**
- * DOC suplch  class global comment. Detailled comment
- */
-public class ContextModel implements Serializable, IsSerializable {
+public class StagingAreaConfiguration implements Serializable, IsSerializable {
 
-    private int refreshIntervals = 1000;
+    private int refreshIntervals;
 
-    private List<String> dataContainer;
-
-    private List<String> dataModels;
-
-    public ContextModel() {
+    public StagingAreaConfiguration() {
 
     }
 
@@ -39,21 +31,4 @@ public class ContextModel implements Serializable, IsSerializable {
     public void setRefreshIntervals(int refreshIntervals) {
         this.refreshIntervals = refreshIntervals;
     }
-
-    public List<String> getDataContainer() {
-        return dataContainer;
-    }
-
-    public void setDataContainer(List<String> dataContainer) {
-        this.dataContainer = dataContainer;
-    }
-
-    public List<String> getDataModels() {
-        return dataModels;
-    }
-
-    public void setDataModels(List<String> dataModels) {
-        this.dataModels = dataModels;
-    }
-
 }

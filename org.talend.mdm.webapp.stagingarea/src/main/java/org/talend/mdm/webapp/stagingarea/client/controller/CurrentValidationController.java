@@ -48,7 +48,7 @@ public class CurrentValidationController extends AbstractController {
 
     public void autoRefresh(boolean auto) {
         if (auto) {
-            timer.scheduleRepeating(Stagingarea.getContextModel().getRefreshIntervals());
+            timer.scheduleRepeating(Stagingarea.getStagingAreaConfig().getRefreshIntervals());
         } else {
             timer.cancel();
         }

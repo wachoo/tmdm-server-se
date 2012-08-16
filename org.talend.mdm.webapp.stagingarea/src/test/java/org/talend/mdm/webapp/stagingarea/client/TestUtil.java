@@ -12,11 +12,9 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingarea.client;
 
-import java.util.Arrays;
-
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingarea.client.controller.ControllerContainer;
-import org.talend.mdm.webapp.stagingarea.client.model.ContextModel;
+import org.talend.mdm.webapp.stagingarea.client.model.StagingAreaConfiguration;
 import org.talend.mdm.webapp.stagingarea.client.rest.ClientResourceWrapper;
 import org.talend.mdm.webapp.stagingarea.client.rest.RestServiceHandler;
 import org.talend.mdm.webapp.stagingarea.client.view.CurrentValidationView;
@@ -29,15 +27,13 @@ import com.extjs.gxt.ui.client.widget.Label;
 @SuppressWarnings("nls")
 public class TestUtil {
 
-    public static native void setContextModel(ContextModel cm)/*-{
-        @org.talend.mdm.webapp.stagingarea.client.Stagingarea::contextModel = cm;
+    public static native void setContextModel(StagingAreaConfiguration cm)/*-{
+        @org.talend.mdm.webapp.stagingarea.client.Stagingarea::stagingAreaConfig = cm;
     }-*/;
 
     public static void initContainer() {
 
-        ContextModel cm = new ContextModel();
-        cm.setDataContainer(Arrays.asList("Product", "TestDataContainer", "DStar"));
-        cm.setDataModels(Arrays.asList("Product", "TestDataModel", "DStar"));
+        StagingAreaConfiguration cm = new StagingAreaConfiguration();
         cm.setRefreshIntervals(1000);
         setContextModel(cm);
 

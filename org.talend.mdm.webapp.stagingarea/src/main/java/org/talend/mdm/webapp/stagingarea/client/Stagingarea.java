@@ -14,7 +14,7 @@ package org.talend.mdm.webapp.stagingarea.client;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
-import org.talend.mdm.webapp.stagingarea.client.model.ContextModel;
+import org.talend.mdm.webapp.stagingarea.client.model.StagingAreaConfiguration;
 import org.talend.mdm.webapp.stagingarea.client.view.StagingContainerSummaryView;
 import org.talend.mdm.webapp.stagingarea.client.view.StagingareaMainView;
 
@@ -38,10 +38,10 @@ public class Stagingarea implements EntryPoint {
 
     public static StagingAreaServiceAsync service;
 
-    private static ContextModel contextModel;
+    private static StagingAreaConfiguration stagingAreaConfig;
 
-    public static ContextModel getContextModel() {
-        return contextModel;
+    public static StagingAreaConfiguration getStagingAreaConfig() {
+        return stagingAreaConfig;
     }
 
     public void onModuleLoad() {
@@ -51,10 +51,10 @@ public class Stagingarea implements EntryPoint {
             registerPubService();
             Log.setUncaughtExceptionHandler();
         } else {
-            service.getContextModel(new SessionAwareAsyncCallback<ContextModel>() {
+            service.getStagingAreaConfig(new SessionAwareAsyncCallback<StagingAreaConfiguration>() {
 
-                public void onSuccess(ContextModel contextModel) {
-                    Stagingarea.contextModel = contextModel;
+                public void onSuccess(StagingAreaConfiguration stagingAreaConfig) {
+                    Stagingarea.stagingAreaConfig = stagingAreaConfig;
                     UserContextUtil.setDataContainer("TestDataContainer"); //$NON-NLS-1$
                     UserContextUtil.setDataModel("TestDataModel"); //$NON-NLS-1$
                     GenerateContainer.generateContentPanel();
@@ -129,10 +129,10 @@ public class Stagingarea implements EntryPoint {
     }-*/;
 
     public void renderContent(final String contentId) {
-        service.getContextModel(new SessionAwareAsyncCallback<ContextModel>() {
+        service.getStagingAreaConfig(new SessionAwareAsyncCallback<StagingAreaConfiguration>() {
 
-            public void onSuccess(ContextModel contextModel) {
-                Stagingarea.contextModel = contextModel;
+            public void onSuccess(StagingAreaConfiguration stagingAreaConfig) {
+                Stagingarea.stagingAreaConfig = stagingAreaConfig;
                 onModuleRender();
                 RootPanel panel = RootPanel.get(contentId);
                 GenerateContainer.getContentPanel().setSize(panel.getOffsetWidth(), panel.getOffsetHeight());

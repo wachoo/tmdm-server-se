@@ -12,7 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingarea.client;
 
-import org.talend.mdm.webapp.stagingarea.client.model.ContextModel;
+import org.talend.mdm.webapp.stagingarea.client.model.StagingAreaConfiguration;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
@@ -24,5 +24,5 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("StagingAreaService")
 public interface StagingAreaService extends RemoteService {
 
-    public ContextModel getContextModel();
+    public StagingAreaConfiguration getStagingAreaConfig();
 }

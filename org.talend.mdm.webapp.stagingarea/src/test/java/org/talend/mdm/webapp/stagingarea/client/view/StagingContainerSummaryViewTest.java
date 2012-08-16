@@ -15,10 +15,9 @@ package org.talend.mdm.webapp.stagingarea.client.view;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingarea.client.TestUtil;
 import org.talend.mdm.webapp.stagingarea.client.controller.ControllerContainer;
-import org.talend.mdm.webapp.stagingarea.client.model.ContextModel;
+import org.talend.mdm.webapp.stagingarea.client.model.StagingAreaConfiguration;
 import org.talend.mdm.webapp.stagingarea.client.model.StagingContainerModel;
 
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.HTMLPanel;
@@ -35,8 +34,8 @@ public class StagingContainerSummaryViewTest extends GWTTestCase {
         TestUtil.initUserContext("TestDataContainer", "TestDataModel");
     }
 
-    public native void setContextModel(ContextModel cm)/*-{
-        @org.talend.mdm.webapp.stagingarea.client.Stagingarea::contextModel = cm;
+    public native void setContextModel(StagingAreaConfiguration cm)/*-{
+        @org.talend.mdm.webapp.stagingarea.client.Stagingarea::stagingAreaConfig = cm;
     }-*/;
 
     public void testHtmlContentAfterRefreshSummary() {
@@ -71,21 +70,6 @@ public class StagingContainerSummaryViewTest extends GWTTestCase {
 
         Element validEl = detailPanel.getElementById(StagingContainerSummaryView.STAGING_AREA_VALID);
         assertTrue(validEl.getInnerHTML().contains("<b>8000</b>"));
-    }
-
-    public void testStartValidationStatus() {
-        TestUtil.initContainer();
-        StagingContainerSummaryView summaryView = (StagingContainerSummaryView) ControllerContainer.get().getSummaryController().getBindingView();
-
-        Button chart = new Button("chart");
-        StagingContainerSummaryView.setChart(chart);
-
-        assertEquals(false, summaryView.getStartValidateButton().isEnabled());
-        RootPanel.get().add(summaryView);
-        assertEquals(true, summaryView.getStartValidateButton().isEnabled());
-
-        ControllerContainer.get().getSummaryController().startValidation();
-        assertEquals(false, summaryView.getStartValidateButton().isEnabled());
     }
 
     private native HTMLPanel getDetailPanel(StagingContainerSummaryView view)/*-{

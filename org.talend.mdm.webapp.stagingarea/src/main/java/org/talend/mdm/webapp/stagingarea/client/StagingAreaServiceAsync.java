@@ -12,7 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingarea.client;
 
-import org.talend.mdm.webapp.stagingarea.client.model.ContextModel;
+import org.talend.mdm.webapp.stagingarea.client.model.StagingAreaConfiguration;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -21,6 +21,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  */
 public interface StagingAreaServiceAsync {
 
-    void getContextModel(AsyncCallback<ContextModel> callback);
+    void getStagingAreaConfig(AsyncCallback<StagingAreaConfiguration> callback);
 
 }

@@ -22,6 +22,10 @@ public interface StagingareaMessages extends Messages {
     String current_validation();
     String previous_validation();
 
+    String data_container();
+
+    String data_model();
+
     String valid();
     String invalid();
     String waiting();

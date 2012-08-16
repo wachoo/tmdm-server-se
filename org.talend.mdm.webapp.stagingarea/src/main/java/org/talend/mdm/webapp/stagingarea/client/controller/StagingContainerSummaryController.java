@@ -13,6 +13,8 @@
 package org.talend.mdm.webapp.stagingarea.client.controller;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.model.UserContextModel;
+import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingarea.client.model.StagingContainerModel;
 import org.talend.mdm.webapp.stagingarea.client.rest.RestServiceHandler;
 import org.talend.mdm.webapp.stagingarea.client.view.StagingContainerSummaryView;
@@ -28,22 +30,24 @@ public class StagingContainerSummaryController extends AbstractController {
     }
 
     public void refreshView() {
-        RestServiceHandler.get().getStagingContainerSummary(view.getContainer(), view.getDataModel(),
+        final UserContextModel ucx = UserContextUtil.getUserContext();
+        RestServiceHandler.get().getStagingContainerSummary(ucx.getDataContainer(), ucx.getDataModel(),
                 new SessionAwareAsyncCallback<StagingContainerModel>() {
 
             public void onSuccess(StagingContainerModel result) {
                 view.refresh(result);
-                ControllerContainer.get().getCurrentValidationController().refreshView(view.getContainer());
-                ControllerContainer.get().getPreviousExecutionController().setDataContainer(view.getContainer());
+                ControllerContainer.get().getCurrentValidationController().refreshView(ucx.getDataContainer());
+                ControllerContainer.get().getPreviousExecutionController().setDataContainer(ucx.getDataContainer());
             }
         });
     }
 
     public void startValidation() {
-        RestServiceHandler.get().runValidationTask(view.getContainer(), view.getDataModel(), null,
+        final UserContextModel ucx = UserContextUtil.getUserContext();
+        RestServiceHandler.get().runValidationTask(ucx.getDataContainer(), ucx.getDataModel(), null,
                 new SessionAwareAsyncCallback<String>() {
             public void onSuccess(String result) {
-                        ControllerContainer.get().getCurrentValidationController().refreshView(view.getContainer());
+                ControllerContainer.get().getCurrentValidationController().refreshView(ucx.getDataContainer());
             }
         });
     }
