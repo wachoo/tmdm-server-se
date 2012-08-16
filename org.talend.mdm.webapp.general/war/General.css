@@ -156,3 +156,30 @@ div .sub-body{
 .ext-safari .extpj .x-form-field-wrap .x-form-trigger {
     height: 21px;
 }
+
+
+.x-menu-list .x-menu-list-item .x-menu-item {
+	cursor: pointer;
+	font-family: tahoma,arial,sans-serif;
+	font-size: 11px;
+    font-weight: 700;
+    font-style: normal;
+    color: #2D5593 !important;
+}
+
+.ext-ie9 .x-menu-item-icon{
+    left: 0px! important;
+}
+
+.x-layer .x-menu-check-item .x-menu-item-icon{
+    background-image: url("/core/secure/ext-2.2/resources/images/default/menu/unchecked.gif");
+    background-attachment: scroll;
+    background-repeat: no-repeat;
+    background-position-x: center;
+    background-position-y: 50%;
+    background-color: transparent;
+}
+
+.x-layer .x-menu-item-checked .x-menu-item-icon{
+    background-image: url("/core/secure/ext-2.2/resources/images/default/menu/checked.gif");
+}
