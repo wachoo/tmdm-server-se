@@ -1,15 +1,26 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.save.context;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
@@ -48,7 +59,8 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     private String lastMatchPath;
 
-    public UpdateActionCreator(MutableDocument originalDocument, MutableDocument newDocument, boolean preserveCollectionOldValues, String source, String userName, MetadataRepository repository) {
+    public UpdateActionCreator(MutableDocument originalDocument, MutableDocument newDocument,
+            boolean preserveCollectionOldValues, String source, String userName, MetadataRepository repository) {
         this.preserveCollectionOldValues = preserveCollectionOldValues;
         this.originalDocument = originalDocument;
         this.newDocument = newDocument;
@@ -98,6 +110,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
      * Interface to encapsulate action to execute on fields
      */
     interface Closure {
+
         void execute(FieldMetadata field);
     }
 
@@ -175,8 +188,10 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 // No op
             } else { // new accessor exist
                 generateNoOp(lastMatchPath);
-                if (newAccessor.get() != null && !newAccessor.get().isEmpty()) { // Empty accessor means no op to ensure legacy behavior
-                    actions.add(new FieldUpdateAction(date, source, userName, path, StringUtils.EMPTY, newAccessor.get(), comparedField));
+                if (newAccessor.get() != null && !newAccessor.get().isEmpty()) { // Empty accessor means no op to ensure
+                                                                                 // legacy behavior
+                    actions.add(new FieldUpdateAction(date, source, userName, path, StringUtils.EMPTY, newAccessor.get(),
+                            comparedField));
                     generateNoOp(path);
                 } else {
                     // No op.
@@ -188,7 +203,8 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
             if (!newAccessor.exist()) {
                 if (comparedField.isMany() && !preserveCollectionOldValues) {
                     // Null values may happen if accessor is targeting an element that contains other elements
-                    actions.add(new FieldUpdateAction(date, source, userName, path, oldValue == null ? StringUtils.EMPTY : oldValue, null, comparedField));
+                    actions.add(new FieldUpdateAction(date, source, userName, path, oldValue == null ? StringUtils.EMPTY
+                            : oldValue, null, comparedField));
                 }
             } else { // new accessor exist
                 if (comparedField.isMany() && preserveCollectionOldValues) {
@@ -199,7 +215,8 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                     String previousPathElement = this.path.pop();
                     int newIndex = originalFieldToLastIndex.get(comparedField);
                     this.path.push(comparedField.getName() + "[" + (newIndex + 1) + "]");
-                    actions.add(new FieldUpdateAction(date, source, userName, getLeftPath(), StringUtils.EMPTY, newAccessor.get(), comparedField));
+                    actions.add(new FieldUpdateAction(date, source, userName, getLeftPath(), StringUtils.EMPTY,
+                            newAccessor.get(), comparedField));
                     this.path.pop();
                     this.path.push(previousPathElement);
                     originalFieldToLastIndex.put(comparedField, newIndex + 1);
@@ -219,6 +236,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
     }
 
     private class ContainedTypeClosure implements Closure {
+
         private final ContainedTypeFieldMetadata containedField;
 
         public ContainedTypeClosure(ContainedTypeFieldMetadata containedField) {
@@ -240,15 +258,17 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 }
 
                 if (!newType.isEmpty()) {
-                    ComplexTypeMetadata newTypeMetadata = repository.getComplexType(newType);
-                    ComplexTypeMetadata previousTypeMetadata = repository.getComplexType(previousType);
+                    ComplexTypeMetadata newTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(newType);
+                    ComplexTypeMetadata previousTypeMetadata = (ComplexTypeMetadata) repository
+                            .getNonInstantiableType(previousType);
                     // Perform some checks about the xsi:type value (valid or not?).
                     if (newTypeMetadata == null) {
                         throw new IllegalArgumentException("Type '" + newType + "' was not found.");
                     }
                     // Check if type of element isn't a subclass of declared type (use of xsi:type).
                     if (!newTypeMetadata.isAssignableFrom(field.getType())) {
-                        throw new IllegalArgumentException("Type '" + field.getType().getName() + "' is not assignable from type '" + newTypeMetadata.getName() + "'");
+                        throw new IllegalArgumentException("Type '" + field.getType().getName()
+                                + "' is not assignable from type '" + newTypeMetadata.getName() + "'");
                     }
 
                     actions.add(new ChangeTypeAction(date, source, userName, getLeftPath(), previousTypeMetadata, newTypeMetadata));
@@ -262,6 +282,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
     }
 
     private class CompareClosure implements Closure {
+
         public void execute(FieldMetadata field) {
             compare(field);
         }
