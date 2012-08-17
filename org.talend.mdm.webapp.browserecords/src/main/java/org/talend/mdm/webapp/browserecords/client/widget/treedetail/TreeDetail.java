@@ -44,6 +44,8 @@ import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatNumber
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.PictureField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.UrlField;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator.NumberFieldValidator;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator.TextFieldValidator;
 import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
@@ -885,25 +887,64 @@ public class TreeDetail extends ContentPanel {
             if(!isRoot(itemNodeModel)) {
                 ItemNodeModel parent = (ItemNodeModel)itemNodeModel.getParent();
                 if(parent.isMandatory() || isRoot(parent)) {
-                    if (itemNodeModel.isMandatory()) {
-                        if (item.getWidget() instanceof HorizontalPanel) {
-                            HorizontalPanel hp = (HorizontalPanel) item.getWidget();
-                            if (hp.getWidgetCount() > 1) {
-                                Widget field = hp.getWidget(1);
-
+                    if (item.getWidget() instanceof HorizontalPanel) {
+                        HorizontalPanel hp = (HorizontalPanel) item.getWidget();
+                        if (hp.getWidgetCount() > 1) {
+                            Widget field = hp.getWidget(1);
+                            if (itemNodeModel.isMandatory()) {
                                 if (field instanceof PictureField) {
                                     if(((PictureField) field).getImageURL().equals(PictureField.DefaultImage)){
                                         ((Field<?>) field).markInvalid(null);
                                     }
                                         
-                                } else if (field instanceof FormatTextField
-                                        || field instanceof FormatNumberField
-                                        || field instanceof SimpleComboBox
+                                } else if (field instanceof SimpleComboBox
                                         || field instanceof CheckBox
                                         || field instanceof UrlField) {
                                     if (((Field<?>) field).getValue() == null
                                             || ((Field<?>) field).getValue().equals("")) { //$NON-NLS-1$
                                         ((Field<?>) field).markInvalid(null);
+                                    }
+                                } else if (field instanceof FormatTextField){
+                                    FormatTextField ftf = (FormatTextField) field;
+                                    String value = ftf.isEnabled() ? ftf.getOjbectValue() : ftf.getValue();
+                                    if (value == null || value.equals("")) { //$NON-NLS-1$
+                                        ftf.markInvalid(ftf.getMessages().getBlankText());
+                                    } else {
+                                        if(ftf.getValidator() instanceof TextFieldValidator) {
+                                            ((TextFieldValidator) ftf.getValidator()).setValidateFlag(true);
+                                            ftf.validateValue(value);
+                                        }
+                                    }
+                                } else if (field instanceof FormatNumberField) {
+                                    FormatNumberField fnf = (FormatNumberField) field;
+                                    Number value = fnf.isEnabled() ? fnf.getOjbectValue() : fnf.getValue();
+                                    if (value == null) {
+                                        fnf.markInvalid(fnf.getMessages().getBlankText());
+                                    } else {
+                                        if(fnf.getValidator() instanceof NumberFieldValidator) {
+                                            ((NumberFieldValidator) fnf.getValidator()).setValidateFlag(true);
+                                            fnf.validateValue(value.toString());
+                                        }
+                                    }
+                                }
+                            } else {
+                                if (field instanceof FormatTextField){
+                                    FormatTextField ftf = (FormatTextField) field;
+                                    String value = ftf.isEnabled() ? ftf.getOjbectValue() : ftf.getValue();
+                                    if(ftf.getValidator() instanceof TextFieldValidator) {
+                                        if(value != null) {
+                                            ((TextFieldValidator) ftf.getValidator()).setValidateFlag(true);
+                                            ftf.validateValue(value);
+                                        }                                        
+                                    }
+                                } else if (field instanceof FormatNumberField) {
+                                    FormatNumberField fnf = (FormatNumberField) field;
+                                    Number value = fnf.isEnabled() ? fnf.getOjbectValue() : fnf.getValue();
+                                    if(fnf.getValidator() instanceof NumberFieldValidator) {
+                                        if(value != null) {
+                                            ((NumberFieldValidator) fnf.getValidator()).setValidateFlag(true);
+                                            fnf.validateValue(value.toString());
+                                        }                                       
                                     }
                                 }
                             }
