@@ -258,9 +258,8 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 }
 
                 if (!newType.isEmpty()) {
-                    ComplexTypeMetadata newTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(newType);
-                    ComplexTypeMetadata previousTypeMetadata = (ComplexTypeMetadata) repository
-                            .getNonInstantiableType(previousType);
+                    ComplexTypeMetadata newTypeMetadata = repository.getComplexType(newType);
+                    ComplexTypeMetadata previousTypeMetadata = repository.getComplexType(previousType);
                     // Perform some checks about the xsi:type value (valid or not?).
                     if (newTypeMetadata == null) {
                         throw new IllegalArgumentException("Type '" + newType + "' was not found.");
