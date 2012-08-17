@@ -273,6 +273,8 @@ public class TreeDetailGridFieldCreator {
         field.addListener(Events.Blur, new Listener<FieldEvent>() {
 
             public void handleEvent(FieldEvent fe) {
+                if(!BrowseRecords.getSession().getAppHeader().isAutoValidate())
+                    return;
                 // TMDM-3353 only when node is valid, call setObjectValue(); otherwise objectValue is changed to
                 // original value
                 if (node.isValid())
