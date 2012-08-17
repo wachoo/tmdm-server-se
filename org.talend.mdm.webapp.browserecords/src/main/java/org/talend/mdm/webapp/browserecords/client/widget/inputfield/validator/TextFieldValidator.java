@@ -1,6 +1,5 @@
 package org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator;
 
-import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.shared.FacetEnum;
 
@@ -14,8 +13,6 @@ public class TextFieldValidator implements Validator {
     
     private static String AUTO_INCREMENT = "(Auto)"; //$NON-NLS-1$
     
-    private boolean validateFlag = true;
-    
     public static TextFieldValidator getInstance(){
         if (instance == null){
             instance = new TextFieldValidator();
@@ -24,12 +21,9 @@ public class TextFieldValidator implements Validator {
     }
     
     private TextFieldValidator(){
-        validateFlag = BrowseRecords.getSession().getAppHeader().isAutoValidate();
     }
     
     public String validate(Field<?> field, String value) {
-        if(!validateFlag)
-            return null;
         String defaultMessage = "";//$NON-NLS-1$
         boolean succeed = true;
         String length = field.getData(FacetEnum.LENGTH.getFacetName());
@@ -65,9 +59,6 @@ public class TextFieldValidator implements Validator {
             }
         }
 
-        if(!BrowseRecords.getSession().getAppHeader().isAutoValidate())
-            validateFlag = false;
-
         if (!succeed){
             String error = field.getData("facetErrorMsgs");//$NON-NLS-1$
             if (error == null || error.equals("")){//$NON-NLS-1$
@@ -76,14 +67,5 @@ public class TextFieldValidator implements Validator {
             return error;
         }
         return null;
-    }
-
-    
-    public boolean isValidateFlag() {
-        return validateFlag;
-    }
- 
-    public void setValidateFlag(boolean validateFlag) {
-        this.validateFlag = validateFlag;
     }
 }
