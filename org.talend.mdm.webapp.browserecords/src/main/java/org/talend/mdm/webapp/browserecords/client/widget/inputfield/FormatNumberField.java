@@ -22,6 +22,13 @@ public class FormatNumberField extends NumberField {
 
     private String diplayValue;
 
+    private boolean validateFlag = true;
+    
+    public FormatNumberField() {
+        super();
+        validateFlag = BrowseRecords.getSession().getAppHeader().isAutoValidate();
+    }    
+    
     public String getFormatPattern() {
         return formatPattern;
     }
@@ -51,6 +58,8 @@ public class FormatNumberField extends NumberField {
         if (value.equals(this.getDiplayValue())) {
             return true;
         } else {
+            if(!validateFlag)
+                return true;
             // validator should run after super rules
             Validator tv = validator;
             validator = null;
@@ -131,6 +140,10 @@ public class FormatNumberField extends NumberField {
 
             return true;
         }
+    }
+
+    public void setValidateFlag(boolean validateFlag) {
+        this.validateFlag = validateFlag;
     }
 
 }
