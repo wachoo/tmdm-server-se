@@ -1,0 +1,28 @@
+<ii>
+    <c>Product</c>
+    <n>ThirdEntity</n>
+    <dmn>Test</dmn>
+    <i>321</i>
+    <t>1342521961921</t>
+    <taskId/>
+    <p>
+		<Societe xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			<CodeOSMOSE>12345</CodeOSMOSE>
+			<Nom>Talend SA</Nom>
+			<NomUsuel>Talend</NomUsuel>
+			<FormeJuridique>Societe anonyme</FormeJuridique>
+			<AppartenanceGroupe>false</AppartenanceGroupe>
+			<Consolidee>1</Consolidee>
+			<Archivee>1</Archivee>
+			<Contacts>
+				<Contact>
+					<StatutContactFk>[2]</StatutContactFk>
+					<SpecialisationContactType xsi:type="SpecialisationContactTelephone">
+						<NatureTelephoneFk>[1]</NatureTelephoneFk>
+						<Numero>+33 1 47 16 31 47</Numero>
+					</SpecialisationContactType>
+				</Contact>
+			</Contacts>
+		</Societe>
+	</p>
+</ii>

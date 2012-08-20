@@ -242,7 +242,20 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                             comparedField));
                     generateNoOp(leftPath);
                 } else {
-                    // No op.
+                    // Append at the end of the collection(see DocumentSaveTest.test36)
+                    if (comparedField.isMany() && preserveCollectionOldValues) {
+                        Accessor leftAccessor = originalDocument.createAccessor(leftPath.substring(0, leftPath.lastIndexOf("[")));
+                        // Append at the end of the collection
+                        if (!originalFieldToLastIndex.containsKey(comparedField)) {
+                            originalFieldToLastIndex.put(comparedField, leftAccessor.size());
+                        }
+                        this.leftPath.pop();
+                        int newIndex = originalFieldToLastIndex.get(comparedField);
+                        this.leftPath.push(comparedField.getName() + "[" + (newIndex + 1) + "]");
+                        actions.add(new FieldUpdateAction(date, source, userName, getLeftPath(), StringUtils.EMPTY, newAccessor
+                                .get(), comparedField));
+                        originalFieldToLastIndex.put(comparedField, newIndex + 1);
+                    }
                 }
             }
         } else { // original accessor exist
@@ -256,6 +269,7 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                 }
             } else { // new accessor exist
                 if (comparedField.isMany() && preserveCollectionOldValues) {
+
                     // Append at the end of the collection
                     if (!originalFieldToLastIndex.containsKey(comparedField)) {
                         originalFieldToLastIndex.put(comparedField, originalAccessor.size());
