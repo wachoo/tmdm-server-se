@@ -1,25 +1,15 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- * 
+ *
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- * 
- * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
- * 92150 Suresnes, France
+ *
+ * You should have received a copy of the agreement
+ * along with this program; if not, write to Talend SA
+ * 9 rue Pages 92150 Suresnes, France
  */
 
 package com.amalto.core.save.context;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-import java.util.StringTokenizer;
-
-import org.apache.commons.lang.StringUtils;
 
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
@@ -28,6 +18,9 @@ import com.amalto.core.history.action.FieldUpdateAction;
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.*;
 
 class PartialUpdateActionCreator extends UpdateActionCreator {
 
@@ -37,19 +30,26 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
 
     private final Map<FieldMetadata, Integer> originalFieldToLastIndex = new HashMap<FieldMetadata, Integer>();
 
-    private String lastMatchPath;
-
-    private Map<String, String> keyValueToPath = new HashMap<String, String>();
-
-    private Set<String> toUpdatekeys = new HashSet<String>();
-
     private final Stack<String> leftPath = new Stack<String>();
 
     private final Stack<String> rightPath = new Stack<String>();
 
-    public PartialUpdateActionCreator(MutableDocument originalDocument, MutableDocument newDocument,
-            boolean preserveCollectionOldValues, String pivot, String key, String source, String userName,
-            MetadataRepository repository) {
+    private final Map<String, String> keyValueToPath = new HashMap<String, String>();
+
+    private final Closure closure;
+
+    private String lastMatchPath;
+
+    private boolean inPivot;
+
+    public PartialUpdateActionCreator(MutableDocument originalDocument,
+                                      MutableDocument newDocument,
+                                      boolean preserveCollectionOldValues,
+                                      String pivot,
+                                      String key,
+                                      String source,
+                                      String userName,
+                                      MetadataRepository repository) {
         super(originalDocument, newDocument, preserveCollectionOldValues, source, userName, repository);
         // Pivot MUST NOT end with '/' and key MUST start with '/' (see TMDM-4381).
         if (pivot.charAt(pivot.length() - 1) == '/') {
@@ -62,33 +62,34 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
         } else {
             this.key = key;
         }
+        closure = new Closure() {
+            public void execute(FieldMetadata field) {
+                if (inPivot) {
+                    compare(field);
+                }
+            }
+        };
     }
 
     @Override
     public List<Action> visit(ComplexTypeMetadata complexType) {
         Accessor accessor = newDocument.createAccessor(pivot);
-        for (int i = 1; i <= accessor.size(); i++) {
-            String path = pivot + '[' + i + ']';
-            Accessor keyAccessor = newDocument.createAccessor(path + '/' + key);
-            if (!keyAccessor.exist()) {
-                throw new IllegalStateException("Path '" + path + '/' + key + "' does not exist in user document.");
+        if (!key.isEmpty()) {
+            for (int i = 1; i <= accessor.size(); i++) {
+                String path = pivot + '[' + i + ']';
+                Accessor keyAccessor = newDocument.createAccessor(path + '/' + key);
+                if (!keyAccessor.exist()) {
+                    throw new IllegalStateException("Path '" + path + '/' + key + "' does not exist in user document.");
+                }
+                keyValueToPath.put(keyAccessor.get(), path);
             }
-            keyValueToPath.put(keyAccessor.get(), path);
         }
         return super.visit(complexType);
     }
 
     @Override
     protected Closure getClosure() {
-        return new Closure() {
-
-            public void execute(FieldMetadata field) {
-                String currentPath = getLeftPath();
-                if (currentPath.startsWith(pivot)) {
-                    compare(field);
-                }
-            }
-        };
+        return closure;
     }
 
     String getLeftPath() {
@@ -115,11 +116,9 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
         }
     }
 
-    boolean inPivot;
-
     protected void handleField(FieldMetadata field, Closure closure) {
         leftPath.add(field.getName());
-        if (pivot.equals(getLeftPath())) {
+        if (!inPivot && pivot.equals(getLeftPath())) {
             inPivot = true;
         }
         rightPath.add(field.getName());
@@ -137,69 +136,24 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                 leftPath.pop();
                 rightPath.pop();
             }
-            // Proceed in "reverse" order (highest index to lowest) so there won't be issues when deleting elements in
-            // a sequence (if element #2 is deleted before element #3, element #3 becomes #2...).
             int max = Math.max(leftAccessor.size(), rightAccessor.size());
-            for (int i = max; i > 0; i--) {
-                // XPath indexes are 1-based (not 0-based).
-                leftPath.add(field.getName() + '[' + i + ']');
-                if (inPivot) {
-
-                    Accessor originalKeyAccessor = originalDocument.createAccessor(getLeftPath() + '/' + key);
-                    String newDocumentPath = keyValueToPath.get(originalKeyAccessor.get());
-                    if (newDocumentPath == null) {
-                        if (!preserveCollectionOldValues) {
-                            leftPath.pop();
-                            continue;
-                        } else {
-                            // if (i <= keyValueToPath.size())
-                            rightPath.push(field.getName() + '[' + i + ']');
-                        }
-                    } else {
-                        if (!preserveCollectionOldValues) {
-                            StringTokenizer pathIterator = new StringTokenizer(newDocumentPath, "/");
-                            rightPath.clear();
-                            while (pathIterator.hasMoreTokens()) {
-                                rightPath.add(pathIterator.nextToken());
-                            }
-                            toUpdatekeys.add(originalKeyAccessor.get());
-                        } else {
-                            // if (i <= keyValueToPath.size())
-                            rightPath.push(field.getName() + '[' + i + ']');
-                        }
-
-                    }
-                } else {
-                    rightPath.add(field.getName() + '[' + i + ']');
+            if (preserveCollectionOldValues) {
+                for (int i = 1; i <= max; i++) {
+                    // XPath indexes are 1-based (not 0-based).
+                    leftPath.add(field.getName() + '[' + (leftAccessor.size() + i) + ']');
+                    doCompare(field, closure, i);
+                    leftPath.pop();
                 }
-                {
-                    closure.execute(field);
-                }
-                rightPath.pop();
-                leftPath.pop();
-            }// end for
-
-            if (inPivot && !preserveCollectionOldValues) {
-                int pos = leftAccessor.size();
-                for (Iterator<String> iterator = keyValueToPath.keySet().iterator(); iterator.hasNext();) {
-                    String toAppendKey = (String) iterator.next();
-                    if (!toUpdatekeys.contains(toAppendKey)) {
-                        pos++;
-                        leftPath.add(field.getName() + '[' + pos + ']');
-                        StringTokenizer pathIterator = new StringTokenizer(keyValueToPath.get(toAppendKey), "/");
-                        rightPath.clear();
-                        while (pathIterator.hasMoreTokens()) {
-                            rightPath.add(pathIterator.nextToken());
-                        }
-                        {
-                            closure.execute(field);
-                        }
-                        rightPath.pop();
-                        leftPath.pop();
-                    }
+            } else {  // Not preserving old values in this case
+                // Proceed in "reverse" order (highest index to lowest) so there won't be issues when deleting elements in
+                // a sequence (if element #2 is deleted before element #3, element #3 becomes #2...).
+                for (int i = max; i > 0; i--) {
+                    // XPath indexes are 1-based (not 0-based).
+                    leftPath.add(field.getName() + '[' + i + ']');
+                    doCompare(field, closure, i);
+                    leftPath.pop();
                 }
             }
-
             leftPath.add(field.getName() + '[' + max + ']');
             rightPath.add(field.getName() + '[' + max + ']');
             {
@@ -208,12 +162,41 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
             rightPath.pop();
             leftPath.pop();
         } else {
-
             closure.execute(field);
             leftPath.pop();
             rightPath.pop();
         }
+    }
 
+    private void doCompare(FieldMetadata field, Closure closure, int i) {
+        if (inPivot) {
+            Accessor originalKeyAccessor = originalDocument.createAccessor(getLeftPath() + '/' + key);
+            String newDocumentPath;
+            if (originalKeyAccessor.exist()) {
+                newDocumentPath = keyValueToPath.get(originalKeyAccessor.get());
+            } else {
+                newDocumentPath = null;
+            }
+            if (newDocumentPath == null) {
+                if (preserveCollectionOldValues) {
+                    rightPath.push(field.getName() + '[' + i + ']');
+                } else {
+                    return;
+                }
+            } else {
+                StringTokenizer pathIterator = new StringTokenizer(newDocumentPath, "/");
+                rightPath.clear();
+                while (pathIterator.hasMoreTokens()) {
+                    rightPath.add(pathIterator.nextToken());
+                }
+            }
+        } else {
+            rightPath.add(field.getName() + '[' + i + ']');
+        }
+        {
+            closure.execute(field);
+        }
+        rightPath.pop();
     }
 
     protected void compare(FieldMetadata comparedField) {
@@ -223,10 +206,12 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
             lastMatchPath = getLeftPath();
             return;
         }
-
-        if (rightPath.isEmpty() || leftPath.isEmpty())
-            return;
-
+        if (rightPath.isEmpty()) {
+            throw new IllegalStateException("Path in new document can not be empty.");
+        }
+        if (leftPath.isEmpty()) {
+            throw new IllegalStateException("Path in database document can not be empty.");
+        }
         String leftPath = getLeftPath();
         String rightPath = getRightPath();
         Accessor originalAccessor = originalDocument.createAccessor(leftPath);
@@ -236,27 +221,8 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                 // No op
             } else { // new accessor exist
                 generateNoOp(lastMatchPath);
-                if (newAccessor.get() != null && !newAccessor.get().isEmpty()) { // Empty accessor means no op to ensure
-                                                                                 // legacy behavior
-                    actions.add(new FieldUpdateAction(date, source, userName, leftPath, StringUtils.EMPTY, newAccessor.get(),
-                            comparedField));
-                    generateNoOp(leftPath);
-                } else {
-                    // Append at the end of the collection(see DocumentSaveTest.test36)
-                    if (comparedField.isMany() && preserveCollectionOldValues) {
-                        Accessor leftAccessor = originalDocument.createAccessor(leftPath.substring(0, leftPath.lastIndexOf("[")));
-                        // Append at the end of the collection
-                        if (!originalFieldToLastIndex.containsKey(comparedField)) {
-                            originalFieldToLastIndex.put(comparedField, leftAccessor.size());
-                        }
-                        this.leftPath.pop();
-                        int newIndex = originalFieldToLastIndex.get(comparedField);
-                        this.leftPath.push(comparedField.getName() + "[" + (newIndex + 1) + "]");
-                        actions.add(new FieldUpdateAction(date, source, userName, getLeftPath(), StringUtils.EMPTY, newAccessor
-                                .get(), comparedField));
-                        originalFieldToLastIndex.put(comparedField, newIndex + 1);
-                    }
-                }
+                actions.add(new FieldUpdateAction(date, source, userName, leftPath, StringUtils.EMPTY, newAccessor.get(), comparedField));
+                generateNoOp(leftPath);
             }
         } else { // original accessor exist
             String oldValue = originalAccessor.get();
@@ -269,7 +235,6 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                 }
             } else { // new accessor exist
                 if (comparedField.isMany() && preserveCollectionOldValues) {
-
                     // Append at the end of the collection
                     if (!originalFieldToLastIndex.containsKey(comparedField)) {
                         originalFieldToLastIndex.put(comparedField, originalAccessor.size());
