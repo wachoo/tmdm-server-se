@@ -66,6 +66,9 @@ public class StorageErrorDump implements Storage {
     }
 
     public StorageResults fetch(Expression userQuery) {
+        if (LOGGER.isDebugEnabled()) {
+            userQuery.accept(new UserQueryDumpConsole(LOGGER));
+        }
         try {
             return delegate.fetch(userQuery);
         } catch (Exception e) {
@@ -88,6 +91,9 @@ public class StorageErrorDump implements Storage {
     }
 
     public void delete(Expression userQuery) {
+        if (LOGGER.isDebugEnabled()) {
+            userQuery.accept(new UserQueryDumpConsole(LOGGER));
+        }
         try {
             delegate.delete(userQuery);
         } catch (Exception e) {
