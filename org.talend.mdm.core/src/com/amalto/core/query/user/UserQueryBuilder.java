@@ -101,17 +101,26 @@ public class UserQueryBuilder {
 
     public static Condition eq(TypedExpression expression, String constant) {
         assertValueConditionArguments(expression, constant);
-        return new Compare(expression, Predicate.EQUALS, createConstant(expression, constant));
+        if (expression instanceof Field) {
+            return eq(((Field) expression), constant);
+        } else {
+            return new Compare(expression, Predicate.EQUALS, createConstant(expression, constant));
+        }
     }
 
     public static Condition eq(FieldMetadata field, String constant) {
         assertValueConditionArguments(field, constant);
         Field userField = new Field(field);
-        if (field instanceof ReferenceFieldMetadata) {
-            ReferenceFieldMetadata referenceFieldMetadata = (ReferenceFieldMetadata) field;
-            return new Compare(userField, Predicate.EQUALS, new Id(referenceFieldMetadata.getReferencedType(), constant));
+        return eq(userField, constant);
+    }
+
+    public static Condition eq(Field field, String constant) {
+        assertValueConditionArguments(field, constant);
+        if (field.getFieldMetadata() instanceof ReferenceFieldMetadata) {
+            ReferenceFieldMetadata fieldMetadata = (ReferenceFieldMetadata) field.getFieldMetadata();
+            return new Compare(field, Predicate.EQUALS, new Id(fieldMetadata.getReferencedType(), constant));
         } else {
-            return new Compare(userField, Predicate.EQUALS, createConstant(userField, constant));
+            return new Compare(field, Predicate.EQUALS, createConstant(field, constant));
         }
     }
 

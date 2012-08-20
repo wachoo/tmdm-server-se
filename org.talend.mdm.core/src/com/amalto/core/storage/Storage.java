@@ -26,10 +26,9 @@ import com.amalto.core.storage.record.DataRecord;
 public interface Storage {
 
     /**
-     * TODO This is temporary value! This value is used to limit current state of implementation: there's no current
-     * support for multiple Storage instances in MDM (but unit tests test this behavior).
+     * Default datasource name to be used (from datasources configuration content).
      */
-    String DEFAULT_DATA_SOURCE_NAME = MDMConfiguration.getConfiguration().getProperty("db.default.datasource"); //$NON-NLS-1$
+    String DEFAULT_DATA_SOURCE_NAME = MDMConfiguration.getConfiguration().getProperty("db.default.datasource", "RDBMS-1"); //$NON-NLS-1$
 
     String METADATA_TIMESTAMP = "x_talend_timestamp"; //$NON-NLS-1$
 

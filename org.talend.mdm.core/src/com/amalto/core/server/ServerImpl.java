@@ -107,27 +107,8 @@ class ServerImpl implements Server {
             for (DataClusterPOJOPK container : allContainers) {
                 if (!xDataClustersMap.containsKey(container.getUniqueId())) {
                     try {
+                        serverStorageAdmin.create(container.getUniqueId(), container.getUniqueId(), Storage.DEFAULT_DATA_SOURCE_NAME);
                         LOGGER.info("Created SQL storage for container '" + container.getUniqueId() + "'.");
-                        Storage user = serverStorageAdmin.create(container.getUniqueId(), container.getUniqueId(), Storage.DEFAULT_DATA_SOURCE_NAME);
-                        Storage staging = serverStorageAdmin.get(container.getUniqueId() + StorageAdminImpl.STAGING_SUFFIX);
-                        MetadataRepository stagingRepository = metadataRepositoryAdmin.get(container.getUniqueId() + StorageAdminImpl.STAGING_SUFFIX);
-                        MetadataRepository userRepository = metadataRepositoryAdmin.get(container.getUniqueId());
-                        ComplexTypeMetadata definedTaskType = stagingRepository.getComplexType("TALEND_TASK_DEFINITION"); //$NON-NLS-1$
-                        UserQueryBuilder qb = from(definedTaskType).where(eq(definedTaskType.getField("completed"), "false")); //$NON-NLS-1$ //$NON-NLS-2$
-                        for (DataRecord definedTask : staging.fetch(qb.getSelect())) {
-                            String encodedTrigger = (String) definedTask.get("trigger"); //$NON-NLS-1$
-                            if (encodedTrigger != null && !encodedTrigger.trim().isEmpty()) {
-                                ByteArrayInputStream inputStream = new ByteArrayInputStream(org.apache.commons.codec.binary.Base64.decodeBase64(encodedTrigger.getBytes()));
-                                ObjectInputStream ois = new ObjectInputStream(inputStream);
-                                Trigger trigger = (Trigger) ois.readObject();
-                                Task task = createTask(definedTask, staging, user, stagingRepository, userRepository);
-                                try {
-                                    TaskSubmitter.getInstance().submit(task, trigger);
-                                } catch (Exception e) {
-                                    LOGGER.error("Could not resume task '" + task.getId() + "' due to exception.", e);
-                                }
-                            }
-                        }
                     } catch (Exception e) {
                         LOGGER.error("Could not create SQL storage for container '" + container.getUniqueId() + "'.", e);
                     }
@@ -138,18 +119,4 @@ class ServerImpl implements Server {
             throw new RuntimeException(e);
         }
     }
-
-    private static Task createTask(DataRecord definedTask, Storage staging, Storage destination, MetadataRepository stagingRepository, MetadataRepository userRepository) {
-        TaskType taskType = TaskType.valueOf(String.valueOf(definedTask.getType().getField("type"))); //$NON-NLS-1$
-        switch (taskType) {
-            case STAGING:
-                TaskSubmitter taskSubmitter = TaskSubmitter.getInstance();
-                SaverSource source = new DefaultSaverSource();
-                SaverSession.Committer committer = new DefaultCommitter();
-                return new StagingTask(taskSubmitter, staging, stagingRepository, userRepository, source, committer, destination);
-            default:
-                throw new NotImplementedException("No support for task type '" + taskType + "'.");
-        }
-    }
-
 }
