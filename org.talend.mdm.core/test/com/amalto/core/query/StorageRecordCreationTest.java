@@ -13,12 +13,6 @@
 
 package com.amalto.core.query;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
-
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.UserQueryBuilder;
@@ -26,6 +20,13 @@ import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
+import static com.amalto.core.query.user.UserQueryBuilder.eq;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 @SuppressWarnings("nls")
 public class StorageRecordCreationTest extends StorageTestCase {
@@ -46,7 +47,25 @@ public class StorageRecordCreationTest extends StorageTestCase {
                                 repository,
                                 address,
                                 "<Address><Id>1000</Id><Street>Street1</Street><country>[1000]</country><ZipCode>10000</ZipCode><City>City1</City><enterprise>false</enterprise></Address>"));
-
+        allRecords.add(factory.read(1, repository, product, "<Product>\n"
+                + "    <Id>1</Id>\n"
+                + "    <Name>Product name</Name>\n"
+                + "    <ShortDescription>Short description word</ShortDescription>\n"
+                + "    <LongDescription>Long description</LongDescription>\n"
+                + "    <Price>10</Price>\n"
+                + "    <Features>\n"
+                + "        <Sizes>\n"
+                + "            <Size>Small</Size>\n"
+                + "            <Size>Medium</Size>\n"
+                + "            <Size>Large</Size>\n"
+                + "        </Sizes>\n"
+                + "        <Colors>\n"
+                + "            <Color>Blue</Color>\n"
+                + "            <Color>Red</Color>\n"
+                + "        </Colors>\n"
+                + "    </Features>\n"
+                + "    <Status>Pending</Status>\n"
+                + "</Product>"));
         try {
             storage.begin();
             storage.update(allRecords);
@@ -74,12 +93,36 @@ public class StorageRecordCreationTest extends StorageTestCase {
 
                 qb = from(country);
                 storage.delete(qb.getSelect());
+
+                qb = from(product);
+                storage.delete(qb.getSelect());
             }
             storage.commit();
         } finally {
             storage.end();
         }
 
+    }
+
+    public void testGet() throws Exception {
+        UserQueryBuilder qb = from(product).where(eq(product.getField("Id"), "1"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                Object o = result.get("Features/Sizes/Size");
+                assertTrue(o instanceof List);
+                assertTrue(!((List) o).isEmpty());
+                assertEquals(3, ((List) o).size());
+
+                o = result.get("Features/Colors/Color");
+                assertTrue(o instanceof List);
+                assertTrue(!((List) o).isEmpty());
+                assertEquals(2, ((List) o).size());
+            }
+        } finally {
+            results.close();
+        }
     }
 
     public void testInsert() throws Exception {

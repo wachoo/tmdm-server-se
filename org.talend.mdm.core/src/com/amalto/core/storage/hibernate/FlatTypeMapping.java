@@ -130,21 +130,8 @@ class FlatTypeMapping extends TypeMapping {
                     }
                 }
                 if (userField instanceof ContainedTypeFieldMetadata) {
-                    // This mapping is not supposed to handle such cases.
-                    if(!((ContainedTypeFieldMetadata) userField).getContainedType().getSubTypes().isEmpty()) {
-                        throw new IllegalArgumentException("This mapping does not support contained types with inheritance.");
-                    }
-                    if (!userField.isMany()) {
-                        DataRecord containedDataRecord = new DataRecord((ComplexTypeMetadata) userField.getType(), UnsupportedDataRecordMetadata.INSTANCE);
-                        to.set(userField, setValues(((Wrapper) from.get(field.getName())), containedDataRecord));
-                    } else {
-                        List<DataRecord> containedDataRecords = new LinkedList<DataRecord>();
-                        List<Wrapper> wrapperList = (List<Wrapper>) from.get(field.getName());
-                        for (Wrapper wrapper : wrapperList) {
-                            containedDataRecords.add(setValues(wrapper, new DataRecord((ComplexTypeMetadata) userField.getType(), UnsupportedDataRecordMetadata.INSTANCE)));
-                        }
-                        to.set(userField, containedDataRecords);
-                    }
+                    // This mapping is not supposed to handle such cases (there's no field in type's fields mapped to a contained type).
+                    throw new IllegalArgumentException("This mapping does not support contained types.");
                 } else if (userField instanceof ReferenceFieldMetadata) {
                     if (!userField.isMany()) {
                         Wrapper wrapper = (Wrapper) from.get(field.getName());
