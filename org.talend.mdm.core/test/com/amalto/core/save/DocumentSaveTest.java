@@ -1440,11 +1440,11 @@ public class DocumentSaveTest extends TestCase {
                 evaluate(committer.getCommittedElement(),
                         "/Societe/Contacts/Contact[1]/SpecialisationContactType/NatureTelephoneFk"));
         assertEquals(
-                "[4]",
+                "[3]",
                 evaluate(committer.getCommittedElement(),
                         "/Societe/Contacts/Contact[2]/SpecialisationContactType/NatureLocalisationFk"));
         assertEquals(
-                "[3]",
+                "[4]",
                 evaluate(committer.getCommittedElement(),
                         "/Societe/Contacts/Contact[3]/SpecialisationContactType/NatureLocalisationFk"));
     }

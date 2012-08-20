@@ -27,9 +27,14 @@ public interface Accessor extends Comparable<Accessor> {
     void set(String value);
 
     /**
+     * <p>
      * Get the value in the document. The full path of elements <b>must</b> exist (this can be ensured via a call
      * to {@link #create()} if needed.
-     *
+     * </p>
+     * <p>
+     * Implementations <b>must</b> always return the value in the document. Implementations are not expected to return
+     * <code>null</code> value if element does not exist (this is done with a call to {@link #exist()}).
+     * </p>
      * @return The value accessible via this accessor.
      * @see #create()
      * @see #exist()
