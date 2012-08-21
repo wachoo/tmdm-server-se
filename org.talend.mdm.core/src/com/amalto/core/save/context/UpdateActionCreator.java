@@ -37,13 +37,13 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     protected final MetadataRepository repository;
 
-    protected final boolean preserveCollectionOldValues;
-
     private final Closure closure = new CompareClosure();
 
     private final Set<String> touchedPaths = new HashSet<String>();
 
     private final Map<FieldMetadata, Integer> originalFieldToLastIndex = new HashMap<FieldMetadata, Integer>();
+
+    protected boolean preserveCollectionOldValues;
 
     private String lastMatchPath;
 
