@@ -35,8 +35,8 @@ import com.extjs.gxt.ui.client.data.ModelData;
 @SuppressWarnings("nls")
 public class CommonUtilTest extends TestCase {
 
-    public void testValidateSearchValue(){
-        Map<String, TypeModel> xpathMap = new HashMap<String,TypeModel>();        
+    public void testValidateSearchValue() {
+        Map<String, TypeModel> xpathMap = new HashMap<String, TypeModel>();
         xpathMap.put("Product/Name", new SimpleTypeModel()); //$NON-NLS-1$
         assertTrue(CommonUtil.validateSearchValue(xpathMap, "/Product/Name")); //$NON-NLS-1$
         assertTrue(CommonUtil.validateSearchValue(xpathMap, "Product/Name")); //$NON-NLS-1$
@@ -45,11 +45,11 @@ public class CommonUtilTest extends TestCase {
         assertFalse(CommonUtil.validateSearchValue(xpathMap, "a/b")); //$NON-NLS-1$
         assertTrue(CommonUtil.validateSearchValue(xpathMap, "\"a/b\"")); //$NON-NLS-1$
         assertTrue(CommonUtil.validateSearchValue(xpathMap, "\'a/b\'")); //$NON-NLS-1$
-        assertFalse(CommonUtil.validateSearchValue(xpathMap, "\'a/b\""));   //$NON-NLS-1$
-        assertFalse(CommonUtil.validateSearchValue(xpathMap, "\"a/b"));    //$NON-NLS-1$
+        assertFalse(CommonUtil.validateSearchValue(xpathMap, "\'a/b\"")); //$NON-NLS-1$
+        assertFalse(CommonUtil.validateSearchValue(xpathMap, "\"a/b")); //$NON-NLS-1$
         assertTrue(CommonUtil.validateSearchValue(xpathMap, "aaa")); //$NON-NLS-1$
     }
-    
+
     public void testGetHost() {
         assertTrue(CommonUtil.getHost("http://www.foo.com/aaa").equals("www.foo.com"));
         assertTrue(CommonUtil.getHost("https://www.foo.com/aaa").equals("www.foo.com"));
@@ -91,7 +91,7 @@ public class CommonUtilTest extends TestCase {
         assertEquals("Eda/typeEda/typeEDA[@xsi:type='PointSoutirageRpt']/crmaEda/qqq[@xsi:type='www']", result); //$NON-NLS-1$
 
     }
-    
+
     public void testGetDefaultTreeModel() {
         try {
             CommonUtil.getDefaultTreeModel(new SimpleTypeModel(), "en");
@@ -118,10 +118,11 @@ public class CommonUtilTest extends TestCase {
         boolean flag = true;
 
         while (!stack.isEmpty()) {
-            if (flag)
+            if (flag) {
                 flag = false;
-            else
+            } else {
                 sb.append("/");
+            }
             sb.append(stack.pop());
         }
         Assert.assertEquals("hello/peili/liang", sb.toString());
@@ -219,15 +220,16 @@ public class CommonUtilTest extends TestCase {
         // 7
         message = "[EN:price must > 10][FR:price must > 10]";
         if (message.length() > 0) {
-            if (message.indexOf("<msg>") == -1)
+            if (message.indexOf("<msg>") == -1) {
                 message = "<msg>" + message + "</msg>";
+            }
         }
         language = "en";
         actualMsg = Util.getExceptionMessage(message, language);
         assertEquals("price must > 10", actualMsg);
     }
-    
-    public void testGetFKFormat(){
+
+    public void testGetFKFormat() {
         int result = -1;
         result = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getFKFormatType(null);
         assertEquals(0, result);
@@ -237,13 +239,13 @@ public class CommonUtilTest extends TestCase {
 
         result = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getFKFormatType("[1]");
         assertEquals(1, result);
-        
+
         result = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getFKFormatType("a[1]b");
         assertEquals(0, result);
 
         result = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getFKFormatType("[1]-aaa");
         assertEquals(2, result);
-        
+
         result = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getFKFormatType("aaa-[1]-aaa");
         assertEquals(0, result);
 
@@ -253,13 +255,13 @@ public class CommonUtilTest extends TestCase {
         String fk = null;
         fk = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyId("test", 0);
         assertNull(fk);
-        
+
         fk = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyId("[1]", 1);
         assertEquals("[1]", fk);
-        
+
         fk = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyId("test", 2);
         assertNull(fk);
-        
+
         fk = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyId("[2]-test", 2);
         assertEquals("[2]", fk);
     }
@@ -291,11 +293,10 @@ public class CommonUtilTest extends TestCase {
         rootNode = list.get(0);
         assertFalse(TreeDetailUtil.isChangeValue(rootNode));
     }
-    
-    public void testExtractIDs()
-    {
-        ItemNodeModel model = new ItemNodeModel(); 
-        
+
+    public void testExtractIDs() {
+        ItemNodeModel model = new ItemNodeModel();
+
         ItemNodeModel child = new ItemNodeModel();
         child.setKey(true);
         child.setObjectValue("1");
@@ -310,17 +311,17 @@ public class CommonUtilTest extends TestCase {
         child.setKey(true);
         child.setObjectValue("3");
         model.add(child);
-        
+
         child = new ItemNodeModel();
         child.setKey(false);
         child.setObjectValue("4");
         model.add(child);
-        
+
         String[] keys = CommonUtil.extractIDs(model);
         assertTrue(keys.length == 2);
         assertTrue(keys[0].equals("1"));
         assertTrue(keys[1].equals("3"));
-        
+
         model = new ItemNodeModel();
         keys = CommonUtil.extractIDs(model);
         assertTrue(keys.length == 0);
@@ -351,9 +352,8 @@ public class CommonUtilTest extends TestCase {
         typeModel.addSubType(isActiveModel);
 
         List<ItemNodeModel> list = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getDefaultTreeModel(typeModel,
-                isCreate,
-                language);
-        
+                isCreate, language);
+
         assertNotNull(list);
         assertTrue(list.size() > 0);
 
@@ -362,6 +362,12 @@ public class CommonUtilTest extends TestCase {
             ItemNodeModel itemNodeModel = (ItemNodeModel) modelData;
             assertNull(itemNodeModel.getObjectValue());
         }
+
+    }
+
+    public void testGetDownloadFileHeadName() {
+        TypeModel typeModel = new SimpleTypeModel("downloadFileHeadName", null);
+        assertEquals("downloadFileHeadName", CommonUtil.getDownloadFileHeadName(typeModel));
 
     }
 }

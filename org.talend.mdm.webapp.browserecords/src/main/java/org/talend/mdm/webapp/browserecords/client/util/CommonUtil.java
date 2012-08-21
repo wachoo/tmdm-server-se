@@ -16,8 +16,9 @@ import org.talend.mdm.webapp.browserecords.shared.ComplexTypeModel;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 public class CommonUtil {
-    
+
     private static final String BEFORE_DOMAIN = "\\b((https?|ftp)://)"; //$NON-NLS-1$
+
     private static final String PATH = "(/[-a-z0-9A-Z_:@&?=+,.!/~*'%#$]*)*"; //$NON-NLS-1$
 
     public static String getHost(String url) {
@@ -32,8 +33,9 @@ public class CommonUtil {
     public static String getElementFromXpath(String xpath) {
         String[] arr = xpath.split("/");//$NON-NLS-1$
         for (int i = arr.length - 1; i > -1; i--) {
-            if (arr[i] != "")//$NON-NLS-1$
+            if (arr[i] != "") {
                 return arr[i];
+            }
         }
         return xpath;
     }
@@ -98,14 +100,13 @@ public class CommonUtil {
         return nodeModel.getName();
     }
 
-
-
     public static int getCountOfBrotherOfTheSameName(ItemNodeModel nodeModel) {
         int count = 0;
         String name = nodeModel.getName();
         ItemNodeModel parentModel = (ItemNodeModel) nodeModel.getParent();
-        if (parentModel == null)
+        if (parentModel == null) {
             return 1;
+        }
         for (int i = 0; i < parentModel.getChildCount(); i++) {
             ItemNodeModel childModel = (ItemNodeModel) parentModel.getChild(i);
             if (name.equals(childModel.getName())) {
@@ -148,7 +149,6 @@ public class CommonUtil {
         return realPath.replaceAll("\\[\\d+\\]$", ""); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
-
     public static List<ItemNodeModel> getDefaultTreeModel(TypeModel model, String language) {
         List<ItemNodeModel> itemNodes = new ArrayList<ItemNodeModel>();
 
@@ -157,8 +157,9 @@ public class CommonUtil {
                 ItemNodeModel itemNode = new ItemNodeModel();
 
                 itemNodes.add(itemNode);
-                if (model.getForeignkey() != null)
+                if (model.getForeignkey() != null) {
                     break;
+                }
             }
         } else {
             ItemNodeModel itemNode = new ItemNodeModel();
@@ -309,8 +310,9 @@ public class CommonUtil {
      */
     public static String[] parseFileName(String longFilePath) {
 
-        if (longFilePath == null || longFilePath.trim().length() == 0)
+        if (longFilePath == null || longFilePath.trim().length() == 0) {
             return null;
+        }
 
         String shortFileName = "";
         String fileExtensioName = "";
@@ -318,8 +320,9 @@ public class CommonUtil {
 
         String[] tokenizer = longFilePath.split("[\\\\|/]");
 
-        if (tokenizer != null && tokenizer.length > 0)
+        if (tokenizer != null && tokenizer.length > 0) {
             shortpath = tokenizer[tokenizer.length - 1];
+        }
 
         if (shortpath.indexOf(".") != -1) {
             int pos = shortpath.lastIndexOf(".");
@@ -402,5 +405,9 @@ public class CommonUtil {
         String[] keyArray = keys.toArray(new String[] {});
 
         return keyArray;
+    }
+
+    public static String getDownloadFileHeadName(TypeModel typeModel) {
+        return typeModel.getName();
     }
 }
