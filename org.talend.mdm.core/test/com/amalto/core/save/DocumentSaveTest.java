@@ -1219,6 +1219,7 @@ public class DocumentSaveTest extends TestCase {
         session.end(committer);
 
         assertTrue(committer.hasSaved());
+        System.out.println(Util.nodeToString(committer.getCommittedElement()));
         Element committedElement = committer.getCommittedElement();
         assertEquals(
                 "40-142",
@@ -1443,6 +1444,75 @@ public class DocumentSaveTest extends TestCase {
                 "[3]",
                 evaluate(committer.getCommittedElement(),
                         "/Societe/Contacts/Contact[2]/SpecialisationContactType/NatureLocalisationFk"));
+        assertEquals(
+                "[4]",
+                evaluate(committer.getCommittedElement(),
+                        "/Societe/Contacts/Contact[3]/SpecialisationContactType/NatureLocalisationFk"));
+    }
+
+    public void test37() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        // there's a small change in this model that differs from QA: ThirdEntity is a xsd:sequence (not a xsd:all)
+        // so order of elements will be tested during XSD validation.
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test37_original.xml", "metadata7.xsd");
+        source.setUserName("admin");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test37.xml");
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "Test37", "admin", recordXml, true,
+                true, "/Societe/Contacts/Contact", "SpecialisationContactType/NatureLocalisationFk", true);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        // overwrite = true
+        assertEquals(
+                "[3]",
+                evaluate(committer.getCommittedElement(),
+                        "/Societe/Contacts/Contact[1]/SpecialisationContactType/NatureLocalisationFk"));
+        assertEquals(
+                "92501",
+                evaluate(committer.getCommittedElement(),
+                        "/Societe/Contacts/Contact[1]/SpecialisationContactType/AdressePostale/CodePostal"));
+        assertEquals(
+                "[4]",
+                evaluate(committer.getCommittedElement(),
+                        "/Societe/Contacts/Contact[2]/SpecialisationContactType/NatureLocalisationFk"));
+
+        // overwrite = false
+        source = new TestSaverSource(repository, true, "test37_original.xml", "metadata7.xsd");
+        source.setUserName("admin");
+
+        session = SaverSession.newSession(source);
+        recordXml = DocumentSaveTest.class.getResourceAsStream("test37.xml");
+        context = session.getContextFactory().createPartialUpdate("MDM", "Test37", "admin", recordXml, true, true,
+                "/Societe/Contacts/Contact", "SpecialisationContactType/NatureLocalisationFk", false);
+        saver = context.createSaver();
+        saver.save(session, context);
+        committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        assertEquals(
+                "[3]",
+                evaluate(committer.getCommittedElement(),
+                        "/Societe/Contacts/Contact[1]/SpecialisationContactType/NatureLocalisationFk"));
+        assertEquals(
+                "92500",
+                evaluate(committer.getCommittedElement(),
+                        "/Societe/Contacts/Contact[1]/SpecialisationContactType/AdressePostale/CodePostal"));
+        assertEquals(
+                "[3]",
+                evaluate(committer.getCommittedElement(),
+                        "/Societe/Contacts/Contact[2]/SpecialisationContactType/NatureLocalisationFk"));
+        assertEquals(
+                "92501",
+                evaluate(committer.getCommittedElement(),
+                        "/Societe/Contacts/Contact[2]/SpecialisationContactType/AdressePostale/CodePostal"));
         assertEquals(
                 "[4]",
                 evaluate(committer.getCommittedElement(),
