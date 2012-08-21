@@ -823,66 +823,44 @@ public class TreeDetail extends ContentPanel {
         return itemsDetailPanel;
     }
 
-    public void makeWarnning(TreeItem item) {
+    public void makeWarning(TreeItem item) {
         ItemNodeModel itemNodeModel = ((DynamicTreeItem) item).getItemNodeModel();
         if(itemNodeModel != null) {
             if(!isRoot(itemNodeModel)) {
                 ItemNodeModel parent = (ItemNodeModel)itemNodeModel.getParent();
-                if(parent.isMandatory() || isRoot(parent)) {
-                    if (item.getWidget() instanceof HorizontalPanel) {
-                        HorizontalPanel hp = (HorizontalPanel) item.getWidget();
-                        if (hp.getWidgetCount() > 1) {
-                            Widget field = hp.getWidget(1);
-                            if (itemNodeModel.isMandatory()) {
-                                if (field instanceof PictureField) {
-                                    if(((PictureField) field).getImageURL().equals(PictureField.DefaultImage)){
-                                        ((Field<?>) field).markInvalid(null);
-                                    }
-                                        
-                                } else if (field instanceof SimpleComboBox
-                                        || field instanceof CheckBox
-                                        || field instanceof UrlField) {
-                                    if (((Field<?>) field).getValue() == null
-                                            || ((Field<?>) field).getValue().equals("")) { //$NON-NLS-1$
-                                        ((Field<?>) field).markInvalid(null);
-                                    }
-                                } else if (field instanceof FormatTextField){
-                                    FormatTextField ftf = (FormatTextField) field;
-                                    String value = ftf.getValue();
-                                    if (value == null || value.equals("")) { //$NON-NLS-1$
-                                        ftf.markInvalid(ftf.getMessages().getBlankText());
-                                    } else {
-                                        ftf.setValidateFlag(true);
-                                        ftf.validateValue(value);
-                                    }
-                                } else if (field instanceof FormatNumberField) {
-                                    FormatNumberField fnf = (FormatNumberField) field;
-                                    Number value = fnf.getValue();
-                                    if (value == null) {
-                                        fnf.markInvalid(fnf.getMessages().getBlankText());
-                                    } else {                                       
-                                        fnf.setValidateFlag(true);
-                                        fnf.validateValue(value.toString());
-                                    }
-                                }
+                if (item.getWidget() instanceof HorizontalPanel) {
+                    HorizontalPanel hp = (HorizontalPanel) item.getWidget();
+                    if (hp.getWidgetCount() > 1) {
+                        Widget field = hp.getWidget(1);
+                        if (itemNodeModel.isMandatory()) {
+                            if(isRoot(parent)){
+                                makeWarning4Mandatory(field, true, itemNodeModel);
                             } else {
-                                if (field instanceof FormatTextField){
-                                    FormatTextField ftf = (FormatTextField) field;
-                                    String value = ftf.getValue();                                    
-                                    if(value != null) {
-                                        ftf.setValidateFlag(true);
-                                        ftf.validateValue(value);
-                                    }                                        
-
-                                } else if (field instanceof FormatNumberField) {
-                                    FormatNumberField fnf = (FormatNumberField) field;
-                                    Number value = fnf.getValue();                                   
-                                    if(value != null) {
-                                        fnf.setValidateFlag(true);
-                                        fnf.validateValue(value.toString());
-                                    }                                       
-                                    
+                                if(parent.isMandatory()) {
+                                    makeWarning4Mandatory(field, true, itemNodeModel);
+                                } else {
+                                    makeWarning4Mandatory(field, false, itemNodeModel);
                                 }
+                            }
+                        } else {
+                            if (field instanceof FormatTextField){
+                                FormatTextField ftf = (FormatTextField) field;
+                                String value = ftf.getValue();                                    
+                                if(value != null) {
+                                    ftf.setValidateFlag(true);
+                                    ftf.validateValue(value);
+                                    ftf.setValidateFlag(false);
+                                }                                        
+
+                            } else if (field instanceof FormatNumberField) {
+                                FormatNumberField fnf = (FormatNumberField) field;
+                                Number value = fnf.getValue();                                   
+                                if(value != null) {
+                                    fnf.setValidateFlag(true);
+                                    fnf.validateValue(value.toString());
+                                    fnf.setValidateFlag(false);
+                                }                                       
+                                
                             }
                         }
                     }
@@ -892,13 +870,79 @@ public class TreeDetail extends ContentPanel {
 
         for (int i = 0; i < item.getChildCount(); i++) {
             TreeItem subItem = item.getChild(i);
-            makeWarnning(subItem);
+            makeWarning(subItem);
         }
     }
-	
-	private boolean isRoot(ItemNodeModel itemNodeModel){
-		if(itemNodeModel.getParent() != null)
-			return false;
-		return true;
-	}
+        
+    private void makeWarning4Mandatory(Widget field, boolean isParentMandatory, ItemNodeModel itemNodeModel) {
+        if (field instanceof PictureField) {
+            if(((PictureField) field).getImageURL().equals(PictureField.DefaultImage)){
+                if(isParentMandatory)
+                    ((Field<?>) field).markInvalid(null);
+                else {
+                    if(checkSameLevelNode((ItemNodeModel) itemNodeModel.getParent()))
+                        ((Field<?>) field).markInvalid(null);
+                }
+            }
+                
+        } else if (field instanceof SimpleComboBox
+                || field instanceof CheckBox
+                || field instanceof UrlField) {
+            if (((Field<?>) field).getValue() == null
+                    || ((Field<?>) field).getValue().equals("")) { //$NON-NLS-1$
+                if(isParentMandatory)
+                    ((Field<?>) field).markInvalid(null);
+                else {
+                    if(checkSameLevelNode((ItemNodeModel) itemNodeModel.getParent()))
+                        ((Field<?>) field).markInvalid(null);
+                }
+            }
+        } else if (field instanceof FormatTextField){
+            FormatTextField ftf = (FormatTextField) field;
+            String value = ftf.getValue();
+            if (value == null || value.equals("")) { //$NON-NLS-1$
+                if(isParentMandatory)
+                    ftf.markInvalid(ftf.getMessages().getBlankText());
+                else {
+                    if(checkSameLevelNode((ItemNodeModel) itemNodeModel.getParent()))
+                        ftf.markInvalid(ftf.getMessages().getBlankText());
+                }
+            } else {
+                ftf.setValidateFlag(true);
+                ftf.validateValue(value);
+                ftf.setValidateFlag(false);
+            }
+        } else if (field instanceof FormatNumberField) {
+            FormatNumberField fnf = (FormatNumberField) field;
+            Number value = fnf.getValue();
+            if (value == null) {
+                if(isParentMandatory)
+                    fnf.markInvalid(fnf.getMessages().getBlankText());
+                else {
+                    if(checkSameLevelNode((ItemNodeModel) itemNodeModel.getParent()))
+                        fnf.markInvalid(fnf.getMessages().getBlankText());
+                }
+            } else {                                       
+                fnf.setValidateFlag(true);
+                fnf.validateValue(value.toString());
+                fnf.setValidateFlag(false);
+            }
+        }
+    }
+    
+    private boolean checkSameLevelNode(ItemNodeModel model){
+        List<ModelData> modelList = model.getChildren();
+        for(ModelData data : modelList) {
+            ItemNodeModel itemNodeModel = (ItemNodeModel)data;
+            if(itemNodeModel.getObjectValue() != null && !itemNodeModel.getObjectValue().equals("")) //$NON-NLS-1$
+                return true;
+        }
+        return false;
+    }
+    
+    private boolean isRoot(ItemNodeModel itemNodeModel){
+        if(itemNodeModel.getParent() != null)
+            return false;
+        return true;
+    }
 }

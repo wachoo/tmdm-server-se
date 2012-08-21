@@ -317,7 +317,7 @@ public class ItemDetailToolBar extends ToolBar {
                     Widget widget = itemsDetailPanel.getFirstTabWidget();
                     TreeDetail treeDetail = ((ItemPanel) widget).getTree();
 					if (!BrowseRecords.getSession().getAppHeader().isAutoValidate()) {
-						treeDetail.makeWarnning(treeDetail.getRoot());
+						treeDetail.makeWarning(treeDetail.getRoot());
 					}
                     ItemNodeModel root = treeDetail.getRootModel();
                     if (operation.equalsIgnoreCase(ItemDetailToolBar.CREATE_OPERATION)
@@ -347,7 +347,7 @@ public class ItemDetailToolBar extends ToolBar {
                     Widget widget = itemsDetailPanel.getFirstTabWidget();
                     TreeDetail treeDetail = ((ItemPanel) widget).getTree();
 					if (!BrowseRecords.getSession().getAppHeader().isAutoValidate()) {
-						treeDetail.makeWarnning(treeDetail.getRoot());
+						treeDetail.makeWarning(treeDetail.getRoot());
 					}
 					
                     ItemNodeModel root = treeDetail.getRootModel();
