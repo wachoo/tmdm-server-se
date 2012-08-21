@@ -144,7 +144,7 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                     doCompare(field, closure, i);
                     leftPath.pop();
                 }
-            } else {  // Not preserving old values in this case
+            } else {  // Not preserving old values in this case (overwrite=true)
                 // Proceed in "reverse" order (highest index to lowest) so there won't be issues when deleting elements in
                 // a sequence (if element #2 is deleted before element #3, element #3 becomes #2...).
                 for (int i = max; i > 0; i--) {
@@ -178,10 +178,20 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                 newDocumentPath = null;
             }
             if (newDocumentPath == null) {
-                if (preserveCollectionOldValues) {
-                    rightPath.push(field.getName() + '[' + i + ']');
-                } else {
-                    return;
+                rightPath.push(field.getName() + '[' + i + ']');
+                if (!preserveCollectionOldValues) {  // When overwriting, append to the end of collection if key not found.
+                    int newItemIndex;
+                    if (originalFieldToLastIndex.containsKey(field)) {
+                        newItemIndex = originalFieldToLastIndex.get(field) + 1;
+                    } else {
+                        leftPath.pop();
+                        leftPath.push(field.getName());
+                        Accessor accessor = originalDocument.createAccessor(getLeftPath());
+                        newItemIndex = accessor.size() + 1;
+                    }
+                    originalFieldToLastIndex.put(field, newItemIndex);
+                    leftPath.pop();
+                    leftPath.push(field.getName() + '[' + newItemIndex + ']');
                 }
             } else {
                 StringTokenizer pathIterator = new StringTokenizer(newDocumentPath, "/");
