@@ -10,6 +10,18 @@
 
 package com.amalto.core.save.context;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+
+import org.apache.commons.lang.StringUtils;
+
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
@@ -52,7 +64,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
     private String lastMatchPath;
 
     public UpdateActionCreator(MutableDocument originalDocument, MutableDocument newDocument,
-                               boolean preserveCollectionOldValues, String source, String userName, MetadataRepository repository) {
+            boolean preserveCollectionOldValues, String source, String userName, MetadataRepository repository) {
         this.preserveCollectionOldValues = preserveCollectionOldValues;
         this.originalDocument = originalDocument;
         this.newDocument = newDocument;
