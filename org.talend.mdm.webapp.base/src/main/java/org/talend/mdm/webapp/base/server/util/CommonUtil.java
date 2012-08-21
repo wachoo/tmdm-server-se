@@ -14,8 +14,6 @@ package org.talend.mdm.webapp.base.server.util;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.talend.mdm.webapp.base.client.model.Criteria;
 import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
@@ -26,7 +24,10 @@ import org.talend.mdm.webapp.base.server.mockup.FakeData;
 
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
+import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
+import com.amalto.webapp.util.webservices.WSViewPK;
+import com.amalto.webapp.util.webservices.WSViewSearch;
 import com.amalto.webapp.util.webservices.WSWhereAnd;
 import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.WSWhereItem;
@@ -62,8 +63,9 @@ public class CommonUtil {
      * @return a single string or null
      */
     public static String joinStrings(List<String> strings, String separator) {
-        if (strings == null)
+        if (strings == null) {
             return null;
+        }
         String res = ""; //$NON-NLS-1$ 
         for (int i = 0; i < strings.size(); i++) {
             res += (i > 0) ? separator : ""; //$NON-NLS-1$ 
@@ -80,13 +82,13 @@ public class CommonUtil {
                 conditions
                         .add(buildWhereItemsByCriteria(Parser.parse(criteria.substring(0, criteria.indexOf("../../t") - 5) + ")")));//$NON-NLS-1$  //$NON-NLS-2$
             }
-            
+
             String modifyString = criteria.substring(criteria.indexOf("../../t"), criteria.length() - 1); //$NON-NLS-1$
             String[] modifyArr = modifyString.split("AND"); //$NON-NLS-1$
-            for(String str : modifyArr){
+            for (String str : modifyArr) {
                 conditions.add(buildWhereItem(str.trim()));
-            }           
-            
+            }
+
             WSWhereAnd and = new WSWhereAnd(conditions.toArray(new WSWhereItem[conditions.size()]));
             wi = new WSWhereItem(null, and, null);
         } else {
@@ -155,8 +157,9 @@ public class CommonUtil {
             }
         }
 
-        if (filterXpaths == null || filterXpaths.trim().equals("")) //$NON-NLS-1$ 
+        if (filterXpaths == null || filterXpaths.trim().equals("")) {
             return null;
+        }
 
         WSWhereCondition wc = new WSWhereCondition(filterXpaths, Util.getOperator(filterOperators), filterValues,
                 WSStringPredicate.NONE, false);
@@ -179,6 +182,17 @@ public class CommonUtil {
         }
 
         return wi;
+    }
 
+    public static String[] getItemBeans(String dataClusterPK, String viewPk, String criteria, int skip, int max, String sortDir,
+            String sortCol, String language) throws Exception {
+        WSWhereItem wi = null;
+        if (criteria != null) {
+            wi = buildWhereItems(criteria);
+        }
+        String[] results = getPort().viewSearch(
+                new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewPk), wi, -1, skip, max, sortCol, sortDir))
+                .getStrings();
+        return results;
     }
 }
