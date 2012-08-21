@@ -240,6 +240,9 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                 // Build query (find 'main' type)
                 String typeName = ((String) view.getSearchableBusinessElements().getList().get(0)).split("/")[0];
                 ComplexTypeMetadata type = repository.getComplexType(typeName);
+                if (type == null) {
+                    throw new IllegalArgumentException("Type '" + typeName + "' does not exist in data cluster '" + dataClusterPOJOPK.getUniqueId() + "'.");
+                }
                 UserQueryBuilder qb = UserQueryBuilder.from(type);
 
                 // Select fields

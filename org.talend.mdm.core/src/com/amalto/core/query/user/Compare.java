@@ -47,6 +47,13 @@ public class Compare extends Condition {
     public Expression normalize() {
         left = left.normalize();
         right = right.normalize();
+        if (predicate == Predicate.OR) {
+            if (left == UserQueryHelper.NO_OP_CONDITION) {
+                return right;
+            } else if (right == UserQueryHelper.NO_OP_CONDITION) {
+                return left;
+            }
+        }
         return this;
     }
 }

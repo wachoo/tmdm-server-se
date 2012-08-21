@@ -27,11 +27,13 @@ public class BinaryLogicOperator extends Condition {
     }
 
     public Expression normalize() {
+        left = (Condition) left.normalize();
+        right = (Condition) right.normalize();
         // If right or left is a no op condition, simplify a bit the query.
         if (right == UserQueryHelper.NO_OP_CONDITION) {
-            return left.normalize();
+            return left;
         } else if (left == UserQueryHelper.NO_OP_CONDITION) {
-            return right.normalize();
+            return right;
         } else {
             return this;
         }

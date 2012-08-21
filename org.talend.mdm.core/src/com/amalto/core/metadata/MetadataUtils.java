@@ -172,24 +172,27 @@ public class MetadataUtils {
         }
     }
 
-    private static Object convert(String dataAsString, TypeMetadata type) {
+    public static Object convert(String dataAsString, TypeMetadata type) {
         // Move up the inheritance tree to find the "most generic" type (used when simple types inherits from XSD types,
         // in this case, the XSD type is interesting, not the custom one).
         while (!type.getSuperTypes().isEmpty()) {
             type = type.getSuperTypes().iterator().next();
         }
+        return convert(dataAsString, type.getName());
+    }
 
-        if ("string".equals(type.getName())) { //$NON-NLS-1$
+    public static Object convert(String dataAsString, String type) {
+        if ("string".equals(type)) { //$NON-NLS-1$
             return dataAsString;
-        } else if ("integer".equals(type.getName()) //$NON-NLS-1$
-                || "positiveInteger".equals(type.getName()) //$NON-NLS-1$
-                || "negativeInteger".equals(type.getName()) //$NON-NLS-1$
-                || "nonNegativeInteger".equals(type.getName()) //$NON-NLS-1$
-                || "nonPositiveInteger".equals(type.getName()) //$NON-NLS-1$
-                || "int".equals(type.getName()) //$NON-NLS-1$
-                || "unsignedInt".equals(type.getName())) { //$NON-NLS-1$
+        } else if ("integer".equals(type) //$NON-NLS-1$
+                || "positiveInteger".equals(type) //$NON-NLS-1$
+                || "negativeInteger".equals(type) //$NON-NLS-1$
+                || "nonNegativeInteger".equals(type) //$NON-NLS-1$
+                || "nonPositiveInteger".equals(type) //$NON-NLS-1$
+                || "int".equals(type) //$NON-NLS-1$
+                || "unsignedInt".equals(type)) { //$NON-NLS-1$
             return Integer.parseInt(dataAsString);
-        } else if ("date".equals(type.getName())) { //$NON-NLS-1$
+        } else if ("date".equals(type)) { //$NON-NLS-1$
             // Be careful here: DateFormat is not thread safe
             synchronized (DateConstant.DATE_FORMAT) {
                 try {
@@ -200,7 +203,7 @@ public class MetadataUtils {
                     throw new RuntimeException(e);
                 }
             }
-        } else if ("dateTime".equals(type.getName())) { //$NON-NLS-1$
+        } else if ("dateTime".equals(type)) { //$NON-NLS-1$
             // Be careful here: DateFormat is not thread safe
             synchronized (DateTimeConstant.DATE_FORMAT) {
                 try {
@@ -211,29 +214,29 @@ public class MetadataUtils {
                     throw new RuntimeException(e);
                 }
             }
-        } else if ("boolean".equals(type.getName())) { //$NON-NLS-1$
+        } else if ("boolean".equals(type)) { //$NON-NLS-1$
             return Boolean.parseBoolean(dataAsString);
-        } else if ("decimal".equals(type.getName())) { //$NON-NLS-1$
+        } else if ("decimal".equals(type)) { //$NON-NLS-1$
             return new BigDecimal(dataAsString);
-        } else if ("float".equals(type.getName())) { //$NON-NLS-1$
+        } else if ("float".equals(type)) { //$NON-NLS-1$
             return Float.parseFloat(dataAsString);
-        } else if ("long".equals(type.getName()) || "unsignedLong".equals(type.getName())) { //$NON-NLS-1$ //$NON-NLS-2$
+        } else if ("long".equals(type) || "unsignedLong".equals(type)) { //$NON-NLS-1$ //$NON-NLS-2$
             return Long.parseLong(dataAsString);
-        } else if ("anyURI".equals(type.getName())) { //$NON-NLS-1$
+        } else if ("anyURI".equals(type)) { //$NON-NLS-1$
             return dataAsString;
-        } else if ("short".equals(type.getName()) || "unsignedShort".equals(type.getName())) { //$NON-NLS-1$ //$NON-NLS-2$
+        } else if ("short".equals(type) || "unsignedShort".equals(type)) { //$NON-NLS-1$ //$NON-NLS-2$
             return Short.parseShort(dataAsString);
-        } else if ("QName".equals(type.getName())) { //$NON-NLS-1$
+        } else if ("QName".equals(type)) { //$NON-NLS-1$
             return dataAsString;
-        } else if ("base64Binary".equals(type.getName())) { //$NON-NLS-1$
+        } else if ("base64Binary".equals(type)) { //$NON-NLS-1$
             return dataAsString;
-        } else if ("hexBinary".equals(type.getName())) { //$NON-NLS-1$
+        } else if ("hexBinary".equals(type)) { //$NON-NLS-1$
             return dataAsString;
-        } else if ("byte".equals(type.getName()) || "unsignedByte".equals(type.getName())) { //$NON-NLS-1$ //$NON-NLS-2$
+        } else if ("byte".equals(type) || "unsignedByte".equals(type)) { //$NON-NLS-1$ //$NON-NLS-2$
             return Byte.parseByte(dataAsString);
-        } else if ("double".equals(type.getName()) || "unsignedDouble".equals(type.getName())) { //$NON-NLS-1$ //$NON-NLS-2$
+        } else if ("double".equals(type) || "unsignedDouble".equals(type)) { //$NON-NLS-1$ //$NON-NLS-2$
             return Double.parseDouble(dataAsString);
-        } else if ("duration".equals(type.getName()) || "time".equals(type.getName())) { //$NON-NLS-1$ //$NON-NLS-2$
+        } else if ("duration".equals(type) || "time".equals(type)) { //$NON-NLS-1$ //$NON-NLS-2$
             // Be careful here: DateFormat is not thread safe
             synchronized (TimeConstant.TIME_FORMAT) {
                 try {
@@ -245,7 +248,7 @@ public class MetadataUtils {
                 }
             }
         } else {
-            throw new NotImplementedException("No support for type '" + type.getName() + "'");
+            throw new NotImplementedException("No support for type '" + type + "'");
         }
     }
 

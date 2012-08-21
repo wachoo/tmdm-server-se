@@ -13,22 +13,20 @@
 
 package com.amalto.core.query.user;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataRepository;
-import com.amalto.core.metadata.ReferenceFieldMetadata;
-import com.amalto.xmlserver.interfaces.IWhereItem;
-import com.amalto.xmlserver.interfaces.WhereAnd;
-import com.amalto.xmlserver.interfaces.WhereCondition;
-import com.amalto.xmlserver.interfaces.WhereOr;
+import com.amalto.core.metadata.*;
+import com.amalto.xmlserver.interfaces.*;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import java.util.List;
+
+import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 public class UserQueryHelper {
 
     public static final NoOpCondition NO_OP_CONDITION = new NoOpCondition();
+    public static final Logger LOGGER = Logger.getLogger(UserQueryHelper.class);
 
     private UserQueryHelper() {
     }
@@ -38,78 +36,115 @@ public class UserQueryHelper {
             return NO_OP_CONDITION;
         }
 
-        if (whereItem instanceof WhereAnd) {
-            List<IWhereItem> whereItems = ((WhereAnd) whereItem).getItems();
-            Condition currentAnd = null;
+        if (whereItem instanceof WhereAnd || whereItem instanceof WhereOr) {
+            List<IWhereItem> whereItems = ((WhereLogicOperator) whereItem).getItems();
+            Condition current = NO_OP_CONDITION;
             for (IWhereItem item : whereItems) {
-                if (currentAnd != null) {
-                    currentAnd = UserQueryBuilder.and(currentAnd, buildCondition(queryBuilder, item, repository));
+                if (item instanceof WhereAnd) {
+                    current = and(current, buildCondition(queryBuilder, item, repository));
+                } else if (item instanceof WhereOr) {
+                    current = or(current, buildCondition(queryBuilder, item, repository));
                 } else {
-                    currentAnd = buildCondition(queryBuilder, item, repository);
+                    return buildCondition(queryBuilder, item, repository);
                 }
             }
-            return currentAnd;
-        } else if (whereItem instanceof WhereOr) {
-            List<IWhereItem> whereItems = ((WhereOr) whereItem).getItems();
-            Condition currentOr = null;
-            for (IWhereItem item : whereItems) {
-                if (currentOr != null) {
-                    UserQueryBuilder.or(currentOr, buildCondition(queryBuilder, item, repository));
-                } else {
-                    currentOr = buildCondition(queryBuilder, item, repository);
-                }
-            }
-            return currentOr;
+            return current;
+
         } else if (whereItem instanceof WhereCondition) {
-            // TODO Generate where items for inter-field conditions.
-            // TODO Support request on Id ("../../i")
             WhereCondition whereCondition = (WhereCondition) whereItem;
             String operator = whereCondition.getOperator();
             String value = whereCondition.getRightValueOrPath();
             // Special case for full text: left path is actually the keyword for full text search.
             if (WhereCondition.FULLTEXTSEARCH.equals(operator)) {
-                return UserQueryBuilder.fullText(value);
+                return fullText(value);
             }
             TypedExpression field;
             String leftPath = whereCondition.getLeftPath();
+            String typeName = leftPath.substring(0, leftPath.indexOf('/')); //$NON-NLS-1$
+            ComplexTypeMetadata type = repository.getComplexType(typeName);
+            String leftFieldName = StringUtils.substringAfter(leftPath, "/"); //$NON-NLS-1$
             if ("../../t".equals(leftPath)) {
-                field = UserQueryBuilder.timestamp();
+                field = timestamp();
+            } else if ("../../i".equals(leftPath)) {
+                List<FieldMetadata> keyFields = type.getKeyFields();
+                if (keyFields.isEmpty()) {
+                    throw new IllegalArgumentException("Can not query id on type '" + typeName + "' because type has no id field.");
+                }
+                if (keyFields.size() > 1) {
+                    throw new NotImplementedException("No support for query on composite key.");
+                }
+                field = new Field(keyFields.get(0));
             } else {
-                String typeName = leftPath.substring(0, leftPath.indexOf('/')); //$NON-NLS-1$
-                String fieldName = StringUtils.substringAfter(leftPath, "/"); //$NON-NLS-1$
-                field = getField(repository, typeName, fieldName);
+                field = getField(repository, typeName, leftFieldName);
             }
-            if (WhereCondition.CONTAINS.equals(operator)
-                    || WhereCondition.STRICTCONTAINS.equals(operator)) {
-                return UserQueryBuilder.contains(field, value);
-            } else if (WhereCondition.EQUALS.equals(operator)) {
-                return UserQueryBuilder.eq(field, value);
-            } else if (WhereCondition.GREATER_THAN.equals(operator)) {
-                return UserQueryBuilder.gt(field, value);
-            } else if (WhereCondition.GREATER_THAN_OR_EQUAL.equals(operator)) {
-                return UserQueryBuilder.gte(field, value);
-            } else if (WhereCondition.LOWER_THAN.equals(operator)) {
-                return UserQueryBuilder.lt(field, value);
-            } else if (WhereCondition.LOWER_THAN_OR_EQUAL.equals(operator)) {
-                return UserQueryBuilder.lte(field, value);
-            } else if (WhereCondition.NOT_EQUALS.equals(operator)) {
-                return UserQueryBuilder.neq(field, value);
-            } else if (WhereCondition.STARTSWITH.equals(operator)) {
-                return UserQueryBuilder.startsWith(field, value);
-            } else if (WhereCondition.JOINS.equals(operator)) {
-                if(field instanceof Field)
-                    queryBuilder.join(field, ((ReferenceFieldMetadata) ((Field) field).getFieldMetadata()).getReferencedField());
-                else
-                    queryBuilder.join(field, ((ReferenceFieldMetadata) field).getReferencedField());
-                return NO_OP_CONDITION;
-            } else if (WhereCondition.EMPTY_NULL.equals(operator)) {
-                return UserQueryBuilder.emptyOrNull(field);
+
+            if (!whereCondition.isRightValueXPath()) {
+                if (!isValueAssignable(value, field)) {
+                    Logger.getLogger(UserQueryHelper.class).warn("Skip '" + leftFieldName + "' because it can't accept value '" + value + "'");
+                    return NO_OP_CONDITION;
+                }
+                if (WhereCondition.CONTAINS.equals(operator) || WhereCondition.STRICTCONTAINS.equals(operator)) {
+                    return contains(field, value);
+                } else if (WhereCondition.EQUALS.equals(operator)) {
+                    return eq(field, value);
+                } else if (WhereCondition.GREATER_THAN.equals(operator)) {
+                    return gt(field, value);
+                } else if (WhereCondition.GREATER_THAN_OR_EQUAL.equals(operator)) {
+                    return gte(field, value);
+                } else if (WhereCondition.LOWER_THAN.equals(operator)) {
+                    return lt(field, value);
+                } else if (WhereCondition.LOWER_THAN_OR_EQUAL.equals(operator)) {
+                    return lte(field, value);
+                } else if (WhereCondition.NOT_EQUALS.equals(operator)) {
+                    return neq(field, value);
+                } else if (WhereCondition.STARTSWITH.equals(operator)) {
+                    return startsWith(field, value);
+                } else if (WhereCondition.JOINS.equals(operator)) {
+                    if (field instanceof Field) {
+                        FieldMetadata fieldMetadata = ((Field) field).getFieldMetadata();
+                        if (!(fieldMetadata instanceof ReferenceFieldMetadata)) {
+                            throw new IllegalArgumentException("Field '" + leftFieldName + "' is not a FK field.");
+                        }
+                        queryBuilder.join(field, ((ReferenceFieldMetadata) fieldMetadata).getReferencedField());
+                    } else {
+                        throw new IllegalArgumentException("Can not perform not on '" + leftFieldName + "' because it is not a field.");
+                    }
+                    return NO_OP_CONDITION;
+                } else if (WhereCondition.EMPTY_NULL.equals(operator)) {
+                    return emptyOrNull(field);
+                } else {
+                    throw new NotImplementedException("'" + operator + "' support not implemented.");
+                }
             } else {
-                throw new NotImplementedException("'" + operator + "' support not implemented.");
+                // Right value is another field name
+                String rightPath = whereCondition.getRightValueOrPath();
+                rightPath = StringUtils.substringAfter(rightPath, "/"); //$NON-NLS-1$;
+                FieldMetadata leftField = type.getField(leftFieldName);
+                FieldMetadata rightField = type.getField(rightPath);
+                if (WhereCondition.LOWER_THAN_OR_EQUAL.equals(operator)) {
+                    return lte(leftField, rightField);
+                } else {
+                    throw new NotImplementedException("'" + operator + "' support not implemented for field to field comparison.");
+                }
             }
         } else {
             throw new NotImplementedException("No support for where item of type " + whereItem.getClass().getName());
         }
+    }
+
+    private static boolean isValueAssignable(String value, TypedExpression field) {
+        try {
+            Object o = MetadataUtils.convert(value, field.getTypeName());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Field: " + field + " / Value: " + value + " / Value class: " + o.getClass());
+            }
+        } catch (Exception e) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Invalid value '" + value + "' for field '" + field + "' due to exception.", e);
+            }
+            return false;
+        }
+        return true;
     }
 
     private static TypedExpression getField(MetadataRepository repository, String typeName, String fieldName) {
