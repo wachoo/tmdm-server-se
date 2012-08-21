@@ -45,7 +45,7 @@ public class DOMAccessorFactory {
                 if (matcher.matches()) {
                     current = new ManyFieldAccessor(current, matcher.group(1), Integer.parseInt(matcher.group(2)) - 1, document);
                 } else {
-                    throw new RuntimeException("Field name '" + element + "' did not match many field pattern.");
+                    throw new RuntimeException("Field name '" + element + "' did not match many field pattern in path '" + xpath + "'.");
                 }
             } else {
                 current = new UnaryFieldAccessor(current, element, document);

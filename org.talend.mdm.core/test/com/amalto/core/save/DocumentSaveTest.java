@@ -10,29 +10,6 @@
 
 package com.amalto.core.save;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
-import javax.xml.XMLConstants;
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
-import junit.framework.TestCase;
-
-import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.metadata.MetadataRepository;
@@ -44,6 +21,21 @@ import com.amalto.core.schema.validation.XmlSchemaValidator;
 import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
+import junit.framework.TestCase;
+import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import javax.xml.XMLConstants;
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.*;
 
 @SuppressWarnings("nls")
 public class DocumentSaveTest extends TestCase {
@@ -179,7 +171,7 @@ public class DocumentSaveTest extends TestCase {
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
         assertNotSame("100", evaluate(committedElement, "/Agency/Id")); // Id is expected to be overwritten in case of
-                                                                        // creation
+        // creation
         assertEquals(1, saver.getSavedId().length);
         assertNotSame("100", saver.getSavedId()[0]);
     }
@@ -202,15 +194,15 @@ public class DocumentSaveTest extends TestCase {
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
         assertEquals("100", evaluate(committedElement, "/Agency/Id")); // Id is expected to be overwritten in case of
-                                                                       // creation
+        // creation
         assertEquals("http://www.newSite2.org", evaluate(committedElement, "/Agency/Information/MoreInfo[2]")); // Id is
-                                                                                                                // expected
-                                                                                                                // to be
-                                                                                                                // overwritten
-                                                                                                                // in
-                                                                                                                // case
-                                                                                                                // of
-                                                                                                                // creation
+        // expected
+        // to be
+        // overwritten
+        // in
+        // case
+        // of
+        // creation
         assertEquals(1, saver.getSavedId().length);
         assertEquals("100", saver.getSavedId()[0]);
     }
@@ -235,7 +227,7 @@ public class DocumentSaveTest extends TestCase {
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
         assertNotSame("100", evaluate(committedElement, "/ProductFamily/Id")); // Id is expected to be overwritten in
-                                                                               // case of creation
+        // case of creation
     }
 
     public void testCreateFailure() throws Exception {
@@ -1264,9 +1256,7 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void test30() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
-        // there's a small change in this model that differs from QA: ThirdEntity is a xsd:sequence (not a xsd:all)
-        // so order of elements will be tested during XSD validation.
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
 
         TestSaverSource source = new TestSaverSource(repository, true, "test30_original.xml", "metadata7.xsd");
@@ -1293,9 +1283,7 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void test31() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
-        // there's a small change in this model that differs from QA: ThirdEntity is a xsd:sequence (not a xsd:all)
-        // so order of elements will be tested during XSD validation.
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
 
         TestSaverSource source = new TestSaverSource(repository, true, "test31_original.xml", "metadata7.xsd");
@@ -1319,9 +1307,7 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void test32() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
-        // there's a small change in this model that differs from QA: ThirdEntity is a xsd:sequence (not a xsd:all)
-        // so order of elements will be tested during XSD validation.
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
 
         TestSaverSource source = new TestSaverSource(repository, true, "test32_original.xml", "metadata7.xsd");
@@ -1350,11 +1336,9 @@ public class DocumentSaveTest extends TestCase {
                 evaluate(committer.getCommittedElement(),
                         "/Societe/Contacts/Contact[3]/SpecialisationContactType/NatureLocalisationFk"));
     }
-    
+
     public void test33() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
-        // there's a small change in this model that differs from QA: ThirdEntity is a xsd:sequence (not a xsd:all)
-        // so order of elements will be tested during XSD validation.
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
 
         TestSaverSource source = new TestSaverSource(repository, true, "test33_original.xml", "metadata7.xsd");
@@ -1389,9 +1373,7 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void test34() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
-        // there's a small change in this model that differs from QA: ThirdEntity is a xsd:sequence (not a xsd:all)
-        // so order of elements will be tested during XSD validation.
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
 
         TestSaverSource source = new TestSaverSource(repository, true, "test34_original.xml", "metadata7.xsd");
@@ -1418,9 +1400,7 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void test36() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
-        // there's a small change in this model that differs from QA: ThirdEntity is a xsd:sequence (not a xsd:all)
-        // so order of elements will be tested during XSD validation.
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
 
         TestSaverSource source = new TestSaverSource(repository, true, "test36_original.xml", "metadata7.xsd");
@@ -1451,9 +1431,7 @@ public class DocumentSaveTest extends TestCase {
     }
 
     public void test37() throws Exception {
-        final MetadataRepository repository = new MetadataRepository();
-        // there's a small change in this model that differs from QA: ThirdEntity is a xsd:sequence (not a xsd:all)
-        // so order of elements will be tested during XSD validation.
+        MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
 
         TestSaverSource source = new TestSaverSource(repository, true, "test37_original.xml", "metadata7.xsd");
@@ -1517,6 +1495,28 @@ public class DocumentSaveTest extends TestCase {
                 "[4]",
                 evaluate(committer.getCommittedElement(),
                         "/Societe/Contacts/Contact[3]/SpecialisationContactType/NatureLocalisationFk"));
+    }
+
+    public void test38() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test38_original.xml", "metadata7.xsd");
+        source.setUserName("admin");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test38.xml");
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "Test38", "admin", recordXml, true,
+                true, "/Societe/Contacts/Contact", "/SpecialisationContactType/NatureTelephoneFk", true);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        assertEquals("", evaluate(committer.getCommittedElement(), "/Societe/Contacts/Contact[8]"));
+        assertEquals("+33 0 00 00 00 00", evaluate(committer.getCommittedElement(), "/Societe/Contacts/Contact[7]/SpecialisationContactType/Numero"));
+        assertEquals("+33 1 47 16 02 03", evaluate(committer.getCommittedElement(), "/Societe/Contacts/Contact[5]/SpecialisationContactType/Numero"));
     }
 
     private static class MockCommitter implements SaverSession.Committer {
@@ -1595,7 +1595,7 @@ public class DocumentSaveTest extends TestCase {
         private int currentId = 0;
 
         public TestSaverSource(MetadataRepository repository, boolean exist, String originalDocumentFileName,
-                String schemaFileName) {
+                               String schemaFileName) {
             this.repository = repository;
             this.exist = exist;
             this.originalDocumentFileName = originalDocumentFileName;
@@ -1692,10 +1692,6 @@ public class DocumentSaveTest extends TestCase {
             return String.valueOf(currentId++);
         }
 
-        public boolean hasCalledInitAutoIncrement() {
-            return hasCalledInitAutoIncrement;
-        }
-
         public boolean hasSavedAutoIncrement() {
             return hasSavedAutoIncrement;
         }
@@ -1716,7 +1712,7 @@ public class DocumentSaveTest extends TestCase {
         private final boolean newOutput;
 
         public AlterRecordTestSaverSource(MetadataRepository repository, boolean exist, String fileName, boolean OK,
-                boolean newOutput) {
+                                          boolean newOutput) {
             super(repository, exist, fileName, "metadata1.xsd");
             this.OK = OK;
             this.newOutput = newOutput;
@@ -1746,7 +1742,7 @@ public class DocumentSaveTest extends TestCase {
         private final boolean newOutput;
 
         public TestSaverSourceWithOutputReportItem(MetadataRepository repository, boolean exist, String fileName, boolean OK,
-                boolean newOutput) {
+                                                   boolean newOutput) {
             super(repository, exist, fileName, "autoIncrementPK.xsd");
             this.OK = OK;
             this.newOutput = newOutput;

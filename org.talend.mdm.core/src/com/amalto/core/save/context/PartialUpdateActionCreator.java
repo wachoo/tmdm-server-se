@@ -24,9 +24,9 @@ import java.util.*;
 
 class PartialUpdateActionCreator extends UpdateActionCreator {
 
-    private final String pivot;
+    private final String partialUpdatePivot;
 
-    private final String key;
+    private final String partialUpdateKey;
 
     private final Map<FieldMetadata, Integer> originalFieldToLastIndex = new HashMap<FieldMetadata, Integer>();
 
@@ -36,11 +36,15 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
 
     private final Map<String, String> keyValueToPath = new HashMap<String, String>();
 
+    private final Set<String> usedPaths = new HashSet<String>();
+
     private final Closure closure;
 
     private String lastMatchPath;
 
     private boolean inPivot;
+
+    private ComplexTypeMetadata mainType;
 
     public PartialUpdateActionCreator(MutableDocument originalDocument,
                                       MutableDocument newDocument,
@@ -53,15 +57,16 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
         super(originalDocument, newDocument, preserveCollectionOldValues, source, userName, repository);
         // Pivot MUST NOT end with '/' and key MUST start with '/' (see TMDM-4381).
         if (pivot.charAt(pivot.length() - 1) == '/') {
-            this.pivot = pivot.substring(0, pivot.length() - 1);
+            partialUpdatePivot = pivot.substring(0, pivot.length() - 1);
         } else {
-            this.pivot = pivot;
+            partialUpdatePivot = pivot;
         }
         if (key.charAt(0) != '/') {
-            this.key = key + '/';
+            this.partialUpdateKey = key + '/';
         } else {
-            this.key = key;
+            this.partialUpdateKey = key;
         }
+        // Special comparison closure for partial update that compares only if we are in pivot.
         closure = new Closure() {
             public void execute(FieldMetadata field) {
                 if (inPivot) {
@@ -69,22 +74,54 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                 }
             }
         };
-    }
-
-    @Override
-    public List<Action> visit(ComplexTypeMetadata complexType) {
-        Accessor accessor = newDocument.createAccessor(pivot);
-        if (!key.isEmpty()) {
+        // Initialize key values in database document to a path in partial update document.
+        Accessor accessor = newDocument.createAccessor(partialUpdatePivot);
+        if (!partialUpdateKey.isEmpty()) {
             for (int i = 1; i <= accessor.size(); i++) {
-                String path = pivot + '[' + i + ']';
-                Accessor keyAccessor = newDocument.createAccessor(path + '/' + key);
+                String path = partialUpdatePivot + '[' + i + ']';
+                Accessor keyAccessor = newDocument.createAccessor(path + '/' + partialUpdateKey);
                 if (!keyAccessor.exist()) {
-                    throw new IllegalStateException("Path '" + path + '/' + key + "' does not exist in user document.");
+                    throw new IllegalStateException("Path '" + path + '/' + partialUpdateKey + "' does not exist in user document.");
                 }
                 keyValueToPath.put(keyAccessor.get(), path);
             }
         }
-        return super.visit(complexType);
+    }
+
+    @Override
+    public List<Action> visit(ComplexTypeMetadata complexType) {
+        if (mainType == null) {
+            mainType = complexType;
+        }
+        List<Action> actionList = super.visit(complexType);
+        if (complexType == mainType) {
+            if (!preserveCollectionOldValues) {
+                /*
+                 * There might be elements not used for the update. In case overwrite=true, expected behavior is to append
+                 * unused elements at the end. The code below removes used elements in partial update (with overwrite=true)
+                 * then do a new partial update (with overwrite=false) so new elements are added at the end (this is the
+                 * behavior of a overwrite=false).
+                 */
+                for (String usedPath : usedPaths) {
+                    newDocument.createAccessor(usedPath).delete();
+                }
+                // Since this a costly operation do this only if there are still elements under the pivot.
+                int leftElementCount = newDocument.createAccessor(StringUtils.substringBeforeLast(partialUpdatePivot, "/")).size();
+                if (leftElementCount > 0) {
+                    preserveCollectionOldValues = true;
+                    mainType.accept(this);
+                }
+            }
+        }
+        return actionList;
+    }
+
+    private static void resetPath(String currentPath, Stack<String> path) {
+        StringTokenizer pathIterator = new StringTokenizer(currentPath, "/");
+        path.clear();
+        while (pathIterator.hasMoreTokens()) {
+            path.add(pathIterator.nextToken());
+        }
     }
 
     @Override
@@ -118,7 +155,8 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
 
     protected void handleField(FieldMetadata field, Closure closure) {
         leftPath.add(field.getName());
-        if (!inPivot && pivot.equals(getLeftPath())) {
+        String currentPath = getLeftPath();
+        if (!inPivot && partialUpdatePivot.equals(currentPath)) {
             inPivot = true;
         }
         rightPath.add(field.getName());
@@ -166,39 +204,29 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
             leftPath.pop();
             rightPath.pop();
         }
+        if (inPivot && partialUpdatePivot.equals(currentPath)) {
+            inPivot = false;
+        }
     }
 
     private void doCompare(FieldMetadata field, Closure closure, int i) {
         if (inPivot) {
-            Accessor originalKeyAccessor = originalDocument.createAccessor(getLeftPath() + '/' + key);
+            Accessor originalKeyAccessor = originalDocument.createAccessor(getLeftPath() + '/' + partialUpdateKey);
             String newDocumentPath;
             if (originalKeyAccessor.exist()) {
                 newDocumentPath = keyValueToPath.get(originalKeyAccessor.get());
+                usedPaths.add(newDocumentPath);
             } else {
                 newDocumentPath = null;
             }
             if (newDocumentPath == null) {
-                rightPath.push(field.getName() + '[' + i + ']');
-                if (!preserveCollectionOldValues) {  // When overwriting, append to the end of collection if key not found.
-                    int newItemIndex;
-                    if (originalFieldToLastIndex.containsKey(field)) {
-                        newItemIndex = originalFieldToLastIndex.get(field) + 1;
-                    } else {
-                        leftPath.pop();
-                        leftPath.push(field.getName());
-                        Accessor accessor = originalDocument.createAccessor(getLeftPath());
-                        newItemIndex = accessor.size() + 1;
-                    }
-                    originalFieldToLastIndex.put(field, newItemIndex);
-                    leftPath.pop();
-                    leftPath.push(field.getName() + '[' + newItemIndex + ']');
+                if (preserveCollectionOldValues) {
+                    rightPath.push(field.getName() + '[' + i + ']');
+                } else {
+                    return;
                 }
             } else {
-                StringTokenizer pathIterator = new StringTokenizer(newDocumentPath, "/");
-                rightPath.clear();
-                while (pathIterator.hasMoreTokens()) {
-                    rightPath.add(pathIterator.nextToken());
-                }
+                resetPath(newDocumentPath, rightPath);
             }
         } else {
             rightPath.add(field.getName() + '[' + i + ']');
