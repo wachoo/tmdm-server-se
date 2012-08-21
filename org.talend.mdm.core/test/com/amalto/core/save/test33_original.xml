@@ -29,6 +29,22 @@
 						<Numero>+33 1 47 51 91 22</Numero>
 					</SpecialisationContactType>
 				</Contact>
+				<Contact>
+					<StatutContactFk>[2]</StatutContactFk>
+					<SpecialisationContactType xsi:type="SpecialisationContactNatureLocalisation">
+						<NatureLocalisationFk>[3]</NatureLocalisationFk>
+						<AdressePostale>
+							<Emplacement/>
+							<Adresse1>1 cours Ferdinand de Lesseps</Adresse1>
+							<Adresse2/>
+							<Adresse3/>
+							<CodePostal>92500</CodePostal>
+							<Ville>RUEIL-MALMAISON</Ville>
+							<Etat/>
+							<PaysFk>[FR]</PaysFk>
+						</AdressePostale>
+					</SpecialisationContactType>
+				</Contact>
 			</Contacts>
 		</Societe>
 	</p>
