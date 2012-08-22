@@ -27,6 +27,7 @@ import com.amalto.xmlserver.interfaces.WhereCondition;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
@@ -1045,5 +1046,21 @@ public class StorageQueryTest extends StorageTestCase {
         Condition condition = qb.getSelect().getCondition();
         assertTrue(condition instanceof Compare);
         assertTrue(((Compare) condition).getLeft() instanceof Timestamp);
+    }
+
+    public void testContainsOnNumericField() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(address)
+                .where(contains(address.getField("ZipCode"), "10000"));
+        Condition condition = qb.getSelect().getCondition();
+        assertTrue(condition instanceof Compare);
+        assertTrue(((Compare) condition).getLeft() instanceof Field);
+        assertTrue(((Compare) condition).getRight() instanceof IntegerConstant);
+        assertTrue(((Compare) condition).getPredicate() == Predicate.EQUALS);
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        int expected = 10000;
+        for (DataRecord result : results) {
+            assertEquals(expected, result.get("ZipCode"));
+        }
     }
 }

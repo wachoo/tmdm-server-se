@@ -14,6 +14,7 @@ package com.amalto.core.query.user;
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.ReferenceFieldMetadata;
+import org.apache.log4j.Logger;
 
 import java.util.List;
 
@@ -21,6 +22,8 @@ import java.util.List;
  *
  */
 public class UserQueryBuilder {
+
+    private static final Logger LOGGER = Logger.getLogger(UserQueryBuilder.class);
 
     private final Select select;
 
@@ -146,7 +149,11 @@ public class UserQueryBuilder {
                 || "unsignedInt".equals(fieldTypeName) //$NON-NLS-1$
                 || "int".equals(fieldTypeName)) { //$NON-NLS-1$
             return new IntegerConstant(Integer.parseInt(constant));
-        } else if ("string".equals(fieldTypeName)) { //$NON-NLS-1$
+        } else if ("string".equals(fieldTypeName) //$NON-NLS-1$
+                || "hexBinary".equals(fieldTypeName) //$NON-NLS-1$
+                || "base64Binary".equals(fieldTypeName) //$NON-NLS-1$
+                || "anyURI".equals(fieldTypeName) //$NON-NLS-1$
+                || "QName".equals(fieldTypeName)) { //$NON-NLS-1$
             return new StringConstant(constant);
         } else if ("date".equals(fieldTypeName)) { //$NON-NLS-1$
             return new DateConstant(constant);
@@ -463,11 +470,19 @@ public class UserQueryBuilder {
     public static Condition contains(FieldMetadata field, String value) {
         assertValueConditionArguments(field, value);
         Field userField = new Field(field);
-        return new Compare(userField, Predicate.CONTAINS, new StringConstant(value));
+        return contains(userField, value);
     }
 
     public static Condition contains(TypedExpression field, String value) {
         assertValueConditionArguments(field, value);
-        return new Compare(field, Predicate.CONTAINS, new StringConstant(value));
+        Expression constant = createConstant(field, value);
+        if (constant instanceof StringConstant) {
+            return new Compare(field, Predicate.CONTAINS, constant);
+        } else {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Change CONTAINS to EQUALS for '" + field + "' (type: " + field.getTypeName() + ").");
+            }
+            return new Compare(field, Predicate.EQUALS, constant);
+        }
     }
 }

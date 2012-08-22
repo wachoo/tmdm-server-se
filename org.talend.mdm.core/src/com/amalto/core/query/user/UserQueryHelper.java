@@ -26,7 +26,8 @@ import static com.amalto.core.query.user.UserQueryBuilder.*;
 public class UserQueryHelper {
 
     public static final NoOpCondition NO_OP_CONDITION = new NoOpCondition();
-    public static final Logger LOGGER = Logger.getLogger(UserQueryHelper.class);
+
+    private static final Logger LOGGER = Logger.getLogger(UserQueryHelper.class);
 
     private UserQueryHelper() {
     }

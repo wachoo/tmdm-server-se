@@ -143,7 +143,13 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                     level++;
                 } else if (xmlEvent.isCharacters()) {
                     if (level >= userXmlPayloadLevel && field != null) {
-                        Object value = MetadataUtils.convert(xmlEvent.asCharacters().getData(), field, currentType.peek());
+                        Object value;
+                        String data = xmlEvent.asCharacters().getData();
+                        try {
+                            value = MetadataUtils.convert(data, field, currentType.peek());
+                        } catch (Exception e) {
+                            throw new IllegalArgumentException("Field '" + field.getName() + "' of type '" + field.getType().getName() + "' can not receive value '" + data + "'.", e);
+                        }
                         if (value != null) {
                             dataRecords.peek().set(field, value);
                         }

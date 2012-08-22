@@ -420,7 +420,7 @@ public class StagingAreaTest extends TestCase {
                     + id1
                     + "</Id><enterprise>"
                     + id2
-                    + "</enterprise><Street>Street1</Street><ZipCode>test</ZipCode><City>City</City><country>[-1]</country></Address>";
+                    + "</enterprise><Street>Street1</Street><ZipCode>300</ZipCode><City>City</City><country>[-1]</country></Address>";
         }
     }
 
