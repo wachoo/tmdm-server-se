@@ -55,9 +55,14 @@ public class ForeignKeyHelper {
 
     public static ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,
             String dataClusterPK, boolean ifFKFilter, String value) throws Exception {
+        return getForeignKeyList(config, model, dataClusterPK, ifFKFilter, value, null);
+    }
+    
+    public static ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,
+            String dataClusterPK, boolean ifFKFilter, String value, Map<String, TypeModel> metaDataTypes) throws Exception {
 
         ForeignKeyHolder holder = getForeignKeyHolder((String) config.get("xml"), (String) config.get("dataObject"), //$NON-NLS-1$ //$NON-NLS-2$
-                (String) config.get("currentXpath"), model, ifFKFilter, value); //$NON-NLS-1$
+                (String) config.get("currentXpath"), model, ifFKFilter, value, metaDataTypes); //$NON-NLS-1$
         String[] results = null;
         if (holder != null) {
             String conceptName = holder.conceptName;
@@ -177,6 +182,12 @@ public class ForeignKeyHelper {
 
     protected static ForeignKeyHolder getForeignKeyHolder(String xml, String dataObject, String currentXpath, TypeModel model,
             boolean ifFKFilter, String value) throws Exception {
+        return getForeignKeyHolder(xml, dataObject, currentXpath, model, ifFKFilter, value, null);
+    }
+
+    
+    protected static ForeignKeyHolder getForeignKeyHolder(String xml, String dataObject, String currentXpath, TypeModel model,
+            boolean ifFKFilter, String value, Map<String, TypeModel> metaDataTypes) throws Exception {
 
         String xpathForeignKey = model.getForeignkey();
         if (xpathForeignKey == null) {
@@ -189,7 +200,7 @@ public class ForeignKeyHelper {
         String fkFilter;
         if (ifFKFilter) {
             fkFilter = model.getFkFilter().replaceAll("&quot;", "\""); //$NON-NLS-1$ //$NON-NLS-2$
-            fkFilter = parseForeignKeyFilter(xml, dataObject, fkFilter, currentXpath);
+            fkFilter = parseForeignKeyFilter(xml, dataObject, fkFilter, currentXpath, metaDataTypes);
         } else
             fkFilter = ""; //$NON-NLS-1$
 
@@ -326,13 +337,13 @@ public class ForeignKeyHelper {
         bean.setDisplayInfo(infoStr);
     }
     
-    private static String parseForeignKeyFilter(String xml, String dataObject, String fkFilter, String currentXpath)
+    private static String parseForeignKeyFilter(String xml, String dataObject, String fkFilter, String currentXpath, Map<String, TypeModel> metaDataTypes)
             throws Exception {
         String parsedFkfilter = fkFilter;
         if (fkFilter != null) {
             if (Util.isCustomFilter(fkFilter)) {
                 fkFilter = StringEscapeUtils.unescapeXml(fkFilter);
-                parsedFkfilter = parseRightValueOrPath(xml, dataObject, fkFilter, currentXpath);
+                parsedFkfilter = parseRightValueOrPath(xml, dataObject, fkFilter, currentXpath, metaDataTypes);
                 return parsedFkfilter;
             }
             // parse
@@ -353,7 +364,7 @@ public class ForeignKeyHelper {
                     case 2:
                         String rightValueOrPath = values[2];
                         rightValueOrPath = StringEscapeUtils.unescapeXml(rightValueOrPath);
-                        rightValueOrPath = parseRightValueOrPath(xml, dataObject, rightValueOrPath, currentXpath);
+                        rightValueOrPath = parseRightValueOrPath(xml, dataObject, rightValueOrPath, currentXpath, metaDataTypes);
                         conditionMap.put("Value", rightValueOrPath);//$NON-NLS-1$
                         break;
                     case 3:
@@ -385,7 +396,7 @@ public class ForeignKeyHelper {
         return parsedFkfilter;
     }
     
-    private static String parseRightValueOrPath(String xml, String dataObject, String rightValueOrPath, String currentXpath)
+    private static String parseRightValueOrPath(String xml, String dataObject, String rightValueOrPath, String currentXpath, Map<String, TypeModel> metaDataTypes)
             throws Exception {
         String origiRightValueOrPath = rightValueOrPath;
         String patternString = dataObject + "(/[A-Za-z0-9_\\[\\]]*)+";//$NON-NLS-1$
@@ -451,6 +462,16 @@ public class ForeignKeyHelper {
                 }
             }
         }
+        
+        if (metaDataTypes != null && origiRightValueOrPath != null && rightValueOrPath != null) {
+            TypeModel typeModel = metaDataTypes.get(origiRightValueOrPath);
+            if (typeModel != null && typeModel.getForeignkey() != null) {
+                if (rightValueOrPath.startsWith("\"[") && rightValueOrPath.endsWith("]\"")) { //$NON-NLS-1$ //$NON-NLS-2$
+                    rightValueOrPath = rightValueOrPath.substring(2, rightValueOrPath.length() - 2);
+                }
+            }
+        }
+        
         return rightValueOrPath;
     }
 }
