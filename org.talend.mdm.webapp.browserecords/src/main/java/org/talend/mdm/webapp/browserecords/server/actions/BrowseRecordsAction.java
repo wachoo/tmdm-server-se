@@ -284,7 +284,22 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,
             String dataClusterPK, boolean ifFKFilter, String value) throws ServiceException {
         try {
-            return ForeignKeyHelper.getForeignKeyList(config, model, dataClusterPK, ifFKFilter, value);
+            
+            String concept = config.get("dataObject"); //$NON-NLS-1$
+            ViewBean viewBean = null;
+            Map<String, TypeModel> metaDataTypes = null;
+            if (concept != null) {
+                String viewPk = "Browse_items_" + concept; //$NON-NLS-1$ 
+                viewBean = getView(viewPk, "en"); //$NON-NLS-1$                
+                if (viewBean != null) {
+                    EntityModel entityModel = viewBean.getBindingEntityModel();
+                    if (entityModel != null) {
+                        metaDataTypes = entityModel.getMetaDataTypes();
+                    }
+                }
+            }
+            
+            return ForeignKeyHelper.getForeignKeyList(config, model, dataClusterPK, ifFKFilter, value, metaDataTypes);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
