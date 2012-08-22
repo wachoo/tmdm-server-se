@@ -31,8 +31,9 @@ public class CommonUtil {
     public static String getElementFromXpath(String xpath) {
         String[] arr = xpath.split("/");//$NON-NLS-1$
         for (int i = arr.length - 1; i > -1; i--) {
-            if (arr[i] != "")//$NON-NLS-1$
+            if (arr[i] != "") {
                 return arr[i];
+            }
         }
         return xpath;
     }
@@ -102,12 +103,14 @@ public class CommonUtil {
     }
 
     public static String toXML(ItemNodeModel nodeModel, ViewBean viewBean, boolean isAll) {
-        if (nodeModel == null)
+        if (nodeModel == null) {
             return null;
+        }
         Document doc = XMLParser.createDocument();
         Element root = _toXML(doc, nodeModel, viewBean, nodeModel, isAll);
-        if (nodeModel.get(XMLNS_TMDM) != null)
+        if (nodeModel.get(XMLNS_TMDM) != null) {
             root.setAttribute(XMLNS_TMDM, XMLNS_TMDM_VALUE);
+        }
         root.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance"); //$NON-NLS-1$//$NON-NLS-2$
         doc.appendChild(root);
         return doc.toString();
@@ -118,10 +121,11 @@ public class CommonUtil {
         TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(nodeModel.getTypePath());
         Serializable value = nodeModel.getObjectValue();
         if (typeModel.isSimpleType() && value != null && nodeModel.getParent() != null) {
-            if (value instanceof ForeignKeyBean)
+            if (value instanceof ForeignKeyBean) {
                 root.appendChild(doc.createTextNode(((ForeignKeyBean) value).getId()));
-            else
+            } else {
                 root.appendChild(doc.createTextNode(value.toString()));
+            }
         }
 
         if (nodeModel.getRealType() != null) {
@@ -149,8 +153,9 @@ public class CommonUtil {
         int count = 0;
         String name = nodeModel.getName();
         ItemNodeModel parentModel = (ItemNodeModel) nodeModel.getParent();
-        if (parentModel == null)
+        if (parentModel == null) {
             return 1;
+        }
         for (int i = 0; i < parentModel.getChildCount(); i++) {
             ItemNodeModel childModel = (ItemNodeModel) parentModel.getChild(i);
             if (name.equals(childModel.getName())) {
@@ -159,6 +164,7 @@ public class CommonUtil {
         }
         return count;
     }
+
     public static boolean hasChildrenValue(ItemNodeModel parentModel) {
         List<ModelData> childs = parentModel.getChildren();
         if (childs != null && childs.size() > 0) {
@@ -191,6 +197,7 @@ public class CommonUtil {
     public static String getRealXpathWithoutLastIndex(String realPath) {
         return realPath.replaceAll("\\[\\d+\\]$", ""); //$NON-NLS-1$ //$NON-NLS-2$
     }
+
     public static List<ItemNodeModel> getDefaultTreeModel(TypeModel model, String language, boolean defaultValue) {
         List<ItemNodeModel> itemNodes = new ArrayList<ItemNodeModel>();
 
@@ -199,8 +206,9 @@ public class CommonUtil {
                 ItemNodeModel itemNode = new ItemNodeModel();
 
                 itemNodes.add(itemNode);
-                if (model.getForeignkey() != null)
+                if (model.getForeignkey() != null) {
                     break;
+                }
             }
         } else {
             ItemNodeModel itemNode = new ItemNodeModel();
@@ -212,9 +220,9 @@ public class CommonUtil {
                 node.setMandatory(true);
             }
             if (model.isSimpleType()) {
-            	if(defaultValue) {
-            		setDefaultValue(model, node);
-            	}
+                if (defaultValue) {
+                    setDefaultValue(model, node);
+                }
             } else {
                 ComplexTypeModel complexModel = (ComplexTypeModel) model;
                 List<TypeModel> children = complexModel.getSubTypes();
@@ -302,7 +310,6 @@ public class CommonUtil {
         return root;
     }
 
-
     public static boolean isSimpleCriteria(String criteria) {
         if (criteria.indexOf(" AND ") == -1 && criteria.indexOf(" OR ") == -1) { //$NON-NLS-1$//$NON-NLS-2$
             return true;
@@ -310,62 +317,66 @@ public class CommonUtil {
 
         return false;
     }
-    
-    public static boolean validateSearchValue(Map<String, TypeModel> metaDataTypeMap,String value) {
+
+    public static boolean validateSearchValue(Map<String, TypeModel> metaDataTypeMap, String value) {
         if (!value.contains("/")) //$NON-NLS-1$
         {
             return true;
-        }else if (isString(value)){
+        } else if (isString(value)) {
             return true;
-        }else if (isPath(metaDataTypeMap,value)){
+        } else if (isPath(metaDataTypeMap, value)) {
             return true;
-        }else{
+        } else {
             return false;
-        }       
+        }
     }
-    
-    private static boolean isString(String value){
-        if (((value.startsWith("'") && value.endsWith("'")) || (value.startsWith("\"") && value.endsWith("\"")))){ //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+
+    private static boolean isString(String value) {
+        if (((value.startsWith("'") && value.endsWith("'")) || (value.startsWith("\"") && value.endsWith("\"")))) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             return true;
-        }else{
+        } else {
             return false;
-        }        
+        }
     }
-    
-    private static boolean isPath(Map<String, TypeModel> metaDataTypeMap,String value){
+
+    private static boolean isPath(Map<String, TypeModel> metaDataTypeMap, String value) {
         if (!value.endsWith("/")) //$NON-NLS-1$
         {
             value = (value.startsWith("/") ? value.substring(1) : value); //$NON-NLS-1$
-            if (metaDataTypeMap.get(value) != null){
+            if (metaDataTypeMap.get(value) != null) {
                 return true;
-            }else{
+            } else {
                 return false;
             }
-        }else{
+        } else {
             return false;
-        }        
-    }   
-    
+        }
+    }
+
     public static String typePathToXpath(String typePath){
-    	String[] paths = typePath.split("/"); //$NON-NLS-1$
-    	StringBuffer result = new StringBuffer();
-    	boolean isFirst = true;
-    	for (String path : paths){
-    		String[] part = path.split(":"); //$NON-NLS-1$
-    		String xpart;
-    		if (part.length == 1){
-    			xpart = part[0];
-    		} else {
-    			xpart = part[0] + "[@xsi:type='" + part[1] + "']"; //$NON-NLS-1$ //$NON-NLS-2$
-    		}
-    		if (isFirst){
-    			result.append(xpart);
-    			isFirst = false;
-    		} else {
-    			result.append("/" + xpart); //$NON-NLS-1$
-    		}
-    		
-    	}
-    	return result.toString();
+        String[] paths = typePath.split("/"); //$NON-NLS-1$
+        StringBuffer result = new StringBuffer();
+        boolean isFirst = true;
+        for (String path : paths){
+            String[] part = path.split(":"); //$NON-NLS-1$
+            String xpart;
+            if (part.length == 1){
+                xpart = part[0];
+            } else {
+                xpart = part[0] + "[@xsi:type='" + part[1] + "']"; //$NON-NLS-1$ //$NON-NLS-2$
+            }
+            if (isFirst){
+                result.append(xpart);
+                isFirst = false;
+            } else {
+                result.append("/" + xpart); //$NON-NLS-1$
+            }
+            
+        }
+        return result.toString();
+    }
+
+    public static String getDownloadFileHeadName(TypeModel typeModel) {
+        return typeModel.getName();
     }
 }

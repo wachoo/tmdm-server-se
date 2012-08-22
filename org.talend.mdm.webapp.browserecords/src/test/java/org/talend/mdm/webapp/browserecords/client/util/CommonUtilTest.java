@@ -35,9 +35,8 @@ import com.extjs.gxt.ui.client.data.ModelData;
 @SuppressWarnings("nls")
 public class CommonUtilTest extends TestCase {
 
-    
-    public void testValidateSearchValue(){
-        Map<String, TypeModel> xpathMap = new HashMap<String,TypeModel>();        
+    public void testValidateSearchValue() {
+        Map<String, TypeModel> xpathMap = new HashMap<String, TypeModel>();
         xpathMap.put("Product/Name", new SimpleTypeModel()); //$NON-NLS-1$
         assertTrue(CommonUtil.validateSearchValue(xpathMap, "/Product/Name")); //$NON-NLS-1$
         assertTrue(CommonUtil.validateSearchValue(xpathMap, "Product/Name")); //$NON-NLS-1$
@@ -46,21 +45,21 @@ public class CommonUtilTest extends TestCase {
         assertFalse(CommonUtil.validateSearchValue(xpathMap, "a/b")); //$NON-NLS-1$
         assertTrue(CommonUtil.validateSearchValue(xpathMap, "\"a/b\"")); //$NON-NLS-1$
         assertTrue(CommonUtil.validateSearchValue(xpathMap, "\'a/b\'")); //$NON-NLS-1$
-        assertFalse(CommonUtil.validateSearchValue(xpathMap, "\'a/b\""));   //$NON-NLS-1$
-        assertFalse(CommonUtil.validateSearchValue(xpathMap, "\"a/b"));    //$NON-NLS-1$
+        assertFalse(CommonUtil.validateSearchValue(xpathMap, "\'a/b\"")); //$NON-NLS-1$
+        assertFalse(CommonUtil.validateSearchValue(xpathMap, "\"a/b")); //$NON-NLS-1$
         assertTrue(CommonUtil.validateSearchValue(xpathMap, "aaa")); //$NON-NLS-1$
     }
-    
-    public void testTypePathToXpath(){
-    	
-    	String result = CommonUtil.typePathToXpath("Eda/typeEda/typeEDA:PointSoutirageRpt/crmaEda"); //$NON-NLS-1$
-    	assertEquals("Eda/typeEda/typeEDA[@xsi:type='PointSoutirageRpt']/crmaEda", result); //$NON-NLS-1$
-    	
-    	result = CommonUtil.typePathToXpath("Eda/typeEda/typeEDA:PointSoutirageRpt/crmaEda/qqq:www"); //$NON-NLS-1$
-    	assertEquals("Eda/typeEda/typeEDA[@xsi:type='PointSoutirageRpt']/crmaEda/qqq[@xsi:type='www']", result); //$NON-NLS-1$
-    	
+
+    public void testTypePathToXpath() {
+
+        String result = CommonUtil.typePathToXpath("Eda/typeEda/typeEDA:PointSoutirageRpt/crmaEda"); //$NON-NLS-1$
+        assertEquals("Eda/typeEda/typeEDA[@xsi:type='PointSoutirageRpt']/crmaEda", result); //$NON-NLS-1$
+
+        result = CommonUtil.typePathToXpath("Eda/typeEda/typeEDA:PointSoutirageRpt/crmaEda/qqq:www"); //$NON-NLS-1$
+        assertEquals("Eda/typeEda/typeEDA[@xsi:type='PointSoutirageRpt']/crmaEda/qqq[@xsi:type='www']", result); //$NON-NLS-1$
+
     }
-    
+
     public void testGetDefaultTreeModel() {
         try {
             CommonUtil.getDefaultTreeModel(new SimpleTypeModel(), "en", true);
@@ -69,7 +68,7 @@ public class CommonUtilTest extends TestCase {
 
         }
     }
-    
+
     public void transferXpath() {
         String xp = "a/b/c/d";
         Map<String, String> map = new HashMap<String, String>();
@@ -87,15 +86,16 @@ public class CommonUtilTest extends TestCase {
         boolean flag = true;
 
         while (!stack.isEmpty()) {
-            if (flag)
+            if (flag) {
                 flag = false;
-            else
+            } else {
                 sb.append("/");
+            }
             sb.append(stack.pop());
         }
         Assert.assertEquals("hello/peili/liang", sb.toString());
     }
-    
+
     public void testGetRealPath() throws Exception {
         ItemNodeModel nodeModel = TestData.getModel();
         // 1. getPathWithIndex
@@ -107,7 +107,7 @@ public class CommonUtilTest extends TestCase {
         iter = xpathes.iterator();
         assertRealTypePath(nodeModel, iter);
     }
-    
+
     private void assertPathWithIndex(ItemNodeModel nodeModel, Iterator<String> iter) {
         String xpath = iter.next();
         String nodePath = CommonUtil.getRealXPath(nodeModel);
@@ -120,7 +120,7 @@ public class CommonUtilTest extends TestCase {
             }
         }
     }
-    
+
     private void assertRealTypePath(ItemNodeModel nodeModel, Iterator<String> iter) {
         String xpath = iter.next();
         String nodeRealTypePath = CommonUtil.getRealTypePath(nodeModel);
@@ -133,7 +133,7 @@ public class CommonUtilTest extends TestCase {
             }
         }
     }
-    
+
     public void test_polymorphismTypeXpathRegex() {
         String xpath = "Person:Student/Name";
         xpath = xpath.replaceAll(":\\w+", "");
@@ -188,15 +188,16 @@ public class CommonUtilTest extends TestCase {
         // 7
         message = "[EN:price must > 10][FR:price must > 10]";
         if (message.length() > 0) {
-            if (message.indexOf("<msg>") == -1)
+            if (message.indexOf("<msg>") == -1) {
                 message = "<msg>" + message + "</msg>";
+            }
         }
         language = "en";
         actualMsg = Util.getExceptionMessage(message, language);
         assertEquals("price must > 10", actualMsg);
     }
-    
-    public void testGetFKFormat(){
+
+    public void testGetFKFormat() {
         int result = -1;
         result = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getFKFormatType(null);
         assertEquals(0, result);
@@ -206,13 +207,13 @@ public class CommonUtilTest extends TestCase {
 
         result = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getFKFormatType("[1]");
         assertEquals(1, result);
-        
+
         result = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getFKFormatType("a[1]b");
         assertEquals(0, result);
 
         result = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getFKFormatType("[1]-aaa");
         assertEquals(2, result);
-        
+
         result = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getFKFormatType("aaa-[1]-aaa");
         assertEquals(0, result);
 
@@ -222,17 +223,17 @@ public class CommonUtilTest extends TestCase {
         String fk = null;
         fk = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyId("test", 0);
         assertNull(fk);
-        
+
         fk = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyId("[1]", 1);
         assertEquals("[1]", fk);
-        
+
         fk = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyId("test", 2);
         assertNull(fk);
-        
+
         fk = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyId("[2]-test", 2);
         assertEquals("[2]", fk);
     }
-    
+
     public void test_isChangeValue() {
         String language = "en";
         boolean isCreate = true;
@@ -286,9 +287,8 @@ public class CommonUtilTest extends TestCase {
         typeModel.addSubType(isActiveModel);
 
         List<ItemNodeModel> list = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getDefaultTreeModel(typeModel,
-                isCreate,
-                language);
-        
+                isCreate, language);
+
         assertNotNull(list);
         assertTrue(list.size() > 0);
 
@@ -297,6 +297,10 @@ public class CommonUtilTest extends TestCase {
             ItemNodeModel itemNodeModel = (ItemNodeModel) modelData;
             assertNull(itemNodeModel.getObjectValue());
         }
+    }
 
+    public void testGetDownloadFileHeadName() {
+        TypeModel typeModel = new SimpleTypeModel("downloadFileHeadName", null);
+        assertEquals("downloadFileHeadName", CommonUtil.getDownloadFileHeadName(typeModel));
     }
 }

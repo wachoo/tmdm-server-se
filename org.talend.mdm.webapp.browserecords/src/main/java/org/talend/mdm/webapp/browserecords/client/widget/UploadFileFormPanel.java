@@ -46,18 +46,17 @@ import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.HiddenField;
 
-
 /**
- * DOC Administrator  class global comment. Detailled comment
+ * DOC Administrator class global comment. Detailled comment
  */
 public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent> {
 
     private String tableName;
-    
+
     private ComboBox<ItemBaseModel> separatorCombo;
-    
+
     private ComboBox<ItemBaseModel> textDelimiterCombo;
-    
+
     private ComboBox<ItemBaseModel> encodingCombo;
 
     private FileUploadField file;
@@ -65,25 +64,25 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
     private CheckBox headerLine;
 
     private HiddenField<String> nameField;
-        
+
     private HiddenField<String> headerField;
 
     private HiddenField<String> mandatoryField;
-    
+
     private HiddenField<String> languageField;
-    
+
     private HiddenField<String> viewableXpathField;
-    
+
     private MessageBox waitBar;
-    
+
     private String type;
 
     private ViewBean viewBean;
-    
+
     private Window window;
-    
+
     public UploadFileFormPanel(ViewBean viewBean, Window window) {
-        
+
         this.tableName = viewBean.getBindingEntityModel().getConceptName();
         this.viewBean = viewBean;
         this.window = window;
@@ -97,8 +96,8 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         this.renderForm();
     }
 
-    private String getHeaderStr(ViewBean viewBean){
-        EntityModel entityModel = viewBean.getBindingEntityModel();         
+    private String getHeaderStr(ViewBean viewBean) {
+        EntityModel entityModel = viewBean.getBindingEntityModel();
         Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
         StringBuilder sb = new StringBuilder();
         int i = 0;
@@ -108,22 +107,23 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         for (TypeModel typeModel : typeModels) {
             i++;
             sb.append(typeModel.getName() + ":" + typeModel.isVisible()); //$NON-NLS-1$
-            if(i < size)
-                sb.append("@");  //$NON-NLS-1$
+            if (i < size) {
+                sb.append("@"); //$NON-NLS-1$
+            }
         }
         return sb.toString();
     }
-    
-    private String getMandatoryStr(ViewBean viewBean){
-        EntityModel entityModel = viewBean.getBindingEntityModel();         
+
+    private String getMandatoryStr(ViewBean viewBean) {
+        EntityModel entityModel = viewBean.getBindingEntityModel();
         Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
         Set<String> keySet = dataTypes.keySet();
         StringBuilder sb = new StringBuilder();
-        
-        for(String key : keySet){
+
+        for (String key : keySet) {
             TypeModel typeModel = dataTypes.get(key);
-            if(typeModel != null){
-                if(typeModel.getMaxOccurs() == 1 && typeModel.getMinOccurs() == 1){
+            if (typeModel != null) {
+                if (typeModel.getMaxOccurs() == 1 && typeModel.getMinOccurs() == 1) {
                     sb.append(typeModel.getName()).append("@"); //$NON-NLS-1$
                 }
             }
@@ -131,34 +131,34 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
 
         return sb.toString();
     }
-    
+
     private void renderForm() {
 
         nameField = new HiddenField<String>();
         nameField.setName("concept");//$NON-NLS-1$
         nameField.setValue(tableName);
         this.add(nameField);
-                
+
         headerField = new HiddenField<String>();
         headerField.setName("header");//$NON-NLS-1$
         headerField.setValue(this.getHeaderStr(viewBean));
         this.add(headerField);
-        
+
         mandatoryField = new HiddenField<String>();
         mandatoryField.setName("mandatoryField");//$NON-NLS-1$
         mandatoryField.setValue(this.getMandatoryStr(viewBean));
         this.add(mandatoryField);
-        
+
         languageField = new HiddenField<String>();
         languageField.setName("language");//$NON-NLS-1$
         languageField.setValue(UrlUtil.getLanguage());
         this.add(languageField);
-        
+
         viewableXpathField = new HiddenField<String>();
         viewableXpathField.setName("viewableXpath");//$NON-NLS-1$
         viewableXpathField.setValue(LabelUtil.convertList2String(viewBean.getViewableXpaths(), "@")); //$NON-NLS-1$
         this.add(viewableXpathField);
-        
+
         file = new FileUploadField();
         file.setAllowBlank(false);
         file.setName("file"); //$NON-NLS-1$
@@ -166,13 +166,13 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         file.setFieldLabel(MessagesFactory.getMessages().label_field_file());
         file.addListener(Events.Change, new Listener<BaseEvent>() {
 
-            public void handleEvent(BaseEvent be) {                
-                type =  FileUtil.getFileType(file.getValue());
+            public void handleEvent(BaseEvent be) {
+                type = FileUtil.getFileType(file.getValue());
                 if (type.equalsIgnoreCase("CSV")) { //$NON-NLS-1$
                     separatorCombo.enable();
                     textDelimiterCombo.enable();
                     encodingCombo.enable();
-                    
+
                     separatorCombo.setAllowBlank(false);
                     textDelimiterCombo.setAllowBlank(false);
                     encodingCombo.setAllowBlank(false);
@@ -180,14 +180,14 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
                     separatorCombo.disable();
                     textDelimiterCombo.disable();
                     encodingCombo.disable();
-                    
+
                     separatorCombo.setAllowBlank(true);
                     separatorCombo.validate();
                     textDelimiterCombo.setAllowBlank(true);
                     textDelimiterCombo.validate();
                     encodingCombo.setAllowBlank(true);
                     encodingCombo.validate();
-                } 
+                }
             }
         });
         this.add(file);
@@ -303,19 +303,19 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                if (!UploadFileFormPanel.this.isValid())
-                    return;    
+                if (!UploadFileFormPanel.this.isValid()) {
+                    return;
+                }
 
-                if(!Constants.FileType_Imported.contains(type.toLowerCase())){
-                    MessageBox.alert(MessagesFactory.getMessages().error_title(), 
-                            MessagesFactory.getMessages().error_incompatible_file_type(), null);
+                if (!Constants.FileType_Imported.contains(type.toLowerCase())) {
+                    MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                            .error_incompatible_file_type(), null);
                     return;
                 }
 
                 UploadFileFormPanel.this.submit();
                 waitBar = MessageBox.wait(MessagesFactory.getMessages().import_progress_bar_title(), MessagesFactory
-                        .getMessages().import_progress_bar_message(), MessagesFactory
-                        .getMessages().import_progress_bar_laod());
+                        .getMessages().import_progress_bar_message(), MessagesFactory.getMessages().import_progress_bar_laod());
             }
         });
 
@@ -329,30 +329,33 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         this.addListener(Events.Submit, this);
     }
 
-    public void handleEvent(FormEvent be) {        
+    public void handleEvent(FormEvent be) {
         String result = be.getResultHtml().replace("pre>", "f>"); //$NON-NLS-1$//$NON-NLS-2$
 
         waitBar.close();
         if (result.equals("<f>true</f>")) { //$NON-NLS-1$
             window.hide();
-            MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().import_success_label(), null);
-            ItemsListPanel.getInstance().refreshGrid();
+            MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().import_success_label(),
+                    null);
+            ButtonEvent buttonEvent = new ButtonEvent(ItemsToolBar.getInstance().searchBut);
+            ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, buttonEvent);
         } else {
-            MessageBox.alert(MessagesFactory.getMessages().error_title(), MultilanguageMessageParser.pickOutISOMessage(extractErrorMessage(result)), null);
+            MessageBox.alert(MessagesFactory.getMessages().error_title(),
+                    MultilanguageMessageParser.pickOutISOMessage(extractErrorMessage(result)), null);
         }
     }
 
     public HiddenField<String> getNameField() {
         return nameField;
     }
-    
+
     public static String extractErrorMessage(String errMsg) {
         String saveExceptionString = "com.amalto.core.save.SaveException: Exception occurred during save: "; //$NON-NLS-1$
         int saveExceptionIndex = errMsg.indexOf(saveExceptionString);
-        if (saveExceptionIndex > -1) { 
+        if (saveExceptionIndex > -1) {
             errMsg = errMsg.substring(saveExceptionIndex + saveExceptionString.length());
         }
-        
+
         return errMsg;
     }
 }
