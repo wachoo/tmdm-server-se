@@ -11,49 +11,18 @@
 
 package com.amalto.core.metadata;
 
+import com.amalto.core.metadata.xsd.XmlSchemaVisitor;
+import com.amalto.core.metadata.xsd.XmlSchemaWalker;
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringUtils;
+import org.apache.ws.commons.schema.*;
+import org.talend.mdm.commmon.util.core.ICoreConstants;
+
+import javax.xml.namespace.QName;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-
-import javax.xml.namespace.QName;
-
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.StringUtils;
-import org.apache.ws.commons.schema.ValidationEventHandler;
-import org.apache.ws.commons.schema.XmlSchema;
-import org.apache.ws.commons.schema.XmlSchemaAnnotation;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
-import org.apache.ws.commons.schema.XmlSchemaComplexContentExtension;
-import org.apache.ws.commons.schema.XmlSchemaComplexType;
-import org.apache.ws.commons.schema.XmlSchemaContent;
-import org.apache.ws.commons.schema.XmlSchemaContentModel;
-import org.apache.ws.commons.schema.XmlSchemaElement;
-import org.apache.ws.commons.schema.XmlSchemaEnumerationFacet;
-import org.apache.ws.commons.schema.XmlSchemaGroupBase;
-import org.apache.ws.commons.schema.XmlSchemaObject;
-import org.apache.ws.commons.schema.XmlSchemaObjectCollection;
-import org.apache.ws.commons.schema.XmlSchemaParticle;
-import org.apache.ws.commons.schema.XmlSchemaSimpleType;
-import org.apache.ws.commons.schema.XmlSchemaSimpleTypeContent;
-import org.apache.ws.commons.schema.XmlSchemaSimpleTypeRestriction;
-import org.apache.ws.commons.schema.XmlSchemaType;
-import org.apache.ws.commons.schema.XmlSchemaUnique;
-import org.apache.ws.commons.schema.XmlSchemaXPath;
-import org.talend.mdm.commmon.util.core.ICoreConstants;
-
-import com.amalto.core.metadata.xsd.XmlSchemaVisitor;
-import com.amalto.core.metadata.xsd.XmlSchemaWalker;
+import java.util.*;
 
 /**
  *
@@ -126,16 +95,25 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
         if (inputStream == null) {
             throw new IllegalArgumentException("Input stream can not be null.");
         }
-
-        XmlSchemaCollection collection = new XmlSchemaCollection();
         try {
+            // TMDM-4444: Adds standard Talend types such as UUID.
+            XmlSchemaCollection collection = new XmlSchemaCollection();
+            InputStream internalTypes = MetadataRepository.class.getResourceAsStream("talend_types.xsd"); //$NON-NLS-1$
+            if (internalTypes == null) {
+                throw new IllegalStateException("Could not find internal type data model.");
+            }
+            collection.read(new InputStreamReader(internalTypes, "UTF-8"), new ValidationEventHandler()); //$NON-NLS-1$
+            XmlSchemaWalker.walk(collection, this);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("Could not parse internal data model.", e); //$NON-NLS-1$
+        }
+        try {
+            XmlSchemaCollection collection = new XmlSchemaCollection();
             collection.read(new InputStreamReader(inputStream, "UTF-8"), new ValidationEventHandler()); //$NON-NLS-1$
+            XmlSchemaWalker.walk(collection, this);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("Could not parse data model.", e); //$NON-NLS-1$
         }
-
-        XmlSchemaWalker.walk(collection, this);
-
         // "Freeze" all types (a consequence of this will be validation of all reference fields).
         for (ComplexTypeMetadata type : getUserComplexTypes()) {
             type.freeze();
