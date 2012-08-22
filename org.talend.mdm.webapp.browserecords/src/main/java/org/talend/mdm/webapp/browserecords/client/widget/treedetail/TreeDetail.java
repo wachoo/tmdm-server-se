@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
@@ -885,19 +887,54 @@ public class TreeDetail extends ContentPanel {
                 }
             }
                 
-        } else if (field instanceof SimpleComboBox
-                || field instanceof CheckBox
-                || field instanceof UrlField) {
-            if (((Field<?>) field).getValue() == null
-                    || ((Field<?>) field).getValue().equals("")) { //$NON-NLS-1$
+        } else if (field instanceof SimpleComboBox) {
+            SimpleComboBox<?> scb = (SimpleComboBox<?>) field;
+            ModelData value = scb.getValue();
+            if(value == null) {
                 if(isParentMandatory)
-                    ((Field<?>) field).markInvalid(null);
+                    scb.markInvalid(scb.getMessages().getBlankText());
                 else {
                     if(checkSameLevelNode((ItemNodeModel) itemNodeModel.getParent()))
-                        ((Field<?>) field).markInvalid(null);
+                        scb.markInvalid(scb.getMessages().getBlankText());
                 }
             }
-        } else if (field instanceof FormatTextField){
+        } else if(field instanceof UrlField) {
+            UrlField uf = (UrlField) field;
+            String value = uf.getValue();
+            if(value == null) {
+                if(isParentMandatory)
+                    uf.markInvalid(uf.getMessages().getInvalidText());
+                else {
+                    if(checkSameLevelNode((ItemNodeModel) itemNodeModel.getParent()))
+                        uf.markInvalid(uf.getMessages().getInvalidText());
+                }
+            }
+            
+        } else if(field instanceof FormatDateField) {
+            FormatDateField fdf = (FormatDateField) field;
+            Date value = fdf.getValue();
+            if(value == null) {
+                if(isParentMandatory)
+                    fdf.markInvalid(fdf.getMessages().getBlankText());
+                else {
+                    if(checkSameLevelNode((ItemNodeModel) itemNodeModel.getParent()))
+                        fdf.markInvalid(fdf.getMessages().getBlankText());
+                }
+            }
+            
+        } else if(field instanceof ForeignKeyField) {
+            ForeignKeyField fkf = (ForeignKeyField) field;
+            ForeignKeyBean value = fkf.getValue();
+            if(value == null) {
+                if(isParentMandatory)
+                    fkf.markInvalid(fkf.getMessages().getBlankText());
+                else {
+                    if(checkSameLevelNode((ItemNodeModel) itemNodeModel.getParent()))
+                        fkf.markInvalid(fkf.getMessages().getBlankText());
+                }
+            }
+            
+        } else if (field instanceof FormatTextField) {
             FormatTextField ftf = (FormatTextField) field;
             String value = ftf.getValue();
             if (value == null || value.equals("")) { //$NON-NLS-1$

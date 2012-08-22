@@ -249,15 +249,15 @@ public class TreeDetailGridFieldCreator {
         field.addListener(Events.Blur, new Listener<FieldEvent>() {
 
             public void handleEvent(FieldEvent fe) {
-                if(!BrowseRecords.getSession().getAppHeader().isAutoValidate())
-                    return;
                 // TMDM-3353 only when node is valid, call setObjectValue(); otherwise objectValue is changed to
                 // original value
                 if (node.isValid())
                     if (fe.getField() instanceof FormatTextField) {
-                        node.setObjectValue(((FormatTextField) fe.getField()).getOjbectValue());
+                        if(BrowseRecords.getSession().getAppHeader().isAutoValidate()) 
+                            node.setObjectValue(((FormatTextField) fe.getField()).getOjbectValue());
                     } else if (fe.getField() instanceof FormatNumberField) {
-                        node.setObjectValue(((FormatNumberField) fe.getField()).getOjbectValue());
+                        if(BrowseRecords.getSession().getAppHeader().isAutoValidate()) 
+                            node.setObjectValue(((FormatNumberField) fe.getField()).getOjbectValue());
                     } else if (fe.getField() instanceof FormatDateField) {
                         node.setObjectValue(((FormatDateField) fe.getField()).getOjbectValue());
                     }
