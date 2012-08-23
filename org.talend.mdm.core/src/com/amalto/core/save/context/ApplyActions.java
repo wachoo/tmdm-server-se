@@ -15,6 +15,7 @@ import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.UserAction;
@@ -30,6 +31,8 @@ class ApplyActions implements DocumentSaver {
 
     private final DocumentSaver next;
 
+    private MetadataRepository metadataRepository;
+
     ApplyActions(DocumentSaver next) {
         this.next = next;
     }
@@ -42,6 +45,7 @@ class ApplyActions implements DocumentSaver {
             action.perform(validationDocument);
         }
 
+        metadataRepository = session.getSaverSource().getMetadataRepository(context.getDataModelName());
         // Never store empty elements in database
         clean(context.getType(), databaseDocument.asDOM().getDocumentElement(), EmptyElementCleaner.INSTANCE, false);
         if (context.getUserAction() == UserAction.CREATE || context.getUserAction() == UserAction.REPLACE) {
@@ -65,7 +69,7 @@ class ApplyActions implements DocumentSaver {
         return next.getBeforeSavingMessage();
     }
 
-    private static void clean(ComplexTypeMetadata type, Element element, Cleaner cleaner, boolean removeTalendAttributes) {
+    private void clean(ComplexTypeMetadata type, Element element, Cleaner cleaner, boolean removeTalendAttributes) {
         NodeList children = element.getChildNodes();
         if (removeTalendAttributes) {
             element.removeAttributeNS(SkipAttributeDocumentBuilder.TALEND_NAMESPACE, "type"); //$NON-NLS-1$
@@ -78,12 +82,7 @@ class ApplyActions implements DocumentSaver {
             }
             String actualType = element.getAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type"); //$NON-NLS-1$
             if (actualType != null && !actualType.trim().isEmpty()) {
-                for (ComplexTypeMetadata subType : type.getSubTypes()) {
-                    if (actualType.equals(subType.getName())) {
-                        type = subType;
-                        break;
-                    }
-                }
+                type = metadataRepository.getComplexType(actualType);
             }
         }
         if (cleaner.clean(type, element)) {
