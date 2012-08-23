@@ -1541,6 +1541,28 @@ public class DocumentSaveTest extends TestCase {
         assertNotNull(evaluate(committedElement, "/ComplexTypes/father1"));
     }
 
+    public void test40() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("CoreTestsModel.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, false, "test40_original.xml", "CoreTestsModel.xsd");
+        source.setUserName("admin");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test40.xml");
+        DocumentSaverContext context = session.getContextFactory().create("Product", "test40", "Source", recordXml, true, true,
+                false, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("1", evaluate(committedElement, "/ComplexTypes/son/Name"));
+    }
+
+
     private static class MockCommitter implements SaverSession.Committer {
 
         private Element committedElement;
