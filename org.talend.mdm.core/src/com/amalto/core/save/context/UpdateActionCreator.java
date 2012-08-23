@@ -133,12 +133,12 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
             Accessor leftAccessor;
             Accessor rightAccessor;
             try {
-                leftAccessor = originalDocument.createAccessor(currentPath);
                 rightAccessor = newDocument.createAccessor(currentPath);
                 if (!rightAccessor.exist()) {
                     // If new list does not exist, it means element was omitted in new version (legacy behavior).
                     return;
                 }
+                leftAccessor = originalDocument.createAccessor(currentPath);
             } finally {
                 path.pop();
             }
@@ -201,7 +201,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 if (comparedField.isMany() && preserveCollectionOldValues) {
                     // Append at the end of the collection
                     if (!originalFieldToLastIndex.containsKey(comparedField)) {
-                        originalFieldToLastIndex.put(comparedField, originalAccessor.size() + 1);
+                        originalFieldToLastIndex.put(comparedField, originalAccessor.size());
                     }
                     String previousPathElement = this.path.pop();
                     int newIndex = originalFieldToLastIndex.get(comparedField);

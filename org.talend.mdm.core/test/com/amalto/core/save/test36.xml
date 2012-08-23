@@ -12,7 +12,6 @@
 			<SpecialisationContactType xsi:type="SpecialisationContactNatureLocalisation">
 				<NatureLocalisationFk>[3]</NatureLocalisationFk>
 				<AdressePostale>
-					<Emplacement/>
 					<Adresse1>1 cours Ferdinand de Lesseps</Adresse1>
 					<Adresse2/>
 					<Adresse3/>
@@ -28,7 +27,6 @@
 			<SpecialisationContactType xsi:type="SpecialisationContactNatureLocalisation">
 				<NatureLocalisationFk>[4]</NatureLocalisationFk>
 				<AdressePostale>
-					<Emplacement/>
 					<Adresse1>1 cours Ferdinand de Lesseps</Adresse1>
 					<Adresse2/>
 					<Adresse3/>

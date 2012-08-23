@@ -21,7 +21,7 @@ public interface ComplexTypeMetadata extends TypeMetadata {
 
     /**
      * @return <code>true</code> if this type can be used to create an entity in MDM, <code>false</code> otherwise. A
-     * so called 'reusable' type must return <code>false</code> for this method.
+     *         so called 'reusable' type must return <code>false</code> for this method.
      */
     boolean isInstantiable();
 
@@ -41,8 +41,12 @@ public interface ComplexTypeMetadata extends TypeMetadata {
     /**
      * @param fieldName A field name. Field name is case sensitive.
      * @return The {@link FieldMetadata} for the given <code>fieldName</code>.
-     * @throws IllegalArgumentException If the field is not declared in type or type's super types or if <code>fieldName</code>
-     *                                  is null or empty. Field name lookup is case sensitive.
+     * @throws IllegalArgumentException If:<ul>
+     *                                  <li>field is not declared in type nor inherited types</li>
+     *                                  <li><code>fieldName</code> is null or empty string</li>
+     *                                  </ul>
+     *                                  Field name lookup is case sensitive.
+     * @see #hasField(String)
      */
     FieldMetadata getField(String fieldName);
 
@@ -92,12 +96,14 @@ public interface ComplexTypeMetadata extends TypeMetadata {
 
     /**
      * @param fieldName A field name.
-     * @return <code>true</code> if type has a field named <code>fieldName</code>, <code>false</code> otherwise.
+     * @return <code>true</code> if type (or inherited types) has a field named <code>fieldName</code>,
+     *         <code>false</code> otherwise.
      */
     boolean hasField(String fieldName);
 
     /**
-     * @return A collection of {@link ComplexTypeMetadata} that inherits from this type.
+     * @return A collection of {@link ComplexTypeMetadata} that inherits from this type. If this type is not extended
+     *         by any other type, this method returns empty {@link Collection}.
      */
     Collection<ComplexTypeMetadata> getSubTypes();
 
