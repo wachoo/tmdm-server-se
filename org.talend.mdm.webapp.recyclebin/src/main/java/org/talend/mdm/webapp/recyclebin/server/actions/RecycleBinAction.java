@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -37,6 +38,8 @@ import org.xml.sax.InputSource;
 
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.Messages;
+import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
@@ -66,6 +69,9 @@ public class RecycleBinAction implements RecycleBinService {
 
     private static final Logger LOG = Logger.getLogger(RecycleBinAction.class);
 
+    private static final Messages MESSAGES = MessagesFactory.getMessages(
+            "org.talend.mdm.webapp.recyclebin.client.i18n.RecycleBinMessages", RecycleBinAction.class.getClassLoader()); //$NON-NLS-1$
+    
     public PagingLoadResult<ItemsTrashItem> getTrashItems(String regex, PagingLoadConfig load) throws ServiceException {
         try {
             //
@@ -186,9 +192,10 @@ public class RecycleBinAction implements RecycleBinService {
         }
     }
 
-    public String removeDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids)
+    public String removeDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids, String language)
             throws ServiceException {
         try {
+            Locale locale = new Locale(language);
             // WSDroppedItemPK
             String[] ids1 = ids.split("\\.");//$NON-NLS-1$
             String outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(itemPk, conceptName, ids1);
@@ -206,9 +213,12 @@ public class RecycleBinAction implements RecycleBinService {
                 }
             }
 
-            if (outputErrorMessage != null && ("error".equals(errorCode) || "warning".equals(errorCode))) { //$NON-NLS-1$ //$NON-NLS-2$                
-                if (message == null)
-                    message = ""; //$NON-NLS-1$
+            if (outputErrorMessage != null && !"info".equals(errorCode)) { //$NON-NLS-1$
+                if (message == null || message.equals("")) //$NON-NLS-1$
+                    if("error".equals(errorCode)) //$NON-NLS-1$
+                        message = MESSAGES.getMessage(locale, "delete_process_validation_failure"); //$NON-NLS-1$
+                    else
+                        message = MESSAGES.getMessage(locale, "delete_record_failure"); //$NON-NLS-1$
                 throw new ServiceException(message);
             } else {
                 WSDataClusterPK wddcpk = new WSDataClusterPK(itemPk);
@@ -220,6 +230,9 @@ public class RecycleBinAction implements RecycleBinService {
                 String xml = createUpdateReport(ids1, conceptName, "PHYSICAL_DELETE", null); //$NON-NLS-1$
                 Util.persistentUpdateReport(xml, true);
 
+                if (message == null || message.equals("")) //$NON-NLS-1$
+                    message = MESSAGES.getMessage(locale, "delete_process_validation_success"); //$NON-NLS-1$
+                
                 return "info".equals(errorCode) ? message : null; //$NON-NLS-1$
             }
         } catch (Exception e) {
