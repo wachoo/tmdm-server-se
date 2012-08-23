@@ -229,6 +229,18 @@ public class UserQueryDumpConsole implements Visitor<Void> {
     public Void visit(Predicate predicate) {
         if (predicate == Predicate.NOT) {
             print("[PREDICATE] NOT");
+        } else if (predicate == Predicate.STARTS_WITH) {
+            print("[PREDICATE] STARTS WITH");
+        } else if (predicate == Predicate.EQUALS) {
+            print("[PREDICATE] EQUALS");
+        } else if (predicate == Predicate.GREATER_THAN) {
+            print("[PREDICATE] GREATER THAN");
+        } else if (predicate == Predicate.GREATER_THAN_OR_EQUALS) {
+            print("[PREDICATE] GREATER THAN OR EQUALS");
+        } else if (predicate == Predicate.LOWER_THAN) {
+            print("[PREDICATE] LOWER THAN");
+        } else if (predicate == Predicate.LOWER_THAN_OR_EQUALS) {
+            print("[PREDICATE] LOWER THAN OR EQUALS");
         } else {
             print("Unvisited predicate: " + predicate.toString());
         }

@@ -17,6 +17,8 @@ import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.query.user.UserQueryDumpConsole;
+import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.context.SaverSource;
@@ -32,6 +34,9 @@ import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.task.*;
 import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.XtentisException;
+import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.WhereAnd;
+import com.amalto.xmlserver.interfaces.WhereCondition;
 import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
@@ -188,6 +193,16 @@ public class StagingAreaTest extends TestCase {
         } finally {
             results.close();
         }
+
+        qb = UserQueryBuilder.from(person);
+        IWhereItem item = new WhereAnd(Arrays.<IWhereItem>asList(new WhereCondition("Person/$staging_status$", WhereCondition.EQUALS, StagingConstants.SUCCESS_VALIDATE, WhereCondition.NO_OPERATOR)));
+        qb.where(UserQueryHelper.buildCondition(qb, item, stagingRepository));
+        assertEquals(COUNT, origin.fetch(qb.getSelect()).getCount());
+
+        qb = UserQueryBuilder.from(person);
+        item = new WhereAnd(Arrays.<IWhereItem>asList(new WhereCondition("Person/$staging_status$", WhereCondition.GREATER_THAN_OR_EQUAL, "400", WhereCondition.NO_OPERATOR)));
+        qb.where(UserQueryHelper.buildCondition(qb, item, stagingRepository));
+        assertEquals(0, origin.fetch(qb.getSelect()).getCount());
     }
 
     public void testCancel() throws Exception {

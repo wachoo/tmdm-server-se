@@ -27,6 +27,8 @@ public class UserQueryHelper {
 
     public static final NoOpCondition NO_OP_CONDITION = new NoOpCondition();
 
+    public static final String STAGING_STATUS_FIELD = "$staging_status$";
+
     private static final Logger LOGGER = Logger.getLogger(UserQueryHelper.class);
 
     private UserQueryHelper() {
@@ -75,6 +77,8 @@ public class UserQueryHelper {
                     throw new NotImplementedException("No support for query on composite key.");
                 }
                 field = new Field(keyFields.get(0));
+            } else if(STAGING_STATUS_FIELD.equals(leftFieldName)) {
+                field = UserStagingQueryBuilder.status();
             } else {
                 field = getField(repository, typeName, leftFieldName);
             }
