@@ -13,46 +13,32 @@
 
 package com.amalto.core.server;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.local.DataClusterCtrlLocal;
-import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.save.DefaultCommitter;
-import com.amalto.core.save.SaverSession;
-import com.amalto.core.save.context.DefaultSaverSource;
-import com.amalto.core.save.context.SaverSource;
 import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSource;
+import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.datasource.DataSourceFactory;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.task.StagingTask;
-import com.amalto.core.storage.task.Task;
-import com.amalto.core.storage.task.TaskSubmitter;
-import com.amalto.core.storage.task.TaskType;
 import com.amalto.core.util.Util;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
-import org.quartz.Trigger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import javax.management.MBeanServer;
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
 import java.lang.management.ManagementFactory;
 import java.util.Collection;
 import java.util.Map;
-
-import static com.amalto.core.query.user.UserQueryBuilder.eq;
-import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 class ServerImpl implements Server {
 
     private static final Logger LOGGER = Logger.getLogger(ServerImpl.class);
 
     private final MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
+
+    private final DataSourceFactory dataSourceFactory = DataSourceFactory.getInstance();
 
     private StorageAdmin storageAdmin;
 
@@ -61,8 +47,36 @@ class ServerImpl implements Server {
     ServerImpl() {
     }
 
-    public DataSource getDataSource(String dataSourceName, String container) {
-        return DataSourceFactory.getInstance().getDataSource(dataSourceName, container);
+    @Override
+    public boolean hasDataSource(String dataSourceName, String container, StorageType type) {
+        boolean isDataSourceDefinitionPresent = dataSourceFactory.hasDataSource(dataSourceName);
+        if (isDataSourceDefinitionPresent) {
+            DataSourceDefinition dataSource = dataSourceFactory.getDataSource(dataSourceName, container);
+            switch (type) {
+                case MASTER:
+                    return dataSource.getMaster() != null;
+                case STAGING:
+                    return dataSource.getStaging() != null;
+                default:
+                    throw new NotImplementedException("Not supported: " + type);
+            }
+        }
+        return isDataSourceDefinitionPresent;
+    }
+
+    public DataSource getDataSource(String dataSourceName, String container, StorageType type) {
+        DataSourceDefinition configuration = dataSourceFactory.getDataSource(dataSourceName, container);
+        switch (type) {
+            case MASTER:
+                return configuration.getMaster();
+            case STAGING:
+                if (!configuration.hasStaging()) {
+                    throw new IllegalArgumentException("Datasource '" + dataSourceName + "' does not declare a staging area.");
+                }
+                return configuration.getStaging();
+            default:
+                throw new NotImplementedException("Not supported: " + type);
+        }
     }
 
     public StorageAdmin getStorageAdmin() {

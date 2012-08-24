@@ -1211,7 +1211,6 @@ public class DocumentSaveTest extends TestCase {
         session.end(committer);
 
         assertTrue(committer.hasSaved());
-        System.out.println(Util.nodeToString(committer.getCommittedElement()));
         Element committedElement = committer.getCommittedElement();
         assertEquals(
                 "40-142",

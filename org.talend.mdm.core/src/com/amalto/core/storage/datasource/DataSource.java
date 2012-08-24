@@ -11,6 +11,9 @@
 
 package com.amalto.core.storage.datasource;
 
+/**
+ *
+ */
 public interface DataSource {
     String getName();
 }

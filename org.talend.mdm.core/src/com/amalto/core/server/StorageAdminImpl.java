@@ -17,6 +17,7 @@ import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.DataSourceFactory;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
@@ -54,28 +55,34 @@ public class StorageAdminImpl implements StorageAdmin {
             LOGGER.warn("Configuration does not allow creation of SQL storage for '" + dataModelName + "'.");
             return null;
         }
-
         if (exist(null, storageName)) {
             LOGGER.warn("Storage for '" + storageName + "' already exist. It needs to be deleted before it can be recreated.");
             return get(storageName);
         }
-
         try {
             Storage masterDataModelStorage = internalCreateStorage(dataModelName, storageName, dataSourceName, StorageType.MASTER);
-            Storage stagingDataModelStorage = internalCreateStorage(dataModelName, storageName, dataSourceName, StorageType.STAGING);
             storages.put(storageName, masterDataModelStorage);
-            storages.put(storageName + STAGING_SUFFIX, stagingDataModelStorage);
+            Storage stagingDataModelStorage = internalCreateStorage(dataModelName, storageName, dataSourceName, StorageType.STAGING);
+            if (stagingDataModelStorage != null) {
+                storages.put(storageName + STAGING_SUFFIX, stagingDataModelStorage);
+            }
             return masterDataModelStorage;
         } catch (Exception e) {
-            throw new RuntimeException("Data cluster creation error for data model", e);
+            throw new RuntimeException("Could not create storage '" + storageName + "' with data model '" + dataModelName + "'.", e);
         }
     }
 
+    // Returns null if storage can not be created (e.g. because of missing datasource configuration).
     private Storage internalCreateStorage(String dataModelName, String storageName, String dataSourceName, StorageType storageType) {
-        Storage dataModelStorage = ServerContext.INSTANCE.getLifecycle().createStorage(storageName, dataSourceName, storageType);
-        dataModelStorage.init(dataSourceName);
-
-        MetadataRepositoryAdmin metadataRepositoryAdmin = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin();
+        ServerContext instance = ServerContext.INSTANCE;
+        if (!instance.get().hasDataSource(dataSourceName, storageName, storageType)) {
+            LOGGER.warn("Can not initialize " + storageType + " storage for '" + storageName + "': data source '" + dataSourceName + "' configuration is incomplete.") ;
+            return null;
+        }
+        Storage dataModelStorage = instance.getLifecycle().createStorage(storageName, dataSourceName, storageType);
+        DataSource dataSource = instance.get().getDataSource(dataSourceName, storageName, storageType);
+        dataModelStorage.init(dataSource);
+        MetadataRepositoryAdmin metadataRepositoryAdmin = instance.get().getMetadataRepositoryAdmin();
         boolean hasDataModel = metadataRepositoryAdmin.exist(dataModelName);
         if (!hasDataModel) {
             throw new UnsupportedOperationException("Data model '" + dataModelName + "' must exist before container '" + storageName + "' can be created.");

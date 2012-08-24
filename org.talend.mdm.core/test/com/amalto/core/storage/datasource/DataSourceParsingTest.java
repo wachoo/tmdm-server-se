@@ -46,7 +46,8 @@ public class DataSourceParsingTest extends TestCase {
 
     public void testParsing() throws Exception {
         InputStream stream = DataSourceParsingTest.class.getResourceAsStream("datasources1.xml");
-        DataSource dataSource = DataSourceFactory.getInstance().getDataSource(stream, "Test-0", "MDM");
+        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-0", "MDM");
+        DataSource dataSource = dataSourceDefinition.getMaster();
         assertNotNull(dataSource);
         assertTrue(dataSource instanceof RDBMSDataSource);
 
@@ -68,7 +69,8 @@ public class DataSourceParsingTest extends TestCase {
 
     public void testContainerChange1() throws Exception {
         InputStream stream = DataSourceParsingTest.class.getResourceAsStream("datasources1.xml");
-        DataSource dataSource = DataSourceFactory.getInstance().getDataSource(stream, "Test-1", "MDM");
+        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-1", "MDM");
+        DataSource dataSource = dataSourceDefinition.getMaster();
         assertNotNull(dataSource);
         assertTrue(dataSource instanceof RDBMSDataSource);
 
@@ -80,7 +82,8 @@ public class DataSourceParsingTest extends TestCase {
 
     public void testContainerChange2() throws Exception {
         InputStream stream = DataSourceParsingTest.class.getResourceAsStream("datasources1.xml");
-        DataSource dataSource = DataSourceFactory.getInstance().getDataSource(stream, "Test-2", "MDM");
+        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-2", "MDM");
+        DataSource dataSource = dataSourceDefinition.getMaster();
         assertNotNull(dataSource);
         assertTrue(dataSource instanceof RDBMSDataSource);
 

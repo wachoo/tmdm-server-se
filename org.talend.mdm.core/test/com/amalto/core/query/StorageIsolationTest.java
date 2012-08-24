@@ -46,10 +46,10 @@ public class StorageIsolationTest extends TestCase {
         assertNotSame(type1, type2);
 
         Storage s1 = new HibernateStorage("MDM1", StorageType.MASTER);
-        s1.init(StorageTestCase.DATABASE + "-DS1");
+        s1.init(ServerContext.INSTANCE.get().getDataSource(StorageTestCase.DATABASE + "-DS1", "MDM", StorageType.MASTER));
         s1.prepare(repository1, true);
         Storage s2 = new HibernateStorage("MDM2", StorageType.MASTER);
-        s2.init(StorageTestCase.DATABASE + "-DS2");
+        s2.init(ServerContext.INSTANCE.get().getDataSource(StorageTestCase.DATABASE + "-DS2", "MDM", StorageType.MASTER));
         s2.prepare(repository2, true);
 
         MainTestRunnable runnable1 = new MainTestRunnable(repository1, s1, "StorageIsolationTest1", 300, "ValueMDM1", "ValueMDM2");

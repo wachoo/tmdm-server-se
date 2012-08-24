@@ -17,6 +17,8 @@ import com.amalto.core.server.MockServerLifecycle;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.SecuredStorage;
 import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import junit.framework.TestCase;
 import org.apache.log4j.Logger;
@@ -80,9 +82,13 @@ public class StorageTestCase extends TestCase {
         c = repository.getComplexType("C");
         d = repository.getComplexType("D");
 
-        storage.init(DATABASE + "-Default");
+        storage.init(getDatasource(DATABASE + "-Default"));
         storage.prepare(repository, Collections.singleton(person.getField("firstname")), true, true);
         LOG.info("Storage prepared.");
+    }
+
+    protected static DataSource getDatasource(String dataSourceName) {
+        return ServerContext.INSTANCE.get().getDataSource(dataSourceName, "MDM", StorageType.MASTER);
     }
 
     public void test() throws Exception {

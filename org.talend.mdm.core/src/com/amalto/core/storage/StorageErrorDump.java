@@ -32,8 +32,8 @@ public class StorageErrorDump implements Storage {
         this.delegate = delegate;
     }
 
-    public void init(String dataSourceName) {
-        delegate.init(dataSourceName);
+    public void init(DataSource dataSource) {
+        delegate.init(dataSource);
     }
 
     private void handlePrepareError(MetadataRepository repository, boolean force, Exception e) {

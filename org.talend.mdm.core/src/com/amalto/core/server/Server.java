@@ -13,13 +13,16 @@
 
 package com.amalto.core.server;
 
+import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSource;
 
 import javax.management.MBeanServer;
 
 public interface Server {
 
-    DataSource getDataSource(String dataSourceName, String container);
+    boolean hasDataSource(String dataSourceName, String container, StorageType type);
+
+    DataSource getDataSource(String dataSourceName, String container, StorageType type);
     
     StorageAdmin getStorageAdmin();
 

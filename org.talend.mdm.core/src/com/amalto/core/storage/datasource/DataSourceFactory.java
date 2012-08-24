@@ -39,6 +39,8 @@ public class DataSourceFactory {
 
     private static DocumentBuilderFactory factory;
 
+    private static final XPath xPath = XPathFactory.newInstance().newXPath();
+
     private DataSourceFactory() {
         factory = DocumentBuilderFactory.newInstance();
     }
@@ -47,38 +49,52 @@ public class DataSourceFactory {
         return INSTANCE;
     }
 
-    public DataSource getDataSource(String dataSourceName, String container) {
+    public boolean hasDataSource(String dataSourceName) {
+        return hasDataSource(readDataSourcesConfiguration(), dataSourceName);
+    }
+
+    public boolean hasDataSource(InputStream configurationStream, String dataSourceName) {
+        if (dataSourceName == null) {
+            throw new IllegalArgumentException("Data source name can not be null.");
+        }
+        Map<String, DataSourceDefinition> dataSourceMap = readDocument(configurationStream);
+        return dataSourceMap.get(dataSourceName) != null;
+    }
+
+    public DataSourceDefinition getDataSource(String dataSourceName, String container) {
         return getDataSource(readDataSourcesConfiguration(), dataSourceName, container);
     }
 
-    public DataSource getDataSource(InputStream configurationStream, String dataSourceName, String container) {
+    public DataSourceDefinition getDataSource(InputStream configurationStream, String dataSourceName, String container) {
         if (dataSourceName == null) {
             throw new IllegalArgumentException("Data source name can not be null.");
         }
         if (container == null) {
             throw new IllegalArgumentException("Container name can not be null.");
         }
-
-        Map<String, DataSource> dataSourceMap = readDocument(configurationStream);
-        DataSource dataSource = dataSourceMap.get(dataSourceName);
-
+        Map<String, DataSourceDefinition> dataSourceMap = readDocument(configurationStream);
+        DataSourceDefinition dataSource = dataSourceMap.get(dataSourceName);
         if (dataSource == null) {
             throw new IllegalArgumentException("Data source '" + dataSourceName + "' can not be found in configuration.");
         }
-
         // Additional post parsing (replace potential ${container} with container parameter value).
+        replaceContainerName(container, dataSource.getMaster());
+        if (dataSource.hasStaging()) {
+            replaceContainerName(container, dataSource.getStaging());
+        }
+        return dataSource;
+    }
+
+    private static void replaceContainerName(String container, DataSource dataSource) {
         if (dataSource instanceof RDBMSDataSource) {
             RDBMSDataSource rdbmsDataSource = (RDBMSDataSource) dataSource;
             String connectionURL = rdbmsDataSource.getConnectionURL();
             String processedConnectionURL = connectionURL.replace("${container}", container); //$NON-NLS-1$
             rdbmsDataSource.setConnectionURL(processedConnectionURL);
-
-            if ("${container}".equals(rdbmsDataSource.getDatabaseName())) { //$NON-NLS-1$
-                rdbmsDataSource.setDatabaseName(container);
-            }
+            String databaseName = rdbmsDataSource.getDatabaseName();
+            String processedDatabaseName = databaseName.replace("${container}", container); //$NON-NLS-1$
+            rdbmsDataSource.setDatabaseName(processedDatabaseName);
         }
-
-        return dataSource;
     }
 
     private static synchronized InputStream readDataSourcesConfiguration() {
@@ -125,7 +141,7 @@ public class DataSourceFactory {
                 currentFilePath = iterator.next();
                 configurationAsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(currentFilePath);
             }
-            if(configurationAsStream != null) {
+            if (configurationAsStream != null) {
                 LOGGER.info("Reading from datasource file at '" + currentFilePath + "'.");
             }
         }
@@ -139,7 +155,7 @@ public class DataSourceFactory {
 
     }
 
-    private static Map<String, DataSource> readDocument(InputStream configurationAsStream) {
+    private static Map<String, DataSourceDefinition> readDocument(InputStream configurationAsStream) {
         Document document;
         try {
             DocumentBuilder documentBuilder = factory.newDocumentBuilder();
@@ -149,48 +165,57 @@ public class DataSourceFactory {
         }
 
         try {
-            Map<String, DataSource> nameToDataSources = new HashMap<String, DataSource>();
-            XPath xPath = XPathFactory.newInstance().newXPath();
-            NodeList dataSourceList = (NodeList) evaluate(document, xPath, "/datasources/datasource", XPathConstants.NODESET); //$NON-NLS-1$
-            DataSource currentDataSource;
-
-            for (int i = 0; i < dataSourceList.getLength(); i++) {
-                Node dataSource = dataSourceList.item(i);
-                String name = (String) evaluate(dataSource, xPath, "@name", XPathConstants.STRING); //$NON-NLS-1$
-                String type = (String) evaluate(dataSource, xPath, "type", XPathConstants.STRING); //$NON-NLS-1$
-                if ("RDBMS".equals(type)) { //$NON-NLS-1$
-                    String dialectName = (String) evaluate(dataSource, xPath, "rdbms-configuration/dialect", XPathConstants.STRING); //$NON-NLS-1$
-                    String driverClassName = (String) evaluate(dataSource, xPath, "rdbms-configuration/connection-driver-class", XPathConstants.STRING); //$NON-NLS-1$
-                    String connectionURL = (String) evaluate(dataSource, xPath, "rdbms-configuration/connection-url", XPathConstants.STRING); //$NON-NLS-1$
-                    String userName = (String) evaluate(dataSource, xPath, "rdbms-configuration/connection-username", XPathConstants.STRING); //$NON-NLS-1$
-                    String password = (String) evaluate(dataSource, xPath, "rdbms-configuration/connection-password", XPathConstants.STRING); //$NON-NLS-1$
-                    String indexDirectory = (String) evaluate(dataSource, xPath, "rdbms-configuration/fulltext-index-directory", XPathConstants.STRING); //$NON-NLS-1$
-                    String cacheDirectory = (String) evaluate(dataSource, xPath, "rdbms-configuration/cache-directory", XPathConstants.STRING); //$NON-NLS-1$
-                    String initConnectionURL = (String) evaluate(dataSource, xPath, "rdbms-configuration/init/connection-url", XPathConstants.STRING); //$NON-NLS-1$
-                    String initUserName = (String) evaluate(dataSource, xPath, "rdbms-configuration/init/connection-username", XPathConstants.STRING); //$NON-NLS-1$
-                    String initPassword = (String) evaluate(dataSource, xPath, "rdbms-configuration/init/connection-password", XPathConstants.STRING); //$NON-NLS-1$
-                    String databaseName = (String) evaluate(dataSource, xPath, "rdbms-configuration/init/database-name", XPathConstants.STRING); //$NON-NLS-1$
-
-                    currentDataSource = new RDBMSDataSource(name,
-                            dialectName,
-                            driverClassName,
-                            userName,
-                            password,
-                            indexDirectory,
-                            cacheDirectory,
-                            connectionURL,
-                            databaseName,
-                            initPassword,
-                            initUserName,
-                            initConnectionURL);
-                } else {
-                    throw new NotImplementedException("No support for type '" + type + "'.");
+            NodeList datasources = (NodeList) evaluate(document, xPath, "/datasources/datasource", XPathConstants.NODESET);
+            Map<String, DataSourceDefinition> nameToDataSources = new HashMap<String, DataSourceDefinition>();
+            for (int i = 0; i < datasources.getLength(); i++) {
+                Node currentDataSourceElement = datasources.item(i);
+                String name = (String) evaluate(currentDataSourceElement, xPath, "@name", XPathConstants.STRING); //$NON-NLS-1$
+                DataSource master = getDataSourceConfiguration(currentDataSourceElement, name, "master");
+                if (master == null) {
+                    throw new IllegalArgumentException("Data source '" + name + "'does not declare a master data section");
                 }
-                nameToDataSources.put(name, currentDataSource);
+                DataSource staging = getDataSourceConfiguration(currentDataSourceElement, name, "staging");
+                nameToDataSources.put(name, new DataSourceDefinition(name, master, staging));
             }
             return nameToDataSources;
         } catch (XPathExpressionException e) {
             throw new RuntimeException("Invalid data sources configuration.", e);
+        }
+    }
+
+    private static DataSource getDataSourceConfiguration(Node document, String name, String path) throws XPathExpressionException {
+        Node dataSource = (Node) evaluate(document, xPath, path, XPathConstants.NODE); //$NON-NLS-1$
+        if (dataSource == null) {
+            return null;
+        }
+        String type = (String) evaluate(dataSource, xPath, "type", XPathConstants.STRING); //$NON-NLS-1$
+        if ("RDBMS".equals(type)) { //$NON-NLS-1$
+            String dialectName = (String) evaluate(dataSource, xPath, "rdbms-configuration/dialect", XPathConstants.STRING); //$NON-NLS-1$
+            String driverClassName = (String) evaluate(dataSource, xPath, "rdbms-configuration/connection-driver-class", XPathConstants.STRING); //$NON-NLS-1$
+            String connectionURL = (String) evaluate(dataSource, xPath, "rdbms-configuration/connection-url", XPathConstants.STRING); //$NON-NLS-1$
+            String userName = (String) evaluate(dataSource, xPath, "rdbms-configuration/connection-username", XPathConstants.STRING); //$NON-NLS-1$
+            String password = (String) evaluate(dataSource, xPath, "rdbms-configuration/connection-password", XPathConstants.STRING); //$NON-NLS-1$
+            String indexDirectory = (String) evaluate(dataSource, xPath, "rdbms-configuration/fulltext-index-directory", XPathConstants.STRING); //$NON-NLS-1$
+            String cacheDirectory = (String) evaluate(dataSource, xPath, "rdbms-configuration/cache-directory", XPathConstants.STRING); //$NON-NLS-1$
+            String initConnectionURL = (String) evaluate(dataSource, xPath, "rdbms-configuration/init/connection-url", XPathConstants.STRING); //$NON-NLS-1$
+            String initUserName = (String) evaluate(dataSource, xPath, "rdbms-configuration/init/connection-username", XPathConstants.STRING); //$NON-NLS-1$
+            String initPassword = (String) evaluate(dataSource, xPath, "rdbms-configuration/init/connection-password", XPathConstants.STRING); //$NON-NLS-1$
+            String databaseName = (String) evaluate(dataSource, xPath, "rdbms-configuration/init/database-name", XPathConstants.STRING); //$NON-NLS-1$
+
+            return new RDBMSDataSource(name,
+                    dialectName,
+                    driverClassName,
+                    userName,
+                    password,
+                    indexDirectory,
+                    cacheDirectory,
+                    connectionURL,
+                    databaseName,
+                    initPassword,
+                    initUserName,
+                    initConnectionURL);
+        } else {
+            throw new NotImplementedException("No support for type '" + type + "'.");
         }
     }
 

@@ -20,7 +20,7 @@ import org.talend.mdm.commmon.util.core.MDMConfiguration;
 public class MockServerLifecycle implements ServerLifecycle {
 
     public Server createServer() {
-        MDMConfiguration.getConfiguration().setProperty(DataSourceFactory.DB_DATASOURCES, "mock_datasources.xml");
+        MDMConfiguration.getConfiguration().setProperty(DataSourceFactory.DB_DATASOURCES, "datasources.xml");
         return new MockServer();
     }
 

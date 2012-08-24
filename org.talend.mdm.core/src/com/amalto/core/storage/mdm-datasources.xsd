@@ -13,7 +13,7 @@
 <xs:schema attributeFormDefault="unqualified"
            elementFormDefault="qualified"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="http://www.talend.com/mdm/datasources">
+           targetNamespace="http://www.talend.com/mdm/datasources" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <xs:element name="datasources" type="datasourcesType"/>
     <xs:complexType name="datasourcesType">
         <xs:sequence>
@@ -22,15 +22,36 @@
     </xs:complexType>
     <xs:complexType name="datasourceType">
         <xs:sequence>
-            <xs:element name="type" minOccurs="1" maxOccurs="1" default="RDBMS">
-                <xs:simpleType>
-                    <xs:restriction base="xs:string">
-                        <xs:enumeration value="RDBMS"/>
-                        <xs:enumeration value="XML"/>
-                    </xs:restriction>
-                </xs:simpleType>
+            <xs:element name="master" minOccurs="1" maxOccurs="1">
+                <xs:complexType>
+                    <xsd:all>
+                        <xs:element name="type" minOccurs="1" maxOccurs="1" default="RDBMS">
+                            <xs:simpleType>
+                                <xs:restriction base="xs:string">
+                                    <xs:enumeration value="RDBMS"/>
+                                    <xs:enumeration value="XML"/>
+                                </xs:restriction>
+                            </xs:simpleType>
+                        </xs:element>
+                        <xs:element ref="configuration" minOccurs="1" maxOccurs="1"/>
+                    </xsd:all>
+                </xs:complexType>
             </xs:element>
-            <xs:element ref="configuration" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="staging" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xsd:all>
+                        <xs:element name="type" minOccurs="1" maxOccurs="1" default="RDBMS">
+                            <xs:simpleType>
+                                <xs:restriction base="xs:string">
+                                    <xs:enumeration value="RDBMS"/>
+                                    <xs:enumeration value="XML"/>
+                                </xs:restriction>
+                            </xs:simpleType>
+                        </xs:element>
+                        <xs:element ref="configuration" minOccurs="1" maxOccurs="1"/>
+                    </xsd:all>
+                </xs:complexType>
+            </xs:element>
         </xs:sequence>
         <xs:attribute type="xs:string" name="name" use="required"/>
     </xs:complexType>

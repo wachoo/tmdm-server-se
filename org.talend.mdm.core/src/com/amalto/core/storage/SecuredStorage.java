@@ -48,8 +48,8 @@ public class SecuredStorage implements Storage {
         this.delegator = delegator;
     }
 
-    public void init(String dataSourceName) {
-        delegate.init(dataSourceName);
+    public void init(DataSource dataSource) {
+        delegate.init(dataSource);
     }
 
     public void prepare(MetadataRepository repository, Set<FieldMetadata> indexedFields, boolean force, boolean dropExistingData) {

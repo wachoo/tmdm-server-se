@@ -97,9 +97,9 @@ public class StagingAreaTest extends TestCase {
         origin = new HibernateStorage("Origin", StorageType.STAGING);
         destination = new HibernateStorage("Destination", StorageType.MASTER);
 
-        origin.init("H2-Staging-DS1");
+        origin.init(ServerContext.INSTANCE.get().getDataSource("H2-DS2", "MDM", StorageType.MASTER));
         origin.prepare(stagingRepository, true);
-        destination.init("H2-Master-DS2");
+        destination.init(ServerContext.INSTANCE.get().getDataSource("H2-DS2", "MDM", StorageType.STAGING));
         destination.prepare(repository, true);
     }
 

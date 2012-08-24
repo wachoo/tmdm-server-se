@@ -46,6 +46,7 @@ public class ServerTest extends TestCase {
         StorageAdmin storageAdmin = server.getStorageAdmin();
         assertNotNull(storageAdmin);
         Storage storage = storageAdmin.create(metadataRepositoryId, "Storage", "H2-DS1");
+        assertNotNull(storage);
 
         ComplexTypeMetadata person = metadataRepository.getComplexType("Person");
         assertNotNull(person);
@@ -72,6 +73,7 @@ public class ServerTest extends TestCase {
         StorageAdmin storageAdmin = server.getStorageAdmin();
         assertNotNull(storageAdmin);
         Storage storage = storageAdmin.create(metadataRepositoryId, "Storage", "H2-DS1");
+        assertNotNull(storage);
 
         storage.prepare(metadataRepository, Collections.<FieldMetadata>emptySet(), true, true);
     }
@@ -87,6 +89,7 @@ public class ServerTest extends TestCase {
         StorageAdmin storageAdmin = server.getStorageAdmin();
         assertNotNull(storageAdmin);
         Storage storage = storageAdmin.create(metadataRepositoryId, "Storage", "H2-DS1");
+        assertNotNull(storage);
 
         storage.reindex();
     }

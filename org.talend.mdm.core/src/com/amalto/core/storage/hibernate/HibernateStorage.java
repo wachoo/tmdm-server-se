@@ -16,7 +16,6 @@ import com.amalto.core.query.optimization.Optimizer;
 import com.amalto.core.query.optimization.RangeOptimizer;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.Select;
-import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
@@ -102,25 +101,22 @@ public class HibernateStorage implements Storage {
         this.storageType = type;
     }
 
-    public void init(String dataSourceName) {
+    public void init(DataSource dataSource) {
         // Stateless components
-        DataSource dataSource = ServerContext.INSTANCE.get().getDataSource(dataSourceName, storageName);
         if (dataSource == null) {
-            throw new IllegalArgumentException("Data source named '" + dataSourceName + "' does not exist.");
+            throw new IllegalArgumentException("Data source named '" + dataSource + "' does not exist.");
         }
         if (!(dataSource instanceof RDBMSDataSource)) {
             throw new IllegalArgumentException("Data source is expected to be a RDBMS data source.");
         }
         this.dataSource = (RDBMSDataSource) dataSource;
-
         internalInit();
     }
 
     private void internalInit() {
         if (!dataSource.supportFullText()) {
-            LOGGER.warn("Storage '" + storageName + "' is not configured to support full text queries.");
+            LOGGER.warn("Storage '" + storageName + "' (" + storageType + ") is not configured to support full text queries.");
         }
-
         configuration = new Configuration();
         // Setting our own entity resolver allows to ensure the DTD found/used are what we expect (and not potentially ones
         // provided by the application server.
@@ -131,12 +127,10 @@ public class HibernateStorage implements Storage {
         if (!force && isPrepared) {
             return; // No op operation
         }
-
         if (isPrepared) {
             close();
             internalInit();
         }
-
         if (dropExistingData) {
             LOGGER.info("Cleaning existing database content.");
             StorageCleaner cleaner = new JDBCStorageCleaner(new FullTextIndexCleaner());
@@ -235,7 +229,7 @@ public class HibernateStorage implements Storage {
 
             // All set: set prepared flag to true.
             isPrepared = true;
-            LOGGER.info("Storage '" + storageName + "' is ready.");
+            LOGGER.info("Storage '" + storageName + "' (" + storageType + ") is ready.");
         } finally {
             Thread.currentThread().setContextClassLoader(contextClassLoader);
         }
@@ -532,7 +526,7 @@ public class HibernateStorage implements Storage {
     }
 
     public synchronized void close() {
-        LOGGER.info("Closing storage '" + storageName + "'");
+        LOGGER.info("Closing storage '" + storageName + "' (" + storageType + ").");
         ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(storageClassLoader);

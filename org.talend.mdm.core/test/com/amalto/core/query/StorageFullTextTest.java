@@ -289,7 +289,7 @@ public class StorageFullTextTest extends StorageTestCase {
     public void testNoFullText() throws Exception {
         Storage storage = new HibernateStorage("noFullText");
         try {
-            storage.init("RDBMS-1-NO-FT");
+            storage.init(getDatasource("RDBMS-1-NO-FT"));
             storage.prepare(repository, Collections.<FieldMetadata> emptySet(), false, false);
             UserQueryBuilder qb = from(product).where(fullText("Test"));
 

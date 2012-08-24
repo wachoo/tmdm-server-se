@@ -107,17 +107,12 @@ class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
     }
 
     public MetadataRepository get(String metadataRepositoryId) {
-        if (metadataRepositoryId.endsWith(StorageAdmin.STAGING_SUFFIX)) {
-            metadataRepositoryId = StringUtils.substringBeforeLast(metadataRepositoryId, "#");
-        }
-
         assertMetadataRepositoryId(metadataRepositoryId);
         synchronized (metadataRepository) {
             MetadataRepository repository = metadataRepository.get(metadataRepositoryId);
-
             if (repository == null) {
                 try {
-                    DataModelPOJOPK pk = new DataModelPOJOPK(metadataRepositoryId);
+                    DataModelPOJOPK pk = new DataModelPOJOPK(StringUtils.substringBeforeLast(metadataRepositoryId, "#"));
                     DataModelPOJO dataModel;
                     try {
                         dataModel = dataModelControl.existsDataModel(pk);

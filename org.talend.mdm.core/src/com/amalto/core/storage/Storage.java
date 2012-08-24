@@ -42,13 +42,16 @@ public interface Storage {
 
     String METADATA_STAGING_ERROR = "x_talend_staging_error"; //$NON-NLS-1$
 
+    String PROJECTION_TYPE = "$ExplicitProjection$"; //$NON-NLS-1$
+
     /**
      * Early initialization (i.e. might create pools): performs all actions that do not need to know what kind of types
      * this storage should take care of (usually stateless components).
-     * 
-     * @param dataSourceName The name of the <i>data source</i> to be used by the storage.
+     *
+     * @param dataSource Represents the underlying data storage (e.g. RDBMS, XML DB...)
+     * @see com.amalto.core.server.Server#getDataSource(String, String, StorageType)
      */
-    void init(String dataSourceName);
+    void init(DataSource dataSource);
 
     /**
      * Prepare storage to handle types located in {@link MetadataRepository}.

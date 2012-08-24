@@ -13,6 +13,8 @@ package com.amalto.core.storage.datasource;
 
 public class RDBMSDataSource implements DataSource {
 
+    private final String name;
+
     public static enum DataSourceDialect {
         H2, ORACLE_10G, MYSQL, SQL_SERVER
     }
@@ -26,8 +28,6 @@ public class RDBMSDataSource implements DataSource {
     private final String initPassword;
 
     private final DataSourceDialect dialect;
-
-    private final String name;
 
     private final String driverClassName;
 
@@ -77,10 +77,6 @@ public class RDBMSDataSource implements DataSource {
         this.cacheDirectory = cacheDirectory;
         this.connectionURL = connectionURL;
         this.databaseName = databaseName;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public DataSourceDialect getDialectName() {
@@ -143,5 +139,10 @@ public class RDBMSDataSource implements DataSource {
 
     public boolean hasInit() {
         return !initConnectionURL.isEmpty();
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 }
