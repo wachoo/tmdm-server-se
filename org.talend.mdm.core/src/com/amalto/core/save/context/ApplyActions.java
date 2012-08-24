@@ -74,6 +74,7 @@ class ApplyActions implements DocumentSaver {
         if (removeTalendAttributes) {
             element.removeAttributeNS(SkipAttributeDocumentBuilder.TALEND_NAMESPACE, "type"); //$NON-NLS-1$
         }
+        ComplexTypeMetadata parentType = type;
         if (element.getOwnerDocument() != element.getParentNode()) {
             String fieldName = element.getNodeName();
             FieldMetadata field = type.getField(fieldName);
@@ -85,16 +86,15 @@ class ApplyActions implements DocumentSaver {
                 type = metadataRepository.getComplexType(actualType);
             }
         }
-        if (cleaner.clean(type, element)) {
-            element.getParentNode().removeChild(element);
-        } else {
-            for (int i = children.getLength(); i >= 0; i--) {
-                Node node = children.item(i);
-                if (node instanceof Element) {
-                    Element currentElement = (Element) node;
-                    clean(type, currentElement, cleaner, removeTalendAttributes);
-                }
+        for (int i = children.getLength(); i >= 0; i--) {
+            Node node = children.item(i);
+            if (node instanceof Element) {
+                Element currentElement = (Element) node;
+                clean(type, currentElement, cleaner, removeTalendAttributes);
             }
+        }
+        if (cleaner.clean(parentType, element)) {
+            element.getParentNode().removeChild(element);
         }
     }
 
