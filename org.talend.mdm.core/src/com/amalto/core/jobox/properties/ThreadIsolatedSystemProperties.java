@@ -96,7 +96,7 @@ public class ThreadIsolatedSystemProperties extends Properties {
      */
     Properties getThreadProperties(Thread thread) {
         synchronized (threadProperties) {
-            if(thread == null) {
+            if (thread == null) {
                 return defaultSystemProperties;
             }
 
@@ -128,8 +128,99 @@ public class ThreadIsolatedSystemProperties extends Properties {
     }
 
     /*
-     * DELEGATE METHODS for Properties
+     * DELEGATE METHODS for Hashtable
      */
+    @Override
+    public synchronized void putAll(Map<?, ?> map) {
+        Set<? extends Map.Entry<?, ?>> entries = map.entrySet();
+        for (Map.Entry<?, ?> entry : entries) {
+            put(entry.getKey(), entry.getValue());
+        }
+    }
+
+    @Override
+    public synchronized Object put(Object key, Object value) {
+        return setProperty(((String) key), ((String) value));
+    }
+
+    @Override
+    public synchronized int size() {
+        return getThreadProperties().size();
+    }
+
+    @Override
+    public synchronized boolean isEmpty() {
+        return getThreadProperties().isEmpty();
+    }
+
+    @Override
+    public synchronized Enumeration<Object> keys() {
+        return getThreadProperties().keys();
+    }
+
+    @Override
+    public synchronized Enumeration<Object> elements() {
+        return getThreadProperties().elements();
+    }
+
+    @Override
+    public synchronized boolean contains(Object o) {
+        return getThreadProperties().contains(o);
+    }
+
+    @Override
+    public boolean containsValue(Object o) {
+        return getThreadProperties().containsValue(o);
+    }
+
+    @Override
+    public synchronized boolean containsKey(Object o) {
+        return getThreadProperties().containsKey(o);
+    }
+
+    @Override
+    public synchronized Object get(Object o) {
+        return getThreadProperties().get(o);
+    }
+
+    @Override
+    public synchronized Object remove(Object o) {
+        return getThreadProperties().remove(o);
+    }
+
+    @Override
+    public synchronized void clear() {
+        getThreadProperties().clear();
+    }
+
+    @Override
+    public synchronized Object clone() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public synchronized String toString() {
+        return getThreadProperties().toString();
+    }
+
+    @Override
+    public Set<Object> keySet() {
+        return getThreadProperties().keySet();
+    }
+
+    @Override
+    public Set<Map.Entry<Object, Object>> entrySet() {
+        return getThreadProperties().entrySet();
+    }
+
+    @Override
+    public Collection<Object> values() {
+        return getThreadProperties().values();
+    }
+
+    /*
+    * DELEGATE METHODS for Properties
+    */
     @Override
     public Object setProperty(String key, String value) {
         return getThreadProperties().setProperty(key, value);
