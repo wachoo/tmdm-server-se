@@ -89,10 +89,20 @@ public class DataSourceFactory {
         if (dataSource instanceof RDBMSDataSource) {
             RDBMSDataSource rdbmsDataSource = (RDBMSDataSource) dataSource;
             String connectionURL = rdbmsDataSource.getConnectionURL();
-            String processedConnectionURL = connectionURL.replace("${container}", container); //$NON-NLS-1$
+            String processedConnectionURL;
+            if (((RDBMSDataSource) dataSource).getDialectName() == RDBMSDataSource.DataSourceDialect.POSTGRES) {
+                // Postgres always creates lower case database name
+                processedConnectionURL = connectionURL.replace("${container}", container.toLowerCase()); //$NON-NLS-1$
+            } else {
+                processedConnectionURL = connectionURL.replace("${container}", container); //$NON-NLS-1$
+            }
             rdbmsDataSource.setConnectionURL(processedConnectionURL);
             String databaseName = rdbmsDataSource.getDatabaseName();
             String processedDatabaseName = databaseName.replace("${container}", container); //$NON-NLS-1$
+            if (((RDBMSDataSource) dataSource).getDialectName() == RDBMSDataSource.DataSourceDialect.POSTGRES) {
+                // Postgres always creates lower case database name
+                processedDatabaseName = databaseName.toLowerCase();
+            }
             rdbmsDataSource.setDatabaseName(processedDatabaseName);
         }
     }

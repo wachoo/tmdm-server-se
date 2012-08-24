@@ -16,7 +16,7 @@ public class RDBMSDataSource implements DataSource {
     private final String name;
 
     public static enum DataSourceDialect {
-        H2, ORACLE_10G, MYSQL, SQL_SERVER
+        H2, ORACLE_10G, MYSQL, POSTGRES, SQL_SERVER
     }
 
     private final String cacheDirectory;
@@ -63,6 +63,8 @@ public class RDBMSDataSource implements DataSource {
             dialect = DataSourceDialect.ORACLE_10G;
         } else if ("SQLServer".equals(dialectName)) { //$NON-NLS-1$
             dialect = DataSourceDialect.SQL_SERVER;
+        } else if ("Postgres".equals(dialectName)) { //$NON-NLS-1$
+            dialect = DataSourceDialect.POSTGRES;
         } else {
             throw new IllegalArgumentException("No support for type '" + dialectName + "'.");
         }

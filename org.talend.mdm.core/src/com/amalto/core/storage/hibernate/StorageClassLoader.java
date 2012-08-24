@@ -277,6 +277,9 @@ class StorageClassLoader extends ClassLoader {
             case SQL_SERVER:
                 dialect = "org.hibernate.dialect.SQLServer2008Dialect"; //$NON-NLS-1$
                 break;
+            case POSTGRES:
+                dialect = "org.hibernate.dialect.PostgreSQLDialect"; //$NON-NLS-1$
+                break;
             default:
                 throw new NotImplementedException("No supported dialect type '" + dialectType + "'");
         }
