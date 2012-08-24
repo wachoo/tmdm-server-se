@@ -18,6 +18,7 @@ import com.amalto.core.history.action.FieldUpdateAction;
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.metadata.MetadataUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
@@ -272,7 +273,8 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                             : oldValue, null, comparedField));
                 }
             } else { // new accessor exist
-                if (newAccessor.get() != null && !newAccessor.get().isEmpty()) {
+                String newValue = newAccessor.get();
+                if (newValue != null && !newValue.isEmpty()) {
                     if (comparedField.isMany() && preserveCollectionOldValues) {
                         // Append at the end of the collection
                         if (!originalFieldToLastIndex.containsKey(comparedField)) {
@@ -282,11 +284,24 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                         int newIndex = originalFieldToLastIndex.get(comparedField);
                         this.leftPath.push(comparedField.getName() + "[" + (newIndex + 1) + "]");
                         actions.add(new FieldUpdateAction(date, source, userName, getLeftPath(), StringUtils.EMPTY,
-                                newAccessor.get(), comparedField));
+                                newValue, comparedField));
                         originalFieldToLastIndex.put(comparedField, newIndex + 1);
-                    } else if (oldValue != null && !oldValue.equals(newAccessor.get())) {
-                        actions.add(new FieldUpdateAction(date, source, userName, leftPath, oldValue, newAccessor.get(),
-                                comparedField));
+                    } else if (oldValue != null && !oldValue.equals(newValue)) {
+                        if (!"string".equals(comparedField.getType().getName())) {
+                            // Field is not string. To ensure false positive difference detection, creates a typed value.
+                            Object oldObject = MetadataUtils.convert(oldValue, comparedField);
+                            Object newObject = MetadataUtils.convert(newValue, comparedField);
+                            if (oldObject instanceof Comparable) {
+                                if (((Comparable) oldObject).compareTo(newObject) == 0) {
+                                    return;
+                                }
+                            } else {
+                                if (oldObject.equals(newObject)) {
+                                    return;
+                                }
+                            }
+                        }
+                        actions.add(new FieldUpdateAction(date, source, userName, leftPath, oldValue, newValue, comparedField));
                     }
                 }
             }

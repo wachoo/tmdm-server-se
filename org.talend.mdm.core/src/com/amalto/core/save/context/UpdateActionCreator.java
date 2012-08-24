@@ -198,6 +198,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                             : oldValue, null, comparedField));
                 }
             } else { // new accessor exist
+                String newValue = newAccessor.get();
                 if (newAccessor.get() != null && !newAccessor.get().isEmpty()) {
                     if (comparedField.isMany() && preserveCollectionOldValues) {
                         // Append at the end of the collection
@@ -213,6 +214,20 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                         this.path.push(previousPathElement);
                         originalFieldToLastIndex.put(comparedField, newIndex + 1);
                     } else if (oldValue != null && !oldValue.equals(newAccessor.get())) {
+                        if (!"string".equals(comparedField.getType().getName())) {
+                            // Field is not string. To ensure false positive difference detection, creates a typed value.
+                            Object oldObject = MetadataUtils.convert(oldValue, comparedField);
+                            Object newObject = MetadataUtils.convert(newValue, comparedField);
+                            if (oldObject instanceof Comparable) {
+                                if (((Comparable) oldObject).compareTo(newObject) == 0) {
+                                    return;
+                                }
+                            } else {
+                                if (oldObject.equals(newObject)) {
+                                    return;
+                                }
+                            }
+                        }
                         actions.add(new FieldUpdateAction(date, source, userName, path, oldValue, newAccessor.get(), comparedField));
                     }
                 }

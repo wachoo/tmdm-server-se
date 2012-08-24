@@ -113,7 +113,7 @@ public class MetadataUtils {
      *                          not match field's type.
      */
     public static Object convert(String dataAsString, FieldMetadata field) {
-        return convert(dataAsString, field, field.getType());
+        return convert(dataAsString, field.getType());
     }
 
     public static Object convert(String dataAsString, FieldMetadata field, TypeMetadata actualType) {
