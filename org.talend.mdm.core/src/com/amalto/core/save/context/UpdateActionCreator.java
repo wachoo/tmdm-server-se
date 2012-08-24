@@ -214,21 +214,23 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                             : oldValue, null, comparedField));
                 }
             } else { // new accessor exist
-                if (comparedField.isMany() && preserveCollectionOldValues) {
-                    // Append at the end of the collection
-                    if (!originalFieldToLastIndex.containsKey(comparedField)) {
-                        originalFieldToLastIndex.put(comparedField, originalAccessor.size());
+                if (newAccessor.get() != null && !newAccessor.get().isEmpty()) {
+                    if (comparedField.isMany() && preserveCollectionOldValues) {
+                        // Append at the end of the collection
+                        if (!originalFieldToLastIndex.containsKey(comparedField)) {
+                            originalFieldToLastIndex.put(comparedField, originalAccessor.size());
+                        }
+                        String previousPathElement = this.path.pop();
+                        int newIndex = originalFieldToLastIndex.get(comparedField);
+                        this.path.push(comparedField.getName() + "[" + (newIndex + 1) + "]");
+                        actions.add(new FieldUpdateAction(date, source, userName, getLeftPath(), StringUtils.EMPTY,
+                                newAccessor.get(), comparedField));
+                        this.path.pop();
+                        this.path.push(previousPathElement);
+                        originalFieldToLastIndex.put(comparedField, newIndex + 1);
+                    } else if (oldValue != null && !oldValue.equals(newAccessor.get())) {
+                        actions.add(new FieldUpdateAction(date, source, userName, path, oldValue, newAccessor.get(), comparedField));
                     }
-                    String previousPathElement = this.path.pop();
-                    int newIndex = originalFieldToLastIndex.get(comparedField);
-                    this.path.push(comparedField.getName() + "[" + (newIndex + 1) + "]");
-                    actions.add(new FieldUpdateAction(date, source, userName, getLeftPath(), StringUtils.EMPTY,
-                            newAccessor.get(), comparedField));
-                    this.path.pop();
-                    this.path.push(previousPathElement);
-                    originalFieldToLastIndex.put(comparedField, newIndex + 1);
-                } else if (oldValue != null && !oldValue.equals(newAccessor.get())) {
-                    actions.add(new FieldUpdateAction(date, source, userName, path, oldValue, newAccessor.get(), comparedField));
                 }
             }
         }
