@@ -29,8 +29,6 @@ import java.util.Set;
 
 class ProjectionIterator extends CloseableIterator<DataRecord> {
 
-    public static final String PROJECTION_TYPE = "$ExplicitProjection$"; //$NON-NLS-1$
-
     private static final Logger LOGGER = Logger.getLogger(ProjectionIterator.class);
 
     private final Iterator iterator;
@@ -81,7 +79,7 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
     public DataRecord next() {
         DataRecord record;
         try {
-            final ComplexTypeMetadata explicitProjectionType = new ComplexTypeMetadataImpl(StringUtils.EMPTY, PROJECTION_TYPE, false);
+            final ComplexTypeMetadata explicitProjectionType = new ComplexTypeMetadataImpl(StringUtils.EMPTY, Storage.PROJECTION_TYPE, false);
             record = new DataRecord(explicitProjectionType, UnsupportedDataRecordMetadata.INSTANCE);
             Object[] values;
 

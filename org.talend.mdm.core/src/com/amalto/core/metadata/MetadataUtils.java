@@ -215,6 +215,11 @@ public class MetadataUtils {
                 }
             }
         } else if ("boolean".equals(type)) { //$NON-NLS-1$
+            // Boolean.parseBoolean returns "false" if content isn't a boolean string value. Callers of this method
+            // expect call to fail if data is malformed.
+            if (!"false".equalsIgnoreCase(dataAsString) && !"true".equalsIgnoreCase(dataAsString)) { //$NON-NLS-1$ //$NON-NLS-2$
+                throw new IllegalArgumentException("Value '" + dataAsString + "' is not valid for boolean");
+            }
             return Boolean.parseBoolean(dataAsString);
         } else if ("decimal".equals(type)) { //$NON-NLS-1$
             return new BigDecimal(dataAsString);
@@ -466,4 +471,12 @@ public class MetadataUtils {
         return types.indexOf(type);
     }
 
+    public static boolean isValueAssignable(String value, String typeName) {
+        try {
+            convert(value, typeName);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
 }

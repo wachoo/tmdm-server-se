@@ -20,8 +20,8 @@ public class BooleanConstant implements TypedExpression {
 
     private final boolean value;
 
-    public BooleanConstant(String value) {
-        this.value = Boolean.parseBoolean(value);
+    public BooleanConstant(boolean value) {
+        this.value = value;
     }
 
     public boolean getValue() {

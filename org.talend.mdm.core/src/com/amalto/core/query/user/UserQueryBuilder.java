@@ -14,6 +14,7 @@ package com.amalto.core.query.user;
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.ReferenceFieldMetadata;
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 
 import java.util.List;
@@ -162,7 +163,8 @@ public class UserQueryBuilder {
         } else if ("time".equals(fieldTypeName) || "duration".equals(fieldTypeName)) { //$NON-NLS-1$ //$NON-NLS-2$
             return new TimeConstant(constant);
         } else if ("boolean".equals(fieldTypeName)) { //$NON-NLS-1$
-            return new BooleanConstant(constant);
+            boolean value = Boolean.parseBoolean(constant);
+            return new BooleanConstant(value);
         } else if ("decimal".equals(fieldTypeName)) { //$NON-NLS-1$
             return new BigDecimalConstant(constant);
         } else if ("short".equals(fieldTypeName) || "unsignedShort".equals(fieldTypeName)) { //$NON-NLS-1$ //$NON-NLS-2$
@@ -176,7 +178,7 @@ public class UserQueryBuilder {
         } else if ("float".equals(fieldTypeName)) { //$NON-NLS-1$
             return new FloatConstant(constant);
         } else {
-            throw new IllegalArgumentException("Cannot create expression constant for expression type '" + expression.getTypeName() + "'");
+            throw new IllegalArgumentException("Cannot create expression constant for expression type '" + expression.getTypeName() + "' (is expression allowed to contain values?)");
         }
     }
 
@@ -283,14 +285,15 @@ public class UserQueryBuilder {
 
     /**
      * Adds a {@link Condition} to the {@link Select} built by this {@link UserQueryBuilder}. If this method has previously
-     * been called, a logic "and" condition is created between the existing condition ({@link com.amalto.core.query.user.Select#getCondition()}
-     * and the <code>condition</code> parameter.
+     * been called, a logic "and"/"or" condition (depends on <code>predicate</code> argument) is created between the
+     * existing condition {@link com.amalto.core.query.user.Select#getCondition()} and the <code>condition</code> parameter.
      *
      * @param condition A {@link Condition} to be added to the user query.
+     * @param predicate Predicate to use to link existing condition with <code>condition</code>.
      * @return Same {@link UserQueryBuilder} for chained method calls.
      * @throws IllegalArgumentException If <code>condition</code> parameter is null.
      */
-    public UserQueryBuilder where(Condition condition) {
+    public UserQueryBuilder where(Condition condition, Predicate predicate) {
         if (condition == null) {
             throw new IllegalArgumentException("Condition cannot be null");
         }
@@ -298,9 +301,40 @@ public class UserQueryBuilder {
         if (select.getCondition() == null) {
             select.setCondition(condition);
         } else {
-            select.setCondition(and(select.getCondition(), condition));
+            if (predicate == Predicate.OR) {
+                select.setCondition(or(select.getCondition(), condition));
+            } else if (predicate == Predicate.AND) {
+                select.setCondition(and(select.getCondition(), condition));
+            } else {
+                throw new NotImplementedException("Not implemented: support of " + predicate);
+            }
         }
 
+        return this;
+    }
+
+    /**
+     * <p>
+     * Adds a {@link Condition} to the {@link Select} built by this {@link UserQueryBuilder}. If this method has previously
+     * been called, a logic "and" condition is created between the existing condition {@link com.amalto.core.query.user.Select#getCondition()}
+     * and the <code>condition</code> parameter.
+     * </p>
+     * <p>
+     * This method is equivalent to:<br/>
+     * <code>
+     *     Condition condition = ...<br/>
+     *     UserQueryBuilder qb = ...<br/>
+     *     qb.where(condition, Predicate.AND);<br/>
+     * </code>
+     * </p>
+     *
+     * @param condition A {@link Condition} to be added to the user query.
+     * @return Same {@link UserQueryBuilder} for chained method calls.
+     * @throws IllegalArgumentException If <code>condition</code> parameter is null.
+     * @see #where(Condition, Predicate)
+     */
+    public UserQueryBuilder where(Condition condition) {
+        where(condition, Predicate.AND);
         return this;
     }
 

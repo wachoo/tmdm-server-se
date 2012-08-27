@@ -84,7 +84,8 @@ public class UserQueryHelper {
             }
 
             if (!whereCondition.isRightValueXPath()) {
-                if (!isValueAssignable(value, field)) {
+                String fieldTypeName = field.getTypeName();
+                if (!MetadataUtils.isValueAssignable(value, fieldTypeName)) {
                     Logger.getLogger(UserQueryHelper.class).warn("Skip '" + leftFieldName + "' because it can't accept value '" + value + "'");
                     return NO_OP_CONDITION;
                 }
@@ -135,21 +136,6 @@ public class UserQueryHelper {
         } else {
             throw new NotImplementedException("No support for where item of type " + whereItem.getClass().getName());
         }
-    }
-
-    private static boolean isValueAssignable(String value, TypedExpression field) {
-        try {
-            Object o = MetadataUtils.convert(value, field.getTypeName());
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Field: " + field + " / Value: " + value + " / Value class: " + o.getClass());
-            }
-        } catch (Exception e) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Invalid value '" + value + "' for field '" + field + "' due to exception.", e);
-            }
-            return false;
-        }
-        return true;
     }
 
     private static TypedExpression getField(MetadataRepository repository, String typeName, String fieldName) {

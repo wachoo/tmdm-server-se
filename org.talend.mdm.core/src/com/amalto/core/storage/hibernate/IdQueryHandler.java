@@ -158,4 +158,24 @@ class IdQueryHandler extends AbstractQueryHandler {
         }
         return null;
     }
+
+    @Override
+    public StorageResults visit(Timestamp timestamp) {
+        return null;
+    }
+
+    @Override
+    public StorageResults visit(Revision revision) {
+        return null;
+    }
+
+    @Override
+    public StorageResults visit(TaskId taskId) {
+        return null;
+    }
+
+    @Override
+    public StorageResults visit(StagingStatus stagingStatus) {
+        return super.visit(stagingStatus);    //To change body of overridden methods use File | Settings | File Templates.
+    }
 }

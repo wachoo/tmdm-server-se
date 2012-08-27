@@ -11,9 +11,8 @@
 
 package com.amalto.core.storage;
 
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.metadata.*;
+import com.amalto.core.query.user.Condition;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.server.MetadataRepositoryAdmin;
@@ -381,38 +380,45 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         // Filter by keys: expected format here: $EntityTypeName/Path/To/Field$[id_for_lookup]
         String keysKeywords = criteria.getKeysKeywords();
         if (keysKeywords != null && !keysKeywords.isEmpty()) {
-            char[] chars = keysKeywords.toCharArray();
-            StringBuilder path = new StringBuilder();
-            StringBuilder id = new StringBuilder();
-            StringBuilder idForLookup = new StringBuilder();
-            int dollarCount = 0;
-            int slashCount = 0;
-            for (char current : chars) {
-                switch (current) {
-                    case '$':
-                        dollarCount++;
-                        break;
-                    case '/':
-                        slashCount++;
-                    default:
-                        if (dollarCount == 0) {
-                            id.append(current);
-                        } else if (dollarCount >= 2) {
-                            idForLookup.append(current);
-                        } else if (slashCount > 0) {
-                            if (slashCount != 1 || '/' != current) {
-                                path.append(current);
+            if (!criteria.isCompoundKeyKeywords()) {
+                char[] chars = keysKeywords.toCharArray();
+                StringBuilder path = new StringBuilder();
+                StringBuilder id = new StringBuilder();
+                StringBuilder idForLookup = new StringBuilder();
+                int dollarCount = 0;
+                int slashCount = 0;
+                for (char current : chars) {
+                    switch (current) {
+                        case '$':
+                            dollarCount++;
+                            break;
+                        case '/':
+                            slashCount++;
+                        default:
+                            if (dollarCount == 0) {
+                                id.append(current);
+                            } else if (dollarCount >= 2) {
+                                idForLookup.append(current);
+                            } else if (slashCount > 0) {
+                                if (slashCount != 1 || '/' != current) {
+                                    path.append(current);
+                                }
                             }
-                        }
+                    }
                 }
-            }
-            if (path.toString().isEmpty() || idForLookup.toString().isEmpty()) {
-                throw new IllegalArgumentException("Keys keyword argument '" + keysKeywords + "' did not match expected format $EntityTypeName/Path/To/Field$[id_for_lookup]");
-            }
-            qb.where(eq(type.getField(path.toString()), idForLookup.toString()));
-            if (!id.toString().isEmpty()) {
-                // TODO Implement compound key support
-                qb.where(eq(type.getKeyFields().get(0), id.toString()));
+                if (path.toString().isEmpty()) {
+                    // TODO Implement compound key support
+                    qb.where(eq(type.getKeyFields().get(0), id.toString()));
+                } else {
+                    qb.where(contains(type.getField(path.toString()), idForLookup.toString()));
+                }
+            } else {
+                List<FieldMetadata> keyFields = type.getKeyFields();
+                if (keyFields.size() > 1) {
+                    throw new IllegalArgumentException("Expected type '" + type.getName() + "' to contain only 1 key field.");
+                }
+                String uniqueKeyFieldName = keyFields.get(0).getName();
+                qb.where(contains(type.getField(uniqueKeyFieldName), keysKeywords));
             }
         }
 
@@ -427,19 +433,22 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         // Content keywords
         String contentKeywords = criteria.getContentKeywords();
         if (contentKeywords != null) {
-            if (!criteria.isCompoundKeyKeywords()) {
-                List<FieldMetadata> keyFields = type.getKeyFields();
-                if (keyFields.size() > 1) {
-                    throw new IllegalArgumentException("Expected type '" + type.getName() + "' to contain only 1 key field.");
-                }
-                String uniqueKeyFieldName = keyFields.get(0).getName();
-                qb.where(contains(type.getField(uniqueKeyFieldName), contentKeywords));
-            } else {
-                // TODO Implement compound key support
-            }
-
             if (criteria.isUseFTSearch()) {
                 qb.where(fullText(contentKeywords));
+            } else {
+                Condition condition = null;
+                for (FieldMetadata field : type.getFields()) {
+                    if (MetadataUtils.isValueAssignable(contentKeywords, field.getType().getName())) {
+                        if (!(field instanceof ContainedTypeFieldMetadata)) {
+                            if (condition == null) {
+                                condition = contains(field, contentKeywords);
+                            } else {
+                                condition = or(condition, contains(field, contentKeywords));
+                            }
+                        }
+                    }
+                }
+                qb.where(condition);
             }
         }
 
