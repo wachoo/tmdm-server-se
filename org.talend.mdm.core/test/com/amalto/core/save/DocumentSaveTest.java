@@ -1561,6 +1561,28 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("1", evaluate(committedElement, "/ComplexTypes/son/Name"));
     }
 
+    public void test42() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata7.xsd"));
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test42_original.xml", "metadata7.xsd");
+        source.setUserName("admin");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test42.xml");
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("Product", "test42", "Source", recordXml, true, false, "Personne/Contextes/Contexte", "", false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        System.out.println(Util.nodeToString(committedElement));
+        assertEquals("[0000]", evaluate(committedElement, "/Personne/Contextes/Contexte[2]/OrganisationFk"));
+    }
+
+
     // This test should (can) not be backported to 5.1!
     public void testIntegerComparison() throws Exception {
         final MetadataRepository repository = new MetadataRepository();

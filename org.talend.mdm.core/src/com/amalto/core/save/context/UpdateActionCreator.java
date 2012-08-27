@@ -19,6 +19,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
 
+// TODO Clean up: preserveCollectionOldValues is dedicated to partial update only!
 class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     protected final Stack<String> path = new Stack<String>();

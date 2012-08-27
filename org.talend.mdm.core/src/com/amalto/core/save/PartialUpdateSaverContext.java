@@ -47,7 +47,7 @@ public class PartialUpdateSaverContext extends AbstractDocumentSaverContext {
         if (key == null) {
             key = StringUtils.EMPTY;
         }
-        if (pivot.length() > 1 && key.length() > 1) {
+        if (pivot.length() > 1) {
             return new PartialUpdateSaverContext(context, pivot, key, overwrite, UserAction.PARTIAL_UPDATE);
         } else {
             return new PartialUpdateSaverContext(context, pivot, key, overwrite, UserAction.UPDATE);
