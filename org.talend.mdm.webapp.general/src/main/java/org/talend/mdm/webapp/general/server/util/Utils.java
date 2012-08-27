@@ -17,12 +17,15 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
+import org.talend.mdm.webapp.base.shared.SystemLocale;
+import org.talend.mdm.webapp.base.shared.SystemLocaleFactory;
 import org.talend.mdm.webapp.general.model.GroupItem;
 import org.talend.mdm.webapp.general.model.LanguageBean;
 import org.talend.mdm.webapp.general.model.MenuBean;
@@ -223,38 +226,28 @@ public class Utils {
                 + "<link rel=\"stylesheet\" href=\"/core/secure/timeline/css/default.css\" type=\"text/css\">"; //$NON-NLS-1$
     }
 
-    public static List<LanguageBean> getLanguages(String selectedLang) throws IOException, SAXException,
-            ParserConfigurationException {
-        InputStream is = Utils.class.getResourceAsStream("/languages.xml"); //$NON-NLS-1$
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    public static List<LanguageBean> getLanguages(String selectedLang) throws Exception {
+
         List<LanguageBean> languages = new ArrayList<LanguageBean>();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        Document doc = builder.parse(is);
-        Element root = doc.getDocumentElement();
-        NodeList nodes = root.getChildNodes();
-        for (int i = 0; i < nodes.getLength(); i++) {
-            Node node = nodes.item(i);
-            if (node.getNodeType() == Node.ELEMENT_NODE) {
-                if (node.getNodeName().equals("language")) { //$NON-NLS-1$ 
-                    LanguageBean lang = new LanguageBean();
-                    lang.setText(node.getTextContent());
-                    String value = node.getAttributes().getNamedItem("value").getNodeValue(); //$NON-NLS-1$
-                    lang.setValue(value);
-                    if (value.equals(selectedLang)){
-                        lang.setSelected(true);
-                    }                        
-                    languages.add(lang);
-                }
-            }
+        Map<String, SystemLocale> supportedLocales = SystemLocaleFactory.getInstance().getSupportedLocales();
+        for (String iso : supportedLocales.keySet()) {
+            SystemLocale systemLocale = supportedLocales.get(iso);
+            LanguageBean lang = new LanguageBean();
+            lang.setText(systemLocale.getLabel());
+            lang.setValue(systemLocale.getIso());
+            if (lang.getValue().equals(selectedLang)) {
+                lang.setSelected(true);
+            }                        
+            languages.add(lang);
         }
         
-        if(selectedLang == null)
+        if (selectedLang == null)
             languages.get(0).setSelected(true);
+            
         return languages;
     }
 
-    public static List<GroupItem> getGroupItems(String language) throws IOException, SAXException,
- ParserConfigurationException {
+    public static List<GroupItem> getGroupItems(String language) throws IOException, SAXException, ParserConfigurationException {
         InputStream is = Utils.class.getResourceAsStream("/MenuGroup.xml"); //$NON-NLS-1$
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();

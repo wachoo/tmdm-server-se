@@ -16,13 +16,18 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.talend.mdm.webapp.base.shared.SystemUtil;
 import org.talend.mdm.webapp.general.model.LanguageBean;
+import org.talend.mdm.webapp.general.server.actions.GeneralAction;
+
+
 
 @SuppressWarnings("nls")
 public class UtilsTest extends TestCase {
 
     public void testGetLanguages() throws Exception {
-        List<LanguageBean> langs = Utils.getLanguages("en");
+
+        List<LanguageBean> langs = (new GeneralAction()).getLanguages("en");
         assertTrue(langs.size() > 0);
         
         LanguageBean lang = langs.get(0);
@@ -34,5 +39,13 @@ public class UtilsTest extends TestCase {
         assertEquals("fr", lang.getValue());
         assertEquals("Français", lang.getText());
         assertFalse(lang.isSelected());
+        
+    }
+
+    public void testSystemLocale() throws Exception {
+
+        assertEquals("MM/dd/yyyy HH:mm:ss", SystemUtil.getDateTimeFormat("en"));
+        assertEquals("yyyy/MM/dd HH:mm:ss", SystemUtil.getDateTimeFormat("zh"));
+
     }
 }

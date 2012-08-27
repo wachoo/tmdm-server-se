@@ -1,13 +1,20 @@
 package org.talend.mdm.webapp.general.server.actions;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.base.shared.SystemLocale;
+import org.talend.mdm.webapp.base.shared.SystemLocaleFactory;
+import org.talend.mdm.webapp.base.shared.SystemLocaleInitializable;
 import org.talend.mdm.webapp.general.client.GeneralService;
 import org.talend.mdm.webapp.general.gwt.GWTConfigurationContext;
 import org.talend.mdm.webapp.general.gwt.GwtWebContextFactory;
@@ -19,6 +26,9 @@ import org.talend.mdm.webapp.general.model.MenuGroup;
 import org.talend.mdm.webapp.general.model.UserBean;
 import org.talend.mdm.webapp.general.server.util.Utils;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
@@ -157,7 +167,48 @@ public class GeneralAction implements GeneralService {
     }
 
     public List<LanguageBean> getLanguages(String language) throws ServiceException {
+
         try {
+            // Reload system locale
+            SystemLocaleFactory.getInstance().load(new SystemLocaleInitializable() {
+
+                @Override
+                public void doInit() throws Exception {
+
+                    InputStream is = Utils.class.getResourceAsStream("/languages.xml"); //$NON-NLS-1$
+                    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                    DocumentBuilder builder = factory.newDocumentBuilder();
+                    Document doc = builder.parse(is);
+                    Element root = doc.getDocumentElement();
+
+                    NodeList nodes = root.getChildNodes();
+                    for (int i = 0; i < nodes.getLength(); i++) {
+                        Node node = nodes.item(i);
+                        if (node.getNodeType() == Node.ELEMENT_NODE) {
+                            if (node.getNodeName().equals("language")) { //$NON-NLS-1$ 
+
+                                Node isoNode = node.getAttributes().getNamedItem("value");//$NON-NLS-1$
+                                String iso = isoNode.getNodeValue();
+                                if (iso != null) {
+
+                                    SystemLocale locale = new SystemLocale(iso, node.getTextContent());
+                                    super.supportedLocales.put(iso, locale);
+
+                                    Node dateTimeNode = node.getAttributes().getNamedItem("dateTime");//$NON-NLS-1$
+
+                                    if (dateTimeNode != null && dateTimeNode.getNodeValue() != null)
+                                        locale.setDateTimeFormat(dateTimeNode.getNodeValue());
+
+                                }
+
+                            }
+                        }
+                    }// end for
+
+                }
+
+            });
+
             return Utils.getLanguages(language);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
