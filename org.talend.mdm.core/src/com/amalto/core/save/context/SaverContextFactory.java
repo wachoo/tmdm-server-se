@@ -200,6 +200,11 @@ public class SaverContextFactory {
                 validate,
                 updateReport,
                 false); // Before saving is not supported
-        return PartialUpdateSaverContext.decorate(context, pivot, key, overwrite);
+        DocumentSaverContext partialUpdateContext = PartialUpdateSaverContext.decorate(context, pivot, key, overwrite);
+        if (updateReport) {
+            return ReportDocumentSaverContext.decorate(context, changeSource);
+        } else {
+            return partialUpdateContext;
+        }
     }
 }
