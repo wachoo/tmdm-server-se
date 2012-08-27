@@ -15,10 +15,7 @@ import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.action.FieldUpdateAction;
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataRepository;
-import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.metadata.*;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
@@ -287,7 +284,7 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
                                 newValue, comparedField));
                         originalFieldToLastIndex.put(comparedField, newIndex + 1);
                     } else if (oldValue != null && !oldValue.equals(newValue)) {
-                        if (!"string".equals(comparedField.getType().getName())) {
+                        if (!"string".equals(comparedField.getType().getName()) && !(comparedField instanceof ReferenceFieldMetadata)) {
                             // Field is not string. To ensure false positive difference detection, creates a typed value.
                             Object oldObject = MetadataUtils.convert(oldValue, comparedField);
                             Object newObject = MetadataUtils.convert(newValue, comparedField);
