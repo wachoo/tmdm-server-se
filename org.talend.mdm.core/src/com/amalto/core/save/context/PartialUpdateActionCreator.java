@@ -61,7 +61,7 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
         } else {
             partialUpdatePivot = pivot;
         }
-        if (key.charAt(0) != '/') {
+        if (!key.isEmpty() && key.charAt(0) != '/') {
             this.partialUpdateKey = key + '/';
         } else {
             this.partialUpdateKey = key;
@@ -76,15 +76,13 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
         };
         // Initialize key values in database document to a path in partial update document.
         Accessor accessor = newDocument.createAccessor(partialUpdatePivot);
-        if (!partialUpdateKey.isEmpty()) {
-            for (int i = 1; i <= accessor.size(); i++) {
-                String path = partialUpdatePivot + '[' + i + ']';
-                Accessor keyAccessor = newDocument.createAccessor(path + '/' + partialUpdateKey);
-                if (!keyAccessor.exist()) {
-                    throw new IllegalStateException("Path '" + path + '/' + partialUpdateKey + "' does not exist in user document.");
-                }
-                keyValueToPath.put(keyAccessor.get(), path);
+        for (int i = 1; i <= accessor.size(); i++) {
+            String path = partialUpdatePivot + '[' + i + ']';
+            Accessor keyAccessor = newDocument.createAccessor(path + '/' + partialUpdateKey);
+            if (!keyAccessor.exist()) {
+                throw new IllegalStateException("Path '" + path + '/' + partialUpdateKey + "' does not exist in user document.");
             }
+            keyValueToPath.put(keyAccessor.get(), path);
         }
     }
 
@@ -164,12 +162,12 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
             Accessor leftAccessor;
             Accessor rightAccessor;
             try {
-                leftAccessor = originalDocument.createAccessor(getLeftPath());
                 rightAccessor = newDocument.createAccessor(getRightPath());
                 if (!rightAccessor.exist()) {
                     // If new list does not exist, it means element was omitted in new version (legacy behavior).
                     return;
                 }
+                leftAccessor = originalDocument.createAccessor(getLeftPath());
             } finally {
                 leftPath.pop();
                 rightPath.pop();
@@ -258,9 +256,11 @@ class PartialUpdateActionCreator extends UpdateActionCreator {
             if (!newAccessor.exist()) {
                 // No op
             } else { // new accessor exist
-                generateNoOp(lastMatchPath);
-                actions.add(new FieldUpdateAction(date, source, userName, leftPath, StringUtils.EMPTY, newAccessor.get(), comparedField));
-                generateNoOp(leftPath);
+                String newValue = newAccessor.get();
+                if (newValue != null && !newValue.isEmpty()) {
+                    generateNoOp(lastMatchPath);
+                    actions.add(new FieldUpdateAction(date, source, userName, leftPath, StringUtils.EMPTY, newValue, comparedField));
+                }
             }
         } else { // original accessor exist
             String oldValue = originalAccessor.get();

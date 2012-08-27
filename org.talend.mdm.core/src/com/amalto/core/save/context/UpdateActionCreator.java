@@ -35,6 +35,7 @@ import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.metadata.ReferenceFieldMetadata;
 import com.amalto.core.metadata.SimpleTypeFieldMetadata;
 
+// TODO Clean up: preserveCollectionOldValues is dedicated to partial update only!
 class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     protected final Stack<String> path = new Stack<String>();
