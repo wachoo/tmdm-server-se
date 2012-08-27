@@ -10,18 +10,21 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.base.shared;
+package com.amalto.webapp.core.util;
 
-public class SystemUtil {
+import java.io.Serializable;
+import java.util.Map;
 
-    private static final String DEFAULT_DATETIME_FORMAT = "MM/dd/yyyy HH:mm:ss";//$NON-NLS-1$
+public abstract class SystemLocaleInitializable implements Serializable {
 
-    public static String getDateTimeFormat(String language) {
-        SystemLocale defaultLocale = SystemLocaleFactory.getInstance().getLocale(language);
-        String format=defaultLocale == null ? null : defaultLocale.getDateTimeFormat();
-        if(format==null)
-            format = DEFAULT_DATETIME_FORMAT;
-        return format;
+    private static final long serialVersionUID = -2581037266617176489L;
+
+    protected Map<String, SystemLocale> supportedLocales;
+
+    public void setSupportedLocales(Map<String, SystemLocale> supportedLocales) {
+        this.supportedLocales = supportedLocales;
     }
+
+    public abstract void doInit() throws Exception;
 
 }

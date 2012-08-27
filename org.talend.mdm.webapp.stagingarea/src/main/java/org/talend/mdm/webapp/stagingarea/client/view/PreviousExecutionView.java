@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.talend.mdm.webapp.base.client.util.UrlUtil;
-import org.talend.mdm.webapp.base.shared.SystemUtil;
+import org.talend.mdm.webapp.base.client.model.UserContextModel;
+import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingarea.client.controller.ControllerContainer;
 import org.talend.mdm.webapp.stagingarea.client.controller.PreviousExecutionController;
 import org.talend.mdm.webapp.stagingarea.client.model.StagingAreaExecutionModel;
@@ -53,13 +53,17 @@ public class PreviousExecutionView extends AbstractView {
 
     private ColumnModel taskColumnModel;
 
+    private UserContextModel ucx;
+
     private void buildColumns() {
         List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
         ColumnConfig startDateColumn = new ColumnConfig("start_date", messages.start_date(), 100); //$NON-NLS-1$
-        startDateColumn.setDateTimeFormat(DateTimeFormat.getFormat(SystemUtil.getDateTimeFormat(UrlUtil.getLanguage())));
+        if (ucx.getDateTimeFormat() != null)
+            startDateColumn.setDateTimeFormat(DateTimeFormat.getFormat(ucx.getDateTimeFormat()));
         columns.add(startDateColumn);
         ColumnConfig endDateColumn = new ColumnConfig("end_date", messages.end_date(), 100); //$NON-NLS-1$
-        endDateColumn.setDateTimeFormat(DateTimeFormat.getFormat(SystemUtil.getDateTimeFormat(UrlUtil.getLanguage())));
+        if (ucx.getDateTimeFormat() != null)
+            endDateColumn.setDateTimeFormat(DateTimeFormat.getFormat(ucx.getDateTimeFormat()));
         columns.add(endDateColumn);
         ColumnConfig processRecordsColumn = new ColumnConfig("processed_records", messages.process_records(), 100); //$NON-NLS-1$
         columns.add(processRecordsColumn);
@@ -75,6 +79,7 @@ public class PreviousExecutionView extends AbstractView {
     @Override
     protected void initComponents() {
         super.initComponents();
+        ucx = UserContextUtil.getUserContext();
         buildColumns();
         beforeDateLabel = new Label(messages.display_before());
         beforeDateField = new DateField();

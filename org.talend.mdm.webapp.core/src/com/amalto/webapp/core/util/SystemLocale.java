@@ -10,13 +10,11 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.base.shared;
+package com.amalto.webapp.core.util;
 
 import java.io.Serializable;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
-public class SystemLocale implements Serializable, IsSerializable {
+public class SystemLocale implements Serializable {
 
     private static final long serialVersionUID = -3699032094500317357L;
 

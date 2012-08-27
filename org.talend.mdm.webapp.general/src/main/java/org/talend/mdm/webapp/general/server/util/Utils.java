@@ -24,8 +24,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
-import org.talend.mdm.webapp.base.shared.SystemLocale;
-import org.talend.mdm.webapp.base.shared.SystemLocaleFactory;
 import org.talend.mdm.webapp.general.model.GroupItem;
 import org.talend.mdm.webapp.general.model.LanguageBean;
 import org.talend.mdm.webapp.general.model.MenuBean;
@@ -36,6 +34,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.amalto.webapp.core.util.Menu;
+import com.amalto.webapp.core.util.SystemLocale;
+import com.amalto.webapp.core.util.SystemLocaleFactory;
 
 public class Utils {
 
@@ -235,6 +235,7 @@ public class Utils {
             LanguageBean lang = new LanguageBean();
             lang.setText(systemLocale.getLabel());
             lang.setValue(systemLocale.getIso());
+            lang.setDateTimeFormat(systemLocale.getDateTimeFormat());
             if (lang.getValue().equals(selectedLang)) {
                 lang.setSelected(true);
             }                        

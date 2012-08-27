@@ -28,6 +28,8 @@ public class UserContextUtil {
         UserContextModel ucx = new UserContextModel();
         ucx.setDataContainer(getDataContainer());
         ucx.setDataModel(getDataModel());
+        ucx.setLanguage(getLanguage());
+        ucx.setDateTimeFormat(getDateTimeFormat());
         return ucx;
     }
 
@@ -46,5 +48,21 @@ public class UserContextUtil {
     
     public static native void setDataModel(String dataModel)/*-{
         $wnd.mdm_ucx.dataModel = dataModel;
+    }-*/;
+    
+    public static native String getLanguage()/*-{
+         return $wnd.mdm_ucx.language;
+    }-*/;
+    
+    public static native String setLanguage(String language)/*-{
+        $wnd.mdm_ucx.language = language;
+    }-*/;
+    
+    public static native String getDateTimeFormat()/*-{
+        return $wnd.mdm_ucx.dateTimeFormat;
+    }-*/;
+    
+    public static native String setDateTimeFormat(String dateTimeFormat)/*-{
+        $wnd.mdm_ucx.dateTimeFormat = dateTimeFormat;
     }-*/;
 }

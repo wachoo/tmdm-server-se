@@ -22,6 +22,8 @@ public class LanguageBean implements Serializable {
 
     private String value;
 
+    private String dateTimeFormat;
+
     private boolean selected;
 
     public LanguageBean() {
@@ -50,4 +52,13 @@ public class LanguageBean implements Serializable {
     public boolean isSelected() {
         return selected;
     }
+
+    public String getDateTimeFormat() {
+        return dateTimeFormat;
+    }
+
+    public void setDateTimeFormat(String dateTimeFormat) {
+        this.dateTimeFormat = dateTimeFormat;
+    }
+
 }

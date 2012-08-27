@@ -28,7 +28,7 @@ import com.extjs.gxt.ui.client.widget.Label;
 public class TestUtil {
 
     public static native void setContextModel(StagingAreaConfiguration cm)/*-{
-        @org.talend.mdm.webapp.stagingarea.client.Stagingarea::stagingAreaConfig = cm;
+		@org.talend.mdm.webapp.stagingarea.client.Stagingarea::stagingAreaConfig = cm;
     }-*/;
 
     public static void initContainer() {
@@ -51,6 +51,7 @@ public class TestUtil {
     public static void initUserContext(String dataContainer, String dataModel) {
         UserContextUtil.setDataContainer(dataContainer);
         UserContextUtil.setDataModel(dataModel);
+        UserContextUtil.setDateTimeFormat("MM/dd/yyyy HH:mm:ss");
     }
 
     public static void initRestServices(ClientResourceWrapper resourceWrapper) {

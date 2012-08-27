@@ -10,15 +10,13 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.base.shared;
+package com.amalto.webapp.core.util;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
-public class SystemLocaleFactory implements Serializable, IsSerializable {
+public class SystemLocaleFactory implements Serializable {
 
     /** unique instance */
     private static SystemLocaleFactory sInstance = null;

@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
+import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.general.client.General;
 import org.talend.mdm.webapp.general.client.GeneralServiceAsync;
 import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
@@ -172,13 +173,17 @@ public class BrandingBar extends ContentPanel {
 
     public void buildLanguage(List<LanguageBean> languages) {
         String language = languages.get(0).getValue();
+        String dateFormat = languages.get(0).getDateTimeFormat();
         for (LanguageBean lang : languages) {
             languageBox.addItem(lang.getText(), lang.getValue());
             if (lang.isSelected()) {
                 language = lang.getValue();
+                dateFormat = lang.getDateTimeFormat();
                 languageBox.setSelectedIndex(languageBox.getItemCount() - 1);
             }
         }
         UrlUtil.setCurrentLocale(language);
+        UserContextUtil.setLanguage(language);
+        UserContextUtil.setDateTimeFormat(dateFormat);
     }
 }
