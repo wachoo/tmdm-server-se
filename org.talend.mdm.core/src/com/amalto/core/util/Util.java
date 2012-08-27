@@ -86,6 +86,7 @@ import org.apache.log4j.Logger;
 import org.apache.xerces.jaxp.DocumentBuilderFactoryImpl;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 import org.talend.mdm.commmon.util.core.ITransformerConstants;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.SchemaManager;
 import org.w3c.dom.DOMImplementation;
@@ -3798,5 +3799,9 @@ public class Util {
         if(throwable.getCause() != null)
             return getException(throwable.getCause(), cls);
         return null;
+    }
+
+    private String getDefaultSystemLocale() {
+        return MDMConfiguration.getConfiguration().getProperty("system.locale.default");//$NON-NLS-1$
     }
 }
