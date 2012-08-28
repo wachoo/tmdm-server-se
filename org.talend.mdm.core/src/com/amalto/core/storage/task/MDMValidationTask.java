@@ -19,6 +19,7 @@ import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.save.context.SaverSource;
 import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
 
@@ -38,6 +39,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
     private final SaverSession.Committer committer;
 
     private final Storage destinationStorage;
+    private int recordsCount;
 
     public MDMValidationTask(Storage storage, Storage destinationStorage, MetadataRepository repository, SaverSource source, SaverSession.Committer committer) {
         super(storage, repository);
@@ -52,10 +54,21 @@ public class MDMValidationTask extends MetadataRepositoryTask {
     }
 
     @Override
-    protected Task createTypeTask(ComplexTypeMetadata type)  {
+    protected Task createTypeTask(ComplexTypeMetadata type) {
         Closure closure = new MDMValidationTask.MDMValidationClosure(source, committer, destinationStorage);
         Select select = from(type).where(eq(status(), StagingConstants.SUCCESS_MERGE_CLUSTERS)).getSelect();
+        StorageResults records = storage.fetch(select);
+        try {
+            recordsCount += records.getCount();
+        } finally {
+            records.close();
+        }
         return new MultiThreadedTask(type.getName(), storage, select, 2, closure);
+    }
+
+    @Override
+    public int getRecordCount() {
+        return recordsCount;
     }
 
     private class MDMValidationClosure implements Closure {
@@ -93,7 +106,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
             DocumentSaverContext context = session.getContextFactory().create(destinationStorage.getName(), destinationStorage.getName(), true, new ByteArrayInputStream(output.toByteArray()));
             context.setTaskId(record.getRecordMetadata().getTaskId());
             DocumentSaver saver = context.createSaver();
-            Map<String,String> recordProperties = record.getRecordMetadata().getRecordProperties();
+            Map<String, String> recordProperties = record.getRecordMetadata().getRecordProperties();
             try {
                 saver.save(session, context);
                 recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.SUCCESS_VALIDATE);

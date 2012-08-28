@@ -13,22 +13,54 @@ package com.amalto.core.storage.task;
 
 import org.quartz.Job;
 
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+
 /**
  *
  */
-public interface Task extends Job {
+public interface Task extends Job, Runnable {
 
+    /**
+     * @return Returns a unique ID for this task.
+     */
     String getId();
-    
-    double getRecordCount();
-    
-    double getCurrentPerformance();
 
-    double getMinPerformance();
+    /**
+     * @return The total number of records the task should process. <b>Note:</b> This methods returns 0 if task have not
+     * yet been started.
+     * @see com.amalto.core.storage.task.TaskSubmitterFactory#getSubmitter()
+     * @see TaskSubmitter#submit(Task)
+     * @see TaskSubmitter#submitAndWait(Task)
+     */
+    int getRecordCount();
 
-    double getMaxPerformance();
+    /**
+     * @return The number of records processed by the task <b>so far</b>.
+     */
+    int getProcessedRecords();
 
+    /**
+     * @return Returns how many records per <b>second</b> validated. This method may return different values over time.
+     * It returns 0 if task have not yet been run.
+     */
+    double getPerformance();
+
+    /**
+     * Cancel 'as soon as possible' the task. Implementations should exit as soon as possible and release lock due to
+     * current run of task.
+     */
     void cancel();
 
+    /**
+     * Wait until task is complete. Calling {@link #cancel()} from another <b>MUST</b> wake up all threads blocked on
+     * this method.
+     * @throws InterruptedException
+     */
     void waitForCompletion() throws InterruptedException;
+
+    /**
+     * @return When the task was started with a number that can be passed as is to {@link Date}.
+     */
+    long getStartDate();
 }

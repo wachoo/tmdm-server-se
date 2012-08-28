@@ -3,6 +3,7 @@ package com.amalto.core.storage.task;
 import com.amalto.core.load.io.ResettableStringWriter;
 import com.amalto.core.metadata.*;
 import com.amalto.core.query.user.Select;
+import com.amalto.core.query.user.UserStagingQueryBuilder;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
@@ -34,6 +35,8 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
 
     private final XMLOutputFactory xmlOutputFactory;
 
+    private int recordsCount;
+
     DSCUpdaterTask(Storage origin, Storage destination, MetadataRepository repository) {
         super(origin, repository);
         this.origin = origin;
@@ -43,10 +46,20 @@ public class DSCUpdaterTask extends MetadataRepositoryTask {
 
     @Override
     protected Task createTypeTask(ComplexTypeMetadata type) {
-        Select select = from(type).getSelect();
+        Select select = from(type).where(eq(UserStagingQueryBuilder.status(), StagingConstants.SUCCESS_IDENTIFIED_CLUSTERS)).getSelect();
+        StorageResults records = storage.fetch(select);
+        try {
+            recordsCount += records.getCount();
+        } finally {
+            records.close();
+        }
         return new SingleThreadedTask(type.getName(), destination, select, new DSCTaskClosure(origin, xmlOutputFactory));
     }
 
+    @Override
+    public int getRecordCount() {
+        return recordsCount;
+    }
 
     private static class DSCTaskClosure implements Closure {
 

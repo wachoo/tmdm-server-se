@@ -34,15 +34,11 @@ abstract class MetadataRepositoryTask implements Task {
 
     final Storage storage;
 
-    private double recordCount;
+    private double processedRecordCount;
 
     private long startTime;
 
     private long endTime = -1;
-
-    private double maxPerformance = Double.MIN_VALUE;
-
-    private double minPerformance = Double.MAX_VALUE;
 
     private boolean isCancelled = false;
 
@@ -56,6 +52,16 @@ abstract class MetadataRepositoryTask implements Task {
     protected abstract Task createTypeTask(ComplexTypeMetadata type);
 
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+        try {
+            run();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new JobExecutionException(e);
+        }
+    }
+
+    @Override
+    public void run() {
         synchronized (startLock) {
             startLock.set(true);
             startLock.notifyAll();
@@ -64,8 +70,10 @@ abstract class MetadataRepositoryTask implements Task {
         try {
             List<ComplexTypeMetadata> types = MetadataUtils.sortTypes(repository);
             for (ComplexTypeMetadata type : types) {
-                Task task = createTypeTask(type);
-                tasks.add(task);
+                if (type.isInstantiable()) {
+                    Task task = createTypeTask(type);
+                    tasks.add(task);
+                }
             }
             startTime = System.currentTimeMillis();
             for (Task task : tasks) {
@@ -74,13 +82,13 @@ abstract class MetadataRepositoryTask implements Task {
                 }
                 if (!isCancelled) {
                     LOGGER.info("--> Executing " + task + "...");
-                    task.execute(jobExecutionContext);
-                    recordCount += task.getRecordCount();
-                    LOGGER.info("<-- Executed (" + task.getRecordCount() + " record validated @ " + getCurrentPerformance() + " doc/s)");
+                    task.run();
+                    processedRecordCount += task.getProcessedRecords();
+                    LOGGER.info("<-- Executed (" + task.getRecordCount() + " record validated @ " + getPerformance() + " doc/s)");
                 }
             }
             endTime = System.currentTimeMillis();
-            LOGGER.info("Staging migration done @" + getCurrentPerformance() + " doc/s.");
+            LOGGER.info("Staging migration done @" + getPerformance() + " doc/s.");
         } finally {
             synchronized (executionLock) {
                 executionLock.set(true);
@@ -93,33 +101,18 @@ abstract class MetadataRepositoryTask implements Task {
         return id;
     }
 
-    public double getRecordCount() {
-        return recordCount;
-    }
-
-    public double getCurrentPerformance() {
-        if (recordCount > 0) {
+    public double getPerformance() {
+        if (processedRecordCount > 0) {
             float time;
             if (endTime > 0) {
                 time = (endTime - startTime) / 1000f;
             } else {
                 time = (System.currentTimeMillis() - startTime) / 1000f;
             }
-            double currentPerformance = recordCount / time;
-            minPerformance = Math.min(minPerformance, currentPerformance);
-            maxPerformance = Math.max(maxPerformance, currentPerformance);
-            return currentPerformance;
+            return getProcessedRecords() / time;
         } else {
             return 0;
         }
-    }
-
-    public double getMinPerformance() {
-        return minPerformance;
-    }
-
-    public double getMaxPerformance() {
-        return maxPerformance;
     }
 
     public void cancel() {
@@ -140,5 +133,19 @@ abstract class MetadataRepositoryTask implements Task {
                 executionLock.wait();
             }
         }
+    }
+
+    @Override
+    public long getStartDate() {
+        return startTime;
+    }
+
+    @Override
+    public int getProcessedRecords() {
+        int totalProcessedRecords = 0;
+        for (Task task : tasks) {
+            totalProcessedRecords += task.getProcessedRecords();
+        }
+        return totalProcessedRecords;
     }
 }

@@ -225,6 +225,9 @@ class StandardQueryHandler extends AbstractQueryHandler {
     @Override
     public StorageResults visit(Count count) {
         // Do a count on key field (first key field in case of composite key but this should not matter).
+        if (mainType.getKeyFields().isEmpty()) {
+            throw new IllegalArgumentException("Type '" + mainType.getName() + "' does not own a key (count is based on key).");
+        }
         Field keyField = new Field(mainType.getKeyFields().get(0));
         projectionList.add(Projections.count(getFieldName(keyField, mappingMetadataRepository)));
         return null;

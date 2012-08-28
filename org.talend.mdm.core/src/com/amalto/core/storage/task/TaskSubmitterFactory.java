@@ -11,11 +11,14 @@
 
 package com.amalto.core.storage.task;
 
-/**
- *
- */
-public interface TaskSubmitter {
-    void submit(Task task);
+public class TaskSubmitterFactory {
 
-    void submitAndWait(Task task);
+    private final static TaskSubmitter submitter = new QuartzTaskSubmitter();
+
+    private TaskSubmitterFactory() {
+    }
+
+    public static TaskSubmitter getSubmitter() {
+        return submitter;
+    }
 }

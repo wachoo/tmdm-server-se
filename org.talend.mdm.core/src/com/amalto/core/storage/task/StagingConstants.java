@@ -14,9 +14,11 @@ package com.amalto.core.storage.task;
  */
 public interface StagingConstants {
     String NEW = "000"; //$NON-NLS-1$
+    String SUCCESS = "200"; //$NON-NLS-1$
     String SUCCESS_IDENTIFIED_CLUSTERS = "201"; //$NON-NLS-1$
     String SUCCESS_MERGE_CLUSTERS = "202"; //$NON-NLS-1$
     String SUCCESS_VALIDATE = "203"; //$NON-NLS-1$
+    String FAIL = "400"; //$NON-NLS-1$
     String FAIL_IDENTIFIED_CLUSTERS = "401"; //$NON-NLS-1$
     String FAIL_MERGE_CLUSTERS = "402"; //$NON-NLS-1$
     String FAIL_VALIDATE_VALIDATION = "403"; //$NON-NLS-1$

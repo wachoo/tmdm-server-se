@@ -45,7 +45,9 @@ public class StagingTask implements Task {
 
     private MetadataRepositoryTask currentTask;
 
-    private double recordCount;
+    private int recordCount;
+
+    private int processedRecordCount;
 
     private long startTime;
 
@@ -72,20 +74,12 @@ public class StagingTask implements Task {
         return executionId;
     }
 
-    public double getRecordCount() {
+    public int getRecordCount() {
         return recordCount;
     }
 
-    public double getCurrentPerformance() {
-        return 0;
-    }
-
-    public double getMinPerformance() {
-        return 0;
-    }
-
-    public double getMaxPerformance() {
-        return 0;
+    public double getPerformance() {
+        return (processedRecordCount * tasks.size()) / ((System.currentTimeMillis() - startTime) / 1000f);
     }
 
     public void cancel() {
@@ -110,7 +104,26 @@ public class StagingTask implements Task {
         }
     }
 
+    @Override
+    public long getStartDate() {
+        return startTime;
+    }
+
+    @Override
+    public int getProcessedRecords() {
+        return processedRecordCount;
+    }
+
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+        try {
+            run();
+        } catch (Exception e) {
+            throw new JobExecutionException(e);
+        }
+    }
+
+    @Override
+    public void run() {
         synchronized (startLock) {
             startLock.set(true);
             startLock.notifyAll();
@@ -142,6 +155,7 @@ public class StagingTask implements Task {
                 LOGGER.info("--> " + task.toString());
                 taskSubmitter.submitAndWait(currentTask);
                 recordCount = Math.max(currentTask.getRecordCount(), recordCount);
+                processedRecordCount = Math.max(currentTask.getProcessedRecords(), processedRecordCount);
                 LOGGER.info("<-- DONE " + task.toString());
             }
 
@@ -151,6 +165,7 @@ public class StagingTask implements Task {
                 endTime = System.currentTimeMillis();
                 execution.set(executionType.getField("end_time"), new Timestamp(endTime));
                 execution.set(executionType.getField("record_count"), new BigDecimal(getRecordCount()));
+                execution.set(executionType.getField("completed"), Boolean.TRUE);
                 stagingStorage.update(execution);
             }
             stagingStorage.commit();

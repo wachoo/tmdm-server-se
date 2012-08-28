@@ -30,6 +30,8 @@ import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
 
+    public static final String EXECUTION_LOG_TYPE = "TALEND_TASK_EXECUTION"; //$NON-NLS-1$
+
     private final Map<String, Task> runningTasks = new HashMap<String, Task>();
 
     public StagingContainerSummary getContainerSummary() {
@@ -46,7 +48,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
 
     public StagingContainerSummary getContainerSummary(String dataContainer, String dataModel) {
         Server server = ServerContext.INSTANCE.get();
-        Storage storage = server.getStorageAdmin().get(dataContainer + "#STAGING");
+        Storage storage = server.getStorageAdmin().get(dataContainer + "#STAGING"); //$NON-NLS-1$
         if (storage == null) {
             throw new IllegalStateException("No staging storage available for container '" + dataContainer + "'.");
         }
@@ -75,7 +77,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
                 throw new IllegalStateException("A validation task is already running.");
             }
             Server server = ServerContext.INSTANCE.get();
-            Storage staging = server.getStorageAdmin().get(dataContainer + "#STAGING");
+            Storage staging = server.getStorageAdmin().get(dataContainer + "#STAGING"); //$NON-NLS-1$
             if (staging == null) {
                 throw new IllegalStateException("No staging storage available for container '" + dataContainer + "'.");
             }
@@ -83,7 +85,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
             if (user == null) {
                 throw new IllegalStateException("No staging storage available for container '" + dataContainer + "'.");
             }
-            MetadataRepository stagingRepository = server.getMetadataRepositoryAdmin().get(dataModel + "#STAGING");
+            MetadataRepository stagingRepository = server.getMetadataRepositoryAdmin().get(dataModel + "#STAGING"); //$NON-NLS-1$
             if (stagingRepository == null) {
                 throw new IllegalStateException("No staging metadata available for data model '" + dataModel + "'.");
             }
@@ -99,7 +101,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
                     new DefaultCommitter(),
                     user);
             Task stagingTask = TaskFactory.createStagingTask(stagingConfig);
-            TaskSubmitter.getInstance().submit(stagingTask);
+            TaskSubmitterFactory.getSubmitter().submit(stagingTask);
             runningTasks.put(dataContainer + dataModel, stagingTask);
             return newTaskUUID;
         }
@@ -107,21 +109,21 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
 
     public List<String> listCompletedExecutions(String dataContainer, Date beforeDate, int start, int size) {
         Server server = ServerContext.INSTANCE.get();
-        Storage staging = server.getStorageAdmin().get(dataContainer + "#STAGING");
+        Storage staging = server.getStorageAdmin().get(dataContainer + "#STAGING"); //$NON-NLS-1$
         if (staging == null) {
             throw new IllegalStateException("No staging storage available for container '" + dataContainer + "'.");
         }
         // TODO Data container is not equals to data model name (except for staging?).
-        MetadataRepository stagingRepository = server.getMetadataRepositoryAdmin().get(dataContainer + "#STAGING");
+        MetadataRepository stagingRepository = server.getMetadataRepositoryAdmin().get(dataContainer + "#STAGING"); //$NON-NLS-1$
         if (stagingRepository == null) {
             throw new IllegalStateException("No staging metadata available for data model '" + dataContainer + "'.");
         }
-        ComplexTypeMetadata executionType = stagingRepository.getComplexType("TALEND_TASK_EXECUTION");
+        ComplexTypeMetadata executionType = stagingRepository.getComplexType(EXECUTION_LOG_TYPE);
         UserQueryBuilder qb = from(executionType)
-                .select(executionType.getField("id"))
-                .where(eq(executionType.getField("completed"), "true"));
+                .select(executionType.getField("id")) //$NON-NLS-1$
+                .where(eq(executionType.getField("completed"), "true")); //$NON-NLS-1$ //$NON-NLS-2$
         if (beforeDate != null) {
-            qb.where(lt(executionType.getField("start_date"), beforeDate.toString()));
+            qb.where(lt(executionType.getField("start_date"), beforeDate.toString())); //$NON-NLS-1$
         }
         if (start > 0) {
             qb.start(start);
@@ -134,7 +136,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
         try {
             taskIds = new ArrayList<String>(size);
             for (DataRecord result : results) {
-                taskIds.add(String.valueOf(result.get("id")));
+                taskIds.add(String.valueOf(result.get("id"))); //$NON-NLS-1$
             }
         } finally {
             results.close();
@@ -146,16 +148,19 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
         synchronized (runningTasks) {
             Task task = runningTasks.get(dataContainer + dataModel);
             if (task == null) {
-                throw new IllegalArgumentException("No running task"); // TODO really (think about UI)?
+                return null; // This is a way to say "no current running validation task".
             }
             ExecutionStatistics status = new ExecutionStatistics();
             status.setId(task.getId());
-            status.setProcessedRecords(0); // TODO
-            // TODO Current performance
-            status.setTotalRecords(0); // TODO
-            status.setStartDate(new Date(0)); // TODO
-            status.setRunningTime("0m"); // TODO
-            status.setEndDate(new Date(1000)); // TODO
+            status.setProcessedRecords(task.getProcessedRecords());
+            status.setTotalRecords(task.getRecordCount());
+            status.setStartDate(new Date(task.getStartDate()));
+            long elapsedTime = System.currentTimeMillis() - task.getStartDate();
+            String formattedElapsedTime = String.format("%d:%02d:%02d", elapsedTime / 3600, (elapsedTime % 3600) / 60, (elapsedTime % 60)); //$NON-NLS-1$
+            status.setRunningTime(formattedElapsedTime);
+            long timeLeft = (long) ((task.getRecordCount() - task.getProcessedRecords()) / task.getPerformance());
+            long endTime = (System.currentTimeMillis() + timeLeft);
+            status.setEndDate(new Date(endTime));
             return status;
         }
     }
@@ -164,7 +169,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
         synchronized (runningTasks) {
             Task task = runningTasks.get(dataContainer + dataModel);
             if (task == null) {
-                throw new IllegalArgumentException("No running task"); // TODO really? (think about UI)?
+                return; // No running task, simply ignore call.
             }
             task.cancel();
             runningTasks.remove(dataContainer + dataModel);
@@ -173,23 +178,23 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
 
     public ExecutionStatistics getExecutionStats(String dataContainer, String dataModel, String executionId) {
         Server server = ServerContext.INSTANCE.get();
-        Storage staging = server.getStorageAdmin().get(dataContainer + "#STAGING");
+        Storage staging = server.getStorageAdmin().get(dataContainer + "#STAGING"); //$NON-NLS-1$
         if (staging == null) {
             throw new IllegalStateException("No staging storage available for container '" + dataContainer + "'.");
         }
-        MetadataRepository stagingRepository = server.getMetadataRepositoryAdmin().get(dataModel + "#STAGING");
+        MetadataRepository stagingRepository = server.getMetadataRepositoryAdmin().get(dataModel + "#STAGING"); //$NON-NLS-1$
         if (stagingRepository == null) {
             throw new IllegalStateException("No staging metadata available for data model '" + dataModel + "'.");
         }
 
-        ComplexTypeMetadata executionType = stagingRepository.getComplexType("TALEND_TASK_EXECUTION");
+        ComplexTypeMetadata executionType = stagingRepository.getComplexType(EXECUTION_LOG_TYPE);
         UserQueryBuilder qb = from(executionType)
-                .where(eq(executionType.getField("id"), executionId));
+                .where(eq(executionType.getField("id"), executionId)); //$NON-NLS-1$
         StorageResults results = staging.fetch(qb.getSelect());
         ExecutionStatistics status = new ExecutionStatistics();
         try {
             for (DataRecord result : results) {
-                status.setId(String.valueOf(result.get("id")));
+                status.setId(String.valueOf(result.get("id"))); //$NON-NLS-1$
                 // TODO Other fields.
             }
         } finally {
@@ -202,11 +207,11 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
         int totalCount = 0;
         for (ComplexTypeMetadata currentType : repository.getUserComplexTypes()) {
             UserQueryBuilder qb = from(currentType)
-                    .select(alias(UserQueryBuilder.count(), "count"));
+                    .select(alias(UserQueryBuilder.count(), "count")); //$NON-NLS-1$
             StorageResults results = storage.fetch(qb.getSelect());
             try {
                 for (DataRecord result : results) {
-                    totalCount += (Integer) result.get("count");
+                    totalCount += (Integer) result.get("count"); //$NON-NLS-1$
                 }
             } finally {
                 results.close();
@@ -219,12 +224,12 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
         int totalCount = 0;
         for (ComplexTypeMetadata currentType : repository.getUserComplexTypes()) {
             UserQueryBuilder qb = from(currentType)
-                    .select(alias(UserQueryBuilder.count(), "count"))
+                    .select(alias(UserQueryBuilder.count(), "count")) //$NON-NLS-1$
                     .where(eq(UserStagingQueryBuilder.status(), status));
             StorageResults results = storage.fetch(qb.getSelect());
             try {
                 for (DataRecord result : results) {
-                    totalCount += (Integer) result.get("count");
+                    totalCount += (Integer) result.get("count"); //$NON-NLS-1$
                 }
             } finally {
                 results.close();
@@ -237,18 +242,18 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
         int totalCount = 0;
         for (ComplexTypeMetadata currentType : repository.getUserComplexTypes()) {
             UserQueryBuilder qb = from(currentType)
-                    .select(alias(UserQueryBuilder.count(), "count"));
+                    .select(alias(UserQueryBuilder.count(), "count")); //$NON-NLS-1$
             if (valid) {
-                qb.where(gte(UserStagingQueryBuilder.status(), "200"))
-                        .where(lt(UserStagingQueryBuilder.status(), "400"));
+                qb.where(gte(UserStagingQueryBuilder.status(), StagingConstants.SUCCESS))
+                        .where(lt(UserStagingQueryBuilder.status(), StagingConstants.FAIL));
             } else {
-                qb.where(gte(UserStagingQueryBuilder.status(), "400"));
+                qb.where(gte(UserStagingQueryBuilder.status(), StagingConstants.FAIL));
             }
 
             StorageResults results = storage.fetch(qb.getSelect());
             try {
                 for (DataRecord result : results) {
-                    totalCount += (Integer) result.get("count");
+                    totalCount += (Integer) result.get("count"); //$NON-NLS-1$
                 }
             } finally {
                 results.close();

@@ -23,7 +23,7 @@ public class TaskFactory {
         Storage stagingStorage = config.getOrigin();
         MetadataRepository stagingRepository = config.getStagingRepository();
 
-        return new StagingTask(TaskSubmitter.getInstance(),
+        return new StagingTask(TaskSubmitterFactory.getSubmitter(),
                 stagingStorage,
                 stagingRepository,
                 config.getUserRepository(),

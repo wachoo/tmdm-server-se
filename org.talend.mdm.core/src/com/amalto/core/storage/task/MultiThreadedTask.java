@@ -42,11 +42,7 @@ public class MultiThreadedTask implements Task {
 
     private final String id = UUID.randomUUID().toString();
 
-    private double minPerformance = Double.MAX_VALUE;
-
-    private double maxPerformance = Double.MIN_VALUE;
-
-    private double count;
+    private int count;
 
     private double success;
 
@@ -62,6 +58,15 @@ public class MultiThreadedTask implements Task {
     }
 
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+        try {
+            run();
+        } catch (Exception e) {
+            throw new JobExecutionException(e);
+        }
+    }
+
+    @Override
+    public void run() {
         synchronized (startLock) {
             startLock.set(true);
             startLock.notifyAll();
@@ -97,28 +102,17 @@ public class MultiThreadedTask implements Task {
         return id;
     }
 
-    public double getRecordCount() {
+    public int getRecordCount() {
         return count;
     }
 
-    public double getCurrentPerformance() {
+    public double getPerformance() {
         if (count > 0) {
             long time = Math.abs(System.currentTimeMillis() - taskStartTime) / 1000;
-            double currentPerformance = count / time;
-            minPerformance = Math.min(minPerformance, currentPerformance);
-            maxPerformance = Math.max(maxPerformance, currentPerformance);
-            return currentPerformance;
+            return count / time;
         } else {
             return 0;
         }
-    }
-
-    public double getMinPerformance() {
-        return minPerformance;
-    }
-
-    public double getMaxPerformance() {
-        return maxPerformance;
     }
 
     public void cancel() {
@@ -136,6 +130,16 @@ public class MultiThreadedTask implements Task {
                 executionLock.wait();
             }
         }
+    }
+
+    @Override
+    public long getStartDate() {
+        return taskStartTime;
+    }
+
+    @Override
+    public int getProcessedRecords() {
+        return (int) (success + fail);
     }
 
     @Override

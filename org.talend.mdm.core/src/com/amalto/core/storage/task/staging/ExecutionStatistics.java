@@ -26,7 +26,7 @@ public class ExecutionStatistics {
 
     private String runningTime;
 
-    private int totalRecords;
+    private double totalRecords;
 
     private double processedRecords;
 
@@ -88,11 +88,11 @@ public class ExecutionStatistics {
     }
 
     @XmlElement(name = "total_record")
-    public int getTotalRecords() {
+    public double getTotalRecords() {
         return totalRecords;
     }
 
-    public void setTotalRecords(int totalRecords) {
+    public void setTotalRecords(double totalRecords) {
         this.totalRecords = totalRecords;
     }
 

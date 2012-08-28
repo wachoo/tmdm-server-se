@@ -4,6 +4,7 @@ import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 
@@ -14,6 +15,8 @@ import static com.amalto.core.query.user.UserQueryBuilder.*;
 import static com.amalto.core.query.user.UserStagingQueryBuilder.status;
 
 public class ClusterTask extends MetadataRepositoryTask {
+
+    private int recordsCount;
 
     ClusterTask(Storage storage, MetadataRepository repository) {
         super(storage, repository);
@@ -27,7 +30,18 @@ public class ClusterTask extends MetadataRepositoryTask {
     @Override
     protected Task createTypeTask(ComplexTypeMetadata type) {
         Select query = from(type).where(or(eq(status(), "0"), isNull(status()))).getSelect();
+        StorageResults records = storage.fetch(query);
+        try {
+            recordsCount += records.getCount();
+        } finally {
+            records.close();
+        }
         return new SingleThreadedTask(type.getName(), storage, query, new ClusterClosure(storage));
+    }
+
+    @Override
+    public int getRecordCount() {
+        return recordsCount;
     }
 
     private static class ClusterClosure implements Closure {

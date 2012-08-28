@@ -17,7 +17,6 @@ import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.query.user.UserQueryDumpConsole;
 import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
@@ -174,8 +173,18 @@ public class StagingAreaTest extends TestCase {
         SaverSource source = new TestSaverSource(destination, repository, "metadata.xsd");
         SaverSession.Committer committer = new TestCommitter(destination);
         StagingConfiguration config = new StagingConfiguration(origin, stagingRepository, repository, source, committer, destination);
+        long now = System.currentTimeMillis();
         Task stagingTask = TaskFactory.createStagingTask(config);
-        TaskSubmitter.getInstance().submitAndWait(stagingTask);
+        assertEquals(0, stagingTask.getProcessedRecords());
+        assertEquals(0, stagingTask.getRecordCount()); // Record count only get a value when task is started.
+        TaskSubmitterFactory.getSubmitter().submitAndWait(stagingTask);
+
+        assertNotNull(stagingTask.getId());
+        assertEquals(COUNT * 3, stagingTask.getProcessedRecords());
+        assertNotNull(stagingTask.getPerformance());
+        assertTrue(stagingTask.getPerformance() > 0);
+        assertEquals(COUNT * 3, stagingTask.getRecordCount());
+        assertTrue(Math.abs(stagingTask.getStartDate() - now) < 500);
 
         assertEquals(0, destination.fetch(selectEmptyTaskId).getCount());
         assertEquals(COUNT, destination.fetch(select).getCount());
@@ -200,7 +209,7 @@ public class StagingAreaTest extends TestCase {
         assertEquals(COUNT, origin.fetch(qb.getSelect()).getCount());
 
         qb = UserQueryBuilder.from(person);
-        item = new WhereAnd(Arrays.<IWhereItem>asList(new WhereCondition("Person/$staging_status$", WhereCondition.GREATER_THAN_OR_EQUAL, "400", WhereCondition.NO_OPERATOR)));
+        item = new WhereAnd(Arrays.<IWhereItem>asList(new WhereCondition("Person/$staging_status$", WhereCondition.GREATER_THAN_OR_EQUAL, StagingConstants.FAIL, WhereCondition.NO_OPERATOR)));
         qb.where(UserQueryHelper.buildCondition(qb, item, stagingRepository));
         assertEquals(0, origin.fetch(qb.getSelect()).getCount());
     }
@@ -217,8 +226,9 @@ public class StagingAreaTest extends TestCase {
 
         SaverSource source = new TestSaverSource(destination, repository, "metadata.xsd");
         SaverSession.Committer committer = new TestCommitter(destination);
-        Task stagingTask = new StagingTask(TaskSubmitter.getInstance(), origin, stagingRepository, repository, source, committer, destination);
-        TaskSubmitter.getInstance().submit(stagingTask);
+        TaskSubmitter submitter = TaskSubmitterFactory.getSubmitter();
+        Task stagingTask = new StagingTask(submitter, origin, stagingRepository, repository, source, committer, destination);
+        submitter.submit(stagingTask);
 
         Thread.sleep(200);
         stagingTask.cancel();
@@ -245,8 +255,9 @@ public class StagingAreaTest extends TestCase {
 
         SaverSource source = new TestSaverSource(destination, repository, "metadata.xsd");
         SaverSession.Committer committer = new TestCommitter(destination);
-        Task stagingTask = new StagingTask(TaskSubmitter.getInstance(), origin, stagingRepository, repository, source, committer, destination);
-        TaskSubmitter.getInstance().submitAndWait(stagingTask);
+        TaskSubmitter submitter = TaskSubmitterFactory.getSubmitter();
+        Task stagingTask = new StagingTask(submitter, origin, stagingRepository, repository, source, committer, destination);
+        submitter.submitAndWait(stagingTask);
 
         assertEquals(0, destination.fetch(selectEmptyTaskId).getCount());
         assertEquals(0, destination.fetch(select).getCount());

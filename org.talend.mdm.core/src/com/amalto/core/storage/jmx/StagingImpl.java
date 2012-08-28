@@ -23,6 +23,7 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.task.StagingTask;
 import com.amalto.core.storage.task.Task;
 import com.amalto.core.storage.task.TaskSubmitter;
+import com.amalto.core.storage.task.TaskSubmitterFactory;
 import org.jboss.logging.Logger;
 
 import javax.management.*;
@@ -70,12 +71,12 @@ public class StagingImpl implements Staging {
             Storage origin = server.getStorageAdmin().get(storageName + StorageAdmin.STAGING_SUFFIX);
             Storage destination = server.getStorageAdmin().get(storageName);
 
-            Task task = new StagingTask(TaskSubmitter.getInstance(), origin, stagingRepository, userRepository, source, committer, destination);
+            Task task = new StagingTask(TaskSubmitterFactory.getSubmitter(), origin, stagingRepository, userRepository, source, committer, destination);
 
             ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
             try {
                 Thread.currentThread().setContextClassLoader(classLoader);
-                TaskSubmitter.getInstance().submit(task);
+                TaskSubmitterFactory.getSubmitter().submit(task);
             } finally {
                 Thread.currentThread().setContextClassLoader(previousClassLoader);
             }
