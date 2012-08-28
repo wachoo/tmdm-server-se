@@ -24,6 +24,7 @@ import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.task.*;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
@@ -73,8 +74,14 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
 
     public String startValidation(String dataContainer, String dataModel) {
         synchronized (runningTasks) {
-            if (runningTasks.get(dataContainer + dataModel) != null) {
-                throw new IllegalStateException("A validation task is already running.");
+            Task runningTask = runningTasks.get(dataContainer + dataModel);
+            if (runningTask != null) {
+                try {
+                    runningTask.waitForCompletion();
+                    runningTasks.remove(dataContainer + dataModel);
+                } catch (InterruptedException e) {
+                    throw new IllegalStateException("A validation task is already running.", e);
+                }
             }
             Server server = ServerContext.INSTANCE.get();
             Storage staging = server.getStorageAdmin().get(dataContainer + "#STAGING"); //$NON-NLS-1$
@@ -128,7 +135,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
         if (start > 0) {
             qb.start(start);
         }
-        if (size > 0) {
+        if (size > 1) {
             qb.limit(size);
         }
         List<String> taskIds;
@@ -182,7 +189,8 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
         if (staging == null) {
             throw new IllegalStateException("No staging storage available for container '" + dataContainer + "'.");
         }
-        MetadataRepository stagingRepository = server.getMetadataRepositoryAdmin().get(dataModel + "#STAGING"); //$NON-NLS-1$
+        // TODO Data container is not equals to data model name (except for staging?) -> this is an issue from web ui.
+        MetadataRepository stagingRepository = server.getMetadataRepositoryAdmin().get(dataContainer + "#STAGING"); //$NON-NLS-1$
         if (stagingRepository == null) {
             throw new IllegalStateException("No staging metadata available for data model '" + dataModel + "'.");
         }
@@ -193,9 +201,15 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
         StorageResults results = staging.fetch(qb.getSelect());
         ExecutionStatistics status = new ExecutionStatistics();
         try {
+
             for (DataRecord result : results) {
                 status.setId(String.valueOf(result.get("id"))); //$NON-NLS-1$
-                // TODO Other fields.
+                status.setStartDate(((Date) result.get("start_time")));
+                status.setEndDate(((Date) result.get("end_time")));
+                status.setInvalidRecords(1);
+                status.setProcessedRecords(1);
+                status.setRunningTime("1h");
+                status.setTotalRecords(((BigDecimal) result.get("record_count")).doubleValue());
             }
         } finally {
             results.close();
@@ -206,15 +220,17 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
     private static int countAllInstancesByStatus(Storage storage, MetadataRepository repository) {
         int totalCount = 0;
         for (ComplexTypeMetadata currentType : repository.getUserComplexTypes()) {
-            UserQueryBuilder qb = from(currentType)
-                    .select(alias(UserQueryBuilder.count(), "count")); //$NON-NLS-1$
-            StorageResults results = storage.fetch(qb.getSelect());
-            try {
-                for (DataRecord result : results) {
-                    totalCount += (Integer) result.get("count"); //$NON-NLS-1$
+            if (currentType.isInstantiable()) {
+                UserQueryBuilder qb = from(currentType)
+                        .select(alias(UserQueryBuilder.count(), "count")); //$NON-NLS-1$
+                StorageResults results = storage.fetch(qb.getSelect());
+                try {
+                    for (DataRecord result : results) {
+                        totalCount += (Long) result.get("count"); //$NON-NLS-1$
+                    }
+                } finally {
+                    results.close();
                 }
-            } finally {
-                results.close();
             }
         }
         return totalCount;
@@ -223,16 +239,22 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
     private static int countInstancesByStatus(Storage storage, MetadataRepository repository, String status) {
         int totalCount = 0;
         for (ComplexTypeMetadata currentType : repository.getUserComplexTypes()) {
-            UserQueryBuilder qb = from(currentType)
-                    .select(alias(UserQueryBuilder.count(), "count")) //$NON-NLS-1$
-                    .where(eq(UserStagingQueryBuilder.status(), status));
-            StorageResults results = storage.fetch(qb.getSelect());
-            try {
-                for (DataRecord result : results) {
-                    totalCount += (Integer) result.get("count"); //$NON-NLS-1$
+            if (currentType.isInstantiable()) {
+                UserQueryBuilder qb = from(currentType)
+                        .select(alias(UserQueryBuilder.count(), "count")); //$NON-NLS-1$
+                if (StagingConstants.NEW.equals(status)) {
+                    qb.where(or(eq(UserStagingQueryBuilder.status(), status), isNull(UserStagingQueryBuilder.status())));
+                } else {
+                    qb.where(eq(UserStagingQueryBuilder.status(), status));
                 }
-            } finally {
-                results.close();
+                StorageResults results = storage.fetch(qb.getSelect());
+                try {
+                    for (DataRecord result : results) {
+                        totalCount += (Long) result.get("count"); //$NON-NLS-1$
+                    }
+                } finally {
+                    results.close();
+                }
             }
         }
         return totalCount;
@@ -241,22 +263,23 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
     private static int countInstancesByStatus(Storage storage, MetadataRepository repository, boolean valid) {
         int totalCount = 0;
         for (ComplexTypeMetadata currentType : repository.getUserComplexTypes()) {
-            UserQueryBuilder qb = from(currentType)
-                    .select(alias(UserQueryBuilder.count(), "count")); //$NON-NLS-1$
-            if (valid) {
-                qb.where(gte(UserStagingQueryBuilder.status(), StagingConstants.SUCCESS))
-                        .where(lt(UserStagingQueryBuilder.status(), StagingConstants.FAIL));
-            } else {
-                qb.where(gte(UserStagingQueryBuilder.status(), StagingConstants.FAIL));
-            }
-
-            StorageResults results = storage.fetch(qb.getSelect());
-            try {
-                for (DataRecord result : results) {
-                    totalCount += (Integer) result.get("count"); //$NON-NLS-1$
+            if (currentType.isInstantiable()) {
+                UserQueryBuilder qb = from(currentType)
+                        .select(alias(UserQueryBuilder.count(), "count")); //$NON-NLS-1$
+                if (valid) {
+                    qb.where(eq(UserStagingQueryBuilder.status(), StagingConstants.SUCCESS_VALIDATE));
+                } else {
+                    qb.where(gte(UserStagingQueryBuilder.status(), StagingConstants.FAIL));
                 }
-            } finally {
-                results.close();
+
+                StorageResults results = storage.fetch(qb.getSelect());
+                try {
+                    for (DataRecord result : results) {
+                        totalCount += (Long) result.get("count"); //$NON-NLS-1$
+                    }
+                } finally {
+                    results.close();
+                }
             }
         }
         return totalCount;

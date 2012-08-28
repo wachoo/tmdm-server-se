@@ -28,6 +28,8 @@ import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 
+import com.amalto.core.server.StorageAdmin;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Element;
@@ -462,6 +464,9 @@ public class XmlServerSLWrapperBean implements SessionBean {
      */
     public boolean existCluster(String revision,String cluster)throws XtentisException{
         try {
+            if (cluster.endsWith(StorageAdmin.STAGING_SUFFIX)) {
+                cluster = StringUtils.substringBeforeLast(cluster, "#");
+            }
             return server.existCluster(revision, cluster);
         } catch (XmlServerException e) {
             throw new XtentisException(e);

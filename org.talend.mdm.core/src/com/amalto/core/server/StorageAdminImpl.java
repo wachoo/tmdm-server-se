@@ -62,7 +62,7 @@ public class StorageAdminImpl implements StorageAdmin {
         try {
             Storage masterDataModelStorage = internalCreateStorage(dataModelName, storageName, dataSourceName, StorageType.MASTER);
             storages.put(storageName, masterDataModelStorage);
-            Storage stagingDataModelStorage = internalCreateStorage(dataModelName, storageName, dataSourceName, StorageType.STAGING);
+            Storage stagingDataModelStorage = internalCreateStorage(dataModelName + STAGING_SUFFIX, storageName, dataSourceName, StorageType.STAGING);
             if (stagingDataModelStorage != null) {
                 storages.put(storageName + STAGING_SUFFIX, stagingDataModelStorage);
             }

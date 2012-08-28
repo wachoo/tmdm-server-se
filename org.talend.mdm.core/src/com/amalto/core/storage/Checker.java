@@ -171,4 +171,9 @@ class Checker extends VisitorAdapter<Boolean> {
     public Boolean visit(FullText fullText) {
         return true;
     }
+
+    @Override
+    public Boolean visit(StagingStatus stagingStatus) {
+        return true;
+    }
 }

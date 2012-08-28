@@ -17,10 +17,12 @@ import com.amalto.core.ejb.ObjectPOJOPK;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.server.StorageAdmin;
+import com.amalto.core.storage.task.StagingConstants;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
-
+import org.apache.commons.lang.StringUtils;
 
 
 /**
@@ -172,7 +174,12 @@ public class DataClusterCtrlBean implements SessionBean, TimedObject {
     throws XtentisException{
         
         try {
-        	if(pk.getUniqueId()==null)throw new XtentisException("The Data Cluster should not be null!");
+            if(pk.getUniqueId()==null) {
+                throw new XtentisException("The Data Cluster should not be null!");
+            }
+            if (pk.getUniqueId().endsWith(StorageAdmin.STAGING_SUFFIX)) {
+                pk = new DataClusterPOJOPK(StringUtils.substringBeforeLast(pk.getUniqueId(), "#"));
+            }
         	DataClusterPOJO dataCluster =  ObjectPOJO.load(DataClusterPOJO.class,pk);
         	if (dataCluster == null) {
         		String err= "The Data Cluster "+pk.getUniqueId()+" does not exist.";

@@ -152,4 +152,9 @@ class SecurityQueryCleaner extends VisitorAdapter<Expression> {
         // TODO Could maybe restrict full text depending on user rights... but could also be in result creation.
         return fullText;
     }
+
+    @Override
+    public Expression visit(StagingStatus stagingStatus) {
+        return stagingStatus;
+    }
 }

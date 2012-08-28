@@ -275,7 +275,9 @@ public class HibernateStorage implements Storage {
                 if (session.isOpen()) { // Prevent any problem if anyone (Hibernate...) already closed session.
                     session.getTransaction().commit();
                 } else {
-                    LOGGER.warn("Attempted to close session on end of query result, but it has already been done.");
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Attempted to close session on end of query result, but it has already been done.");
+                    }
                 }
                 Thread.currentThread().setContextClassLoader(previousClassLoader);
             }

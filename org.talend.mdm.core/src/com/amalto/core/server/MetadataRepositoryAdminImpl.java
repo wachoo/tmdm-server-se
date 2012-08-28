@@ -98,7 +98,7 @@ class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
         assertMetadataRepositoryId(metadataRepositoryId);
         synchronized (metadataRepository) {
             try {
-                DataModelPOJOPK pk = new DataModelPOJOPK(metadataRepositoryId);
+                DataModelPOJOPK pk = new DataModelPOJOPK(StringUtils.substringBeforeLast(metadataRepositoryId, "#"));
                 return dataModelControl.existsDataModel(pk) != null;
             } catch (XtentisException e) {
                 throw new RuntimeException(e);
