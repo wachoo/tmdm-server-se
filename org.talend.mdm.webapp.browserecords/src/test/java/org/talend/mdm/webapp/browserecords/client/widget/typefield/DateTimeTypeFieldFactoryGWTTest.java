@@ -15,9 +15,13 @@ package org.talend.mdm.webapp.browserecords.client.widget.typefield;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatDateField;
+import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -25,6 +29,14 @@ import com.google.gwt.user.client.ui.RootPanel;
 @SuppressWarnings("nls")
 public class DateTimeTypeFieldFactoryGWTTest extends GWTTestCase {
 
+    @Override
+    protected void gwtSetUp() throws Exception {
+        super.gwtSetUp();
+        UserSession session = new UserSession();
+        session.put(UserSession.APP_HEADER, new AppHeader());
+        Registry.register(BrowseRecords.USER_SESSION, session);
+    }
+    
     public void testCreateFormatDateField() {
 
         // 1. TypeModel DataType = DataTypeConstants.DATE, value is valid

@@ -24,9 +24,12 @@ public class FormatDateField extends DateField {
     private String formatPattern;
 
     private boolean isDateTime = false;
+    
+    private boolean validateFlag = true;
 
     public FormatDateField() {
         super();
+        this.validateFlag = BrowseRecords.getSession().getAppHeader().isAutoValidate();
     }
 
     public boolean isDateTime() {
@@ -127,4 +130,14 @@ public class FormatDateField extends DateField {
             }
         }
     }
+    
+    public boolean validateValue(String value) {
+        if(!validateFlag)
+            return true;
+        return super.validateValue(value);
+    }
+    
+    public void setValidateFlag(boolean validateFlag) {
+        this.validateFlag = validateFlag;
+    }    
 }

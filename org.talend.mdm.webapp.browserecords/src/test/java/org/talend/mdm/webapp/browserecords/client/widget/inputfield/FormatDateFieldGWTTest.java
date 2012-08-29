@@ -14,14 +14,26 @@ package org.talend.mdm.webapp.browserecords.client.widget.inputfield;
 
 import java.util.Date;
 
+import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.util.DateUtil;
+import org.talend.mdm.webapp.browserecords.client.util.UserSession;
+import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.google.gwt.junit.client.GWTTestCase;
 
 @SuppressWarnings("nls")
 public class FormatDateFieldGWTTest extends GWTTestCase {
 
+    @Override
+    protected void gwtSetUp() throws Exception {
+        super.gwtSetUp();
+        UserSession session = new UserSession();
+        session.put(UserSession.APP_HEADER, new AppHeader());
+        Registry.register(BrowseRecords.USER_SESSION, session);
+    }
+    
     public void testCompareDateAndString() {
 
         // 1. Date (value = "2012-05-08", date = 2012-05-08)
