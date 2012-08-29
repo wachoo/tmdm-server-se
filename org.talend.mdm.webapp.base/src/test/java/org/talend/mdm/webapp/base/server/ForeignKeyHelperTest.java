@@ -13,12 +13,15 @@
 package org.talend.mdm.webapp.base.server;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
@@ -32,7 +35,8 @@ import com.amalto.webapp.util.webservices.WSWhereOperator;
 
 @SuppressWarnings("nls")
 public class ForeignKeyHelperTest extends TestCase {
-
+    
+    
     public void testGetForeignKeyHolder() throws Exception {
 
         TypeModel model = new SimpleTypeModel("family", DataTypeConstants.STRING); //$NON-NLS-1$
@@ -137,6 +141,7 @@ public class ForeignKeyHelperTest extends TestCase {
         model.setFkFilter("Product/Family$$<$$Product/Family$$#");
         xml = "<Product><id>1</id><Name>Shirts</Name><Family>[3]</Family></Product>";
         foreignKeyInfos.clear();
+        ForeignKeyHelper.setUseSchemaWebAgent(false);
         result = ForeignKeyHelper.getForeignKeyHolder(xml, dataCluster, currentXpath, model, ifFKFilter, value);
         whereItem = result.whereItem;
         condition1 = whereItem.getWhereAnd().getWhereItems()[0].getWhereCondition();
@@ -229,7 +234,21 @@ public class ForeignKeyHelperTest extends TestCase {
         assertEquals(WSWhereOperator._EQUALS, condition1.getOperator().getValue());
         assertEquals("[1]", condition1.getRightValueOrPath()); //$NON-NLS-1$
     }
-
+    
+    
+    public void testFormatForeignKeyValue() {
+        String rightPathOrValue = "\"[foo]\"";
+        String origiRightValueOrPath = "Foo/foo";
+        Map<String, String> mockFkMap = new HashMap<String, String>();        
+        mockFkMap.put("/" + origiRightValueOrPath, origiRightValueOrPath);
+        
+        String result = ForeignKeyHelper.formatForeignKeyValue(rightPathOrValue, origiRightValueOrPath, mockFkMap);
+        assert(result.equals("foo"));
+        
+        result = ForeignKeyHelper.formatForeignKeyValue(rightPathOrValue, "abc", mockFkMap);
+        assert(result.equals(rightPathOrValue));
+    }
+    
     /**
      * Mock org.talend.mdm.webapp.base.server.ForeignKeyHelper.getForeignKeyHolder(TypeModel, boolean, String) <li>when
      * the foreignKey = conceptName, using the method to test where condition.

@@ -35,6 +35,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.amalto.webapp.core.dmagent.SchemaAbstractWebAgent;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
@@ -52,17 +53,12 @@ public class ForeignKeyHelper {
     private static final Logger LOG = Logger.getLogger(ForeignKeyHelper.class);
 
     private static final Pattern TOTAL_COUNT_PATTERN = Pattern.compile("<totalCount>(.*)</totalCount>"); //$NON-NLS-1$
-
-    public static ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,
-            String dataClusterPK, boolean ifFKFilter, String value) throws Exception {
-        return getForeignKeyList(config, model, dataClusterPK, ifFKFilter, value, null);
-    }
     
     public static ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,
-            String dataClusterPK, boolean ifFKFilter, String value, Map<String, TypeModel> metaDataTypes) throws Exception {
+            String dataClusterPK, boolean ifFKFilter, String value) throws Exception {
 
         ForeignKeyHolder holder = getForeignKeyHolder((String) config.get("xml"), (String) config.get("dataObject"), //$NON-NLS-1$ //$NON-NLS-2$
-                (String) config.get("currentXpath"), model, ifFKFilter, value, metaDataTypes); //$NON-NLS-1$
+                (String) config.get("currentXpath"), model, ifFKFilter, value); //$NON-NLS-1$
         String[] results = null;
         if (holder != null) {
             String conceptName = holder.conceptName;
@@ -182,12 +178,6 @@ public class ForeignKeyHelper {
 
     protected static ForeignKeyHolder getForeignKeyHolder(String xml, String dataObject, String currentXpath, TypeModel model,
             boolean ifFKFilter, String value) throws Exception {
-        return getForeignKeyHolder(xml, dataObject, currentXpath, model, ifFKFilter, value, null);
-    }
-
-    
-    protected static ForeignKeyHolder getForeignKeyHolder(String xml, String dataObject, String currentXpath, TypeModel model,
-            boolean ifFKFilter, String value, Map<String, TypeModel> metaDataTypes) throws Exception {
 
         String xpathForeignKey = model.getForeignkey();
         if (xpathForeignKey == null) {
@@ -200,7 +190,7 @@ public class ForeignKeyHelper {
         String fkFilter;
         if (ifFKFilter) {
             fkFilter = model.getFkFilter().replaceAll("&quot;", "\""); //$NON-NLS-1$ //$NON-NLS-2$
-            fkFilter = parseForeignKeyFilter(xml, dataObject, fkFilter, currentXpath, metaDataTypes);
+            fkFilter = parseForeignKeyFilter(xml, dataObject, fkFilter, currentXpath);
         } else
             fkFilter = ""; //$NON-NLS-1$
 
@@ -337,13 +327,13 @@ public class ForeignKeyHelper {
         bean.setDisplayInfo(infoStr);
     }
     
-    private static String parseForeignKeyFilter(String xml, String dataObject, String fkFilter, String currentXpath, Map<String, TypeModel> metaDataTypes)
+    private static String parseForeignKeyFilter(String xml, String dataObject, String fkFilter, String currentXpath)
             throws Exception {
         String parsedFkfilter = fkFilter;
         if (fkFilter != null) {
             if (Util.isCustomFilter(fkFilter)) {
                 fkFilter = StringEscapeUtils.unescapeXml(fkFilter);
-                parsedFkfilter = parseRightValueOrPath(xml, dataObject, fkFilter, currentXpath, metaDataTypes);
+                parsedFkfilter = parseRightValueOrPath(xml, dataObject, fkFilter, currentXpath);
                 return parsedFkfilter;
             }
             // parse
@@ -364,7 +354,7 @@ public class ForeignKeyHelper {
                     case 2:
                         String rightValueOrPath = values[2];
                         rightValueOrPath = StringEscapeUtils.unescapeXml(rightValueOrPath);
-                        rightValueOrPath = parseRightValueOrPath(xml, dataObject, rightValueOrPath, currentXpath, metaDataTypes);
+                        rightValueOrPath = parseRightValueOrPath(xml, dataObject, rightValueOrPath, currentXpath);
                         conditionMap.put("Value", rightValueOrPath);//$NON-NLS-1$
                         break;
                     case 3:
@@ -396,7 +386,12 @@ public class ForeignKeyHelper {
         return parsedFkfilter;
     }
     
-    private static String parseRightValueOrPath(String xml, String dataObject, String rightValueOrPath, String currentXpath, Map<String, TypeModel> metaDataTypes)
+    private static boolean useSchemaWebAgent = true;
+    public static void setUseSchemaWebAgent(boolean b) {
+        ForeignKeyHelper.useSchemaWebAgent = b;
+    }    
+    
+    private static String parseRightValueOrPath(String xml, String dataObject, String rightValueOrPath, String currentXpath)
             throws Exception {
         String origiRightValueOrPath = rightValueOrPath;
         String patternString = dataObject + "(/[A-Za-z0-9_\\[\\]]*)+";//$NON-NLS-1$
@@ -462,10 +457,27 @@ public class ForeignKeyHelper {
                 }
             }
         }
+
         
-        if (metaDataTypes != null && origiRightValueOrPath != null && rightValueOrPath != null) {
-            TypeModel typeModel = metaDataTypes.get(origiRightValueOrPath);
-            if (typeModel != null && typeModel.getForeignkey() != null) {
+        
+        if (useSchemaWebAgent) {
+            boolean isFK = false;
+            SchemaWebAgent agent = SchemaWebAgent.getInstance();
+            
+            if (agent != null) {
+                BusinessConcept concept = agent.getBusinessConcept(dataObject);
+                if (concept != null) {     
+                    rightValueOrPath = formatForeignKeyValue(rightValueOrPath, origiRightValueOrPath, concept.getForeignKeyMap());
+                }
+            }     
+        }
+                
+        return rightValueOrPath;
+    }
+    
+    public static String formatForeignKeyValue(String rightValueOrPath, String origiRightValueOrPath, Map<String, String> fkMap) {
+        if (fkMap != null) {
+            if (fkMap.containsKey("/" + origiRightValueOrPath)) { //$NON-NLS-1$
                 if (rightValueOrPath.startsWith("\"[") && rightValueOrPath.endsWith("]\"")) { //$NON-NLS-1$ //$NON-NLS-2$
                     rightValueOrPath = rightValueOrPath.substring(2, rightValueOrPath.length() - 2);
                 }
