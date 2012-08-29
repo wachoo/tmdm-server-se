@@ -3,6 +3,7 @@ package org.talend.mdm.webapp.browserecords.client.widget.inputfield;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
@@ -45,8 +46,11 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
 
     private ItemsDetailPanel itemsDetailPanel;
 
+    private boolean validateFlag = true;
+    
     public ForeignKeyField(String currentNodeXpath, String fkFilter, String foreignKey, List<String> foreignKeyInfo,
             ItemsDetailPanel itemsDetailPanel) {
+        this.validateFlag = BrowseRecords.getSession().getAppHeader().isAutoValidate();
         this.itemsDetailPanel = itemsDetailPanel;
         this.foreignKeyName = foreignKey.split("/")[0]; //$NON-NLS-1$
         this.setFireChangeEventOnSetValue(true);
@@ -228,4 +232,13 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         fkWindow.setHeading(MessagesFactory.getMessages().fk_RelatedRecord());
     }
 
+    public boolean validateValue(String value) {
+        if(!validateFlag)
+            return true;
+        return super.validateValue(value);
+    }
+    
+    public void setValidateFlag(boolean validateFlag) {
+        this.validateFlag = validateFlag;
+    }
 }
