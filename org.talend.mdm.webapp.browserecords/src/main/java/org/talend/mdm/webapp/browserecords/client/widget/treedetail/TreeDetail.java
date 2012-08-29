@@ -60,7 +60,6 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -919,6 +918,23 @@ public class TreeDetail extends ContentPanel {
                                     fnf.setValidateFlag(false);
                                 }                                       
                                 
+                            } else if (field instanceof FormatDateField) {
+                                FormatDateField fdf = (FormatDateField) field;
+                                Date value = fdf.getValue();
+                                if(value != null) {
+                                    fdf.setValidateFlag(true);
+                                    fdf.validateValue(itemNodeModel.getObjectValue().toString());
+                                    fdf.setValidateFlag(false);
+                                }
+                                
+                            } else if (field instanceof ForeignKeyField) {
+                                ForeignKeyField fkf = (ForeignKeyField) field;
+                                ForeignKeyBean value = fkf.getValue();
+                                if(value != null) {
+                                    fkf.setValidateFlag(true);
+                                    fkf.validateValue(value.getId());
+                                    fkf.setValidateFlag(false);
+                                }
                             }
                         }
                     }
@@ -976,6 +992,10 @@ public class TreeDetail extends ContentPanel {
                     if(checkSameLevelNode((ItemNodeModel) itemNodeModel.getParent()))
                         fdf.markInvalid(fdf.getMessages().getBlankText());
                 }
+            } else {
+                fdf.setValidateFlag(true);
+                fdf.validateValue(itemNodeModel.getObjectValue().toString());
+                fdf.setValidateFlag(false);
             }
             
         } else if(field instanceof ForeignKeyField) {
@@ -988,6 +1008,10 @@ public class TreeDetail extends ContentPanel {
                     if(checkSameLevelNode((ItemNodeModel) itemNodeModel.getParent()))
                         fkf.markInvalid(fkf.getMessages().getBlankText());
                 }
+            } else {
+                fkf.setValidateFlag(true);
+                fkf.validateValue(value.getId());
+                fkf.setValidateFlag(false);
             }
             
         } else if (field instanceof FormatTextField) {
@@ -1005,6 +1029,7 @@ public class TreeDetail extends ContentPanel {
                 ftf.validateValue(value);
                 ftf.setValidateFlag(false);
             }
+            
         } else if (field instanceof FormatNumberField) {
             FormatNumberField fnf = (FormatNumberField) field;
             Number value = fnf.getValue();
