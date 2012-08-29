@@ -13,7 +13,9 @@
 package org.talend.mdm.webapp.base.server;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -47,6 +49,9 @@ public class ForeignKeyHelperTest extends TestCase {
         String dataCluster = "Product";
         String currentXpath = "Product/Family";
 
+        
+        ForeignKeyHelper.setUseSchemaWebAgent(false);
+        
         // 1. ForeignKeyInfo = ProductFamily/Name
         MDMConfiguration.getConfiguration().setProperty("xmldb.type", EDBType.QIZX.getName()); //$NON-NLS-1$
         ForeignKeyHelper.ForeignKeyHolder result = ForeignKeyHelper.getForeignKeyHolder(xml, dataCluster, currentXpath, model,
@@ -229,6 +234,20 @@ public class ForeignKeyHelperTest extends TestCase {
         assertEquals(WSWhereOperator._EQUALS, condition1.getOperator().getValue());
         assertEquals("[1]", condition1.getRightValueOrPath()); //$NON-NLS-1$
 
+    }
+    
+    
+    public void testFormatForeignKeyValue() {
+        String rightPathOrValue = "\"[foo]\"";
+        String origiRightValueOrPath = "Foo/foo";
+        Map<String, String> mockFkMap = new HashMap<String, String>();        
+        mockFkMap.put("/" + origiRightValueOrPath, origiRightValueOrPath);
+        
+        String result = ForeignKeyHelper.formatForeignKeyValue(rightPathOrValue, origiRightValueOrPath, mockFkMap);
+        assert(result.equals("foo"));
+        
+        result = ForeignKeyHelper.formatForeignKeyValue(rightPathOrValue, "abc", mockFkMap);
+        assert(result.equals(rightPathOrValue));
     }
 
     /**

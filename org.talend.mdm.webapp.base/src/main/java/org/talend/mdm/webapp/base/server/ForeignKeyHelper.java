@@ -387,6 +387,11 @@ public class ForeignKeyHelper {
         return parsedFkfilter;
     }
     
+    private static boolean useSchemaWebAgent = true;
+    public static void setUseSchemaWebAgent(boolean b) {
+        ForeignKeyHelper.useSchemaWebAgent = b;
+    }    
+    
     private static String parseRightValueOrPath(String xml, String dataObject, String rightValueOrPath, String currentXpath)
             throws Exception {
         String origiRightValueOrPath = rightValueOrPath;
@@ -453,6 +458,31 @@ public class ForeignKeyHelper {
                 }
             }
         }
+        
+        if (useSchemaWebAgent) {
+            boolean isFK = false;
+            SchemaWebAgent agent = SchemaWebAgent.getInstance();
+            
+            if (agent != null) {
+                BusinessConcept concept = agent.getBusinessConcept(dataObject);
+                if (concept != null) {     
+                    rightValueOrPath = formatForeignKeyValue(rightValueOrPath, origiRightValueOrPath, concept.getForeignKeyMap());
+                }
+            }     
+        }
+        
+        return rightValueOrPath;
+    }
+    
+    public static String formatForeignKeyValue(String rightValueOrPath, String origiRightValueOrPath, Map<String, String> fkMap) {
+        if (fkMap != null) {
+            if (fkMap.containsKey("/" + origiRightValueOrPath)) { //$NON-NLS-1$
+                if (rightValueOrPath.startsWith("\"[") && rightValueOrPath.endsWith("]\"")) { //$NON-NLS-1$ //$NON-NLS-2$
+                    rightValueOrPath = rightValueOrPath.substring(2, rightValueOrPath.length() - 2);
+                }
+            }
+        }
+        
         return rightValueOrPath;
     }
 }
