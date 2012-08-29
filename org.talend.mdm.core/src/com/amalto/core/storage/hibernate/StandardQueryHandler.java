@@ -20,10 +20,7 @@ import com.amalto.core.storage.record.DataRecord;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.Criteria;
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
-import org.hibernate.Session;
+import org.hibernate.*;
 import org.hibernate.criterion.*;
 import org.hibernate.sql.JoinFragment;
 
@@ -188,6 +185,9 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(Field field) {
+        if (field.getFieldMetadata().isMany()) {
+            throw new NotImplementedException("Support for collections in projections is not supported.");
+        }
         ComplexTypeMetadata containingType = field.getFieldMetadata().getContainingType();
         if (!selectedTypes.contains(containingType)) {
             TypeMapping mapping = mappingMetadataRepository.getMapping(selectedTypes.get(0));
@@ -199,7 +199,20 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 projectionList.add(Projections.property(alias + '.' + database.getName()));
             }
         } else {
-            projectionList.add(Projections.property(getFieldName(field, mappingMetadataRepository)));
+            if (field.getFieldMetadata() instanceof ReferenceFieldMetadata) {
+                ReferenceFieldMetadata fieldMetadata = (ReferenceFieldMetadata) field.getFieldMetadata();
+                if (!selectedTypes.contains(fieldMetadata.getReferencedType())) {
+                    selectedTypes.add(fieldMetadata.getReferencedType());
+                    Field rightField = new Field(fieldMetadata.getReferencedField());
+                    Join join = new Join(new Field(fieldMetadata), rightField, JoinType.INNER);
+                    join.accept(this);
+                    rightField.accept(this);
+                } else {
+                    projectionList.add(Projections.property(getFieldName(field, mappingMetadataRepository)));
+                }
+            } else {
+                projectionList.add(Projections.property(getFieldName(field, mappingMetadataRepository)));
+            }
         }
         return null;
     }

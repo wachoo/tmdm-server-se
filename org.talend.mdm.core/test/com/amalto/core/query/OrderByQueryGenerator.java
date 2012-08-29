@@ -43,9 +43,7 @@ class OrderByQueryGenerator extends DefaultMetadataVisitor<List<Expression>> {
 
     @Override
     public List<Expression> visit(ContainedTypeFieldMetadata containedField) {
-        if (!containedField.isMany()) {
-            containedField.getContainedType().accept(this);
-        }
+        containedField.getContainedType().accept(this);
         return expressions;
     }
 

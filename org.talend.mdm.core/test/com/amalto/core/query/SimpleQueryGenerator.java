@@ -28,15 +28,15 @@ class SimpleQueryGenerator extends DefaultMetadataVisitor<List<Expression>> {
 
     @Override
     public List<Expression> visit(SimpleTypeFieldMetadata simpleField) {
-        currentBuilder.select(simpleField);
+        if (!simpleField.isMany()) {
+            currentBuilder.select(simpleField);
+        }
         return expressions;
     }
 
     @Override
     public List<Expression> visit(ContainedTypeFieldMetadata containedField) {
-        if (!containedField.isMany()) {
-            containedField.getContainedType().accept(this);
-        }
+        containedField.getContainedType().accept(this);
         return expressions;
     }
 

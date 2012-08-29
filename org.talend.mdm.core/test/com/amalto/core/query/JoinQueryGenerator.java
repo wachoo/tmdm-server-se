@@ -28,7 +28,9 @@ class JoinQueryGenerator extends DefaultMetadataVisitor<List<Expression>> {
 
     @Override
     public List<Expression> visit(SimpleTypeFieldMetadata simpleField) {
-        currentBuilder.select(simpleField);
+        if (!simpleField.isMany()) {
+            currentBuilder.select(simpleField);
+        }
         return expressions;
     }
 
