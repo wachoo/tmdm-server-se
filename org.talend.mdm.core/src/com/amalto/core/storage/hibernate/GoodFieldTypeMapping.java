@@ -57,9 +57,14 @@ public class GoodFieldTypeMapping extends TypeMapping {
                     if (containedRecord != null) {
                         referencedType = containedRecord.getType();
                         Wrapper existingValue = (Wrapper) to.get(referenceFieldMetadata.getName());
-                        Wrapper object = existingValue == null ? createObject(contextClassLoader, referencedType) : existingValue;
+                        boolean needCreate = existingValue == null;
+                        if (!needCreate) {
+                            ComplexTypeMetadata existingType = ((StorageClassLoader) contextClassLoader).getTypeFromClass(existingValue.getClass());
+                            needCreate = !existingType.equals(referencedType);
+                        }
+                        Wrapper object = needCreate ? createObject(contextClassLoader, referencedType) : existingValue;
                         to.set(referenceFieldMetadata.getName(), _setValues(session, containedRecord, object));
-                        if (existingValue == null) {
+                        if (needCreate) {
                             session.persist(object);
                         }
                     }
