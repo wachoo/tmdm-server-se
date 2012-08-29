@@ -383,6 +383,7 @@ public class ItemPOJO implements Serializable {
             ItemCacheKey key = new ItemCacheKey(revisionID, urlid, itemPOJOPK.getDataClusterPOJOPK().getUniqueId());
 
             item = cachedPojo.get(key);
+            item = null;
             if (item == null) {
                 item = server.getDocumentAsString(revisionID, itemPOJOPK.getDataClusterPOJOPK().getUniqueId(), urlid);
                 if (item != null)
@@ -688,10 +689,8 @@ public class ItemPOJO implements Serializable {
                     cachedPojo.put(key, xmlstring);
                 }
             } catch (Exception e) {
-                LOG.error(e.getMessage(),e);
-                // roll back
                 server.deleteDocument(null, "MDMItemsTrash", droppedItemPOJO.obtainDroppedItemPK().getUniquePK());
-                return null;
+                throw new XtentisException(e);
             }
 
             //It need to remove it from cache, because it still be load on cache after it has be drop
