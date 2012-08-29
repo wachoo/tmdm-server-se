@@ -75,4 +75,22 @@ public class MultilanguageMessageParserTest extends TestCase {
         assertEquals(s, MultilanguageMessageParser.pickOutISOMessage(s, "en")); //$NON-NLS-1$
     }
 
+    @SuppressWarnings("nls")
+    public void testGetMultiLanguageValueByLanguage() {
+        // no [en:+][fr:+]... format
+        String multiLanguageString = "Talend";
+        assertTrue(MultilanguageMessageParser.getValueByLanguage(multiLanguageString, "EN").equals(multiLanguageString));
+        assertFalse(MultilanguageMessageParser.isExistMultiLanguageFormat(multiLanguageString));
+        // normal format lowercase language
+        multiLanguageString = "[ZH:拓蓝][EN:Talend][FR:Talend Company]";
+        assertTrue(MultilanguageMessageParser.getValueByLanguage(multiLanguageString, "ZH").equals("拓蓝"));
+        assertTrue(MultilanguageMessageParser.getValueByLanguage(multiLanguageString, "EN").equals("Talend"));
+        assertTrue(MultilanguageMessageParser.getValueByLanguage(multiLanguageString, "FR").equals("Talend Company"));
+        assertTrue(MultilanguageMessageParser.isExistMultiLanguageFormat(multiLanguageString));
+        // test null
+        multiLanguageString = "[ZH:拓蓝][FR:Talend Company]";
+        assertNull(MultilanguageMessageParser.getValueByLanguage(multiLanguageString, "EN"));
+        assertTrue(MultilanguageMessageParser.isExistMultiLanguageFormat(multiLanguageString));
+    }
+
 }

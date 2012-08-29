@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.talend.mdm.webapp.base.client.widget.MultiLanguageField;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
@@ -113,6 +114,8 @@ public class IncrementalBuildTree implements IncrementalCommand {
 					((FormatTextField)field).setWidth(size > 200 ? size : 200);
 				else if (field instanceof SimpleComboBox)
                     ((SimpleComboBox) field).setWidth(size > 200 ? size : 200);
+                else if (field instanceof MultiLanguageField)
+                    ((MultiLanguageField) field).setWidth(size > 200 ? size : 200);
 			}
 		}
 	}

@@ -87,10 +87,9 @@ public class TypeFieldCreator implements IsSerializable {
         DataType dataType = context.getDataType().getType();
         String baseType = context.getDataType().getType().getBaseTypeName();
 
-        if (dataType.equals(DataTypeConstants.UUID) 
-              || dataType.equals(DataTypeConstants.AUTO_INCREMENT)
-              || dataType.equals(DataTypeConstants.PICTURE)
-              || dataType.equals(DataTypeConstants.URL)) {
+        if (dataType.equals(DataTypeConstants.UUID) || dataType.equals(DataTypeConstants.AUTO_INCREMENT)
+                || dataType.equals(DataTypeConstants.PICTURE) || dataType.equals(DataTypeConstants.URL)
+                || dataType.equals(DataTypeConstants.MLS)) {
 
             fieldFactory = new CustomTypeFieldFactory(source, context);
 

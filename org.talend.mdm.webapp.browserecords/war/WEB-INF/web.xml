@@ -10,6 +10,11 @@
         <servlet-name>browserecordsServlet</servlet-name>
         <servlet-class>org.talend.mdm.webapp.general.gwt.ProxyGWTServiceImpl</servlet-class>
     </servlet>
+    
+    <servlet>
+        <servlet-name>baseRemoteServlet</servlet-name>
+        <servlet-class>org.talend.mdm.webapp.base.server.BaseRemoteServiceImpl</servlet-class>
+    </servlet>
 
     <servlet>
         <servlet-name>exportExcelFile</servlet-name>
@@ -26,6 +31,11 @@
     <servlet-mapping>
         <servlet-name>browserecordsServlet</servlet-name>
         <url-pattern>/browserecords/BrowseRecordsService</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>baseRemoteServlet</servlet-name>
+        <url-pattern>/browserecords/BaseRemoteService</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

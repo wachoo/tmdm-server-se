@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.base.client.widget.MultiLanguageField;
 import org.talend.mdm.webapp.base.shared.FacetModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
@@ -64,13 +65,13 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -237,6 +238,8 @@ public class TreeDetailGridFieldCreator {
                     node.setObjectValue(((ComboBoxModel) fe.getValue()).getValue());
                 } else if (fe.getField() instanceof CheckBox) {
                     node.setObjectValue(fe.getValue().toString());
+                } else if (fe.getField() instanceof MultiLanguageField) {
+                    node.setObjectValue(((MultiLanguageField) fe.getField()).getMultiLanguageStringValue());
                 } else {
                     if (fe.getField() instanceof ComboBox) {
                         SimpleComboValue value = (SimpleComboValue) fe.getValue();

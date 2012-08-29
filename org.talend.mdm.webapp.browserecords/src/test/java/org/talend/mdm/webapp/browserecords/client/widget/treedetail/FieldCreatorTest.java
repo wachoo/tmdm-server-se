@@ -15,6 +15,8 @@ package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.base.client.widget.MultiLanguageField;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.creator.DataTypeCreator;
@@ -54,7 +56,7 @@ public class FieldCreatorTest extends GWTTestCase {
         nameType.setTypePath("Product/Name"); //$NON-NLS-1$
         nameType.setReadOnly(true);
         
-        SimpleTypeModel descriptionType = new SimpleTypeModel("Description", DataTypeCreator.getDataType("string", "string")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        SimpleTypeModel descriptionType = new SimpleTypeModel("Description", DataTypeConstants.MLS); //$NON-NLS-1$
         descriptionType.setTypePath("Product/Description"); //$NON-NLS-1$
         descriptionType.setReadOnly(true);
         
@@ -133,6 +135,7 @@ public class FieldCreatorTest extends GWTTestCase {
         Field<?> descriptionField = TreeDetailGridFieldCreator.createField(descriptionNode, descriptionType, "en", fieldMap, //$NON-NLS-1$
                 ItemDetailToolBar.CREATE_OPERATION, null);
         assertNotNull(descriptionField);
+        assertTrue(descriptionField instanceof MultiLanguageField);
         assertEquals(true, descriptionField.isReadOnly());
 
         Field<?> size1Field = TreeDetailGridFieldCreator.createField(size1Node, sizeType, "en", fieldMap, //$NON-NLS-1$

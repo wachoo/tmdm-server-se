@@ -12,7 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.base.client.util;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class MultilanguageMessageParser {
@@ -43,26 +43,68 @@ public class MultilanguageMessageParser {
      * @return Message corresponding to the current language
      */
     public static String pickOutISOMessage(String errorString, String lang) {
+        return pickOutISOMessage(errorString, lang, false);
+    }
 
+    public static String pickOutISOMessage(String errorString) {
+        return pickOutISOMessage(errorString, UrlUtil.getLanguage());
+    }
+
+    public static String getValueByLanguage(String multiLanguageString, String language) {
+        return pickOutISOMessage(multiLanguageString, language, true);
+    }
+
+    public static boolean isExistMultiLanguageFormat(String multiLanguageString) {
+        Map<String, String> map = getLanguageValueMap(multiLanguageString);
+        return !map.isEmpty();
+    }
+
+    private static String pickOutISOMessage(String errorString, String lang, boolean isGetLanguageValue) {
         if (errorString != null && lang != null) {
-            // Parse states
-            final byte PARSE_ERROR = 0;
-            final byte LOOKING_FOR_OPENING_BRACKET = 1;
-            final byte LOOKING_FOR_COUNTRY_CODE_FIRST_CHAR = 2;
-            final byte LOOKING_FOR_COUNTRY_CODE_SECOND_CHAR = 3;
-            final byte LOOKING_FOR_COLON = 4;
-            final byte LOOKING_FOR_CLOSING_BRACKET = 5;
-            final byte ENCOUNTERED_FIRST_BACKSLASH = 6;
+            Map<String, String> errorMessageHash = getLanguageValueMap(errorString);
+            String resultingErrorMessage = errorString;
+            String langCode = lang.toLowerCase();
+            if (isGetLanguageValue) {
+                if (errorMessageHash.isEmpty()) {
+                    return resultingErrorMessage;
+                } else {
+                    return errorMessageHash.get(langCode);
+                }
+            }
+            if (errorMessageHash.containsKey(langCode)) {
+                resultingErrorMessage = errorMessageHash.get(langCode);
+            } else if (errorMessageHash.containsKey("en")) { //$NON-NLS-1$
+                resultingErrorMessage = errorMessageHash.get("en"); //$NON-NLS-1$
+            }
 
-            byte parseState = LOOKING_FOR_OPENING_BRACKET;
-            // string buffer for constructing current country code
-            StringBuffer countryCodeBuffer = new StringBuffer();
-            // string buffer for constructing current error message
-            StringBuffer errorMessageBuffer = new StringBuffer();
-            // map between country code and message
-            Map<String, String> errorMessageHash = new HashMap<String, String>();
+            return resultingErrorMessage;
 
-            int i = 0;
+        } else {
+
+            return null;
+        }
+    }
+
+    public static LinkedHashMap<String, String> getLanguageValueMap(String errorString) {
+        // Parse states
+        final byte PARSE_ERROR = 0;
+        final byte LOOKING_FOR_OPENING_BRACKET = 1;
+        final byte LOOKING_FOR_COUNTRY_CODE_FIRST_CHAR = 2;
+        final byte LOOKING_FOR_COUNTRY_CODE_SECOND_CHAR = 3;
+        final byte LOOKING_FOR_COLON = 4;
+        final byte LOOKING_FOR_CLOSING_BRACKET = 5;
+        final byte ENCOUNTERED_FIRST_BACKSLASH = 6;
+
+        byte parseState = LOOKING_FOR_OPENING_BRACKET;
+        // string buffer for constructing current country code
+        StringBuffer countryCodeBuffer = new StringBuffer();
+        // string buffer for constructing current error message
+        StringBuffer errorMessageBuffer = new StringBuffer();
+        // map between country code and message
+        LinkedHashMap<String, String> errorMessageHash = new LinkedHashMap<String, String>();
+
+        int i = 0;
+        if (errorString != null) {
             int errorStringLen = errorString.length();
             for (i = 0; i < errorStringLen && parseState != PARSE_ERROR; ++i) {
                 char c = errorString.charAt(i);
@@ -120,27 +162,9 @@ public class MultilanguageMessageParser {
                     parseState = PARSE_ERROR;
                 }
             }
-
-            String resultingErrorMessage = errorString;
-            String langCode = lang.toLowerCase();
-            if (errorMessageHash.containsKey(langCode)) {
-                resultingErrorMessage = errorMessageHash.get(langCode);
-            } else if (errorMessageHash.containsKey("en")) { //$NON-NLS-1$
-                resultingErrorMessage = errorMessageHash.get("en"); //$NON-NLS-1$
-            }
-
-            return resultingErrorMessage;
-
-        } else {
-
-            return null;
         }
+        return errorMessageHash;
     }
-
-    public static String pickOutISOMessage(String errorString) {
-        return pickOutISOMessage(errorString, UrlUtil.getLanguage());
-    }
-    
     public static boolean isLetter(char c) {
         boolean result = ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z');
 

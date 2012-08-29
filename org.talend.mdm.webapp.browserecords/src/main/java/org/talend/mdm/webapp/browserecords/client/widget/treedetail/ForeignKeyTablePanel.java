@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.base.client.model.MultiLanguageModel;
 import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
@@ -241,7 +243,10 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                     ForeignKeyBean fkBean = (ForeignKeyBean) model.getObjectValue();
                     String value = fkBean != null && fkBean.getForeignKeyInfo().containsKey(fkInfo) ? fkBean.getForeignKeyInfo()
                             .get(fkInfo) : ""; //$NON-NLS-1$
-                    if (fkBean != null && "".equals(value)) { //$NON-NLS-1$
+                    if (entityModel.getTypeModel(fkInfo).getType().equals(DataTypeConstants.MLS)) {
+                        MultiLanguageModel multiLanguageModel = new MultiLanguageModel(value);
+                        value = multiLanguageModel.getValueByLanguage(Locale.getLanguage().toUpperCase());
+                    } else if (fkBean != null && "".equals(value)) { //$NON-NLS-1$
                         String propertyName = fkInfo.substring(fkInfo.lastIndexOf("/") + 1); //$NON-NLS-1$
                         if (fkBean.getForeignKeyInfo().get(info) != null) {
                             value = fkBean.getForeignKeyInfo().get(info).toString();

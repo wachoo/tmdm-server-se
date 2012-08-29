@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.base.client.util;
 
 
+
 public class UrlUtil {
 
     public static String getLanguage() {
@@ -23,6 +24,11 @@ public class UrlUtil {
         return lang;
     }
     
+    public static String getUpperLanguage() {
+        String lang = getLanguage();
+        return lang.toUpperCase();
+    }
+
     private static native String getCurrentLanguage() /*-{
         return $wnd.language;
     }-*/;

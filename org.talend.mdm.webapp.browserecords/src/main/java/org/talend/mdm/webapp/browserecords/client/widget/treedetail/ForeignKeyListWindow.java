@@ -16,8 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
+import org.talend.mdm.webapp.base.client.model.MultiLanguageModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
@@ -59,11 +61,12 @@ import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -376,8 +379,22 @@ public class ForeignKeyListWindow extends Window {
             if (foreignKeyInfo.contains(typeModel.getForeignkey()))
                 isDisplayKeyInfo = true;
             for (String info : foreignKeyInfo) {
-                columns.add(new ColumnConfig(CommonUtil.getElementFromXpath(info), CommonUtil.getElementFromXpath(info),
-                        COLUMN_WIDTH));
+                ColumnConfig columnConfig = new ColumnConfig(CommonUtil.getElementFromXpath(info), CommonUtil.getElementFromXpath(info),
+                        COLUMN_WIDTH);
+                columns.add(columnConfig);
+                if (entityModel.getTypeModel(info).getType().equals(DataTypeConstants.MLS)){
+                    
+                    columnConfig.setRenderer(new GridCellRenderer<ForeignKeyBean>() {
+
+                        public Object render(final ForeignKeyBean fkBean, String property, ColumnData config, int rowIndex,
+                                int colIndex, ListStore<ForeignKeyBean> store, Grid<ForeignKeyBean> grid) {
+                            String multiLanguageString = (String) fkBean.get(property);
+                            MultiLanguageModel multiLanguageModel = new MultiLanguageModel(multiLanguageString);
+                            return Format.htmlEncode(multiLanguageModel.getValueByLanguage(Locale.getLanguage().toUpperCase()));
+                        }
+                    });
+                
+                }
             }
         }
         if (columns.size() == 0) {
@@ -395,7 +412,13 @@ public class ForeignKeyListWindow extends Window {
                     String result = ""; //$NON-NLS-1$
                     if (fkBean != null){
                         if (fkBean.get(property) != null && !"".equals(fkBean.get(property))){ //$NON-NLS-1$
-                            result = fkBean.get(property) + "-"; //$NON-NLS-1$
+                            if (entityModel.getTypeModel(typeModel.getForeignKeyInfo().get(0)).getType()
+                                    .equals(DataTypeConstants.MLS)) {
+                                MultiLanguageModel multiLanguageModel = new MultiLanguageModel(fkBean.get(property).toString());
+                                result = multiLanguageModel.getValueByLanguage(Locale.getLanguage()) + "-"; //$NON-NLS-1$
+                            } else {
+                                result = fkBean.get(property) + "-"; //$NON-NLS-1$
+                            }
                         }
                         return result = result + fkBean.getId();
                     }

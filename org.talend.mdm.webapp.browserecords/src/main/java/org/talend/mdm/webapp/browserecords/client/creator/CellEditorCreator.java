@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.creator;
 
+import org.talend.mdm.webapp.base.client.widget.MultiLanguageField;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.BooleanField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatDateField;
@@ -20,6 +21,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.inputfield.celleditor.C
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.celleditor.DateFieldCellEditor;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.celleditor.DateTimeFieldCellEditor;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.celleditor.FKCellEditor;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.celleditor.MultiLanguageCellEditor;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.celleditor.NumberFieldCellEditor;
 
 import com.extjs.gxt.ui.client.widget.form.DateField;
@@ -55,6 +57,10 @@ public class CellEditorCreator {
 
         if (field instanceof FKField) {
             return new FKCellEditor((FKField) field);
+        }
+
+        if (field instanceof MultiLanguageField) {
+            return new MultiLanguageCellEditor((MultiLanguageField) field);
         }
 
         if (field instanceof Field) {

@@ -292,7 +292,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    private List<String> getPKInfoList(TypeModel model, String ids, Document document, String language) throws Exception {
+    private List<String> getPKInfoList(EntityModel entityModel, TypeModel model, String ids, Document document, String language)
+            throws Exception {
         List<String> xpathPKInfos = model.getPrimaryKeyInfo();
         List<String> xPathList = new ArrayList<String>();
         if (xpathPKInfos != null && xpathPKInfos.size() > 0 && ids != null) {
@@ -300,7 +301,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if (pkInfoPath != null && pkInfoPath.length() > 0) {
                     String pkInfo = Util.getFirstTextNode(document, pkInfoPath);
                     if (pkInfo != null) {
-                        xPathList.add(pkInfo);
+                        if (entityModel.getTypeModel(pkInfoPath).getType().equals(DataTypeConstants.MLS)) {
+                            String value = MultilanguageMessageParser.getValueByLanguage(pkInfo, language);
+                            if (value != null)
+                                xPathList.add(value);
+                        } else {
+                            xPathList.add(pkInfo);
+                        }
                     }
                 }
             }
@@ -552,7 +559,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 TypeModel typeModel = types.get(path);
                 // set pkinfo and description on entity
                 if (path.equals(itemBean.getConcept())) {
-                    List<String> pkInfoList = getPKInfoList(typeModel, itemBean.getIds(), docXml, language);
+                    List<String> pkInfoList = getPKInfoList(entityModel, typeModel, itemBean.getIds(), docXml, language);
                     itemBean.setPkInfoList(pkInfoList);
                     itemBean.setLabel(typeModel.getLabel(language));
                     itemBean.setDisplayPKInfo(getPKInfos(pkInfoList));
@@ -585,6 +592,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                 }
                             }
                         }
+                    } else {
+                        itemBean.set(path, ""); //$NON-NLS-1$
                     }
                 }
             }

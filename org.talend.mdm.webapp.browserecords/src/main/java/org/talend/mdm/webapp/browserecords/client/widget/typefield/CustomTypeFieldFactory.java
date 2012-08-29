@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.browserecords.client.widget.typefield;
 
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.base.client.widget.MultiLanguageField;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.PictureField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.UrlField;
@@ -66,6 +67,12 @@ public class CustomTypeFieldFactory extends TypeFieldFactory {
             if (context.isWithValue())
                 urlField.setValue(hasValue() ? getValue().toString() : ""); //$NON-NLS-1$
             field = urlField;
+        } else if (context.getDataType().getType().equals(DataTypeConstants.MLS)) {
+            boolean isFormInput = this.source != null && this.source.getName().equals(TypeFieldSource.FORM_INPUT);
+            MultiLanguageField mlsField = new MultiLanguageField(isFormInput ? true : false);
+            if (context.isWithValue())
+                mlsField.setMultiLanguageStringValue(hasValue() ? getValue().toString() : ""); //$NON-NLS-1$
+            field = mlsField;
         }
         return field;
     }

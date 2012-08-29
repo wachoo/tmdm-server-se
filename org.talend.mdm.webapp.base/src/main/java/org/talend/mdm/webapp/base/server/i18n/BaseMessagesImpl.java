@@ -85,4 +85,48 @@ public final class BaseMessagesImpl implements BaseMessages {
     public String typemode_notfound_error(String typePath) {
         return typemode_notfound_error(typePath, null);
     }
+
+    public String open_mls_title() {
+        return MESSAGES.getMessage("open_mls_title");
+    }
+
+    public String language_title() {
+        return MESSAGES.getMessage("language_title");
+    }
+
+    public String value_title() {
+        return MESSAGES.getMessage("value_title");
+    }
+
+    public String multiLanguage_edit_failure() {
+        return MESSAGES.getMessage("multiLanguage_edit_failure");
+    }
+
+    public String multiLangauge_language_duplicate() {
+        return MESSAGES.getMessage("multiLangauge_language_duplicate");
+    }
+
+    public String edit_success_info() {
+        return MESSAGES.getMessage("edit_success_info");
+    }
+
+    public String message_success() {
+        return MESSAGES.getMessage("message_success");
+    }
+
+    public String message_fail() {
+        return MESSAGES.getMessage("message_fail");
+    }
+
+    public String edititem() {
+        return MESSAGES.getMessage("edititem");
+    }
+
+    public String add_btn() {
+        return MESSAGES.getMessage("add_btn");
+    }
+
+    public String remove_btn() {
+        return MESSAGES.getMessage("remove_btn");
+    }
 }

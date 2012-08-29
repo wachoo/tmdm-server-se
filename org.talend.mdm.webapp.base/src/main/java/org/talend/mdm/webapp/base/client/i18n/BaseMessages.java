@@ -39,4 +39,26 @@ public interface BaseMessages extends Messages {
     String unknown_error();
     
     String session_timeout_error();
+
+    String open_mls_title();
+
+    String language_title();
+
+    String value_title();
+
+    String multiLanguage_edit_failure();
+
+    String multiLangauge_language_duplicate();
+
+    String edit_success_info();
+
+    String message_success();
+
+    String message_fail();
+
+    String edititem();
+
+    String add_btn();
+
+    String remove_btn();
 }

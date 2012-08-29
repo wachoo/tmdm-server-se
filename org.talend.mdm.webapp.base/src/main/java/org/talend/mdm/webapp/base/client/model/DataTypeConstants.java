@@ -67,6 +67,7 @@ public enum DataTypeConstants implements DataType {
     AUTO_INCREMENT("AUTO_INCREMENT", ""), //$NON-NLS-1$ //$NON-NLS-2$
     PICTURE("PICTURE", ""), //$NON-NLS-1$ //$NON-NLS-2$ // Change picture default value to empty
     URL("URL", "@@http://"), //$NON-NLS-1$ //$NON-NLS-2$
+    MLS("MULTI_LINGUAL", ""), //$NON-NLS-1$//$NON-NLS-2$
 
     UNKNOW("unknow", "");//$NON-NLS-1$ //$NON-NLS-2$
 

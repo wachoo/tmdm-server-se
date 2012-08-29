@@ -1,8 +1,12 @@
 package org.talend.mdm.webapp.browserecords.client.widget.inputfield.celleditor;
 
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.base.client.model.MultiLanguageModel;
+import org.talend.mdm.webapp.base.client.widget.MultiLanguageField;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.util.DateUtil;
+import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.BooleanField;
 
 import com.extjs.gxt.ui.client.widget.form.DateField;
@@ -31,12 +35,7 @@ public class ForeignKeyCellEditor extends CellEditor {
         String v = fkBean.getForeignKeyInfo().get(typeModel.getXpath());
         if (value == null)
             return null;
-        // if(field != null)
-        // field.addListener(Events.Change, new Listener<BaseEvent>() {
-        // public void handleEvent(BaseEvent be) {
-        // String s = "1";
-        // };
-        // });
+
         if (field instanceof SimpleComboBox) {
             if (field instanceof BooleanField) {
                 Boolean bv = Boolean.parseBoolean(v.toString());
@@ -60,6 +59,12 @@ public class ForeignKeyCellEditor extends CellEditor {
                 return Double.parseDouble((String) v);
             }
         }
+
+        if (field instanceof MultiLanguageField) {
+            MultiLanguageModel multiLanguageModel = new MultiLanguageModel((String) v);
+            ((MultiLanguageField) field).setMultiLanguageModel(multiLanguageModel);
+            return multiLanguageModel.getValueByLanguage(Locale.getLanguage().toUpperCase());
+        }
         if (field instanceof Field) {
             return v;
         }
@@ -67,8 +72,13 @@ public class ForeignKeyCellEditor extends CellEditor {
     }
 
     public Object postProcessValue(Object value) {
-        if (fkBean != null)
-            fkBean.getForeignKeyInfo().put(typeModel.getXpath(), value.toString());
+        if (fkBean != null){
+            String v = value != null ? value.toString() : ""; //$NON-NLS-1$
+            if (typeModel.getType().equals(DataTypeConstants.MLS)){
+                v = ((MultiLanguageField) field).getMultiLanguageStringValue();
+            }
+            fkBean.getForeignKeyInfo().put(typeModel.getXpath(), v);
+        }
         return fkBean;
     }
 }

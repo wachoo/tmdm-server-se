@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.shared;
 
+import org.talend.mdm.webapp.base.client.widget.MultiLanguageField;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
@@ -103,7 +105,10 @@ public enum FacetEnum {
                 field.setData(FRACTION_DIGITS.getFacetName(), value);
             } else if (facet.equals(PATTERN.getFacetName())) {
                 TextField<String> field = (TextField<String>) w;
-                field.setData(PATTERN.getFacetName(), value);
+                // MultiLanguageField did not need to check pattern(Field will setup value by [en:***][fr:***] format)
+                // the pattern will be used on server-side to check
+                if (!(field instanceof MultiLanguageField))
+                    field.setData(PATTERN.getFacetName(), value);
             } else if (facet.equals(WHTE_SPACE.getFacetName())) {
                 TextField<String> field = (TextField<String>) w;
                 field.setData(WHTE_SPACE.getFacetName(), value);

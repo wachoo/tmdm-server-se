@@ -9,6 +9,7 @@ import java.util.Random;
 
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.DataTypeCustomized;
+import org.talend.mdm.webapp.base.client.widget.MultiLanguageField;
 import org.talend.mdm.webapp.base.shared.FacetModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
@@ -39,6 +40,8 @@ public class TypeFieldCreatorGWTTest extends GWTTestCase {
     private String language = "en";
 
     private TypeModel nameNodeModel = new SimpleTypeModel("name", DataTypeConstants.STRING);
+
+    private TypeModel descriptionNodeModel = new SimpleTypeModel("description", DataTypeConstants.MLS);
 
     private TypeModel priceNodeModel = new SimpleTypeModel("price", DataTypeConstants.DOUBLE);
 
@@ -79,6 +82,7 @@ public class TypeFieldCreatorGWTTest extends GWTTestCase {
         Field<?> createdField = null;
 
         String nameValue = "IPad2";
+        String descriptionValue = "[EN:123][FR:456]";
         double priceValue = 3499.99;
         String publishTimeValue = "2010-01-01T00:00:00";
         boolean isAvaliableValue = true;
@@ -87,6 +91,9 @@ public class TypeFieldCreatorGWTTest extends GWTTestCase {
         ItemNodeModel nameNode = new ItemNodeModel("Name");
         nameNode.setKey(true);
         nameNode.setObjectValue(nameValue);
+
+        ItemNodeModel descriptionNode = new ItemNodeModel("Description");
+        descriptionNode.setObjectValue(descriptionValue);
 
         ItemNodeModel priceNode = new ItemNodeModel("Price");
         priceNode.setObjectValue(priceValue);
@@ -117,6 +124,12 @@ public class TypeFieldCreatorGWTTest extends GWTTestCase {
         createdField = typeFieldCreator.createFieldWithValueAndUpdateStyle(nameNode, sytles);
         assertNotNull(createdField);
         assertTrue(createdField instanceof FormatTextAreaField);
+
+        context.setDataType(descriptionNodeModel);
+        createdField = typeFieldCreator.createFieldWithValueAndUpdateStyle(descriptionNode, sytles);
+        assertNotNull(createdField);
+        assertTrue(createdField instanceof MultiLanguageField);
+        assertEquals(descriptionValue, ((MultiLanguageField) createdField).getMultiLanguageStringValue());
 
         context.setDataType(priceNodeModel);
         createdField = typeFieldCreator.createFieldWithValueAndUpdateStyle(priceNode, sytles);

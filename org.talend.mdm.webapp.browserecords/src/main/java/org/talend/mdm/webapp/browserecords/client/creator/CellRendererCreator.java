@@ -14,8 +14,10 @@ package org.talend.mdm.webapp.browserecords.client.creator;
 
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.base.client.model.MultiLanguageModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
+import org.talend.mdm.webapp.browserecords.client.util.Locale;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -97,6 +99,18 @@ public class CellRendererCreator {
                 public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
                         ListStore<ModelData> store, Grid<ModelData> grid) {
                     return Format.htmlEncode((String)model.get(property));
+                }
+            };
+            return renderer;
+        }
+        if (dataType.getType().equals(DataTypeConstants.MLS)) {
+            GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
+
+                public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
+                        ListStore<ModelData> store, Grid<ModelData> grid) {
+                    String multiLanguageString = (String) model.get(property);
+                    MultiLanguageModel multiLanguageModel = new MultiLanguageModel(multiLanguageString);
+                    return Format.htmlEncode(multiLanguageModel.getValueByLanguage(Locale.getLanguage().toUpperCase()));
                 }
             };
             return renderer;
