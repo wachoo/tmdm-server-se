@@ -308,4 +308,14 @@ public class UtilTestCase extends TestCase {
             // do nothing
         }
     }
+    
+    public void orderKeyFields() {
+        String[] orderedFields = new String[] {"a", "b", "c"};
+        String[] keyFields = new String[] {"c", "a"};
+        
+        String[] result = Util.orderKeyFields(orderedFields, keyFields);
+        assert(result.length == 2);
+        assert(result[0].equals("a"));
+        assert(result[1].equals("c"));
+    }
 }
