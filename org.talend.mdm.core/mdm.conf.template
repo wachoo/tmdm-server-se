@@ -16,7 +16,7 @@ admin.user=admin
 admin.password=talend
 
 # http server port
-http.server.port=8080
+http.server.port=8180
 
 system.data.auto.init=true
 system.data.auto.upgrade=true
