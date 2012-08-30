@@ -17,9 +17,14 @@ import java.util.List;
 
 import org.talend.mdm.webapp.base.client.util.Parser;
 
+import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.XMLParser;
+
 public class MultipleCriteria implements Criteria {
 
     private static final long serialVersionUID = 1L;
+
+    public static final String Multiple_Criteria = "MultipleCriteria"; //$NON-NLS-1$
 
     private String operator;
 
@@ -43,8 +48,9 @@ public class MultipleCriteria implements Criteria {
         boolean first = true;
 
         for (Criteria c : children) {
-            if (!first)
+            if (!first) {
                 sb.append(" " + operator + " "); //$NON-NLS-1$  //$NON-NLS-2$
+            }
 
             String blockStuff = ""; //$NON-NLS-1$
             if (c instanceof SimpleCriterion) {
@@ -54,8 +60,9 @@ public class MultipleCriteria implements Criteria {
                 } else {
                     blockStuff = simpCriteia.toString();
                 }
-            } else
+            } else {
                 blockStuff = c.toString();
+            }
 
             sb.append(Parser.BEGIN_BLOCK + blockStuff + Parser.END_BLOCK);
             first = false;
@@ -65,10 +72,37 @@ public class MultipleCriteria implements Criteria {
             appearance = false;
         }
         final String string = sb.toString();
-        if (string.equals("" + Parser.BEGIN_BLOCK + Parser.END_BLOCK)) //$NON-NLS-1$
+        if (string.equals("" + Parser.BEGIN_BLOCK + Parser.END_BLOCK)) { //$NON-NLS-1$
             return ""; //$NON-NLS-1$
-        else
+        } else {
             return string;
+        }
+    }
+
+    public static MultipleCriteria buildCriteria(String xmlString) {
+        MultipleCriteria criteria = new MultipleCriteria();
+        Document doc = XMLParser.parse(xmlString);
+        // doc.getChildNodes()
+        return criteria;
+    }
+
+    public String toXmlString() {
+        StringBuilder multipleCriteriaBuilder = new StringBuilder();
+        multipleCriteriaBuilder.append("<").append(MultipleCriteria.Multiple_Criteria).append(">"); //$NON-NLS-1$ //$NON-NLS-2$
+        multipleCriteriaBuilder.append("<appearance>").append(appearance).append("</appearance>"); //$NON-NLS-1$ //$NON-NLS-2$     
+        multipleCriteriaBuilder.append("<operator>").append(operator).append("</operator>"); //$NON-NLS-1$ //$NON-NLS-2$  
+
+        for (Criteria c : children) {
+            if (c instanceof SimpleCriterion) {
+                multipleCriteriaBuilder.append(((SimpleCriterion) c).toXmlString());
+            } else {
+                multipleCriteriaBuilder.append(((MultipleCriteria) c).toXmlString());
+            }
+
+        }
+
+        multipleCriteriaBuilder.append("</").append(MultipleCriteria.Multiple_Criteria).append(">"); //$NON-NLS-1$ //$NON-NLS-2$
+        return multipleCriteriaBuilder.toString();
     }
 
     public void requestShowAppearance() {
@@ -95,5 +129,13 @@ public class MultipleCriteria implements Criteria {
 
     public void add(Criteria criteria) {
         children.add(criteria);
+    }
+
+    public boolean isAppearance() {
+        return this.appearance;
+    }
+
+    public void setAppearance(boolean appearance) {
+        this.appearance = appearance;
     }
 }

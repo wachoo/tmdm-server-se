@@ -16,6 +16,8 @@ public class SimpleCriterion implements Criteria {
 
     private static final long serialVersionUID = 1L;
 
+    public static final String Simple_Criterion = "SimpleCriterion"; //$NON-NLS-1$
+
     private String key;
 
     private String operator;
@@ -49,6 +51,17 @@ public class SimpleCriterion implements Criteria {
 
     public String toAppearanceString() {
         return (key == null ? "" : key) + " " + (operator == null ? "" : operator) + " " + (info == null ? value : info); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+    }
+
+    public String toXmlString() {
+        StringBuilder simpleCriterionBuilder = new StringBuilder();
+        simpleCriterionBuilder.append("<").append(SimpleCriterion.Simple_Criterion).append(">"); //$NON-NLS-1$ //$NON-NLS-2$
+        simpleCriterionBuilder.append("<key>").append(key).append("</key>"); //$NON-NLS-1$ //$NON-NLS-2$
+        simpleCriterionBuilder.append("<operator>").append(operator).append("</operator>"); //$NON-NLS-1$ //$NON-NLS-2$
+        simpleCriterionBuilder.append("<value>").append(value).append("</value>"); //$NON-NLS-1$ //$NON-NLS-2$
+        simpleCriterionBuilder.append("<info>").append(info).append("</info>"); //$NON-NLS-1$ //$NON-NLS-2$
+        simpleCriterionBuilder.append("</").append(SimpleCriterion.Simple_Criterion).append(">"); //$NON-NLS-1$//$NON-NLS-2$
+        return simpleCriterionBuilder.toString();
     }
 
     public String getKey() {
@@ -92,8 +105,9 @@ public class SimpleCriterion implements Criteria {
     }
 
     public boolean equal(SimpleCriterion criteria) {
-        if (criteria == null)
+        if (criteria == null) {
             return false;
+        }
 
         if (key.equals(criteria.getKey()) && operator.equals(criteria.getOperator()) && value.equals(criteria.getValue())) {
             return true;
