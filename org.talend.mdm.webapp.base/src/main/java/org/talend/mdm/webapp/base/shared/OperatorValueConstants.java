@@ -24,4 +24,10 @@ public class OperatorValueConstants {
     public static List<String> enumOperatorValues = Arrays.asList("EQUALS", "LOWER_THAN", "GREATER_THAN", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             "LOWER_THAN_OR_EQUAL", "GREATER_THAN_OR_EQUAL"); //$NON-NLS-1$ //$NON-NLS-2$
 
+    public static final String CONTAINS = "CONTAINS"; //$NON-NLS-1$
+
+    public static final String STARTSWITH = "STARTSWITH"; //$NON-NLS-1$
+
+    public static final String STRICTCONTAINS = "STRICTCONTAINS"; //$NON-NLS-1$
+
 }

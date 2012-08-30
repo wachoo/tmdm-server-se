@@ -24,7 +24,9 @@ import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.MultiLanguageModel;
 import org.talend.mdm.webapp.base.client.resources.icon.Icons;
 import org.talend.mdm.webapp.base.client.util.LanguageUtil;
+import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
+import org.talend.mdm.webapp.base.shared.OperatorValueConstants;
 
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -217,26 +219,28 @@ public class MultiLanguageField extends TextField<String> {
     }
 
     public String getValueWithLanguage(String operator) {
-        /*
-         * =: (contains '*[en:123]*' || '123') !=: (! contains '*[en:123]*' || '123') contains: (contains '*[en:*123*]*'
-         * || '*123*') startwith: (contains '*[en:123*]*' || '123*') contains sentence ?: (contains '*[en:*123*]*' ||
-         * '*123*')
-         */
-        // see TMDM-4436
-        // if (OperatorValueConstants.EQUALS.equals(operator)) {
-        //            return "*[" + this.currentLanguage + ":" + value + "]*"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-        // } else if (OperatorValueConstants.NOT_EQUALS.equals(operator)) {
-        //            return "*[" + this.currentLanguage + ":" + value + "]*"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-        // } else if (OperatorValueConstants.CONTAINS.equals(operator)) {
-        //            return "*[" + this.currentLanguage + ":*" + value + "*]*"; //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
-        // } else if (OperatorValueConstants.STARTSWITH.equals(operator)) {
-        //            return "*[" + this.currentLanguage + ":" + value + "*]*"; //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
-        // } else if (OperatorValueConstants.STRICTCONTAINS.equals(operator)) {
-        //            return "*[" + this.currentLanguage + ":*" + value + "*]*"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-        // }
+        if (OperatorValueConstants.CONTAINS.equals(operator)) {
+            return "*[" + this.currentLanguage + ":*" + value + "*]*"; //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+        } else if (OperatorValueConstants.STARTSWITH.equals(operator)) {
+            return "*[" + this.currentLanguage + ":" + value + "*]*"; //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+        } else if (OperatorValueConstants.STRICTCONTAINS.equals(operator)) {
+            return "*[" + this.currentLanguage + ":*" + value + "*]*"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+        }
         return value;
     }
     
+    public String getInputValue(String operator, String value) {
+        String formatValue = MultilanguageMessageParser.getValueByLanguage(value, this.currentLanguage);
+        if (OperatorValueConstants.CONTAINS.equals(operator)) {
+            return formatValue.substring(1, formatValue.length() - 1);
+        } else if (OperatorValueConstants.STARTSWITH.equals(operator)) {
+            return formatValue.substring(0, formatValue.length() - 1);
+        } else if (OperatorValueConstants.STRICTCONTAINS.equals(operator)) {
+            return formatValue.substring(1, formatValue.length() - 1);
+        }
+        return value;
+    }
+
     private void displayMultLanguageWindow() {
         final Window window = new Window();
         window.setPlain(true);

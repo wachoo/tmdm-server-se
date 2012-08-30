@@ -24,6 +24,8 @@ public class SimpleCriterion implements Criteria {
 
     private String info;
 
+    private String inputValue;
+
     public SimpleCriterion() {
         super();
     }
@@ -79,6 +81,14 @@ public class SimpleCriterion implements Criteria {
 
     public void setInfo(String info) {
         this.info = info;
+    }
+
+    public String getInputValue() {
+        return inputValue;
+    }
+
+    public void setInputValue(String inputValue) {
+        this.inputValue = inputValue;
     }
 
     public boolean equal(SimpleCriterion criteria) {

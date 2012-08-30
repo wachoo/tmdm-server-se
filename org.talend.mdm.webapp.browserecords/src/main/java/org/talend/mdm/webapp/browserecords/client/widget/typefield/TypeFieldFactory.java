@@ -128,12 +128,15 @@ public abstract class TypeFieldFactory implements IsSerializable {
     protected Field<?> genTextSearchField() {
         Field<?> field;
         TextField<String> textField = new TextField<String>();
-        if (context.getDataType().getType().equals(DataTypeConstants.MLS))
+        if (context.getDataType().getType().equals(DataTypeConstants.MLS)) {
             textField = new MultiLanguageField(false);
+            source.setOperatorMap(OperatorConstants.multiLanguageOperators);
+        } else {
+            // TODO Text should use stringOperators
+            source.setOperatorMap(OperatorConstants.fullOperators);
+        }
         textField.setValue("*");//$NON-NLS-1$
         field = textField;
-        // TODO Text should use stringOperators
-        source.setOperatorMap(OperatorConstants.fullOperators);
         return field;
     }
 

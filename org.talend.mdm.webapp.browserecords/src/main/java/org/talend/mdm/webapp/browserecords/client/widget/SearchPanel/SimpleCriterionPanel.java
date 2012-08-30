@@ -18,6 +18,7 @@ import java.util.Map;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
+import org.talend.mdm.webapp.base.client.widget.MultiLanguageField;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKField;
@@ -39,12 +40,12 @@ import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -240,6 +241,8 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
                 return ((RadioGroup) field).getValue().getValueAttribute();
             } else if (field instanceof SimpleComboBox) {
                 return ((SimpleComboBox) field).getValue().get("value"); //$NON-NLS-1$
+            } else if (field instanceof MultiLanguageField) {
+                return ((MultiLanguageField) field).getValueWithLanguage(getOperator());
             }
             return field.getValue().toString();
         }
@@ -258,7 +261,10 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
 
     public SimpleCriterion getCriteria() {
         try {
-            return new SimpleCriterion(getKey(), getOperator(), getValue(), getInfo());
+            SimpleCriterion simpleCriterion = new SimpleCriterion(getKey(), getOperator(), getValue(), getInfo());
+            if (field != null && field instanceof MultiLanguageField)
+                simpleCriterion.setInputValue(field.getValue().toString());
+            return simpleCriterion;
         } catch (Exception e) {
             Log.error(e.getMessage());
             return null;
@@ -312,6 +318,12 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
                 }
             } else if (field instanceof CheckBox) {
                 field.setValue(Boolean.valueOf(criterion.getValue()));
+            } else if (field instanceof MultiLanguageField) {
+                if (criterion.getInputValue() == null) {
+                    criterion.setInputValue(((MultiLanguageField) field).getInputValue(criterion.getOperator(),
+                            criterion.getValue()));
+                }
+                ((MultiLanguageField) field).setValue(criterion.getInputValue());
             } else {
                 field.setValue(criterion.getValue());
             }
