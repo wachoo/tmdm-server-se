@@ -77,7 +77,7 @@ public class UserQueryHelper {
                     throw new NotImplementedException("No support for query on composite key.");
                 }
                 field = new Field(keyFields.get(0));
-            } else if(STAGING_STATUS_FIELD.equals(leftFieldName)) {
+            } else if (STAGING_STATUS_FIELD.equals(leftFieldName)) {
                 field = UserStagingQueryBuilder.status();
             } else {
                 field = getField(repository, typeName, leftFieldName);
@@ -105,17 +105,6 @@ public class UserQueryHelper {
                     return neq(field, value);
                 } else if (WhereCondition.STARTSWITH.equals(operator)) {
                     return startsWith(field, value);
-                } else if (WhereCondition.JOINS.equals(operator)) {
-                    if (field instanceof Field) {
-                        FieldMetadata fieldMetadata = ((Field) field).getFieldMetadata();
-                        if (!(fieldMetadata instanceof ReferenceFieldMetadata)) {
-                            throw new IllegalArgumentException("Field '" + leftFieldName + "' is not a FK field.");
-                        }
-                        queryBuilder.join(field, ((ReferenceFieldMetadata) fieldMetadata).getReferencedField());
-                    } else {
-                        throw new IllegalArgumentException("Can not perform not on '" + leftFieldName + "' because it is not a field.");
-                    }
-                    return NO_OP_CONDITION;
                 } else if (WhereCondition.EMPTY_NULL.equals(operator)) {
                     return emptyOrNull(field);
                 } else {
@@ -129,6 +118,17 @@ public class UserQueryHelper {
                 FieldMetadata rightField = type.getField(rightPath);
                 if (WhereCondition.LOWER_THAN_OR_EQUAL.equals(operator)) {
                     return lte(leftField, rightField);
+                } else if (WhereCondition.JOINS.equals(operator)) {
+                    if (field instanceof Field) {
+                        FieldMetadata fieldMetadata = ((Field) field).getFieldMetadata();
+                        if (!(fieldMetadata instanceof ReferenceFieldMetadata)) {
+                            throw new IllegalArgumentException("Field '" + leftFieldName + "' is not a FK field.");
+                        }
+                        queryBuilder.join(field, ((ReferenceFieldMetadata) fieldMetadata).getReferencedField());
+                    } else {
+                        throw new IllegalArgumentException("Can not perform not on '" + leftFieldName + "' because it is not a field.");
+                    }
+                    return NO_OP_CONDITION;
                 } else {
                     throw new NotImplementedException("'" + operator + "' support not implemented for field to field comparison.");
                 }
