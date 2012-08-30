@@ -83,7 +83,10 @@ public class MetadataUtils {
                     referencedType = ((ContainedTypeFieldMetadata) metadata).getContainedType();
                 }
 
-                List<FieldMetadata> fields = referencedType.getFields();
+                Set<FieldMetadata> fields = new HashSet<FieldMetadata>(referencedType.getFields());
+                for (ComplexTypeMetadata subType : referencedType.getSubTypes()) {
+                    fields.addAll(subType.getFields());
+                }
                 if (!processedTypes.contains(referencedType)) {
                     processedTypes.add(referencedType);
                     for (FieldMetadata fieldMetadata : fields) {

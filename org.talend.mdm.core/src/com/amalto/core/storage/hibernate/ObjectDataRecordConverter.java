@@ -47,7 +47,7 @@ public class ObjectDataRecordConverter implements DataRecordConverter<Object> {
             Wrapper mainInstance;
             try {
                 if (dataRecord.getType().getKeyFields().size() == 1) {
-                    mainInstance = (Wrapper) session.get(mainInstanceClass, (Serializable) dataRecord.get(dataRecord.getType().getKeyFields().get(0)));
+                    mainInstance = (Wrapper) session.get(mainInstanceClass, (Serializable) dataRecord.get(dataRecord.getType().getKeyFields().get(0).getName()));
                 } else {
                     List<Object> compositeIdValues = new ArrayList<Object>(dataRecord.getType().getKeyFields().size());
                     for (FieldMetadata keyField : dataRecord.getType().getKeyFields()) {

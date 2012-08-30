@@ -190,7 +190,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         }
         ComplexTypeMetadata containingType = field.getFieldMetadata().getContainingType();
         if (!selectedTypes.contains(containingType)) {
-            TypeMapping mapping = mappingMetadataRepository.getMapping(selectedTypes.get(0));
+            TypeMapping mapping = mappingMetadataRepository.getMapping(mainType);
             FieldMetadata database = mapping.getDatabase(field.getFieldMetadata());
             String alias = getAlias(mapping, database);
             if (database instanceof ReferenceFieldMetadata) { // Automatically selects referenced ID in case of FK.
