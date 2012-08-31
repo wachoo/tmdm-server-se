@@ -3821,7 +3821,7 @@ public class Util {
         return null;
     }
 
-    private String getDefaultSystemLocale() {
+    public static String getDefaultSystemLocale() {
         return MDMConfiguration.getConfiguration().getProperty("system.locale.default");//$NON-NLS-1$
     }
 }
