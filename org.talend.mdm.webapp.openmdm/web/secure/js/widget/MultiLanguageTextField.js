@@ -20,7 +20,7 @@ amalto.widget.MultiLanguageTextField = Ext.extend(Ext.Panel, {
 				isActivityVariable : this.activityVariable,
 				initialValue : this.initialValue,
 				style : this.isReadonly || this.readonly ? "background-color: #F4F4F4; background-image:none;" : ""
-			})
+			});
 		
 		this.dataHiddenField = new Ext.form.Hidden({
 		   		id : this.name + "_" + this.activityUUID + "_hidden",
@@ -31,7 +31,7 @@ amalto.widget.MultiLanguageTextField = Ext.extend(Ext.Panel, {
   		   		dataTypeClassName : this.dataTypeClassName,
   		   		isActivityVariable : this.activityVariable,
   		   		initialValue : this.initialValue
-			})
+			});
 		
 		Ext.apply(this, {
 			id : this.name + "_" + this.activityUUID,
@@ -58,38 +58,46 @@ amalto.widget.MultiLanguageTextField = Ext.extend(Ext.Panel, {
 	},
 		
 	setValue : function(value) {
-		var val = this.getValueByLanguage(value);
-		if(this.validFlag) {
-			this.dataTextField.setValue(val);
-			this.dataHiddenField.setValue(val);
-		}		
+		if(this.dataTypeLocalClassName == "MULTI_LINGUAL") {
+			var val = this.getValueByLanguage(value);
+			if(this.validFlag) {
+				this.dataTextField.setValue(val);
+				this.dataHiddenField.setValue(val);
+			}
+		} else {
+			this.dataTextField.setValue(value);
+		}
 	},
 	
 	getValue : function() {
-		if(this.validFlag) {
-			if(this.languageIndex == -1) {
-				if(this.dataTextField.getValue() != "") {
-					this.languageIndex = this.langArr.length;
+		if(this.dataTypeLocalClassName == "MULTI_LINGUAL") {
+			if(this.validFlag) {
+				if(this.languageIndex == -1) {
+					if(this.dataTextField.getValue() != "") {
+						this.languageIndex = this.langArr.length;
+						this.langArr[this.languageIndex] = language.toUpperCase() + ":" + this.dataTextField.getValue();
+					}
+				} else {
 					this.langArr[this.languageIndex] = language.toUpperCase() + ":" + this.dataTextField.getValue();
 				}
 			} else {
-				this.langArr[this.languageIndex] = language.toUpperCase() + ":" + this.dataTextField.getValue();
+				if(this.dataTextField.getValue() != "") {
+					this.languageIndex = 0;
+					this.langArr[this.languageIndex] = language.toUpperCase() + ":" + this.dataTextField.getValue();
+				}
+			}		
+			
+			var str = "";
+			for(i = 0; i<this.langArr.length; i++) {
+				str += "[";
+				str += this.langArr[i];
+				str += "]";
 			}
+			this.dataHiddenField.setValue(str);
+			return str;
 		} else {
-			if(this.dataTextField.getValue() != "") {
-				this.languageIndex = 0;
-				this.langArr[this.languageIndex] = language.toUpperCase() + ":" + this.dataTextField.getValue();
-			}
-		}		
-		
-		var str = "";
-		for(i = 0; i<this.langArr.length; i++) {
-			str += "[";
-			str += this.langArr[i];
-			str += "]";
-		}
-		this.dataHiddenField.setValue(str);
-		return str;
+			return this.dataTextField.getValue();
+		}	
 	},
 	
 	getValueByLanguage : function(value) {
