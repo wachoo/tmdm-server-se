@@ -1,6 +1,5 @@
-<data-model-pOJO>
-    <name>SearchTemplate</name>
-    <schema>&lt;xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;  
+<?xml version='1.0' encoding='UTF-8'?>
+<data-model-pOJO><name>SearchTemplate</name><schema>&lt;xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;  
     &lt;xsd:import namespace="http://www.w3.org/2001/XMLSchema"/&gt;  
     &lt;xsd:element name="BrowseItem"&gt; 
         &lt;xsd:complexType&gt; 
@@ -38,14 +37,17 @@
 &lt;xsd:sequence&gt;
 &lt;xsd:element maxOccurs="1" minOccurs="1" name="HierarchySearchName" type="xsd:string"/&gt;
 &lt;xsd:element maxOccurs="1" minOccurs="1" name="Owner" type="xsd:string"/&gt;
-&lt;xsd:element maxOccurs="1" minOccurs="0" name="Separator" type="xsd:string"/&gt;&lt;xsd:element maxOccurs="1" minOccurs="1" name="HierarchyRelation" type="xsd:boolean"/&gt;
+&lt;xsd:element maxOccurs="1" minOccurs="0" name="Separator" type="xsd:string"/&gt;
+&lt;xsd:element maxOccurs="1" minOccurs="1" name="HierarchyRelation" type="xsd:boolean"/&gt;
                 &lt;xsd:element maxOccurs="unbounded" minOccurs="1" name="HierarchySearchCriterias"&gt;
 &lt;xsd:complexType&gt;
 &lt;xsd:sequence&gt;
 &lt;xsd:element maxOccurs="1" minOccurs="1" name="Concept" type="xsd:string"/&gt;
-&lt;xsd:element maxOccurs="1" minOccurs="0" name="View" type="xsd:string"/&gt;&lt;xsd:element maxOccurs="1" minOccurs="1" name="LabelXpath" type="xsd:string"/&gt;
-&lt;xsd:element maxOccurs="unbounded" minOccurs="0" name="FkXpath" type="xsd:string"/&gt;
-&lt;/xsd:sequence&gt;
+&lt;xsd:element maxOccurs="1" minOccurs="0" name="View" type="xsd:string"/&gt;
+&lt;xsd:element maxOccurs="unbounded" minOccurs="1" name="LabelXpath" type="xsd:string"/&gt;
+&lt;xsd:element maxOccurs="1" minOccurs="0" name="FkXpath" type="xsd:string"/&gt;
+                            &lt;xsd:element maxOccurs="1" minOccurs="0" name="FilterCriteria" type="xsd:string"/&gt;
+                        &lt;/xsd:sequence&gt;
 &lt;/xsd:complexType&gt;
 &lt;/xsd:element&gt;
             &lt;/xsd:sequence&gt;
@@ -55,11 +57,5 @@
 &lt;xsd:field xpath="HierarchySearchName"/&gt;
 &lt;/xsd:unique&gt;
 &lt;/xsd:element&gt;
-&lt;/xsd:schema&gt;</schema>
-    <description>SearchTemplate</description>
-    <PK>
-        <ids>SearchTemplate</ids>
-        <unique-id>SearchTemplate</unique-id>
-    </PK>
-    <last-error/>
-</data-model-pOJO>
+&lt;/xsd:schema&gt;
+</schema><description>SearchTemplate</description><PK><ids>SearchTemplate</ids><unique-id>SearchTemplate</unique-id></PK><last-error/></data-model-pOJO>
