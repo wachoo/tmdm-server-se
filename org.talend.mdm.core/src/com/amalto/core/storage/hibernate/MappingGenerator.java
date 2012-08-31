@@ -481,7 +481,7 @@ class MappingGenerator extends DefaultMetadataVisitor<Element> {
 
                 // fetch="join"
                 Attr fetchAttribute = document.createAttribute("fetch"); //$NON-NLS-1$
-                fetchAttribute.setValue("join"); //$NON-NLS-1$
+                fetchAttribute.setValue("select"); //$NON-NLS-1$
                 listElement.getAttributes().setNamedItem(fetchAttribute);
 
                 // cascade="delete"
