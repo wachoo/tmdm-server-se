@@ -2,7 +2,7 @@ Ext.namespace('amalto.widget');
 amalto.widget.MultiLanguageTextField = Ext.extend(Ext.Panel, {
 	dataTextField : "",
 	dataHiddenField : "",
-	langArr : "",
+	langArr : new Array(),
 	languageIndex : -1,
 	validFlag : true,
 		
