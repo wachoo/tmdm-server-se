@@ -204,8 +204,10 @@ public class SystemPropertiesIsolationTest extends TestCase {
             for (int i = 0; i < TEST_TIMES; i++) {
                 try {
                     System.setProperty("test.thread", value);
+                    System.getProperties().put("test.thread", value);
                     Thread.sleep((long) (Math.random() * 1000l));
                     isSuccess = value.equals(System.getProperty("test.thread"));
+                    isSuccess = isSuccess && value.equals(System.getProperties().get("test.thread"));
 
                     if (!isSuccess) {
                         break;
