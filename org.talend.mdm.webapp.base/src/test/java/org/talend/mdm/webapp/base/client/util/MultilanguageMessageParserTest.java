@@ -93,4 +93,13 @@ public class MultilanguageMessageParserTest extends TestCase {
         assertTrue(MultilanguageMessageParser.isExistMultiLanguageFormat(multiLanguageString));
     }
 
+    @SuppressWarnings("nls")
+    public void testGetFormatValueByDefaultLanguage() {
+        String defaultLanguage = "en";
+        String value = "Talend";
+        assertEquals("[EN:Talend]", MultilanguageMessageParser.getFormatValueByDefaultLanguage(value, defaultLanguage));
+        defaultLanguage = "fr";
+        assertEquals("[FR:Talend]", MultilanguageMessageParser.getFormatValueByDefaultLanguage(value, defaultLanguage));
+    }
+
 }

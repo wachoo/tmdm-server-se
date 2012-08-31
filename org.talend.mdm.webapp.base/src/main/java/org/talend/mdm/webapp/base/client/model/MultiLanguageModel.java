@@ -59,6 +59,12 @@ public class MultiLanguageModel extends ItemBaseModel {
         return this.languageValueMap;
     }
 
+    public void clear() {
+        this.languageValueMap.clear();
+        this.multiLanguageString = ""; //$NON-NLS-1$
+        this.currentLanguageValue = ""; //$NON-NLS-1$
+    }
+
     public String toString() {
         List<String> keys = new ArrayList<String>(languageValueMap.keySet());
         Collections.sort(keys);

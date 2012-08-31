@@ -50,8 +50,8 @@ public class CellRendererCreator {
             return renderer;
         }
         if (dataType.isSimpleType() && dataType.isMultiOccurrence()) {
+            final boolean isMultiLanguageType = dataType.getType().equals(DataTypeConstants.MLS);
             GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
-
                 public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
                         ListStore<ModelData> store, Grid<ModelData> grid) {
                     String rootNode = property.substring(0,property.indexOf('/'));
@@ -62,16 +62,25 @@ public class CellRendererCreator {
                     NodeList nodeList = doc.getElementsByTagName(targetNode) ;
                     for (int i=0;i<nodeList.getLength();i++){
                         Node node = nodeList.item(i);
+                        String displayValue = node.toString();
+                        if (isMultiLanguageType) {
+                            MultiLanguageModel multiLanguageModel = new MultiLanguageModel(displayValue);
+                            displayValue = Format.htmlEncode(multiLanguageModel.getValueByLanguage(Locale.getLanguage()
+                                    .toUpperCase()));
+                        }
+
                         if (node instanceof Element) {
                             if (rootNode.equals(doc.getFirstChild().getNodeName())){
-                                appendContent(result,node.toString(),","); //$NON-NLS-1$                            
+                                appendContent(result, displayValue, ","); //$NON-NLS-1$                            
                             }else{
                                 if("result".equals(node.getParentNode().getNodeName())){ //$NON-NLS-1$
-                                    appendContent(result,node.toString(),","); //$NON-NLS-1$         
+                                    appendContent(result, displayValue, ","); //$NON-NLS-1$         
                                 }   
                             } 
                         }
-                    }                    
+                    }
+                    if (isMultiLanguageType)
+                        model.set(property, result.toString());
                     return result;
                 }
             };

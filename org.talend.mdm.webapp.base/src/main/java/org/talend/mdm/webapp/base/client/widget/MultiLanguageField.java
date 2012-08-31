@@ -200,6 +200,12 @@ public class MultiLanguageField extends TextField<String> {
         super.setValue(value);
     }
 
+    public void clear() {
+        if (this.multiLanguageModel != null)
+            this.multiLanguageModel.clear();
+        super.clear();
+    }
+
     public void setMultiLanguageStringValue(String multiLanguageString) {
         this.multiLanguageModel = new MultiLanguageModel(multiLanguageString);
         this.value = multiLanguageModel.getValueByLanguage(currentLanguage);

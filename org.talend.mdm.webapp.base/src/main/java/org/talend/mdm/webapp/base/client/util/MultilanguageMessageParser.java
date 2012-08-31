@@ -170,4 +170,8 @@ public class MultilanguageMessageParser {
 
         return result;
     }
+
+    public static String getFormatValueByDefaultLanguage(String value, String language) {
+        return "[" + language.toUpperCase() + ":" + value + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    }
 }

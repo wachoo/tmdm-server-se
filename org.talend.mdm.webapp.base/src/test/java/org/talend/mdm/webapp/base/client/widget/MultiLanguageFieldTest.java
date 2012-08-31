@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.base.client.widget;
 
+import org.talend.mdm.webapp.base.client.model.MultiLanguageModel;
 import org.talend.mdm.webapp.base.shared.OperatorValueConstants;
 
 import com.google.gwt.junit.client.GWTTestCase;
@@ -64,6 +65,17 @@ public class MultiLanguageFieldTest extends GWTTestCase {
         formatValue = "*[EN:*Talend*]*";
         inputValue = field.getInputValue(operator, formatValue);
         assertEquals("Talend", inputValue);
+    }
+
+    public void testClear() {
+        String multiLanguageString = "[EN:Talend England][FR:Talend Franch]";
+        MultiLanguageModel multiLanguageModel = new MultiLanguageModel(multiLanguageString);
+        field = new MultiLanguageField(multiLanguageModel);
+        field.setValue("Talend England");
+        assertEquals(multiLanguageString, field.getMultiLanguageStringValue());
+        // clear
+        field.clear();
+        assertTrue(field.getMultiLanguageStringValue().trim().length() == 0);
     }
 
     @Override
