@@ -25,7 +25,6 @@ import javax.ejb.MessageDrivenContext;
 import javax.jms.*;
 import javax.naming.InitialContext;
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -98,6 +97,15 @@ public class DataModelUpdateMDB implements MessageDrivenBean, MessageListener {
                                 storage.prepare(repository, indexedFields, true, false);
                             } else {
                                 LOGGER.warn("No SQL storage defined for data model '" + updatedDataModelName + "'. No SQL storage to update.");
+                            }
+
+                            Storage stagingStorage = storageAdmin.get(updatedDataModelName + StorageAdmin.STAGING_SUFFIX);
+                            if (stagingStorage != null) {
+                                // Storage already exists so update it.
+                                Set<FieldMetadata> indexedFields = metadataRepositoryAdmin.getIndexedFields(updatedDataModelName);
+                                stagingStorage.prepare(repository, indexedFields, true, false);
+                            } else {
+                                LOGGER.warn("No SQL staging storage defined for data model '" + updatedDataModelName + "'. No SQL staging storage to update.");
                             }
                         }
                     }

@@ -35,12 +35,15 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
     private final static Logger LOGGER = Logger.getLogger(DispatchWrapper.class);
 
     static {
-        LOGGER.warn("--- Using experimental storage ---");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("--- Using dispatch wrapper ---");
+        }
         String mdmInternalWrapperClass = (String) MDMConfiguration.getConfiguration().get("mdm.internal.wrapper"); //$NON-NLS-1$
         String userWrapperClass = (String) MDMConfiguration.getConfiguration().get("user.wrapper");  //$NON-NLS-1$
-        LOGGER.warn("MDM internal storage: " + mdmInternalWrapperClass);
-        LOGGER.warn("User data storage: " + userWrapperClass);
-        LOGGER.warn("--- Using experimental storage ---");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("MDM internal storage: " + mdmInternalWrapperClass);
+            LOGGER.debug("User data storage: " + userWrapperClass);
+        }
         try {
             mdmInternalWrapper = (IXmlServerSLWrapper) Class.forName(mdmInternalWrapperClass).newInstance();
             userStorageWrapper = (IXmlServerSLWrapper) Class.forName(userWrapperClass).newInstance();

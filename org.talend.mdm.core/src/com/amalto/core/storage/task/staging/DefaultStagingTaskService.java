@@ -19,12 +19,15 @@ import com.amalto.core.save.DefaultCommitter;
 import com.amalto.core.save.context.DefaultSaverSource;
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
+import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.task.*;
 
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
@@ -33,7 +36,9 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
 
     public static final String EXECUTION_LOG_TYPE = "TALEND_TASK_EXECUTION"; //$NON-NLS-1$
 
-    private final Map<String, Task> runningTasks = new HashMap<String, Task>();
+    private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+
+    private static final Map<String, Task> runningTasks = new HashMap<String, Task>();
 
     public StagingContainerSummary getContainerSummary() {
         String dataContainer = ""; // TODO
@@ -49,7 +54,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
 
     public StagingContainerSummary getContainerSummary(String dataContainer, String dataModel) {
         Server server = ServerContext.INSTANCE.get();
-        Storage storage = server.getStorageAdmin().get(dataContainer + "#STAGING"); //$NON-NLS-1$
+        Storage storage = server.getStorageAdmin().get(dataContainer + StorageAdmin.STAGING_SUFFIX);
         if (storage == null) {
             throw new IllegalStateException("No staging storage available for container '" + dataContainer + "'.");
         }
@@ -74,17 +79,12 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
 
     public String startValidation(String dataContainer, String dataModel) {
         synchronized (runningTasks) {
-            Task runningTask = runningTasks.get(dataContainer + dataModel);
+            Task runningTask = runningTasks.get(dataContainer);
             if (runningTask != null) {
-                try {
-                    runningTask.waitForCompletion();
-                    runningTasks.remove(dataContainer + dataModel);
-                } catch (InterruptedException e) {
-                    throw new IllegalStateException("A validation task is already running.", e);
-                }
+                return runningTask.getId();
             }
             Server server = ServerContext.INSTANCE.get();
-            Storage staging = server.getStorageAdmin().get(dataContainer + "#STAGING"); //$NON-NLS-1$
+            Storage staging = server.getStorageAdmin().get(dataContainer + StorageAdmin.STAGING_SUFFIX); //$NON-NLS-1$
             if (staging == null) {
                 throw new IllegalStateException("No staging storage available for container '" + dataContainer + "'.");
             }
@@ -92,7 +92,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
             if (user == null) {
                 throw new IllegalStateException("No staging storage available for container '" + dataContainer + "'.");
             }
-            MetadataRepository stagingRepository = server.getMetadataRepositoryAdmin().get(dataModel + "#STAGING"); //$NON-NLS-1$
+            MetadataRepository stagingRepository = server.getMetadataRepositoryAdmin().get(dataModel + StorageAdmin.STAGING_SUFFIX);
             if (stagingRepository == null) {
                 throw new IllegalStateException("No staging metadata available for data model '" + dataModel + "'.");
             }
@@ -109,19 +109,19 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
                     user);
             Task stagingTask = TaskFactory.createStagingTask(stagingConfig);
             TaskSubmitterFactory.getSubmitter().submit(stagingTask);
-            runningTasks.put(dataContainer + dataModel, stagingTask);
+            runningTasks.put(dataContainer, stagingTask);
             return newTaskUUID;
         }
     }
 
     public List<String> listCompletedExecutions(String dataContainer, Date beforeDate, int start, int size) {
         Server server = ServerContext.INSTANCE.get();
-        Storage staging = server.getStorageAdmin().get(dataContainer + "#STAGING"); //$NON-NLS-1$
+        Storage staging = server.getStorageAdmin().get(dataContainer + StorageAdmin.STAGING_SUFFIX);
         if (staging == null) {
             throw new IllegalStateException("No staging storage available for container '" + dataContainer + "'.");
         }
         // TODO Data container is not equals to data model name (except for staging?).
-        MetadataRepository stagingRepository = server.getMetadataRepositoryAdmin().get(dataContainer + "#STAGING"); //$NON-NLS-1$
+        MetadataRepository stagingRepository = server.getMetadataRepositoryAdmin().get(dataContainer + StorageAdmin.STAGING_SUFFIX);
         if (stagingRepository == null) {
             throw new IllegalStateException("No staging metadata available for data model '" + dataContainer + "'.");
         }
@@ -153,44 +153,49 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
 
     public ExecutionStatistics getCurrentExecutionStats(String dataContainer, String dataModel) {
         synchronized (runningTasks) {
-            Task task = runningTasks.get(dataContainer + dataModel);
+            Task task = runningTasks.get(dataContainer);
             if (task == null) {
                 return null; // This is a way to say "no current running validation task".
+            } else if (task.hasFinished()) {
+                runningTasks.remove(dataContainer);
+                return null;
             }
             ExecutionStatistics status = new ExecutionStatistics();
             status.setId(task.getId());
             status.setProcessedRecords(task.getProcessedRecords());
             status.setTotalRecords(task.getRecordCount());
-            status.setStartDate(new Date(task.getStartDate()));
             long elapsedTime = System.currentTimeMillis() - task.getStartDate();
             String formattedElapsedTime = String.format("%d:%02d:%02d", elapsedTime / 3600, (elapsedTime % 3600) / 60, (elapsedTime % 60)); //$NON-NLS-1$
             status.setRunningTime(formattedElapsedTime);
             long timeLeft = (long) ((task.getRecordCount() - task.getProcessedRecords()) / task.getPerformance());
-            long endTime = (System.currentTimeMillis() + timeLeft);
-            status.setEndDate(new Date(endTime));
+            synchronized (dateFormat) {
+                status.setStartDate(dateFormat.format(new Date(task.getStartDate())));
+                long endTime = (System.currentTimeMillis() + timeLeft);
+                status.setEndDate(dateFormat.format(new Date(endTime)));
+            }
             return status;
         }
     }
 
     public void cancelCurrentExecution(String dataContainer, String dataModel) {
         synchronized (runningTasks) {
-            Task task = runningTasks.get(dataContainer + dataModel);
+            Task task = runningTasks.get(dataContainer);
             if (task == null) {
                 return; // No running task, simply ignore call.
             }
             task.cancel();
-            runningTasks.remove(dataContainer + dataModel);
+            runningTasks.remove(dataContainer);
         }
     }
 
     public ExecutionStatistics getExecutionStats(String dataContainer, String dataModel, String executionId) {
         Server server = ServerContext.INSTANCE.get();
-        Storage staging = server.getStorageAdmin().get(dataContainer + "#STAGING"); //$NON-NLS-1$
+        Storage staging = server.getStorageAdmin().get(dataContainer + StorageAdmin.STAGING_SUFFIX);
         if (staging == null) {
             throw new IllegalStateException("No staging storage available for container '" + dataContainer + "'.");
         }
         // TODO Data container is not equals to data model name (except for staging?) -> this is an issue from web ui.
-        MetadataRepository stagingRepository = server.getMetadataRepositoryAdmin().get(dataContainer + "#STAGING"); //$NON-NLS-1$
+        MetadataRepository stagingRepository = server.getMetadataRepositoryAdmin().get(dataContainer + StorageAdmin.STAGING_SUFFIX);
         if (stagingRepository == null) {
             throw new IllegalStateException("No staging metadata available for data model '" + dataModel + "'.");
         }
@@ -201,15 +206,16 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
         StorageResults results = staging.fetch(qb.getSelect());
         ExecutionStatistics status = new ExecutionStatistics();
         try {
-
             for (DataRecord result : results) {
                 status.setId(String.valueOf(result.get("id"))); //$NON-NLS-1$
-                status.setStartDate(((Date) result.get("start_time")));
-                status.setEndDate(((Date) result.get("end_time")));
+               synchronized (dateFormat) {
+                    status.setStartDate(dateFormat.format(((Date) result.get("start_time")))); //$NON-NLS-1$
+                    status.setEndDate(dateFormat.format(((Date) result.get("end_time")))); //$NON-NLS-1$
+                }
                 status.setInvalidRecords(1);
                 status.setProcessedRecords(1);
                 status.setRunningTime("1h");
-                status.setTotalRecords(((BigDecimal) result.get("record_count")).doubleValue());
+                status.setTotalRecords(((BigDecimal) result.get("record_count")).intValue()); //$NON-NLS-1$
             }
         } finally {
             results.close();

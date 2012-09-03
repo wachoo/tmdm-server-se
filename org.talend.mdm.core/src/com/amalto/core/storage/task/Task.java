@@ -14,7 +14,6 @@ package com.amalto.core.storage.task;
 import org.quartz.Job;
 
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -28,7 +27,7 @@ public interface Task extends Job, Runnable {
 
     /**
      * @return The total number of records the task should process. <b>Note:</b> This methods returns 0 if task have not
-     * yet been started.
+     *         yet been started.
      * @see com.amalto.core.storage.task.TaskSubmitterFactory#getSubmitter()
      * @see TaskSubmitter#submit(Task)
      * @see TaskSubmitter#submitAndWait(Task)
@@ -42,7 +41,7 @@ public interface Task extends Job, Runnable {
 
     /**
      * @return Returns how many records per <b>second</b> validated. This method may return different values over time.
-     * It returns 0 if task have not yet been run.
+     *         It returns 0 if task have not yet been run.
      */
     double getPerformance();
 
@@ -55,6 +54,7 @@ public interface Task extends Job, Runnable {
     /**
      * Wait until task is complete. Calling {@link #cancel()} from another <b>MUST</b> wake up all threads blocked on
      * this method.
+     *
      * @throws InterruptedException
      */
     void waitForCompletion() throws InterruptedException;
@@ -63,4 +63,11 @@ public interface Task extends Job, Runnable {
      * @return When the task was started with a number that can be passed as is to {@link Date}.
      */
     long getStartDate();
+
+    /**
+     * @return <code>true</code> if task is finished (no more record to process) <b>OR</b> if the task was cancelled,
+     *         <code>false</code> otherwise.
+     * @see #cancel()
+     */
+    boolean hasFinished();
 }

@@ -11,31 +11,32 @@
 
 package com.amalto.core.storage.task.staging;
 
+import com.amalto.core.query.user.DateTimeConstant;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Date;
 
 @XmlRootElement(name = "execution")
 public class ExecutionStatistics {
 
     private String id;
 
-    private Date startDate;
+    private String startDate;
 
-    private Date endDate;
+    private String endDate;
 
     private String runningTime;
 
-    private double totalRecords;
+    private int totalRecords;
 
-    private double processedRecords;
+    private int processedRecords;
 
     private int invalidRecords;
 
     public ExecutionStatistics() {
     }
 
-    public ExecutionStatistics(String uuid, int processedRecords, Date startDate, Date endDate) {
+    public ExecutionStatistics(String uuid, int processedRecords, String startDate, String endDate) {
         this.id = uuid;
         this.processedRecords = processedRecords;
         this.startDate = startDate;
@@ -52,29 +53,29 @@ public class ExecutionStatistics {
     }
 
     @XmlElement(name = "processed_records")
-    public double getProcessedRecords() {
+    public int getProcessedRecords() {
         return processedRecords;
     }
 
-    public void setProcessedRecords(double processedRecords) {
+    public void setProcessedRecords(int processedRecords) {
         this.processedRecords = processedRecords;
     }
 
     @XmlElement(name = "start_date")
-    public Date getStartDate() {
+    public String getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(String startDate) {
         this.startDate = startDate;
     }
 
     @XmlElement(name = "end_date")
-    public Date getEndDate() {
+    public String getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Date endDate) {
+    public void setEndDate(String endDate) {
         this.endDate = endDate;
     }
 
@@ -88,11 +89,11 @@ public class ExecutionStatistics {
     }
 
     @XmlElement(name = "total_record")
-    public double getTotalRecords() {
+    public int getTotalRecords() {
         return totalRecords;
     }
 
-    public void setTotalRecords(double totalRecords) {
+    public void setTotalRecords(int totalRecords) {
         this.totalRecords = totalRecords;
     }
 

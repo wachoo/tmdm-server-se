@@ -50,6 +50,8 @@ public class MultiThreadedTask implements Task {
 
     private long taskStartTime;
 
+    private boolean isFinished;
+
     public MultiThreadedTask(String name, Storage storage, Expression expression, int threadNumber, Closure closure) {
         this.name = name;
         this.storage = storage;
@@ -90,6 +92,7 @@ public class MultiThreadedTask implements Task {
                 count++;
             }
             closure.end();
+            isFinished = true;
         } finally {
             synchronized (executionLock) {
                 executionLock.set(true);
@@ -135,6 +138,11 @@ public class MultiThreadedTask implements Task {
     @Override
     public long getStartDate() {
         return taskStartTime;
+    }
+
+    @Override
+    public boolean hasFinished() {
+        return isCancelled.get() || isFinished;
     }
 
     @Override

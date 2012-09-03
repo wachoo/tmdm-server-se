@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
@@ -43,15 +44,15 @@ public class StagingTask implements Task {
 
     private final ComplexTypeMetadata executionType;
 
+    private final AtomicInteger recordCount = new AtomicInteger();
+
+    private final AtomicInteger processedRecordCount = new AtomicInteger();
+
     private MetadataRepositoryTask currentTask;
-
-    private int recordCount;
-
-    private int processedRecordCount;
 
     private long startTime;
 
-    private long endTime;
+    private boolean isFinished;
 
     public StagingTask(TaskSubmitter taskSubmitter,
                        Storage stagingStorage,
@@ -75,11 +76,17 @@ public class StagingTask implements Task {
     }
 
     public int getRecordCount() {
-        return recordCount;
+        synchronized (currentTaskMonitor) {
+            if (currentTask != null) {
+                return recordCount.get() + currentTask.getRecordCount();
+            } else {
+                return recordCount.get();
+            }
+        }
     }
 
     public double getPerformance() {
-        return (processedRecordCount * tasks.size()) / ((System.currentTimeMillis() - startTime) / 1000f);
+        return (getRecordCount()) / ((System.currentTimeMillis() - startTime) / 1000f);
     }
 
     public void cancel() {
@@ -87,6 +94,12 @@ public class StagingTask implements Task {
             isCancelled = true;
             if (currentTask != null) {
                 currentTask.cancel();
+            }
+            synchronized (startLock) {
+                startLock.notifyAll();
+            }
+            synchronized (executionLock) {
+                executionLock.notifyAll();
             }
         }
     }
@@ -110,8 +123,19 @@ public class StagingTask implements Task {
     }
 
     @Override
+    public boolean hasFinished() {
+        return isCancelled || isFinished;
+    }
+
+    @Override
     public int getProcessedRecords() {
-        return processedRecordCount;
+        synchronized (currentTaskMonitor) {
+            if (currentTask != null) {
+                return processedRecordCount.get() + currentTask.getProcessedRecords();
+            } else {
+                return processedRecordCount.get();
+            }
+        }
     }
 
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
@@ -137,14 +161,14 @@ public class StagingTask implements Task {
             DataRecord execution = new DataRecord(executionType, UnsupportedDataRecordMetadata.INSTANCE);
             stagingStorage.begin();
             {
-                execution.set(executionType.getField("id"), executionId);
+                execution.set(executionType.getField("id"), executionId); //$NON-NLS-1$
                 startTime = System.currentTimeMillis();
-                execution.set(executionType.getField("start_time"), new Timestamp(startTime));
+                execution.set(executionType.getField("start_time"), new Timestamp(startTime)); //$NON-NLS-1$
                 stagingStorage.update(execution);
             }
             stagingStorage.commit();
 
-            recordCount = 0;
+            recordCount.set(0);
             for (MetadataRepositoryTask task : tasks) {
                 synchronized (currentTaskMonitor) {
                     if (isCancelled) {
@@ -154,18 +178,18 @@ public class StagingTask implements Task {
                 }
                 LOGGER.info("--> " + task.toString());
                 taskSubmitter.submitAndWait(currentTask);
-                recordCount = Math.max(currentTask.getRecordCount(), recordCount);
-                processedRecordCount = Math.max(currentTask.getProcessedRecords(), processedRecordCount);
+                recordCount.addAndGet(currentTask.getRecordCount());
+                processedRecordCount.addAndGet(currentTask.getProcessedRecords());
                 LOGGER.info("<-- DONE " + task.toString());
             }
 
             // Execution recording end.
             stagingStorage.begin();
             {
-                endTime = System.currentTimeMillis();
-                execution.set(executionType.getField("end_time"), new Timestamp(endTime));
-                execution.set(executionType.getField("record_count"), new BigDecimal(getRecordCount()));
-                execution.set(executionType.getField("completed"), Boolean.TRUE);
+                long endTime = System.currentTimeMillis();
+                execution.set(executionType.getField("end_time"), new Timestamp(endTime)); //$NON-NLS-1$
+                execution.set(executionType.getField("record_count"), new BigDecimal(getRecordCount())); //$NON-NLS-1$
+                execution.set(executionType.getField("completed"), Boolean.TRUE); //$NON-NLS-1$
                 stagingStorage.update(execution);
             }
             stagingStorage.commit();
@@ -173,6 +197,10 @@ public class StagingTask implements Task {
             synchronized (executionLock) {
                 executionLock.set(true);
                 executionLock.notifyAll();
+            }
+            isFinished = true;
+            synchronized (currentTaskMonitor) {
+                currentTask = null;
             }
         }
     }

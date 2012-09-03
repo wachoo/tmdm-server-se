@@ -31,7 +31,8 @@ public class SerializableListWriter implements MessageBodyWriter<SerializableLis
         return SerializableList.class.isAssignableFrom(aClass)
                 && (mediaType.equals(MediaType.TEXT_PLAIN_TYPE) |
                 mediaType.equals(MediaType.TEXT_XML_TYPE) |
-                mediaType.equals(MediaType.APPLICATION_JSON_TYPE));
+                mediaType.equals(MediaType.APPLICATION_JSON_TYPE) |
+                mediaType.equals(MediaType.TEXT_HTML_TYPE));
     }
 
     @Override
@@ -48,7 +49,7 @@ public class SerializableListWriter implements MessageBodyWriter<SerializableLis
                 bw.write(' ');
             }
             bw.flush();
-        } else if (mediaType.equals(MediaType.TEXT_XML_TYPE)) {
+        } else if (mediaType.equals(MediaType.TEXT_XML_TYPE) | mediaType.equals(MediaType.TEXT_HTML_TYPE)) {
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(outputStream));
             bw.write("<" + strings.getRootElement() + ">");
             for (Object string : strings) {

@@ -44,6 +44,8 @@ abstract class MetadataRepositoryTask implements Task {
 
     private Task currentTypeTask;
 
+    private boolean isFinished;
+
     MetadataRepositoryTask(Storage storage, MetadataRepository repository) {
         this.storage = storage;
         this.repository = repository;
@@ -94,6 +96,7 @@ abstract class MetadataRepositoryTask implements Task {
                 executionLock.set(true);
                 executionLock.notifyAll();
             }
+            isFinished = true;
         }
     }
 
@@ -123,13 +126,13 @@ abstract class MetadataRepositoryTask implements Task {
     }
 
     public void waitForCompletion() throws InterruptedException {
-        while (!startLock.get()) {
-            synchronized (startLock) {
+        synchronized (startLock) {
+            while (!startLock.get()) {
                 startLock.wait();
             }
         }
-        while (!executionLock.get()) {
-            synchronized (executionLock) {
+        synchronized (executionLock) {
+            while (!executionLock.get()) {
                 executionLock.wait();
             }
         }
@@ -138,6 +141,11 @@ abstract class MetadataRepositoryTask implements Task {
     @Override
     public long getStartDate() {
         return startTime;
+    }
+
+    @Override
+    public boolean hasFinished() {
+        return isCancelled || isFinished;
     }
 
     @Override
