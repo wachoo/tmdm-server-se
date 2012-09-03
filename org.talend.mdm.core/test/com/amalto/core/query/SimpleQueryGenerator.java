@@ -17,6 +17,7 @@ import com.amalto.core.query.user.UserQueryBuilder;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Stack;
 
 import static com.amalto.core.query.user.UserQueryBuilder.from;
 
@@ -24,19 +25,35 @@ class SimpleQueryGenerator extends DefaultMetadataVisitor<List<Expression>> {
 
     private final List<Expression> expressions = new LinkedList<Expression>();
 
+    private final Stack<String> fields = new Stack<String>();
+
     private UserQueryBuilder currentBuilder;
+
+    private ComplexTypeMetadata type;
 
     @Override
     public List<Expression> visit(SimpleTypeFieldMetadata simpleField) {
         if (!simpleField.isMany()) {
-            currentBuilder.select(simpleField);
+            String fields = getFields();
+            currentBuilder.select(type.getField(fields + simpleField.getName()));
         }
         return expressions;
     }
 
+    private String getFields() {
+        StringBuilder buffer = new StringBuilder();
+        for (String field : fields) {
+            buffer.append(field);
+            buffer.append('/');
+        }
+        return buffer.toString();
+    }
+
     @Override
     public List<Expression> visit(ContainedTypeFieldMetadata containedField) {
+        fields.push(containedField.getName());
         containedField.getContainedType().accept(this);
+        fields.pop();
         return expressions;
     }
 
@@ -50,11 +67,12 @@ class SimpleQueryGenerator extends DefaultMetadataVisitor<List<Expression>> {
 
     @Override
     public List<Expression> visit(ComplexTypeMetadata complexType) {
-        currentBuilder = from(complexType);
-        for (FieldMetadata currentField : complexType.getFields()) {
+        type = complexType;
+        currentBuilder = from(type);
+        for (FieldMetadata currentField : type.getFields()) {
             currentField.accept(this);
             expressions.add(currentBuilder.getSelect());
-            currentBuilder = from(complexType);
+            currentBuilder = from(type);
         }
         return expressions;
     }
