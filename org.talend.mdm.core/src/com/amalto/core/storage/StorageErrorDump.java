@@ -65,6 +65,11 @@ public class StorageErrorDump implements Storage {
         }
     }
 
+    @Override
+    public MetadataRepository getMetadataRepository() {
+        return delegate.getMetadataRepository();
+    }
+
     public StorageResults fetch(Expression userQuery) {
         if (LOGGER.isDebugEnabled()) {
             userQuery.accept(new UserQueryDumpConsole(LOGGER));

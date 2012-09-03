@@ -81,6 +81,8 @@ public class HibernateStorage implements Storage {
 
     private RDBMSDataSource dataSource;
 
+    private MetadataRepository userMetadataRepository;
+
     /**
      * Create a {@link StorageType#MASTER} storage.
      *
@@ -154,6 +156,7 @@ public class HibernateStorage implements Storage {
         try {
             MetadataUtils.sortTypes(repository); // Do a "sort" to ensure there's no cyclic dependency.
             repository.accept(METADATA_CHECKER);
+            userMetadataRepository = repository;
         } catch (Exception e) {
             throw new RuntimeException("Exception occurred during unsupported features check.", e);
         }
@@ -182,7 +185,7 @@ public class HibernateStorage implements Storage {
             MetadataRepository internalRepository;
             try {
                 InternalRepository typeEnhancer = getTypeEnhancer();
-                internalRepository = repository.accept(typeEnhancer);
+                internalRepository = userMetadataRepository.accept(typeEnhancer);
                 mappingRepository = typeEnhancer.getMappings();
             } catch (Exception e) {
                 throw new RuntimeException("Exception occurred during type mapping creation.", e);
@@ -255,6 +258,14 @@ public class HibernateStorage implements Storage {
         if (!isPrepared) {
             prepare(repository, Collections.<FieldMetadata>emptySet(), false, dropExistingData);
         }
+    }
+
+    @Override
+    public MetadataRepository getMetadataRepository() {
+        if (!isPrepared) {
+            throw new IllegalStateException("Storage '" + storageName + "' has not been prepared.");
+        }
+        return userMetadataRepository;
     }
 
     public StorageResults fetch(Expression userQuery) {
@@ -367,7 +378,8 @@ public class HibernateStorage implements Storage {
         Session session = factory.getCurrentSession();
         Transaction transaction = session.getTransaction();
         if (!transaction.isActive()) {
-            throw new IllegalStateException("Can not rollback transaction, no transaction is active.");
+            LOGGER.warn("Can not rollback transaction, no transaction is active.");
+            return;
         }
         session.clear();
         if (!transaction.wasRolledBack()) {

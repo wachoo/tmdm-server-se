@@ -60,6 +60,11 @@ public class SecuredStorage implements Storage {
         delegate.prepare(repository, dropExistingData);
     }
 
+    @Override
+    public MetadataRepository getMetadataRepository() {
+        return delegate.getMetadataRepository();
+    }
+
     public StorageResults fetch(Expression userQuery) {
         Expression cleanedExpression = userQuery.accept(new SecurityQueryCleaner(delegator));
         return delegate.fetch(cleanedExpression);

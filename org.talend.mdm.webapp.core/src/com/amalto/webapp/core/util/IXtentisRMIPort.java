@@ -834,8 +834,6 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             return new WSInt(numItems);
         } catch (com.amalto.core.util.XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
-            // } catch (com.amalto.webapp.util.XtentisException e) {
-            // throw(new RemoteException(e.getLocalizedMessage()));
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
