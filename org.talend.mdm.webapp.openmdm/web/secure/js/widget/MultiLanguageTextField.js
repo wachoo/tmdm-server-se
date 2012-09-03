@@ -4,7 +4,6 @@ amalto.widget.MultiLanguageTextField = Ext.extend(Ext.Panel, {
 	dataHiddenField : "",
 	langArr : new Array(),
 	languageIndex : -1,
-	validFlag : true,
 		
 	constructor: function(config) {
 		Ext.applyIf(this, config);
@@ -60,10 +59,8 @@ amalto.widget.MultiLanguageTextField = Ext.extend(Ext.Panel, {
 	setValue : function(value) {
 		if(this.dataTypeLocalClassName == "MULTI_LINGUAL") {
 			var val = this.getValueByLanguage(value);
-			if(this.validFlag) {
-				this.dataTextField.setValue(val);
-				this.dataHiddenField.setValue(val);
-			}
+			this.dataTextField.setValue(val);
+			this.dataHiddenField.setValue(val);
 		} else {
 			this.dataTextField.setValue(value);
 		}
@@ -71,21 +68,14 @@ amalto.widget.MultiLanguageTextField = Ext.extend(Ext.Panel, {
 	
 	getValue : function() {
 		if(this.dataTypeLocalClassName == "MULTI_LINGUAL") {
-			if(this.validFlag) {
-				if(this.languageIndex == -1) {
-					if(this.dataTextField.getValue() != "") {
-						this.languageIndex = this.langArr.length;
-						this.langArr[this.languageIndex] = language.toUpperCase() + ":" + this.dataTextField.getValue();
-					}
-				} else {
+			if(this.languageIndex == -1) {
+				if(this.dataTextField.getValue() != "") {
+					this.languageIndex = this.langArr.length;
 					this.langArr[this.languageIndex] = language.toUpperCase() + ":" + this.dataTextField.getValue();
 				}
 			} else {
-				if(this.dataTextField.getValue() != "") {
-					this.languageIndex = 0;
-					this.langArr[this.languageIndex] = language.toUpperCase() + ":" + this.dataTextField.getValue();
-				}
-			}		
+				this.langArr[this.languageIndex] = language.toUpperCase() + ":" + this.dataTextField.getValue();
+			}
 			
 			var str = "";
 			for(i = 0; i<this.langArr.length; i++) {
@@ -116,8 +106,7 @@ amalto.widget.MultiLanguageTextField = Ext.extend(Ext.Panel, {
 				}
 			}
 		} else {
-			this.validFlag = false;
-			this.dataTextField.markInvalid("Invalid data pattern");
+			return value;
 		}
 		return "";
 	}
