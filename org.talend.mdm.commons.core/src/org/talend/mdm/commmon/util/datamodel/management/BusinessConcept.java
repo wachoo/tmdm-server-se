@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.commmon.util.datamodel.management;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -24,9 +25,11 @@ import org.w3c.dom.NodeList;
 
 import com.sun.xml.xsom.XSComplexType;
 import com.sun.xml.xsom.XSElementDecl;
+import com.sun.xml.xsom.XSIdentityConstraint;
 import com.sun.xml.xsom.XSModelGroup;
 import com.sun.xml.xsom.XSParticle;
 import com.sun.xml.xsom.XSSimpleType;
+import com.sun.xml.xsom.XSXPath;
 import com.sun.xml.xsom.impl.RestrictionSimpleTypeImpl;
 
 /**
@@ -69,6 +72,8 @@ public class BusinessConcept {
     private Map<String, ReusableType> subReuseTypeMap;
 
     private Map<String, String> xpathTypeMap;
+
+    private List<String> keyFiledPaths;
 
     // TODO: translate it from technique to business logic
     // annotations{label,access rules,foreign keys,workflow,schematron,lookup fields...}
@@ -159,11 +164,6 @@ public class BusinessConcept {
         }
     }
 
-    
-    /**
-     * DOC HSHU Comment method "beforeLoad".
-     * 
-     */
     private void beforeLoad() {
         // prepare map
         defaultValueRulesMap = new HashMap<String, String>();
@@ -172,6 +172,7 @@ public class BusinessConcept {
         inheritanceForeignKeyMap = new HashMap<String, String>();
         subReuseTypeMap = new HashMap<String, ReusableType>();
         xpathTypeMap = new HashMap<String, String>();
+        keyFiledPaths = new ArrayList<String>();
     }
 
     public Map<String, String> getDefaultValueRulesMap() {
@@ -229,6 +230,10 @@ public class BusinessConcept {
         if (e != null) {
             //set base type
             setTypeMap(e, currentXPath);
+
+            // set key filed xpath
+            setKeyFiledPaths(e);
+
             // parse annotation
             parseAnnotation(currentXPath, e);
 
@@ -246,6 +251,34 @@ public class BusinessConcept {
                 }
             }
 
+        }
+    }
+
+    private void setKeyFiledPaths(XSElementDecl e) {
+        List<XSIdentityConstraint> idConstraints = e.getIdentityConstraints();
+        if (idConstraints != null) {
+            for (XSIdentityConstraint xsIdentityConstraint : idConstraints) {
+                String selector = null;
+                if (xsIdentityConstraint.getSelector() != null && xsIdentityConstraint.getSelector().getXPath() != null)
+                    selector = xsIdentityConstraint.getSelector().getXPath().value;
+
+                // must have selector
+                if (selector != null) {
+                    String prefix = selector.equals(".") ? "" : "/"+selector; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                    List<XSXPath> fields = xsIdentityConstraint.getFields();
+                    if (fields != null && fields.size() > 0) {
+                        for (XSXPath xsxPath : fields) {
+                            if (xsxPath.getXPath() != null) {
+                                StringBuilder keyPath = new StringBuilder()
+                                        .append(this.getName()).append(prefix).append("/") //$NON-NLS-1$ //$NON-NLS-2$
+                                        .append(xsxPath.getXPath().value);
+                                keyFiledPaths.add(keyPath.toString());
+                            }
+                        }
+                    }
+                }
+
+            }
         }
     }
 
@@ -348,4 +381,9 @@ public class BusinessConcept {
             }
         }
     }
+
+    public List<String> getKeyFiledPaths() {
+        return keyFiledPaths;
+    }
+
 }

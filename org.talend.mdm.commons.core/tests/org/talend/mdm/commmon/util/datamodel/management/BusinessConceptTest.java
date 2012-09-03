@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.commmon.util.datamodel.management;
 
+import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("nls")
@@ -47,6 +48,11 @@ public class BusinessConceptTest extends SchemaManagerAbstractTest {
         // derived simple type
         assertEquals("xsd:string", xpathTypeMap.get("Product/Features/Sizes/Size"));
         assertEquals("xsd:string", xpathTypeMap.get("Product/Picture"));
+
+        // key path
+        List<String> keyPaths = bizConcept.getKeyFiledPaths();
+        assertEquals(1, keyPaths.size());
+        assertEquals("Product/Id", keyPaths.get(0));
 
     }
 
