@@ -25,6 +25,9 @@ public class BrowseRecordsConfigurationTest extends TestCase {
                 .keepSilenceForPermissionExceptionWhenSave();
         assertEquals(false, keepSilenceForPermissionExceptionWhenSave);
 
+        boolean autoMigration = BrowseRecordsConfiguration.dataMigrationMultiLingualFieldAuto();
+        assertEquals(true, autoMigration);
+
         assertNull(BrowseRecordsConfiguration.getPropertyValue("unknown"));
     }
 

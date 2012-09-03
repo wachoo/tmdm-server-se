@@ -80,4 +80,13 @@ public class BrowseRecordsConfiguration {
         return Boolean.parseBoolean(autoValidate);
     }
 
+    public static boolean dataMigrationMultiLingualFieldAuto() {
+        String autoMigration = getPropertyValue("data.migration.multiLingualField.auto");//$NON-NLS-1$
+
+        if (autoMigration == null || autoMigration.trim().length() == 0)
+            return true;
+
+        return Boolean.parseBoolean(autoMigration);
+    }
+
 }

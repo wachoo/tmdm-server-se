@@ -577,7 +577,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                 for (int t = 0; t < nodes.getLength(); t++) {
                                     if (nodes.item(t) instanceof Element) {
                                         Node node = ((Element) nodes.item(t));
-                                        setNodeValue(typeModel, node);
+                                        migrationMultiLingualFieldValue(itemBean, typeModel, node, path, true, null);
                                         list.add(node.getTextContent());
                                     }
 
@@ -592,19 +592,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                             path + "-" + value.getTextContent(), getForeignKeyDesc(typeModel, value.getTextContent(), false, modelType)); //$NON-NLS-1$    
 
                                 } else {
-                                    String displayValue = value.getTextContent();
-                                    if (typeModel.getType().equals(DataTypeConstants.MLS)) {
-                                        if (displayValue != null && displayValue.trim().length() > 0
-                                                && !MultilanguageMessageParser.isExistMultiLanguageFormat(displayValue)) {
-                                            String defaultLanguage = com.amalto.core.util.Util.getDefaultSystemLocale();
-                                            itemBean.set(path, MultilanguageMessageParser.getFormatValueByDefaultLanguage(
-                                                    displayValue, defaultLanguage != null ? defaultLanguage : "en")); //$NON-NLS-1$
-                                        } else {
-                                            itemBean.set(path, displayValue);
-                                        }
-                                    } else {
-                                        itemBean.set(path, displayValue);
-                                    }
+                                    itemBean.set(path, value.getTextContent());
+                                    migrationMultiLingualFieldValue(itemBean, typeModel, value, path, false, null);
                                 }
                             }
                         }
@@ -634,12 +623,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     if (countMap.containsKey(leafPath)) {
                         int count = Integer.valueOf(countMap.get(leafPath).toString());
                         Node node = ((Node) nodes.item(count));
-                        setNodeValue(typeModel, node);
+                        migrationMultiLingualFieldValue(itemBean, typeModel, node, path, true, null);
                         itemBean.set(path, node.getTextContent());
                         countMap.put(leafPath, count + 1);
                     } else {
                         Node node = ((Node) nodes.item(0));
-                        setNodeValue(typeModel, node);
+                        migrationMultiLingualFieldValue(itemBean, typeModel, node, path, true, null);
                         itemBean.set(path, node.getTextContent());
                         countMap.put(leafPath, 1);
                     }
@@ -651,31 +640,33 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         itemBean.set(path, path + "-" + value.getTextContent()); //$NON-NLS-1$
                         itemBean.setForeignkeyDesc(
                                 path + "-" + value.getTextContent(), getForeignKeyDesc(typeModel, value.getTextContent(), false, modelType)); //$NON-NLS-1$
-                    } else if (typeModel != null && typeModel.getType().equals(DataTypeConstants.MLS)) {
-                        String displayValue = value.getTextContent();
-                        if (displayValue != null && displayValue.trim().length() > 0
-                                && !MultilanguageMessageParser.isExistMultiLanguageFormat(displayValue)) {
-                            String defaultLanguage = com.amalto.core.util.Util.getDefaultSystemLocale();
-                            itemBean.set(path, MultilanguageMessageParser.getFormatValueByDefaultLanguage(displayValue,
-                                    defaultLanguage != null ? defaultLanguage : "en")); //$NON-NLS-1$
-                        } else {
-                            itemBean.set(path, displayValue);
-                        }
                     } else {
                         itemBean.set(path, value.getTextContent());
+                        migrationMultiLingualFieldValue(itemBean, typeModel, value, path, false, null);
                     }
                 }
             }
         }
     }
 
-    private void setNodeValue(TypeModel typeModel, Node node) {
+    private void migrationMultiLingualFieldValue(ItemBean itemBean, TypeModel typeModel, Node node, String path,
+            boolean isMultiOccurence, ItemNodeModel nodeModel) {
         String value = node.getTextContent();
-        if (typeModel != null && typeModel.getType().equals(DataTypeConstants.MLS)) {
+        if (typeModel != null && typeModel.getType().equals(DataTypeConstants.MLS)
+                && BrowseRecordsConfiguration.dataMigrationMultiLingualFieldAuto()) {
             if (value != null && value.trim().length() > 0 && !MultilanguageMessageParser.isExistMultiLanguageFormat(value)) {
                 String defaultLanguage = com.amalto.core.util.Util.getDefaultSystemLocale();
-                node.setTextContent(MultilanguageMessageParser.getFormatValueByDefaultLanguage(value,
-                        defaultLanguage != null ? defaultLanguage : "en")); //$NON-NLS-1$
+                String newValue = MultilanguageMessageParser.getFormatValueByDefaultLanguage(value,
+                        defaultLanguage != null ? defaultLanguage : "en");//$NON-NLS-1$
+                if (nodeModel == null) {
+                    if (isMultiOccurence) {
+                        node.setTextContent(newValue);
+                    } else {
+                        itemBean.set(path, newValue);
+                    }
+                } else {
+                    nodeModel.setObjectValue(newValue);
+                }
             }
         }
     }
@@ -1196,6 +1187,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             header.setKeepSilenceForPermissionExceptionWhenSave(BrowseRecordsConfiguration
                     .keepSilenceForPermissionExceptionWhenSave());
             header.setAutoValidate(BrowseRecordsConfiguration.isAutoValidate());
+            header.setDataMigrationMultiLingualFieldAuto(BrowseRecordsConfiguration.dataMigrationMultiLingualFieldAuto());
             return header;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -1635,14 +1627,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 nodeModel.setObjectValue(fkBean);
             }
         } else if (model.isSimpleType()) {
-            String displayValue = el.getTextContent();
-            if (model.getType().equals(DataTypeConstants.MLS) && displayValue != null && displayValue.trim().length() > 0
-                    && !MultilanguageMessageParser.isExistMultiLanguageFormat(displayValue)) {
-                String defaultLanguage = com.amalto.core.util.Util.getDefaultSystemLocale();
-                displayValue = MultilanguageMessageParser.getFormatValueByDefaultLanguage(displayValue,
-                        defaultLanguage != null ? defaultLanguage : "en"); //$NON-NLS-1$
-            }
-            nodeModel.setObjectValue(displayValue);
+            nodeModel.setObjectValue(el.getTextContent());
+            migrationMultiLingualFieldValue(null, model, el, typePath, false, nodeModel);
         }
         if (isCreate && model.getDefaultValueExpression() != null && model.getDefaultValueExpression().trim().length() > 0) {
             nodeModel.setChangeValue(true);

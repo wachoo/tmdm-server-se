@@ -31,6 +31,8 @@ public class AppHeader implements IsSerializable {
 
     private boolean keepSilenceForPermissionExceptionWhenSave;
 
+    private boolean dataMigrationMultiLingualFieldAuto;
+
     /**
      * DOC HSHU AppHeader constructor comment.
      */
@@ -76,6 +78,14 @@ public class AppHeader implements IsSerializable {
 
     public void setKeepSilenceForPermissionExceptionWhenSave(boolean keepSilenceForPermissionExceptionWhenSave) {
         this.keepSilenceForPermissionExceptionWhenSave = keepSilenceForPermissionExceptionWhenSave;
+    }
+
+    public boolean isDataMigrationMultiLingualFieldAuto() {
+        return dataMigrationMultiLingualFieldAuto;
+    }
+
+    public void setDataMigrationMultiLingualFieldAuto(boolean dataMigrationMultiLingualFieldAuto) {
+        this.dataMigrationMultiLingualFieldAuto = dataMigrationMultiLingualFieldAuto;
     }
 
     @Override
