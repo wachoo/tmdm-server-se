@@ -19,8 +19,7 @@ public class StagingTaskService {
 
     public static final String TASKS = "/tasks/staging";
 
-    // private final StagingTaskServiceDelegate delegate = new DefaultStagingTaskService();
-    private final StagingTaskServiceDelegate delegate = new MockStagingTaskServiceDelegate();
+    private final StagingTaskServiceDelegate delegate = new DefaultStagingTaskService();
 
     @GET
     @Path("/")
