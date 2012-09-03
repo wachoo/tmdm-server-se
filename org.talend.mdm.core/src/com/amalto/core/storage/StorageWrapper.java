@@ -168,7 +168,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     private static long parseRevisionId(String revisionID) {
-        if ("HEAD".equals(revisionID) || revisionID == null) { //$NON-NLS-1$
+        if ("HEAD".equals(revisionID) || revisionID == null || revisionID.isEmpty()) { //$NON-NLS-1$
             return 1;
         }
         return Long.parseLong(revisionID);
