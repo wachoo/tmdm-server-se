@@ -105,7 +105,7 @@ public abstract class QueryBuilder {
                                 .append(lastElementName).append(">"); //$NON-NLS-1$
                     } else {
                         xqReturn.append("let $element := ").append(factoredPath);
-                        xqReturn.append(" return if (not(empty($element))) then $element").append(" else <") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        xqReturn.append(" return if (not(empty($element))) then $element").append(" else <") //$NON-NLS-1$ //$NON-NLS-2$ 
                                 .append(lastElementName).append("/>"); //$NON-NLS-1$
                     }
                 } else {
@@ -141,20 +141,27 @@ public abstract class QueryBuilder {
         return xqReturn.toString();
     }
 
+    public abstract String getUriQuery(boolean isItemQuery, Map<String, String> objectRootElementNamesToRevisionID,
+            Map<String, String> objectRootElementNamesToClusterName, String forceMainPivot, ArrayList<String> viewableFullPaths,
+            IWhereItem whereItem, boolean withTotalCountOnFirstRow, Map<String, ArrayList<String>> metaDataTypes)
+            throws XmlServerException;
+
     protected void factorFirstPivotInMap(LinkedHashMap<String, String> pivotsMap, String viewablePath) {
         if (viewablePath != null && viewablePath.trim().length() > 0) {
-            if (viewablePath.startsWith("/")) //$NON-NLS-1$
+            if (viewablePath.startsWith("/")) {
                 viewablePath = viewablePath.substring(1);
+            }
             String thisRootElementName = getRootElementNameFromPath(viewablePath);
-            if (thisRootElementName != null && thisRootElementName.length() != 0 && !pivotsMap.containsValue(thisRootElementName))
+            if (thisRootElementName != null && thisRootElementName.length() != 0 && !pivotsMap.containsValue(thisRootElementName)) {
                 XPathUtils.factorExpression(XPathUtils.compileXPath(thisRootElementName), pivotsMap, true, true);
+            }
         }
     }
 
     /**
      * Builds the xQuery Return statement for an Items Query
      * 
-     *
+     * 
      * @param isItemQuery
      * @param rootElementNamesToRevisionID
      * @param rootElementNamesToClusterName
@@ -193,10 +200,11 @@ public abstract class QueryBuilder {
                 // object name, not a pattern --> direct match
                 clusterName = rootElementNamesToClusterName.get(rootElementName);
             }
-            if (xqFor.length() == 0)
+            if (xqFor.length() == 0) {
                 xqFor.append("for "); //$NON-NLS-1$
-            else
+            } else {
                 xqFor.append(", "); //$NON-NLS-1$
+            }
 
             // FIXME:subsequence is not support for multi-pivots
             if (pivotsMap.size() == 1) {
@@ -218,14 +226,16 @@ public abstract class QueryBuilder {
             StringBuilder xQueryCollectionName = new StringBuilder();
             xQueryCollectionName.append(getXQueryCollectionName(revisionID, clusterName));
             xQueryCollectionName.append("/"); //$NON-NLS-1$
-            if (isItemQuery)
+            if (isItemQuery) {
                 xQueryCollectionName.append("/p/"); //$NON-NLS-1$
+            }
             xQueryCollectionName.append(path);
             partialXQLPackage.addForInCollection(pivotName, xQueryCollectionName.toString());
         }
 
-        if (pivotsMap.size() == 1)
+        if (pivotsMap.size() == 1) {
             partialXQLPackage.setUseSubsequenceFirst(true);
+        }
 
         return xqFor.toString();
     }
@@ -374,11 +384,11 @@ public abstract class QueryBuilder {
                             isRightValueDateTime = true;
                         }
                     }
-                }                
+                }
                 if (metaDataTypes == null || metaDataTypes.size() == 0) { // fix 0021067, if can't get metaDataTypes
-                	isNum = isLeftPathNum || isRightValueNum;
-                }else{
-                	isNum = isLeftPathNum && isRightValueNum;
+                    isNum = isLeftPathNum || isRightValueNum;
+                } else {
+                    isNum = isLeftPathNum && isRightValueNum;
                 }
 
                 encoded = isXpathFunction ? wc.getRightValueOrPath().trim() : StringEscapeUtils.escapeXml(wc
@@ -391,30 +401,32 @@ public abstract class QueryBuilder {
                 encoded = encoded.replaceAll("\\.\\*|\\*", "\\.\\*"); //$NON-NLS-1$ //$NON-NLS-2$
             }
 
-            if (".*".equals(encoded) && !operator.equals(WhereCondition.EMPTY_NULL)) //$NON-NLS-1$
+            if (".*".equals(encoded) && !operator.equals(WhereCondition.EMPTY_NULL)) {
                 return ""; //$NON-NLS-1$
+            }
             // add modified on criteria
-            if (wc.getLeftPath().startsWith("../../")) //$NON-NLS-1$
+            if (wc.getLeftPath().startsWith("../../")) {
                 return wc.getLeftPath() + " " + wc.getOperator() + " " + wc.getRightValueOrPath(); //$NON-NLS-1$ //$NON-NLS-2$ 
+            }
             factorFirstPivotInMap(pivots, wc.getLeftPath());
             String factorPivots = XPathUtils.factor(wc.getLeftPath(), pivots).toString();
             // Moved 'fix' for 0015004 to isRightValueXPath() method.
-            if (wc.getRightValueOrPath() != null && wc.isRightValueXPath()) { //$NON-NLS-1$
+            if (wc.getRightValueOrPath() != null && wc.isRightValueXPath()) {
                 encoded = XPathUtils.factor(wc.getRightValueOrPath(), pivots).toString();
                 isXpathFunction = true;
             }
 
             // For the case isNumber and use the format like "78D"...
-            if (wc.getRightValueOrPath() != null && wc.getRightValueOrPath().trim().length()>0 && !isXpathFunction && isNum) {
-                String rightValue=wc.getRightValueOrPath().trim();
+            if (wc.getRightValueOrPath() != null && wc.getRightValueOrPath().trim().length() > 0 && !isXpathFunction && isNum) {
+                String rightValue = wc.getRightValueOrPath().trim();
                 try {
                     String parsedValue;
                     double doubleValue = Double.parseDouble(rightValue);
                     // if the value is 123.0, cut the float value to 123
-                    if(doubleValue - Math.floor(doubleValue) == 0){
-                        parsedValue=String.valueOf((int)doubleValue);
-                    }else{
-                        parsedValue=String.valueOf(doubleValue);
+                    if (doubleValue - Math.floor(doubleValue) == 0) {
+                        parsedValue = String.valueOf((int) doubleValue);
+                    } else {
+                        parsedValue = String.valueOf(doubleValue);
                     }
                     encoded = parsedValue;
                 } catch (Exception e) {
@@ -429,8 +441,9 @@ public abstract class QueryBuilder {
                 String predicate = wc.getStringPredicate();
                 // check if the left path is an attribute or an element
                 String path = wc.getLeftPath();
-                if (path.endsWith("/")) //$NON-NLS-1$
+                if (path.endsWith("/")) {
                     path = path.substring(0, wc.getLeftPath().length() - 1);
+                }
                 String[] nodes = path.split("/"); //$NON-NLS-1$
                 boolean isAttribute = nodes[nodes.length - 1].startsWith("@"); //$NON-NLS-1$
                 if ((predicate == null) || predicate.equals(WhereCondition.PRE_NONE)) {
@@ -507,7 +520,7 @@ public abstract class QueryBuilder {
 
             } else if (operator.equals(WhereCondition.EQUALS)) {
                 if (isNum) {
-                    if(useNumberFunction()) {
+                    if (useNumberFunction()) {
                         where.append("number(").append(factorPivots).append(") eq ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
                     } else {
                         where.append(factorPivots).append(" = ").append(encoded); //$NON-NLS-1$
@@ -519,11 +532,11 @@ public abstract class QueryBuilder {
                 } else if (isRightValueDate) {
                     where.append("string-length(").append(factorPivots).append(") > 0 and xs:date(").append(factorPivots).append(") = xs:date(\"").append(encoded).append("\")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$  //$NON-NLS-4$
                 } else {
-                    where.append(factorPivots).append(" eq \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    where.append(factorPivots).append(" eq \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$ 
                 }
             } else if (operator.equals(WhereCondition.NOT_EQUALS)) {
                 if (isNum) {
-                    if(useNumberFunction()) {
+                    if (useNumberFunction()) {
                         where.append("number(").append(factorPivots).append(") ne ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
                     } else {
                         where.append(factorPivots).append(" != ").append(encoded); //$NON-NLS-1$
@@ -531,7 +544,7 @@ public abstract class QueryBuilder {
                 } else if (isXpathFunction) {
                     where.append(factorPivots).append(" != ").append(encoded); //$NON-NLS-1$
                 } else {
-                    where.append(factorPivots).append(" ne \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$  //$NON-NLS-3$
+                    where.append(factorPivots).append(" ne \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$  
                 }
             } else if (operator.equals(WhereCondition.GREATER_THAN)) {
                 if (isNum) {
@@ -547,7 +560,7 @@ public abstract class QueryBuilder {
                 } else if (isRightValueDate) {
                     where.append("string-length(").append(factorPivots).append(") > 0 and xs:date(").append(factorPivots).append(") > xs:date(\"").append(encoded).append("\")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$  //$NON-NLS-4$
                 } else {
-                    where.append(factorPivots).append(" gt \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    where.append(factorPivots).append(" gt \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$ 
                 }
             } else if (operator.equals(WhereCondition.GREATER_THAN_OR_EQUAL)) {
                 if (isNum) {
@@ -563,7 +576,7 @@ public abstract class QueryBuilder {
                 } else if (isRightValueDate) {
                     where.append("string-length(").append(factorPivots).append(") > 0 and xs:date(").append(factorPivots).append(") >= xs:date(\"").append(encoded).append("\")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                 } else {
-                    where.append(factorPivots).append(" ge \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    where.append(factorPivots).append(" ge \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$ 
                 }
             } else if (operator.equals(WhereCondition.LOWER_THAN)) {
                 if (isNum) {
@@ -579,7 +592,7 @@ public abstract class QueryBuilder {
                 } else if (isRightValueDate) {
                     where.append("string-length(").append(factorPivots).append(") > 0 and xs:date(").append(factorPivots).append(") < xs:date(\"").append(encoded).append("\")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                 } else {
-                    where.append(factorPivots).append(" lt \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    where.append(factorPivots).append(" lt \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$ 
                 }
             } else if (operator.equals(WhereCondition.LOWER_THAN_OR_EQUAL)) {
                 if (isNum) {
@@ -595,7 +608,7 @@ public abstract class QueryBuilder {
                 } else if (isRightValueDate) {
                     where.append("string-length(").append(factorPivots).append(") > 0 and xs:date(").append(factorPivots).append(") <= xs:date(\"").append(encoded).append("\")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                 } else {
-                    where.append(factorPivots).append(" le \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    where.append(factorPivots).append(" le \"").append(encoded).append("\""); //$NON-NLS-1$ //$NON-NLS-2$ 
                 }
             } else if (operator.equals(WhereCondition.EMPTY_NULL)) {
                 String predicate = wc.getStringPredicate();
@@ -617,11 +630,11 @@ public abstract class QueryBuilder {
             throw new XmlServerException(err);
         }
 
-
     }
 
     /**
-     * @return <code>true</code> is the XQuery number() function should be used in numeric comparison, <code>false</code> otherwise.
+     * @return <code>true</code> is the XQuery number() function should be used in numeric comparison,
+     * <code>false</code> otherwise.
      * @see #buildWhereCondition(com.amalto.xmlserver.interfaces.WhereCondition, java.util.LinkedHashMap, boolean)
      * @see #buildWhereCondition(com.amalto.xmlserver.interfaces.WhereCondition, java.util.LinkedHashMap, Map)
      */
@@ -629,6 +642,7 @@ public abstract class QueryBuilder {
 
     /**
      * Build a where condition in XQuery using paths relative to the provided list of pivots
+     * 
      * @param wc
      * @param pivots
      * @param useValueComparisons
@@ -672,16 +686,18 @@ public abstract class QueryBuilder {
             }
             // change * to .*
             encoded = encoded.replaceAll("\\.\\*|\\*", "\\.\\*"); //$NON-NLS-1$ //$NON-NLS-2$
-            if (".*".equals(encoded)) //$NON-NLS-1$
+            if (".*".equals(encoded)) {
                 return ""; //$NON-NLS-1$
+            }
             String where;
             String factorPivots = getPathFromPivots(wc.getLeftPath(), pivots);
             if (operator.equals(WhereCondition.CONTAINS)) {
                 String predicate = wc.getStringPredicate();
                 // check if the left path is an attribute or an element
                 String path = wc.getLeftPath();
-                if (path.endsWith("/")) //$NON-NLS-1$
+                if (path.endsWith("/")) {
                     path = path.substring(0, wc.getLeftPath().length() - 1);
+                }
                 String[] nodes = path.split("/"); //$NON-NLS-1$
                 boolean isAttribute = nodes[nodes.length - 1].startsWith("@"); //$NON-NLS-1$
                 if ((predicate == null) || predicate.equals(WhereCondition.PRE_NONE)) {
@@ -717,13 +733,14 @@ public abstract class QueryBuilder {
                         where = "not " + getMatchesMethod(factorPivots, encoded); //$NON-NLS-1$
                     } else {
                         if (isXpathFunction) {
-                            where = "not(" + " contains(" + factorPivots + " , '" + encoded + "') ) "; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                            where = "not(" + " contains(" + factorPivots + " , '" + encoded + "') ) "; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
                         } else {
                             where = "not(" + getMatchesMethod(factorPivots, encoded) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
                         }
                     }
-                } else
+                } else {
                     where = null;
+                }
 
             } else if (operator.equals(WhereCondition.STRICTCONTAINS)) {
                 // where = "near("+factorPivots+", \""+encoded+"\",1)";
@@ -742,8 +759,9 @@ public abstract class QueryBuilder {
 
             } else if (operator.equals(WhereCondition.EQUALS)) {
                 String useOpe = "eq"; //$NON-NLS-1$
-                if (!useValueComparisons)
+                if (!useValueComparisons) {
                     useOpe = WhereCondition.EQUALS;
+                }
                 if (isNum) {
                     if (useNumberFunction()) {
                         where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -757,8 +775,9 @@ public abstract class QueryBuilder {
                 }
             } else if (operator.equals(WhereCondition.NOT_EQUALS)) {
                 String useOpe = "ne"; //$NON-NLS-1$
-                if (!useValueComparisons)
+                if (!useValueComparisons) {
                     useOpe = WhereCondition.NOT_EQUALS;
+                }
                 if (isNum) {
                     if (useNumberFunction()) {
                         where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -772,8 +791,9 @@ public abstract class QueryBuilder {
                 }
             } else if (operator.equals(WhereCondition.GREATER_THAN)) {
                 String useOpe = "gt"; //$NON-NLS-1$
-                if (!useValueComparisons)
+                if (!useValueComparisons) {
                     useOpe = WhereCondition.GREATER_THAN;
+                }
                 if (isNum) {
                     if (useNumberFunction()) {
                         where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -787,8 +807,9 @@ public abstract class QueryBuilder {
                 }
             } else if (operator.equals(WhereCondition.GREATER_THAN_OR_EQUAL)) {
                 String useOpe = "ge"; //$NON-NLS-1$
-                if (!useValueComparisons)
+                if (!useValueComparisons) {
                     useOpe = WhereCondition.GREATER_THAN_OR_EQUAL;
+                }
                 if (isNum) {
                     if (useNumberFunction()) {
                         where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -802,8 +823,9 @@ public abstract class QueryBuilder {
                 }
             } else if (operator.equals(WhereCondition.LOWER_THAN)) {
                 String useOpe = "lt"; //$NON-NLS-1$
-                if (!useValueComparisons)
+                if (!useValueComparisons) {
                     useOpe = WhereCondition.LOWER_THAN;
+                }
                 if (isNum) {
                     if (useNumberFunction()) {
                         where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -817,8 +839,9 @@ public abstract class QueryBuilder {
                 }
             } else if (operator.equals(WhereCondition.LOWER_THAN_OR_EQUAL)) {
                 String useOpe = "le"; //$NON-NLS-1$
-                if (!useValueComparisons)
+                if (!useValueComparisons) {
                     useOpe = WhereCondition.LOWER_THAN_OR_EQUAL;
+                }
                 if (isNum) {
                     if (useNumberFunction()) {
                         where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -840,8 +863,9 @@ public abstract class QueryBuilder {
                 }
             } else if (operator.equals(WhereCondition.NO_OPERATOR)) {
                 where = factorPivots;
-            } else
+            } else {
                 where = null;
+            }
 
             return where;
 
@@ -859,7 +883,7 @@ public abstract class QueryBuilder {
      * <br/>
      * Say we have a pivot named pivot0 referencing <code>Country/name</code>, the path <code>Country/name/EN</code>
      * will become <code>$pivot0/EN</code>
-     *
+     * 
      * @param bename
      * @param pivots
      * @return
@@ -867,16 +891,17 @@ public abstract class QueryBuilder {
      */
     private String getPathFromPivots(String bename, HashMap<String, String> pivots) throws XmlServerException {
         try {
-            if (LOG.isTraceEnabled())
+            if (LOG.isTraceEnabled()) {
                 LOG.trace("getPathFromPivots() " + bename + " - " + pivots.keySet()); //$NON-NLS-1$ //$NON-NLS-2$
-            if (bename.startsWith("/")) //$NON-NLS-1$
+            }
+            if (bename.startsWith("/")) {
                 bename = bename.substring(1);
+            }
             String beRoot = bename.split("/")[0]; //$NON-NLS-1$
             // find pivot
             Set<String> ps = pivots.keySet();
             String newPath = null;
-            for (Iterator<String> iterator = ps.iterator(); iterator.hasNext();) {
-                String pivot = iterator.next();
+            for (String pivot : ps) {
                 String pivotRoot = pivot.split("/")[0]; //$NON-NLS-1$
                 // aiming modify pivotRoot maybe ConceptName[condition], fix bug 0008980
                 if (!beRoot.equals(pivotRoot)) {
@@ -918,7 +943,7 @@ public abstract class QueryBuilder {
      * <br/>
      * Say the pivot is referencing <code>Country/name</code>, the path <code>Country/name/EN</code> will become
      * <code>$pivot0/EN</code>
-     *
+     * 
      * @param pivot
      * @param path
      * @return
@@ -926,34 +951,42 @@ public abstract class QueryBuilder {
      */
     private String getPathFromPivot(String pivot, String path) throws XmlServerException {
         try {
-            if ((pivot == null) || (path == null))
+            if ((pivot == null) || (path == null)) {
                 return null;
+            }
 
-            if (pivot.startsWith("/")) //$NON-NLS-1$
+            if (pivot.startsWith("/")) {
                 pivot = pivot.substring(1);
-            if (pivot.endsWith("/")) //$NON-NLS-1$
+            }
+            if (pivot.endsWith("/")) {
                 pivot = pivot.substring(0, pivot.length() - 1);
-            if (path.startsWith("/")) //$NON-NLS-1$
+            }
+            if (path.startsWith("/")) {
                 path = path.substring(1);
-            if (path.endsWith("/")) //$NON-NLS-1$
+            }
+            if (path.endsWith("/")) {
                 path = path.substring(0, path.length() - 1);
+            }
 
             String[] pivotPaths = pivot.split("/"); //$NON-NLS-1$
             String[] pathPaths = path.split("/"); //$NON-NLS-1$
 
-            if (!pivotPaths[0].equals(pathPaths[0]))
+            if (!pivotPaths[0].equals(pathPaths[0])) {
                 return null;
+            }
 
             String newPath = ""; //$NON-NLS-1$
             int matching = 0;
             for (int i = 1; i < pivotPaths.length; i++) {
-                if (i < pathPaths.length)
-                    if (pivotPaths[i].equals(pathPaths[i]))
+                if (i < pathPaths.length) {
+                    if (pivotPaths[i].equals(pathPaths[i])) {
                         matching++;
-                    else
+                    } else {
                         newPath += "/.."; //$NON-NLS-1$
-                else
+                    }
+                } else {
                     newPath += "/.."; //$NON-NLS-1$
+                }
             }
             for (int i = matching + 1; i < pathPaths.length; i++) {
                 newPath += '/' + pathPaths[i];
@@ -974,6 +1007,7 @@ public abstract class QueryBuilder {
 
     /**
      * check if is validated function.
+     * 
      * @param value
      * @return
      */
@@ -986,7 +1020,7 @@ public abstract class QueryBuilder {
     /**
      * Builds an XQuery
      * 
-     *
+     * 
      * @param isItemQuery
      * @param objectRootElementNamesToRevisionID
      * @param objectRootElementNamesToClusterName
@@ -1003,9 +1037,9 @@ public abstract class QueryBuilder {
      * @throws XmlServerException
      */
     public String getQuery(boolean isItemQuery, Map<String, String> objectRootElementNamesToRevisionID,
-            Map<String, String> objectRootElementNamesToClusterName, String forceMainPivot,
-            ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, long limit,
-            boolean withTotalCountOnFirstRow, Map<String, ArrayList<String>> metaDataTypes) throws XmlServerException {
+            Map<String, String> objectRootElementNamesToClusterName, String forceMainPivot, ArrayList<String> viewableFullPaths,
+            IWhereItem whereItem, String orderBy, String direction, int start, long limit, boolean withTotalCountOnFirstRow,
+            Map<String, ArrayList<String>> metaDataTypes) throws XmlServerException {
 
         try {
             // build Pivots Map
@@ -1027,9 +1061,9 @@ public abstract class QueryBuilder {
 
             // build from WhereItem
             String xqWhere;
-            if (whereItem == null)
+            if (whereItem == null) {
                 xqWhere = ""; //$NON-NLS-1$
-            else {
+            } else {
                 xqWhere = buildWhere(pivotsMap, whereItem, metaDataTypes);
             }
             partialXQLPackage.setXqWhere(xqWhere);
@@ -1044,7 +1078,7 @@ public abstract class QueryBuilder {
                 if (!"".equals(direction) && direction != null && direction.contains(":")) { //$NON-NLS-1$ //$NON-NLS-2$
                     isNumber = true;
                     direction = direction.substring(direction.indexOf(":") + 1); //$NON-NLS-1$
-                 }
+                }
 
                 xqOrderBy = "order by " + (isNumber ? ("number(" + XPathUtils.factor(orderBy, pivotsMap) + ")") : XPathUtils.factor(orderBy, pivotsMap)) + (direction == null ? "" : " " + direction); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
             }
@@ -1062,17 +1096,22 @@ public abstract class QueryBuilder {
             String joinString;
             if (joinKeys.size() != 0) {
                 joinString = buildWhereJoin(joinKeys);
-                if (joinString.length() == 0)
+                if (joinString.length() == 0) {
                     joinString = null;
-            } else
+                }
+            } else {
                 joinString = null;
+            }
             partialXQLPackage.setUseJoin(joinString != null);
-            if (joinString != null)
+            if (joinString != null) {
                 rawQueryStringBuffer.append('\n').append(joinString);
+            }
 
-            if (!partialXQLPackage.isUseGlobalOrderBy())
-                if (xqOrderBy.length() != 0)
+            if (!partialXQLPackage.isUseGlobalOrderBy()) {
+                if (xqOrderBy.length() != 0) {
                     rawQueryStringBuffer.append('\n').append(xqOrderBy);
+                }
+            }
             rawQueryStringBuffer.append("\nreturn " + xqReturn); //$NON-NLS-1$
             String rawQuery = rawQueryStringBuffer.toString();
 
@@ -1089,13 +1128,14 @@ public abstract class QueryBuilder {
             for (Iterator<String> iterator = forInCollectionMap.keySet().iterator(); iterator.hasNext(); i++) {
                 String root = iterator.next();
                 String expr = forInCollectionMap.get(root);
-                if (pivotWhereMap.get(root) != null && pivotWhereMap.get(root).length() > 0)
+                if (pivotWhereMap.get(root) != null && pivotWhereMap.get(root).length() > 0) {
                     expr = expr + " [ " + pivotWhereMap.get(root) + " ] "; //$NON-NLS-1$ //$NON-NLS-2$
-                else if (xqWhere.contains("../../t")) {// add modified condition if there is no pivotWhereMap  //$NON-NLS-1$
+                } else if (xqWhere.contains("../../t")) {// add modified condition if there is no pivotWhereMap  //$NON-NLS-1$
                     expr = expr + " [ " + xqWhere + " ] "; //$NON-NLS-1$ //$NON-NLS-2$
                 }
-                if (partialXQLPackage.isUseGlobalOrderBy())
+                if (partialXQLPackage.isUseGlobalOrderBy()) {
                     expr = partialXQLPackage.genOrderByWithFirstExpr(expr);
+                }
                 firstLets.append("let $_leres").append(i).append("_ := ").append(expr).append(" \n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             }
 
@@ -1144,8 +1184,9 @@ public abstract class QueryBuilder {
             String[] items = joinkey.split("\\b(or|and)\\b"); //$NON-NLS-1$
             for (String item : items) {
                 String key = item.trim();
-                if (key.matches("\\((.*?)\\)")) //$NON-NLS-1$
+                if (key.matches("\\((.*?)\\)")) {
                     key = key.replaceFirst("\\((.*?)\\)", "$1"); //$NON-NLS-1$ //$NON-NLS-2$
+                }
                 String[] splits = key.split(WhereCondition.JOINS);
                 if (splits.length == 2) {
                     String fk = splits[0].trim().replace("(", "").replace(")", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1163,8 +1204,9 @@ public abstract class QueryBuilder {
         }
 
         StringBuffer where = new StringBuffer();
-        if (fkMaps.size() > 0)
+        if (fkMaps.size() > 0) {
             where.append(" where "); //$NON-NLS-1$
+        }
         int count = 0;
         for (Entry<String, ArrayList<String>> entry : fkMaps.entrySet()) {
             where.append(entry.getKey());
@@ -1226,16 +1268,18 @@ public abstract class QueryBuilder {
 
     /**
      * Determine the collection name based on the revision ID and Cluster Name
+     * 
      * @param revisionID Revision Id
      * @param clusterName Cluster name
      * @return The xquery collection name that stores the XML documents
-     *
+     * 
      * @throws com.amalto.xmlserver.interfaces.XmlServerException In case of unexpected error.
      * */
     public String getXQueryCollectionName(String revisionID, String clusterName) throws XmlServerException {
         String collectionPath = getPath(revisionID, clusterName);
-        if (collectionPath == null || collectionPath.length() == 0)
+        if (collectionPath == null || collectionPath.length() == 0) {
             return ""; //$NON-NLS-1$
+        }
 
         String encoded;
         try {
@@ -1258,9 +1302,9 @@ public abstract class QueryBuilder {
     }
 
     /***********************************************************************
-     *
+     * 
      * Helper Methods
-     *
+     * 
      ***********************************************************************/
 
     /**
@@ -1274,8 +1318,9 @@ public abstract class QueryBuilder {
     }
 
     public static boolean isHead(String revisionID) {
-        if (revisionID != null)
+        if (revisionID != null) {
             revisionID = revisionID.replaceAll("\\[HEAD\\]|HEAD", ""); //$NON-NLS-1$ //$NON-NLS-2$
+        }
         return (revisionID == null || revisionID.length() == 0);
     }
 
@@ -1288,11 +1333,13 @@ public abstract class QueryBuilder {
      * @return the Concept
      */
     public static String getRootElementNameFromPath(String path) {
-        if (!path.endsWith("/")) //$NON-NLS-1$
+        if (!path.endsWith("/")) {
             path += "/"; //$NON-NLS-1$
+        }
         Matcher m = pathWithoutConditions.matcher(path);
-        if (m.matches())
+        if (m.matches()) {
             return m.group(1);
+        }
         return null;
     }
 
@@ -1325,7 +1372,7 @@ public abstract class QueryBuilder {
      * @return
      */
     public String getPagingString(boolean withTotalCountOnFirstRow, PartialXQLPackage partialXQLPackage, long start, long limit,
-                                  String rawQuery, List<String> viewableFullPaths) {
+            String rawQuery, List<String> viewableFullPaths) {
         boolean subsequence = (start >= 0 && limit >= 0 && limit != Integer.MAX_VALUE);
         StringBuilder query = new StringBuilder();
         if (subsequence) {
@@ -1380,22 +1427,25 @@ public abstract class QueryBuilder {
 
         String wsContentKeywords = criteria.getContentKeywords();
         boolean useFTSearch = criteria.isUseFTSearch();
-        if (!useFTSearch && wsContentKeywords != null && wsContentKeywords.length() != 0)
+        if (!useFTSearch && wsContentKeywords != null && wsContentKeywords.length() != 0) {
             query.append("[").append(matchesStr).append("(./p/* , '").append(wsContentKeywords).append("')]");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        }
 
         Long fromDate = criteria.getFromDate();
-        if (fromDate > 0)
+        if (fromDate > 0) {
             query.append("[./t >= ").append(fromDate).append("]"); //$NON-NLS-1$ //$NON-NLS-2$
+        }
 
         Long toDate = criteria.getToDate();
-        if (toDate > 0)
+        if (toDate > 0) {
             query.append("[./t <= ").append(toDate).append("]"); //$NON-NLS-1$ //$NON-NLS-2$
+        }
 
         String keyKeywords = criteria.getKeysKeywords();
         if (keyKeywords != null && keyKeywords.length() != 0) {
-            if (!criteria.isCompoundKeyKeywords())
+            if (!criteria.isCompoundKeyKeywords()) {
                 query.append('[').append(matchesStr).append("(./i , '").append(keyKeywords).append("')]"); //$NON-NLS-1$ //$NON-NLS-2$
-            else {
+            } else {
                 // keyKeywords of the form 'key$xpath$fkvalue'
                 // fkvalue of the form '[fk1@fk2@fk3....]'
                 int valueIndex = keyKeywords.lastIndexOf("$"); //$NON-NLS-1$
@@ -1404,23 +1454,24 @@ public abstract class QueryBuilder {
                 String fkxpath = (keyIndex == -1) ? null : keyKeywords.substring(keyIndex + 1, valueIndex);
                 String key = (keyIndex == -1) ? null : keyKeywords.substring(0, keyIndex);
 
-                if (key != null && key.length() != 0)
+                if (key != null && key.length() != 0) {
                     query.append("[").append(matchesStr).append("(./i , '").append(key).append("')]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                }
 
                 if (fkxpath != null && fkxpath.length() != 0 && fkvalue != null && fkvalue.length() != 0) {
-                    //fkvalue can be composite
+                    // fkvalue can be composite
                     fkvalue = StringUtils.replace(fkvalue, "@", "]["); //$NON-NLS-1$ //$NON-NLS-2$
                     String[] fkPathes = fkxpath.split(","); //$NON-NLS-1$
-                    
+
                     query.append("["); //$NON-NLS-1$
                     boolean isFirst = true;
-                    for (String fkp : fkPathes){
-                        if (isFirst){
-                            query.append("./p//" + fkp + " eq '").append(fkvalue).append("'");   //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                    for (String fkp : fkPathes) {
+                        if (isFirst) {
+                            query.append("./p//" + fkp + " eq '").append(fkvalue).append("'"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
                             isFirst = false;
                             continue;
                         }
-                        query.append(" or ./p//" + fkp + " eq '").append(fkvalue).append("'");  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+                        query.append(" or ./p//" + fkp + " eq '").append(fkvalue).append("'"); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
                     }
                     query.append("]"); //$NON-NLS-1$
                 }
@@ -1437,8 +1488,9 @@ public abstract class QueryBuilder {
             }
         }
 
-        if (wsConceptName != null)
+        if (wsConceptName != null) {
             query.append("[./n eq '").append(wsConceptName).append("']"); //$NON-NLS-1$ //$NON-NLS-2$
+        }
 
         int start = criteria.getSkip();
         int limit = criteria.getMaxItems();
@@ -1450,8 +1502,9 @@ public abstract class QueryBuilder {
         // Determine Query based on number of results an counts
         query.append("return (<totalCount>{count($allres)}</totalCount>, $res)"); //$NON-NLS-1$
 
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug(query);
+        }
         return query.toString();
     }
 
