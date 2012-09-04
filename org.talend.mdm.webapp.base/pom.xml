@@ -69,6 +69,10 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>xsom</groupId>
+            <artifactId>xsom</artifactId>
+        </dependency>
+        <dependency>
             <groupId>dom4j</groupId>
             <artifactId>dom4j</artifactId>
         </dependency>
@@ -87,6 +91,11 @@
         <dependency>
             <groupId>jaxen</groupId>
             <artifactId>jaxen</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml</groupId>
+            <artifactId>relaxngDatatype</artifactId>
             <scope>test</scope>
         </dependency>
         <!-- MDM dependencies -->

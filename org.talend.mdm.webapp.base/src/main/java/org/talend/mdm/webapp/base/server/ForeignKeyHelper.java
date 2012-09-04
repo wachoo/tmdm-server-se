@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import org.dom4j.Node;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
@@ -31,12 +32,13 @@ import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.base.server.util.Constants;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.base.shared.XpathUtil;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.amalto.webapp.core.dmagent.SchemaAbstractWebAgent;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.core.util.XmlUtil;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSGetItemsByCustomFKFilters;
 import com.amalto.webapp.util.webservices.WSInt;
@@ -53,6 +55,12 @@ public class ForeignKeyHelper {
     private static final Logger LOG = Logger.getLogger(ForeignKeyHelper.class);
 
     private static final Pattern TOTAL_COUNT_PATTERN = Pattern.compile("<totalCount>(.*)</totalCount>"); //$NON-NLS-1$
+
+    private static SchemaAbstractWebAgent schemaManager = SchemaWebAgent.getInstance();
+
+    public static void overrideSchemaManager(SchemaAbstractWebAgent _schemaManager) {
+        schemaManager = _schemaManager;
+    }
 
     public static ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,
             String dataClusterPK, boolean ifFKFilter, String value) throws Exception {
@@ -123,7 +131,7 @@ public class ForeignKeyHelper {
                 Element resultAsDOM = Util.parse(results[currentResult]).getDocumentElement();
 
                 ForeignKeyBean bean = new ForeignKeyBean();
-                BusinessConcept businessConcept = SchemaWebAgent.getInstance().getBusinessConcept(fk);
+                BusinessConcept businessConcept = schemaManager.getBusinessConcept(fk);
                 if (businessConcept != null && businessConcept.getCorrespondTypeName() != null) {
                     bean.setTypeName(businessConcept.getCorrespondTypeName());
                     bean.setConceptName(fk);
@@ -356,6 +364,11 @@ public class ForeignKeyHelper {
                         String rightValueOrPath = values[2];
                         rightValueOrPath = StringEscapeUtils.unescapeXml(rightValueOrPath);
                         rightValueOrPath = parseRightValueOrPath(xml, dataObject, rightValueOrPath, currentXpath);
+                        if (isFkPath(values[0])) {
+                            rightValueOrPath = wrapFkValue(rightValueOrPath);
+                        } else {
+                            rightValueOrPath = unwrapFkValue(rightValueOrPath);
+                        }
                         conditionMap.put("Value", rightValueOrPath);//$NON-NLS-1$
                         break;
                     case 3:
@@ -387,6 +400,38 @@ public class ForeignKeyHelper {
         return parsedFkfilter;
     }
     
+    public static String wrapFkValue(String value) {
+        if (value.startsWith("[") && value.endsWith("]")) { //$NON-NLS-1$//$NON-NLS-2$
+            return value;
+        }
+        return "[" + value + "]"; //$NON-NLS-1$ //$NON-NLS-2$
+    }
+
+    public static String unwrapFkValue(String value) {
+        if (value.startsWith("[") && value.endsWith("]")) { //$NON-NLS-1$ //$NON-NLS-2$
+            if (value.contains("][")) { //$NON-NLS-1$
+                return value;
+            } else {
+                return value.substring(1, value.length() - 1);
+            }
+        }
+        return value;
+    }
+
+    public static boolean isFkPath(String fkPath) {
+        String concept = fkPath.split("/")[0]; //$NON-NLS-1$
+        try {
+            BusinessConcept businessConcept = schemaManager.getBusinessConcept(concept);
+            Map<String, String> fkMap = businessConcept.getForeignKeyMap();
+            if (fkMap != null && fkMap.containsKey("/" + fkPath)) { //$NON-NLS-1$
+                return true;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
+    }
+
     private static boolean useSchemaWebAgent = true;
     public static void setUseSchemaWebAgent(boolean b) {
         ForeignKeyHelper.useSchemaWebAgent = b;
@@ -394,95 +439,14 @@ public class ForeignKeyHelper {
     
     private static String parseRightValueOrPath(String xml, String dataObject, String rightValueOrPath, String currentXpath)
             throws Exception {
-        String origiRightValueOrPath = rightValueOrPath;
-        String patternString = dataObject + "(/[A-Za-z0-9_\\[\\]]*)+";//$NON-NLS-1$
-        Pattern pattern = Pattern.compile(patternString);
-        Matcher matcher = pattern.matcher(rightValueOrPath);
-        while (matcher.find()) {
-            for (int j = 0; j < matcher.groupCount(); j++) {
-                String gettedXpath = matcher.group(j);
-                if (gettedXpath != null) {
-                    // check literal
-                    int startPos = matcher.start(j);
-                    int endPos = matcher.end(j);
-                    if (startPos > 0 && endPos < origiRightValueOrPath.length() - 1) {
-                        String checkValue = origiRightValueOrPath.substring(startPos - 1, endPos + 1).trim();
-                        if (checkValue.startsWith("\"") && checkValue.endsWith("\""))//$NON-NLS-1$//$NON-NLS-2$
-                            return rightValueOrPath;
-                    }
-
-                    // clean start char
-                    if (currentXpath.startsWith("//"))//$NON-NLS-1$
-                        currentXpath = currentXpath.substring(2);
-                    else if (currentXpath.startsWith("/"))//$NON-NLS-1$
-                        currentXpath = currentXpath.substring(1);
-
-                    if (gettedXpath.startsWith("//"))//$NON-NLS-1$
-                        gettedXpath = currentXpath.substring(2);
-                    else if (gettedXpath.startsWith("/"))//$NON-NLS-1$
-                        gettedXpath = currentXpath.substring(1);
-
-                    if (currentXpath.matches(".*\\[(\\d+)\\].*") && !gettedXpath.matches(".*\\[(\\d+)\\].*")) {//$NON-NLS-1$//$NON-NLS-2$
-                        // get ..
-                        String currentXpathParent = currentXpath;
-                        String gettedXpathParent = gettedXpath;
-                        if (currentXpath.lastIndexOf("/") != -1)//$NON-NLS-1$
-                            currentXpathParent = currentXpath.substring(0, currentXpath.lastIndexOf("/"));//$NON-NLS-1$
-                        if (gettedXpath.lastIndexOf("/") != -1)//$NON-NLS-1$
-                            gettedXpathParent = gettedXpath.substring(0, gettedXpath.lastIndexOf("/"));//$NON-NLS-1$
-                        // clean
-                        String currentXpathParentReplaced = currentXpathParent.replaceAll("\\[(\\d+)\\]", "");//$NON-NLS-1$//$NON-NLS-2$
-                        // compare
-                        if (currentXpathParentReplaced.equals(gettedXpathParent)) {
-                            if (gettedXpath.lastIndexOf("/") != -1)//$NON-NLS-1$
-                                gettedXpath = currentXpathParent + gettedXpath.substring(gettedXpath.lastIndexOf("/"));//$NON-NLS-1$
-                        }
-                    }
-
-                    // get replaced value
-                    String replacedValue = null;
-                    boolean matchedAValue = false;
-                    if (!matchedAValue && xml != null) {
-                        Document doc = Util.parse(xml);
-                        if (doc != null) {
-                            replacedValue = Util.getFirstTextNode(doc, gettedXpath);
-                            if (replacedValue != null)
-                                matchedAValue = true;
-                        }
-                    }
-
-                    replacedValue = replacedValue == null ? "null" : replacedValue;//$NON-NLS-1$
-                    if (matchedAValue)
-                        replacedValue = "\"" + replacedValue + "\"";//$NON-NLS-1$//$NON-NLS-2$
-                    rightValueOrPath = rightValueOrPath.replaceFirst(patternString, replacedValue);
-                }
+        org.dom4j.Document doc = XmlUtil.parseDocument(Util.parse(xml));
+        Node node = doc.selectSingleNode(currentXpath);
+        if (node != null) {
+            Node nodeValue = node.selectSingleNode(rightValueOrPath);
+            if (nodeValue != null) {
+                rightValueOrPath = nodeValue.getText();
             }
         }
-        
-        if (useSchemaWebAgent) {
-            boolean isFK = false;
-            SchemaWebAgent agent = SchemaWebAgent.getInstance();
-            
-            if (agent != null) {
-                BusinessConcept concept = agent.getBusinessConcept(dataObject);
-                if (concept != null) {     
-                    rightValueOrPath = formatForeignKeyValue(rightValueOrPath, origiRightValueOrPath, concept.getForeignKeyMap());
-                }
-            }     
-        }
-        
-        return rightValueOrPath;
-    }
-    
-    public static String formatForeignKeyValue(String rightValueOrPath, String origiRightValueOrPath, Map<String, String> fkMap) {
-        if (fkMap != null) {
-            if (fkMap.containsKey("/" + origiRightValueOrPath)) { //$NON-NLS-1$
-                if (rightValueOrPath.startsWith("\"[") && rightValueOrPath.endsWith("]\"")) { //$NON-NLS-1$ //$NON-NLS-2$
-                    rightValueOrPath = rightValueOrPath.substring(2, rightValueOrPath.length() - 2);
-                }
-            }
-        }
-        
         return rightValueOrPath;
     }
 }
