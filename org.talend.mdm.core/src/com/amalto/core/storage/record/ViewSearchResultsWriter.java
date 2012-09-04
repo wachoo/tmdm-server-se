@@ -28,7 +28,16 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
             Object value = record.get(fieldMetadata);
             Object valueAsString = String.valueOf(value);
             if (fieldMetadata instanceof ReferenceFieldMetadata) {
-                valueAsString = "[" + valueAsString + ']';
+                if (value instanceof DataRecord) {
+                    DataRecord referencedRecord = (DataRecord) value;
+                    StringBuilder fkValueAsString = new StringBuilder();
+                    for (FieldMetadata keyField : referencedRecord.getType().getKeyFields()) {
+                        fkValueAsString.append('[').append(referencedRecord.get(keyField)).append(']');
+                    }
+                    valueAsString = fkValueAsString.toString();
+                } else {
+                    valueAsString = "[" + valueAsString + ']';
+                }
             }
             if (value != null) {
                 writer.append("\t<").append(fieldMetadata.getName()).append(">").append(String.valueOf(valueAsString)).append("</").append(fieldMetadata.getName()).append(">\n");

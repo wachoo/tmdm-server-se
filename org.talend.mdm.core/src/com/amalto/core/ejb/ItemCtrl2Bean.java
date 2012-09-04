@@ -572,11 +572,13 @@ public class ItemCtrl2Bean implements SessionBean {
                     qb.orderBy(field, queryDirection);
                 }
 
-                StorageResults results = storage.fetch(qb.getSelect());
+                StorageResults results;
                 ArrayList<String> resultsAsString = new ArrayList<String>();
                 if (returnCount) {
+                    results = storage.fetch(qb.getSelect());
                     resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>");
                 }
+                results = storage.fetch(qb.getSelect());
                 DataRecordWriter writer = new DataRecordWriter() {
                     public void write(DataRecord record, OutputStream output) throws IOException {
                         Writer out = new BufferedWriter(new OutputStreamWriter(output));

@@ -280,6 +280,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                 resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>");
                 DataRecordWriter writer = new ViewSearchResultsWriter();
 
+                results = storage.fetch(qb.getSelect());
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
                 for (DataRecord result : results) {
                     try {
@@ -467,12 +468,14 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
             }
 
             // Get records
-            StorageResults results = storage.fetch(qb.getSelect());
+            StorageResults results;
             ArrayList<String> resultsAsString = new ArrayList<String>();
             if (totalCountOnFirstRow) {
+                results = storage.fetch(qb.getSelect());
                 resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>");
             }
 
+            results = storage.fetch(qb.getSelect());
             DataRecordWriter writer = new DataRecordXmlWriter();
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             for (DataRecord result : results) {
