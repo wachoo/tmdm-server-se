@@ -18,7 +18,7 @@
         <School/>
     </son>
     <son1>
-        <Name/>
+        <Name>Name</Name>
         <Address/>
         <Photo/>
         <School/>
@@ -29,7 +29,7 @@
         <Photo/>
     </father>
     <father1>
-        <Name/>
+        <Name>Name</Name>
         <Address/>
         <Photo/>
     </father1>

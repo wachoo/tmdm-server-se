@@ -7,7 +7,7 @@
         <School></School>
     </son>
     <son1>
-        <Name/>
+        <Name>Name</Name>
         <Address/>
         <Photo></Photo>
         <School></School>
@@ -19,7 +19,7 @@
         <School></School>
     </father>
     <father1 xsi:type="Father">
-        <Name></Name>
+        <Name>Name</Name>
         <Address></Address>
         <Photo></Photo>
     </father1>

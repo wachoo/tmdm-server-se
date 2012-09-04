@@ -20,6 +20,7 @@ import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.UserAction;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -28,6 +29,8 @@ import org.w3c.dom.NodeList;
 import javax.xml.XMLConstants;
 
 class ApplyActions implements DocumentSaver {
+
+    private static final Logger LOGGER = Logger.getLogger(ApplyActions.class);
 
     private final DocumentSaver next;
 
@@ -132,12 +135,8 @@ class ApplyActions implements DocumentSaver {
                         return false;
                     }
                 }
-                return true;
             }
-            String fieldName = element.getNodeName();
-            // This throws exception in case field name is not found, but not having field in type IS an issue.
-            FieldMetadata field = type.getField(fieldName);
-            return !field.isMandatory();
+            return true;
         }
     }
 }
