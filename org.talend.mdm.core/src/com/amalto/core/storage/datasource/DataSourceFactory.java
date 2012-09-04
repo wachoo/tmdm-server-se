@@ -175,11 +175,11 @@ public class DataSourceFactory {
         }
 
         try {
-            NodeList datasources = (NodeList) evaluate(document, xPath, "/datasources/datasource", XPathConstants.NODESET);
+            NodeList datasources = (NodeList) evaluate(document, "/datasources/datasource", XPathConstants.NODESET);
             Map<String, DataSourceDefinition> nameToDataSources = new HashMap<String, DataSourceDefinition>();
             for (int i = 0; i < datasources.getLength(); i++) {
                 Node currentDataSourceElement = datasources.item(i);
-                String name = (String) evaluate(currentDataSourceElement, xPath, "@name", XPathConstants.STRING); //$NON-NLS-1$
+                String name = (String) evaluate(currentDataSourceElement, "@name", XPathConstants.STRING); //$NON-NLS-1$
                 DataSource master = getDataSourceConfiguration(currentDataSourceElement, name, "master");
                 if (master == null) {
                     throw new IllegalArgumentException("Data source '" + name + "'does not declare a master data section");
@@ -194,23 +194,23 @@ public class DataSourceFactory {
     }
 
     private static DataSource getDataSourceConfiguration(Node document, String name, String path) throws XPathExpressionException {
-        Node dataSource = (Node) evaluate(document, xPath, path, XPathConstants.NODE); //$NON-NLS-1$
+        Node dataSource = (Node) evaluate(document, path, XPathConstants.NODE); //$NON-NLS-1$
         if (dataSource == null) {
             return null;
         }
-        String type = (String) evaluate(dataSource, xPath, "type", XPathConstants.STRING); //$NON-NLS-1$
+        String type = (String) evaluate(dataSource, "type", XPathConstants.STRING); //$NON-NLS-1$
         if ("RDBMS".equals(type)) { //$NON-NLS-1$
-            String dialectName = (String) evaluate(dataSource, xPath, "rdbms-configuration/dialect", XPathConstants.STRING); //$NON-NLS-1$
-            String driverClassName = (String) evaluate(dataSource, xPath, "rdbms-configuration/connection-driver-class", XPathConstants.STRING); //$NON-NLS-1$
-            String connectionURL = (String) evaluate(dataSource, xPath, "rdbms-configuration/connection-url", XPathConstants.STRING); //$NON-NLS-1$
-            String userName = (String) evaluate(dataSource, xPath, "rdbms-configuration/connection-username", XPathConstants.STRING); //$NON-NLS-1$
-            String password = (String) evaluate(dataSource, xPath, "rdbms-configuration/connection-password", XPathConstants.STRING); //$NON-NLS-1$
-            String indexDirectory = (String) evaluate(dataSource, xPath, "rdbms-configuration/fulltext-index-directory", XPathConstants.STRING); //$NON-NLS-1$
-            String cacheDirectory = (String) evaluate(dataSource, xPath, "rdbms-configuration/cache-directory", XPathConstants.STRING); //$NON-NLS-1$
-            String initConnectionURL = (String) evaluate(dataSource, xPath, "rdbms-configuration/init/connection-url", XPathConstants.STRING); //$NON-NLS-1$
-            String initUserName = (String) evaluate(dataSource, xPath, "rdbms-configuration/init/connection-username", XPathConstants.STRING); //$NON-NLS-1$
-            String initPassword = (String) evaluate(dataSource, xPath, "rdbms-configuration/init/connection-password", XPathConstants.STRING); //$NON-NLS-1$
-            String databaseName = (String) evaluate(dataSource, xPath, "rdbms-configuration/init/database-name", XPathConstants.STRING); //$NON-NLS-1$
+            String dialectName = (String) evaluate(dataSource, "rdbms-configuration/dialect", XPathConstants.STRING); //$NON-NLS-1$
+            String driverClassName = (String) evaluate(dataSource, "rdbms-configuration/connection-driver-class", XPathConstants.STRING); //$NON-NLS-1$
+            String connectionURL = (String) evaluate(dataSource, "rdbms-configuration/connection-url", XPathConstants.STRING); //$NON-NLS-1$
+            String userName = (String) evaluate(dataSource, "rdbms-configuration/connection-username", XPathConstants.STRING); //$NON-NLS-1$
+            String password = (String) evaluate(dataSource, "rdbms-configuration/connection-password", XPathConstants.STRING); //$NON-NLS-1$
+            String indexDirectory = (String) evaluate(dataSource, "rdbms-configuration/fulltext-index-directory", XPathConstants.STRING); //$NON-NLS-1$
+            String cacheDirectory = (String) evaluate(dataSource, "rdbms-configuration/cache-directory", XPathConstants.STRING); //$NON-NLS-1$
+            String initConnectionURL = (String) evaluate(dataSource, "rdbms-configuration/init/connection-url", XPathConstants.STRING); //$NON-NLS-1$
+            String initUserName = (String) evaluate(dataSource, "rdbms-configuration/init/connection-username", XPathConstants.STRING); //$NON-NLS-1$
+            String initPassword = (String) evaluate(dataSource, "rdbms-configuration/init/connection-password", XPathConstants.STRING); //$NON-NLS-1$
+            String databaseName = (String) evaluate(dataSource, "rdbms-configuration/init/database-name", XPathConstants.STRING); //$NON-NLS-1$
 
             return new RDBMSDataSource(name,
                     dialectName,
@@ -229,8 +229,8 @@ public class DataSourceFactory {
         }
     }
 
-    private static Object evaluate(Node node, XPath xPathParser, String expression, QName returnType) throws XPathExpressionException {
-        XPathExpression result = xPathParser.compile(expression);
+    private static Object evaluate(Node node, String expression, QName returnType) throws XPathExpressionException {
+        XPathExpression result = xPath.compile(expression);
         return result.evaluate(node, returnType);
     }
 

@@ -17,7 +17,7 @@ public class DataSourceDefinition {
 
     private final DataSource master;
 
-    private DataSource staging;
+    private final DataSource staging;
 
     public DataSourceDefinition(String name, DataSource master, DataSource staging) {
         this.name = name;

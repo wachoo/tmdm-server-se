@@ -86,9 +86,6 @@ public class StagingImpl implements Staging {
         }
     }
 
-    public void createCleaner() {
-    }
-
     public Object getAttribute(String attribute) throws AttributeNotFoundException, MBeanException, ReflectionException {
         return null;
     }

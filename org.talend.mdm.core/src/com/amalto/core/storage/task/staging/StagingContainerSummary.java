@@ -17,13 +17,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "staging")
 public class StagingContainerSummary {
 
-    int totalRecord = 0;
+    private int totalRecord = 0;
 
-    int waitingForValidation = 0;
+    private int waitingForValidation = 0;
 
-    int validRecords = 0;
+    private int validRecords = 0;
 
-    int invalidRecords = 0;
+    private int invalidRecords = 0;
 
     private String dataContainer;
 

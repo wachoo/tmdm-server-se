@@ -34,10 +34,6 @@ public class SerializableList<T> implements List<T> {
         return new SerializableList<T>(list, rootElement, itemElement);
     }
 
-    public List<T> getList() {
-        return list;
-    }
-
     public String getRootElement() {
         return rootElement;
     }

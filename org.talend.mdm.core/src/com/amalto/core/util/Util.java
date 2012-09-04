@@ -3423,6 +3423,25 @@ public class Util {
         return null;
     }
 
+    public static String getUserDataCluster() throws Exception {
+        return getUserDataCluster(getLoginProvisioningFromDB());
+    }
+
+    public static String getUserDataCluster(Element item) throws Exception {
+        NodeList nodeList = Util.getNodeList(item, "//property");
+        if (nodeList != null) {
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Node node = nodeList.item(i);
+                if ("cluster".equals(Util.getFirstTextNode(node, "name"))) {
+                    // configuration.setCluster(Util.getNodeList(node, "value").item(0).getTextContent());
+                    Node fchild = Util.getNodeList(node, "value").item(0).getFirstChild();
+                    return fchild.getNodeValue();
+                }
+            }
+        }
+        return null;
+    }
+
     public static Map<String, ArrayList<String>> getMetaDataTypes(IWhereItem whereItem)
             throws Exception {
         return getMetaDataTypes(whereItem, null);

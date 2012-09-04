@@ -129,7 +129,6 @@ class StorageClassLoader extends ClassLoader {
         assertNotClosed();
         if (EHCACHE_XML_CONFIG.equals(name)) {
             try {
-                final ClassLoader classLoaderForLookup = this;
                 return new URL("http", "fakehost", 0, '/' + EHCACHE_XML_CONFIG, new URLStreamHandler() { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     @Override
                     protected URLConnection openConnection(URL u) throws IOException {

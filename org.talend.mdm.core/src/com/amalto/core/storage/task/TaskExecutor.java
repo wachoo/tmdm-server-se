@@ -15,9 +15,9 @@ import org.quartz.Trigger;
 
 public class TaskExecutor {
 
-    private Task task;
+    private final Task task;
 
-    private Trigger trigger;
+    private final Trigger trigger;
 
     public TaskExecutor(StagingTask task, Trigger trigger) {
         this.task = task;

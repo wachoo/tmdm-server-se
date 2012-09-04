@@ -25,6 +25,4 @@ public interface Staging extends DynamicMBean {
 
     void createSubmitter();
 
-    void createCleaner();
-
 }

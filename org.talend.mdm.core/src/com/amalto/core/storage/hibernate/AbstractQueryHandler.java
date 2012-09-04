@@ -54,7 +54,7 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
 
     final StorageClassLoader storageClassLoader;
 
-    final String storageName;
+    private final String storageName;
 
     final Select select;
 
