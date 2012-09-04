@@ -432,17 +432,18 @@ public class ForeignKeyHelper {
         return false;
     }
 
-    private static boolean useSchemaWebAgent = true;
-    public static void setUseSchemaWebAgent(boolean b) {
-        ForeignKeyHelper.useSchemaWebAgent = b;
-    }    
-    
     private static String parseRightValueOrPath(String xml, String dataObject, String rightValueOrPath, String currentXpath)
             throws Exception {
         org.dom4j.Document doc = XmlUtil.parseDocument(Util.parse(xml));
         Node node = doc.selectSingleNode(currentXpath);
         if (node != null) {
-            Node nodeValue = node.selectSingleNode(rightValueOrPath);
+            Node nodeValue;
+            if (!rightValueOrPath.startsWith(".") && !rightValueOrPath.startsWith("..")) { //$NON-NLS-1$//$NON-NLS-2$
+                String xpath = rightValueOrPath.startsWith("/") ? rightValueOrPath : "/" + rightValueOrPath; //$NON-NLS-1$//$NON-NLS-2$
+                nodeValue = node.selectSingleNode(xpath);
+            } else {
+                nodeValue = node.selectSingleNode(rightValueOrPath);
+            }
             if (nodeValue != null) {
                 rightValueOrPath = nodeValue.getText();
             }

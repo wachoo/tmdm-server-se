@@ -55,7 +55,6 @@ public class ForeignKeyHelperTest extends TestCase {
         InputStream stream = getClass().getResourceAsStream("product.xsd");
         String xsd = inputStream2String(stream);
         
-        ForeignKeyHelper.setUseSchemaWebAgent(false);
         ForeignKeyHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID("Product", null)));
         
         // 1. ForeignKeyInfo = ProductFamily/Name
