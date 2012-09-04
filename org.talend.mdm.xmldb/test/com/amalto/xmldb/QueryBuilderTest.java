@@ -20,13 +20,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.amalto.xmlserver.interfaces.*;
 import junit.framework.TestCase;
 
 import com.amalto.xmldb.util.PartialXQLPackage;
-import com.amalto.xmlserver.interfaces.IWhereItem;
-import com.amalto.xmlserver.interfaces.ItemPKCriteria;
-import com.amalto.xmlserver.interfaces.WhereAnd;
-import com.amalto.xmlserver.interfaces.WhereCondition;
 
 @SuppressWarnings("nls")
 public class QueryBuilderTest extends TestCase {
@@ -378,6 +375,11 @@ public class QueryBuilderTest extends TestCase {
     private static class TestQueryBuilder extends QueryBuilder {
 
         private boolean useNumberFunction = false;
+
+        @Override
+        public String getUriQuery(boolean isItemQuery, Map<String, String> objectRootElementNamesToRevisionID, Map<String, String> objectRootElementNamesToClusterName, String forceMainPivot, ArrayList<String> viewableFullPaths, IWhereItem whereItem, boolean withTotalCountOnFirstRow, Map<String, ArrayList<String>> metaDataTypes) throws XmlServerException {
+            return "";
+        }
 
         @Override
         protected boolean useNumberFunction() {
