@@ -84,6 +84,9 @@ class ApplyActions implements DocumentSaver {
             String actualType = element.getAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type"); //$NON-NLS-1$
             if (actualType != null && !actualType.trim().isEmpty()) {
                 type = metadataRepository.getComplexType(actualType);
+                if (type == null) {
+                    type = (ComplexTypeMetadata) metadataRepository.getNonInstantiableType(actualType);
+                }
             }
         }
         for (int i = children.getLength(); i >= 0; i--) {
@@ -103,8 +106,6 @@ class ApplyActions implements DocumentSaver {
          * Indicates to the caller whether <code>element</code> should be deleted or not.<br/>
          *
          * @param type    Definition of entity type where <code>element</code> is a field.
-         *                In other words {@link ComplexTypeMetadata#hasField(String)} must return true if implementation
-         *                passes element's name as parameter.
          * @param element An element to clean
          * @return <code>true</code> if element should be removed by caller, <code>false</code> otherwise.
          */
