@@ -39,7 +39,7 @@ public class GoodFieldTypeMapping extends TypeMapping {
 
     Object _setValues(Session session, DataRecord from, Wrapper to) {
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-        Set<FieldMetadata> fields = from.getSetFields();
+        List<FieldMetadata> fields = from.getType().getFields();
         for (FieldMetadata field : fields) {
             FieldMetadata mappedDatabaseField = getDatabase(field);
             if(mappedDatabaseField == null) {
