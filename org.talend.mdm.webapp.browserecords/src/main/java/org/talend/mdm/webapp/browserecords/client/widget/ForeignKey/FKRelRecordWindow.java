@@ -24,22 +24,26 @@ public class FKRelRecordWindow extends ForeignKeyListWindow {
 
     @Override
     protected void closeOrHideWindow() {
-        close();
+        hide();
     }
 
     @Override
-    protected void setEntityModel(EntityModel entityModel) {
-        throw new IllegalStateException(); // Can't be called
+    public void setEntityModel(EntityModel entityModel) {
+        super.setEntityModel(entityModel);
     }
 
     @Override
-    protected EntityModel getEntityModel() {
+    public EntityModel getEntityModel() {
         return BrowseRecords.getSession().getCurrentEntityModel();
     }
 
     @Override
-    protected TypeModel buildTypeModel() {
+    public TypeModel buildTypeModel() {
         return getEntityModel().getMetaDataTypes().get(getFkKey());
+    }
+
+    public EntityModel getParentEntityModel() {
+        return super.getEntityModel();
     }
 
 }

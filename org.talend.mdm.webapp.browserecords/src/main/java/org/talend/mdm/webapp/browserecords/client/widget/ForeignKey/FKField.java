@@ -13,11 +13,17 @@
 
 package org.talend.mdm.webapp.browserecords.client.widget.ForeignKey;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
+import org.talend.mdm.webapp.browserecords.client.util.Locale;
+import org.talend.mdm.webapp.browserecords.shared.EntityModel;
 
 import com.extjs.gxt.ui.client.GXT;
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -33,9 +39,13 @@ public class FKField extends TextField<ForeignKeyBean> implements ReturnCriteria
 
     private SplitButton foreignBtn = new SplitButton();
 
-    private FKRelRecordWindow relWindow = new FKRelRecordWindow();
+    private FKRelRecordWindow relWindow;
 
     private boolean retrieveFKinfos = false;
+
+    private String foreignKey;
+
+    private ReturnCriteriaFK returnCriteriaFK;
 
     public boolean isRetrieveFKinfos() {
         return retrieveFKinfos;
@@ -47,10 +57,6 @@ public class FKField extends TextField<ForeignKeyBean> implements ReturnCriteria
 
     public FKField() {
         this.setFireChangeEventOnSetValue(true);
-        relWindow.setSize(470, 340);
-        relWindow.setResizable(false);
-        relWindow.setModal(true);
-        relWindow.setBlinkModal(true);
     }
 
     protected void onRender(Element target, int index) {
@@ -72,7 +78,25 @@ public class FKField extends TextField<ForeignKeyBean> implements ReturnCriteria
         foreignBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             public void componentSelected(ButtonEvent ce) {
-                relWindow.show();
+                if (relWindow != null) {
+                    relWindow.show();
+                } else {
+                    BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry
+                            .get(BrowseRecords.BROWSERECORDS_SERVICE);
+                    EntityModel currentEntityModel = BrowseRecords.getSession().getCurrentEntityModel();
+                    String concept = currentEntityModel.getTypeModel(foreignKey).getForeignkey().split("/")[0]; //$NON-NLS-1$
+                    service.getEntityModel(concept, Locale.getLanguage(), new SessionAwareAsyncCallback<EntityModel>() {
+
+                        public void onSuccess(EntityModel entityModel) {
+                            showWindow(entityModel);
+                        }
+
+                        protected void doOnFailure(Throwable caught) {
+                            super.doOnFailure(caught);
+                        }
+                    });
+
+                }
             }
 
         });
@@ -85,7 +109,8 @@ public class FKField extends TextField<ForeignKeyBean> implements ReturnCriteria
         final SelectionListener<ButtonEvent> closer = new SelectionListener<ButtonEvent>() {
 
             public void componentSelected(ButtonEvent ce) {
-                relWindow.close();
+                if (relWindow != null)
+                    relWindow.hide();
             }
 
         };
@@ -93,6 +118,19 @@ public class FKField extends TextField<ForeignKeyBean> implements ReturnCriteria
         setElement(wrap.dom, target, index);
         foreignBtn.render(foreignDiv.dom);
         super.onRender(target, index);
+    }
+
+    private void showWindow(EntityModel entityModel) {
+        relWindow = new FKRelRecordWindow();
+        relWindow.setEntityModel(entityModel);
+        relWindow.setSize(470, 340);
+        relWindow.setResizable(false);
+        relWindow.setModal(true);
+        relWindow.setBlinkModal(true);
+        relWindow.setFkKey(foreignKey);
+        relWindow.setReturnCriteriaFK(returnCriteriaFK);
+        relWindow.setHeading(MessagesFactory.getMessages().fk_RelatedRecord());
+        relWindow.show();
     }
 
     protected void onResize(int width, int height) {
@@ -111,9 +149,8 @@ public class FKField extends TextField<ForeignKeyBean> implements ReturnCriteria
     }
 
     public void Update(String foreignKey, ReturnCriteriaFK returnCriteriaFK) {
-        relWindow.setFkKey(foreignKey);
-        relWindow.setReturnCriteriaFK(returnCriteriaFK);
-        relWindow.setHeading(MessagesFactory.getMessages().fk_RelatedRecord());
+        this.foreignKey = foreignKey;
+        this.returnCriteriaFK = returnCriteriaFK;
     }
 
     public void setCriteriaFK(final ForeignKeyBean fk) {

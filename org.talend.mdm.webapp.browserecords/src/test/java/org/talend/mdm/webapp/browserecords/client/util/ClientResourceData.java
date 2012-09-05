@@ -372,4 +372,14 @@ public class ClientResourceData {
         model.append("</models>");
         return model.toString();
     }
+
+    public static String getModelProductFamily() {
+        StringBuffer model = new StringBuffer();
+        model.append("<models concept=\"ProductFamily\">");
+        model.append("  <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"ProductFamily\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"ProductFamily/Id\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"ProductFamily/Name\"/>");
+        model.append("</models>");
+        return model.toString();
+    }
 }

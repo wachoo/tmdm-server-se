@@ -142,12 +142,12 @@ public class ForeignKeyListWindow extends Window {
         this.foreignKeyInfo = fkInfo;
     }
 
-    protected void setEntityModel(EntityModel entityModel) {
+    public void setEntityModel(EntityModel entityModel) {
         this.entityModel = entityModel;
         this.fkKey = entityModel.getConceptName();
     }
 
-    protected EntityModel getEntityModel() {
+    public EntityModel getEntityModel() {
         return entityModel;
     }
 
@@ -177,7 +177,7 @@ public class ForeignKeyListWindow extends Window {
         return value;
     }
 
-    protected TypeModel buildTypeModel() {
+    public TypeModel buildTypeModel() {
         TypeModel typeModel = getEntityModel().getMetaDataTypes().get(fkKey);
         typeModel.setForeignkey(this.foreignKey);
         typeModel.setForeignKeyInfo(this.foreignKeyInfo);
