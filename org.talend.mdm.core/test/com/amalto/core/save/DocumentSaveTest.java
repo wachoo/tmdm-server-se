@@ -343,7 +343,8 @@ public class DocumentSaveTest extends TestCase {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
 
-        SaverSource source = new TestSaverSource(repository, true, "test1_original.xml", "metadata1.xsd");
+        TestSaverSource source = new TestSaverSource(repository, true, "test1_original.xml", "metadata1.xsd");
+        source.setUserName("System_Admin");
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
@@ -358,6 +359,7 @@ public class DocumentSaveTest extends TestCase {
         Element committedElement = committer.getCommittedElement();
         assertEquals("Chicago", evaluate(committedElement, "/Agency/Name"));
         assertEquals("Chicago", evaluate(committedElement, "/Agency/City"));
+        assertEquals("", evaluate(committedElement, "/Agency/State"));
     }
 
     public void testUpdateOnNonExisting() throws Exception {
