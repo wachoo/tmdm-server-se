@@ -34,6 +34,7 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
     taskForeignKeytore : "",
     showDeleteButton:true,
     fkFilter : "",
+    parseFkFilter : null,
     retrieveFKinfos : false,
     enableKeyEvents : true,
     value : "",
@@ -45,6 +46,16 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
 	
     //pop up a dialog
     onTrigger2Click : function () {
+	    if (typeof this.parseFkFilter == "function"){
+	    	this.parseFkFilter(this.fkFilter, function(newFkFilter){
+	    		this.showFkDialog(newFkFilter);
+	    	}.createDelegate(this));
+	    } else {
+	    	window.alert("must set parseFkFilter function for ForeignKeyField");
+	    }
+	},
+
+	showFkDialog : function(newFkFilter){
 	    var FILTER = {
 			'fr':'Saisissez un critère de recherche puis sélectionnez une valeur dans la liste déroulante',
 			'en':'Fill the box with a key-word then select a value'
@@ -63,9 +74,9 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
 			'en':'possible key is found'
 		};
     	var  pos = this.el.getXY();
-	    var dwrpasm = [this.xpathForeignKey, this.xpathForeignKeyInfo, this.fkFilter];
+	    var dwrpasm = [this.xpathForeignKey, this.xpathForeignKeyInfo, newFkFilter];
 	    var retrieve = "true" == this.retrieveFKinfos + "";
-	    WidgetInterface.countForeignKey_filter(this.xpathForeignKey, this.xpathForeignKeyInfo, this.fkFilter, function(count) {
+	    WidgetInterface.countForeignKey_filter(this.xpathForeignKey, this.xpathForeignKeyInfo, newFkFilter, function(count) {
 	    	if(this.taskForeignKeyWindow) {
 	    		this.taskForeignKeyWindow.hide();
 	    		this.taskForeignKeyWindow.destroy();
@@ -176,8 +187,8 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
 		    	this.taskForeignKeyWindow.destroy();
 			}.createDelegate(this));
 
+			this.taskForeignKeyWindow.setPosition([pos[0], pos[1]+23]);
 			this.taskForeignKeyWindow.show();
-			this.taskForeignKeyWindow.el.setXY([pos[0], pos[1]+23]);
 		}.createDelegate(this)
 		);
 	},
