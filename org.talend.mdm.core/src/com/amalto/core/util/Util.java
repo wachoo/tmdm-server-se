@@ -1024,24 +1024,6 @@ public class Util {
     }
 
     private static final LRUCache<String, XSDKey> xsdkeyCache = new LRUCache<String, XSDKey>(40);
-
-    public static String[] orderKeyFields(String[] orderedFields, String[] keyFields) {
-        Set<String> keys = new HashSet<String>();
-        for (String k : keyFields) {
-            keys.add(k);
-        }
-        
-        String[] result = new String[keyFields.length];
-        int result_i = 0;
-        for (int i = 0; i < orderedFields.length; ++i) {
-            if (keys.contains(orderedFields[i])) {
-                keys.remove(orderedFields[i]);
-                result[result_i++] = orderedFields[i];
-            }
-        }
-        
-        return result;
-    }
     
     public static XSDKey getBusinessConceptKey(Document xsd, String businessConceptName) throws TransformerException {
         try {
@@ -1068,8 +1050,6 @@ public class Util {
             }
 
             fields = Util.getTextNodes(xsd.getDocumentElement(), "xsd:element/xsd:unique[@name='" + businessConceptName + "']/xsd:field/@xpath", getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"));
-            String[] orderedFields = Util.getTextNodes(xsd.getDocumentElement(), "xsd:element[@name='" + businessConceptName + "']/xsd:complexType/*/xsd:element/@name", getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"));
-            fields = orderKeyFields(orderedFields, fields);
                        
             if (selectors.length == 0) {
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
