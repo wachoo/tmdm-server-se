@@ -72,6 +72,7 @@ import org.jboss.security.Base64Encoder;
 import org.jboss.security.SimpleGroup;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -92,6 +93,7 @@ import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.XtentisException;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.UpdateReportItem;
+import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.json.JSONArray;
 import com.amalto.webapp.core.json.JSONObject;
 import com.amalto.webapp.util.webservices.WSBase64KeyValue;
@@ -350,6 +352,11 @@ public class Util {
             // values = new String[] { foreignKey, "Contains", values[0] };
             WSWhereCondition wc = Util.convertLine(values);
             if (wc != null) {
+                if (isFkPath(values[0])) {
+                    wc.setRightValueOrPath(wrapFkValue(wc.getRightValueOrPath()));
+                } else {
+                    wc.setRightValueOrPath(unwrapFkValue(wc.getRightValueOrPath()));
+                }
                 condition.add(new WSWhereItem(wc, null, null));
             }
             // }
@@ -430,6 +437,38 @@ public class Util {
         }
 
         return wc;
+    }
+
+    public static String wrapFkValue(String value) {
+        if (value.startsWith("[") && value.endsWith("]")) { //$NON-NLS-1$//$NON-NLS-2$
+            return value;
+        }
+        return "[" + value + "]"; //$NON-NLS-1$ //$NON-NLS-2$
+    }
+
+    public static String unwrapFkValue(String value) {
+        if (value.startsWith("[") && value.endsWith("]")) { //$NON-NLS-1$ //$NON-NLS-2$
+            if (value.contains("][")) { //$NON-NLS-1$
+                return value;
+            } else {
+                return value.substring(1, value.length() - 1);
+            }
+        }
+        return value;
+    }
+
+    public static boolean isFkPath(String fkPath) {
+        String concept = fkPath.split("/")[0]; //$NON-NLS-1$
+        try {
+            BusinessConcept businessConcept = SchemaWebAgent.getInstance().getBusinessConcept(concept);
+            Map<String, String> fkMap = businessConcept.getForeignKeyMap();
+            if (fkMap != null && fkMap.containsKey("/" + fkPath)) { //$NON-NLS-1$
+                return true;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
     }
 
     /**
