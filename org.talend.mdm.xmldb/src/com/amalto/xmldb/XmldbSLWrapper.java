@@ -22,7 +22,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Properties;
 import java.util.Set;
@@ -100,8 +99,9 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
 
         // Make sure the DB is not already registered
         Database[] databases = DatabaseManager.getDatabases();
-        if ((databases != null) && (databases.length > 0))
+        if ((databases != null) && (databases.length > 0)) {
             return;
+        }
 
         Properties properties = MDMConfiguration.getConfiguration();
 
@@ -130,15 +130,18 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
 
         try {
             // register DBManager
-            if (LOG.isTraceEnabled())
+            if (LOG.isTraceEnabled()) {
                 LOG.trace("registerDBManager() registering");
+            }
             Class<? extends Database> cl = (Class<? extends Database>) Class.forName(DRIVER);
             Database database = cl.newInstance();
-            if (LOG.isTraceEnabled())
+            if (LOG.isTraceEnabled()) {
                 LOG.trace("registerDBManager() Driver instantiated");
+            }
             DatabaseManager.registerDatabase(database);
-            if (LOG.isDebugEnabled())
+            if (LOG.isDebugEnabled()) {
                 LOG.debug("registerDBManager() Driver registered");
+            }
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
@@ -160,8 +163,9 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
         if (!MDMConfiguration.isExistDb()) {
             return CommonUtil.getPath(revisionID, cluster);
         } else {
-            if (revisionID != null)
+            if (revisionID != null) {
                 revisionID = revisionID.replaceAll("\\[HEAD\\]|HEAD", "");
+            }
             return "xmldb:" + DBID + "://" + SERVERNAME + ":" + SERVERPORT + "/" + DBURL
                     + ((revisionID == null) || "".equals(revisionID) ? "" : "/" + "R-" + revisionID)
                     + ((cluster == null) || "".equals(cluster) ? "" : "/" + cluster);
@@ -179,15 +183,18 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
      */
     protected org.xmldb.api.base.Collection getCollection(String revisionID, String clusterName, boolean create)
             throws XmlServerException {
-        if (revisionID != null && revisionID.equals("null"))
+        if (revisionID != null && revisionID.equals("null")) {
             revisionID = null;
-        if (revisionID != null)
+        }
+        if (revisionID != null) {
             revisionID = revisionID.replaceAll("\\[HEAD\\]|HEAD", "");
+        }
         String key = ((revisionID == null) || "".equals(revisionID) ? "__HEAD__" : revisionID)
                 + ((clusterName == null) ? "__ROOT__" : clusterName);
 
-        if (LOG.isTraceEnabled())
+        if (LOG.isTraceEnabled()) {
             LOG.trace("getCollection() R-" + key);
+        }
 
         // registerDBManager();
         org.xmldb.api.base.Collection col = clusters.get(key);
@@ -197,9 +204,10 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
                 col = DatabaseManager.getCollection(getFullURL(revisionID, clusterName), ADMIN_USERNAME, ADMIN_PASSWORD);
                 if (col == null) {
                     if (!create) {
-                        if (LOG.isDebugEnabled())
+                        if (LOG.isDebugEnabled()) {
                             LOG.debug("The cluster '" + clusterName + "' cannot be found in " //$NON-NLS-1$ //$NON-NLS-2$
                                     + (revisionID == null ? "HEAD" : "revision " + revisionID)); //$NON-NLS-1$ //$NON-NLS-2$
+                        }
                         return null;
                     }
                     // get the revision
@@ -223,8 +231,9 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
                 throw new XmlServerException(e);
             }
         } else {
-            if (LOG.isTraceEnabled())
+            if (LOG.isTraceEnabled()) {
                 LOG.trace("getCollection() re-using cached collection");
+            }
         }
         return col;
     }
@@ -237,21 +246,27 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
     /**
      * Is the server up
      */
+    @Override
     public boolean isUpAndRunning() {
-        if (LOG.isTraceEnabled())
+        if (LOG.isTraceEnabled()) {
             LOG.trace("isUpAndRunning() Server State OK ? " + SERVER_STATE_OK + "   Proceesing Upgrade ? " + PROCESSING_UPGRADE);
-        if (SERVER_STATE_OK)
+        }
+        if (SERVER_STATE_OK) {
             return true;
-        if (PROCESSING_UPGRADE)
+        }
+        if (PROCESSING_UPGRADE) {
             return false;
+        }
 
         // No testing --> assume it works
-        if ("".equals(ISUPURL))
+        if ("".equals(ISUPURL)) {
             return true;
+        }
 
         String uriString = "http://" + SERVERNAME + ":" + SERVERPORT + "/" + ISUPURL;
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug("isUpAndRunning() " + uriString);
+        }
         try {
             HttpClient client = new HttpClient();
             HttpClientParams params = new HttpClientParams();
@@ -267,27 +282,33 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
             PROCESSING_UPGRADE = false;
             method.setFollowRedirects(true);
 
-            if (LOG.isDebugEnabled())
+            if (LOG.isDebugEnabled()) {
                 LOG.debug("isUpAndRunning() here");
+            }
 
             int status = client.executeMethod(config, method);
-            if (LOG.isDebugEnabled())
+            if (LOG.isDebugEnabled()) {
                 LOG.debug("Server returned status : " + status + " at uri: " + uriString);
-            if (status >= 400)
+            }
+            if (status >= 400) {
                 return false;
-            if (LOG.isDebugEnabled())
+            }
+            if (LOG.isDebugEnabled()) {
                 LOG.debug("Server is running at : " + uriString);
+            }
 
             // check if need upgrade
             checkMe();
 
-            if (PROCESSING_UPGRADE)
+            if (PROCESSING_UPGRADE) {
                 return false;
+            }
 
             return SERVER_STATE_OK;
         } catch (Exception e) {
-            if (LOG.isDebugEnabled())
+            if (LOG.isDebugEnabled()) {
                 LOG.debug("Not UpAndRunning() at " + uriString + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage());
+            }
             return false;
         }
     }
@@ -304,6 +325,7 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
      * @throws XmlServerException
      * 
      */
+    @Override
     public String[] getAllClusters(String revisionID) throws XmlServerException {
         try {
             return getCollection(revisionID, null, true).listChildCollections();
@@ -321,6 +343,7 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
      * @throws XmlServerException
      * 
      */
+    @Override
     public long deleteCluster(String revisionID, String clusterName) throws XmlServerException {
         try {
             long startT = System.currentTimeMillis();
@@ -367,6 +390,7 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
      * @throws XmlServerException
      * 
      */
+    @Override
     public long deleteAllClusters(String revisionID) throws XmlServerException {
 
         try {
@@ -376,8 +400,8 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
                     "1.0");
             String[] clusterNames = col.listChildCollections();
             if (clusterNames != null) {
-                for (int i = 0; i < clusterNames.length; i++) {
-                    service.removeCollection(clusterNames[i]);
+                for (String clusterName : clusterNames) {
+                    service.removeCollection(clusterName);
                 }
             }
             // clear cache
@@ -404,6 +428,7 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
      * @throws XmlServerException
      * 
      */
+    @Override
     public long createCluster(String revisionID, String clusterName) throws XmlServerException {
         try {
             long startT = System.currentTimeMillis();
@@ -429,6 +454,7 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
      * @throws XmlServerException
      * 
      */
+    @Override
     public long putDocumentFromFile(String fileName, String uniqueID, String clusterName, String revisionID, String documentType)
             throws XmlServerException {
 
@@ -439,15 +465,17 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
             String encodedID = URLEncoder.encode(uniqueID, "UTF-8");
 
             boolean binary = true;
-            if (IXmlServerSLWrapper.TYPE_DOCUMENT.equals(documentType))
+            if (IXmlServerSLWrapper.TYPE_DOCUMENT.equals(documentType)) {
                 binary = false;
+            }
 
             org.xmldb.api.base.Collection col = getCollection(revisionID, clusterName, true);
             Resource document;
-            if (binary)
+            if (binary) {
                 document = col.createResource(encodedID, "BinaryResource");
-            else
+            } else {
                 document = col.createResource(encodedID, "XMLResource");
+            }
             File f = new File(fileName);
             if (!f.canRead()) {
                 throw new IOException("Cannot read file " + fileName);
@@ -474,8 +502,9 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
      * @throws XmlServerException
      * 
      */
+    @Override
     public long putDocumentFromString(String xmlString, String uniqueID, String clusterName, String revisionID,
-                                      String documentType) throws XmlServerException {
+            String documentType) throws XmlServerException {
         if (LOG.isTraceEnabled()) {
             LOG.trace("putDocumentFromString() [R-" + revisionID + "/" + clusterName + "/" + uniqueID + "]");
         }
@@ -483,7 +512,6 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
         if (!existCluster(revisionID, clusterName)) {
             throw new XmlServerException("Cluster '" + clusterName + "' (revision: '" + revisionID + "') does not exist");
         }
-
 
         long startT = System.currentTimeMillis();
         try {
@@ -523,6 +551,7 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
      * @throws XmlServerException
      * 
      */
+    @Override
     public long putDocumentFromDOM(Element root, String uniqueID, String clusterName, String revisionID)
             throws XmlServerException {
         if (!existCluster(revisionID, clusterName)) {
@@ -554,11 +583,14 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
         return time;
     }
 
-    public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input, String revisionId) throws XmlServerException {
+    @Override
+    public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input, String revisionId)
+            throws XmlServerException {
         // TODO Implement this
         throw new NotImplementedException();
     }
 
+    @Override
     public byte[] getDocumentBytes(String revisionID, String clusterName, String uniqueID, String documentType)
             throws XmlServerException {
         try {
@@ -572,27 +604,31 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
             if (IXmlServerSLWrapper.TYPE_DOCUMENT.equals(documentType)) {
                 col.setProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
                 res = col.getResource(encodedID);
-                if (res == null)
+                if (res == null) {
                     return null;
+                }
                 String xml = "<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n" + ((XMLResource) res).getContent();
                 return xml.getBytes("UTF-16");
             } else {
                 res = col.getResource(encodedID);
-                if (res == null)
+                if (res == null) {
                     return null;
+                }
                 BinaryResource binRes = (BinaryResource) res;
 
                 if (binRes.getContent() instanceof byte[]) {
-                    if (binRes.getContent() != null)
+                    if (binRes.getContent() != null) {
                         return (byte[]) binRes.getContent();
+                    }
                 }
 
                 InputStream is = (InputStream) binRes.getContent();
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 byte[] buffer = new byte[8 * 1024];
                 int len;
-                while ((len = is.read(buffer)) > 0)
+                while ((len = is.read(buffer)) > 0) {
                     baos.write(buffer, 0, len);
+                }
 
                 return baos.toByteArray();
             }
@@ -604,10 +640,12 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
         }
     }
 
+    @Override
     public String getDocumentAsString(String revisionID, String clusterName, String uniqueID, String encoding)
             throws XmlServerException {
-        if (LOG.isTraceEnabled())
+        if (LOG.isTraceEnabled()) {
             LOG.trace("getDocumentAsString() " + revisionID + "/" + clusterName + "/" + uniqueID + "  encoding=" + encoding);
+        }
 
         XMLResource res = null;
         try {
@@ -618,8 +656,9 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
             String encodedID = URLEncoder.encode(uniqueID, "UTF-8");
             res = (XMLResource) col.getResource(encodedID);
 
-            if (res == null || res.getContent() == null)
+            if (res == null || res.getContent() == null) {
                 return null;
+            }
             // store xml in cache
             // itemsCache.put(key1, res.getContent().toString());
             return (encoding == null ? "" : "<?xml version=\"1.0\" encoding=\"" + encoding + "\"?>\n") + res.getContent();
@@ -631,6 +670,7 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
 
     }
 
+    @Override
     public String[] getAllDocumentsUniqueID(String revisionID, String clusterName) throws XmlServerException {
 
         try {
@@ -638,8 +678,9 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
             // col.setProperty(OutputKeys.INDENT, "yes");
             col.setProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
             String[] encodedIDs = col.listResources();
-            if (encodedIDs == null)
+            if (encodedIDs == null) {
                 return null;
+            }
             String[] decodedIDs = new String[encodedIDs.length];
             for (int i = 0; i < encodedIDs.length; i++) {
                 decodedIDs[i] = URLDecoder.decode(encodedIDs[i], "UTF-8");
@@ -653,6 +694,7 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
         }
     }
 
+    @Override
     public long deleteDocument(String revisionID, String clusterName, String uniqueID, String documentType)
             throws XmlServerException {
 
@@ -667,10 +709,11 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
             String encodedID = URLEncoder.encode(uniqueID, "UTF-8");
 
             Resource res;
-            if (binary)
+            if (binary) {
                 res = col.createResource(encodedID, "BinaryResource");
-            else
+            } else {
                 res = col.createResource(encodedID, "XMLResource");
+            }
             col.removeResource(res);
             // remove item from cache
             // ItemCacheKey key1=new ItemCacheKey(revisionID,uniqueID,clusterName);
@@ -685,6 +728,7 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
         return time;
     }
 
+    @Override
     public int deleteItems(LinkedHashMap<String, String> conceptPatternsToRevisionID,
             LinkedHashMap<String, String> conceptPatternsToClusterName, String conceptName, IWhereItem whereItem)
             throws XmlServerException {
@@ -697,8 +741,7 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
             // determine revision
             String revisionID = null;
             Set<String> patterns = conceptPatternsToRevisionID.keySet();
-            for (Iterator<String> iterator = patterns.iterator(); iterator.hasNext();) {
-                String pattern = iterator.next();
+            for (String pattern : patterns) {
                 if (conceptName.matches(pattern)) {
                     revisionID = conceptPatternsToRevisionID.get(pattern);
                     break;
@@ -707,33 +750,32 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
             // determine cluster
             String clusterName = null;
             patterns = conceptPatternsToClusterName.keySet();
-            for (Iterator<String> iterator = patterns.iterator(); iterator.hasNext();) {
-                String pattern = iterator.next();
+            for (String pattern : patterns) {
                 if (conceptName.matches(pattern)) {
                     clusterName = conceptPatternsToClusterName.get(pattern);
                     break;
                 }
             }
-            if (clusterName == null)
+            if (clusterName == null) {
                 throw new XmlServerException("Unable to find a cluster for concept '" + conceptName + "'");
+            }
 
             // Replace for QueryBuilder
             // String xquery ="for $pivot in " + getXQueryCollectionName(revisionID,
             // clusterName)+"/ii/p"+conceptName+(whereItem !=null ? "\nwhere "+buildWhere("", pivots,
             // whereItem,true)+"\n" : "") + "\nreturn base-uri($pivot)";
-            conceptName = conceptName.startsWith("/") ? conceptName : "/" + conceptName;
-            String xquery = "for $pivot in " + queryBuilder.getXQueryCollectionName(revisionID, clusterName) + "/ii/p"
-                    + conceptName
-                    + (whereItem != null ? "\nwhere " + buildWhere(pivots, whereItem, null) + "\n" : "")
-                    + "\nreturn base-uri($pivot)";
+
+            ArrayList<String> elements = new ArrayList<String>();
+            elements.add(conceptName.startsWith("/") ? conceptName : "/" + conceptName);
+            String xquery = getItemsUriQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, clusterName, elements,
+                    whereItem);
 
             Collection<String> res = runQuery(null, null, xquery, null);
 
             // set at head of db
             col = getCollection(revisionID, clusterName, true);
 
-            for (Iterator<String> iter = res.iterator(); iter.hasNext();) {
-                String uri = iter.next();
+            for (String uri : res) {
                 // String[] paths = uri.split("/");
                 // String encodedID = paths[paths.length-1];
                 Resource resource = col.createResource(uri, "XMLResource");
@@ -757,6 +799,7 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
 
     }
 
+    @Override
     public int deleteXtentisObjects(HashMap<String, String> objectRootElementNameToRevisionID,
             HashMap<String, String> objectRootElementNameToClusterName, String objectRootElementName, IWhereItem whereItem)
             throws XmlServerException {
@@ -783,8 +826,7 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
             // (whereItem !=null ? "\nwhere "+buildWhere("", pivots, whereItem,true)+"\n" : "") +
             // "\nreturn base-uri($pivot)";
             String xquery = "for $pivot in " + queryBuilder.getXQueryCollectionName(revisionID, clusterName) + "/"
-                    + objectRootElementName
-                    + (whereItem != null ? "\nwhere " + buildWhere(pivots, whereItem, null) + "\n" : "")
+                    + objectRootElementName + (whereItem != null ? "\nwhere " + buildWhere(pivots, whereItem, null) + "\n" : "")
                     + "\nreturn base-uri($pivot)";
 
             Collection<String> res = runQuery(null, null, xquery, null);
@@ -792,8 +834,7 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
             // set at head of db
             col = getCollection(revisionID, clusterName, true);
 
-            for (Iterator<String> iter = res.iterator(); iter.hasNext();) {
-                String uri = iter.next();
+            for (String uri : res) {
                 // String[] paths = uri.split("/");
                 // String encodedID = paths[paths.length-1];
                 Resource resource = col.createResource(uri, "XMLResource");
@@ -824,10 +865,12 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
      * @throws XmlServerException
      * 
      */
+    @Override
     public ArrayList<String> runQuery(String revisionID, String clusterName, String query, String[] parameters)
             throws XmlServerException {
-        if (LOG.isTraceEnabled())
+        if (LOG.isTraceEnabled()) {
             LOG.trace("runQuery() Cluster: " + revisionID + "/" + clusterName + "\nQuery: \n" + query);
+        }
         try {
 
             // replace parameters in the procedure
@@ -872,13 +915,14 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
      * 
      * @see com.amalto.xmlserver.interfaces.IXmlServerEBJLifeCycle#doPassivate()
      */
+    @Override
     public void doPassivate() throws XmlServerException {
-        if (LOG.isTraceEnabled())
+        if (LOG.isTraceEnabled()) {
             LOG.trace("doPassivate() ");
+        }
         try {
             Set<String> keys = this.clusters.keySet();
-            for (Iterator<String> iter = keys.iterator(); iter.hasNext();) {
-                String clusterName = iter.next();
+            for (String clusterName : keys) {
                 org.xmldb.api.base.Collection collection = clusters.get(clusterName);
                 collection.close();
             }
@@ -894,13 +938,14 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
      * 
      * @see com.amalto.xmlserver.interfaces.IXmlServerEBJLifeCycle#doRemove()
      */
+    @Override
     public void doRemove() throws XmlServerException {
-        if (LOG.isTraceEnabled())
+        if (LOG.isTraceEnabled()) {
             LOG.trace("doRemove() ");
+        }
         try {
             Set<String> keys = this.clusters.keySet();
-            for (Iterator<String> iter = keys.iterator(); iter.hasNext();) {
-                String clusterName = iter.next();
+            for (String clusterName : keys) {
                 org.xmldb.api.base.Collection collection = clusters.get(clusterName);
                 try {
                     collection.close();
@@ -928,8 +973,9 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
      * @return the Concept
      */
     public static String getRootElementNameFromPath(String path) {
-        if (!path.endsWith("/"))
+        if (!path.endsWith("/")) {
             path += "/";
+        }
         Matcher m = pathWithoutConditions.matcher(path);
         if (m.matches()) {
             return m.group(1);
@@ -947,8 +993,9 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
      * @throws XmlServerException
      */
     protected void checkMe() throws XmlServerException {
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug("checkMe() ");
+        }
 
         // processing upgrade code
 
@@ -959,20 +1006,25 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
 
     }
 
+    @Override
     public void clearCache() {
         clusters.clear();
     }
 
+    @Override
     public void close() throws XmlServerException {
         // Nothing to clean up.
     }
 
+    @Override
     public boolean existCluster(String revisionID, String clusterName) throws XmlServerException {
-        if (clusterName == null || clusterName.trim().length() == 0)
+        if (clusterName == null || clusterName.trim().length() == 0) {
             return false;
+        }
         org.xmldb.api.base.Collection col = getCollection(revisionID, clusterName, false);
-        if (col == null)
+        if (col == null) {
             return false;
+        }
         return true;
     }
 }

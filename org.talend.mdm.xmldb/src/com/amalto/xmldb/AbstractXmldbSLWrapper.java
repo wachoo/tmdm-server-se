@@ -64,22 +64,25 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
             transformer.setOutputProperty("omit-xml-declaration", "no"); //$NON-NLS-1$ //$NON-NLS-2$
         }
 
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             transformer.setOutputProperty("indent", "yes"); //$NON-NLS-1$ //$NON-NLS-2$
+        }
         transformer.transform(new DOMSource(n), new StreamResult(sw));
         return sw.toString().replaceAll("\r\n", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
     }
-    
+
+    @Override
     public void clearCache() {
     }
 
+    @Override
     public boolean isUpAndRunning() {
         return true;
     }
 
-    public long countItems(Map<String, String> conceptPatternsToRevisionID,
-            Map<String, String> conceptPatternsToClusterName, String fullPath, IWhereItem whereItem)
-            throws XmlServerException {
+    @Override
+    public long countItems(Map<String, String> conceptPatternsToRevisionID, Map<String, String> conceptPatternsToClusterName,
+            String fullPath, IWhereItem whereItem) throws XmlServerException {
 
         StringBuilder xquery = new StringBuilder();
         try {
@@ -88,9 +91,8 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
                 // get the concept
                 String revisionID = queryBuilder.getRevisionID(conceptPatternsToRevisionID, fullPath);
                 // determine cluster
-                String clusterName = queryBuilder.getClusterName(conceptPatternsToClusterName,
-                        fullPath);
-               
+                String clusterName = queryBuilder.getClusterName(conceptPatternsToClusterName, fullPath);
+
                 // Replace for QueryBuilder
                 xquery.append("count("); //$NON-NLS-1$
                 xquery.append(queryBuilder.getXQueryCollectionName(revisionID, clusterName));
@@ -99,8 +101,8 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
                 xquery.append(")"); //$NON-NLS-1$
             } else {
                 xquery.append("let $zcount := "); //$NON-NLS-1$
-                xquery.append(getItemsQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, null, new ArrayList<String>(
-                        Arrays.asList(fullPath)), whereItem, null, null, 0, -1));
+                xquery.append(getItemsQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, null,
+                        new ArrayList<String>(Arrays.asList(fullPath)), whereItem, null, null, 0, -1));
                 xquery.append("\n return count($zcount)"); //$NON-NLS-1$
             }
 
@@ -115,6 +117,7 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
         }
     }
 
+    @Override
     public long countXtentisObjects(HashMap<String, String> objectRootElementNameToRevisionID,
             HashMap<String, String> objectRootElementNameToClusterName, String objectFullPath, IWhereItem whereItem)
             throws XmlServerException {
@@ -155,6 +158,7 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
         }
     }
 
+    @Override
     public String getChildrenItemsQuery(String clusterName, String conceptName, String[] PKXpaths, String FKXpath,
             String labelXpath, String fatherPK, LinkedHashMap<String, String> itemsRevisionIDs, String defaultRevisionID,
             IWhereItem whereItem, int start, int limit) throws XmlServerException {
@@ -215,17 +219,23 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
             } else if (PKXpaths.length > 1) {
                 xqReturn.append("{concat("); //$NON-NLS-1$
                 for (int l = 0; l < PKXpaths.length; l++) {
-                    if (l > 0)
+                    if (l > 0) {
                         xqReturn.append(","); //$NON-NLS-1$
+                    }
                     xqReturn.append("'['").append(",$").append(PKXpaths[l]).append("/text()").append(",']'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                 }
                 xqReturn.append(")}"); //$NON-NLS-1$
             }
             xqReturn.append("</result-key>"); //$NON-NLS-1$
 
-            xqReturn.append("<result-label>"); //$NON-NLS-1$
-            xqReturn.append("{$").append(labelXpath).append("/text()}"); //$NON-NLS-1$ //$NON-NLS-2$
-            xqReturn.append("</result-label>"); //$NON-NLS-1$
+            if (labelXpath != null) {
+                String[] toDisplayXpaths = labelXpath.split(","); //$NON-NLS-1$
+                for (String toDisplayXpath : toDisplayXpaths) {
+                    xqReturn.append("<result-label>"); //$NON-NLS-1$
+                    xqReturn.append("{$").append(toDisplayXpath.trim()).append("/text()}"); //$NON-NLS-1$ //$NON-NLS-2$
+                    xqReturn.append("</result-label>"); //$NON-NLS-1$
+                }
+            }
 
             xqReturn.append("</result>  "); //$NON-NLS-1$
 
@@ -245,27 +255,38 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
         }
     }
 
+    @Override
     public String getDocumentAsString(String revisionID, String clusterName, String uniqueID) throws XmlServerException {
         return getDocumentAsString(revisionID, clusterName, uniqueID, "UTF-16"); //$NON-NLS-1$
     }
 
+    public String getItemsUriQuery(Map<String, String> conceptPatternsToRevisionID,
+            Map<String, String> conceptPatternsToClusterName, String forceMainPivot, ArrayList<String> viewableFullPaths,
+            IWhereItem whereItem) throws XmlServerException {
+        return queryBuilder.getUriQuery(true, conceptPatternsToRevisionID, conceptPatternsToClusterName, forceMainPivot,
+                viewableFullPaths, whereItem, false, null);
+    }
+
+    @Override
     public String getItemsQuery(Map<String, String> conceptPatternsToRevisionID,
-            Map<String, String> conceptPatternsToClusterName, String forceMainPivot,
-            ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, int limit)
-            throws XmlServerException {
+            Map<String, String> conceptPatternsToClusterName, String forceMainPivot, ArrayList<String> viewableFullPaths,
+            IWhereItem whereItem, String orderBy, String direction, int start, int limit) throws XmlServerException {
         return getItemsQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, forceMainPivot, viewableFullPaths,
                 whereItem, orderBy, direction, start, limit, false, null);
     }
 
+    @Override
     public String getItemsQuery(Map<String, String> conceptPatternsToRevisionID,
-            Map<String, String> conceptPatternsToClusterName, String forceMainPivot,
-            ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, long limit,
-            boolean totalCountOnfirstRow, Map<String, ArrayList<String>> metaDataTypes) throws XmlServerException {
+            Map<String, String> conceptPatternsToClusterName, String forceMainPivot, ArrayList<String> viewableFullPaths,
+            IWhereItem whereItem, String orderBy, String direction, int start, long limit, boolean totalCountOnfirstRow,
+            Map<String, ArrayList<String>> metaDataTypes) throws XmlServerException {
         // Replace for QueryBuilder
+
         return queryBuilder.getQuery(true, conceptPatternsToRevisionID, conceptPatternsToClusterName, forceMainPivot,
                 viewableFullPaths, whereItem, orderBy, direction, start, limit, totalCountOnfirstRow, metaDataTypes);
     }
 
+    @Override
     public String getPivotIndexQuery(String clusterName, String mainPivotName, LinkedHashMap<String, String[]> pivotWithKeys,
             LinkedHashMap<String, String> itemsRevisionIDs, String defaultRevisionID, String[] indexPaths, IWhereItem whereItem,
             String[] pivotDirections, String[] indexDirections, int start, int limit) throws XmlServerException {
@@ -285,9 +306,10 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
             for (Iterator<String> iterator = pivotWithKeys.keySet().iterator(); iterator.hasNext(); i++) {
                 String pivot = iterator.next();
                 pivotPaths[i] = pivot;
-                String[] tmp = pivot.split("/");  //$NON-NLS-1$ // TODO maybe care about other cases, like '//'
-                if (tmp.length > 0)
+                String[] tmp = pivot.split("/"); //$NON-NLS-1$ // TODO maybe care about other cases, like '//'
+                if (tmp.length > 0) {
                     conceptMap.add(tmp[0]);
+                }
             }
             // for
             if (conceptMap.size() > 0) {
@@ -311,7 +333,7 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
 
             // where
             if (pivotPaths.length > 0) {
-                xqWhere.append("where (1=1) ");  //$NON-NLS-1$ // ctoum 20100110
+                xqWhere.append("where (1=1) "); //$NON-NLS-1$ // ctoum 20100110
                 if (pivotPaths.length > 1) {
                     for (int k = 0; k < pivotPaths.length - 1; k++) {
                         String[] k1keys = pivotWithKeys.get(pivotPaths[k + 1]);
@@ -321,8 +343,9 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
                         } else if (k1keys.length > 1) {
                             xqWhere.append(" and $").append(pivotPaths[k]).append("=concat("); //$NON-NLS-1$ //$NON-NLS-2$
                             for (int l = 0; l < k1keys.length; l++) {
-                                if (l > 0)
+                                if (l > 0) {
                                     xqWhere.append(","); //$NON-NLS-1$
+                                }
                                 xqWhere.append("'['").append(",$").append(k1keys[l]).append(",']'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                             }
                             xqWhere.append(") "); //$NON-NLS-1$
@@ -348,21 +371,24 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
             if (pivotPaths.length > 0) {
                 xqOrderby.append("order by "); //$NON-NLS-1$
                 for (int m = pivotPaths.length - 1; m > -1; m--) {
-                    if (m < pivotPaths.length - 1)
+                    if (m < pivotPaths.length - 1) {
                         xqOrderby.append(","); //$NON-NLS-1$
+                    }
                     // see 0016991, using the first element as pivot
                     xqOrderby.append("$").append(pivotPaths[m] + "[1]").append(" "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     // add direction
-                    if (pivotDirections != null && pivotDirections.length > 0)
+                    if (pivotDirections != null && pivotDirections.length > 0) {
                         xqOrderby.append(pivotDirections[m] == null ? "" : " " + pivotDirections[m] + " "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    }
                 }
 
                 for (int m = 0; m < indexPaths.length; m++) {
                     // see 0016991, using the first element as pivot
                     xqOrderby.append(",").append("$").append(indexPaths[m] + "[1]").append(" "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                     // add direction
-                    if (indexDirections != null && indexDirections.length > 0)
+                    if (indexDirections != null && indexDirections.length > 0) {
                         xqOrderby.append(indexDirections[m] == null ? "" : " " + indexDirections[m] + " "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    }
                 }
             }
 
@@ -379,17 +405,17 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
                 xqReturn.append("</result-pivot>"); //$NON-NLS-1$
 
                 xqReturn.append("<result-title>"); //$NON-NLS-1$
-                for (int n = 0; n < indexPaths.length; n++) {
-                    xqReturn.append("{if ($").append(indexPaths[n]).append(") then $").append(indexPaths[n]).append(" else <") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                            .append(parseNodeNameFromXpath(indexPaths[n])).append("/>}"); //$NON-NLS-1$
+                for (String indexPath : indexPaths) {
+                    xqReturn.append("{if ($").append(indexPath).append(") then $").append(indexPath).append(" else <") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                            .append(parseNodeNameFromXpath(indexPath)).append("/>}"); //$NON-NLS-1$
                 }
                 xqReturn.append("</result-title>"); //$NON-NLS-1$
 
                 xqReturn.append("<result-key>"); //$NON-NLS-1$
                 String[] mainKeys = pivotWithKeys.get(pivotPaths[0]);
-                for (int n = 0; n < mainKeys.length; n++) {
-                    xqReturn.append("{if ($").append(mainKeys[n]).append(") then $").append(mainKeys[n]).append(" else <") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                            .append(parseNodeNameFromXpath(mainKeys[n])).append("/>}"); //$NON-NLS-1$
+                for (String mainKey : mainKeys) {
+                    xqReturn.append("{if ($").append(mainKey).append(") then $").append(mainKey).append(" else <") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                            .append(parseNodeNameFromXpath(mainKey)).append("/>}"); //$NON-NLS-1$
                 }
                 xqReturn.append("</result-key>"); //$NON-NLS-1$
 
@@ -423,8 +449,9 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
     }
 
     private String parseNodeNameFromXpath(String input) {
-        if (input == null)
+        if (input == null) {
             return ""; //$NON-NLS-1$
+        }
 
         String output = input;
         int pos = input.lastIndexOf("/"); //$NON-NLS-1$
@@ -434,6 +461,7 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
         return output;
     }
 
+    @Override
     public String getXtentisObjectsQuery(HashMap<String, String> objectRootElementNameToRevisionID,
             HashMap<String, String> objectRootElementNameToClusterName, String mainObjectRootElementName,
             ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, int limit)
@@ -459,6 +487,7 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
                 mainObjectRootElementName, viewableFullPaths, whereItem, orderBy, direction, start, limit, false);
     }
 
+    @Override
     public String getXtentisObjectsQuery(LinkedHashMap<String, String> objectRootElementNameToRevisionID,
             LinkedHashMap<String, String> objectRootElementNameToClusterName, String mainObjectRootElementName,
             ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, long limit,
@@ -469,80 +498,100 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
                 null);
     }
 
+    @Override
     public long moveDocumentById(String sourceRevisionID, String sourceclusterName, String uniqueID, String targetRevisionID,
             String targetclusterName) throws XmlServerException {
         String xml = getDocumentAsString(sourceRevisionID, sourceclusterName, uniqueID);
-        if (xml == null)
+        if (xml == null) {
             return -1;
+        }
         return putDocumentFromString(xml, uniqueID, targetclusterName, targetRevisionID);
     }
 
+    @Override
     public long putDocumentFromFile(String fileName, String uniqueID, String clusterName, String revisionID)
             throws XmlServerException {
         return putDocumentFromFile(fileName, uniqueID, clusterName, revisionID, IXmlServerSLWrapper.TYPE_DOCUMENT);
     }
 
+    @Override
     public long putDocumentFromString(String xmlString, String uniqueID, String clusterName, String revisionID)
             throws XmlServerException {
         return putDocumentFromString(xmlString, uniqueID, clusterName, revisionID, IXmlServerSLWrapper.TYPE_DOCUMENT);
     }
 
+    @Override
     public ArrayList<String> runQuery(String revisionID, String clusterName, String query, String[] parameters, int start,
             int limit, boolean withTotalCount) throws XmlServerException {
         return runQuery(revisionID, clusterName, query, parameters);
     }
-    
+
+    @Override
     public List<String> getItemPKsByCriteria(ItemPKCriteria criteria) throws XmlServerException {
         String revisionId = criteria.getRevisionId();
-        String clusterName = criteria.getClusterName();      
+        String clusterName = criteria.getClusterName();
         String query = queryBuilder.buildPKsByCriteriaQuery(criteria);
         return runQuery(revisionId, clusterName, query, null);
     }
 
+    @Override
     public boolean supportTransaction() {
         return false;
     }
 
+    @Override
     public void start(String dataClusterName) throws XmlServerException {
         // NOOP
     }
 
+    @Override
     public void commit(String dataClusterName) throws XmlServerException {
         // NOOP
     }
 
+    @Override
     public void rollback(String dataClusterName) throws XmlServerException {
         // NOOP
     }
 
+    @Override
     public void end(String dataClusterName) throws XmlServerException {
         // NOOP
     }
 
+    @Override
     public List<String> globalSearch(String dataCluster, String keyword, int start, int end) throws XmlServerException {
-        throw new UnsupportedOperationException(); // By default, this is not supported (see EE implementations of the interface).
+        throw new UnsupportedOperationException(); // By default, this is not supported (see EE implementations of the
+                                                   // interface).
     }
-    
-    public void exportDocuments(String revisionId, String clusterName, int start, int end, boolean includeMetadata, OutputStream outputStream) throws XmlServerException {
+
+    @Override
+    public void exportDocuments(String revisionId, String clusterName, int start, int end, boolean includeMetadata,
+            OutputStream outputStream) throws XmlServerException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void doActivate() throws XmlServerException {
         // NOOP
     }
 
+    @Override
     public void doCreate() throws XmlServerException {
         // NOOP
     }
 
+    @Override
     public void doPassivate() throws XmlServerException {
         // NOOP
     }
 
+    @Override
     public void doPostCreate() throws XmlServerException {
         // NOOP
     }
 
+    @Override
     public void doRemove() throws XmlServerException {
         // NOOP
     }
