@@ -15,6 +15,8 @@ package org.talend.mdm.webapp.browserecords.server.provider;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -43,9 +45,26 @@ public class DataProviderTest extends TestCase {
                         Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString(),
                         Mockito.anyString())).thenReturn(mockResult);
         assertEquals(
-                "1", new DataProvider("dataCluster", "viewPk", "criteria", 0, "sortDir", "sortField", "language", "1@2@3").getDataResult()[1]); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
+                "1", new DataProvider("dataCluster", "Product", "viewPk", "criteria", 0, "sortDir", "sortField", "language", "1@2@3").getDataResult()[1]); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
 
         assertEquals(
-                "DataInDB1", new DataProvider("dataCluster", "viewPk", "criteria", 0, "sortDir", "sortField", "language", "").getDataResult()[1]); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
+                "DataInDB1", new DataProvider("dataCluster", "Product", "viewPk", "criteria", 0, "sortDir", "sortField", "language", "").getDataResult()[1]); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
+    }
+
+    public void testGetRootElementName() throws DocumentException {
+        DataProvider dataProvider = new DataProvider("dataCluster", "Product", "viewPk", "criteria", 0, "sortDir", "sortField",
+                "language", "");
+        String xmlString = "<Product><Id>1</Id></Product>";
+        dataProvider.setRootElementName("result");
+        dataProvider.parseResultDocument(xmlString);
+        assertEquals("Product", dataProvider.getRootElementName());
+        xmlString = "<result><Id>1</Id></result>";
+        dataProvider.setRootElementName("result");
+        dataProvider.parseResultDocument(xmlString);
+        assertEquals("result", dataProvider.getRootElementName());
+        xmlString = "<Id>1</Id>";
+        dataProvider.setRootElementName("result");
+        Document doc = dataProvider.parseResultDocument(xmlString);
+        assertEquals("result", doc.getRootElement().getName());
     }
 }
