@@ -333,7 +333,7 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         String result = be.getResultHtml().replace("pre>", "f>"); //$NON-NLS-1$//$NON-NLS-2$
 
         waitBar.close();
-        if (result.equals("<f>true</f>")) { //$NON-NLS-1$
+        if (result.equals("<f>true</f>") || ("true".equals(result))) { //$NON-NLS-1$ //$NON-NLS-2$ second condition for ie9
             window.hide();
             MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().import_success_label(),
                     null);

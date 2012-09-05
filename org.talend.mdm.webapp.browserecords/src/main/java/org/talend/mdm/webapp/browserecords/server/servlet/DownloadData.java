@@ -19,8 +19,6 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.Element;
 import org.talend.mdm.webapp.base.server.util.XmlUtil;
 import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
@@ -118,17 +116,21 @@ public class DownloadData extends HttpServlet {
             DownloadUtil.assembleFkMap(colFkMap, fkMap, fkColXPath, fkInfo);
         }
 
-        String[] results = new DataProvider(dataCluster, viewPk, criteria, new Integer(0), sortDir, sortField, language,
-                new String(request.getParameter("itemXmlString").getBytes("iso-8859-1"), "UTF-8")).getDataResult(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        DataProvider dataProvider = new DataProvider(dataCluster, concept, viewPk, criteria, new Integer(0), sortDir, sortField,
+                language, new String(request.getParameter("itemXmlString").getBytes("iso-8859-1"), "UTF-8")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        String[] results = dataProvider.getDataResult();
 
         for (int i = 1; i < results.length; i++) {
-            Document doc = parseResultDocument(results[i], "result"); //$NON-NLS-1$
+            Document doc = dataProvider.parseResultDocument(results[i]);
             HSSFRow row = sheet.createRow((short) i);
             int colCount = 0;
             for (String xpath : xpathArr) {
                 String tmp = null;
                 if (DownloadUtil.isJoinField(xpath, concept)) {
-                    tmp = XmlUtil.queryNodeText(doc, xpath.replaceFirst(concept + "/", "result/")); //$NON-NLS-1$ //$NON-NLS-2$;
+                    tmp = XmlUtil.queryNodeText(
+                            doc,
+                            !dataProvider.getRootElementName().equals(concept) ? xpath.replaceFirst(
+                                    concept + "/", dataProvider.getRootElementName() + "/") : xpath); //$NON-NLS-1$ //$NON-NLS-2$
                     if (fkResovled) {
                         if (colFkMap.containsKey(xpath)) {
                             List<String> fkinfoList = fkMap.get(xpath);
@@ -169,18 +171,5 @@ public class DownloadData extends HttpServlet {
             infoList.add(XmlUtil.queryNodeText(doc, xpath));
         }
         return infoList;
-    }
-
-    private Document parseResultDocument(String result, String expectedRootElement) throws DocumentException {
-        Document doc = XmlUtil.parseText(result);
-        Element rootElement = doc.getRootElement();
-        if (!rootElement.getName().equals(expectedRootElement)) {
-            // When there is a null value in fields, the viewable fields sequence is not enclosed by expected element
-            // FIXME Better to find out a solution at the underlying stage
-            rootElement.detach();
-            Element resultElement = doc.addElement(expectedRootElement);
-            resultElement.add(rootElement);
-        }
-        return doc;
     }
 }
