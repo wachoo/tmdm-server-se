@@ -331,6 +331,12 @@ public class Util {
 
     public static WSWhereItem getConditionFromFKFilter(String foreignKey, String foreignKeyInfo, String fkFilter)
             throws Exception {
+        return getConditionFromFKFilter(foreignKey, foreignKeyInfo, fkFilter, true);
+    }
+
+    public static WSWhereItem getConditionFromFKFilter(String foreignKey, String foreignKeyInfo, String fkFilter,
+            boolean formatFkValue)
+            throws Exception {
         if (fkFilter == null || fkFilter.length() == 0)
             return null;
         if (fkFilter.equals("null")) //$NON-NLS-1$
@@ -352,10 +358,12 @@ public class Util {
             // values = new String[] { foreignKey, "Contains", values[0] };
             WSWhereCondition wc = Util.convertLine(values);
             if (wc != null) {
-                if (isFkPath(values[0])) {
-                    wc.setRightValueOrPath(wrapFkValue(wc.getRightValueOrPath()));
-                } else {
-                    wc.setRightValueOrPath(unwrapFkValue(wc.getRightValueOrPath()));
+                if (formatFkValue) {
+                    if (isFkPath(values[0])) {
+                        wc.setRightValueOrPath(wrapFkValue(wc.getRightValueOrPath()));
+                    } else {
+                        wc.setRightValueOrPath(unwrapFkValue(wc.getRightValueOrPath()));
+                    }
                 }
                 condition.add(new WSWhereItem(wc, null, null));
             }
