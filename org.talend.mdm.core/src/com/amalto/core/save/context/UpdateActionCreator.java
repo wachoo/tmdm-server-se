@@ -215,7 +215,7 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                             : oldValue, null, comparedField));
                 }
             } else { // new accessor exist
-                if (newAccessor.get() != null && !newAccessor.get().isEmpty()) {
+                if (newAccessor.get() != null && !(comparedField instanceof ContainedTypeFieldMetadata)) {
                     if (comparedField.isMany() && preserveCollectionOldValues) {
                         // Append at the end of the collection
                         if (!originalFieldToLastIndex.containsKey(comparedField)) {
