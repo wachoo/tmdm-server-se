@@ -480,7 +480,13 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             for (DataRecord result : results) {
                 try {
+                    if (totalCountOnFirstRow) {
+                        output.write("<result>".getBytes());
+                    }
                     writer.write(result, output);
+                    if (totalCountOnFirstRow) {
+                        output.write("</result>".getBytes());
+                    }
                 } catch (IOException e) {
                     throw new XtentisException(e);
                 }
