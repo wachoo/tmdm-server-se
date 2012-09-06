@@ -54,9 +54,9 @@ public class SoftTypeRef implements ComplexTypeMetadata {
 
     private TypeMetadata getType() {
         if (typeName != null) {
-            TypeMetadata type = repository.getType(namespace, typeName);
+            TypeMetadata type = repository.getNonInstantiableType(typeName);
             if (type == null) {
-                type = repository.getNonInstantiableType(typeName);
+                type = repository.getType(namespace, typeName);
             }
             if (type == null) {
                 throw new IllegalArgumentException("Type '" + typeName + "' (namespace: '" + namespace + "') is not present in type repository.");
