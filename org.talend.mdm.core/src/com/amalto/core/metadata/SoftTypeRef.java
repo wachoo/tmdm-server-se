@@ -1,23 +1,22 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.metadata;
 
-import org.apache.commons.lang.NotImplementedException;
-
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.lang.NotImplementedException;
+
 /**
- * Represents a reference to a {@link ComplexTypeMetadata} type where methods are evaluated using 
+ * Represents a reference to a {@link ComplexTypeMetadata} type where methods are evaluated using
  * {@link MetadataRepository#getComplexType(String)} calls. This is useful to reference types that might not be already
  * parsed by {@link MetadataRepository#load(java.io.InputStream)}.
  */
@@ -54,12 +53,13 @@ public class SoftTypeRef implements ComplexTypeMetadata {
 
     private TypeMetadata getType() {
         if (typeName != null) {
-            TypeMetadata type = repository.getNonInstantiableType(typeName);
+            TypeMetadata type = repository.getType(namespace, typeName);
             if (type == null) {
-                type = repository.getType(namespace, typeName);
+                type = repository.getNonInstantiableType(typeName);
             }
             if (type == null) {
-                throw new IllegalArgumentException("Type '" + typeName + "' (namespace: '" + namespace + "') is not present in type repository.");
+                throw new IllegalArgumentException("Type '" + typeName + "' (namespace: '" + namespace
+                        + "') is not present in type repository.");
             }
             return type;
         } else {
@@ -70,7 +70,8 @@ public class SoftTypeRef implements ComplexTypeMetadata {
     private ComplexTypeMetadata getTypeAsComplex() {
         TypeMetadata type = getType();
         if (!(type instanceof ComplexTypeMetadata)) {
-            throw new IllegalArgumentException("Type '" + typeName + "' was expected to be a complex type (but was " + type.getClass().getName() + ").");
+            throw new IllegalArgumentException("Type '" + typeName + "' was expected to be a complex type (but was "
+                    + type.getClass().getName() + ").");
         }
         return (ComplexTypeMetadata) type;
     }
