@@ -213,7 +213,7 @@ public class ForeignKeyHelper {
 
         if (!Util.isCustomFilter(fkFilter)) {
             // get FK filter
-            WSWhereItem fkFilterWi = Util.getConditionFromFKFilter(xpathForeignKey, xpathInfoForeignKey, fkFilter);
+            WSWhereItem fkFilterWi = Util.getConditionFromFKFilter(xpathForeignKey, xpathInfoForeignKey, fkFilter, false);
             if (fkFilterWi != null)
                 whereItem = fkFilterWi;
         }
