@@ -34,6 +34,10 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
 
     private final static Logger LOGGER = Logger.getLogger(DispatchWrapper.class);
 
+    private boolean userWrapperUp;
+
+    private boolean internalWrapperUp;
+
     static {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("--- Using dispatch wrapper ---");
@@ -57,7 +61,13 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
     }
 
     public boolean isUpAndRunning() {
-        return userStorageWrapper.isUpAndRunning() && mdmInternalWrapper.isUpAndRunning();
+        if (!userWrapperUp) {
+            userWrapperUp = userStorageWrapper.isUpAndRunning();
+        }
+        if (!internalWrapperUp) {
+            internalWrapperUp = mdmInternalWrapper.isUpAndRunning();
+        }
+        return userWrapperUp && internalWrapperUp;
     }
 
     private static String[] joinArrays(String[] array1, String[] array2) {

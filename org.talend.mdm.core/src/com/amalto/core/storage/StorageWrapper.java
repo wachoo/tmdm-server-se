@@ -16,7 +16,6 @@ import com.amalto.core.query.user.Condition;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryHelper;
-import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.record.*;
@@ -43,11 +42,9 @@ public class StorageWrapper implements IXmlServerSLWrapper {
 
     private final DataRecordReader<String> xmlStringReader = new XmlStringDataRecordReader();
 
-    private final StorageAdmin storageAdmin;
+    private StorageAdmin storageAdmin;
 
     public StorageWrapper() {
-        Server server = ServerContext.INSTANCE.get();
-        storageAdmin = server.getStorageAdmin();
     }
 
     private static Select getSelectTypeById(ComplexTypeMetadata type, String revisionId, String[] splitUniqueId) {
@@ -95,13 +92,13 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     public String[] getAllClusters(String revisionID) throws XmlServerException {
-        return storageAdmin.getAll(revisionID);
+        return getStorageAdmin().getAll(revisionID);
     }
 
     public long deleteCluster(String revisionID, String clusterName) throws XmlServerException {
         long start = System.currentTimeMillis();
         {
-            storageAdmin.delete(revisionID, clusterName);
+            getStorageAdmin().delete(revisionID, clusterName);
         }
         return System.currentTimeMillis() - start;
     }
@@ -109,7 +106,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     public long deleteAllClusters(String revisionID) throws XmlServerException {
         long start = System.currentTimeMillis();
         {
-            storageAdmin.deleteAll(revisionID);
+            getStorageAdmin().deleteAll(revisionID);
         }
         return System.currentTimeMillis() - start;
     }
@@ -117,13 +114,13 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     public long createCluster(String revisionID, String clusterName) throws XmlServerException {
         long start = System.currentTimeMillis();
         {
-            storageAdmin.create(clusterName, clusterName, Storage.DEFAULT_DATA_SOURCE_NAME);
+            getStorageAdmin().create(clusterName, clusterName, Storage.DEFAULT_DATA_SOURCE_NAME);
         }
         return System.currentTimeMillis() - start;
     }
 
     public boolean existCluster(String revision, String cluster) throws XmlServerException {
-        return storageAdmin.exist(revision, cluster);
+        return getStorageAdmin().exist(revision, cluster);
     }
 
     public long putDocumentFromFile(String fileName, String uniqueID, String clusterName, String revisionID) throws XmlServerException {
@@ -142,7 +139,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         String typeName = getTypeName(uniqueID);
         long start = System.currentTimeMillis();
         {
-            Storage storage = storageAdmin.get(clusterName);
+            Storage storage = getStorageAdmin().get(clusterName);
             MetadataRepository repository = storage.getMetadataRepository();
             DataRecord record = xmlStringReader.read(parseRevisionId(revisionID), repository, repository.getComplexType(typeName), xmlString);
             try {
@@ -159,7 +156,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         long start = System.currentTimeMillis();
         {
             DataRecordReader<Element> reader = new XmlDOMDataRecordReader();
-            Storage storage = storageAdmin.get(clusterName);
+            Storage storage = getStorageAdmin().get(clusterName);
             MetadataRepository repository = storage.getMetadataRepository();
             DataRecord record = reader.read(parseRevisionId(revisionID), repository, repository.getComplexType(typeName), root);
             storage.update(record);
@@ -178,7 +175,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         String typeName = getTypeName(input.getPublicId());
         long start = System.currentTimeMillis();
         {
-            Storage storage = storageAdmin.get(dataClusterName);
+            Storage storage = getStorageAdmin().get(dataClusterName);
             if (storage == null) {
                 throw new XmlServerException("Data cluster '" + dataClusterName + "' does not exist.");
             }
@@ -206,7 +203,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
 
         String[] splitUniqueId = uniqueID.split("\\."); //$NON-NLS-1$
 
-        Storage storage = storageAdmin.get(clusterName);
+        Storage storage = getStorageAdmin().get(clusterName);
         MetadataRepository repository = storage.getMetadataRepository();
         String typeName = splitUniqueId[1];
         ComplexTypeMetadata type = repository.getComplexType(typeName);
@@ -260,7 +257,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         {
             String typeName = getTypeName(uniqueID);
             String[] splitUniqueID = uniqueID.split("\\."); //$NON-NLS-1$
-            Storage storage = storageAdmin.get(clusterName);
+            Storage storage = getStorageAdmin().get(clusterName);
             ComplexTypeMetadata type = storage.getMetadataRepository().getComplexType(typeName);
             Select select = getSelectTypeById(type, revisionID, splitUniqueID);
             try {
@@ -303,7 +300,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                 break;
             }
         }
-        Storage storage = storageAdmin.get(clusterName);
+        Storage storage = getStorageAdmin().get(clusterName);
         MetadataRepository repository = storage.getMetadataRepository();
         ComplexTypeMetadata type = repository.getComplexType(conceptName);
         if (type == null) {
@@ -357,7 +354,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                 break;
             }
         }
-        Storage storage = storageAdmin.get(clusterName);
+        Storage storage = getStorageAdmin().get(clusterName);
         MetadataRepository repository = storage.getMetadataRepository();
         UserQueryBuilder qb = from(repository.getComplexType(conceptName));
         UserQueryHelper.buildCondition(qb, whereItem, repository);
@@ -417,7 +414,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
 
     public List<String> getItemPKsByCriteria(ItemPKCriteria criteria) throws XmlServerException {
         String clusterName = criteria.getClusterName();
-        Storage storage = storageAdmin.get(clusterName);
+        Storage storage = getStorageAdmin().get(clusterName);
         MetadataRepository repository = storage.getMetadataRepository();
 
         int totalCount = 0;
@@ -543,31 +540,38 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     public void start(String dataClusterName) throws XmlServerException {
-        Storage storage = storageAdmin.get(dataClusterName);
+        Storage storage = getStorageAdmin().get(dataClusterName);
         storage.begin();
     }
 
+    private StorageAdmin getStorageAdmin() {
+        if (storageAdmin == null) {
+            storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
+        }
+        return storageAdmin;
+    }
+
     public void commit(String dataClusterName) throws XmlServerException {
-        Storage storage = storageAdmin.get(dataClusterName);
+        Storage storage = getStorageAdmin().get(dataClusterName);
         storage.commit();
     }
 
     public void rollback(String dataClusterName) throws XmlServerException {
-        Storage storage = storageAdmin.get(dataClusterName);
+        Storage storage = getStorageAdmin().get(dataClusterName);
         storage.rollback();
     }
 
     public void end(String dataClusterName) throws XmlServerException {
-        Storage storage = storageAdmin.get(dataClusterName);
+        Storage storage = getStorageAdmin().get(dataClusterName);
         storage.end();
     }
 
     public void close() throws XmlServerException {
-        storageAdmin.close();
+        getStorageAdmin().close();
     }
 
     public List<String> globalSearch(String dataCluster, String keyword, int start, int end) throws XmlServerException {
-        Storage storage = storageAdmin.get(dataCluster);
+        Storage storage = getStorageAdmin().get(dataCluster);
         MetadataRepository repository = storage.getMetadataRepository();
         Iterator<ComplexTypeMetadata> types = repository.getUserComplexTypes().iterator();
 
