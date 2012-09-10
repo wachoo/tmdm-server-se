@@ -104,6 +104,8 @@ public class GoodFieldTypeMapping extends TypeMapping {
                             referenceId = referencedObject.get(keyFields.get(0));
                         }
                         to.set(mappedDatabaseField.getName(), getReferencedObject(contextClassLoader, session, mappings.getMapping(referencedObject.getType()).getDatabase(), referenceId));
+                    } else {
+                        to.set(mappedDatabaseField.getName(), null);
                     }
                 } else {
                     List<DataRecord> referencedObjectList = (List<DataRecord>) from.get(field);

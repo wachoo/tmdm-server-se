@@ -85,8 +85,9 @@ public class UserQueryHelper {
 
             if (!whereCondition.isRightValueXPath()) {
                 String fieldTypeName = field.getTypeName();
-                if (!MetadataUtils.isValueAssignable(value, fieldTypeName)) {
-                    Logger.getLogger(UserQueryHelper.class).warn("Skip '" + leftFieldName + "' because it can't accept value '" + value + "'");
+                boolean isFk = field instanceof Field && ((Field) field).getFieldMetadata() instanceof ReferenceFieldMetadata;
+                if (!isFk && !MetadataUtils.isValueAssignable(value, fieldTypeName)) {
+                    LOGGER.warn("Skip '" + leftFieldName + "' because it can't accept value '" + value + "'");
                     return NO_OP_CONDITION;
                 }
                 if (WhereCondition.CONTAINS.equals(operator) || WhereCondition.STRICTCONTAINS.equals(operator)) {

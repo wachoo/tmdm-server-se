@@ -120,7 +120,9 @@ abstract class MetadataRepositoryTask implements Task {
 
     public void cancel() {
         synchronized (currentTypeTaskMonitor) {
-            currentTypeTask.cancel();
+            if (currentTypeTask != null) {
+                currentTypeTask.cancel();
+            }
             isCancelled = true;
         }
     }
