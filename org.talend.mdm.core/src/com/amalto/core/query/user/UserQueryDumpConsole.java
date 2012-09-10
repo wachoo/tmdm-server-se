@@ -270,6 +270,12 @@ public class UserQueryDumpConsole implements Visitor<Void> {
                     return null;
                 }
 
+                @Override
+                public Void visit(ContainedTypeFieldMetadata containedField) {
+                    print(containedField.getName());
+                    return null;
+                }
+
                 private String getFieldPath(FieldMetadata field) {
                     StringBuilder path = new StringBuilder();
                     ComplexTypeMetadata containingType = field.getContainingType();
@@ -516,7 +522,7 @@ public class UserQueryDumpConsole implements Visitor<Void> {
         print("[IS A]");
         increaseIndent();
         {
-            print("Value -> " + isa.getExpression().accept(this));
+            isa.getExpression().accept(this);
             print("Type -> " + isa.getType().getName());
         }
         decreaseIndent();

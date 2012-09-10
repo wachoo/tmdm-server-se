@@ -234,12 +234,18 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
                             true);
                     addTypeMetadata(type);
                 }
-                currentTypeStack.push(type);
                 // Walk the fields
+                currentTypeStack.push(type);
                 {
                     XmlSchemaWalker.walk(element.getSchemaType(), this);
                 }
                 currentTypeStack.pop();
+
+                // Super types
+                QName substitutionGroup = element.getSubstitutionGroup();
+                if (substitutionGroup != null) {
+                    type.addSuperType(new SoftTypeRef(this, substitutionGroup.getNamespaceURI(), substitutionGroup.getLocalPart(), true), this);
+                }
 
                 // If type's keys are defined in super type (but not defined as key in super type), register as keys
                 // references to super type's fields.
@@ -274,7 +280,6 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
             currentTypeStack.push(nonInstantiableType);
             typeMetadataKeyStack.push(Collections.<String>emptySet());
         }
-
         XmlSchemaParticle contentTypeParticle = type.getParticle();
         if (contentTypeParticle != null && contentTypeParticle instanceof XmlSchemaGroupBase) {
             XmlSchemaObjectCollection items = ((XmlSchemaGroupBase) contentTypeParticle).getItems();
@@ -286,18 +291,17 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
         } else if (contentTypeParticle != null) {
             throw new IllegalArgumentException("Not supported XML Schema particle: " + contentTypeParticle.getClass().getName());
         }
-
         // Adds the type information about super types.
         XmlSchemaContentModel contentModel = type.getContentModel();
         if (contentModel != null) {
             XmlSchemaContent content = contentModel.getContent();
             if (content != null) {
                 if (content instanceof XmlSchemaComplexContentExtension) {
-                    QName baseTypeName = ((XmlSchemaComplexContentExtension) content).getBaseTypeName();
                     // Check if base type has already been parsed (means a complex type has been visited). If no
                     // complex type was visited, this is a direct reference to an element.
+                    QName baseTypeName = ((XmlSchemaComplexContentExtension) content).getBaseTypeName();
                     String fieldTypeName = baseTypeName.getLocalPart();
-                    currentTypeStack.peek().addSuperType(new SoftTypeRef(this, targetNamespace, fieldTypeName), this);
+                    currentTypeStack.peek().addSuperType(new SoftTypeRef(this, targetNamespace, fieldTypeName, false), this);
 
                     XmlSchemaParticle particle = ((XmlSchemaComplexContentExtension) content).getParticle();
                     if (particle != null) {
@@ -314,7 +318,6 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
                 }
             }
         }
-
         if (isNonInstantiableType) {
             typeMetadataKeyStack.pop();
             currentTypeStack.pop();

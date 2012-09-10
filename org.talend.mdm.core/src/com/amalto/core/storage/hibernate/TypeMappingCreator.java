@@ -142,7 +142,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
         Collection<TypeMetadata> superTypes = complexType.getSuperTypes();
         for (TypeMetadata superType : superTypes) {
-            typeMapping.getDatabase().addSuperType(new SoftTypeRef(internalRepository, superType.getNamespace(), superType.getName()), internalRepository);
+            typeMapping.getDatabase().addSuperType(new SoftTypeRef(internalRepository, superType.getNamespace(), superType.getName(), true), internalRepository);
         }
 
         if (typeMapping.getUser().getKeyFields().isEmpty() && typeMapping.getUser().getSuperTypes().isEmpty()) { // Assumes super type defines key field.

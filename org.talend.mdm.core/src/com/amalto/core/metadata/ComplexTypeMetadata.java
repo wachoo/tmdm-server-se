@@ -20,12 +20,6 @@ import java.util.List;
 public interface ComplexTypeMetadata extends TypeMetadata {
 
     /**
-     * @return <code>true</code> if this type can be used to create an entity in MDM, <code>false</code> otherwise. A
-     *         so called 'reusable' type must return <code>false</code> for this method.
-     */
-    boolean isInstantiable();
-
-    /**
      * @return A {@link List} of {@link FieldMetadata} that represents key information for the complex type. This method
      *         might return an empty list if no key field is defined for this type.
      * @see #registerKey(FieldMetadata)

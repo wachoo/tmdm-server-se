@@ -170,7 +170,7 @@ class GoodFieldMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 database.addField(new SimpleTypeFieldMetadata(database, true, false, true, GENERATED_ID, new SoftTypeRef(internalRepository, StringUtils.EMPTY, "UUID"), Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
             }
             for (TypeMetadata superType : complexType.getSuperTypes()) {
-                database.addSuperType(new SoftTypeRef(internalRepository, superType.getNamespace(), superType.getName()), internalRepository);
+                database.addSuperType(new SoftTypeRef(internalRepository, superType.getNamespace(), superType.getName(), superType.isInstantiable()), internalRepository);
             }
             super.visit(complexType);
         }

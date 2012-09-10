@@ -82,6 +82,11 @@ public class SimpleTypeMetadata implements TypeMetadata {
         return this;
     }
 
+    @Override
+    public boolean isInstantiable() {
+        return false;
+    }
+
     public void addSuperType(TypeMetadata superType, MetadataRepository repository) {
         superTypes.add(superType);
     }

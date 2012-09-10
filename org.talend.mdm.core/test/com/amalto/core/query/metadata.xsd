@@ -119,6 +119,7 @@
                 <xsd:element maxOccurs="1" minOccurs="1" name="country" type="xsd:string">
                     <xsd:annotation>
                         <xsd:appinfo source="X_ForeignKey">Country/id</xsd:appinfo>
+                        <xsd:appinfo source="X_ForeignKeyInfo">Country/name</xsd:appinfo>
                     </xsd:annotation>
                 </xsd:element>
             </xsd:all>
@@ -680,13 +681,13 @@
             <xsd:field xpath="id"/>
         </xsd:unique>
     </xsd:element>
-    <xsd:element name="C" type="C">
+    <xsd:element name="C" type="C" substitutionGroup="A">
         <xsd:unique name="C">
             <xsd:selector xpath="."/>
             <xsd:field xpath="id"/>
         </xsd:unique>
     </xsd:element>
-    <xsd:element name="D" type="D">
+    <xsd:element name="D" type="D" substitutionGroup="B">
         <xsd:unique name="D">
             <xsd:selector xpath="."/>
             <xsd:field xpath="id"/>

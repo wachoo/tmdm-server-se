@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Represents a reference to a {@link ComplexTypeMetadata} type where methods are evaluated using 
+ * Represents a reference to a {@link ComplexTypeMetadata} type where methods are evaluated using
  * {@link MetadataRepository#getComplexType(String)} calls. This is useful to reference types that might not be already
  * parsed by {@link MetadataRepository#load(java.io.InputStream)}.
  */
@@ -31,16 +31,7 @@ public class SoftTypeRef implements ComplexTypeMetadata {
 
     private final String namespace;
 
-    public SoftTypeRef(MetadataRepository repository, String namespace, String typeName) {
-        if (typeName == null) {
-            throw new IllegalArgumentException("Type name cannot be null.");
-        }
-
-        this.repository = repository;
-        this.typeName = typeName;
-        this.namespace = namespace;
-        this.fieldRef = null;
-    }
+    private final boolean instantiable;
 
     private SoftTypeRef(MetadataRepository repository, FieldMetadata fieldRef) {
         if (fieldRef == null) {
@@ -50,6 +41,22 @@ public class SoftTypeRef implements ComplexTypeMetadata {
         this.typeName = null;
         this.namespace = null;
         this.fieldRef = fieldRef;
+        this.instantiable = true;
+    }
+
+    public SoftTypeRef(MetadataRepository repository, String namespace, String typeName) {
+        this(repository, namespace, typeName, false);
+    }
+
+    public SoftTypeRef(MetadataRepository repository, String namespace, String typeName, boolean isInstantiable) {
+        if (typeName == null) {
+            throw new IllegalArgumentException("Type name cannot be null.");
+        }
+        this.repository = repository;
+        this.typeName = typeName;
+        this.namespace = namespace;
+        this.fieldRef = null;
+        this.instantiable = isInstantiable;
     }
 
     private TypeMetadata getType() {
@@ -144,7 +151,7 @@ public class SoftTypeRef implements ComplexTypeMetadata {
     }
 
     public boolean isInstantiable() {
-        return getTypeAsComplex().isInstantiable();
+        return instantiable;
     }
 
     public List<FieldMetadata> getKeyFields() {

@@ -40,11 +40,7 @@
             <xsd:element maxOccurs="1" minOccurs="1" name="id" type="xsd:string"/>
         </xsd:sequence>
     </xsd:complexType>
-    <xsd:element name="C" type="C">
-        <xsd:unique name="C">
-            <xsd:selector xpath="."/>
-            <xsd:field xpath="id"/>
-        </xsd:unique>
+    <xsd:element name="C" type="C" substitutionGroup="B">
     </xsd:element>
     <xsd:complexType name="C">
         <xsd:complexContent>
@@ -55,11 +51,7 @@
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
-    <xsd:element name="D" type="D">
-        <xsd:unique name="D">
-            <xsd:selector xpath="."/>
-            <xsd:field xpath="id"/>
-        </xsd:unique>
+    <xsd:element name="D" type="D" substitutionGroup="C">
     </xsd:element>
     <xsd:complexType name="D">
         <xsd:complexContent>

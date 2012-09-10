@@ -91,4 +91,9 @@ public interface TypeMetadata extends MetadataVisitable {
      */
     TypeMetadata freeze();
 
+    /**
+     * @return <code>true</code> if this type can be used to create an entity in MDM, <code>false</code> otherwise. A
+     *         so called 'reusable' type must return <code>false</code> for this method.
+     */
+    boolean isInstantiable();
 }

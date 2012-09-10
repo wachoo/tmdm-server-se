@@ -11,9 +11,9 @@
 
 package com.amalto.core.metadata;
 
-import java.io.InputStream;
-
 import junit.framework.TestCase;
+
+import java.io.InputStream;
 
 /**
  * Schema parsing <br>
@@ -118,6 +118,25 @@ public class MetadataRepositoryTest extends TestCase {
         InputStream stream = getClass().getResourceAsStream("schema12.xsd");
         repository.load(stream);
         assertTrue(repository.getTypes().size() > 0);
+    }
+
+    public void test13() {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("schema13.xsd");
+        repository.load(stream);
+        assertTrue(repository.getTypes().size() > 0);
+        // repository.accept(visitor);
+    }
+
+    public void test14() {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("schema14.xsd");
+        try {
+            repository.load(stream);
+            fail("Expected exception due to invalid key definition in inheritance tree.");
+        } catch (Exception e) {
+            // Expected.
+        }
     }
 
 }

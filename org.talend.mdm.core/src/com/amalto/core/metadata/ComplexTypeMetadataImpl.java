@@ -104,7 +104,7 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
             throw new IllegalArgumentException("Field name can not be null nor empty.");
         }
 
-        StringTokenizer tokenizer = new StringTokenizer(fieldName, "/");
+        StringTokenizer tokenizer = new StringTokenizer(fieldName, "/"); //$NON-NLS-1$
         String firstFieldName = tokenizer.nextToken();
         FieldMetadata currentField = fieldMetadata.get(firstFieldName);
         if (currentField == null) { // Look in super types if it wasn't found in current type.
@@ -297,8 +297,21 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
             List<TypeMetadata> thisSuperTypes = new LinkedList<TypeMetadata>(superTypes);
             superTypes.clear();
             for (TypeMetadata superType : thisSuperTypes) {
-                superType = superType.freeze();
-                superTypes.add(superType);
+                if (isInstantiable() == superType.isInstantiable()) {
+                    if (superType instanceof ComplexTypeMetadata) {
+                        List<FieldMetadata> thisTypeKeyFields = getKeyFields();
+                        for (FieldMetadata thisTypeKeyField : thisTypeKeyFields) {
+                            if (!((ComplexTypeMetadata) superType).hasField(thisTypeKeyField.getName())) {
+                                throw new IllegalArgumentException("Type '" + name + "' cannot add field(s) to its key because " +
+                                        "super type '" + superType.getName() + "' already defines key.");
+                            }
+                        }
+                    }
+                    superType = superType.freeze();
+                    superTypes.add(superType);
+                } else {
+                    superType = superType.freeze();
+                }
                 if (superType instanceof ComplexTypeMetadata) {
                     ((ComplexTypeMetadata) superType).registerSubType(this);
                     List<FieldMetadata> superTypeFields = ((ComplexTypeMetadata) superType).getFields();
@@ -323,6 +336,18 @@ public class ComplexTypeMetadataImpl implements ComplexTypeMetadata {
                 }
             } catch (Exception e) {
                 throw new RuntimeException("Could not process field '" + value.getName() + "' in type '" + getName() + "'", e);
+            }
+        }
+        TypeMetadata keyDeclaringType = null;
+        for (FieldMetadata keyField : keyFields.values()) {
+            if (keyDeclaringType == null) {
+                keyDeclaringType = keyField.getDeclaringType();
+            } else {
+                if (keyDeclaringType != keyField.getDeclaringType()) {
+
+                } else {
+                    keyDeclaringType = keyField.getDeclaringType();
+                }
             }
         }
 

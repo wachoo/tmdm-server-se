@@ -214,7 +214,7 @@ class StorageClassLoader extends ClassLoader {
             MappingGenerator mappingGenerator = getMappingGenerator(document, resolver);
             for (Map.Entry<String, Class<? extends Wrapper>> classNameToClass : registeredClasses.entrySet()) {
                 ComplexTypeMetadata typeMetadata = knownTypes.get(classNameToClass.getKey());
-                if (typeMetadata != null) {
+                if (typeMetadata != null && typeMetadata.getSuperTypes().isEmpty()) {
                     Element classElement = typeMetadata.accept(mappingGenerator);
                     if (classElement != null) { // Class element might be null if mapping is not applicable for this type
                         document.getDocumentElement().appendChild(classElement);
