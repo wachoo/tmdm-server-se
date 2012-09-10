@@ -570,7 +570,7 @@ public class MainFramePanel extends ContentPanel {
                                 r.get("conceptName").toString(), new SessionAwareAsyncCallback<Boolean>() {//$NON-NLS-1$
 
                                     protected void doOnFailure(Throwable caught) {
-                                        deleteSelectedCheckFinished(r, false);
+                                        deleteSelectedCheckFinished(r, false, caught.getMessage());
                                     }
 
                                     public void onSuccess(Boolean result) {
@@ -602,19 +602,28 @@ public class MainFramePanel extends ContentPanel {
                                         }
 
                                         service.removeDroppedItem(r.get("itemPK").toString(), r.get("partPath").toString(),//$NON-NLS-1$//$NON-NLS-2$
-                                                r.get("revisionId") == null ? null : r.get("revisionId").toString(), r //$NON-NLS-1$//$NON-NLS-2$
-                                                        .get("conceptName").toString(), r.get("ids").toString(), UrlUtil.getLanguage(), //$NON-NLS-1$//$NON-NLS-2$
-                                                new SessionAwareAsyncCallback<String>() {
+                                                        r.get("revisionId") == null ? null : r.get("revisionId").toString(), r //$NON-NLS-1$//$NON-NLS-2$
+                                                                .get("conceptName").toString(), r.get("ids").toString(), UrlUtil.getLanguage(), //$NON-NLS-1$//$NON-NLS-2$
+                                                        new SessionAwareAsyncCallback<String>() {
 
-                                                    public void onSuccess(String msg) {
-                                                        deleteSelectedCheckFinished(r, true);
-                                                    }
+                                                            public void onSuccess(String msg) {
+                                                                deleteSelectedCheckFinished(r, true, msg);
+                                                            }
 
-                                                    @Override
-                                                    protected void doOnFailure(Throwable caught) {
-                                                        deleteSelectedCheckFinished(r, false);
-                                                    }
-                                                });
+                                                            @Override
+                                                            protected void doOnFailure(Throwable caught) {
+                                                                String errorMsg = caught.getLocalizedMessage();
+                                                                if (errorMsg == null) {
+                                                                    if (Log.isDebugEnabled())
+                                                                        errorMsg = caught.toString(); // for debugging
+                                                                    // purpose
+                                                                    else
+                                                                        errorMsg = BaseMessagesFactory.getMessages()
+                                                                                .unknown_error();
+                                                                }
+                                                                deleteSelectedCheckFinished(r, false, errorMsg);
+                                                            }
+                                                        });
                                     }
                                 });
                     }
@@ -623,7 +632,7 @@ public class MainFramePanel extends ContentPanel {
         }
     }
 
-    public void deleteSelectedCheckFinished(ItemsTrashItem r, boolean success) {
+    public void deleteSelectedCheckFinished(ItemsTrashItem r, boolean success, String msg) {
         --outstandingDeleteCallCount;
 
         if (!success) {
@@ -639,17 +648,13 @@ public class MainFramePanel extends ContentPanel {
             pagetoolBar.refresh();
 
             if (outstandingDeleteCallFailCount > 0) {
-                StringBuffer buf = new StringBuffer();
-                boolean loopBegin = true;
-                for (ItemsTrashItem item : outstandingDeleteCallFailRecords) {
-                    buf.append((loopBegin ? " " : ", ") + item.get("ids")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    loopBegin = false;
-                }
-                MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
-                        .deleteSelectedError(outstandingDeleteCallFailCount, buf.toString()), null);
-
                 outstandingDeleteCallFailCount = 0;
                 outstandingDeleteCallFailRecords.clear();
+            }
+
+            if (msg != null) {
+                MessageBox.info(BaseMessagesFactory.getMessages().info_title(),
+                        MultilanguageMessageParser.pickOutISOMessage(msg), null);
             }
         }
     }
@@ -665,8 +670,8 @@ public class MainFramePanel extends ContentPanel {
                         pagetoolBar.refresh();
                         grid.getStore().remove((ItemsTrashItem) model);
                         if (msg != null) {
-                            MessageBox.info(BaseMessagesFactory.getMessages().info_title(),
-                                    MultilanguageMessageParser.pickOutISOMessage(msg), null);
+                            MessageBox.info(BaseMessagesFactory.getMessages().info_title(), MultilanguageMessageParser
+                                    .pickOutISOMessage(msg), null);
                         }
                     }
 
@@ -679,8 +684,8 @@ public class MainFramePanel extends ContentPanel {
                             else
                                 errorMsg = BaseMessagesFactory.getMessages().unknown_error();
                         }
-                        MessageBox.alert(BaseMessagesFactory.getMessages().error_title(),
-                                MultilanguageMessageParser.pickOutISOMessage(errorMsg), null);
+                        MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), MultilanguageMessageParser
+                                .pickOutISOMessage(errorMsg), null);
                     }
                 });
     }
@@ -727,6 +732,6 @@ public class MainFramePanel extends ContentPanel {
     }
 
     private native void refreshBrowseRecordsGrid()/*-{
-		$wnd.amalto.browserecords.BrowseRecords.refreshGrid();
+        $wnd.amalto.browserecords.BrowseRecords.refreshGrid();
     }-*/;
 }
