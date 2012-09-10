@@ -111,7 +111,8 @@ public class MetadataUtils {
      * @param field        A {@link FieldMetadata} that describes type information about the field.
      * @return A {@link Object} value that has correct type according to <code>field</code>. Returns <code>null</code> if
      *         field is instance of {@link ContainedTypeFieldMetadata} (this type of field isn't expected to have values).
-     *         Also returns <code>null</code> is parameter <code>dataAsString</code> is null.
+     *         Also returns <code>null</code> is parameter <code>dataAsString</code> is null <b>OR</b> if <code>dataAsString</code>
+     *         is empty string.
      * @throws RuntimeException Throws sub classes of {@link RuntimeException} if <code>dataAsString</code>  format does
      *                          not match field's type.
      */
@@ -185,6 +186,9 @@ public class MetadataUtils {
     }
 
     public static Object convert(String dataAsString, String type) {
+        if (dataAsString.isEmpty()) {
+            return null;
+        }
         if ("string".equals(type)) { //$NON-NLS-1$
             return dataAsString;
         } else if ("integer".equals(type) //$NON-NLS-1$
@@ -203,7 +207,7 @@ public class MetadataUtils {
                     Date date = dateFormat.parse(dataAsString);
                     return new Timestamp(date.getTime());
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("Could not parse date string", e);
                 }
             }
         } else if ("dateTime".equals(type)) { //$NON-NLS-1$
@@ -214,7 +218,7 @@ public class MetadataUtils {
                     Date date = dateFormat.parse(dataAsString);
                     return new Timestamp(date.getTime());
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("Could not parse date time string", e);
                 }
             }
         } else if ("boolean".equals(type)) { //$NON-NLS-1$
@@ -252,7 +256,7 @@ public class MetadataUtils {
                     Date date = dateFormat.parse(dataAsString);
                     return new Timestamp(date.getTime());
                 } catch (ParseException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("Could not parse time string", e);
                 }
             }
         } else {

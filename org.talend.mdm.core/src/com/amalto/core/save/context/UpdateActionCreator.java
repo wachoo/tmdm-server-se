@@ -219,12 +219,15 @@ class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                             // Field is not string. To ensure false positive difference detection, creates a typed value.
                             Object oldObject = MetadataUtils.convert(oldValue, comparedField);
                             Object newObject = MetadataUtils.convert(newValue, comparedField);
-                            if (oldObject instanceof Comparable) {
+                            if (oldObject != null && newObject != null && oldObject instanceof Comparable) {
                                 if (((Comparable) oldObject).compareTo(newObject) == 0) {
+                                    // Objects are the 'same' (e.g. 10.0 is same as 10).
                                     return;
                                 }
                             } else {
-                                if (oldObject.equals(newObject)) {
+                                if (oldObject != null && oldObject.equals(newObject)) {
+                                    return;
+                                } else if (newObject != null && newObject.equals(oldObject)) {
                                     return;
                                 }
                             }
