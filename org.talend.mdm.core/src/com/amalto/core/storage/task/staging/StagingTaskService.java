@@ -12,7 +12,8 @@
 package com.amalto.core.storage.task.staging;
 
 import javax.ws.rs.*;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 
 @Path(StagingTaskService.TASKS)
 public class StagingTaskService {
@@ -57,9 +58,16 @@ public class StagingTaskService {
     }
 
     @GET
+    @Path("{container}/execs/count")
+    public int countCompletedTaskExecutions(@PathParam("container") String dataContainer,
+                                            @QueryParam("before") Date beforeDate) {
+        return delegate.listCompletedExecutions(dataContainer, beforeDate, 1, -1).size();
+    }
+
+    @GET
     @Path("{container}/execs/current/")
     public ExecutionStatistics getCurrentExecutionStats(@PathParam("container") String dataContainer,
-                                                    @QueryParam("model") String dataModel) {
+                                                        @QueryParam("model") String dataModel) {
         return delegate.getCurrentExecutionStats(dataContainer, dataModel);
     }
 
@@ -73,8 +81,8 @@ public class StagingTaskService {
     @GET
     @Path("{container}/execs/{executionId}/")
     public ExecutionStatistics getExecutionStats(@PathParam("container") String dataContainer,
-                                             @QueryParam("model") String dataModel,
-                                             @PathParam("executionId") String executionId) {
+                                                 @QueryParam("model") String dataModel,
+                                                 @PathParam("executionId") String executionId) {
         return delegate.getExecutionStats(dataContainer, dataModel, executionId);
     }
 }

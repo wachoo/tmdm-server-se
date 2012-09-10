@@ -140,7 +140,11 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
         List<String> taskIds;
         StorageResults results = staging.fetch(qb.getSelect());
         try {
-            taskIds = new ArrayList<String>(size);
+            if (size > 0) {
+                taskIds = new ArrayList<String>(size);
+            } else {
+                taskIds = new LinkedList<String>();
+            }
             for (DataRecord result : results) {
                 taskIds.add(String.valueOf(result.get("id"))); //$NON-NLS-1$
             }
