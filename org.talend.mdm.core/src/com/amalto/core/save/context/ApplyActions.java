@@ -13,28 +13,18 @@ package com.amalto.core.save.context;
 
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
-import com.amalto.core.metadata.ComplexTypeMetadata;
-import com.amalto.core.metadata.FieldMetadata;
-import com.amalto.core.metadata.MetadataRepository;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.UserAction;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
-import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import javax.xml.XMLConstants;
-
 class ApplyActions implements DocumentSaver {
 
-    private static final Logger LOGGER = Logger.getLogger(ApplyActions.class);
-
     private final DocumentSaver next;
-
-    private MetadataRepository metadataRepository;
 
     ApplyActions(DocumentSaver next) {
         this.next = next;
@@ -48,14 +38,13 @@ class ApplyActions implements DocumentSaver {
             action.perform(validationDocument);
         }
 
-        metadataRepository = session.getSaverSource().getMetadataRepository(context.getDataModelName());
         // Never store empty elements in database
-        clean(context.getType(), databaseDocument.asDOM().getDocumentElement(), EmptyElementCleaner.INSTANCE, false);
+        clean(databaseDocument.asDOM().getDocumentElement(), EmptyElementCleaner.INSTANCE, false);
         if (context.getUserAction() == UserAction.CREATE || context.getUserAction() == UserAction.REPLACE) {
             // See TMDM-4038
-            clean(context.getType(), validationDocument.asDOM().getDocumentElement(), EmptyElementCleaner.INSTANCE, true);
+            clean(validationDocument.asDOM().getDocumentElement(), EmptyElementCleaner.INSTANCE, true);
         } else {
-            clean(context.getType(), validationDocument.asDOM().getDocumentElement(), EmptyElementCleaner.INSTANCE, false);
+            clean(validationDocument.asDOM().getDocumentElement(), EmptyElementCleaner.INSTANCE, false);
         }
         next.save(session, context);
     }
@@ -72,31 +61,19 @@ class ApplyActions implements DocumentSaver {
         return next.getBeforeSavingMessage();
     }
 
-    private void clean(ComplexTypeMetadata type, Element element, Cleaner cleaner, boolean removeTalendAttributes) {
+    private void clean(Element element, Cleaner cleaner, boolean removeTalendAttributes) {
         NodeList children = element.getChildNodes();
         if (removeTalendAttributes) {
             element.removeAttributeNS(SkipAttributeDocumentBuilder.TALEND_NAMESPACE, "type"); //$NON-NLS-1$
-        }
-        ComplexTypeMetadata parentType = type;
-        if (element.getOwnerDocument() != element.getParentNode()) {
-            String fieldName = element.getNodeName();
-            FieldMetadata field = type.getField(fieldName);
-            if (field.getType() instanceof ComplexTypeMetadata) {
-                type = (ComplexTypeMetadata) field.getType();
-            }
-            String actualType = element.getAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type"); //$NON-NLS-1$
-            if (actualType != null && !actualType.trim().isEmpty()) {
-                type = metadataRepository.getComplexType(actualType);
-            }
         }
         for (int i = children.getLength(); i >= 0; i--) {
             Node node = children.item(i);
             if (node instanceof Element) {
                 Element currentElement = (Element) node;
-                clean(type, currentElement, cleaner, removeTalendAttributes);
+                clean(currentElement, cleaner, removeTalendAttributes);
             }
         }
-        if (cleaner.clean(parentType, element)) {
+        if (cleaner.clean(element)) {
             element.getParentNode().removeChild(element);
         }
     }
@@ -105,20 +82,17 @@ class ApplyActions implements DocumentSaver {
         /**
          * Indicates to the caller whether <code>element</code> should be deleted or not.<br/>
          *
-         * @param type    Definition of entity type where <code>element</code> is a field.
-         *                In other words {@link ComplexTypeMetadata#hasField(String)} must return true if implementation
-         *                passes element's name as parameter.
          * @param element An element to clean
          * @return <code>true</code> if element should be removed by caller, <code>false</code> otherwise.
          */
-        boolean clean(ComplexTypeMetadata type, Element element);
+        boolean clean(Element element);
     }
 
     private static class EmptyElementCleaner implements Cleaner {
 
         static Cleaner INSTANCE = new EmptyElementCleaner();
 
-        public boolean clean(ComplexTypeMetadata type, Element element) {
+        public boolean clean(Element element) {
             if (element == null) {
                 return true;
             }
