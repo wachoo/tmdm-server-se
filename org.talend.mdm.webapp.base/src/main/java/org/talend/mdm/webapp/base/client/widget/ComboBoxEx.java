@@ -47,10 +47,10 @@ import com.extjs.gxt.ui.client.util.Util;
 import com.extjs.gxt.ui.client.widget.ComponentHelper;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.ListView;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.ListModelPropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.PropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.TriggerField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.InputElement;
@@ -271,6 +271,10 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
     private boolean useQueryCache = true;
 
     private String valueField;
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
 
     /**
      * Creates a combo box.
