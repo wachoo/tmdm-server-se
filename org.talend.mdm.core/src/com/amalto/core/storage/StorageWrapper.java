@@ -88,7 +88,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     public boolean isUpAndRunning() {
-        return true;
+        return getStorageAdmin() != null;
     }
 
     public String[] getAllClusters(String revisionID) throws XmlServerException {

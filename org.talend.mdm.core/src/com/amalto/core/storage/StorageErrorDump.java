@@ -38,13 +38,13 @@ public class StorageErrorDump implements Storage {
 
     private void handlePrepareError(MetadataRepository repository, boolean force, Exception e) {
         // Dumps types to console
-        LOGGER.error("##### Error during storage preparation (force = " + force + "#####");
-        LOGGER.info("Types:");
-        repository.accept(new ConsoleDumpMetadataVisitor());
-
+        LOGGER.error("##### Error during storage preparation (force = " + force + ") #####");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Types:");
+            repository.accept(new ConsoleDumpMetadataVisitor());
+        }
         // TODO Dumps hibernate mapping (if possible).
         // TODO Dumps hibernate configuration
-
         // Re-throw exception
         throw new RuntimeException(e);
     }
@@ -79,9 +79,10 @@ public class StorageErrorDump implements Storage {
         } catch (Exception e) {
             // Dumps query to console
             LOGGER.error("##### Error during fetch operation #####");
-            LOGGER.info("Query:");
-            userQuery.accept(new UserQueryDumpConsole(LOGGER));
-
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Query:");
+                userQuery.accept(new UserQueryDumpConsole(LOGGER));
+            }
             // Re-throw exception
             throw new RuntimeException(e);
         }
@@ -104,9 +105,10 @@ public class StorageErrorDump implements Storage {
         } catch (Exception e) {
             // Dumps query to console
             LOGGER.error("##### Error during delete operation #####");
-            LOGGER.info("Query:");
-            userQuery.accept(new UserQueryDumpConsole(LOGGER));
-
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Query:");
+                userQuery.accept(new UserQueryDumpConsole(LOGGER));
+            }
             // Re-throw exception
             throw new RuntimeException(e);
         }

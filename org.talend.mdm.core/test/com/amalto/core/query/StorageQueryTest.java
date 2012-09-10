@@ -27,7 +27,6 @@ import com.amalto.xmlserver.interfaces.WhereCondition;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.*;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
@@ -793,7 +792,7 @@ public class StorageQueryTest extends StorageTestCase {
             assertEquals(1, results.getSize());
             assertEquals(3, results.getCount());
             for (DataRecord result : results) {
-                System.out.println(result.get("id"));
+                assertNotNull(result.get("id"));
             }
         } finally {
             results.close();

@@ -95,6 +95,18 @@ public class UserQueryDumpConsole implements Visitor<Void> {
             }
             decreaseIndent();
 
+            print("Paging");
+            increaseIndent();
+            {
+                Paging paging = select.getPaging();
+                if (paging != null) {
+                    paging.accept(this);
+                } else {
+                    print("<NONE>");
+                }
+
+            }
+            decreaseIndent();
         }
         decreaseIndent();
 
@@ -544,7 +556,11 @@ public class UserQueryDumpConsole implements Visitor<Void> {
         increaseIndent();
         {
             print("Start: " + paging.getStart());
-            print("Limit: " + paging.getLimit());
+            if (paging.getLimit() == Integer.MAX_VALUE) {
+                print("Limit: <NO LIMIT>");
+            } else {
+                print("Limit: " + paging.getLimit());
+            }
         }
         decreaseIndent();
         return null;

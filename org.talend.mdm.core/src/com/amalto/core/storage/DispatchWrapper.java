@@ -61,11 +61,11 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
     }
 
     public boolean isUpAndRunning() {
-        if (!userWrapperUp) {
-            userWrapperUp = userStorageWrapper.isUpAndRunning();
-        }
         if (!internalWrapperUp) {
             internalWrapperUp = mdmInternalWrapper.isUpAndRunning();
+        }
+        if (!userWrapperUp) {
+            userWrapperUp = userStorageWrapper.isUpAndRunning();
         }
         return userWrapperUp && internalWrapperUp;
     }

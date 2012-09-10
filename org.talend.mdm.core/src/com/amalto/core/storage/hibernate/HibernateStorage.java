@@ -26,7 +26,6 @@ import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordConverter;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import net.sf.ehcache.CacheManager;
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import org.hibernate.*;
 import org.hibernate.cfg.Configuration;
@@ -35,7 +34,6 @@ import org.hibernate.search.Search;
 import org.hibernate.search.event.ContextHolder;
 import org.hibernate.search.impl.SearchFactoryImpl;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -43,12 +41,17 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.*;
 
 public class HibernateStorage implements Storage {
 
     public static final HibernateStorage.LocalEntityResolver ENTITY_RESOLVER = new HibernateStorage.LocalEntityResolver();
+
+    public static final String CLASS_LOADER = "com.amalto.core.storage.hibernate.DefaultStorageClassLoader"; //$NON-NLS-1$
+
+    public static final String ALTERNATE_CLASS_LOADER = "com.amalto.core.storage.hibernate.FullStorageClassLoader"; //$NON-NLS-1$
 
     private static final Logger LOGGER = Logger.getLogger(HibernateStorage.class);
 
@@ -86,7 +89,7 @@ public class HibernateStorage implements Storage {
     /**
      * Create a {@link StorageType#MASTER} storage.
      *
-     * @param storageName Name for this storage. <b>By convention</b>, this is the MDM container name.
+     * @param storageName Name for this storage. <b>by convention</b>, this is the MDM container name.
      * @see StorageType#MASTER
      */
     public HibernateStorage(String storageName) {
@@ -121,7 +124,7 @@ public class HibernateStorage implements Storage {
         }
         configuration = new Configuration();
         // Setting our own entity resolver allows to ensure the DTD found/used are what we expect (and not potentially ones
-        // provided by the application server.
+        // provided by the application server).
         configuration.setEntityResolver(ENTITY_RESOLVER);
     }
 
@@ -132,6 +135,22 @@ public class HibernateStorage implements Storage {
         if (isPrepared) {
             close();
             internalInit();
+        }
+        // Create class loader for storage's dynamically created classes.
+        ClassLoader contextClassLoader = HibernateStorage.class.getClassLoader();
+        Class<? extends StorageClassLoader> clazz;
+        try {
+            try {
+                clazz = (Class<? extends StorageClassLoader>) Class.forName(ALTERNATE_CLASS_LOADER);
+            } catch (ClassNotFoundException e) {
+                clazz = (Class<? extends StorageClassLoader>) Class.forName(CLASS_LOADER);
+            }
+            Constructor<? extends StorageClassLoader> constructor = clazz.getConstructor(ClassLoader.class, String.class, StorageType.class);
+            storageClassLoader = constructor.newInstance(contextClassLoader, storageName, storageType);
+            storageClassLoader.setDataSourceConfiguration(dataSource);
+            storageClassLoader.generateHibernateConfig(); // Checks if configuration can be generated.
+        } catch (Exception e) {
+            throw new RuntimeException("Could not create storage class loader", e);
         }
         if (dropExistingData) {
             LOGGER.info("Cleaning existing database content.");
@@ -151,7 +170,6 @@ public class HibernateStorage implements Storage {
         } else {
             LOGGER.info("*NOT* preparing database before schema generation.");
         }
-
         // No support for data models including inheritance AND for g* XSD simple types AND fields that start with X_TALEND_
         try {
             MetadataUtils.sortTypes(repository); // Do a "sort" to ensure there's no cyclic dependency.
@@ -160,27 +178,8 @@ public class HibernateStorage implements Storage {
         } catch (Exception e) {
             throw new RuntimeException("Exception occurred during unsupported features check.", e);
         }
-
-        ClassLoader parent = HibernateStorage.class.getClassLoader();
-        switch (storageType) {
-            case MASTER:
-                storageClassLoader = new StorageClassLoader(parent, storageName);
-                break;
-            case STAGING:
-                storageClassLoader = new StorageClassLoader(parent, storageName) {
-                    @Override
-                    protected MappingGenerator getMappingGenerator(Document document, TableResolver resolver) {
-                        return new MappingGenerator(document, resolver, false);
-                    }
-                };
-                break;
-        }
-        storageClassLoader.setDataSourceConfiguration(dataSource);
-
-        ClassLoader contextClassLoader = HibernateStorage.class.getClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(storageClassLoader);
-
             // Mapping of data model types to RDBMS (i.e. 'flatten' representation of types).
             MetadataRepository internalRepository;
             try {
@@ -190,7 +189,6 @@ public class HibernateStorage implements Storage {
             } catch (Exception e) {
                 throw new RuntimeException("Exception occurred during type mapping creation.", e);
             }
-
             // Set MDM type to database resolver.
             Set<FieldMetadata> databaseIndexedFields = new HashSet<FieldMetadata>();
             for (FieldMetadata indexedField : indexedFields) {
@@ -199,7 +197,6 @@ public class HibernateStorage implements Storage {
             }
             TableResolver tableResolver = new StorageTableResolver(databaseIndexedFields);
             storageClassLoader.setTableResolver(tableResolver);
-
             // Master and Staging share same class creator.
             switch (storageType) {
                 case MASTER:
@@ -207,7 +204,6 @@ public class HibernateStorage implements Storage {
                     hibernateClassCreator = new ClassCreator(storageClassLoader);
                     break;
             }
-
             // Create Hibernate classes (after some modifications to the types).
             try {
                 internalRepository.accept(hibernateClassCreator);
@@ -607,7 +603,7 @@ public class HibernateStorage implements Storage {
                     || "gMonthDay".equals(simpleFieldTypeName) //$NON-NLS-1$
                     || "gDay".equals(simpleFieldTypeName)  //$NON-NLS-1$
                     || "gMonth".equals(simpleFieldTypeName)) {  //$NON-NLS-1$
-                throw new NotImplementedException("No support for field type '" + simpleFieldTypeName + "' (field '" + simpleField.getName() + "' of type '" + simpleField.getContainingType().getName() + "').");
+                throw new IllegalArgumentException("No support for field type '" + simpleFieldTypeName + "' (field '" + simpleField.getName() + "' of type '" + simpleField.getContainingType().getName() + "').");
             }
             assertField(simpleField);
             return super.visit(simpleField);
