@@ -89,7 +89,11 @@ public class StorageAdminImpl implements StorageAdmin {
         }
         MetadataRepository metadataRepository = metadataRepositoryAdmin.get(dataModelName);
         Set<FieldMetadata> indexedFields = metadataRepositoryAdmin.getIndexedFields(dataModelName);
-        dataModelStorage.prepare(metadataRepository, indexedFields, hasDataModel, autoClean);
+        try {
+            dataModelStorage.prepare(metadataRepository, indexedFields, hasDataModel, autoClean);
+        } catch (Exception e) {
+            throw new RuntimeException("Could not create storage for container '" + storageName + "' using data model '" + dataModelName + "'.");
+        }
         return dataModelStorage;
     }
 
