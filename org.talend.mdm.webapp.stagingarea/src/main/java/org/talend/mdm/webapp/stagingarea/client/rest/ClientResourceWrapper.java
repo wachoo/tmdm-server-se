@@ -17,7 +17,11 @@ import org.restlet.client.Response;
 import org.restlet.client.Uniform;
 import org.restlet.client.data.MediaType;
 import org.restlet.client.data.Method;
+import org.restlet.client.data.Status;
 import org.restlet.client.resource.ClientResource;
+import org.talend.mdm.webapp.stagingarea.client.i18n.MessagesFactory;
+
+import com.extjs.gxt.ui.client.widget.MessageBox;
 
 public class ClientResourceWrapper {
 
@@ -49,7 +53,12 @@ public class ClientResourceWrapper {
         client.setOnResponse(new Uniform() {
 
             public void handle(Request request, Response response) {
-                callbackHandler.process(request, response);
+                if (response.getStatus() == Status.SUCCESS_OK) {
+                    callbackHandler.process(request, response);
+                } else {
+                    MessageBox.alert(MessagesFactory.getMessages().server_error(response.getStatus().getCode()),
+                            MessagesFactory.getMessages().server_error_notification(), null);
+                }
             }
         });
     }
