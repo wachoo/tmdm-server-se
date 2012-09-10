@@ -55,30 +55,44 @@ class IdQueryHandler extends AbstractQueryHandler {
         String mainTypeName = mainType.getName();
         String className = ClassCreator.PACKAGE_PREFIX + mainTypeName;
 
+        CloseableIterator<DataRecord> emptyIterator = new CloseableIterator<DataRecord>() {
+            public boolean hasNext() {
+                return false;
+            }
+
+            public DataRecord next() {
+                throw new UnsupportedOperationException();
+            }
+
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+
+            public void close() throws IOException {
+                // Nothing to do.
+            }
+        };
+
+        if (idValue == null) {
+            System.out.println("No id, no need to query database!");
+            for (EndOfResultsCallback callback : callbacks) {
+                callback.onEndOfResults();
+            }
+            return new HibernateStorageResults(storage, select, emptyIterator) {
+                @Override
+                public int getCount() {
+                    return 0;
+                }
+            };
+        }
+
         Wrapper loadedObject = (Wrapper) session.get(className, (Serializable) idValue);
 
         if (loadedObject == null) {
             for (EndOfResultsCallback callback : callbacks) {
                 callback.onEndOfResults();
             }
-            CloseableIterator<DataRecord> iterator = new CloseableIterator<DataRecord>() {
-                public boolean hasNext() {
-                    return false;
-                }
-
-                public DataRecord next() {
-                    throw new UnsupportedOperationException();
-                }
-
-                public void remove() {
-                    throw new UnsupportedOperationException();
-                }
-
-                public void close() throws IOException {
-                    // Nothing to do.
-                }
-            };
-            return new HibernateStorageResults(storage, select, iterator) {
+            return new HibernateStorageResults(storage, select, emptyIterator) {
                 @Override
                 public int getCount() {
                     return 0;
@@ -106,9 +120,32 @@ class IdQueryHandler extends AbstractQueryHandler {
                                 public FieldMetadata visit(Alias alias) {
                                     return alias.getTypedExpression().accept(this);
                                 }
+
+                                @Override
+                                public FieldMetadata visit(Timestamp timestamp) {
+                                    return null;
+                                }
+
+                                @Override
+                                public FieldMetadata visit(Revision revision) {
+                                    return null;
+                                }
+
+                                @Override
+                                public FieldMetadata visit(TaskId taskId) {
+                                    return null;
+                                }
                             });
                             if (field != null) {
                                 nextRecord.set(field, next.get(field));
+                            } else {
+                                if (selectedField instanceof Timestamp) {
+                                    nextRecord.getRecordMetadata().setLastModificationTime(next.getRecordMetadata().getLastModificationTime());
+                                } else if (selectedField instanceof TaskId) {
+                                    nextRecord.getRecordMetadata().setTaskId(next.getRecordMetadata().getTaskId());
+                                } else if (selectedField instanceof Revision) {
+                                    nextRecord.setRevisionId(next.getRevisionId());
+                                }
                             }
                         }
                         for (EndOfResultsCallback callback : callbacks) {

@@ -51,8 +51,20 @@ class ItemPKCriteriaResultsWriter implements DataRecordWriter {
     private void doWrite(DataRecord record) {
         writer.write("<r>"); //$NON-NLS-1$
         {
-            writer.write("<t>" + record.get("timestamp") + "</t>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            writer.write("<taskId>" + record.get("taskid") + "</taskId>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            Object timestamp;
+            if (record.getType().hasField("timestamp")) {
+                timestamp = record.get("timestamp");
+            } else {
+                timestamp = record.getRecordMetadata().getLastModificationTime();
+            }
+            Object taskId;
+            if (record.getType().hasField("taskid")) {
+                taskId = record.get("taskid");
+            } else {
+                taskId = record.getRecordMetadata().getLastModificationTime();
+            }
+            writer.write("<t>" + timestamp + "</t>"); //$NON-NLS-1$ //$NON-NLS-2$
+            writer.write("<taskId>" + taskId + "</taskId>"); //$NON-NLS-1$ //$NON-NLS-2$
             writer.write("<n>" + typeName + "</n>"); //$NON-NLS-1$ //$NON-NLS-2$
             writer.write("<ids>"); //$NON-NLS-1$
             List<FieldMetadata> keyFields = itemType.getKeyFields();
