@@ -103,6 +103,11 @@ class SelectAnalyzer extends VisitorAdapter<AbstractQueryHandler> {
     }
 
     @Override
+    public AbstractQueryHandler visit(StringConstant constant) {
+        return null;
+    }
+
+    @Override
     public AbstractQueryHandler visit(IsEmpty isEmpty) {
         return null;
     }

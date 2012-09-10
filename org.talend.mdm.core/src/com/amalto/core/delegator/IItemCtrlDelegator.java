@@ -72,7 +72,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                 throw new XtentisException(err);
             }
 
-            ViewPOJOPK viewPOJOPK = new ViewPOJOPK("Browse_items_"
+            ViewPOJOPK viewPOJOPK = new ViewPOJOPK("Browse_items_" //$NON-NLS-1$
                     + mainPivotName);
             ViewPOJO view = getViewPOJO(viewPOJOPK);
 
@@ -116,7 +116,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                 throw new XtentisException(err);
             }
 
-            ViewPOJOPK viewPOJOPK = new ViewPOJOPK("Browse_items_"
+            ViewPOJOPK viewPOJOPK = new ViewPOJOPK("Browse_items_" //$NON-NLS-1$
                     + conceptName);
             ViewPOJO view = getViewPOJO(viewPOJOPK);
 
@@ -189,9 +189,9 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
             ILocalUser user = getLocalUser();
             HashSet<String> roleNames = user.getRoles();
             ArrayList<IWhereItem> roleWhereConditions = new ArrayList<IWhereItem>();
-            String objectType = "View";
+            String objectType = "View"; //$NON-NLS-1$
             for (String roleName : roleNames) {
-                if ("administration".equals(roleName) || "authenticated".equals(roleName)) {
+                if ("administration".equals(roleName) || "authenticated".equals(roleName)) { //$NON-NLS-1$ //$NON-NLS-2$
                     continue;
                 }
                 //load Role
@@ -238,7 +238,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
             if (storage != null) {
                 MetadataRepository repository = server.getMetadataRepositoryAdmin().get(dataClusterPOJOPK.getUniqueId());
                 // Build query (find 'main' type)
-                String typeName = ((String) view.getSearchableBusinessElements().getList().get(0)).split("/")[0];
+                String typeName = ((String) view.getSearchableBusinessElements().getList().get(0)).split("/")[0]; //$NON-NLS-1$
                 ComplexTypeMetadata type = repository.getComplexType(typeName);
                 if (type == null) {
                     throw new IllegalArgumentException("Type '" + typeName + "' does not exist in data cluster '" + dataClusterPOJOPK.getUniqueId() + "'.");
@@ -248,8 +248,8 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                 // Select fields
                 ArrayListHolder<String> viewableBusinessElements = view.getViewableBusinessElements();
                 for (String viewableBusinessElement : viewableBusinessElements.getList()) {
-                    String viewableTypeName = StringUtils.substringBefore(viewableBusinessElement, "/");
-                    String viewablePath = StringUtils.substringAfter(viewableBusinessElement, "/");
+                    String viewableTypeName = StringUtils.substringBefore(viewableBusinessElement, "/"); //$NON-NLS-1$
+                    String viewablePath = StringUtils.substringAfter(viewableBusinessElement, "/"); //$NON-NLS-1$
                     ComplexTypeMetadata viewableType = repository.getComplexType(viewableTypeName);
                     qb.select(viewableType.getField(viewablePath));
                 }
@@ -261,12 +261,9 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
 
                 // Order by
                 if (orderBy != null) {
-                    FieldMetadata field = type.getField(StringUtils.substringAfter(orderBy, "/"));
-                    if (field == null) {
-                        throw new IllegalArgumentException("Field '" + orderBy + "' does not exist.");
-                    }
+                    FieldMetadata field = type.getField(StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
                     OrderBy.Direction queryDirection;
-                    if ("ascending".equals(direction)) {
+                    if ("ascending".equals(direction)) { //$NON-NLS-1$
                         queryDirection = OrderBy.Direction.ASC;
                     } else {
                         queryDirection = OrderBy.Direction.DESC;
@@ -277,7 +274,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                 // Get records
                 StorageResults results = storage.fetch(qb.getSelect());
                 ArrayList<String> resultsAsString = new ArrayList<String>();
-                resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>");
+                resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>"); //$NON-NLS-1$ //$NON-NLS-2$
                 DataRecordWriter writer = new ViewSearchResultsWriter();
 
                 results = storage.fetch(qb.getSelect());
@@ -299,12 +296,12 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                         universe.getItemsRevisionIDs());
                 if (universe.getDefaultItemRevisionID() != null
                         && universe.getDefaultItemRevisionID().length() > 0)
-                    conceptPatternsToRevisionID.put(".*",
+                    conceptPatternsToRevisionID.put(".*", //$NON-NLS-1$
                             universe.getDefaultItemRevisionID());
 
                 // build the patterns to cluster map - only one cluster at this stage
                 LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
-                conceptPatternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId());
+                conceptPatternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId()); //$NON-NLS-1$
 
                 Map<String, ArrayList<String>> metaDataTypes = getMetaTypes(fullWhere);
                 return runItemsQuery(conceptPatternsToRevisionID,
@@ -454,12 +451,12 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
 
             // Order by
             if (orderBy != null) {
-                FieldMetadata field = type.getField(StringUtils.substringAfter(orderBy, "/"));
+                FieldMetadata field = type.getField(StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
                 if (field == null) {
                     throw new IllegalArgumentException("Field '" + orderBy + "' does not exist.");
                 }
                 OrderBy.Direction queryDirection;
-                if ("ascending".equals(direction)) {
+                if ("ascending".equals(direction)) { //$NON-NLS-1$
                     queryDirection = OrderBy.Direction.ASC;
                 } else {
                     queryDirection = OrderBy.Direction.DESC;
@@ -472,7 +469,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
             ArrayList<String> resultsAsString = new ArrayList<String>();
             if (totalCountOnFirstRow) {
                 results = storage.fetch(qb.getSelect());
-                resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>");
+                resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>"); //$NON-NLS-1$ //$NON-NLS-2$
             }
 
             results = storage.fetch(qb.getSelect());
@@ -481,11 +478,11 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
             for (DataRecord result : results) {
                 try {
                     if (totalCountOnFirstRow) {
-                        output.write("<result>".getBytes());
+                        output.write("<result>".getBytes()); //$NON-NLS-1$
                     }
                     writer.write(result, output);
                     if (totalCountOnFirstRow) {
-                        output.write("</result>".getBytes());
+                        output.write("</result>".getBytes()); //$NON-NLS-1$
                     }
                 } catch (IOException e) {
                     throw new XtentisException(e);
@@ -512,7 +509,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator,
                     universe.getItemsRevisionIDs());
             if (universe.getDefaultItemRevisionID() != null
                     && universe.getDefaultItemRevisionID().length() > 0)
-                conceptPatternsToRevisionID.put(".*",
+                conceptPatternsToRevisionID.put(".*", //$NON-NLS-1$
                         universe.getDefaultItemRevisionID());
 
             // build the patterns to cluster map - only one cluster at this stage

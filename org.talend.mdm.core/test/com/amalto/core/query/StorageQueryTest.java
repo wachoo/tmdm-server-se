@@ -16,10 +16,7 @@ package com.amalto.core.query;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.query.user.*;
 import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.DataRecordReader;
-import com.amalto.core.storage.record.DataRecordXmlWriter;
-import com.amalto.core.storage.record.XmlStringDataRecordReader;
+import com.amalto.core.storage.record.*;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
@@ -1062,4 +1059,27 @@ public class StorageQueryTest extends StorageTestCase {
             assertEquals(expected, result.get("ZipCode"));
         }
     }
+
+    public void testNonValueFieldAndQueryOnId() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(person)
+                .select(person.getField("addresses"), person.getField("id"))
+                .where(eq(person.getField("id"), "1"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        for (DataRecord result : results) {
+            assertEquals(1, result.get("id"));
+            assertEquals("", result.get("addresses"));
+        }
+    }
+
+    public void testNonValueFieldAndQueryOnValue() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(person)
+                .select(person.getField("addresses"), person.getField("id"))
+                .where(eq(person.getField("firstname"), "Juste"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        for (DataRecord result : results) {
+            assertEquals(3, result.get("id"));
+            assertEquals("", result.get("addresses"));
+        }
+    }
+
 }

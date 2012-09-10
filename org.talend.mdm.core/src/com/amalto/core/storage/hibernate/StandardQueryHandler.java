@@ -23,6 +23,8 @@ import org.apache.log4j.Logger;
 import org.hibernate.*;
 import org.hibernate.criterion.*;
 import org.hibernate.sql.JoinFragment;
+import org.hibernate.type.StringType;
+import org.hibernate.type.Type;
 
 import java.util.*;
 
@@ -47,6 +49,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
     private final Map<FieldMetadata, String> joinFieldsToAlias = new HashMap<FieldMetadata, String>();
 
     private List<ComplexTypeMetadata> selectedTypes;
+
+    private String currentAliasName;
 
     public StandardQueryHandler(Storage storage,
                                 MappingRepository mappingMetadataRepository,
@@ -161,7 +165,20 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(Alias alias) {
+        currentAliasName = alias.getAliasName();
         alias.getTypedExpression().accept(this);
+        currentAliasName = null;
+        return null;
+    }
+
+    @Override
+    public StorageResults visit(StringConstant constant) {
+        Projection p = new ConstantStringProjection(currentAliasName, constant.getValue());
+        if (currentAliasName != null) {
+            projectionList.add(p, currentAliasName);
+        } else {
+            throw new IllegalStateException("Expected an alias for a constant expression.");
+        }
         return null;
     }
 
@@ -726,4 +743,30 @@ class StandardQueryHandler extends AbstractQueryHandler {
         }
     }
 
+    private class ConstantStringProjection extends SimpleProjection {
+
+        private final String aliasName;
+
+        private final String constantValue;
+
+        public ConstantStringProjection(String aliasName, String constantValue) {
+            this.aliasName = aliasName;
+            this.constantValue = constantValue;
+        }
+
+        @Override
+        public String toSqlString(Criteria criteria, int position, CriteriaQuery criteriaQuery) throws HibernateException {
+            return "CONCAT('" + constantValue + "', '') as y" + position + "_"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        }
+
+        @Override
+        public String[] getAliases() {
+            return new String[] {aliasName};
+        }
+
+        @Override
+        public Type[] getTypes(Criteria criteria, CriteriaQuery criteriaQuery) throws HibernateException {
+            return new Type[] {new StringType()};
+        }
+    }
 }

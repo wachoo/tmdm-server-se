@@ -114,17 +114,6 @@ public class Select implements Expression {
         if (condition != null) {
             condition = (Condition) condition.normalize();
         }
-        Iterator<TypedExpression> selectedFieldsIterator = selectedFields.iterator();
-        while (selectedFieldsIterator.hasNext()) {
-            TypedExpression selectedField = selectedFieldsIterator.next();
-            if (selectedField instanceof Field) {
-                FieldMetadata fieldMetadata = ((Field) selectedField).getFieldMetadata();
-                if (fieldMetadata instanceof ContainedTypeFieldMetadata) {
-                    LOGGER.warn("Field '" + fieldMetadata.getName() + "' does not contain value and will be ignored.");
-                    selectedFieldsIterator.remove();
-                }
-            }
-        }
         if (selectedFields.isEmpty()) {
             isProjection = false;
         }

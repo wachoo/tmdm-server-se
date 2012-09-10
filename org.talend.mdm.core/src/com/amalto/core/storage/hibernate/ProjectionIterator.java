@@ -115,6 +115,11 @@ class ProjectionIterator extends CloseableIterator<DataRecord> {
                     }
 
                     @Override
+                    public FieldMetadata visit(StringConstant constant) {
+                        return null;
+                    }
+
+                    @Override
                     public FieldMetadata visit(Timestamp timestamp) {
                         if (!isAlias) {
                             return createField(Timestamp.TIMESTAMP_TYPE_NAME, Storage.METADATA_TIMESTAMP);

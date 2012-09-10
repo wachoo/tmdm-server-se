@@ -12,9 +12,11 @@
 package com.amalto.core.query.user;
 
 import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.ContainedTypeFieldMetadata;
 import com.amalto.core.metadata.FieldMetadata;
 import com.amalto.core.metadata.ReferenceFieldMetadata;
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.util.List;
@@ -256,7 +258,6 @@ public class UserQueryBuilder {
         if (type == null) {
             throw new IllegalArgumentException("Type argument cannot be null");
         }
-
         Select select = new Select();
         select.addType(type);
         return new UserQueryBuilder(select);
@@ -266,7 +267,6 @@ public class UserQueryBuilder {
         if (fields == null) {
             throw new IllegalArgumentException("Fields cannot be null");
         }
-
         for (FieldMetadata field : fields) {
             select(field);
         }
@@ -277,8 +277,15 @@ public class UserQueryBuilder {
         if (field == null) {
             throw new IllegalArgumentException("Field cannot be null");
         }
-
-        select.getSelectedFields().add(new Field(field));
+        TypedExpression typedExpression;
+        if (field instanceof ContainedTypeFieldMetadata) {
+            // Selecting a field without value is equivalent to select "" (empty string) with an alias name equals to
+            // selected field. (see MSQL-50)
+            typedExpression = new Alias(new StringConstant(StringUtils.EMPTY), field.getName());
+        } else {
+            typedExpression = new Field(field);
+        }
+        select.getSelectedFields().add(typedExpression);
         select.setProjection(true);
         return this;
     }
@@ -297,7 +304,6 @@ public class UserQueryBuilder {
         if (condition == null) {
             throw new IllegalArgumentException("Condition cannot be null");
         }
-
         if (select.getCondition() == null) {
             select.setCondition(condition);
         } else {
@@ -342,7 +348,6 @@ public class UserQueryBuilder {
         if (field == null) {
             throw new IllegalArgumentException("Field cannot be null");
         }
-
         Field userField = new Field(field);
         select.setOrderBy(new OrderBy(userField, direction));
         return this;
@@ -381,7 +386,6 @@ public class UserQueryBuilder {
                 throw new IllegalArgumentException("Left field '" + leftReferencedField.getName() + "' is a FK, but right field isn't the one left is referring to.");
             }
         }
-
         Field leftUserField = new Field(leftField);
         Field rightUserField = new Field(rightField);
         // Implicit select joined type if it isn't already selected
@@ -410,7 +414,6 @@ public class UserQueryBuilder {
         if (!(field instanceof ReferenceFieldMetadata)) {
             throw new IllegalArgumentException("Field must be a reference field.");
         }
-
         return join(field, ((ReferenceFieldMetadata) field).getReferencedField());
     }
 
@@ -418,7 +421,6 @@ public class UserQueryBuilder {
         if (start < 0) {
             throw new IllegalArgumentException("Start index must be positive");
         }
-
         select.getPaging().setStart(start);
         return this;
     }
